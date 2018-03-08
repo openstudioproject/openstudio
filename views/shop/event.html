@@ -1,0 +1,90 @@
+{{extend 'layout_shop.html'}}
+{{block header}}
+{{try:}}{{=breadcrumb}}{{except:}}{{pass}}{{pass}}
+{{try:}}{{=back}}{{except:}}{{pass}}{{pass}}
+{{try:}}{{=header_tools}}{{except:}}{{pass}}{{pass}}
+{{end}}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="box box-solid">
+            <div class="box-body">
+                {{=content}}
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function() {
+        // globally available variabled in this function
+        $fullws_book_now = $("a.fullws_book_now");
+    
+        // hide all workshop prices
+        $('.fullws_price').fadeIn();
+        $fullws_book_now.fadeIn();
+        
+        
+        // Check if we should show the book button
+        if ( !$('label.fullws').hasClass('sold_out') ) {
+            $fullws_book_now.show();
+        }
+   
+        // handler for label click
+        $('label.btn').click(function() {
+            var $id = $(this).attr('id');
+            var fullws = $(this).hasClass('fullws');
+            var sold_out = $(this).hasClass('sold_out');
+            
+            update_activities_and_price($id, fullws, sold_out);
+        }); // end button click
+            
+        $("#workshops-products-select").on('change', function() {
+            console.log('changed');
+            var $id = this.value;
+            var fullws = $("#workshops-products-select option:selected" ).hasClass('fullws');
+            var sold_out = $("#workshops-products-select option:selected" ).hasClass('sold_out');
+            
+            update_activities_and_price($id, fullws, sold_out);
+            
+        }); // end select on change
+                       
+                       
+        function update_activities_and_price($id, fullws, sold_out) {
+            var $book_now = $('#add_to_cart_'+$id);
+            
+            // hide all workshop prices
+            $('.workshop_price').hide();
+            // hide all book buttons
+            $('.workshop_book_now').hide();
+
+            // Show/hide activities 
+            // Show all for full workshop
+            if (fullws) {
+                $('div.workshop-activity').each(function() {
+                   $(this).fadeIn();
+                });
+            } else {
+                $('div.workshop-activity').each(function() {
+                    if ($(this).hasClass($id)) {
+                        $(this).fadeIn();
+                    } else {
+                        $(this).fadeOut();
+                    }
+                });
+            }
+            
+            $('#wsp_price_'+$id).show();
+            
+            // Change link of add to cart button to contain selected workshop product id
+            //TODO: Change this so it shows/hides buttons
+            // $book_now.attr("href", "/shop/workshop_add_to_cart?wspID=" + $id);
+            if (!sold_out) {
+                $book_now.show();
+            }
+        }
+
+        
+    });
+</script>

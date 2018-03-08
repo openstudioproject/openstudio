@@ -1,0 +1,90 @@
+<!--
+
+    Created by Edwin van de Ven (edwin@openstudioproject.com)
+    License: GPLv2 or v3
+
+-->
+<script>
+	var $input = $("#sidebar-search");
+	var $sidebar_search_btn_icon = $('#search-btn i.fa')
+	var $target = $("div#customers_list");
+	
+	var typingTimer = null;
+	var doneTypingInterval = 500;
+
+
+    /* A timer is used to prevent submitting for each keystroke while the user is typing */
+	$input.keyup(function() {
+	    if (typingTimer) clearTimeout(typingTimer);
+	    $target.html('{{=os_gui.get_ajax_loader(message=T("Searching..."))}}');
+	    typingTimer = setTimeout(function() { 
+		customers_set_list_search($input, $target);
+	    }, doneTypingInterval);
+	}); // end input keyup
+    
+    $(document).ready(function() {
+        // Attendance list begin
+        $input.val('');
+        $input.focus();
+        $sidebar_search_btn_icon.removeClass('fa-search');
+        $sidebar_search_btn_icon.addClass('fa-times');
+        
+        // Attendance list end
+        
+        // Attendance search begin 
+        var show_search_results = false;
+        var search_results_shown = false;
+        
+        var $search_results = $('#customers_list');
+        var $input_search = $('#sidebar-search');
+        var $input_search_clear = $('#search-btn i.fa');
+        
+        $input_search.focus();
+        
+        $input_search.keyup(function() {
+            var $val = $(this).val();
+            
+            if ($val.length > 0) {
+                show_search_results = true;
+            } else {
+                show_search_results = false;
+            }
+            
+            show_hide_search_results()
+        }); // end search handler
+        
+        function show_hide_search_results() {
+            if (show_search_results == true && search_results_shown == false) {
+                $search_results.slideDown();
+                search_results_shown = true;
+            } else {
+                if (show_search_results == false && search_results_shown == true) {
+                    $search_results.slideUp();    
+                    search_results_shown = false;
+                }
+            }
+        } // end show_hide_search_results
+        // Attendance search end
+        
+        /* Prevent submit on pressing enter */
+        $(document).on("keypress", 'form', function (e) {
+            var code = e.keyCode || e.which;
+            if (code == 13) {
+                e.preventDefault();
+                return false;
+            }
+        }); // end prevent submit on pressing enter
+        
+        $('#search-btn').click(function(event) {
+            event.preventDefault();
+            $input.val('');
+            customers_set_list_search($input, $target);	
+            show_search_results = false;
+            show_hide_search_results();
+            $input.focus();
+        }); // end search btn click
+        
+        
+    }); // end document ready
+</script>
+

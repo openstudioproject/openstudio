@@ -1,0 +1,35 @@
+{{extend 'layout_shop.html'}}
+{{block header}}
+{{try:}}{{=header_tools}}{{except:}}{{pass}}{{pass}}
+{{end}} 
+
+{{try:}}{{=breadcrumb}}{{except:}}{{pass}}{{pass}}
+{{try:}}{{=back}}{{except:}}{{pass}}{{pass}}
+
+
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="box box-solid">
+            <div class="box-body">
+                <div class='center'>
+                    {{=logo_login}}
+
+                    {{try:}}{{=H3(company_name)}}<br>{{except:}}{{pass}}{{pass}}
+                    <div class="grey">
+                        {{try:}}{{=company_address}}<br>{{except:}}{{pass}}{{pass}}
+                        {{try:}}{{=company_email}}<br>{{except:}}{{pass}}{{pass}}
+                        {{try:}}{{=company_phone}}<br>{{except:}}{{pass}}{{pass}}
+                        {{try:}}{{=company_registration}}<br>{{except:}}{{pass}}{{pass}}
+                        {{ if company_terms_conditions_url: }}
+                            {{try:}}<br>{{=A(T('Terms and conditions'), _href=company_terms_conditions_url, _target="_blank")}}<br>{{except:}}{{pass}}{{pass}}
+                        {{ pass }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+

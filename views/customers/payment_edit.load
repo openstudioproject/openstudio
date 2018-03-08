@@ -1,0 +1,8 @@
+<br>
+{{=title}}
+{{=content}}
+
+{{block right_sidebar}}
+{{end}}
+
+<script> set_form_classes(); </script>

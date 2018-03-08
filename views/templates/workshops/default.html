@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!--[if !HTML5]>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge{{=not request.is_local and ',chrome=1' or ''}}">
+    <![endif]-->
+    <!-- www.phpied.com/conditional-comments-block-downloads/ -->
+    <!-- Always force latest IE rendering engine
+         (even in intranet) & Chrome Frame
+         Remove this if you use the .htaccess -->
+
+    <meta charset="utf-8" />
+
+    <!-- http://dev.w3.org/html5/markup/meta.name.html -->
+    <meta name="application-name" content="{{=request.application}}" />
+    
+    <!-- link stylesheets -->
+    <link rel="stylesheet" href="{{=URL('static','plugin_fa/css/font-awesome.min.css', host=True, scheme=True)}}"/>
+
+    <style>
+        @page { size: a4; }
+
+        @media screen {
+            body { 
+                height:297mm; 
+                width:210mm; 
+                margin-left:auto; 
+                margin-right:auto; 
+            }
+        }
+
+        body {
+            font-size: 12px;
+            font-family: sans-serif;
+            line-height: 1.2em;
+        }
+
+        .right { float: right; }
+        .left { float: left; }
+
+        .clear { clear:both; }
+
+        .grey { color: #777; }
+
+        .bold { font-weight: bold; }
+
+        .text-left { text-align: left; }
+
+        .text-right { text-align: right; }
+
+        .text-center { text-align: center; }
+        
+        .text-justify { text-align: justify; }
+        
+        .small-font { font-size: 82%; }
+
+        table { border-collapse: collapse; }
+
+        footer {
+            font-size: 90%;
+            position: fixed;
+            bottom: 50px;
+            width: 100%;
+            text-align: center;
+            padding-top: 10px;
+            border-top: 2px solid #EAEAEA;
+        }
+
+        .footer-inner {
+            margin-left: 75px;
+            margin-right: 75px;
+        }
+
+        table.table-info {
+            display: inline-block;
+            margin: 1em 0 2em 0;
+
+            font-size: 90%;
+            margin: 10px 0 20px 0;
+        }
+
+        .table-items {
+            width: 100%;
+            margin: 20px 0 50px 0;
+            font-size: 70%;
+        }
+
+        .table-items td,
+        .table-items th {
+            font-weight: normal;
+            padding: 8px 5px 8px 5px;
+            border: 0;
+        }
+
+        .table-items tbody tr:nth-child(odd) {
+            background-color: #EAEAEA;
+        }
+
+        .table-items thead tr th {
+            border-bottom-style: solid;
+            border-bottom: 1px solid #CCC;
+        }
+
+
+        .border-top {
+            border-top: 1px solid #CCC;
+        }
+
+        #description {
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 44px;
+        }
+        
+        h2 {
+            font-size: 24px;
+            color: #777;
+        }
+
+        img {
+            width: 400px;
+            height: 400px;
+            
+            text-align: center;
+            margin-top: 12px;
+            margin-bottom: 12px;
+            border-radius: 50%;
+        }
+        
+        .info {
+            margin-top: 30px;
+            padding-top: 0px;
+            border-top: 1px solid #EAEAEA;
+        }
+        
+        .price {
+            margin-top: 30px;
+            color: #777;
+            #font-weight: 900;
+            font-size: 20px;
+        }
+        
+        .icon-text {
+            margin-top: 22px;
+            display: inline-block;
+            vertical-align: middle;
+            color: #777;   
+            font-size: 14px;
+        }
+        
+        .info .fa {
+            margin: 22px 6px 0 12px;
+            color: #9F9F9F;
+            font-size: 30px;
+            vertical-align: middle;
+            
+        }
+        
+        .info .fa-clock-o { 
+            font-size: 32px;
+        }
+
+    </style>
+
+</head>
+
+<body>
+    <div class='text-center'>
+        <h1>{{=workshop.Name}}</h1>
+        <h2>With {{=workshop.auth_teacher_name}}</h2>
+    </div>
+    <div class='text-center'>
+        <img src="{{=workshop_image_url}}">
+    </div>
+    <div id="description" class='text-justify grey'>
+        {{=XML(workshop.Description)}}
+    </div>
+    <div class="info text-center">
+        <i class="fa fa-calendar-o"></i> <div class="icon-text">{{=dates['date_from'].strftime(DATE_FORMAT)}} {{if dates['date_until']:}} - {{=dates['date_until'].strftime(DATE_FORMAT)}} {{pass}} </div>
+        <i class="fa fa-clock-o"></i> <div class="icon-text">{{=times['time_from'].strftime(TIME_FORMAT)}} {{if times['time_until']:}} - {{=times['time_until'].strftime(TIME_FORMAT)}} {{pass}} </div>
+        <i class="fa fa-home"></i> <div class="icon-text">{{=workshop.school_location}} </div>
+        <div class="price">{{=CURRSYM}} {{=price}}</div>
+    </div>
+
+</body>
+
+
+</html>

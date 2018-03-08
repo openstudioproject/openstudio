@@ -1,0 +1,22 @@
+
+\.bzr/
+
+\.bzrignore
+
+\.idea/
+
+\.vscode/
+
+\.pythonhistory
+
+Development docs/
+
+tests/\.cache/
+
+tests/controllers/__pycache__/
+
+*.md~
+
+*.pyc
+
+\.gitignore~

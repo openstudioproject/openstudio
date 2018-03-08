@@ -1,0 +1,23 @@
+{{extend 'layout.html'}}
+{{block header}}
+    {{try:}}{{=breadcrumb}}{{except:}}{{pass}}{{pass}}
+    {{try:}}{{=back}}{{except:}}{{pass}}{{pass}}
+    {{try:}}{{=header_tools}}{{except:}}{{pass}}{{pass}}
+    {{try:}}{{=save}}{{except:}}{{pass}}{{pass}}
+    {{try:}}{{=add}}{{except:}}{{pass}}{{pass}}
+
+{{end}}
+
+<div class="box box-primary">
+    <div class="box-header with-border">
+        <h3 class="box-title">{{=box_title}}</h3>
+    </div>
+    <div class="box-body">
+        {{=content}}
+    </div>
+    <div class="box-footer">
+        {{=footer}}
+    </div>
+</div>    
+
+

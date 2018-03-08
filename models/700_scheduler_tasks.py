@@ -1,0 +1,124 @@
+# # -*- coding: utf-8 -*-
+
+import datetime
+import Mollie
+
+from openstudio import Customer, CustomerSubscription, Invoice, OsMail
+
+
+def task_openstudio_daily():
+    '''
+        Daily tasks for OpenStudio
+    '''
+    today = datetime.date.today()
+    if today.day == 1:
+        _task_mollie_subscription_invoices_and_payments()
+
+    return 'Success'
+
+
+def _task_mollie_subscription_invoices_and_payments():
+    '''
+        Create subscription invoices for subscriptions with payment method 100
+        Collect payment for these invoices
+    '''
+    def send_mail_failed(cuID):
+        '''
+            When a recurring payment fails, mail customer with request to pay manually
+        '''
+        os_mail = OsMail()
+        msgID = os_mail.render_email_template('email_template_payment_recurring_failed')
+        os_mail.send(msgID, cuID)
+
+    # set up Mollie
+    mollie = Mollie.API.Client()
+    mollie_api_key = get_sys_property('mollie_website_profile')
+    mollie.setApiKey(mollie_api_key)
+    # set dates
+    today = datetime.date.today()
+    firstdaythismonth = datetime.date(today.year, today.month, 1)
+    lastdaythismonth = get_last_day_month(firstdaythismonth)
+
+    # call some function to do stuff
+
+    # find all active subscriptions with payment method 100 (Mollie)
+    query = (db.customers_subscriptions.payment_methods_id == 100) & \
+            (db.customers_subscriptions.Startdate <= lastdaythismonth) & \
+            ((db.customers_subscriptions.Enddate >= firstdaythismonth) |
+             (db.customers_subscriptions.Enddate == None))
+    rows = db(query).select(db.customers_subscriptions.ALL)
+
+    # create invoices
+    for i, row in enumerate(rows):
+        cs = CustomerSubscription(row.id)
+        # This function returns the invoice id if it already exists
+        iID = cs.create_invoice_for_month(TODAY_LOCAL.year, TODAY_LOCAL.month)
+
+        #print 'invoice created'
+        #print iID
+
+        # Do we have an invoice?
+        if not iID:
+            continue
+
+        invoice = Invoice(iID)
+
+        # Only do something if the invoice status is sent
+        if not invoice.invoice.Status == 'sent':
+            continue
+
+        # We're good, continue processing
+        invoice_amounts = invoice.get_amounts()
+        #print invoice.invoice.InvoiceID
+        description = invoice.invoice.Description + ' [' + invoice.invoice.InvoiceID + ']'
+        db.commit()
+
+        #create recurring payments using mandates
+        #subscription invoice
+        customer = Customer(row.auth_customer_id)
+        mollie_customer_id = customer.row.mollie_customer_id
+        mandates = customer.get_mollie_mandates()
+        # set default recurring type, change to recurring if a valid mandate is found.
+        if mandates['count'] > 0:
+            # background payment
+            for mandate in mandates:
+                if mandate['status'] == 'valid':
+                    valid_mandate = True
+                    break
+
+            if valid_mandate:
+                # Do a normal payment, probably an automatic payment failed somewhere in the process
+                # and customer should pay manually now
+                try:
+                    payment = mollie.payments.create({
+                        'amount': invoice_amounts.TotalPriceVAT,
+                        'customerId': mollie_customer_id,
+                        'recurringType': 'recurring',  # important
+                        'description': description,
+                        'metadata': {
+                            'invoice_id': invoice.invoice.id,
+                            'customers_orders_id': 'invoice' # This lets the webhook function know it's dealing with an invoice
+                        }
+                    })
+
+                    #print payment
+                except Mollie.API.Error as e:
+                    # send mail to ask customer to pay manually
+                    send_mail_failed(cs.auth_customer_id)
+                    # return error
+                    return 'API call failed: ' + e.message
+        else:
+            # send mail to ask customer to pay manually
+            send_mail_failed(cs.auth_customer_id)
+
+
+    # For scheduled tasks, db has to be committed manually
+    db.commit()
+
+
+def scheduler_task_test():
+    return 'success!'
+
+
+
+scheduler_tasks = {'daily': task_openstudio_daily}

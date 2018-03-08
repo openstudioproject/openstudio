@@ -1,0 +1,1154 @@
+body {
+    height: 100%;
+}
+
+.content-wrapper {
+    min-height: 100%;
+}
+
+.content {
+    min-height: 100%;
+}
+
+.full-width {
+    width: 100%;
+}
+
+.inline-block {
+    display: inline-block;
+}
+
+.select-narrow select {
+    width: 224px;
+}
+
+.unselectable {
+   -moz-user-select: -moz-none;
+   -khtml-user-select: none;
+   -webkit-user-select: none;
+
+   /*
+     Introduced in IE 10.
+     See http://ie.microsoft.com/testdrive/HTML5/msUserSelect/
+   */
+   -ms-user-select: none;
+   user-select: none;
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+.not-clickable {
+    cursor: not-allowed;
+}
+
+.movable {
+    cursor: move;
+}
+
+.center {
+    text-align: center;
+}
+
+.small_font {
+    font-size: 92%;
+}
+.smaller_font {
+    font-size: 84%;
+}
+
+.vsmall_font {
+    font-size: 74%;
+}
+
+.big_font {
+    font-size: 120%;
+}
+
+.big_check {
+    font-size: 130%;
+    margin-right: 12px;
+}
+
+.very_big_check {
+	font-size: 140%;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.grey { color: #999; }
+.grey-dark { color: #555; }
+.grey-light { color: #BBB; }
+.blue { color: #4679BD; }
+.green { color: #11A05E; }
+.red { color: #CC160D; }
+.orange { color: #EF8F00; }
+.purple { color: #AD7FA8; }
+.yellow { color: #FCE94F; }
+.default-color { color: #333; }
+
+.bg_light_blue { background: #729fcf; }
+.bg_blue { background: #4679BD; }
+.bg_green { background: #11A05E; }
+.bg_orange { background: #EF8F00; }
+.bg_red { background: #CC160D; }
+.bg_purple { background: #AD7FA8; }
+.bg_yellow { background: #FCE94F; }
+.bg_grey { background: #777; }
+
+.red_border { border: 1px solid #CC160D; }
+
+a.red:hover,
+a.red:active,
+a.red:focus,
+a.red:visited { 
+	color: #CC160D;
+	text-decoration: none;
+}
+
+.os_label {
+    border-radius: 2px;
+    font-size: 90%;
+    padding: 2px 6px 2px 6px;
+    margin-top: 1px;
+    margin-bottom: 1px;
+}
+
+.big {
+    font-size: 120%;
+}
+
+.line-through {
+    text-decoration: line-through !important;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.ul_liststyle_none {
+    list-style-type: none;
+}
+
+.noscroll {
+    overflow: hidden;
+}
+
+.inline-block {
+    display: inline-block;
+}
+
+.clear {
+    clear: both;
+}
+
+.no-padding-left {
+    padding-left: 0;
+}
+
+.no-margin-top {
+    margin-top: 0;
+}
+
+/* bootstrap mods */
+.input-group {
+    margin-bottom: 10px;
+}
+
+.sidebar .input-group {
+    margin-bottom: 0px;
+}
+
+.btn-margin {
+    margin-right: 4px;
+}
+
+.btn {
+    background-image: none;
+    margin-right: 4px;
+}
+
+.btn-group {
+    margin-right: 4px;
+}
+
+.btn-group .btn {
+    margin-right: 0;
+}
+
+.alert {
+    background-image: none;
+}
+
+.dropdown-menu>li>a:hover {
+    background-image: none;
+}
+
+form input,
+form select,
+form textarea {
+    margin-bottom: 10px;
+}
+
+form label {
+    margin-right: 6px;
+}
+
+#submit_record__row {
+    display: none;
+}
+
+#settings_branding_logos #submit_record__row {
+        display: table-row;
+}
+
+
+#sidebar-search {
+    margin-top: 0px;
+}
+
+ul.dropdown-menu {
+    border-radius: 0;
+}
+
+/* bootstrap mods end */
+
+/* Pinboard begin */
+td.os-date_month_name {
+    width: 90px;
+}
+/* Pinboard end */
+
+/* Customer image definitions for list begin */
+td.os-table_date,
+th.os-table_date {
+    width: 7em;
+}
+
+td.os-customer_image_td {
+    width: 62px;
+}
+
+.customer_image {
+	padding:3px;
+	width:56px;
+}
+
+.customer_image img {
+	border-style:solid;
+	border-width:1px;
+    border-radius: 50%;
+	padding:2px;
+	width:40px;
+	height:40px;
+}
+
+.customer_active_marker {
+    float:right;
+    width:5px;
+    height:5px;
+    margin:2px;
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    -o-border-radius: 50%;
+    border-radius: 50%;
+    background: #4679BD;
+}
+
+/* Customer image definitions for list end */
+
+
+/* Customer image definitions for edit begin */
+.customer_image_edit img {
+	width:68%;
+	height:68%;
+	padding:5px;
+	border-style:solid;
+	border-width:1px;
+    border-color: #999;
+    border-radius: 4px;
+
+}
+/* Customer image definitions for edit end */
+
+.customers_edit_tools {
+	margin-left:54%;
+}
+.customers_edit_container {
+	margin-top:5px;
+}
+
+.customers_edit_container #customers_id {
+    margin-right: 25%;
+}
+
+.customers_edit_container tr td:first-child {
+    width: 84px;
+}
+
+.customers_edit_container .input-group {
+    margin: 0px 0px 10px 6px;
+    width: 100%;
+}
+
+.customers_edit_container .input-group .btn {
+    margin-right: 0px;
+}
+
+.customers_edit_container .input-group input {
+    margin: 0;
+}
+
+
+
+.customers_edit_basic_info {
+	padding-top:3px;
+}
+.customers_edit_basic_info input,
+.customers_edit_address_info input,
+.customers_edit_basic_info select,
+.customers_edit_address_info select {
+    margin-left: 6px;
+}
+.customers_edit_notes button {
+    margin-top: 10px;
+}
+
+div.customers_edit_address_info {
+    margin-bottom:0px;
+}
+
+/* .load_list_customers div table.table tbody tr:first-child */
+
+#customers_load_list > div > table > tbody > tr:nth-child(1) > td,
+#attendance_list_customers_list > div > table > tbody > tr:nth-child(1) > td {
+    border-top: none;
+}
+
+.os-customer_image_td
+
+div#classes_customers_searchform form {
+    margin: 0 0 10px 0;
+}
+
+div#classes_customers_searchform form input[type="text"] {
+    width: 260px;
+}
+
+#classes_customers_searchform input[type="Submit"] {
+    margin-bottom: 12px;
+}
+
+
+
+/* ul #os-customers_notes  begin */
+
+ul#os-customers_notes {
+    list-style-type: none;
+    padding: 0px;
+    margin: 0px;
+}
+
+ul#os-customers_notes li {
+    padding: 20px 20px 20px 20px;
+    border-bottom: 1px solid #EAEAEA;
+    border-radius: 4px;
+}
+
+div.os-customers_note_latest {
+    margin-bottom: 100px;
+    border: 1px solid #CCC;
+    padding: 4px 6px 4px 6px;
+    margin: 10px 3px 0 6px;
+    min-height: 60px;
+    width: 100%;
+}
+
+ul#os-customers_notes span.icon-pencil {
+    padding-right: 6px;
+}
+
+ul#os-customers_notes li:hover {
+    background-color: #F5F5F5;
+}
+
+.os-customers_notes_edit form {
+    margin:0;
+}
+
+.os-customers_notes_edit textarea {
+    width: 98%;
+    min-height: 110px;
+    max-width: 98%;
+    height: 50px;
+    margin-top: 6px;
+    margin-bottom: 10px;
+}
+
+.os-customers_notes_edit input[type='submit'],
+.os-customers_notes_edit .btn-default
+ {
+    margin: 0 4px 6px 0;
+}
+
+.os-customers_notes_edit input[type='checkbox'] {
+    padding-top: 6px;
+}
+
+/* ul #os-customers_notes end */
+
+/* Workshop image definitions for list begin */
+
+.workshop_img i {
+		color: #777;
+		font-size: 40px;
+}
+
+.workshop_image img {
+    padding: 2px;
+    width: 40px;
+    height: 40px;
+}
+
+.workshop_image_large {
+    width: 100%;
+    height: 100%;
+}
+
+.workshop_image_large img {
+    padding: 2px;
+    width: 100%;
+    height: 100%;
+}
+
+th.workshop_image_th {
+    width: 62px;
+}
+
+
+/* Workshop image definitions for list end */
+
+
+/* Status markers begin */
+
+td.td_status_marker,
+th.td_status_marker {
+    width: 20px;
+    padding-right: 6px;
+}
+
+.status_marker {
+    float:left;
+    width:8px;
+    height:8px;
+    margin:5px 2px 2px 2px;
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    -o-border-radius: 50%;
+    border-radius: 50%;
+}
+
+table#class_status {
+    margin: 0px;
+}
+
+#class_status p {
+    float:left;
+    font-size:14px;
+    font-weight: bold;
+}
+
+table#class_status {
+    border-style: solid;
+    border-width: 0px 0px 3px 0px;
+}
+
+table#class_status.cancelled {
+    border-color: #EF8F00;
+}
+
+table#class_status.open {
+    border-color: #CC160D;
+}
+
+table#class_status.normal {
+    border-color: #11A05E;
+}
+
+table#class_status.sub {
+    border-color: #4679BD;
+}
+/* Status markers end */
+
+/* Class Schedule begin */
+
+@media screen and (min-width: 768px) {
+    #schedule_toolbox.stick {
+        margin-top: 0 !important;
+        position: fixed;
+        top: -4px;
+        margin-left: 0px;
+        margin-right: 15px;
+        z-index: 10000;
+        width: inherit;
+        background-color: rgba(255, 255, 255, 0.95);
+    }
+}
+
+.schedule_day_chooser {
+    display: inline-block;
+}
+
+.schedule_day_chooser a {
+    display: inline-block;
+    padding: 6px 3px 0 3px;
+}
+
+.schedule_day_chooser a:active,
+.schedule_day_chooser a:focus {
+    text-decoration: none;
+    font-weight: bold;
+    color: #999;
+}
+
+#schedule_form_week {
+    margin-bottom: 10px;
+}
+
+
+table.os-schedule tr.os-table_header,
+table.os-schedule tr.os-schedule_links {
+    border: none;
+}
+
+table.os-schedule th.location { width: 12%; }
+table.os-schedule th.classtype { width: 15%; }
+table.os-schedule th.time { width: 12%; }
+table.os-schedule th.teacher { width: 15%; }
+table.os-schedule th.level { width: 10%; }
+table.os-schedule th.api { width: 7%; }
+table.os-schedule th.trend { width: 12%; }
+
+table.os-schedule tr.os-schedule_links { font-size: 90%; }
+
+table.os-schedule tr.os-table_header:hover {
+    background: #FFF;
+}
+
+table.os-schedule tr.os-table_header th {
+    padding: 8px 0 8px 0;
+}
+
+table.os-schedule {
+    width:100%;
+}
+
+table .location { width: 8em; }
+table .classtype { width: 14em; }
+table .class_time { width: 8em; }
+table .class_date { width: 8em; }
+table .class_level { width: 8em; }
+table .class_teacher { width: 20em; }
+
+
+table.os-schedule tr {
+    height: 20px;
+    border-top-style: solid;
+    border-top-width: 1px;
+    border-top-color: #EAEAEA;
+}
+
+table.os-schedule tr.holiday {
+    height: 56px;
+    vertical-align: top;
+}
+
+table tr.os-schedule_class {
+    height: 36px;
+}
+
+table tr.os-schedule_class .schedule_buttons {
+    padding-top: 6px;
+}
+
+
+table.os-schedule tr:hover {
+    background: #F5F5F5;
+}
+
+div.os-schedule_links {
+    color: #AFAFAF;
+    background-color: #F5F5F5;
+}
+
+div.os-trend_arrow_up {
+    display:inline-block;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 6px 6px 6px;
+    border-color: transparent transparent #11a05d transparent;
+    margin-right: 6px;
+}
+
+div.os-trend_arrow_down {
+    display:inline-block;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 6px 6px 0 6px;
+    border-color: #cc160d transparent transparent transparent;
+    margin-right: 6px;
+    margin-bottom: 5px
+}
+
+.os-trend_avg_4_weeks { 
+	width: 36px; 
+	margin-right: 6px;
+}
+
+#classes_schedule_week_status_text {
+    padding: 4px 6px;
+    display: inline-block;
+}
+
+/* Class Schedule end */
+
+/* Attendance check-in options begin */
+
+ul.check-in_options {
+    padding: 0;
+    list-style-type: none;
+    font-size: 150%;
+}
+
+ul.check-in_options li {
+    margin: 6px 0 6px 0;
+}
+
+ul.check-in_options li .btn {
+    text-align: left;
+    background-image: none;
+}
+
+/* Attendance check-in options end */
+
+/* Classes attendance begin */
+
+div.os-attendance_buttons {
+    margin-left: 530px;
+}
+
+td.very_big_check {
+    width: 35px;
+}
+
+.btn-checkin { width: 80px; }
+
+
+/* Classes attendance end */
+
+/* Tasks begin */
+
+td.btn_task_finished {
+    width: 24px;
+    width: 24px;
+}
+
+td.btn_task_finished a:hover {
+    color: #11A05E;
+}
+
+#tasks_user_filter {
+    margin: 0 10px 0 0;
+    width: 240px;
+    display: inline-block;
+}
+
+.tasks-status-filter {
+    margin-bottom: 10px;
+}
+
+.tasks-status-filter .btn {
+    height: 34px;
+}
+
+td.task {
+    width: 270px;
+}
+
+td.task a,
+td.task span {
+    text-decoration: none;
+}
+
+td.task a:hover,
+td.task a:focus {
+    color:#333;
+    text-decoration: underline;
+}
+
+
+/* Tasks end */
+
+/* Ajax loader begin */
+
+.ajax_loader {
+    padding: 15px 0 0 15px;
+}
+
+.ajax_loader img {
+    width: 18px;
+    height: 18px;
+    margin-right: 0.5em;
+}
+
+.ajax_loader {
+    padding: 20px;
+}
+
+/* Ajax loader end */
+
+
+
+
+/* Invoice items begin */
+
+table.invoice-items textarea {
+    height: 34px;
+    max-width: 320px;
+}
+
+table.invoice-items tfoot,
+table.order-items tfoot,
+table.teacher-classes-revenue tfoot {
+    border-top: 2px solid #CCC;
+}
+
+table.invoice-items tfoot td,
+table.order-items tfoot td {
+    border: none;
+}
+
+table.invoice-items input,
+table.invoice-items select {
+    margin-left: 0px;
+}
+
+table.invoice-items tr td:first-child,
+table.invoice-items tr th:first-child {
+    padding: 8px 3px 8px 3px;
+    width: 14px;
+}
+
+table.invoice-items th.ProductName {
+    width: 160px;
+}
+
+table.invoice-items th.TaxRate {
+    width: 110px;
+}
+
+table.invoice-items th.Description,
+table.invoice-items td.Description {
+    width: 240px;
+}
+
+table.invoice-items th.Quantity {
+    width: 60px;
+}
+table.invoice-items th.Price {
+    width: 90px;
+}
+
+table.invoices-info-table td {
+    padding: 0 0 6px 12px;
+}
+
+#invoices_status_filter form {
+    margin: 0;
+}
+
+/* Invoice items end */
+
+/* Invoices in list begin */
+.invoice_list_add_payment {
+    margin-top: 3px;
+}
+
+/* Invoices in list end */
+
+
+/* TinyMCE CSS Begin */
+
+.mce-tinymce.mce-container.mce-panel {
+    margin-bottom: 10px;
+}
+
+/* TinyMCE CSS End */
+
+/*
+*Grid
+*
+* The default style for SQLFORM.grid even using jquery-iu or another ui framework
+* will look better with the declarations below
+* if needed to remove base.css consider keeping these following lines in some css file.
+*/
+/* .web2py_table {border:1px solid #ccc} */
+.web2py_paginator {}
+.web2py_grid {width:100%;}
+.web2py_grid table {
+    width:100%;
+    margin-top: 6px;
+}
+.web2py_grid tbody td {padding:2px 5px 2px 5px; vertical-align: middle;}
+.web2py_grid .web2py_form td {vertical-align: top;}
+
+.web2py_grid thead th,.web2py_grid tfoot td {
+    background-color:#EAEAEA;
+    padding:10px 5px 10px 5px;
+}
+
+.web2py_grid tr.odd {background-color:#F9F9F9}
+.web2py_grid tr:hover {background-color:#F5F5F5}
+
+/*
+.web2py_breadcrumbs a {
+    line-height:20px; margin-right:5px; display:inline-block;
+    padding:3px 5px 3px 5px;
+    font-family:'lucida grande',tahoma,verdana,arial,sans-serif;
+    color:#3C3C3D;
+    text-shadow:1px 1px 0 #FFFFFF;
+    white-space:nowrap; overflow:visible; cursor:pointer;
+    background:#ECECEC;
+    border:1px solid #CACACA;
+    -webkit-border-radius:2px; -moz-border-radius:2px;
+    -webkit-background-clip:padding-box; border-radius:2px;
+    outline:none; position:relative; zoom:1; *display:inline;
+}
+*/
+
+.web2py_console form {
+    width: 100%;
+    display: inline;
+    vertical-align: middle;
+    margin: 0 0 0 5px;
+}
+
+.web2py_console form select {
+    margin:0;
+}
+
+.web2py_search_actions {
+    float:left;
+    text-align:left;
+}
+
+.web2py_grid .row_buttons {
+    min-height:25px;
+    vertical-align:middle;
+}
+
+.web2py_grid .row_buttons a {
+    margin:3px;
+}
+
+.web2py_search_actions {
+    width:100%;
+}
+
+.web2py_grid .row_buttons a,
+.web2py_paginator ul li a,
+.web2py_search_actions a,
+.web2py_console input[type=submit],
+.web2py_console input[type=button],
+.web2py_console button {
+    line-height:20px;
+    margin-right:2px; display:inline-block;
+    padding:6px 10px 6px 10px;
+}
+
+.web2py_counter {
+    margin-top:5px;
+    margin-right:2px;
+    width:35%;
+    float:right;
+    text-align:right;
+}
+
+/*Fix firefox problem*/
+.web2py_table {clear:both; display:block}
+
+.web2py_paginator {
+    padding:5px;
+    text-align:right;
+    background-color:#f2f2f2;
+
+}
+.web2py_paginator ul {
+    list-style-type:none;
+    margin:0px;
+    padding:0px;
+}
+
+.web2py_paginator ul li {
+    display:inline;
+}
+
+.web2py_paginator .current {
+    font-weight:bold;
+}
+
+.web2py_breadcrumbs ul {
+    list-style:none;
+    margin-bottom:18px;
+}
+
+li.w2p_grid_breadcrumb_elem {
+    display:inline-block;
+}
+
+.web2py_console form { vertical-align: middle; }
+.web2py_console input, .web2py_console select,
+.web2py_console a { margin: 2px; }
+
+
+#wiki_page_body {
+   width: 600px;
+   height: auto;
+   min-height: 400px;
+}
+
+/* fix some IE problems */
+
+.ie-lte7 .topbar .container {z-index:2}
+.ie-lte8 div.w2p_flash{ filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#222222', endColorstr='#000000', GradientType=0 ); }
+.ie-lte8 div.w2p_flash:hover {filter:alpha(opacity=25);}
+.ie9 #w2p_query_panel {padding-bottom:2px}
+
+.web2py_console .form-control {width: 20%; display: inline;}
+.web2py_console #w2p_keywords {width: 50%;}
+.web2py_search_actions a, .web2py_console input[type=submit], .web2py_console input[type=button], .web2py_console button { padding: 6px 12px; }
+
+
+/* Web2py additions begin */
+
+
+td .btn-group {
+    margin-right: 6px;
+}
+
+.w2p_fw textarea {
+    height: 120px;
+    margin-right: 0px;
+}
+
+.w2p_fc {
+    padding-left: 6px;
+}
+
+.web2py_grid .row_buttons .modal-body ul.no-padding li a {
+    padding: 0;
+    margin: 0;
+}
+
+.web2py_grid .row_buttons .btn-group a.btn {
+    margin: 0;
+}
+
+.web2py_grid .row_buttons .btn-group {
+    margin: 3px;
+}
+
+.web2py_grid .row_buttons .btn-group button.btn-sm {
+    padding-top: 6px;
+    padding-bottom: 6px;
+    line-height: 20px;
+}
+
+.btn-group-xs .btn {
+    font-size: 10px;
+    padding: 2px 6px 2px 6px;
+}
+
+form table.full-width td.w2p_fl {
+    width: 110px;
+}
+
+
+td.row_buttons {
+    float: right;
+}
+
+.form_inline input,
+.form_inline select {
+    display: inline-block;
+    margin-right: 6px;
+}
+
+div.error {
+    color: #CC160D;
+}
+
+.w2p_grid_button_padding {
+    padding:6px 10px 6px 10px;
+}
+
+/* Web2py additions end */
+
+#to_top {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+}
+
+/* Messages begin */
+
+.container_messages {
+    width: 100%;
+    height: 100%;
+}
+
+.list_messages {
+    height: 100%;
+    padding: 0 6px 0 6px;
+    overflow-y: auto;
+}
+
+.list_messages li {
+    padding: 6px;
+    border-bottom: 1px solid #EAEAEA;
+}
+
+.list_messages li:last-child {
+    border-bottom: none;
+    margin-bottom: 6px
+}
+
+.list_messages li:hover,
+.list_messages li.active
+{
+    border-color: white;
+    background-color: #EAEAEA;
+    border-radius: 4px;
+}
+
+.message_header {
+    background-color: #EAEAEA;
+    border-bottom: 1px solid #EAEAEA;
+    padding: 6px 15px 6px 15px;
+}
+
+.message_info {
+    padding: 6px 15px 6px 15px;
+}
+
+.message_body {
+    padding: 15px 15px 6px 15px;
+    overflow-y: auto;
+}
+
+.message_display {
+    padding: 0px;
+    border: 1px solid #EAEAEA;
+    border-radius: 4px;
+    min-height: 55vh;
+}
+
+/* Messages end */
+
+/* OpenStudio permissions begin */
+
+#os-permissions table {
+    width: 100%;
+}
+
+#os-permissions td.checkbox {
+    width: 10px;
+}
+
+#os-permissions td {
+    padding: 4px 0 4px 0;
+}
+
+#os-permissions tr {
+    border-bottom-style: solid;
+    border-color: #F8F8F8;
+    border-bottom-width: 1px;
+}
+
+#os-permissions tr.odd {
+    background: #F9F9F9;
+}
+
+#os-permissions tr:hover {
+    background: #F5F5F5;
+}
+
+#os-permissions input[type="checkbox"] { margin-top:0; margin-bottom:1px; }
+
+#os-permissions .level_0 {
+	padding-left:5px;
+}
+
+#os-permissions .level_1 {
+	padding-left:35px;
+}
+
+#os-permissions .level_2 {
+	padding-left:65px;
+}
+
+#os-permissions .level_3 {
+	padding-left:95px;
+}
+
+#os-permissions .level_4 {
+	padding-left:125px;
+}
+/* OpenStudio permissions end */
+
+/* System setting branding begin */
+
+.settings_branding_logo {
+    max-width: 200px;
+}
+
+/* System settings branding end */
+
+
+/* AdminLTE mods begin */
+
+.datepicker-days table tr td, 
+.datepicker-days table tr th {
+    border: 0;
+}
+
+
+.datepicker table tr td.old,
+.datepicker table tr td.new {
+    color: #ABABAB;
+    color: #ABABAB;
+}
+
+input.datepicker {
+    padding: 6px 12px 6px 12px;
+}
+
+
+.direct-chat-messages-high {
+    height: 400px;
+}
+
+.direct-chat-scope {
+    margin-left: 6px;
+}
+
+.direct-chat-input-form textarea {
+    height: 110px;
+}
+
+/* AdminLTE mods end */

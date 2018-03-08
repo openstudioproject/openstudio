@@ -1,0 +1,8 @@
+{{extend 'layout.html'}}
+{{=content}}
+
+<script src={{=URL('static', 'plugin_os-js/general/customers_set_list_search.js')}}></script>
+
+{{ import os }}
+{{ include os.path.join(request.folder,'static','plugin_os-js/workshops/product_sell.html')}}
+

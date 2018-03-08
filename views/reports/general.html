@@ -1,0 +1,35 @@
+{{extend 'layout.html'}}
+
+{{block header}}
+{{try:}}{{=back}}{{except:pass}}{{pass}}
+{{try:}}{{=month_chooser}}{{except:pass}}{{pass}}
+{{try:}}{{=current}}{{except:pass}}{{pass}}
+{{try:}}{{=run_report}}{{except:pass}}{{pass}}
+{{try:}}{{=export}}{{except:pass}}{{pass}}
+{{try:}}{{=header_tools}}{{except:pass}}{{pass}}
+{{try:}}{{=total}}{{except:pass}}{{pass}}
+{{end}}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="box box-default">
+            <div class="box-body">
+                {{=form}}
+            </div>
+        </div>    
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="box box-default">
+            <div class="box-body">
+                {{=content}}
+            </div>
+        </div>    
+    </div>
+</div>
+
+
+{{try:}}{{=modals}}{{except:pass}}{{pass}}
+

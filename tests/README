@@ -1,0 +1,45 @@
+These tests use the web2py py.tests as explained by viniciusban on github
+(https://github.com/viniciusban/web2py.test)
+
+Stepping into
+
+The procedure to run tests present for this application is:
+
+Create a new virtualenv. Let's call it bla:
+
+$ cd ~
+$ mkdir -p virtualenvs/bla
+$ cd virtualenvs/bla
+$ virtualenv .
+Enter into it:
+
+$ source bin/activate
+Now your prompt should look like this:
+
+(bla)username@yourmachine:~$
+Install py.test just in your virtualenv:
+
+$ pip install pytest
+Download latest web2py stable:
+
+$ wget http://www.web2py.com/examples/static/web2py_src.zip
+Unzip it:
+
+$ unzip web2py_src.zip
+Now you must see web2py dir created inside your current dir.
+
+Enter into it:
+
+$ cd web2py
+Get the latest web2py.test:
+
+$ git clone https://github.com/viniciusban/web2py.test.git applications/people
+You must see the people dir inside your applications directory.
+
+Start Web2py development server:
+
+$ python web2py.py -a my_password --nogui &
+Run tests:
+
+$ py.test -x -v -s applications/people/tests
+Voilà!

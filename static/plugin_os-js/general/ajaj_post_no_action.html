@@ -1,0 +1,35 @@
+<!--
+
+    Created by Edwin van de Ven (edwin@openstudioproject.com)
+    License: GPLv2 or v3
+
+-->
+<script>
+	function ajaj_post_no_action(data, url) {
+	    /*
+		- data is expected to be a {}
+		- url is the url to which to post the data	
+	    */
+	    var post = $.post(url, data, function(json) {
+	    console.log("Data posted to " + url + 
+	                ", data: " + JSON.stringify(data));
+	    }, "json");
+
+	    // success
+	    post.done(function(json) {
+		    console.log("Data post result: " + JSON.stringify(json));
+	    });
+
+	    // fail
+	    post.fail(function(data) {
+		    var msg = "{{=T('Uh oh... something went wrong while submitting data...')}}";
+		    $('div.flash').html(msg + '<span id="closeflash"> × </span>');
+		    $('div.flash').show();
+		    setTimeout(function() {
+		        $('div.flash').fadeOut();    
+		    }, 2500 );
+		    console.log("Data post fail. Status: " + data.status + " " +
+		                 "Status Text: " + data.statusText);
+	    });
+	}
+</script>

@@ -1,0 +1,13 @@
+{{extend 'layout.html'}}
+{{=back}}<br>
+<div class="col-md-6">
+    {{=general_title}}
+    <table class="table table-hover table-condensed">{{for s in general_settings:}}<tr><td>{{=s[1]}}:</td><td>{{=s[0]}}</td></tr>{{pass}}</table>
+    {{=edit}}
+</div>
+<div class="col-md-6">
+    {{=mail_title}}
+    <table class="table table-hover table-condensed">{{for s in mail_settings:}}<tr><td>{{=s[1]}}:</td><td>{{=s[0]}}</td></tr>{{pass}}</table>
+    {{=mail_edit}}
+</div>
+

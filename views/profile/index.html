@@ -1,0 +1,15 @@
+{{extend 'layout_shop.html'}}
+{{block header}}
+    {{try:}}{{=breadcrumb}}{{except:}}{{pass}}{{pass}}
+    {{try:}}{{=back}}{{except:}}{{pass}}{{pass}}
+{{end}}
+
+{{=content}}
+
+{{block left_sidebar}}
+{{try:}}{{=menu}}{{except:}}{{pass}}{{pass}}
+{{end}}
+
+{{block header}}
+{{try:}}{{=header_tools}}{{except:}}{{pass}}{{pass}}
+{{end}}

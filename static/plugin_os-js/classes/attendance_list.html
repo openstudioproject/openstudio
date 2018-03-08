@@ -1,0 +1,200 @@
+<!--
+
+    Created by Edwin van de Ven (edwin@openstudioproject.com)
+    License: GPLv2 or v3
+
+-->
+<script>
+    // global variable for canvas id
+    var canvas_id = "attendance-chart-area"
+    var canvas_selector = "#"+canvas_id;
+    
+
+	var $input = $("#sidebar-search");
+	var $sidebar_search_btn_icon = $('#search-btn i.fa')
+	var $target = $("div#attendance_list_customers_list");
+	
+	var typingTimer = null;
+	var doneTypingInterval = 500;
+
+
+    /* A timer is used to prevent submitting for each keystroke while the user is typing */
+	$input.keyup(function() {
+	    if (typingTimer) clearTimeout(typingTimer);
+	    $target.html('{{=os_gui.get_ajax_loader(message=T("Searching..."))}}');
+	    typingTimer = setTimeout(function() { 
+		customers_set_list_search($input, $target);
+	    }, doneTypingInterval);
+	}); // end input keyup
+    
+    
+    
+
+    $(document).ready(function() {
+        
+        
+        // Chart begin
+        drawChart();
+
+        $('span#previous').click(function() {
+            setAttendanceYear(-1);
+        });
+        
+        $('span#next').click(function() {
+            setAttendanceYear(1);
+        });
+        // Chart end
+        
+        // Attendance list begin
+        $input.val('');
+        $input.focus();
+        $sidebar_search_btn_icon.removeClass('fa-search');
+        $sidebar_search_btn_icon.addClass('fa-times');
+        
+        // Attendance list end
+        
+        // Attendance search begin 
+        var show_search_results = false;
+        var search_results_shown = false;
+        
+        var $search_results = $('#attendance_list_customers_list');
+        var $input_search = $('#sidebar-search');
+        var $input_search_clear = $('#search-btn i.fa');
+        
+        $input_search.focus();
+        
+        $input_search.keyup(function() {
+            var $val = $(this).val();
+            
+            if ($val.length > 0) {
+                show_search_results = true;
+            } else {
+                show_search_results = false;
+            }
+            
+            show_hide_search_results()
+        }); // end search handler
+        
+        function show_hide_search_results() {
+            if (show_search_results == true && search_results_shown == false) {
+                $search_results.slideDown();
+                search_results_shown = true;
+            } else {
+                if (show_search_results == false && search_results_shown == true) {
+                    $search_results.slideUp();    
+                    search_results_shown = false;
+                }
+            }
+        } // end show_hide_search_results
+        // Attendance search end
+        
+        /* Prevent submit on pressing enter */
+        $(document).on("keypress", 'form', function (e) {
+            var code = e.keyCode || e.which;
+            if (code == 13) {
+                e.preventDefault();
+                return false;
+            }
+        }); // end prevent submit on pressing enter
+        
+        $('#search-btn').click(function(event) {
+            event.preventDefault();
+            $input.val('');
+            customers_set_list_search($input, $target);	
+            show_search_results = false;
+            show_hide_search_results();
+            $input.focus();
+        }); // end search btn click
+        
+    }); // end document ready
+        
+    // Chart functions begin
+
+    function getContext() {
+        canvas = getCanvas();
+        return canvas.getContext("2d");
+    }
+
+    function getCanvas() {
+        return $(canvas_selector).get(0);
+    }
+
+    function resetCanvas() {
+        var canvas = getCanvas();
+        var $container = $('div#attendance_barchart')
+        $container.fadeOut();
+        canvas.remove();
+        $container.append('<canvas id="' + canvas_id + '" width="870" height="290"></canvas>');
+        $container.fadeIn();
+    }
+
+    function drawChart() {
+        var chart_opts = { 
+              scaleFontSize: 9,
+              barValueSpacing: 2,
+        };
+        var url = "/reports/class_attendance_get_json.json"
+        var get = $.getJSON(url, function(json) {
+            console.log("Requested json data from  " + url); 
+        });
+        
+        // success
+        get.done( function(json) {
+            // city chart
+            var	data = json.json_data.attendance; 
+            var ctx = getContext();
+            var chart = new Chart(ctx).Bar(data, chart_opts);
+        });
+    }
+        
+    function setAttendanceYear(year) {
+            var url = '/classes/attendance_set_chart_year.json';
+            data = {};
+            data['year'] = year;
+            var post = $.post(url, data, function(json) {
+                console.log("Posted year info to " + url + 
+                            ", data: " + JSON.stringify(data)); 
+            }, "json");
+
+            // Success
+            post.done(function(json) {
+                if (json.status == 'success') {
+                    title = json.chart_title.title;
+                    setChartTitle(title);
+                    resetCanvas();
+                } else {
+                    // show what went wrong
+                    $('div.flash').html(json.message + '<span id="closeflash"> × </span>');
+                    $('div.flash').show();
+                    setTimeout(function() {
+                        $('div.flash').fadeOut();	
+                    }, 2500 );
+                }
+                // always draw the chart again
+                drawChart();
+                
+                console.log("Success setting year, result: " + JSON.stringify(json));
+            });
+            
+            // fail
+            post.fail(function(data) {
+                var msg = "Uh oh... something went wrong while changing years..."
+                $('div.flash').html(msg + '<span id="closeflash"> × </span>');
+                $('div.flash').show();
+                setTimeout(function() {
+                    $('div.flash').fadeOut();	
+                }, 2500 );
+                console.log("Failed setting year. Status: " + data.status + " " +
+                            "Status Text: " + data.statusText);
+            });
+    }
+
+    function setChartTitle(title) {
+        $chart_title = $('h4.modal-title');
+        $chart_title.html(title);
+    }
+
+    // Chart functions end
+    
+</script>
+

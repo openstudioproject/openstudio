@@ -1,0 +1,12 @@
+{{extend 'layout.html'}}
+<div class="lightbox-content-body"> <!-- for testing of javascript function in edit page -->
+    {{=content}}
+</div>
+
+<script src={{=URL('static', 'plugin_os-js/customers/edit.js')}}></script>
+<script>
+    $(document).ready(function() {
+        iconHandlers(); // call the iconHandlers from edit.js (usually called when opening the modal).
+    });
+</script>
+

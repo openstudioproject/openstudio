@@ -1,0 +1,74 @@
+.login-box {
+    margin-top: 2.5%;
+}
+ /*
+.login-page {
+    background-color: #ECF0F5;
+} */
+
+.alert {
+    background-image: none;
+}
+
+.center {
+    text-align: center;
+}
+
+img.logo_os_clouds {
+    display: inline-block;
+    #width: 15%;
+    height: 74px;
+    margin-right: 10px;
+}
+
+.logo_login {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.logo_login img {
+    max-width: 94%;
+    max-height: 140px;
+}
+
+.logo_blue {
+    color: #298EEA;
+}
+
+.no-margin-top {
+    margin-top: 0;
+}
+
+.logo_text {
+    font-family: 'Raleway', 'Open Sans', sans-serif;
+    font-weight: 300;
+    font-size: 260%;
+    color: #777;
+    text-align: center;
+    #vertical-align: middle;
+}
+
+.grey {
+    color: #777;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.btn-default {
+    text-shadow: none;
+}
+
+.btn {
+    background-image: none;
+}
+
+#company_name {
+    font-size: 16px;
+}
+
+
+#label_remember {
+    font-weight: 500;
+}

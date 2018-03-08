@@ -1,0 +1,45 @@
+<!--
+
+    Created by Edwin van de Ven (edwin@openstudioproject.com)
+    License: GPLv2 or v3
+
+-->
+<script>
+	function ajaj_post_custom_action(data, url, action, timeout, use_timeout) {
+	    /*
+		- data is expected to be a {}
+		- url is the url to which to post the data	
+	    */
+
+		// set default values
+		timeout     = typeof timeout     !== 'undefined' ? timeout     : 0;
+	    use_timeout = typeof use_timeout !== 'undefined' ? use_timeout : false;
+
+	    var post = $.post(url, data, function(json) {
+	    console.log("Data posted to " + url + 
+	                ", data: " + JSON.stringify(data));
+	    }, "json");
+
+	    // success
+	    post.done(function(json) {
+		    console.log("Data post result: " + JSON.stringify(json));
+			if (use_timeout == true) {
+				setTimeout(function(){ action(); }, timeout);
+			} else {
+				//action();			
+			}
+	    });
+
+	    // fail
+	    post.fail(function(data) {
+		    var msg = "{{=T('Uh oh... something went wrong while submitting data...')}}";
+		    $('div.flash').html(msg + '<span id="closeflash"> × </span>');
+		    $('div.flash').show();
+		    setTimeout(function() {
+		        $('div.flash').fadeOut();    
+		    }, 2500 );
+		    console.log("Data post fail. Status: " + data.status + " " +
+		                 "Status Text: " + data.statusText);
+	    });
+	}
+</script>

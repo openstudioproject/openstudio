@@ -1,0 +1,59 @@
+{{extend 'selfcheckin/layout.html'}}
+{{=content}}
+
+<script>
+	var fs_sel = '.fs_icon';
+	
+	$(fs_sel).click(function() {
+		toggleFullScreen();
+	});
+
+	function toggleFullScreen() {
+	  if (!document.fullscreenElement &&    // alternative standard method
+		  !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement ) {  // current working methods
+		if (document.documentElement.requestFullscreen) {
+		  document.documentElement.requestFullscreen();
+		} else if (document.documentElement.msRequestFullscreen) {
+		  document.documentElement.msRequestFullscreen();
+		} else if (document.documentElement.mozRequestFullScreen) {
+		  document.documentElement.mozRequestFullScreen();
+		} else if (document.documentElement.webkitRequestFullscreen) {
+		  document.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+		}
+	  } else {
+		if (document.exitFullscreen) {
+		  document.exitFullscreen();
+		} else if (document.msExitFullscreen) {
+		  document.msExitFullscreen();
+		} else if (document.mozCancelFullScreen) {
+		  document.mozCancelFullScreen();
+		} else if (document.webkitExitFullscreen) {
+		  document.webkitExitFullscreen();
+		}
+	  }
+	}
+
+	/* Change icon on full screen change */
+	if (document.addEventListener)
+	{
+		document.addEventListener('webkitfullscreenchange', exitHandler, false);
+		document.addEventListener('mozfullscreenchange', exitHandler, false);
+		document.addEventListener('fullscreenchange', exitHandler, false);
+		document.addEventListener('MSFullscreenChange', exitHandler, false);
+	}
+
+	function exitHandler()
+	{
+		if (document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement !== null)
+		{
+		    /* Run code on exit */
+			changeIcon();
+		}
+	}
+
+	function changeIcon() {
+		$(fs_sel).find('span').toggleClass('glyphicon-resize-full');
+        $(fs_sel).find('span').toggleClass('glyphicon-resize-small');
+	}
+
+</script>

@@ -1,0 +1,26 @@
+<!--
+
+    Created by Edwin van de Ven (edwin@openstudioproject.com)
+    License: GPLv2 or v3
+
+-->
+<script>
+	var $input = $("#no_table_name");
+	var $target = $("div#reservation_list_customers_list");
+
+	$(document).ready(function() {
+	    $('input[type=submit]').hide();
+	}); // end document 
+
+	var typingTimer = null;
+	var doneTypingInterval = 300;
+	/* A timer is used to prevent submitting for each keystroke while the user is typing */
+	$input.keyup(function() {
+	    if (typingTimer) clearTimeout(typingTimer);
+	    $target.html('{{=os_gui.get_ajax_loader(message=T("Searching..."))}}');
+	    typingTimer = setTimeout(function() { 
+		customers_set_list_search($input, $target);
+	    }, doneTypingInterval);
+	}); // end input keyup
+</script>
+

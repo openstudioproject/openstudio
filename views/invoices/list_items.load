@@ -1,0 +1,48 @@
+{{=content}}
+
+<script src={{=URL('static', 'plugin_os-js/RowSorter.min.js')}}></script>
+
+{{ import os }}
+{{ include os.path.join(request.folder,'static','plugin_os-js/general/ajaj_post_no_action.html')}}
+
+<script>
+	startRowSorter();
+
+	function startRowSorter() {
+		$('table.invoice-items').rowSorter({
+			//handler: "td.sort-handler",
+			dragClass: 'grey',
+			stickTopRows: 1,
+			//stickBottomRows: 4,
+			onDrop: onDrop,
+			});
+		console.log('Started RowSorter');
+	}
+
+
+	// if new_index === old_index, this function won't be called.
+	function onDrop(tbody, row, new_index, old_index) {
+		console.log('Calling onDrop');
+	    // find the table
+	    // if options.tbody is true, this param will be tbody element
+	    // otherwise it will be table element
+	    var table = tbody.tagName === "TBODY" ? tbody.parentNode : tbody;
+
+	    // old_index is stored index of row in table/tbody before start the dragging.
+	    // new_index is index of row in table/tbody after the row has been dragged.
+	    //console.log(table, row, new_index, old_index);
+
+		var url = '/invoices/items_update_sorting.json';
+		var $data = {};
+		$data['iID'] = get_invoices_id();
+		$data['old_index'] = old_index;
+		$data['new_index'] = new_index;
+		ajaj_post_no_action($data, url);
+	}
+
+	function get_invoices_id() {
+		$iID = $('.invoice-items').attr('id');
+		return $iID;
+	}
+</script>
+

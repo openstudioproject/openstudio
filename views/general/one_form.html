@@ -1,0 +1,12 @@
+{{right_sidebar_enabled=True}}
+{{extend 'layout.html'}}
+{{try:}}{{=breadcrumb}}{{except:}}{{pass}}{{pass}}
+{{try:}}{{=back}}{{except:}}{{pass}}{{pass}}
+{{=form}}
+
+{{block right_sidebar}}
+{{end}}
+
+{{block left_sidebar}}
+{{try:}}{{=menu}}{{except:}}{{pass}}{{pass}}
+{{end}}

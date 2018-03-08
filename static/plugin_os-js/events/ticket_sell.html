@@ -1,0 +1,19 @@
+<script>
+    var $input = $("#ticket_sell_input_search");
+    var $target = $("#ticket_sell_customers_list");
+
+    $(document).ready(function() {
+        var typingTimer = null;
+        var doneTypingInterval = 300;
+        /* A timer is used to prevent submitting for each keystroke while the user is typing */
+        $input.keyup(function() {
+            if (typingTimer) clearTimeout(typingTimer);
+            $target.html('{{=loader}}');
+            typingTimer = setTimeout(function() { 
+                customers_set_list_search($input, $target);
+            }, doneTypingInterval);
+        }); // end input keyup
+    });
+    
+    
+</script>

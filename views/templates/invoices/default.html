@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!--[if !HTML5]>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge{{=not request.is_local and ',chrome=1' or ''}}">
+    <![endif]-->
+    <!-- www.phpied.com/conditional-comments-block-downloads/ -->
+    <!-- Always force latest IE rendering engine
+         (even in intranet) & Chrome Frame
+         Remove this if you use the .htaccess -->
+
+    <meta charset="utf-8" />
+
+    <!-- http://dev.w3.org/html5/markup/meta.name.html -->
+    <meta name="application-name" content="{{=request.application}}" />
+
+    <style>
+        @page { size: a4; }
+
+        body {
+            font-size: 12px;
+            font-family: sans-serif;
+            line-height: 1.2em;
+        }
+
+        .right { float: right; }
+
+        .clear { clear:both; }
+
+        .grey { color: #777; }
+
+        .bold { font-weight: bold; }
+
+        .text-left { text-align: left; }
+
+        .text-right { text-align: right; }
+
+        .text-center { text-align: center; }
+        
+        .small-font { font-size: 82%; }
+
+        table { border-collapse: collapse; }
+
+        footer {
+            font-size: 90%;
+            position: fixed;
+            bottom: 50px;
+            width: 100%;
+            text-align: center;
+            padding-top: 10px;
+            border-top: 2px solid #EAEAEA;
+        }
+
+        .footer-inner {
+            margin-left: 75px;
+            margin-right: 75px;
+        }
+
+        table.table-info {
+            display: inline-block;
+            margin: 1em 0 2em 0;
+
+            font-size: 90%;
+            margin: 10px 0 20px 0;
+        }
+
+        .table-items {
+            width: 100%;
+            margin: 20px 0 50px 0;
+            font-size: 70%;
+        }
+
+        .table-items td,
+        .table-items th {
+            font-weight: normal;
+            padding: 8px 5px 8px 5px;
+            border: 0;
+        }
+
+        .table-items tbody tr:nth-child(odd) {
+            background-color: #EAEAEA;
+        }
+
+        .table-items thead tr th {
+            border-bottom-style: solid;
+            border-bottom: 1px solid #CCC;
+        }
+
+        th.taxrate { min-width: 40px; }
+
+        .border-top {
+            border-top: 1px solid #CCC;
+        }
+
+        div.invoice {
+            font-size: 270%;
+        }
+
+        #description {
+            margin-top: 20px;
+        }
+
+        #terms {
+            width: 100%;
+            text-align: center;
+        }
+
+        #terms-header {
+            display: block;
+            width: 100%;
+            border-bottom: 2px solid #EAEAEA;
+            margin-bottom: 10px;
+        }
+
+        .studio-info {
+            width: 55%;
+        }
+
+        img {
+            max-width: 90%;
+            text-align: center;
+            margin-bottom: 20px;
+            max-height: 84px;
+        }
+
+    </style>
+
+</head>
+
+<body>
+    <div class="right studio-info text-right">
+        {{=logo}}<br>
+        <div class='text-right grey'>
+            <span class='bold'>{{=studio['name'].upper()}}</span><br>
+                <div class='small-font'>
+                    {{ if studio['address']: }}
+                        {{=studio['address']}}<br>
+                    {{ pass }}
+                    {{ if studio['phone']: }}
+                        {{=studio['phone']}}<br>
+                    {{ pass }}
+                    {{ if studio['email']: }}
+                        {{=studio['email']}}<br>
+                    {{ pass }}
+                    {{ if studio['registration']: }}
+                        {{=studio['registration']}}
+                    {{ pass }}
+                </div>
+        </div>
+    </div>
+
+    <div class='invoice grey'>INVOICE</div><br>
+
+    <table class="table-info">
+        <tr>
+            <td class="grey bold">INVOICE #</td>
+            <td>{{=invoice.InvoiceID}}</td>
+        </tr>
+        <tr>
+            <td class="grey bold">ISSUED </td>
+            <td>{{=invoice.DateCreated}}</td>
+        </tr>
+        <tr>
+            <td class="grey bold">DUE DATE </td>
+            <td>{{=invoice.DateDue}}</td>
+        </tr>
+    </table>
+
+    <div>
+        <span class="grey bold">BILL TO</span><br>
+        {{ if customer['company']: }}
+            {{ =customer['company'] }}<br>
+        {{ pass }}
+        {{=SPAN(customer.first_name, ' ', customer.last_name)}}<br>
+        {{ if customer['address']: }}
+            {{ =customer['address'] }}<br>
+        {{ pass }}
+        {{ if customer['postcode']: }}
+            {{=customer['postcode']}}
+        {{ pass }}
+        {{ if customer['city']: }}
+            {{=customer['city']}}
+        {{ pass }}
+        {{ if customer['city'] or customer['postcode']: }}
+            <br>
+        {{ pass }}
+        {{ if customer['country']: }}
+            {{=customer['country']}}<br>
+        {{ pass }}
+    </div>
+
+    {{ if invoice['Description']: }}
+        <div id="description" class='clear'>
+            <span class="bold grey">Description</span><br>
+            {{=invoice['Description']}}
+        </div>
+    {{pass}}
+
+
+    <table class="table-items">
+        <thead class="grey">
+            <tr>
+                <th>PRODUCT NAME</th>
+                <th>DESCRIPTION</th>
+                <th><span class="right">QTY</span></th>
+                <th><span class="right">PRICE INCL VAT</span></th>
+                <th><span class="right">SUBTOTAL</span></th>
+                <th class="taxrate"><span class="right">TAX RATE</span></th>
+            </tr>
+        </thead>
+        <tbody>
+        {{ for item in items: }}
+            <tr>
+                <td>{{=item.ProductName}}</td>
+                <td>{{=item.Description}}</td>
+                <td><span class="right">{{=item.Quantity}}</span></td>
+                <td><span class="right">{{=item.Price}}</span></td>
+                <td><span class="right">{{=item.TotalPrice}}</span></td>
+                <td><span class="right">{{=item.tax_rates_id}}</span></td>
+            </tr>
+        {{pass}}
+        </tbody>
+        <tfoot class="border-top">
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td><span class="right">Subtotal</span></td>
+            <td><span class="right">{{ =amounts['TotalPrice'] }}</span></td>
+            <td></td>
+        </tr>
+        {{ for tax_rate in amounts_vat: }}
+            <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td><span class="right">{{ =tax_rate['Name'] }}</span></td>
+            <td><span class="right">{{ =tax_rate['Amount'] }}</span></td>
+            <td></td>
+            </tr>
+        {{ pass }}
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="border-top"><span class="right">Total</span></td>
+            <td class="border-top"><span class="right">{{ =amounts['TotalPriceVAT'] }}</span></td>
+            <td></td>
+        </tr>
+        </tfoot>
+
+    </table>
+
+    <!-- Don't forget the terms and footer -->
+
+    {{ if invoice['Terms']: }}
+        <div id="terms" class="grey">
+            <span id="terms-header" class="bold">TERMS AND CONDITIONS</span>
+            {{ =XML(invoice['Terms']) }}
+        </div>
+    {{pass}}
+
+    {{ if invoice['Footer']: }}
+        <footer>
+            <div class="footer-inner">
+                {{ =XML(invoice['Footer']) }}
+            </div>
+        </footer>
+    {{pass}}
+
+
+</body>
+
+
+</html>

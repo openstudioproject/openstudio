@@ -1,0 +1,24 @@
+{{extend 'layout.html'}}
+
+<div class='col-md-9'>
+    <div class="box box-primary">
+        <div class="box-header with-border">
+            <h3 class="box-title">{{=T('Chart')}}</h3>
+            
+        </div>
+        <div class='box-body'>
+            <div class="os-piechart text-center">
+	            <canvas id="chart-area" width="400" height="400"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class='col-md-3'>
+    {{=data_table}}
+</div>
+
+
+<script src={{=URL('static', 'plugin_os-js/Chart.min.js')}}></script>
+<script src={{=URL('static', 'plugin_os-js/reports/discovery.js')}}></script>

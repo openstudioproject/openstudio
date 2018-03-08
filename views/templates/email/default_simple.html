@@ -1,0 +1,26 @@
+<html>
+<head>
+    <!--[if !HTML5]>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge{{=not request.is_local and ',chrome=1' or ''}}">
+    <![endif]-->
+    <!-- www.phpied.com/conditional-comments-block-downloads/ -->
+    <!-- Always force latest IE rendering engine
+         (even in intranet) & Chrome Frame
+         Remove this if you use the .htaccess -->
+    <meta charset="utf-8" />
+    <!-- http://dev.w3.org/html5/markup/meta.name.html -->
+    <meta name="application-name" content="{{=request.application}}" />
+    <style>
+        @page { size: a4; }
+    </style>
+</head>
+<body style="font-size: 12px; font-family: sans-serif; line-height: 1.3em; color: #333;">
+    <div style="text-align: center;">
+        {{=logo}}
+        {{=content}}
+    </div>
+    <div style="text-align: center; font-size: 10px; padding-top: 30px;">
+        {{=footer}}
+    </div>
+</body>
+</html>

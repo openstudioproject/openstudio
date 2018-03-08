@@ -1,0 +1,24 @@
+{{extend 'layout.html'}}
+{{block header}}
+    {{try:}}{{=header_tools}}{{except:}}{{pass}}{{pass}}
+    {{try:}}{{=back}}{{except:}}{{pass}}{{pass}}
+    {{try:}}{{=save}}{{except:}}{{pass}}{{pass}}    
+    {{try:}}{{=add}}{{except:}}{{pass}}{{pass}}
+{{end}}
+
+<div class='row'>
+    <div class='col-md-12'>
+        <div class="nav-tabs-custom">
+            {{=menu}}
+        <div class="tab-content">
+            {{=content}}
+        </div>
+    </div>
+</div>
+
+<script src={{=URL('static', 'plugin_os-js/general/openstudio.js')}}></script>
+<script src={{=URL('static', 'plugin_os-js/general/customers_set_list_search.js')}}></script>
+
+{{ import os }}
+{{ include os.path.join(request.folder,'static','plugin_os-js/events/tickets_list_customers.html')}}
+{{ include os.path.join(request.folder,'static','plugin_os-js/events/tickets_list_customers_event_info.html')}}

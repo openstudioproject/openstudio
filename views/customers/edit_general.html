@@ -1,0 +1,23 @@
+{{extend 'layout.html'}}
+{{block header}}
+    {{try:}}{{=tools}}{{except:}}{{pass}}{{pass}} 
+    {{try:}}{{=back}}{{except:}}{{pass}}{{pass}}  
+    {{try:}}{{=add}}{{except:}}{{pass}}{{pass}}
+    {{try:}}{{=save}}{{except:}}{{pass}}{{pass}} 
+{{end}}
+
+<div class='row'>
+    <div class='col-md-12'>
+        <div class="nav-tabs-custom">
+            {{=menu}}
+            <div class="tab-content">
+                {{=content}}
+            </div>
+        </div>
+    </div>
+</div>
+
+{{try:}}
+    {{ import os }}
+    {{ include os.path.join(request.folder,'static','plugin_os-js/general/show_add_modal_if_form_contains_errors.html')}}
+{{except: pass}}{{pass}}

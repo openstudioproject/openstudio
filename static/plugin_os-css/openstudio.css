@@ -1,0 +1,1808 @@
+body {
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
+
+select {
+    width: 314px;
+}
+
+.select-narrow select {
+    width: 224px;
+}
+
+.unselectable {
+   -moz-user-select: -moz-none;
+   -khtml-user-select: none;
+   -webkit-user-select: none;
+
+   /*
+     Introduced in IE 10.
+     See http://ie.microsoft.com/testdrive/HTML5/msUserSelect/
+   */
+   -ms-user-select: none;
+   user-select: none;
+}
+
+.small_font {
+    font-size: 90%;
+}
+.smaller_font {
+    font-size: 80%;
+}
+
+.vsmall_font {
+    font-size: 70%;
+}
+
+.big_font {
+    font-size: 120%;
+}
+
+.big_check {
+    font-size: 130%;
+    margin-right: 12px;
+}
+
+.very_big_check {
+	font-size: 140%;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.grey { color: #999; }
+.grey-dark { color: #555; }
+.grey-light { color: #BBB; }
+.blue { color: #4679BD; }
+.green { color: #11A05E; }
+.red { color: #CC160D; }
+.orange { color: #EF8F00; }
+.purple { color: #AD7FA8; }
+.yellow { color: #FCE94F; }
+.default-color { color: #333; }
+
+.bg_light_blue { background: #729fcf; }
+.bg_blue { background: #4679BD; }
+.bg_green { background: #11A05E; }
+.bg_orange { background: #EF8F00; }
+.bg_red { background: #CC160D; }
+.bg_purple { background: #AD7FA8; }
+.bg_yellow { background: #FCE94F; }
+.bg_grey { background: #777; }
+
+.red_border { border: 1px solid #CC160D; }
+
+a.red:hover,
+a.red:active,
+a.red:focus,
+a.red:visited { 
+	color: #CC160D;
+	text-decoration: none;
+}
+
+.os_label {
+    border-radius: 2px;
+    font-size: 90%;
+    padding: 2px 6px 2px 6px;
+    margin-top: 1px;
+    margin-bottom: 1px;
+}
+
+.big {
+    font-size: 120%;
+}
+
+.line-through {
+    text-decoration: line-through;
+}
+
+.ul_liststyle_none {
+    list-style-type: none;
+}
+
+.noscroll {
+    overflow: hidden;
+}
+
+.inline-block {
+    display: inline-block;
+}
+
+.clear {
+    clear: both;
+}
+
+.clear-right {
+    clear: right;
+}
+
+.table-vertical-align-middle {
+    vertical-align: middle;
+}
+
+.hidden {
+    display: none;
+}
+
+.full-width {
+    width: 100%;
+}
+
+.70percent-width {
+    width: 70%;
+}
+
+.min-width {
+    width: 1px;
+}
+
+.no_padding-left {
+    padding-left: 0px;
+}
+
+.no-padding-left { padding-left: 0; }
+
+.no_padding-right {
+    padding-right: 0px;
+}
+
+.no-margin-right {
+    margin-right: 0;
+}
+
+.no-margin_top {
+    margin-top: 0;
+}
+
+.no-margin-top { margin-top: 0; }
+
+.no-margin-bottom { margin-bottom: 0; }
+
+.margin-right {
+    margin-right: 6px;
+}
+
+.margin-top_20px {
+    margin-top: 20px;
+}
+
+.margin-bottom_10px {
+    margin-bottom: 10px;
+}
+
+.input-margins {
+    margin-left: 3px;
+    margin-bottom: 10px;
+}
+
+/* logo begin */
+.logo_blue {
+    color: #298EEA;
+}
+
+.logo_text {
+    display: inline-block;
+    font-family: 'Raleway', 'Open Sans', sans-serif;
+    #font-weight: 300;
+    font-size: 180%;
+    line-height: 50px;
+    padding: 0 15px 0 6px;
+    vertical-align: middle;
+}
+
+.brand,
+.brand:hover,
+.brand:focus,
+.brand:active {
+    color: #777;
+    text-decoration: none;
+    font-size: 90%;
+    height: 50px;
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.brand img {
+    vertical-align: middle;
+    max-height: 32px;
+    max-width: 258px;
+}
+
+/* logo end */
+
+/* Main layout begin */
+
+.mastheader {
+    position: fixed;
+    top: 50px;
+    left: 0;
+    width: 100%;
+    z-index: 990;
+    height: 52px;
+    background-color: #FFF;
+    border-top: 1px solid #EAEAEA;
+    border-bottom: 1px solid #EAEAEA;
+}
+
+.mastheader .col-md-9 {
+    margin: 0px;
+}
+
+.mastheader h1 {
+    margin:11px 0 11px 0;
+    font-size:180%;
+
+}
+.mastheader small {
+    font-size:60%;
+    font-weight:300;
+}
+
+.main_container {
+    min-height: 100%;
+}
+
+.main_container .left-sidebar,
+.main_container .main_content {
+    padding-top: 12px;
+    padding-bottom: 40px;
+}
+
+.left-sidebar-desktop {
+    border-right: 1px solid #EAEAEA;
+}
+
+
+.left-sidebar .left-sidebar_content-desktop {
+    position: fixed;
+    width: 15%;
+    font-size: 96%;
+}
+
+footer.footer {
+  position: relative;
+  bottom: 0;
+  width: 100%;
+  /* Set the fixed height of the footer here */
+  height: 60px;
+  background-color: #f5f5f5;
+}
+
+/* .row-height & .col-height make sure that left sidebar and main content
+ * are the same height
+ */
+/*
+ * Row with equal height columns
+ * --------------------------------------------------
+ */
+.row-eq-height {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display:         flex;
+}
+
+/*.row-full-height {
+    min-height: 80vh;
+}*/
+
+/*
+.row-height {
+  display: table;
+  table-layout: fixed;
+  min-height: 100%;
+  width: 100%;
+}
+.col-height {
+  display: table-cell;
+  float: none;
+  height: 100%;
+  vertical-align: top;
+}*/
+
+
+/* Main layout end */
+
+/* Bootstrap3 mods & web2py mods begin */
+
+div.w2p_flash.alert {
+    z-index: 10000;
+}
+
+div.col-md-12,
+div.col-md-9 {
+    margin: 0 0 20px 0;
+}
+
+div.header-extra  {
+    margin-top: 8px;
+}
+
+.btn {
+    background-image: none;
+    margin-right: 4px;
+}
+
+.btn-group .btn {
+    margin-right: 0px;
+}
+
+form {
+    margin: 10px 0 10px 0;
+}
+
+form textarea {
+    margin-bottom: 10px;
+}
+
+form input[type="checkbox"] {
+    margin-bottom: 10px
+}
+
+td form {
+    margin: 0px;
+}
+
+.form_inline input,
+.form_inline select {
+    display: inline-block;
+    margin-right: 6px;
+}
+
+.form_no_margin_bottom {
+    margin-bottom: 0px;
+}
+
+.btn.input_margins {
+    margin-left: 3px;
+    margin-right: -3px;
+}
+
+.input_margins {
+    margin-left: 3px;
+    margin-right: -3px;
+}
+
+ul.nav-pills {
+    margin-bottom: 10px;
+}
+
+div.web2py_console {
+    margin-bottom: 6px;
+}
+
+.table input[type="checkbox"] {
+    margin-bottom:0px;
+}
+
+/*
+.table form input {
+    margin-left: 6px;
+}
+*/
+
+
+.table>tbody>tr.header:first-child>td,
+.table>tbody>tr.header:first-child>th {
+    border-top: none;
+}
+
+.table>tbody>tr.header:first-child:hover {
+    background-color: #FFF;
+}
+
+input.search,
+.search {
+    width: 300px;
+}
+
+ul.nav-tabs {
+    margin-bottom: 10px;
+}
+
+.modal-body ul {
+    line-height: 1.5em;
+    font-size: 110%;
+}
+
+.btn-default {
+    text-shadow: none;
+}
+
+.navbar span.active {
+    color: #000;
+}
+
+.navbar-default {
+    #background-color: #f5f7fa;
+    background-image: none;
+    box-shadow: none;
+}
+
+.navbar-nav .fa {
+	display: inline-block;
+	width: 18px;
+	text-align: center;
+	margin-right: 4px;
+}
+
+
+.btn-group .dropdown-menu .fa {
+	display: inline-block;
+	width: 16px;
+	text-align: center;
+	margin-right: 3px;
+}	
+
+form input.boolean {
+    margin-left: 3px;
+}
+
+td.row_buttons {
+    float: right;
+}
+
+.panel div .btn-block {
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    border-bottom-right-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+
+td .btn-group {
+    margin-right: 6px;
+}
+
+.w2p_fw textarea {
+    height: 120px;
+    margin-right: 0px;
+}
+
+.web2py_grid .row_buttons .modal-body ul.no-padding li a {
+    padding: 0;
+    margin: 0;
+}
+
+.web2py_grid .row_buttons .btn-group a.btn {
+    margin: 0;
+}
+
+.web2py_grid .row_buttons .btn-group {
+    margin: 3px;
+}
+
+.web2py_grid .row_buttons .btn-group button.btn-sm {
+    padding-top: 6px;
+    padding-bottom: 6px;
+    line-height: 20px;
+}
+
+.btn-group-xs .btn {
+    font-size: 10px;
+    padding: 2px 6px 2px 6px;
+}
+
+form table.full-width td.w2p_fl {
+    width: 110px;
+}
+
+.footer {
+    border-top: 1px solid #EAEAEA;
+    background-color: #FFF;
+}
+
+ul.dropdown-menu li a {
+    padding: 10px 20px 10px 20px;
+}
+
+ul.nav-pills { margin-bottom: 15px; }
+
+
+.pagination>li>a,
+.pagination>li>a:visited,
+.pagination>li>a:active,
+.pagination>li>a:focus {
+    color: #777;
+}
+
+/* Bootstrap3 mods &web2py mods end */
+
+/* default table definitions begin */
+td.back_button {
+    width: 100px;
+}
+
+td.os-customer_name {
+    width: 220px;
+}
+
+table.os-table table {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+table.os-table table td {
+    padding-top: 0;
+    padding-bottom: 3px;
+}
+
+table.os-table td,
+table.os-table th {
+    padding: 6px;
+}
+
+table.os-table tr {
+    min-height: 40px;
+}
+
+table.os-table tr td.td-icons {
+    width: 100px;
+}
+
+table.os-table tr td.td-icons-big {
+    width: 240px;
+    vertical-align: middle;
+    padding: 3px;
+}
+
+table.os-table tr td.td-icons span {
+    padding-left: 3px;
+}
+
+table.os-table tr .icons {
+    display: none;
+}
+
+table.os-table tr:hover .icons {
+    display: block;
+}
+
+table.os-table td.show_buttons .icons {
+    display: block
+}
+
+table.os-table tr:hover {
+    background-color: #F5F5F5;
+}
+
+table.os-table tr.os-table_header {
+    border-bottom: 1px solid #EAEAEA;
+    color: #555;
+}
+
+table.os-table tr.os-table_header:hover {
+    background: #FFF;
+}
+
+
+div.error {
+    margin-bottom: 10px;
+}
+
+
+/* default table definitions end */
+
+span.badge a {
+    color: #FFF;
+}
+
+/* No margin definitions end */
+
+.os-clickable {
+    cursor: pointer;
+}
+
+.os-movable {
+    cursor: move;
+}
+
+/* general definitions begin */
+.os-input_year {
+	width:100px;
+}
+
+.os-input_month {
+	width:140px;
+    margin-right:3px;
+}
+
+.textalign_left {
+	text-align:left;
+}
+
+input[type=checkbox] {
+    margin:0;
+}
+
+input, select {
+    margin-bottom: 10px;
+}
+
+.bold {
+    font-weight:bold;
+}
+/* general definitions end */
+
+/* os-attendance_info_table begin */
+
+/* Uncomment to have it in a window floating above other content
+#attendance_list_customers_list {
+    position: absolute;
+    top: 60px;
+    left: 15px;
+    right: 15px;
+    background-color: #fff;
+    width: 100%;
+    z-index: 1020;
+    min-height: 100px;
+    border: 2px solid #E5E5E5;
+}*/
+
+#attendance_list_customers_list {
+    min-height: 50px;
+}
+
+.os-attendance_info_table {
+    margin: 0;
+}
+
+table.os-attendance_info_table tr{
+    border: none;
+}
+
+table.os-attendance_info_table td {
+    padding: 0 5px 4px 5px;
+}
+
+.os-customer_list_buttons a.button {
+    margin-bottom: 5px;
+}
+
+/* os-attendance_info_table end */
+
+/* Customer image definitions for edit begin */
+.customer_image_edit img {
+	width:76%;
+	height:76%;
+	padding:5px;
+	border-style:solid;
+	border-width:1px;
+    border-color: #999;
+    border-radius: 4px;
+
+}
+/* Customer image definitions for edit end */
+.customers_edit_tools {
+	margin-left:54%;
+}
+.customers_edit_container {
+	margin-top:5px;
+}
+
+.customers_edit_container #customers_id {
+    margin-right: 25%;
+}
+
+.customers_edit_container tr td:first-child {
+    width: 84px;
+}
+
+.customers_edit_container .input-group {
+    margin: 0 -9px 10px 6px;
+}
+
+.customers_edit_container .input-group input {
+    margin: 0;
+}
+
+
+
+.customers_edit_basic_info {
+	padding-top:3px;
+}
+.customers_edit_basic_info input,
+.customers_edit_address_info input,
+.customers_edit_basic_info select,
+.customers_edit_address_info select {
+    margin-left: 6px;
+}
+.customers_edit_notes button {
+    margin-top: 10px;
+}
+
+div.customers_edit_address_info {
+    margin-bottom:0px;
+}
+
+table#customer_subscription_pause_add td {
+    padding: 3px;
+}
+
+.os-wrapper {
+    position:relative;
+    overflow:auto;
+    height:62px;
+}
+
+div.os-customer_tools {
+    /* position:absolute; */
+    bottom:0;
+    color: #AFAFAF;
+    font-size: 95%;
+}
+
+span.os-tools_remove,
+span.os-tools_remove a {
+    color: #CC160D;
+    cursor: pointer;
+}
+
+.customers_search_results {
+	margin-top: 20px;
+}
+
+/* Select to choose number of customers per page */
+#no_table_nr_items { width: 65px; }
+
+/* Customer image definitions for list begin */
+td.os-table_date,
+th.os-table_date {
+    width: 7em;
+}
+
+td.os-customer_image_td {
+    width: 62px;
+}
+
+.customer_image {
+	padding:3px;
+	width:56px;
+}
+
+.customer_image img {
+	border-style:solid;
+	border-width:1px;
+    border-radius: 50%;
+	padding:2px;
+	width:40px;
+	height:40px;
+}
+
+.customer_active_marker {
+    float:right;
+    width:5px;
+    height:5px;
+    margin:2px;
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    -o-border-radius: 50%;
+    border-radius: 50%;
+    background: #4679BD;
+}
+
+/* Customer image definitions for list end */
+
+/* Workshop image definitions for list begin */
+
+.workshop_img i {
+		color: #777;
+		font-size: 40px;
+}
+
+.workshop_image img {
+    padding: 2px;
+    width: 40px;
+    height: 40px;
+}
+
+.workshop_image_large {
+    width: 100%;
+    height: 100%;
+}
+
+.workshop_image_large img {
+    padding: 2px;
+    width: 100%;
+    height: 100%;
+}
+
+th.workshop_image_th {
+    width: 62px;
+}
+
+
+/* Workshop image definitions for list end */
+
+/* Memo page layout and looks begin */
+.memo_layout input.date {
+	width:130px;
+}
+
+.memo_layout select {
+	width:144px;
+}
+
+.memo_layout input.string {
+	width:400px;
+}
+
+.memo_layout table.web2py_radiowidget {
+	margin:0px;
+	margin-bottom:10px;
+}
+
+.memo_layout textarea {
+	width:400px;
+	margin-left:3px;
+}
+/* Memo page layout and looks end */
+
+a.web2py_grid_drop-down
+/* 12-03-2014 change by Edwin to allow block display of links in web2py_grid */
+{
+	display:block !important;
+	white-space:nowrap;
+}
+
+#customers_export {
+	padding-left:5px;
+}
+
+#classes_schedule {
+    font-size: 100%;
+}
+
+#schedule_filter_form {
+	width:100%;
+	text-align:left;
+	vertical-align:text-top;
+    margin-bottom: 10px;
+}
+
+#schedule_filter_form .btn,
+#schedule_filter_form select {
+ 	margin-left:3px;
+	margin-right:3px;
+}
+
+#schedule_filter_form select {
+    width: 146px;
+}
+
+#schedule_form_week .input-group-addon {
+    width: 62px;
+}
+
+.schedule_weekday_anchor {
+    display: block;
+    position: relative;
+    top: -106px;
+    visibility: hidden;
+}
+
+.schedule_day_chooser a {
+    display: inline-block;
+    padding: 12px 6px 0 6px;
+}
+
+.schedule_day_chooser a:active,
+.schedule_day_chooser a:focus {
+    text-decoration: none;
+    font-weight: bold;
+    color: #999;
+}
+
+#no_table_schedule_jump_date {
+    margin: 0 0 10px 3px;
+}
+
+ul.os-schedule_tools {
+    clear:both;
+    margin: 0px;
+    list-style-type: none;
+}
+
+ul.os-schedule_tools li {
+    margin: 0px 0px 14px 0px;
+}
+
+ul.os-schedule_tools a {
+    text-decoration: none;
+    font-size: 20px;
+    margin: 3px 0px 3px 0px;
+}
+
+#preferences_users_filter,
+#workshops_show_filter,
+#school_subscriptions_show_filter {
+	margin: 0px;
+}
+
+
+/* OpenStudio submenu begin */
+
+ul.os-submenu {
+	margin-top:20px;
+	margin-left:0px;
+    padding-left:0px;
+}
+
+.os-submenu li {
+	list-style-type:none;
+	#border-bottom: 1px solid #EAEAEA;
+}
+
+.os-submenu li a:hover {
+	color:#08C;
+	#color: #454545;
+}
+
+.os-submenu li.web2py-menu-active {
+	display:block;
+	border-style:none;
+	#border-radius:4px;
+	background:#EAEAEA;
+	font-weight: bold;
+}
+
+.os-submenu li.web2py-menu-active a {
+	color:#08c;
+	#color: #454545;
+}
+
+.os-submenu li a {
+    display: inline-block;
+    padding: 7px 0px 7px 14px;
+    width: 100%;
+}
+
+.os-submenu a {
+	text-decoration:none;
+	color:#999;
+}
+
+.os-submenu i.fa {
+	display: inline-block;
+	text-align: center;
+	width: 18px;
+	font-size: 106%;
+}
+
+/* OpenStudio submenu end */
+
+/* OpenStudio submenu horizontal begin */
+
+ul#os_overview-subscriptions.os-submenu-horizontal {
+	margin:0 0 26px 0;
+}
+
+ul#os-menu-settings-permissions {
+    float: left;
+    margin: 6px 0 10px 20px;
+
+}
+
+.os-submenu-horizontal li {
+    display:inline;
+	width:146px;
+	list-style-type:none;
+	padding:6px 10px 6px 10px;
+}
+
+.os-submenu-horizontal li.web2py-menu-active {
+	display:inline;
+	border-style:none;
+	border-radius:4px;
+	background:#EAEAEA;
+}
+
+.os-submenu-horizontal li.web2py-menu-active a {
+	color:#08c;
+}
+
+.os-submenu-horizontal a {
+	text-decoration:none;
+	color:#999;
+}
+
+.os-submenu-horizontal li a:hover {
+	color:#08C;
+}
+
+
+/* OpenStudio submenu horizontal end */
+
+/* OpenStudio permissions begin */
+
+#os-permissions {
+    margin: 50px 0 0 100px;
+}
+
+#os-permissions table {
+    width: 86%;
+}
+
+#os-permissions td.checkbox {
+    width: 10px;
+}
+
+#os-permissions td {
+    padding: 4px 0 4px 0;
+}
+
+#os-permissions tr {
+    border-bottom-style: solid;
+    border-color: #F8F8F8;
+    border-bottom-width: 1px;
+}
+
+#os-permissions tr.odd {
+    background: #F9F9F9;
+}
+
+#os-permissions tr:hover {
+    background: #F5F5F5;
+}
+
+#os-permissions input[type="checkbox"] { margin-top:0; margin-bottom:1px; }
+
+#os-permissions .level_0 {
+	padding-left:5px;
+}
+
+#os-permissions .level_1 {
+	padding-left:35px;
+}
+
+#os-permissions .level_2 {
+	padding-left:65px;
+}
+
+#os-permissions .level_3 {
+	padding-left:95px;
+}
+
+#os-permissions .level_4 {
+	padding-left:125px;
+}
+/* OpenStudio permissions end */
+
+/* user_group_form begin */
+
+.os-user_group_form {
+    margin:20px 0 0 20px;
+}
+
+.os-user_group_form input {
+    margin:0;
+}
+
+.os-user_group_form .btn {
+    margin:10px 0 0 -20px;
+}
+/* user_group_form end */
+
+/* os multiple choice ul begin */
+ul.os-multiple_choice {
+	margin:10px 0 0 0;
+	width:400px;
+}
+
+ul.os-multiple_choice p {
+	margin:0 0 0 30px;
+}
+
+ul.os-multiple_choice a {
+	padding:0 0 0 10px;
+	font-weight:bold;
+}
+
+ul.os-multiple_choice li {
+	padding:10px 0 10px 0;
+	list-style:none;
+	border-style:solid;
+	border-width:0;
+	border-color:#E9E9E9;
+	border-bottom-width:1px;
+}
+
+
+/* os multiple choice ul end */
+
+/* stats year form begin */
+.os-stats_year_form input {
+    margin-bottom:0px;
+}
+/* stats year form end */
+
+/* stats chart titles */
+.os-chart-title {
+    clear:both;
+    padding-top: 10px;
+}
+
+/* start chart titles end */
+
+/* stats charts begin */
+.os-piechart {
+    margin: 0 auto 0 auto;
+    width:75%;
+}
+
+.os-piechart canvas {
+    display:block;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+.os-barchart {
+    float:left;
+}
+
+
+/* stats charts end */
+
+/* index table (eg. school properties index page) begin */
+.os-index_grid div.col-md-4 {
+    padding: 20px;
+    height: 100px;
+}
+/* index table end */
+
+/* os-customer_table begin */
+
+
+.os-customer_table tr {
+    border-style: solid;
+    border-width: 0px;
+    border-color: #EAEAEA;
+    border-bottom-width: 1px;
+}
+
+
+.os-customer_table tr:hover {
+    background: #F5F5F5;
+}
+
+.os-customer_table form {
+    margin:0px;
+}
+
+.os-customer_table {
+    width: 100%;
+}
+
+td.os-customer_table_description,
+th.os-customer_table_description {
+    width: 320px;
+}
+
+td.os-customer_ThumbSmall {
+    width: 93px;
+}
+
+.os-customer_table td {
+    margin: 10px 0 10px 0;
+}
+
+/* os-customer_table end */
+
+/* pin board begin */
+
+table#pinboard_anouncements {
+    width: 100%;
+}
+
+table#pinboard_memos {
+    border-collapse: separate;
+    border-spacing: 20px 10px;
+}
+
+table#pinboard_anouncements tr.buttons td,
+table#pinboard_memos tr.buttons td
+{
+    border-style: solid;
+    border-width: 0 0 1px 0;
+    border-color: #EAEAEA;
+    padding: 0 0 30px 0;
+    background-color: #FFF;
+}
+
+/* pin board end */
+
+/* Classes attendance begin */
+
+div.os-attendance_buttons {
+    margin-left: 530px;
+}
+
+td.very_big_check {
+    width: 35px;
+}
+
+.btn-checkin { width: 84px; }
+
+
+/* Classes attendance end */
+
+td.os-date_month_name {
+    width:100px;
+}
+
+/* Status markers begin */
+
+td.td_status_marker,
+th.td_status_marker {
+    width: 20px;
+    padding-right: 6px;
+}
+
+.status_marker {
+    float:left;
+    width:8px;
+    height:8px;
+    margin:5px 2px 2px 2px;
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    -o-border-radius: 50%;
+    border-radius: 50%;
+}
+
+table#class_status {
+    margin: 0px;
+}
+
+#class_status p {
+    float:left;
+    font-size:14px;
+    font-weight: bold;
+}
+
+table#class_status {
+    border-style: solid;
+    border-width: 0px 0px 3px 0px;
+}
+
+table#class_status.cancelled {
+    border-color: #EF8F00;
+}
+
+table#class_status.open {
+    border-color: #CC160D;
+}
+
+table#class_status.normal {
+    border-color: #11A05E;
+}
+
+table#class_status.sub {
+    border-color: #4679BD;
+}
+/* Status markers end */
+
+/* Schedule begin */
+div#form_jump form{
+    margin: 10px 0 10px 0;
+}
+
+#schedule_form_week {
+    margin-bottom: 10px;
+}
+
+
+table.os-schedule tr.os-table_header,
+table.os-schedule tr.os-schedule_links {
+    border: none;
+}
+
+table.os-schedule th.location { width: 12%; }
+table.os-schedule th.classtype { width: 15%; }
+table.os-schedule th.time { width: 12%; }
+table.os-schedule th.teacher { width: 15%; }
+table.os-schedule th.level { width: 10%; }
+table.os-schedule th.api { width: 7%; }
+table.os-schedule th.trend { width: 12%; }
+
+table.os-schedule tr.os-schedule_links { font-size: 90%; }
+
+table.os-schedule tr.os-table_header:hover {
+    background: #FFF;
+}
+
+table.os-schedule tr.os-table_header th {
+    padding: 8px 0 8px 0;
+}
+
+table.os-schedule {
+    width:100%;
+}
+
+table .location { width: 8em; }
+table .classtype { width: 14em; }
+table .class_time { width: 8em; }
+table .class_date { width: 8em; }
+table .class_level { width: 8em; }
+table .class_teacher { width: 20em; }
+
+
+table.os-schedule tr {
+    height: 20px;
+    border-top-style: solid;
+    border-top-width: 1px;
+    border-top-color: #EAEAEA;
+}
+
+table.os-schedule tr.holiday {
+    height: 56px;
+    vertical-align: top;
+}
+
+table tr.os-schedule_class {
+    height: 36px;
+}
+
+table tr.os-schedule_class .schedule_buttons {
+    padding-top: 6px;
+}
+
+tr.os-schedule_class .schedule_buttons{
+    #height: 24px;
+}
+
+tr.os-schedule_class td {
+    #padding-bottom: 0px;
+}
+
+table.os-schedule tr:hover {
+    background: #F5F5F5;
+}
+
+div.os-schedule_links {
+    color: #AFAFAF;
+    #font-size: 90%;
+    background-color: #F5F5F5;
+}
+
+div.os-trend_arrow_up {
+    display:inline-block;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 6px 6px 6px;
+    border-color: transparent transparent #11a05d transparent;
+    margin-right: 6px;
+}
+
+div.os-trend_arrow_down {
+    display:inline-block;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 6px 6px 0 6px;
+    border-color: #cc160d transparent transparent transparent;
+    margin-right: 6px;
+    margin-bottom: 5px
+}
+
+.os-trend_avg_4_weeks { 
+	width: 36px; 
+	margin-right: 6px;
+}
+
+/* Schedule end */
+
+
+table tr.total {
+    border-style: solid;
+    border-width: 0px;
+    border-top-width: 1px;
+    border-color: #EAEAEA;
+    font-weight: bold;
+}
+
+/* ul #os-customers_notes  begin */
+
+ul#os-customers_notes {
+    list-style-type: none;
+    padding: 0px;
+    margin: 0px;
+}
+
+ul#os-customers_notes li {
+    padding: 20px 20px 20px 20px;
+    border-bottom: 1px solid #EAEAEA;
+    border-radius: 4px;
+}
+
+div.os-customers_note_latest {
+    margin-bottom: 100px;
+    border: 1px solid #CCC;
+    border-radius: 4px;
+    padding: 4px 6px 4px 6px;
+    margin: 0 3px 0 6px;
+    min-height: 42px;
+    width: 100%;
+}
+
+ul#os-customers_notes span.icon-pencil {
+    padding-right: 6px;
+}
+
+ul#os-customers_notes li:hover {
+    background-color: #F5F5F5;
+}
+
+.os-customers_notes_edit form {
+    margin:0;
+}
+
+.os-customers_notes_edit textarea {
+    width: 98%;
+    max-width: 98%;
+    height: 50px;
+    margin-top: 6px;
+}
+
+.os-customers_notes_edit input[type='submit'],
+.os-customers_notes_edit .btn-default
+ {
+    margin: 0 4px 6px 0;
+}
+
+.os-customers_notes_edit input[type='checkbox'] {
+    padding-top: 6px;
+}
+
+/* ul #os-customers_notes end */
+div#classes_customers_searchform form {
+    margin: 0 0 10px 0;
+}
+
+div#classes_customers_searchform form input[type="text"] {
+    width: 260px;
+}
+
+.load_list_customers .btn-group {
+    margin-right: 16px;
+}
+
+_.load_list_customers {
+	height: 500px;
+}
+
+/* Messages begin */
+
+.container_messages {
+    width: 100%;
+    height: 100%;
+}
+
+.list_messages {
+    height: 100%;
+    padding: 0 6px 0 6px;
+    overflow-y: auto;
+}
+
+.list_messages li {
+    padding: 6px;
+    border-bottom: 1px solid #EAEAEA;
+}
+
+.list_messages li:last-child {
+    border-bottom: none;
+    margin-bottom: 6px
+}
+
+.list_messages li:hover,
+.list_messages li.active
+{
+    border-color: white;
+    background-color: #EAEAEA;
+    border-radius: 4px;
+}
+
+.message_header {
+    background-color: #EAEAEA;
+    border-bottom: 1px solid #EAEAEA;
+    padding: 6px 15px 6px 15px;
+}
+
+.message_info {
+    padding: 6px 15px 6px 15px;
+}
+
+.message_body {
+    padding: 15px 15px 6px 15px;
+    overflow-y: auto;
+}
+
+.message_display {
+    padding: 0px;
+    border: 1px solid #EAEAEA;
+    border-radius: 4px;
+    min-height: 55vh;
+}
+
+/* Messages end */
+
+
+/* TinyMCE CSS Begin */
+
+.mce-tinymce.mce-container.mce-panel {
+    margin-bottom: 10px;
+}
+
+/* TinyMCE CSS End */
+
+
+/* Ajax loader begin */
+
+.ajax_loader {
+    padding: 15px 0 0 15px;
+}
+
+.ajax_loader img {
+    width: 20px;
+    height: 20px;
+    margin-right: 0.5em;
+}
+
+/* Ajax loader end */
+
+/* Payment batches begin */
+
+div#payment_batches_add label {
+    margin-right: 10px;
+}
+
+#payment_batches_ColMonth {
+    width: 230px;
+    display: inline;
+    margin-right: 6px;
+}
+
+input#payment_batches_ColYear {
+    width: 92px;
+    display: inline;
+    margin-left: 6px;
+    margin-right: -3px;
+}
+
+div.payment_batches {
+    margin-top: 16px;
+    margin-bottom: 30px;
+    min-height: 292px;
+}
+
+div.payment_batches_padding {
+    padding: 8px;
+}
+
+div.payment_batches_status {
+    padding-right: 15px;
+}
+
+/* Payment batches end */
+
+/* Tasks begin */
+
+td.btn_task_finished {
+    width: 24px;
+}
+
+td.btn_task_finished a:hover {
+    color: #11A05E;
+}
+
+#tasks_user_filter {
+    margin: 0 10px 0 0;
+}
+
+td.task {
+    width: 270px;
+}
+
+td.task a,
+td.task span {
+    text-decoration: none;
+}
+
+td.task a:hover,
+td.task a:focus {
+    color:#333;
+    text-decoration: underline;
+}
+
+
+/* Tasks end */
+
+
+/* Merge begin */
+
+#btn_merge_execute {
+    margin-left: 20px;
+}
+
+/* Merge end */
+
+
+/* Invoice items begin */
+
+table.invoice-items textarea {
+    height: 34px;
+    max-width: 320px;
+}
+
+table.invoice-items tfoot,
+table.order-items tfoot,
+table.teacher-classes-revenue tfoot {
+    border-top: 2px solid #CCC;
+}
+
+table.invoice-items tfoot td,
+table.order-items tfoot td {
+    border: none;
+}
+
+table.invoice-items input,
+table.invoice-items select {
+    margin-left: 0px;
+}
+
+table.invoice-items tr td:first-child,
+table.invoice-items tr th:first-child {
+    padding: 8px 3px 8px 3px;
+    width: 14px;
+}
+
+table.invoice-items th.ProductName {
+    width: 180px;
+}
+
+table.invoice-items th.TaxRate {
+    width: 130px;
+}
+
+table.invoice-items th.Description,
+table.invoice-items td.Description {
+    width: 240px;
+}
+
+table.invoice-items th.Quantity {
+    width: 60px;
+}
+table.invoice-items th.Price {
+    width: 90px;
+}
+
+table.invoices-info-table td {
+    padding: 0 0 6px 12px;
+}
+
+#invoices_status_filter form {
+    margin: 0;
+}
+
+/* Invoice items end */
+
+/* Invoices in list begin */
+.invoice_list_add_payment {
+    display: inline-block;
+    margin-top: 2px;
+}
+
+/* Invoices in list end */
+
+/* Date chooser next/prev buttons end */
+
+.btn_date_chooser {
+    display: inline-block;
+    padding: 12px;
+    background-color: #EAEAEA;
+    color: #333;
+    width: 50%;
+}
+
+.btn_date_chooser,
+.btn_date_chooser:hover,
+.btn_date_chooser:visited,
+.btn_date_chooser:active {
+    color: #333;
+}
+
+a.btn_date_chooser {
+    text-decoration: none;
+}
+
+/* Date chooser next/prev buttons end */
+
+
+.btn-back {
+    display: inline-block;
+    padding: 12px;
+    color: #333;
+    background-color: #EAEAEA;
+    text-align: left;
+}
+
+
+/* Attendance check-in options begin */
+
+ul.check-in_options {
+    padding: 0;
+    list-style-type: none;
+    font-size: 150%;
+}
+
+ul.check-in_options li {
+    margin: 6px 0 6px 0;
+}
+
+ul.check-in_options li .btn {
+    text-align: left;
+    background-image: none;
+}
+
+/* Attendance check-in options end */
+
+/* System setting branding begin */
+
+.settings_branding_logo {
+    max-width: 200px;
+}
+
+/* System settings branding end */
+
+
+/* mobile menu begin */
+
+#mobile_menu_toggle {
+    background-color: #F8F8F8;
+    color: #777;
+    font-size: 135%;
+    border: none;
+    box-shadow: none;
+    margin-top: 6px;
+    margin-right: 0px;
+}
+
+#mobile_menu {
+    position: absolute;
+    top: 52px;
+    z-index: 1500;
+    background-color: #fff;
+    width: 100%;
+    border-bottom: 1px solid #EAEAEA;
+}
+
+
+#mobile_menu h3 {
+    padding-left: 10px;
+}
+
+#mobile_menu ul {
+    padding-left: 10px;
+    list-style-type: none;
+}
+
+#mobile_menu ul li {
+    font-size: 135%;
+    margin: 16px;
+}
+
+#mobile_menu ul li a,
+#mobile_menu ul li a:active,
+#mobile_menu ul li a:focus,
+#mobile_menu ul li a:hover,
+#mobile_menu ul li a:visited {
+    color: #777;
+}
+
+#mobile_menu .web2py-menu-vertical {
+    font-size: 80%;
+}
+
+/* mobile menu end */

@@ -1,0 +1,95 @@
+{{extend 'layout.html'}}
+
+{{block header}}
+    {{=year_chooser}}
+{{end}}
+
+<div class="nav-tabs-custom">
+    {{=tabs}}
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active row" id="total">
+            <div class="col-md-9">
+                <div class="os-chart-title">{{=total_chart_title}}</div>
+                <div class="os-barchart">
+                    <canvas id="total-chart-area" width="900" height="300"></canvas>
+                </div>
+                {{=total_avg_table}}
+            </div>
+            <div class="col-md-3">
+                <br>
+                {{=total_data_table}}
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane row" id="subscriptions">
+            <div class="col-md-9">
+                <div class="os-chart-title">{{=subscriptions_chart_title}}</div>
+                <div class="os-barchart">
+                    <canvas id="subscriptions-chart-area" width="900" height="300"></canvas>
+                </div>
+                {{=subscriptions_avg_table}}
+            </div>
+            <div class="col-md-3">
+                <br>
+                {{=subscriptions_data_table}}
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane row" id="classcards">
+            <div class="col-md-9">
+                <div class="os-chart-title">{{=classcards_chart_title}}</div>
+                <div class="os-barchart">
+                    <canvas id="classcards-chart-area" width="900" height="300"></canvas>
+                </div>
+                {{=classcards_avg_table}}
+            </div>
+            <div class="col-md-3">
+                <br>
+                {{=classcards_data_table}}
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane row" id="workshops">
+            <div class="col-md-9">
+                <div class="os-chart-title">{{=workshops_chart_title}}</div>
+                <div class="os-barchart">
+                    <canvas id="workshops-chart-area" width="900" height="300"></canvas>
+                </div>
+                {{=workshops_avg_table}}
+            </div>
+            <div class="col-md-3">
+                <br>
+                {{=workshops_data_table}}
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane row" id="dropin">
+            <div class="col-md-9">
+                <div class="os-chart-title">{{=dropin_chart_title}}</div>
+                <div class="os-barchart">
+                    <canvas id="dropin-chart-area" width="900" height="300"></canvas>
+                </div>
+                {{=dropin_avg_table}}
+            </div>
+            <div class="col-md-3">
+                <br>
+                {{=dropin_data_table}}
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane row" id="trial">
+            <div class="col-md-9">
+                <div class="os-chart-title">{{=trialclasses_chart_title}}</div>
+                <div class="os-barchart">
+                    <canvas id="trialclasses-chart-area" width="900" height="300"></canvas>
+                </div>
+                {{=trialclasses_avg_table}}
+            </div>
+            <div class="col-md-3">
+                <br>
+                {{=trialclasses_data_table}}
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script src={{=URL('static', 'plugin_os-js/Chart.min.js')}}></script>
+<script src={{=URL('static', 'plugin_os-js/reports/revenue.js')}}></script>
+

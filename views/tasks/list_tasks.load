@@ -1,0 +1,11 @@
+{{=content}}
+
+<script>
+    $(document).ready(function() {
+        $('a.task-title').click(function() {
+            $(this).find('.fa').toggleClass('fa-angle-left');
+            $(this).find('.fa').toggleClass('fa-angle-down');
+        });
+    });
+</script>
+

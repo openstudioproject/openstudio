@@ -1,0 +1,484 @@
+html {
+    position: relative;
+    height: 100%;
+}
+
+body {
+    height: 100%;
+    margin-bottom: 0px;
+    padding-bottom: 61px;
+    margin-bottom: 0px;
+}
+
+.main_container {
+    min-height: 100%;
+    padding-bottom: 60px;
+}
+
+
+.grey { color: #999; }
+.grey-dark { color: #555; }
+.grey-light { color: #BBB; }
+.blue { color: #4679BD; }
+.green { color: #11A05E; }
+.red { color: #CC160D; }
+.orange { color: #EF8F00; }
+.purple { color: #AD7FA8; }
+.yellow { color: #FCE94F; }
+.default-color { color: #333; }
+
+.bg_light_blue { background: #729fcf; }
+.bg_blue { background: #4679BD; }
+.bg_green { background: #11A05E; }
+.bg_orange { background: #EF8F00; }
+.bg_red { background: #CC160D; }
+.bg_purple { background: #AD7FA8; }
+.bg_yellow { background: #FCE94F; }
+.bg_grey { background: #777; }
+
+.red_border { border: 1px solid #CC160D; }
+
+a.red:hover,
+a.red:active,
+a.red:focus,
+a.red:visited { 
+	color: #CC160D;
+	text-decoration: none;
+}
+
+
+
+.no-padding-left { padding-left: 0px; }
+.no_padding-right { padding-right: 0px; }
+
+.no-margin-top { margin-top: 0px; }
+
+/* Typography begin */
+h1 {
+    font-size: 30px;
+    margin-bottom: 30px;
+}
+
+.grey { color: #777; }
+.green { color: #11A05E; }
+
+.small_font { font-size: 85%; }
+
+.line-through {
+    text-decoration: line-through;
+}
+
+
+.bold { font-weight: bold; }
+
+.center { text-align: center; }
+
+
+
+/* Typography end */
+
+/* Navbar begin */
+
+
+.navbar-default {
+    background: #FFF;
+    border-image: none;
+    box-shadow: none;
+}
+
+.navbar-fixed-top {
+    border: none;
+    background-color: rgba(255,255,255,0.94)
+}
+
+.navbar-fixed-top .navbar-collapse {
+    padding-bottom: 6px;
+    border-bottom: 1px solid #EAEAEA;
+}
+
+.navbar-nav {
+	font-size: 107%;
+}
+/* Navbar end */
+
+/* Footer begin */
+/*
+.footer {
+  #position: relative;
+  padding: 20px;
+  width: 1140px;
+}
+*/
+
+.footer {
+    border-top: 1px solid #EAEAEA;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+    /* Set the fixed height of the footer here */
+    height: 60px;
+    padding: 20px;
+    background-color: #FFF;
+}
+
+
+/* Footer end */
+
+/* Dropdown-menu begin */
+
+ul.dropdown-menu li a {
+    padding: 10px 20px 10px 20px;
+}
+
+/* Dropdown-menu end */
+
+/* Mobile menu begin */
+#mobile_menu {
+    padding: 8px 12px 8px 12px;
+    font-size: 135%;
+    border: none;
+    width: 100%;
+    
+}
+
+.dd_mobile_menu button {
+    border-image: none;
+    box-shadow: none;
+}
+
+.dd_mobile_menu ul {
+    width: 100%;
+}
+
+.dd_mobile_menu ul li {
+    font-size: 115%;
+    margin: 10px;
+}
+
+.dd_mobile_menu .web2py-menu-vertical {
+    font-size: 80%;
+}
+
+/* Mobile menu end */
+
+/* Boostrap tweaks begin */
+
+.btn-primary {
+  background: #298EEA;
+  border: #298EEA;
+}
+
+.btn {
+    background-image: none;
+    margin-right: 4px;
+}
+
+.btn-group .btn {
+    margin-right: 0;
+}
+
+form input,
+form select {
+    margin-bottom: 10px;
+}
+
+/* Bootstrap tweaks end */
+
+/* Layout definitions begin */
+.row-eq-height {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display:         flex;
+}
+/* Layout definitions end */
+
+
+/* logo begin */
+.logo_blue {
+    color: #298EEA;
+}
+
+.logo_text {
+    display: inline-block;
+    font-family: 'Raleway', 'Open Sans', sans-serif;
+    #font-weight: 300;
+    font-size: 180%;
+    line-height: 50px;
+    padding: 0 15px 0 6px;
+    vertical-align: middle;
+}
+
+.brand,
+.brand:hover,
+.brand:focus,
+.brand:active {
+    color: #777;
+    text-decoration: none;
+    font-size: 90%;
+    height: 50px;
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.brand img {
+    vertical-align: middle;
+    max-height: 32px;
+    max-width: 258px;
+}
+
+/* logo end */
+
+/* Workshops begin */
+
+.workshops-list-month {
+    width: 67%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.workshops-list-month.full-width {
+    width: 100%;
+}
+
+.workshops-list-month h2 { 
+    margin-bottom: 34px;
+}
+
+.workshops-list-workshop {
+    border-bottom: 1px solid #EAEAEA;
+    padding: 20px;
+}
+
+.workshops-list-workshop:last-child {
+    #background: red;
+    border-bottom: none;
+    margin-bottom: 60px;
+}
+
+.workshops-list-workshop-info .fa {
+    display: inline-block;
+    width: 15px;
+    text-align: left;
+}
+
+.workshops-list-workshop a,
+.workshops-list-workshop a:hover,
+.workshops-list-workshop a:visited,
+.workshops-list-workshop a:active,
+.workshops-list-workshop a h4,
+.workshops-list-workshop a h4:hover,
+.workshops-list-workshop a h4:visited,
+.workshops-list-workshop a h4:active {
+    color: #333;
+    font-weight: bold;
+    font-size: 110%;
+    text-decoration: none;
+}
+
+.workshops-list-workshop a:hover,
+.workshops-list-workshop a h4:hover {
+    color: #777;
+}
+
+.workshops-list-workshop-image {
+}
+
+.workshops-list-workshop img {
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    -o-border-radius: 50%;
+    border-radius: 50%;
+    border: 1px solid #EAEAEA;
+    max-width: 300px;
+}
+
+.workshops-list-workshop-date,
+.workshops-list-workshop-teacher,
+.workshops-list-workshop-location {
+    color: #777;
+    padding: 0 0 4px 0;
+}
+
+.workshops-list-workshop-info {
+    position: relative;
+}
+
+.workshops-list-workshop .btn-link {
+    padding-left: 0;
+}
+
+.workshops_list_price {
+    font-size: 110%;
+    margin: 10px;
+    text-align: center;
+}
+
+img.workshop_image {
+/*
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    -o-border-radius: 50%;
+    border-radius: 50%;
+*/
+    #border: 1px solid #EAEAEA;
+    width: 100%;
+}
+
+.workshop-products-filter {
+    margin-bottom: 40px;
+}
+
+.workshop-activities {
+    
+}
+
+.workshop-activity {
+    border-bottom: 1px solid #EAEAEA;
+    padding: 12px;
+    font-size: 105%;
+}
+
+.workshop-activity-header {
+    padding: 12px;
+    font-size: 105%;
+    border-bottom: 2px solid #EAEAEA;
+}
+
+
+
+@media (max-width: 989px) {
+    .mobile-center {
+        text-align: center;
+    }
+    
+    .mobile-bold {
+        font-weight: bold;
+    }
+}
+
+.workshop_image_large img {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+
+.workshop_image_large .label_date {
+  position: absolute;
+  top:0 ;
+  left: 15;
+  z-index: 600;
+  padding: 8px;
+  font-weight: bold;
+  background: #298EEA;
+  color: #FFF;
+
+}
+
+.workshop_product { padding-bottom: 40px; }
+
+.workshop_price {
+    font-size: 150%;
+    font-weight: bold;
+}
+
+.workshop_book_now {
+    margin-top: 20px;
+}
+
+.shop_workshop h2 {
+    margin-bottom: 50px;
+}
+
+/* Workshops end */
+
+/* CL home begin */
+
+.cl-rescontainer {
+    margin: 4px 4px 4px 0;
+}
+
+.cl-date,
+.cl-location,
+.cl-time,
+.cl-classtype {
+    display: inline-block;
+    margin-right: 6px;
+}
+
+.cl-date { width: 76px; }
+.cl-time { width: 86px; }
+.cl-classtype { width: 120px; }
+
+/* CL home end */
+
+
+/* Contact logo begin */
+.logo_login {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.logo_login img {
+    max-width: 94%;
+}
+
+/* Contact logo end */
+
+/* Order begin */
+
+table.invoice-items tfoot,
+table.order-items tfoot {
+    border-top: 2px solid #CCC;
+}
+
+table.invoice-items tfoot td,
+table.order-items tfoot td {
+    border: none;
+}
+
+
+/* Order end */
+
+/* Classes begin */
+.shop_classes_table_header {
+    border-bottom: 2px solid #EAEAEA;
+}
+
+.shop-classes .row {
+    padding: 8px;
+    border-bottom: 1px solid #EAEAEA;
+}
+
+.shop-classes-booking-options .col-md-12 {
+    padding: 1px;
+}
+
+.shop-classes-booking-options .row {
+    margin-bottom: 12px;
+}
+
+.shop-classes-week-chooser {
+    background-color: #EAEAEA;
+}
+
+.btn_date_chooser {
+    display: inline-block;
+    padding: 7px;
+    background-color: #EAEAEA;
+    color: #333;
+}
+
+.btn_date_chooser,
+.btn_date_chooser:hover,
+.btn_date_chooser:visited,
+.btn_date_chooser:active {
+    color: #333;
+}
+
+a.btn_date_chooser {
+    text-decoration: none;
+}
+
+/* Classes end */

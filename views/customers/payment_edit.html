@@ -1,0 +1,7 @@
+{{extend 'layout.html'}}
+{{try:}}{{=breadcrumb}}{{except:}}{{pass}}{{pass}}
+{{try:}}{{=back}}{{except:}}{{pass}}{{pass}}
+{{=content}}
+
+{{block right_sidebar}}
+{{end}}

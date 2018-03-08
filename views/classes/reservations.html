@@ -1,0 +1,35 @@
+{{extend 'layout.html'}}
+{{block header}}
+    {{=back}}
+{{end}}
+
+<div class='row'>
+    <div class='col-md-12'>
+        <div class="nav-tabs-custom">
+            {{=menu}}
+        <div class="tab-content">
+            <div class='row'>
+                <div class='col-md-12'>
+                    <div class='col-md-6 no_padding-left'>{{=form}}</div>
+                    
+                </div>
+            </div>
+            <div class="row">
+                <div class='col-md-12'>
+                {{=content}}
+                </div>
+            </div>
+            <div class="row">
+                <div class='col-md-12'>{{=reserved_header}}</div>
+                <div class='col-md-12'>
+                {{=reserved}}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src={{=URL('static', 'plugin_os-js/general/customers_set_list_search.js')}}></script>
+
+{{ import os }}
+{{ include os.path.join(request.folder,'static','plugin_os-js/classes/manage_reservation.html')}}

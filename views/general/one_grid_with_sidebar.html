@@ -1,0 +1,9 @@
+{{right_sidebar_enabled=True}}
+{{extend 'layout.html'}}
+{{try:}}{{=breadcrumb}}{{except:}}{{pass}}{{pass}}
+{{try:}}{{=back}}{{except:}}{{pass}}{{pass}}
+{{=grid}}
+
+{{block right_sidebar}}
+{{try:}}{{=sidebar_content}}{{except:}}{{pass}}{{pass}}
+{{end}}

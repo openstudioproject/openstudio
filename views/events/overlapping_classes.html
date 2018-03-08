@@ -1,0 +1,18 @@
+{{extend 'layout.html'}}
+{{ block header }}
+    {{try:}}{{=breadcrumb}}{{except:}}{{pass}}{{pass}}  
+    {{try:}}{{=back}}{{except:}}{{pass}}{{pass}}
+{{ end }}
+
+<div class="box box-primary">
+    <div class="box-body">
+        {{ for item in content: }} 
+            {{ if len(item['classes']): }}
+                <h3>{{=item['activity'].Activity }} <small>{{=item['activity'].Starttime.strftime(TIME_FORMAT)}} - {{=item['activity'].Endtime.strftime(TIME_FORMAT)}}</small></h3>
+                {{=item['classes']}}
+            {{pass}}
+        {{pass}}
+    </div>
+</div>
+
+

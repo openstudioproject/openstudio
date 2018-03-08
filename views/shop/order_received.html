@@ -1,0 +1,23 @@
+{{extend 'layout_shop.html'}}
+{{try:}}{{=breadcrumb}}{{except:}}{{pass}}{{pass}}
+{{try:}}{{=back}}{{except:}}{{pass}}{{pass}}
+
+{{block header}}
+{{try:}}{{=header_tools}}{{except:}}{{pass}}{{pass}}
+{{end}}
+
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="box box-solid">
+            <div class="box-body">
+                <div class='row'>
+                    <div class="col-md-12">{{=progress}}</div>
+                    <div class="col-md-12">{{=content}}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

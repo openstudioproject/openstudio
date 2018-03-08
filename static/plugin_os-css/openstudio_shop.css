@@ -1,0 +1,341 @@
+@media (max-width: 767px) {
+    .skin-black-light .main-header>.logo {
+        background-color: #fff;
+        color: #333;
+        border-bottom: 1px solid #eee;
+    }
+    .skin-black-light .main-header>.logo:hover {
+        background-color: #fff;
+        color: #333;
+        border-bottom: 1px solid #eee;
+    }
+}
+
+
+.logo img {
+    vertical-align: middle;
+    max-height: 32px;
+    max-width: 198px;
+}
+
+#to_top {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+.btn {
+    background-image: none;
+    margin-right: 4px;
+}
+
+.btn-group .btn {
+    margin-right: 0;
+}
+
+.alert {
+    background-image: none;
+}
+
+.center {
+    text-align: center;
+}
+
+.line-through { text-decoration: line-through; }
+
+.no-padding-left {
+    padding-left: 0px;
+}
+
+.no-padding-right {
+    padding-right: 0px;
+}
+
+form input,
+form select,
+form textarea {
+    margin-bottom: 10px;
+}
+
+form label {
+    margin-right: 6px;
+}
+
+.grey { color: #999; }
+.grey-dark { color: #555; }
+.grey-light { color: #BBB; }
+.blue { color: #4679BD; }
+.green { color: #11A05E; }
+.red { color: #CC160D; }
+.orange { color: #EF8F00; }
+.purple { color: #AD7FA8; }
+.yellow { color: #FCE94F; }
+.default-color { color: #333; }
+
+.bg_light_blue { background: #729fcf; }
+.bg_blue { background: #4679BD; }
+.bg_green { background: #11A05E; }
+.bg_orange { background: #EF8F00; }
+.bg_red { background: #CC160D; }
+.bg_purple { background: #AD7FA8; }
+.bg_yellow { background: #FCE94F; }
+.bg_grey { background: #777; }
+
+.red_border { border: 1px solid #CC160D; }
+
+a.red:hover,
+a.red:active,
+a.red:focus,
+a.red:visited { 
+	color: #CC160D;
+	text-decoration: none;
+}
+
+
+div.error {
+    color: #CC160D;
+}
+
+.bold { font-weight: bold; }
+
+.small_font {
+    font-size: 90%;
+}
+
+.smaller_font {
+    font-size: 84%;
+}
+
+.vsmall_font {
+    font-size: 74%;
+}
+
+/* AdminLTE skin-black-light mods begin */
+.skin-black-light .main-header li.user-header {
+    background-color: #BBB;
+}
+
+/* AdminLTE skin-black-light mods end */
+
+
+/* Classes begin */
+.shop_classes_table_header {
+    border-bottom: 2px solid #EAEAEA;
+}
+
+.shop-classes .row {
+    padding: 8px;
+    border-bottom: 1px solid #EAEAEA;
+} 
+
+.shop-classes-booking-options .col-md-3,
+.shop-classes-booking-options .col-md-6 {
+    padding: 1px;
+}
+
+.shop-classes-booking-options .col-md-10 {
+    margin-bottom: 6px;
+    border-bottom: 1px solid #EAEAEA;
+    text-align: left;
+}
+
+.shop-classes-booking-options .col-md-10:last-child {
+    border: none;
+}
+
+.btn_date_chooser {
+    display: inline-block;
+    padding: 7px;
+    background-color: #EAEAEA;
+    color: #333;
+}
+
+.btn_date_chooser,
+.btn_date_chooser:hover,
+.btn_date_chooser:visited,
+.btn_date_chooser:active {
+    color: #333;
+}
+
+a.btn_date_chooser {
+    text-decoration: none;
+}
+
+.shop-classes-week-chooser .info {
+    line-height: 34px;
+    text-align: center;
+}
+
+/* Classes end */
+
+/* Workshops begin */
+
+.workshops-list-month {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.workshops-list-month.full-width {
+    width: 100%;
+}
+
+.workshops-list-month h2 { 
+    margin-bottom: 34px;
+}
+
+.workshops-list-workshop {
+    border-bottom: 1px solid #EAEAEA;
+    padding: 20px;
+}
+
+.workshops-list-workshop:last-child {
+    #background: red;
+    border-bottom: none;
+    margin-bottom: 60px;
+}
+
+.workshops-list-workshop-info .fa {
+    display: inline-block;
+    width: 15px;
+    text-align: left;
+}
+
+.workshops-list-workshop a,
+.workshops-list-workshop a:hover,
+.workshops-list-workshop a:visited,
+.workshops-list-workshop a:active,
+.workshops-list-workshop a h4,
+.workshops-list-workshop a h4:hover,
+.workshops-list-workshop a h4:visited,
+.workshops-list-workshop a h4:active {
+    color: #333;
+    font-weight: bold;
+    font-size: 110%;
+    text-decoration: none;
+}
+
+.workshops-list-workshop a:hover,
+.workshops-list-workshop a h4:hover {
+    color: #777;
+}
+
+.workshops-list-workshop-image {
+}
+
+.workshops-list-workshop img {
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    -o-border-radius: 50%;
+    border-radius: 50%;
+    border: 1px solid #EAEAEA;
+    max-width: 300px;
+}
+
+.workshops-list-workshop-date,
+.workshops-list-workshop-teacher,
+.workshops-list-workshop-location {
+    color: #777;
+    padding: 0 0 4px 0;
+}
+
+.workshops-list-workshop-info {
+    position: relative;
+}
+
+.workshops-list-workshop .btn-link {
+    padding-left: 0;
+}
+
+.workshops_list_price {
+    font-size: 110%;
+    margin: 10px;
+    text-align: center;
+}
+
+img.workshop_image {
+/*
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    -o-border-radius: 50%;
+    border-radius: 50%;
+*/
+    #border: 1px solid #EAEAEA;
+    width: 100%;
+}
+
+.workshop-products-filter {
+    margin-bottom: 40px;
+}
+
+.workshop-activities {
+    
+}
+
+.workshop-activity {
+    border-bottom: 1px solid #EAEAEA;
+    padding: 12px;
+    font-size: 105%;
+}
+
+.workshop-activity-header {
+    padding: 12px;
+    font-size: 105%;
+    border-bottom: 2px solid #EAEAEA;
+}
+
+
+
+@media (max-width: 989px) {
+    .mobile-center {
+        text-align: center;
+    }
+    
+    .mobile-bold {
+        font-weight: bold;
+    }
+}
+
+.workshop_image_large img {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+
+.workshop_image_large .label_date {
+  position: absolute;
+  top:0 ;
+  left: 15;
+  z-index: 600;
+  padding: 8px;
+  font-weight: bold;
+  background: #298EEA;
+  color: #FFF;
+
+}
+
+.workshop_product { padding-bottom: 40px; }
+
+.workshop_price {
+    font-size: 150%;
+    font-weight: bold;
+}
+
+.workshop_book_now {
+    margin-top: 20px;
+}
+
+.shop_workshop h2 {
+    margin-bottom: 50px;
+}
+
+/* Workshops end */
+
+#cart_total {
+    margin-top: 20px;
+}

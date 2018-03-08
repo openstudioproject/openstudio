@@ -1,0 +1,49 @@
+{{extend 'layout_shop.html'}}
+
+{{block header}}
+{{try:}}{{=breadcrumb}}{{except:}}{{pass}}{{pass}}
+{{try:}}{{=back}}{{except:}}{{pass}}{{pass}}
+{{try:}}{{=header_tools}}{{except:}}{{pass}}{{pass}}
+{{end}}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="box box-solid">
+            <div class="box-body">
+                {{header = THEAD(TR(TH(_class='workshop_image_th'),
+                                    TH(T('Event')),
+                                    TH(T('Product'))))}}
+                {{table = TABLE(header, _class='table table-condensed table-hover')}}
+
+
+                {{for i, row in enumerate(rows):}}
+                    {{invoice = ''}}
+                    
+                    {{if row.invoices.id:}}
+                        {{ invoice = A(I(_class="fa fa-file-pdf-o"), ' ', row.invoices.InvoiceID,
+                                        _href=URL('invoices', 'pdf', vars={'iID':row.invoices.id}),
+                                        _title=T('Save invoice as PDF')) }}
+                    {{pass}}
+                    
+                    {{repr_row = list(rows[i:i+1].render())[0]}}
+                    {{table.append(TR(TD(repr_row.workshops.thumbsmall),
+                                      TD(repr_row.workshops.Name, BR(), 
+                                         SPAN(repr_row.workshops.Startdate, ' - ',
+                                              repr_row.workshops.Starttime, 
+                                              _class='small_font grey')),
+                                      TD(repr_row.workshops_products.Name),
+                                      )
+                                   )}}
+                {{pass}}
+
+                {{=table}}
+
+                {{block left_sidebar}}
+                {{try:}}{{=menu}}{{except:}}{{pass}}{{pass}}
+                {{end}}
+            </div>
+        </div>
+    </div>
+</div>
+
+

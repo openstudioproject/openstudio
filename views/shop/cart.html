@@ -1,0 +1,81 @@
+{{extend 'layout_shop.html'}}
+{{try:}}{{=breadcrumb}}{{except:}}{{pass}}{{pass}}
+{{try:}}{{=back}}{{except:}}{{pass}}{{pass}}
+
+{{ from openstudio import SchoolClasscard, Class }}
+
+
+{{block header}}
+{{try:}}{{=header_tools}}{{except:}}{{pass}}{{pass}}
+{{end}}
+
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="box box-solid">
+            <div class="box-body">
+
+                {{=progress}}
+                
+                {{=messages}}
+
+                {{header = THEAD(TR(TH(T('Product')),
+                                    TH(T('Description')),
+                                    TH(DIV(T('Price incl. VAT'), _class='pull-right')),
+                                    TH()))}}
+                {{table = TABLE(header, _class='table table-hover')}}
+
+
+                {{for i, row in enumerate(rows):}}
+                    {{repr_row = list(rows[i:i+1].render())[0]}}
+                    {{ product = 'Unknown' }}
+                    {{ description = 'Error retrieving details, please remove this product from your cart' }}
+                    {{ price = 0 }}
+                    
+                    {{if row.customers_shoppingcart.workshops_products_id:}}
+                        {{ product = T('Event') }}
+                        {{ description = SPAN(repr_row.workshops.Name, ' ', SPAN(repr_row.workshops_products.Name, _class='grey')) }}
+                        {{ price = repr_row.workshops_products.Price }}
+                    {{pass}}
+                    
+                    {{if row.customers_shoppingcart.school_classcards_id:}}
+                        {{ scd = SchoolClasscard(row.customers_shoppingcart.school_classcards_id) }}
+                        {{ product = T('Class card') }}
+                        {{ description = SPAN(repr_row.school_classcards.Name, ' ', SPAN('(', repr_row.school_classcards.Classes, ' ', T('Classes'), ' ', T('to be used within'), ' ', scd.get_validity_formatted(), ')' ,_class='grey')) }}
+                        {{ price = repr_row.school_classcards.Price }}
+                    {{pass}}
+                    
+                    
+                    {{if row.customers_shoppingcart.classes_id:}}
+                        {{ cls = Class(row.customers_shoppingcart.classes_id, row.customers_shoppingcart.ClassDate) }}
+                        {{ prices = cls.get_price() }}
+                        {{ product = T('Class') }}
+                        {{ description = cls.get_invoice_order_description(row.customers_shoppingcart.AttendanceType) }}
+                        {{ price = SPAN(CURRSYM, ' ', format(prices['dropin'], '.2f')) }}
+                    {{pass}}
+                    
+                    {{ remove = os_gui.get_button('delete_notext', 
+                                                  URL('cart_item_remove', vars={'cscID':row.customers_shoppingcart.id}), 
+                                                  _class='pull-right') }}
+                    
+                    {{table.append(TR(TD(product),
+                                      TD(description),
+                                      TD(DIV(price, _class='pull-right')),
+                                      TD(remove),
+                                      )
+                                   )}}
+                {{pass}}
+
+                {{=table}}
+
+                <div id="cart_total" class="well pull-right col-md-3">
+                    {{=SPAN(T('Total'), ' ', total, _class='bold')}}<br><br>
+                    {{=order}}
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+

@@ -1,0 +1,16 @@
+{{extend 'layout_shop.html'}}
+{{ block header }}
+    {{try:}}{{=breadcrumb}}{{except:}}{{pass}}{{pass}}
+    {{try:}}{{=back}}{{except:}}{{pass}}{{pass}}
+{{ end }}
+
+
+<div class="box box-solid">
+    <div class="box-body">
+        {{=content}}
+    </div>
+    <div class="box-footer center">
+        {{=link_all}}
+    </div>
+</div>
+

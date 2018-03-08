@@ -1,0 +1,24 @@
+{{extend 'layout.html'}}
+
+
+<div class='row'>
+    <div class='col-md-12'>
+        <div class="nav-tabs-custom">
+            {{=menu}}
+        <div class="tab-content">
+            {{=tools}}
+            {{=content}}
+        </div>
+    </div>
+</div>
+<script src={{=URL('static', 'plugin_os-js/Chart.min.js')}}></script>
+<script src={{=URL('static', 'plugin_os-js/general/customers_set_list_search.js')}}></script>
+
+
+{{block header}}
+{{=back}}{{=week_chooser}}{{=header_tools}}
+{{end}}
+
+{{ import os }}
+{{ include os.path.join(request.folder,'static','plugin_os-js/classes/attendance_list.html')}}
+

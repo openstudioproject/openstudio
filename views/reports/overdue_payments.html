@@ -1,0 +1,11 @@
+{{extend 'layout.html'}}
+<h3>{{=overdue_title}}</h3>
+{{=overdue}}{{=overdue_total_customers}}{{=overdue_total}}<br>
+<h3>{{=this_title}}</h3>
+{{=this_week}}{{=this_week_total_customers}}{{=this_week_total}}<br>
+<h3>{{=later_title}}</h3>
+{{=later}}{{=later_total_customers}}{{=later_total}}<br>
+
+{{block right_sidebar}}
+<!-- empty sidebar to keep dash pages look the same -->
+{{end}}

@@ -1,0 +1,19 @@
+{{extend 'selfcheckin/layout.html'}}
+{{=content}}
+
+<script src={{=URL('static', 'plugin_os-js/general/customers_set_list_search.js')}}></script>
+
+{{ import os }}
+{{ include os.path.join(request.folder,'static','plugin_os-js/selfcheckin/checkin.html')}}
+
+<!--
+<script>
+    $(document).ready(function() {
+        $('td.check').click(function() {
+            console.log('clicked');
+            $btn = $(this).next('td').next('td').find('.btn');
+            $btn.click();
+        }); // end big_check click
+    }); // end document ready
+</script>
+-->

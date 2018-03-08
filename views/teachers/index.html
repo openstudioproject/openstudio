@@ -1,0 +1,11 @@
+{{extend 'layout.html'}}
+{{try:}}{{=back}}{{except:}}{{pass}}
+{{=content}}
+
+{{block right_sidebar}}
+{{=sidebar_content}}
+{{end}}
+
+{{block header}}
+    {{=export}}
+{{end}}

@@ -1,0 +1,165 @@
+body {
+	font-size: 165%;
+    font-family: 'Lato', sans-serif;
+    font-weight: 400;
+    padding-top: 10px;
+
+}
+
+h1, h2, h3, h4 {
+    font-family: 'Raleway', 'Open Sans', sans-serif;
+    font-weight: 400;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.grey { color: #999; }
+.grey-light { color: #BBB; }
+.blue { color: #4679BD; }
+.green { color: #11A05E; }
+.red { color: #CC160D; }
+.orange { color: #EF8F00; }
+.purple { color: #AD7FA8; }
+.yellow { color: #FCE94F; }
+.default-color { color: #333; }
+
+.small_font {
+    font-size: 90%;
+}
+
+.btn-default {
+    text-shadow: none;
+}
+
+.full-width {
+    width: 100%;
+}
+
+
+/* logo begin */
+.logo_blue {
+    color: #298EEA;
+}
+
+.logo_text {
+    display: inline-block;
+    font-family: 'Raleway', 'Open Sans', sans-serif;
+    #font-weight: 300;
+    font-size: 180%;
+    line-height: 50px;
+    padding: 0 15px 0 6px;
+    vertical-align: middle;
+}
+
+.brand,
+.brand:hover,
+.brand:focus,
+.brand:active {
+    color: #777;
+    text-decoration: none;
+}
+
+/* logo end */
+
+/* Ajax loader begin */
+
+.ajax_loader {
+    padding: 15px 0 0 15px;
+}
+
+.ajax_loader img {
+    width: 20px;
+    height: 20px;
+    margin-right: 0.5em;
+}
+
+/* Ajax loader end */
+
+/* Log Out begin */
+
+.logout {
+    position: fixed;
+    top: 0px;
+    right: 0px;
+    padding: 20px;
+}
+
+.fs_icon {
+	position: fixed;
+	top: 0px;
+	right: 100px;
+	padding: 20px;
+}
+
+.logout a
+.logout a:hover,
+.logout a:active,
+.logout a:visited,
+.go_back a
+.go_back a:hover,
+.go_back a:active,
+.go_back a:visited,
+.fs_icon 
+ {
+    color: #999;
+}
+
+/* Log Out end */
+
+/* Back begin */
+
+.go_back {
+    position: fixed;
+    top: 0;
+    right: 120px;
+    padding: 20px;
+    margin-left: 30px;
+    z-index:99999;
+}
+
+/* Back end */
+
+.customer_name {
+    font-weight: bold;
+}
+
+.very_big_check {
+    font-size: 140%;
+}
+
+ul#locations,
+ul.check-in_options {
+    padding: 0;
+    list-style-type: none;
+    font-size: 150%;
+}
+
+ul#locations li,
+ul.check-in_options li {
+    margin: 6px 0 6px 0;
+}
+
+ul#locations li .btn,
+ul.check-in_options li .btn {
+    text-align: left;
+    background-image: none;
+}
+
+td.very_big_check {
+    width: 35px;
+}
+
+td.row_buttons {
+    float: right;
+}
+
+.load_list_customers {
+    height: 500px;
+}
+
+.btn-cancel {
+    width: 68px;
+}
+

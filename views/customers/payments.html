@@ -1,0 +1,34 @@
+{{extend 'layout.html'}}
+{{block header}}
+    {{try:}}{{=back}}{{except:}}{{pass}}{{pass}}
+    {{try:}}{{=tools}}{{except:}}{{pass}}{{pass}}
+{{ end }}
+
+<div class='row'>
+    <div class='col-md-12'>
+    <div class="nav-tabs-custom">
+        {{=menu}}
+    <div class="tab-content">
+        {{=content}}
+    </div>
+    </div>
+        </div>
+</div>
+
+
+<script>
+    $('#payment_tabs a').click(function (e) {
+      e.preventDefault()
+      $(this).tab('show')
+    });
+    
+    $(document).ready(function() {
+        trigger_tab('{{=session.customers_payments_tab}}');
+    });
+    
+    function trigger_tab(id) {
+        $('#payment_tabs a[href="'+id+'"]').trigger('click');
+    }
+</script>
+
+

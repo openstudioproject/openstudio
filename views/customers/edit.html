@@ -1,0 +1,20 @@
+{{extend 'layout.html'}}
+{{block header}}
+    {{try:}}{{=tools}}{{except:}}{{pass}}{{pass}}
+    {{try:}}{{=back}}{{except:}}{{pass}}{{pass}}
+    {{=save}}
+{{end}}
+
+<div class='row'>
+    <div class='col-md-12'>
+        <div class="nav-tabs-custom">
+            {{=menu}}
+            <div class="tab-content">
+                {{=content}}
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src={{=URL('static', 'plugin_os-js/customers/edit.js')}}></script>

@@ -1,0 +1,22 @@
+{{extend 'layout_shop.html'}}
+
+<form method="post" action="https://test.adyen.com/hpp/select.shtml" id="adyenForm" name="adyenForm" target="_parent">
+<input type="hidden" name="merchantSig" value="{{=params['merchantSig']}}" />
+<input type="hidden" name="sessionValidity" value="{{=params['sessionValidity']}}" />
+<input type="hidden" name="shipBeforeDate" value="{{=params['shipBeforeDate']}}" />
+<input type="hidden" name="shopperLocale" value="{{=params['shopperLocale']}}" />
+<input type="hidden" name="merchantAccount" value="{{=params['merchantAccount']}}" />
+<input type="hidden" name="paymentAmount" value="{{=params['paymentAmount']}}" />
+<input type="hidden" name="currencyCode" value="{{=params['currencyCode']}}" />
+<input type="hidden" name="skinCode" value="{{=params['skinCode']}}" />
+<input type="hidden" name="merchantReference" value="{{=params['merchantReference']}}" />
+<input type="hidden" name="shopperReference" value="{{=params['shopperReference']}}" />
+<input type="hidden" name="recurringContract" value="RECURRING,ONECLICK" />
+<input type="hidden" name="shopperEmail" value="{{=params['shopperEmail']}}" />
+<input type="hidden" name="offset" value="0" />
+<input type="submit" value="Pay now" />
+</form>
+
+{{block header}}
+{{try:}}{{=header_tools}}{{except:}}{{pass}}{{pass}}
+{{end}}

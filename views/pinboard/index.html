@@ -1,0 +1,7 @@
+{{extend 'layout.html'}}
+{{=content}}
+
+
+{{block header}}
+{{try:}}{{=header_tools}}{{except:}}{{pass}}{{pass}}
+{{end}}

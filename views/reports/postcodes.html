@@ -1,0 +1,29 @@
+{{extend 'layout.html'}}
+<div class='row'>
+    <div class='col-md-12'>
+        <div class="nav-tabs-custom">
+            {{=menu}}
+        <div class="tab-content">
+            <div class="tab-pane active">
+                <div class="row">
+                    <div class="col-md-9">
+                        <div class="os-chart-title"><h4>{{=chart_title}}</h2></div>
+                        <div class="os-piechart text-center">
+	                        <canvas id="chart-area" width="350" height="350"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <br>
+                        {{=data_table}}
+                        <br>
+                        {{=edit_groups}}
+                    </div>                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src={{=URL('static', 'plugin_os-js/Chart.min.js')}}></script>
+<script src={{=URL('static', 'plugin_os-js/reports/postcodes.js')}}></script>

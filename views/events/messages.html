@@ -1,0 +1,45 @@
+{{extend 'layout.html'}}
+{{block header}}
+{{=back}}
+{{=btn_mail}}
+{{end}}
+
+<div class='row'>
+    <div class='col-md-12'>
+        <div class="nav-tabs-custom">
+            {{=menu}}
+        <div class="tab-content">
+            {{=content}}
+        </div>
+    </div>
+</div>
+
+
+<script src={{=URL('static', 'plugin_os-js/general/openstudio.js')}}></script>
+
+{{ import os }}
+{{ include os.path.join(request.folder,'static','plugin_os-js/general/ajaj_post.html')}}
+
+<script>
+
+$('ul.list_messages li').click(function() {
+	remove_active_class();
+	$(this).addClass('active');
+	$id = $(this).attr('id');
+	url = '/workshops/messages_set_id.json';
+	data = {};
+	data['msgID'] = $id;
+	$target = $('#message_display');
+	ajaj_post(data, $target, url);
+});
+
+function remove_active_class() {
+	$('ul.list_messages li').each(function() {
+		$(this).removeClass('active');
+	});
+}
+
+
+</script>
+
+

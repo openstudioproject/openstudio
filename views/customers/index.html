@@ -1,0 +1,25 @@
+{{extend 'layout.html'}}
+
+{{block header}}
+    {{=add}}
+    {{=export}}
+    {{=header_tools}}
+    <button class="btn btn-default btn-sm pull-right" type="button" data-toggle="collapse" data-target="#customers_index_settings" aria-expanded="false" aria-controls="#customers_index_settings" title="{{=T('Display settings')}}">
+    {{=os_gui.get_fa_icon('fa-eye')}}
+    </button>
+{{end}}
+
+<div class="row">
+    <div class="col-md-12">
+        {{=nr_items}}
+    </div>
+</div>
+<br>
+{{=content}}
+    
+
+<script src={{=URL('static', 'plugin_os-js/general/customers_set_list_search.js')}}></script>
+{{ import os }}
+{{ include os.path.join(request.folder,'static','plugin_os-js/customers/index.html')}}
+
+

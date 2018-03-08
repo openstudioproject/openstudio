@@ -1,0 +1,42 @@
+{{extend 'layout.html'}}
+
+<div class='row'>
+    <div class='col-md-12'>
+        <div class="nav-tabs-custom">
+            {{=menu}}
+        <div class="tab-content">
+            <div class="tab-pane active">
+                <div class="row">
+                    <div class="col-md-9">
+                        <div class="os-chart-title">{{=city_title}}</div>
+                        <div class="os-barchart">
+	                        <canvas id="city-chart-area" width="900" height="300"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <br>
+                        {{=city_data_table}}
+                    </div>
+
+                    <div class="col-md-9">
+                        <div class="os-chart-title">{{=country_title}}</div>
+                        <br>
+                        <div class="os-barchart">
+	                        <canvas id="country-chart-area" width="900" height="300"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <br>
+                        {{=country_data_table}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script src={{=URL('static', 'plugin_os-js/Chart.min.js')}}></script>
+<script src={{=URL('static', 'plugin_os-js/reports/geography.js')}}></script>
+

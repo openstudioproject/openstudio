@@ -1,0 +1,12 @@
+{{left_sidebar_enabled=True}}
+{{extend 'layout.html'}}
+{{=content}}
+
+{{block left_sidebar}}
+{{try:}}{{=back}}{{except:}}{{pass}}{{pass}}
+{{try:}}{{=menu}}{{except:}}{{pass}}{{pass}}
+{{end}}
+
+{{block header}}
+{{try:}}{{=header_tools}}{{except:}}{{pass}}{{pass}}
+{{end}}

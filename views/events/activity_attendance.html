@@ -1,0 +1,9 @@
+{{extend 'layout.html'}}
+{{try:}}{{=breadcrumb}}{{except:}}{{pass}}{{pass}}
+{{try:}}{{=back}}{{except:}}{{pass}}{{pass}}
+{{=content}}
+
+{{block right_sidebar}}
+{{end}}
+
+<script src={{=URL('static', 'plugin_os-js/workshops/attendance.js')}}></script>

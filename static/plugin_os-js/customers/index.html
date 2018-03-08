@@ -1,0 +1,34 @@
+<!--
+
+    Created by Edwin van de Ven (edwin@openstudioproject.com)
+    License: GPLv2 or v3
+
+-->
+<script>
+	var $input = $("#sidebar-search");
+	var $sidebar_search_btn_icon = $('#search-btn i.fa')
+	var $target = $("#customers_load_list");
+
+	var typingTimer = null;
+	var doneTypingInterval = 500;
+	/* A timer is used to prevent submitting for each keystroke while the user is typing */
+	$input.keyup(function() {
+	    if (typingTimer) clearTimeout(typingTimer);
+	    $target.html('{{=os_gui.get_ajax_loader(message=T("Searching..."))}}');
+	    typingTimer = setTimeout(function() { 
+		customers_set_list_search($input, $target);
+	    }, doneTypingInterval);
+	}); // end input keyup
+
+	$('#search-btn').click(function(event) {
+		event.preventDefault();
+		$input.val('');
+		customers_set_list_search($input, $target);		
+	});
+	
+    $sidebar_search_btn_icon.removeClass('fa-search');
+    $sidebar_search_btn_icon.addClass('fa-times');
+    
+    $input.focus();
+</script>
+

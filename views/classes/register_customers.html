@@ -1,0 +1,9 @@
+{{right_sidebar_enabled=True}}
+{{extend 'layout.html'}}
+{{=breadcrumb}}
+{{=grid}}
+
+{{block right_sidebar}}
+<h3>{{=sidebar_title}}</h3>
+{{for item in registered:}}{{=item}}<br>{{pass}}
+{{end}}

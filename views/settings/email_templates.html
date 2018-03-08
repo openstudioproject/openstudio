@@ -1,0 +1,26 @@
+{{extend 'layout.html'}}
+{{block header}}
+{{try:}}{{=back}}{{except:}}{{pass}}{{pass}}
+{{try:}}{{=save}}{{except:}}{{pass}}{{pass}}
+{{try:}}{{=header_tools}}{{except:}}{{pass}}{{pass}}
+{{end}}
+
+<div class='row'>
+    <div class='col-md-12'>
+        <div class="nav-tabs-custom">
+            {{=menu}}
+        <div class="tab-content">
+            {{=content}}
+        </div>
+    </div>
+</div>
+
+<script>
+    $(window).on('beforeunload', function(){
+        // this isn't working right now as tinyMCE autosaves in tinymce_init.js, so the editor is never dirty
+          if (tinymce.activeEditor.isDirty()) {
+            console.log('Changes found');
+            return 'There seem to be some unsaved changes, are you sure you want to leave?';
+          }
+    });  
+</script>
