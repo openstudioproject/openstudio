@@ -3728,6 +3728,55 @@ def admin_scheduled_tasks():
                 menu=menu)
 
 
+
+@auth.requires(auth.user_id == 1)
+def admin_scheduler_workers():
+    """
+        List tasks in db.scheduler_tasks
+    """
+    response.title = T("Sysadmin")
+    response.subtitle = T("")
+    response.view = 'general/tabs_menu.html'
+
+    header = THEAD(TR(TH(T('Name')),
+                      TH(T('First Heartbeat')),
+                      TH(T('Last heartbeat')),
+                      TH(T('Status')),
+                      TH(T('Ticker')),
+                      TH(T('Groups')),
+                      ))
+    table = TABLE(header, _class='table table-striped table-hover')
+
+    query = (db.scheduler_worker)
+    rows = db(query).select(db.scheduler_worker.ALL,
+                            orderby=db.scheduler_worker.status|db.scheduler_worker.worker_name)
+
+    for i, row in enumerate(rows):
+        repr_row = list(rows[i:i + 1].render())[0]
+
+        # edit = os_gui.get_button('edit',
+        #                          URL('admin_scheduled_tasks_edit', vars={'stID':row.id}))
+
+        tr = TR(
+            TD(row.worker_name),
+            TD(row.first_heartbeat),
+            TD(row.last_heartbeat),
+            TD(row.status),
+            TD(row.is_ticker),
+            TD(row.group_names),
+        )
+
+        table.append(tr)
+
+
+    back = system_get_back()
+    menu = admin_get_menu(request.function)
+
+    return dict(content=table,
+                back=back,
+                menu=menu)
+
+
 @auth.requires(auth.user_id == 1)
 def admin_scheduled_tasks_add():
     """
@@ -3796,7 +3845,6 @@ def admin_scheduled_tasks_edit():
                 menu=menu)
 
 
-
 def admin_get_menu(page):
     """
         Menu for admin pages
@@ -3812,7 +3860,10 @@ def admin_get_menu(page):
                URL('admin_scheduled_tasks')],
               ['admin_scheduled_tasks_run',
                T('Scheduled tasks log'),
-               URL('admin_scheduled_tasks_run')]
+               URL('admin_scheduled_tasks_run')],
+              ['admin_scheduler_workers',
+               T('Scheduler workers'),
+               URL('admin_scheduler_workers')]
               ]
 
     return os_gui.get_submenu(pages, page, horizontal=True, htype='tabs')
