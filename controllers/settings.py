@@ -3526,9 +3526,23 @@ def admin_scheduled_tasks_run():
     """
     from general_helpers import max_string_length
 
+    page = request.vars['page'] or 0
+
     response.title = T("Sysadmin")
     response.subtitle = T("")
     response.view = 'general/tabs_menu.html'
+
+    ## Pagination begin
+    if 'page' in request.vars:
+        try:
+            page = int(request.vars['page'])
+        except ValueError:
+            page = 0
+    else:
+        page = 0
+    items_per_page = 12
+    limitby=(page*items_per_page,(page+1)*items_per_page+1)
+    ## Pagination end
 
     header = THEAD(TR(TH(T('TaskID')),
                       TH(T('Status')),
@@ -3540,11 +3554,13 @@ def admin_scheduled_tasks_run():
                       TH(T('Worker')),
                       TH(T('Actions')),
                       ))
-    table = TABLE(header, _class='table table-striped table-hover')
+    table = TABLE(header, _class='table table-condensed table-striped table-hover')
+
 
     query = (db.scheduler_run)
     rows = db(query).select(db.scheduler_run.ALL,
-                            orderby=~db.scheduler_run.start_time)
+                            orderby=~db.scheduler_run.start_time,
+                            limitby=limitby)
 
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
@@ -3568,10 +3584,33 @@ def admin_scheduled_tasks_run():
 
         table.append(tr)
 
+
+    ## Pager begin
+    navigation = ''
+    url_previous = ''
+    url_next = ''
+    if len(rows) > items_per_page or page:
+        previous = SPAN(_class='fa fa-chevron-left grey')
+        if page:
+            url_previous = URL(request.function, vars={'page':page-1})
+            previous = A(SPAN(_class='fa fa-chevron-left'),
+                         _href=url_previous)
+
+        nxt = SPAN(_class='fa fa-chevron-right grey')
+        if len(rows) > items_per_page:
+            url_next = URL(request.function, vars={'page':page+1})
+            nxt = A(SPAN(_class='fa fa-chevron-right'),
+                    _href=url_next)
+
+
+        navigation = os_gui.get_page_navigation_simple(url_previous, url_next, page + 1, request.cid)
+
+    ## Pager End
+
     back = system_get_back()
     menu = admin_get_menu(request.function)
 
-    return dict(content=table,
+    return dict(content=DIV(table, navigation),
                 back=back,
                 menu=menu)
 
