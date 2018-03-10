@@ -3570,9 +3570,17 @@ def admin_scheduled_tasks_run():
                                     title=T('Details'),
                                     _class='pull-right')
 
+        label_type = 'primary'
+        if row.status == 'FAILED':
+            label_type = 'danger'
+        elif row.status == 'COMPLETED':
+            label_type = 'success'
+
+        status = os_gui.get_label(label_type, row.status)
+
         tr = TR(
             TD(row.task_id),
-            TD(row.status),
+            TD(status),
             TD(row.start_time),
             TD(row.stop_time),
             TD(row.run_output),
