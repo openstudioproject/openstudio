@@ -4316,6 +4316,14 @@ def represent_datetime(datetime, row=None):
         return local_dt.strftime(DATETIME_FORMAT)
 
 
+## Set datetime format for scheduler tables
+db.scheduler_task.start_time.requires=IS_DATETIME(format=DATETIME_FORMAT)
+db.scheduler_task.stop_time.requires=IS_DATETIME(format=DATETIME_FORMAT)
+db.scheduler_task.next_run_time.requires=IS_DATETIME(format=DATETIME_FORMAT)
+db.scheduler_task.last_run_time.requires=IS_DATETIME(format=DATETIME_FORMAT)
+
+
+
 ## create all tables needed by auth if not custom tables
 define_school_languages()
 languages_dict = create_languages_dict()

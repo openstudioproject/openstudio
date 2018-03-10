@@ -3483,9 +3483,9 @@ def admin_redis_cache_clear():
 
 @auth.requires(auth.user_id == 1)
 def admin_storage_set_limit():
-    '''
+    """
         page to set the storage limit for this OpenStudio installation
-    '''
+    """
     response.title = T("Sysadmin")
     response.subtitle = T("Storage limit")
     response.view = 'general/tabs_menu.html'
@@ -3519,16 +3519,259 @@ def admin_storage_set_limit():
     return dict(content=form, back=back, menu=menu, save=submit)
 
 
+@auth.requires(auth.user_id == 1)
+def admin_scheduled_tasks_run():
+    """
+        List items in scheduler_run
+    """
+    from general_helpers import max_string_length
+
+    response.title = T("Sysadmin")
+    response.subtitle = T("")
+    response.view = 'general/tabs_menu.html'
+
+    header = THEAD(TR(TH(T('TaskID')),
+                      TH(T('Status')),
+                      TH(T('Start time')),
+                      TH(T('Stop time')),
+                      TH(T('Run output')),
+                      TH(T('Run result')),
+                      TH(T('Traceback')),
+                      TH(T('Worker')),
+                      TH(T('Actions')),
+                      ))
+    table = TABLE(header, _class='table table-striped table-hover')
+
+    query = (db.scheduler_run)
+    rows = db(query).select(db.scheduler_run.ALL,
+                            orderby=~db.scheduler_run.start_time)
+
+    for i, row in enumerate(rows):
+        repr_row = list(rows[i:i + 1].render())[0]
+
+        details = os_gui.get_button('noicon',
+                                    URL('admin_scheduled_tasks_run_result', vars={'srID':row.id}),
+                                    title=T('Details'),
+                                    _class='pull-right')
+
+        tr = TR(
+            TD(row.task_id),
+            TD(row.status),
+            TD(row.start_time),
+            TD(row.stop_time),
+            TD(row.run_output),
+            TD(row.run_result),
+            TD(max_string_length(row.traceback, 32)),
+            TD(row.worker_name),
+            TD(details),
+        )
+
+        table.append(tr)
+
+    back = system_get_back()
+    menu = admin_get_menu(request.function)
+
+    return dict(content=table,
+                back=back,
+                menu=menu)
+
+
+@auth.requires(auth.user_id == 1)
+def admin_scheduled_tasks_run_result():
+    """
+        Show result of scheduler run
+    """
+    response.title = T("Sysadmin")
+    response.subtitle = T("")
+    response.view = 'general/tabs_menu.html'
+
+    srID = request.vars['srID']
+
+    sr = db.scheduler_run(srID)
+
+    content = DIV(
+        DIV(DIV(LABEL(T('TaskID')), _class='col-md-2'),
+            DIV(sr.task_id, _class='col-md-3'),
+            _class='row'),
+        DIV(DIV(LABEL(T('Status')), _class='col-md-2'),
+            DIV(sr.status, _class='col-md-3'),
+            _class='row'),
+        DIV(DIV(LABEL(T('Start')), _class='col-md-2'),
+            DIV(sr.start_time, _class='col-md-3'),
+            _class='row'),
+        DIV(DIV(LABEL(T('Stop')), _class='col-md-2'),
+            DIV(sr.stop_time, _class='col-md-3'),
+            _class='row'),
+        DIV(DIV(LABEL(T('Worker')), _class='col-md-2'),
+            DIV(sr.worker_name, _class='col-md-3'),
+            _class='row'),
+        DIV(DIV(LABEL(T('Run output')), _class='col-md-2'),
+            DIV(sr.run_output, _class='col-md-9'),
+            _class='row'),
+        DIV(DIV(LABEL(T('Run result')), _class='col-md-2'),
+            DIV(sr.run_result, _class='col-md-9'),
+            _class='row'),
+        DIV(DIV(LABEL(T('Traceback')), _class='col-md-2'),
+            DIV(sr.traceback, _class='col-md-9'),
+            _class='row'),
+    )
+
+    back = os_gui.get_button('back', URL('admin_scheduled_tasks_run'))
+    menu = admin_get_menu('admin_scheduled_tasks_run')
+
+    return dict(content=content,
+                back=back,
+                menu=menu)
+
+
+@auth.requires(auth.user_id == 1)
+def admin_scheduled_tasks():
+    """
+        List tasks in db.scheduler_tasks
+    """
+    response.title = T("Sysadmin")
+    response.subtitle = T("")
+    response.view = 'general/tabs_menu.html'
+
+    header = THEAD(TR(TH(T('id')),
+                      TH(T('App name')),
+                      TH(T('Task name')),
+                      TH(T('Group name')),
+                      TH(T('Status')),
+                      TH(T('Function name')),
+                      TH(T('enabled')),
+                      TH(T('Start')),
+                      TH(T('Next run')),
+                      TH(T('Last run')),
+                      TH(T('Stop')),
+                      TH(T('Period')),
+                      TH(T('Prevent drift')),
+                      ))
+    table = TABLE(header, _class='table table-striped table-hover')
+
+    query = (db.scheduler_task)
+    rows = db(query).select(db.scheduler_task.ALL,
+                            orderby=db.scheduler_task.task_name)
+
+    for i, row in enumerate(rows):
+        repr_row = list(rows[i:i + 1].render())[0]
+
+        edit = os_gui.get_button('edit',
+                                 URL('admin_scheduled_tasks_edit', vars={'stID':row.id}))
+
+        tr = TR(
+            TD(row.id),
+            TD(row.application_name),
+            TD(row.task_name),
+            TD(row.group_name),
+            TD(row.status),
+            TD(row.function_name),
+            TD(row.enabled),
+            TD(row.start_time),
+            TD(row.next_run_time),
+            TD(row.last_run_time),
+            TD(row.stop_time),
+            TD(row.period),
+            TD(row.prevent_drift),
+            TD(edit)
+        )
+
+        table.append(tr)
+
+
+    add = os_gui.get_button('add', URL('admin_scheduled_tasks_add'))
+    back = system_get_back()
+    menu = admin_get_menu(request.function)
+
+    return dict(content=table,
+                add = add,
+                back=back,
+                menu=menu)
+
+
+@auth.requires(auth.user_id == 1)
+def admin_scheduled_tasks_add():
+    """
+        Add a scheduled task
+    """
+    response.title = T("Sysadmin")
+    response.subtitle = T("")
+    response.view = 'general/tabs_menu.html'
+
+    return_url = URL('admin_scheduled_tasks')
+
+    db.scheduler_task.prevent_drift.default = True
+
+    crud.messages.submit_button = T("Save")
+    crud.messages.record_created = T("Saved")
+    crud.settings.create_next = return_url
+    crud.settings.formstyle='bootstrap3_stacked'
+    form = crud.create(db.scheduler_task)
+
+
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
+    form = result['form']
+    submit = result['submit']
+
+    back = os_gui.get_button('back', return_url)
+    menu = admin_get_menu('admin_scheduled_tasks')
+
+    return dict(content=form,
+                back=back,
+                save=submit,
+                menu=menu)
+
+
+@auth.requires(auth.user_id == 1)
+def admin_scheduled_tasks_edit():
+    """
+        Add a scheduled task
+    """
+    response.title = T("Sysadmin")
+    response.subtitle = T("")
+    response.view = 'general/tabs_menu.html'
+
+    stID = request.vars['stID']
+
+    return_url = URL('admin_scheduled_tasks')
+
+    crud.messages.submit_button = T("Save")
+    crud.messages.record_updated = T("Saved")
+    crud.settings.update_next = return_url
+    crud.settings.formstyle='bootstrap3_stacked'
+    form = crud.update(db.scheduler_task, stID)
+
+
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
+    form = result['form']
+    submit = result['submit']
+
+    back = os_gui.get_button('back', return_url)
+    menu = admin_get_menu('admin_scheduled_tasks')
+
+    return dict(content=form,
+                back=back,
+                save=submit,
+                menu=menu)
+
+
+
 def admin_get_menu(page):
-    '''
+    """
         Menu for admin pages
-    '''
+    """
     pages = [ ['admin_redis_cache',
                T('Redis cache'),
                URL('admin_redis_cache')],
               ['admin_storage_set_limit',
                T('Storage limit'),
-               URL('admin_storage_set_limit')]
+               URL('admin_storage_set_limit')],
+              ['admin_scheduled_tasks',
+               T('Scheduled tasks'),
+               URL('admin_scheduled_tasks')],
+              ['admin_scheduled_tasks_run',
+               T('Scheduled tasks log'),
+               URL('admin_scheduled_tasks_run')]
               ]
 
     return os_gui.get_submenu(pages, page, horizontal=True, htype='tabs')
