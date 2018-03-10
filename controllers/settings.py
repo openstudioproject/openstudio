@@ -3540,7 +3540,7 @@ def admin_scheduled_tasks_run():
             page = 0
     else:
         page = 0
-    items_per_page = 12
+    items_per_page = 11
     limitby=(page*items_per_page,(page+1)*items_per_page+1)
     ## Pagination end
 
@@ -3607,10 +3607,11 @@ def admin_scheduled_tasks_run():
 
     ## Pager End
 
+    submenu = admin_scheduler_get_menu(request.function)
     back = system_get_back()
-    menu = admin_get_menu(request.function)
+    menu = admin_get_menu('admin_scheduled_tasks')
 
-    return dict(content=DIV(table, navigation),
+    return dict(content=DIV(submenu, table, navigation),
                 back=back,
                 menu=menu)
 
@@ -3629,6 +3630,7 @@ def admin_scheduled_tasks_run_result():
     sr = db.scheduler_run(srID)
 
     content = DIV(
+        H4(T('Run result details')), BR(),
         DIV(DIV(LABEL(T('TaskID')), _class='col-md-2'),
             DIV(sr.task_id, _class='col-md-3'),
             _class='row'),
@@ -3718,11 +3720,12 @@ def admin_scheduled_tasks():
         table.append(tr)
 
 
+    submenu = admin_scheduler_get_menu(request.function)
     add = os_gui.get_button('add', URL('admin_scheduled_tasks_add'))
     back = system_get_back()
     menu = admin_get_menu(request.function)
 
-    return dict(content=table,
+    return dict(content=DIV(submenu, table),
                 add = add,
                 back=back,
                 menu=menu)
@@ -3768,11 +3771,11 @@ def admin_scheduler_workers():
 
         table.append(tr)
 
-
+    submenu = admin_scheduler_get_menu(request.function)
     back = system_get_back()
-    menu = admin_get_menu(request.function)
+    menu = admin_get_menu('admin_scheduled_tasks')
 
-    return dict(content=table,
+    return dict(content=DIV(submenu, table),
                 back=back,
                 menu=menu)
 
@@ -3804,7 +3807,7 @@ def admin_scheduled_tasks_add():
     back = os_gui.get_button('back', return_url)
     menu = admin_get_menu('admin_scheduled_tasks')
 
-    return dict(content=form,
+    return dict(content=DIV(H4(T("Add task")), form),
                 back=back,
                 save=submit,
                 menu=menu)
@@ -3839,10 +3842,28 @@ def admin_scheduled_tasks_edit():
     back = os_gui.get_button('back', return_url)
     menu = admin_get_menu('admin_scheduled_tasks')
 
-    return dict(content=form,
+    return dict(content=DIV(H4(T('Edit task')), form),
                 back=back,
                 save=submit,
                 menu=menu)
+
+
+def admin_scheduler_get_menu(page):
+    """
+        Submenu for scheduler admin pages
+    """
+    pages = [['admin_scheduled_tasks',
+              T('Tasks'),
+              URL('admin_scheduled_tasks')],
+             ['admin_scheduled_tasks_run',
+              T('Run log'),
+              URL('admin_scheduled_tasks_run')],
+             ['admin_scheduler_workers',
+              T('Workers'),
+              URL('admin_scheduler_workers')]
+             ]
+
+    return os_gui.get_submenu(pages, page, horizontal=True, htype='tabs')
 
 
 def admin_get_menu(page):
@@ -3856,15 +3877,9 @@ def admin_get_menu(page):
                T('Storage limit'),
                URL('admin_storage_set_limit')],
               ['admin_scheduled_tasks',
-               T('Scheduled tasks'),
-               URL('admin_scheduled_tasks')],
-              ['admin_scheduled_tasks_run',
-               T('Scheduled tasks log'),
-               URL('admin_scheduled_tasks_run')],
-              ['admin_scheduler_workers',
-               T('Scheduler workers'),
-               URL('admin_scheduler_workers')]
-              ]
+               T('Scheduler'),
+               URL('admin_scheduled_tasks')]
+        ]
 
     return os_gui.get_submenu(pages, page, horizontal=True, htype='tabs')
 
