@@ -3774,6 +3774,8 @@ def admin_scheduled_tasks_edit():
 
     return_url = URL('admin_scheduled_tasks')
 
+    db.scheduler_task.status.writable = True
+
     crud.messages.submit_button = T("Save")
     crud.messages.record_updated = T("Saved")
     crud.settings.update_next = return_url
