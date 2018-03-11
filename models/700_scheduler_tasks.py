@@ -7,9 +7,9 @@ from openstudio import Customer, CustomerSubscription, Invoice, OsMail
 
 
 def task_openstudio_daily():
-    '''
+    """
         Daily tasks for OpenStudio
-    '''
+    """
     today = datetime.date.today()
     if today.day == 1:
         _task_mollie_subscription_invoices_and_payments()
@@ -17,15 +17,22 @@ def task_openstudio_daily():
     return 'Success'
 
 
+def task_openstudio_test():
+    """
+        test scheduler
+    """
+    return 'Test task - OK'
+
+
 def _task_mollie_subscription_invoices_and_payments():
-    '''
+    """
         Create subscription invoices for subscriptions with payment method 100
         Collect payment for these invoices
-    '''
+    """
     def send_mail_failed(cuID):
-        '''
+        """
             When a recurring payment fails, mail customer with request to pay manually
-        '''
+        """
         os_mail = OsMail()
         msgID = os_mail.render_email_template('email_template_payment_recurring_failed')
         os_mail.send(msgID, cuID)
@@ -121,4 +128,5 @@ def scheduler_task_test():
 
 
 
-scheduler_tasks = {'daily': task_openstudio_daily}
+scheduler_tasks = {'daily': task_openstudio_daily,
+                   'openstudio_test_task': task_openstudio_test}

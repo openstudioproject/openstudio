@@ -224,9 +224,9 @@ def test_index_announcements(client, web2py):
 
 
 def test_classes(client, web2py):
-    '''
+    """
         Is the list of classes showing?
-    '''
+    """
     setup_profile_tests(web2py)
     populate_classes(web2py)
 
