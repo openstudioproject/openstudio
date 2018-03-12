@@ -968,9 +968,11 @@ class CustomersSubscriptionsCreditsHelper:
             SubscriptionMonth=month
         )
 
-        #TODO: enable this line with error handling, if it doesn't exist in the dictionary, create a new entry
         if batch_add:
-            self.add_credits_balance[cuID] += credits
+            try:
+                self.add_credits_balance[cuID] += credits
+            except Keyerror:
+                self.add_credits_balance[cuID] = credits
         else:
             cs = CustomerSubscription(csID)
             self.add_credits_balance[cuID] = cs.get_credits_balance()
