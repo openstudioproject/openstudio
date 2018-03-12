@@ -1835,9 +1835,9 @@ def classcard_classes():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'classes_reservation'))
 def classes_reservations():
-    '''
+    """
         Show reservations for a customer
-    '''
+    """
     response.view = 'customers/edit_general.html'
 
     cuID = request.vars['cuID']
@@ -1877,12 +1877,14 @@ def classes_reservations():
     #content.append(BR())
 
     # list of reservations
+    db.classes.id.readable = False
     db.classes_reservation.id.readable = False
     db.classes_reservation.auth_customer_id.readable = False
     links = ''
     headers = {'classes.Starttime' : T('Time'),
                'classes_reservation.Startdate' : T('Class date')}
     fields = [
+          db.classes.id,
           db.classes.Week_day,
           db.classes.Starttime,
           db.classes.school_locations_id,
@@ -1900,7 +1902,8 @@ def classes_reservations():
 
         links = [ lambda row: os_gui.get_button(
                         'edit', URL('classes', 'reservation_edit',
-                                    vars={'crID':row.classes_reservation.id})) ]
+                                    vars={'crID':row.classes_reservation.id,
+                                          'clsID':row.classes.id})) ]
     elif session.customers_reservations_filter == 'single':
         query &= (db.classes_reservation.SingleClass == True)
         query &= (db.classes_reservation.TrialClass == False)

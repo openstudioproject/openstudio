@@ -2852,9 +2852,9 @@ def attendance_booking_options():
 
 
 def reservation_get_return_url(clsID, date):
-    '''
+    """
         Returns the redirect URL for a reservation
-    '''
+    """
     if session.classes_reserve_back == 'customers_reservations':
         cuID = session.customers_classes_reservation_add_vars['cuID']
         url = URL('customers', 'classes_reservations',
@@ -2885,11 +2885,11 @@ def reservation_remove():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('create', 'classes_reservation'))
 def reservation_add():
-    '''
+    """
         Add reservation for a customer
 
         if startdate is not set, a one time reservation for 'date' is assumed
-    '''
+    """
     '''
         Edit page for recurring reservations
     '''
@@ -2945,17 +2945,20 @@ def reservation_add():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'classes_reservation'))
 def reservation_edit():
-    '''
+    """
         Edit page for recurring reservations
-    '''
+    """
     crID = request.vars['crID']
     clsID = request.vars['clsID']
-    date_formatted = request.vars['date']
-    date = datestr_to_python(DATE_FORMAT, date_formatted)
-    response.title = T("Class")
-    response.subtitle = get_classname(clsID) + ": " + date_formatted
-    response.view = 'general/only_content.html'
+    response.subtitle = get_classname(clsID)
+    date_formatted = None # when redirected from customers controller we don't have a date
+    if not session.classes_reserve_back == 'customers_reservations':
+        date_formatted = request.vars['date']
+        date = datestr_to_python(DATE_FORMAT, date_formatted)
+        response.subtitle += ": " + date_formatted
 
+    response.title = T("Class")
+    response.view = 'general/only_content.html'
 
     reservation = db.classes_reservation(crID)
     customer = Customer(reservation.auth_customer_id)
