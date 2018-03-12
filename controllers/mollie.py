@@ -348,6 +348,10 @@ def subscription_buy_now():
         payment_methods_id = 100, # important, 100 is the payment_methods_id for Mollie
     )
 
+    # Add credits for the first month
+    cs = CustomerSubscription(csID)
+    cs.add_credits_month(startdate.year, startdate.month)
+
     # clear cache to make sure it shows in the back end
     cache_clear_customers_subscriptions(auth.user.id)
 
