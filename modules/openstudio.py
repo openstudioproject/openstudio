@@ -971,7 +971,7 @@ class CustomersSubscriptionsCreditsHelper:
         if batch_add:
             try:
                 self.add_credits_balance[cuID] += credits
-            except Keyerror:
+            except KeyError:
                 self.add_credits_balance[cuID] = credits
         else:
             cs = CustomerSubscription(csID)
@@ -7275,6 +7275,8 @@ class InvoicesHelper:
         select = form.element('#no_table_status')
         select['_onchange'] = 'this.form.submit();'
 
+        #TODO: The pull-right class causes it to not work on mobile, should be reworked to show up
+        # should be reworked nicely without the pull-right at some point.
         form = DIV(form.custom.begin,
                    form.custom.widget.status,
                    form.custom.end,
