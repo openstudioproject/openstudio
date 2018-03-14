@@ -993,6 +993,7 @@ def define_school_subscriptions():
             #represent=lambda value, row:  value or T('Unlimited'),
             label=T('Monthly Classes')),
         Field('Classes', 'integer', required=False,
+            requires=IS_INT_IN_RANGE(1, 201, error_message=T("Please enter a number between 1 and 200")),
             represent=represent_school_subscriptions_classes, # return Unlimited instead of number if row.Unlimited
             label=T("Classes")),
         Field('SubscriptionUnit',
