@@ -8354,20 +8354,44 @@ class StaffSchedule:
             buttons.append(remove)
 
         edit_menu = ''
-        if auth.has_membership(group_id='Admins') or \
-           auth.has_permission('update', 'shifts'):
+        links = [['header', T('Shift on') + ' ' + date_formatted]]
 
-            edit_links = [
-                [ A(os_gui.get_fa_icon('fa-calendar-o'), T('This shift'),
-                         SPAN('(' + date_formatted + ')',
-                              _class='vsmall_font grey'),
-                    _href=URL('shift_edit_on_date', vars=vars)),
-                  A(os_gui.get_fa_icon('fa-calendar'), T('All shifts'),
-                    _href=URL('shift_edit', vars=vars)) ]]
+        # check permissions to change this class
+        if auth.has_membership(group_id='Admins') or \
+                auth.has_permission('create', 'shifts_otc'):
+            links.append(A(os_gui.get_fa_icon('fa-pencil'),
+                           T('Edit'),
+                           _href=URL('shift_edit_on_date', vars=vars)))
+        # Check permission to update weekly class
+        if auth.has_membership(group_id='Admins') or \
+                auth.has_permission('update', 'shifts'):
+            links.append('divider')
+            links.append(['header', T('All shifts in series')])
+
+            # Add edit link
+            links.append(A(os_gui.get_fa_icon('fa-pencil'),
+                           T('Edit'), ' ',
+                           _href=URL('shift_edit', vars=vars)))
+
+            # Add staff link
+            if auth.has_membership(group_id='Admind') or \
+               auth.has_permission('read', 'shifts_staff'):
+                links.append(A(os_gui.get_fa_icon('fa-user'),
+                               T('Staff'), ' ',
+                               _href=URL('shift_staff', vars=vars)))
+
+
+            # edit_links = [
+            #     [ A(os_gui.get_fa_icon('fa-calendar-o'), T('This shift'),
+            #              SPAN('(' + date_formatted + ')',
+            #                   _class='vsmall_font grey'),
+            #         _href=URL('shift_edit_on_date', vars=vars)),
+            #       A(os_gui.get_fa_icon('fa-calendar'), T('All shifts'),
+            #         _href=URL('shift_edit', vars=vars)) ]]
 
             #edit = os_gui.get_button('edit', URL('class_edit', vars=vars))
             edit_menu = os_gui.get_dropdown_menu(
-                edit_links,
+                links,
                 btn_text = '',
                 btn_size = 'btn-sm',
                 btn_icon = 'pencil',
@@ -8377,6 +8401,78 @@ class StaffSchedule:
             buttons.append(edit_menu)
 
         return buttons
+
+        # os_gui = current.globalenv['os_gui']
+        # auth = current.globalenv['auth']
+        # T = current.globalenv['T']
+        #
+        # buttons = DIV(_class='pull-right')
+        #
+        # vars = { 'clsID':clsID,
+        #          'date' :date_formatted }
+        #
+        #
+        # links = [['header', T('Class on') + ' ' + date_formatted]]
+        # # check Attendance permission
+        # if auth.has_membership(group_id='Admins') or \
+        #    auth.has_permission('read', 'classes_attendance'):
+        #     links.append(A(os_gui.get_fa_icon('fa-check-square-o'), T('Attendance'),
+        #                    _href=URL('attendance', vars=vars)))
+        # # check Reservations permission
+        # if auth.has_membership(group_id='Admins') or \
+        #    auth.has_permission('read', 'classes_reservation'):
+        #     links.append(
+        #         A(os_gui.get_fa_icon('fa-calendar-check-o'),  T('Enrollments'),
+        #          _href=URL('reservations', vars=vars)))
+        # # check Waitinglist permission
+        # if auth.has_membership(group_id='Admins') or \
+        #    auth.has_permission('read', 'classes_waitinglist'):
+        #     links.append(
+        #         A(os_gui.get_fa_icon('fa-calendar-o'), T('Waitinglist'),
+        #           _href=URL('waitinglist', vars=vars)))
+        # # check Notes permission
+        # if auth.has_membership(group_id='Admins') or \
+        #    auth.has_permission('read', 'classes_notes'):
+        #     links.append(
+        #         A(os_gui.get_fa_icon('fa-sticky-note-o'), T('Notes'),
+        #           _href=URL('notes', vars=vars)))
+        # # check permissions to change this class
+        # if auth.has_membership(group_id='Admins') or \
+        #    auth.has_permission('create', 'classes_otc'):
+        #     links.append(A(os_gui.get_fa_icon('fa-pencil'),
+        #                    T('Edit'),
+        #                    _href=URL('class_edit_on_date', vars=vars)))
+        # # Check permission to update weekly class
+        # if auth.has_membership(group_id='Admins') or \
+        #    auth.has_permission('update', 'classes'):
+        #     links.append('divider')
+        #     links.append(['header', T('All classes in series')])
+        #     links.append(A(os_gui.get_fa_icon('fa-pencil'),
+        #                    T('Edit'), ' ',
+        #                    _href=URL('class_edit', vars=vars)))
+        #
+        # class_menu = os_gui.get_dropdown_menu(
+        #     links=links,
+        #     btn_text=T('Actions'),
+        #     btn_size='btn-sm',
+        #     btn_icon='actions',
+        #     menu_class='btn-group pull-right')
+        #
+        # remove = ''
+        # if auth.has_membership(group_id='Admins') or \
+        #    auth.has_permission('delete', 'classes'):
+        #
+        #     onclick_remove = "return confirm('" + \
+        #                      T('Do you really want to delete this class?') + \
+        #                      "');"
+        #     remove = os_gui.get_button('delete_notext',
+        #                URL('class_delete', args=[clsID]),
+        #                onclick=onclick_remove)
+        #
+        #     buttons.append(remove)
+        #
+        # return DIV(buttons, class_menu, _class='pull-right schedule_buttons')
+
 
 
     def get_day_rows(self):
