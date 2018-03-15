@@ -92,6 +92,7 @@ def workflow():
 
         # Clear cache
         cache_clear_sys_properties()
+        cache_clear_classschedule()
         # User feedback
         session.flash = T('Saved')
         # reload so the user sees how the values are stored in the db now
