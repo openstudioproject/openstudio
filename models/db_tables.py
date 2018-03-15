@@ -3778,6 +3778,84 @@ def define_shop_links():
     )
 
 
+def define_shop_products():
+    """
+        Define products
+    """
+    visibility = [
+        ['always', T('Always visible')],
+        ['hidden', T('Hidden')],
+        ['in_stock', T('Show when in stock')],
+    ]
+
+
+    db.define_table('shop_products',
+        Field('Name',
+              requires=IS_NOT_EMPTY(),
+              label=T("Name")),
+        Field('Description', 'text',
+              label=T("Description")),
+        Field('DescriptionShop', 'text',
+              label=T("DescripionShop"))
+        Field('Visible',
+              requirs=IS_IN_SET('visibility'))
+        Field('shop_brands_id', db.shop_brands),
+        Field('shop_suppliers_id', db.shop_suppliers)
+    )
+
+
+def define_shop_products_variants():
+    """
+        Define product variants
+    """
+    db.define_table('shop_products_variants',
+        Field('Name',
+              requires=IS_NOT_EMPTY()),
+        Field('Price'),
+        Field('tax_rates_id', db.tax_rates),
+        Field('PurchasePrice'),
+        Field('ArticleCode'),
+        Field('Barcode'),
+        Field('SKU'),
+        Field('StockShop'),
+        Field('StockWarehouse'),
+    )
+
+
+def define_shop_brands():
+    """
+        Define shop brands
+    """
+    db.define_table('shop_brands',
+        Field('Name',
+              requirs=IS_NOT_EMPTY(),
+              label=T('Name')),
+        Field('Description', 'test',
+              label=T('Description'))
+    )
+
+
+def define_shop_suppliers():
+    """
+        Define shop suppliers
+    """
+    db.define_table('shop_suppliers',
+        Field('Name',
+              requirs=IS_NOT_EMPTY(),
+              label=T('Name')),
+        Field('Description',
+              label=T('Description')),
+        Field('ContactName'),
+        Field('ContactPhone'),
+        Field('ContactEmail'),
+        Field('CompanyAddress'),
+        Field('CompanyCity'),
+        Field('CompanyPostCode'),
+        Field('CompanyCountry'),
+        Field('Notes', 'text'),
+    )
+
+
 def represent_customers_orders_status(value, row):
     '''
         Returns label for order status
