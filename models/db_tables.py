@@ -3765,19 +3765,6 @@ def define_customers_orders():
     )
 
 
-def define_shop_links():
-    '''
-        Hold additional links in shop
-    '''
-    db.define_table('shop_links',
-        Field('Name',
-            label=T('Name')),
-        Field('URL',
-            requires=IS_URL(),
-            label=T('URL')),
-    )
-
-
 def define_shop_products():
     """
         Define products
@@ -3788,7 +3775,6 @@ def define_shop_products():
         ['in_stock', T('Show when in stock')],
     ]
 
-
     db.define_table('shop_products',
         Field('Name',
               requires=IS_NOT_EMPTY(),
@@ -3796,9 +3782,9 @@ def define_shop_products():
         Field('Description', 'text',
               label=T("Description")),
         Field('DescriptionShop', 'text',
-              label=T("DescripionShop"))
+              label=T("DescripionShop")),
         Field('Visible',
-              requirs=IS_IN_SET('visibility'))
+              requirs=IS_IN_SET('visibility')),
         Field('shop_brands_id', db.shop_brands),
         Field('shop_suppliers_id', db.shop_suppliers)
     )
@@ -3853,6 +3839,19 @@ def define_shop_suppliers():
         Field('CompanyPostCode'),
         Field('CompanyCountry'),
         Field('Notes', 'text'),
+    )
+
+
+def define_shop_links():
+    '''
+        Hold additional links in shop
+    '''
+    db.define_table('shop_links',
+        Field('Name',
+              label=T('Name')),
+        Field('URL',
+              requires=IS_URL(),
+              label=T('URL')),
     )
 
 
