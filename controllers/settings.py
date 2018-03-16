@@ -1302,8 +1302,6 @@ def access_group_permissions():
          ]
     ]
 
-
-
     tasks_permissions = [
         ['tasks-read', T("View tasks"), [
             ['tasks-create', T('Add tasks')],

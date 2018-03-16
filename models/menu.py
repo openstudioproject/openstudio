@@ -501,16 +501,31 @@ def get_backend_menu():
             shop_text_text = T('Shop')
 
             submenu = []
-
-
+            # Workflow
             if user_helpers.check_read_permission('settings', user_id):
                 submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Workflow'))),
                                 False,
                                 URL('shop_manage', 'workflow', extension='')))
+            # Orders
             if user_helpers.check_read_permission('customers_orders', user_id):
                 submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Orders'))),
                                 False,
                                 URL('orders', 'index', extension='')))
+            # Products
+            if user_helpers.check_read_permission('shop_products', user_id):
+                submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Products'))),
+                                False,
+                                URL('shop', 'products', extension='')))
+            # Brands
+            if user_helpers.check_read_permission('shop_brands', user_id):
+                submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Brands'))),
+                                False,
+                                URL('shop', 'brands', extension='')))
+            # Suppliers
+            if user_helpers.check_read_permission('shop_suppliers', user_id):
+                submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Suppliers'))),
+                                False,
+                                URL('shop', 'suppliers', extension='')))
 
 
             menu += [ ((I(_class=finance_class + ' fa fa-shopping-bag', _title=T('Shop')),
