@@ -3442,8 +3442,8 @@ def admin_redis_cache():
     content = DIV(
         H3(T('Performance')),
         DIV(DIV(TABLE(TR(TH(T('Total')), TD(total), TD()),
-                      TR(TH(T('Hits')), TD(cache_stats['w2p_stats']['hit_total']), TD(hit_percent, '%')),
-                      TR(TH(T('Misses')), TD(cache_stats['w2p_stats']['misses']), TD(miss_percent, '%')),
+                      TR(TH(T('Hits')), TD(cache_stats['w2p_stats']['hit_total']), TD(hit_percent * 100, '%')),
+                      TR(TH(T('Misses')), TD(cache_stats['w2p_stats']['misses']), TD(miss_percent * 100, '%')),
                       TR(TH(T('Keys')), TD(cache_stats['db0']['keys']), TD()),
                       _class='table table-condensed table-hover'),
                 _class='col-md-4'),
