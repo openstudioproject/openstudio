@@ -1281,7 +1281,24 @@ def access_group_permissions():
             ['customers_orders-read', T('View orders'), [
                 ['customers_orders-update', T('Edit orders')],
                 ['customers_orders-delete', T('Delete orders')]]],
-            ['shop_manage_workflow-read', T('Manage shop workflow')]],
+            ['shop_manage_workflow-read', T('Manage shop workflow')],
+            ['shop_products-read', T('View products'), [
+                ['shop_products-create', T('Add products')],
+                ['shop_products-update', T('Edit products')],
+                ['shop_products-delete', T('Delete products')],
+                ['shop_products_variants-read', T('Read product variants'), [
+                    ['shop_products_variants-create', T('Add product variants')],
+                    ['shop_products_variants-update', T('Edit product variants')],
+                    ['shop_products_variants-delete', T('Delete product variants')]]]]],
+            ['shop_brands-read', T('View brands'), [
+                ['shop_brands-create', T('Add brands')],
+                ['shop_brands-update', T('Edit brands')],
+                ['shop_brands-delete', T('Delete brands')]]],
+            ['shop_suppliers-read', T('View suppliers'), [
+                ['shop_suppliers-create', T('Add suppliers')],
+                ['shop_suppliers-update', T('Edit suppliers')],
+                ['shop_suppliers-delete', T('Delete suppliers')]]],
+            ]
          ]
     ]
 
