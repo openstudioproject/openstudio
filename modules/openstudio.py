@@ -4561,22 +4561,24 @@ class ClassSchedule:
         '''
         pytz = current.globalenv['pytz']
         #TIMEZONE = current.globalenv['TIMEZONE']
-        TIMEZONE = 'Etc/UTC' # Class times in DB be considered local and shouldn't have extra hours added / subtracted
+        TIMEZONE = current.globalenv['TIMEZONE']
         NOW_LOCAL = current.globalenv['NOW_LOCAL']
         TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
+
+        local_tz = pytz.timezone(TIMEZONE)
 
         dt_start = datetime.datetime(self.date.year,
                                      self.date.month,
                                      self.date.day,
                                      int(row.classes.Starttime.hour),
                                      int(row.classes.Starttime.minute))
-        dt_start = pytz.utc.localize(dt_start).astimezone(pytz.timezone(TIMEZONE))
+        dt_start = local_tz.localize(dt_start)
         dt_end = datetime.datetime(self.date.year,
                                    self.date.month,
                                    self.date.day,
                                    int(row.classes.Endtime.hour),
                                    int(row.classes.Endtime.minute))
-        dt_end = pytz.utc.localize(dt_end).astimezone(pytz.timezone(TIMEZONE))
+        dt_end = local_tz.localize(dt_end)
 
         status = 'finished'
         if row.classes_otc.Status == 'cancelled' or row.school_holidays.id:
