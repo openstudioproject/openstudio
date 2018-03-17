@@ -4302,6 +4302,9 @@ class ClassSchedule:
 
         data = {}
 
+        trend_medium = self.trend_medium
+        trend_high = self.trend_high
+
         for row in rows:
             classes_4w = row.classes_schedule_count.NRClasses4WeeksAgo or 0
             attendance_4w = row.classes_schedule_count.Attendance4WeeksAgo or 0
@@ -4318,15 +4321,15 @@ class ClassSchedule:
             avg_att_4w_percentage_display = round(avg_att_4w_percentage, 2)
 
             class_trend_text_color = 'grey'
-            if self.trend_medium:
+            if trend_medium:
                 capacity = ' - ' + T('Capacity filled: ') + unicode(avg_att_4w_percentage_display) + '%'
-                if avg_att_4w_percentage < self.trend_medium:
+                if avg_att_4w_percentage < trend_medium:
                     class_trend_text_color = 'text-red'
                 else:
                     class_trend_text_color = 'text-yellow'
-            if self.trend_high:
+            if trend_high:
                 capacity = ' - ' + T('Capacity filled: ') + unicode(avg_att_4w_percentage_display) + '%'
-                if avg_att_4w_percentage >= self.trend_high:
+                if avg_att_4w_percentage >= trend_high:
                     class_trend_text_color = 'text-green'
 
             avg_4w_ago_display = DIV(SPAN(int(avg_4w_ago), '/', row.classes.Maxstudents),
@@ -4566,10 +4569,11 @@ class ClassSchedule:
 
         num_messages = len(class_messages)
         msgs = SPAN()
+        append = msgs.append
         for i, msg in enumerate(class_messages):
-            msgs.append(msg)
+            append(msg)
             if i + 1 < num_messages:
-                msgs.append(' | ')
+                append(' | ')
 
         return msgs
 
@@ -4580,7 +4584,6 @@ class ClassSchedule:
             :return: booking status
         '''
         pytz = current.globalenv['pytz']
-        #TIMEZONE = current.globalenv['TIMEZONE']
         TIMEZONE = current.globalenv['TIMEZONE']
         NOW_LOCAL = current.globalenv['NOW_LOCAL']
         TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
@@ -4819,8 +4822,8 @@ class ClassSchedule:
         '''
             Get day rows with caching 
         '''
-        web2pytest = current.globalenv['web2pytest']
-        request = current.globalenv['request']
+        #web2pytest = current.globalenv['web2pytest']
+        #request = current.globalenv['request']
 
         # # Don't cache when running tests
         # if web2pytest.is_running_under_test(request, request.application):
@@ -4989,12 +4992,14 @@ class ClassSchedule:
 
         rows = self.get_day_rows()
 
+        get_status = self._get_day_row_status
+
         classes = []
         for i, row in enumerate(rows):
             repr_row = list(rows[i:i+1].render())[0]
 
             # get status
-            status_result = self._get_day_row_status(row)
+            status_result = get_status(row)
             status = status_result['status']
 
             # get teachers

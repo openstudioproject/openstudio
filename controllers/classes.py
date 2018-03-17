@@ -1668,12 +1668,16 @@ def schedule_get_filter_form(school_locations_id='',
                              school_levels_id='',
                              status=''):
 
+    ct_query = (db.school_classtypes.Archived == False)
+    slo_query = (db.school_locations.Archived == False)
+    sle_query = (db.school_levels.Archived == False)
+
     au_query = (db.auth_user.teacher == True) & \
                (db.auth_user.archived == False)
 
     form = SQLFORM.factory(
         Field('location',
-            requires=IS_IN_DB(db,'school_locations.id', '%(Name)s',
+            requires=IS_IN_DB(db(slo_query),'school_locations.id', '%(Name)s',
                               zero=T('All locations')),
             default=school_locations_id,
             label=""),
@@ -1684,12 +1688,12 @@ def schedule_get_filter_form(school_locations_id='',
             default=teachers_id,
             label=""),
         Field('classtype',
-            requires=IS_IN_DB(db,'school_classtypes.id', '%(Name)s',
+            requires=IS_IN_DB(db(ct_query),'school_classtypes.id', '%(Name)s',
                               zero=T('All classtypes')),
             default=school_classtypes_id,
             label=""),
         Field('level',
-            requires=IS_IN_DB(db,'school_levels.id', '%(Name)s',
+            requires=IS_IN_DB(db(sle_query),'school_levels.id', '%(Name)s',
                               zero=T('All levels')),
             default=school_levels_id,
             label=""),
