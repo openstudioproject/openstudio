@@ -4818,9 +4818,9 @@ class ClassSchedule:
 
 
     def _get_day_table(self):
-        '''
+        """
             Returns table for today
-        '''
+        """
         os_gui = current.globalenv['os_gui']
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
         ORGANIZATIONS = current.globalenv['ORGANIZATIONS']
@@ -4841,69 +4841,65 @@ class ClassSchedule:
 
         rows = self.get_day_rows()
 
-
         if len(rows) == 0:
             div_classes=DIV()
         else:
             # Get trend column from cache
             trend_data = self._get_day_get_table_class_trend()
+            get_trend_data = trend_data.get
+
+            # avoiding some dots in the loop
+            get_status = self._get_day_row_status
+            get_teacher_roles = self._get_day_row_teacher_roles
+            get_buttons = self._get_day_get_table_get_buttons
+            get_reservations = self._get_day_get_table_get_reservations
+            get_class_messages = self._get_day_table_get_class_messages
+
+            multiple_organizations = len(ORGANIZATIONS) > 1
+            filter_id_status = self.filter_id_status
+            msg_no_teacher = SPAN(T('No teacher'), _class='red')
+
             # Generate list of classes
             for i, row in enumerate(rows):
                 repr_row = list(rows[i:i+1].render())[0]
                 clsID = row.classes.id
 
-                status_result = self._get_day_row_status(row)
+                status_result = get_status(row)
                 status = status_result['status']
                 status_marker = status_result['marker']
 
-                if self.filter_id_status:
-                    if status != self.filter_id_status:
-                        continue
+                if filter_id_status and status != filter_id_status:
+                    continue
 
-                result = self._get_day_row_teacher_roles(row, repr_row)
-
+                result = get_teacher_roles(row, repr_row)
                 teacher = result['teacher_role']
                 teacher2 = result['teacher_role2']
-
-                location = max_string_length(
-                    repr_row.classes.school_locations_id, 15)
-                classtype = max_string_length(
-                    repr_row.classes.school_classtypes_id, 24)
-                time = SPAN(repr_row.classes.Starttime, ' - ',
-                            repr_row.classes.Endtime)
-                level = max_string_length(repr_row.classes.school_levels_id, 12)
 
                 api = INPUT(value=row.classes.AllowAPI,
                             _type='checkbox',
                             _value='api',
                             _disabled='disabled')
 
-                trend = trend_data.get(row.classes.id, '')
+                trend = get_trend_data(row.classes.id, '')
+                buttons = get_buttons(clsID, date_formatted)
+                reservations = get_reservations(clsID, date_formatted, row)
+                class_messages = get_class_messages(row, clsID, date_formatted)
 
-                buttons = self._get_day_get_table_get_buttons(clsID,
-                                                              date_formatted)
-                reservations = self._get_day_get_table_get_reservations(
-                    clsID, date_formatted, row)
-
-                class_messages = self._get_day_table_get_class_messages(row,
-                                                                        clsID,
-                                                                        date_formatted)
-
-                msg_no_teacher = SPAN(T('No teacher'), _class='red')
-
-                organization = ''
-                if len(ORGANIZATIONS) > 1:
-                    organization = DIV(repr_row.classes.sys_organizations_id or '', _class='small_font grey pull-right btn-margin')
+                if multiple_organizations:
+                    organization = DIV(repr_row.classes.sys_organizations_id or '',
+                                       _class='small_font grey pull-right btn-margin')
+                else:
+                    organization = ''
 
                 row_class = TR(
                     TD(status_marker),
-                    TD(location),
-                    TD(classtype),
-                    TD(time),
+                    TD(max_string_length(repr_row.classes.school_locations_id, 15)),
+                    TD(max_string_length(repr_row.classes.school_classtypes_id, 24)),
+                    TD(SPAN(repr_row.classes.Starttime, ' - ', repr_row.classes.Endtime)),
                     TD(teacher if (not status == 'open' and
                                    not row.classes_teachers.auth_teacher_id is None) \
                                else msg_no_teacher),
-                    TD(level),
+                    TD(max_string_length(repr_row.classes.school_levels_id, 12)),
                     TD(api),
                     TD(trend),
                     TD(buttons),
@@ -4929,9 +4925,9 @@ class ClassSchedule:
 
 
     def get_day_table(self):
-        '''
-            Get day table with caching 
-        '''
+        """
+            Get day table with caching
+        """
         web2pytest = current.globalenv['web2pytest']
         request = current.globalenv['request']
         auth = current.globalenv['auth']
@@ -5182,7 +5178,7 @@ class Classcard:
 
     def get_classes_remaining_formatted(self):
         '''
-            :return: Representation of remaining classes 
+            :return: Representation of remaining classes
         '''
         db = current.globalenv['db']
         T = current.globalenv['T']
@@ -5527,7 +5523,7 @@ class Workshop:
 
     def get_products(self, filter_public = False):
         '''
-            :param filter_public: boolean - show only Public products when set to True 
+            :param filter_public: boolean - show only Public products when set to True
             :return: workshop product rows for a workshop
         '''
         db = current.globalenv['db']
