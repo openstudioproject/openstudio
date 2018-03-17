@@ -4401,7 +4401,7 @@ class ClassSchedule:
 
         if auth.has_membership(group_id='Admins') or \
            auth.has_permission('read', 'classes_attendance'):
-            permissions['classes_attendace'] = True
+            permissions['classes_attendance'] = True
         if auth.has_membership(group_id='Admins') or \
            auth.has_permission('read', 'classes_reservation'):
             permissions['classes_reservation'] = True
@@ -4444,7 +4444,7 @@ class ClassSchedule:
             links.append(A(os_gui.get_fa_icon('fa-check-square-o'), T('Attendance'),
                            _href=URL('attendance', vars=vars)))
         # check Reservations permission
-        if permissions.get('classes_reservations', False):
+        if permissions.get('classes_reservation', False):
             links.append(
                 A(os_gui.get_fa_icon('fa-calendar-check-o'),  T('Enrollments'),
                  _href=URL('reservations', vars=vars)))
