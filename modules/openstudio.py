@@ -4200,11 +4200,18 @@ class ClassSchedule:
         '''
             dict containing trend divs for self.date
         '''
+        def average(total, classes_counted):
+            try:
+                average = float(total / classes_counted)
+            except ZeroDivisionError:
+                average = float(0)
+
+            return average
+
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
         db = current.globalenv['db']
         T = current.globalenv['T']
         weekday = self.date.isoweekday()
-
 
         date_formatted = self.date.strftime(DATE_FORMAT)
 
@@ -4296,14 +4303,6 @@ class ClassSchedule:
         data = {}
 
         for row in rows:
-            def average(total, classes_counted):
-                try:
-                    average = float(total / classes_counted)
-                except ZeroDivisionError:
-                    average = float(0)
-
-                return average
-
             classes_4w = row.classes_schedule_count.NRClasses4WeeksAgo or 0
             attendance_4w = row.classes_schedule_count.Attendance4WeeksAgo or 0
             avg_4w_ago = average(attendance_4w, classes_4w)
@@ -4393,16 +4392,46 @@ class ClassSchedule:
         return data
 
 
-    def _get_day_get_table_get_buttons(self, clsID, date_formatted):
+    def _get_day_get_table_get_permissions(self):
+        """
+            :return: dict containing button permissions for a user
+        """
+        auth = current.globalenv['auth']
+        permissions = {}
+
+        if auth.has_membership(group_id='Admins') or \
+           auth.has_permission('read', 'classes_attendance'):
+            permissions['classes_attendace'] = True
+        if auth.has_membership(group_id='Admins') or \
+           auth.has_permission('read', 'classes_reservation'):
+            permissions['classes_reservation'] = True
+        if auth.has_membership(group_id='Admins') or \
+           auth.has_permission('read', 'classes_waitinglist'):
+            permissions['classes_waitinglist'] = True
+        if auth.has_membership(group_id='Admins') or \
+           auth.has_permission('read', 'classes_notes'):
+            permissions['classes_notes'] = True
+        if auth.has_membership(group_id='Admins') or \
+           auth.has_permission('create', 'classes_otc'):
+            permissions['classes_otc'] = True
+        if auth.has_membership(group_id='Admins') or \
+           auth.has_permission('update', 'classes'):
+            permissions['classes'] = True
+        if auth.has_membership(group_id='Admins') or \
+           auth.has_permission('delete', 'classes'):
+            permissions['classes_delete'] = True
+
+        return permissions
+
+
+    def _get_day_get_table_get_buttons(self, clsID, date_formatted, permissions):
         '''
             Returns buttons for schedule
             - one button group for edit & attendance buttons
             - separate button for delete
         '''
         os_gui = current.globalenv['os_gui']
-        auth = current.globalenv['auth']
         T = current.globalenv['T']
-
         buttons = DIV(_class='pull-right')
 
         vars = { 'clsID':clsID,
@@ -4411,37 +4440,31 @@ class ClassSchedule:
 
         links = [['header', T('Class on') + ' ' + date_formatted]]
         # check Attendance permission
-        if auth.has_membership(group_id='Admins') or \
-           auth.has_permission('read', 'classes_attendance'):
+        if permissions.get('classes_attendance', False):
             links.append(A(os_gui.get_fa_icon('fa-check-square-o'), T('Attendance'),
                            _href=URL('attendance', vars=vars)))
         # check Reservations permission
-        if auth.has_membership(group_id='Admins') or \
-           auth.has_permission('read', 'classes_reservation'):
+        if permissions.get('classes_reservations', False):
             links.append(
                 A(os_gui.get_fa_icon('fa-calendar-check-o'),  T('Enrollments'),
                  _href=URL('reservations', vars=vars)))
         # check Waitinglist permission
-        if auth.has_membership(group_id='Admins') or \
-           auth.has_permission('read', 'classes_waitinglist'):
+        if permissions.get('classes_waitinglist', False):
             links.append(
                 A(os_gui.get_fa_icon('fa-calendar-o'), T('Waitinglist'),
                   _href=URL('waitinglist', vars=vars)))
         # check Notes permission
-        if auth.has_membership(group_id='Admins') or \
-           auth.has_permission('read', 'classes_notes'):
+        if permissions.get('classes_notes', False):
             links.append(
                 A(os_gui.get_fa_icon('fa-sticky-note-o'), T('Notes'),
                   _href=URL('notes', vars=vars)))
         # check permissions to change this class
-        if auth.has_membership(group_id='Admins') or \
-           auth.has_permission('create', 'classes_otc'):
+        if permissions.get('classes_otc', False):
             links.append(A(os_gui.get_fa_icon('fa-pencil'),
                            T('Edit'),
                            _href=URL('class_edit_on_date', vars=vars)))
         # Check permission to update weekly class
-        if auth.has_membership(group_id='Admins') or \
-           auth.has_permission('update', 'classes'):
+        if permissions.get('classes', False):
             links.append('divider')
             links.append(['header', T('All classes in series')])
             links.append(A(os_gui.get_fa_icon('fa-pencil'),
@@ -4456,9 +4479,7 @@ class ClassSchedule:
             menu_class='btn-group pull-right')
 
         remove = ''
-        if auth.has_membership(group_id='Admins') or \
-           auth.has_permission('delete', 'classes'):
-
+        if permissions.get('classes_delete'):
             onclick_remove = "return confirm('" + \
                              T('Do you really want to delete this class?') + \
                              "');"
@@ -4471,7 +4492,7 @@ class ClassSchedule:
         return DIV(buttons, class_menu, _class='pull-right schedule_buttons')
 
 
-    def _get_day_get_table_get_reservations(self, clsID, date_formatted, row):
+    def _get_day_get_table_get_reservations(self, clsID, date_formatted, row, permissions):
         '''
             Returns tools for schedule
             - reservations
@@ -4496,8 +4517,7 @@ class ClassSchedule:
                                          'date'  : date_formatted}),
                          _class=link_class)
 
-        if auth.has_membership(group_id='Admins') or \
-            auth.has_permission('read', 'classes_attendance'):
+        if permissions.get('classes_attendance', False):
             tools.append(reservations)
 
         return tools
@@ -4855,6 +4875,8 @@ class ClassSchedule:
             get_reservations = self._get_day_get_table_get_reservations
             get_class_messages = self._get_day_table_get_class_messages
 
+            button_permissions = self._get_day_get_table_get_permissions()
+
             multiple_organizations = len(ORGANIZATIONS) > 1
             filter_id_status = self.filter_id_status
             msg_no_teacher = SPAN(T('No teacher'), _class='red')
@@ -4881,8 +4903,8 @@ class ClassSchedule:
                             _disabled='disabled')
 
                 trend = get_trend_data(row.classes.id, '')
-                buttons = get_buttons(clsID, date_formatted)
-                reservations = get_reservations(clsID, date_formatted, row)
+                buttons = get_buttons(clsID, date_formatted, button_permissions)
+                reservations = get_reservations(clsID, date_formatted, row, button_permissions)
                 class_messages = get_class_messages(row, clsID, date_formatted)
 
                 if multiple_organizations:
