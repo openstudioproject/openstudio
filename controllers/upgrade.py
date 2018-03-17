@@ -869,9 +869,9 @@ def upgrade_to_20181():
         Upgrade operations to 2018.1
     """
     ##
-    # clear menu cache to show new links and icons
+    # clear cache
     ##
-    cache_clear_menu_backend()
+    cache.ram.clear(regex='.*')
 
     ##
     # Set sorting order for subscriptions
