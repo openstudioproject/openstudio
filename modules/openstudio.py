@@ -9695,6 +9695,87 @@ class OsGui:
         return DIV(previous, nxt, _class='btn-group pull-right')
 
 
+    def max_string_length(self, string, length):
+        '''
+            Cuts string to desired length, if longer, cuts and replaces last 3
+            characters with "..."
+        '''
+        if string is None:
+            return_value = ''
+        elif len(string) > length:
+            return_value = string[:length - 3] + "..."
+        else:
+            return_value = string
+
+        return return_value
+
+
+class OsForms:
+    def set_form_id_and_get_submit_button(self, form, form_id):
+        """
+            :param form: html form
+            :param form_id: form id to be set
+            :return: form with id and submit button
+        """
+        form_element = form.element('form')
+        form['_id'] = form_id
+
+        elements = form.elements('input, select, textarea')
+        for element in elements:
+            element['_form'] = form_id
+
+        submit = form.element('input[type=submit]')
+
+        return dict(form=form, submit=submit)
+
+
+    def get_crud_form_create(self,
+                             db_table,
+                             return_url,
+                             formstyle="bootstrap3_stacked",
+                             form_id="MainForm"
+                             ):
+        """
+            Return a crud form to add a record to the database
+        """
+        T = current.globalenv['T']
+        crud = current.globalenv['crud']
+
+        crud.messages.submit_button = T("Save")
+        crud.messages.record_created = T("Saved")
+        crud.settings.create_next = return_url
+        crud.settings.formstyle = formstyle
+        form = crud.create(db_table)
+
+        result = self.set_form_id_and_get_submit_button(form, form_id)
+        # This contains ['form'] and ['submit']
+        return result
+
+
+    def get_crud_form_update(self,
+                             db_table,
+                             return_url,
+                             record_id
+                             formstyle="bootstrap3_stacked",
+                             form_id="MainForm"
+                             ):
+        """
+            Return a crud form to add a record to the database
+        """
+        T = current.globalenv['T']
+        crud = current.globalenv['crud']
+
+        crud.messages.submit_button = T("Save")
+        crud.messages.record_updated = T("Saved")
+        crud.settings.create_next = return_url
+        crud.settings.formstyle = formstyle
+        form = crud.update(db_table, record_id)
+
+        result = self.set_form_id_and_get_submit_button(form, form_id)
+        # This contains ['form'] and ['submit']
+        return result
+
+
 class OsMail:
     def send(self, msgID, cuID): # Used to be 'mail_customer()'
         '''
@@ -10087,3 +10168,43 @@ class ReportsHelper:
                             DESC""".format(firstdaythismonth=firstdaythismonth,
                                            lastdaythismonth=lastdaythismonth)
         return query
+
+
+class ShopBrands:
+    def list(self):
+        """
+            List shop brands
+        """
+        db = current.globalenv['db']
+
+        query = (db.shop_brands.Archived == False)
+        rows = db(query).select(db.shop_brands.ALL)
+
+        return rows
+
+
+    def list_formatted(self):
+        """
+        :return: HTML table with shop brands
+        """
+        T = current.globalenv['T']
+        os_gui = current.globalenv['os_gui']
+
+        header = THEAD(TR(TH(T('Brand')),
+                          TH(T('Description')),
+                          TH()))
+        table = TABLE(header, _class="table table-striped table-hover")
+
+
+
+        rows = self.list()
+        for row in rows:
+            tr = TR(
+                TD(row.Name),
+                TD(os_gui.max_string_length(row.Description, 46)),
+                TD(buttons)
+            )
+
+            table.append(tr)
+
+        return table

@@ -3854,6 +3854,10 @@ def define_shop_brands():
         Define shop brands
     """
     db.define_table('shop_brands',
+        Field('Archived', 'boolean',
+              readable=False,
+              writable=False,
+              default=False),
         Field('Name',
               requires=IS_NOT_EMPTY(),
               label=T('Name')),

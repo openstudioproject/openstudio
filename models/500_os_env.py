@@ -300,6 +300,7 @@ def get_sys_property(value=None, value_type=None):
 
     return sprop
 
+
 def set_genders():
     return [['F', T('Female')],
             ['M', T('Male')],

@@ -108,3 +108,73 @@ def workflow():
                 save=submit)
 
 
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'shop_brands'))
+def brands():
+    """
+        List shop brands
+    """
+    from openstudio import ShopBrands
+
+    response.title = T('Shop')
+    response.subtitle = T('Brands')
+    response.view = 'general/only_content.html'
+
+    shop_brands = ShopBrands()
+    content = shop_brands.list_formatted()
+
+    add = os_gui.get_button('add', URL('shop_manage', 'brand_add'))
+
+    return dict(content=content,
+                add=add,
+                back='')
+
+
+@auth.requires_login()
+def brand_add():
+    """
+        Add a new brand
+    """
+    response.title = T('Shop')
+    response.subtitle = T('Add brand')
+    response.view = 'general/only_content.html'
+
+    return_url = shop_brand_add_edit_get_return_url()
+
+    result = os_gui.get_crud_form_create(
+        db.shop_brands,
+        return_url,
+    )
+
+    form = result['form']
+    back = os_gui.get_button('back', return_url)
+
+    return dict(content=form,
+                save=result['submit'],
+                back=back)
+
+
+@auth.requires_login()
+def brand_edit():
+    """
+        Add a new brand
+    """
+    response.title = T('Shop')
+    response.subtitle = T('Edit brand')
+    response.view = 'general/only_content.html'
+    sbID = request.vars['sbID']
+
+    return_url = shop_brand_add_edit_get_return_url()
+
+    result = os_gui.get_crud_form_update(
+        db.shop_brands,
+        URL('shop_manage', 'brands'),
+    )
+
+    form = result['form']
+    back = os_gui.get_button('back', return_url
+
+    return dict(content=form,
+                save=result['submit'],
+                back=back
+
