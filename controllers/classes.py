@@ -1839,9 +1839,6 @@ def schedule_export_excel():
         return stream.getvalue()
 
 
-
-
-
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('create', 'classes_attendance_override'))
 def attendance_override():

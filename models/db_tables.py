@@ -3784,7 +3784,7 @@ def define_shop_products():
         Field('DescriptionShop', 'text',
               label=T("Descripion in shop")),
         Field('Visible',
-              requirs=IS_IN_SET('visibility')),
+              requires=IS_IN_SET('visibility')),
         Field('shop_brands_id', db.shop_brands,
               requires=IS_EMPTY_OR(IS_IN_DB(db(),
                                             'shop_brands.id',
@@ -3795,7 +3795,8 @@ def define_shop_products():
               requires=IS_EMPTY_OR(IS_IN_DB(db(),
                                             'shop_suppliers.id',
                                             '%(Name)s')),
-              label=T('Supplier'))
+              label=T('Supplier')),
+        Field('shop_products_sets_id', db.shop_products_sets)
     )
 
 
@@ -3817,15 +3818,46 @@ def define_shop_products_variants():
     )
 
 
+def define_shop_products_sets():
+    """
+        Define products sets; sets of options that can be linked to a product
+    """
+    db.define_table('shop_products_sets',
+        Field('Name'),
+    )
+
+
+def define_shop_products_options():
+    """
+        Define products options
+        eg. color, size, etc.
+    """
+    db.define_table('shop_products_options',
+        Field('shop_products_sets_id'),
+        Field('Name')
+    )
+
+
+def define_shop_products_options_values():
+    """
+        Define shop products options values
+        eg. red, blue, etc.
+    """
+    db.define_table('shop_products_options_values',
+        Field('products_options_id', db.shop_products_options),
+        Field('Name'),
+    )
+
+
 def define_shop_brands():
     """
         Define shop brands
     """
     db.define_table('shop_brands',
         Field('Name',
-              requirs=IS_NOT_EMPTY(),
+              requires=IS_NOT_EMPTY(),
               label=T('Name')),
-        Field('Description', 'test',
+        Field('Description', 'text',
               label=T('Description'))
     )
 
@@ -3836,7 +3868,7 @@ def define_shop_suppliers():
     """
     db.define_table('shop_suppliers',
         Field('Name',
-              requirs=IS_NOT_EMPTY(),
+              requires=IS_NOT_EMPTY(),
               label=T('Name')),
         Field('Description',
               label=T('Description')),
@@ -4775,6 +4807,13 @@ define_mollie_log_webhook()
 
 # shop tables
 define_shop_links()
+define_shop_brands()
+define_shop_suppliers()
+define_shop_products_sets()
+define_shop_products()
+define_shop_products_options()
+define_shop_products_options_values()
+define_shop_products_variants()
 
 
 set_preferences_permissions()
