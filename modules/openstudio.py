@@ -2381,10 +2381,10 @@ class AttendanceHelper:
     def get_attending_list_between(self,
                                    start_date,
                                    end_date):
-        '''
+        """
             Returns distincs a list of customers attending any classes between start_date
             and end_date as a list of db.auth_user_id
-        '''
+        """
         db = current.globalenv['db']
 
         left = [ db.auth_user.on(db.classes_attendance.auth_customer_id == db.auth_user.id) ]
@@ -2407,13 +2407,13 @@ class AttendanceHelper:
 
 
     def get_last_attendance(self, customer_ids):
-        '''
+        """
             For each customer id returns the date when the customer last attended
             a class. Returns a dictionary where the key is the customer id and the
             value is the last date when the customer attended a class.
 
             :param customer_ids: the customers to check
-        '''
+        """
         db = current.globalenv['db']
         max = db.classes_attendance.ClassDate.max()
         having_query = (db.classes_attendance.auth_customer_id.belongs(customer_ids))
@@ -9345,9 +9345,9 @@ class OsGui:
 
 
     def get_archived_radio_buttons(self, state, _class='pull-right'):
-        '''
+        """
             state is expected to be 'current' or 'archive'
-        '''
+        """
         from gluon import current
 
         if state == 'current':
@@ -9755,7 +9755,7 @@ class OsForms:
     def get_crud_form_update(self,
                              db_table,
                              return_url,
-                             record_id
+                             record_id,
                              formstyle="bootstrap3_stacked",
                              form_id="MainForm"
                              ):
@@ -9767,7 +9767,7 @@ class OsForms:
 
         crud.messages.submit_button = T("Save")
         crud.messages.record_updated = T("Saved")
-        crud.settings.create_next = return_url
+        crud.settings.update_next = return_url
         crud.settings.formstyle = formstyle
         form = crud.update(db_table, record_id)
 
@@ -10171,37 +10171,56 @@ class ReportsHelper:
 
 
 class ShopBrands:
+    def __init__(self, show_archive=False):
+        self.show_archive = show_archive
+
+
     def list(self):
         """
-            List shop brands
+            :return: List of shop brands (gluon.dal.rows)
         """
         db = current.globalenv['db']
 
-        query = (db.shop_brands.Archived == False)
-        rows = db(query).select(db.shop_brands.ALL)
+        query = (db.shop_brands.Archived == self.show_archive)
+        rows = db(query).select(db.shop_brands.ALL,
+                                orderby=db.shop_brands.Name)
 
         return rows
 
 
     def list_formatted(self):
         """
-        :return: HTML table with shop brands
+            :return: HTML table with shop brands
         """
         T = current.globalenv['T']
         os_gui = current.globalenv['os_gui']
+        auth = current.globalenv['auth']
 
         header = THEAD(TR(TH(T('Brand')),
                           TH(T('Description')),
                           TH()))
-        table = TABLE(header, _class="table table-striped table-hover")
+        table = TABLE(header, _class='table table-striped table-hover')
 
-
+        permission_edit = (auth.has_membership(group_id='Admins') or
+                           auth.has_permission('update', 'shop_brands'))
 
         rows = self.list()
         for row in rows:
+            buttons = ''
+            edit = ''
+            archive = ''
+            vars = {'sbID':row.id}
+
+            if permission_edit:
+                edit = os_gui.get_button('edit',
+                    URL('shop_manage', 'brand_edit', vars=vars))
+                archive = os_gui.get_button('archive',
+                    URL('shop_manage', 'brand_archive', vars=vars))
+                buttons = DIV(edit, archive, _class='pull-right')
+
             tr = TR(
-                TD(row.Name),
-                TD(os_gui.max_string_length(row.Description, 46)),
+                TD(os_gui.max_string_length(row.Name, 30)),
+                TD(os_gui.max_string_length(row.Description, 60)),
                 TD(buttons)
             )
 

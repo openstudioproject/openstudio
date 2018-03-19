@@ -101,7 +101,6 @@ def workflow():
     content = DIV(DIV(form, _class='col-md-6'),
                   _class='row')
 
-
     return dict(content=content,
                 back='',
                 menu='',
@@ -115,19 +114,40 @@ def brands():
         List shop brands
     """
     from openstudio import ShopBrands
+    from openstudio_tools import OsSession
 
     response.title = T('Shop')
     response.subtitle = T('Brands')
     response.view = 'general/only_content.html'
 
-    shop_brands = ShopBrands()
+    os_session = OsSession()
+    value = os_session.get_request_var_or_session(
+        'show_archive',
+        'current',
+        'shop_manage_brands_show'
+    )
+
+    show_archived = False
+    if value == 'archive':
+        show_archived = True
+
+    shop_brands = ShopBrands(show_archived)
     content = shop_brands.list_formatted()
 
     add = os_gui.get_button('add', URL('shop_manage', 'brand_add'))
+    archive_buttons = os_gui.get_archived_radio_buttons(
+        session.shop_manage_brands_show)
 
     return dict(content=content,
                 add=add,
-                back='')
+                header_tools=archive_buttons)
+
+
+def shop_brand_add_edit_get_return_url(var=None):
+    """
+        :return: URL to shop brands list page
+    """
+    return URL('shop_manage', 'brands')
 
 
 @auth.requires_login()
@@ -135,13 +155,15 @@ def brand_add():
     """
         Add a new brand
     """
+    from openstudio import OsForms
     response.title = T('Shop')
     response.subtitle = T('Add brand')
     response.view = 'general/only_content.html'
 
     return_url = shop_brand_add_edit_get_return_url()
 
-    result = os_gui.get_crud_form_create(
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_create(
         db.shop_brands,
         return_url,
     )
@@ -157,8 +179,11 @@ def brand_add():
 @auth.requires_login()
 def brand_edit():
     """
-        Add a new brand
+        Edit a brand
+        request.vars['sbID'] is expected to be db.shop_brands.id
     """
+    from openstudio import OsForms
+
     response.title = T('Shop')
     response.subtitle = T('Edit brand')
     response.view = 'general/only_content.html'
@@ -166,15 +191,36 @@ def brand_edit():
 
     return_url = shop_brand_add_edit_get_return_url()
 
-    result = os_gui.get_crud_form_update(
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_update(
         db.shop_brands,
-        URL('shop_manage', 'brands'),
+        return_url,
+        sbID
     )
 
     form = result['form']
-    back = os_gui.get_button('back', return_url
+    back = os_gui.get_button('back', return_url)
 
     return dict(content=form,
                 save=result['submit'],
-                back=back
+                back=back)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'shop_brands'))
+def brand_archive():
+    """
+        Archive a brand
+        request.vars[sbID] is expected to be in db.shop_brands.id
+        :return: None
+    """
+    from openstudio_tools import OsArchiver
+
+    archiver = OsArchiver()
+    archiver.archive(
+        db.shop_brands,
+        request.vars['sbID'],
+        T('Unable to (un)archive brand'),
+        URL('shop_manage', 'brands')
+    )
 
