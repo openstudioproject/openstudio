@@ -515,17 +515,17 @@ def get_backend_menu():
             if user_helpers.check_read_permission('shop_products', user_id):
                 submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Products'))),
                                 False,
-                                URL('shop', 'products', extension='')))
+                                URL('shop_manage', 'products', extension='')))
             # Brands
             if user_helpers.check_read_permission('shop_brands', user_id):
                 submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Brands'))),
                                 False,
-                                URL('shop', 'brands', extension='')))
+                                URL('shop_manage', 'brands', extension='')))
             # Suppliers
             if user_helpers.check_read_permission('shop_suppliers', user_id):
                 submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Suppliers'))),
                                 False,
-                                URL('shop', 'suppliers', extension='')))
+                                URL('shop_manage', 'suppliers', extension='')))
 
 
             menu += [ ((I(_class=finance_class + ' fa fa-shopping-bag', _title=T('Shop')),
