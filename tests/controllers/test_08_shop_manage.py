@@ -108,3 +108,78 @@ def test_brand_archive(client, web2py):
     brand = web2py.db.shop_brands(1)
     assert brand.Archived == True
 
+
+def test_suppliers(client, web2py):
+    """
+        Is the suppliers page listing suppliers?
+    """
+    from populate_os_tables import populate_shop_suppliers
+    populate_shop_suppliers(web2py)
+
+    assert web2py.db(web2py.db.shop_suppliers).count() == 1
+
+    url = '/shop_manage/suppliers'
+    client.get(url)
+    assert client.status == 200
+
+    supplier = web2py.db.shop_suppliers(1)
+    assert supplier.Name in client.text
+
+
+def test_supplier_add(client, web2py):
+    """
+        Can we add a supplier?
+    """
+    url = '/shop_manage/supplier_add'
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        'Name': 'Grapefruit',
+        'Description': 'Also great as juice'
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+    assert web2py.db(web2py.db.shop_suppliers).count() == 1
+
+
+def test_supplier_edit(client, web2py):
+    """
+        Can we edit a supplier?
+    """
+    from populate_os_tables import populate_shop_suppliers
+    populate_shop_suppliers(web2py)
+
+    url = '/shop_manage/supplier_edit?supID=1'
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        'id': '1',
+        'Name': 'Grapefruit',
+        'Description': 'Also great as juice'
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+    supplier = web2py.db.shop_suppliers(1)
+    assert supplier.Name == data['Name']
+
+
+def test_supplier_archive(client, web2py):
+    """
+        Can we archive a supplier?
+    """
+    from populate_os_tables import populate_shop_suppliers
+    populate_shop_suppliers(web2py)
+
+    url = '/shop_manage/supplier_archive?supID=1'
+    client.get(url)
+    assert client.status == 200
+
+    supplier = web2py.db.shop_suppliers(1)
+    assert supplier.Archived == True
+

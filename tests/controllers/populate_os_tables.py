@@ -1553,3 +1553,16 @@ def populate_shop_brands(web2py):
     web2py.db.commit()
 
 
+def populate_shop_suppliers(web2py):
+    """
+        Populate shop suppliers
+    """
+    web2py.db.shop_suppliers.insert(
+        Archived = False,
+        Name = "FruitTraders",
+        Description = "Great pineapples!"
+    )
+
+    web2py.db.commit()
+
+
