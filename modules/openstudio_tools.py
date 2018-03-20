@@ -2,6 +2,7 @@
 
 from gluon import *
 
+
 class OsArchiver:
     def parse_request_vars(self, rvars, sesssion_var):
         """
@@ -24,6 +25,7 @@ class OsArchiver:
             session.school_discovery_show = show
 
         return show_archived
+
 
     def archive(self,
                 db_table,
