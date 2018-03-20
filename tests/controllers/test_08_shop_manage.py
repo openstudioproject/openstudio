@@ -109,6 +109,81 @@ def test_brand_archive(client, web2py):
     assert brand.Archived == True
 
 
+def test_categories(client, web2py):
+    """
+        Is the categories page listing categories?
+    """
+    from populate_os_tables import populate_shop_categories
+    populate_shop_categories(web2py)
+
+    assert web2py.db(web2py.db.shop_categories).count() == 1
+
+    url = '/shop_manage/categories'
+    client.get(url)
+    assert client.status == 200
+
+    category = web2py.db.shop_categories(1)
+    assert category.Name in client.text
+
+
+def test_category_add(client, web2py):
+    """
+        Can we add a category?
+    """
+    url = '/shop_manage/category_add'
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        'Name': 'Grapefruit',
+        'Description': 'Also great as juice'
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+    assert web2py.db(web2py.db.shop_categories).count() == 1
+
+
+def test_category_edit(client, web2py):
+    """
+        Can we edit a category?
+    """
+    from populate_os_tables import populate_shop_categories
+    populate_shop_categories(web2py)
+
+    url = '/shop_manage/category_edit?scID=1'
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        'id': '1',
+        'Name': 'Grapefruit',
+        'Description': 'Also great as juice'
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+    category = web2py.db.shop_categories(1)
+    assert category.Name == data['Name']
+
+
+def test_category_archive(client, web2py):
+    """
+        Can we archive a category?
+    """
+    from populate_os_tables import populate_shop_categories
+    populate_shop_categories(web2py)
+
+    url = '/shop_manage/category_archive?scID=1'
+    client.get(url)
+    assert client.status == 200
+
+    category = web2py.db.shop_categories(1)
+    assert category.Archived == True
+
+
 def test_suppliers(client, web2py):
     """
         Is the suppliers page listing suppliers?
