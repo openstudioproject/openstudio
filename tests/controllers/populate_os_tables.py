@@ -1551,3 +1551,5 @@ def populate_shop_brands(web2py):
     )
 
     web2py.db.commit()
+
+

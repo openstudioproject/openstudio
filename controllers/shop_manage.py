@@ -131,8 +131,8 @@ def brands():
     if value == 'archive':
         show_archived = True
 
-    shop_brands = ShopBrands(show_archived)
-    content = shop_brands.list_formatted()
+    brands = ShopBrands(show_archived)
+    content = brands.list_formatted()
 
     add = os_gui.get_button('add', URL('shop_manage', 'brand_add'))
     archive_buttons = os_gui.get_archived_radio_buttons(
@@ -143,7 +143,7 @@ def brands():
                 header_tools=archive_buttons)
 
 
-def shop_brand_add_edit_get_return_url(var=None):
+def shop_brand_get_return_url(var=None):
     """
         :return: URL to shop brands list page
     """
@@ -160,7 +160,7 @@ def brand_add():
     response.subtitle = T('Add brand')
     response.view = 'general/only_content.html'
 
-    return_url = shop_brand_add_edit_get_return_url()
+    return_url = shop_brand_get_return_url()
 
     os_forms = OsForms()
     result = os_forms.get_crud_form_create(
@@ -189,7 +189,7 @@ def brand_edit():
     response.view = 'general/only_content.html'
     sbID = request.vars['sbID']
 
-    return_url = shop_brand_add_edit_get_return_url()
+    return_url = shop_brand_get_return_url()
 
     os_forms = OsForms()
     result = os_forms.get_crud_form_update(
@@ -221,6 +221,124 @@ def brand_archive():
         db.shop_brands,
         request.vars['sbID'],
         T('Unable to (un)archive brand'),
-        URL('shop_manage', 'brands')
+        shop_brand_get_return_url()
+    )
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'shop_suppliers'))
+def suppliers():
+    """
+        List shop suppliers
+    """
+    from openstudio import ShopSuppliers
+    from openstudio_tools import OsSession
+
+    response.title = T('Shop')
+    response.subtitle = T('Suppliers')
+    response.view = 'general/only_content.html'
+
+    os_session = OsSession()
+    value = os_session.get_request_var_or_session(
+        'show_archive',
+        'current',
+        'shop_manage_suppliers_show'
+    )
+
+    show_archived = False
+    if value == 'archive':
+        show_archived = True
+
+    suppliers = ShopSuppliers(show_archived)
+    content = suppliers.list_formatted()
+
+    add = os_gui.get_button('add', URL('shop_manage', 'supplier_add'))
+    archive_buttons = os_gui.get_archived_radio_buttons(
+        session.shop_manage_suppliers_show)
+
+    return dict(content=content,
+                add=add,
+                header_tools=archive_buttons)
+
+
+def shop_supplier_get_return_url(var=None):
+    """
+        :return: URL to shop suppliers list page
+    """
+    return URL('shop_manage', 'suppliers')
+
+
+@auth.requires_login()
+def supplier_add():
+    """
+        Add a new supplier
+    """
+    from openstudio import OsForms
+    response.title = T('Shop')
+    response.subtitle = T('Add supplier')
+    response.view = 'general/only_content.html'
+
+    return_url = shop_supplier_get_return_url()
+
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_create(
+        db.shop_suppliers,
+        return_url,
+    )
+
+    form = result['form']
+    back = os_gui.get_button('back', return_url)
+
+    return dict(content=form,
+                save=result['submit'],
+                back=back)
+
+
+@auth.requires_login()
+def supplier_edit():
+    """
+        Edit a supplier
+        request.vars['sbID'] is expected to be db.shop_brands.id
+    """
+    from openstudio import OsForms
+
+    response.title = T('Shop')
+    response.subtitle = T('Edit supplier')
+    response.view = 'general/only_content.html'
+    supID = request.vars['supID']
+
+    return_url = shop_supplier_get_return_url()
+
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_update(
+        db.shop_suppliers,
+        return_url,
+        supID
+    )
+
+    form = result['form']
+    back = os_gui.get_button('back', return_url)
+
+    return dict(content=form,
+                save=result['submit'],
+                back=back)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'shop_suppliers'))
+def supplier_archive():
+    """
+        Archive a supplier
+        request.vars[supID] is expected to be in db.shop_suppliers.id
+        :return: None
+    """
+    from openstudio_tools import OsArchiver
+
+    archiver = OsArchiver()
+    archiver.archive(
+        db.shop_suppliers,
+        request.vars['supID'],
+        T('Unable to (un)archive supplier'),
+        shop_supplier_get_return_url()
     )
 

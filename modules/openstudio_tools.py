@@ -43,7 +43,7 @@ class OsArchiver:
         session = current.globalenv['session']
 
         if not record_id:
-            session.flash = T('Unable to (un)archive brand')
+            session.flash = error_message
         else:
             row = db_table(record_id)
 
