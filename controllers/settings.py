@@ -1282,6 +1282,13 @@ def access_group_permissions():
                 ['customers_orders-update', T('Edit orders')],
                 ['customers_orders-delete', T('Delete orders')]]],
             ['shop_manage_workflow-read', T('Manage shop workflow')],
+            ['shop_categories-read', T('View categories'), [
+                ['shop_categories-create', T('Add categories')],
+                ['shop_categories-update', T('Edit categories')],
+                ['shop_categories-delete', T('Delete categories')],
+                ['shop_categories_products-view', T('View products in categories'), [
+                    ['shop_categories_products-create', T('Add products to categories')],
+                    ['shop_categories_products-delete', T('Delete products from categories')]]]]],
             ['shop_products-read', T('View products'), [
                 ['shop_products-create', T('Add products')],
                 ['shop_products-update', T('Edit products')],

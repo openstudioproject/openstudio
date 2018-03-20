@@ -3765,6 +3765,26 @@ def define_customers_orders():
     )
 
 
+def define_shop_categories():
+    """
+        Define shop categories
+    """
+    db.define_table('shop_categories',
+        Field('Name',
+              label=T('Name'))
+    )
+
+
+def define_shop_categories_products():
+    """
+        Define shop categories products
+    """
+    db.define_table('shop_categories_products',
+        Field('shop_categories_id', db.shop_categories),
+        Field('shop_products_id', db.shop_products),
+    )
+
+
 def define_shop_products():
     """
         Define products
@@ -4831,6 +4851,8 @@ define_shop_products()
 define_shop_products_options()
 define_shop_products_options_values()
 define_shop_products_variants()
+define_shop_categories()
+define_shop_categories_products()
 
 
 set_preferences_permissions()
