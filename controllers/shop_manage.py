@@ -108,6 +108,124 @@ def workflow():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'shop_categories'))
+def categories():
+    """
+        List shop categories
+    """
+    from openstudio import ShopCategories
+    from openstudio_tools import OsSession
+
+    response.title = T('Shop')
+    response.subtitle = T('Categories')
+    response.view = 'general/only_content.html'
+
+    os_session = OsSession()
+    value = os_session.get_request_var_or_session(
+        'show_archive',
+        'current',
+        'shop_manage_categories_show'
+    )
+
+    show_archived = False
+    if value == 'archive':
+        show_archived = True
+
+    categories = ShopCategories(show_archived)
+    content = categories.list_formatted()
+
+    add = os_gui.get_button('add', URL('shop_manage', 'category_add'))
+    archive_buttons = os_gui.get_archived_radio_buttons(
+        session.shop_manage_categories_show)
+
+    return dict(content=content,
+                add=add,
+                header_tools=archive_buttons)
+
+
+def shop_categories_get_return_url(var=None):
+    """
+        :return: URL to shop categories list page
+    """
+    return URL('shop_manage', 'categories')
+
+
+@auth.requires_login()
+def category_add():
+    """
+        Add a new category
+    """
+    from openstudio import OsForms
+    response.title = T('Shop')
+    response.subtitle = T('Add category')
+    response.view = 'general/only_content.html'
+
+    return_url = shop_categories_get_return_url()
+
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_create(
+        db.shop_categories,
+        return_url,
+    )
+
+    form = result['form']
+    back = os_gui.get_button('back', return_url)
+
+    return dict(content=form,
+                save=result['submit'],
+                back=back)
+
+
+@auth.requires_login()
+def category_edit():
+    """
+        Edit a category
+        request.vars['scID'] is expected to be db.shop_categories.id
+    """
+    from openstudio import OsForms
+
+    response.title = T('Shop')
+    response.subtitle = T('Edit category')
+    response.view = 'general/only_content.html'
+    scID = request.vars['scID']
+
+    return_url = shop_categories_get_return_url()
+
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_update(
+        db.shop_categories,
+        return_url,
+        scID
+    )
+
+    form = result['form']
+    back = os_gui.get_button('back', return_url)
+
+    return dict(content=form,
+                save=result['submit'],
+                back=back)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'shop_categories'))
+def category_archive():
+    """
+        Archive a category
+        request.vars[scID] is expected to be in db.shop_categories.id
+        :return: None
+    """
+    from openstudio_tools import OsArchiver
+
+    archiver = OsArchiver()
+    archiver.archive(
+        db.shop_categories,
+        request.vars['scID'],
+        T('Unable to (un)archive brand'),
+        shop_categories_get_return_url()
+    )
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'shop_brands'))
 def brands():
     """

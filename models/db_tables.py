@@ -3770,8 +3770,14 @@ def define_shop_categories():
         Define shop categories
     """
     db.define_table('shop_categories',
+        Field('Archived', 'boolean',
+              readable=False,
+              writable=False,
+              default=False),
         Field('Name',
-              label=T('Name'))
+              label=T('Name')),
+        Field('Description', 'text',
+              label=T("Description")),
     )
 
 
