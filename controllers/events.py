@@ -727,6 +727,15 @@ def event_duplicate():
             workshops_activities_id=new_wsaID
         )
 
+    # info mail
+    query = (db.workshops_mail.workshops_id == wsID)
+    rows = db(query).select(db.workshops_mail.ALL)
+    for row in rows:
+        db.workshops_mail.insert(
+            workshops_id = new_wsID,
+            MailContent = row.MailContent
+        )
+
     # Clear cache
     cache_clear_workshops()
 
