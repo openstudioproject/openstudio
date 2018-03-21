@@ -229,7 +229,6 @@ def edit_remodel_form(form,
             _class='col-md-6 customers_edit_basic_info os-no_margin_bottom')
 
 
-
     # check if we have to separate customers by location
     if session.show_location:
         location_label = LABEL(form.custom.label.school_locations_id)
@@ -641,11 +640,13 @@ def add():
     db.auth_user.email.writable=True
 
     if session.show_location:
+        loc_query = (db.school_locations.Archived == False)
+
         db.auth_user.school_locations_id.readable = True
         db.auth_user.school_locations_id.writable = True
 
         db.auth_user.school_locations_id.requires = \
-            IS_IN_DB(db,
+            IS_IN_DB(db(loc_query),
                      'school_locations.id',
                      '%(Name)s',
                      zero=T("Please select..."))
@@ -728,8 +729,9 @@ def edit():
         db.auth_user.school_locations_id.readable = False
         db.auth_user.school_locations_id.writable = False
     else:
+        loc_query = (db.school_locations.Archived == False)
         db.auth_user.school_locations_id.requires = \
-            IS_IN_DB(db,
+            IS_IN_DB(db(loc_query),
                      'school_locations.id',
                      '%(Name)s',
                      zero=T("Please select..."))

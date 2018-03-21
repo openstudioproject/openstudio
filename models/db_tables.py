@@ -4342,7 +4342,6 @@ lev_query = (db.school_levels.Archived    == False)
 loc_query = (db.school_locations.Archived == False)
 lan_query = (db.school_languages.Archived == False)
 
-
 auth.settings.extra_fields['auth_user'] = [
     Field('archived', 'boolean',
           readable=False,

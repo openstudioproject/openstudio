@@ -477,6 +477,7 @@ def create_locations_dict():
     d[None] = ""
     return d
 
+
 def create_classtypes_dict():
     dba = current.globalenv['db']
     rows = dba().select(dba.school_classtypes.id, dba.school_classtypes.Name)
