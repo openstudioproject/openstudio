@@ -1323,10 +1323,10 @@ def tickets_get_export(wsID):
         Returns export drop down for schedule
     """
     mailinglist = A(os_gui.get_fa_icon('fa-envelope-o'), T("Mailing list"),
-                    _href=URL('products_export_excel',
+                    _href=URL('tickets_export_excel',
                               vars={'wsID': wsID, 'export_type':'mailinglist'}))
     attendancelist = A(os_gui.get_fa_icon('fa-check-square-o'), T("Attendance list"),
-                    _href=URL('products_export_excel',
+                    _href=URL('tickets_export_excel',
                               vars={'wsID': wsID, 'export_type':'attendancelist'}))
 
     links = [mailinglist, attendancelist]
