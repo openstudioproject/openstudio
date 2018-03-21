@@ -10229,6 +10229,59 @@ class ShopBrands:
         return table
 
 
+class ShopProductsSets:
+
+    def list(self):
+        """
+            :return: List of shop products_sets (gluon.dal.rows)
+        """
+        db = current.globalenv['db']
+
+        query = (db.shop_products_sets)
+        rows = db(query).select(db.shop_products_sets.ALL,
+                                orderby=db.shop_products_sets.Name)
+
+        return rows
+
+
+    def list_formatted(self):
+        """
+            :return: HTML table with shop products_sets
+        """
+        T = current.globalenv['T']
+        os_gui = current.globalenv['os_gui']
+        auth = current.globalenv['auth']
+
+        header = THEAD(TR(TH(T('Product set')),
+                          TH(T('Description')),
+                          TH()))
+        table = TABLE(header, _class='table table-striped table-hover')
+
+        permission_edit = (auth.has_membership(group_id='Admins') or
+                           auth.has_permission('update', 'shop_products_sets'))
+
+        rows = self.list()
+        for row in rows:
+            buttons = ''
+            edit = ''
+            vars = {'spsID':row.id}
+
+            if permission_edit:
+                edit = os_gui.get_button('edit',
+                    URL('shop_manage', 'product_set_edit', vars=vars))
+                buttons = DIV(edit, _class='pull-right')
+
+            tr = TR(
+                TD(os_gui.max_string_length(row.Name, 30)),
+                TD(os_gui.max_string_length(row.Description, 60)),
+                TD(buttons)
+            )
+
+            table.append(tr)
+
+        return table
+
+
 class ShopCategories:
     def __init__(self, show_archive=False):
         self.show_archive = show_archive

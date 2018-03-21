@@ -3849,29 +3849,37 @@ def define_shop_products_sets():
         Define products sets; sets of options that can be linked to a product
     """
     db.define_table('shop_products_sets',
-        Field('Name'),
+        Field('Name',
+              requires=IS_NOT_EMPTY(),
+              label=T('Name')),
+        Field('Description', 'text',
+              label=T('Description'))
     )
 
 
-def define_shop_products_options():
+def define_shop_products_sets_options():
     """
         Define products options
         eg. color, size, etc.
     """
     db.define_table('shop_products_options',
         Field('shop_products_sets_id'),
-        Field('Name')
+        Field('Name',
+              requires=IS_NOT_EMPTY(),
+              label=T('Name')),
     )
 
 
-def define_shop_products_options_values():
+def define_shop_products_sets_options_values():
     """
         Define shop products options values
         eg. red, blue, etc.
     """
     db.define_table('shop_products_options_values',
         Field('products_options_id', db.shop_products_options),
-        Field('Name'),
+        Field('Name',
+              requires=IS_NOT_EMPTY(),
+              label=T('Name')),
     )
 
 
@@ -4853,9 +4861,9 @@ define_shop_links()
 define_shop_brands()
 define_shop_suppliers()
 define_shop_products_sets()
+define_shop_products_sets_options()
+define_shop_products_sets_options_values()
 define_shop_products()
-define_shop_products_options()
-define_shop_products_options_values()
 define_shop_products_variants()
 define_shop_categories()
 define_shop_categories_products()

@@ -516,12 +516,16 @@ def get_backend_menu():
                 submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Products'))),
                                 False,
                                 URL('shop_manage', 'products', extension='')))
+            # Product sets
+            if user_helpers.check_read_permission('shop_products_sets', user_id):
+                submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Products sets'))),
+                                False,
+                                URL('shop_manage', 'products_sets', extension='')))
             # Categories
             if user_helpers.check_read_permission('shop_categories', user_id):
                 submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Categories'))),
                                 False,
                                 URL('shop_manage', 'categories', extension='')))
-
             # Brands
             if user_helpers.check_read_permission('shop_brands', user_id):
                 submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Brands'))),

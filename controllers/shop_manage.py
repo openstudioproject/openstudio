@@ -108,6 +108,110 @@ def workflow():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'shop_products_sets'))
+def products_sets():
+    """
+        List shop product_sets
+    """
+    from openstudio import ShopProductsSets
+    from openstudio_tools import OsSession
+
+    response.title = T('Shop')
+    response.subtitle = T('Products sets')
+    response.view = 'general/only_content.html'
+
+    product_sets = ShopProductsSets()
+    content = product_sets.list_formatted()
+
+    add = os_gui.get_button('add', URL('shop_manage', 'product_set_add'))
+
+    return dict(content=content,
+                add=add)
+
+
+def shop_products_sets_get_return_url(var=None):
+    """
+        :return: URL to shop product_sets list page
+    """
+    return URL('shop_manage', 'products_sets')
+
+
+@auth.requires_login()
+def product_set_add():
+    """
+        Add a new product_set
+    """
+    from openstudio import OsForms
+    response.title = T('Shop')
+    response.subtitle = T('Add product set')
+    response.view = 'general/only_content.html'
+
+    return_url = shop_products_sets_get_return_url()
+
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_create(
+        db.shop_products_sets,
+        return_url,
+    )
+
+    form = result['form']
+    back = os_gui.get_button('back', return_url)
+
+    return dict(content=form,
+                save=result['submit'],
+                back=back)
+
+
+@auth.requires_login()
+def product_set_edit():
+    """
+        Edit a product_set
+        request.vars['spsID'] is expected to be db.shop_product_sets.id
+    """
+    from openstudio import OsForms
+
+    response.title = T('Shop')
+    response.subtitle = T('Edit product set')
+    response.view = 'general/only_content.html'
+    spsID = request.vars['spsID']
+
+    return_url = shop_products_sets_get_return_url()
+
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_update(
+        db.shop_products_sets,
+        return_url,
+        spsID
+    )
+
+    form = result['form']
+    back = os_gui.get_button('back', return_url)
+
+    return dict(content=form,
+                save=result['submit'],
+                back=back)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'shop_product_sets'))
+def product_set_archive():
+    """
+        Archive a product_set
+        request.vars[spsID] is expected to be in db.shop_product_sets.id
+        :return: None
+    """
+    from openstudio_tools import OsArchiver
+
+    archiver = OsArchiver()
+    archiver.archive(
+        db.shop_product_sets,
+        request.vars['spsID'],
+        T('Unable to (un)archive product set'),
+        shop_product_set_get_return_url()
+    )
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'shop_categories'))
 def categories():
     """
