@@ -324,10 +324,10 @@ def index_get_link_edit(row):
     if duplicate_permission:
         links.append(LI(_role='separator', _class='divider'))
         duplicate_onclick = "return confirm('" + \
-                            T('Are you sure you want to duplicate this workshop?') + "');"
+                            T('Are you sure you want to duplicate this event?') + "');"
 
         link = A((os_gui.get_fa_icon('fa-clone'), ' ', T('Duplicate')),
-                 _href=URL('workshop_duplicate',
+                 _href=URL('event_duplicate',
                            vars={'wsID': row.id}),
                  _onclick=duplicate_onclick)
         links.append(link)
