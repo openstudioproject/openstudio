@@ -211,13 +211,13 @@ def represent_workshops_thumblarge(value, row):
     alt = name
     if thumb is None:
         return DIV(A(I(_class='fa fa-photo big_font'),
-                     _href=URL('shop', 'workshop', vars=vars,
+                     _href=URL('shop', 'event', vars=vars,
                              extension='')),
                    _class='workshop_image_large')
     else:
         return DIV(A(IMG(_src=URL('default', 'download', args=value),
                          _alt=alt),
-                     _href=URL('shop', 'workshop', vars=vars,
+                     _href=URL('shop', 'event', vars=vars,
                              extension='')),
                     _class='workshop_image_large')
 
