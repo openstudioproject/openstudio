@@ -10259,17 +10259,32 @@ class ShopProductsSets:
 
         permission_edit = (auth.has_membership(group_id='Admins') or
                            auth.has_permission('update', 'shop_products_sets'))
+        permission_delete = (auth.has_membership(group_id='Admins') or
+                             auth.has_permission('delete', 'shop_products_sets'))
+
+        onclick_delete = "return confirm('" \
+            + T('Do you really want to delete this product set?') + ' ' \
+            + T('It will remove all product variants in products linked to this set.') \
+            + "');"
+
 
         rows = self.list()
         for row in rows:
             buttons = ''
             edit = ''
+            delete = ''
             vars = {'spsID':row.id}
+            buttons = DIV(_class="pull-right")
 
             if permission_edit:
                 edit = os_gui.get_button('edit',
-                    URL('shop_manage', 'product_set_edit', vars=vars))
-                buttons = DIV(edit, _class='pull-right')
+                    URL('shop_manage', 'products_set_edit', vars=vars))
+                buttons.append(edit)
+            if permission_delete:
+                delete = os_gui.get_button('delete_notext',
+                    URL('shop_manage', 'products_set_delete', vars=vars),
+                    onclick = onclick_delete)
+                buttons.append(delete)
 
             tr = TR(
                 TD(os_gui.max_string_length(row.Name, 30)),

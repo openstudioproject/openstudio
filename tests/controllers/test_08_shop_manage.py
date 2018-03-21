@@ -34,6 +34,81 @@ def test_workflow(client, web2py):
            data['shop_subscriptions_start']
 
 
+def test_products_sets(client, web2py):
+    """
+        Is the products_sets page listing products_sets?
+    """
+    from populate_os_tables import populate_shop_products_sets
+    populate_shop_products_sets(web2py)
+
+    assert web2py.db(web2py.db.shop_products_sets).count() == 1
+
+    url = '/shop_manage/products_sets'
+    client.get(url)
+    assert client.status == 200
+
+    products_set = web2py.db.shop_products_sets(1)
+    assert products_set.Name in client.text
+
+
+def test_products_sets_add(client, web2py):
+    """
+        Can we add a products_set?
+    """
+    url = '/shop_manage/products_set_add'
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        'Name': 'Grapefruit',
+        'Description': 'Also great as juice'
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+    assert web2py.db(web2py.db.shop_products_sets).count() == 1
+
+
+def test_products_set_edit(client, web2py):
+    """
+        Can we edit a products_set?
+    """
+    from populate_os_tables import populate_shop_products_sets
+    populate_shop_products_sets(web2py)
+
+    url = '/shop_manage/products_set_edit?spsID=1'
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        'id': '1',
+        'Name': 'Grapefruit',
+        'Description': 'Also great as juice'
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+    products_set = web2py.db.shop_products_sets(1)
+    assert products_set.Name == data['Name']
+
+
+def test_products_set_delete(client, web2py):
+    """
+        Can we delete a product set?
+    """
+    from populate_os_tables import populate_shop_products_sets
+    populate_shop_products_sets(web2py)
+
+    url = '/shop_manage/products_set_delete?spsID=1'
+    client.get(url)
+    assert client.status == 200
+
+    query = (web2py.db.shop_products_sets.id)
+    assert web2py.db(query).count() == 0
+
+
 def test_brands(client, web2py):
     """
         Is the brands page listing brands?

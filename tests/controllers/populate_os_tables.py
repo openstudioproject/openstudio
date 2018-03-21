@@ -1540,6 +1540,19 @@ def populate_api_users(web2py):
     web2py.db.commit()
     
 
+def populate_shop_products_sets(web2py):
+    """
+        Populate shop products_sets
+    """
+    web2py.db.shop_products_sets.insert(
+        Archived = False,
+        Name = "Size and color",
+        Description = "Set size and color for options"
+    )
+
+    web2py.db.commit()
+
+
 def populate_shop_brands(web2py):
     """
         Populate shop brands

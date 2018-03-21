@@ -123,7 +123,7 @@ def products_sets():
     product_sets = ShopProductsSets()
     content = product_sets.list_formatted()
 
-    add = os_gui.get_button('add', URL('shop_manage', 'product_set_add'))
+    add = os_gui.get_button('add', URL('shop_manage', 'products_set_add'))
 
     return dict(content=content,
                 add=add)
@@ -137,7 +137,7 @@ def shop_products_sets_get_return_url(var=None):
 
 
 @auth.requires_login()
-def product_set_add():
+def products_set_add():
     """
         Add a new product_set
     """
@@ -163,7 +163,7 @@ def product_set_add():
 
 
 @auth.requires_login()
-def product_set_edit():
+def products_set_edit():
     """
         Edit a product_set
         request.vars['spsID'] is expected to be db.shop_product_sets.id
@@ -192,23 +192,18 @@ def product_set_edit():
                 back=back)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('update', 'shop_product_sets'))
-def product_set_archive():
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('delete', 'shop_products_sets'))
+def products_set_delete():
     """
-        Archive a product_set
-        request.vars[spsID] is expected to be in db.shop_product_sets.id
-        :return: None
+        Delete a products set
     """
-    from openstudio_tools import OsArchiver
+    spsID = request.vars['spsID']
 
-    archiver = OsArchiver()
-    archiver.archive(
-        db.shop_product_sets,
-        request.vars['spsID'],
-        T('Unable to (un)archive product set'),
-        shop_product_set_get_return_url()
-    )
+    query = (db.shop_products_sets.id == spsID)
+    db(query).delete()
+
+    redirect(shop_products_sets_get_return_url())
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
