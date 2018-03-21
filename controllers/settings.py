@@ -1302,13 +1302,13 @@ def access_group_permissions():
                 ['shop_products_sets-update', T('Update product sets')],
                 ['shop_products_sets-delete', T('Delete product sets')],
                 ['shop_products_options-read', T('View product options in sets'), [
-                    ['shop_products_options-create', T('Add product options to a set')],
-                    ['shop_products_options-update', T('Edit product options in a set')],
-                    ['shop_products_options-delete', T('Delete product options from a set')],
-                    ['shop_products_options_values-read', T('View product option values'), [
-                        ['shop_products_options_values-create', T('Add product option values')],
-                        ['shop_products_options_values-update', T('Edit product option values')],
-                        ['shop_products_options_values-delete', T('Delete product option values')]]]
+                    ['shop_products_sets_options-create', T('Add product options to a set')],
+                    ['shop_products_sets_options-update', T('Edit product options in a set')],
+                    ['shop_products_sets_options-delete', T('Delete product options from a set')],
+                    ['shop_products_sets_options_values-read', T('View product option values'), [
+                        ['shop_products_sets_options_values-create', T('Add product option values')],
+                        ['shop_products_sets_options_values-update', T('Edit product option values')],
+                        ['shop_products_sets_options_values-delete', T('Delete product option values')]]]
                 ]],
             ]],
             ['shop_brands-read', T('View brands'), [
