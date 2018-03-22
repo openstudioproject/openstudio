@@ -3862,8 +3862,10 @@ def define_shop_products_sets_options():
         Define products options
         eg. color, size, etc.
     """
-    db.define_table('shop_products_options',
-        Field('shop_products_sets_id'),
+    db.define_table('shop_products_sets_options',
+        Field('shop_products_sets_id',
+              readable=False,
+              writable=False),
         Field('Name',
               requires=IS_NOT_EMPTY(),
               label=T('Name')),
@@ -3875,8 +3877,10 @@ def define_shop_products_sets_options_values():
         Define shop products options values
         eg. red, blue, etc.
     """
-    db.define_table('shop_products_options_values',
-        Field('products_options_id', db.shop_products_options),
+    db.define_table('shop_products_sets_options_values',
+        Field('shop_products_sets_options_id', db.shop_products_sets_options,
+              readable=False,
+              writable=False),
         Field('Name',
               requires=IS_NOT_EMPTY(),
               label=T('Name')),

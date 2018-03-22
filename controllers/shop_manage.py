@@ -207,6 +207,32 @@ def products_set_delete():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'shop_products_sets_options'))
+def products_set_options():
+    """
+        List products set options
+    """
+    from openstudio import ShopProductsSetsOptions
+    response.title = T('Shop')
+    response.subtitle = T('Products set options')
+    response.view = 'general/only_content.html'
+
+    spsID = request.vars['spsID']
+    products_set = db.shop_products_sets(spsID)
+    response.subtitle += ' - ' + products_set.Name
+
+    spso = ShopProductsSetsOptions(spsID,
+                                   URL(request.function,
+                                       vars={'spsID': spsID}))
+    content = DIV(spso.list_formatted())
+    back = os_gui.get_button('back',
+                             shop_products_sets_get_return_url())
+
+    return dict(content=content,
+                back=back)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'shop_categories'))
 def categories():
     """

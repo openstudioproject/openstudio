@@ -9732,8 +9732,9 @@ class OsForms:
     def get_crud_form_create(self,
                              db_table,
                              return_url,
+                             submit_button='',
                              formstyle="bootstrap3_stacked",
-                             form_id="MainForm"
+                             form_id="MainForm",
                              ):
         """
             Return a crud form to add a record to the database
@@ -9741,7 +9742,7 @@ class OsForms:
         T = current.globalenv['T']
         crud = current.globalenv['crud']
 
-        crud.messages.submit_button = T("Save")
+        crud.messages.submit_button = submit_button or T("Save")
         crud.messages.record_created = T("Saved")
         crud.settings.create_next = return_url
         crud.settings.formstyle = formstyle
@@ -10257,6 +10258,8 @@ class ShopProductsSets:
                           TH()))
         table = TABLE(header, _class='table table-striped table-hover')
 
+        permission_options = (auth.has_membership(group_id='Admins') or
+                              auth.has_permission('read', 'shop_products_sets_options'))
         permission_edit = (auth.has_membership(group_id='Admins') or
                            auth.has_permission('update', 'shop_products_sets'))
         permission_delete = (auth.has_membership(group_id='Admins') or
@@ -10275,6 +10278,14 @@ class ShopProductsSets:
             delete = ''
             vars = {'spsID':row.id}
             buttons = DIV(_class="pull-right")
+
+            if permission_options:
+                options = os_gui.get_button(
+                    'noicon',
+                    URL('shop_manage', 'products_set_options', vars=vars),
+                    title=T('Options')
+                )
+                buttons.append(options)
 
             if permission_edit:
                 edit = os_gui.get_button('edit',
@@ -10295,6 +10306,189 @@ class ShopProductsSets:
             table.append(tr)
 
         return table
+
+
+class ShopProductsSetsOptions:
+    def __init__(self,
+                 products_sets_id,
+                 url_list):
+        self.products_sets_id = products_sets_id
+        self.url_list = url_list
+
+
+    def list(self):
+        """
+            :return: List of shop products sets options
+        """
+        db = current.globalenv['db']
+
+        query = (db.shop_products_sets_options.shop_products_sets_id ==
+                 db.shop_products_sets.id)
+        rows = db(query).select(db.shop_products_sets_options.ALL,
+                                orderby=db.shop_products_sets_options.Name)
+
+        return rows
+
+
+    def list_formatted(self):
+        """
+            :return: HTML table with shop products sets options
+        """
+        T = current.globalenv['T']
+        os_gui = current.globalenv['os_gui']
+        auth = current.globalenv['auth']
+
+        header = THEAD(TR(TH(T('Option')),
+                          TH(T('Values')),
+                          TH()))
+        table = TABLE(header, _class='table table-striped table-hover')
+
+        permission_create = (auth.has_membership(group_id='Admins') or
+                             auth.has_permission('create', 'shop_products_options'))
+        permission_delete = (auth.has_membership(group_id='Admins') or
+                             auth.has_permission('delete', 'shop_products_options'))
+
+        rows = self.list()
+        for row in rows:
+
+
+            buttons = DIV()
+            delete = ''
+            vars = {'spsID':row.id}
+
+            if permission_delete:
+                delete = os_gui.get_button('delete_notext',
+                    URL('shop_manage',
+                        'shop_products_sets_options_delete',
+                        vars=vars),
+                    _class='pull-right')
+                buttons.append(delete)
+
+            tr = TR(
+                TD(os_gui.max_string_length(row.Name, 30)),
+                TD(self._list_formatted_get_option_values(row.id,
+                                                          self.url_list)),
+                TD(buttons)
+            )
+
+            table.append(tr)
+
+        table.append(TR(TD(self._list_formatted_get_form_add())))
+
+        return table
+
+
+    def _list_formatted_get_option_values(self, options_id, url_list):
+        """
+            :return: returns a list of option values for an option
+        """
+        spsov = ShopProductsSetsOptionsValues(options_id, url_list)
+        return spsov.list_formatted()
+
+
+    def _list_formatted_get_form_add(self):
+        """
+            :return: CRUD form to add an option
+        """
+        T = current.globalenv['T']
+        db = current.globalenv['db']
+
+        db.shop_products_sets_options.Name.label = ''
+        db.shop_products_sets_options.shop_products_sets_id.default = \
+            self.products_sets_id
+
+        os_forms = OsForms()
+        result = os_forms.get_crud_form_create(
+            db.shop_products_sets_options,
+            self.url_list,
+            submit_button=T("Add option"),
+            form_id="AddOption"
+        )
+
+        return DIV(result['form'], result['submit'])
+
+
+class ShopProductsSetsOptionsValues:
+    def __init__(self, options_id, url_list):
+        self.options_id = options_id
+        self.url_list = url_list
+
+
+    def list(self):
+        """
+            :return: List of shop products sets options values (gluon.dal.rows)
+        """
+        db = current.globalenv['db']
+
+        query = (db.shop_products_sets_options_values.shop_products_sets_options_id == \
+                 self.options_id)
+        rows = db(query).select(db.shop_products_sets_options_values.ALL,
+                                orderby=db.shop_products_sets_options_values.Name)
+
+        return rows
+
+
+    def list_formatted(self):
+        """
+            :return: HTML table with shop categories
+        """
+        T = current.globalenv['T']
+        os_gui = current.globalenv['os_gui']
+        auth = current.globalenv['auth']
+
+        table = TABLE(_class='table table-striped table-hover')
+
+        permission_create = (auth.has_membership(group_id='Admins') or
+                             auth.has_permission('create', 'shop_products_options_values'))
+        permission_delete = (auth.has_membership(group_id='Admins') or
+                             auth.has_permission('delete', 'shop_products_options_values'))
+
+        rows = self.list()
+        for row in rows:
+            buttons = DIV()
+            delete = ''
+            vars = {'spsvID':row.id}
+
+            if permission_delete:
+                delete = os_gui.get_button('delete_notext',
+                    URL('shop_manage',
+                        'shop_products_sets_options_values_delete',
+                        vars=vars),
+                    _class='pull-right')
+                buttons.append(delete)
+
+            tr = TR(
+                TD(os_gui.max_string_length(row.Name, 30)),
+                TD(buttons)
+            )
+
+            table.append(tr)
+
+        table.append(TR(TD(self._list_formatted_get_form_add())))
+
+        return table
+
+
+    def _list_formatted_get_form_add(self):
+        """
+            :return: CRUD form to add an option
+        """
+        T = current.globalenv['T']
+        db = current.globalenv['db']
+
+        db.shop_products_sets_options_values.Name.label = ''
+        db.shop_products_sets_options_values.shop_products_sets_options_id.default = \
+            self.options_id
+
+        os_forms = OsForms()
+        result = os_forms.get_crud_form_create(
+            db.shop_products_sets_options_values,
+            self.url_list,
+            submit_button=T("Add value"),
+            form_id="AddValue_" + unicode(self.options_id)
+        )
+
+        return DIV(result['form'], result['submit'])
 
 
 class ShopCategories:
