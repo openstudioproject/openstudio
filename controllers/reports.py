@@ -4388,7 +4388,7 @@ def revenue():
                    _href='#classcards',
                    _role='tab'),
                  _role='presentation'),
-              LI(A(T("Workshops"),
+              LI(A(T("Events"),
                    _href='#workshops',
                    _role='tab'),
                  _role='presentation'),

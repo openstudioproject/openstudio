@@ -10343,15 +10343,13 @@ class ShopProductsSetsOptions:
                           TH()))
         table = TABLE(header, _class='table')
 
-        permission_create = (auth.has_membership(group_id='Admins') or
-                             auth.has_permission('create', 'shop_products_options'))
         permission_delete = (auth.has_membership(group_id='Admins') or
                              auth.has_permission('delete', 'shop_products_options'))
+        onclick_delete = "return confirm('" \
+            + T('Do you really want to delete this option?') + "');"
 
         rows = self.list()
         for row in rows:
-
-
             buttons = DIV()
             delete = ''
             vars = {'spsoID':row.id}
@@ -10361,6 +10359,7 @@ class ShopProductsSetsOptions:
                     URL('shop_manage',
                         'shop_products_sets_options_delete',
                         vars=vars),
+                    onclick=onclick_delete,
                     _class='pull-right')
                 buttons.append(delete)
 
@@ -10442,6 +10441,8 @@ class ShopProductsSetsOptionsValues:
                              auth.has_permission('create', 'shop_products_options_values'))
         permission_delete = (auth.has_membership(group_id='Admins') or
                              auth.has_permission('delete', 'shop_products_options_values'))
+        onclick_delete = "return confirm('" \
+            + T('Do you really want to delete this option value?') + "');"
 
         rows = self.list()
         for row in rows:
@@ -10454,6 +10455,7 @@ class ShopProductsSetsOptionsValues:
                     URL('shop_manage',
                         'shop_products_sets_options_value_delete',
                         vars=vars),
+                    onclick=onclick_delete,
                     _class='pull-right')
                 buttons.append(delete)
 
