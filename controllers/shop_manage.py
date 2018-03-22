@@ -225,8 +225,6 @@ def products_set_options():
     response.subtitle = T('Products set options')
     response.view = 'general/only_content.html'
 
-    print request.vars
-
     spsID = request.vars['spsID']
     products_set = db.shop_products_sets(spsID)
     response.subtitle += ' - ' + products_set.Name
