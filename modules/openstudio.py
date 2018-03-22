@@ -10341,7 +10341,7 @@ class ShopProductsSetsOptions:
         header = THEAD(TR(TH(T('Option')),
                           TH(T('Values')),
                           TH()))
-        table = TABLE(header, _class='table table-striped table-hover')
+        table = TABLE(header, _class='table')
 
         permission_create = (auth.has_membership(group_id='Admins') or
                              auth.has_permission('create', 'shop_products_options'))
@@ -10436,7 +10436,7 @@ class ShopProductsSetsOptionsValues:
         os_gui = current.globalenv['os_gui']
         auth = current.globalenv['auth']
 
-        table = TABLE(_class='table table-striped table-hover')
+        table = TABLE(_class='table')
 
         permission_create = (auth.has_membership(group_id='Admins') or
                              auth.has_permission('create', 'shop_products_options_values'))
@@ -10447,12 +10447,12 @@ class ShopProductsSetsOptionsValues:
         for row in rows:
             buttons = DIV()
             delete = ''
-            vars = {'spsvID':row.id}
+            vars = {'spsovID':row.id}
 
             if permission_delete:
                 delete = os_gui.get_button('delete_notext',
                     URL('shop_manage',
-                        'shop_products_sets_options_values_delete',
+                        'shop_products_sets_options_value_delete',
                         vars=vars),
                     _class='pull-right')
                 buttons.append(delete)
@@ -10475,20 +10475,37 @@ class ShopProductsSetsOptionsValues:
         """
         T = current.globalenv['T']
         db = current.globalenv['db']
+        request = current.globalenv['request']
+
+        # make sure the value is saved for the right option
+        if 'shop_products_sets_options_id' in request.vars:
+            options_id = request.vars['shop_products_sets_options_id']
+        else:
+            options_id = self.options_id
 
         db.shop_products_sets_options_values.Name.label = ''
         db.shop_products_sets_options_values.shop_products_sets_options_id.default = \
-            self.options_id
+            options_id
+
+        form_id = "AddValue_" + unicode(self.options_id)
 
         os_forms = OsForms()
         result = os_forms.get_crud_form_create(
             db.shop_products_sets_options_values,
             self.url_list,
             submit_button=T("Add value"),
-            form_id="AddValue_" + unicode(self.options_id)
+            form_id=form_id
         )
 
-        return DIV(result['form'], result['submit'])
+        form = result['form']
+        field_id = INPUT(_type='hidden',
+                         _value=self.options_id,
+                         _form=form_id,
+                         _name='shop_products_sets_options_id')
+
+        form.insert(0, field_id)
+
+        return DIV(form, result['submit'])
 
 
 class ShopCategories:

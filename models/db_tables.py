@@ -3880,7 +3880,8 @@ def define_shop_products_sets_options_values():
     db.define_table('shop_products_sets_options_values',
         Field('shop_products_sets_options_id', db.shop_products_sets_options,
               readable=False,
-              writable=False),
+              writable=False
+              ),
         Field('Name',
               requires=IS_NOT_EMPTY(),
               label=T('Name')),

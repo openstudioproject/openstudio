@@ -136,6 +136,14 @@ def shop_products_sets_get_return_url(var=None):
     return URL('shop_manage', 'products_sets')
 
 
+def shop_products_sets_options_get_return_url(shop_products_sets_id):
+    """
+        :return: URL to shop products_sets_options list
+    """
+    return URL('shop_manage', 'products_set_options',
+               vars={'spsID':shop_products_sets_id})
+
+
 @auth.requires_login()
 def products_set_add():
     """
@@ -217,6 +225,8 @@ def products_set_options():
     response.subtitle = T('Products set options')
     response.view = 'general/only_content.html'
 
+    print request.vars
+
     spsID = request.vars['spsID']
     products_set = db.shop_products_sets(spsID)
     response.subtitle += ' - ' + products_set.Name
@@ -230,6 +240,25 @@ def products_set_options():
 
     return dict(content=content,
                 back=back)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('delete', 'shop_products_sets_options_values'))
+def shop_products_sets_options_value_delete():
+    """
+        Delete products sets options value
+    """
+    spsovID = request.vars['spsovID']
+
+    spsov_row = db.shop_products_sets_options_values(spsovID)
+    spso_row = db.shop_products_sets_options(
+        spsov_row.shop_products_sets_options_id)
+    spsID = spso_row.shop_products_sets_id
+
+    query = (db.shop_products_sets_options_values.id == spsovID)
+    db(query).delete()
+
+    redirect(shop_products_sets_options_get_return_url(spsID))
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
