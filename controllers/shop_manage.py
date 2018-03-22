@@ -243,6 +243,24 @@ def products_set_options():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('delete', 'shop_products_sets_options'))
+def shop_products_sets_options_delete():
+    """
+        Delete products sets options value
+    """
+    spsoID = request.vars['spsoID']
+    row = db.shop_products_sets_options(spsoID)
+    spsID = row.shop_products_sets_id
+
+    query = (db.shop_products_sets_options.id == spsoID)
+    db(query).delete()
+
+    session.flash = T('Deleted option')
+
+    redirect(shop_products_sets_options_get_return_url(spsID))
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('delete', 'shop_products_sets_options_values'))
 def shop_products_sets_options_value_delete():
     """

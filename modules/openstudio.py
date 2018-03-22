@@ -10354,7 +10354,7 @@ class ShopProductsSetsOptions:
 
             buttons = DIV()
             delete = ''
-            vars = {'spsID':row.id}
+            vars = {'spsoID':row.id}
 
             if permission_delete:
                 delete = os_gui.get_button('delete_notext',
