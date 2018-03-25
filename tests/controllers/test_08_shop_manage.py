@@ -109,6 +109,102 @@ def test_products_set_delete(client, web2py):
     assert web2py.db(query).count() == 0
 
 
+def test_products_set_options(client, web2py):
+    """
+        Are options and values in a set listed correctly
+    """
+    from populate_os_tables import populate_shop_products_sets
+    populate_shop_products_sets(web2py,
+                                options=True,
+                                values=True)
+
+    url = '/shop_manage/products_set_options?spsID=1'
+    client.get(url)
+    assert client.status == 200
+
+    option = web2py.db.shop_products_sets_options(1)
+    value = web2py.db.shop_products_sets_options_values(1)
+
+    assert option.Name in client.text
+    assert value.Name in client.text
+
+
+def test_products_set_options_add(client, web2py):
+    """
+        Can we add an options?
+    """
+    from populate_os_tables import populate_shop_products_sets
+    populate_shop_products_sets(web2py)
+
+    url = '/shop_manage/products_set_options?spsID=1'
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        'Name': 'Banana'
+    }
+    client.post(url, data=data)
+    assert client.status == 200
+
+    assert web2py.db(web2py.db.shop_products_sets_options).count() == 1
+    assert data['Name'] in client.text
+
+
+def test_products_set_options_value_add(client, web2py):
+    """
+        Can we add an option value?
+    """
+    from populate_os_tables import populate_shop_products_sets
+    populate_shop_products_sets(web2py,
+                                options=True)
+
+    url = '/shop_manage/products_set_options?spsID=1'
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        'shop_products_sets_options_id': 1,
+        'Name': 'Banana Value',
+        '_formname': 'shop_products_sets_options_values/None'
+    }
+    client.post(url, data=data)
+    assert client.status == 200
+
+    assert web2py.db(web2py.db.shop_products_sets_options_values).count() == 1
+    assert data['Name'] in client.text
+
+
+def test_shop_products_sets_options_delete(client, web2py):
+    """
+        Can we delete an option?
+    """
+    from populate_os_tables import populate_shop_products_sets
+    populate_shop_products_sets(web2py,
+                                options=True)
+
+    url = '/shop_manage/shop_products_sets_options_delete?spsoID=1'
+    client.get(url)
+    assert client.status == 200
+
+    assert web2py.db(web2py.db.shop_products_sets_options).count() == 0
+
+
+def test_shop_products_sets_options_value_delete(client, web2py):
+    """
+        Can we delete an option value?
+    """
+    from populate_os_tables import populate_shop_products_sets
+    populate_shop_products_sets(web2py,
+                                options=True,
+                                values=True)
+
+    url = '/shop_manage/shop_products_sets_options_value_delete?spsovID=1'
+    client.get(url)
+    assert client.status == 200
+
+    assert web2py.db(web2py.db.shop_products_sets_options_values).count() == 0
+
+
 def test_brands(client, web2py):
     """
         Is the brands page listing brands?
@@ -332,4 +428,4 @@ def test_supplier_archive(client, web2py):
 
     supplier = web2py.db.shop_suppliers(1)
     assert supplier.Archived == True
-
+    

@@ -1540,15 +1540,32 @@ def populate_api_users(web2py):
     web2py.db.commit()
     
 
-def populate_shop_products_sets(web2py):
+def populate_shop_products_sets(web2py,
+                                options=False,
+                                values=False):
     """
         Populate shop products_sets
     """
-    web2py.db.shop_products_sets.insert(
+    spsID = web2py.db.shop_products_sets.insert(
         Archived = False,
         Name = "Size and color",
         Description = "Set size and color for options"
     )
+
+    if values:
+        options = True
+
+    if options:
+        spsoID = web2py.db.shop_products_sets_options.insert(
+            shop_products_sets_id = spsID,
+            Name = 'Color'
+        )
+
+        if values:
+            web2py.db.shop_products_sets_options_values.insert(
+                shop_products_sets_options_id = spsoID,
+                Name = 'Red'
+            )
 
     web2py.db.commit()
 
@@ -1590,5 +1607,4 @@ def populate_shop_categories(web2py):
     )
 
     web2py.db.commit()
-
 
