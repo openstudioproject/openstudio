@@ -428,4 +428,3 @@ def test_supplier_archive(client, web2py):
 
     supplier = web2py.db.shop_suppliers(1)
     assert supplier.Archived == True
-    

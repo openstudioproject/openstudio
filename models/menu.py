@@ -497,7 +497,7 @@ def get_backend_menu():
                                 URL('finance', 'invoices', extension=''), submenu )
                              ]
         # Shop
-        if user_helpers.check_read_permission('customers_orders', user_id):
+        if user_helpers.check_read_permission('shop_manage', user_id):
             shop_text_text = T('Shop')
 
             submenu = []
@@ -511,31 +511,11 @@ def get_backend_menu():
                 submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Orders'))),
                                 False,
                                 URL('orders', 'index', extension='')))
-            # Products
+            # Catalog
             if user_helpers.check_read_permission('shop_products', user_id):
-                submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Products'))),
+                submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Catalog'))),
                                 False,
                                 URL('shop_manage', 'products', extension='')))
-            # Product sets
-            if user_helpers.check_read_permission('shop_products_sets', user_id):
-                submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Products sets'))),
-                                False,
-                                URL('shop_manage', 'products_sets', extension='')))
-            # Categories
-            if user_helpers.check_read_permission('shop_categories', user_id):
-                submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Categories'))),
-                                False,
-                                URL('shop_manage', 'categories', extension='')))
-            # Brands
-            if user_helpers.check_read_permission('shop_brands', user_id):
-                submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Brands'))),
-                                False,
-                                URL('shop_manage', 'brands', extension='')))
-            # Suppliers
-            if user_helpers.check_read_permission('shop_suppliers', user_id):
-                submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Suppliers'))),
-                                False,
-                                URL('shop_manage', 'suppliers', extension='')))
 
 
             menu += [ ((I(_class=finance_class + ' fa fa-shopping-bag', _title=T('Shop')),

@@ -5,9 +5,9 @@ from general_helpers import set_form_id_and_get_submit_button
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'shop_manage_workflow'))
 def workflow():
-    '''
+    """
         Settings to control shop workflows
-    '''
+    """
     response.title = T('Shop')
     response.subtitle = T('Workflow')
     response.view = 'general/only_content.html'
@@ -107,6 +107,70 @@ def workflow():
                 save=submit)
 
 
+def catalog_get_menu(page):
+    """
+        Returns menu for shop catalog pages
+    """
+    pages = []
+
+    # Products
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('read', 'shop_products'):
+        pages.append(['products',
+                       T('Products'),
+                      URL('shop_manage', 'products')])
+    # Categories
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('read', 'shop_categories'):
+        pages.append(['categories',
+                       T('Categories'),
+                      URL('shop_manage', 'categories')])
+    # Brands
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('read', 'shop_brands'):
+        pages.append(['brands',
+                       T('Brands'),
+                      URL('shop_manage', 'brands')])
+    # Suppliers
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('read', 'shop_suppliers'):
+        pages.append(['suppliers',
+                       T('Suppliers'),
+                      URL('shop_manage', 'suppliers')])
+    # Product sets
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('read', 'shop_products_sets'):
+        pages.append(['products_sets',
+                       T('Product sets'),
+                      URL('shop_manage', 'products_sets')])
+
+    return os_gui.get_submenu(pages,
+                              page,
+                              _id='os-customers_edit_menu',
+                              horizontal=True,
+                              htype='tabs')
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'shop_products_sets'))
+def products():
+    """
+        List products
+    """
+    response.title = T('Shop')
+    response.subtitle = T('Catalog')
+    response.view = 'general/tabs_menu.html'
+
+    content = ''
+
+    add = os_gui.get_button('add', URL('shop_manage', 'product_add'))
+    menu = catalog_get_menu(request.function)
+
+    return dict(content=content,
+                add=add,
+                menu=menu)
+
+
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'shop_products_sets'))
 def products_sets():
@@ -117,16 +181,18 @@ def products_sets():
     from openstudio_tools import OsSession
 
     response.title = T('Shop')
-    response.subtitle = T('Products sets')
-    response.view = 'general/only_content.html'
+    response.subtitle = T('Catalog')
+    response.view = 'general/tabs_menu.html'
 
     product_sets = ShopProductsSets()
     content = product_sets.list_formatted()
 
     add = os_gui.get_button('add', URL('shop_manage', 'products_set_add'))
+    menu = catalog_get_menu(request.function)
 
     return dict(content=content,
-                add=add)
+                add=add,
+                menu=menu)
 
 
 def shop_products_sets_get_return_url(var=None):
@@ -151,8 +217,8 @@ def products_set_add():
     """
     from openstudio import OsForms
     response.title = T('Shop')
-    response.subtitle = T('Add product set')
-    response.view = 'general/only_content.html'
+    response.subtitle = T('Catalog')
+    response.view = 'general/tabs_menu.html'
 
     return_url = shop_products_sets_get_return_url()
 
@@ -165,9 +231,17 @@ def products_set_add():
     form = result['form']
     back = os_gui.get_button('back', return_url)
 
-    return dict(content=form,
+    content = DIV(
+        H4(T('Add product set')),
+        form
+    )
+
+    menu = catalog_get_menu('products_sets')
+
+    return dict(content=content,
                 save=result['submit'],
-                back=back)
+                back=back,
+                menu=menu)
 
 
 @auth.requires_login()
@@ -179,8 +253,8 @@ def products_set_edit():
     from openstudio import OsForms
 
     response.title = T('Shop')
-    response.subtitle = T('Edit product set')
-    response.view = 'general/only_content.html'
+    response.subtitle = T('Catalog')
+    response.view = 'general/tabs_menu.html'
     spsID = request.vars['spsID']
 
     return_url = shop_products_sets_get_return_url()
@@ -195,9 +269,17 @@ def products_set_edit():
     form = result['form']
     back = os_gui.get_button('back', return_url)
 
-    return dict(content=form,
+    content = DIV(
+        H4(T('Edit product set')),
+        form
+    )
+
+    menu = catalog_get_menu('products_sets')
+
+    return dict(content=content,
                 save=result['submit'],
-                back=back)
+                back=back,
+                menu=menu)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
@@ -222,22 +304,27 @@ def products_set_options():
     """
     from openstudio import ShopProductsSetsOptions
     response.title = T('Shop')
-    response.subtitle = T('Products set options')
-    response.view = 'general/only_content.html'
+    response.subtitle = T('Catalog')
+    response.view = 'general/tabs_menu.html'
 
     spsID = request.vars['spsID']
     products_set = db.shop_products_sets(spsID)
-    response.subtitle += ' - ' + products_set.Name
 
     spso = ShopProductsSetsOptions(spsID,
                                    URL(request.function,
                                        vars={'spsID': spsID}))
-    content = DIV(spso.list_formatted())
+    content = DIV(
+        H4(T("Product set options"), ': ',
+           XML('<small>' + products_set.Name + '</small>')),
+        spso.list_formatted()
+    )
     back = os_gui.get_button('back',
                              shop_products_sets_get_return_url())
+    menu = catalog_get_menu('products_sets')
 
     return dict(content=content,
-                back=back)
+                back=back,
+                menu=menu)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
@@ -287,8 +374,8 @@ def categories():
     from openstudio_tools import OsSession
 
     response.title = T('Shop')
-    response.subtitle = T('Categories')
-    response.view = 'general/only_content.html'
+    response.subtitle = T('Catalog')
+    response.view = 'general/tabs_menu.html'
 
     os_session = OsSession()
     value = os_session.get_request_var_or_session(
@@ -307,9 +394,11 @@ def categories():
     add = os_gui.get_button('add', URL('shop_manage', 'category_add'))
     archive_buttons = os_gui.get_archived_radio_buttons(
         session.shop_manage_categories_show)
+    menu = catalog_get_menu(request.function)
 
     return dict(content=content,
                 add=add,
+                menu=menu,
                 header_tools=archive_buttons)
 
 
@@ -327,8 +416,8 @@ def category_add():
     """
     from openstudio import OsForms
     response.title = T('Shop')
-    response.subtitle = T('Add category')
-    response.view = 'general/only_content.html'
+    response.subtitle = T('Catalog')
+    response.view = 'general/tabs_menu.html'
 
     return_url = shop_categories_get_return_url()
 
@@ -340,10 +429,17 @@ def category_add():
 
     form = result['form']
     back = os_gui.get_button('back', return_url)
+    menu = catalog_get_menu('categories')
 
-    return dict(content=form,
+    content = DIV(
+        H4(T('Add category')),
+        form
+    )
+
+    return dict(content=content,
                 save=result['submit'],
-                back=back)
+                back=back,
+                menu=menu)
 
 
 @auth.requires_login()
@@ -355,8 +451,8 @@ def category_edit():
     from openstudio import OsForms
 
     response.title = T('Shop')
-    response.subtitle = T('Edit category')
-    response.view = 'general/only_content.html'
+    response.subtitle = T('Catalog')
+    response.view = 'general/tabs_menu.html'
     scID = request.vars['scID']
 
     return_url = shop_categories_get_return_url()
@@ -370,10 +466,17 @@ def category_edit():
 
     form = result['form']
     back = os_gui.get_button('back', return_url)
+    menu = catalog_get_menu('categories')
 
-    return dict(content=form,
+    content = DIV(
+        H4(T('Edit category')),
+        form
+    )
+
+    return dict(content=content,
                 save=result['submit'],
-                back=back)
+                back=back,
+                menu=menu)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -405,8 +508,8 @@ def brands():
     from openstudio_tools import OsSession
 
     response.title = T('Shop')
-    response.subtitle = T('Brands')
-    response.view = 'general/only_content.html'
+    response.subtitle = T('Catalog')
+    response.view = 'general/tabs_menu.html'
 
     os_session = OsSession()
     value = os_session.get_request_var_or_session(
@@ -425,9 +528,11 @@ def brands():
     add = os_gui.get_button('add', URL('shop_manage', 'brand_add'))
     archive_buttons = os_gui.get_archived_radio_buttons(
         session.shop_manage_brands_show)
+    menu = catalog_get_menu(request.function)
 
     return dict(content=content,
                 add=add,
+                menu = menu,
                 header_tools=archive_buttons)
 
 
@@ -445,8 +550,8 @@ def brand_add():
     """
     from openstudio import OsForms
     response.title = T('Shop')
-    response.subtitle = T('Add brand')
-    response.view = 'general/only_content.html'
+    response.subtitle = T('Catalog')
+    response.view = 'general/tabs_menu.html'
 
     return_url = shop_brand_get_return_url()
 
@@ -458,10 +563,17 @@ def brand_add():
 
     form = result['form']
     back = os_gui.get_button('back', return_url)
+    menu = catalog_get_menu('brandsd')
 
-    return dict(content=form,
+    content = DIV(
+        H4(T('Add brand')),
+        form
+    )
+
+    return dict(content=content,
                 save=result['submit'],
-                back=back)
+                back=back,
+                menu=menu)
 
 
 @auth.requires_login()
@@ -473,8 +585,8 @@ def brand_edit():
     from openstudio import OsForms
 
     response.title = T('Shop')
-    response.subtitle = T('Edit brand')
-    response.view = 'general/only_content.html'
+    response.subtitle = T('Catalog')
+    response.view = 'general/tabs_menu.html'
     sbID = request.vars['sbID']
 
     return_url = shop_brand_get_return_url()
@@ -488,10 +600,17 @@ def brand_edit():
 
     form = result['form']
     back = os_gui.get_button('back', return_url)
+    menu = catalog_get_menu('brands')
 
-    return dict(content=form,
+    content = DIV(
+        H4(T('Edit brand')),
+        form
+    )
+
+    return dict(content=content,
                 save=result['submit'],
-                back=back)
+                back=back,
+                menu=menu)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -523,8 +642,8 @@ def suppliers():
     from openstudio_tools import OsSession
 
     response.title = T('Shop')
-    response.subtitle = T('Suppliers')
-    response.view = 'general/only_content.html'
+    response.subtitle = T('Catalog')
+    response.view = 'general/tabs_menu.html'
 
     os_session = OsSession()
     value = os_session.get_request_var_or_session(
@@ -543,10 +662,12 @@ def suppliers():
     add = os_gui.get_button('add', URL('shop_manage', 'supplier_add'))
     archive_buttons = os_gui.get_archived_radio_buttons(
         session.shop_manage_suppliers_show)
+    menu = catalog_get_menu(request.function)
 
     return dict(content=content,
                 add=add,
-                header_tools=archive_buttons)
+                header_tools=archive_buttons,
+                menu=menu)
 
 
 def shop_supplier_get_return_url(var=None):
@@ -563,8 +684,8 @@ def supplier_add():
     """
     from openstudio import OsForms
     response.title = T('Shop')
-    response.subtitle = T('Add supplier')
-    response.view = 'general/only_content.html'
+    response.subtitle = T('Catalog')
+    response.view = 'general/tabs_menu.html'
 
     return_url = shop_supplier_get_return_url()
 
@@ -576,10 +697,17 @@ def supplier_add():
 
     form = result['form']
     back = os_gui.get_button('back', return_url)
+    menu = catalog_get_menu('suppliers')
 
-    return dict(content=form,
+    content = DIV(
+        H4(T('Add supplier')),
+        form
+    )
+
+    return dict(content=content,
                 save=result['submit'],
-                back=back)
+                back=back,
+                menu=menu)
 
 
 @auth.requires_login()
@@ -591,8 +719,8 @@ def supplier_edit():
     from openstudio import OsForms
 
     response.title = T('Shop')
-    response.subtitle = T('Edit supplier')
-    response.view = 'general/only_content.html'
+    response.subtitle = T('Catalog')
+    response.view = 'general/tabs_menu.html'
     supID = request.vars['supID']
 
     return_url = shop_supplier_get_return_url()
@@ -606,10 +734,17 @@ def supplier_edit():
 
     form = result['form']
     back = os_gui.get_button('back', return_url)
+    menu = catalog_get_menu('suppliers')
 
-    return dict(content=form,
+    content = DIV(
+        H4(T('Edit supplier')),
+        form
+    )
+
+    return dict(content=content,
                 save=result['submit'],
-                back=back)
+                back=back,
+                menu=menu)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -629,4 +764,5 @@ def supplier_archive():
         T('Unable to (un)archive supplier'),
         shop_supplier_get_return_url()
     )
+
 
