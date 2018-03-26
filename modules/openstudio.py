@@ -10634,3 +10634,53 @@ class ShopSuppliers:
             table.append(tr)
 
         return table
+
+
+class ShopProducts:
+    def list(self):
+        """
+            :return: List of shop products (gluon.dal.rows)
+        """
+        db = current.globalenv['db']
+
+        rows = db(query).select(db.shop_products.ALL,
+                                orderby=db.shop_products.Name)
+
+        return rows
+
+
+    def list_formatted(self):
+        """
+            :return: HTML table with shop brands
+        """
+        T = current.globalenv['T']
+        os_gui = current.globalenv['os_gui']
+        auth = current.globalenv['auth']
+
+        header = THEAD(TR(TH(T('Name')),
+                          TH(T('Description')),
+                          TH()))
+        table = TABLE(header, _class='table table-striped table-hover')
+
+        permission_edit = (auth.has_membership(group_id='Admins') or
+                           auth.has_permission('update', 'shop_products'))
+
+        rows = self.list()
+        for row in rows:
+            buttons = ''
+            vars = {'supID':row.id}
+
+            if permission_edit:
+                edit = os_gui.get_button('edit',
+                    URL('shop_manage', 'product_edit', vars=vars))
+                buttons = DIV(edit, archive, _class='pull-right')
+
+            tr = TR(
+                TD(os_gui.max_string_length(row.Name, 30)),
+                TD(os_gui.max_string_length(row.Description, 30)),
+                TD(buttons)
+            )
+
+            table.append(tr)
+
+        return table
