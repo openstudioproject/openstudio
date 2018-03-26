@@ -2746,9 +2746,10 @@ def attendance_booking_options():
     menu = classes_get_menu('attendance', clsID, date_formatted)
     back = os_gui.get_button('back', return_url)
 
-    return dict(content=DIV(title, BR(), content,
-                            DIV(BR(), BR(), cancel, _class='col-md-12 center'),
-                            _class='row'),
+    return dict(content=DIV(DIV(title, BR(), content,
+                                _class='row'),
+                            DIV(DIV(BR(), BR(), cancel, _class='col-md-12 center'),
+                                _class='row')),
                 menu=menu,
                 back=back)
 

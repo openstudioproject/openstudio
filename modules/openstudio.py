@@ -3207,7 +3207,7 @@ class AttendanceHelper:
 
         date_formatted = date.strftime(DATE_FORMAT)
 
-        options = DIV(_class='shop-classes-booking-options')
+        options = DIV(_class='shop-classes-booking-options row')
         # subscriptions
         subscriptions = customer.get_subscriptions_on_date(date)
         if subscriptions:
@@ -10097,9 +10097,9 @@ class OsScheduler:
 
 class ReportsHelper:
     def get_query_subscriptions_new_in_month(self, date):
-        '''
+        """
             Returns query for new subscriptions
-        '''
+        """
         firstdaythismonth = datetime.date(date.year, date.month, 1)
         next_month = date.replace(day=28) + datetime.timedelta(days=4)  # this will never fail
         lastdaythismonth = next_month - datetime.timedelta(days=next_month.day)

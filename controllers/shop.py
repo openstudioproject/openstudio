@@ -12,9 +12,9 @@ from general_helpers import get_lastweek_year
 
 
 def index():
-    '''
+    """
         Main page of the shop
-    '''
+    """
     response.title= T('Shop')
 
     #response.view = 'cl/cl.html'
@@ -25,9 +25,9 @@ def index():
 
 
 def contact():
-    '''
+    """
         Page to hold contact info page for shop
-    '''
+    """
     response.title = T('Contact')
     # Company info
     try:
@@ -80,9 +80,9 @@ def contact():
 
 @auth.requires_login()
 def event_add_to_cart():
-    '''
+    """
         Actually book a workshop & create an invoice for customer
-    '''
+    """
     wspID = request.vars['wspID']
 
     features = db.customers_shop_features(1)
@@ -110,9 +110,9 @@ def event_add_to_cart():
 
 
 def classcards():
-    '''
+    """
         List available classcards
-    '''
+    """
     response.title = T('Shop')
     response.subtitle = T('Class cards')
     response.view = 'shop/no_box.html'
@@ -128,9 +128,9 @@ def classcards():
 
 @auth.requires_login()
 def classcard_add_to_cart():
-    '''
+    """
         Add classcard to cart for customer
-    '''
+    """
     scdID = request.vars['scdID']
 
     features = db.customers_shop_features(1)
@@ -149,9 +149,9 @@ def classcard_add_to_cart():
 
 
 def cart_get_price_total(rows):
-    '''
+    """
         @return: total price for items in shopping cart
-    '''
+    """
     cuID = auth.user.id
 
     total = 0
@@ -178,9 +178,9 @@ def cart_get_price_total(rows):
 
 @auth.requires_login()
 def cart():
-    '''
+    """
         Page showing shopping cart for customer
-    '''
+    """
     response.title = T('Shopping cart')
     response.subtitle = ''
 
@@ -210,10 +210,10 @@ def cart():
 
 
 def checkout_get_progress(function):
-    '''
+    """
         :param function:
         :return: Formatted tracker to show checkout progress to customer
-    '''
+    """
     checkout_progress = DIV(_class='center')
 
     spacer = ' - '
@@ -246,9 +246,9 @@ def checkout_get_progress(function):
 
 @auth.requires_login()
 def checkout():
-    '''
+    """
         Page showing review page for shopping cart
-    '''
+    """
     response.title = T('Check out')
     response.subtitle = ''
     response.view  = 'shop/cart.html'
@@ -269,9 +269,9 @@ def checkout():
 
 @auth.requires_login()
 def order_received():
-    '''
+    """
         Page to thank customer for placing order
-    '''
+    """
     response.title = T('Thank you')
 
     # get cart
@@ -351,22 +351,22 @@ def order_received():
 
 
 def order_received_redirect_complete(coID):
-    '''
+    """
         Handle free products/events
         :param coID: db.customers_orders.id
-    '''
+    """
     order = Order(coID)
     result = order.deliver()
     redirect(URL('shop', 'complete', vars={'coID': coID}))
 
 
 def order_received_mail_customer(coID):
-    '''
+    """
         Send an email to a customer after getting an order
-    '''
-    '''
+    """
+    """
         Mail email with invoice to customer
-    '''
+    """
     osmail = OsMail()
     msgID = osmail.render_email_template('email_template_order_received', customers_orders_id=coID)
 
@@ -374,43 +374,43 @@ def order_received_mail_customer(coID):
 
 
 def cart_empty(auth_user_id):
-    '''
+    """
         :param auth_user_id: db.auth_user.id
-    '''
+    """
     query = (db.customers_shoppingcart.auth_customer_id == auth_user_id)
     db(query).delete()
 
 
 def checkout_order_classcard(scdID, order):
-    '''
+    """
         Add class card to order
-    '''
+    """
     order.order_item_add_classcard(scdID)
 
 
 def checkout_order_workshop_product(wspID, order):
-    '''
+    """
         :param wspID: db.workshops_products.id
         :param order: Order object
         :return: None
-    '''
+    """
     order.order_item_add_workshop_product(wspID)
 
 
 def checkout_order_class(clsID, class_date, attendance_type, order):
-    '''
+    """
         :param clsID: db.classes
         :param order: Order object
         :return: None
-    '''
+    """
     order.order_item_add_class(clsID, class_date, attendance_type)
 
 
 @auth.requires_login()
 def cart_item_remove():
-    '''
+    """
        Page to remove an item from the shopping cart
-    '''
+    """
     cscID = request.vars['cscID']
 
     item = db.customers_shoppingcart(cscID)
@@ -427,9 +427,9 @@ def cart_item_remove():
 
 @auth.requires_login()
 def complete():
-    '''
+    """
         Landing page for customer after Mollie session
-    '''
+    """
     response.title = T('Shop')
 
     iID = request.vars['iID']
@@ -528,9 +528,9 @@ def complete():
 
 
 def event():
-    '''
+    """
         Details for an event
-    '''
+    """
     wsID = request.vars['wsID']
     workshop = Workshop(wsID)
     response.title = T('Shop')
@@ -591,10 +591,10 @@ def event():
 
 
 def event_get_products_filter_prices_add_to_cart_buttons(workshop):
-    '''
+    """
         :param workshop: Workshop object
         :return: div button group for products filter
-    '''
+    """
     #NOTE: maybe add prices here as well, saves a db query to get the products again
     products_filter = DIV(_class='btn-group workshop-products-filter', _role='group', **{'_data-toggle':'buttons'})
     products_prices = DIV()
@@ -604,8 +604,6 @@ def event_get_products_filter_prices_add_to_cart_buttons(workshop):
 
     # get public workshops
     products = workshop.get_products(filter_public=True)
-
-
 
     sold_out = False
 
@@ -707,10 +705,10 @@ def event_get_products_filter_prices_add_to_cart_buttons(workshop):
 
 
 def event_get_activities(workshop):
-    '''
+    """
         :param workshop: Workshop object
         :return: responsive list of activities
-    '''
+    """
     activities = DIV(
         DIV(DIV(T('Date'), _class='col-md-2'),
             DIV(T('Time'), _class='col-md-2'),
@@ -766,10 +764,10 @@ def event_get_activities(workshop):
 
 
 def event_get_activities_get_products(wsaID):
-    '''
+    """
         :param wsaID: db.workshops_activities.id
         :return: list of workshop products this activity is linked to
-    '''
+    """
     query = (db.workshops_products_activities.workshops_activities_id == wsaID)
     rows = db(query).select(db.workshops_products_activities.workshops_products_id)
 
@@ -781,9 +779,9 @@ def event_get_activities_get_products(wsaID):
 
 
 def events():
-    '''
+    """
         Workshops list for shop
-    '''
+    """
     response.title= T('Shop')
     response.subtitle = T('Events')
 
@@ -799,9 +797,9 @@ def events():
 
 
 def subscriptions():
-    '''
+    """
         Subscriptions list in shop
-    '''
+    """
     response.title= T('Shop')
     response.subtitle = T('Subscriptions')
     response.view = 'shop/no_box.html'
@@ -816,9 +814,9 @@ def subscriptions():
 
 
 def subscription_terms():
-    '''
+    """
         Buy subscription confirmation page
-    '''
+    """
     response.title= T('Shop')
     response.subtitle = T('Subscription')
     response.view = 'shop/index.html'
@@ -878,9 +876,9 @@ def subscription_terms():
 
 
 def classes():
-    '''
+    """
         List classes in shop
-    '''
+    """
     response.title= T('Shop')
     response.subtitle = T('Classes')
     response.view = 'shop/index.html'
@@ -986,10 +984,10 @@ def classes():
 
 
 def classes_get_button_book(c):
-    '''
+    """
         :param  c: Class from openstudio.py.ClassSchedule.get_day_list
         :return: book class button (or text)
-    '''
+    """
     book = SPAN(T('Finished'), _class='grey small_font')
     if c['BookingStatus'] == 'ongoing':
         book = SPAN(T('In session...'), _class='grey small_font')
@@ -1011,13 +1009,13 @@ def classes_get_filter(week,
                        filter_id_school_location='',
                        filter_id_school_level='',
                        filter_id_teacher=''):
-    '''
+    """
         :param filter_id_school_classtype: db.school_classtypes.id
         :param filter_id_school_location: db.school_locations.id
         :param filter_id_school_level: db.school_levels.id
         :param filter_id_teacher: db.auth_user.id (teacher = True)
         :return: div containing filter form for shop classes
-    '''
+    """
     au_query = (db.auth_user.teacher == True) & \
                (db.auth_user.archived == False)
 
@@ -1079,11 +1077,11 @@ def classes_get_filter(week,
 
 
 def classes_get_week_browser(week, year):
-    '''
+    """
         :param week: int week
         :param year: int year
         :return: buttons to browse through weeks 
-    '''
+    """
     lastweek = get_lastweek_year(year)
 
     if week == 1:
@@ -1134,10 +1132,10 @@ def classes_get_day(year,
                     filter_id_school_location,
                     filter_id_school_level,
                     filter_id_teacher):
-    '''
+    """
         :param weekday: ISO weekday (1-7)
         :return: List of classes for day
-    '''
+    """
     date = iso_to_gregorian(int(year), int(week), int(day))
     date_formatted = date.strftime(DATE_FORMAT)
 
@@ -1154,9 +1152,9 @@ def classes_get_day(year,
 
 
 def classes_book_options_get_button_book(url):
-    '''
+    """
         Return book button for booking options
-    '''
+    """
     button_book = A(SPAN(T('Book'), ' ', os_gui.get_fa_icon('fa-chevron-right')),
                     _href=url,
                     _class='pull-right btn btn-link')
@@ -1165,9 +1163,9 @@ def classes_book_options_get_button_book(url):
 
 
 def class_book_options_get_url_next_weekday(clsID, date, isoweekday):
-    '''
+    """
         Go to next weekday
-    '''
+    """
     from general_helpers import next_weekday
 
     # Check if today's class is taking place, if not, go to next week.
@@ -1182,9 +1180,9 @@ def class_book_options_get_url_next_weekday(clsID, date, isoweekday):
 
 
 def class_book_get_class_header(clsID, date):
-    '''
+    """
         Pretty display of class name
-    '''
+    """
     cls = Class(clsID, date)
     location = db.school_locations[cls.cls.school_locations_id].Name
 
@@ -1201,12 +1199,12 @@ def class_book_get_class_header(clsID, date):
 
 @auth.requires_login()
 def classes_book_options():
-    '''
+    """
         Lists ways to book classes
          - subscriptions
          - cards
          - drop in (with price & add to cart button)
-    '''
+    """
     response.title= T('Shop')
     response.subtitle = T('Book class')
     response.view = 'shop/index.html'
@@ -1275,9 +1273,9 @@ def classes_book_options():
 
 
 def class_book_options_get_enrollment_options(clsID, date, date_formatted, customer):
-    '''
+    """
         List enrollment options
-    '''
+    """
     options = DIV(_class='shop-classes-booking-options')
 
     cls = Class(clsID, date)
@@ -1361,9 +1359,9 @@ def class_book_options_get_enrollment_options(clsID, date, date_formatted, custo
 
 @auth.requires_login()
 def class_enroll():
-    '''
+    """
     :return:
-    '''
+    """
     response.title= T('Shop')
     response.subtitle = T('Enroll in class')
     response.view = 'shop/index.html'
@@ -1427,9 +1425,9 @@ def class_enroll():
 
 @auth.requires_login()
 def class_book():
-    '''
+    """
         Actually book class
-    '''
+    """
     def wrong_user():
         return "Looks like this subscription or class card isn't yours..."
 
@@ -1517,9 +1515,9 @@ def class_book():
 
 @auth.requires_login()
 def class_book_classcard_recurring():
-    '''
+    """
         Offer option to make multiple booking for this class
-    '''
+    """
     ccdID = request.vars['ccdID']
     clsID = request.vars['clsID']
     date_formatted = request.vars['date']
@@ -1584,10 +1582,10 @@ def class_book_classcard_recurring():
 
 
 def class_book_classcard_recurring_get_form(ccd):
-    '''
+    """
         :param ccd: Classcard object
         :return: form to allow setting enddate of recurring booking
-    '''
+    """
     max_date = datetime.date(2999, 1, 1)
     shop_classes_advance_booking_limit = get_sys_property('shop_classes_advance_booking_limit')
     if shop_classes_advance_booking_limit:
@@ -1621,9 +1619,9 @@ def class_book_classcard_recurring_get_form(ccd):
 
 @auth.requires_login()
 def class_add_to_cart():
-    '''
+    """
         Add a drop in class to the shopping cart 
-    '''
+    """
     clsID = request.vars['clsID']
     date_formatted = request.vars['date']
     date = datestr_to_python(DATE_FORMAT, request.vars['date'])
@@ -1643,9 +1641,9 @@ def class_add_to_cart():
 
 @auth.requires_login()
 def donate():
-    '''
+    """
         Donate page for shop
-    '''
+    """
     response.title= T('Shop')
     response.subtitle = T('Donate')
     response.view = 'shop/index.html'
@@ -1678,9 +1676,9 @@ def donate():
 
 
 def donate_get_form(var=None):
-    '''
+    """
         Use SQLFORM.factory to create a donation form 
-    '''
+    """
     form = SQLFORM.factory(
         Field('amount', 'double',
             requires=IS_FLOAT_IN_RANGE(0,
@@ -1699,9 +1697,9 @@ def donate_get_form(var=None):
 
 
 def check_add_to_card_requires_complete_profile(auID):
-    '''
+    """
         Checks if a completed profile is required, if so and it isn't complete, redirect to the profile edit page
-    '''
+    """
     shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile')
 
     if shop_requires_complete_profile:
