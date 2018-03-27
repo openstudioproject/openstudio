@@ -1538,6 +1538,19 @@ def populate_api_users(web2py):
                                    Description='test user')
 
     web2py.db.commit()
+
+
+def populate_shop_products(web2py):
+    """
+        Populate shop_products
+    """
+    web2py.db.shop_products.insert(
+        Name = "Coffee",
+        Description = "Coffee",
+        DescriptionShop = "Coffee shop description"
+    )
+
+    web2py.db.commit()
     
 
 def populate_shop_products_sets(web2py,

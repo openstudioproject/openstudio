@@ -34,6 +34,70 @@ def test_workflow(client, web2py):
            data['shop_subscriptions_start']
 
 
+def test_products(client, web2py):
+    """
+        Is the products page listing products?
+    """
+    from populate_os_tables import populate_shop_products
+    populate_shop_products(web2py)
+
+    assert web2py.db(web2py.db.shop_products).count() == 1
+
+    url = '/shop_manage/products'
+    client.get(url)
+    assert client.status == 200
+
+    product = web2py.db.shop_products(1)
+    assert product.Name in client.text
+
+
+def test_product_add(client, web2py):
+    """
+        Can we add a product?
+    """
+    url = '/shop_manage/product_add'
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        'Name': 'Grapefruit',
+        'Description': 'Also great as juice',
+        'Visibility': 'in_stock'
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+    assert web2py.db(web2py.db.shop_products).count() == 1
+
+
+def test_product_edit(client, web2py):
+    """
+        Can we edit a product?
+    """
+    from populate_os_tables import populate_shop_products
+    populate_shop_products(web2py)
+
+    assert web2py.db(web2py.db.shop_products).count() == 1
+
+    url = '/shop_manage/product_edit?spID=1'
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        'id': '1',
+        'Name': 'Grapefruit',
+        'Description': 'Also great as juice',
+        'Visibility': 'in_stock'
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+    products_set = web2py.db.shop_products(1)
+    assert products_set.Name == data['Name']
+
+
 def test_products_sets(client, web2py):
     """
         Is the products_sets page listing products_sets?

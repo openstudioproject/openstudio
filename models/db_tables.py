@@ -3810,7 +3810,7 @@ def define_shop_products():
         Field('DescriptionShop', 'text',
               label=T("Descripion in shop"),
               comment=T("This is the description customers will see")),
-        Field('Visible',
+        Field('Visibility',
               requires=IS_IN_SET(visibility, zero=None),
               default='in_stock',
               label=T('Shop visibility')),
