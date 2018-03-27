@@ -10953,7 +10953,7 @@ class ShopProductsVariants:
 
     def list_formatted_get_onclick_delete(self):
         """
-            :return: onclick delete for  
+            :return: onclick delete for
         """
         T = current.globalenv['T']
         product = ShopProduct(self.shop_products_id)

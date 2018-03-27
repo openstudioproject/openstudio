@@ -3867,7 +3867,7 @@ def define_shop_products_variants():
         Field('PurchasePrice', 'double',
               default=0,
               represent=represent_float_as_amount,
-              label=T("Price incl. VAT")),
+              label=T("Purchace price")),
         Field('ArticleCode',
               represent=lambda value, row: value or "",
               label=T('Article code')),
