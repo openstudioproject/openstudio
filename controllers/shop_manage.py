@@ -157,17 +157,96 @@ def products():
     """
         List products
     """
+    from openstudio import ShopProducts
+
     response.title = T('Shop')
     response.subtitle = T('Catalog')
     response.view = 'general/tabs_menu.html'
 
-    content = ''
+    products = ShopProducts()
+    content = products.list_formatted()
 
     add = os_gui.get_button('add', URL('shop_manage', 'product_add'))
     menu = catalog_get_menu(request.function)
 
     return dict(content=content,
                 add=add,
+                menu=menu)
+
+
+def shop_products_get_return_url(var=None):
+    """
+        :return: URL to shop product list page
+    """
+    return URL('shop_manage', 'products')
+
+
+@auth.requires_login()
+def product_add():
+    """
+        Add a new product
+    """
+    from openstudio import OsForms
+    response.title = T('Shop')
+    response.subtitle = T('Catalog')
+    response.view = 'general/tabs_menu.html'
+
+    return_url = shop_products_get_return_url()
+
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_create(
+        db.shop_products,
+        return_url,
+    )
+
+    form = result['form']
+    back = os_gui.get_button('back', return_url)
+
+    content = DIV(
+        H4(T('Add product')),
+        form
+    )
+
+    menu = catalog_get_menu('products')
+
+    return dict(content=content,
+                save=result['submit'],
+                back=back,
+                menu=menu)
+
+
+@auth.requires_login()
+def product_edit():
+    """
+        Edit a product
+    """
+    from openstudio import OsForms
+    response.title = T('Shop')
+    response.subtitle = T('Catalog')
+    response.view = 'general/tabs_menu.html'
+
+    return_url = shop_products_get_return_url()
+
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_update(
+        db.shop_products,
+        return_url,
+        request.vars['spID']
+    )
+
+    form = result['form']
+    back = os_gui.get_button('back', return_url)
+
+    content = DIV(
+        H4(T('Edit product')),
+        form
+    )
+
+    menu = catalog_get_menu('products')
+
+    return dict(content=content,
+                save=result['submit'],
+                back=back,
                 menu=menu)
 
 

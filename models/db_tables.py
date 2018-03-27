@@ -3808,21 +3808,27 @@ def define_shop_products():
         Field('Description', 'text',
               label=T("Description")),
         Field('DescriptionShop', 'text',
-              label=T("Descripion in shop")),
+              label=T("Descripion in shop"),
+              comment=T("This is the description customers will see")),
         Field('Visible',
-              requires=IS_IN_SET('visibility')),
+              requires=IS_IN_SET(visibility, zero=None),
+              default='in_stock',
+              label=T('Shop visibility')),
         Field('shop_brands_id', db.shop_brands,
               requires=IS_EMPTY_OR(IS_IN_DB(db(),
                                             'shop_brands.id',
                                             '%(Name)s')),
               label=T('Brand')),
-
         Field('shop_suppliers_id', db.shop_suppliers,
               requires=IS_EMPTY_OR(IS_IN_DB(db(),
                                             'shop_suppliers.id',
                                             '%(Name)s')),
               label=T('Supplier')),
-        Field('shop_products_sets_id', db.shop_products_sets)
+        Field('shop_products_sets_id', db.shop_products_sets,
+              requires=IS_EMPTY_OR(IS_IN_DB(db(),
+                                            'shop_products_sets.id',
+                                            '%(Name)s')),
+              label=T('Product set'))
     )
 
 

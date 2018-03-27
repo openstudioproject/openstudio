@@ -10643,8 +10643,8 @@ class ShopProducts:
         """
         db = current.globalenv['db']
 
-        rows = db(query).select(db.shop_products.ALL,
-                                orderby=db.shop_products.Name)
+        rows = db(db.shop_products).select(db.shop_products.ALL,
+                                           orderby=db.shop_products.Name)
 
         return rows
 
@@ -10668,12 +10668,12 @@ class ShopProducts:
         rows = self.list()
         for row in rows:
             buttons = ''
-            vars = {'supID':row.id}
+            vars = {'spID':row.id}
 
             if permission_edit:
                 edit = os_gui.get_button('edit',
                     URL('shop_manage', 'product_edit', vars=vars))
-                buttons = DIV(edit, archive, _class='pull-right')
+                buttons = DIV(edit, _class='pull-right')
 
             tr = TR(
                 TD(os_gui.max_string_length(row.Name, 30)),
