@@ -194,9 +194,28 @@ def invoice_pay():
     # Subscription invoice?
     if invoice.invoice.customers_subscriptions_id:
         # subscription invoice
-        customer = Customer(auth.user.id)
-        mollie_customer_id = customer.row.mollie_customer_id
-        mandates = customer.get_mollie_mandates()
+        # customer = Customer(auth.user.id)
+        # mollie_customer_id = customer.row.mollie_customer_id
+        # check if we have a mollie customer id
+        os_customer = Customer(auth.user.id)
+        if os_customer.row.mollie_customer_id:
+            # yep
+            mollie_customer_id = os_customer.row.mollie_customer_id
+            try:
+                mollie_customer = mollie.customers.get(mollie_customer_id)
+                # print "we've got one!"
+                # print mollie_customer
+                # print mollie.customers.all()
+            except Exception as e:
+                # print e.__class__.__name__
+                # print str(e)
+                # print 'customer id invalid, create new customer'
+                if 'The customer id is invalid' in str(e):
+                    create_mollie_customer(os_customer)
+        else:
+            create_mollie_customer(os_customer)
+
+        mandates = os_customer.get_mollie_mandates()
         # set default recurring type, change to recurring if a valid mandate is found.
         recurring_type = 'first'
         if mandates['count'] > 0:
@@ -289,24 +308,29 @@ def order_pay():
         return 'API call failed: ' + e.message
 
 
+def create_mollie_customer(os_customer):
+    """
+    :param os_customer: Customer object
+    :return:
+    """
+    mollie_customer = mollie.customers.create({
+        'name': os_customer.row.display_name,
+        'email': os_customer.row.email
+    })
+
+    #print mollie_customer
+
+    os_customer.row.mollie_customer_id = mollie_customer['id']
+    os_customer.row.update_record()
+
+    #print 'created mollie customer'
+
+
 @auth.requires_login()
 def subscription_buy_now():
     '''
         Get a subscription
     '''
-    def create_mollie_customer():
-        mollie_customer = mollie.customers.create({
-            'name': os_customer.row.display_name,
-            'email': os_customer.row.email
-        })
-
-        #print mollie_customer
-
-        os_customer.row.mollie_customer_id = mollie_customer['id']
-        os_customer.row.update_record()
-
-        #print 'created mollie customer'
-
     ssuID = request.vars['ssuID']
 
     # init mollie
@@ -329,10 +353,9 @@ def subscription_buy_now():
             #print str(e)
             #print 'customer id invalid, create new customer'
             if 'The customer id is invalid' in str(e):
-                create_mollie_customer()
-
+                create_mollie_customer(os_customer)
     else:
-        create_mollie_customer()
+        create_mollie_customer(os_customer)
 
     # add subscription to customer
     startdate = TODAY_LOCAL
