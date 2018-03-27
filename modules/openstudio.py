@@ -10864,7 +10864,11 @@ class ShopProduct:
         db = current.globalenv['db']
 
 
-
+    def has_products_set(self):
+        """
+        :return: boolean
+        """
+        return True if self.row.shop_products_sets_id else False
 
 
 class ShopProductsVariants:
@@ -10908,8 +10912,7 @@ class ShopProductsVariants:
         permission_delete = (auth.has_membership(group_id='Admins') or
                              auth.has_permission('delete', 'shop_products_variants'))
 
-        onclick_delete = "return confirm('" \
-            + T('Do you really want to delete this variant?') + "');"
+        onclick_delete = self.list_formatted_get_onclick_delete()
 
         rows = self.list()
         for i, row in enumerate(rows):
@@ -10946,3 +10949,19 @@ class ShopProductsVariants:
             table.append(tr)
 
         return table
+
+
+    def list_formatted_get_onclick_delete(self):
+        """
+            :return: onclick delete for  
+        """
+        T = current.globalenv['T']
+        product = ShopProduct(self.shop_products_id)
+        if product.has_products_set():
+            delete_message = T('Do you really want to disable this variant?')
+        else:
+            delete_message = T('Do you really want to delete this variant?')
+        onclick_delete = "return confirm('" \
+            + delete_message + "');"
+
+        return onclick_delete
