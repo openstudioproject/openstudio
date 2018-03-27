@@ -138,6 +138,32 @@ def test_product_variants(client, web2py):
     assert variant.Name in client.text
 
 
+def test_product_variant_add(client, web2py):
+    """
+        Can we add a product variant
+    """
+    from populate_os_tables import populate_shop_products, populate_tax_rates
+    populate_shop_products(web2py)
+    populate_tax_rates(web2py)
+    assert web2py.db(web2py.db.shop_products).count() == 1
+
+    url = '/shop_manage/product_variant_add?spID=1'
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        'id': '1',
+        'Name': 'Grapefruit',
+        'tax_rates_id':1
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+    variant = web2py.db.shop_products_variants(1)
+    assert variant.Name == data['Name']
+
+
 def test_product_variant_edit(client, web2py):
     """
         Can we edit a product variant

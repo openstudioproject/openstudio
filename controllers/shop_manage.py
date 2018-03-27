@@ -312,7 +312,9 @@ def product_variants():
         variants.list_formatted()
     )
 
-    add = os_gui.get_button('add', URL('shop_manage', 'product_variant_add'))
+    add = os_gui.get_button('add',
+                            URL('shop_manage', 'product_variant_add',
+                                vars={'spID':spID}))
     back = os_gui.get_button('back', shop_products_get_return_url())
     menu = catalog_get_menu('products')
 
@@ -328,6 +330,44 @@ def product_variants_get_return_url(spID):
     """
     return URL('shop_manage', 'product_variants',
                vars={'spID':spID})
+
+
+@auth.requires_login()
+def product_variant_add():
+    """
+        Add a product variant
+    """
+    from openstudio import OsForms
+
+    spID = request.vars['spID']
+
+    response.title = T('Shop')
+    response.subtitle = T('Catalog')
+    response.view = 'general/tabs_menu.html'
+
+    return_url = product_variants_get_return_url(spID)
+
+    db.shop_products_variants.shop_products_id.default = spID
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_create(
+        db.shop_products_variants,
+        return_url,
+    )
+
+    form = result['form']
+    back = os_gui.get_button('back', return_url)
+
+    content = DIV(
+        H4(T('Add product variant')),
+        form
+    )
+
+    menu = catalog_get_menu('products')
+
+    return dict(content=content,
+                save=result['submit'],
+                back=back,
+                menu=menu)
 
 
 @auth.requires_login()
@@ -356,7 +396,7 @@ def product_variant_edit():
     back = os_gui.get_button('back', return_url)
 
     content = DIV(
-        H4(T('Edit product')),
+        H4(T('Edit product variant')),
         form
     )
 
