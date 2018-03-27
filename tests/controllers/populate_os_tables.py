@@ -1551,6 +1551,27 @@ def populate_shop_products(web2py):
     )
 
     web2py.db.commit()
+
+
+def populate_shop_products_variants(web2py,
+                                    populate_products=True):
+    """
+        Populate shop_products_variants
+    """
+    if populate_products:
+        populate_shop_products(web2py)
+
+    populate_tax_rates(web2py)
+
+    web2py.db.shop_products_variants.insert(
+        shop_products_id = 1,
+        Name = 'Black',
+        Price = '10',
+        tax_rates_id = 1,
+        DefaultVariant = True,
+    )
+
+    web2py.db.commit()
     
 
 def populate_shop_products_sets(web2py,

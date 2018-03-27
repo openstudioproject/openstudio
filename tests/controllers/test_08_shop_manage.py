@@ -117,8 +117,35 @@ def test_product_edit(client, web2py):
     client.post(url, data=data)
     assert client.status == 200
 
-    products_set = web2py.db.shop_products(1)
-    assert products_set.Name == data['Name']
+    product = web2py.db.shop_products(1)
+    assert product.Name == data['Name']
+
+
+def test_product_variant_edit(client, web2py):
+    """
+        Can we edit a product variant
+    """
+    from populate_os_tables import populate_shop_products_variants
+    populate_shop_products_variants(web2py,
+                                    populate_products=True)
+    assert web2py.db(web2py.db.shop_products_variants).count() == 1
+
+
+    url = '/shop_manage/product_variant_edit?spID=1&spvID=1'
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        'id': '1',
+        'Name': 'Grapefruit',
+        'tax_rates_id':1
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+    variant = web2py.db.shop_products_variants(1)
+    assert variant.Name == data['Name']
 
 
 def test_products_sets(client, web2py):

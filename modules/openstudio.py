@@ -9773,7 +9773,7 @@ class OsForms:
         crud.messages.submit_button = submit_button or T("Save")
         crud.messages.record_updated = T("Saved")
         crud.settings.update_next = return_url
-        crud.settings.update_onaccept = onaccept,
+        crud.settings.update_onaccept = onaccept
         crud.settings.formstyle = formstyle
         form = crud.update(db_table, record_id)
 
@@ -10741,13 +10741,17 @@ class ShopProduct:
 
 
 class ShopProductsVariants:
+    def __init__(self, shop_products_id):
+        self.shop_products_id = shop_products_id
+
     def list(self):
         """
-            :return: List of shop products (gluon.dal.rows)
+            :return: List of shop product variants(gluon.dal.rows)
         """
         db = current.globalenv['db']
 
-        query = db.shop_products_variants
+        query = (db.shop_products_variants.shop_products_id ==
+                 self.shop_products_id)
         rows = db(query).select(db.shop_products_variants.ALL,
                                 orderby=db.shop_products_variants.Name)
 
@@ -10784,15 +10788,15 @@ class ShopProductsVariants:
             repr_row = list(rows[i:i + 1].render())[0]
 
             buttons = DIV(_class='pull-right')
-            vars = {'spvID':row.id}
+            vars = {'spvID':row.id, 'spID':self.shop_products_id}
 
             if permission_edit:
                 edit = os_gui.get_button('edit',
-                    URL('shop_manage', 'product_edit', vars=vars))
+                    URL('shop_manage', 'product_variant_edit', vars=vars))
                 buttons.append(edit)
             if permission_delete and not row.DefaultVariant:
                 delete = os_gui.get_button('delete_notext',
-                    URL('shop_manage', 'product_delete', vars=vars),
+                    URL('shop_manage', 'product_variant_delete', vars=vars),
                     onclick=onclick_delete)
                 buttons.append(delete)
 
