@@ -272,6 +272,18 @@ def represent_float_as_amount(value, row=None):
         return SPAN(CURRSYM, ' ', format(value, '.2f'))
 
 
+def represent_boolean_as_checkbox(value, row=None):
+    """
+    :return: disabled html checkbox
+    """
+    checkbox = INPUT(value=value,
+                     _type='checkbox',
+                     _value='api',
+                     _disabled='disabled')
+
+    return checkbox
+
+
 def represent_classes_attendance_bookingstatus(value, row):
     '''
         Returns representation of booking status for classes attendance table
@@ -3861,6 +3873,7 @@ def define_shop_products_variants():
               label=T('SKU')),
         Field('KeepStock', 'boolean',
               default=True,
+              represent=represent_boolean_as_checkbox,
               label=T('Keep stock'),
               comment=T('Keep track of stock changes for this variant')),
         Field('StockShop', 'integer',
