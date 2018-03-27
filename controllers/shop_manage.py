@@ -119,6 +119,12 @@ def catalog_get_menu(page):
         pages.append(['products',
                        T('Products'),
                       URL('shop_manage', 'products')])
+    # Stock
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('read', 'shop_stock'):
+        pages.append(['Stock',
+                       T('Stock'),
+                      URL('shop_manage', 'stock')])
     # Categories
     if auth.has_membership(group_id='Admins') or \
        auth.has_permission('read', 'shop_categories'):
@@ -248,6 +254,22 @@ def product_edit():
                 save=result['submit'],
                 back=back,
                 menu=menu)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('delete', 'shop_products'))
+def product_delete():
+    """
+        Delete a product
+    """
+    spID = request.vars['spID']
+
+    query = (db.shop_products.id == spID)
+    db(query).delete()
+
+    session.flash = T('Deleted product')
+
+    redirect(shop_products_get_return_url())
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or

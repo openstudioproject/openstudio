@@ -10664,16 +10664,26 @@ class ShopProducts:
 
         permission_edit = (auth.has_membership(group_id='Admins') or
                            auth.has_permission('update', 'shop_products'))
+        permission_delete = (auth.has_membership(group_id='Admins') or
+                             auth.has_permission('delete', 'shop_products'))
+
+        onclick_delete = "return confirm('" \
+            + T('Do you really want to delete this product?') + "');"
 
         rows = self.list()
         for row in rows:
-            buttons = ''
+            buttons = DIV(_class='pull-right')
             vars = {'spID':row.id}
 
             if permission_edit:
                 edit = os_gui.get_button('edit',
                     URL('shop_manage', 'product_edit', vars=vars))
-                buttons = DIV(edit, _class='pull-right')
+                buttons.append(edit)
+            if permission_delete:
+                delete = os_gui.get_button('delete_notext',
+                    URL('shop_manage', 'product_delete', vars=vars),
+                    onclick=onclick_delete)
+                buttons.append(delete)
 
             tr = TR(
                 TD(os_gui.max_string_length(row.Name, 30)),
