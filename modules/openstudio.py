@@ -9733,6 +9733,7 @@ class OsForms:
                              db_table,
                              return_url,
                              submit_button='',
+                             onaccept=[],
                              formstyle="bootstrap3_stacked",
                              form_id="MainForm",
                              ):
@@ -9745,6 +9746,7 @@ class OsForms:
         crud.messages.submit_button = submit_button or T("Save")
         crud.messages.record_created = T("Saved")
         crud.settings.create_next = return_url
+        crud.settings.create_onaccept = onaccept
         crud.settings.formstyle = formstyle
         form = crud.create(db_table)
 
@@ -9757,6 +9759,8 @@ class OsForms:
                              db_table,
                              return_url,
                              record_id,
+                             submit_button='',
+                             onaccept=[],
                              formstyle="bootstrap3_stacked",
                              form_id="MainForm"
                              ):
@@ -9766,9 +9770,10 @@ class OsForms:
         T = current.globalenv['T']
         crud = current.globalenv['crud']
 
-        crud.messages.submit_button = T("Save")
+        crud.messages.submit_button = submit_button or T("Save")
         crud.messages.record_updated = T("Saved")
         crud.settings.update_next = return_url
+        crud.settings.update_onaccept = onaccept,
         crud.settings.formstyle = formstyle
         form = crud.update(db_table, record_id)
 
@@ -10651,7 +10656,7 @@ class ShopProducts:
 
     def list_formatted(self):
         """
-            :return: HTML table with shop brands
+            :return: HTML table with shop products
         """
         T = current.globalenv['T']
         os_gui = current.globalenv['os_gui']
@@ -10662,6 +10667,8 @@ class ShopProducts:
                           TH()))
         table = TABLE(header, _class='table table-striped table-hover')
 
+        permission_variants = (auth.has_membership(group_id='Admins') or
+                               auth.has_permission('read', 'shop_products_variants'))
         permission_edit = (auth.has_membership(group_id='Admins') or
                            auth.has_permission('update', 'shop_products'))
         permission_delete = (auth.has_membership(group_id='Admins') or
@@ -10675,6 +10682,11 @@ class ShopProducts:
             buttons = DIV(_class='pull-right')
             vars = {'spID':row.id}
 
+            if permission_variants:
+                variants = os_gui.get_button('noicon',
+                    URL('shop_manage', 'product_variants', vars=vars),
+                    title=T('Variants'))
+                buttons.append(variants)
             if permission_edit:
                 edit = os_gui.get_button('edit',
                     URL('shop_manage', 'product_edit', vars=vars))
@@ -10688,6 +10700,113 @@ class ShopProducts:
             tr = TR(
                 TD(os_gui.max_string_length(row.Name, 30)),
                 TD(os_gui.max_string_length(row.Description, 30)),
+                TD(buttons)
+            )
+
+            table.append(tr)
+
+        return table
+
+
+class ShopProduct:
+    def __init__(self, spID):
+        """
+            :param spID: db.shop_products.id
+        """
+        self.id = spID
+
+
+    def count_variants(self):
+        """
+            :return: integer - number of variants for this product
+        """
+        db = current.globalenv['db']
+        query = (db.shop_products_variants.shop_products_id == self.id)
+
+        return db(query).count()
+
+
+    def add_default_variant(self):
+        """
+            Create default variant for a product without a product set
+        """
+        T = current.globalenv['T']
+        db = current.globalenv['db']
+
+        db.shop_products_variants.insert(
+            shop_products_id = self.id,
+            Name = T('Default'),
+            DefaultVariant = True
+        )
+
+
+class ShopProductsVariants:
+    def list(self):
+        """
+            :return: List of shop products (gluon.dal.rows)
+        """
+        db = current.globalenv['db']
+
+        query = db.shop_products_variants
+        rows = db(query).select(db.shop_products_variants.ALL,
+                                orderby=db.shop_products_variants.Name)
+
+        return rows
+
+
+    def list_formatted(self):
+        """
+            :return: HTML table with shop products variants
+        """
+        T = current.globalenv['T']
+        os_gui = current.globalenv['os_gui']
+        auth = current.globalenv['auth']
+
+        header = THEAD(TR(TH(T('Name')),
+                          TH(T('Price')),
+                          TH(T('Article Code')),
+                          TH(T('Stock shop')),
+                          TH(T('Stock warehouse')),
+                          TD(),
+                          TH()))
+        table = TABLE(header, _class='table table-striped table-hover')
+
+        permission_edit = (auth.has_membership(group_id='Admins') or
+                           auth.has_permission('update', 'shop_products_variants'))
+        permission_delete = (auth.has_membership(group_id='Admins') or
+                             auth.has_permission('delete', 'shop_products_variants'))
+
+        onclick_delete = "return confirm('" \
+            + T('Do you really want to delete this variant?') + "');"
+
+        rows = self.list()
+        for i, row in enumerate(rows):
+            repr_row = list(rows[i:i + 1].render())[0]
+
+            buttons = DIV(_class='pull-right')
+            vars = {'spvID':row.id}
+
+            if permission_edit:
+                edit = os_gui.get_button('edit',
+                    URL('shop_manage', 'product_edit', vars=vars))
+                buttons.append(edit)
+            if permission_delete and not row.DefaultVariant:
+                delete = os_gui.get_button('delete_notext',
+                    URL('shop_manage', 'product_delete', vars=vars),
+                    onclick=onclick_delete)
+                buttons.append(delete)
+
+            default = ''
+            if row.DefaultVariant:
+                default = os_gui.get_label('success', T('Default'))
+
+            tr = TR(
+                TD(os_gui.max_string_length(row.Name, 30)),
+                TD(repr_row.Price),
+                TD(repr_row.ArticleCode),
+                TD(row.StockShop),
+                TD(row.StockWarehouse),
+                TD(default),
                 TD(buttons)
             )
 

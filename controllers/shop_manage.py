@@ -203,6 +203,7 @@ def product_add():
     result = os_forms.get_crud_form_create(
         db.shop_products,
         return_url,
+        onaccept=product_onaccept,
     )
 
     form = result['form']
@@ -237,7 +238,8 @@ def product_edit():
     result = os_forms.get_crud_form_update(
         db.shop_products,
         return_url,
-        request.vars['spID']
+        request.vars['spID'],
+        onaccept=product_onaccept
     )
 
     form = result['form']
@@ -256,6 +258,24 @@ def product_edit():
                 menu=menu)
 
 
+def product_onaccept(form):
+    """
+        Function run when adding or editing a product
+        If there is a product set, add all possible variants
+        If not, add a default variant
+    """
+    from openstudio import ShopProduct
+    spID = form.vars.id
+    spsID = form.vars.shop_products_sets_id
+
+    if not spsID:
+        # Check if we have > 1 variant
+        product = ShopProduct(spID)
+        if not product.count_variants():
+            product.add_default_variant()
+
+
+
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('delete', 'shop_products'))
 def product_delete():
@@ -268,8 +288,38 @@ def product_delete():
     db(query).delete()
 
     session.flash = T('Deleted product')
-
     redirect(shop_products_get_return_url())
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'shop_products_variants'))
+def product_variants():
+    """
+        List Product variants for a product
+    """
+    spID = request.vars['spID']
+    product = db.shop_products(spID)
+
+    from openstudio import ShopProductsVariants
+
+    response.title = T('Shop')
+    response.subtitle = T('Catalog')
+    response.view = 'general/tabs_menu.html'
+
+    variants = ShopProductsVariants()
+    content = DIV(
+        H4(T('Variants for'), ' ', product.Name),
+        variants.list_formatted()
+    )
+
+    add = os_gui.get_button('add', URL('shop_manage', 'product_variant_add'))
+    back = os_gui.get_button('back', shop_products_get_return_url())
+    menu = catalog_get_menu('products')
+
+    return dict(content=content,
+                add=add,
+                back=back,
+                menu=menu)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or

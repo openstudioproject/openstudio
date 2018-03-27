@@ -71,6 +71,29 @@ def test_product_add(client, web2py):
     assert web2py.db(web2py.db.shop_products).count() == 1
 
 
+def test_product_add_no_product_set_default_variant(client, web2py):
+    """
+        Add a default variant when adding a product
+    """
+    url = '/shop_manage/product_add'
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        'Name': 'Grapefruit',
+        'Description': 'Also great as juice',
+        'Visibility': 'in_stock'
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+    assert web2py.db(web2py.db.shop_products).count() == 1
+
+    variant = web2py.db.shop_products_variants(1)
+    assert variant.Name == 'Default'
+    assert variant.DefaultVariant == True
+
+
 def test_product_edit(client, web2py):
     """
         Can we edit a product?
