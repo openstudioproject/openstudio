@@ -265,6 +265,7 @@ def product_onaccept(form):
         If not, add a default variant
     """
     from openstudio import ShopProduct
+    from openstudio import ShopProductsSet
     spID = form.vars.id
     spsID = form.vars.shop_products_sets_id
 
@@ -273,7 +274,9 @@ def product_onaccept(form):
         product = ShopProduct(spID)
         if not product.count_variants():
             product.add_default_variant()
-
+    else:
+        products_set = ShopProductsSet(spsID)
+        products_set.insert_variants(spID)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or

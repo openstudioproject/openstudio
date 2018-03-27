@@ -3872,7 +3872,10 @@ def define_shop_products_variants():
         Field('DefaultVariant', 'boolean',
               readable=False,
               writable=False,
-              label=T('Default variant for a product'))
+              label=T('Default variant for a product')),
+        Field('VariantCode',
+              readable=False,
+              writable=False)
     )
 
 

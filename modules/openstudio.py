@@ -10235,8 +10235,120 @@ class ShopBrands:
         return table
 
 
-class ShopProductsSets:
+class ShopProductsSet:
+    def __init__(self, spsID):
+        db = current.globalenv['db']
+        self.spsID = spsID
+        self.row = db.shop_products_sets(self.spsID)
 
+
+    def options(self):
+        """
+            :return: list of options for a products set
+        """
+        db = current.globalenv['db']
+
+        query = (db.shop_products_sets_options.shop_products_sets_id ==
+                 self.spsID)
+        return db(query).select(db.shop_products_sets_options.ALL,
+                                orderby=db.shop_products_sets_options.Name)
+
+
+    def get_option_names(self):
+        """
+            :return: dict mapping ids to option names
+        """
+        options = self.options()
+        names = {}
+        for option in options:
+            names[option.id] = option.Name
+
+        return names
+
+
+    def options_with_values(self):
+        """
+            :return: list of options with values for a products set
+        """
+        db = current.globalenv['db']
+
+        options = {}
+        for option in self.options():
+            query = (db.shop_products_sets_options_values.shop_products_sets_options_id ==
+                     option.id)
+            rows = db(query).select(db.shop_products_sets_options_values.ALL,
+                                    orderby=db.shop_products_sets_options_values.Name)
+            values = []
+            for row in rows:
+                values.append(int(row.id))
+
+            options[option.id] = {
+                'name': option.Name,
+                'values': values
+            }
+
+        return options
+
+
+    def get_value_names(self):
+        """
+             :return: dict[db.shop_products_sets_options_values.id] = name
+        """
+        db = current.globalenv['db']
+
+        option_ids = []
+        for option in self.options():
+            option_ids.append(option.id)
+
+        query = (db.shop_products_sets_options_values.shop_products_sets_options_id.belongs(option_ids))
+        rows = db(query).select(db.shop_products_sets_options_values.id,
+                                db.shop_products_sets_options_values.Name)
+        value_names = {}
+        for row in rows:
+            value_names[row.id] = row.Name
+
+        return value_names
+
+
+    def insert_variants(self, shop_products_id):
+        """
+            :param shop_products_id: db.shop_products.id
+            :return: None
+        """
+        from itertools import product, combinations, permutations
+
+        db = current.globalenv['db']
+        options = self.options_with_values()
+        value_names = self.get_value_names()
+
+        values = []
+        for key in options:
+            values.append(options[key]['values'])
+        variants = list(product(*values))
+
+        for i, variant in enumerate(variants):
+            variant_code = '-'.join(str(value) for value in variant)
+            variant_name = ''
+            for value in variant:
+                option_name = ''
+                value_name = value_names.get(value, '')
+                for key in options:
+                    if value in options[key]['values']:
+                        option_name = options[key]['name']
+                        if len(variant_name):
+                            variant_name += ', '
+                        variant_name += option_name + ': ' + value_name
+                        break
+
+            db.shop_products_variants.insert(
+                shop_products_id = shop_products_id,
+                Name = variant_name,
+                DefaultVariant = True if not i else False,
+                VariantCode = variant_code
+            )
+
+
+class ShopProductsSets:
     def list(self):
         """
             :return: List of shop products_sets (gluon.dal.rows)
@@ -10713,7 +10825,10 @@ class ShopProduct:
         """
             :param spID: db.shop_products.id
         """
+        db = current.globalenv['db']
+
         self.id = spID
+        self.row = db.shop_products(self.id)
 
 
     def count_variants(self):
@@ -10729,6 +10844,7 @@ class ShopProduct:
     def add_default_variant(self):
         """
             Create default variant for a product without a product set
+            :return: None
         """
         T = current.globalenv['T']
         db = current.globalenv['db']
@@ -10738,6 +10854,17 @@ class ShopProduct:
             Name = T('Default'),
             DefaultVariant = True
         )
+
+
+    def add_product_set_variants(self):
+        """
+        :param spsID:
+        :return: None
+        """
+        db = current.globalenv['db']
+
+
+
 
 
 class ShopProductsVariants:
@@ -10805,7 +10932,7 @@ class ShopProductsVariants:
                 default = os_gui.get_label('success', T('Default'))
 
             tr = TR(
-                TD(os_gui.max_string_length(row.Name, 30)),
+                TD(os_gui.max_string_length(row.Name, 50)),
                 TD(repr_row.Price),
                 TD(repr_row.ArticleCode),
                 TD(row.StockShop),
