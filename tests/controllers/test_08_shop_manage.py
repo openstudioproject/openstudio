@@ -94,6 +94,40 @@ def test_product_add_no_product_set_default_variant(client, web2py):
     assert variant.DefaultVariant == True
 
 
+def test_product_add_with_product_set_variants(client, web2py):
+    """
+        Add all variants when adding a product with a product set
+    """
+    from populate_os_tables import populate_shop_products_sets
+    populate_shop_products_sets(web2py,
+                                options=True,
+                                values=True)
+
+    url = '/shop_manage/product_add'
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        'Name': 'Grapefruit',
+        'Description': 'Also great as juice',
+        'Visibility': 'in_stock',
+        'shop_products_sets_id': 1,
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+    assert web2py.db(web2py.db.shop_products).count() == 1
+
+    # Make sure the first variant is the default, by default
+    variant = web2py.db.shop_products_variants(1)
+    assert variant.DefaultVariant == True
+
+    # All variants created?
+    assert web2py.db(
+        web2py.db.shop_products_variants
+    ).count() == 2
+
+
 def test_product_edit(client, web2py):
     """
         Can we edit a product?
@@ -355,11 +389,15 @@ def test_shop_products_sets_options_value_delete(client, web2py):
                                 options=True,
                                 values=True)
 
+    value_count = web2py.db(
+        web2py.db.shop_products_sets_options_values
+    ).count()
+
     url = '/shop_manage/shop_products_sets_options_value_delete?spsovID=1'
     client.get(url)
     assert client.status == 200
 
-    assert web2py.db(web2py.db.shop_products_sets_options_values).count() == 0
+    assert web2py.db(web2py.db.shop_products_sets_options_values).count() == value_count - 1
 
 
 def test_brands(client, web2py):

@@ -1600,6 +1600,10 @@ def populate_shop_products_sets(web2py,
                 shop_products_sets_options_id = spsoID,
                 Name = 'Red'
             )
+            web2py.db.shop_products_sets_options_values.insert(
+                shop_products_sets_options_id = spsoID,
+                Name = 'Blue'
+            )
 
     web2py.db.commit()
 

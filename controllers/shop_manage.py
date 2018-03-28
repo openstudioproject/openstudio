@@ -119,12 +119,12 @@ def catalog_get_menu(page):
         pages.append(['products',
                        T('Products'),
                       URL('shop_manage', 'products')])
-    # Stock
-    if auth.has_membership(group_id='Admins') or \
-       auth.has_permission('read', 'shop_stock'):
-        pages.append(['Stock',
-                       T('Stock'),
-                      URL('shop_manage', 'stock')])
+    # # Stock
+    # if auth.has_membership(group_id='Admins') or \
+    #    auth.has_permission('read', 'shop_stock'):
+    #     pages.append(['Stock',
+    #                    T('Stock'),
+    #                   URL('shop_manage', 'stock')])
     # Categories
     if auth.has_membership(group_id='Admins') or \
        auth.has_permission('read', 'shop_categories'):
