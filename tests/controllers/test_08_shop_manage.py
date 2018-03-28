@@ -162,7 +162,7 @@ def test_product_variants(client, web2py):
     from populate_os_tables import populate_shop_products_variants
     populate_shop_products_variants(web2py,
                                     populate_products=True)
-    assert web2py.db(web2py.db.shop_products_variants).count() == 1
+    assert web2py.db(web2py.db.shop_products_variants).count() == 2
 
     url = '/shop_manage/product_variants?spID=1'
     client.get(url)
@@ -170,6 +170,43 @@ def test_product_variants(client, web2py):
 
     variant = web2py.db.shop_products_variants(1)
     assert variant.Name in client.text
+
+
+def test_product_variants_delete_msg_with_products_set(client, web2py):
+    """
+        Is the delete message saying "disable" for products with a set?
+    """
+    from populate_os_tables import populate_shop_products_sets
+    from populate_os_tables import populate_shop_products_variants
+    populate_shop_products_sets(web2py)
+    populate_shop_products_variants(web2py)
+
+    product = web2py.db.shop_products(1)
+    product.shop_products_sets_id = 1
+    product.update_record()
+    web2py.db.commit()
+
+    url = '/shop_manage/product_variants?spID=1'
+    client.get(url)
+    assert client.status == 200
+
+    print client.text
+
+    assert "Do you really want to disable this variant" in client.text
+
+
+def test_product_variants_delete_msg_no_products_set(client, web2py):
+    """
+        Is the delete message saying "disable" for products without a set?
+    """
+    from populate_os_tables import populate_shop_products_variants
+    populate_shop_products_variants(web2py)
+
+    url = '/shop_manage/product_variants?spID=1'
+    client.get(url)
+    assert client.status == 200
+
+    assert "Do you really want to delete this variant" in client.text
 
 
 def test_product_variant_add(client, web2py):

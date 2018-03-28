@@ -1571,6 +1571,14 @@ def populate_shop_products_variants(web2py,
         DefaultVariant = True,
     )
 
+    web2py.db.shop_products_variants.insert(
+        shop_products_id = 1,
+        Name = 'Latte',
+        Price = '12',
+        tax_rates_id = 1,
+        DefaultVariant = False,
+    )
+
     web2py.db.commit()
     
 
