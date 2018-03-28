@@ -412,6 +412,23 @@ def product_variant_edit():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'shop_products_variants'))
+def product_variant_set_default():
+    """
+        Set product variant as default
+    """
+    from openstudio import ShopProductsVariant
+
+    spID = request.vars['spID']
+    spvID = request.vars['spvID']
+
+    variant = ShopProductsVariant(spvID)
+    variant.set_default()
+
+    redirect(product_variants_get_return_url(spID))
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'shop_products_sets'))
 def products_sets():
     """

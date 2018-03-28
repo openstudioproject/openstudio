@@ -209,9 +209,26 @@ def test_product_variants_delete_msg_no_products_set(client, web2py):
     assert "Do you really want to delete this variant" in client.text
 
 
+def test_product_variant_set_default(client, web2py):
+    """
+        Can we set a variant is default?
+    """
+    from populate_os_tables import populate_shop_products_variants
+    populate_shop_products_variants(web2py)
+
+    url = '/shop_manage/product_variant_set_default?spID=1&spvID=2'
+    client.get(url)
+    assert client.status == 200
+
+    variant_1 = web2py.db.shop_products_variants(1)
+    variant_2 = web2py.db.shop_products_variants(2)
+    assert variant_1.DefaultVariant == False
+    assert variant_2.DefaultVariant == True
+
+
 def test_product_variant_add(client, web2py):
     """
-        Can we add a product variant
+        Can we add a product variant?
     """
     from populate_os_tables import populate_shop_products, populate_tax_rates
     populate_shop_products(web2py)

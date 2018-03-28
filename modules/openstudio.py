@@ -8847,6 +8847,7 @@ class OsGui:
                    _id='',
                    _style='',
                    _target='',
+                   _disabled=False,
                    onclick=None,
                    cid=None,
                    btn_size='btn-sm',
@@ -8975,6 +8976,11 @@ class OsGui:
                        _style=_style,
                        _target=_target,
                        cid=cid)
+
+        if _disabled:
+            button['_disabled'] = 'disabled'
+            button['_href'] = '#'
+            button['_onclick'] = ''
 
         return button
 
@@ -10871,6 +10877,28 @@ class ShopProduct:
         return True if self.row.shop_products_sets_id else False
 
 
+class ShopProductsVariant:
+    def __init__(self, shop_products_variants_id):
+        db = current.globalenv['db']
+
+        self.id = shop_products_variants_id
+        self.row = db.shop_products_variants(self.id)
+
+
+    def set_default(self):
+        """
+            Set this product variant as default for a product
+        """
+        db = current.globalenv['db']
+
+        query = (db.shop_products_variants.shop_products_id ==
+                 self.row.shop_products_id)
+        db(query).update(DefaultVariant=False)
+
+        self.row.DefaultVariant = True
+        self.row.update_record()
+
+
 class ShopProductsVariants:
     def __init__(self, shop_products_id):
         self.shop_products_id = shop_products_id
@@ -10912,7 +10940,7 @@ class ShopProductsVariants:
         permission_delete = (auth.has_membership(group_id='Admins') or
                              auth.has_permission('delete', 'shop_products_variants'))
 
-        onclick_delete = self.list_formatted_get_onclick_delete()
+        onclick_delete = self._list_formatted_get_onclick_delete()
 
         rows = self.list()
         for i, row in enumerate(rows):
@@ -10921,15 +10949,24 @@ class ShopProductsVariants:
             buttons = DIV(_class='pull-right')
             vars = {'spvID':row.id, 'spID':self.shop_products_id}
 
-            if permission_edit:
-                edit = os_gui.get_button('edit',
-                    URL('shop_manage', 'product_variant_edit', vars=vars))
-                buttons.append(edit)
-            if permission_delete and not row.DefaultVariant:
+            if permission_delete:
+                disabled = False if not row.DefaultVariant else True
                 delete = os_gui.get_button('delete_notext',
-                    URL('shop_manage', 'product_variant_delete', vars=vars),
-                    onclick=onclick_delete)
+                                           URL('shop_manage', 'product_variant_delete',
+                                               vars=vars),
+                                           onclick=onclick_delete,
+                                           _class='pull-right',
+                                           _disabled=disabled)
                 buttons.append(delete)
+
+            if permission_edit:
+                edit = self._list_formatted_get_link_edit(
+                    T,
+                    os_gui,
+                    row,
+                    vars
+                )
+                buttons.append(edit)
 
             default = ''
             if row.DefaultVariant:
@@ -10951,7 +10988,36 @@ class ShopProductsVariants:
         return table
 
 
-    def list_formatted_get_onclick_delete(self):
+    def _list_formatted_get_link_edit(self, T, os_gui, row, vars):
+        """
+            Return edit drop down
+        """
+        edit = A(os_gui.get_fa_icon('fa-pencil'),
+                 T('Edit'),
+                 _href=URL('shop_manage', 'product_variant_edit',
+                           vars=vars))
+        set_default = ''
+        if not row.DefaultVariant:
+            set_default = A(os_gui.get_fa_icon('fa-check-circle'),
+                            T('Set default'),
+                            _href=URL('shop_manage', 'product_variant_set_default',
+                                      vars=vars))
+        links = [
+            edit,
+            set_default
+        ]
+
+        dd = os_gui.get_dropdown_menu(
+            links=links,
+            btn_text=T('Actions'),
+            btn_size='btn-sm',
+            btn_icon='actions',
+            menu_class='btn-group pull-right')
+
+        return dd
+
+
+    def _list_formatted_get_onclick_delete(self):
         """
             :return: onclick delete for
         """
