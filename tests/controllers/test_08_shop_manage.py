@@ -171,6 +171,9 @@ def test_product_variants(client, web2py):
     variant = web2py.db.shop_products_variants(1)
     assert variant.Name in client.text
 
+    # Check disabling the button for the default variant
+    assert 'disabled="disabled" href="#" id="" onclick=""' in client.text
+
 
 def test_product_variants_delete_msg_with_products_set(client, web2py):
     """
@@ -189,8 +192,6 @@ def test_product_variants_delete_msg_with_products_set(client, web2py):
     url = '/shop_manage/product_variants?spID=1'
     client.get(url)
     assert client.status == 200
-
-    print client.text
 
     assert "Do you really want to disable this variant" in client.text
 
@@ -259,8 +260,7 @@ def test_product_variant_edit(client, web2py):
     from populate_os_tables import populate_shop_products_variants
     populate_shop_products_variants(web2py,
                                     populate_products=True)
-    assert web2py.db(web2py.db.shop_products_variants).count() == 1
-
+    assert web2py.db(web2py.db.shop_products_variants).count() == 2
 
     url = '/shop_manage/product_variant_edit?spID=1&spvID=1'
     client.get(url)
