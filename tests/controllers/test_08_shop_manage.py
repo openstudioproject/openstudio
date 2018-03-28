@@ -279,6 +279,27 @@ def test_product_variant_edit(client, web2py):
     assert variant.Name == data['Name']
 
 
+def test_product_variant_edit_with_products_set_name_read_only(client, web2py):
+    """
+        Is the name of a variant read only when it comes from a products set?
+    """
+    from populate_os_tables import populate_shop_products_sets
+    from populate_os_tables import populate_shop_products_variants
+    populate_shop_products_sets(web2py)
+    populate_shop_products_variants(web2py)
+
+    product = web2py.db.shop_products(1)
+    product.shop_products_sets_id = 1
+    product.update_record()
+    web2py.db.commit()
+
+    url = '/shop_manage/product_variant_edit?spID=1&spvID=1'
+    client.get(url)
+    assert client.status == 200
+
+    assert 'form="MainForm" id="shop_products_variants_Name"' not in client.text
+
+
 def test_products_sets(client, web2py):
     """
         Is the products_sets page listing products_sets?

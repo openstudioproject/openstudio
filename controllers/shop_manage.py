@@ -379,8 +379,10 @@ def product_variant_edit():
         Edit a product variant
     """
     from openstudio import OsForms
+    from openstudio import ShopProduct
 
     spID = request.vars['spID']
+    spvID = request.vars['spvID']
 
     response.title = T('Shop')
     response.subtitle = T('Catalog')
@@ -388,11 +390,15 @@ def product_variant_edit():
 
     return_url = product_variants_get_return_url(spID)
 
+    product = ShopProduct(spID)
+    if product.has_products_set():
+        db.shop_products_variants.Name.writable = False
+
     os_forms = OsForms()
     result = os_forms.get_crud_form_update(
         db.shop_products_variants,
         return_url,
-        request.vars['spvID'],
+        spvID,
     )
 
     form = result['form']
