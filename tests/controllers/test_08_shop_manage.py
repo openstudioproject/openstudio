@@ -316,7 +316,6 @@ def test_product_variant_edit_with_products_set_name_read_only(client, web2py):
     url = '/shop_manage/product_variant_edit?spID=1&spvID=1'
     client.get(url)
     assert client.status == 200
-
     assert 'form="MainForm" id="shop_products_variants_Name"' not in client.text
 
 
@@ -468,6 +467,22 @@ def test_products_set_options(client, web2py):
 
     assert option.Name in client.text
     assert value.Name in client.text
+
+
+def test_products_set_options_remove_add_and_del_when_linked_to_product(client, web2py):
+    """
+        We shouldn't be able to add options when the set is linked to one
+        or more products
+    """
+    from populate_os_tables import populate_shop_products_variants
+    populate_shop_products_variants(web2py, populate_products_sets=True)
+
+    url = '/shop_manage/products_set_options?spsID=1'
+    client.get(url)
+    assert client.status == 200
+
+    assert "Add option" not in client.text
+    assert 'shop_products_sets_options_delete' not in client.text
 
 
 def test_products_set_options_add(client, web2py):

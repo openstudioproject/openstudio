@@ -10440,6 +10440,18 @@ class ShopProductsSetsOptions:
         self.url_list = url_list
 
 
+    def has_linked_products(self):
+        """
+            :return: boolean
+        """
+        db = current.globalenv['db']
+
+        query = (db.shop_products.shop_products_sets_id ==
+                 self.products_sets_id)
+
+        return True if db(query).count() else False
+
+
     def list(self):
         """
             :return: List of shop products sets options
@@ -10462,13 +10474,19 @@ class ShopProductsSetsOptions:
         os_gui = current.globalenv['os_gui']
         auth = current.globalenv['auth']
 
+        linked_products = self.has_linked_products()
+
         header = THEAD(TR(TH(T('Option')),
                           TH(T('Values')),
                           TH()))
         table = TABLE(header, _class='table')
 
-        permission_delete = (auth.has_membership(group_id='Admins') or
-                             auth.has_permission('delete', 'shop_products_options'))
+        if linked_products:
+            permission_delete = False
+        else:
+            permission_delete = (auth.has_membership(group_id='Admins') or
+                                 auth.has_permission('delete', 'shop_products_options'))
+
         onclick_delete = "return confirm('" \
             + T('Do you really want to delete this option?') + "');"
 
@@ -10496,7 +10514,8 @@ class ShopProductsSetsOptions:
 
             table.append(tr)
 
-        table.append(TR(TD(self._list_formatted_get_form_add())))
+        if not linked_products:
+            table.append(TR(TD(self._list_formatted_get_form_add())))
 
         return table
 
