@@ -530,7 +530,32 @@ def test_products_set_options_value_add(client, web2py):
     assert data['Name'] in client.text
 
 
-def test_shop_products_sets_options_delete(client, web2py):
+def test_products_set_options_value_add_update_variants(client, web2py):
+    """
+        Can we add an option value?
+    """
+    from populate_os_tables import populate_shop_products_variants
+    populate_shop_products_variants(web2py,
+                                    populate_products_sets=True)
+
+    count_variants = web2py.db(web2py.db.shop_products_variants).count()
+
+    url = '/shop_manage/products_set_options?spsID=1'
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        'shop_products_sets_options_id': 1,
+        'Name': 'Banana Value',
+        '_formname': 'shop_products_sets_options_values/None'
+    }
+    client.post(url, data=data)
+    assert client.status == 200
+
+    assert web2py.db(web2py.db.shop_products_variants).count() > count_variants
+
+
+def test_products_sets_options_delete(client, web2py):
     """
         Can we delete an option?
     """
@@ -538,14 +563,14 @@ def test_shop_products_sets_options_delete(client, web2py):
     populate_shop_products_sets(web2py,
                                 options=True)
 
-    url = '/shop_manage/shop_products_sets_options_delete?spsoID=1'
+    url = '/shop_manage/products_sets_options_delete?spsoID=1'
     client.get(url)
     assert client.status == 200
 
     assert web2py.db(web2py.db.shop_products_sets_options).count() == 0
 
 
-def test_shop_products_sets_options_value_delete(client, web2py):
+def test_products_sets_options_value_delete(client, web2py):
     """
         Can we delete an option value?
     """
@@ -558,7 +583,7 @@ def test_shop_products_sets_options_value_delete(client, web2py):
         web2py.db.shop_products_sets_options_values
     ).count()
 
-    url = '/shop_manage/shop_products_sets_options_value_delete?spsovID=1'
+    url = '/shop_manage/products_sets_options_value_delete?spsovID=1'
     client.get(url)
     assert client.status == 200
 

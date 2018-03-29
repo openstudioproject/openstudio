@@ -1564,7 +1564,9 @@ def populate_shop_products_variants(web2py,
     populate_tax_rates(web2py)
 
     if populate_products_sets:
-        populate_shop_products_sets(web2py)
+        populate_shop_products_sets(web2py,
+                                    options=True,
+                                    values=True)
         product = web2py.db.shop_products(1)
         product.shop_products_sets_id = 1
         product.update_record()
