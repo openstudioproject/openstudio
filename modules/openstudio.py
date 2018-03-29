@@ -10943,6 +10943,8 @@ class ShopProductsVariants:
         os_gui = current.globalenv['os_gui']
         auth = current.globalenv['auth']
 
+        product = ShopProduct(self.shop_products_id)
+
         header = THEAD(TR(TH(T('Name')),
                           TH(T('Price')),
                           TH(T('Article Code')),
@@ -10991,7 +10993,10 @@ class ShopProductsVariants:
             else:
                 table_disabled.append(tr)
 
-        return DIV(table, H4(T('Disabled')), table_disabled)
+        if product.has_products_set():
+            return DIV(table, H4(T('Disabled')), table_disabled)
+        else:
+            return table
 
 
     def _list_formatted_get_label_default(self, T, os_gui, row):

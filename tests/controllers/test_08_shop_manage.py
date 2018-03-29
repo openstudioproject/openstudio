@@ -320,9 +320,27 @@ def test_product_variant_edit_with_products_set_name_read_only(client, web2py):
     assert 'form="MainForm" id="shop_products_variants_Name"' not in client.text
 
 
+def test_product_variant_delete(client, web2py):
+    """
+        Can we delete a variant?
+        This function will delete when a variant is not linked to a product set
+    """
+    from populate_os_tables import populate_shop_products_variants
+    populate_shop_products_variants(web2py)
+
+    count_variants = web2py.db(web2py.db.shop_products_variants).count()
+
+    url = '/shop_manage/product_variant_delete?spID=1&spvID=1'
+    client.get(url)
+    assert client.status == 200
+
+    assert web2py.db(web2py.db.shop_products_variants).count() == count_variants - 1
+
+
 def test_product_variant_disable(client, web2py):
     """
         Can we disable a variant
+        This function will disable when a variant is linked to a product set
     """
     from populate_os_tables import populate_shop_products_variants
     populate_shop_products_variants(web2py,
