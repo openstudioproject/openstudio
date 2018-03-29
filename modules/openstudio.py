@@ -10846,7 +10846,8 @@ class ShopProducts:
         os_gui = current.globalenv['os_gui']
         auth = current.globalenv['auth']
 
-        header = THEAD(TR(TH(T('Name')),
+        header = THEAD(TR(TH(),
+                          TH(T('Name')),
                           TH(T('Description')),
                           TH()))
         table = TABLE(header, _class='table table-striped table-hover')
@@ -10862,7 +10863,8 @@ class ShopProducts:
             + T('Do you really want to delete this product?') + "');"
 
         rows = self.list()
-        for row in rows:
+        for i, row in enumerate(rows):
+            repr_row = list(rows[i:i + 1].render())[0]
             buttons = DIV(_class='pull-right')
             vars = {'spID':row.id}
 
@@ -10882,6 +10884,7 @@ class ShopProducts:
                 buttons.append(delete)
 
             tr = TR(
+                TD(repr_row.thumbsmall),
                 TD(os_gui.max_string_length(row.Name, 30)),
                 TD(os_gui.max_string_length(row.Description, 30)),
                 TD(buttons)
@@ -11010,7 +11013,8 @@ class ShopProductsVariants:
 
         product = ShopProduct(self.shop_products_id)
 
-        header = THEAD(TR(TH(T('Name')),
+        header = THEAD(TR(TH(),
+                          TH(T('Name')),
                           TH(T('Price')),
                           TH(T('Article Code')),
                           TH(T('Keep stock')),
@@ -11043,6 +11047,7 @@ class ShopProductsVariants:
             )
 
             tr = TR(
+                TD(repr_row.thumbsmall),
                 TD(os_gui.max_string_length(row.Name, 50)),
                 TD(repr_row.Price),
                 TD(repr_row.ArticleCode),

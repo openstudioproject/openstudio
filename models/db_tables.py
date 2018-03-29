@@ -170,6 +170,79 @@ def represent_workshops_thumbsmall(value, row):
                         _class='workshop_image')
 
 
+def represent_shop_products_thumbsmall(value, row):
+    if 'Name' in row:
+        name = row.Name
+        thumb = row.thumbsmall
+        spID = row.id
+
+    elif 'Name' in row.shop_products:
+        name = row.shop_products.Name
+        thumb = row.shop_products.thumbsmall
+        spID = row.shop_products.id
+
+    vars = {'spID':spID}
+
+    alt = 'Image'
+    url = URL('shop_manage', 'product_edit', vars=vars, extension='')
+    edit_permission  = (auth.has_membership(group_id='Admins') or
+                   auth.has_permission('update', 'shop_products'))
+    if edit_permission:
+        if thumb is None:
+            return DIV(A(I(_class='fa fa-photo big_font'),
+                         _href=url),
+                       _class='shop_product_image')
+        else:
+            return DIV(A(IMG(_src=URL('default', 'download', args=value),
+                             _alt=alt),
+                         _href=url),
+                        _class='shop_product_image')
+    else:
+        if thumb is None:
+            return DIV(I(_class='fa fa-2x fa-photo'),_class='shop_product_image')
+        else:
+            return DIV(IMG(_src=URL('default', 'download', args=value),
+                           _alt=alt),
+                        _class='shop_product_image')
+
+
+def represent_shop_products_variants_thumbsmall(value, row):
+    if 'Name' in row:
+        name = row.Name
+        thumb = row.thumbsmall
+        spvID = row.id
+        spID = row.shop_products_id
+    elif 'Name' in row.shop_products_variants:
+        name = row.shop_products_variants.Name
+        thumb = row.shop_products_variants.thumbsmall
+        spvID = row.shop_products_variants.id
+        spID = row.shop_products_variants.shop_products_id
+
+    vars = {'spvID':spvID, 'spID':spID}
+
+    alt = 'Image'
+    url = URL('shop_manage', 'product_variant_edit', vars=vars, extension='')
+    edit_permission  = (auth.has_membership(group_id='Admins') or
+                   auth.has_permission('update', 'shop_products_variants'))
+    if edit_permission:
+        if thumb is None:
+            return DIV(A(I(_class='fa fa-photo big_font'),
+                         _href=url),
+                       _class='shop_product_image')
+        else:
+            return DIV(A(IMG(_src=URL('default', 'download', args=value),
+                             _alt=alt),
+                         _href=url),
+                        _class='shop_product_image')
+    else:
+        if thumb is None:
+            return DIV(I(_class='fa fa-2x fa-photo'),_class='shop_product_image')
+        else:
+            return DIV(IMG(_src=URL('default', 'download', args=value),
+                           _alt=alt),
+                        _class='shop_product_image')
+
+
 def represent_classtype_thumbsmall(value, row):
     if 'Name' in row:
         name = row.Name
@@ -220,6 +293,58 @@ def represent_workshops_thumblarge(value, row):
                      _href=URL('shop', 'workshop', vars=vars,
                              extension='')),
                     _class='workshop_image_large')
+
+
+def represent_shop_products_thumblarge(value, row):
+    if 'Name' in row:
+        name = row.Name
+        thumb = row.thumblarge
+        spID = row.id
+
+    elif 'Name' in row.shop_products:
+        name = row.shop_products.Name
+        thumb = row.shop_products.thumblarge
+        spID = row.shop_products.id
+
+    vars = {'spID':spID}
+    alt = name
+    if thumb is None:
+        return DIV(A(I(_class='fa fa-photo big_font'),
+                     _href=URL('shop_manage', 'product_edit', vars=vars,
+                             extension='')),
+                   _class='shop_product_image_large')
+    else:
+        return DIV(A(IMG(_src=URL('default', 'download', args=value),
+                         _alt=alt),
+                     _href=URL('shop_manage', 'product_edit', vars=vars,
+                             extension='')),
+                    _class='shop_product_image_large')
+
+
+def represent_shop_products_variants_thumblarge(value, row):
+    if 'Name' in row:
+        name = row.Name
+        thumb = row.thumblarge
+        spvID = row.id
+
+    elif 'Name' in row.shop_products_variants:
+        name = row.shop_products_variants.Name
+        thumb = row.shop_products_variants.thumblarge
+        spvID = row.shop_products_variants.id
+
+    vars = {'spvID':spvID}
+    alt = name
+    if thumb is None:
+        return DIV(A(I(_class='fa fa-photo big_font'),
+                     _href=URL('shop_manage', 'product_variant_edit', vars=vars,
+                             extension='')),
+                   _class='shop_product_image_large')
+    else:
+        return DIV(A(IMG(_src=URL('default', 'download', args=value),
+                         _alt=alt),
+                     _href=URL('shop_manage', 'product_variant_edit', vars=vars,
+                             extension='')),
+                    _class='shop_product_image_large')
 
 
 def represent_payment_batch_status(value, row):
@@ -3814,6 +3939,24 @@ def define_shop_products():
     ]
 
     db.define_table('shop_products',
+        Field('picture', 'upload', autodelete=True,
+              requires=IS_EMPTY_OR([IS_IMAGE(extensions=('jpeg', 'jpg', 'png')),
+                                    IS_LENGTH(maxsize=665600,
+                                              error_message=T('650KB or less'))]),  # 650KB
+              label=T("Image (Max 650KB)")),
+        Field('thumbsmall', 'upload',  # generate 50*50 for list view
+              autodelete=True, writable=False,
+              compute=lambda row: SMARTHUMB(row.picture,
+                                            (50, 50),
+                                            name="Small"),
+              represent=represent_shop_products_thumbsmall,
+              label=T("Image")),
+        Field('thumblarge', 'upload',  # generate 400*400 for edit view
+              autodelete=True, writable=False,
+              compute=lambda row: SMARTHUMB(row.picture,
+                                            (400, 400),
+                                            name="Large"),
+              represent=represent_shop_products_thumblarge),
         Field('Name',
               requires=IS_NOT_EMPTY(),
               label=T("Name")),
@@ -3856,6 +3999,24 @@ def define_shop_products_variants():
               readable=False,
               writable=False,
               default=True),
+        Field('picture', 'upload', autodelete=True,
+              requires=IS_EMPTY_OR([IS_IMAGE(extensions=('jpeg', 'jpg', 'png')),
+                                    IS_LENGTH(maxsize=665600,
+                                              error_message=T('650KB or less'))]),  # 650KB
+              label=T("Image (Max 650KB)")),
+        Field('thumbsmall', 'upload',  # generate 50*50 for list view
+              autodelete=True, writable=False,
+              compute=lambda row: SMARTHUMB(row.picture,
+                                            (50, 50),
+                                            name="Small"),
+              represent=represent_shop_products_variants_thumbsmall,
+              label=T("Image")),
+        Field('thumblarge', 'upload',  # generate 400*400 for edit view
+              autodelete=True, writable=False,
+              compute=lambda row: SMARTHUMB(row.picture,
+                                            (400, 400),
+                                            name="Large"),
+              represent=represent_shop_products_variants_thumblarge),
         Field('Name',
               requires=IS_NOT_EMPTY()),
         Field('Price', 'double',
