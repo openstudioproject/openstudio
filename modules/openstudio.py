@@ -10316,10 +10316,38 @@ class ShopProductsSet:
         return value_names
 
 
-    def insert_variants(self, shop_products_id):
+    def get_linked_products(self):
         """
-            :param shop_products_id: db.shop_products.id
-            :return: None
+        :return: list containing ids of linked products
+        """
+        db = current.globalenv['db']
+
+        query = (db.shop_products.shop_products_sets_id == self.spsID)
+        rows = db(query).select(db.shop_products.id)
+        ids = []
+        for row in rows:
+            ids.append(row.id)
+
+        return ids
+
+
+    def insert_variants(self, enabled=True):
+        """
+        insert (missing) variants for all products linked to this set
+        :param enabled: boolean
+        :return: None
+        """
+        linked_products = self.get_linked_products()
+        for shop_products_id in linked_products:
+            self.insert_variants_for_product(shop_products_id,
+                                             enabled=enabled)
+
+
+    def insert_variants_for_product(self, shop_products_id, enabled=True):
+        """
+        :param shop_products_id: db.shop_products.id
+        :param enabled: boolean
+        :return: None
         """
         from itertools import product, combinations, permutations
 
@@ -10346,13 +10374,16 @@ class ShopProductsSet:
                         variant_name += option_name + ': ' + value_name
                         break
 
-            db.shop_products_variants.insert(
-                Enabled=True,
-                shop_products_id = shop_products_id,
-                Name = variant_name,
-                DefaultVariant = True if not i else False,
-                VariantCode = variant_code
-            )
+            query = (db.shop_products_variants.VariantCode == variant_code)
+            count = db(query).count()
+            if not count:
+                db.shop_products_variants.insert(
+                    Enabled=enabled,
+                    shop_products_id = shop_products_id,
+                    Name = variant_name,
+                    DefaultVariant = True if not i else False,
+                    VariantCode = variant_code
+                )
 
 
 class ShopProductsSets:
@@ -10639,7 +10670,8 @@ class ShopProductsSetsOptionsValues:
             db.shop_products_sets_options_values,
             self.url_list,
             submit_button=T("Add value"),
-            form_id=form_id
+            form_id=form_id,
+            onaccept=[self._product_set_options_update_variants]
         )
 
         form = result['form']
@@ -10651,6 +10683,20 @@ class ShopProductsSetsOptionsValues:
         form.insert(0, field_id)
 
         return DIV(form, result['submit'])
+
+
+    def _product_set_options_update_variants(self, form):
+        """
+        :param form:
+        :return:
+        """
+        db = current.globalenv['db']
+
+        spsovID = form.vars.id
+        option = db.shop_products_sets_options(self.options_id)
+        spsID = option.shop_products_sets_id
+        product_set = ShopProductsSet(spsID)
+        product_set.insert_variants(enabled=False)
 
 
 class ShopCategories:

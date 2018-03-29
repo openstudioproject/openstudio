@@ -276,7 +276,7 @@ def product_onaccept(form):
             product.add_default_variant()
     else:
         products_set = ShopProductsSet(spsID)
-        products_set.insert_variants(spID)
+        products_set.insert_variants_for_product(spID)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
@@ -654,7 +654,7 @@ def products_set_options():
 
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('delete', 'shop_products_sets_options'))
-def shop_products_sets_options_delete():
+def products_sets_options_delete():
     """
         Delete products sets options value
     """
@@ -672,7 +672,7 @@ def shop_products_sets_options_delete():
 
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('delete', 'shop_products_sets_options_values'))
-def shop_products_sets_options_value_delete():
+def products_sets_options_value_delete():
     """
         Delete products sets options value
     """
