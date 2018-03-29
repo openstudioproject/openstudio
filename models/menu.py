@@ -513,7 +513,7 @@ def get_backend_menu():
                                 URL('orders', 'index', extension='')))
             # Catalog
             if user_helpers.check_read_permission('shop_products', user_id):
-                submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Catalog'))),
+                submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Catalog [BETA]'))),
                                 False,
                                 URL('shop_manage', 'products', extension='')))
 
