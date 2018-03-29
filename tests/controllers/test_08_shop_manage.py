@@ -175,7 +175,7 @@ def test_product_variants(client, web2py):
     assert 'disabled="disabled" href="#" id="" onclick=""' in client.text
 
 
-def test_product_variants_delete_msg_with_products_set(client, web2py):
+def test_product_variants_with_products_set(client, web2py):
     """
         Is the delete message saying "disable" for products with a set?
     """
@@ -194,9 +194,10 @@ def test_product_variants_delete_msg_with_products_set(client, web2py):
     assert client.status == 200
 
     assert "Do you really want to disable this variant" in client.text
+    assert '<a class="btn btn-default btn-sm" href="/shop_manage/product_variant_add?spID=2" id="" style="" target="" title=""><span class="fa fa-plus"></span> Add</a>' not in client.text
 
 
-def test_product_variants_delete_msg_no_products_set(client, web2py):
+def test_product_variants_no_products_set(client, web2py):
     """
         Is the delete message saying "disable" for products without a set?
     """
@@ -208,6 +209,7 @@ def test_product_variants_delete_msg_no_products_set(client, web2py):
     assert client.status == 200
 
     assert "Do you really want to delete this variant" in client.text
+    assert "Add" in client.text
 
 
 def test_product_variant_set_default(client, web2py):
@@ -251,6 +253,30 @@ def test_product_variant_add(client, web2py):
 
     variant = web2py.db.shop_products_variants(1)
     assert variant.Name == data['Name']
+
+
+def test_product_variant_add_with_products_set(client, web2py):
+    """
+        We shouldn't be allowed to add a variant to a product with a set
+    """
+    from populate_os_tables import populate_shop_products
+    from populate_os_tables import populate_tax_rates
+    from populate_os_tables import populate_shop_products_sets
+    populate_shop_products_sets(web2py)
+    populate_shop_products(web2py)
+    populate_tax_rates(web2py)
+
+    product = web2py.db.shop_products(1)
+    product.shop_products_sets_id = 1
+    product.update_record()
+    web2py.db.commit()
+    assert web2py.db(web2py.db.shop_products).count() == 1
+
+    url = '/shop_manage/product_variant_add?spID=1'
+    client.get(url)
+    assert client.status == 200
+
+    assert "Unable to add" in client.text
 
 
 def test_product_variant_edit(client, web2py):

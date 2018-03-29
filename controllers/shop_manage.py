@@ -300,8 +300,9 @@ def product_variants():
     """
         List Product variants for a product
     """
+    from openstudio import ShopProduct
     spID = request.vars['spID']
-    product = db.shop_products(spID)
+    product = ShopProduct(spID)
 
     from openstudio import ShopProductsVariants
 
@@ -311,13 +312,16 @@ def product_variants():
 
     variants = ShopProductsVariants(spID)
     content = DIV(
-        H4(T('Variants for'), ' ', product.Name),
+        H4(T('Variants for'), ' ', product.row.Name),
         variants.list_formatted()
     )
 
-    add = os_gui.get_button('add',
-                            URL('shop_manage', 'product_variant_add',
-                                vars={'spID':spID}))
+    add = ''
+    if not product.has_products_set():
+        add = os_gui.get_button('add',
+                                URL('shop_manage', 'product_variant_add',
+                                    vars={'spID':spID}))
+
     back = os_gui.get_button('back', shop_products_get_return_url())
     menu = catalog_get_menu('products')
 
@@ -343,6 +347,7 @@ def product_variant_add():
     from openstudio import OsForms
 
     spID = request.vars['spID']
+    product_variant_add_check_products_set(spID)
 
     response.title = T('Shop')
     response.subtitle = T('Catalog')
@@ -371,6 +376,19 @@ def product_variant_add():
                 save=result['submit'],
                 back=back,
                 menu=menu)
+
+
+def product_variant_add_check_products_set(spID):
+    """
+    Check if a product has a set, if so, don't allow adding variants.
+    :param spID: db.shop_products.id
+    :return: None
+    """
+    from openstudio import ShopProduct
+    product = ShopProduct(spID)
+    if product.has_products_set():
+        session.flash = T("Unable to add variants for a product with a set")
+        redirect(product_variants_get_return_url(spID))
 
 
 @auth.requires_login()
