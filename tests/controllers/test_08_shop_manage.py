@@ -553,6 +553,8 @@ def test_products_set_options_value_add_update_variants(client, web2py):
     assert client.status == 200
 
     assert web2py.db(web2py.db.shop_products_variants).count() > count_variants
+    query = (web2py.db.shop_products_variants.Enabled == False)
+    assert web2py.db(query).count() > 0
 
 
 def test_products_sets_options_delete(client, web2py):
