@@ -1554,14 +1554,20 @@ def populate_shop_products(web2py):
 
 
 def populate_shop_products_variants(web2py,
-                                    populate_products=True):
+                                    populate_products=True,
+                                    populate_products_sets=False):
     """
         Populate shop_products_variants
     """
     if populate_products:
         populate_shop_products(web2py)
-
     populate_tax_rates(web2py)
+
+    if populate_products_sets:
+        populate_shop_products_sets(web2py)
+        product = web2py.db.shop_products(1)
+        product.shop_products_sets_id = 1
+        product.update_record()
 
     web2py.db.shop_products_variants.insert(
         shop_products_id = 1,

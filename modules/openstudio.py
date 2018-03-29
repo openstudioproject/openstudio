@@ -10347,6 +10347,7 @@ class ShopProductsSet:
                         break
 
             db.shop_products_variants.insert(
+                Enabled=True,
                 shop_products_id = shop_products_id,
                 Name = variant_name,
                 DefaultVariant = True if not i else False,
@@ -10856,6 +10857,7 @@ class ShopProduct:
         db = current.globalenv['db']
 
         db.shop_products_variants.insert(
+            Enabled=True,
             shop_products_id = self.id,
             Name = T('Default'),
             DefaultVariant = True
@@ -10899,6 +10901,22 @@ class ShopProductsVariant:
         self.row.update_record()
 
 
+    def disable(self):
+        """
+            Disable variant
+        """
+        self.row.Enabled = False
+        self.row.update_record()
+
+
+    def enable(self):
+        """
+            Enable variant
+        """
+        self.row.Enabled = True
+        self.row.update_record()
+
+
 class ShopProductsVariants:
     def __init__(self, shop_products_id):
         self.shop_products_id = shop_products_id
@@ -10934,6 +10952,7 @@ class ShopProductsVariants:
                           TD(),
                           TH()))
         table = TABLE(header, _class='table table-striped table-hover')
+        table_disabled = TABLE(header, _class='table table-striped table-hover')
 
         permission_edit = (auth.has_membership(group_id='Admins') or
                            auth.has_permission('update', 'shop_products_variants'))
@@ -10946,31 +10965,15 @@ class ShopProductsVariants:
         for i, row in enumerate(rows):
             repr_row = list(rows[i:i + 1].render())[0]
 
-            buttons = DIV(_class='pull-right')
-            vars = {'spvID':row.id, 'spID':self.shop_products_id}
-
-            if permission_delete:
-                disabled = False if not row.DefaultVariant else True
-                delete = os_gui.get_button('delete_notext',
-                                           URL('shop_manage', 'product_variant_delete',
-                                               vars=vars),
-                                           onclick=onclick_delete,
-                                           _class='pull-right',
-                                           _disabled=disabled)
-                buttons.append(delete)
-
-            if permission_edit:
-                edit = self._list_formatted_get_link_edit(
-                    T,
-                    os_gui,
-                    row,
-                    vars
-                )
-                buttons.append(edit)
-
-            default = ''
-            if row.DefaultVariant:
-                default = os_gui.get_label('success', T('Default'))
+            default = self._list_formatted_get_label_default(T, os_gui, row)
+            buttons = self._list_formatted_get_buttons(
+                permission_edit,
+                permission_delete,
+                onclick_delete,
+                T,
+                os_gui,
+                row
+            )
 
             tr = TR(
                 TD(os_gui.max_string_length(row.Name, 50)),
@@ -10983,12 +10986,66 @@ class ShopProductsVariants:
                 TD(buttons)
             )
 
-            table.append(tr)
+            if row.Enabled:
+                table.append(tr)
+            else:
+                table_disabled.append(tr)
 
-        return table
+        return DIV(table, H4(T('Disabled')), table_disabled)
 
 
-    def _list_formatted_get_link_edit(self, T, os_gui, row, vars):
+    def _list_formatted_get_label_default(self, T, os_gui, row):
+        """
+
+        """
+        default = ''
+        if row.DefaultVariant:
+            default = os_gui.get_label('success', T('Default'))
+
+        return default
+
+
+    def _list_formatted_get_buttons(self,
+                                    permission_edit,
+                                    permission_delete,
+                                    onclick_delete,
+                                    T,
+                                    os_gui,
+                                    row):
+        """
+            :return:
+        """
+        buttons = DIV(_class='pull-right')
+        vars = {'spvID': row.id, 'spID': self.shop_products_id}
+
+        if row.Enabled:
+            if permission_delete:
+                disabled = False if not row.DefaultVariant else True
+                delete = os_gui.get_button('delete_notext',
+                                           URL('shop_manage', 'product_variant_delete',
+                                               vars=vars),
+                                           onclick=onclick_delete,
+                                           _class='pull-right',
+                                           _disabled=disabled)
+                buttons.append(delete)
+
+            if permission_edit:
+                edit = self._list_formatted_get_buttons_edit(
+                    T,
+                    os_gui,
+                    row,
+                    vars
+                )
+                buttons.append(edit)
+        else:
+            buttons.append(A(T('Enable'),
+                             _href=URL('shop_manage',
+                                       'product_variant_enable',
+                                       vars=vars)))
+        return buttons
+
+
+    def _list_formatted_get_buttons_edit(self, T, os_gui, row, vars):
         """
             Return edit drop down
         """

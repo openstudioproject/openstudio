@@ -436,6 +436,32 @@ def product_variant_edit():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('delete', 'shop_products_variants'))
+def product_variant_delete():
+    """
+        Delete variant when not linked to a set
+        Disable variant when linked to a set
+    """
+    from openstudio import ShopProduct
+    from openstudio import ShopProductsVariant
+
+    spID = request.vars['spID']
+    spvID = request.vars['spvID']
+
+    product = ShopProduct(spID)
+    if product.has_products_set():
+        variant = ShopProductsVariant(spvID)
+        variant.disable()
+        session.flash = T('Disabled variant')
+    else:
+        query = (db.shop_products_variants.id == spvID)
+        db(query).delete()
+        session.flash = T('Deleted variant')
+
+    redirect(product_variants_get_return_url(spID))
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'shop_products_variants'))
 def product_variant_set_default():
     """
@@ -449,6 +475,24 @@ def product_variant_set_default():
     variant = ShopProductsVariant(spvID)
     variant.set_default()
 
+    redirect(product_variants_get_return_url(spID))
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('update', 'shop_products'))
+def product_variant_enable():
+    """
+         Enable a product variant
+    """
+    from openstudio import ShopProductsVariant
+
+    spID = request.vars['spID']
+    spvID = request.vars['spvID']
+
+    variant = ShopProductsVariant(spvID)
+    variant.enable()
+
+    session.flash = T('Enabled variant')
     redirect(product_variants_get_return_url(spID))
 
 
