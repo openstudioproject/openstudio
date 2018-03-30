@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-'''py.test test cases to test OpenStudio.
+"""py.test test cases to test OpenStudio.
 
 These tests run based on webclient and need web2py server running.
-'''
+"""
 from populate_os_tables import populate_tax_rates
 from populate_os_tables import populate_sys_organizations
 from populate_os_tables import populate_school_subscriptions
@@ -15,10 +15,10 @@ from populate_os_tables import populate_school_classcards_groups
 from gluon.contrib.populate import populate
 
 def test_school_subscriptions_index_and_current_price(client, web2py):
-    '''
+    """
         Is the index page showing?
         Is the current price showing?
-    '''
+    """
     web2py.db.school_subscriptions.insert(Name='banana class',
                                           NRofClasses='15')
 
@@ -40,9 +40,9 @@ def test_school_subscriptions_index_and_current_price(client, web2py):
 
 
 def test_school_subscriptions_show_organization(client, web2py):
-    '''
+    """
         Is the organization column showing when we have more than 1 organization
-    '''
+    """
     populate_sys_organizations(web2py, 3)
     populate_school_subscriptions(web2py)
 
@@ -54,9 +54,9 @@ def test_school_subscriptions_show_organization(client, web2py):
 
 
 def test_subscription_add(client, web2py):
-    '''
+    """
         Can we add a subscription?
-    '''
+    """
     url = '/school_properties/subscription_add'
     client.get(url)
     assert client.status == 200
@@ -71,8 +71,6 @@ def test_subscription_add(client, web2py):
     client.post(url, data=data)
     assert client.status == 200
 
-    print client.text
-
     assert 'Subscriptions' in client.text # verify redirection
     assert data['Name'] in client.text
 
@@ -80,9 +78,9 @@ def test_subscription_add(client, web2py):
 
 
 def test_subscription_edit(client, web2py):
-    '''
+    """
         Can we edit a subscription?
-    '''
+    """
     web2py.db.school_subscriptions.insert(Name='banana class',
                                           Classes='15',
                                           SubscriptionUnit='week')
@@ -107,9 +105,9 @@ def test_subscription_edit(client, web2py):
 
 
 def test_subscriptions_prices(client, web2py):
-    '''
+    """
         Is the index page showing for subcriptions_prices?
-    '''
+    """
     url = '/school_properties/subscriptions_prices'
     client.get(url)
     assert client.status == 200
@@ -117,9 +115,9 @@ def test_subscriptions_prices(client, web2py):
 
 
 def test_subscription_price_add(client, web2py):
-    '''
+    """
         Can we add a subscription price?
-    '''
+    """
     populate_tax_rates(web2py)
     web2py.db.school_subscriptions.insert(Name='banana class',
                                           NRofClasses='15')
@@ -144,9 +142,9 @@ def test_subscription_price_add(client, web2py):
 
 
 def test_subscription_price_edit(client, web2py):
-    '''
+    """
         Can we edit a subscription price?
-    '''
+    """
     populate_tax_rates(web2py)
     web2py.db.school_subscriptions.insert(Name='banana class',
                                           NRofClasses='15')
@@ -180,9 +178,9 @@ def test_subscription_price_edit(client, web2py):
 
 
 def test_subscriptions_groups(client, web2py):
-    '''
+    """
         Can we list subscription groups?
-    '''
+    """
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
@@ -207,9 +205,9 @@ def test_subscriptions_groups(client, web2py):
 
 
 def test_subscriptions_groups_add(client, web2py):
-    '''
+    """
         Can we add a subscriptions group?
-    '''
+    """
     url = '/school_properties/subscriptions_group_add'
     client.get(url)
     assert client.status == 200
@@ -228,9 +226,9 @@ def test_subscriptions_groups_add(client, web2py):
 
 
 def test_subscriptions_groups_edit(client, web2py):
-    '''
+    """
         Can we add a subscriptions group?
-    '''
+    """
     url = '/school_properties/subscriptions_groups'
     client.get(url)
     assert client.status == 200
@@ -257,9 +255,9 @@ def test_subscriptions_groups_edit(client, web2py):
 
 
 def test_subscriptions_groups_delete(client, web2py):
-    '''
+    """
         Can we delete a subscription group?
-    '''
+    """
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
@@ -275,9 +273,9 @@ def test_subscriptions_groups_delete(client, web2py):
 
 
 def test_subscriptions_groups_subscriptions(client, web2py):
-    '''
+    """
         Is the list of current subscriptions in a group showing correctly?
-    '''
+    """
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
@@ -295,9 +293,9 @@ def test_subscriptions_groups_subscriptions(client, web2py):
 
 
 def test_subscriptions_groups_subscriptions_add(client, web2py):
-    '''
+    """
         Can we add subscriptions to a subscriptions group?
-    '''
+    """
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
@@ -337,9 +335,9 @@ def test_subscriptions_groups_subscriptions_add(client, web2py):
 
 
 def test_school_classcards_index(client, web2py):
-    '''
+    """
         Is the index page showing?
-    '''
+    """
     url = '/school_properties/classcards'
     client.get(url)
     assert client.status == 200
@@ -347,9 +345,9 @@ def test_school_classcards_index(client, web2py):
 
 
 def test_school_classcards_show_organization(client, web2py):
-    '''
+    """
         Is the organization column showing when we have more than 1 organization
-    '''
+    """
     populate_sys_organizations(web2py, 3)
     populate_school_classcards(web2py, 5)
 
@@ -362,9 +360,9 @@ def test_school_classcards_show_organization(client, web2py):
 
 
 def test_classcard_add(client, web2py):
-    '''
+    """
         Can we add a class card?
-    '''
+    """
     populate_tax_rates(web2py)
 
     url = '/school_properties/classcard_add'
@@ -388,9 +386,9 @@ def test_classcard_add(client, web2py):
 
 
 def test_classcard_edit(client, web2py):
-    '''
+    """
         Can we edit a classcard?
-    '''
+    """
     populate_tax_rates(web2py)
 
     web2py.db.school_classcards.insert(Name='Gorilla card',
@@ -425,9 +423,9 @@ def test_classcard_edit(client, web2py):
     
     
 def test_classcardss_groups(client, web2py):
-    '''
+    """
         Can we list classcard groups?
-    '''
+    """
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
@@ -452,9 +450,9 @@ def test_classcardss_groups(client, web2py):
 
 
 def test_classcards_groups_add(client, web2py):
-    '''
+    """
         Can we add a classcards group?
-    '''
+    """
     url = '/school_properties/classcards_group_add'
     client.get(url)
     assert client.status == 200
@@ -473,9 +471,9 @@ def test_classcards_groups_add(client, web2py):
 
 
 def test_classcards_groups_edit(client, web2py):
-    '''
+    """
         Can we add a classcards group?
-    '''
+    """
     url = '/school_properties/classcards_groups'
     client.get(url)
     assert client.status == 200
@@ -502,9 +500,9 @@ def test_classcards_groups_edit(client, web2py):
 
 
 def test_classcards_groups_delete(client, web2py):
-    '''
+    """
         Can we delete a classcard group?
-    '''
+    """
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
@@ -520,9 +518,9 @@ def test_classcards_groups_delete(client, web2py):
 
 
 def test_classcards_groups_classcards(client, web2py):
-    '''
+    """
         Is the list of current classcards in a group showing correctly?
-    '''
+    """
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
@@ -540,9 +538,9 @@ def test_classcards_groups_classcards(client, web2py):
 
 
 def test_classcards_groups_classcards_add(client, web2py):
-    '''
+    """
         Can we add classcards to a classcards group?
-    '''
+    """
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
@@ -582,9 +580,9 @@ def test_classcards_groups_classcards_add(client, web2py):
 
 
 def test_school_levels_index(client, web2py):
-    '''
+    """
         Is the index page showing?
-    '''
+    """
     url = '/school_properties/levels'
     client.get(url)
     assert client.status == 200
@@ -592,9 +590,9 @@ def test_school_levels_index(client, web2py):
 
 
 def test_school_level_add(client, web2py):
-    '''
+    """
         Can we add a school_level?
-    '''
+    """
     url = '/school_properties/level_add'
     client.get(url)
     assert client.status == 200
@@ -610,9 +608,9 @@ def test_school_level_add(client, web2py):
 
 
 def test_school_level_edit(client, web2py):
-    '''
+    """
         Can we edit a school_level?
-    '''
+    """
     populate(web2py.db.school_levels, 1)
     assert web2py.db(web2py.db.school_levels).count() == 1
 
@@ -631,18 +629,18 @@ def test_school_level_edit(client, web2py):
     assert web2py.db(web2py.db.school_levels).count() > 0
 
 def test_discovery_index(client, web2py):
-    '''
+    """
         Is the index page showing?
-    '''
+    """
     url = '/school_properties/discovery'
     client.get(url)
     assert client.status == 200
     assert 'Discovery' in client.text
 
 def test_discovery_add(client, web2py):
-    '''
+    """
         Can we add a way of discovery?
-    '''
+    """
     url = '/school_properties/discovery_add'
     client.get(url)
     assert client.status == 200
@@ -657,9 +655,9 @@ def test_discovery_add(client, web2py):
     assert web2py.db(web2py.db.school_discovery).count() == 1
 
 def test_discovery_edit(client, web2py):
-    '''
+    """
         Can we edit a way of discovery?
-    '''
+    """
     populate(web2py.db.school_discovery, 1)
     assert web2py.db(web2py.db.school_discovery).count() == 1
 
@@ -678,18 +676,18 @@ def test_discovery_edit(client, web2py):
     assert web2py.db(web2py.db.school_discovery).count() > 0
 
 def test_classtypes_index(client, web2py):
-    '''
+    """
         Is the index page showing?
-    '''
+    """
     url = '/school_properties/classtypes'
     client.get(url)
     assert client.status == 200
     assert 'Class types' in client.text
 
 def test_classtype_add(client, web2py):
-    '''
+    """
         Can we add a classtype?
-    '''
+    """
     url = '/school_properties/classtype_add'
     client.get(url)
     assert client.status == 200
@@ -704,9 +702,9 @@ def test_classtype_add(client, web2py):
     assert web2py.db(web2py.db.school_classtypes).count() == 1
 
 def test_classtype_edit(client, web2py):
-    '''
+    """
         Can we edit a classtype?
-    '''
+    """
     populate(web2py.db.school_classtypes, 1)
     assert web2py.db(web2py.db.school_classtypes).count() == 1
 
@@ -725,18 +723,18 @@ def test_classtype_edit(client, web2py):
     assert web2py.db(web2py.db.school_classtypes).count() > 0
 
 def test_locations_index(client, web2py):
-    '''
+    """
         Is the index page showing?
-    '''
+    """
     url = '/school_properties/locations'
     client.get(url)
     assert client.status == 200
     assert 'Locations' in client.text
 
 def test_location_add(client, web2py):
-    '''
+    """
         Can we add a location?
-    '''
+    """
     url = '/school_properties/location_add'
     client.get(url)
     assert client.status == 200
@@ -751,9 +749,9 @@ def test_location_add(client, web2py):
     assert web2py.db(web2py.db.school_locations).count() == 1
 
 def test_location_edit(client, web2py):
-    '''
+    """
         Can we edit a location?
-    '''
+    """
     populate(web2py.db.school_locations, 1)
     assert web2py.db(web2py.db.school_locations).count() == 1
 
@@ -772,18 +770,18 @@ def test_location_edit(client, web2py):
     assert web2py.db(web2py.db.school_locations).count() > 0
 
 def test_language_index(client, web2py):
-    '''
+    """
         Is the index page showing?
-    '''
+    """
     url = '/school_properties/languages'
     client.get(url)
     assert client.status == 200
     assert 'Languages' in client.text
 
 def test_languages_add(client, web2py):
-    '''
+    """
         Can we add a language?
-    '''
+    """
     url = '/school_properties/language_add'
     client.get(url)
     assert client.status == 200
@@ -798,9 +796,9 @@ def test_languages_add(client, web2py):
     assert web2py.db(web2py.db.school_languages).count() == 1
 
 def test_language_edit(client, web2py):
-    '''
+    """
         Can we edit a language?
-    '''
+    """
     web2py.db.school_languages.insert(Name="Dutch")
     web2py.db.commit()
     assert web2py.db(web2py.db.school_languages).count() == 1
@@ -820,18 +818,18 @@ def test_language_edit(client, web2py):
     assert web2py.db(web2py.db.school_languages).count() > 0
 
 def test_shifts_index(client, web2py):
-    '''
+    """
         Is the index page showing?
-    '''
+    """
     url = '/school_properties/shifts'
     client.get(url)
     assert client.status == 200
     assert 'Shifts' in client.text
 
 def test_shifts_add(client, web2py):
-    '''
+    """
         Can we add a shift?
-    '''
+    """
     url = '/school_properties/shifts_add'
     client.get(url)
     assert client.status == 200
@@ -846,9 +844,9 @@ def test_shifts_add(client, web2py):
     assert web2py.db(web2py.db.school_shifts).count() == 1
 
 def test_shifts_edit(client, web2py):
-    '''
+    """
         Can we edit a language?
-    '''
+    """
     web2py.db.school_shifts.insert(Name="Deskwork")
     web2py.db.commit()
     assert web2py.db(web2py.db.school_shifts).count() == 1
