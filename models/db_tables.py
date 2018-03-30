@@ -3121,8 +3121,8 @@ def define_invoices_customers():
             readable=False,
             writable=False),
         Field('auth_customer_id', db.auth_user,
-            readable=False,
-            writable=False))
+              writable=False,
+              label=T('Customer')))
 
 
 def define_invoices_customers_subscriptions():
