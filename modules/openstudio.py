@@ -7583,7 +7583,7 @@ class InvoicesHelper:
         if not cuID and not csID:
             # list all invoices
             db.invoices.auth_customer_id.readable = True
-            fields.insert(2, db.invoices_customers.auth_customer_id)
+            fields.insert(2, db.invoices.CustomerListName)
 
         if cuID:
             query &= (db.invoices_customers.auth_customer_id == cuID)

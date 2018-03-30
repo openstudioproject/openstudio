@@ -285,7 +285,11 @@ def edit():
 
     modals = DIV()
 
-    cuID = db.invoices_customers(invoices_id = iID).auth_customer_id
+    try:
+        cuID = db.invoices_customers(invoices_id = iID).auth_customer_id
+    except AttributeError:
+        cuID = None
+
     csID = invoice.invoice.customers_subscriptions_id
 
     return_url = edit_get_back(cuID, csID)
