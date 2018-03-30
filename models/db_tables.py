@@ -3112,6 +3112,32 @@ def define_invoices_workshops_products_customers():
             writable=False))
 
 
+def define_invoices_customers():
+    """
+        Table to link customers to invoices
+    """
+    db.define_table('invoices_customers',
+        Field('invoices_id', db.invoices,
+            readable=False,
+            writable=False),
+        Field('auth_user_id', db.auth_user,
+            readable=False,
+            writable=False))
+
+
+def define_invoices_customers_subscriptions():
+    """
+        Table to link customer subscriptions to invoices
+    """
+    db.define_table('invoices_customers_subscriptions',
+        Field('invoices_id', db.invoices,
+            readable=False,
+            writable=False),
+        Field('customers_subscriptions_id', db.customers_subscriptions,
+            readable=False,
+            writable=False))
+
+
 def define_invoices_customers_classcards():
     '''
         Table to link customer classcards to invoices
@@ -3220,7 +3246,7 @@ def define_invoices():
                               '%(Name)s',
                               zero=T("Please select...")),
             label=T('Invoice group')),
-        Field('auth_customer_id', db.auth_user, required=True,
+        Field('auth_customer_id', db.auth_user, # Deprecated from 2018.2 onwards (only used for migrations)
             readable=False,
             writable=False,
             represent=lambda value, row: A(db.auth_user(value).display_name,
@@ -3233,7 +3259,7 @@ def define_invoices():
                               zero=T("Not set"))),
             represent=lambda value, row: payment_methods_dict.get(value),
             label=T("Payment method")),
-        Field('customers_subscriptions_id', db.customers_subscriptions,
+        Field('customers_subscriptions_id', db.customers_subscriptions, # Deprecated from 2018.2 onwards (only used for migrations)
             readable=False,
             writable=False,
             default=None),
@@ -3261,6 +3287,15 @@ def define_invoices():
             writable=False,
             default=TODAY_LOCAL.year,
             label=T('Year')),
+        Field('CustomerName',
+              label=T('Customer name')),
+        Field('CustomerAddress', 'text',
+              label=T('Customer address')),
+        Field('CustomerEmail',
+              requires=IS_EMPTY_OR(IS_EMAIL()),
+              label=T('Customer email')),
+        Field('CustomerPhone',
+              label=T('Customer phone')),
         Field('Status',
             default='draft',
             requires=IS_IN_SET(invoice_statuses, zero=None),
@@ -5055,6 +5090,8 @@ define_invoices_payments()
 define_invoices_workshops_products_customers()
 define_invoices_customers_classcards()
 define_invoices_classes_attendance()
+define_invoices_customers()
+define_invoices_customers_subscriptions()
 define_invoices_customers_orders()
 define_invoices_mollie_payment_ids()
 
