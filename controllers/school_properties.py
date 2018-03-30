@@ -294,7 +294,7 @@ def discovery_add():
     return_url = URL('discovery')
 
     crud.messages.submit_button = T("Save")
-    crud.messages.record_created = T("Added new way of discovery")
+    crud.messages.record_created = T("Saved")
     crud.settings.create_next = return_url
     crud.settings.formstyle = 'bootstrap3_stacked'
     form = crud.create(db.school_discovery)
@@ -328,7 +328,7 @@ def discovery_edit():
     return_url = URL('discovery')
 
     crud.messages.submit_button = T("Save")
-    crud.messages.record_updated = T("Updated way of discovery")
+    crud.messages.record_updated = T("Saved")
     crud.settings.update_next = return_url
     crud.settings.update_deletable = False
     crud.settings.formstyle = 'bootstrap3_stacked'

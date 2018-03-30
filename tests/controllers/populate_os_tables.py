@@ -7,9 +7,9 @@ from setup_profile_tests import setup_profile_tests
 
 
 def populate_sys_properties_school_info(web2py):
-    '''
+    """
         Insert school info into db.sys_properties
-    '''
+    """
     web2py.db.sys_properties.bulk_insert(
         [ { 'Property' : 'company_name',          'PropertyValue' : 'Banana republic' },
           { 'Property' : 'company_address',       'PropertyValue' : '#1 Big street' },
@@ -22,9 +22,9 @@ def populate_sys_properties_school_info(web2py):
 
 
 def populate_school_classcards(web2py, nr=1, trialcard=True):
-    '''
+    """
         Add 'nr' of cards to school_classcards
-    '''
+    """
     i = 0
     for i in range(i, nr):
         web2py.db.school_classcards.insert(
@@ -51,9 +51,9 @@ def populate_school_classcards(web2py, nr=1, trialcard=True):
 
 
 def populate_school_classcards_groups(web2py, populate_classcards=True):
-    '''
+    """
         Populate subscriptions and add 2 groups each with 2 subscriptions
-    '''
+    """
     if populate_classcards:
         populate_school_classcards(web2py, 6)
 
@@ -89,12 +89,12 @@ def populate_school_classcards_groups(web2py, populate_classcards=True):
 
 
 def populate_payment_methods(web2py):
-    '''
+    """
         This function adds the following to the paymentmethods table
         1. Cash
         2. Wire transfer
         3. Direct debit
-    '''
+    """
     methods = ['Cash', 'Wire transfer', 'Direct debit']
     i = 1
     for method in methods:
@@ -108,9 +108,9 @@ def populate_payment_methods(web2py):
 
 
 def populate_school_locations(web2py, nr=1):
-    '''
+    """
         Populate school_locations table 
-    '''
+    """
     for i in range(1, nr+1):
         web2py.db.school_locations.insert(
             Name = 'location_' + unicode(i),
@@ -119,9 +119,9 @@ def populate_school_locations(web2py, nr=1):
 
 
 def populate_school_classtypes(web2py, nr=1):
-    '''
+    """
         Populate school_locations table 
-    '''
+    """
     for i in range(1, nr+1):
         web2py.db.school_classtypes.insert(
             Name = 'classtype_' + unicode(i),
@@ -368,9 +368,9 @@ def populate_customers_with_classcards(web2py,
 def populate_auth_user_teachers(web2py,
                                 teaches_classes=True,
                                 teaches_workshops=True):
-    '''
+    """
         Adds 2 teachers to db.
-    '''
+    """
     try:
         web2py.db.auth_user.insert(
             id         = 2,
@@ -738,9 +738,9 @@ def prepare_shifts_and_classes_with_holiday(web2py):
 
 
 def populate_workshops(web2py, teachers=True):
-    '''
+    """
         Adds some data to tables used for workshops
-    '''
+    """
     if teachers:
         populate_auth_user_teachers(web2py)
 
@@ -772,9 +772,9 @@ def populate_workshops(web2py, teachers=True):
 
 
 def populate_sys_api_users(web2py):
-    '''
+    """
         Populate API users
-    '''
+    """
     web2py.db.sys_api_users.insert(ActiveUser=True,
                                    Username='test',
                                    APIKey='test',
@@ -784,9 +784,9 @@ def populate_sys_api_users(web2py):
 
 
 def populate_workshops_for_api_tests(web2py, teachers=True, auth_customer_id=1001):
-    '''
+    """
         Adds some data to tables used for workshops
-    '''
+    """
     populate_sys_api_users(web2py)
     populate_customers(web2py, 2)
 
@@ -866,9 +866,9 @@ def populate_workshops_for_api_tests(web2py, teachers=True, auth_customer_id=100
 
 
 def populate_workshops_with_activity(web2py, teachers=True):
-    '''
+    """
         Calls populate workshops and adds an activity
-    '''
+    """
     populate_tax_rates(web2py)
     populate_workshops(web2py, teachers=teachers)
     workshop = web2py.db.workshops(1)
@@ -888,10 +888,10 @@ def populate_workshops_with_activity(web2py, teachers=True):
 
 
 def populate_workshop_activity_overlapping_class(web2py):
-    '''
+    """
         Adds a workshop activity on 2014-01-06 (Monday),
         this overlaps with the class from populate_classes.
-    '''
+    """
     prepare_classes(web2py)
     # print 'classes ok'
     populate_workshops(web2py, teachers=False) # teachers are already populated by prepare_classes
@@ -918,20 +918,20 @@ def populate_workshop_activity_overlapping_class(web2py):
 
 
 def populate_workshops_products(web2py, nr_products=1):
-    '''
+    """
         Populate workshop products
-    '''
+    """
     populate(web2py.db.workshops_products, nr_products)
 
     web2py.db.commit()
 
 
 def populate_workshops_products_customers(web2py):
-    '''
+    """
         Populate db tables so we have 2 products, one activity
         and 2 customers, 1 attending the full ws product and the other
         the other product
-    '''
+    """
     populate_payment_methods(web2py)
     populate_tax_rates(web2py)
     populate_workshops_with_activity(web2py)
@@ -981,12 +981,12 @@ def populate_workshops_products_customers(web2py):
 
 
 def populate_workshops_messages(web2py):
-    '''
+    """
         Populates db tables so we have a workshop, as in
         populate_workshops_products_customers
 
         Then adds a few messages
-    '''
+    """
     populate_workshops_products_customers(web2py)
     populate_messages(web2py, 1)
 
@@ -997,16 +997,16 @@ def populate_workshops_messages(web2py):
 
 
 def populate_messages(web2py, nr_messages=1):
-    '''
+    """
         Populates the messages table with a message
-    '''
+    """
     populate(web2py.db.messages, nr_messages)
 
 
 def populate_tasks(web2py):
-    '''
+    """
         Populate tasks
-    '''
+    """
     populate_customers(web2py, 1)
     populate_workshops(web2py)
 
@@ -1061,16 +1061,16 @@ def populate_tasks(web2py):
 
 
 def populate_announcements(web2py, nr=10):
-    '''
+    """
         populates the announcements table
-    '''
+    """
     populate(web2py.db.announcements, nr)
 
 
 def populate_school_subscriptions(web2py):
-    '''
+    """
         Add a few subscriptions with some prices
-    '''
+    """
     # 1
     web2py.db.school_subscriptions.insert(
         Archived    = False,
@@ -1136,9 +1136,9 @@ def populate_school_subscriptions(web2py):
 
 
 def populate_school_subscriptions_groups(web2py, populate_subscriptions=True):
-    '''
+    """
         Populate subscriptions and add 2 groups each with 2 subscriptions
-    '''
+    """
     if populate_subscriptions:
         populate_school_subscriptions(web2py)
 
@@ -1175,9 +1175,9 @@ def populate_school_subscriptions_groups(web2py, populate_subscriptions=True):
 
 
 def populate_postcode_groups(web2py):
-    '''
+    """
         Populate db.postcode_groups
-    '''
+    """
     web2py.db.postcode_groups.insert(
         Name          = 'group1',
         PostcodeStart = '190-1001A',
@@ -1188,9 +1188,9 @@ def populate_postcode_groups(web2py):
 
 
 def populate_tax_rates(web2py):
-    '''
+    """
         Populates tax rates table with some dummy data
-    '''
+    """
     web2py.db.tax_rates.insert(
         Name = 'BTW 21%',
         Percentage = 21
@@ -1205,9 +1205,9 @@ def populate_tax_rates(web2py):
 
 
 def populate_invoices(web2py):
-    '''
+    """
         Adds one invoice for each user found
-    '''
+    """
     populate_payment_methods(web2py)
 
     today = datetime.date.today()
@@ -1233,9 +1233,9 @@ def populate_invoices(web2py):
 
 
 def populate_invoices_items(web2py):
-    '''
+    """
         Adds an item for each invoice found
-    '''
+    """
     rows = web2py.db().select(web2py.db.invoices.ALL)
     for row in rows:
         iID = row.id
@@ -1259,9 +1259,9 @@ def populate_invoices_items(web2py):
 
 
 def populate_customers_orders(web2py):
-    '''
+    """
         Adds one invoice for each user found
-    '''
+    """
     populate_payment_methods(web2py)
 
     today = datetime.date.today()
@@ -1286,9 +1286,9 @@ def populate_customers_orders_items(web2py,
                                     workshops_products=False,
                                     classes=False,
                                     donation=False):
-    '''
+    """
         Adds an item for each invoice found
-    '''
+    """
     Price = 12
     Quantity = 10
     Donation = False
@@ -1356,9 +1356,9 @@ def populate_customers_orders_items(web2py,
 
 
 def populate_customers_orders_amounts(web2py):
-    '''
+    """
         Set the TotalPriceVAT field to the total of items for each order
-    '''
+    """
     sum = web2py.db.customers_orders_items.TotalPriceVAT.sum()
     rows = web2py.db().select(
         web2py.db.customers_orders_items.customers_orders_id,
@@ -1376,9 +1376,9 @@ def populate_customers_orders_amounts(web2py):
 
 
 def populate_customers_shoppingcart(web2py):
-    '''
+    """
         Adds items to shoppingcart
-    '''
+    """
     setup_profile_tests(web2py)
     prepare_classes(web2py)
     populate_school_classcards(web2py, 1)
@@ -1399,9 +1399,9 @@ def populate_customers_shoppingcart(web2py):
 
 
 def populate_customers_notes(web2py,customers=True):
-    '''
+    """
         Populate customers_notes table
-    '''
+    """
     if customers:
         populate_customers(web2py, 2)
 
@@ -1440,9 +1440,9 @@ def populate_customers_notes(web2py,customers=True):
 
 
 def populate_settings_shop_links(web2py):
-    '''
+    """
         Add a link for the shop
-    '''
+    """
     web2py.db.shop_links.insert(Name='Tweakers',
                                 URL='http://www.tweakers.net')
 
@@ -1450,9 +1450,9 @@ def populate_settings_shop_links(web2py):
 
 
 def populate_settings_shop_customers_profile_announcements(web2py):
-    '''
+    """
         Add an announcement
-    '''
+    """
     web2py.db.customers_profile_announcements.insert(
         PublicAnnouncement = True,
         Sticky = False,
@@ -1464,9 +1464,9 @@ def populate_settings_shop_customers_profile_announcements(web2py):
     web2py.db.commit()
 
 # def populate_reports_teacher_classes(web2py):
-#     '''
+#     """
 #         Populate all fields required to be able to test reports.py/teacher_classes
-#     '''
+#     """
 #     prepare_classes(web2py, with_subscriptions=True)
 #     # teachers
 #
@@ -1480,9 +1480,9 @@ def populate_settings_shop_customers_profile_announcements(web2py):
 
 
 def populate_sys_organizations(web2py, nr_organizations=1):
-    '''
+    """
         Add an organization to sys_organizations
-    '''
+    """
     for i in range(0, nr_organizations):
         soID = unicode(i)
 
@@ -1505,9 +1505,9 @@ def populate_sys_organizations(web2py, nr_organizations=1):
 
 
 def populate_reports_attendance_organizations(web2py):
-    '''
+    """
         Populate tables for reports_attendance_organizations
-    '''
+    """
     populate_sys_organizations(web2py, 2)
     prepare_classes(web2py)
 
@@ -1529,12 +1529,136 @@ def populate_reports_attendance_organizations(web2py):
 
 
 def populate_api_users(web2py):
-    '''
+    """
         Populate api users table
-    '''
+    """
     web2py.db.sys_api_users.insert(ActiveUser=True,
                                    Username='test',
                                    APIKey='test',
                                    Description='test user')
 
     web2py.db.commit()
+
+
+def populate_shop_products(web2py):
+    """
+        Populate shop_products
+    """
+    web2py.db.shop_products.insert(
+        Name = "Coffee",
+        Description = "Coffee",
+        DescriptionShop = "Coffee shop description"
+    )
+
+    web2py.db.commit()
+
+
+def populate_shop_products_variants(web2py,
+                                    populate_products=True,
+                                    populate_products_sets=False):
+    """
+        Populate shop_products_variants
+    """
+    if populate_products:
+        populate_shop_products(web2py)
+    populate_tax_rates(web2py)
+
+    if populate_products_sets:
+        populate_shop_products_sets(web2py,
+                                    options=True,
+                                    values=True)
+        product = web2py.db.shop_products(1)
+        product.shop_products_sets_id = 1
+        product.update_record()
+
+    web2py.db.shop_products_variants.insert(
+        shop_products_id = 1,
+        Name = 'Black',
+        Price = '10',
+        tax_rates_id = 1,
+        DefaultVariant = True,
+    )
+
+    web2py.db.shop_products_variants.insert(
+        shop_products_id = 1,
+        Name = 'Latte',
+        Price = '12',
+        tax_rates_id = 1,
+        DefaultVariant = False,
+    )
+
+    web2py.db.commit()
+    
+
+def populate_shop_products_sets(web2py,
+                                options=False,
+                                values=False):
+    """
+        Populate shop products_sets
+    """
+    spsID = web2py.db.shop_products_sets.insert(
+        Archived = False,
+        Name = "Size and color",
+        Description = "Set size and color for options"
+    )
+
+    if values:
+        options = True
+
+    if options:
+        spsoID = web2py.db.shop_products_sets_options.insert(
+            shop_products_sets_id = spsID,
+            Name = 'Color'
+        )
+
+        if values:
+            web2py.db.shop_products_sets_options_values.insert(
+                shop_products_sets_options_id = spsoID,
+                Name = 'Red'
+            )
+            web2py.db.shop_products_sets_options_values.insert(
+                shop_products_sets_options_id = spsoID,
+                Name = 'Blue'
+            )
+
+    web2py.db.commit()
+
+
+def populate_shop_brands(web2py):
+    """
+        Populate shop brands
+    """
+    web2py.db.shop_brands.insert(
+        Archived = False,
+        Name = "Dell",
+        Description = "Cool laptops!"
+    )
+
+    web2py.db.commit()
+
+
+def populate_shop_suppliers(web2py):
+    """
+        Populate shop suppliers
+    """
+    web2py.db.shop_suppliers.insert(
+        Archived = False,
+        Name = "FruitTraders",
+        Description = "Great pineapples!"
+    )
+
+    web2py.db.commit()
+
+
+def populate_shop_categories(web2py):
+    """
+        Populate shop categories
+    """
+    web2py.db.shop_categories.insert(
+        Archived = False,
+        Name = "FruitTraders",
+        Description = "Great pineapples!"
+    )
+
+    web2py.db.commit()
+

@@ -446,6 +446,7 @@ def set_form_id_and_get_submit_button(form, form_id):
 
     return dict(form=form, submit=submit)
 
+
 def NRtoPriority(value, row=None):
     value = int(value)
     priorities = get_priorities()

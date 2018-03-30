@@ -1281,11 +1281,47 @@ def access_group_permissions():
             ['customers_orders-read', T('View orders'), [
                 ['customers_orders-update', T('Edit orders')],
                 ['customers_orders-delete', T('Delete orders')]]],
-            ['shop_manage_workflow-read', T('Manage shop workflow')]],
+            ['shop_manage_workflow-read', T('Manage shop workflow')],
+            ['shop_categories-read', T('View categories'), [
+                ['shop_categories-create', T('Add categories')],
+                ['shop_categories-update', T('Edit categories')],
+                ['shop_categories-delete', T('Delete categories')],
+                ['shop_categories_products-view', T('View products in categories'), [
+                    ['shop_categories_products-create', T('Add products to categories')],
+                    ['shop_categories_products-delete', T('Delete products from categories')]]]]],
+            ['shop_products-read', T('View products'), [
+                ['shop_products-create', T('Add products')],
+                ['shop_products-update', T('Edit products')],
+                ['shop_products-delete', T('Delete products')],
+                ['shop_products_variants-read', T('Read product variants'), [
+                    ['shop_products_variants-create', T('Add product variants')],
+                    ['shop_products_variants-update', T('Edit product variants')],
+                    ['shop_products_variants-delete', T('Delete product variants')]]]]],
+            ['shop_products_sets-read', T('View product sets'), [
+                ['shop_products_sets-create', T('Add product sets')],
+                ['shop_products_sets-update', T('Update product sets')],
+                ['shop_products_sets-delete', T('Delete product sets')],
+                ['shop_products_options-read', T('View product options in sets'), [
+                    ['shop_products_sets_options-create', T('Add product options to a set')],
+                    ['shop_products_sets_options-update', T('Edit product options in a set')],
+                    ['shop_products_sets_options-delete', T('Delete product options from a set')],
+                    ['shop_products_sets_options_values-read', T('View product option values'), [
+                        ['shop_products_sets_options_values-create', T('Add product option values')],
+                        ['shop_products_sets_options_values-update', T('Edit product option values')],
+                        ['shop_products_sets_options_values-delete', T('Delete product option values')]]]
+                ]],
+            ]],
+            ['shop_brands-read', T('View brands'), [
+                ['shop_brands-create', T('Add brands')],
+                ['shop_brands-update', T('Edit brands')],
+                ['shop_brands-delete', T('Delete brands')]]],
+            ['shop_suppliers-read', T('View suppliers'), [
+                ['shop_suppliers-create', T('Add suppliers')],
+                ['shop_suppliers-update', T('Edit suppliers')],
+                ['shop_suppliers-delete', T('Delete suppliers')]]],
+            ]
          ]
     ]
-
-
 
     tasks_permissions = [
         ['tasks-read', T("View tasks"), [

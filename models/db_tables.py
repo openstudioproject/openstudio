@@ -170,6 +170,79 @@ def represent_workshops_thumbsmall(value, row):
                         _class='workshop_image')
 
 
+def represent_shop_products_thumbsmall(value, row):
+    if 'Name' in row:
+        name = row.Name
+        thumb = row.thumbsmall
+        spID = row.id
+
+    elif 'Name' in row.shop_products:
+        name = row.shop_products.Name
+        thumb = row.shop_products.thumbsmall
+        spID = row.shop_products.id
+
+    vars = {'spID':spID}
+
+    alt = 'Image'
+    url = URL('shop_manage', 'product_edit', vars=vars, extension='')
+    edit_permission  = (auth.has_membership(group_id='Admins') or
+                   auth.has_permission('update', 'shop_products'))
+    if edit_permission:
+        if thumb is None:
+            return DIV(A(I(_class='fa fa-photo big_font'),
+                         _href=url),
+                       _class='shop_product_image')
+        else:
+            return DIV(A(IMG(_src=URL('default', 'download', args=value),
+                             _alt=alt),
+                         _href=url),
+                        _class='shop_product_image')
+    else:
+        if thumb is None:
+            return DIV(I(_class='fa fa-2x fa-photo'),_class='shop_product_image')
+        else:
+            return DIV(IMG(_src=URL('default', 'download', args=value),
+                           _alt=alt),
+                        _class='shop_product_image')
+
+
+def represent_shop_products_variants_thumbsmall(value, row):
+    if 'Name' in row:
+        name = row.Name
+        thumb = row.thumbsmall
+        spvID = row.id
+        spID = row.shop_products_id
+    elif 'Name' in row.shop_products_variants:
+        name = row.shop_products_variants.Name
+        thumb = row.shop_products_variants.thumbsmall
+        spvID = row.shop_products_variants.id
+        spID = row.shop_products_variants.shop_products_id
+
+    vars = {'spvID':spvID, 'spID':spID}
+
+    alt = 'Image'
+    url = URL('shop_manage', 'product_variant_edit', vars=vars, extension='')
+    edit_permission  = (auth.has_membership(group_id='Admins') or
+                   auth.has_permission('update', 'shop_products_variants'))
+    if edit_permission:
+        if thumb is None:
+            return DIV(A(I(_class='fa fa-photo big_font'),
+                         _href=url),
+                       _class='shop_product_image')
+        else:
+            return DIV(A(IMG(_src=URL('default', 'download', args=value),
+                             _alt=alt),
+                         _href=url),
+                        _class='shop_product_image')
+    else:
+        if thumb is None:
+            return DIV(I(_class='fa fa-2x fa-photo'),_class='shop_product_image')
+        else:
+            return DIV(IMG(_src=URL('default', 'download', args=value),
+                           _alt=alt),
+                        _class='shop_product_image')
+
+
 def represent_classtype_thumbsmall(value, row):
     if 'Name' in row:
         name = row.Name
@@ -222,6 +295,58 @@ def represent_workshops_thumblarge(value, row):
                     _class='workshop_image_large')
 
 
+def represent_shop_products_thumblarge(value, row):
+    if 'Name' in row:
+        name = row.Name
+        thumb = row.thumblarge
+        spID = row.id
+
+    elif 'Name' in row.shop_products:
+        name = row.shop_products.Name
+        thumb = row.shop_products.thumblarge
+        spID = row.shop_products.id
+
+    vars = {'spID':spID}
+    alt = name
+    if thumb is None:
+        return DIV(A(I(_class='fa fa-photo big_font'),
+                     _href=URL('shop_manage', 'product_edit', vars=vars,
+                             extension='')),
+                   _class='shop_product_image_large')
+    else:
+        return DIV(A(IMG(_src=URL('default', 'download', args=value),
+                         _alt=alt),
+                     _href=URL('shop_manage', 'product_edit', vars=vars,
+                             extension='')),
+                    _class='shop_product_image_large')
+
+
+def represent_shop_products_variants_thumblarge(value, row):
+    if 'Name' in row:
+        name = row.Name
+        thumb = row.thumblarge
+        spvID = row.id
+
+    elif 'Name' in row.shop_products_variants:
+        name = row.shop_products_variants.Name
+        thumb = row.shop_products_variants.thumblarge
+        spvID = row.shop_products_variants.id
+
+    vars = {'spvID':spvID}
+    alt = name
+    if thumb is None:
+        return DIV(A(I(_class='fa fa-photo big_font'),
+                     _href=URL('shop_manage', 'product_variant_edit', vars=vars,
+                             extension='')),
+                   _class='shop_product_image_large')
+    else:
+        return DIV(A(IMG(_src=URL('default', 'download', args=value),
+                         _alt=alt),
+                     _href=URL('shop_manage', 'product_variant_edit', vars=vars,
+                             extension='')),
+                    _class='shop_product_image_large')
+
+
 def represent_payment_batch_status(value, row):
     '''
         Returns a label for the status
@@ -270,6 +395,18 @@ def represent_float_as_amount(value, row=None):
         return ''
     else:
         return SPAN(CURRSYM, ' ', format(value, '.2f'))
+
+
+def represent_boolean_as_checkbox(value, row=None):
+    """
+    :return: disabled html checkbox
+    """
+    checkbox = INPUT(value=value,
+                     _type='checkbox',
+                     _value='api',
+                     _disabled='disabled')
+
+    return checkbox
 
 
 def represent_classes_attendance_bookingstatus(value, row):
@@ -3765,16 +3902,266 @@ def define_customers_orders():
     )
 
 
+def define_shop_categories():
+    """
+        Define shop categories
+    """
+    db.define_table('shop_categories',
+        Field('Archived', 'boolean',
+              readable=False,
+              writable=False,
+              default=False),
+        Field('Name',
+              label=T('Name')),
+        Field('Description', 'text',
+              label=T("Description")),
+    )
+
+
+def define_shop_categories_products():
+    """
+        Define shop categories products
+    """
+    db.define_table('shop_categories_products',
+        Field('shop_categories_id', db.shop_categories),
+        Field('shop_products_id', db.shop_products),
+    )
+
+
+def define_shop_products():
+    """
+        Define products
+    """
+    visibility = [
+        ['always', T('Always visible')],
+        ['hidden', T('Hidden')],
+        ['in_stock', T('Show when in stock')],
+    ]
+
+    db.define_table('shop_products',
+        Field('picture', 'upload', autodelete=True,
+              requires=IS_EMPTY_OR([IS_IMAGE(extensions=('jpeg', 'jpg', 'png')),
+                                    IS_LENGTH(maxsize=665600,
+                                              error_message=T('650KB or less'))]),  # 650KB
+              label=T("Image (Max 650KB)")),
+        Field('thumbsmall', 'upload',  # generate 50*50 for list view
+              autodelete=True, writable=False,
+              compute=lambda row: SMARTHUMB(row.picture,
+                                            (50, 50),
+                                            name="Small"),
+              represent=represent_shop_products_thumbsmall,
+              label=T("Image")),
+        Field('thumblarge', 'upload',  # generate 400*400 for edit view
+              autodelete=True, writable=False,
+              compute=lambda row: SMARTHUMB(row.picture,
+                                            (400, 400),
+                                            name="Large"),
+              represent=represent_shop_products_thumblarge),
+        Field('Name',
+              requires=IS_NOT_EMPTY(),
+              label=T("Name")),
+        Field('Description', 'text',
+              label=T("Description")),
+        Field('DescriptionShop', 'text',
+              label=T("Descripion in shop"),
+              comment=T("This is the description customers will see")),
+        Field('Visibility',
+              requires=IS_IN_SET(visibility, zero=None),
+              default='in_stock',
+              label=T('Shop visibility')),
+        Field('shop_brands_id', db.shop_brands,
+              requires=IS_EMPTY_OR(IS_IN_DB(db(),
+                                            'shop_brands.id',
+                                            '%(Name)s')),
+              label=T('Brand')),
+        Field('shop_suppliers_id', db.shop_suppliers,
+              requires=IS_EMPTY_OR(IS_IN_DB(db(),
+                                            'shop_suppliers.id',
+                                            '%(Name)s')),
+              label=T('Supplier')),
+        Field('shop_products_sets_id', db.shop_products_sets,
+              requires=IS_EMPTY_OR(IS_IN_DB(db(),
+                                            'shop_products_sets.id',
+                                            '%(Name)s')),
+              label=T('Product set'))
+    )
+
+
+def define_shop_products_variants():
+    """
+        Define product variants
+    """
+    db.define_table('shop_products_variants',
+        Field('shop_products_id', db.shop_products,
+              readable=False,
+              writable=False),
+        Field('Enabled', 'boolean',
+              readable=False,
+              writable=False,
+              default=True),
+        Field('picture', 'upload', autodelete=True,
+              requires=IS_EMPTY_OR([IS_IMAGE(extensions=('jpeg', 'jpg', 'png')),
+                                    IS_LENGTH(maxsize=665600,
+                                              error_message=T('650KB or less'))]),  # 650KB
+              label=T("Image (Max 650KB)")),
+        Field('thumbsmall', 'upload',  # generate 50*50 for list view
+              autodelete=True, writable=False,
+              compute=lambda row: SMARTHUMB(row.picture,
+                                            (50, 50),
+                                            name="Small"),
+              represent=represent_shop_products_variants_thumbsmall,
+              label=T("Image")),
+        Field('thumblarge', 'upload',  # generate 400*400 for edit view
+              autodelete=True, writable=False,
+              compute=lambda row: SMARTHUMB(row.picture,
+                                            (400, 400),
+                                            name="Large"),
+              represent=represent_shop_products_variants_thumblarge),
+        Field('Name',
+              requires=IS_NOT_EMPTY()),
+        Field('Price', 'double',
+              default=0,
+              represent=represent_float_as_amount,
+              label=T("Price incl. VAT")),
+        Field('tax_rates_id', db.tax_rates,
+              label=T('Tax rate')),
+        Field('PurchasePrice', 'double',
+              default=0,
+              represent=represent_float_as_amount,
+              label=T("Purchace price")),
+        Field('ArticleCode',
+              represent=lambda value, row: value or "",
+              label=T('Article code')),
+        Field('Barcode',
+              label=T('Barcode')),
+        Field('SKU',
+              label=T('SKU')),
+        Field('KeepStock', 'boolean',
+              default=True,
+              represent=represent_boolean_as_checkbox,
+              label=T('Keep stock'),
+              comment=T('Keep track of stock changes for this variant')),
+        Field('StockShop', 'integer',
+              default=0,
+              label=T('Stock shop')),
+        Field('StockWarehouse', 'integer',
+              default=0,
+              label=T('Stock warehouse')),
+        Field('DefaultVariant', 'boolean',
+              readable=False,
+              writable=False,
+              label=T('Default variant for a product')),
+        Field('VariantCode',
+              readable=False,
+              writable=False)
+    )
+
+
+def define_shop_products_sets():
+    """
+        Define products sets; sets of options that can be linked to a product
+    """
+    db.define_table('shop_products_sets',
+        Field('Name',
+              requires=IS_NOT_EMPTY(),
+              label=T('Name')),
+        Field('Description', 'text',
+              label=T('Description'))
+    )
+
+
+def define_shop_products_sets_options():
+    """
+        Define products options
+        eg. color, size, etc.
+    """
+    db.define_table('shop_products_sets_options',
+        Field('shop_products_sets_id',
+              readable=False,
+              writable=False),
+        Field('Name',
+              requires=IS_NOT_EMPTY(),
+              label=T('Name')),
+    )
+
+
+def define_shop_products_sets_options_values():
+    """
+        Define shop products options values
+        eg. red, blue, etc.
+    """
+    db.define_table('shop_products_sets_options_values',
+        Field('shop_products_sets_options_id', db.shop_products_sets_options,
+              readable=False,
+              writable=False
+              ),
+        Field('Name',
+              requires=IS_NOT_EMPTY(),
+              label=T('Name')),
+    )
+
+
+def define_shop_brands():
+    """
+        Define shop brands
+    """
+    db.define_table('shop_brands',
+        Field('Archived', 'boolean',
+              readable=False,
+              writable=False,
+              default=False),
+        Field('Name',
+              requires=IS_NOT_EMPTY(),
+              label=T('Name')),
+        Field('Description', 'text',
+              label=T('Description'))
+    )
+
+
+def define_shop_suppliers():
+    """
+        Define shop suppliers
+    """
+    db.define_table('shop_suppliers',
+        Field('Archived', 'boolean',
+              readable=False,
+              writable=False,
+              default=False),
+        Field('Name',
+              requires=IS_NOT_EMPTY(),
+              label=T('Name')),
+        Field('Description',
+              label=T('Description')),
+        Field('ContactName',
+              label=T('Contact name')),
+        Field('ContactPhone',
+              label=T('Contact phone')),
+        Field('ContactEmail',
+              requires=IS_EMPTY_OR(IS_EMAIL()),
+              label=T('Contact email')),
+        Field('CompanyAddress',
+              label=T('Company address')),
+        Field('CompanyCity',
+              label=T('Company city')),
+        Field('CompanyPostCode',
+              label=T('Company postcode')),
+        Field('CompanyCountry',
+              label=T('Company country')),
+        Field('Notes', 'text',
+              label=T('Notes')),
+    )
+
+
 def define_shop_links():
     '''
         Hold additional links in shop
     '''
     db.define_table('shop_links',
         Field('Name',
-            label=T('Name')),
+              label=T('Name')),
         Field('URL',
-            requires=IS_URL(),
-            label=T('URL')),
+              requires=IS_URL(),
+              label=T('URL')),
     )
 
 
@@ -4688,6 +5075,15 @@ define_mollie_log_webhook()
 
 # shop tables
 define_shop_links()
+define_shop_brands()
+define_shop_suppliers()
+define_shop_products_sets()
+define_shop_products_sets_options()
+define_shop_products_sets_options_values()
+define_shop_products()
+define_shop_products_variants()
+define_shop_categories()
+define_shop_categories_products()
 
 
 set_preferences_permissions()

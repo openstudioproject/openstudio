@@ -497,20 +497,25 @@ def get_backend_menu():
                                 URL('finance', 'invoices', extension=''), submenu )
                              ]
         # Shop
-        if user_helpers.check_read_permission('customers_orders', user_id):
+        if user_helpers.check_read_permission('shop_manage', user_id):
             shop_text_text = T('Shop')
 
             submenu = []
-
-
+            # Workflow
             if user_helpers.check_read_permission('settings', user_id):
                 submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Workflow'))),
                                 False,
                                 URL('shop_manage', 'workflow', extension='')))
+            # Orders
             if user_helpers.check_read_permission('customers_orders', user_id):
                 submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Orders'))),
                                 False,
                                 URL('orders', 'index', extension='')))
+            # Catalog
+            if user_helpers.check_read_permission('shop_products', user_id):
+                submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Catalog [BETA]'))),
+                                False,
+                                URL('shop_manage', 'products', extension='')))
 
 
             menu += [ ((I(_class=finance_class + ' fa fa-shopping-bag', _title=T('Shop')),
