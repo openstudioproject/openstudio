@@ -712,6 +712,16 @@ td.task a:focus {
 
 /* Ajax loader end */
 
+/* Invoice edit begin */
+
+#invoices_CustomerAddress {
+    width: 100%;
+    max-width: 100%;
+    min-height: 40px;
+    height: 80px;
+}
+
+/* Invoice edit end */
 
 
 

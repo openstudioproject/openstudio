@@ -241,104 +241,6 @@ def list_invoices_clear_search():
     session.invoices_list_invoices_date_due_until = None
 
     redirect(URL('finance', 'invoices', vars=request.vars))
-#
-#
-# def list_invoices_get_status_query(query):
-#     '''
-#         Returns status query
-#     '''
-#     if session.invoices_list_status == 'draft':
-#         query &= (db.invoices.Status == 'draft')
-#     if session.invoices_list_status == 'sent':
-#         query &= (db.invoices.Status == 'sent')
-#     if session.invoices_list_status == 'paid':
-#         query &= (db.invoices.Status == 'paid')
-#     if session.invoices_list_status == 'cancelled':
-#         query &= (db.invoices.Status == 'cancelled')
-#     if session.invoices_list_status == 'overdue':
-#         query &= (db.invoices.Status == 'sent')
-#         query &= (db.invoices.DateDue < datetime.date.today())
-#
-#     return query
-#
-#
-# def list_invoices_get_search_query(query):
-#     '''
-#         Adds search for invoice number to query
-#     '''
-#     if session.invoices_list_invoices_search:
-#         search = session.invoices_list_invoices_search.strip()
-#         query &= (db.invoices.InvoiceID.like('%' + search + '%'))
-#
-#     if session.invoices_list_invoices_date_created_from:
-#         query &= (db.invoices.DateCreated >= session.invoices_list_invoices_date_created_from)
-#
-#     if session.invoices_list_invoices_date_created_until:
-#         query &= (db.invoices.DateCreated <= session.invoices_list_invoices_date_created_until)
-#
-#     if session.invoices_list_invoices_date_due_from:
-#         query &= (db.invoices.DateDue >= session.invoices_list_invoices_date_due_from)
-#
-#     if session.invoices_list_invoices_date_due_until:
-#         query &= (db.invoices.DateDue <= session.invoices_list_invoices_date_due_until)
-#
-#     return query
-#
-#
-# def list_invoices_get_groups_query(query):
-#     '''
-#         Adds filter for invoice group to query
-#     '''
-#     if session.invoices_list_invoices_group:
-#         query &= (db.invoices.invoices_groups_id == session.invoices_list_invoices_group)
-#
-#
-# def list_invoices_get_buttons(row):
-#     '''
-#         Group all links for invoices into .btn-group
-#     '''
-#     iID = row.invoices.id
-#     modals = SPAN()
-#     links = DIV(_class='btn-group')
-#     buttons = SPAN(links, modals)
-#
-#     if auth.has_membership(group_id='Admins') or \
-#        auth.has_permission('create', 'invoices_payments'):
-#         result = list_invoices_get_link_add_payment(iID)
-#         links.append(result['button'])
-#         modals.append(result['modal'])
-#
-#     if auth.has_membership(group_id='Admins') or \
-#        auth.has_permission('read', 'invoices'):
-#         pdf = os_gui.get_button('print',
-#             URL('invoices', 'pdf', vars={'iID':iID}))
-#         links.append(pdf)
-#
-#     # if auth.has_membership(group_id='Admins') or \
-#     #    auth.has_permission('read', 'auth_user'):
-#     #     customer = os_gui.get_button('user',
-#     #         URL('customers', 'edit', args=row.invoices.auth_customer_id,
-#     #             extension=''))
-#     #     links.append(customer)
-#
-#     if auth.has_membership(group_id='Admins') or \
-#        auth.has_permission('update', 'invoices'):
-#         edit = os_gui.get_button('edit',
-#                                  URL('edit', vars={'iID':iID}, extension=''),
-#                                  tooltip=T("Edit invoice"))
-#         links.append(edit)
-#
-#     return buttons
-#
-#
-# def list_invoices_get_balance(row):
-#     '''
-#         Retuns the balance for an invoice
-#     '''
-#     iID = row.invoices.id
-#     invoice = Invoice(iID)
-#
-#     return invoice.get_balance(formatted=True)
 
 
 def edit_get_link_add_payment(iID):
@@ -369,10 +271,10 @@ def edit_get_link_add_payment(iID):
 
 @auth.requires_login()
 def edit():
-    '''
+    """
         Shows edit page for an invoice
         request.vars['iID'] is expected to be invoices.id
-    '''
+    """
     iID = request.vars['iID']
     invoice = Invoice(iID)
     response.title = T("Invoice") + ' ' + invoice.invoice.InvoiceID
@@ -383,7 +285,7 @@ def edit():
 
     modals = DIV()
 
-    cuID = invoice.invoice.auth_customer_id
+    cuID = db.invoices_customers(invoices_id = iID).auth_customer_id
     csID = invoice.invoice.customers_subscriptions_id
 
     return_url = edit_get_back(cuID, csID)
@@ -433,7 +335,8 @@ def edit():
         XML('<form id="MainForm" action="#" enctype="multipart/form-data" method="post">'),
         form.custom.end,
         DIV(DIV(edit_get_studio_info(), _class='col-md-6'),
-            DIV(edit_get_customer_info(cuID), _class='col-md-6'),
+            DIV(edit_get_customer_info(invoice, form),
+                _class='col-md-6'),
             DIV(DIV(DIV(H3(form.custom.label.Description, _class='box-title'),
                         _class='box-header'),
                     DIV(form.custom.widget.Description,
@@ -681,44 +584,21 @@ def edit_get_studio_info(var=None):
     return info
 
 
-def edit_get_customer_info(cuID):
-    '''
+def edit_get_customer_info(invoice, form):
+    """
         Returns a div with address info for a customer
-    '''
-    customer = Customer(cuID)
-    address = customer.get_invoice_address()
+    """
+    form.element('#invoices_CustomerAddress')['_class'] = 'text'
+    form.element('#invoices_CustomerAddress')['_height'] = '100'
 
-    info = DIV(_class='box-body')
-
-    if address['company']:
-        info.append(B(address['company']))
-        info.append(BR())
-
-    info.append(B(address['name']))
-    info.append(BR())
-
-    if address['address']:
-        info.append(address['address'])
-        info.append(BR())
-
-    if address['city']:
-        info.append(SPAN(address['city'], ' ', address['postcode']))
-        info.append(BR())
-
-    if address['country']:
-        info.append(address['country'])
-        info.append(BR())
-
-    info.append(address['email'])
-    info.append(BR())
-
-    if address['phone']:
-        info.append(address['phone'])
-        info.append(BR())
-
-    if address['mobile']:
-        info.append(address['mobile'])
-        info.append(BR())
+    info = DIV(
+        LABEL(form.custom.label.CustomerCompany),
+        form.custom.widget.CustomerCompany,
+        LABEL(form.custom.label.CustomerName),
+        form.custom.widget.CustomerName,
+        LABEL(form.custom.label.CustomerAddress),
+        form.custom.widget.CustomerAddress,
+        _class='box-body')
 
     box = DIV(DIV(H3(T("To"), _class='box-title'),
                   _class='box-header'),

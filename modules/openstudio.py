@@ -364,23 +364,6 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
         return had_trial
 
 
-    def get_invoice_address(self):
-        '''
-            Returns all address info for an invoice
-        '''
-        address = { 'company'  : self.row.company or '',
-                    'name'     : self.get_name(),
-                    'address'  : self.row.address or '',
-                    'city'     : self.row.city or '',
-                    'postcode' : self.row.postcode or '',
-                    'country'  : self.row.country or '',
-                    'email'    : self.row.email,
-                    'phone'    : self.row.phone or '',
-                    'mobile'   : self.row.mobile or '' }
-
-        return address
-
-
     def get_workshops_rows(self, upcoming=False):
         """
             Returns workshops for a customer
@@ -6623,13 +6606,13 @@ class Invoice:
         Class that contains functions for an invoice
     '''
     def __init__(self, iID):
-        '''
+        """
             Init function for an invoice
-        '''
+        """
         db = current.globalenv['db']
 
-        self.invoices_id   = iID
-        self.invoice       = db.invoices(iID)
+        self.invoices_id = iID
+        self.invoice = db.invoices(iID)
         self.invoice_group = db.invoices_groups(self.invoice.invoices_groups_id)
 
         if not self.invoice.InvoiceID:
@@ -7127,6 +7110,28 @@ class Invoice:
             return False
 
 
+    def link_to_customer(self, cuID):
+        """
+            Link invoice to customer
+        """
+        db = current.globalenv['db']
+        db.invoices_customers.insert(
+            invoices_id = self.invoices_id,
+            auth_customer_id = cuID
+        )
+
+
+    def link_to_customer_subscription(self, csID):
+        """
+            Link invoice to customer subscription
+        """
+        db = current.globalenv['db']
+        db.invoices_customers_subscriptions.insert(
+            invoices_id = self.invoices_id,
+            customers_subscriptions_id = csID
+        )
+
+
     # def mail_customer_invoice_created(self):
     #     '''
     #         Notify customer of a new invoice
@@ -7142,23 +7147,44 @@ class InvoicesHelper:
         Contains functions for invoices usefull in multiple controllers
     '''
 
-    def add_get_form(self, cuID,
-                           csID               = None,
-                           subscription_year  = '',
-                           subscription_month = '',
-                           full_width         = True):
-        '''
-            Returns add form for an invoice
-        '''
+    def _add_get_form_permissions_check(self):
+        """
+            Check if the currently logged in user is allowed to create
+            invoices
+        """
+        auth = current.globalenv['auth']
+        if not (auth.has_membership(group_id='Admins') or
+                auth.has_permission('create', 'invoices')):
+            redirect(URL('default', 'user', args=['not_authorized']))
+
+
+    def _add_get_form_set_default_values_customer(self, customer):
+        """
+        :param customer: Customer object
+        :return: None
+        """
         db = current.globalenv['db']
-        T  = current.globalenv['T']
-        crud = current.globalenv['crud']
-        # request = current.globalenv['request']
+        address = ''
+        if customer.row.address:
+            address = ''.join([address, customer.row.address, '\n'])
+        if customer.row.city:
+            address = ''.join([address, customer.row.city, ' '])
+        if customer.row.postcode:
+            address = ''.join([address, customer.row.postcode, '\n'])
+        if customer.row.country:
+            address = ''.join([address, customer.row.country])
 
-        create_onaccept = [ self._add_set_invoice_nr_and_due_date,
-                            self._add_reset_list_status_filter ]
+        db.invoices.CustomerCompany.default = customer.row.company
+        db.invoices.CustomerName.default = customer.row.full_name
+        db.invoices.CustomerAddress.default = address
 
-        # set all fields as unreadable/writable
+
+    def _add_get_form_enable_minimal_fields(self):
+        """
+            Only enable the bare minimum of fields
+        """
+        db = current.globalenv['db']
+
         for field in db.invoices:
             field.readable=False
             field.writable=False
@@ -7168,25 +7194,42 @@ class InvoicesHelper:
         db.invoices.Description.readable = True
         db.invoices.Description.writable = True
 
-        db.invoices.auth_customer_id.default = cuID
-        if csID:
-            cs = CustomerSubscription(csID)
-            db.invoices.customers_subscriptions_id.default = csID
-            db.invoices.payment_methods_id.default = cs.payment_methods_id
-            db.invoices.SubscriptionYear.readable = True
-            db.invoices.SubscriptionYear.writable = True
-            db.invoices.SubscriptionMonth.readable = True
-            db.invoices.SubscriptionMonth.writable = True
-            # add invoice item after form accepts
-            create_onaccept.append(self._add_create_subscription_invoice_item)
 
+    def _add_get_form_enable_subscription_fields(self, csID):
+        """
+            Enable fields required for subscriptions
+        """
+        db = current.globalenv['db']
+
+        cs = CustomerSubscription(csID)
         db.invoices.customers_subscriptions_id.default = csID
+        db.invoices.payment_methods_id.default = cs.payment_methods_id
+        db.invoices.SubscriptionYear.readable = True
+        db.invoices.SubscriptionYear.writable = True
+        db.invoices.SubscriptionMonth.readable = True
+        db.invoices.SubscriptionMonth.writable = True
 
-        crud.messages.submit_button = T("Save")
-        crud.messages.record_created = T("Added invoice")
-        crud.settings.create_onaccept=create_onaccept
-        crud.settings.create_next = '/invoices/edit/?iID=[id]'
-        form = crud.create(db.invoices)
+
+    def add_get_form(self, cuID,
+                           csID = None,
+                           subscription_year = '',
+                           subscription_month = '',
+                           full_width = True):
+        """
+            Returns add form for an invoice
+        """
+        self._add_get_form_permissions_check()
+
+        db = current.globalenv['db']
+        T  = current.globalenv['T']
+
+        customer = Customer(cuID)
+        self._add_get_form_set_default_values_customer(customer)
+        self._add_get_form_enable_minimal_fields()
+        if csID:
+            self._add_get_form_enable_subscription_fields(csID)
+
+        form = SQLFORM(db.invoices, formstyle='bootstrap3_stacked')
 
         elements = form.elements('input, select, textarea')
         for element in elements:
@@ -7195,16 +7238,83 @@ class InvoicesHelper:
         form_element = form.element('form')
         form['_id'] = 'invoice_add'
 
+        if form.process().accepted:
+            iID = form.vars.id
+            invoice = Invoice(iID) # This sets due date and Invoice#
+            invoice.link_to_customer(cuID)
+            self._add_reset_list_status_filter()
+
+            if csID:
+                invoice.link_to_customer_subscription(csID)
+                invoice.item_add_subscription(
+                    form.vars.SubscriptionYear,
+                    form.vars.SubscriptionMonth
+                )
+
+            redirect(URL('invoices', 'edit', vars={'iID':iID}))
+
+
         # So the grids display the fields normally
         for field in db.invoices:
             field.readable=True
-            #field.writable=False
 
-        if full_width:
-            # make the inputs in the table full width
-            table = form.element('table')
-            table['_class'] = 'full-width'
 
+        # crud = current.globalenv['crud']
+        # # request = current.globalenv['request']
+        #
+        # create_onaccept = [ self._add_set_invoice_nr_and_due_date,
+        #                     self._add_reset_list_status_filter]
+        #
+        # # set all fields as unreadable/writable
+        # for field in db.invoices:
+        #     field.readable=False
+        #     field.writable=False
+        #
+        # db.invoices.invoices_groups_id.readable = True
+        # db.invoices.invoices_groups_id.writable = True
+        # db.invoices.Description.readable = True
+        # db.invoices.Description.writable = True
+        #
+        # #TODO: Fill customer name, address and contact fields
+        # #TODO: Link new invoice to customer
+        # db.invoices.auth_customer_id.default = cuID
+        # if csID:
+        #     cs = CustomerSubscription(csID)
+        #     db.invoices.customers_subscriptions_id.default = csID
+        #     db.invoices.payment_methods_id.default = cs.payment_methods_id
+        #     db.invoices.SubscriptionYear.readable = True
+        #     db.invoices.SubscriptionYear.writable = True
+        #     db.invoices.SubscriptionMonth.readable = True
+        #     db.invoices.SubscriptionMonth.writable = True
+        #     # add invoice item after form accepts
+        #     create_onaccept.append(self._add_create_subscription_invoice_item)
+        #
+        # #TODO: Link invoice to db.invoices_customers_subscriptions
+        # db.invoices.customers_subscriptions_id.default = csID
+        #
+        # crud.messages.submit_button = T("Save")
+        # crud.messages.record_created = T("Added invoice")
+        # crud.settings.create_onaccept=create_onaccept
+        # crud.settings.create_next = '/invoices/edit/?iID=[id]'
+        # form = crud.create(db.invoices)
+        #
+        # elements = form.elements('input, select, textarea')
+        # for element in elements:
+        #     element['_form'] = "invoice_add"
+        #
+        # form_element = form.element('form')
+        # form['_id'] = 'invoice_add'
+        #
+        # # So the grids display the fields normally
+        # for field in db.invoices:
+        #     field.readable=True
+        #     #field.writable=False
+        #
+        # if full_width:
+        #     # make the inputs in the table full width
+        #     table = form.element('table')
+        #     table['_class'] = 'full-width'
+        #
         return form
 
 
@@ -7232,28 +7342,7 @@ class InvoicesHelper:
         return dict(button=button, modal_class=modal_class)
 
 
-    def _add_set_invoice_nr_and_due_date(self, form):
-        '''
-            Set invoice number and duedate by initializing an Invoice object
-            The Invoice object will handle the rest
-        '''
-        iID = form.vars['id']
-        invoice = Invoice(iID)
-
-
-    def _add_create_subscription_invoice_item(self, form):
-        '''
-            Add subscription item to the invoice
-        '''
-        db = current.globalenv['db']
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
-
-        iID = form.vars.id
-        invoice = Invoice(iID)
-        invoice.item_add_subscription(form.vars.SubscriptionYear, form.vars.SubscriptionMonth, form.vars.Description)
-
-
-    def _add_reset_list_status_filter(self, form):
+    def _add_reset_list_status_filter(self):
         '''
             Reset session variable that holds status for filter
         '''
@@ -7466,8 +7555,14 @@ class InvoicesHelper:
         links = [dict(header=T("Balance"),
                       body=self._list_invoices_get_balance),
                  self._list_invoices_get_buttons]
-        left = [db.invoices_amounts.on(db.invoices_amounts.invoices_id == \
-                                       db.invoices.id)]
+        left = [db.invoices_amounts.on(db.invoices_amounts.invoices_id ==
+                                       db.invoices.id),
+                db.invoices_customers.on(
+                    db.invoices_customers.invoices_id == db.invoices.id),
+                db.invoices_customers_subscriptions.on(
+                    db.invoices_customers_subscriptions.invoices_id ==
+                    db.invoices.id)
+                ]
 
         fields = [db.invoices.Status,
                   db.invoices.InvoiceID,
@@ -7491,9 +7586,10 @@ class InvoicesHelper:
             fields.insert(2, db.invoices.auth_customer_id)
 
         if cuID:
-            query &= (db.invoices.auth_customer_id == cuID)
+            query &= (db.invoices_customers.auth_customer_id == cuID)
         if csID:
-            query &= (db.invoices.customers_subscriptions_id == csID)
+            query &= (db.invoices_customers_subscriptions.customers_subscriptions_id == csID)
+
             fields.insert(3, db.invoices.SubscriptionMonth)
             fields.insert(4, db.invoices.SubscriptionYear)
 
