@@ -7160,21 +7160,10 @@ class Invoice:
         )
 
 
-    # def mail_customer_invoice_created(self):
-    #     '''
-    #         Notify customer of a new invoice
-    #     '''
-    #     osmail = OsMail()
-    #     msgID = osmail.render_email_template('email_template_invoice_created', invoices_id=self.invoices_id)
-    #
-    #     osmail.send(msgID, self.invoice.auth_customer_id)
-
-
 class InvoicesHelper:
-    '''
+    """
         Contains functions for invoices usefull in multiple controllers
-    '''
-
+    """
     def _add_get_form_permissions_check(self):
         """
             Check if the currently logged in user is allowed to create
