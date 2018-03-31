@@ -1346,7 +1346,7 @@ def subscriptions_create_invoices_execute(year, month, description):
                    ssp.tax_rates_id,
                    tr.Percentage,
                    csp.id,
-                   i.id,
+                   i.invoices_id,
                    csap.id,
                    csap.Amount,
                    csap.Description
@@ -1376,10 +1376,12 @@ def subscriptions_create_invoices_execute(year, month, description):
                     (Enddate >= '{firstdaythismonth}' OR Enddate IS NULL)) csp
              ON cs.id = csp.customers_subscriptions_id
             LEFT JOIN
-             (SELECT id,
-                     customers_subscriptions_id
-              FROM invoices
-              WHERE SubscriptionYear = {year} AND SubscriptionMonth = {month}) i
+             (SELECT ics.id,
+                     ics.invoices_id,
+                     ics.customers_subscriptions_id
+              FROM invoices_customers_subscriptions ics
+              LEFT JOIN invoices on ics.invoices_id = invoices.id
+              WHERE invoices.SubscriptionYear = {year} AND invoices.SubscriptionMonth = {month}) i
              ON i.customers_subscriptions_id = cs.id
             LEFT JOIN
              (SELECT id,
@@ -1440,22 +1442,19 @@ def subscriptions_create_invoices_execute(year, month, description):
                            period_end.strftime(DATE_FORMAT)
 
         iID = db.invoices.insert(
-            invoices_groups_id         = igID,
-            auth_customer_id           = cuID,
-            payment_methods_id         = pmID,
-            customers_subscriptions_id = csID,
-            SubscriptionYear           = year,
-            SubscriptionMonth          = month,
-            Description                = inv_description,
-            Status                     = 'sent'
+            invoices_groups_id = igID,
+            payment_methods_id = pmID,
+            SubscriptionYear = year,
+            SubscriptionMonth = month,
+            Description = inv_description,
+            Status = 'sent'
         )
 
         # create object to set Invoice# and due date
         invoice = Invoice(iID)
-        invoice.item_add_subscription(year, month)
         invoice.link_to_customer(cuID)
         invoice.link_to_customer_subscription(csID)
-
+        invoice.item_add_subscription(year, month)
         invoice.set_amounts()
 
 

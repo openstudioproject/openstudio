@@ -3293,7 +3293,7 @@ def define_invoices():
               represent=lambda value, row: value or '',
               label=T('Name')),
         Field('CustomerListName',
-              compute=lambda row: row.CustomerCompany if row.CustomerCompany else row.CustomerName,
+              compute=compute_invoices_CustomerListName,
               represent=lambda value, row: value or '',
               label=T('To')),
         Field('CustomerAddress', 'text',
@@ -3341,6 +3341,13 @@ def define_invoices():
             readable=False,
             writable=False)
         )
+
+
+def compute_invoices_CustomerListName(row):
+    if row.CustomerCompany:
+        return row.CustomerCompany
+
+    return row.CustomerName
 
     # sorted_payment_methods = [dict(id='', Name=T("Not set"))]
     # payment_methods = db(db.payment_methods).select(orderby=db.payment_methods.id)

@@ -6971,11 +6971,11 @@ class Invoice:
 
 
     def item_add_subscription(self, SubscriptionYear, SubscriptionMonth, description=''):
-        '''
+        """
             :param SubscriptionYear: Year of subscription
             :param SubscriptionMonth: Month of subscription
             :return: db.invoices_items.id
-        '''
+        """
         db = current.globalenv['db']
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
 
@@ -6985,11 +6985,12 @@ class Invoice:
                              int(SubscriptionMonth),
                              1)
 
-        csID  = self.invoice.customers_subscriptions_id
-        cs    = CustomerSubscription(csID)
+        ics = db.invoices_customers_subscriptions(invoices_id = self.invoices_id)
+        csID = ics.customers_subscriptions_id
+        cs = CustomerSubscription(csID)
         ssuID = cs.ssuID
-        ssu   = SchoolSubscription(ssuID)
-        row   = ssu.get_tax_rates_on_date(date)
+        ssu = SchoolSubscription(ssuID)
+        row = ssu.get_tax_rates_on_date(date)
 
         if row:
             tax_rates_id = row.school_subscriptions_price.tax_rates_id
@@ -7110,15 +7111,42 @@ class Invoice:
             return False
 
 
+    def set_customer_info(self, cuID):
+        """
+            Set customer information for an invoice
+        """
+        customer = Customer(cuID)
+
+        address = ''
+        if customer.row.address:
+            address = ''.join([address, customer.row.address, '\n'])
+        if customer.row.city:
+            address = ''.join([address, customer.row.city, ' '])
+        if customer.row.postcode:
+            address = ''.join([address, customer.row.postcode, '\n'])
+        if customer.row.country:
+            address = ''.join([address, customer.row.country])
+
+        self.invoice.update_record(
+            CustomerCompany = customer.row.company,
+            CustomerName = customer.row.full_name,
+            CustomerAddress = address
+        )
+
+
     def link_to_customer(self, cuID):
         """
             Link invoice to customer
         """
         db = current.globalenv['db']
+        # Insert link
         db.invoices_customers.insert(
             invoices_id = self.invoices_id,
             auth_customer_id = cuID
         )
+
+        # Set customer info
+        self.set_customer_info(cuID)
 
 
     def link_to_customer_subscription(self, csID):
