@@ -1330,6 +1330,9 @@ def subscriptions_create_invoices_execute(year, month, description):
         csap.Description
     ]
 
+
+    #TODO: Link invoices id using invoices_customers and invoices_customers_subscriptions
+
     rows = db.executesql(
         """
             SELECT cs.id,
@@ -1450,6 +1453,8 @@ def subscriptions_create_invoices_execute(year, month, description):
         # create object to set Invoice# and due date
         invoice = Invoice(iID)
         invoice.item_add_subscription(year, month)
+        invoice.link_to_customer(cuID)
+        invoice.link_to_customer_subscription(csID)
 
         invoice.set_amounts()
 
