@@ -1331,9 +1331,9 @@ class CustomerSubscription:
 
         # create object to set Invoice# and due date
         invoice = Invoice(iID)
-        invoice.item_add_subscription(SubscriptionYear, SubscriptionMonth)
         invoice.link_to_customer(self.auth_customer_id)
         invoice.link_to_customer_subscription(self.csID)
+        invoice.item_add_subscription(SubscriptionYear, SubscriptionMonth)
 
         return iID
 
@@ -6990,6 +6990,8 @@ class Invoice:
                              int(SubscriptionMonth),
                              1)
 
+
+
         ics = db.invoices_customers_subscriptions(invoices_id = self.invoices_id)
         csID = ics.customers_subscriptions_id
         cs = CustomerSubscription(csID)
@@ -8375,7 +8377,6 @@ class SchoolClasscard:
             enddate = (date_start + delta_days) - datetime.timedelta(days=1)
 
         return enddate
-
 
 
 class StaffSchedule:
