@@ -57,9 +57,9 @@ class Customer:
             db.customers_subscriptions.CreditsRemaining,
         ]
 
-        sql = '''SELECT cs.id, 
+        sql = '''SELECT cs.id,
                         cs.auth_customer_id,
-                        cs.Startdate, 
+                        cs.Startdate,
                         cs.Enddate,
                         cs.payment_methods_id,
                         cs.Note,
@@ -69,13 +69,13 @@ class Customer:
 (IFNULL(( SELECT SUM(csc.MutationAmount)
  FROM customers_subscriptions_credits csc
  WHERE csc.customers_subscriptions_id = cs.id AND
-	   csc.MutationType = 'add'), 0) - 
+	   csc.MutationType = 'add'), 0) -
 IFNULL(( SELECT SUM(csc.MutationAmount)
  FROM customers_subscriptions_credits csc
  WHERE csc.customers_subscriptions_id = cs.id AND
 	   csc.MutationType = 'sub'), 0)) AS credits
 FROM customers_subscriptions cs
-LEFT JOIN 
+LEFT JOIN
 school_subscriptions ssu ON cs.school_subscriptions_id = ssu.id
 WHERE cs.auth_customer_id = {cuID} AND
 (cs.Startdate <= '{date}' AND (cs.Enddate >= '{date}' OR cs.Enddate IS NULL))
@@ -95,7 +95,7 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
 
     def get_subscriptions_on_date(self, date, from_cache=True):
         '''
-            Get day rows with caching 
+            Get day rows with caching
         '''
         web2pytest = current.globalenv['web2pytest']
         request = current.globalenv['request']
@@ -223,7 +223,7 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
 
     def get_classcards(self, date, from_cache=True):
         '''
-            Get day rows with caching 
+            Get day rows with caching
         '''
         web2pytest = current.globalenv['web2pytest']
         request = current.globalenv['request']
@@ -478,7 +478,7 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
         db = current.globalenv['db']
 
         left = [ db.classes.on(db.classes_reservation.classes_id == db.classes.id) ]
-        
+
         query = (db.classes_reservation.auth_customer_id == self.cuID)
         if date:
             query &= (db.classes_reservation.Startdate <= date) & \
