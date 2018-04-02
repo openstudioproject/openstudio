@@ -1332,6 +1332,8 @@ class CustomerSubscription:
         # create object to set Invoice# and due date
         invoice = Invoice(iID)
         invoice.item_add_subscription(SubscriptionYear, SubscriptionMonth)
+        invoice.link_to_customer(self.auth_customer_id)
+        invoice.link_to_customer_subscription(self.csID)
 
         return iID
 
@@ -3674,6 +3676,7 @@ class AttendanceHelper:
         )
 
         invoice.set_amounts()
+        invoice.link_to_customer(cuID)
 
 
     def attendance_sign_in_classcard_recurring(self, cuID, clsID, ccdID, date, date_until, online_booking=False, booking_status='booked'):
@@ -5973,6 +5976,7 @@ class WorkshopProduct:
             )
 
             invoice.set_amounts()
+            invoice.link_to_customer(cuID)
 
         ##
         # Send info mail to customer if we have some practical info
@@ -6513,6 +6517,7 @@ class Order:
 
                     # Call init function for invoices to set Invoice # , etc.
                     invoice = Invoice(iID)
+                    invoice.link_to_customer(self.order.auth_customer_id)
 
         # Add items to the invoice
         rows = self.get_order_items_rows()
@@ -8323,6 +8328,7 @@ class SchoolClasscard:
         )
 
         invoice.set_amounts()
+        invoice.link_to_customer(classcard.get_auth_customer_id())
 
 
     def sell_to_customer_get_enddate(self, date_start):
