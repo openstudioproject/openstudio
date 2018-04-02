@@ -255,7 +255,10 @@ def test_subscriptions_create_montly_invoices(client, web2py):
     invoice = web2py.db.invoices(1)
     assert invoice.Status == 'sent'
     assert invoice.InvoiceID == 'INV' + unicode(datetime.date.today().year) + '1'
-    assert invoice.customers_subscriptions_id == 1
+
+    ics = web2py.db.invoices_customers_subscriptions(1)
+    assert ics.invoices_id == 1
+    assert ics.customers_subscriptions_id == 1
 
     # make sure the 2nd customer (1002) doesn't have an invoice, the subscription is paused
     assert web2py.db(web2py.db.invoices.auth_customer_id==1002).count() == 0

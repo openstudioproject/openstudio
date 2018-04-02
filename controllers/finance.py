@@ -678,12 +678,14 @@ def generate_batch_items_invoices(pbID,
 
     left = [ db.invoices_amounts.on(db.invoices_amounts.invoices_id ==
                 db.invoices.id),
-             db.auth_user.on(db.invoices.auth_customer_id==
+             db.invoices_customers.on(db.invoices_customers.invoices_id ==
+                                      db.invoices.id),
+             db.auth_user.on(db.invoices_customers.auth_customer_id ==
                              db.auth_user.id),
              db.customers_payment_info.on(
-                     db.customers_payment_info.auth_customer_id==
-                     db.invoices.auth_customer_id),
-             db.school_locations.on(db.auth_user.school_locations_id==
+                     db.customers_payment_info.auth_customer_id ==
+                     db.invoices_customers.auth_customer_id),
+             db.school_locations.on(db.auth_user.school_locations_id ==
                                     db.school_locations.id) ]
 
     rows = db(query).select(db.invoices.ALL,
