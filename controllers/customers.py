@@ -670,14 +670,30 @@ def archive():
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('delete', 'auth_user'))
-def delete():
-    '''
+def trash():
+    """
         Delete a customer
-    '''
+    """
     cuID = request.vars['cuID']
 
     query = (db.auth_user.id == cuID)
     db(query).update(trashed=True)
+
+    session.flash = T('Moved to deleted')
+
+    redirect(URL('index'))
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('delete', 'auth_user'))
+def delete():
+    """
+        Delete a customer
+    """
+    cuID = request.vars['cuID']
+
+    query = (db.auth_user.id == cuID)
+    db(query).delete()
 
     session.flash = T('Deleted')
 
@@ -5184,7 +5200,7 @@ def load_list_get_customer_index_buttons(row):
         else:
             onclick = "return confirm('" + \
                  T('Do you really want to delete this customer?') + "');"
-            url = URL('delete', vars={'cuID':row.id}, extension='')
+            url = URL('trash', vars={'cuID':row.id}, extension='')
 
         delete = os_gui.get_button('delete_notext',
                                    url,

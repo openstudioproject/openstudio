@@ -722,8 +722,30 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
             self.row.mollie_customer_id = mollie_customer_id
             self.row.update_record()
 
-
         return mollie.customer_mandates.withParentId(mollie_customer_id).all()
+
+
+class Customers:
+    """
+        This clas sontains functions for multiple customers
+    """
+    def list_deleted(self):
+        """
+            List deleted customers
+        """
+        db = current.globalenv['db']
+
+        query = (db.auth_user.trashed == True)
+        rows = db(query).select(db.auth_user.ALL)
+
+        return rows
+
+
+    def list_deleted_formatted(self):
+        """
+             format list of deleted customers
+        """
+        return 'hello world!'
 
 
 class CustomersHelper:
