@@ -96,28 +96,30 @@ def alternativepayment_repeat():
 
 
 def index_get_export(val=None):
-    '''
+    """
         Returns dict with export button and bs3 modal containing the links
         to different export options.
-    '''
-    mailinglist = A((os_gui.get_fa_icon('fa-envelope-o'),
-                     T("Mailing list")),
-                    _href=URL('export_excel', vars=dict(export='mailing_list')),
-                    _class='textalign_left')
-    active_customers = A((os_gui.get_fa_icon('fa-check'),
-                         T("Active customers")),
-                         _href=URL('export_excel',
-                                   vars=dict(export='customers_list')),
-                         _class='textalign_left')
+    """
+    export = ''
+    if auth.has_membership(group_id='Admins') or auth.has_permission('update', 'auth_user'):
+        mailinglist = A((os_gui.get_fa_icon('fa-envelope-o'),
+                         T("Mailing list")),
+                        _href=URL('export_excel', vars=dict(export='mailing_list')),
+                        _class='textalign_left')
+        active_customers = A((os_gui.get_fa_icon('fa-check'),
+                             T("Active customers")),
+                             _href=URL('export_excel',
+                                       vars=dict(export='customers_list')),
+                             _class='textalign_left')
 
-    links = [ mailinglist, active_customers ]
+        links = [ mailinglist, active_customers ]
 
-    export = os_gui.get_dropdown_menu(
-            links = links,
-            btn_text = '',
-            btn_icon = 'download',
-            btn_size = 'btn-sm',
-            menu_class='pull-right' )
+        export = os_gui.get_dropdown_menu(
+                links = links,
+                btn_text = '',
+                btn_icon = 'download',
+                btn_size = 'btn-sm',
+                menu_class='pull-right' )
 
     return export
 
@@ -383,6 +385,10 @@ def subscriptions_get_link_credits(row):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'auth_user'))
 def index():
+    """
+        List customers
+    """
+    response.title = T("Customers")
     # make sure we're redirected back to the list from the edit page
     session.customers_back = None
     # Redirect back to edit page after adding
@@ -391,14 +397,11 @@ def index():
     response.search_available = True
     try:
         response.q = session.customers_load_list_search_name.replace('%', '')
-
     except AttributeError:
         response.q = ''
 
-
     # archive filter
     show = 'current'
-
     if 'show_archive' in request.vars:
         show = request.vars['show_archive']
         session.customers_show = show
@@ -407,46 +410,22 @@ def index():
         session.customers_show = 'current'
 
     if session.customers_show == 'archive':
-        archive_class = 'active'
-        current_class = ''
+        page = 'archive'
     else:
-        current_class = 'active'
-        archive_class = ''
+        page = 'current'
 
     if 'nr_items' in request.vars:
         session.customers_index_items_per_page = int(request.vars['nr_items'])
 
     archive_buttons = os_gui.get_archived_radio_buttons(session.customers_show)
 
-    response.title = T("Customers")
-
-    export = ''
-    if auth.has_membership(group_id='Admins') or auth.has_permission('update', 'auth_user'):
-        export = index_get_export()
-
-
-    add = ''
-    if ( auth.has_membership(group_id='Admins') or
-         auth.has_permission('create', 'auth_user') ):
-        ch = CustomersHelper()
-        result = ch.get_add_modal()
-        add = SPAN(result['button'], result['modal'], _class='pull-right')
-
     if session.customers_show == 'current':
         archived = False
     else:
         archived = True
 
-    show_location = False
-    if session.show_location:
-        show_location = 'True'
-
-    show_email = False
-    if ( auth.has_membership(group_id='Admins') or
-         auth.has_permission('update', 'customer-contact') ):
-        show_email = True
-
-
+    show_location = index_get_show_location()
+    show_email = index_get_show_email()
     search_results = DIV(LOAD('customers', 'load_list.load',
                               target='customers_load_list',
                               content=os_gui.get_ajax_loader(message=T("Searching...")),
@@ -460,27 +439,17 @@ def index():
                          _id="customers_load_list",
                          _class="load_list_customers clear")
 
-    # archive_buttons = os_gui.get_archived_radio_buttons(
-    #     session.customers_show)
-
     content = DIV(
-        UL(LI(A(T('Current'),
-                _href=URL(vars={'show_archive':'current'})),
-              _class=current_class),
-           LI(A(T('Archive'),
-                _href=URL(vars={'show_archive':'archive'})),
-              _class=archive_class),
-           # LI(I(_class='fa fa-users'),
-           #    _class='pull-left header'),
-           _class='nav nav-tabs pull-right'),
+        index_get_menu(page),
         DIV(DIV(search_results,
                 _class='tab-pane active'),
             _class='tab-content'),
         _class='nav-tabs-custom')
 
 
+    export = index_get_export()
+    add = index_get_add()
     tools = index_get_tools()
-
 
     return dict(add=add,
                 export=export,
@@ -489,11 +458,80 @@ def index():
                 header_tools=tools)
 
 
+def index_get_show_location():
+    """
+        Should we show customer locations in the list?
+    """
+    show_location = False
+    if session.show_location:
+        show_location = 'True'
+
+    return show_location
+
+
+def index_get_show_email():
+    """
+        Returns show contact info permissions
+    """
+    show_email = False
+    if ( auth.has_membership(group_id='Admins') or
+         auth.has_permission('update', 'customer-contact') ):
+        show_email = True
+
+    return show_email
+
+
+def index_get_add():
+    """
+        Add button for index page
+    """
+    add = ''
+    if ( auth.has_membership(group_id='Admins') or
+         auth.has_permission('create', 'auth_user') ):
+        ch = CustomersHelper()
+        result = ch.get_add_modal()
+        add = SPAN(result['button'], result['modal'], _class='pull-right')
+
+    return add
+
+
+def index_get_menu(page):
+    """
+        Tabs Menu for index page
+    """
+    active = 'active'
+    current_class = ''
+    archive_class = ''
+    deleted_class = ''
+
+    if page == 'current':
+        current_class = active
+    elif page == 'archive':
+        archive_class = active
+    elif page == 'deleted':
+        deleted_class = active
+
+    tabs = UL(LI(A(T('Current'),
+                    _href=URL('index', vars={'show_archive':'current'})),
+                  _class=current_class),
+              LI(A(T('Archive'),
+                    _href=URL('index', vars={'show_archive':'archive'})),
+                  _class=archive_class),
+              LI(A(T('Deleted'),
+                    _href=URL('customers', 'index_deleted')),
+                  _class=deleted_class),
+               # LI(I(_class='fa fa-users'),
+               #    _class='pull-left header'),
+              _class='nav nav-tabs pull-right')
+
+    return tabs
+
+
 def index_get_link_archive(row):
-    '''
+    """
         Called from the index function. Changes title of archive button
         depending on whether a customer is archived or not
-    '''
+    """
     row = db.auth_user(row.id)
 
     try:
@@ -565,6 +603,35 @@ def index_get_tools(var=None):
                                      )
 
     return tools
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'auth_user'))
+def index_deleted():
+    """
+        List deleted customers
+    """
+    response.title = T('Customers')
+    response.subtitle = T('Deleted')
+    response.view = 'customers/index.html'
+
+    content = DIV(
+        index_get_menu('deleted'),
+        DIV(DIV("Hello world",
+                _class='tab-pane active'),
+            _class='tab-content'),
+        _class='nav-tabs-custom')
+
+
+    export = index_get_export()
+    add = index_get_add()
+    tools = index_get_tools()
+
+    return dict(add=add,
+                export=export,
+                content=content,
+                nr_items=index_get_select_nr_items(),
+                header_tools=tools)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
