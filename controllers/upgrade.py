@@ -133,6 +133,13 @@ def index():
         else:
             session.flash = T('Already up to date')
 
+        if version < 2018.2:
+            print version
+            upgrade_to_20182()
+            session.flash = T("Upgraded db to 2018.2")
+        else:
+            session.flash = T('Already up to date')
+
         # always renew permissions for admin group after update
         set_permissions_for_admin_group()
 
@@ -937,3 +944,10 @@ def upgrade_to_20181():
     query = (db.classes_attendance.BookingStatus == None)
     db(query).update(BookingStatus='attending')
     # TODO: repeat the 2 lines above for all coming upgrades
+
+
+def upgrade_to_20182():
+    """
+        Upgrade operations to 2018.2
+    """
+
