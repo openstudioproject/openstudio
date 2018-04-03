@@ -950,4 +950,8 @@ def upgrade_to_20182():
     """
         Upgrade operations to 2018.2
     """
+    ##
+    # Set archived for all users to False
+    ##
+    db(db.auth_user).update(archived = False)
 
