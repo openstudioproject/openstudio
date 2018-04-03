@@ -10423,7 +10423,8 @@ class ShopProductsSet:
                         variant_name += option_name + ': ' + value_name
                         break
 
-            query = (db.shop_products_variants.VariantCode == variant_code)
+            query = (db.shop_products_variants.VariantCode == variant_code) & \
+                    (db.shop_products_variants.shop_products_id == shop_products_id)
             count = db(query).count()
             if not count:
                 db.shop_products_variants.insert(
@@ -10981,12 +10982,12 @@ class ShopProduct:
         )
 
 
-    def add_product_set_variants(self):
-        """
-        :param spsID:
-        :return: None
-        """
-        db = current.globalenv['db']
+    # def add_product_set_variants(self):
+    #     """
+    #     :param spsID:
+    #     :return: None
+    #     """
+    #     db = current.globalenv['db']
 
 
     def has_products_set(self):
