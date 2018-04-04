@@ -611,13 +611,18 @@ def index_deleted():
     """
         List deleted customers
     """
+    from openstudio import Customers
+
     response.title = T('Customers')
     response.subtitle = T('Deleted')
     response.view = 'customers/index.html'
 
+    customers = Customers()
+    list = customers.list_deleted_formatted()
+
     content = DIV(
         index_get_menu('deleted'),
-        DIV(DIV("Hello world",
+        DIV(DIV(list,
                 _class='tab-pane active'),
             _class='tab-content'),
         _class='nav-tabs-custom')
@@ -5231,12 +5236,6 @@ def load_list_get_attendance_list_buttons(row,
                  _class='btn btn-default btn-sm pull-right')
     else:
         return ''
-
-    # ah = AttendanceHelper()
-    # cuID = row.id
-    # date = datestr_to_python(DATE_FORMAT, date_formatted)
-    #
-    # return ah.get_signin_buttons(clsID, date, cuID)
 
 
 def load_list_get_selfcheckin_checkin_buttons(row,

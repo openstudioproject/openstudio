@@ -745,7 +745,66 @@ class Customers:
         """
              format list of deleted customers
         """
-        return 'hello world!'
+        T = current.globalenv['T']
+        auth = current.globalenv['auth']
+        os_gui = current.globalenv['os_gui']
+
+
+        permission_delete = (auth.has_membership(group_id='Admins') or
+                             auth.has_permission('delete', 'auth_user'))
+        print permission_delete
+
+        onclick_delete = "return confirm('" + \
+                         T('Do you really want to delete this customer and any associated data?') \
+                         + "');"
+
+        header = THEAD(TR(
+            TH(), # image
+            TH(T("Customer")),
+            TH(T("Date of birth")),
+            TH(T("Email")),
+            TH(T("Date Created")),
+            TH(), # buttons
+        ))
+
+        table = TABLE(header, _class='table table-striped table-hover')
+        rows = self.list_deleted()
+        for i, row in enumerate(rows):
+            repr_row = list(rows[i:i + 1].render())[0]
+
+            tr = TR(
+                TD(repr_row.thumbsmall),
+                TD(B(repr_row.display_name)),
+                TD(repr_row.date_of_birth),
+                TD(row.email),
+                TD(),
+                TD(self._list_formatted_get_link_delete(
+                    row,
+                    os_gui,
+                    permission_delete,
+                    onclick_delete)
+                )
+            )
+
+            table.append(tr)
+
+        return table
+
+
+    def _list_formatted_get_link_delete(self, row, os_gui, permission, onclick):
+        """
+            Return delete button
+        """
+        delete = ''
+        if permission:
+            delete = os_gui.get_button(
+                'delete_notext',
+                URL('customers', 'delete', vars={'cuID': row.id}),
+                onclick=onclick,
+                _class="pull-right"
+            )
+
+        return delete
 
 
 class CustomersHelper:
