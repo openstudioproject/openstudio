@@ -3406,7 +3406,7 @@ def pdf_template_get_display_times(workshop, activities):
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('update', 'workshops_info_mail'))
+               auth.has_permission('update', 'workshops_mail'))
 def info_mail():
     """
         Information mail for workshops

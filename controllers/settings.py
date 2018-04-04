@@ -1481,7 +1481,8 @@ def access_group_permissions():
                 ['workshops_activities-update', T("Edit activities")],
                 ['workshops_activities-delete', T("Delete activities")],
                 ['workshops_activities_customers-update', T('Edit activity attendance')]]],
-            ['workshops-archive', T("Archive events")]
+            ['workshops-archive', T("Archive events")],
+            ['workshops_mail-update', T("Edit info mail")]
         ]],
     ]
 
