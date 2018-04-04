@@ -4781,7 +4781,7 @@ auth.settings.extra_fields['auth_user'] = [
         readable=False,
         writable=False,
         default=False,
-        label=T('Moved to trash')),
+        label=T('Deleted')),
     Field('enabled', 'boolean',
         readable=False,
         writable=False,

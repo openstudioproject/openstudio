@@ -752,7 +752,6 @@ class Customers:
 
         permission_delete = (auth.has_membership(group_id='Admins') or
                              auth.has_permission('delete', 'auth_user'))
-        print permission_delete
 
         onclick_delete = "return confirm('" + \
                          T('Do you really want to delete this customer and all associated data?') \
