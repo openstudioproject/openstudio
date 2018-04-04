@@ -516,7 +516,7 @@ def list_tasks_get_user_filter(auth_user_id=None):
         returns form to filter users in tasks list
     '''
     auth_user_query = (db.auth_user.id > 1) & \
-                      (db.auth_user.archived == False) & \
+                      (db.auth_user.trashed == False) & \
                       ((db.auth_user.teacher == True) |
                        (db.auth_user.employee == True))
 

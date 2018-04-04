@@ -84,20 +84,20 @@ def represent_user_thumbsmall(value, row):
     birthday = False
     display_name = ''
 
-    if 'archived' in row:
+    if 'trashed' in row:
         display_name = row.display_name
         thumb = row.thumbsmall
         cu_id = row.id
-        if row.archived:
+        if row.trashed:
             active = False
 
         if row.birthday:
             birthday = row.birthday
-    elif 'archived' in row.auth_user:
+    elif 'trashed' in row.auth_user:
         display_name = row.auth_user.display_name
         thumb = row.auth_user.thumbsmall
         cu_id = row.auth_user.id
-        if row.auth_user.archived:
+        if row.auth_user.trashed:
             active = False
 
         if row.auth_user.birthday:
@@ -112,8 +112,6 @@ def represent_user_thumbsmall(value, row):
             present = SPAN(os_gui.get_fa_icon('fa-birthday-cake'),
                         _class='pull-right orange vsmall_font',
                         _title=T('Today is ') + display_name + T("'s birthday!"))
-
-
 
     alt = display_name
     if thumb is None:
@@ -791,7 +789,7 @@ def define_announcements():
 
 def define_tasks():
     auth_user_query = (db.auth_user.id > 1) & \
-                      (db.auth_user.archived == False) & \
+                      (db.auth_user.trashed == False) & \
                       ((db.auth_user.teacher == True) |
                        (db.auth_user.employee == True))
     auth_cu_query = (db.auth_user.customer == True)
@@ -1262,7 +1260,7 @@ def define_school_levels():
 
 
 def define_teachers_holidays():
-    au_query = (db.auth_user.archived == False) & \
+    au_query = (db.auth_user.trashed == False) & \
                ((db.auth_user.teacher == True) |
                 (db.auth_user.employee == True))
 
@@ -1546,7 +1544,7 @@ def define_classes_otc():
     loc_query = (db.school_locations.Archived == False)
     ct_query = (db.school_classtypes.Archived == False)
     sl_query = (db.school_levels.Archived == False)
-    au_query = (db.auth_user.archived == False) & \
+    au_query = (db.auth_user.trashed == False) & \
                (db.auth_user.teacher == True) & \
                (db.auth_user.teaches_classes == True)
 
@@ -1752,7 +1750,7 @@ def define_classes_price():
 
 
 def define_classes_teachers():
-    au_query = (db.auth_user.archived == False) & \
+    au_query = (db.auth_user.trashed == False) & \
                (db.auth_user.teacher == True) & \
                (db.auth_user.teaches_classes == True)
 
@@ -2342,7 +2340,7 @@ def define_teachers_classtypes():
 
 
 def define_classes_subteachers():
-    au_query = (db.auth_user.archived == False) & \
+    au_query = (db.auth_user.trashed == False) & \
                (db.auth_user.teacher == True) & \
                (db.auth_user.teaches_classes == True)
 
@@ -2503,7 +2501,7 @@ def define_classes_waitinglist():
 
 
 def define_workshops():
-    au_query = (db.auth_user.archived == False) & \
+    au_query = (db.auth_user.trashed == False) & \
                (db.auth_user.teacher == True) & \
                (db.auth_user.teaches_workshops == True)
 
@@ -2638,7 +2636,7 @@ def define_workshops_mail():
 
 def define_workshops_activities():
     loc_query = (db.school_locations.Archived == False)
-    au_query = (db.auth_user.archived == False) & \
+    au_query = (db.auth_user.trashed == False) & \
                (db.auth_user.teacher == True) & \
                (db.auth_user.teaches_workshops == True)
 
@@ -3720,7 +3718,7 @@ def define_shifts_otc():
     loc_query = (db.school_locations.Archived == False)
     ss_query = (db.school_shifts.Archived == False)
     sl_query = (db.school_levels.Archived == False)
-    au_query = (db.auth_user.archived == False) & \
+    au_query = (db.auth_user.trashed == False) & \
                (db.auth_user.employee == True)
 
     statuses = [['normal', T('Normal')],
@@ -3791,7 +3789,7 @@ def define_shifts_otc():
 
 # Legacy table, depricated from 3.08
 def define_shifts_sub():
-    au_query = (db.auth_user.archived == False) & \
+    au_query = (db.auth_user.trashed == False) & \
                (db.auth_user.employee == True)
 
     db.define_table('shifts_sub',
@@ -3827,7 +3825,7 @@ def define_shifts_sub():
 
 
 def define_shifts_staff():
-    au_query = (db.auth_user.archived == False) & \
+    au_query = (db.auth_user.trashed == False) & \
                (db.auth_user.employee == True)
 
     db.define_table('shifts_staff',

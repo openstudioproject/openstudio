@@ -150,7 +150,7 @@ def message_get_workshops_customers_reached():
     # Add customers to whom the message hasn't been sent yet
     query = (db.auth_user.id.belongs(difference))
     rows = db(query).select(db.auth_user.id,
-                            db.auth_user.archived,
+                            db.auth_user.trashed,
                             db.auth_user.thumbsmall,
                             db.auth_user.birthday,
                             db.auth_user.display_name,
@@ -178,7 +178,7 @@ def message_get_workshops_customers_reached():
     query = (db.customers_messages.messages_id == msgID)
     rows = db(query).select(db.customers_messages.ALL,
                             db.auth_user.id,
-                            db.auth_user.archived,
+                            db.auth_user.trashed,
                             db.auth_user.thumbsmall,
                             db.auth_user.birthday,
                             db.auth_user.display_name,

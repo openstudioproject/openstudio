@@ -951,6 +951,12 @@ def upgrade_to_20182():
         Upgrade operations to 2018.2
     """
     ##
+    # Set archived customers to deleted
+    ##
+    query = (db.auth_user.archived == True)
+    db(query).update(trashed = True)
+
+    ##
     # Set archived for all users to False
     ##
     db(db.auth_user).update(archived = False)

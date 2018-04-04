@@ -2238,7 +2238,7 @@ class AttendanceHelper:
 
         fields = [
             db.auth_user.id,
-            db.auth_user.archived,
+            db.auth_user.trashed,
             db.auth_user.birthday,
             db.auth_user.thumbsmall,
             db.auth_user.first_name,
@@ -2357,12 +2357,12 @@ class AttendanceHelper:
                 (db.classes_attendance.classes_id == clsID) & \
                 (db.classes_attendance.ClassDate <= date) & \
                 (db.classes_attendance.ClassDate >= x_days_ago) & \
-                (db.auth_user.archived == False) & \
+                (db.auth_user.trashed == False) & \
                 (db.auth_user.customer == True)
 
 
         rows = db(query).select(db.auth_user.id,
-                                db.auth_user.archived,
+                                db.auth_user.trashed,
                                 db.auth_user.birthday,
                                 db.auth_user.thumbsmall,
                                 db.auth_user.first_name,
@@ -2388,7 +2388,7 @@ class AttendanceHelper:
 
         fields = [
             db.auth_user.id,
-            db.auth_user.archived,
+            db.auth_user.trashed,
             db.auth_user.birthday,
             db.auth_user.thumbsmall,
             db.auth_user.first_name,
@@ -5763,7 +5763,7 @@ class WorkshopsHelper:
                                 db.workshops_products_customers.auth_customer_id)]
         rows = db(query).select(db.workshops_products_customers.ALL,
                                 db.auth_user.id,
-                                db.auth_user.archived,
+                                db.auth_user.trashed,
                                 db.auth_user.thumbsmall,
                                 db.auth_user.first_name,
                                 db.auth_user.last_name,

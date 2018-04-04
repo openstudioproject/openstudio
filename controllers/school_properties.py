@@ -2315,18 +2315,18 @@ def employees():
 
     show = 'current'
 
-    query = (db.auth_user.archived == False)
+    query = (db.auth_user.trashed == False)
 
     if 'show_archive' in request.vars:
         show = request.vars['show_archive']
         session.sp_employees_show = show
         if show == 'current':
-            query = (db.auth_user.archived == False)
+            query = (db.auth_user.trashed == False)
         elif show == 'archive':
-            query = (db.auth_user.archived == True)
+            query = (db.auth_user.trashed == True)
     elif session.sp_employees_show == 'archive' and \
             request.vars.manage != 'teachers':
-        query = (db.auth_user.archived == True)
+        query = (db.auth_user.trashed == True)
     else:
         session.sp_employees_show = show
 
@@ -2353,7 +2353,7 @@ def employees():
              account_get_link_archive]
 
     fields = [
-        db.auth_user.archived,
+        db.auth_user.trashed,
         db.auth_user.birthday,
         db.auth_user.thumbsmall,
         db.auth_user.display_name,
@@ -2635,18 +2635,19 @@ def teachers():
     session.customers_add_back = 'school_teachers'
     session.settings_groups_back = 'school_teachers'
 
+#TODO: Remove archive filter
     show = 'current'
-    query = (db.auth_user.archived == False)
+    query = (db.auth_user.trashed == False)
 
     if 'show_archive' in request.vars:
         show = request.vars['show_archive']
         session.school_teachers_show = show
         if show == 'current':
-            query = (db.auth_user.archived == False)
+            query = (db.auth_user.trashed == False)
         elif show == 'archive':
-            query = (db.auth_user.archived == True)
+            query = (db.auth_user.trashed == True)
     elif session.school_teachers_show == 'archive':
-            query = (db.auth_user.archived == True)
+            query = (db.auth_user.trashed == True)
     else:
         session.school_teachers_show = show
 
@@ -2692,7 +2693,7 @@ def teachers():
 
     fields = [ db.auth_user.enabled,
                db.auth_user.thumbsmall,
-               db.auth_user.archived,
+               db.auth_user.trashed,
                db.auth_user.birthday,
                db.auth_user.display_name,
                db.auth_user.teaches_classes,

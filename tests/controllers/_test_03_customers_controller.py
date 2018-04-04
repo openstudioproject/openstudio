@@ -109,14 +109,14 @@ def test_customers_archive(client, web2py):
     client.get('/customers/archive?uID=1001')
     assert client.status == 200
 
-    query = (web2py.db.auth_user.archived == True)
+    query = (web2py.db.auth_user.trashed == True)
     assert web2py.db(query).count() == 1
 
     # move to current
     client.get('/customers/archive?uID=1001')
     assert client.status == 200
 
-    query = (web2py.db.auth_user.archived == True)
+    query = (web2py.db.auth_user.trashed == True)
     assert web2py.db(query).count() == 0
 
 

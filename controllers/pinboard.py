@@ -189,7 +189,7 @@ def get_birthdays(var=None):
     edit_permission = (auth.has_membership(group_id='Admins') or
                        auth.has_permission('update', 'auth_user'))
 
-    query = (db.auth_user.archived == False) & \
+    query = (db.auth_user.trashed == False) & \
             (db.auth_user.customer == True) & \
             (db.auth_user.birthday >= birthday_check) & \
             (db.auth_user.birthday <= birthday_check + datetime.timedelta(days=7))

@@ -1017,7 +1017,7 @@ def classes_get_filter(week,
         :return: div containing filter form for shop classes
     """
     au_query = (db.auth_user.teacher == True) & \
-               (db.auth_user.archived == False)
+               (db.auth_user.trashed == False)
 
     sl_query = (db.school_locations.Archived == False) & \
                (db.school_locations.AllowAPI == True)

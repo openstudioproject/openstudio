@@ -205,7 +205,7 @@ def trialclasses_export():
 
     rows = db(query).select(db.classes_attendance.ALL,
                             db.auth_user.id,
-                            db.auth_user.archived,
+                            db.auth_user.trashed,
                             db.auth_user.display_name,
                             db.auth_user.email,
                             db.auth_user.thumbsmall,
@@ -458,7 +458,7 @@ def trialcards():
     rows = db(query).select(db.customers_classcards.ALL,
                             db.auth_user.id,
                             db.auth_user.display_name,
-                            db.auth_user.archived,
+                            db.auth_user.trashed,
                             db.auth_user.thumbsmall,
                             db.auth_user.birthday,
                             db.school_classcards.ALL,
@@ -763,7 +763,7 @@ def dropin_trial_classes_get_rows(date, att_type):
 
     fields = [
         db.auth_user.id,
-        db.auth_user.archived,
+        db.auth_user.trashed,
         db.auth_user.thumbsmall,
         db.auth_user.birthday,
         db.auth_user.display_name,
@@ -1118,7 +1118,7 @@ def classcards():
             (db.school_classcards.Trialcard == False)
 
     rows = db(query).select(db.auth_user.id,
-                            db.auth_user.archived,
+                            db.auth_user.trashed,
                             db.auth_user.thumbsmall,
                             db.auth_user.birthday,
                             db.auth_user.display_name,
@@ -1237,7 +1237,7 @@ def classcards_current():
 
 
     rows = db(query).select(db.auth_user.id,
-                            db.auth_user.archived,
+                            db.auth_user.trashed,
                             db.auth_user.thumbsmall,
                             db.auth_user.birthday,
                             db.auth_user.display_name,
@@ -1490,7 +1490,7 @@ def subscriptions_new():
     submit = result['submit']
 
     fields = [ db.auth_user.id,
-               db.auth_user.archived,
+               db.auth_user.trashed,
                db.auth_user.thumbsmall,
                db.auth_user.birthday,
                db.auth_user.display_name,
@@ -1570,7 +1570,7 @@ def subscriptions_stopped():
     submit = form_subtitle['submit']
 
     fields = [ db.auth_user.id,
-               db.auth_user.archived,
+               db.auth_user.trashed,
                db.auth_user.thumbsmall,
                db.auth_user.birthday,
                db.auth_user.display_name,
@@ -1684,7 +1684,7 @@ def subscriptions_paused():
                                                 firstdaythismonth) |
              (db.customers_subscriptions_paused.Enddate == None))
     rows = db(query).select(db.auth_user.id,
-                            db.auth_user.archived,
+                            db.auth_user.trashed,
                             db.auth_user.thumbsmall,
                             db.auth_user.birthday,
                             db.auth_user.display_name,
@@ -1977,7 +1977,7 @@ def subscriptions_overview_export_all_customers():
                 "BankLocation"]
     ws.append(headers)
 
-    query = (db.auth_user.archived == False)
+    query = (db.auth_user.trashed == False)
     rows = db(query).select(db.auth_user.ALL,
                             db.school_locations.Name,
             left=[db.school_locations.on(db.auth_user.school_locations_id==\
@@ -2265,7 +2265,7 @@ def subscriptions_overview_customers_get_rows(ssuID, locationID=None):
                             db.auth_user.id,
                             db.auth_user.thumbsmall,
                             db.auth_user.birthday,
-                            db.auth_user.archived,
+                            db.auth_user.trashed,
                             db.auth_user.first_name,
                             db.auth_user.last_name,
                             db.auth_user.display_name,
@@ -2352,7 +2352,7 @@ def subscriptions_alt_prices():
               db.customers_subscriptions.auth_customer_id,
               db.customers_subscriptions.school_subscriptions_id,
               db.auth_user.id,
-              db.auth_user.archived,
+              db.auth_user.trashed,
               db.auth_user.birthday,
               db.auth_user.display_name,
               db.auth_user.thumbsmall,
@@ -2530,7 +2530,7 @@ def direct_debit_extra():
             ((db.payment_categories.CategoryType != 1) |
              (db.payment_categories.CategoryType == None))
     rows = db(query).select(db.auth_user.id,
-                            db.auth_user.archived,
+                            db.auth_user.trashed,
                             db.auth_user.thumbsmall,
                             db.auth_user.birthday,
                             db.auth_user.display_name,
@@ -2576,7 +2576,7 @@ def direct_debit_extra():
             (db.alternativepayments.PaymentMonth==date.month) & \
             (db.payment_categories.CategoryType == 1)
     rows = db(query).select(db.auth_user.id,
-                            db.auth_user.archived,
+                            db.auth_user.trashed,
                             db.auth_user.thumbsmall,
                             db.auth_user.birthday,
                             db.auth_user.display_name,
@@ -3371,7 +3371,7 @@ def attendance_organizations_list_attendance_get_rows(year, month, soID, custome
                                 db.classes.school_classtypes_id,
                                 db.auth_user.id,
                                 db.auth_user.thumbsmall,
-                                db.auth_user.archived,
+                                db.auth_user.trashed,
                                 db.auth_user.birthday,
                                 db.auth_user.display_name,
                                 db.school_classcards.Name,
@@ -3806,7 +3806,7 @@ def attendance_subcription_exceeded():
                             db.classes.Starttime,
                             db.auth_user.id,
                             db.auth_user.thumbsmall,
-                            db.auth_user.archived,
+                            db.auth_user.trashed,
                             db.auth_user.birthday,
                             db.auth_user.display_name,
                             db.customers_subscriptions.school_subscriptions_id,
@@ -5113,7 +5113,7 @@ def teacher_classes_get_form_teachers(teachers_id):
     '''
         returns list teachers select form
     '''
-    au_query = (db.auth_user.archived == False) &\
+    au_query = (db.auth_user.trashed == False) &\
                (db.auth_user.teacher == True)
     form = SQLFORM.factory(
         Field('teachers_id', db.auth_user,

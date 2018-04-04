@@ -401,28 +401,28 @@ def index():
         response.q = ''
 
     # archive filter
-    show = 'current'
-    if 'show_archive' in request.vars:
-        show = request.vars['show_archive']
-        session.customers_show = show
-
-    if not session.customers_show:
-        session.customers_show = 'current'
-
-    if session.customers_show == 'archive':
-        page = 'archive'
-    else:
-        page = 'current'
+    # show = 'current'
+    # if 'show_archive' in request.vars:
+    #     show = request.vars['show_archive']
+    #     session.customers_show = show
+    #
+    # if not session.customers_show:
+    #     session.customers_show = 'current'
+    #
+    # if session.customers_show == 'archive':
+    #     page = 'archive'
+    # else:
+    #     page = 'current'
 
     if 'nr_items' in request.vars:
         session.customers_index_items_per_page = int(request.vars['nr_items'])
 
-    archive_buttons = os_gui.get_archived_radio_buttons(session.customers_show)
+    # archive_buttons = os_gui.get_archived_radio_buttons(session.customers_show)
 
-    if session.customers_show == 'current':
-        archived = False
-    else:
-        archived = True
+    # if session.customers_show == 'current':
+    #     archived = False
+    # else:
+    #     archived = True
 
     show_location = index_get_show_location()
     show_email = index_get_show_email()
@@ -432,7 +432,6 @@ def index():
                               vars={'list_type':'customers_index',
                                     'items_per_page':session.customers_index_items_per_page,
                                     'initial_list':True,
-                                    'archived':archived,
                                     'show_location':show_location,
                                     'show_email': show_email},
                               ajax=True),
@@ -440,7 +439,7 @@ def index():
                          _class="load_list_customers clear")
 
     content = DIV(
-        index_get_menu(page),
+        index_get_menu('current'),
         DIV(DIV(search_results,
                 _class='tab-pane active'),
             _class='tab-content'),
@@ -501,22 +500,16 @@ def index_get_menu(page):
     """
     active = 'active'
     current_class = ''
-    archive_class = ''
     deleted_class = ''
 
     if page == 'current':
         current_class = active
-    elif page == 'archive':
-        archive_class = active
     elif page == 'deleted':
         deleted_class = active
 
     tabs = UL(LI(A(T('Current'),
                     _href=URL('index', vars={'show_archive':'current'})),
                   _class=current_class),
-              LI(A(T('Archive'),
-                    _href=URL('index', vars={'show_archive':'archive'})),
-                  _class=archive_class),
               LI(A(T('Deleted'),
                     _href=URL('customers', 'index_deleted')),
                   _class=deleted_class),
@@ -527,26 +520,26 @@ def index_get_menu(page):
     return tabs
 
 
-def index_get_link_archive(row):
-    """
-        Called from the index function. Changes title of archive button
-        depending on whether a customer is archived or not
-    """
-    row = db.auth_user(row.id)
-
-    try:
-        if row.archived:
-            tt = T("Move to current")
-        else:
-            tt = T("Archive")
-
-        return os_gui.get_button('archive',
-                                 URL('archive',
-                                     vars={'uID':row.id},
-                                     extension=''),
-                                 tooltip=tt)
-    except AttributeError: # might get thrown if a customer is deleted, but still in cache. Then the row can't be fetched
-        return
+# def index_get_link_archive(row):
+#     """
+#         Called from the index function. Changes title of archive button
+#         depending on whether a customer is archived or not
+#     """
+#     row = db.auth_user(row.id)
+#
+#     try:
+#         if row.archived:
+#             tt = T("Move to current")
+#         else:
+#             tt = T("Archive")
+#
+#         return os_gui.get_button('archive',
+#                                  URL('archive',
+#                                      vars={'uID':row.id},
+#                                      extension=''),
+#                                  tooltip=tt)
+#     except AttributeError: # might get thrown if a customer is deleted, but still in cache. Then the row can't be fetched
+#         return
 
 
 def index_get_select_nr_items(var=None):
@@ -1272,7 +1265,7 @@ def export_excel():
                     "BankLocation"]
         ws.append(headers)
 
-        query = (db.auth_user.archived == False)
+        query = (db.auth_user.trashed == False)
         rows = db(query).select(db.auth_user.ALL,
                                 db.school_locations.Name,
                 left=[db.school_locations.on(db.auth_user.school_locations_id==\
@@ -1324,7 +1317,7 @@ def export_excel():
         # write the sheet for all mail addresses
         ws = wb.create_sheet(title="All customers")
         today = datetime.date.today()
-        query = ((db.auth_user.archived == False) &
+        query = ((db.auth_user.trashed == False) &
                  (db.auth_user.id > 1))
         rows = db(query).select(db.auth_user.first_name,
                                 db.auth_user.last_name,
@@ -1336,7 +1329,7 @@ def export_excel():
         # All newsletter
         ws = wb.create_sheet(title="Newsletter")
         today = datetime.date.today()
-        query = ((db.auth_user.archived == False) &
+        query = ((db.auth_user.trashed == False) &
                  (db.auth_user.newsletter == True) &
                  (db.auth_user.id > 1))
         rows = db(query).select(db.auth_user.first_name,
@@ -3685,7 +3678,7 @@ def subscription_credits_month_get_content(expired=False):
                             db.auth_user.display_name,
                             db.auth_user.thumbsmall,
                             db.auth_user.birthday,
-                            db.auth_user.archived,
+                            db.auth_user.trashed,
                             db.school_subscriptions.Name,
                             db.customers_subscriptions.id,
                             db.customers_subscriptions.Startdate,
@@ -4947,11 +4940,11 @@ def load_list():
     else:
         show_email = False
 
-    archived = request.vars['archived']
-    if archived == 'False' or archived is None:
-        archived = False
-    else:
-        archived = True
+    # archived = request.vars['archived']
+    # if archived == 'False' or archived is None:
+    #     archived = False
+    # else:
+    #     archived = True
 
     if date_formatted:
         date = datestr_to_python(DATE_FORMAT, date_formatted)
@@ -4979,19 +4972,10 @@ def load_list():
         query = (db.auth_user.id < 1)
 
     title = ''
-    if list_type == 'customers_index':
-        query &= (db.auth_user.archived == archived)
+    query &= (db.auth_user.trashed == False)
 
-    elif list_type == 'classes_attendance_list':
+    if list_type == 'classes_attendance_list':
         title = H4(T('Search results'))
-        query &= (db.auth_user.archived == False)
-
-    elif list_type == 'classes_manage_reservation':
-        query &= (db.auth_user.archived == False)
-
-    elif list_type == 'events_ticket_sell':
-        #table_class += ' full-width'
-        query &= (db.auth_user.archived == False)
 
     if search_name:
         query &= ((db.auth_user.display_name.like(search_name)) |
@@ -5006,7 +4990,7 @@ def load_list():
 
 
     rows = db(query).select(db.auth_user.id,
-                            db.auth_user.archived,
+                            db.auth_user.trashed,
                             db.auth_user.thumbsmall,
                             db.auth_user.birthday,
                             db.auth_user.display_name,
@@ -5188,12 +5172,7 @@ def load_list_get_customer_index_buttons(row):
        btn_edit =  os_gui.get_button('edit', URL('edit',
                                                   args=[row.id],
                                                   extension=''))
-
        buttons.append(btn_edit)
-
-
-       btn_archive = index_get_link_archive(row)
-       buttons.append(btn_archive)
 
     delete = ''
     if (auth.has_membership(group_id='Admins') or
@@ -5332,8 +5311,8 @@ def account():
         field.readable = False
         field.writable = False
 
-    db.auth_user.archived.readable = True
-    db.auth_user.archived.writable = True
+    db.auth_user.trashed.readable = True
+    db.auth_user.trashed.writable = True
     db.auth_user.customer.readable = True
     db.auth_user.customer.writable = True
     db.auth_user.enabled.readable = True
