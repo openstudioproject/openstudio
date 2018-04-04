@@ -755,7 +755,7 @@ class Customers:
         print permission_delete
 
         onclick_delete = "return confirm('" + \
-                         T('Do you really want to delete this customer and any associated data?') \
+                         T('Do you really want to delete this customer and all associated data?') \
                          + "');"
 
         header = THEAD(TR(
