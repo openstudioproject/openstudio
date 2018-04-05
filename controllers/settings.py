@@ -457,13 +457,14 @@ def branding_default_templates_list_templates(template_type):
         :param template_type: can be 'email' or 'workshops' for now
         :return: list of files in view/templates/<template_type> folder
     '''
-    template_types = ['email', 'invoices', 'workshops']
+    template_types = ['email', 'invoices', 'events']
     if template_type not in template_types:
         return ''
 
-    # TODO: add invoices templates
     template_dir = os.path.join(request.folder, 'views', 'templates', template_type)
     templates = sorted(os.listdir(template_dir))
+
+
 
     return templates
 
