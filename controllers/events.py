@@ -3301,17 +3301,18 @@ def pdf():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'workshops'))
 def pdf_template_show():
-    wsID = request.vars['wsID']
-
-    return pdf_template(wsID)
+    """
+        Preview PDF template
+    """
+    return pdf_template(request.vars['wsID'])
 
 
 def pdf_template(wsID):
     """
         Print friendly display of a Workshop
     """
-    template = get_sys_property('branding_default_template_workshops') or 'default.html'
-    template_file = 'templates/workshops/' + template
+    template = get_sys_property('branding_default_template_events') or 'events/default.html'
+    template_file = 'templates/' + template
 
     workshop = Workshop(wsID)
     activities = workshop.get_activities()
@@ -3327,6 +3328,7 @@ def pdf_template(wsID):
     price = format(products[0].Price or 0, '.2f')
 
     workshop_image_url = URL('default', 'download', args=workshop.picture, host=True, scheme=True)
+    shop_url = URL('shop', 'event', vars={'wsID': wsID}, host=True, scheme=True)
 
     html = response.render(template_file,
                            dict(workshop=workshop,
