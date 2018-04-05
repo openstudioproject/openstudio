@@ -383,12 +383,10 @@ def branding_default_templates():
     response.subtitle = T("Default templates")
     response.view = 'general/tabs_menu.html'
 
-
     sprop_t_email = 'branding_default_template_email'
     sprop_t_events = 'branding_default_template_events'
     t_email = get_sys_property(sprop_t_email)
     t_events = get_sys_property(sprop_t_events)
-
 
     form = SQLFORM.factory(
         Field('t_email',
@@ -415,6 +413,7 @@ def branding_default_templates():
     submit = form.element('input[type=submit]')
 
     if form.accepts(request.vars, session):
+        print 'process template storage'
         # Check email template
         t_email = request.vars['t_email']
         row = db.sys_properties(Property=sprop_t_email)
@@ -426,16 +425,18 @@ def branding_default_templates():
             row.update_record()
 
         # Check events template
-        t_evevnts = request.vars['t_workshops']
+        t_events = request.vars['t_events']
         row = db.sys_properties(Property=sprop_t_events)
         if not row:
             db.sys_properties.insert(Property=sprop_t_events,
                                      PropertyValue=t_events)
         else:
-            row.PropertyValue = t_workshops
+            row.PropertyValue = t_events
             row.update_record()
 
         session.flash = T('Saved')
+        # Clear cache
+        cache_clear_sys_properties()
         # reload so the user sees how the values are stored in the db now
         redirect(URL('branding_default_templates'))
 
@@ -484,8 +485,6 @@ def branding_default_templates_list_templates(template_type):
                          if not  i == '.gitignore' ]
 
     os_templates.extend(custom_templates)
-    print os_templates
-
 
     return os_templates
 
