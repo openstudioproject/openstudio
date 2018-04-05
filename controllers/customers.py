@@ -5183,7 +5183,7 @@ def load_list_get_customer_index_buttons(row):
             url = '#'
         else:
             onclick = "return confirm('" + \
-                 T('Do you really want to delete this customer?') + "');"
+                 T('Move this customer to deleted?') + "');"
             url = URL('trash', vars={'cuID':row.id}, extension='')
 
         delete = os_gui.get_button('delete_notext',
