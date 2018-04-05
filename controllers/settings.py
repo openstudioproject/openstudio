@@ -376,18 +376,18 @@ def branding_logos_get_logo_path(row):
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
 def branding_default_templates():
-    '''
+    """
         Set default templates for emails and workshops (pdf)
-    '''
+    """
     response.title = T("Branding")
     response.subtitle = T("Default templates")
     response.view = 'general/tabs_menu.html'
 
 
     sprop_t_email = 'branding_default_template_email'
-    sprop_t_workshops = 'branding_default_template_workshops'
+    sprop_t_events = 'branding_default_template_events'
     t_email = get_sys_property(sprop_t_email)
-    t_workshops = get_sys_property(sprop_t_workshops)
+    t_events = get_sys_property(sprop_t_events)
 
 
     form = SQLFORM.factory(
@@ -395,10 +395,10 @@ def branding_default_templates():
               default=t_email,
               requires=IS_IN_SET(branding_default_templates_list_templates('email')),
               label=T('Email template')),
-        Field('t_workshops',
-              default=t_workshops,
-              requires=IS_IN_SET(branding_default_templates_list_templates('workshops')),
-              label=T('Workshops pdf template')),
+        Field('t_events',
+              default=t_events,
+              requires=IS_IN_SET(branding_default_templates_list_templates('events')),
+              label=T('Events pdf template')),
         submit_button=T("Save"),
         separator=' ',
         formstyle='bootstrap3_stacked'
@@ -425,12 +425,12 @@ def branding_default_templates():
             row.PropertyValue = t_email
             row.update_record()
 
-        # Check workshops template
-        t_workshops = request.vars['t_workshops']
-        row = db.sys_properties(Property=sprop_t_workshops)
+        # Check events template
+        t_evevnts = request.vars['t_workshops']
+        row = db.sys_properties(Property=sprop_t_events)
         if not row:
-            db.sys_properties.insert(Property=sprop_t_workshops,
-                                     PropertyValue=t_workshops)
+            db.sys_properties.insert(Property=sprop_t_events,
+                                     PropertyValue=t_events)
         else:
             row.PropertyValue = t_workshops
             row.update_record()
@@ -453,20 +453,41 @@ def branding_default_templates():
 
 
 def branding_default_templates_list_templates(template_type):
-    '''
+    """
         :param template_type: can be 'email' or 'workshops' for now
         :return: list of files in view/templates/<template_type> folder
-    '''
+    """
     template_types = ['email', 'invoices', 'events']
     if template_type not in template_types:
         return ''
 
-    template_dir = os.path.join(request.folder, 'views', 'templates', template_type)
-    templates = sorted(os.listdir(template_dir))
+    os_template_dir = os.path.join(
+        request.folder,
+        'views',
+        'templates',
+        template_type
+    )
+    os_templates = [ os.path.join(template_type, i)
+                     for i in sorted(os.listdir(os_template_dir))
+                     if not i == '.gitignore' ]
+
+    custom_template_dir = os.path.join(
+        request.folder,
+        'views',
+        'templates',
+        'custom',
+        template_type
+    )
+
+    custom_templates = [ os.path.join('custom', template_type, i)
+                         for i in sorted(os.listdir(custom_template_dir))
+                         if not  i == '.gitignore' ]
+
+    os_templates.extend(custom_templates)
+    print os_templates
 
 
-
-    return templates
+    return os_templates
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
