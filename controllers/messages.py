@@ -114,102 +114,102 @@ def message_get_workshops_sent(m, wsID, ws_sent=None):
     return dict(infobar=infobar,
                 modal=result['modal'])
 
-
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('update', 'workshops_mail_customers'))
-def message_get_workshops_customers_reached():
-    '''
-        Returns a list of sent messages to customers
-    '''
-    msgID = request.vars['msgID']
-    wsID = request.vars['wsID']
-
-    # get successful sent rows
-    query = (db.customers_messages.messages_id == msgID) & \
-            (db.customers_messages.Status == 'sent')
-    rows = db(query).select(db.customers_messages.auth_customer_id)
-    customers_sent = []
-    for row in rows:
-        customers_sent.append(row.auth_customer_id)
-
-    # get list of all customers attending workshop
-    helper = WorkshopsHelper()
-    customers_all = helper.get_all_workshop_customers(wsID, ids_only=True)
-    difference = set(customers_all).difference(set(customers_sent)) # customers to whom this mail wasn't sent yet
-
-    content = DIV()
-    # get rows for display
-    table = TABLE(_class='table table-hover')
-    table.append(TR(TH(''),
-                    TH(T('Customer')),
-                    TH(T('Status')),
-                    TH(T('Sent at')),
-                    TH(),
-                    _class='header'))
-
-    # Add customers to whom the message hasn't been sent yet
-    query = (db.auth_user.id.belongs(difference))
-    rows = db(query).select(db.auth_user.id,
-                            db.auth_user.trashed,
-                            db.auth_user.thumbsmall,
-                            db.auth_user.birthday,
-                            db.auth_user.display_name,
-                            orderby=db.auth_user.display_name)
-    for i, row in enumerate(rows):
-        repr_row = list(rows[i:i+1].render())[0]
-
-        send = A(T("Send"),
-                 _href=URL('message_send_to_customer',
-                           vars={'cuID': row.id,
-                                 'msgID': msgID}),
-                 cid=request.cid)
-
-        table.append(TR(TD(repr_row.thumbsmall,
-                           _class='os-customer_image_td'),
-                        TD(row.display_name),
-                        TD(),
-                        TD(T('Not yet')),
-                        TD(send),
-                        ))
-
-    # Add customers to whom the message has been sent
-    left = [ db.auth_user.on(db.customers_messages.auth_customer_id == \
-                             db.auth_user.id) ]
-    query = (db.customers_messages.messages_id == msgID)
-    rows = db(query).select(db.customers_messages.ALL,
-                            db.auth_user.id,
-                            db.auth_user.trashed,
-                            db.auth_user.thumbsmall,
-                            db.auth_user.birthday,
-                            db.auth_user.display_name,
-                            left=left,
-                            orderby=~db.customers_messages.Created_at)
-
-
-    for i, row in enumerate(rows):
-        resend = ''
-        if row.customers_messages.Status == 'fail' and \
-           not row.customers_messages.auth_customer_id in customers_sent:
-            resend = A(T("Resend"),
-                       _href=URL('message_send_to_customer',
-                                 vars={'cuID': row.auth_user.id,
-                                       'msgID': msgID}),
-                       cid=request.cid)
-
-        repr_row = list(rows[i:i+1].render())[0]
-
-        customers_name = SPAN(row.auth_user.display_name)
-        table.append(TR(TD(repr_row.auth_user.thumbsmall,
-                           _class='os-customer_image_td'),
-                        TD(customers_name),
-                        TD(repr_row.customers_messages.Status),
-                        TD(repr_row.customers_messages.Created_at),
-                        TD(resend),
-                        ))
-
-    content.append(table)
-
-    return dict(content=content)
+#
+# @auth.requires(auth.has_membership(group_id='Admins') or \
+#                auth.has_permission('update', 'workshops_mail_customers'))
+# def message_get_workshops_customers_reached():
+#     '''
+#         Returns a list of sent messages to customers
+#     '''
+#     msgID = request.vars['msgID']
+#     wsID = request.vars['wsID']
+#
+#     # get successful sent rows
+#     query = (db.customers_messages.messages_id == msgID) & \
+#             (db.customers_messages.Status == 'sent')
+#     rows = db(query).select(db.customers_messages.auth_customer_id)
+#     customers_sent = []
+#     for row in rows:
+#         customers_sent.append(row.auth_customer_id)
+#
+#     # get list of all customers attending workshop
+#     helper = WorkshopsHelper()
+#     customers_all = helper.get_all_workshop_customers(wsID, ids_only=True)
+#     difference = set(customers_all).difference(set(customers_sent)) # customers to whom this mail wasn't sent yet
+#
+#     content = DIV()
+#     # get rows for display
+#     table = TABLE(_class='table table-hover')
+#     table.append(TR(TH(''),
+#                     TH(T('Customer')),
+#                     TH(T('Status')),
+#                     TH(T('Sent at')),
+#                     TH(),
+#                     _class='header'))
+#
+#     # Add customers to whom the message hasn't been sent yet
+#     query = (db.auth_user.id.belongs(difference))
+#     rows = db(query).select(db.auth_user.id,
+#                             db.auth_user.trashed,
+#                             db.auth_user.thumbsmall,
+#                             db.auth_user.birthday,
+#                             db.auth_user.display_name,
+#                             orderby=db.auth_user.display_name)
+#     for i, row in enumerate(rows):
+#         repr_row = list(rows[i:i+1].render())[0]
+#
+#         send = A(T("Send"),
+#                  _href=URL('message_send_to_customer',
+#                            vars={'cuID': row.id,
+#                                  'msgID': msgID}),
+#                  cid=request.cid)
+#
+#         table.append(TR(TD(repr_row.thumbsmall,
+#                            _class='os-customer_image_td'),
+#                         TD(row.display_name),
+#                         TD(),
+#                         TD(T('Not yet')),
+#                         TD(send),
+#                         ))
+#
+#     # Add customers to whom the message has been sent
+#     left = [ db.auth_user.on(db.customers_messages.auth_customer_id == \
+#                              db.auth_user.id) ]
+#     query = (db.customers_messages.messages_id == msgID)
+#     rows = db(query).select(db.customers_messages.ALL,
+#                             db.auth_user.id,
+#                             db.auth_user.trashed,
+#                             db.auth_user.thumbsmall,
+#                             db.auth_user.birthday,
+#                             db.auth_user.display_name,
+#                             left=left,
+#                             orderby=~db.customers_messages.Created_at)
+#
+#
+#     for i, row in enumerate(rows):
+#         resend = ''
+#         if row.customers_messages.Status == 'fail' and \
+#            not row.customers_messages.auth_customer_id in customers_sent:
+#             resend = A(T("Resend"),
+#                        _href=URL('message_send_to_customer',
+#                                  vars={'cuID': row.auth_user.id,
+#                                        'msgID': msgID}),
+#                        cid=request.cid)
+#
+#         repr_row = list(rows[i:i+1].render())[0]
+#
+#         customers_name = SPAN(row.auth_user.display_name)
+#         table.append(TR(TD(repr_row.auth_user.thumbsmall,
+#                            _class='os-customer_image_td'),
+#                         TD(customers_name),
+#                         TD(repr_row.customers_messages.Status),
+#                         TD(repr_row.customers_messages.Created_at),
+#                         TD(resend),
+#                         ))
+#
+#     content.append(table)
+#
+#     return dict(content=content)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
