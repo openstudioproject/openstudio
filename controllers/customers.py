@@ -591,6 +591,27 @@ def index_deleted():
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('delete', 'auth_user'))
+def restore():
+    """
+        Restore from trash
+    """
+    cuID = request.vars['cuID']
+
+    row = db.auth_user(cuID)
+
+    query = (db.auth_user.id == cuID)
+    db(query).update(trashed = False)
+
+    session.flash = SPAN(
+        T('Moved'), ' ',
+        row.display_name, ' ',
+        T('to current')
+    )
+    redirect(URL('index'))
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('delete', 'auth_user'))
 def trash():
     """
         Delete a customer

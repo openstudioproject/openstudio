@@ -756,6 +756,9 @@ class Customers:
         onclick_delete = "return confirm('" + \
                          T('Do you really want to delete this customer and all associated data?') \
                          + "');"
+        onclick_restore = "return confirm('" + \
+                          T('Restore customer to current?') \
+                          + "');"
 
         header = THEAD(TR(
             TH(), # image
@@ -781,7 +784,12 @@ class Customers:
                     row,
                     os_gui,
                     permission_delete,
-                    onclick_delete)
+                    onclick_delete),
+                    self._list_formatted_get_link_restore(
+                    row,
+                    os_gui,
+                    permission_delete,
+                    onclick_restore),
                 )
             )
 
@@ -790,7 +798,34 @@ class Customers:
         return table
 
 
-    def _list_formatted_get_link_delete(self, row, os_gui, permission, onclick):
+    def _list_formatted_get_link_restore(self,
+                                         row,
+                                         os_gui,
+                                         permission,
+                                         onclick):
+        """
+            Restore customer to current
+        """
+        T = current.globalenv['T']
+        restore = ''
+
+        if permission:
+            restore = os_gui.get_button(
+                'noicon',
+                URL('customers', 'restore', vars={'cuID': row.id}),
+                title=T('Restore'),
+                onclick=onclick,
+                _class="pull-right"
+            )
+
+        return restore
+
+
+    def _list_formatted_get_link_delete(self,
+                                        row,
+                                        os_gui,
+                                        permission,
+                                        onclick):
         """
             Return delete button
         """

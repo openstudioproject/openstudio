@@ -98,22 +98,22 @@ def test_customers_edit_teacher(client, web2py):
     assert customer.teacher_website == data['teacher_website']
 
 
-def test_customers_archive(client, web2py):
+def test_customers_trash(client, web2py):
     '''
-        Can we archive a customer?
+        Can we trash a customer?
     '''
     populate_customers(web2py, 1)
     assert web2py.db(web2py.db.auth_user).count() == 1
 
-    # archive
-    client.get('/customers/archive?uID=1001')
+    # trash
+    client.get('/customers/trash?cuID=1001')
     assert client.status == 200
 
     query = (web2py.db.auth_user.trashed == True)
     assert web2py.db(query).count() == 1
 
-    # move to current
-    client.get('/customers/archive?uID=1001')
+    # restore
+    client.get('/customers/restore?cuID=1001')
     assert client.status == 200
 
     query = (web2py.db.auth_user.trashed == True)
