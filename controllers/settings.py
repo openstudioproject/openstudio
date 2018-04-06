@@ -1490,10 +1490,12 @@ def access_group_permissions():
             ['teachers-read', T("Teachers"), [
                 ['teachers-create', T("Add teachers")],
                 ['teachers-update', T("Edit teachers")],
+                ['teachers-delete', T("Remove teacher status")],
             ]],
             ['employees-read', T("Employees"), [
                 ['employees-create', T("Add employees")],
                 ['employees-update', T("Edit employees")],
+                ['employees-delete', T("Remove employee status")],
             ]],
             ['school_subscriptions-read', T("Subscriptions"), [
                 ['school_subscriptions-create', T("Add subscription")],

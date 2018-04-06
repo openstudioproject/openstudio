@@ -400,29 +400,8 @@ def index():
     except AttributeError:
         response.q = ''
 
-    # archive filter
-    # show = 'current'
-    # if 'show_archive' in request.vars:
-    #     show = request.vars['show_archive']
-    #     session.customers_show = show
-    #
-    # if not session.customers_show:
-    #     session.customers_show = 'current'
-    #
-    # if session.customers_show == 'archive':
-    #     page = 'archive'
-    # else:
-    #     page = 'current'
-
     if 'nr_items' in request.vars:
         session.customers_index_items_per_page = int(request.vars['nr_items'])
-
-    # archive_buttons = os_gui.get_archived_radio_buttons(session.customers_show)
-
-    # if session.customers_show == 'current':
-    #     archived = False
-    # else:
-    #     archived = True
 
     show_location = index_get_show_location()
     show_email = index_get_show_email()
@@ -508,7 +487,7 @@ def index_get_menu(page):
         deleted_class = active
 
     tabs = UL(LI(A(T('Current'),
-                    _href=URL('index', vars={'show_archive':'current'})),
+                    _href=URL('index')),
                   _class=current_class),
               LI(A(T('Deleted'),
                     _href=URL('customers', 'index_deleted')),
@@ -520,32 +499,10 @@ def index_get_menu(page):
     return tabs
 
 
-# def index_get_link_archive(row):
-#     """
-#         Called from the index function. Changes title of archive button
-#         depending on whether a customer is archived or not
-#     """
-#     row = db.auth_user(row.id)
-#
-#     try:
-#         if row.archived:
-#             tt = T("Move to current")
-#         else:
-#             tt = T("Archive")
-#
-#         return os_gui.get_button('archive',
-#                                  URL('archive',
-#                                      vars={'uID':row.id},
-#                                      extension=''),
-#                                  tooltip=tt)
-#     except AttributeError: # might get thrown if a customer is deleted, but still in cache. Then the row can't be fetched
-#         return
-
-
 def index_get_select_nr_items(var=None):
-    '''
+    """
         Returns a form to select number of items to show on a page
-    '''
+    """
     view_set = [10, 15, 25]
     form = SQLFORM.factory(
         Field('nr_items',
@@ -571,9 +528,9 @@ def index_get_select_nr_items(var=None):
 
 
 def index_get_tools(var=None):
-    '''
+    """
         Returns tools menu for customers list
-    '''
+    """
     tools = []
 
     # teacher holidays
@@ -632,40 +589,6 @@ def index_deleted():
                 header_tools=tools)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('update', 'auth_user'))
-def archive():
-    '''
-        Archive an account
-    '''
-    uID = request.vars['uID']
-    if not uID:
-        session.flash = T('Unable to (un)archive customer')
-    else:
-        row = db.auth_user(uID)
-
-        if row.archived:
-            session.flash = T('Moved to current')
-        else:
-            # set enddate for recurring reservations
-            query = (db.classes_reservation.auth_customer_id == uID) & \
-                    (db.classes_reservation.ResType == 'recurring') & \
-                    ((db.classes_reservation.Enddate == None) |
-                     (db.classes_reservation.Enddate > TODAY_LOCAL))
-            db(query).update(Enddate = TODAY_LOCAL)
-            # remove all waitinglist entries
-            query = (db.classes_waitinglist.auth_customer_id == uID)
-            db(query).delete()
-
-            session.flash = T('Archived')
-
-
-        row.archived = not row.archived
-        row.update_record()
-
-    redirect(URL('index'))
-
-
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('delete', 'auth_user'))
 def trash():
@@ -674,6 +597,21 @@ def trash():
     """
     cuID = request.vars['cuID']
 
+    # set enddate for recurring reservations
+    query = (db.classes_reservation.auth_customer_id == cuID) & \
+            (db.classes_reservation.ResType == 'recurring') & \
+            ((db.classes_reservation.Enddate == None) |
+             (db.classes_reservation.Enddate > TODAY_LOCAL))
+    db(query).update(Enddate=TODAY_LOCAL)
+    # remove all waitinglist entries
+    query = (db.classes_waitinglist.auth_customer_id == cuID)
+    db(query).delete()
+    # Cancel all class bookings >= today
+    query = (db.classes_attendance.auth_customer_id == cuID) & \
+            (db.classes_attendance.ClassDate > TODAY_LOCAL)
+    db(query).update(BookingStatus = 'cancelled')
+
+    # Move customer to deleted
     query = (db.auth_user.id == cuID)
     db(query).update(trashed=True)
 
@@ -5298,9 +5236,9 @@ def tasks():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'auth_user_account'))
 def account():
-    '''
+    """
         Account options for an account
-    '''
+    """
     response.view = 'customers/edit_general.html'
     cuID = request.vars['cuID']
     customer = Customer(cuID)
@@ -5314,7 +5252,8 @@ def account():
     db.auth_user.trashed.readable = True
     db.auth_user.trashed.writable = True
     db.auth_user.customer.readable = True
-    db.auth_user.customer.writable = True
+    db.auth_user.customer.readable = False
+    db.auth_user.customer.writable = False
     db.auth_user.enabled.readable = True
     db.auth_user.enabled.writable = True
     db.auth_user.teacher.readable = True
@@ -5429,7 +5368,7 @@ def account_merge_get_input_form(auth_merge_id):
               default  = auth_merge_id,
               requires = IS_IN_DB(db(merge_query),
                                   'auth_user.id',
-                                  '%(id)s - %(display_name)s - %(email)s - Archived: %(archived)s - Teacher: %(teacher)s',
+                                  '%(id)s - %(display_name)s - %(email)s - Trashed: %(trashed)s - Teacher: %(teacher)s',
                               zero=T("Please select...")),
               label    = T('')),
         submit_button = T('Select'),
@@ -5496,7 +5435,7 @@ def account_merge_execute():
         # mark row as merged
         # set merged for auth_user auth_merge_id
         merge_from.merged   = True
-        merge_from.archived = True
+        merge_from.trashed = True
         # set merged_with for auth_user auth_merge_id
         merge_from.merged_into = int(cuID)
         merge_from.merged_on = datetime.datetime.now()

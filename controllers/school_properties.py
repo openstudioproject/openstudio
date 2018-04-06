@@ -2313,23 +2313,7 @@ def employees():
     session.customers_add_back = 'school_employees'
     session.settings_groups_back = 'school_employees'
 
-    show = 'current'
-
     query = (db.auth_user.trashed == False)
-
-    if 'show_archive' in request.vars:
-        show = request.vars['show_archive']
-        session.sp_employees_show = show
-        if show == 'current':
-            query = (db.auth_user.trashed == False)
-        elif show == 'archive':
-            query = (db.auth_user.trashed == True)
-    elif session.sp_employees_show == 'archive' and \
-            request.vars.manage != 'teachers':
-        query = (db.auth_user.trashed == True)
-    else:
-        session.sp_employees_show = show
-
     # hide admin user for all other users
     if auth.user.id > 1:
         query &= (db.auth_user.id > 1)
@@ -2346,11 +2330,20 @@ def employees():
     headers = {'auth_user.display_name': T('Employee'),
                'auth_user.thumbsmall': ''}
 
+    delete_onclick = "return confirm('" + \
+        T('Remove from employees list? - This person will still be a customer.') + "');"
+
     # set links for general
     links = [lambda row: os_gui.get_button('edit',
                                            URL('customers', 'edit',
                                                args=[row.id])),
-             account_get_link_archive]
+             lambda row: os_gui.get_button(
+                 'delete_notext',
+                 URL('school_properties',
+                     'employee_delete',
+                     vars={'uID': row.id}),
+                 onclick=delete_onclick)
+             ]
 
     fields = [
         db.auth_user.trashed,
@@ -2387,25 +2380,36 @@ def employees():
     result = ch.get_add_modal(redirect_vars={'employee':True}, button_class='btn-sm pull-right')
     add = SPAN(result['button'], result['modal'])
 
-    # add = ''
-    # if session.settings_users_filter == 'general':
-    #     add_url = URL('access_user_add')
-    #     add = os_gui.get_button('add', add_url, T("Add a new employee"))
-
-    archive_buttons = os_gui.get_archived_radio_buttons(
-        session.sp_employees_show,
-        _class='pull-right margin-right')
-
     tools = employees_get_tools()
-
-    content = grid
-
-    back = DIV(add, tools, archive_buttons)
+    back = DIV(add, tools)
 
     return dict(back=back,
                 menu=school_get_menu(request.function),
                 header_tools='',
-                content=content)
+                content=grid)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('delete', 'employees'))
+def employee_delete():
+    """
+        This function archives a subscription
+        request.vars[uID] is expected to be the auth_userID
+    """
+    uID = request.vars['uID']
+    if not uID:
+        session.flash = T('Unable to remove from employees list')
+    else:
+        row = db.auth_user(uID)
+        row.employee = False
+        row.update_record()
+
+        session.flash = SPAN(
+            T('Removed'), ' ',
+            row.display_name, ' ',
+            T('from employees list'))
+
+    redirect(URL('teachers'))
 
 
 def account_get_link_group(row):
@@ -2635,24 +2639,9 @@ def teachers():
     session.customers_add_back = 'school_teachers'
     session.settings_groups_back = 'school_teachers'
 
-#TODO: Remove archive filter
-    show = 'current'
-    query = (db.auth_user.trashed == False)
-
-    if 'show_archive' in request.vars:
-        show = request.vars['show_archive']
-        session.school_teachers_show = show
-        if show == 'current':
-            query = (db.auth_user.trashed == False)
-        elif show == 'archive':
-            query = (db.auth_user.trashed == True)
-    elif session.school_teachers_show == 'archive':
-            query = (db.auth_user.trashed == True)
-    else:
-        session.school_teachers_show = show
-
-    query &= (db.auth_user.teacher == True)
-    query &= (db.auth_user.id > 1)
+    query = (db.auth_user.trashed == False) & \
+            (db.auth_user.teacher == True) & \
+            (db.auth_user.id > 1)
 
     db.auth_user.id.readable = False
     db.auth_user.education.readable = False
@@ -2662,6 +2651,9 @@ def teachers():
     db.auth_user.country.readable = False
     db.auth_user.country.readable = False
     db.auth_user.note.readable = False
+
+    delete_onclick = "return confirm('" + \
+        T('Remove from teachers list? - This person will still be a customer.') + "');"
 
     permission = auth.has_membership(group_id='Admins') or \
                  auth.has_permission('update', 'teachers')
@@ -2683,7 +2675,14 @@ def teachers():
                                     URL('customers', 'edit',
                                         args=[row.id]),
                                     T("Edit this teacher")),
-                 account_get_link_archive ]
+                 lambda row: os_gui.get_button(
+                     'delete_notext',
+                     URL('school_properties',
+                         'teacher_delete',
+                         vars={'uID':row.id}),
+                     onclick=delete_onclick
+                    )
+                 ]
     else:
         links = []
 
@@ -2734,16 +2733,12 @@ def teachers():
         btn_icon = 'download',
         menu_class='pull-right')
 
-    archive_buttons = os_gui.get_archived_radio_buttons(
-        session.school_teachers_show)
-
-
     tools = teachers_get_tools()
     header_tools = ''
 
     content = grid
 
-    back = DIV(add, export, tools, archive_buttons)
+    back = DIV(add, export, tools)
 
     return dict(back=back,
                 header_tools=header_tools,
@@ -2829,27 +2824,26 @@ def teaches_workshops():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('update', 'teachers'))
-def teachers_archive():
-    '''
+               auth.has_permission('delete', 'teachers'))
+def teacher_delete():
+    """
         This function archives a subscription
         request.vars[uID] is expected to be the auth_userID
-    '''
+    """
     uID = request.vars['uID']
     if not uID:
-        session.flash = T('Unable to (un)archive teacher')
+        session.flash = T('Unable to remove from teachers list')
     else:
         row = db.auth_user(uID)
-
-        if row.archived:
-            session.flash = T('Moved to current')
-        else:
-            session.flash = T('Archived')
-
-        row.archived = not row.archived
+        row.teacher = False
         row.update_record()
 
-    redirect(URL('index'))
+        session.flash = SPAN(
+            T('Removed'), ' ',
+            row.display_name, ' ',
+            T('from teacher list'))
+
+    redirect(URL('teachers'))
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
