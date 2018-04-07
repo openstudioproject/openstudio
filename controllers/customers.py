@@ -565,28 +565,13 @@ def index_deleted():
 
     response.title = T('Customers')
     response.subtitle = T('Deleted')
-    response.view = 'customers/index.html'
+    response.view = 'general/tabs_menu.html'
 
     customers = Customers()
     list = customers.list_deleted_formatted()
 
-    content = DIV(
-        index_get_menu('deleted'),
-        DIV(DIV(list,
-                _class='tab-pane active'),
-            _class='tab-content'),
-        _class='nav-tabs-custom')
-
-
-    export = index_get_export()
-    add = index_get_add()
-    tools = index_get_tools()
-
-    return dict(add=add,
-                export=export,
-                content=content,
-                nr_items=index_get_select_nr_items(),
-                header_tools=tools)
+    return dict(menu=index_get_menu('deleted'),
+                content=list)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
