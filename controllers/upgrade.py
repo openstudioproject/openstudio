@@ -961,3 +961,41 @@ def upgrade_to_20182():
     ##
     db(db.auth_user).update(archived = False)
 
+    ##
+    # Migrate links to invoices
+    ##
+    rows = db(db.invoices).select(db.invoices.ALL)
+    for row in rows:
+        iID = row.id
+        db.invoices_customers.insert(
+            invoices_id = iID,
+            auth_customer_id = row.auth_customer_id
+        )
+
+        if row.customers_subscriptions_id:
+            db.invoices_customers_subscriptions.insert(
+                invoices_id = iID,
+                customers_subscriptions_id = row.customers_subscriptions_id
+            )
+
+
+    db(query).update(auth_customer_id = None,
+                     customers_subscriptions_id = None)
+
+
+    ##
+    # Clean up old tables
+    ##
+    tables = [
+        'paymentsummary',
+        'overduepayments',
+        'customers_payments',
+        'workshops_messages',
+        'workshops_products_messages'
+    ]
+
+    for table in tables:
+        try:
+            db.executesql('''DROP TABLE '{table'}'''.format(table=table))
+        except:
+            pass
