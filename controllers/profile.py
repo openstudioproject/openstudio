@@ -314,8 +314,6 @@ def me():
     response.title = T('Profile')
     response.subtitle = ''
 
-    response.view = 'shop/index.html'
-
     db.auth_user.email.comment =  os_gui.get_info_icon(
          title=T("If you change your email address, you'll have to use the new address to login."),
          btn_icon='info')
@@ -391,10 +389,6 @@ def me():
                              _class='col-md-4')
 
 
-    input_newsletter = DIV(os_gui.get_form_group(form.custom.label.newsletter,
-                                                 SPAN(BR(),form.custom.widget.newsletter, T(" I'd like to receive the newsletter"))),
-                           _class='col-md-4')
-
     form = DIV(
         form.custom.begin,
         DIV(DIV(os_gui.get_form_group(form.custom.label.first_name,
@@ -441,9 +435,14 @@ def me():
             _class='col-md-4'),
             _class='row'),
         DIV(input_location,
-            input_newsletter,
             _class='row'
         ),
+        DIV(INPUT(_type="checkbox",
+                    _id='data_true_and_complete',
+                    _class="iCheck-line-aero"), ' ',
+            LABEL(T("I confirm that the data entered in this form is true and complete"),
+                  _for="data_true_and_complete"),
+              _class="form-group"),
         DIV(DIV(change_passwd, form.custom.submit, _class='col-md-12'),
             _class='row'),
             form.custom.end,

@@ -146,8 +146,6 @@ def user():
                              LABEL(T("I confirm that the data entered in this form is true and complete")),
                              _class="form-group")
 
-
-
         form = DIV(
             H4(T('Register'), _class='grey text-center no-margin-top'),
             form.custom.begin,
