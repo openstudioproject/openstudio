@@ -40,7 +40,7 @@ def contact():
         company_registration = organization['Registration'] or ''
         company_tax_registration = organization['TaxRegistration'] or ''
         company_terms_conditions_url = organization['TermsConditionsURL']
-        company_privacy_policy_url = organization['PrivacyPolicyURL']
+        company_privacy_policy_url = organization['PrivacyNoticeURL']
     except KeyError:
         company_name = ''
         company_address = ''

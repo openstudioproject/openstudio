@@ -1191,11 +1191,11 @@ def privacy_get_message(var=None):
 
 
     organization = ORGANIZATIONS[ORGANIZATIONS['default']]
-    if organization['PrivacyPolicyURL']:
+    if organization['PrivacyNoticeURL']:
         privacy_policy = SPAN(
             T("and review our"), ' ',
-            A(T("privacy policy"),
-              _href=organization['PrivacyPolicyURL'],
+            A(T("privacy notice"),
+              _href=organization['PrivacyNoticeURL'],
               _target="_blank")
         )
 

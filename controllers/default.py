@@ -129,15 +129,15 @@ def user():
                                            LABEL(T("I accept the Terms and conditions")),
                                            _class="form-group")
 
-            if organization['PrivacyPolicyURL']:
-                tc_pp_links.append(A(T('Privacy policy'),
-                                     _href=organization['PrivacyPolicyURL'],
+            if organization['PrivacyNoticeURL']:
+                tc_pp_links.append(A(T('Privacy notice'),
+                                     _href=organization['PrivacyNoticeURL'],
                                      _target="_blank",
                                      _class='pull-right'))
                 privacy_policy = DIV(INPUT(_type="checkbox",
                                            _id='accept_privacy_policy',
                                            _class="iCheck-line-aero"), ' ',
-                                     LABEL(T("I accept the privacy policy")),
+                                     LABEL(T("I accept the privacy notice")),
                                      _class="form-group")
 
         complete_data = DIV(INPUT(_type="checkbox",
@@ -320,7 +320,7 @@ def user():
                 company_name=company_name,
                 has_organization=True if organization else False,
                 has_terms=True if organization['TermsConditionsURL'] else False,
-                has_privacy_policy=True if organization['PrivacyPolicyURL'] else False,
+                has_privacy_policy=True if organization['PrivacyNoticeURL'] else False,
                 logo_login=logo_login)
 
 
