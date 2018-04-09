@@ -4809,7 +4809,7 @@ auth.settings.extra_fields['auth_user'] = [
         represent=lambda value, row: value or "",
         label=T("Key Number")),
     Field('newsletter', 'boolean',
-        default=True,
+        default=False,
         label=T("Newsletter")),
     Field('company',
         label=T("Company")),
