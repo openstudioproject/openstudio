@@ -202,7 +202,8 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
                 ((db.customers_classcards.Enddate >= date) |
                  (db.customers_classcards.Enddate == None)) & \
                 ((db.school_classcards.Classes > db.customers_classcards.ClassesTaken) |
-                 (db.school_classcards.Classes == 0))
+                 (db.school_classcards.Classes == 0) |
+                 (db.school_classcards.Unlimited == True))
 
         rows = db(query).select(db.customers_classcards.ALL,
                                 db.school_classcards.Name,
