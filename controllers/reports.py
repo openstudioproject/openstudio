@@ -5106,7 +5106,7 @@ def teacher_classes():
                 content=table,
                 month_chooser=month_chooser,
                 current=current,
-                submit=submit)
+                run_report=submit)
 
 
 def teacher_classes_get_form_teachers(teachers_id):
