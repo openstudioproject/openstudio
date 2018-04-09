@@ -82,6 +82,14 @@ def user():
     # actually create auth form
     form=auth()
 
+    try:
+        organization = ORGANIZATIONS[ORGANIZATIONS['default']]
+        company_name = organization['Name']
+    except:
+        company_name = ''
+        organization = False
+
+
     if 'register' in request.args:
         response.view = 'default/user_login.html'
         #auth.settings.formstyle = 'divs'
@@ -105,6 +113,34 @@ def user():
                            form.custom.widget.school_locations_id,
                            _class='form-group')
 
+        privacy_policy = ''
+        terms_and_conditions = ''
+        link_pp = ''
+        link_tc = ''
+        if organization:
+            tc_pp_links = DIV(_class="form-group")
+            if organization['TermsConditionsURL']:
+                tc_pp_links.append(A(T('Terms and conditions'),
+                                     _href=organization['TermsConditionsURL'],
+                                     _target="_blank"))
+                terms_and_conditions = DIV(INPUT(_type="checkbox",
+                                                 _id="accept_terms_and_conditions",
+                                                 _class="iCheck-line-red"), ' ',
+                                           LABEL(T("I accept the Terms and conditions")),
+                                           _class="form-group")
+
+            if organization['PrivacyPolicyURL']:
+                tc_pp_links.append(A(T('Privacy policy'),
+                                     _href=organization['PrivacyPolicyURL'],
+                                     _target="_blank",
+                                     _class='pull-right'))
+                privacy_policy = DIV(INPUT(_type="checkbox",
+                                           _id='accept_privacy_policy',
+                                           _class="iCheck-line-red"), ' ',
+                                     LABEL(T("I accept the privacy policy")),
+                                     _class="form-group")
+
+
         form = DIV(
             H4(T('Register'), _class='grey text-center no-margin-top'),
             form.custom.begin,
@@ -124,6 +160,10 @@ def user():
                 form.custom.widget.password_two,
                 _class='form-group'),
             location,
+            tc_pp_links,
+            terms_and_conditions,
+            privacy_policy,
+            BR(),
             A(T('Cancel'),
               _href=URL(args='login'),
               _class='btn btn-default',
@@ -131,17 +171,10 @@ def user():
             DIV(form.custom.submit, _class='pull-right'),
             form.custom.end)
 
-
     reset_passwd = ''
     register = ''
     self_checkin  = ''
     error_msg = ''
-
-    try:
-        organization = ORGANIZATIONS[ORGANIZATIONS['default']]
-        company_name = organization['Name']
-    except:
-        company_name = ''
 
     # set logo
     branding_logo = os.path.join(request.folder,
@@ -277,13 +310,16 @@ def user():
                 register=register,
                 self_checkin=self_checkin,
                 company_name=company_name,
+                has_organization=True if organization else False,
+                has_terms=True if organization['TermsConditionsURL'] else False,
+                has_privacy_policy=True if organization['PrivacyPolicyURL'] else False,
                 logo_login=logo_login)
 
 
 def user_registration_set_visible_fields(var=None):
-    '''
+    """
         Restricts number of visible fields when registering for an account
-    '''
+    """
     for field in db.auth_user:
         field.readable = False
         field.writable = False

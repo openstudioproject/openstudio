@@ -16,6 +16,8 @@
   <link rel="stylesheet" href="{{=URL('static','plugin_AdminLTE/dist/css/AdminLTE.min.css')}}">
   <!-- iCheck -->
   <link rel="stylesheet" href="{{=URL('static','plugin_AdminLTE/plugins/iCheck/square/blue.css')}}">
+  <link rel="stylesheet" href="{{=URL('static','plugin_AdminLTE/plugins/iCheck/line/red.css')}}">
+  <link rel="stylesheet" href="{{=URL('static','plugin_AdminLTE/plugins/iCheck/line/green.css')}}">
   
   <!-- include custom stylesheets -->
   <link rel="stylesheet" href="{{=URL('static','plugin_os-css/openstudio_login.css')}}"/>
@@ -44,7 +46,7 @@
             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
         </div> {{ pass }}
         {{=company_name}}</p>
-    {{=form}}
+        {{=form}}
     <div class="social-auth-links">
         {{=reset_passwd}}<br>
         {{=register}} 
@@ -63,14 +65,74 @@
 <script src="{{=URL('static','plugin_AdminLTE/plugins/iCheck/icheck.min.js')}}"></script>
 <script>
   $(function () {
-    $('input').iCheck({
+    $('input.iCheck').iCheck({
       checkboxClass: 'icheckbox_square-blue',
       radioClass: 'iradio_square-blue',
-      increaseArea: '20%' // optional
+      inheritID: true,
+      increaseArea: '10%' // optional
     });
   });
-<!-- Google Analytics -->
+  
+  $('input.iCheck-line-red').each(function(){
+      var self = $(this),
+      label = self.next(),
+      label_text = label.text();
+
+      label.remove();
+    
+      self.iCheck({
+        checkboxClass: 'icheckbox_line-red',
+        radioClass: 'iradio_line-red',
+        inheritID: true,
+        insert: '<div class="icheck_line-icon"></div>' + label_text,
+        increaseArea: '10%' // optional
+    });
+  });
+
 </script>
+
+<!-- only allow registering when required boxes are checked -->
+{{if request.args(0)=='register' and has_organization and has_terms and has_privacy_policy:}}
+<script language="javascript"><!--
+  $submit = $('input[type=submit]');
+  var accepted_terms = false;
+  var accepted_privacy = false;
+  
+  $(document).ready(function() {
+      $submit.prop('disabled', true);
+  });
+  
+  var $cbox_terms = $('#accept_terms_and_conditions');
+  $cbox_terms.on('ifChanged', function(event){
+    accept_checkbox_handler($(this), 'terms');
+  });
+    
+  var $cbox_privacy = $('#accept_privacy_policy');
+  $cbox_privacy.on('ifChanged', function(event){
+    accept_checkbox_handler($(this), 'privacy');
+  });
+    
+  function accept_checkbox_handler(element, which_box) {
+    element.parent().toggleClass('icheckbox_line-red');
+    element.parent().toggleClass('icheckbox_line-green');
+    
+    if (which_box == 'terms') {
+      accepted_terms = !accepted_terms;
+    } else {
+      accepted_privacy = !accepted_privacy;
+    }
+    
+    if (accepted_terms && accepted_privacy) {
+      $submit.prop('disabled', false);
+    } else {
+      $submit.prop('disabled', true);
+    }
+  }
+    
+//--></script>
+{{pass}}
+
+<!-- Google Analytics -->
 {{ if response.google_analytics_id: }}
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
