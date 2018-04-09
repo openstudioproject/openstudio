@@ -1178,10 +1178,47 @@ def enrollment_end():
 
     content.append(DIV(form, _class='col-md-6 no-padding-left'))
 
-
     back = os_gui.get_button('back', return_url)
 
     return dict(content=content, back=back)
 
 
+def privacy_get_message(var=None):
+    """
+        return translatable string privacy message
+    """
+    privacy_policy = ''
+
+
+    organization = ORGANIZATIONS[ORGANIZATIONS['default']]
+    if organization['PrivacyPolicyURL']:
+        privacy_policy = SPAN(
+            T("and review our"), ' ',
+            A(T("privacy policy"),
+              _href=organization['PrivacyPolicyURL'],
+              _target="_blank")
+        )
+
+    return SPAN(
+        T("We use your information to provide the best service possible"), ', ',
+        T("to improve our services and to be able to give personalized advice."), BR(),
+        T("Here you can download all your data"), ' ',
+        privacy_policy,
+        '.'
+    )
+
+
+
+@auth.requires_login()
+def privacy():
+    """
+        Privacy page for account
+    """
+    response.title = T('Privacy')
+    response.view = 'shop/index.html'
+
+    content = privacy_get_message()
+
+
+    return dict(content=content)
 

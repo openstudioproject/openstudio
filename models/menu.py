@@ -121,6 +121,15 @@ def profile_menu():
                         False,
                         URL('profile','me', extension='')))
 
+    # Privacy
+    if features.Privacy:
+        menu.append(
+                (SPAN(SPAN(#I(_class='fa fa-folder-open-o'), ' ',
+                            T('Privacy')),
+                            _class=featured_class),
+                            False,
+                            URL('profile', 'privacy', extension='')))
+
     return menu
 
 
