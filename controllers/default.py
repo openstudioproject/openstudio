@@ -140,6 +140,13 @@ def user():
                                      LABEL(T("I accept the privacy policy")),
                                      _class="form-group")
 
+        complete_data = DIV(INPUT(_type="checkbox",
+                                  _id='data_true_and_complete',
+                                  _class="iCheck-line-red"), ' ',
+                             LABEL(T("I confirm that the data entered in this form is true and complete")),
+                             _class="form-group")
+
+
 
         form = DIV(
             H4(T('Register'), _class='grey text-center no-margin-top'),
@@ -163,6 +170,7 @@ def user():
             tc_pp_links,
             terms_and_conditions,
             privacy_policy,
+            complete_data,
             BR(),
             A(T('Cancel'),
               _href=URL(args='login'),

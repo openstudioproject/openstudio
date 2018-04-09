@@ -97,6 +97,7 @@
   $submit = $('input[type=submit]');
   var accepted_terms = false;
   var accepted_privacy = false;
+  var true_data = false;
   
   $(document).ready(function() {
       $submit.prop('disabled', true);
@@ -112,17 +113,28 @@
     accept_checkbox_handler($(this), 'privacy');
   });
     
+  var $cbox_privacy = $('#data_true_and_complete');
+  $cbox_privacy.on('ifChanged', function(event){
+    accept_checkbox_handler($(this), 'true_data');
+  });
+    
   function accept_checkbox_handler(element, which_box) {
     element.parent().toggleClass('icheckbox_line-red');
     element.parent().toggleClass('icheckbox_line-green');
     
-    if (which_box == 'terms') {
-      accepted_terms = !accepted_terms;
-    } else {
-      accepted_privacy = !accepted_privacy;
+    switch (which_box) {
+      case 'terms':
+        accepted_terms = !accepted_terms;
+        break;
+      case 'privacy':
+        accepted_privacy = !accepted_privacy;
+        break;
+      case 'true_data':
+        true_data = !true_data;
+        break;
     }
     
-    if (accepted_terms && accepted_privacy) {
+    if (accepted_terms && accepted_privacy && true_data) {
       $submit.prop('disabled', false);
     } else {
       $submit.prop('disabled', true);
