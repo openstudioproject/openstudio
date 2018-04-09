@@ -4284,6 +4284,10 @@ def define_customers_profile_features():
         Field('Invoices', 'boolean',
             default=True,
             label=T('Invoices')),
+        Field('Privacy', 'boolean',
+            default=True,
+            label=T('Privacy'),
+            comment=T('Page where users can download all data linked to their account')),
     )
 
 
