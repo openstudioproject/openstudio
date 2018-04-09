@@ -40,6 +40,7 @@ def contact():
         company_registration = organization['Registration'] or ''
         company_tax_registration = organization['TaxRegistration'] or ''
         company_terms_conditions_url = organization['TermsConditionsURL']
+        company_privacy_policy_url = organization['PrivacyPolicyURL']
     except KeyError:
         company_name = ''
         company_address = ''
@@ -48,6 +49,7 @@ def contact():
         company_registration = ''
         company_tax_registration = ''
         company_terms_conditions_url = ''
+        company_privacy_policy_url = ''
 
     # Logo
     branding_logo = os.path.join(request.folder,
@@ -75,6 +77,7 @@ def contact():
                 company_phone=company_phone,
                 company_registration=company_registration,
                 company_terms_conditions_url=company_terms_conditions_url,
+                company_privacy_policy_url=company_privacy_policy_url,
                 logo_login=logo_login)
 
 

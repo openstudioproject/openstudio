@@ -622,9 +622,9 @@ def system_organizations_get_link_archive(row):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'system_organizations'))
 def system_organizations_set_default():
-    '''
+    """
         Set an organization as default
-    '''
+    """
     soID = request.vars['soID']
 
     query = (db.sys_organizations.id > 0)
