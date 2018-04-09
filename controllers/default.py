@@ -125,7 +125,7 @@ def user():
                                      _target="_blank"))
                 terms_and_conditions = DIV(INPUT(_type="checkbox",
                                                  _id="accept_terms_and_conditions",
-                                                 _class="iCheck-line-red"), ' ',
+                                                 _class="iCheck-line-aero"), ' ',
                                            LABEL(T("I accept the Terms and conditions")),
                                            _class="form-group")
 
@@ -136,13 +136,13 @@ def user():
                                      _class='pull-right'))
                 privacy_policy = DIV(INPUT(_type="checkbox",
                                            _id='accept_privacy_policy',
-                                           _class="iCheck-line-red"), ' ',
+                                           _class="iCheck-line-aero"), ' ',
                                      LABEL(T("I accept the privacy policy")),
                                      _class="form-group")
 
         complete_data = DIV(INPUT(_type="checkbox",
                                   _id='data_true_and_complete',
-                                  _class="iCheck-line-red"), ' ',
+                                  _class="iCheck-line-aero"), ' ',
                              LABEL(T("I confirm that the data entered in this form is true and complete")),
                              _class="form-group")
 

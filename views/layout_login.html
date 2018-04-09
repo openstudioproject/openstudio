@@ -16,7 +16,7 @@
   <link rel="stylesheet" href="{{=URL('static','plugin_AdminLTE/dist/css/AdminLTE.min.css')}}">
   <!-- iCheck -->
   <link rel="stylesheet" href="{{=URL('static','plugin_AdminLTE/plugins/iCheck/square/blue.css')}}">
-  <link rel="stylesheet" href="{{=URL('static','plugin_AdminLTE/plugins/iCheck/line/red.css')}}">
+  <link rel="stylesheet" href="{{=URL('static','plugin_AdminLTE/plugins/iCheck/line/aero.css')}}">
   <link rel="stylesheet" href="{{=URL('static','plugin_AdminLTE/plugins/iCheck/line/green.css')}}">
   
   <!-- include custom stylesheets -->
@@ -73,7 +73,7 @@
     });
   });
   
-  $('input.iCheck-line-red').each(function(){
+  $('input.iCheck-line-aero').each(function(){
       var self = $(this),
       label = self.next(),
       label_text = label.text();
@@ -81,8 +81,8 @@
       label.remove();
     
       self.iCheck({
-        checkboxClass: 'icheckbox_line-red',
-        radioClass: 'iradio_line-red',
+        checkboxClass: 'icheckbox_line-aero',
+        radioClass: 'iradio_line-aero',
         inheritID: true,
         insert: '<div class="icheck_line-icon"></div>' + label_text,
         increaseArea: '10%' // optional
@@ -119,7 +119,7 @@
   });
     
   function accept_checkbox_handler(element, which_box) {
-    element.parent().toggleClass('icheckbox_line-red');
+    element.parent().toggleClass('icheckbox_line-aero');
     element.parent().toggleClass('icheckbox_line-green');
     
     switch (which_box) {
