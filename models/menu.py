@@ -64,46 +64,7 @@ def profile_menu():
                        False,
                        URL('profile', 'index', extension='')])
 
-    # Shop
-    # response.menu.append(
-    #         (SPAN(SPAN(#SPAN(_class='glyphicon glyphicon-pushpin'), ' ',
-    #                     T('Shop')),
-    #                     _class=featured_class),
-    #                     False,
-    #                     URL('shop', 'index')))
-    # classes
-    # if features.Classes:
-    #     menu.append(
-    #             (SPAN(SPAN(#I(_class='fa fa-graduation-cap'), ' ',
-    #                         T('Classes')),
-    #                         _class=featured_class),
-    #                         False,
-    #                         URL('profile', 'classes')))
-    # # Class cards
-    # if features.Classcards:
-    #     menu.append(
-    #             (SPAN(SPAN(#I(_class='fa fa-ticket'), ' ',
-    #                         T('Class cards')),
-    #                         _class=featured_class),
-    #                         False,
-    #                         URL('profile', 'classcards')))
-    # # Subscriptions
-    # if features.Subscriptions:
-    #     menu.append(
-    #             (SPAN(SPAN(#I(_class='fa fa-edit'), ' ',
-    #                         T('Subscriptions')),
-    #                         _class=featured_class),
-    #                         False,
-    #                         URL('profile', 'subscriptions')))
-    # # workshops
-    # if features.Workshops:
-    #     menu.append(
-    #             (SPAN(SPAN(#I(_class='fa fa-th-list'), ' ',
-    #                         T('Workshops')),
-    #                         _class=featured_class),
-    #                         False,
-    #                         URL('profile', 'workshops')))
-    # orders
+    # Orders
     if features.Orders:
         menu.append(
                 (SPAN(SPAN(#I(_class='fa fa-folder-open-o'), ' ',
@@ -112,7 +73,7 @@ def profile_menu():
                             False,
                             URL('profile', 'orders', extension='')))
 
-    # me
+    # Me
     menu.append(
             (SPAN(SPAN(#I(_class='fa fa-user', _title=T('My account')), ' ',
                         T('Profile')),
