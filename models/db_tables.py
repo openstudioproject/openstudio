@@ -2234,6 +2234,29 @@ def define_customers_documents():
         )
 
 
+def define_log_customers_accepted_documents():
+    db.define_table('log_customers_accepted_documents',
+        Field('auth_customer_id', db.auth_user,
+              readable=False,
+              writable=False,
+              label="CustomerID"),
+        Field('DocumentName',
+              label=T("Document")),
+        Field('DocumentDescription',
+              label=T("Description")),
+        Field('DocumentVersion',
+              label=T("Document version")),
+        Field('OnURL',
+              requires=IS_URL(),
+              label=T('URL')),
+        Field('CreatedOn', 'datetime',
+              readable=False,
+              writable=False,
+              default=datetime.datetime.now(),
+              label=T('Accepted on'))
+    )
+
+
 def define_teachers_classtypes():
     db.define_table('teachers_classtypes',
         Field('auth_user_id', db.auth_user,
@@ -4991,6 +5014,7 @@ define_school_holidays_locations()
 define_schedule_classes_status()
 
 define_customers_subscriptions_credits()
+define_log_customers_accepted_documents()
 
 # order definitions
 define_customers_orders()

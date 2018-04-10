@@ -5520,9 +5520,9 @@ def account_set_password():
 
 
 def account_get_submenu(page, cuID):
-    '''
+    """
         Returns submenu for account pages
-    '''
+    """
     vars = {'cuID':cuID}
     pages = [['account', T('Account'), URL('account', vars=vars)]]
 
@@ -5534,6 +5534,11 @@ def account_get_submenu(page, cuID):
        auth.has_permission('set_password', 'auth_user'):
         pages.append(['account_set_password', T('Reset password'),
                        URL('account_set_password', vars=vars)])
+
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('account_acceptance_log', 'auth_user'):
+        pages.append(['account_acceptance_log', T('Accepted documents'),
+                       URL('account_acceptance_log', vars=vars)])
 
     horizontal = True
 
