@@ -164,6 +164,13 @@ def upgrade_to_20182():
     db(query).update(auth_customer_id = None,
                      customers_subscriptions_id = None)
 
+    ##
+    # Set default values for createdOn fields
+    ##
+    now = datetime.datetime.now()
+    query = (db.auth_user.created_on == None)
+    db(query).update(now)
+
 
     ##
     # Clean up old tables

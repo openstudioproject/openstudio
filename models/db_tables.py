@@ -1340,10 +1340,6 @@ def define_customers_notes():
         Field('Injury', 'boolean',
               default=False,
               label=T('This note describes an injury')),
-        Field('CreatedOn', 'datetime',
-              readable=False,
-              writable=False,
-              default=datetime.datetime.now()),
         )
 
 
@@ -2227,10 +2223,6 @@ def define_customers_documents():
             default=datetime.datetime.now(),
             represent=represent_datetime,
             label=T("Uploaded on")),
-        Field('CreatedOn', 'datetime',
-              readable=False,
-              writable=False,
-              default=datetime.datetime.now())
         )
 
 
@@ -2944,11 +2936,6 @@ def define_payment_batches():
             writable=False,
             default=datetime.datetime.now(),
             represent=represent_datetime),
-        Field('CreatedOn', 'datetime',
-            readable=False,
-            writable=False,
-            default=datetime.datetime.now(),
-            represent=represent_datetime)
         )
 
 
@@ -3256,11 +3243,6 @@ def define_invoices():
             writable=False,
             default=datetime.datetime.now(),
             represent=represent_datetime ),
-        Field('CreatedOn', 'datetime',
-              readable=False,
-              writable=False,
-              default=datetime.datetime.now(),
-              represent=represent_datetime),
         Field('credit_invoice_for', 'integer', # db.invoices.id this invoice is a credit invoice for
             readable=False,
             writable=False)
@@ -3872,11 +3854,6 @@ def define_customers_orders():
               represent=represent_datetime,
               default=datetime.datetime.now(),
               label=T("Order date")),
-        Field('CreatedOn', 'datetime',
-              readable=False,
-              writable=False,
-              default=datetime.datetime.now(),
-              represent=represent_datetime)
     )
 
 
