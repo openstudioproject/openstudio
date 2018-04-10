@@ -92,7 +92,7 @@
 </script>
 
 <!-- only allow registering when required boxes are checked -->
-{{if request.args(0)=='register' and has_organization and has_terms and has_privacy_policy:}}
+{{if request.args(0)=='register' and has_organization and has_terms and has_privacy_notice:}}
 <script language="javascript"><!--
   $submit = $('input[type=submit]');
   var accepted_terms = false;

@@ -1498,6 +1498,9 @@ def populate_sys_organizations(web2py, nr_organizations=1):
             Registration = 'reg_' + soID,
             TaxRegistration = 'reg_tax_' + soID,
             TermsConditionsURL = 'https://www.google.nl',
+            TermsConditionsVersion = '2.12',
+            PrivacyNoticeURL = 'https://www.google.nl',
+            PrivacyNoticeVersion = '8.12',
             ReportsClassPrice = 10 * (i + 1)
         )
 

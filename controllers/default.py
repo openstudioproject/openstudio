@@ -87,10 +87,13 @@ def user():
     try:
         organization = ORGANIZATIONS[ORGANIZATIONS['default']]
         company_name = organization['Name']
+        has_terms = True if organization['TermsConditionsURL'] else False
+        has_privacy_notice = True if organization['PrivacyNoticeURL'] else False
     except:
         company_name = ''
         organization = False
-
+        has_terms = False
+        has_privacy_notice = False
 
     if 'register' in request.args:
 
@@ -320,8 +323,8 @@ def user():
                 self_checkin=self_checkin,
                 company_name=company_name,
                 has_organization=True if organization else False,
-                has_terms=True if organization['TermsConditionsURL'] else False,
-                has_privacy_policy=True if organization['PrivacyNoticeURL'] else False,
+                has_terms=has_terms,
+                has_privacy_notice=has_privacy_notice,
                 logo_login=logo_login)
 
 
@@ -359,9 +362,9 @@ def user_register_log_acceptance(form):
         user_register_log_acceptance_terms_and_conditions(customer,
                                                           organization,
                                                           reg_url)
-        user_register_log_acceptance_terms_and_conditions(customer,
-                                                          organization,
-                                                          reg_url)
+        user_register_log_acceptance_privacy_notice(customer,
+                                                    organization,
+                                                    reg_url)
     user_register_log_acceptance_true_data(customer,
                                            reg_url)
 
@@ -406,6 +409,7 @@ def user_register_log_acceptance_true_data(customer, reg_url):
     """
     customer.log_document_acceptance(
         document_name=T("Registration form"),
+        document_description=T("True and complete data"),
         document_url=reg_url
     )
 

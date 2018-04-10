@@ -5,9 +5,61 @@
     These tests run based on webclient and need web2py server running.
 '''
 
+from populate_os_tables import populate_sys_organizations
+
+def test_user_register_log_acceptance_documents(client, web2py):
+    """
+        Is acceptance of terms and conditions logged like it should?
+    """
+    populate_sys_organizations(web2py)
+
+    url ='/default/user/register'
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        'first_name': 'openstudio',
+        'last_name': 'user',
+        'email': 'pytest@openstudioproject.com',
+        'password': 'V3rYStr0ng#',
+        'password_two': 'V3rYStr0ng#',
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+    version = web2py.db.sys_properties(Property='Version').PropertyValue
+    release = web2py.db.sys_properties(Property='VersionRelease').PropertyValue
+    os_version = ".".join([version, release])
+    org = web2py.db.sys_organizations(1)
+    log_tc = web2py.db.log_customers_accepted_documents(1)
+    log_pp = web2py.db.log_customers_accepted_documents(2)
+    log_td = web2py.db.log_customers_accepted_documents(3)
+
+    # Check logging of terms and conditions
+    assert log_tc.DocumentName == 'Terms and Conditions'
+    assert log_tc.DocumentDescription == org.TermsConditionsURL
+    assert log_tc.DocumentVersion == org.TermsConditionsVersion
+    assert log_tc.DocumentURL == 'http://localhost:8000/user/register'
+    assert log_tc.OpenStudioVersion == os_version
+
+    # Check logging of privacy notice
+    assert log_pp.DocumentName == 'Privacy Notice'
+    assert log_pp.DocumentDescription == org.PrivacyNoticeURL
+    assert log_pp.DocumentVersion == org.PrivacyNoticeVersion
+    assert log_pp.DocumentURL == 'http://localhost:8000/user/register'
+    assert log_pp.OpenStudioVersion == os_version
+
+    # Check logging of true and complete data acceptance
+    assert log_td.DocumentName == 'Registration form'
+    assert log_td.DocumentDescription == 'True and complete data'
+    assert log_td.DocumentURL == 'http://localhost:8000/user/register'
+    assert log_td.OpenStudioVersion == os_version
+
 
 def test_index_exists(client):
-    '''page index exists?
+    '''
+        page index exists?
     '''
     client.get('/default/index') # get a page
     assert client.status == 200

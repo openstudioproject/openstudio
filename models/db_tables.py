@@ -52,9 +52,9 @@ def _get_organizations():
 
 
 def get_organizations():
-    '''
+    """
         Get organizations from cache
-    '''
+    """
     # Don't cache when running tests
     if web2pytest.is_running_under_test(request, request.application):
         organizations = _get_organizations()
