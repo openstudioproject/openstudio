@@ -3307,6 +3307,32 @@ def pdf_template_show():
     return pdf_template(request.vars['wsID'])
 
 
+def pdf_template_qrcode(wsID):
+    """
+    :param wsID: db.workshops.id
+    :return: QRcode as div
+    """
+    import pyqrcode
+
+    url = URL('shop', 'event', vars={'wsID':wsID},
+              host=True,
+              scheme=True)
+    qr = DIV(_class="qrcode")
+    row = DIV()
+    numbers = pyqrcode.create(url).text()
+    for i in numbers + '\n':
+        if i == '\n':
+            qr.append(row)
+            row = DIV()
+
+        if i == "0":
+            row.append(SPAN(' '))
+        elif i == '1':
+            row.append(SPAN(' ', _class="qrdata"))
+
+    return qr
+
+
 def pdf_template(wsID):
     """
         Print friendly display of a Workshop
@@ -3329,6 +3355,7 @@ def pdf_template(wsID):
 
     workshop_image_url = URL('default', 'download', args=workshop.picture, host=True, scheme=True)
     shop_url = URL('shop', 'event', vars={'wsID': wsID}, host=True, scheme=True)
+    qr = pdf_template_qrcode(wsID)
 
     html = response.render(template_file,
                            dict(workshop=workshop,
@@ -3338,6 +3365,7 @@ def pdf_template(wsID):
                                 activities=activities,
                                 products=products,
                                 price=price,
+                                qr=qr,
                                 logo=pdf_template_get_logo()))
 
     return html
