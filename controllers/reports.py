@@ -55,9 +55,6 @@ def attendance_get_menu(page=None):
     pages = [
         (['attendance_classes', T('Class Revenue'), URL('reports','attendance_classes')]),
         (['attendance_classtypes', T('Classtypes'), URL('reports','attendance_classtypes')]),
-        (['attendance_subcription_exceeded',
-          T('Exceeded subscriptions'),
-          URL('reports',"attendance_subcription_exceeded")]),
         (['attendance_organizations',
           T('Organizations'),
           URL('reports',"attendance_organizations")]),
@@ -3722,134 +3719,134 @@ def attendance_organizations_res_price_edit():
     return dict(content=form, back=back, save=submit)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'reports_attendance'))
-def attendance_subcription_exceeded():
-    '''
-        Show list of customers who exceeded the number of classes allowed by
-        their subscription
-    '''
-    response.title = T("Reports")
-    response.view = 'reports/subscriptions.html'
-
-    session.reports_attendance = request.function
-    session.customers_back = 'reports_attendance_subscription_exceeded'
-
-    today = datetime.date.today()
-    if 'year' in request.vars:
-        year = int(request.vars['year'])
-    elif not session.reports_att_year is None:
-        year = session.reports_att_year
-    else:
-        year = today.year
-    session.reports_att_year = year
-    if 'month' in request.vars:
-        month = int(request.vars['month'])
-    elif not session.reports_att_month is None:
-        month = session.reports_att_month
-    else:
-        month = today.month
-    session.reports_att_month = month
-
-    date = datetime.date(year,month,1)
-    firstdaythismonth = date
-    next_month = date.replace(day=28) + datetime.timedelta(days=4)  # this will never fail
-    lastdaythismonth = next_month - datetime.timedelta(days=next_month.day)
-
-    form_subtitle = get_form_subtitle(month, year, request.function)
-    response.subtitle = T('Attendance - subscription exceeded') + ' - ' + form_subtitle['subtitle']
-    form = form_subtitle['form']
-    month_chooser = form_subtitle['month_chooser']
-    current = form_subtitle['current']
-    submit = form_subtitle['submit']
-
-    header = THEAD(TR(TH(),
-                      TH(T('Customer')),
-                      TH(T('Class Date')),
-                      TH(T('Location')),
-                      TH(T('Class type')),
-                      TH(T('Time')),
-                      TH(T('Subscription')),
-                      TH(T('Classes allowed')),
-                      TH(T('Classes taken')),
-                      ))
-    table = TABLE(header, _class='table table-hover table-striped')
-
-
-    # Fill the main page
-    left = [
-        db.customers_subscriptions.on(
-            db.customers_subscriptions_exceeded.customers_subscriptions_id ==
-            db.customers_subscriptions.id ),
-        db.school_subscriptions.on(
-            db.customers_subscriptions.school_subscriptions_id ==
-            db.school_subscriptions.id ),
-        db.classes_attendance.on(
-            db.customers_subscriptions_exceeded.classes_attendance_id ==
-            db.classes_attendance.id ),
-         db.classes.on(
-            db.classes_attendance.classes_id ==
-            db.classes.id),
-         db.auth_user.on(
-            db.classes_attendance.auth_customer_id ==
-            db.auth_user.id)]
-
-    query = (db.classes_attendance.ClassDate >= firstdaythismonth) & \
-            (db.classes_attendance.ClassDate <= lastdaythismonth)
-
-    rows = db(query).select(db.school_subscriptions.Classes,
-                            db.school_subscriptions.SubscriptionUnit,
-                            db.school_subscriptions.Unlimited,
-                            db.classes_attendance.ClassDate,
-                            db.classes.school_locations_id,
-                            db.classes.school_classtypes_id,
-                            db.classes.Starttime,
-                            db.auth_user.id,
-                            db.auth_user.thumbsmall,
-                            db.auth_user.trashed,
-                            db.auth_user.birthday,
-                            db.auth_user.display_name,
-                            db.customers_subscriptions.school_subscriptions_id,
-                            db.customers_subscriptions_exceeded.ClassCount,
-                            left=left,
-                            orderby=db.auth_user.display_name|
-                                    ~db.classes_attendance.ClassDate)
-
-    for i, row in enumerate(rows):
-        repr_row = list(rows[i:i+1].render())[0]
-
-        cust_name = SPAN(row.auth_user.display_name)
-
-        allowed = attendance_subcription_exceeded_get_classes_allowed(
-            classes   = row.school_subscriptions.Classes,
-            unit      = row.school_subscriptions.SubscriptionUnit,
-            unlimited = row.school_subscriptions.Unlimited)
-
-        taken = A(row.customers_subscriptions_exceeded.ClassCount,
-                  _href=URL('customers', 'classes_attendance',
-                            vars={'cuID':row.auth_user.id}))
-
-        tr = TR(TD(repr_row.auth_user.thumbsmall, _class='os-customer_image_td'),
-                TD(cust_name),
-                TD(repr_row.classes_attendance.ClassDate),
-                TD(repr_row.classes.school_locations_id),
-                TD(repr_row.classes.school_classtypes_id),
-                TD(repr_row.classes.Starttime),
-                TD(repr_row.customers_subscriptions.school_subscriptions_id),
-                TD(allowed),
-                TD(taken)
-                )
-
-        table.append(tr)
-
-    menu = attendance_get_menu(request.function)
-
-    return dict(form=form,
-                menu=menu,
-                content=table,
-                current=current,
-                month_chooser=month_chooser,
-                submit=submit)
+# @auth.requires(auth.has_membership(group_id='Admins') or \
+#                auth.has_permission('read', 'reports_attendance'))
+# def attendance_subcription_exceeded():
+#     '''
+#         Show list of customers who exceeded the number of classes allowed by
+#         their subscription
+#     '''
+#     response.title = T("Reports")
+#     response.view = 'reports/subscriptions.html'
+#
+#     session.reports_attendance = request.function
+#     session.customers_back = 'reports_attendance_subscription_exceeded'
+#
+#     today = datetime.date.today()
+#     if 'year' in request.vars:
+#         year = int(request.vars['year'])
+#     elif not session.reports_att_year is None:
+#         year = session.reports_att_year
+#     else:
+#         year = today.year
+#     session.reports_att_year = year
+#     if 'month' in request.vars:
+#         month = int(request.vars['month'])
+#     elif not session.reports_att_month is None:
+#         month = session.reports_att_month
+#     else:
+#         month = today.month
+#     session.reports_att_month = month
+#
+#     date = datetime.date(year,month,1)
+#     firstdaythismonth = date
+#     next_month = date.replace(day=28) + datetime.timedelta(days=4)  # this will never fail
+#     lastdaythismonth = next_month - datetime.timedelta(days=next_month.day)
+#
+#     form_subtitle = get_form_subtitle(month, year, request.function)
+#     response.subtitle = T('Attendance - subscription exceeded') + ' - ' + form_subtitle['subtitle']
+#     form = form_subtitle['form']
+#     month_chooser = form_subtitle['month_chooser']
+#     current = form_subtitle['current']
+#     submit = form_subtitle['submit']
+#
+#     header = THEAD(TR(TH(),
+#                       TH(T('Customer')),
+#                       TH(T('Class Date')),
+#                       TH(T('Location')),
+#                       TH(T('Class type')),
+#                       TH(T('Time')),
+#                       TH(T('Subscription')),
+#                       TH(T('Classes allowed')),
+#                       TH(T('Classes taken')),
+#                       ))
+#     table = TABLE(header, _class='table table-hover table-striped')
+#
+#
+#     # Fill the main page
+#     left = [
+#         db.customers_subscriptions.on(
+#             db.customers_subscriptions_exceeded.customers_subscriptions_id ==
+#             db.customers_subscriptions.id ),
+#         db.school_subscriptions.on(
+#             db.customers_subscriptions.school_subscriptions_id ==
+#             db.school_subscriptions.id ),
+#         db.classes_attendance.on(
+#             db.customers_subscriptions_exceeded.classes_attendance_id ==
+#             db.classes_attendance.id ),
+#          db.classes.on(
+#             db.classes_attendance.classes_id ==
+#             db.classes.id),
+#          db.auth_user.on(
+#             db.classes_attendance.auth_customer_id ==
+#             db.auth_user.id)]
+#
+#     query = (db.classes_attendance.ClassDate >= firstdaythismonth) & \
+#             (db.classes_attendance.ClassDate <= lastdaythismonth)
+#
+#     rows = db(query).select(db.school_subscriptions.Classes,
+#                             db.school_subscriptions.SubscriptionUnit,
+#                             db.school_subscriptions.Unlimited,
+#                             db.classes_attendance.ClassDate,
+#                             db.classes.school_locations_id,
+#                             db.classes.school_classtypes_id,
+#                             db.classes.Starttime,
+#                             db.auth_user.id,
+#                             db.auth_user.thumbsmall,
+#                             db.auth_user.trashed,
+#                             db.auth_user.birthday,
+#                             db.auth_user.display_name,
+#                             db.customers_subscriptions.school_subscriptions_id,
+#                             db.customers_subscriptions_exceeded.ClassCount,
+#                             left=left,
+#                             orderby=db.auth_user.display_name|
+#                                     ~db.classes_attendance.ClassDate)
+#
+#     for i, row in enumerate(rows):
+#         repr_row = list(rows[i:i+1].render())[0]
+#
+#         cust_name = SPAN(row.auth_user.display_name)
+#
+#         allowed = attendance_subcription_exceeded_get_classes_allowed(
+#             classes   = row.school_subscriptions.Classes,
+#             unit      = row.school_subscriptions.SubscriptionUnit,
+#             unlimited = row.school_subscriptions.Unlimited)
+#
+#         taken = A(row.customers_subscriptions_exceeded.ClassCount,
+#                   _href=URL('customers', 'classes_attendance',
+#                             vars={'cuID':row.auth_user.id}))
+#
+#         tr = TR(TD(repr_row.auth_user.thumbsmall, _class='os-customer_image_td'),
+#                 TD(cust_name),
+#                 TD(repr_row.classes_attendance.ClassDate),
+#                 TD(repr_row.classes.school_locations_id),
+#                 TD(repr_row.classes.school_classtypes_id),
+#                 TD(repr_row.classes.Starttime),
+#                 TD(repr_row.customers_subscriptions.school_subscriptions_id),
+#                 TD(allowed),
+#                 TD(taken)
+#                 )
+#
+#         table.append(tr)
+#
+#     menu = attendance_get_menu(request.function)
+#
+#     return dict(form=form,
+#                 menu=menu,
+#                 content=table,
+#                 current=current,
+#                 month_chooser=month_chooser,
+#                 submit=submit)
 
 
 def attendance_subcription_exceeded_get_classes_allowed(classes=None,

@@ -2208,24 +2208,6 @@ def define_customers_subscriptions_alt_prices():
         )
 
 
-def define_customers_subscriptions_exceeded():
-    '''
-        Log for exceeded classes on subscriptions
-    '''
-    db.define_table('customers_subscriptions_exceeded',
-        Field('customers_subscriptions_id', db.customers_subscriptions,
-            required=True,
-            readable=False,
-            writable=False,
-            label=T("Subscription")),
-        Field('classes_attendance_id', db.classes_attendance,
-            readable=False,
-            writable=False),
-        Field('ClassCount', 'integer',
-            label=T('Count of classes taken')),
-        )
-
-
 def define_customers_documents():
     db.define_table('customers_documents',
         Field('auth_customer_id', db.auth_user, required=True,
@@ -5008,7 +4990,6 @@ define_school_holidays()
 define_school_holidays_locations()
 define_schedule_classes_status()
 
-define_customers_subscriptions_exceeded()
 define_customers_subscriptions_credits()
 
 # order definitions

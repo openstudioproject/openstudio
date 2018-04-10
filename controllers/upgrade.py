@@ -173,7 +173,8 @@ def upgrade_to_20182():
         'overduepayments',
         'customers_payments',
         'workshops_messages',
-        'workshops_products_messages'
+        'workshops_products_messages',
+        'customers_subscriptions_exceeded'
     ]
 
     for table in tables:
