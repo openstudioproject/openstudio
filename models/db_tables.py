@@ -2246,9 +2246,11 @@ def define_log_customers_accepted_documents():
               label=T("Description")),
         Field('DocumentVersion',
               label=T("Document version")),
-        Field('OnURL',
+        Field('DocumentURL',
               requires=IS_URL(),
-              label=T('URL')),
+              label=T('Document accepted on URL')),
+        Field('OpenStudioVersion',
+              label=T('OpenStudio version')),
         Field('CreatedOn', 'datetime',
               readable=False,
               writable=False,
@@ -5064,7 +5066,6 @@ define_shop_products()
 define_shop_products_variants()
 define_shop_categories()
 define_shop_categories_products()
-
 
 set_preferences_permissions()
 

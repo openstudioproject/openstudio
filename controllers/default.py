@@ -61,7 +61,6 @@ def user():
     to decorate functions that need access control
     """
     # check if someone is looking for profile
-    # check if someone is looking for profile
     if 'profile' in request.args:
         redirect(URL('profile', 'index'))
 
@@ -70,6 +69,9 @@ def user():
     auth.messages.verify_email = osmail.render_email_template('email_template_sys_verify_email', return_html=True)
     # auth.messages.reset_password = 'Click on the link %(link)s to reset your password'
     auth.messages.reset_password = osmail.render_email_template('email_template_sys_reset_password', return_html=True)
+    # Log registration accepted terms (if any)
+
+    auth.settings.register_onaccept.append(user_register_log_acceptance)
 
     ## Create auth form
     if session.show_location: # check if we need a requirement for the school_locations_id field for customers
@@ -91,6 +93,7 @@ def user():
 
 
     if 'register' in request.args:
+
         response.view = 'default/user_login.html'
         #auth.settings.formstyle = 'divs'
         user_registration_set_visible_fields()
@@ -340,6 +343,71 @@ def user_registration_set_visible_fields(var=None):
     for field in visible_fields:
         field.readable = True
         field.writable = True
+
+
+def user_register_log_acceptance(form):
+    """
+        Log acceptance of general terms, privacy policy and true data
+    """
+    cuID = form.vars.id
+    customer = Customer(cuID)
+
+    reg_url = URL('default', 'user', args='register', scheme=True, host=True)
+
+    organization = ORGANIZATIONS[ORGANIZATIONS['default']]
+    if organization:
+        user_register_log_acceptance_terms_and_conditions(customer,
+                                                          organization,
+                                                          reg_url)
+        user_register_log_acceptance_terms_and_conditions(customer,
+                                                          organization,
+                                                          reg_url)
+    user_register_log_acceptance_true_data(customer,
+                                           reg_url)
+
+
+def user_register_log_acceptance_terms_and_conditions(customer, organization, reg_url):
+    """
+    :param customer: Customer object
+    :param organization: the default organization
+    :param reg_url: url of registration form
+    :return: None
+    """
+    if organization['TermsConditionsURL']:
+        customer.log_document_acceptance(
+            document_name=T("Terms and Conditions"),
+            document_description=organization['TermsConditionsURL'],
+            document_version=organization.get('TermsConditionsVersion', None),
+            document_url=reg_url
+        )
+
+
+def user_register_log_acceptance_privacy_notice(customer, organization, reg_url):
+    """
+    :param customer: Customer object
+    :param organization: the default organization
+    :param reg_url: url of registration form
+    :return: None
+    """
+    if organization['PrivacyNoticeURL']:
+        customer.log_document_acceptance(
+            document_name=T("Privacy Notice"),
+            document_description=organization['PrivacyNoticeURL'],
+            document_version=organization.get('PrivacyNoticeVersion', None),
+            document_url=reg_url
+        )
+
+
+def user_register_log_acceptance_true_data(customer, reg_url):
+    """
+    :param customer: Customer object
+    :param reg_url: url of registration form
+    :return: None
+    """
+    customer.log_document_acceptance(
+        document_name=T("Registration form"),
+        document_url=reg_url
+    )
 
 
 @cache.action()

@@ -697,9 +697,9 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
 
 
     def get_mollie_mandates(self):
-        '''
+        """
             Returns mollie mandates
-        '''
+        """
         get_sys_property = current.globalenv['get_sys_property']
 
         import Mollie
@@ -723,6 +723,29 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
             self.row.update_record()
 
         return mollie.customer_mandates.withParentId(mollie_customer_id).all()
+
+
+    def log_document_acceptance(self,
+                                document_name,
+                                document_description='',
+                                document_version='',
+                                document_url=''):
+        """
+            :return:
+        """
+        db = current.globalenv['db']
+
+        version = db.sys_properties(Property='Version').PropertyValue
+        release = db.sys_properties(Property='VersionRelease').PropertyValue
+
+        db.log_customers_accepted_documents.insert(
+            auth_customer_id = self.cuID,
+            DocumentName = document_name,
+            DocumentDescription = document_description,
+            DocumentVersion = document_version,
+            DocumentURL = document_url,
+            OpenStudioVersion = '.'.join([version, release])
+        )
 
 
 class Customers:
