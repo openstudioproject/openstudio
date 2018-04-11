@@ -1166,12 +1166,11 @@ def privacy_get_message(var=None):
     """
         return translatable string privacy message
     """
-    privacy_policy = ''
-
+    privacy_notice = ''
 
     organization = ORGANIZATIONS[ORGANIZATIONS['default']]
     if organization['PrivacyNoticeURL']:
-        privacy_policy = SPAN(
+        privacy_notice = SPAN(
             T("and review our"), ' ',
             A(T("privacy notice"),
               _href=organization['PrivacyNoticeURL'],
@@ -1181,9 +1180,8 @@ def privacy_get_message(var=None):
     return SPAN(
         T("We use your information to provide the best service possible"), ', ',
         T("to improve our services and to be able to give personalized advice."), BR(),
-        T("Here you can download all your data"), ' ',
-        privacy_policy,
-        '.'
+        T("Below you can download data and files associated with your account."), BR(),
+        T("While you're here, why not review our"), ' ', privacy_notice,'?'
     )
 
 
@@ -1203,15 +1201,55 @@ def privacy():
     download = os_gui.get_button(
         'noicon',
         URL('profile', 'privacy_download'),
-        title=T('Download data')
+        title=T('Download')
     )
+
+    documents = privacy_get_documents()
 
     content = DIV(
         privacy_get_message(), BR(), BR(),
-        download
+        documents,
+        H4(T('Data')),
+        download,
     )
 
     return dict(content=content)
+
+
+def privacy_get_documents():
+    """
+        returns list of documents for customer
+    """
+    customer = Customer(auth.user.id)
+    rows = customer.get_documents_rows()
+
+    if not len(rows):
+        return ''
+
+    header = THEAD(
+        TR(
+            TH(T("Description")),
+            TH(T("Download")),
+        )
+    )
+    table = TABLE(header, _class='table table-striped table-hover')
+    for row in rows:
+        tr = TR(
+            TD(row.Description),
+            TD(A(T("Download"),
+                 _href=URL('default', 'download', args=row.DocumentFile)))
+        )
+
+        table.append(tr)
+
+    documents = DIV(
+        H4(T('Files')),
+        table
+    )
+
+    return documents
+
+
 
 
 @auth.requires_login()

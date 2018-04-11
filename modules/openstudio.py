@@ -448,6 +448,16 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
         return orders
 
 
+    def get_documents_rows(self):
+        """
+        :return: document rows for customer
+        """
+        db = current.globalenv['db']
+
+        query = (db.customers_documents.auth_customer_id == self.cuID)
+        return db(query).select(db.customers_documents.ALL)
+
+
     def has_recurring_reservation_for_class(self, clsID, date):
         '''
         :param clsID: db.classes.id
