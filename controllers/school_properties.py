@@ -2650,7 +2650,6 @@ def teachers():
     db.auth_user.postcode.readable = False
     db.auth_user.country.readable = False
     db.auth_user.country.readable = False
-    db.auth_user.note.readable = False
 
     delete_onclick = "return confirm('" + \
         T('Remove from teachers list? - This person will still be a customer.') + "');"

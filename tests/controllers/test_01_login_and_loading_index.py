@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-'''
+"""
     py.test test cases to test OpenStudio.
     These tests run based on webclient and need web2py server running.
-'''
+"""
 
 from populate_os_tables import populate_sys_organizations
 
@@ -58,19 +58,20 @@ def test_user_register_log_acceptance_documents(client, web2py):
 
 
 def test_index_exists(client):
-    '''
+    """
         page index exists?
-    '''
+    """
     client.get('/default/index') # get a page
     assert client.status == 200
     assert "login" in client.text.lower()
 
 
-def test_user_login(client):
-    '''
+def test_user_login(client, web2py):
+    """
         user login is working?
         This check is important, if it fails all other tests also don't work
-    '''
+    """
+    import datetime
     data = dict(email='admin@openstudioproject.com',
                 password='OSAdmin1#',
                 _formname='login')
@@ -80,10 +81,16 @@ def test_user_login(client):
     assert client.status == 200
     assert "Pinboard" in client.text
 
+    # Check last_login set
+    # time should have been set in the last 10 seconds
+    delta = datetime.timedelta(seconds = 10)
+    row = web2py.db.auth_user(1)
+    assert row.last_login > datetime.datetime.now() - delta
+
 
 #def test_validate_new_person(client, web2py):
-    #'''Is the form validating?
-    #'''
+    #"""Is the form validating?
+    #"""
 
     #data = dict(name='',
                 #phone='',
@@ -100,8 +107,8 @@ def test_user_login(client):
 
 
 #def test_save_new_person(client, web2py):
-    #'''Created a new person?
-    #'''
+    #"""Created a new person?
+    #"""
 
     #data = dict(name='Homer Simpson',
                 #phone='9988-7766',
@@ -116,8 +123,8 @@ def test_user_login(client):
 
 
 #def test_get_person_by_creation_date(client, web2py):
-    #'''Is my filter working?
-    #'''
+    #"""Is my filter working?
+    #"""
 
     #from gluon.contrib.populate import populate
     #populate(web2py.db.people, 3) # insert 3 persons with random data
