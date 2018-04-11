@@ -1393,11 +1393,11 @@ def classcards_get_link_invoice(row):
 
 
 def classcards_get_return_url(cuID, clsID=None, date_formatted=None):
-    '''
+    """
         returns the return url for class cards
-    '''
+    """
     if clsID:
-        url = URL('classes', 'attendance_list_classcards',
+        url = URL('classes', 'attendance_booking_options',
                      vars={'cuID' : cuID,
                            'clsID': clsID,
                            'date' : date_formatted})
