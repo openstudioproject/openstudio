@@ -2235,18 +2235,22 @@ def define_log_customers_accepted_documents():
         Field('DocumentName',
               label=T("Document")),
         Field('DocumentDescription',
+              represent=lambda value, row: value or '',
               label=T("Description")),
         Field('DocumentVersion',
+              represent=lambda value, row: value or '',
               label=T("Document version")),
         Field('DocumentURL',
               requires=IS_URL(),
               label=T('Document accepted on URL')),
         Field('OpenStudioVersion',
+              represent=lambda value, row: value or '',
               label=T('OpenStudio version')),
         Field('CreatedOn', 'datetime',
               readable=False,
               writable=False,
               default=datetime.datetime.now(),
+              represent=represent_datetime,
               label=T('Accepted on'))
     )
 

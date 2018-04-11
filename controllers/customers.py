@@ -5482,7 +5482,7 @@ def account_set_password():
     cuID = request.vars['cuID']
     customer = Customer(cuID)
     response.title = customer.get_name()
-    response.subtitle = T('Set password')
+    response.subtitle = T('Account')
 
     for field in db.auth_user:
         field.readable = False
@@ -5517,6 +5517,55 @@ def account_set_password():
                 menu=menu,
                 back=back,
                 save=submit)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'log_customers_accepted_documents'))
+def account_acceptance_log():
+    """
+        Lists accepted documents for customer
+    """
+    response.view = 'customers/edit_general.html'
+    cuID = request.vars['cuID']
+    customer = Customer(cuID)
+    response.title = customer.get_name()
+    response.subtitle = T('Account')
+
+    submenu = account_get_submenu(request.function, cuID)
+
+    header = THEAD(
+        TR(
+            TH(T('Document')),
+            TH(T('Document Description')),
+            TH(T('Document Version')),
+            TH(T('Document URL')),
+            TH(T('OpenStudio Version')),
+            TH(T('Accepted On')),
+        )
+    )
+    table = TABLE(header, _class='table table-striped table-hover')
+    rows = customer.get_accepted_documents()
+    for row in rows.render():
+        tr = TR(
+            TD(row.DocumentName),
+            TD(row.DocumentDescription),
+            TD(row.DocumentVersion),
+            TD(row.DocumentURL),
+            TD(row.OpenStudioVersion),
+            TD(row.CreatedOn),
+        )
+
+        table.append(tr)
+
+    content = DIV(submenu, table)
+
+    menu = customers_get_menu(cuID, 'account')
+    back = edit_get_back()
+
+    return dict(content=content,
+                menu=menu,
+                back=back)
+
 
 
 def account_get_submenu(page, cuID):

@@ -735,6 +735,18 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
         return mollie.customer_mandates.withParentId(mollie_customer_id).all()
 
 
+    def get_accepted_documents(self):
+        """
+        :return: rows object with rows of accepted documents for this customer
+        """
+        db = current.globalenv['db']
+
+        query = (db.log_customers_accepted_documents.auth_customer_id == self.cuID)
+        rows = db(query).select(db.log_customers_accepted_documents.ALL,
+                                orderby=db.log_customers_accepted_documents.CreatedOn)
+        return rows
+
+
     def log_document_acceptance(self,
                                 document_name,
                                 document_description='',
