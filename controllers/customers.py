@@ -2461,6 +2461,7 @@ def classes_attendance_get_link_cancel(row):
        URL('customers', 'classes_attendance_cancel',
            vars={'caID':row.classes_attendance.id}),
        onclick=onclick_cancel,
+       tooltip=T('Cancel booking'),
        _class='pull-right')
 
     return button
@@ -2483,6 +2484,7 @@ def classes_attendance_get_link_delete(row):
        URL('classes', 'attendance_remove',
            vars={'clattID':row.classes_attendance.id}),
        onclick=onclick_delete,
+       tooltip=T('Delete'),
        _class='pull-right')
 
     return button
