@@ -3185,6 +3185,7 @@ class AttendanceHelper:
         :param date: datetime.date
         :param date_formatted: datetime.date object formatted with current.globalenv['DATE_FORMAT']
         :param customer: Customer object
+        :param: list_type: [shop, attendance, selfcheckin]
         :return:
         """
         def classes_book_options_get_button_book(url):
@@ -3192,7 +3193,7 @@ class AttendanceHelper:
                 Return book button for booking options
             """
             button_text = T('Book')
-            if list_type == 'attendance':
+            if list_type == 'attendance' or list_type == 'selfcheckin':
                 button_text = T('Check in')
 
             button_book = A(SPAN(button_text, ' ', os_gui.get_fa_icon('fa-chevron-right')),
@@ -3215,31 +3216,14 @@ class AttendanceHelper:
             for subscription in subscriptions:
                 csID = subscription.customers_subscriptions.id
                 # Shop urls are the default for this function when no list_type has been specified
-
-
-                # if list_type == 'attendance':
-                #     url_subscription = URL('classes', 'attendance_signin_subscription',
-                #                            vars={'clsID':clsID,
-                #                                  'cuID':subscription.auth_customer_id,
-                #                                  'csID':csID})
-
-
                 # Check remaining credits
                 credits_remaining = subscription.customers_subscriptions.CreditsRemaining or 0
                 recon_classes = subscription.school_subscriptions.ReconciliationClasses
                 # Create subscription object
                 cs = CustomerSubscription(csID)
 
-                # print '#### get_button_book ###'
-                # print csID
-                # print subscription.customers_subscriptions.CreditsRemaining
-                # print credits_remaining
-                # print recon_classes
-                # print '###'
-
                 if list_type == 'shop':
                     subscription_permission_check = not int(clsID) in cs.get_allowed_classes_booking(public_only=True)
-
                 else:
                     subscription_permission_check = not int(clsID) in cs.get_allowed_classes_attend(public_only=False)
 
@@ -3320,6 +3304,26 @@ class AttendanceHelper:
                                       _class='small_font grey'),
                                  _class='col-md-6'),
                              DIV(button_book,
+                                 _class='col-md-3'),
+                             _class='col-md-10 col-md-offset-1 col-xs-12')
+
+                options.append(option)
+        else:
+            if list_type == 'attendance':
+                url = URL('customers', 'classcard_add',
+                          vars={'cuID': customer.row.id,
+                                'clsID': clsID,
+                                'date': date_formatted})
+                button_add = A(SPAN(T('Sell card'), ' ', os_gui.get_fa_icon('fa-chevron-right')),
+                                _href=url,
+                                _class='pull-right btn btn-link')
+
+
+                option = DIV(DIV(T('Class card'),
+                                 _class='col-md-3 bold'),
+                             DIV(T('No cards found - sell a new card',),
+                                 _class='col-md-6'),
+                             DIV(button_add,
                                  _class='col-md-3'),
                              _class='col-md-10 col-md-offset-1 col-xs-12')
 

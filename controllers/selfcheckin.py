@@ -228,7 +228,7 @@ def checkin_booking_options():
                                                     date,
                                                     customer,
                                                     trial=True,
-                                                    list_type='attendance',
+                                                    list_type='selfcheckin',
                                                     controller='classes')
     cancel = os_gui.get_button('noicon',
                                return_url,
