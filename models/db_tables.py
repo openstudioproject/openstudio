@@ -1335,8 +1335,6 @@ def define_customers_notes():
               represent=lambda value, row: value.strftime('%H:%M')),
         Field('Note', 'text', required=True,
               requires=IS_NOT_EMPTY()),
-        Field('Alert', 'boolean',
-              default=False),
         Field('Injury', 'boolean',
               default=False,
               label=T('This note describes an injury')),

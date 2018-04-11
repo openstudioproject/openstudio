@@ -1219,8 +1219,10 @@ def privacy_download():
     """
     :return: xlsx document containing all data of an account
     """
-    customer = Customer(auth.user.id)
-    stream = customer.export_excel()
+    from openstudio import CustomerExport
+
+    ce = CustomerExport(auth.user.id)
+    stream = ce.excel()
 
     fname = 'customer_data.xlsx'
     response.headers['Content-Type'] = 'application/vnd.ms-excel'

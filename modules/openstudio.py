@@ -725,7 +725,41 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
         return mollie.customer_mandates.withParentId(mollie_customer_id).all()
 
 
-    def export_excel(self):
+    def log_document_acceptance(self,
+                                document_name,
+                                document_description='',
+                                document_version='',
+                                document_url=''):
+        """
+            :return:
+        """
+        db = current.globalenv['db']
+
+        version = db.sys_properties(Property='Version').PropertyValue
+        release = db.sys_properties(Property='VersionRelease').PropertyValue
+
+        db.log_customers_accepted_documents.insert(
+            auth_customer_id = self.cuID,
+            DocumentName = document_name,
+            DocumentDescription = document_description,
+            DocumentVersion = document_version,
+            DocumentURL = document_url,
+            OpenStudioVersion = '.'.join([version, release])
+        )
+
+
+class CustomerExport:
+    def __init__(self, cuID):
+        """
+            :param cuID: db.auth_user.id
+        """
+        db = current.globalenv['db']
+
+        self.cuID = cuID
+        self.row = db.auth_user(self.cuID)
+
+
+    def excel(self):
         """
             Customer export all data
         """
@@ -740,14 +774,17 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
         wb = openpyxl.workbook.Workbook(write_only=True)
 
         # auth_user data
-        self._export_excel_account(db, wb)
+        self._excel_account(db, wb)
+
+        # customers_notes
+        self._excel_customers_notes(db, wb)
+
 
         wb.save(stream)
-
         return stream
 
 
-    def _export_excel_account(self, db, wb):
+    def _excel_account(self, db, wb):
         """
             Account info for excel export of customer data
         """
@@ -843,27 +880,360 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
         ws.append(data)
 
 
-    def log_document_acceptance(self,
-                                document_name,
-                                document_description='',
-                                document_version='',
-                                document_url=''):
+    def _excel_customers_notes(self, db, wb):
         """
-            :return:
+            Customers Notes for excel export of customer data
         """
-        db = current.globalenv['db']
+        ws = wb.create_sheet('Notes')
 
-        version = db.sys_properties(Property='Version').PropertyValue
-        release = db.sys_properties(Property='VersionRelease').PropertyValue
+        data = []
+        header = [
+            'backoffice_note',
+            'teacher_note',
+            'date',
+            'time',
+            'note',
+            'injury'
+        ]
 
-        db.log_customers_accepted_documents.insert(
-            auth_customer_id = self.cuID,
-            DocumentName = document_name,
-            DocumentDescription = document_description,
-            DocumentVersion = document_version,
-            DocumentURL = document_url,
-            OpenStudioVersion = '.'.join([version, release])
-        )
+        ws.append(header)
+
+        query = (db.customers_notes.auth_customer_id == self.cuID)
+        rows = db(query).select(db.customers_notes.ALL)
+
+        for row in rows:
+            data = [
+                row.BackofficeNote,
+                row.TeacherNote,
+                row.NoteDate,
+                row.NoteTime,
+                row.Note,
+                row.Injury,
+            ]
+
+            ws.append(data)
+
+
+    def _excel_alternative_payments(self, db, wb):
+        """
+            Customers Notes for excel export of customer data
+        """
+        ws = wb.create_sheet('Subscriptions Alt. payments')
+
+        data = []
+        header = [
+            'year',
+            'month',
+            'amount',
+            'description'
+        ]
+
+        ws.append(header)
+
+        query = (db.alternative_payments.auth_customer_id == self.cuID)
+        rows = db(query).select(db.alternativepayments.ALL)
+
+        for row in rows:
+            data = [
+                row.PaymentYear,
+                row.PaymentMonth,
+                row.Amount,
+                row.Description,
+            ]
+
+            ws.append(data)
+
+
+    def _excel_customers_classcards(self, db, wb):
+        """
+            Customers classcards for excel export of customer data
+        """
+        ws = wb.create_sheet('class cards')
+
+        data = []
+        header = [
+            'card',
+            'start',
+            'end',
+            'note'
+        ]
+
+        ws.append(header)
+
+        left = [db.school_classcards.on(
+            db.customers_classcards.school_classcards_id ==
+            db.school_classcards.id
+        )]
+        query = (db.customers_classcards.auth_customer_id == self.cuID)
+        rows = db(query).select(db.customers_classcards.ALL,
+                                db.school_classcards.Name
+                                left=left)
+
+        for row in rows:
+            data = [
+                row.school_classcards.Name,
+                row.customers_classcards.Startdate,
+                row.customers_classcards.Enddate,
+                row.customers_classcards.Note,
+            ]
+
+            ws.append(data)
+
+
+    def _excel_customers_subscriptions(self, db, wb):
+        """
+            Customers subscriptions for excel export of customer data
+        """
+        ws = wb.create_sheet('subscriptions')
+
+        data = []
+        header = [
+            'subscription',
+            'start',
+            'end',
+            'note',
+        ]
+
+        ws.append(header)
+
+        left = [db.school_subscriptions.on(
+            db.customers_subscriptions.school_subscriptions_id ==
+            db.school_subscriptions.id),
+        ]
+        query = (db.customers_subscriptions.auth_customer_id == self.cuID)
+        rows = db(query).select(db.customers_subscriptions.ALL,
+                                db.school_subscriptions.Name,
+                                left=left)
+
+        for row in rows:
+            data = [
+                row.school_subscriptions.Name,
+                row.customers_subscriptions.Startdate,
+                row.customers_subscriptions.Enddate,
+                row.customers_subscriptions.Note,
+            ]
+
+            ws.append(data)
+
+
+    def _excel_customers_subscriptions(self, db, wb):
+        """
+            Customers payment info for excel export of customer data
+        """
+        ws = wb.create_sheet('payment info')
+
+        data = []
+        header = [
+            'account_nr',
+            'account_holder',
+            'bic',
+            'mandate_sign_date',
+            'bank',
+            'bank_locaction'
+        ]
+
+        ws.append(header)
+
+        query = (db.customers_payment_info.auth_customer_id == self.cuID)
+        rows = db(query).select(db.customers_payment_info.ALL,
+                                left=left)
+
+        for row in rows:
+            data = [
+                row.AccountNumber,
+                row.AccountHolder,
+                row.BIC,
+                row.MandateSignatureDate,
+                row.BankName,
+                row.BankLocation,
+            ]
+
+            ws.append(data)
+
+
+    def _excel_log_customers_accepted_documents(self, db, wb):
+        """
+            Customers accepted documents for excel export of customer data
+        """
+        ws = wb.create_sheet('accepted docs')
+
+        data = []
+        header = [
+            'doc_name',
+            'doc_desc',
+            'doc_ver',
+            'doc_url',
+            'os_version',
+            'accepted_on',
+        ]
+
+        ws.append(header)
+
+        query = (db.log_customers_accepted_documents.auth_customer_id == self.cuID)
+        rows = db(query).select(db.log_customers_accepted_documents.ALL)
+
+        for row in rows:
+            data = [
+                row.DocumentName,
+                row.DocumentDescription,
+                row.DocumentVersion,
+                row.DocumentURL,
+                row.OpenStudioVersion,
+                row.CreatedOn,
+            ]
+
+            ws.append(data)
+
+
+    def _excel_customers_shoppingcart(self, db, wb):
+        """
+            Customers accepted documents for excel export of customer data
+        """
+        ws = wb.create_sheet('shoppingcart')
+
+        data = []
+        header = [
+            'event_ticket',
+            'classcard',
+            'class',
+            'class_date',
+            'att_type',
+            'created_on',
+        ]
+
+        ws.append(header)
+
+        # left = [
+        #     db.workshops_products.on(
+        #         db.customers_shoppingcart.workshops_products_id ==
+        #         db.workshops_products.id),
+        #     db.workshops.on(
+        #         db.workshops_products.workshops_id ==
+        #         db.workshops.id),
+        #     db.school_classcards.on(
+        #         db.customers_shoppingcart.school_classcards_id ==
+        #         db.school_classcards.id),
+        #     db.classes.on(
+        #         db.customers_shoppingcart.classes_id ==
+        #         db.classes
+        #     )
+        # ]
+
+        query = (db.customers_shoppingcart.auth_customer_id == self.cuID)
+        rows = db(query).select(db.customers_shoppingcart.ALL)
+
+        for row in rows.render():
+            data = [
+                row.workshops_products_id,
+                row.school_classcards_id,
+                row.classes_id,
+                row.ClassDate,
+                row.AttendanceType,
+                row.CreatedOn
+            ]
+
+            ws.append(data)
+
+
+    def _excel_customers_orders(self, db, wb):
+        """
+            Customers orders for excel export of customer data
+        """
+        ws = wb.create_sheet('orders')
+
+        data = []
+        header = [
+            'order',
+            'status',
+            'date_created',
+            'classcard',
+            'event_ticket',
+            'class',
+            'class_date',
+            'att_type',
+            'prod_name',
+            'desc',
+            'qty',
+            'price',
+            'price_in_vat'
+        ]
+
+        ws.append(header)
+
+        left = [
+            db.customers_orders.on(
+                db.customers_orders_items.customers_orders_id ==
+                db.customers_orders.id
+            )
+        ]
+
+        query = (db.customers_orders.auth_customer_id == self.cuID)
+        rows = db(query).select(db.customers_orders.ALL,
+                                db.customers_orders_items.ALL,
+                                left=left)
+
+        for row in rows.render():
+            data = [
+                row.customers_orders.id,
+                row.customers_orders.Status,
+                row.customers_orders.CreatedOn,
+                row.customers_orders_items.school_classcards_id,
+                row.customers_orders_items.workshops_products_id,
+                row.customers_orders_items.classes_id,
+                row.customers_orders_items.ClassDate,
+                row.customers_orders_items.AttendanceType,
+                row.customers_orders_items.ProductName,
+                row.customers_orders_items.Description,
+                row.customers_orders_items.Quantity,
+                row.customers_orders_items.Price,
+                row.customers_orders_items.TotalPriceVAT,
+            ]
+
+            ws.append(data)
+
+
+    def _excel_classes_attendance(self, db, wb):
+        """
+            Customers class attendance for excel export of customer data
+        """
+        ws = wb.create_sheet('class_attendance')
+
+        data = []
+        header = [
+            'class',
+            'class_date',
+            'att_type',
+            'subscription_id',
+            'classcard_id',
+            'online_booking',
+            'booking_status',
+            'created_on',
+            'created_by',
+        ]
+
+        ws.append(header)
+
+
+        query = (db.classes_attendance.auth_customer_id == self.cuID)
+        rows = db(query).select(db.classes_attendance.ALL)
+
+        for row in rows.render():
+            data = [
+                row.classes_id,
+                row.ClassDate,
+                row.AttendanceType,
+                row.customers_subscriptions_id,
+                row.customers_classcards_id,
+                row.online_booking,
+                row.BookingStatus,
+                row.CreatedOn,
+                row.CreatedBy,
+            ]
+
+            ws.append(data)
+
+
+
 
 
 class Customers:
