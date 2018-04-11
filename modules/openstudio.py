@@ -773,11 +773,24 @@ class CustomerExport:
         # Create the workbook
         wb = openpyxl.workbook.Workbook(write_only=True)
 
-        # auth_user data
+        # Add customer data to workbook
         self._excel_account(db, wb)
-
-        # customers_notes
         self._excel_customers_notes(db, wb)
+        self._excel_alternative_payments(db, wb)
+        self._excel_customers_classcards(db, wb)
+        self._excel_customers_subscriptions(db, wb)
+        self._excel_customers_payment_info(db, wb)
+        self._excel_log_customers_accepted_documents(db, wb)
+        self._excel_customers_shoppingcart(db, wb)
+        self._excel_customers_orders(db, wb)
+        self._excel_invoices(db, wb)
+        self._excel_classes_attendance(db, wb)
+        self._excel_classes_reservation(db, wb)
+        self._excel_classes_waitinglist(db, wb)
+        self._excel_workshops_products(db, wb)
+        self._excel_workshops_activities(db, wb)
+        self._excel_messages(db, wb)
+        self._excel_payment_batch_items(db, wb)
 
 
         wb.save(stream)
@@ -930,7 +943,7 @@ class CustomerExport:
 
         ws.append(header)
 
-        query = (db.alternative_payments.auth_customer_id == self.cuID)
+        query = (db.alternativepayments.auth_customer_id == self.cuID)
         rows = db(query).select(db.alternativepayments.ALL)
 
         for row in rows:
@@ -966,7 +979,7 @@ class CustomerExport:
         )]
         query = (db.customers_classcards.auth_customer_id == self.cuID)
         rows = db(query).select(db.customers_classcards.ALL,
-                                db.school_classcards.Name
+                                db.school_classcards.Name,
                                 left=left)
 
         for row in rows:
@@ -1016,7 +1029,7 @@ class CustomerExport:
             ws.append(data)
 
 
-    def _excel_customers_subscriptions(self, db, wb):
+    def _excel_customers_payment_info(self, db, wb):
         """
             Customers payment info for excel export of customer data
         """
@@ -1035,8 +1048,7 @@ class CustomerExport:
         ws.append(header)
 
         query = (db.customers_payment_info.auth_customer_id == self.cuID)
-        rows = db(query).select(db.customers_payment_info.ALL,
-                                left=left)
+        rows = db(query).select(db.customers_payment_info.ALL)
 
         for row in rows:
             data = [
@@ -1148,7 +1160,7 @@ class CustomerExport:
             'date_created',
             'classcard',
             'event_ticket',
-            'class',
+            'class_id',
             'class_date',
             'att_type',
             'prod_name',
@@ -1164,22 +1176,37 @@ class CustomerExport:
             db.customers_orders.on(
                 db.customers_orders_items.customers_orders_id ==
                 db.customers_orders.id
+            ),
+            db.school_classcards.on(
+                db.customers_orders_items.school_classcards_id ==
+                db.school_classcards.id
+            ),
+            db.workshops_products.on(
+                db.customers_orders_items.workshops_products_id ==
+                db.workshops_products.id
+            ),
+            db.classes.on(
+                db.customers_orders_items.classes_id ==
+                db.classes.id
             )
         ]
 
         query = (db.customers_orders.auth_customer_id == self.cuID)
         rows = db(query).select(db.customers_orders.ALL,
                                 db.customers_orders_items.ALL,
+                                db.school_classcards.Name,
+                                db.workshops_products.Name,
+                                db.classes.id,
                                 left=left)
 
-        for row in rows.render():
+        for row in rows:
             data = [
                 row.customers_orders.id,
                 row.customers_orders.Status,
-                row.customers_orders.CreatedOn,
-                row.customers_orders_items.school_classcards_id,
-                row.customers_orders_items.workshops_products_id,
-                row.customers_orders_items.classes_id,
+                row.customers_orders.DateCreated,
+                row.school_classcards.Name,
+                row.workshops_products.Name,
+                row.classes.id,
                 row.customers_orders_items.ClassDate,
                 row.customers_orders_items.AttendanceType,
                 row.customers_orders_items.ProductName,
@@ -1187,6 +1214,60 @@ class CustomerExport:
                 row.customers_orders_items.Quantity,
                 row.customers_orders_items.Price,
                 row.customers_orders_items.TotalPriceVAT,
+            ]
+
+            ws.append(data)
+
+
+    def _excel_invoices(self, db, wb):
+        """
+            Customers invoices for excel export of customer data
+        """
+        ws = wb.create_sheet('invoices')
+
+        data = []
+        header = [
+            'invoice',
+            'status',
+            'date_created',
+            'date_due',
+            'prod_name',
+            'desc',
+            'qty',
+            'price',
+            'price_in_vat'
+        ]
+
+        ws.append(header)
+
+        left = [
+            db.invoices.on(
+                db.invoices_customers.invoices_id ==
+                db.invoices.id
+            ),
+            db.invoices_items.on(
+                db.invoices_items.invoices_id ==
+                db.invoices.id
+            )
+        ]
+
+        query = (db.invoices_customers.auth_customer_id == self.cuID)
+        rows = db(query).select(db.invoices_customers.ALL,
+                                db.invoices.ALL,
+                                db.invoices_items.ALL,
+                                left=left)
+
+        for row in rows:
+            data = [
+                row.invoices.InvoiceID,
+                row.invoices.Status,
+                row.invoices.DateCreated,
+                row.invoices.DateDue,
+                row.invoices_items.ProductName,
+                row.invoices_items.Description,
+                row.invoices_items.Quantity,
+                row.invoices_items.Price,
+                row.invoices_items.TotalPriceVAT,
             ]
 
             ws.append(data)
@@ -1200,7 +1281,7 @@ class CustomerExport:
 
         data = []
         header = [
-            'class',
+            'class_id',
             'class_date',
             'att_type',
             'subscription_id',
@@ -1213,11 +1294,10 @@ class CustomerExport:
 
         ws.append(header)
 
-
         query = (db.classes_attendance.auth_customer_id == self.cuID)
         rows = db(query).select(db.classes_attendance.ALL)
 
-        for row in rows.render():
+        for row in rows:
             data = [
                 row.classes_id,
                 row.ClassDate,
@@ -1233,7 +1313,240 @@ class CustomerExport:
             ws.append(data)
 
 
+    def _excel_classes_reservation(self, db, wb):
+        """
+            Customers class enrollment for excel export of customer data
+        """
+        ws = wb.create_sheet('class_enrollment')
 
+        data = []
+        header = [
+            'class',
+            'start',
+            'end',
+        ]
+
+        ws.append(header)
+
+
+        query = (db.classes_reservation.auth_customer_id == self.cuID)
+        rows = db(query).select(db.classes_reservation.ALL)
+
+        for row in rows.render():
+            data = [
+                row.classes_id,
+                row.Startdate,
+                row.Enddate
+            ]
+
+            ws.append(data)
+
+
+    def _excel_classes_waitinglist(self, db, wb):
+        """
+            Customers class waitinglist for excel export of customer data
+        """
+        ws = wb.create_sheet('class_waitinglist')
+
+        data = []
+        header = [
+            'class',
+        ]
+
+        ws.append(header)
+
+
+        query = (db.classes_waitinglist.auth_customer_id == self.cuID)
+        rows = db(query).select(db.classes_waitinglist.ALL)
+
+        for row in rows.render():
+            data = [
+                row.classes_id,
+            ]
+
+            ws.append(data)
+
+
+    def _excel_workshops_products(self, db, wb):
+        """
+            Customers event tickets for excel export of customer data
+        """
+        ws = wb.create_sheet('event_tickets')
+
+        data = []
+        header = [
+            'event',
+            'ticket',
+            'cancelled',
+            'info_sent',
+            'waitinglist',
+            'created_on'
+        ]
+
+        ws.append(header)
+
+        left = [
+            db.workshops_products.on(
+                db.workshops_products_customers.workshops_products_id ==
+                db.workshops_products.id
+            ),
+            db.workshops.on(
+                db.workshops_products.workshops_id ==
+                db.workshops.id
+            )
+        ]
+
+        query = (db.workshops_products_customers.auth_customer_id == self.cuID)
+        rows = db(query).select(db.workshops_products.Name,
+                                db.workshops.Name,
+                                db.workshops_products_customers.ALL,
+                                left=left)
+
+        for row in rows.render():
+            data = [
+                row.workshops.Name,
+                row.workshops_products.Name,
+                row.workshops_products_customers.Cancelled,
+                row.workshops_products_customers.WorkshopInfo,
+                row.workshops_products_customers.Waitinglist,
+                row.workshops_products_customers.CreatedOn,
+            ]
+
+            ws.append(data)
+
+
+    def _excel_workshops_activities(self, db, wb):
+        """
+            Customers event attendance for excel export of customer data
+        """
+        ws = wb.create_sheet('event_att')
+
+        data = []
+        header = [
+            'event',
+            'ticket',
+            'cancelled',
+            'info_sent',
+            'waitinglist',
+            'created_on'
+        ]
+
+        ws.append(header)
+
+        left = [
+            db.workshops_activities.on(
+                db.workshops_activities_customers.workshops_activities_id ==
+                db.workshops_activities.id
+            ),
+            db.workshops.on(
+                db.workshops_activities.workshops_id ==
+                db.workshops.id
+            )
+        ]
+
+        query = (db.workshops_activities_customers.auth_customer_id == self.cuID)
+        rows = db(query).select(db.workshops_activities.Activity,
+                                db.workshops.Name,
+                                db.workshops_activities_customers.ALL,
+                                left=left)
+
+        for row in rows.render():
+            data = [
+                row.workshops.Name,
+                row.workshops_activities.Activity,
+                row.workshops_activities_customers.Cancelled,
+                row.workshops_activities_customers.WorkshopInfo,
+                row.workshops_activities_customers.Waitinglist,
+                row.workshops_activities_customers.CreatedOn,
+            ]
+
+            ws.append(data)
+
+
+    def _excel_messages(self, db, wb):
+        """
+            Customers messages for excel export of customer data
+        """
+        ws = wb.create_sheet('messages')
+
+        data = []
+        header = [
+            'subject',
+            'content',
+            'sent'
+        ]
+
+        ws.append(header)
+
+        left = [
+            db.messages.on(
+                db.customers_messages.messages_id ==
+                db.messages.id),
+        ]
+
+        query = (db.customers_messages.auth_customer_id == self.cuID)
+        rows = db(query).select(db.messages.ALL,
+                                db.customers_messages.ALL,
+                                left=left)
+
+        for row in rows.render():
+            data = [
+                row.messages.msg_subject,
+                row.messages.msg_content,
+                row.customers_messages.CreatedOn
+            ]
+            ws.append(data)
+
+
+    def _excel_payment_batch_items(self, db, wb):
+        """
+            Customers batch_items for excel export of customer data
+        """
+        ws = wb.create_sheet('payment_batch_items')
+
+        data = []
+        header = [
+            'invoices_id',
+            'account_holder',
+            'bic',
+            'account_nr',
+            'mandate_sign_date',
+            'amount',
+            'currency',
+            'description',
+            'bank',
+            'bank_loc',
+        ]
+
+        ws.append(header)
+
+        left = [
+            db.invoices.on(
+                db.payment_batches_items.invoices_id ==
+                db.invoices.id
+            )
+        ]
+
+        query = (db.payment_batches_items.auth_customer_id == self.cuID)
+        rows = db(query).select(db.payment_batches_items.ALL,
+                                db.invoices.InvoiceID,
+                                left=left)
+
+        for row in rows:
+            data = [
+                row.invoices.InvoiceID,
+                row.payment_batches_items.AccountHolder,
+                row.payment_batches_items.BIC,
+                row.payment_batches_items.AccountNumber,
+                row.payment_batches_items.MandateSignatureDate,
+                row.payment_batches_items.Amount,
+                row.payment_batches_items.Currency,
+                row.payment_batches_items.Description,
+                row.payment_batches_items.BankName,
+                row.payment_batches_items.BankLocation,
+            ]
+
+            ws.append(data)
 
 
 class Customers:
