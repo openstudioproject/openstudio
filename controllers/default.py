@@ -72,6 +72,7 @@ def user():
     # Log registration accepted terms (if any)
 
     auth.settings.register_onaccept.append(user_register_log_acceptance)
+    auth.settings.login_onaccept.append(user_set_last_login)
 
     ## Create auth form
     if session.show_location: # check if we need a requirement for the school_locations_id field for customers
@@ -326,6 +327,17 @@ def user():
                 has_terms=has_terms,
                 has_privacy_notice=has_privacy_notice,
                 logo_login=logo_login)
+
+
+def user_set_last_login(form):
+    """
+        Sets last_login field for a user
+    """
+    email = form.vars.email
+
+    row = db.auth_user(email=email)
+    row.last_login = datetime.datetime.now()
+    row.update_record()
 
 
 def user_registration_set_visible_fields(var=None):

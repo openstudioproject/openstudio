@@ -845,6 +845,7 @@ class CustomerExport:
             'teacher_bio_link',
             'teacher_website',
             'mollie_customer_id',
+            'last_login',
             'created_on',
         ]
 
@@ -897,6 +898,7 @@ class CustomerExport:
             self.row.teacher_bio_link,
             self.row.teacher_website,
             self.row.mollie_customer_id,
+            self.row.last_login,
             self.row.created_on
         ]
 

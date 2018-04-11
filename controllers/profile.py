@@ -1180,7 +1180,7 @@ def privacy_get_message(var=None):
     return SPAN(
         T("We use your information to provide the best service possible"), ', ',
         T("to improve our services and to be able to give personalized advice."), BR(),
-        T("Below you can download data and files associated with your account."), BR(),
+        T("Below you can download data and files (if any) associated with your account."), BR(),
         T("While you're here, why not review our"), ' ', privacy_notice,'?'
     )
 
