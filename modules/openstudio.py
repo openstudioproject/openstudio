@@ -16,11 +16,11 @@ from general_helpers import represent_validity_units
 
 class Customer:
     '''
-        Class that contains functions for customer subscriptions
+        Class that contains functions for customer
     '''
     def __init__(self, cuID):
         '''
-            Class init function which sets csID
+            Class init function which sets cuID
         '''
         db = current.globalenv['db']
 
@@ -723,6 +723,124 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
             self.row.update_record()
 
         return mollie.customer_mandates.withParentId(mollie_customer_id).all()
+
+
+    def export_excel(self):
+        """
+            Customer export all data
+        """
+        from cStringIO import StringIO
+        import openpyxl
+
+
+        db = current.globalenv['db']
+
+        stream = StringIO()
+        # Create the workbook
+        wb = openpyxl.workbook.Workbook(write_only=True)
+
+        # auth_user data
+        self._export_excel_account(db, wb)
+
+        wb.save(stream)
+
+        return stream
+
+
+    def _export_excel_account(self, db, wb):
+        """
+            Account info for excel export of customer data
+        """
+        ws = wb.create_sheet('Account')
+
+        data = []
+        header = [
+            'business',
+            'customer',
+            'teacher',
+            'teaches_classes',
+            'teaches_workshops',
+            'employee',
+            'first_name',
+            'last_name',
+            'gender',
+            'date_of_birth',
+            'address',
+            'postcode',
+            'city',
+            'country',
+            'email',
+            'phone',
+            'mobile',
+            'emergency',
+            'keynr',
+            'company',
+            'discovery',
+            'level',
+            'location',
+            'language',
+            'teacher_role',
+            'teacher_bio',
+            'teacher_education',
+            'teacher_bio_link',
+            'teacher_website',
+            'mollie_customer_id',
+            'created_on',
+        ]
+
+        ws.append(header)
+
+        discovery = None
+        if self.row.school_discovery_id:
+            discovery = db.school_discovery(self.row.school_discovery_id).Name
+
+        level = None
+        if self.row.school_levels_id:
+            level = db.school_levels(self.row.school_levels_id).Name
+
+        location = None
+        if self.row.school_locations_id:
+            location = db.school_locations(self.row.school_locations_id).Name
+
+        language = None
+        if self.row.school_languages_id:
+            language = db.school_languages(self.row.school_languages_id).Name
+
+        data = [
+            self.row.business,
+            self.row.customer,
+            self.row.teacher,
+            self.row.teaches_classes,
+            self.row.teaches_workshops,
+            self.row.employee,
+            self.row.first_name,
+            self.row.last_name,
+            self.row.gender,
+            self.row.date_of_birth,
+            self.row.address,
+            self.row.postcode,
+            self.row.city,
+            self.row.country,
+            self.row.email,
+            self.row.phone,
+            self.row.mobile,
+            self.row.emergency,
+            self.row.keynr,
+            self.row.company,
+            discovery,
+            level,
+            location,
+            language,
+            self.row.teacher_role,
+            self.row.teacher_bio,
+            self.row.education,
+            self.row.teacher_bio_link,
+            self.row.teacher_website,
+            self.row.mollie_customer_id,
+            self.row.created_on
+        ]
+
+        ws.append(data)
 
 
     def log_document_acceptance(self,

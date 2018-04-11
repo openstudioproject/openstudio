@@ -1037,26 +1037,6 @@ def subscription_info():
     return dict(content=content, back=back)
 
 
-# def subscription_info_permissions(cs):
-#     '''
-#         :param csID: db.customers_subscriptions
-#         :return:
-#     '''
-#      = cs.get_class_permissions()
-#     #
-#     # enrollment = cs.get_allowed_classes_enrollment(formatted=True)
-#     # booking = cs.get_allowed_classes_booking(formatted=True)
-#     # attend = cs.get_allowed_classes_attend(formatted=True)
-#     #
-#     # allowed_classes = DIV(H4(T('You can enroll in the following classes')), enrollment,
-#     #                       H4(T('You can make advance reservations for the following classes')), booking,
-#     #                       H4(T('You can attend the following classes'), ' ',
-#     #                          XML('<small>' + T('(You might not be able to enroll or book in advance') + '</small>')),
-#     #                       attend)
-#
-#     return cs.
-
-
 def enrollments_get_back(var=None):
     '''
     :param var: Unused variable to prevent Web2py making this function public
@@ -1207,7 +1187,6 @@ def privacy_get_message(var=None):
     )
 
 
-
 @auth.requires_login()
 def privacy():
     """
@@ -1216,8 +1195,35 @@ def privacy():
     response.title = T('Privacy')
     response.view = 'shop/index.html'
 
-    content = privacy_get_message()
+    # Check whether the privacy feature is enabled
+    features = db.customers_profile_features(1)
+    if not features.Privacy:
+        redirect(URL('profile', 'index'))
 
+    download = os_gui.get_button(
+        'noicon',
+        URL('profile', 'privacy_download'),
+        title=T('Download data')
+    )
+
+    content = DIV(
+        privacy_get_message(), BR(), BR(),
+        download
+    )
 
     return dict(content=content)
 
+
+@auth.requires_login()
+def privacy_download():
+    """
+    :return: xlsx document containing all data of an account
+    """
+    customer = Customer(auth.user.id)
+    stream = customer.export_excel()
+
+    fname = 'customer_data.xlsx'
+    response.headers['Content-Type'] = 'application/vnd.ms-excel'
+    response.headers['Content-disposition'] = 'attachment; filename=' + fname
+
+    return stream.getvalue()
