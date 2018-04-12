@@ -4039,19 +4039,10 @@ def notes():
         elif row.TeacherNote:
             row_note_type = T('Teachers')
 
-        if row.Alert is True:
-            alert = SPAN(XML(' ! ! '),
-                         _title=T("Alert"),
-                         _class='red bold')
-        else:
-            alert = ''
-
         if latest == 'True':
-            note = DIV(alert,
-                       XML(max_string_length(row.Note.replace('\n','<br>'),
+            note = DIV(XML(max_string_length(row.Note.replace('\n','<br>'),
                                              latest_length)))
             break
-
         else:
             buttons = DIV(_class='btn-group pull-right')
             if auth.has_membership(group_id='Admins') or \
@@ -4071,7 +4062,6 @@ def notes():
 
 
             notes.append(LI(buttons,
-                            alert,
                             SPAN(row.NoteDate,
                                  ' ',
                                  row.NoteTime,
