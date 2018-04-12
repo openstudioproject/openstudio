@@ -5872,6 +5872,7 @@ def customers_inactive_get_button_delete(date):
             title = T('Delete customers'),
             tooltip = T('Delete customers on list'),
             onclick=onclick,
+            btn_class='btn-danger',
             _class="pull-right"
         )
 

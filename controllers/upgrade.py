@@ -146,7 +146,8 @@ def upgrade_to_20182():
     ##
     # Migrate links to invoices
     ##
-    rows = db(db.invoices).select(db.invoices.ALL)
+    query = (db.invoices)
+    rows = db(query).select(db.invoices.ALL)
     for row in rows:
         iID = row.id
         db.invoices_customers.insert(
@@ -159,7 +160,6 @@ def upgrade_to_20182():
                 invoices_id = iID,
                 customers_subscriptions_id = row.customers_subscriptions_id
             )
-
 
     db(query).update(auth_customer_id = None,
                      customers_subscriptions_id = None)
