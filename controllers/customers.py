@@ -5817,3 +5817,18 @@ def edit_teacher():
                 back=back,
                 save=submit,
                 left_sidebar_enabled=True)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+                auth.has_permission('delete', 'auth_user'))
+def clean_up():
+    """
+        Clean up customers without any activity for a long time
+    """
+    customers = Customers()
+    result = customers.list_inactive_after_date_formatted(datetime.date(2017, 1, 1))
+
+    print result['count']
+
+    return dict(content=result['table'])
+

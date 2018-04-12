@@ -1689,6 +1689,126 @@ class Customers:
         return delete
 
 
+    def list_activity_after_date(self, date):
+        """
+            :param: date: datetime.date
+            :return: List of all records in auth_user with activity
+        """
+        db = current.globalenv['db']
+        query = """
+SELECT au.id, 
+	   au.first_name, 
+       au.last_name,
+       au.display_name, 
+       au.email, 
+       au.last_login, 
+       au.created_on, 
+       cs.count_cs,
+       ccd.count_ccd,
+       wsp.count_event_tickets,
+       cn.count_notes,
+       clatt.count_classes
+FROM auth_user au
+LEFT JOIN ( SELECT auth_customer_id, COUNT(id) as count_cs
+		    FROM customers_subscriptions
+		    WHERE Enddate > '{date}' OR Enddate IS NULL
+			GROUP BY auth_customer_id ) AS cs ON cs.auth_customer_id = au.id
+LEFT JOIN ( SELECT auth_customer_id, COUNT(id) AS count_ccd
+		    FROM customers_classcards
+		    WHERE Enddate > '{date}' OR Enddate IS NULL 
+            GROUP BY auth_customer_id ) AS ccd ON ccd.auth_customer_id = au.id
+LEFT JOIN ( SELECT auth_customer_id, COUNT(id) AS count_event_tickets
+			FROM workshops_products_customers
+			WHERE CreatedOn > '{date}'
+            GROUP BY auth_customer_id) AS wsp ON wsp.auth_customer_id = au.id
+LEFT JOIN ( SELECT auth_customer_id, COUNT(id) AS count_notes
+			FROM customers_notes
+			WHERE NoteDate > '{date}'
+            GROUP BY auth_customer_id) AS cn ON cn.auth_customer_id = au.id
+LEFT JOIN ( SELECT auth_customer_id, COUNT(id) AS count_classes 
+			FROM classes_attendance
+			WHERE ClassDate > '{date}'
+			GROUP BY auth_customer_id) clatt ON clatt.auth_customer_id = au.id
+        """.format(date=date)
+
+        return db.executesql(query)
+
+
+    def list_inactive_after_date(self, date):
+        """
+        :param date: datetime.date
+        :return: list of customers inactive after date
+        """
+        from general_helpers import datestr_to_python
+
+        records = self.list_activity_after_date(date)
+
+        inactive = []
+        for record in records:
+            last_login = record[5].date() if record[5] else None
+            created_on = record[6].date()
+
+            if (created_on < date and
+               (last_login is None or last_login < date) and
+                    (record[7] is None and
+                     record[8] is None and
+                     record[9] is None and
+                     record[10] is None and
+                     record[11] is None )):
+                inactive.append(record)
+
+        return inactive
+    
+    
+    def list_inactive_after_date_formatted(self, date):
+        """
+            :param date: datetime.date 
+            :return: dict(table=Table listing inactive customers,
+                          count=number of inactive customers)
+        """
+        T = current.globalenv['T']
+        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+
+        records = self.list_inactive_after_date(date)
+
+        header = THEAD(TR(
+            TH(T("ID")),
+            TH(T("Customer")),
+            TH(T("Email")),
+            TH(T("Last Login")),
+            TH(T("Created")),
+            TH(T("Subscriptions")),
+            TH(T("Class cards")),
+            TH(T("Event Tickets")),
+            TH(T("Notes")),
+            TH(T("Classes taken")),
+        ))
+
+        table = TABLE(header, _class="table table-striped table-hover")
+        for record in records:
+            last_login = record[5]
+            try:
+                record[5].strftime(DATE_FORMAT)
+            except AttributeError:
+                last_login = 'None'
+
+            table.append(TR(
+                TD(record[0]),
+                TD(record[3]),
+                TD(record[4]),
+                TD(last_login),
+                TD(record[6].strftime(DATE_FORMAT)),
+                TD(record[7]),
+                TD(record[8]),
+                TD(record[9]),
+                TD(record[10]),
+                TD(record[11]),
+            ))
+
+        return dict(table=table, count=len(records))
+
+
+
 class CustomersHelper:
     '''
         This class collects functions for customers that are useful in
