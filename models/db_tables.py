@@ -2669,11 +2669,11 @@ def define_workshops_products():
             label=T('Tax rate')),
         Field('Description', 'text', required=False),
         Field('ExternalShopURL',
-            requires=IS_EMPTY_OR(IS_URL()),
             label=T("Link external shop"),
             comment=os_gui.get_info_icon(
-                title=T("Add an url here starting with 'http:// or https://' to change the link of the 'add to cart' button " + \
-                        "for this poduct"),
+                title=T(
+                    "Add an url here starting with 'http://, https:// or mailto:' to change the link of the 'add to cart' button " + \
+                    "for this poduct"),
                 btn_icon='info')),
         Field('AddToCartText',
             label=T("Add to cart text"),
