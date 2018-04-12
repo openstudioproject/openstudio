@@ -1707,7 +1707,8 @@ SELECT au.id,
        ccd.count_ccd,
        wsp.count_event_tickets,
        cn.count_notes,
-       clatt.count_classes
+       clatt.count_classes,
+       co.count_orders
 FROM auth_user au
 LEFT JOIN ( SELECT auth_customer_id, COUNT(id) as count_cs
 		    FROM customers_subscriptions
@@ -1729,6 +1730,10 @@ LEFT JOIN ( SELECT auth_customer_id, COUNT(id) AS count_classes
 			FROM classes_attendance
 			WHERE ClassDate > '{date}'
 			GROUP BY auth_customer_id) clatt ON clatt.auth_customer_id = au.id
+LEFT JOIN ( SELECT auth_customer_id, COUNT(ID) as count_orders
+			FROM customers_orders
+            WHERE DateCreated > '{date}'
+            GROUP BY auth_customer_id) co ON co.auth_customer_id = au.id
         """.format(date=date)
 
         return db.executesql(query)
@@ -1754,7 +1759,8 @@ LEFT JOIN ( SELECT auth_customer_id, COUNT(id) AS count_classes
                      record[8] is None and
                      record[9] is None and
                      record[10] is None and
-                     record[11] is None )):
+                     record[11] is None and
+                     record[12] is None)):
                 inactive.append(record)
 
         return inactive
@@ -1782,6 +1788,7 @@ LEFT JOIN ( SELECT auth_customer_id, COUNT(id) AS count_classes
             TH(T("Event Tickets")),
             TH(T("Notes")),
             TH(T("Classes taken")),
+            TH(T("Orders")),
         ))
 
         table = TABLE(header, _class="table table-striped table-hover")
@@ -1803,6 +1810,7 @@ LEFT JOIN ( SELECT auth_customer_id, COUNT(id) AS count_classes
                 TD(record[9]),
                 TD(record[10]),
                 TD(record[11]),
+                TD(record[12]),
             ))
 
         return dict(table=table, count=len(records))
