@@ -1708,7 +1708,8 @@ SELECT au.id,
        wsp.count_event_tickets,
        cn.count_notes,
        clatt.count_classes,
-       co.count_orders
+       co.count_orders,
+       ic.count_invoices
 FROM auth_user au
 LEFT JOIN ( SELECT auth_customer_id, COUNT(id) as count_cs
 		    FROM customers_subscriptions
@@ -1734,6 +1735,13 @@ LEFT JOIN ( SELECT auth_customer_id, COUNT(ID) as count_orders
 			FROM customers_orders
             WHERE DateCreated > '{date}'
             GROUP BY auth_customer_id) co ON co.auth_customer_id = au.id
+LEFT JOIN ( SELECT ic.auth_customer_id, COUNT(ic.id) as count_invoices
+			FROM invoices_customers ic
+            LEFT JOIN invoices ON ic.invoices_id = invoices.id
+            WHERE invoices.DateCreated > '{date}'
+            GROUP BY auth_customer_id) ic ON ic.auth_customer_id = au.id
+WHERE au.employee = 'F' AND 
+      au.teacher = 'F'
         """.format(date=date)
 
         return db.executesql(query)
@@ -1760,7 +1768,9 @@ LEFT JOIN ( SELECT auth_customer_id, COUNT(ID) as count_orders
                      record[9] is None and
                      record[10] is None and
                      record[11] is None and
-                     record[12] is None)):
+                     record[12] is None and
+                     record[13] is None
+                    )):
                 inactive.append(record)
 
         return inactive
@@ -1784,14 +1794,15 @@ LEFT JOIN ( SELECT auth_customer_id, COUNT(ID) as count_orders
             TH(T("Last Login")),
             TH(T("Created")),
             TH(T("Subscriptions")),
-            TH(T("Class cards")),
-            TH(T("Event Tickets")),
+            TH(T("Classcards")),
+            TH(T("Events")),
             TH(T("Notes")),
-            TH(T("Classes taken")),
+            TH(T("Classes")),
             TH(T("Orders")),
+            TH(T("Invoices")),
         ))
 
-        table = TABLE(header, _class="table table-striped table-hover")
+        table = TABLE(header, _class="table table-striped table-hover small_font")
         for record in records:
             last_login = record[5]
             try:
@@ -1811,6 +1822,7 @@ LEFT JOIN ( SELECT auth_customer_id, COUNT(ID) as count_orders
                 TD(record[10]),
                 TD(record[11]),
                 TD(record[12]),
+                TD(record[13]),
             ))
 
         return dict(table=table, count=len(records))

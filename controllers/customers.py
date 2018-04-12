@@ -5830,5 +5830,14 @@ def clean_up():
 
     print result['count']
 
-    return dict(content=result['table'])
+    content = DIV(
+        H4(T('Found'), ' ', result['count'], ' ',
+           T('customers without activity since'), ' ',
+           '<date here>'),
+        result['table']
+    )
+
+    back = os_gui.get_button('back', URL('customers', 'index'))
+
+    return dict(content=content)
 
