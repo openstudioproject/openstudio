@@ -5829,6 +5829,8 @@ def customers_inactive():
             H4(T('Found'), ' ', result['count'], ' ',
                T('customers without activity after'), ' ',
                request.vars['date']),
+
+            #TODO: Add delete all button when user has auth_user delete permission
             HR(),
             result['table']
         )
