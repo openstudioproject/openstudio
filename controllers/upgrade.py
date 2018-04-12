@@ -167,10 +167,14 @@ def upgrade_to_20182():
     ##
     # Set default values for createdOn fields
     ##
+    # auth_user
     now = datetime.datetime.now()
     query = (db.auth_user.created_on == None)
-    db(query).update(now)
+    db(query).update(created_on = now)
 
+    # workshops_products_customers
+    query = (db.workshops_products_customers.CreatedOn == None)
+    db(query).update(CreatedOn = now)
 
     ##
     # Clean up old tables
