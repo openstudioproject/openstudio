@@ -1774,7 +1774,23 @@ WHERE au.employee = 'F' AND
                 inactive.append(record)
 
         return inactive
-    
+
+
+    def delete_inactive_after_date(self, date):
+        """
+        :param date: datetime.date
+        :return: Integer - count of customers deleted
+        """
+        db = current.globalenv['db']
+
+        records = self.list_inactive_after_date(date)
+        ids = [record[0] for record in records]
+
+        query = (db.auth_user.id.belongs(ids))
+        db(query).delete()
+
+        return len(records)
+
     
     def list_inactive_after_date_formatted(self, date):
         """
@@ -1804,6 +1820,7 @@ WHERE au.employee = 'F' AND
 
         table = TABLE(header, _class="table table-striped table-hover small_font")
         for record in records:
+            cuID = record[0]
             last_login = record[5]
             try:
                 record[5].strftime(DATE_FORMAT)
@@ -1817,7 +1834,7 @@ WHERE au.employee = 'F' AND
             )
 
             table.append(TR(
-                TD(record[0]),
+                TD(cuID),
                 TD(customer_link),
                 TD(record[4]),
                 TD(last_login),

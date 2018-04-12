@@ -5807,8 +5807,8 @@ def retention_get_parameter_or_session(parameter, default_value, session_paramet
     return value
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('delete', 'auth_user'))
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'reports_customers'))
 def customers_inactive():
     """
         List customers inactive since date and offer option to clean up
@@ -5826,11 +5826,10 @@ def customers_inactive():
         customers = Customers()
         result = customers.list_inactive_after_date_formatted(date)
         content = DIV(
+            customers_inactive_get_button_delete(date),
             H4(T('Found'), ' ', result['count'], ' ',
                T('customers without activity after'), ' ',
                request.vars['date']),
-
-            #TODO: Add delete all button when user has auth_user delete permission
             HR(),
             result['table']
         )
@@ -5853,6 +5852,33 @@ def customers_inactive():
                 run_report=submit,
                 back=back)
 
+
+def customers_inactive_get_button_delete(date):
+    """
+        :return: delete button if the user has permissions to delete users
+    """
+    delete = ''
+
+    onclick = "return confirm('" + \
+     T('Do you really want to remove all customers on this list and all data associated with these customers?')\
+     + "');"
+    permission = (auth.has_membership(group_id='Admins') or
+                  auth.has_permission('delete', 'auth_user'))
+    if permission:
+        date_formatted = date.strftime(DATE_FORMAT)
+        delete = os_gui.get_button(
+            'noicon',
+            URL('customers_inactive_delete', vars={'date':date_formatted}),
+            title = T('Delete customers'),
+            tooltip = T('Delete customers on list'),
+            onclick=onclick,
+            _class="pull-right"
+        )
+
+
+    return delete
+
+
 def customers_inactive_get_form(date):
     """
         Return date form for clean_up
@@ -5871,3 +5897,21 @@ def customers_inactive_get_form(date):
     )
 
     return form
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('delete', 'auth_user'))
+def customers_inactive_delete():
+    """
+        :return: None
+    """
+    from openstudio import Customers
+
+    date_formatted = request.vars['date']
+    date = datestr_to_python(DATE_FORMAT, date_formatted)
+
+    customers = Customers()
+    nr_deleted = customers.delete_inactive_after_date(date)
+
+    session.flash = SPAN(T("Deleted"), ' ', nr_deleted, ' ', T('Customers'))
+    redirect(URL('customers_inactive'))
