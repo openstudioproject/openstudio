@@ -5805,3 +5805,67 @@ def retention_get_parameter_or_session(parameter, default_value, session_paramet
         session[session_parameter] = value
 
     return value
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('delete', 'auth_user'))
+def customers_inactive():
+    """
+        List customers inactive since date and offer option to clean up
+    """
+    from openstudio import Customers
+
+    response.title = T('Reports')
+    response.subtitle = T('Inactive customers')
+    response.view = 'reports/general.html'
+
+    session.customers_back = 'reports_customers_inactive'
+
+    if 'date' in request.vars:
+        date = datestr_to_python(DATE_FORMAT, request.vars['date'])
+        customers = Customers()
+        result = customers.list_inactive_after_date_formatted(date)
+        content = DIV(
+            H4(T('Found'), ' ', result['count'], ' ',
+               T('customers without activity after'), ' ',
+               request.vars['date']),
+            HR(),
+            result['table']
+        )
+    else:
+        date = TODAY_LOCAL
+        content = DIV(
+            T('Please select a date and click "Run report".'),
+            _class="col-md-12"
+        )
+
+    form = customers_inactive_get_form(date)
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
+    form = result['form']
+    submit = result['submit']
+
+    back = os_gui.get_button('back', URL('customers', 'index'))
+
+    return dict(content=content,
+                form=DIV(form, _class='col-md-4'),
+                run_report=submit,
+                back=back)
+
+def customers_inactive_get_form(date):
+    """
+        Return date form for clean_up
+    """
+    form = SQLFORM.factory(
+        Field('date', 'date',
+              default=date,
+              requires=IS_DATE_IN_RANGE(format=DATE_FORMAT,
+                                        minimum=datetime.date(1900, 1, 1),
+                                        maximum=datetime.date(2999, 1, 1)),
+              label=T('Date'),
+              widget=os_datepicker_widget,
+              comment=T('List customers without activity after this date')),
+        formstyle='bootstrap3_stacked',
+        submit_button=T('Run report')
+    )
+
+    return form

@@ -1810,9 +1810,15 @@ WHERE au.employee = 'F' AND
             except AttributeError:
                 last_login = 'None'
 
+            customer_link = A(
+                record[3],
+                _href=URL('customers', 'edit', args=record[0]),
+                _target="_blank"
+            )
+
             table.append(TR(
                 TD(record[0]),
-                TD(record[3]),
+                TD(customer_link),
                 TD(record[4]),
                 TD(last_login),
                 TD(record[6].strftime(DATE_FORMAT)),

@@ -1236,6 +1236,7 @@ def access_group_permissions():
 
     reports_permissions = [
         ['reports-read', T("View reports"), [
+            ['reports_customers-read', T("View customers reports")],
             ['reports_classcards-read', T("View class cards reports")],
             ['reports_subscriptions-read', T("View subscriptions reports")],
             ['reports_dropinclasses-read', T("View drop in classes reports")],

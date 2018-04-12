@@ -193,3 +193,14 @@ def upgrade_to_20182():
             db.executesql('''DROP TABLE '{table'}'''.format(table=table))
         except:
             pass
+
+    ##
+    # set Booking status to attending for all historical data in classes_attendance
+    ##
+    query = (db.classes_attendance.BookingStatus == None)
+    db(query).update(BookingStatus='attending')
+
+    ##
+    # clear cache
+    ##
+    cache.ram.clear(regex='.*')

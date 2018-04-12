@@ -984,6 +984,8 @@ def edit_get_back(_class=''):
        session.customers_back == 'subscriptions_alt_prices':
         # check if the we came from the default/subscriptions page
         url = URL('reports', session.customers_back)
+    elif session.customers_back == 'reports_customers_inactive':
+        url = URL('reports', 'customers_inactive')
     elif session.customers_back == 'trialclasses':
         # check if the we came from the default/trialclasses page
         url = URL('reports', 'trialclasses')
@@ -5817,27 +5819,4 @@ def edit_teacher():
                 back=back,
                 save=submit,
                 left_sidebar_enabled=True)
-
-
-@auth.requires(auth.has_membership(group_id='Admins') or \
-                auth.has_permission('delete', 'auth_user'))
-def clean_up():
-    """
-        Clean up customers without any activity for a long time
-    """
-    customers = Customers()
-    result = customers.list_inactive_after_date_formatted(datetime.date(2017, 1, 1))
-
-    print result['count']
-
-    content = DIV(
-        H4(T('Found'), ' ', result['count'], ' ',
-           T('customers without activity since'), ' ',
-           '<date here>'),
-        result['table']
-    )
-
-    back = os_gui.get_button('back', URL('customers', 'index'))
-
-    return dict(content=content)
 

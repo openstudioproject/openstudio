@@ -365,6 +365,10 @@ def get_backend_menu():
         # reports
 
         submenu = []
+        if user_helpers.check_read_permission('reports_customers', user_id):
+            submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Inactive customers'))),
+                            False,
+                            URL('reports', 'customers_inactive', extension='')))
         if user_helpers.check_read_permission('reports_classcards', user_id):
             submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Class cards'))),
                             False,
@@ -422,7 +426,7 @@ def get_backend_menu():
                           SPAN(I(_class='fa fa-angle-left pull-right'),
                                _class="pull-right-container")),
                 False,
-                URL('reports', 'index', extension=''),
+                URL('#', extension=''),
                 submenu)]
 
         # Finance
