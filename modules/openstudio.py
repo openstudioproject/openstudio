@@ -4615,28 +4615,33 @@ class ClassSchedule:
             # check start time
             status = 'ongoing'
         elif dt_start >= NOW_LOCAL:
-
             if not self.bookings_open == False and TODAY_LOCAL < self.bookings_open:
                 status = 'not_yet_open'
             else:
                 # check spaces for online bookings
+                enrollments = row.classes_schedule_count.Reservations or 0
+                enrollment_spaces = row.classes.MaxReservationsRecurring or 0
+                enrollment_spaces_left = enrollment_spaces - enrollments
+
                 spaces = row.classes.MaxOnlineBooking or 0
                 online_booking = row.classes_schedule_count.OnlineBooking or 0
 
-                if (spaces - online_booking) < 1:
+                if ((spaces + enrollment_spaces_left) - online_booking) < 1:
                     status = 'full'
                 else:
                     status = 'ok'
+
+                print status
 
         return status
 
 
     def _get_day_rows(self):
-        '''
+        """
             Helper function that returns a dict containing a title for the weekday,
             a date for the class and
             a SQLFORM.grid for a selected day which is within 1 - 7 (ISO standard).
-        '''
+        """
         date = self.date
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
         db = current.globalenv['db']
@@ -4668,6 +4673,7 @@ class ClassSchedule:
             db.classes.Enddate,
             db.classes.Maxstudents,
             db.classes.MaxOnlineBooking,
+            db.classes.MaxReservationsRecurring,
             db.classes.AllowAPI,
             db.classes.sys_organizations_id,
             db.classes_otc.id,
@@ -4679,7 +4685,8 @@ class ClassSchedule:
             db.school_holidays.id,
             db.school_holidays.Description,
             db.classes_schedule_count.Attendance,
-            db.classes_schedule_count.OnlineBooking
+            db.classes_schedule_count.OnlineBooking,
+            db.classes_schedule_count.Reservations
         ]
 
         where_filter = self._get_day_filter_query()
@@ -4722,7 +4729,8 @@ class ClassSchedule:
                CASE WHEN cotc.MaxOnlineBooking IS NOT NULL
                     THEN cotc.MaxOnlineBooking
                     ELSE cla.MaxOnlineBooking
-                    END AS MaxOnlineBooking,               
+                    END AS MaxOnlineBooking,
+               cla.MaxReservationsRecurring,             
                cla.AllowAPI,
                cla.sys_organizations_id,
                cotc.id,
@@ -4758,7 +4766,14 @@ class ClassSchedule:
                        clatt.ClassDate = '{class_date}' AND
                        clatt.BookingStatus != 'cancelled' AND
                        clatt.online_booking = 'T'
-                 GROUP BY clatt.classes_id ) as count_clatto
+                 GROUP BY clatt.classes_id ) as count_clatto,
+               /* Count of enrollments (reservations) for this class */
+               ( SELECT COUNT(clr.id) as count_clr
+                 FROM classes_reservation clr
+                 WHERE clr.classes_id = cla.id AND
+                       (clr.Startdate <= '{class_date}' AND
+                        (clr.Enddate >= '{class_date}' OR clr.Enddate IS NULL))
+                 GROUP BY clr.classes_id ) as count_clr
         FROM classes cla
         LEFT JOIN
             ( SELECT id,
