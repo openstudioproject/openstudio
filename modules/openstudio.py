@@ -1646,47 +1646,7 @@ class Customers:
         return table
 
 
-    def _list_formatted_get_link_restore(self,
-                                         row,
-                                         os_gui,
-                                         permission,
-                                         onclick):
-        """
-            Restore customer to current
-        """
-        T = current.globalenv['T']
-        restore = ''
 
-        if permission:
-            restore = os_gui.get_button(
-                'noicon',
-                URL('customers', 'restore', vars={'cuID': row.id}),
-                title=T('Restore'),
-                onclick=onclick,
-                _class="pull-right"
-            )
-
-        return restore
-
-
-    def _list_formatted_get_link_delete(self,
-                                        row,
-                                        os_gui,
-                                        permission,
-                                        onclick):
-        """
-            Return delete button
-        """
-        delete = ''
-        if permission:
-            delete = os_gui.get_button(
-                'delete_notext',
-                URL('customers', 'delete', vars={'cuID': row.id}),
-                onclick=onclick,
-                _class="pull-right"
-            )
-
-        return delete
 
 
     def list_activity_after_date(self, date):

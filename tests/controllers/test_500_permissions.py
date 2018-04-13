@@ -22,8 +22,6 @@ from populate_os_tables import populate_customers_orders_items
 from setup_permisison_tests import setup_permission_tests
 
 
-
-
 # def test_logout(client, web2py):
 #     """
 #         This is not an actual test, but just logs out the user

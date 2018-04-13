@@ -394,6 +394,24 @@ def index():
     # Redirect back to edit page after adding
     session.customers_add_back = None
 
+    # deleted filter
+    show = 'current'
+
+    if 'show' in request.vars:
+        show = request.vars['show']
+        session.customers_show = show
+    if not session.customers_show:
+        session.customers_show = 'current'
+
+    if session.customers_show == 'deleted':
+        deleted_class = 'active'
+        current_class = ''
+        list_type = 'customers_index_deleted'
+    else:
+        deleted_class = ''
+        current_class = 'active'
+        list_type = 'customers_index'
+
     response.search_available = True
     try:
         response.q = session.customers_load_list_search_name.replace('%', '')
@@ -408,17 +426,18 @@ def index():
     search_results = DIV(LOAD('customers', 'load_list.load',
                               target='customers_load_list',
                               content=os_gui.get_ajax_loader(message=T("Searching...")),
-                              vars={'list_type':'customers_index',
+                              vars={'list_type':list_type,
                                     'items_per_page':session.customers_index_items_per_page,
                                     'initial_list':True,
                                     'show_location':show_location,
-                                    'show_email': show_email},
+                                    'show_email': show_email,
+                                    'show_deleted': session.customers_show},
                               ajax=True),
                          _id="customers_load_list",
                          _class="load_list_customers clear")
 
     content = DIV(
-        index_get_menu('current'),
+        index_get_menu(session.customers_show),
         DIV(DIV(search_results,
                 _class='tab-pane active'),
             _class='tab-content'),
@@ -487,10 +506,10 @@ def index_get_menu(page):
         deleted_class = active
 
     tabs = UL(LI(A(T('Current'),
-                    _href=URL('index')),
+                    _href=URL('index', vars={'show':'current'})),
                   _class=current_class),
               LI(A(T('Deleted'),
-                    _href=URL('customers', 'index_deleted')),
+                    _href=URL('index', vars={'show':'deleted'})),
                   _class=deleted_class),
                # LI(I(_class='fa fa-users'),
                #    _class='pull-left header'),
@@ -555,23 +574,23 @@ def index_get_tools(var=None):
     return tools
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('read', 'auth_user'))
-def index_deleted():
-    """
-        List deleted customers
-    """
-    from openstudio import Customers
-
-    response.title = T('Customers')
-    response.subtitle = T('Deleted')
-    response.view = 'general/tabs_menu.html'
-
-    customers = Customers()
-    list = customers.list_deleted_formatted()
-
-    return dict(menu=index_get_menu('deleted'),
-                content=list)
+# @auth.requires(auth.has_membership(group_id='Admins') or
+#                auth.has_permission('read', 'auth_user'))
+# def index_deleted():
+#     """
+#         List deleted customers
+#     """
+#     from openstudio import Customers
+#
+#     response.title = T('Customers')
+#     response.subtitle = T('Deleted')
+#     response.view = 'general/tabs_menu.html'
+#
+#     customers = Customers()
+#     list = customers.list_deleted_formatted()
+#
+#     return dict(menu=index_get_menu('deleted'),
+#                 content=list)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -4843,12 +4862,12 @@ def load_list_set_search():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'auth_user'))
 def load_list():
-    '''
+    """
         Returns a list of customers, to be used as LOAD
         request.vars['items_per_page'] sets the items shown on each page
         request.vars['list_type'] can be 'classes_attendance_list'
         request.vars['show_location'] can be 'True' or 'False'
-    '''
+    """
     items_per_page = request.vars['items_per_page']
     list_type = request.vars['list_type']
     initial_list = request.vars['initial_list']
@@ -4878,11 +4897,13 @@ def load_list():
     else:
         show_email = False
 
-    # archived = request.vars['archived']
-    # if archived == 'False' or archived is None:
-    #     archived = False
-    # else:
-    #     archived = True
+    show_deleted = request.vars['show_deleted']
+    if show_deleted == 'deleted':
+        delete_permission = (auth.has_membership(group_id='Admins') or
+                             auth.has_permission('delete', 'auth_user'))
+        trashed = True
+    else:
+        trashed = False
 
     if date_formatted:
         date = datestr_to_python(DATE_FORMAT, date_formatted)
@@ -4905,12 +4926,13 @@ def load_list():
     search_name = session.customers_load_list_search_name
 
     if (search_name and search_name != '%%') or (initial_list):
-        query = (db.auth_user.id > 1) & (db.auth_user.trashed == False)
+        query = (db.auth_user.id > 1)
     else:
         query = (db.auth_user.id < 1)
 
     title = ''
-    query &= (db.auth_user.trashed == False)
+
+    query &= (db.auth_user.trashed == trashed)
 
     if list_type == 'classes_attendance_list':
         title = H4(T('Search results'))
@@ -4926,7 +4948,6 @@ def load_list():
     else:
         orderby = db.auth_user.display_name
 
-
     rows = db(query).select(db.auth_user.id,
                             db.auth_user.trashed,
                             db.auth_user.thumbsmall,
@@ -4936,6 +4957,7 @@ def load_list():
                             db.auth_user.school_locations_id,
                             limitby=limitby,
                             orderby=orderby)
+
     table_class = 'table table-hover'
     table = TABLE(_class=table_class)
     for i, row in enumerate(rows.render()):
@@ -4993,9 +5015,13 @@ def load_list():
                            email,
                            location)
 
-
         if list_type == 'customers_index':
             buttons = TD(load_list_get_customer_index_buttons(row))
+        elif list_type == 'customers_index_deleted':
+            buttons = TD(load_list_get_customer_index_deleted_buttons(
+                row,
+                delete_permission
+            ))
         elif list_type == 'classes_attendance_list':
             buttons = TD(load_list_get_attendance_list_buttons(row,
                                                                clsID,
@@ -5027,7 +5053,6 @@ def load_list():
         table.append(table_row)
 
 
-
     # Navigation
     previous = ''
     url_previous = None
@@ -5052,12 +5077,12 @@ def load_list():
     else:
         navigation = ''
 
-
     content = DIV(title, table, navigation)
 
     if len(rows) == 0:
-        content = DIV(BR(), T("No results..."), BR(),
-                      _class='grey col-md-12')
+        content = DIV(DIV(BR(), T("No results..."), BR(),
+                          _class='grey col-md-12'),
+                      _class='row')
 
     return dict(content=content)
 
@@ -5129,6 +5154,42 @@ def load_list_get_customer_index_buttons(row):
                                    onclick=onclick)
 
     return DIV(buttons, delete, _class='pull-right')
+
+
+def load_list_get_customer_index_deleted_buttons(row, permission):
+    """
+        Return customer index deleted buttons
+    """
+    onclick_delete = "return confirm('" + \
+                     T('Do you really want to delete this customer and all associated data?') \
+                     + "');"
+    onclick_restore = "return confirm('" + \
+                      T('Restore customer to current?') \
+                      + "');"
+    restore = ''
+    if permission:
+        restore = os_gui.get_button(
+            'noicon',
+            URL('customers', 'restore',
+                vars={'cuID': row.id},
+                extension=''),
+            title=T('Restore'),
+            onclick=onclick_restore,
+            _class="pull-right"
+        )
+
+    delete = ''
+    if permission:
+        delete = os_gui.get_button(
+            'delete_notext',
+            URL('customers', 'delete',
+                vars={'cuID': row.id},
+                extension=''),
+            onclick=onclick_delete,
+            _class="pull-right"
+        )
+
+    return DIV(delete, restore)
 
 
 def load_list_get_attendance_list_buttons(row,
