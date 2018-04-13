@@ -1772,10 +1772,7 @@ class CustomersHelper:
                                   modal_footer_content=os_gui.get_submit_button('customer_add'),
                                   modal_class='customers_add_new_modal',
                                   button_class=button_class)
-        # modal = result['modal']
-        # button = result['button']
 
-        #return SPAN(button, modal)
         return result
 
 

@@ -5495,8 +5495,10 @@ def account_merge_execute():
 
         # mark row as merged
         # set merged for auth_user auth_merge_id
-        merge_from.merged   = True
+        merge_from.merged = True
         merge_from.trashed = True
+        # clear merged email
+        merge_from.email = None
         # set merged_with for auth_user auth_merge_id
         merge_from.merged_into = int(cuID)
         merge_from.merged_on = datetime.datetime.now()

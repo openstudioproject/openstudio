@@ -195,6 +195,12 @@ def upgrade_to_20182():
             pass
 
     ##
+    # Remove email from merges customers
+    ##
+    query = (db.auth_user.merged_into != None)
+    db(query).update(email=None)
+
+    ##
     # set Booking status to attending for all historical data in classes_attendance
     ##
     query = (db.classes_attendance.BookingStatus == None)
