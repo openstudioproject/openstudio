@@ -92,56 +92,84 @@
 </script>
 
 <!-- only allow registering when required boxes are checked -->
-{{if request.args(0)=='register' and has_organization and has_terms and has_privacy_notice:}}
-<script language="javascript"><!--
-  $submit = $('input[type=submit]');
-  var accepted_terms = false;
-  var accepted_privacy = false;
-  var true_data = false;
-  
-  $(document).ready(function() {
-      $submit.prop('disabled', true);
-  });
-  
-  var $cbox_terms = $('#accept_terms_and_conditions');
-  $cbox_terms.on('ifChanged', function(event){
-    accept_checkbox_handler($(this), 'terms');
-  });
+
+
+{{if request.args(0)=='register':}} 
+  <script>
+    var requires_accepted_terms = false;
+    var requires_accepted_privacy_notice = false;
+  </script>
+  {{if has_organization:}}
+    {{ if has_terms: }}
+      <script>requires_accepted_terms = true;</script>
+    {{ pass }}
+    {{ if has_privacy_notice: }}
+      <script>requires_accepted_privacy_notice = true;</script>
+    {{ pass }}
+  {{pass}}
+  <script language="javascript"><!--
+    $submit = $('input[type=submit]');
+    var accepted_terms = false;
+    var accepted_privacy = false;
+    var true_data = false;
     
-  var $cbox_privacy = $('#accept_privacy_policy');
-  $cbox_privacy.on('ifChanged', function(event){
-    accept_checkbox_handler($(this), 'privacy');
-  });
+    $(document).ready(function() {
+        $submit.prop('disabled', true);
+    });
     
-  var $cbox_privacy = $('#data_true_and_complete');
-  $cbox_privacy.on('ifChanged', function(event){
-    accept_checkbox_handler($(this), 'true_data');
-  });
-    
-  function accept_checkbox_handler(element, which_box) {
-    element.parent().toggleClass('icheckbox_line-aero');
-    element.parent().toggleClass('icheckbox_line-green');
-    
-    switch (which_box) {
-      case 'terms':
-        accepted_terms = !accepted_terms;
-        break;
-      case 'privacy':
-        accepted_privacy = !accepted_privacy;
-        break;
-      case 'true_data':
-        true_data = !true_data;
-        break;
+    var $cbox_terms = $('#accept_terms_and_conditions');
+    $cbox_terms.on('ifChanged', function(event){
+      accept_checkbox_handler($(this), 'terms');
+    });
+      
+    var $cbox_privacy = $('#accept_privacy_policy');
+    $cbox_privacy.on('ifChanged', function(event){
+      accept_checkbox_handler($(this), 'privacy');
+    });
+      
+    var $cbox_privacy = $('#data_true_and_complete');
+    $cbox_privacy.on('ifChanged', function(event){
+      accept_checkbox_handler($(this), 'true_data');
+    });
+      
+    function accept_checkbox_handler(element, which_box) {
+      element.parent().toggleClass('icheckbox_line-aero');
+      element.parent().toggleClass('icheckbox_line-green');
+      
+      switch (which_box) {
+        case 'terms':
+          accepted_terms = !accepted_terms;
+          break;
+        case 'privacy':
+          accepted_privacy = !accepted_privacy;
+          break;
+        case 'true_data':
+          true_data = !true_data;
+          break;
+       }
+      
+       submit_status();
+      
     }
     
-    if (accepted_terms && accepted_privacy && true_data) {
-      $submit.prop('disabled', false);
-    } else {
-      $submit.prop('disabled', true);
+    function submit_status() {
+      
+      requires = (true_data == true);
+      if (requires_accepted_terms) {
+        requires = requires && (accepted_terms == true)
+      } 
+      if (requires_accepted_privacy_notice) {
+        requires = requires && (accepted_privacy == true)
+      }
+      
+      if (requires) {
+        $submit.prop('disabled', false); 
+      } else { 
+        $submit.prop('disabled', true); 
+      }
     }
-  }
-    
-//--></script>
+      
+  //--></script>
 {{pass}}
 
 <!-- Google Analytics -->

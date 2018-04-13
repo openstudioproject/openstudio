@@ -120,12 +120,12 @@ def user():
                            form.custom.widget.school_locations_id,
                            _class='form-group')
 
-        privacy_policy = ''
+        privacy_notice = ''
         terms_and_conditions = ''
         link_pp = ''
         link_tc = ''
         if organization:
-            tc_pp_links = DIV(_class="form-group")
+            tc_pp_links = DIV(' ', _class="form-group")
             if organization['TermsConditionsURL']:
                 tc_pp_links.append(A(T('Terms and conditions'),
                                      _href=organization['TermsConditionsURL'],
@@ -137,11 +137,12 @@ def user():
                                            _class="form-group")
 
             if organization['PrivacyNoticeURL']:
-                tc_pp_links.append(A(T('Privacy notice'),
-                                     _href=organization['PrivacyNoticeURL'],
-                                     _target="_blank",
-                                     _class='pull-right'))
-                privacy_policy = DIV(INPUT(_type="checkbox",
+                tc_pp_links.append(SPAN(
+                    SPAN(' ', XML('&bull;'), ' ', _class='grey'),
+                    A(T('Privacy notice'),
+                      _href=organization['PrivacyNoticeURL'],
+                      _target="_blank")))
+                privacy_notice = DIV(INPUT(_type="checkbox",
                                            _id='accept_privacy_policy',
                                            _class="iCheck-line-aero"), ' ',
                                      LABEL(T("I accept the privacy notice")),
@@ -174,7 +175,7 @@ def user():
             location,
             tc_pp_links,
             terms_and_conditions,
-            privacy_policy,
+            privacy_notice,
             complete_data,
             BR(),
             A(T('Cancel'),
