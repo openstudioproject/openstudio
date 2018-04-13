@@ -229,12 +229,24 @@ def test_customers_inactive_delete(client, web2py):
     """
         Are customers without activity after a given date actually deleted?
     """
+    populate_customers(web2py, created_on=datetime.date(2010, 1, 1))
+
+    url = '/reports/customers_inactive_delete'
+    data = {
+        'date':datetime.date.today()
+    }
+    client.post(url, data=data)
+    assert client.status == 200
+
+    count = web2py.db(web2py.db.auth_user.id > 1).count()
+    assert count == 0 # Only admin user remaining
+    assert 'Deleted 10 customers' in client.text
 
 
 def test_reports_retention_dropoff_rate(client, web2py):
-    '''
+    """
         Is the retention rate calculated correctly?
-    '''
+    """
     # get random page to set up OpenStudio environment
     url = '/default/user/login'
     client.get(url)

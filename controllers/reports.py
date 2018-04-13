@@ -5914,5 +5914,5 @@ def customers_inactive_delete():
     customers = Customers()
     nr_deleted = customers.delete_inactive_after_date(date)
 
-    session.flash = SPAN(T("Deleted"), ' ', nr_deleted, ' ', T('Customers'))
+    session.flash = SPAN(T("Deleted"), ' ', nr_deleted, ' ', T('customers'))
     redirect(URL('customers_inactive'))
