@@ -1741,7 +1741,8 @@ LEFT JOIN ( SELECT ic.auth_customer_id, COUNT(ic.id) as count_invoices
             WHERE invoices.DateCreated > '{date}'
             GROUP BY auth_customer_id) ic ON ic.auth_customer_id = au.id
 WHERE au.employee = 'F' AND 
-      au.teacher = 'F'
+      au.teacher = 'F' AND
+      au.id > 1
         """.format(date=date)
 
         return db.executesql(query)
