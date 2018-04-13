@@ -1577,78 +1577,6 @@ class Customers:
     """
         This clas sontains functions for multiple customers
     """
-    def list_deleted(self):
-        """
-            List deleted customers
-        """
-        db = current.globalenv['db']
-
-        query = (db.auth_user.trashed == True)
-        rows = db(query).select(db.auth_user.ALL)
-
-        return rows
-
-
-    def list_deleted_formatted(self):
-        """
-             format list of deleted customers
-        """
-        T = current.globalenv['T']
-        auth = current.globalenv['auth']
-        os_gui = current.globalenv['os_gui']
-
-
-        permission_delete = (auth.has_membership(group_id='Admins') or
-                             auth.has_permission('delete', 'auth_user'))
-
-        onclick_delete = "return confirm('" + \
-                         T('Do you really want to delete this customer and all associated data?') \
-                         + "');"
-        onclick_restore = "return confirm('" + \
-                          T('Restore customer to current?') \
-                          + "');"
-
-        header = THEAD(TR(
-            TH(), # image
-            TH(T("Customer")),
-            TH(T("Date of birth")),
-            TH(T("Email")),
-            TH(T("Date Created")),
-            TH(), # buttons
-        ))
-
-        table = TABLE(header, _class='table table-striped table-hover')
-        rows = self.list_deleted()
-        for i, row in enumerate(rows):
-            repr_row = list(rows[i:i + 1].render())[0]
-
-            tr = TR(
-                TD(repr_row.thumbsmall),
-                TD(B(repr_row.display_name)),
-                TD(repr_row.date_of_birth),
-                TD(row.email),
-                TD(),
-                TD(self._list_formatted_get_link_delete(
-                    row,
-                    os_gui,
-                    permission_delete,
-                    onclick_delete),
-                    self._list_formatted_get_link_restore(
-                    row,
-                    os_gui,
-                    permission_delete,
-                    onclick_restore),
-                )
-            )
-
-            table.append(tr)
-
-        return table
-
-
-
-
-
     def list_activity_after_date(self, date):
         """
             :param: date: datetime.date
@@ -1810,7 +1738,6 @@ WHERE au.employee = 'F' AND
             ))
 
         return dict(table=table, count=len(records))
-
 
 
 class CustomersHelper:
