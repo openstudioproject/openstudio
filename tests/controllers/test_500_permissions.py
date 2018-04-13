@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/env python
 
-'''
+"""
     py.test test cases to test OpenStudio.
     These tests run based on webclient and need web2py server running.
-'''
+"""
 
 from gluon.contrib.populate import populate
 from populate_os_tables import populate_workshops
@@ -25,9 +25,9 @@ from setup_permisison_tests import setup_permission_tests
 
 
 # def test_logout(client, web2py):
-#     '''
+#     """
 #         This is not an actual test, but just logs out the user
-#     '''
+#     """
 #     print web2py.db().select(web2py.db.auth_user.ALL)
 #
 #     url = '/default/user/logout'
@@ -36,9 +36,9 @@ from setup_permisison_tests import setup_permission_tests
 
 
 def test_login_nopriv_user(client, web2py):
-    '''
+    """
         Logs in with a user without any permissions by default
-    '''
+    """
     setup_permission_tests(web2py)
 
     data = dict(email='support@openstudioproject.com',
@@ -50,9 +50,9 @@ def test_login_nopriv_user(client, web2py):
 
 
 def test_customers_contact_info(client, web2py):
-    '''
+    """
         Check if the customers_info update permission works
-    '''
+    """
     setup_permission_tests(web2py)
     populate_customers(web2py, 1)
 
@@ -80,9 +80,9 @@ def test_customers_contact_info(client, web2py):
 
 
 def test_customers_address_info(client, web2py):
-    '''
+    """
         Check if the customers_info update permission works
-    '''
+    """
     setup_permission_tests(web2py)
     populate_customers(web2py, 1)
 
@@ -111,9 +111,9 @@ def test_customers_address_info(client, web2py):
 
 
 def test_customers_edit_classcard_enddate(client, web2py):
-    '''
+    """
         Check if the permission to prevent editing the enddate of a subscription works
-    '''
+    """
     setup_permission_tests(web2py)
 
     populate_customers(web2py, 1)
@@ -152,9 +152,9 @@ def test_customers_edit_classcard_enddate(client, web2py):
 
 
 def test_customers_orders_delete(client, web2py):
-    '''
+    """
         Is the delete permission for customers_orders working?
-    '''
+    """
     setup_permission_tests(web2py)
 
     populate_customers_orders(web2py)
@@ -180,9 +180,9 @@ def test_customers_orders_delete(client, web2py):
 
 
 def test_settings_access_group_delete(client, web2py):
-    '''
+    """
         Is the delete permission for a user group working?
-    '''
+    """
     setup_permission_tests(web2py)
     prepare_classes(web2py)
     web2py.auth.add_permission(200, 'read', 'settings', 0)
@@ -206,9 +206,9 @@ def test_settings_access_group_delete(client, web2py):
 
 
 def test_settings_access_api_users_delete(client, web2py):
-    '''
+    """
         Is the delete permission for an api user working?
-    '''
+    """
     setup_permission_tests(web2py)
     web2py.db.sys_api_users.insert(
         Username='test',
@@ -236,9 +236,9 @@ def test_settings_access_api_users_delete(client, web2py):
 
 
 def test_events_delete(client, web2py):
-    '''
+    """
         Is the delete permission for a workshop working?
-    '''
+    """
     setup_permission_tests(web2py)
     populate_workshops(web2py)
     web2py.auth.add_permission(200, 'read', 'workshops', 0)
@@ -262,9 +262,9 @@ def test_events_delete(client, web2py):
 
 
 def test_events_tickets_delete(client, web2py):
-    '''
+    """
         Is the delete permission for a workshop product working?
-    '''
+    """
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
@@ -292,9 +292,9 @@ def test_events_tickets_delete(client, web2py):
 
 
 def test_events_tickets_customers_delete(client, web2py):
-    '''
+    """
         Is the delete permission for a workshop product customer working?
-    '''
+    """
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
@@ -322,9 +322,9 @@ def test_events_tickets_customers_delete(client, web2py):
 
 
 def test_events_activities_delete(client, web2py):
-    '''
+    """
         Is the delete permission for a workshop activity working?
-    '''
+    """
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
@@ -352,10 +352,10 @@ def test_events_activities_delete(client, web2py):
 
 
 def test_classes_delete(client, web2py):
-    '''
+    """
         Is the delete permission for a class working?
         class_delete
-    '''
+    """
     setup_permission_tests(web2py)
     prepare_classes(web2py)
     web2py.auth.add_permission(200, 'read', 'classes', 0)
@@ -379,9 +379,9 @@ def test_classes_delete(client, web2py):
 
 
 def test_classes_otc_delete(client, web2py):
-    '''
+    """
         Is the delete permission for classes_otc working?
-    '''
+    """
     setup_permission_tests(web2py)
     prepare_classes(web2py)
 
@@ -414,9 +414,9 @@ def test_classes_otc_delete(client, web2py):
 
 
 def test_classes_teachers_delete(client, web2py):
-    '''
+    """
         Is the delete permission for a class teacher working?
-    '''
+    """
     setup_permission_tests(web2py)
     prepare_classes(web2py)
     web2py.auth.add_permission(200, 'update', 'classes', 0)
@@ -440,9 +440,9 @@ def test_classes_teachers_delete(client, web2py):
 
 
 def test_classes_prices_delete(client, web2py):
-    '''
+    """
         Is the delete permission for a class price working?
-    '''
+    """
     setup_permission_tests(web2py)
     prepare_classes(web2py)
     web2py.auth.add_permission(200, 'update', 'classes', 0)
@@ -466,9 +466,9 @@ def test_classes_prices_delete(client, web2py):
 
 
 def test_schedule_school_holidays_delete(client, web2py):
-    '''
+    """
         Is the delete permission for a school holiday working?
-    '''
+    """
     setup_permission_tests(web2py)
     populate(web2py.db.school_locations, 1)
     populate(web2py.db.school_holidays, 1)
@@ -494,9 +494,9 @@ def test_schedule_school_holidays_delete(client, web2py):
 
 
 def test_staff_holidays_delete(client, web2py):
-    '''
+    """
         Is the delete permission for a staf holiday working?
-    '''
+    """
     setup_permission_tests(web2py)
     prepare_classes(web2py)
     web2py.db.teachers_holidays.insert(
@@ -526,9 +526,9 @@ def test_staff_holidays_delete(client, web2py):
 
 
 def test_shift_delete(client, web2py):
-    '''
+    """
         Is the delete permission for a shift working?
-    '''
+    """
     setup_permission_tests(web2py)
     prepare_shifts(web2py)
 
@@ -553,9 +553,9 @@ def test_shift_delete(client, web2py):
 
 
 def test_shift_staff_delete(client, web2py):
-    '''
+    """
         Is the delete permission for assigning employees to shifts working?
-    '''
+    """
     setup_permission_tests(web2py)
     prepare_shifts(web2py)
 
@@ -580,9 +580,9 @@ def test_shift_staff_delete(client, web2py):
 
 #NOTE: new attendance page, there is no more delete check in the classes code
 # def test_classes_attendance_delete(client, web2py):
-#     '''
+#     """
 #         Is the delete permission for an attendance registration working?
-#     '''
+#     """
 #     setup_permission_tests(web2py)
 #     prepare_classes(web2py)
 #
@@ -607,9 +607,9 @@ def test_shift_staff_delete(client, web2py):
 #     assert 'fa-times' in client.text
 
 # def test_classes_attendance_list_delete(client, web2py):
-#     '''
+#     """
 #         Is the delete permission for an attendance list registration working?
-#     '''
+#     """
 #     setup_permission_tests(web2py)
 #     prepare_classes(web2py)
 #
@@ -635,9 +635,9 @@ def test_shift_staff_delete(client, web2py):
 
 
 def test_classes_reservations_delete(client, web2py):
-    '''
+    """
         Is the delete permission for an a reservation working?
-    '''
+    """
     setup_permission_tests(web2py)
     prepare_classes(web2py)
 
@@ -663,9 +663,9 @@ def test_classes_reservations_delete(client, web2py):
 
 
 def test_classes_waitinglist_delete(client, web2py):
-    '''
+    """
         Is the delete permission for a waitinglist entry working?
-    '''
+    """
     setup_permission_tests(web2py)
     prepare_classes(web2py)
 
@@ -691,9 +691,9 @@ def test_classes_waitinglist_delete(client, web2py):
 
 
 def test_classes_class_subscriptions_delete(client, web2py):
-    '''
+    """
         Is the delete permission for classes_school_subscriptions_groups working correctly?
-    '''
+    """
     setup_permission_tests(web2py)
     prepare_classes(web2py)
 
@@ -719,9 +719,9 @@ def test_classes_class_subscriptions_delete(client, web2py):
 
 
 def test_classes_class_classcards_delete(client, web2py):
-    '''
+    """
         Is the delete permission for classes_school_subscriptions_groups working correctly?
-    '''
+    """
     setup_permission_tests(web2py)
     prepare_classes(web2py)
 
@@ -747,9 +747,9 @@ def test_classes_class_classcards_delete(client, web2py):
 
 
 def test_school_subscriptions_groups_delete(client, web2py):
-    '''
+    """
         Is the delete permission for classes_school_subscriptions_groups working correctly?
-    '''
+    """
     setup_permission_tests(web2py)
     prepare_classes(web2py)
 
@@ -775,9 +775,9 @@ def test_school_subscriptions_groups_delete(client, web2py):
 
 
 def test_school_subscriptions_group_subscriptions_delete(client, web2py):
-    '''
+    """
         Is the delete permission for classes_school_subscriptions_groups working correctly?
-    '''
+    """
     setup_permission_tests(web2py)
     prepare_classes(web2py)
 
@@ -803,9 +803,9 @@ def test_school_subscriptions_group_subscriptions_delete(client, web2py):
 
 
 def test_school_classcards_groups_delete(client, web2py):
-    '''
+    """
         Is the delete permission for school_classcards_groups working correctly?
-    '''
+    """
     setup_permission_tests(web2py)
     prepare_classes(web2py)
 
@@ -831,9 +831,9 @@ def test_school_classcards_groups_delete(client, web2py):
     
 
 def test_school_classcards_group_classcards_delete(client, web2py):
-    '''
+    """
         Is the delete permission for school_classcards_groups_classcards working correctly?
-    '''
+    """
     setup_permission_tests(web2py)
     prepare_classes(web2py)
 
@@ -859,9 +859,9 @@ def test_school_classcards_group_classcards_delete(client, web2py):
 
 
 def test_paymentbatches_delete(client, web2py):
-    '''
+    """
         Is the delete payment batch button working?
-    '''
+    """
     setup_permission_tests(web2py)
     web2py.db.payment_batches.insert(
         BatchType   = 'collection',
@@ -892,9 +892,9 @@ def test_paymentbatches_delete(client, web2py):
 
 
 def test_customer_delete(client, web2py):
-    '''
+    """
         Is the delete permission for a customer working?
-    '''
+    """
     setup_permission_tests(web2py)
     populate_customers(web2py, 1)
     web2py.auth.add_permission(200, 'read', 'auth_user', 0)
@@ -918,9 +918,9 @@ def test_customer_delete(client, web2py):
 
 
 def test_customer_subscription_delete(client, web2py):
-    '''
+    """
         Is the delete permission for a customer subscription working?
-    '''
+    """
     # get random url to init payment methods in db
     url = '/default/user/login'
     client.get(url)
@@ -950,9 +950,9 @@ def test_customer_subscription_delete(client, web2py):
 
 
 def test_customers_subscription_credits_delete(client, web2py):
-    '''
+    """
         Is the delete permission working for subscription credits?
-    '''
+    """
     # get random url to init payment methods in db
     url = '/default/user/login'
     client.get(url)
@@ -982,9 +982,9 @@ def test_customers_subscription_credits_delete(client, web2py):
 
 
 def test_customer_classcard_delete(client, web2py):
-    '''
+    """
         Is the delete permission for a customer classcard working?
-    '''
+    """
     setup_permission_tests(web2py)
     populate_customers_with_classcards(web2py, 1)
     web2py.auth.add_permission(200, 'read', 'customers_classcards', 0)
@@ -1007,9 +1007,9 @@ def test_customer_classcard_delete(client, web2py):
 
 
 def test_customer_classes_reservations_delete(client, web2py):
-    '''
+    """
         Is the delete permission for a reservation under customers working?
-    '''
+    """
     setup_permission_tests(web2py)
     prepare_classes(web2py)
     web2py.auth.add_permission(200, 'read', 'classes_reservation', 0)
@@ -1032,9 +1032,9 @@ def test_customer_classes_reservations_delete(client, web2py):
 
 
 def test_customer_classes_waitinglist_delete(client, web2py):
-    '''
+    """
         Is the delete permission for waitinglist under customers working?
-    '''
+    """
     setup_permission_tests(web2py)
     prepare_classes(web2py)
     web2py.auth.add_permission(200, 'read', 'classes_waitinglist', 0)
@@ -1057,9 +1057,9 @@ def test_customer_classes_waitinglist_delete(client, web2py):
 
 
 def test_customer_classes_attendance_delete(client, web2py):
-    '''
+    """
         Is the delete permission for attendance under customers working?
-    '''
+    """
     setup_permission_tests(web2py)
     prepare_classes(web2py)
     web2py.auth.add_permission(200, 'read', 'classes_attendance', 0)
@@ -1082,9 +1082,9 @@ def test_customer_classes_attendance_delete(client, web2py):
 
 
 def test_customer_payments_payment_info_delete(client, web2py):
-    '''
+    """
         Is the delete permission for payment info under customers working?
-    '''
+    """
     # get random url to init payment methods in db
     url = '/default/user/login'
     client.get(url)
@@ -1118,9 +1118,9 @@ def test_customer_payments_payment_info_delete(client, web2py):
 
 
 def test_customer_payments_alternativepayments_delete(client, web2py):
-    '''
+    """
         Is the delete permission for alternative under customers working?
-    '''
+    """
     setup_permission_tests(web2py)
     populate_customers(web2py, 1)
     web2py.db.alternativepayments.insert(
@@ -1151,9 +1151,9 @@ def test_customer_payments_alternativepayments_delete(client, web2py):
 
 
 def test_customer_documents_delete(client, web2py):
-    '''
+    """
         Is the delete permission for documents under customers working?
-    '''
+    """
     setup_permission_tests(web2py)
     populate_customers(web2py, 1)
     web2py.db.customers_documents.insert(
@@ -1181,9 +1181,9 @@ def test_customer_documents_delete(client, web2py):
 
 
 def test_customer_notes_delete(client, web2py):
-    '''
+    """
         Is the delete permission for notes under customers working?
-    '''
+    """
     # get random url to populate db.auth_user with admin
     client.get('/default/user/login')
     assert client.status == 200
@@ -1220,9 +1220,9 @@ def test_customer_notes_delete(client, web2py):
 
 
 def test_task_delete(client, web2py):
-    '''
+    """
         Is the delete permission for a task working?
-    '''
+    """
     setup_permission_tests(web2py)
     web2py.db.tasks.insert(
         Finished     = False,
@@ -1252,9 +1252,9 @@ def test_task_delete(client, web2py):
 
 
 def test_announcement_delete(client, web2py):
-    '''
+    """
         Is the delete permission for an announcement working?
-    '''
+    """
     setup_permission_tests(web2py)
     populate(web2py.db.announcements, 1)
     web2py.auth.add_permission(200, 'read', 'announcements', 0)
@@ -1277,10 +1277,10 @@ def test_announcement_delete(client, web2py):
     assert 'fa-times' in client.text
 
 
-def test_stats_postcode_group_delete(client, web2py):
-    '''
+def test_reports_postcode_group_delete(client, web2py):
+    """
         Is the delete permission for a postcode group working?
-    '''
+    """
     setup_permission_tests(web2py)
     populate_postcode_groups(web2py)
     web2py.auth.add_permission(200, 'read', 'postcode_groups', 0)
@@ -1302,3 +1302,23 @@ def test_stats_postcode_group_delete(client, web2py):
 
     assert 'fa-times' in client.text
 
+
+def test_reports_customers_inactive_delete(client, web2py):
+    """
+        Is the delete function protected?
+    """
+    setup_permission_tests(web2py)
+
+    url = '/reports/customers_inactive_delete?date=2018-01-1'
+    client.get(url)
+    assert client.status == 200
+    assert "Insufficient privileges" in client.text
+
+    web2py.auth.add_permission(200, 'read', 'reports_customers', 0)
+    web2py.auth.add_permission(200, 'delete', 'auth_user', 0)
+    web2py.db.commit()
+
+    client.get(url)
+    assert client.status == 200
+
+    assert 'Run report' in client.text
