@@ -1739,7 +1739,7 @@ LEFT JOIN ( SELECT ic.auth_customer_id, COUNT(ic.id) as count_invoices
 			FROM invoices_customers ic
             LEFT JOIN invoices ON ic.invoices_id = invoices.id
             WHERE invoices.DateCreated > '{date}'
-            GROUP BY auth_customer_id) ic ON ic.auth_customer_id = au.id
+            GROUP BY ic.auth_customer_id) ic ON ic.auth_customer_id = au.id
 WHERE au.employee = 'F' AND 
       au.teacher = 'F' AND
       au.id > 1
