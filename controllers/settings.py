@@ -643,9 +643,9 @@ def system_organizations_get_link_archive(row):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'system_organizations'))
 def system_organizations_set_default():
-    '''
+    """
         Set an organization as default
-    '''
+    """
     soID = request.vars['soID']
 
     query = (db.sys_organizations.id > 0)
@@ -1257,6 +1257,7 @@ def access_group_permissions():
 
     reports_permissions = [
         ['reports-read', T("View reports"), [
+            ['reports_customers-read', T("View customers reports")],
             ['reports_classcards-read', T("View class cards reports")],
             ['reports_subscriptions-read', T("View subscriptions reports")],
             ['reports_dropinclasses-read', T("View drop in classes reports")],
@@ -1512,10 +1513,12 @@ def access_group_permissions():
             ['teachers-read', T("Teachers"), [
                 ['teachers-create', T("Add teachers")],
                 ['teachers-update', T("Edit teachers")],
+                ['teachers-delete', T("Remove teacher status")],
             ]],
             ['employees-read', T("Employees"), [
                 ['employees-create', T("Add employees")],
                 ['employees-update', T("Edit employees")],
+                ['employees-delete', T("Remove employee status")],
             ]],
             ['school_subscriptions-read', T("Subscriptions"), [
                 ['school_subscriptions-create', T("Add subscription")],

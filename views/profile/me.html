@@ -1,0 +1,39 @@
+{{extend 'layout_shop.html'}}
+{{block header}}
+{{try:}}{{=breadcrumb}}{{except:}}{{pass}}{{pass}}
+{{try:}}{{=back}}{{except:}}{{pass}}{{pass}}
+{{try:}}{{=header_tools}}{{except:}}{{pass}}{{pass}}
+{{end}}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="box box-solid">
+            <div class="box-body">
+                {{=content}}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+  $submit = $('input[type=submit]');
+  var true_data = false;
+  
+  $(document).ready(function() {
+      console.log('bla');
+      $submit.prop('disabled', true);
+  });
+  
+  var $cbox_true = $('#data_true_and_complete');
+  $cbox_true.on('change', function(event) {
+      true_data = !true_data;
+      if (true_data) {
+          $submit.prop('disabled', false);
+      } else {
+          $submit.prop('disabled', true);
+      }
+  });
+    
+
+
+</script>

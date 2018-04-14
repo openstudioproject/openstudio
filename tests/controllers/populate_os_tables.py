@@ -134,7 +134,8 @@ def populate_customers(web2py,
                        nr_of_customers=10,
                        tax_rates=True,
                        employee=False,
-                       teacher=False):
+                       teacher=False,
+                       created_on=datetime.datetime.now()):
     if tax_rates:
         populate_tax_rates(web2py)
 
@@ -162,7 +163,8 @@ def populate_customers(web2py,
             postcode            = '190-' + unicode(cuID) + 'A',
             school_locations_id = school_locations_id,
             employee=employee,
-            teacher=teacher)
+            teacher=teacher,
+            created_on=created_on)
 
     web2py.db.commit()
 
@@ -182,13 +184,14 @@ def populate_customers_payment_info(web2py, nr_of_customers):
 def populate_customers_with_subscriptions(web2py,
                                           nr_of_customers=4,
                                           invoices=False,
-                                          credits=False):
+                                          credits=False,
+                                          created_on=datetime.date.today()):
     if nr_of_customers < 4:
         # Set minimum number of customers, at least one for each school subscription
         nr_of_customers = 4
 
     populate_tax_rates(web2py)
-    populate_customers(web2py, nr_of_customers)
+    populate_customers(web2py, nr_of_customers, created_on=created_on)
     populate_payment_methods(web2py)
     populate_customers_payment_info(web2py, nr_of_customers)
     populate_school_subscriptions(web2py)
@@ -307,13 +310,14 @@ def populate_customers_with_classcards(web2py,
                                       nr_cards=1,
                                       trialcard=True,
                                       invoices=False,
-                                      customers_populated=False):
+                                      customers_populated=False,
+                                      created_on=datetime.date.today()):
 
     populate_school_classcards(web2py, nr_cards, trialcard = trialcard)
     scd = web2py.db.school_classcards(1)
 
     if not customers_populated:
-        populate_customers(web2py, nr_of_customers)
+        populate_customers(web2py, nr_of_customers, created_on=created_on)
 
     trialcard_id = nr_cards + 1
 
@@ -454,9 +458,14 @@ def prepare_classes(web2py,
                     with_subscriptions=True,
                     with_classcards=True,
                     invoices=False,
-                    credits=False):
+                    credits=False,
+                    created_on=datetime.date.today()):
 
-    populate_customers_with_subscriptions(web2py, nr_of_customers, invoices=invoices, credits=credits)
+    populate_customers_with_subscriptions(web2py,
+                                          nr_of_customers,
+                                          invoices=invoices,
+                                          credits=credits,
+                                          created_on=created_on)
     populate_customers_with_classcards(web2py,
                                        nr_of_customers=nr_of_customers,
                                        nr_cards=4,
@@ -926,7 +935,7 @@ def populate_workshops_products(web2py, nr_products=1):
     web2py.db.commit()
 
 
-def populate_workshops_products_customers(web2py):
+def populate_workshops_products_customers(web2py, created_on=datetime.date.today()):
     """
         Populate db tables so we have 2 products, one activity
         and 2 customers, 1 attending the full ws product and the other
@@ -935,7 +944,7 @@ def populate_workshops_products_customers(web2py):
     populate_payment_methods(web2py)
     populate_tax_rates(web2py)
     populate_workshops_with_activity(web2py)
-    populate_customers(web2py, 2) # produces ids 1001 and 1002 in db.auth_user
+    populate_customers(web2py, 2, created_on=created_on) # produces ids 1001 and 1002 in db.auth_user
     populate_workshops_products(web2py)
 
     wspID = 2
@@ -1218,13 +1227,17 @@ def populate_invoices(web2py):
         cuID = row.id
 
         iID = web2py.db.invoices.insert(
-            invoices_groups_id      = 100,
-            auth_customer_id        = cuID,
-            payment_methods_id      = 3,
-            Status                  = 'sent',
-            InvoiceID               = 'INV' + unicode(cuID),
-            DateCreated             = today,
-            DateDue                 = today + delta
+            invoices_groups_id = 100,
+            payment_methods_id = 3,
+            Status = 'sent',
+            InvoiceID = 'INV' + unicode(cuID),
+            DateCreated = today,
+            DateDue = today + delta
+        )
+
+        ciID = web2py.db.invoices_customers.insert(
+            auth_customer_id = cuID,
+            invoices_id = iID
         )
 
         web2py.db.invoices_amounts.insert(invoices_id = iID)
@@ -1398,12 +1411,14 @@ def populate_customers_shoppingcart(web2py):
     web2py.db.commit()
 
 
-def populate_customers_notes(web2py,customers=True):
+def populate_customers_notes(web2py,
+                             customers=True,
+                             created_on=datetime.date.today()):
     """
         Populate customers_notes table
     """
     if customers:
-        populate_customers(web2py, 2)
+        populate_customers(web2py, 2, created_on=created_on)
 
     web2py.db.customers_notes.insert(
         auth_customer_id = 1001,
@@ -1498,6 +1513,9 @@ def populate_sys_organizations(web2py, nr_organizations=1):
             Registration = 'reg_' + soID,
             TaxRegistration = 'reg_tax_' + soID,
             TermsConditionsURL = 'https://www.google.nl',
+            TermsConditionsVersion = '2.12',
+            PrivacyNoticeURL = 'https://www.google.nl',
+            PrivacyNoticeVersion = '8.12',
             ReportsClassPrice = 10 * (i + 1)
         )
 

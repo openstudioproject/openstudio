@@ -64,46 +64,7 @@ def profile_menu():
                        False,
                        URL('profile', 'index', extension='')])
 
-    # Shop
-    # response.menu.append(
-    #         (SPAN(SPAN(#SPAN(_class='glyphicon glyphicon-pushpin'), ' ',
-    #                     T('Shop')),
-    #                     _class=featured_class),
-    #                     False,
-    #                     URL('shop', 'index')))
-    # classes
-    # if features.Classes:
-    #     menu.append(
-    #             (SPAN(SPAN(#I(_class='fa fa-graduation-cap'), ' ',
-    #                         T('Classes')),
-    #                         _class=featured_class),
-    #                         False,
-    #                         URL('profile', 'classes')))
-    # # Class cards
-    # if features.Classcards:
-    #     menu.append(
-    #             (SPAN(SPAN(#I(_class='fa fa-ticket'), ' ',
-    #                         T('Class cards')),
-    #                         _class=featured_class),
-    #                         False,
-    #                         URL('profile', 'classcards')))
-    # # Subscriptions
-    # if features.Subscriptions:
-    #     menu.append(
-    #             (SPAN(SPAN(#I(_class='fa fa-edit'), ' ',
-    #                         T('Subscriptions')),
-    #                         _class=featured_class),
-    #                         False,
-    #                         URL('profile', 'subscriptions')))
-    # # workshops
-    # if features.Workshops:
-    #     menu.append(
-    #             (SPAN(SPAN(#I(_class='fa fa-th-list'), ' ',
-    #                         T('Workshops')),
-    #                         _class=featured_class),
-    #                         False,
-    #                         URL('profile', 'workshops')))
-    # orders
+    # Orders
     if features.Orders:
         menu.append(
                 (SPAN(SPAN(#I(_class='fa fa-folder-open-o'), ' ',
@@ -112,7 +73,7 @@ def profile_menu():
                             False,
                             URL('profile', 'orders', extension='')))
 
-    # me
+    # Me
     menu.append(
             (SPAN(SPAN(#I(_class='fa fa-user', _title=T('My account')), ' ',
                         T('Profile')),
@@ -120,6 +81,15 @@ def profile_menu():
                         _title=T('My account')),
                         False,
                         URL('profile','me', extension='')))
+
+    # Privacy
+    if features.Privacy:
+        menu.append(
+                (SPAN(SPAN(#I(_class='fa fa-folder-open-o'), ' ',
+                            T('Privacy')),
+                            _class=featured_class),
+                            False,
+                            URL('profile', 'privacy', extension='')))
 
     return menu
 
@@ -395,6 +365,10 @@ def get_backend_menu():
         # reports
 
         submenu = []
+        if user_helpers.check_read_permission('reports_customers', user_id):
+            submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Inactive customers'))),
+                            False,
+                            URL('reports', 'customers_inactive', extension='')))
         if user_helpers.check_read_permission('reports_classcards', user_id):
             submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Class cards'))),
                             False,
@@ -452,7 +426,7 @@ def get_backend_menu():
                           SPAN(I(_class='fa fa-angle-left pull-right'),
                                _class="pull-right-container")),
                 False,
-                URL('reports', 'index', extension=''),
+                URL('#', extension=''),
                 submenu)]
 
         # Finance

@@ -52,9 +52,9 @@ def _get_organizations():
 
 
 def get_organizations():
-    '''
+    """
         Get organizations from cache
-    '''
+    """
     # Don't cache when running tests
     if web2pytest.is_running_under_test(request, request.application):
         organizations = _get_organizations()
@@ -84,20 +84,20 @@ def represent_user_thumbsmall(value, row):
     birthday = False
     display_name = ''
 
-    if 'archived' in row:
+    if 'trashed' in row:
         display_name = row.display_name
         thumb = row.thumbsmall
         cu_id = row.id
-        if row.archived:
+        if row.trashed:
             active = False
 
         if row.birthday:
             birthday = row.birthday
-    elif 'archived' in row.auth_user:
+    elif 'trashed' in row.auth_user:
         display_name = row.auth_user.display_name
         thumb = row.auth_user.thumbsmall
         cu_id = row.auth_user.id
-        if row.auth_user.archived:
+        if row.auth_user.trashed:
             active = False
 
         if row.auth_user.birthday:
@@ -112,8 +112,6 @@ def represent_user_thumbsmall(value, row):
             present = SPAN(os_gui.get_fa_icon('fa-birthday-cake'),
                         _class='pull-right orange vsmall_font',
                         _title=T('Today is ') + display_name + T("'s birthday!"))
-
-
 
     alt = display_name
     if thumb is None:
@@ -662,7 +660,7 @@ def define_sys_accounting():
         Field('action_time', 'datetime',
             readable=False,
             writable=False,
-            default=datetime.datetime.now()),
+            default=TODAY_LOCAL),
     )
 
 #TODO: log deletion of records
@@ -698,6 +696,13 @@ def define_sys_organizations():
         Field('TermsConditionsURL',
             requires=IS_EMPTY_OR(IS_URL()),
             label=T('Link to Terms & Conditions')),
+        Field('TermsConditionsVersion',
+            label=T('Terms & Conditions version')),
+        Field('PrivacyNoticeURL',
+            requires=IS_EMPTY_OR(IS_URL()),
+            label=T('Link to Privacy notice')),
+        Field('PrivacyNoticeVersion',
+            label=T('Privacy notice version')),
         Field('ReportsClassPrice', 'float',
             readable=False,
             writable=False,
@@ -791,7 +796,7 @@ def define_announcements():
 
 def define_tasks():
     auth_user_query = (db.auth_user.id > 1) & \
-                      (db.auth_user.archived == False) & \
+                      (db.auth_user.trashed == False) & \
                       ((db.auth_user.teacher == True) |
                        (db.auth_user.employee == True))
     auth_cu_query = (db.auth_user.customer == True)
@@ -1262,7 +1267,7 @@ def define_school_levels():
 
 
 def define_teachers_holidays():
-    au_query = (db.auth_user.archived == False) & \
+    au_query = (db.auth_user.trashed == False) & \
                ((db.auth_user.teacher == True) |
                 (db.auth_user.employee == True))
 
@@ -1289,7 +1294,12 @@ def define_teachers_holidays():
             represent=represent_date, label=T("End date"),
             widget=os_datepicker_widget),
         Field('Note', 'text', required=True,
-            requires=IS_NOT_EMPTY()))
+            requires=IS_NOT_EMPTY()),
+        Field('CreatedOn', 'datetime',
+              readable=False,
+              writable=False,
+              default=datetime.datetime.now())
+        )
 
 
 def define_customers_notes():
@@ -1325,8 +1335,6 @@ def define_customers_notes():
               represent=lambda value, row: value.strftime('%H:%M')),
         Field('Note', 'text', required=True,
               requires=IS_NOT_EMPTY()),
-        Field('Alert', 'boolean',
-              default=False),
         Field('Injury', 'boolean',
               default=False,
               label=T('This note describes an injury')),
@@ -1366,36 +1374,11 @@ def define_alternativepayments():
         Field('Description', 'text',
             requires=IS_NOT_EMPTY(),
             label=T("Description")),
+        Field('CreatedOn', 'datetime',
+              readable=False,
+              writable=False,
+              default=datetime.datetime.now()),
         singular=T("Alternative payment"), plural=T("Alternative payments")
-        )
-
-#NOTE: This table will be depricated after the next release (3.0), but we need it now for the upgrade remove from 3.01
-def define_overduepayments():
-    db.define_table('overduepayments',
-        Field('auth_customer_id', db.auth_user, required=True,
-            readable=False,
-            writable=False,
-            label=T('CustomerID')),
-        Field('Paid', 'boolean', required=True,
-            default=False,
-        label=T("Paid")),
-        Field('PaymentConfirmation', 'boolean', required=True,
-            default=False,
-            label=T('Payment Confirmation')),
-        Field('PaymentDate', 'date', required=True,
-            default=TODAY_LOCAL,
-            requires=IS_DATE_IN_RANGE(format=DATE_FORMAT,
-                                      minimum=datetime.date(1900,1,1),
-                                      maximum=datetime.date(2999,1,1)),
-            represent=represent_date, label=T("Due date"),
-            widget=os_datepicker_widget),
-        Field('Amount', 'double', required=True,
-            requires=IS_NOT_EMPTY(),
-            represent = lambda value, row: format(value, '.2f'),
-            label=T("Amount")),
-        Field('Description', 'text', required=False,
-            label=T("Description")),
-        singular=T("Overdue payment"), plural=T("Overdue payments")
         )
 
 
@@ -1546,7 +1529,7 @@ def define_classes_otc():
     loc_query = (db.school_locations.Archived == False)
     ct_query = (db.school_classtypes.Archived == False)
     sl_query = (db.school_levels.Archived == False)
-    au_query = (db.auth_user.archived == False) & \
+    au_query = (db.auth_user.trashed == False) & \
                (db.auth_user.teacher == True) & \
                (db.auth_user.teaches_classes == True)
 
@@ -1752,7 +1735,7 @@ def define_classes_price():
 
 
 def define_classes_teachers():
-    au_query = (db.auth_user.archived == False) & \
+    au_query = (db.auth_user.trashed == False) & \
                (db.auth_user.teacher == True) & \
                (db.auth_user.teaches_classes == True)
 
@@ -1874,6 +1857,10 @@ def define_customers_classcards():
             readable=False,
             writable=False,
             default=0),
+        Field('CreatedOn', 'datetime',
+              readable=False,
+              writable=False,
+              default=datetime.datetime.now()),
         format='%(school_classcards_id)s',
         singular=T("Classcard"), plural=T("Classcards")
         )
@@ -1931,7 +1918,7 @@ def define_classes_attendance():
             readable=False,
             writable=False,
             represent=represent_datetime,
-            default=NOW_LOCAL),
+            default=datetime.datetime.now()),
         Field('CreatedBy', db.auth_user,
             readable=False,
             writable=False)
@@ -2028,42 +2015,6 @@ def define_customers_payment_info():
     #         value=v)
 
 
-def define_customers_payments():
-    db.define_table('customers_payments',
-        Field('auth_customer_id', db.auth_user, required=True,
-            readable=False,
-            writable=False,
-            label=T('CustomerID')),
-        Field('workshops_products_id', db.workshops_products,
-            readable=False,
-            writable=False,
-            requires=IS_EMPTY_OR(IS_IN_DB(db,
-                                         'workshops_products.id',
-                                         '%(Name)s - %(Price)s')),
-            label=T('Workshop product')),
-        Field('Amount', 'float',
-            requires=IS_EMPTY_OR(IS_FLOAT_IN_RANGE(0,99999999, dot='.',
-                                 error_message=T('Too small or too large'))),
-            represent=represent_float_as_amount,
-            label=T("Amount")),
-        Field('PaymentDate', 'date', required=True,
-            default=TODAY_LOCAL,
-            requires=IS_DATE_IN_RANGE(format=DATE_FORMAT,
-                                      minimum=datetime.date(1900,1,1),
-                                      maximum=datetime.date(2999,1,1)),
-            represent=represent_date,
-            label=T("Payment date"),
-            widget=os_datepicker_widget),
-        Field('payment_methods_id', db.payment_methods, required=True,
-            requires=IS_EMPTY_OR(IS_IN_DB(db,'payment_methods.id','%(Name)s',
-                                          zero=T("Please select..."))),
-            represent=lambda value, row: payment_methods_dict.get(value),
-            label=T("Payment method")),
-        Field('Note', 'text',
-            label=T("Note")),
-        )
-
-
 def define_customers_subscriptions():
     subscriptions_query = (db.school_subscriptions.Archived == False)
     pm_query = (db.payment_methods.Archived == False)
@@ -2111,6 +2062,10 @@ def define_customers_subscriptions():
         Field('PeriodCreditsAdded', 'float',
             readable=False,
             writable=False), # no actual data is stored, but used to map raw sql into DAL
+        Field('CreatedOn', 'datetime',
+              readable=False,
+              writable=False,
+              default=datetime.datetime.now()),
         singular=T("Subscription"), plural=T("Subscriptions"))
 
 
@@ -2137,7 +2092,7 @@ def define_customers_subscriptions_credits():
         Field('MutationDateTime', 'datetime',
               readable=False,
               writable=False,
-              default=datetime.datetime.now(),
+              default=TODAY_LOCAL,
               represent=represent_datetime,
               label=T('Mutation Time')),
         Field('MutationType',
@@ -2247,76 +2202,15 @@ def define_customers_subscriptions_alt_prices():
         )
 
 
-def define_customers_subscriptions_exceeded():
-    '''
-        Log for exceeded classes on subscriptions
-    '''
-    db.define_table('customers_subscriptions_exceeded',
-        Field('customers_subscriptions_id', db.customers_subscriptions,
-            required=True,
-            readable=False,
-            writable=False,
-            label=T("Subscription")),
-        Field('classes_attendance_id', db.classes_attendance,
-            readable=False,
-            writable=False),
-        Field('ClassCount', 'integer',
-            label=T('Count of classes taken')),
-        )
-
-
-def define_paymentsummary():
-    db.define_table('paymentsummary',
-        Field('auth_customer_id', db.auth_user, required=True,
-            readable=False,
-            writable=False,
-            label=T('CustomerID')),
-        Field('PaymentYear', 'integer', required=True, default=TODAY_LOCAL.year, label=T("Year")),
-        Field('M01', 'boolean', required=True,
-            default=False,
-            label=T("January")),
-        Field('M02', 'boolean', required=True,
-            default=False,
-            label=T("February")),
-        Field('M03', 'boolean', required=True,
-            default=False,
-            label=T("March")),
-        Field('M04', 'boolean', required=True,
-            default=False,
-            label=T("April")),
-        Field('M05', 'boolean', required=True,
-            default=False,
-            label=T("May")),
-        Field('M06', 'boolean', required=True,
-            default=False,
-            label=T("June")),
-        Field('M07', 'boolean', required=True,
-            default=False,
-            label=T("July")),
-        Field('M08', 'boolean', required=True,
-            default=False,
-            label=T("August")),
-        Field('M09', 'boolean', required=True,
-            default=False,
-            label=T("September")),
-        Field('M10', 'boolean', required=True,
-            default=False,
-            label=T("October")),
-        Field('M11', 'boolean', required=True,
-            default=False,
-            label=T("November")),
-        Field('M12', 'boolean', required=True,
-            default=False,
-            label=T("December")),
-        )
-
 def define_customers_documents():
     db.define_table('customers_documents',
         Field('auth_customer_id', db.auth_user, required=True,
             readable=False,
             writable=False,
             label=T('CustomerID')),
-        Field('Description', required=False),
+        Field('Description', required=False,
+            requires=IS_NOT_EMPTY(),
+            label=T("Description")),
         Field('DocumentFile', 'upload', autodelete=True,
             requires=IS_LENGTH(maxsize=4153344,
                 error_message=T("Maximum size is 4MB")),
@@ -2328,8 +2222,37 @@ def define_customers_documents():
             writable=False,
             default=datetime.datetime.now(),
             represent=represent_datetime,
-            label=T("Uploaded on"))
+            label=T("Uploaded on")),
         )
+
+
+def define_log_customers_accepted_documents():
+    db.define_table('log_customers_accepted_documents',
+        Field('auth_customer_id', db.auth_user,
+              readable=False,
+              writable=False,
+              label="CustomerID"),
+        Field('DocumentName',
+              label=T("Document")),
+        Field('DocumentDescription',
+              represent=lambda value, row: value or '',
+              label=T("Description")),
+        Field('DocumentVersion',
+              represent=lambda value, row: value or '',
+              label=T("Document version")),
+        Field('DocumentURL',
+              requires=IS_URL(),
+              label=T('Document accepted on URL')),
+        Field('OpenStudioVersion',
+              represent=lambda value, row: value or '',
+              label=T('OpenStudio version')),
+        Field('CreatedOn', 'datetime',
+              readable=False,
+              writable=False,
+              default=datetime.datetime.now(),
+              represent=represent_datetime,
+              label=T('Accepted on'))
+    )
 
 
 def define_teachers_classtypes():
@@ -2342,7 +2265,7 @@ def define_teachers_classtypes():
 
 
 def define_classes_subteachers():
-    au_query = (db.auth_user.archived == False) & \
+    au_query = (db.auth_user.trashed == False) & \
                (db.auth_user.teacher == True) & \
                (db.auth_user.teaches_classes == True)
 
@@ -2503,7 +2426,7 @@ def define_classes_waitinglist():
 
 
 def define_workshops():
-    au_query = (db.auth_user.archived == False) & \
+    au_query = (db.auth_user.trashed == False) & \
                (db.auth_user.teacher == True) & \
                (db.auth_user.teaches_workshops == True)
 
@@ -2638,7 +2561,7 @@ def define_workshops_mail():
 
 def define_workshops_activities():
     loc_query = (db.school_locations.Archived == False)
-    au_query = (db.auth_user.archived == False) & \
+    au_query = (db.auth_user.trashed == False) & \
                (db.auth_user.teacher == True) & \
                (db.auth_user.teaches_workshops == True)
 
@@ -2746,11 +2669,11 @@ def define_workshops_products():
             label=T('Tax rate')),
         Field('Description', 'text', required=False),
         Field('ExternalShopURL',
-            requires=IS_EMPTY_OR(IS_URL()),
             label=T("Link external shop"),
             comment=os_gui.get_info_icon(
-                title=T("Add an url here starting with 'http:// or https://' to change the link of the 'add to cart' button " + \
-                        "for this poduct"),
+                title=T(
+                    "Add an url here starting with 'http://, https:// or mailto:' to change the link of the 'add to cart' button " + \
+                    "for this poduct"),
                 btn_icon='info')),
         Field('AddToCartText',
             label=T("Add to cart text"),
@@ -2793,7 +2716,11 @@ def define_workshops_products_customers():
             label=T("Event information")),
         Field('Waitinglist', 'boolean',
             default=False,
-            label=T('Waitinglist'))
+            label=T('Waitinglist')),
+        Field('CreatedOn', 'datetime',
+              readable=False,
+              writable=False,
+              default=datetime.datetime.now()),
         )
 
 
@@ -2920,29 +2847,11 @@ def define_customers_messages():
         Field('Status',
               requires=IS_IN_SET(message_statuses),
               represent=represent_message_status),
-        Field('Created_at', 'datetime',
-            default=datetime.datetime.now(),
-            represent=represent_datetime)
-        )
-
-
-#TODO: remove definition - no longer used
-def define_workshops_messages():
-    db.define_table('workshops_messages',
-        Field('workshops_id', db.workshops),
-        Field('messages_id', db.messages),
-        Field('Created_at', 'datetime',
-            default=datetime.datetime.now())
-        )
-
-
-#TODO: remove definition - no longer used
-def define_workshops_products_messages():
-    db.define_table('workshops_products_messages',
-        Field('workshops_products_id', db.workshops_products),
-        Field('messages_id', db.messages),
-        Field('Created_at', 'datetime',
-            default=datetime.datetime.now())
+        Field('CreatedOn', 'datetime',
+              readable=False,
+              writable=False,
+              default=datetime.datetime.now(),
+              represent=represent_datetime),
         )
 
 
@@ -3029,7 +2938,8 @@ def define_payment_batches():
         Field('Created_at', 'datetime',
             readable=False,
             writable=False,
-            default=datetime.datetime.now() )
+            default=datetime.datetime.now(),
+            represent=represent_datetime),
         )
 
 
@@ -3108,6 +3018,32 @@ def define_invoices_workshops_products_customers():
             readable=False,
             writable=False),
         Field('workshops_products_customers_id', db.workshops_products_customers,
+            readable=False,
+            writable=False))
+
+
+def define_invoices_customers():
+    """
+        Table to link customers to invoices
+    """
+    db.define_table('invoices_customers',
+        Field('invoices_id', db.invoices,
+            readable=False,
+            writable=False),
+        Field('auth_customer_id', db.auth_user,
+              writable=False,
+              label=T('Customer')))
+
+
+def define_invoices_customers_subscriptions():
+    """
+        Table to link customer subscriptions to invoices
+    """
+    db.define_table('invoices_customers_subscriptions',
+        Field('invoices_id', db.invoices,
+            readable=False,
+            writable=False),
+        Field('customers_subscriptions_id', db.customers_subscriptions,
             readable=False,
             writable=False))
 
@@ -3220,7 +3156,7 @@ def define_invoices():
                               '%(Name)s',
                               zero=T("Please select...")),
             label=T('Invoice group')),
-        Field('auth_customer_id', db.auth_user, required=True,
+        Field('auth_customer_id', db.auth_user, # Deprecated from 2018.2 onwards (only used for migrations)
             readable=False,
             writable=False,
             represent=lambda value, row: A(db.auth_user(value).display_name,
@@ -3233,7 +3169,7 @@ def define_invoices():
                               zero=T("Not set"))),
             represent=lambda value, row: payment_methods_dict.get(value),
             label=T("Payment method")),
-        Field('customers_subscriptions_id', db.customers_subscriptions,
+        Field('customers_subscriptions_id', db.customers_subscriptions, # Deprecated from 2018.2 onwards (only used for migrations)
             readable=False,
             writable=False,
             default=None),
@@ -3261,6 +3197,17 @@ def define_invoices():
             writable=False,
             default=TODAY_LOCAL.year,
             label=T('Year')),
+        Field('CustomerCompany',
+              label=T('Company')),
+        Field('CustomerName',
+              represent=lambda value, row: value or '',
+              label=T('Name')),
+        Field('CustomerListName',
+              compute=compute_invoices_CustomerListName,
+              represent=lambda value, row: value or '',
+              label=T('To')),
+        Field('CustomerAddress', 'text',
+              label=T('Address')),
         Field('Status',
             default='draft',
             requires=IS_IN_SET(invoice_statuses, zero=None),
@@ -3304,6 +3251,13 @@ def define_invoices():
             readable=False,
             writable=False)
         )
+
+
+def compute_invoices_CustomerListName(row):
+    if row.CustomerCompany:
+        return row.CustomerCompany
+
+    return row.CustomerName
 
     # sorted_payment_methods = [dict(id='', Name=T("Not set"))]
     # payment_methods = db(db.payment_methods).select(orderby=db.payment_methods.id)
@@ -3676,7 +3630,7 @@ def define_shifts_otc():
     loc_query = (db.school_locations.Archived == False)
     ss_query = (db.school_shifts.Archived == False)
     sl_query = (db.school_levels.Archived == False)
-    au_query = (db.auth_user.archived == False) & \
+    au_query = (db.auth_user.trashed == False) & \
                (db.auth_user.employee == True)
 
     statuses = [['normal', T('Normal')],
@@ -3747,7 +3701,7 @@ def define_shifts_otc():
 
 # Legacy table, depricated from 3.08
 def define_shifts_sub():
-    au_query = (db.auth_user.archived == False) & \
+    au_query = (db.auth_user.trashed == False) & \
                (db.auth_user.employee == True)
 
     db.define_table('shifts_sub',
@@ -3783,7 +3737,7 @@ def define_shifts_sub():
 
 
 def define_shifts_staff():
-    au_query = (db.auth_user.archived == False) & \
+    au_query = (db.auth_user.trashed == False) & \
                (db.auth_user.employee == True)
 
     db.define_table('shifts_staff',
@@ -3873,6 +3827,11 @@ def define_customers_shoppingcart():
             requires=IS_IN_SET(types),
             represent=lambda value, row: session.att_types_dict.get(value, ""),
             label=T("Type")),
+        Field('CreatedOn', 'datetime',
+              readable=False,
+              writable=False,
+              default=datetime.datetime.now(),
+              represent=represent_datetime)
         )
 
 
@@ -4320,6 +4279,10 @@ def define_customers_profile_features():
         Field('Invoices', 'boolean',
             default=True,
             label=T('Invoices')),
+        Field('Privacy', 'boolean',
+            default=True,
+            label=T('Privacy'),
+            comment=T('Page where users can download all data linked to their account')),
     )
 
 
@@ -4711,7 +4674,6 @@ db.scheduler_task.next_run_time.requires=IS_DATETIME(format=DATETIME_FORMAT)
 db.scheduler_task.last_run_time.requires=IS_DATETIME(format=DATETIME_FORMAT)
 
 
-
 ## create all tables needed by auth if not custom tables
 define_school_languages()
 languages_dict = create_languages_dict()
@@ -4730,7 +4692,7 @@ loc_query = (db.school_locations.Archived == False)
 lan_query = (db.school_languages.Archived == False)
 
 auth.settings.extra_fields['auth_user'] = [
-    Field('archived', 'boolean',
+    Field('archived', 'boolean', # This field can be removed in > 2018.2
           readable=False,
           writable=False,
           default=False,
@@ -4739,7 +4701,7 @@ auth.settings.extra_fields['auth_user'] = [
         readable=False,
         writable=False,
         default=False,
-        label=T('Moved to trash')),
+        label=T('Deleted')),
     Field('enabled', 'boolean',
         readable=False,
         writable=False,
@@ -4764,7 +4726,7 @@ auth.settings.extra_fields['auth_user'] = [
         readable=False,
         writable=False,
         default=False,
-        label=T('Teaches workshops')),
+        label=T('Teaches events')),
     Field('employee', 'boolean',
         readable=False,
         writable=False,
@@ -4787,6 +4749,9 @@ auth.settings.extra_fields['auth_user'] = [
                            ]),
         default='profile',
         label=T("After login go to")),
+    Field('last_login', 'datetime',
+        readable=False,
+        writable=False),
     Field('gender',
         requires=IS_EMPTY_OR(IS_IN_SET(GENDERS)),
         represent=represent_gender,
@@ -4839,7 +4804,7 @@ auth.settings.extra_fields['auth_user'] = [
         represent=lambda value, row: value or "",
         label=T("Key Number")),
     Field('newsletter', 'boolean',
-        default=True,
+        default=False,
         label=T("Newsletter")),
     Field('company',
         label=T("Company")),
@@ -4881,9 +4846,6 @@ auth.settings.extra_fields['auth_user'] = [
         compute = lambda row: SMARTHUMB(row.picture,
                                          (400, 400),
                                          name="Large")),
-    Field('note', 'text',
-        required=False,
-        label=T("Note")),
     Field('teacher_role',
           readable=False,
           writable=False,
@@ -4926,8 +4888,12 @@ auth.settings.extra_fields['auth_user'] = [
         writable=False),
     Field('teacher_notes_count_injuries', 'integer', # empty field that can be used to map values into from raw queries
         readable=False,
-        writable=False)
-
+        writable=False),
+    Field('created_on', 'datetime',
+          readable=False,
+          writable=False,
+          default=datetime.datetime.now(),
+          represent=represent_datetime)
     ]
 
 
@@ -4985,12 +4951,9 @@ define_workshops_activities()
 #workshops_activities_dict = create_workshops_activities_dict()
 define_workshops_products()
 define_workshops_products_activities()
-define_workshops_messages()
-define_workshops_products_messages()
 define_workshops_mail()
 
 #customers_dict = create_customers_dict()
-define_customers_payments()
 define_customers_documents()
 define_customers_notes()
 define_customers_payment_info()
@@ -5003,8 +4966,6 @@ define_customers_profile_announcements()
 define_customers_shop_features()
 
 define_alternativepayments()
-define_overduepayments()
-define_paymentsummary()
 
 define_workshops_products_customers()
 define_workshops_activities_customers()
@@ -5035,8 +4996,8 @@ define_school_holidays()
 define_school_holidays_locations()
 define_schedule_classes_status()
 
-define_customers_subscriptions_exceeded()
 define_customers_subscriptions_credits()
+define_log_customers_accepted_documents()
 
 # order definitions
 define_customers_orders()
@@ -5055,6 +5016,8 @@ define_invoices_payments()
 define_invoices_workshops_products_customers()
 define_invoices_customers_classcards()
 define_invoices_classes_attendance()
+define_invoices_customers()
+define_invoices_customers_subscriptions()
 define_invoices_customers_orders()
 define_invoices_mollie_payment_ids()
 
@@ -5084,7 +5047,6 @@ define_shop_products()
 define_shop_products_variants()
 define_shop_categories()
 define_shop_categories_products()
-
 
 set_preferences_permissions()
 

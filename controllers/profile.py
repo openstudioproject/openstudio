@@ -314,8 +314,6 @@ def me():
     response.title = T('Profile')
     response.subtitle = ''
 
-    response.view = 'shop/index.html'
-
     db.auth_user.email.comment =  os_gui.get_info_icon(
          title=T("If you change your email address, you'll have to use the new address to login."),
          btn_icon='info')
@@ -391,10 +389,6 @@ def me():
                              _class='col-md-4')
 
 
-    input_newsletter = DIV(os_gui.get_form_group(form.custom.label.newsletter,
-                                                 SPAN(BR(),form.custom.widget.newsletter, T(" I'd like to receive the newsletter"))),
-                           _class='col-md-4')
-
     form = DIV(
         form.custom.begin,
         DIV(DIV(os_gui.get_form_group(form.custom.label.first_name,
@@ -441,9 +435,14 @@ def me():
             _class='col-md-4'),
             _class='row'),
         DIV(input_location,
-            input_newsletter,
             _class='row'
         ),
+        DIV(INPUT(_type="checkbox",
+                    _id='data_true_and_complete',
+                    _class="iCheck-line-aero"), ' ',
+            LABEL(T("I confirm that the data entered in this form is true and complete"),
+                  _for="data_true_and_complete"),
+              _class="form-group"),
         DIV(DIV(change_passwd, form.custom.submit, _class='col-md-12'),
             _class='row'),
             form.custom.end,
@@ -1038,26 +1037,6 @@ def subscription_info():
     return dict(content=content, back=back)
 
 
-# def subscription_info_permissions(cs):
-#     '''
-#         :param csID: db.customers_subscriptions
-#         :return:
-#     '''
-#      = cs.get_class_permissions()
-#     #
-#     # enrollment = cs.get_allowed_classes_enrollment(formatted=True)
-#     # booking = cs.get_allowed_classes_booking(formatted=True)
-#     # attend = cs.get_allowed_classes_attend(formatted=True)
-#     #
-#     # allowed_classes = DIV(H4(T('You can enroll in the following classes')), enrollment,
-#     #                       H4(T('You can make advance reservations for the following classes')), booking,
-#     #                       H4(T('You can attend the following classes'), ' ',
-#     #                          XML('<small>' + T('(You might not be able to enroll or book in advance') + '</small>')),
-#     #                       attend)
-#
-#     return cs.
-
-
 def enrollments_get_back(var=None):
     '''
     :param var: Unused variable to prevent Web2py making this function public
@@ -1178,10 +1157,113 @@ def enrollment_end():
 
     content.append(DIV(form, _class='col-md-6 no-padding-left'))
 
-
     back = os_gui.get_button('back', return_url)
 
     return dict(content=content, back=back)
 
 
+def privacy_get_message(var=None):
+    """
+        return translatable string privacy message
+    """
+    privacy_notice = ''
 
+    organization = ORGANIZATIONS[ORGANIZATIONS['default']]
+    if organization['PrivacyNoticeURL']:
+        privacy_notice = SPAN(
+            T("and review our"), ' ',
+            A(T("privacy notice"),
+              _href=organization['PrivacyNoticeURL'],
+              _target="_blank")
+        )
+
+    return SPAN(
+        T("We use your information to provide the best service possible"), ', ',
+        T("to improve our services and to be able to give personalized advice."), BR(),
+        T("Below you can download data and files (if any) associated with your account."), BR(),
+        T("While you're here, why not review our"), ' ', privacy_notice,'?'
+    )
+
+
+@auth.requires_login()
+def privacy():
+    """
+        Privacy page for account
+    """
+    response.title = T('Privacy')
+    response.view = 'shop/index.html'
+
+    # Check whether the privacy feature is enabled
+    features = db.customers_profile_features(1)
+    if not features.Privacy:
+        redirect(URL('profile', 'index'))
+
+    download = os_gui.get_button(
+        'noicon',
+        URL('profile', 'privacy_download'),
+        title=T('Download')
+    )
+
+    documents = privacy_get_documents()
+
+    content = DIV(
+        privacy_get_message(), BR(), BR(),
+        documents,
+        H4(T('Data')),
+        download,
+    )
+
+    return dict(content=content)
+
+
+def privacy_get_documents():
+    """
+        returns list of documents for customer
+    """
+    customer = Customer(auth.user.id)
+    rows = customer.get_documents_rows()
+
+    if not len(rows):
+        return ''
+
+    header = THEAD(
+        TR(
+            TH(T("Description")),
+            TH(T("Download")),
+        )
+    )
+    table = TABLE(header, _class='table table-striped table-hover')
+    for row in rows:
+        tr = TR(
+            TD(row.Description),
+            TD(A(T("Download"),
+                 _href=URL('default', 'download', args=row.DocumentFile)))
+        )
+
+        table.append(tr)
+
+    documents = DIV(
+        H4(T('Files')),
+        table
+    )
+
+    return documents
+
+
+
+
+@auth.requires_login()
+def privacy_download():
+    """
+    :return: xlsx document containing all data of an account
+    """
+    from openstudio import CustomerExport
+
+    ce = CustomerExport(auth.user.id)
+    stream = ce.excel()
+
+    fname = 'customer_data.xlsx'
+    response.headers['Content-Type'] = 'application/vnd.ms-excel'
+    response.headers['Content-disposition'] = 'attachment; filename=' + fname
+
+    return stream.getvalue()

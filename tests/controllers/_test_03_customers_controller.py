@@ -98,26 +98,108 @@ def test_customers_edit_teacher(client, web2py):
     assert customer.teacher_website == data['teacher_website']
 
 
-def test_customers_archive(client, web2py):
-    '''
-        Can we archive a customer?
-    '''
+def test_trash(client, web2py):
+    """
+        Can we trash a customer?
+    """
     populate_customers(web2py, 1)
     assert web2py.db(web2py.db.auth_user).count() == 1
 
-    # archive
-    client.get('/customers/archive?uID=1001')
+    # trash
+    client.get('/customers/trash?cuID=1001')
     assert client.status == 200
 
-    query = (web2py.db.auth_user.archived == True)
+    query = (web2py.db.auth_user.trashed == True)
     assert web2py.db(query).count() == 1
 
-    # move to current
-    client.get('/customers/archive?uID=1001')
+    # restore
+    client.get('/customers/restore?cuID=1001')
     assert client.status == 200
 
-    query = (web2py.db.auth_user.archived == True)
+    query = (web2py.db.auth_user.trashed == True)
     assert web2py.db(query).count() == 0
+
+
+def trash_customer(web2py, cuID):
+    row = web2py.db.auth_user(1001)
+    row.trashed = True
+    row.update_record()
+
+    web2py.db.commit()
+
+    return row
+
+
+def test_trash_end_enrollments(client, web2py):
+    """
+        Are enrollments ended when trashing a customer?
+    """
+    prepare_classes(web2py)
+    trash_customer(web2py, 1001)
+
+    # trash
+    client.get('/customers/trash?cuID=1001')
+    assert client.status == 200
+
+    query = (web2py.db.classes_reservation.Enddate == datetime.date.today()) & \
+            (web2py.db.classes_reservation.auth_customer_id == 1001)
+    assert web2py.db(query).count() == 1
+
+
+def test_trash_remove_waitinglist_entries(client, web2py):
+    """
+        Are waitinglist entries removed when trashing a customer?
+    """
+    prepare_classes(web2py)
+    trash_customer(web2py, 1001)
+
+    # trash
+    client.get('/customers/trash?cuID=1001')
+    assert client.status == 200
+
+    query = (web2py.db.classes_waitinglist.auth_customer_id == 1001)
+    assert web2py.db(query).count() == 0
+
+
+def test_trash_cancel_future_bookings(client, web2py):
+    """
+        Are future bookings cancelled when trashing a customer?
+    """
+    cuID = 1001
+    prepare_classes(web2py)
+    trash_customer(web2py, cuID)
+
+    clattID = web2py.db.classes_attendance.insert(
+        auth_customer_id=cuID,
+        classes_id='1',
+        ClassDate=datetime.date.today() + datetime.timedelta(days=100),
+        AttendanceType='1')
+
+    web2py.db.commit()
+
+    # trash
+    client.get('/customers/trash?cuID=1001')
+    assert client.status == 200
+
+    query = (web2py.db.classes_attendance.auth_customer_id == 1001) & \
+            (web2py.db.classes_attendance.BookingStatus == 'cancelled')
+    assert web2py.db(query).count() == 1
+
+
+def test_customer_index_deleted(client, web2py):
+    """
+        Can we delete a customer?
+    """
+    populate_customers(web2py, 1)
+    assert web2py.db(web2py.db.auth_user).count() == 1
+
+    row = trash_customer(web2py, 1001)
+
+    url = '/customers/index_deleted'
+    client.get(url)
+    assert client.status == 200
+
+    assert row.display_name in client.text
 
 
 def test_load_list_birthday_icon(client, web2py):

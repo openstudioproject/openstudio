@@ -38,10 +38,215 @@ from populate_os_tables import populate_reports_attendance_organizations
     #customer = web2py.db.auth_user(1001)
     #assert customer.postcode_asint == 190100110
 
+
+def test_customers_inactive(client, web2py):
+    """
+        Can we list customers without activity after a given date?
+    """
+    populate_customers(web2py, created_on=datetime.date(2010, 1, 1))
+
+    url = '/reports/customers_inactive'
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        'date':datetime.date.today()
+    }
+    client.post(url, data=data)
+    assert client.status == 200
+
+    assert web2py.db.auth_user(1001).first_name in client.text
+    assert 'Found 10 customers without activity after' in client.text
+
+
+def test_customers_inactive_dont_list_created_after_date(client, web2py):
+    """
+        Can we list customers without activity after a given date?
+    """
+    populate_customers(web2py, created_on=datetime.date(2010, 1, 1))
+
+    url = '/reports/customers_inactive'
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        'date':datetime.date(2009, 1, 1)
+    }
+    client.post(url, data=data)
+    assert client.status == 200
+
+    assert web2py.db.auth_user(1001).first_name not in client.text
+
+
+def test_customers_inactive_dont_list_with_subscription(client, web2py):
+    """
+        Customers with a subscription after given date
+    """
+    url = '/reports/customers_inactive'
+    client.get(url)
+    assert client.status == 200
+
+    populate_customers_with_subscriptions(web2py,
+                                          created_on=datetime.date(2014, 1, 1))
+    data = {
+        'date':datetime.date.today()
+    }
+    client.post(url, data=data)
+    assert client.status == 200
+
+    assert web2py.db.auth_user(1001).first_name not in client.text
+
+
+def test_customers_inactive_dont_list_with_classcard(client, web2py):
+    """
+        Customers with a classcard after given date
+    """
+    from populate_os_tables import populate_customers_with_classcards
+
+    url = '/reports/customers_inactive'
+    client.get(url)
+    assert client.status == 200
+
+    populate_customers_with_classcards(web2py,
+                                       created_on=datetime.date(2014, 1, 1))
+    data = {
+        'date':datetime.date(2014, 1, 1)
+    }
+    client.post(url, data=data)
+    assert client.status == 200
+
+    assert web2py.db.auth_user(1001).first_name not in client.text
+
+
+def test_customers_inactive_dont_list_with_workshop_product(client, web2py):
+    """
+        Customers attending an event (workshop) on or after given date
+    """
+    from populate_os_tables import populate_workshops_products_customers
+
+    url = '/reports/customers_inactive'
+    client.get(url)
+    assert client.status == 200
+
+    populate_workshops_products_customers(web2py, created_on=datetime.date(2012,1,1))
+
+    data = {
+        'date':datetime.date(2014, 1, 1)
+    }
+    client.post(url, data=data)
+    assert client.status == 200
+
+    assert web2py.db.auth_user(1001).first_name not in client.text
+
+
+def test_customers_inactive_dont_list_with_note(client, web2py):
+    """
+        Customers with note on or after given date
+    """
+    from populate_os_tables import populate_customers_notes
+
+    url = '/reports/customers_inactive'
+    client.get(url)
+    assert client.status == 200
+
+    populate_customers_notes(web2py, created_on=datetime.date(2012,1,1))
+
+    data = {
+        'date':datetime.date(2014, 1, 1)
+    }
+    client.post(url, data=data)
+    assert client.status == 200
+
+    assert web2py.db.auth_user(1001).first_name not in client.text
+
+
+def test_customers_inactive_dont_list_with_class_attendance(client, web2py):
+    """
+        Customers attending a class after given date
+    """
+    from populate_os_tables import prepare_classes
+
+    url = '/reports/customers_inactive'
+    client.get(url)
+    assert client.status == 200
+
+    prepare_classes(web2py, created_on=datetime.date(2012,1,1))
+
+    data = {
+        'date':datetime.date(2014, 1, 1)
+    }
+    client.post(url, data=data)
+    assert client.status == 200
+
+    assert web2py.db.auth_user(1001).first_name not in client.text
+
+
+def test_customers_inactive_dont_list_with_orders(client, web2py):
+    """
+        Customers with order after given date
+    """
+    from populate_os_tables import populate_customers_orders
+
+    url = '/reports/customers_inactive'
+    client.get(url)
+    assert client.status == 200
+
+    populate_customers(web2py, created_on=datetime.date(2012,1,1))
+    populate_customers_orders(web2py)
+
+    data = {
+        'date':datetime.date(2014, 1, 1)
+    }
+    client.post(url, data=data)
+    assert client.status == 200
+
+    assert web2py.db.auth_user(1001).first_name not in client.text
+
+
+def test_customers_inactive_dont_list_with_invoices(client, web2py):
+    """
+        Customers with invoice after given date
+    """
+    from populate_os_tables import populate_invoices
+
+    url = '/reports/customers_inactive'
+    client.get(url)
+    assert client.status == 200
+
+    populate_customers(web2py, created_on=datetime.date(2012,1,1))
+    populate_invoices(web2py)
+
+    data = {
+        'date':datetime.date(2014, 1, 1)
+    }
+    client.post(url, data=data)
+    assert client.status == 200
+
+    assert web2py.db.auth_user(1001).first_name not in client.text
+
+
+def test_customers_inactive_delete(client, web2py):
+    """
+        Are customers without activity after a given date actually deleted?
+    """
+    populate_customers(web2py, created_on=datetime.date(2010, 1, 1))
+
+    url = '/reports/customers_inactive_delete'
+    data = {
+        'date':datetime.date.today()
+    }
+    client.post(url, data=data)
+    assert client.status == 200
+
+    count = web2py.db(web2py.db.auth_user.id > 1).count()
+    assert count == 0 # Only admin user remaining
+    assert 'Deleted 10 customers' in client.text
+
+
 def test_reports_retention_dropoff_rate(client, web2py):
-    '''
+    """
         Is the retention rate calculated correctly?
-    '''
+    """
     # get random page to set up OpenStudio environment
     url = '/default/user/login'
     client.get(url)

@@ -24,6 +24,9 @@
                         {{ if company_terms_conditions_url: }}
                             {{try:}}<br>{{=A(T('Terms and conditions'), _href=company_terms_conditions_url, _target="_blank")}}<br>{{except:}}{{pass}}{{pass}}
                         {{ pass }}
+                        {{ if company_terms_conditions_url: }}
+                            {{try:}}<br>{{=A(T('Privacy notice'), _href=company_privacy_policy_url, _target="_blank")}}<br>{{except:}}{{pass}}{{pass}}
+                        {{ pass }}
                     </div>
                 </div>
             </div>

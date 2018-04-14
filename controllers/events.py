@@ -1851,7 +1851,7 @@ def activity_list_customers_get_fullws_rows(wsID):
             (db.workshops_products_customers.workshops_products_id == fwsID)
     rows = db(query).select(
         db.auth_user.id,
-        db.auth_user.archived,
+        db.auth_user.trashed,
         db.auth_user.thumbsmall,
         db.auth_user.birthday,
         db.auth_user.display_name,
@@ -1876,7 +1876,7 @@ def activity_list_customers_get_activity_rows(wsaID):
     query = activity_list_customers_get_list_activity_query(wsaID)
     rows = db(query).select(
         db.auth_user.id,
-        db.auth_user.archived,
+        db.auth_user.trashed,
         db.auth_user.thumbsmall,
         db.auth_user.birthday,
         db.auth_user.display_name,
@@ -2053,7 +2053,7 @@ def tickets_list_customers_get_list(table,
     rows = db(query).select(
         db.workshops_products_customers.ALL,
         db.auth_user.id,
-        db.auth_user.archived,
+        db.auth_user.trashed,
         db.auth_user.thumbsmall,
         db.auth_user.birthday,
         db.auth_user.display_name,

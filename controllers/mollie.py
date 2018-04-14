@@ -213,7 +213,7 @@ def invoice_pay():
                 if 'The customer id is invalid' in str(e):
                     create_mollie_customer(os_customer)
         else:
-            create_mollie_customer(os_customer)
+            create_mollie_customer(os_customer, mollie)
 
         mandates = os_customer.get_mollie_mandates()
         # set default recurring type, change to recurring if a valid mandate is found.
@@ -308,7 +308,7 @@ def order_pay():
         return 'API call failed: ' + e.message
 
 
-def create_mollie_customer(os_customer):
+def create_mollie_customer(os_customer, mollie):
     """
     :param os_customer: Customer object
     :return:
@@ -355,7 +355,7 @@ def subscription_buy_now():
             if 'The customer id is invalid' in str(e):
                 create_mollie_customer(os_customer)
     else:
-        create_mollie_customer(os_customer)
+        create_mollie_customer(os_customer, mollie)
 
     # add subscription to customer
     startdate = TODAY_LOCAL

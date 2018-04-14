@@ -20,3 +20,5 @@ tests/controllers/__pycache__/
 *.pyc
 
 \.gitignore~
+
+*.ini~

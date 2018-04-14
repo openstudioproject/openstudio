@@ -1673,7 +1673,7 @@ def schedule_get_filter_form(school_locations_id='',
     sle_query = (db.school_levels.Archived == False)
 
     au_query = (db.auth_user.teacher == True) & \
-               (db.auth_user.archived == False)
+               (db.auth_user.trashed == False)
 
     form = SQLFORM.factory(
         Field('location',
@@ -1926,7 +1926,7 @@ def waitinglist():
 
     query = (db.classes_waitinglist.classes_id==clsID)
     rows = db(query).select(db.auth_user.id,
-                            db.auth_user.archived,
+                            db.auth_user.trashed,
                             db.auth_user.thumbsmall,
                             db.auth_user.birthday,
                             db.auth_user.display_name,
@@ -2047,7 +2047,7 @@ def reservations():
     #     query &= (db.classes_reservation.TrialClass == True)
 
     rows = db(query).select(db.auth_user.id,
-                            db.auth_user.archived,
+                            db.auth_user.trashed,
                             db.auth_user.thumbsmall,
                             db.auth_user.birthday,
                             db.auth_user.display_name,
@@ -2316,7 +2316,7 @@ def waitinglist_edit():
     response.view = 'general/only_content.html'
 
     name = ''
-    query = (db.auth_user.archived == False) & \
+    query = (db.auth_user.trashed == False) & \
             (db.auth_user.id > 1) # generic show all active customers query
     if 'name' in request.vars: # check whether a search filter is in use
         if request.vars['name'] != '':
@@ -2356,7 +2356,7 @@ def waitinglist_edit():
     # list of waiting customers
     query = (db.classes_waitinglist.classes_id==clsID)
     rows = db(query).select(db.auth_user.id,
-                            db.auth_user.archived,
+                            db.auth_user.trashed,
                             db.auth_user.thumbsmall,
                             db.auth_user.birthday,
                             db.auth_user.display_name,

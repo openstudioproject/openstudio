@@ -96,28 +96,30 @@ def alternativepayment_repeat():
 
 
 def index_get_export(val=None):
-    '''
+    """
         Returns dict with export button and bs3 modal containing the links
         to different export options.
-    '''
-    mailinglist = A((os_gui.get_fa_icon('fa-envelope-o'),
-                     T("Mailing list")),
-                    _href=URL('export_excel', vars=dict(export='mailing_list')),
-                    _class='textalign_left')
-    active_customers = A((os_gui.get_fa_icon('fa-check'),
-                         T("Active customers")),
-                         _href=URL('export_excel',
-                                   vars=dict(export='customers_list')),
-                         _class='textalign_left')
+    """
+    export = ''
+    if auth.has_membership(group_id='Admins') or auth.has_permission('update', 'auth_user'):
+        mailinglist = A((os_gui.get_fa_icon('fa-envelope-o'),
+                         T("Mailing list")),
+                        _href=URL('export_excel', vars=dict(export='mailing_list')),
+                        _class='textalign_left')
+        active_customers = A((os_gui.get_fa_icon('fa-check'),
+                             T("Active customers")),
+                             _href=URL('export_excel',
+                                       vars=dict(export='customers_list')),
+                             _class='textalign_left')
 
-    links = [ mailinglist, active_customers ]
+        links = [ mailinglist, active_customers ]
 
-    export = os_gui.get_dropdown_menu(
-            links = links,
-            btn_text = '',
-            btn_icon = 'download',
-            btn_size = 'btn-sm',
-            menu_class='pull-right' )
+        export = os_gui.get_dropdown_menu(
+                links = links,
+                btn_text = '',
+                btn_icon = 'download',
+                btn_size = 'btn-sm',
+                menu_class='pull-right' )
 
     return export
 
@@ -383,104 +385,68 @@ def subscriptions_get_link_credits(row):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'auth_user'))
 def index():
+    """
+        List customers
+    """
+    response.title = T("Customers")
     # make sure we're redirected back to the list from the edit page
     session.customers_back = None
     # Redirect back to edit page after adding
     session.customers_add_back = None
 
-    response.search_available = True
-    try:
-        response.q = session.customers_load_list_search_name.replace('%', '')
-
-    except AttributeError:
-        response.q = ''
-
-
-    # archive filter
+    # deleted filter
     show = 'current'
 
-    if 'show_archive' in request.vars:
-        show = request.vars['show_archive']
+    if 'show' in request.vars:
+        show = request.vars['show']
         session.customers_show = show
-
     if not session.customers_show:
         session.customers_show = 'current'
 
-    if session.customers_show == 'archive':
-        archive_class = 'active'
+    if session.customers_show == 'deleted':
+        deleted_class = 'active'
         current_class = ''
+        list_type = 'customers_index_deleted'
     else:
+        deleted_class = ''
         current_class = 'active'
-        archive_class = ''
+        list_type = 'customers_index'
+
+    response.search_available = True
+    try:
+        response.q = session.customers_load_list_search_name.replace('%', '')
+    except AttributeError:
+        response.q = ''
 
     if 'nr_items' in request.vars:
         session.customers_index_items_per_page = int(request.vars['nr_items'])
 
-    archive_buttons = os_gui.get_archived_radio_buttons(session.customers_show)
-
-    response.title = T("Customers")
-
-    export = ''
-    if auth.has_membership(group_id='Admins') or auth.has_permission('update', 'auth_user'):
-        export = index_get_export()
-
-
-    add = ''
-    if ( auth.has_membership(group_id='Admins') or
-         auth.has_permission('create', 'auth_user') ):
-        ch = CustomersHelper()
-        result = ch.get_add_modal()
-        add = SPAN(result['button'], result['modal'], _class='pull-right')
-
-    if session.customers_show == 'current':
-        archived = False
-    else:
-        archived = True
-
-    show_location = False
-    if session.show_location:
-        show_location = 'True'
-
-    show_email = False
-    if ( auth.has_membership(group_id='Admins') or
-         auth.has_permission('update', 'customer-contact') ):
-        show_email = True
-
-
+    show_location = index_get_show_location()
+    show_email = index_get_show_email()
     search_results = DIV(LOAD('customers', 'load_list.load',
                               target='customers_load_list',
                               content=os_gui.get_ajax_loader(message=T("Searching...")),
-                              vars={'list_type':'customers_index',
+                              vars={'list_type':list_type,
                                     'items_per_page':session.customers_index_items_per_page,
                                     'initial_list':True,
-                                    'archived':archived,
                                     'show_location':show_location,
-                                    'show_email': show_email},
+                                    'show_email': show_email,
+                                    'show_deleted': session.customers_show},
                               ajax=True),
                          _id="customers_load_list",
                          _class="load_list_customers clear")
 
-    # archive_buttons = os_gui.get_archived_radio_buttons(
-    #     session.customers_show)
-
     content = DIV(
-        UL(LI(A(T('Current'),
-                _href=URL(vars={'show_archive':'current'})),
-              _class=current_class),
-           LI(A(T('Archive'),
-                _href=URL(vars={'show_archive':'archive'})),
-              _class=archive_class),
-           # LI(I(_class='fa fa-users'),
-           #    _class='pull-left header'),
-           _class='nav nav-tabs pull-right'),
+        index_get_menu(session.customers_show),
         DIV(DIV(search_results,
                 _class='tab-pane active'),
             _class='tab-content'),
         _class='nav-tabs-custom')
 
 
+    export = index_get_export()
+    add = index_get_add()
     tools = index_get_tools()
-
 
     return dict(add=add,
                 export=export,
@@ -489,32 +455,73 @@ def index():
                 header_tools=tools)
 
 
-def index_get_link_archive(row):
-    '''
-        Called from the index function. Changes title of archive button
-        depending on whether a customer is archived or not
-    '''
-    row = db.auth_user(row.id)
+def index_get_show_location():
+    """
+        Should we show customer locations in the list?
+    """
+    show_location = False
+    if session.show_location:
+        show_location = 'True'
 
-    try:
-        if row.archived:
-            tt = T("Move to current")
-        else:
-            tt = T("Archive")
+    return show_location
 
-        return os_gui.get_button('archive',
-                                 URL('archive',
-                                     vars={'uID':row.id},
-                                     extension=''),
-                                 tooltip=tt)
-    except AttributeError: # might get thrown if a customer is deleted, but still in cache. Then the row can't be fetched
-        return
+
+def index_get_show_email():
+    """
+        Returns show contact info permissions
+    """
+    show_email = False
+    if ( auth.has_membership(group_id='Admins') or
+         auth.has_permission('update', 'customer-contact') ):
+        show_email = True
+
+    return show_email
+
+
+def index_get_add():
+    """
+        Add button for index page
+    """
+    add = ''
+    if ( auth.has_membership(group_id='Admins') or
+         auth.has_permission('create', 'auth_user') ):
+        ch = CustomersHelper()
+        result = ch.get_add_modal()
+        add = SPAN(result['button'], result['modal'], _class='pull-right')
+
+    return add
+
+
+def index_get_menu(page):
+    """
+        Tabs Menu for index page
+    """
+    active = 'active'
+    current_class = ''
+    deleted_class = ''
+
+    if page == 'current':
+        current_class = active
+    elif page == 'deleted':
+        deleted_class = active
+
+    tabs = UL(LI(A(T('Current'),
+                    _href=URL('index', vars={'show':'current'})),
+                  _class=current_class),
+              LI(A(T('Deleted'),
+                    _href=URL('index', vars={'show':'deleted'})),
+                  _class=deleted_class),
+               # LI(I(_class='fa fa-users'),
+               #    _class='pull-left header'),
+              _class='nav nav-tabs pull-right')
+
+    return tabs
 
 
 def index_get_select_nr_items(var=None):
-    '''
+    """
         Returns a form to select number of items to show on a page
-    '''
+    """
     view_set = [10, 15, 25]
     form = SQLFORM.factory(
         Field('nr_items',
@@ -540,9 +547,9 @@ def index_get_select_nr_items(var=None):
 
 
 def index_get_tools(var=None):
-    '''
+    """
         Returns tools menu for customers list
-    '''
+    """
     tools = []
 
     # teacher holidays
@@ -567,36 +574,73 @@ def index_get_tools(var=None):
     return tools
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('update', 'auth_user'))
-def archive():
-    '''
-        Archive an account
-    '''
-    uID = request.vars['uID']
-    if not uID:
-        session.flash = T('Unable to (un)archive customer')
-    else:
-        row = db.auth_user(uID)
-
-        if row.archived:
-            session.flash = T('Moved to current')
-        else:
-            # set enddate for recurring reservations
-            query = (db.classes_reservation.auth_customer_id == uID) & \
-                    (db.classes_reservation.ResType == 'recurring') & \
-                    ((db.classes_reservation.Enddate == None) |
-                     (db.classes_reservation.Enddate > TODAY_LOCAL))
-            db(query).update(Enddate = TODAY_LOCAL)
-            # remove all waitinglist entries
-            query = (db.classes_waitinglist.auth_customer_id == uID)
-            db(query).delete()
-
-            session.flash = T('Archived')
+# @auth.requires(auth.has_membership(group_id='Admins') or
+#                auth.has_permission('read', 'auth_user'))
+# def index_deleted():
+#     """
+#         List deleted customers
+#     """
+#     from openstudio import Customers
+#
+#     response.title = T('Customers')
+#     response.subtitle = T('Deleted')
+#     response.view = 'general/tabs_menu.html'
+#
+#     customers = Customers()
+#     list = customers.list_deleted_formatted()
+#
+#     return dict(menu=index_get_menu('deleted'),
+#                 content=list)
 
 
-        row.archived = not row.archived
-        row.update_record()
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('delete', 'auth_user'))
+def restore():
+    """
+        Restore from trash
+    """
+    cuID = request.vars['cuID']
+
+    row = db.auth_user(cuID)
+
+    query = (db.auth_user.id == cuID)
+    db(query).update(trashed = False)
+
+    session.flash = SPAN(
+        T('Moved'), ' ',
+        row.display_name, ' ',
+        T('to current')
+    )
+    redirect(URL('index'))
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('delete', 'auth_user'))
+def trash():
+    """
+        Delete a customer
+    """
+    cuID = request.vars['cuID']
+
+    # set enddate for recurring reservations
+    query = (db.classes_reservation.auth_customer_id == cuID) & \
+            (db.classes_reservation.ResType == 'recurring') & \
+            ((db.classes_reservation.Enddate == None) |
+             (db.classes_reservation.Enddate > TODAY_LOCAL))
+    db(query).update(Enddate=TODAY_LOCAL)
+    # remove all waitinglist entries
+    query = (db.classes_waitinglist.auth_customer_id == cuID)
+    db(query).delete()
+    # Cancel all class bookings >= today
+    query = (db.classes_attendance.auth_customer_id == cuID) & \
+            (db.classes_attendance.ClassDate > TODAY_LOCAL)
+    db(query).update(BookingStatus = 'cancelled')
+
+    # Move customer to deleted
+    query = (db.auth_user.id == cuID)
+    db(query).update(trashed=True)
+
+    session.flash = T('Moved to deleted')
 
     redirect(URL('index'))
 
@@ -604,13 +648,13 @@ def archive():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('delete', 'auth_user'))
 def delete():
-    '''
+    """
         Delete a customer
-    '''
+    """
     cuID = request.vars['cuID']
 
     query = (db.auth_user.id == cuID)
-    db(query).update(trashed=True)
+    db(query).delete()
 
     session.flash = T('Deleted')
 
@@ -959,6 +1003,8 @@ def edit_get_back(_class=''):
        session.customers_back == 'subscriptions_alt_prices':
         # check if the we came from the default/subscriptions page
         url = URL('reports', session.customers_back)
+    elif session.customers_back == 'reports_customers_inactive':
+        url = URL('reports', 'customers_inactive')
     elif session.customers_back == 'trialclasses':
         # check if the we came from the default/trialclasses page
         url = URL('reports', 'trialclasses')
@@ -1184,7 +1230,7 @@ def export_excel():
                     "BankLocation"]
         ws.append(headers)
 
-        query = (db.auth_user.archived == False)
+        query = (db.auth_user.trashed == False)
         rows = db(query).select(db.auth_user.ALL,
                                 db.school_locations.Name,
                 left=[db.school_locations.on(db.auth_user.school_locations_id==\
@@ -1236,7 +1282,7 @@ def export_excel():
         # write the sheet for all mail addresses
         ws = wb.create_sheet(title="All customers")
         today = datetime.date.today()
-        query = ((db.auth_user.archived == False) &
+        query = ((db.auth_user.trashed == False) &
                  (db.auth_user.id > 1))
         rows = db(query).select(db.auth_user.first_name,
                                 db.auth_user.last_name,
@@ -1248,7 +1294,7 @@ def export_excel():
         # All newsletter
         ws = wb.create_sheet(title="Newsletter")
         today = datetime.date.today()
-        query = ((db.auth_user.archived == False) &
+        query = ((db.auth_user.trashed == False) &
                  (db.auth_user.newsletter == True) &
                  (db.auth_user.id > 1))
         rows = db(query).select(db.auth_user.first_name,
@@ -2436,6 +2482,7 @@ def classes_attendance_get_link_cancel(row):
        URL('customers', 'classes_attendance_cancel',
            vars={'caID':row.classes_attendance.id}),
        onclick=onclick_cancel,
+       tooltip=T('Cancel booking'),
        _class='pull-right')
 
     return button
@@ -2458,6 +2505,7 @@ def classes_attendance_get_link_delete(row):
        URL('classes', 'attendance_remove',
            vars={'clattID':row.classes_attendance.id}),
        onclick=onclick_delete,
+       tooltip=T('Delete'),
        _class='pull-right')
 
     return button
@@ -3597,7 +3645,7 @@ def subscription_credits_month_get_content(expired=False):
                             db.auth_user.display_name,
                             db.auth_user.thumbsmall,
                             db.auth_user.birthday,
-                            db.auth_user.archived,
+                            db.auth_user.trashed,
                             db.school_subscriptions.Name,
                             db.customers_subscriptions.id,
                             db.customers_subscriptions.Startdate,
@@ -4012,19 +4060,10 @@ def notes():
         elif row.TeacherNote:
             row_note_type = T('Teachers')
 
-        if row.Alert is True:
-            alert = SPAN(XML(' ! ! '),
-                         _title=T("Alert"),
-                         _class='red bold')
-        else:
-            alert = ''
-
         if latest == 'True':
-            note = DIV(alert,
-                       XML(max_string_length(row.Note.replace('\n','<br>'),
+            note = DIV(XML(max_string_length(row.Note.replace('\n','<br>'),
                                              latest_length)))
             break
-
         else:
             buttons = DIV(_class='btn-group pull-right')
             if auth.has_membership(group_id='Admins') or \
@@ -4044,7 +4083,6 @@ def notes():
 
 
             notes.append(LI(buttons,
-                            alert,
                             SPAN(row.NoteDate,
                                  ' ',
                                  row.NoteTime,
@@ -4824,12 +4862,12 @@ def load_list_set_search():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'auth_user'))
 def load_list():
-    '''
+    """
         Returns a list of customers, to be used as LOAD
         request.vars['items_per_page'] sets the items shown on each page
         request.vars['list_type'] can be 'classes_attendance_list'
         request.vars['show_location'] can be 'True' or 'False'
-    '''
+    """
     items_per_page = request.vars['items_per_page']
     list_type = request.vars['list_type']
     initial_list = request.vars['initial_list']
@@ -4859,11 +4897,13 @@ def load_list():
     else:
         show_email = False
 
-    archived = request.vars['archived']
-    if archived == 'False' or archived is None:
-        archived = False
+    show_deleted = request.vars['show_deleted']
+    if show_deleted == 'deleted':
+        delete_permission = (auth.has_membership(group_id='Admins') or
+                             auth.has_permission('delete', 'auth_user'))
+        trashed = True
     else:
-        archived = True
+        trashed = False
 
     if date_formatted:
         date = datestr_to_python(DATE_FORMAT, date_formatted)
@@ -4886,24 +4926,16 @@ def load_list():
     search_name = session.customers_load_list_search_name
 
     if (search_name and search_name != '%%') or (initial_list):
-        query = (db.auth_user.id > 1) & (db.auth_user.trashed == False)
+        query = (db.auth_user.id > 1)
     else:
         query = (db.auth_user.id < 1)
 
     title = ''
-    if list_type == 'customers_index':
-        query &= (db.auth_user.archived == archived)
 
-    elif list_type == 'classes_attendance_list':
+    query &= (db.auth_user.trashed == trashed)
+
+    if list_type == 'classes_attendance_list':
         title = H4(T('Search results'))
-        query &= (db.auth_user.archived == False)
-
-    elif list_type == 'classes_manage_reservation':
-        query &= (db.auth_user.archived == False)
-
-    elif list_type == 'events_ticket_sell':
-        #table_class += ' full-width'
-        query &= (db.auth_user.archived == False)
 
     if search_name:
         query &= ((db.auth_user.display_name.like(search_name)) |
@@ -4916,9 +4948,8 @@ def load_list():
     else:
         orderby = db.auth_user.display_name
 
-
     rows = db(query).select(db.auth_user.id,
-                            db.auth_user.archived,
+                            db.auth_user.trashed,
                             db.auth_user.thumbsmall,
                             db.auth_user.birthday,
                             db.auth_user.display_name,
@@ -4926,6 +4957,7 @@ def load_list():
                             db.auth_user.school_locations_id,
                             limitby=limitby,
                             orderby=orderby)
+
     table_class = 'table table-hover'
     table = TABLE(_class=table_class)
     for i, row in enumerate(rows.render()):
@@ -4983,9 +5015,13 @@ def load_list():
                            email,
                            location)
 
-
         if list_type == 'customers_index':
             buttons = TD(load_list_get_customer_index_buttons(row))
+        elif list_type == 'customers_index_deleted':
+            buttons = TD(load_list_get_customer_index_deleted_buttons(
+                row,
+                delete_permission
+            ))
         elif list_type == 'classes_attendance_list':
             buttons = TD(load_list_get_attendance_list_buttons(row,
                                                                clsID,
@@ -5017,7 +5053,6 @@ def load_list():
         table.append(table_row)
 
 
-
     # Navigation
     previous = ''
     url_previous = None
@@ -5042,12 +5077,12 @@ def load_list():
     else:
         navigation = ''
 
-
     content = DIV(title, table, navigation)
 
     if len(rows) == 0:
-        content = DIV(BR(), T("No results..."), BR(),
-                      _class='grey col-md-12')
+        content = DIV(DIV(BR(), T("No results..."), BR(),
+                          _class='grey col-md-12'),
+                      _class='row')
 
     return dict(content=content)
 
@@ -5100,12 +5135,7 @@ def load_list_get_customer_index_buttons(row):
        btn_edit =  os_gui.get_button('edit', URL('edit',
                                                   args=[row.id],
                                                   extension=''))
-
        buttons.append(btn_edit)
-
-
-       btn_archive = index_get_link_archive(row)
-       buttons.append(btn_archive)
 
     delete = ''
     if (auth.has_membership(group_id='Admins') or
@@ -5116,14 +5146,50 @@ def load_list_get_customer_index_buttons(row):
             url = '#'
         else:
             onclick = "return confirm('" + \
-                 T('Do you really want to delete this customer?') + "');"
-            url = URL('delete', vars={'cuID':row.id}, extension='')
+                 T('Move this customer to deleted?') + "');"
+            url = URL('trash', vars={'cuID':row.id}, extension='')
 
         delete = os_gui.get_button('delete_notext',
                                    url,
                                    onclick=onclick)
 
     return DIV(buttons, delete, _class='pull-right')
+
+
+def load_list_get_customer_index_deleted_buttons(row, permission):
+    """
+        Return customer index deleted buttons
+    """
+    onclick_delete = "return confirm('" + \
+                     T('Do you really want to delete this customer and all associated data?') \
+                     + "');"
+    onclick_restore = "return confirm('" + \
+                      T('Restore customer to current?') \
+                      + "');"
+    restore = ''
+    if permission:
+        restore = os_gui.get_button(
+            'noicon',
+            URL('customers', 'restore',
+                vars={'cuID': row.id},
+                extension=''),
+            title=T('Restore'),
+            onclick=onclick_restore,
+            _class="pull-right"
+        )
+
+    delete = ''
+    if permission:
+        delete = os_gui.get_button(
+            'delete_notext',
+            URL('customers', 'delete',
+                vars={'cuID': row.id},
+                extension=''),
+            onclick=onclick_delete,
+            _class="pull-right"
+        )
+
+    return DIV(delete, restore)
 
 
 def load_list_get_attendance_list_buttons(row,
@@ -5148,12 +5214,6 @@ def load_list_get_attendance_list_buttons(row,
                  _class='btn btn-default btn-sm pull-right')
     else:
         return ''
-
-    # ah = AttendanceHelper()
-    # cuID = row.id
-    # date = datestr_to_python(DATE_FORMAT, date_formatted)
-    #
-    # return ah.get_signin_buttons(clsID, date, cuID)
 
 
 def load_list_get_selfcheckin_checkin_buttons(row,
@@ -5237,9 +5297,9 @@ def tasks():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'auth_user_account'))
 def account():
-    '''
+    """
         Account options for an account
-    '''
+    """
     response.view = 'customers/edit_general.html'
     cuID = request.vars['cuID']
     customer = Customer(cuID)
@@ -5250,10 +5310,11 @@ def account():
         field.readable = False
         field.writable = False
 
-    db.auth_user.archived.readable = True
-    db.auth_user.archived.writable = True
+    db.auth_user.trashed.readable = True
+    db.auth_user.trashed.writable = True
     db.auth_user.customer.readable = True
-    db.auth_user.customer.writable = True
+    db.auth_user.customer.readable = False
+    db.auth_user.customer.writable = False
     db.auth_user.enabled.readable = True
     db.auth_user.enabled.writable = True
     db.auth_user.teacher.readable = True
@@ -5368,7 +5429,7 @@ def account_merge_get_input_form(auth_merge_id):
               default  = auth_merge_id,
               requires = IS_IN_DB(db(merge_query),
                                   'auth_user.id',
-                                  '%(id)s - %(display_name)s - %(email)s - Archived: %(archived)s - Teacher: %(teacher)s',
+                                  '%(id)s - %(display_name)s - %(email)s - Trashed: %(trashed)s - Teacher: %(teacher)s',
                               zero=T("Please select...")),
               label    = T('')),
         submit_button = T('Select'),
@@ -5434,8 +5495,10 @@ def account_merge_execute():
 
         # mark row as merged
         # set merged for auth_user auth_merge_id
-        merge_from.merged   = True
-        merge_from.archived = True
+        merge_from.merged = True
+        merge_from.trashed = True
+        # clear merged email
+        merge_from.email = None
         # set merged_with for auth_user auth_merge_id
         merge_from.merged_into = int(cuID)
         merge_from.merged_on = datetime.datetime.now()
@@ -5476,7 +5539,7 @@ def account_set_password():
     cuID = request.vars['cuID']
     customer = Customer(cuID)
     response.title = customer.get_name()
-    response.subtitle = T('Set password')
+    response.subtitle = T('Account')
 
     for field in db.auth_user:
         field.readable = False
@@ -5513,10 +5576,59 @@ def account_set_password():
                 save=submit)
 
 
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'log_customers_accepted_documents'))
+def account_acceptance_log():
+    """
+        Lists accepted documents for customer
+    """
+    response.view = 'customers/edit_general.html'
+    cuID = request.vars['cuID']
+    customer = Customer(cuID)
+    response.title = customer.get_name()
+    response.subtitle = T('Account')
+
+    submenu = account_get_submenu(request.function, cuID)
+
+    header = THEAD(
+        TR(
+            TH(T('Document')),
+            TH(T('Document Description')),
+            TH(T('Document Version')),
+            TH(T('Document URL')),
+            TH(T('OpenStudio Version')),
+            TH(T('Accepted On')),
+        )
+    )
+    table = TABLE(header, _class='table table-striped table-hover')
+    rows = customer.get_accepted_documents()
+    for row in rows.render():
+        tr = TR(
+            TD(row.DocumentName),
+            TD(row.DocumentDescription),
+            TD(row.DocumentVersion),
+            TD(row.DocumentURL),
+            TD(row.OpenStudioVersion),
+            TD(row.CreatedOn),
+        )
+
+        table.append(tr)
+
+    content = DIV(submenu, table)
+
+    menu = customers_get_menu(cuID, 'account')
+    back = edit_get_back()
+
+    return dict(content=content,
+                menu=menu,
+                back=back)
+
+
+
 def account_get_submenu(page, cuID):
-    '''
+    """
         Returns submenu for account pages
-    '''
+    """
     vars = {'cuID':cuID}
     pages = [['account', T('Account'), URL('account', vars=vars)]]
 
@@ -5528,6 +5640,11 @@ def account_get_submenu(page, cuID):
        auth.has_permission('set_password', 'auth_user'):
         pages.append(['account_set_password', T('Reset password'),
                        URL('account_set_password', vars=vars)])
+
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('account_acceptance_log', 'auth_user'):
+        pages.append(['account_acceptance_log', T('Accepted documents'),
+                       URL('account_acceptance_log', vars=vars)])
 
     horizontal = True
 
@@ -5765,3 +5882,4 @@ def edit_teacher():
                 back=back,
                 save=submit,
                 left_sidebar_enabled=True)
+

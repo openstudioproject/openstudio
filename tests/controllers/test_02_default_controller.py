@@ -6,13 +6,10 @@ These tests run based on webclient and need web2py server running.
 '''
 
 from gluon.contrib.populate import populate
-from populate_os_tables import prepare_classes
-from populate_os_tables import populate_customers
-from populate_os_tables import populate_workshops_products_customers
-from populate_os_tables import populate_school_classcards
+
 
 #TODO: move these tests to stats tests and rename to reports
-#
+
 # def test_subscriptions_overview(client, web2py):
 #     '''
 #         Test the overview of subscriptions

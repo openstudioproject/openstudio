@@ -141,7 +141,7 @@ def _schedule_get(year, week, sorting, TeacherID, ClassTypeID, LocationID, Level
     data['classtypes'] = classtypes
 
     # Teachers
-    query = (db.auth_user.archived == False) & \
+    query = (db.auth_user.trashed == False) & \
             (db.auth_user.teacher == True) & \
             (db.auth_user.id.belongs(teacher_ids_this_week))
     teachers = []
@@ -805,7 +805,7 @@ def _school_teachers_get_by_classtype(ctID):
     left = None
 
     query = (db.auth_user.teacher == True) & \
-            (db.auth_user.archived == False)
+            (db.auth_user.trashed == False)
 
     if ctID:
         # build query to select only teachers marked for a specific class type

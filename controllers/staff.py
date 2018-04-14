@@ -1022,7 +1022,7 @@ def schedule_get_filter_form(school_shifts_id='',
                              status=''):
 
     au_query = (db.auth_user.employee == True) & \
-               (db.auth_user.archived == False)
+               (db.auth_user.trashed == False)
 
     form = SQLFORM.factory(
         Field('location',

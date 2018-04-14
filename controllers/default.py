@@ -61,7 +61,6 @@ def user():
     to decorate functions that need access control
     """
     # check if someone is looking for profile
-    # check if someone is looking for profile
     if 'profile' in request.args:
         redirect(URL('profile', 'index'))
 
@@ -70,6 +69,10 @@ def user():
     auth.messages.verify_email = osmail.render_email_template('email_template_sys_verify_email', return_html=True)
     # auth.messages.reset_password = 'Click on the link %(link)s to reset your password'
     auth.messages.reset_password = osmail.render_email_template('email_template_sys_reset_password', return_html=True)
+    # Log registration accepted terms (if any)
+
+    auth.settings.register_onaccept.append(user_register_log_acceptance)
+    auth.settings.login_onaccept.append(user_set_last_login)
 
     ## Create auth form
     if session.show_location: # check if we need a requirement for the school_locations_id field for customers
@@ -82,7 +85,19 @@ def user():
     # actually create auth form
     form=auth()
 
+    try:
+        organization = ORGANIZATIONS[ORGANIZATIONS['default']]
+        company_name = organization['Name']
+        has_terms = True if organization['TermsConditionsURL'] else False
+        has_privacy_notice = True if organization['PrivacyNoticeURL'] else False
+    except:
+        company_name = ''
+        organization = False
+        has_terms = False
+        has_privacy_notice = False
+
     if 'register' in request.args:
+
         response.view = 'default/user_login.html'
         #auth.settings.formstyle = 'divs'
         user_registration_set_visible_fields()
@@ -105,6 +120,40 @@ def user():
                            form.custom.widget.school_locations_id,
                            _class='form-group')
 
+        privacy_notice = ''
+        terms_and_conditions = ''
+        link_pp = ''
+        link_tc = ''
+        if organization:
+            tc_pp_links = DIV(' ', _class="form-group")
+            if organization['TermsConditionsURL']:
+                tc_pp_links.append(A(T('Terms and conditions'),
+                                     _href=organization['TermsConditionsURL'],
+                                     _target="_blank"))
+                terms_and_conditions = DIV(INPUT(_type="checkbox",
+                                                 _id="accept_terms_and_conditions",
+                                                 _class="iCheck-line-aero"), ' ',
+                                           LABEL(T("I accept the Terms and conditions")),
+                                           _class="form-group")
+
+            if organization['PrivacyNoticeURL']:
+                tc_pp_links.append(SPAN(
+                    SPAN(' ', XML('&bull;'), ' ', _class='grey'),
+                    A(T('Privacy notice'),
+                      _href=organization['PrivacyNoticeURL'],
+                      _target="_blank")))
+                privacy_notice = DIV(INPUT(_type="checkbox",
+                                           _id='accept_privacy_policy',
+                                           _class="iCheck-line-aero"), ' ',
+                                     LABEL(T("I accept the privacy notice")),
+                                     _class="form-group")
+
+        complete_data = DIV(INPUT(_type="checkbox",
+                                  _id='data_true_and_complete',
+                                  _class="iCheck-line-aero"), ' ',
+                             LABEL(T("I confirm that the data entered in this form is true and complete")),
+                             _class="form-group")
+
         form = DIV(
             H4(T('Register'), _class='grey text-center no-margin-top'),
             form.custom.begin,
@@ -124,6 +173,11 @@ def user():
                 form.custom.widget.password_two,
                 _class='form-group'),
             location,
+            tc_pp_links,
+            terms_and_conditions,
+            privacy_notice,
+            complete_data,
+            BR(),
             A(T('Cancel'),
               _href=URL(args='login'),
               _class='btn btn-default',
@@ -131,17 +185,10 @@ def user():
             DIV(form.custom.submit, _class='pull-right'),
             form.custom.end)
 
-
     reset_passwd = ''
     register = ''
     self_checkin  = ''
     error_msg = ''
-
-    try:
-        organization = ORGANIZATIONS[ORGANIZATIONS['default']]
-        company_name = organization['Name']
-    except:
-        company_name = ''
 
     # set logo
     branding_logo = os.path.join(request.folder,
@@ -277,13 +324,27 @@ def user():
                 register=register,
                 self_checkin=self_checkin,
                 company_name=company_name,
+                has_organization=True if organization else False,
+                has_terms=has_terms,
+                has_privacy_notice=has_privacy_notice,
                 logo_login=logo_login)
 
 
+def user_set_last_login(form):
+    """
+        Sets last_login field for a user
+    """
+    email = form.vars.email
+
+    row = db.auth_user(email=email)
+    row.last_login = datetime.datetime.now()
+    row.update_record()
+
+
 def user_registration_set_visible_fields(var=None):
-    '''
+    """
         Restricts number of visible fields when registering for an account
-    '''
+    """
     for field in db.auth_user:
         field.readable = False
         field.writable = False
@@ -298,6 +359,72 @@ def user_registration_set_visible_fields(var=None):
     for field in visible_fields:
         field.readable = True
         field.writable = True
+
+
+def user_register_log_acceptance(form):
+    """
+        Log acceptance of general terms, privacy policy and true data
+    """
+    cuID = form.vars.id
+    customer = Customer(cuID)
+
+    reg_url = URL('default', 'user', args='register', scheme=True, host=True)
+
+    organization = ORGANIZATIONS[ORGANIZATIONS['default']]
+    if organization:
+        user_register_log_acceptance_terms_and_conditions(customer,
+                                                          organization,
+                                                          reg_url)
+        user_register_log_acceptance_privacy_notice(customer,
+                                                    organization,
+                                                    reg_url)
+    user_register_log_acceptance_true_data(customer,
+                                           reg_url)
+
+
+def user_register_log_acceptance_terms_and_conditions(customer, organization, reg_url):
+    """
+    :param customer: Customer object
+    :param organization: the default organization
+    :param reg_url: url of registration form
+    :return: None
+    """
+    if organization['TermsConditionsURL']:
+        customer.log_document_acceptance(
+            document_name=T("Terms and Conditions"),
+            document_description=organization['TermsConditionsURL'],
+            document_version=organization.get('TermsConditionsVersion', None),
+            document_url=reg_url
+        )
+
+
+def user_register_log_acceptance_privacy_notice(customer, organization, reg_url):
+    """
+    :param customer: Customer object
+    :param organization: the default organization
+    :param reg_url: url of registration form
+    :return: None
+    """
+    if organization['PrivacyNoticeURL']:
+        customer.log_document_acceptance(
+            document_name=T("Privacy Notice"),
+            document_description=organization['PrivacyNoticeURL'],
+            document_version=organization.get('PrivacyNoticeVersion', None),
+            document_url=reg_url
+        )
+
+
+def user_register_log_acceptance_true_data(customer, reg_url):
+    """
+    :param customer: Customer object
+    :param reg_url: url of registration form
+    :return: None
+    """
+    customer.log_document_acceptance(
+        document_name=T("Registration form"),
+        document_description=T("True and complete data"),
+        document_url=reg_url
+    )
 
 
 @cache.action()

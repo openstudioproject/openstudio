@@ -16,11 +16,11 @@ from general_helpers import represent_validity_units
 
 class Customer:
     '''
-        Class that contains functions for customer subscriptions
+        Class that contains functions for customer
     '''
     def __init__(self, cuID):
         '''
-            Class init function which sets csID
+            Class init function which sets cuID
         '''
         db = current.globalenv['db']
 
@@ -57,9 +57,9 @@ class Customer:
             db.customers_subscriptions.CreditsRemaining,
         ]
 
-        sql = '''SELECT cs.id, 
+        sql = '''SELECT cs.id,
                         cs.auth_customer_id,
-                        cs.Startdate, 
+                        cs.Startdate,
                         cs.Enddate,
                         cs.payment_methods_id,
                         cs.Note,
@@ -69,13 +69,13 @@ class Customer:
 (IFNULL(( SELECT SUM(csc.MutationAmount)
  FROM customers_subscriptions_credits csc
  WHERE csc.customers_subscriptions_id = cs.id AND
-	   csc.MutationType = 'add'), 0) - 
+	   csc.MutationType = 'add'), 0) -
 IFNULL(( SELECT SUM(csc.MutationAmount)
  FROM customers_subscriptions_credits csc
  WHERE csc.customers_subscriptions_id = cs.id AND
 	   csc.MutationType = 'sub'), 0)) AS credits
 FROM customers_subscriptions cs
-LEFT JOIN 
+LEFT JOIN
 school_subscriptions ssu ON cs.school_subscriptions_id = ssu.id
 WHERE cs.auth_customer_id = {cuID} AND
 (cs.Startdate <= '{date}' AND (cs.Enddate >= '{date}' OR cs.Enddate IS NULL))
@@ -95,7 +95,7 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
 
     def get_subscriptions_on_date(self, date, from_cache=True):
         '''
-            Get day rows with caching 
+            Get day rows with caching
         '''
         web2pytest = current.globalenv['web2pytest']
         request = current.globalenv['request']
@@ -224,7 +224,7 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
 
     def get_classcards(self, date, from_cache=True):
         '''
-            Get day rows with caching 
+            Get day rows with caching
         '''
         web2pytest = current.globalenv['web2pytest']
         request = current.globalenv['request']
@@ -365,23 +365,6 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
         return had_trial
 
 
-    def get_invoice_address(self):
-        '''
-            Returns all address info for an invoice
-        '''
-        address = { 'company'  : self.row.company or '',
-                    'name'     : self.get_name(),
-                    'address'  : self.row.address or '',
-                    'city'     : self.row.city or '',
-                    'postcode' : self.row.postcode or '',
-                    'country'  : self.row.country or '',
-                    'email'    : self.row.email,
-                    'phone'    : self.row.phone or '',
-                    'mobile'   : self.row.mobile or '' }
-
-        return address
-
-
     def get_workshops_rows(self, upcoming=False):
         """
             Returns workshops for a customer
@@ -466,6 +449,16 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
         return orders
 
 
+    def get_documents_rows(self):
+        """
+        :return: document rows for customer
+        """
+        db = current.globalenv['db']
+
+        query = (db.customers_documents.auth_customer_id == self.cuID)
+        return db(query).select(db.customers_documents.ALL)
+
+
     def has_recurring_reservation_for_class(self, clsID, date):
         '''
         :param clsID: db.classes.id
@@ -496,7 +489,7 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
         db = current.globalenv['db']
 
         left = [ db.classes.on(db.classes_reservation.classes_id == db.classes.id) ]
-        
+
         query = (db.classes_reservation.auth_customer_id == self.cuID)
         if date:
             query &= (db.classes_reservation.Startdate <= date) & \
@@ -715,9 +708,9 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
 
 
     def get_mollie_mandates(self):
-        '''
+        """
             Returns mollie mandates
-        '''
+        """
         get_sys_property = current.globalenv['get_sys_property']
 
         import Mollie
@@ -740,8 +733,1012 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
             self.row.mollie_customer_id = mollie_customer_id
             self.row.update_record()
 
-
         return mollie.customer_mandates.withParentId(mollie_customer_id).all()
+
+
+    def get_accepted_documents(self):
+        """
+        :return: rows object with rows of accepted documents for this customer
+        """
+        db = current.globalenv['db']
+
+        query = (db.log_customers_accepted_documents.auth_customer_id == self.cuID)
+        rows = db(query).select(db.log_customers_accepted_documents.ALL,
+                                orderby=db.log_customers_accepted_documents.CreatedOn)
+        return rows
+
+
+    def log_document_acceptance(self,
+                                document_name,
+                                document_description='',
+                                document_version='',
+                                document_url=''):
+        """
+            :return:
+        """
+        db = current.globalenv['db']
+
+        version = db.sys_properties(Property='Version').PropertyValue
+        release = db.sys_properties(Property='VersionRelease').PropertyValue
+
+        db.log_customers_accepted_documents.insert(
+            auth_customer_id = self.cuID,
+            DocumentName = document_name,
+            DocumentDescription = document_description,
+            DocumentVersion = document_version,
+            DocumentURL = document_url,
+            OpenStudioVersion = '.'.join([version, release])
+        )
+
+
+class CustomerExport:
+    def __init__(self, cuID):
+        """
+            :param cuID: db.auth_user.id
+        """
+        db = current.globalenv['db']
+
+        self.cuID = cuID
+        self.row = db.auth_user(self.cuID)
+
+
+    def excel(self):
+        """
+            Customer export all data
+        """
+        from cStringIO import StringIO
+        import openpyxl
+
+
+        db = current.globalenv['db']
+
+        stream = StringIO()
+        # Create the workbook
+        wb = openpyxl.workbook.Workbook(write_only=True)
+
+        # Add customer data to workbook
+        self._excel_account(db, wb)
+        self._excel_customers_notes(db, wb)
+        self._excel_alternative_payments(db, wb)
+        self._excel_customers_classcards(db, wb)
+        self._excel_customers_subscriptions(db, wb)
+        self._excel_customers_payment_info(db, wb)
+        self._excel_log_customers_accepted_documents(db, wb)
+        self._excel_customers_shoppingcart(db, wb)
+        self._excel_customers_orders(db, wb)
+        self._excel_invoices(db, wb)
+        self._excel_classes_attendance(db, wb)
+        self._excel_classes_reservation(db, wb)
+        self._excel_classes_waitinglist(db, wb)
+        self._excel_workshops_products(db, wb)
+        self._excel_workshops_activities(db, wb)
+        self._excel_messages(db, wb)
+        self._excel_payment_batch_items(db, wb)
+
+
+        wb.save(stream)
+        return stream
+
+
+    def _excel_account(self, db, wb):
+        """
+            Account info for excel export of customer data
+        """
+        ws = wb.create_sheet('Account')
+
+        data = []
+        header = [
+            'business',
+            'customer',
+            'teacher',
+            'teaches_classes',
+            'teaches_workshops',
+            'employee',
+            'first_name',
+            'last_name',
+            'gender',
+            'date_of_birth',
+            'address',
+            'postcode',
+            'city',
+            'country',
+            'email',
+            'phone',
+            'mobile',
+            'emergency',
+            'keynr',
+            'company',
+            'discovery',
+            'level',
+            'location',
+            'language',
+            'teacher_role',
+            'teacher_bio',
+            'teacher_education',
+            'teacher_bio_link',
+            'teacher_website',
+            'mollie_customer_id',
+            'last_login',
+            'created_on',
+        ]
+
+        ws.append(header)
+
+        discovery = None
+        if self.row.school_discovery_id:
+            discovery = db.school_discovery(self.row.school_discovery_id).Name
+
+        level = None
+        if self.row.school_levels_id:
+            level = db.school_levels(self.row.school_levels_id).Name
+
+        location = None
+        if self.row.school_locations_id:
+            location = db.school_locations(self.row.school_locations_id).Name
+
+        language = None
+        if self.row.school_languages_id:
+            language = db.school_languages(self.row.school_languages_id).Name
+
+        data = [
+            self.row.business,
+            self.row.customer,
+            self.row.teacher,
+            self.row.teaches_classes,
+            self.row.teaches_workshops,
+            self.row.employee,
+            self.row.first_name,
+            self.row.last_name,
+            self.row.gender,
+            self.row.date_of_birth,
+            self.row.address,
+            self.row.postcode,
+            self.row.city,
+            self.row.country,
+            self.row.email,
+            self.row.phone,
+            self.row.mobile,
+            self.row.emergency,
+            self.row.keynr,
+            self.row.company,
+            discovery,
+            level,
+            location,
+            language,
+            self.row.teacher_role,
+            self.row.teacher_bio,
+            self.row.education,
+            self.row.teacher_bio_link,
+            self.row.teacher_website,
+            self.row.mollie_customer_id,
+            self.row.last_login,
+            self.row.created_on
+        ]
+
+        ws.append(data)
+
+
+    def _excel_customers_notes(self, db, wb):
+        """
+            Customers Notes for excel export of customer data
+        """
+        ws = wb.create_sheet('Notes')
+
+        data = []
+        header = [
+            'backoffice_note',
+            'teacher_note',
+            'date',
+            'time',
+            'note',
+            'injury'
+        ]
+
+        ws.append(header)
+
+        query = (db.customers_notes.auth_customer_id == self.cuID)
+        rows = db(query).select(db.customers_notes.ALL)
+
+        for row in rows:
+            data = [
+                row.BackofficeNote,
+                row.TeacherNote,
+                row.NoteDate,
+                row.NoteTime,
+                row.Note,
+                row.Injury,
+            ]
+
+            ws.append(data)
+
+
+    def _excel_alternative_payments(self, db, wb):
+        """
+            Customers Notes for excel export of customer data
+        """
+        ws = wb.create_sheet('Subscriptions Alt. payments')
+
+        data = []
+        header = [
+            'year',
+            'month',
+            'amount',
+            'description'
+        ]
+
+        ws.append(header)
+
+        query = (db.alternativepayments.auth_customer_id == self.cuID)
+        rows = db(query).select(db.alternativepayments.ALL)
+
+        for row in rows:
+            data = [
+                row.PaymentYear,
+                row.PaymentMonth,
+                row.Amount,
+                row.Description,
+            ]
+
+            ws.append(data)
+
+
+    def _excel_customers_classcards(self, db, wb):
+        """
+            Customers classcards for excel export of customer data
+        """
+        ws = wb.create_sheet('class cards')
+
+        data = []
+        header = [
+            'card',
+            'start',
+            'end',
+            'note'
+        ]
+
+        ws.append(header)
+
+        left = [db.school_classcards.on(
+            db.customers_classcards.school_classcards_id ==
+            db.school_classcards.id
+        )]
+        query = (db.customers_classcards.auth_customer_id == self.cuID)
+        rows = db(query).select(db.customers_classcards.ALL,
+                                db.school_classcards.Name,
+                                left=left)
+
+        for row in rows:
+            data = [
+                row.school_classcards.Name,
+                row.customers_classcards.Startdate,
+                row.customers_classcards.Enddate,
+                row.customers_classcards.Note,
+            ]
+
+            ws.append(data)
+
+
+    def _excel_customers_subscriptions(self, db, wb):
+        """
+            Customers subscriptions for excel export of customer data
+        """
+        ws = wb.create_sheet('subscriptions')
+
+        data = []
+        header = [
+            'subscription',
+            'start',
+            'end',
+            'note',
+        ]
+
+        ws.append(header)
+
+        left = [db.school_subscriptions.on(
+            db.customers_subscriptions.school_subscriptions_id ==
+            db.school_subscriptions.id),
+        ]
+        query = (db.customers_subscriptions.auth_customer_id == self.cuID)
+        rows = db(query).select(db.customers_subscriptions.ALL,
+                                db.school_subscriptions.Name,
+                                left=left)
+
+        for row in rows:
+            data = [
+                row.school_subscriptions.Name,
+                row.customers_subscriptions.Startdate,
+                row.customers_subscriptions.Enddate,
+                row.customers_subscriptions.Note,
+            ]
+
+            ws.append(data)
+
+
+    def _excel_customers_payment_info(self, db, wb):
+        """
+            Customers payment info for excel export of customer data
+        """
+        ws = wb.create_sheet('payment info')
+
+        data = []
+        header = [
+            'account_nr',
+            'account_holder',
+            'bic',
+            'mandate_sign_date',
+            'bank',
+            'bank_locaction'
+        ]
+
+        ws.append(header)
+
+        query = (db.customers_payment_info.auth_customer_id == self.cuID)
+        rows = db(query).select(db.customers_payment_info.ALL)
+
+        for row in rows:
+            data = [
+                row.AccountNumber,
+                row.AccountHolder,
+                row.BIC,
+                row.MandateSignatureDate,
+                row.BankName,
+                row.BankLocation,
+            ]
+
+            ws.append(data)
+
+
+    def _excel_log_customers_accepted_documents(self, db, wb):
+        """
+            Customers accepted documents for excel export of customer data
+        """
+        ws = wb.create_sheet('accepted docs')
+
+        data = []
+        header = [
+            'doc_name',
+            'doc_desc',
+            'doc_ver',
+            'doc_url',
+            'os_version',
+            'accepted_on',
+        ]
+
+        ws.append(header)
+
+        query = (db.log_customers_accepted_documents.auth_customer_id == self.cuID)
+        rows = db(query).select(db.log_customers_accepted_documents.ALL)
+
+        for row in rows:
+            data = [
+                row.DocumentName,
+                row.DocumentDescription,
+                row.DocumentVersion,
+                row.DocumentURL,
+                row.OpenStudioVersion,
+                row.CreatedOn,
+            ]
+
+            ws.append(data)
+
+
+    def _excel_customers_shoppingcart(self, db, wb):
+        """
+            Customers accepted documents for excel export of customer data
+        """
+        ws = wb.create_sheet('shoppingcart')
+
+        data = []
+        header = [
+            'event_ticket',
+            'classcard',
+            'class',
+            'class_date',
+            'att_type',
+            'created_on',
+        ]
+
+        ws.append(header)
+
+        # left = [
+        #     db.workshops_products.on(
+        #         db.customers_shoppingcart.workshops_products_id ==
+        #         db.workshops_products.id),
+        #     db.workshops.on(
+        #         db.workshops_products.workshops_id ==
+        #         db.workshops.id),
+        #     db.school_classcards.on(
+        #         db.customers_shoppingcart.school_classcards_id ==
+        #         db.school_classcards.id),
+        #     db.classes.on(
+        #         db.customers_shoppingcart.classes_id ==
+        #         db.classes
+        #     )
+        # ]
+
+        query = (db.customers_shoppingcart.auth_customer_id == self.cuID)
+        rows = db(query).select(db.customers_shoppingcart.ALL)
+
+        for row in rows.render():
+            data = [
+                row.workshops_products_id,
+                row.school_classcards_id,
+                row.classes_id,
+                row.ClassDate,
+                row.AttendanceType,
+                row.CreatedOn
+            ]
+
+            ws.append(data)
+
+
+    def _excel_customers_orders(self, db, wb):
+        """
+            Customers orders for excel export of customer data
+        """
+        ws = wb.create_sheet('orders')
+
+        data = []
+        header = [
+            'order',
+            'status',
+            'date_created',
+            'classcard',
+            'event_ticket',
+            'class_id',
+            'class_date',
+            'att_type',
+            'prod_name',
+            'desc',
+            'qty',
+            'price',
+            'price_in_vat'
+        ]
+
+        ws.append(header)
+
+        left = [
+            db.customers_orders.on(
+                db.customers_orders_items.customers_orders_id ==
+                db.customers_orders.id
+            ),
+            db.school_classcards.on(
+                db.customers_orders_items.school_classcards_id ==
+                db.school_classcards.id
+            ),
+            db.workshops_products.on(
+                db.customers_orders_items.workshops_products_id ==
+                db.workshops_products.id
+            ),
+            db.classes.on(
+                db.customers_orders_items.classes_id ==
+                db.classes.id
+            )
+        ]
+
+        query = (db.customers_orders.auth_customer_id == self.cuID)
+        rows = db(query).select(db.customers_orders.ALL,
+                                db.customers_orders_items.ALL,
+                                db.school_classcards.Name,
+                                db.workshops_products.Name,
+                                db.classes.id,
+                                left=left)
+
+        for row in rows:
+            data = [
+                row.customers_orders.id,
+                row.customers_orders.Status,
+                row.customers_orders.DateCreated,
+                row.school_classcards.Name,
+                row.workshops_products.Name,
+                row.classes.id,
+                row.customers_orders_items.ClassDate,
+                row.customers_orders_items.AttendanceType,
+                row.customers_orders_items.ProductName,
+                row.customers_orders_items.Description,
+                row.customers_orders_items.Quantity,
+                row.customers_orders_items.Price,
+                row.customers_orders_items.TotalPriceVAT,
+            ]
+
+            ws.append(data)
+
+
+    def _excel_invoices(self, db, wb):
+        """
+            Customers invoices for excel export of customer data
+        """
+        ws = wb.create_sheet('invoices')
+
+        data = []
+        header = [
+            'invoice',
+            'status',
+            'date_created',
+            'date_due',
+            'prod_name',
+            'desc',
+            'qty',
+            'price',
+            'price_in_vat'
+        ]
+
+        ws.append(header)
+
+        left = [
+            db.invoices.on(
+                db.invoices_customers.invoices_id ==
+                db.invoices.id
+            ),
+            db.invoices_items.on(
+                db.invoices_items.invoices_id ==
+                db.invoices.id
+            )
+        ]
+
+        query = (db.invoices_customers.auth_customer_id == self.cuID)
+        rows = db(query).select(db.invoices_customers.ALL,
+                                db.invoices.ALL,
+                                db.invoices_items.ALL,
+                                left=left)
+
+        for row in rows:
+            data = [
+                row.invoices.InvoiceID,
+                row.invoices.Status,
+                row.invoices.DateCreated,
+                row.invoices.DateDue,
+                row.invoices_items.ProductName,
+                row.invoices_items.Description,
+                row.invoices_items.Quantity,
+                row.invoices_items.Price,
+                row.invoices_items.TotalPriceVAT,
+            ]
+
+            ws.append(data)
+
+
+    def _excel_classes_attendance(self, db, wb):
+        """
+            Customers class attendance for excel export of customer data
+        """
+        ws = wb.create_sheet('class_attendance')
+
+        data = []
+        header = [
+            'class_id',
+            'class_date',
+            'att_type',
+            'subscription_id',
+            'classcard_id',
+            'online_booking',
+            'booking_status',
+            'created_on',
+            'created_by',
+        ]
+
+        ws.append(header)
+
+        query = (db.classes_attendance.auth_customer_id == self.cuID)
+        rows = db(query).select(db.classes_attendance.ALL)
+
+        for row in rows:
+            data = [
+                row.classes_id,
+                row.ClassDate,
+                row.AttendanceType,
+                row.customers_subscriptions_id,
+                row.customers_classcards_id,
+                row.online_booking,
+                row.BookingStatus,
+                row.CreatedOn,
+                row.CreatedBy,
+            ]
+
+            ws.append(data)
+
+
+    def _excel_classes_reservation(self, db, wb):
+        """
+            Customers class enrollment for excel export of customer data
+        """
+        ws = wb.create_sheet('class_enrollment')
+
+        data = []
+        header = [
+            'class',
+            'start',
+            'end',
+        ]
+
+        ws.append(header)
+
+
+        query = (db.classes_reservation.auth_customer_id == self.cuID)
+        rows = db(query).select(db.classes_reservation.ALL)
+
+        for row in rows.render():
+            data = [
+                row.classes_id,
+                row.Startdate,
+                row.Enddate
+            ]
+
+            ws.append(data)
+
+
+    def _excel_classes_waitinglist(self, db, wb):
+        """
+            Customers class waitinglist for excel export of customer data
+        """
+        ws = wb.create_sheet('class_waitinglist')
+
+        data = []
+        header = [
+            'class',
+        ]
+
+        ws.append(header)
+
+
+        query = (db.classes_waitinglist.auth_customer_id == self.cuID)
+        rows = db(query).select(db.classes_waitinglist.ALL)
+
+        for row in rows.render():
+            data = [
+                row.classes_id,
+            ]
+
+            ws.append(data)
+
+
+    def _excel_workshops_products(self, db, wb):
+        """
+            Customers event tickets for excel export of customer data
+        """
+        ws = wb.create_sheet('event_tickets')
+
+        data = []
+        header = [
+            'event',
+            'ticket',
+            'cancelled',
+            'info_sent',
+            'waitinglist',
+            'created_on'
+        ]
+
+        ws.append(header)
+
+        left = [
+            db.workshops_products.on(
+                db.workshops_products_customers.workshops_products_id ==
+                db.workshops_products.id
+            ),
+            db.workshops.on(
+                db.workshops_products.workshops_id ==
+                db.workshops.id
+            )
+        ]
+
+        query = (db.workshops_products_customers.auth_customer_id == self.cuID)
+        rows = db(query).select(db.workshops_products.Name,
+                                db.workshops.Name,
+                                db.workshops_products_customers.ALL,
+                                left=left)
+
+        for row in rows.render():
+            data = [
+                row.workshops.Name,
+                row.workshops_products.Name,
+                row.workshops_products_customers.Cancelled,
+                row.workshops_products_customers.WorkshopInfo,
+                row.workshops_products_customers.Waitinglist,
+                row.workshops_products_customers.CreatedOn,
+            ]
+
+            ws.append(data)
+
+
+    def _excel_workshops_activities(self, db, wb):
+        """
+            Customers event attendance for excel export of customer data
+        """
+        ws = wb.create_sheet('event_att')
+
+        data = []
+        header = [
+            'event',
+            'ticket',
+            'cancelled',
+            'info_sent',
+            'waitinglist',
+            'created_on'
+        ]
+
+        ws.append(header)
+
+        left = [
+            db.workshops_activities.on(
+                db.workshops_activities_customers.workshops_activities_id ==
+                db.workshops_activities.id
+            ),
+            db.workshops.on(
+                db.workshops_activities.workshops_id ==
+                db.workshops.id
+            )
+        ]
+
+        query = (db.workshops_activities_customers.auth_customer_id == self.cuID)
+        rows = db(query).select(db.workshops_activities.Activity,
+                                db.workshops.Name,
+                                db.workshops_activities_customers.ALL,
+                                left=left)
+
+        for row in rows.render():
+            data = [
+                row.workshops.Name,
+                row.workshops_activities.Activity,
+                row.workshops_activities_customers.Cancelled,
+                row.workshops_activities_customers.WorkshopInfo,
+                row.workshops_activities_customers.Waitinglist,
+                row.workshops_activities_customers.CreatedOn,
+            ]
+
+            ws.append(data)
+
+
+    def _excel_messages(self, db, wb):
+        """
+            Customers messages for excel export of customer data
+        """
+        ws = wb.create_sheet('messages')
+
+        data = []
+        header = [
+            'subject',
+            'content',
+            'sent'
+        ]
+
+        ws.append(header)
+
+        left = [
+            db.messages.on(
+                db.customers_messages.messages_id ==
+                db.messages.id),
+        ]
+
+        query = (db.customers_messages.auth_customer_id == self.cuID)
+        rows = db(query).select(db.messages.ALL,
+                                db.customers_messages.ALL,
+                                left=left)
+
+        for row in rows.render():
+            data = [
+                row.messages.msg_subject,
+                row.messages.msg_content,
+                row.customers_messages.CreatedOn
+            ]
+            ws.append(data)
+
+
+    def _excel_payment_batch_items(self, db, wb):
+        """
+            Customers batch_items for excel export of customer data
+        """
+        ws = wb.create_sheet('payment_batch_items')
+
+        data = []
+        header = [
+            'invoices_id',
+            'account_holder',
+            'bic',
+            'account_nr',
+            'mandate_sign_date',
+            'amount',
+            'currency',
+            'description',
+            'bank',
+            'bank_loc',
+        ]
+
+        ws.append(header)
+
+        left = [
+            db.invoices.on(
+                db.payment_batches_items.invoices_id ==
+                db.invoices.id
+            )
+        ]
+
+        query = (db.payment_batches_items.auth_customer_id == self.cuID)
+        rows = db(query).select(db.payment_batches_items.ALL,
+                                db.invoices.InvoiceID,
+                                left=left)
+
+        for row in rows:
+            data = [
+                row.invoices.InvoiceID,
+                row.payment_batches_items.AccountHolder,
+                row.payment_batches_items.BIC,
+                row.payment_batches_items.AccountNumber,
+                row.payment_batches_items.MandateSignatureDate,
+                row.payment_batches_items.Amount,
+                row.payment_batches_items.Currency,
+                row.payment_batches_items.Description,
+                row.payment_batches_items.BankName,
+                row.payment_batches_items.BankLocation,
+            ]
+
+            ws.append(data)
+
+
+class Customers:
+    """
+        This clas sontains functions for multiple customers
+    """
+    def list_activity_after_date(self, date):
+        """
+            :param: date: datetime.date
+            :return: List of all records in auth_user with activity
+        """
+        db = current.globalenv['db']
+        query = """
+SELECT au.id, 
+	   au.first_name, 
+       au.last_name,
+       au.display_name, 
+       au.email, 
+       au.last_login, 
+       au.created_on, 
+       cs.count_cs,
+       ccd.count_ccd,
+       wsp.count_event_tickets,
+       cn.count_notes,
+       clatt.count_classes,
+       co.count_orders,
+       ic.count_invoices
+FROM auth_user au
+LEFT JOIN ( SELECT auth_customer_id, COUNT(id) as count_cs
+		    FROM customers_subscriptions
+		    WHERE Enddate > '{date}' OR Enddate IS NULL
+			GROUP BY auth_customer_id ) AS cs ON cs.auth_customer_id = au.id
+LEFT JOIN ( SELECT auth_customer_id, COUNT(id) AS count_ccd
+		    FROM customers_classcards
+		    WHERE Enddate > '{date}' OR Enddate IS NULL 
+            GROUP BY auth_customer_id ) AS ccd ON ccd.auth_customer_id = au.id
+LEFT JOIN ( SELECT auth_customer_id, COUNT(id) AS count_event_tickets
+			FROM workshops_products_customers
+			WHERE CreatedOn > '{date}'
+            GROUP BY auth_customer_id) AS wsp ON wsp.auth_customer_id = au.id
+LEFT JOIN ( SELECT auth_customer_id, COUNT(id) AS count_notes
+			FROM customers_notes
+			WHERE NoteDate > '{date}'
+            GROUP BY auth_customer_id) AS cn ON cn.auth_customer_id = au.id
+LEFT JOIN ( SELECT auth_customer_id, COUNT(id) AS count_classes 
+			FROM classes_attendance
+			WHERE ClassDate > '{date}'
+			GROUP BY auth_customer_id) clatt ON clatt.auth_customer_id = au.id
+LEFT JOIN ( SELECT auth_customer_id, COUNT(ID) as count_orders
+			FROM customers_orders
+            WHERE DateCreated > '{date}'
+            GROUP BY auth_customer_id) co ON co.auth_customer_id = au.id
+LEFT JOIN ( SELECT ic.auth_customer_id, COUNT(ic.id) as count_invoices
+			FROM invoices_customers ic
+            LEFT JOIN invoices ON ic.invoices_id = invoices.id
+            WHERE invoices.DateCreated > '{date}'
+            GROUP BY ic.auth_customer_id) ic ON ic.auth_customer_id = au.id
+WHERE au.employee = 'F' AND 
+      au.teacher = 'F' AND
+      au.id > 1
+        """.format(date=date)
+
+        return db.executesql(query)
+
+
+    def list_inactive_after_date(self, date):
+        """
+        :param date: datetime.date
+        :return: list of customers inactive after date
+        """
+        from general_helpers import datestr_to_python
+
+        records = self.list_activity_after_date(date)
+
+        inactive = []
+        for record in records:
+            last_login = record[5].date() if record[5] else None
+            created_on = record[6].date()
+
+            if (created_on < date and
+               (last_login is None or last_login < date) and
+                    (record[7] is None and
+                     record[8] is None and
+                     record[9] is None and
+                     record[10] is None and
+                     record[11] is None and
+                     record[12] is None and
+                     record[13] is None
+                    )):
+                inactive.append(record)
+
+        return inactive
+
+
+    def delete_inactive_after_date(self, date):
+        """
+        :param date: datetime.date
+        :return: Integer - count of customers deleted
+        """
+        db = current.globalenv['db']
+
+        records = self.list_inactive_after_date(date)
+        ids = [record[0] for record in records]
+
+        query = (db.auth_user.id.belongs(ids))
+        db(query).delete()
+
+        return len(records)
+
+    
+    def list_inactive_after_date_formatted(self, date):
+        """
+            :param date: datetime.date 
+            :return: dict(table=Table listing inactive customers,
+                          count=number of inactive customers)
+        """
+        T = current.globalenv['T']
+        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+
+        records = self.list_inactive_after_date(date)
+
+        header = THEAD(TR(
+            TH(T("ID")),
+            TH(T("Customer")),
+            TH(T("Email")),
+            TH(T("Last Login")),
+            TH(T("Created")),
+            TH(T("Subscriptions")),
+            TH(T("Classcards")),
+            TH(T("Events")),
+            TH(T("Notes")),
+            TH(T("Classes")),
+            TH(T("Orders")),
+            TH(T("Invoices")),
+        ))
+
+        table = TABLE(header, _class="table table-striped table-hover small_font")
+        for record in records:
+            cuID = record[0]
+            last_login = record[5]
+            try:
+                record[5].strftime(DATE_FORMAT)
+            except AttributeError:
+                last_login = 'None'
+
+            customer_link = A(
+                record[3],
+                _href=URL('customers', 'edit', args=record[0]),
+                _target="_blank"
+            )
+
+            table.append(TR(
+                TD(cuID),
+                TD(customer_link),
+                TD(record[4]),
+                TD(last_login),
+                TD(record[6].strftime(DATE_FORMAT)),
+                TD(record[7]),
+                TD(record[8]),
+                TD(record[9]),
+                TD(record[10]),
+                TD(record[11]),
+                TD(record[12]),
+                TD(record[13]),
+            ))
+
+        return dict(table=table, count=len(records))
 
 
 class CustomersHelper:
@@ -776,10 +1773,7 @@ class CustomersHelper:
                                   modal_footer_content=os_gui.get_submit_button('customer_add'),
                                   modal_class='customers_add_new_modal',
                                   button_class=button_class)
-        # modal = result['modal']
-        # button = result['button']
 
-        #return SPAN(button, modal)
         return result
 
 
@@ -1349,6 +2343,8 @@ class CustomerSubscription:
 
         # create object to set Invoice# and due date
         invoice = Invoice(iID)
+        invoice.link_to_customer(self.auth_customer_id)
+        invoice.link_to_customer_subscription(self.csID)
         invoice.item_add_subscription(SubscriptionYear, SubscriptionMonth)
 
         return iID
@@ -2173,7 +3169,7 @@ class AttendanceHelper:
 
         fields = [
             db.auth_user.id,
-            db.auth_user.archived,
+            db.auth_user.trashed,
             db.auth_user.birthday,
             db.auth_user.thumbsmall,
             db.auth_user.first_name,
@@ -2292,12 +3288,12 @@ class AttendanceHelper:
                 (db.classes_attendance.classes_id == clsID) & \
                 (db.classes_attendance.ClassDate <= date) & \
                 (db.classes_attendance.ClassDate >= x_days_ago) & \
-                (db.auth_user.archived == False) & \
+                (db.auth_user.trashed == False) & \
                 (db.auth_user.customer == True)
 
 
         rows = db(query).select(db.auth_user.id,
-                                db.auth_user.archived,
+                                db.auth_user.trashed,
                                 db.auth_user.birthday,
                                 db.auth_user.thumbsmall,
                                 db.auth_user.first_name,
@@ -2323,7 +3319,7 @@ class AttendanceHelper:
 
         fields = [
             db.auth_user.id,
-            db.auth_user.archived,
+            db.auth_user.trashed,
             db.auth_user.birthday,
             db.auth_user.thumbsmall,
             db.auth_user.first_name,
@@ -3696,6 +4692,7 @@ class AttendanceHelper:
         )
 
         invoice.set_amounts()
+        invoice.link_to_customer(cuID)
 
 
     def attendance_sign_in_classcard_recurring(self, cuID, clsID, ccdID, date, date_until, online_booking=False, booking_status='booked'):
@@ -5716,7 +6713,7 @@ class WorkshopsHelper:
                                 db.workshops_products_customers.auth_customer_id)]
         rows = db(query).select(db.workshops_products_customers.ALL,
                                 db.auth_user.id,
-                                db.auth_user.archived,
+                                db.auth_user.trashed,
                                 db.auth_user.thumbsmall,
                                 db.auth_user.first_name,
                                 db.auth_user.last_name,
@@ -6010,6 +7007,7 @@ class WorkshopProduct:
             )
 
             invoice.set_amounts()
+            invoice.link_to_customer(cuID)
 
         ##
         # Send info mail to customer if we have some practical info
@@ -6550,6 +7548,7 @@ class Order:
 
                     # Call init function for invoices to set Invoice # , etc.
                     invoice = Invoice(iID)
+                    invoice.link_to_customer(self.order.auth_customer_id)
 
         # Add items to the invoice
         rows = self.get_order_items_rows()
@@ -6643,13 +7642,13 @@ class Invoice:
         Class that contains functions for an invoice
     '''
     def __init__(self, iID):
-        '''
+        """
             Init function for an invoice
-        '''
+        """
         db = current.globalenv['db']
 
-        self.invoices_id   = iID
-        self.invoice       = db.invoices(iID)
+        self.invoices_id = iID
+        self.invoice = db.invoices(iID)
         self.invoice_group = db.invoices_groups(self.invoice.invoices_groups_id)
 
         if not self.invoice.InvoiceID:
@@ -7008,11 +8007,11 @@ class Invoice:
 
 
     def item_add_subscription(self, SubscriptionYear, SubscriptionMonth, description=''):
-        '''
+        """
             :param SubscriptionYear: Year of subscription
             :param SubscriptionMonth: Month of subscription
             :return: db.invoices_items.id
-        '''
+        """
         db = current.globalenv['db']
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
 
@@ -7022,11 +8021,14 @@ class Invoice:
                              int(SubscriptionMonth),
                              1)
 
-        csID  = self.invoice.customers_subscriptions_id
-        cs    = CustomerSubscription(csID)
+
+
+        ics = db.invoices_customers_subscriptions(invoices_id = self.invoices_id)
+        csID = ics.customers_subscriptions_id
+        cs = CustomerSubscription(csID)
         ssuID = cs.ssuID
-        ssu   = SchoolSubscription(ssuID)
-        row   = ssu.get_tax_rates_on_date(date)
+        ssu = SchoolSubscription(ssuID)
+        row = ssu.get_tax_rates_on_date(date)
 
         if row:
             tax_rates_id = row.school_subscriptions_price.tax_rates_id
@@ -7147,38 +8149,97 @@ class Invoice:
             return False
 
 
-    # def mail_customer_invoice_created(self):
-    #     '''
-    #         Notify customer of a new invoice
-    #     '''
-    #     osmail = OsMail()
-    #     msgID = osmail.render_email_template('email_template_invoice_created', invoices_id=self.invoices_id)
-    #
-    #     osmail.send(msgID, self.invoice.auth_customer_id)
+    def set_customer_info(self, cuID):
+        """
+            Set customer information for an invoice
+        """
+        customer = Customer(cuID)
+
+        address = ''
+        if customer.row.address:
+            address = ''.join([address, customer.row.address, '\n'])
+        if customer.row.city:
+            address = ''.join([address, customer.row.city, ' '])
+        if customer.row.postcode:
+            address = ''.join([address, customer.row.postcode, '\n'])
+        if customer.row.country:
+            address = ''.join([address, customer.row.country])
+
+        self.invoice.update_record(
+            CustomerCompany = customer.row.company,
+            CustomerName = customer.row.full_name,
+            CustomerAddress = address
+        )
+
+
+    def link_to_customer(self, cuID):
+        """
+            Link invoice to customer
+        """
+        db = current.globalenv['db']
+        # Insert link
+        db.invoices_customers.insert(
+            invoices_id = self.invoices_id,
+            auth_customer_id = cuID
+        )
+
+        # Set customer info
+        self.set_customer_info(cuID)
+
+
+    def link_to_customer_subscription(self, csID):
+        """
+            Link invoice to customer subscription
+        """
+        db = current.globalenv['db']
+        db.invoices_customers_subscriptions.insert(
+            invoices_id = self.invoices_id,
+            customers_subscriptions_id = csID
+        )
 
 
 class InvoicesHelper:
-    '''
+    """
         Contains functions for invoices usefull in multiple controllers
-    '''
+    """
+    def _add_get_form_permissions_check(self):
+        """
+            Check if the currently logged in user is allowed to create
+            invoices
+        """
+        auth = current.globalenv['auth']
+        if not (auth.has_membership(group_id='Admins') or
+                auth.has_permission('create', 'invoices')):
+            redirect(URL('default', 'user', args=['not_authorized']))
 
-    def add_get_form(self, cuID,
-                           csID               = None,
-                           subscription_year  = '',
-                           subscription_month = '',
-                           full_width         = True):
-        '''
-            Returns add form for an invoice
-        '''
+
+    def _add_get_form_set_default_values_customer(self, customer):
+        """
+        :param customer: Customer object
+        :return: None
+        """
         db = current.globalenv['db']
-        T  = current.globalenv['T']
-        crud = current.globalenv['crud']
-        # request = current.globalenv['request']
+        address = ''
+        if customer.row.address:
+            address = ''.join([address, customer.row.address, '\n'])
+        if customer.row.city:
+            address = ''.join([address, customer.row.city, ' '])
+        if customer.row.postcode:
+            address = ''.join([address, customer.row.postcode, '\n'])
+        if customer.row.country:
+            address = ''.join([address, customer.row.country])
 
-        create_onaccept = [ self._add_set_invoice_nr_and_due_date,
-                            self._add_reset_list_status_filter ]
+        db.invoices.CustomerCompany.default = customer.row.company
+        db.invoices.CustomerName.default = customer.row.full_name
+        db.invoices.CustomerAddress.default = address
 
-        # set all fields as unreadable/writable
+
+    def _add_get_form_enable_minimal_fields(self):
+        """
+            Only enable the bare minimum of fields
+        """
+        db = current.globalenv['db']
+
         for field in db.invoices:
             field.readable=False
             field.writable=False
@@ -7188,25 +8249,42 @@ class InvoicesHelper:
         db.invoices.Description.readable = True
         db.invoices.Description.writable = True
 
-        db.invoices.auth_customer_id.default = cuID
-        if csID:
-            cs = CustomerSubscription(csID)
-            db.invoices.customers_subscriptions_id.default = csID
-            db.invoices.payment_methods_id.default = cs.payment_methods_id
-            db.invoices.SubscriptionYear.readable = True
-            db.invoices.SubscriptionYear.writable = True
-            db.invoices.SubscriptionMonth.readable = True
-            db.invoices.SubscriptionMonth.writable = True
-            # add invoice item after form accepts
-            create_onaccept.append(self._add_create_subscription_invoice_item)
 
+    def _add_get_form_enable_subscription_fields(self, csID):
+        """
+            Enable fields required for subscriptions
+        """
+        db = current.globalenv['db']
+
+        cs = CustomerSubscription(csID)
         db.invoices.customers_subscriptions_id.default = csID
+        db.invoices.payment_methods_id.default = cs.payment_methods_id
+        db.invoices.SubscriptionYear.readable = True
+        db.invoices.SubscriptionYear.writable = True
+        db.invoices.SubscriptionMonth.readable = True
+        db.invoices.SubscriptionMonth.writable = True
 
-        crud.messages.submit_button = T("Save")
-        crud.messages.record_created = T("Added invoice")
-        crud.settings.create_onaccept=create_onaccept
-        crud.settings.create_next = '/invoices/edit/?iID=[id]'
-        form = crud.create(db.invoices)
+
+    def add_get_form(self, cuID,
+                           csID = None,
+                           subscription_year = '',
+                           subscription_month = '',
+                           full_width = True):
+        """
+            Returns add form for an invoice
+        """
+        self._add_get_form_permissions_check()
+
+        db = current.globalenv['db']
+        T  = current.globalenv['T']
+
+        customer = Customer(cuID)
+        self._add_get_form_set_default_values_customer(customer)
+        self._add_get_form_enable_minimal_fields()
+        if csID:
+            self._add_get_form_enable_subscription_fields(csID)
+
+        form = SQLFORM(db.invoices, formstyle='bootstrap3_stacked')
 
         elements = form.elements('input, select, textarea')
         for element in elements:
@@ -7215,16 +8293,83 @@ class InvoicesHelper:
         form_element = form.element('form')
         form['_id'] = 'invoice_add'
 
+        if form.process().accepted:
+            iID = form.vars.id
+            invoice = Invoice(iID) # This sets due date and Invoice#
+            invoice.link_to_customer(cuID)
+            self._add_reset_list_status_filter()
+
+            if csID:
+                invoice.link_to_customer_subscription(csID)
+                invoice.item_add_subscription(
+                    form.vars.SubscriptionYear,
+                    form.vars.SubscriptionMonth
+                )
+
+            redirect(URL('invoices', 'edit', vars={'iID':iID}))
+
+
         # So the grids display the fields normally
         for field in db.invoices:
             field.readable=True
-            #field.writable=False
 
-        if full_width:
-            # make the inputs in the table full width
-            table = form.element('table')
-            table['_class'] = 'full-width'
 
+        # crud = current.globalenv['crud']
+        # # request = current.globalenv['request']
+        #
+        # create_onaccept = [ self._add_set_invoice_nr_and_due_date,
+        #                     self._add_reset_list_status_filter]
+        #
+        # # set all fields as unreadable/writable
+        # for field in db.invoices:
+        #     field.readable=False
+        #     field.writable=False
+        #
+        # db.invoices.invoices_groups_id.readable = True
+        # db.invoices.invoices_groups_id.writable = True
+        # db.invoices.Description.readable = True
+        # db.invoices.Description.writable = True
+        #
+        # #TODO: Fill customer name, address and contact fields
+        # #TODO: Link new invoice to customer
+        # db.invoices.auth_customer_id.default = cuID
+        # if csID:
+        #     cs = CustomerSubscription(csID)
+        #     db.invoices.customers_subscriptions_id.default = csID
+        #     db.invoices.payment_methods_id.default = cs.payment_methods_id
+        #     db.invoices.SubscriptionYear.readable = True
+        #     db.invoices.SubscriptionYear.writable = True
+        #     db.invoices.SubscriptionMonth.readable = True
+        #     db.invoices.SubscriptionMonth.writable = True
+        #     # add invoice item after form accepts
+        #     create_onaccept.append(self._add_create_subscription_invoice_item)
+        #
+        # #TODO: Link invoice to db.invoices_customers_subscriptions
+        # db.invoices.customers_subscriptions_id.default = csID
+        #
+        # crud.messages.submit_button = T("Save")
+        # crud.messages.record_created = T("Added invoice")
+        # crud.settings.create_onaccept=create_onaccept
+        # crud.settings.create_next = '/invoices/edit/?iID=[id]'
+        # form = crud.create(db.invoices)
+        #
+        # elements = form.elements('input, select, textarea')
+        # for element in elements:
+        #     element['_form'] = "invoice_add"
+        #
+        # form_element = form.element('form')
+        # form['_id'] = 'invoice_add'
+        #
+        # # So the grids display the fields normally
+        # for field in db.invoices:
+        #     field.readable=True
+        #     #field.writable=False
+        #
+        # if full_width:
+        #     # make the inputs in the table full width
+        #     table = form.element('table')
+        #     table['_class'] = 'full-width'
+        #
         return form
 
 
@@ -7252,28 +8397,7 @@ class InvoicesHelper:
         return dict(button=button, modal_class=modal_class)
 
 
-    def _add_set_invoice_nr_and_due_date(self, form):
-        '''
-            Set invoice number and duedate by initializing an Invoice object
-            The Invoice object will handle the rest
-        '''
-        iID = form.vars['id']
-        invoice = Invoice(iID)
-
-
-    def _add_create_subscription_invoice_item(self, form):
-        '''
-            Add subscription item to the invoice
-        '''
-        db = current.globalenv['db']
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
-
-        iID = form.vars.id
-        invoice = Invoice(iID)
-        invoice.item_add_subscription(form.vars.SubscriptionYear, form.vars.SubscriptionMonth, form.vars.Description)
-
-
-    def _add_reset_list_status_filter(self, form):
+    def _add_reset_list_status_filter(self):
         '''
             Reset session variable that holds status for filter
         '''
@@ -7486,8 +8610,14 @@ class InvoicesHelper:
         links = [dict(header=T("Balance"),
                       body=self._list_invoices_get_balance),
                  self._list_invoices_get_buttons]
-        left = [db.invoices_amounts.on(db.invoices_amounts.invoices_id == \
-                                       db.invoices.id)]
+        left = [db.invoices_amounts.on(db.invoices_amounts.invoices_id ==
+                                       db.invoices.id),
+                db.invoices_customers.on(
+                    db.invoices_customers.invoices_id == db.invoices.id),
+                db.invoices_customers_subscriptions.on(
+                    db.invoices_customers_subscriptions.invoices_id ==
+                    db.invoices.id)
+                ]
 
         fields = [db.invoices.Status,
                   db.invoices.InvoiceID,
@@ -7508,12 +8638,12 @@ class InvoicesHelper:
         if not cuID and not csID:
             # list all invoices
             db.invoices.auth_customer_id.readable = True
-            fields.insert(2, db.invoices.auth_customer_id)
+            fields.insert(2, db.invoices.CustomerListName)
 
         if cuID:
-            query &= (db.invoices.auth_customer_id == cuID)
+            query &= (db.invoices_customers.auth_customer_id == cuID)
         if csID:
-            query &= (db.invoices.customers_subscriptions_id == csID)
+            query &= (db.invoices_customers_subscriptions.customers_subscriptions_id == csID)
             fields.insert(3, db.invoices.SubscriptionMonth)
             fields.insert(4, db.invoices.SubscriptionYear)
 
@@ -8231,6 +9361,7 @@ class SchoolClasscard:
         )
 
         invoice.set_amounts()
+        invoice.link_to_customer(classcard.get_auth_customer_id())
 
 
     def sell_to_customer_get_enddate(self, date_start):
@@ -8277,7 +9408,6 @@ class SchoolClasscard:
             enddate = (date_start + delta_days) - datetime.timedelta(days=1)
 
         return enddate
-
 
 
 class StaffSchedule:
