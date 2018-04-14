@@ -292,13 +292,17 @@ def populate_account_merge(client, web2py):
 
     iID = web2py.db.invoices.insert(
         invoices_groups_id      = 100,
-        auth_customer_id        = merge_from_id,
         payment_methods_id      = 3,
         Status                  = 'sent',
         InvoiceID               = 'INV' + unicode(merge_from_id),
         DateCreated             = '2014-01-01',
         DateDue                 = '2014-01-31'
         )
+
+    ciID = web2py.db.invoices_customers.insert(
+        auth_customer_id=merge_from_id,
+        invoices_id=iID
+    )
 
     web2py.db.invoices_amounts.insert(invoices_id = iID)
 
@@ -626,13 +630,17 @@ def test_customers_subscription_delete(client, web2py):
     # insert invoice and check that the subscription isn't deletable anymore
     web2py.db.invoices.insert(
         invoices_groups_id          = 100,
-        auth_customer_id            = 1001,
         customers_subscriptions_id  = 1,
         SubscriptionMonth           = 1,
         SubscriptionYear            = 2014,
         Status                      = 'sent',
         DateCreated                 = '2014-01-01',
         DateDue                     = '2014-01-31',
+    )
+
+    ciID = web2py.db.invoices_customers.insert(
+        auth_customer_id=1001,
+        invoices_id=iID
     )
 
     web2py.db.commit()

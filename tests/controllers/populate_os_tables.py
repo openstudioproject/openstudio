@@ -212,10 +212,14 @@ def populate_customers_with_subscriptions(web2py,
         if invoices:
             iID = web2py.db.invoices.insert(
                 invoices_groups_id = 100,
-                auth_customer_id = aucID,
                 customers_subscriptions_id = csID,
                 SubscriptionMonth = 1,
                 SubscriptionYear = 2014,
+            )
+
+            ciID = web2py.db.invoices_customers.insert(
+                auth_customer_id = aucID,
+                invoices_id = iID
             )
 
             web2py.db.invoices_items.insert(
@@ -334,9 +338,13 @@ def populate_customers_with_classcards(web2py,
         if invoices:
             iID = web2py.db.invoices.insert(
                 invoices_groups_id=100,
-                auth_customer_id=aucID,
                 SubscriptionMonth=1,
                 SubscriptionYear=2014,
+            )
+
+            ciID = web2py.db.invoices_customers.insert(
+                auth_customer_id = aucID,
+                invoices_id = iID
             )
 
             web2py.db.invoices_items.insert(
@@ -572,7 +580,11 @@ def prepare_classes(web2py,
         if invoices:
             iID = web2py.db.invoices.insert(
                 invoices_groups_id=100,
-                auth_customer_id=cuID,
+            )
+
+            ciID = web2py.db.invoices_customers.insert(
+                auth_customer_id = aucID,
+                invoices_id = iID
             )
 
             web2py.db.invoices_items.insert(
@@ -613,7 +625,11 @@ def prepare_classes(web2py,
         if invoices:
             iID = web2py.db.invoices.insert(
                 invoices_groups_id=100,
-                auth_customer_id=cuID,
+            )
+
+            ciID = web2py.db.invoices_customers.insert(
+                auth_customer_id = cuID,
+                invoices_id = iID
             )
 
             web2py.db.invoices_items.insert(
@@ -958,7 +974,6 @@ def populate_workshops_products_customers(web2py, created_on=datetime.date.today
 
     iID = web2py.db.invoices.insert(
         invoices_groups_id=100,
-        auth_customer_id=1001,
         payment_methods_id=1,
         Status='sent',
         InvoiceID='INV' + unicode(1001),
@@ -966,14 +981,23 @@ def populate_workshops_products_customers(web2py, created_on=datetime.date.today
         DateDue='2014-01-15'
     )
 
+    ciID = web2py.db.invoices_customers.insert(
+        auth_customer_id=1001,
+        invoices_id=iID
+    )
+
     iID2 = web2py.db.invoices.insert(
         invoices_groups_id=100,
-        auth_customer_id=1002,
         payment_methods_id=1,
         Status='sent',
         InvoiceID='INV' + unicode(1002),
         DateCreated='2014-01-01',
         DateDue='2014-01-15'
+    )
+
+    ciID2 = web2py.db.invoices_customers.insert(
+        auth_customer_id=1002,
+        invoices_id=iID
     )
 
     web2py.db.invoices_workshops_products_customers.insert(

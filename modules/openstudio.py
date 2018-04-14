@@ -2331,7 +2331,6 @@ class CustomerSubscription:
 
         iID = db.invoices.insert(
             invoices_groups_id=igID,
-            auth_customer_id=self.auth_customer_id,
             payment_methods_id=self.payment_methods_id,
             customers_subscriptions_id=self.csID,
             SubscriptionYear=SubscriptionYear,
@@ -4660,7 +4659,6 @@ class AttendanceHelper:
 
         iID = db.invoices.insert(
             invoices_groups_id=igpt.invoices_groups_id,
-            auth_customer_id=cuID,
             # classes_attendance_id      = caID,
             Description=T('Class on ') + date_formatted,
             Status='sent'
@@ -6959,10 +6957,9 @@ class WorkshopProduct:
             description = self.workshop_name + ' - ' + self.name
 
             iID = db.invoices.insert(
-                invoices_groups_id              = igpt.invoices_groups_id,
-                auth_customer_id                = cuID,
-                Description                     = description,
-                Status                          = 'sent'
+                invoices_groups_id = igpt.invoices_groups_id,
+                Description = description,
+                Status = 'sent'
                 )
 
             # link invoice to sold workshop product for customer
@@ -7515,7 +7512,6 @@ class Order:
 
                     iID = db.invoices.insert(
                         invoices_groups_id=igpt.invoices_groups_id,
-                        auth_customer_id=self.order.auth_customer_id,
                         Description=T('Order #') + unicode(self.coID),
                         Status='sent'
                     )
@@ -9314,7 +9310,6 @@ class SchoolClasscard:
 
         iID = db.invoices.insert(
             invoices_groups_id=igpt.invoices_groups_id,
-            auth_customer_id=classcard.get_auth_customer_id(),
             Description=classcard.get_name(),
             Status='sent'
         )
