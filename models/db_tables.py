@@ -4546,12 +4546,12 @@ def setup_set_email_templates():
          '''<h3>Verify email</h3>
 <p>Welcome %(first_name)s!</p>
 <p>Please click on the <a href="%(link)s">link</a> to verify your email</p>'''],
-#         ['email_template_payment_recurring_failed',
-#          '''<h3>Recurring payment failed</h3>
-# <p>&nbsp;</p>
-# <p>One or more recurring payments failed, please log in to your profile and pay any open invoices before the due date.</p>
-# <p>&nbsp;</p>
-# <p>To view your invoices, please click <a href="{link_profile_invoices}">here</a>.</p>''']
+        ['email_template_payment_recurring_failed',
+         '''<h3>Recurring payment failed</h3>
+<p>&nbsp;</p>
+<p>One or more recurring payments failed, please log in to your account and pay any open invoices before the due date.</p>
+<p>&nbsp;</p>
+<p>To view your invoices, please click <a href="{link_profile_invoices}">here</a>.</p>''']
     ]
 
     for template, template_content in templates:
