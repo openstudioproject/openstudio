@@ -403,6 +403,33 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
         return rows
 
 
+    def get_invoices_rows(self):
+        """
+            Returns invoices records for a customer as gluon.dal.rows object
+        """
+        db = current.globalenv['db']
+
+        left = [
+            db.invoices_amounts.on(
+                db.invoices_amounts.invoices_id == db.invoices.id),
+            db.invoices_groups.on(
+                db.invoices.invoices_groups_id == db.invoices_groups.id),
+            db.invoices_customers.on(
+                db.invoices_customers.invoices_id ==
+                db.invoices.id
+            )
+        ]
+        query = (db.invoices_customers.auth_customer_id == self.cuID) & \
+                (db.invoices.Status != 'draft') & \
+                (db.invoices_groups.PublicGroup == True)
+        rows = db(query).select(db.invoices.ALL,
+                                db.invoices_amounts.ALL,
+                                left=left,
+                                orderby=~db.invoices.DateCreated)
+
+        return rows
+
+
     def get_orders_rows(self):
         '''
             Returns orders for a customer
@@ -2332,7 +2359,6 @@ class CustomerSubscription:
 
         iID = db.invoices.insert(
             invoices_groups_id=igID,
-            auth_customer_id=self.auth_customer_id,
             payment_methods_id=self.payment_methods_id,
             customers_subscriptions_id=self.csID,
             SubscriptionYear=SubscriptionYear,
@@ -4665,7 +4691,6 @@ class AttendanceHelper:
 
         iID = db.invoices.insert(
             invoices_groups_id=igpt.invoices_groups_id,
-            auth_customer_id=cuID,
             # classes_attendance_id      = caID,
             Description=T('Class on ') + date_formatted,
             Status='sent'
@@ -6979,10 +7004,9 @@ class WorkshopProduct:
             description = self.workshop_name + ' - ' + self.name
 
             iID = db.invoices.insert(
-                invoices_groups_id              = igpt.invoices_groups_id,
-                auth_customer_id                = cuID,
-                Description                     = description,
-                Status                          = 'sent'
+                invoices_groups_id = igpt.invoices_groups_id,
+                Description = description,
+                Status = 'sent'
                 )
 
             # link invoice to sold workshop product for customer
@@ -7243,42 +7267,6 @@ class WorkshopSchedule:
         return rows
 
 
-
-class CustomerLogin:
-    def __init__(self, auth_user_id):
-        self._user_id = auth_user_id
-
-    def invoices_get_query(self):
-        '''
-            returns query for invoice info for a customer
-        '''
-        db = current.globalenv['db']
-
-        query = (db.invoices.auth_customer_id == self._user_id) & \
-                (db.invoices.Status != 'draft') & \
-                (db.invoices_groups.PublicGroup == True)
-
-        return query
-
-    def invoices_get_rows(self):
-        '''
-            Returns invoices records for a customer as gluon.dal.rows object
-        '''
-        db = current.globalenv['db']
-
-        left = [ db.invoices_amounts.on(
-                    db.invoices_amounts.invoices_id == db.invoices.id),
-                 db.invoices_groups.on(
-                     db.invoices.invoices_groups_id == db.invoices_groups.id) ]
-        query = self.invoices_get_query()
-        rows = db(query).select(db.invoices.ALL,
-                                db.invoices_amounts.ALL,
-                                left=left,
-                                orderby=~db.invoices.DateCreated)
-
-        return rows
-
-
 class Order:
     '''
         Class containing functions for OpenStudio orders
@@ -7535,7 +7523,6 @@ class Order:
 
                     iID = db.invoices.insert(
                         invoices_groups_id=igpt.invoices_groups_id,
-                        auth_customer_id=self.order.auth_customer_id,
                         Description=T('Order #') + unicode(self.coID),
                         Status='sent'
                     )
@@ -9334,7 +9321,6 @@ class SchoolClasscard:
 
         iID = db.invoices.insert(
             invoices_groups_id=igpt.invoices_groups_id,
-            auth_customer_id=classcard.get_auth_customer_id(),
             Description=classcard.get_name(),
             Status='sent'
         )

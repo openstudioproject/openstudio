@@ -97,7 +97,6 @@ def user():
         has_privacy_notice = False
 
     if 'register' in request.args:
-
         response.view = 'default/user_login.html'
         #auth.settings.formstyle = 'divs'
         user_registration_set_visible_fields()

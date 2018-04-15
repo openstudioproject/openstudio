@@ -2588,11 +2588,6 @@ def ticket_delete_customer():
     query = (db.workshops_products_customers.id == wsp_cuID)
     db(query).delete()
 
-    # remove any payments connected to workshop activity
-    query = (db.customers_payments.auth_customer_id == cuID) & \
-            (db.customers_payments.workshops_products_id == wspID)
-    db(query).delete()
-
     session.flash = T("Removed")
 
     next_url = ticket_sell_get_return_url(cuID, wsID, wspID, True)

@@ -1059,9 +1059,9 @@ def payment_add():
     if request.extension == 'load':
         return dict(content=form)
 
-
-    customer = Customer(invoice.invoice.auth_customer_id)
     invoice = Invoice(iID)
+    ic = db.invoices_customers(invoices_id = iID)
+    customer = Customer(ic.auth_customer_id)
 
     description = ''
     if invoice.invoice.Description:
@@ -2025,7 +2025,6 @@ def cancel_and_create_credit_invoice():
 
     new_iID = db.invoices.insert(
         invoices_groups_id = invoice.invoices_groups_id,
-        auth_customer_id = invoice.auth_customer_id,
         customers_subscriptions_id = invoice.customers_subscriptions_id,
         customers_classcards_id = invoice.customers_classcards_id,
         classes_attendance_id = invoice.classes_attendance_id,
