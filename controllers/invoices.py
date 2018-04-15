@@ -1059,9 +1059,9 @@ def payment_add():
     if request.extension == 'load':
         return dict(content=form)
 
-
-    customer = Customer(invoice.invoice.auth_customer_id)
     invoice = Invoice(iID)
+    ic = db.invoices_customers(invoices_id = iID)
+    customer = Customer(ic.auth_customer_id)
 
     description = ''
     if invoice.invoice.Description:

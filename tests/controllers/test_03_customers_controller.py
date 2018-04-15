@@ -120,22 +120,11 @@ def test_trash(client, web2py):
     assert web2py.db(query).count() == 0
 
 
-def trash_customer(web2py, cuID):
-    row = web2py.db.auth_user(1001)
-    row.trashed = True
-    row.update_record()
-
-    web2py.db.commit()
-
-    return row
-
-
 def test_trash_end_enrollments(client, web2py):
     """
         Are enrollments ended when trashing a customer?
     """
     prepare_classes(web2py)
-    trash_customer(web2py, 1001)
 
     # trash
     client.get('/customers/trash?cuID=1001')
@@ -151,7 +140,6 @@ def test_trash_remove_waitinglist_entries(client, web2py):
         Are waitinglist entries removed when trashing a customer?
     """
     prepare_classes(web2py)
-    trash_customer(web2py, 1001)
 
     # trash
     client.get('/customers/trash?cuID=1001')
@@ -167,7 +155,6 @@ def test_trash_cancel_future_bookings(client, web2py):
     """
     cuID = 1001
     prepare_classes(web2py)
-    trash_customer(web2py, cuID)
 
     clattID = web2py.db.classes_attendance.insert(
         auth_customer_id=cuID,
@@ -186,7 +173,18 @@ def test_trash_cancel_future_bookings(client, web2py):
     assert web2py.db(query).count() == 1
 
 
-def test_customer_index_deleted(client, web2py):
+
+def trash_customer(web2py, cuID):
+    row = web2py.db.auth_user(1001)
+    row.trashed = True
+    row.update_record()
+
+    web2py.db.commit()
+
+    return row
+
+
+def test_customer_index_show_deleted(client, web2py):
     """
         Can we delete a customer?
     """
@@ -195,7 +193,7 @@ def test_customer_index_deleted(client, web2py):
 
     row = trash_customer(web2py, 1001)
 
-    url = '/customers/index_deleted'
+    url = '/customers/load_list?list_type=customers_index_deleted&items_per_page=10&initial_list=True&show_deleted=deleted'
     client.get(url)
     assert client.status == 200
 
@@ -319,12 +317,10 @@ def populate_account_merge(client, web2py):
         auth_customer_id      = merge_from_id,
         )
 
-    web2py.db.customers_payments.insert(
-        auth_customer_id    = merge_from_id,
-        Amount              = 1434.12,
-        PaymentDate         = '2014-01-01',
-        payment_methods_id  = 3,
-        )
+    web2py.db.customers_orders.insert(
+        auth_customer_id=merge_from_id,
+        Status='awaiting_payment',
+    )
 
     web2py.db.customers_documents.insert(
         auth_customer_id    = merge_from_id,
@@ -451,10 +447,10 @@ def test_account_merge(client, web2py):
         [ 1, web2py.db.customers_documents ],
         [ 1, web2py.db.customers_messages ],
         [ 2, web2py.db.customers_payment_info ],
-        [ 1, web2py.db.customers_payments ],
         [ 3, web2py.db.customers_subscriptions ],
         [ 1, web2py.db.customers_notes ],
-        [ 1, web2py.db.invoices ],
+        [ 1, web2py.db.customers_orders ],
+        [ 1, web2py.db.invoices_customers ],
         [ 1, web2py.db.payment_batches_items ],
         [ 1, web2py.db.tasks ],
         [ 1, web2py.db.workshops_activities_customers ],
@@ -628,7 +624,7 @@ def test_customers_subscription_delete(client, web2py):
     populate_customers_with_subscriptions(web2py, 2)
 
     # insert invoice and check that the subscription isn't deletable anymore
-    web2py.db.invoices.insert(
+    iID = web2py.db.invoices.insert(
         invoices_groups_id          = 100,
         customers_subscriptions_id  = 1,
         SubscriptionMonth           = 1,

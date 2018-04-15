@@ -583,7 +583,7 @@ def prepare_classes(web2py,
             )
 
             ciID = web2py.db.invoices_customers.insert(
-                auth_customer_id = aucID,
+                auth_customer_id = cuID,
                 invoices_id = iID
             )
 
@@ -1259,7 +1259,7 @@ def populate_invoices(web2py):
             DateDue = today + delta
         )
 
-        ciID = web2py.db.invoices_customers.insert(
+        icID = web2py.db.invoices_customers.insert(
             auth_customer_id = cuID,
             invoices_id = iID
         )

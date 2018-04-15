@@ -5503,10 +5503,6 @@ def account_merge_execute():
         merge_from.merged_into = int(cuID)
         merge_from.merged_on = datetime.datetime.now()
 
-        # fix email conflict, if any
-        if merge_into.email.lower().strip() == merge_from.email.lower().strip():
-            merge_from.email = ''
-
         # if the merge_from account is a teacher, make the merge into account a teacher
         if merge_from.teacher:
             merge_into.teacher = True
@@ -5516,7 +5512,6 @@ def account_merge_execute():
         # if the merge_from account is an employee, make the merge into account an employee
         if merge_from.employee:
             merge_into.employee = True
-
 
         merge_from.update_record()
         merge_into.update_record()

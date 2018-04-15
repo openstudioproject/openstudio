@@ -2,7 +2,7 @@
 '''
     This file provides the customer portal for OpenStudio
 '''
-from openstudio import CustomerLogin, Customer, Order, Invoice
+from openstudio import Customer, Order, Invoice
 
 
 @auth.requires_login()
@@ -573,9 +573,9 @@ def classcard_info():
 
 @auth.requires_login()
 def invoices():
-    '''
+    """
         Shows all invoices for a customer
-    '''
+    """
     response.title = T('Invoices')
     response.subtitle = ''
     #response.view = 'shop/index.html'
@@ -584,13 +584,12 @@ def invoices():
     if not features.Invoices:
         redirect(URL('profile', 'index'))
 
-    oscl = CustomerLogin(auth.user.id)
-    rows = oscl.invoices_get_rows()
-
+    customer = Customer(auth.user.id)
+    rows = customer.get_invoices_rows()
+    print rows
     back = os_gui.get_button('back', URL('profile', 'orders'), _class='btn-link')
 
     return dict(rows = rows, back=back)
-
 
 
 @auth.requires_login()
