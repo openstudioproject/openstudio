@@ -1530,9 +1530,9 @@ def define_classes():
 
 
 def define_classes_otc():
-    '''
+    """
         Define one time change table for classes
-    '''
+    """
     loc_query = (db.school_locations.Archived == False)
     ct_query = (db.school_classtypes.Archived == False)
     sl_query = (db.school_levels.Archived == False)

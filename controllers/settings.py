@@ -1436,7 +1436,8 @@ def access_group_permissions():
             ['classes_attendance-read', T('View attendance'), [
                 ['classes_attendance-create', T("Add attendance")],
                 ['classes_attendance-update', T("Edit attendance")],
-                ['classes_attendance-delete', T("Delete from attendance")]]],
+                ['classes_attendance-delete', T("Delete from attendance")],
+                ['classes_attendance-complementary', T("Use complementary check-ins")]]],
             ['classes_attendance_override-create', T("Add attendance count")],
             ['classes_attendance_override-update', T("Edit attendance count")],
             ['class_status-update', T("Edit class status")],

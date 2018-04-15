@@ -2709,9 +2709,9 @@ def attendance_get_count(clsID, date):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'classes_attendance'))
 def attendance_booking_options():
-    '''
+    """
         Page to list booking options for a customer
-    '''
+    """
     cuID = request.vars['cuID']
     clsID = request.vars['clsID']
     date_formatted = request.vars['date']
@@ -2726,12 +2726,15 @@ def attendance_booking_options():
     customer = Customer(cuID)
     title = H4(T('Check in options for'), ' ', customer.row.display_name, _class='center')
 
+    complementary_permission = (auth.has_membership(group_id='Admins') or
+                                auth.has_permission('complementary', 'classes_attendance'))
+
     ah = AttendanceHelper()
     content = ah.get_customer_class_booking_options(clsID,
                                                     date,
                                                     customer,
                                                     trial=True,
-                                                    complementary=True,
+                                                    complementary=complementary_permission,
                                                     list_type='attendance',
                                                     controller='classes')
     cancel = os_gui.get_button('noicon',
