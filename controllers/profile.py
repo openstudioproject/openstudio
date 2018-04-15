@@ -308,9 +308,9 @@ def subscription_get_link_info(row):
 
 @auth.requires_login()
 def me():
-    '''
+    """
         Allows users to edit part of their profile
-    '''
+    """
     response.title = T('Profile')
     response.subtitle = ''
 
@@ -449,8 +449,30 @@ def me():
     _class='grid')
 
     content = form
+    privacy = me_get_link_privacy()
 
-    return dict(content = content, header_tools = T('Customer ID ') + auth.user.id)
+    return dict(content = content,
+                header_tools = SPAN(T('Your CustomerID is ') + auth.user.id,
+                                    BR(), privacy)
+
+                )
+
+
+def me_get_link_privacy(var=None):
+    """
+
+    """
+    # Privacy
+    features = db.customers_profile_features(1)
+    if not features.Privacy:
+        return ''
+
+    else:
+        return A(
+            SPAN(os_gui.get_fa_icon('fa-user-secret'), ' ', T("Privacy")),
+            _href=URL('profile','privacy'),
+            _class='pull-right'
+        )
 
 
 @auth.requires_login()
@@ -1212,7 +1234,9 @@ def privacy():
         download,
     )
 
-    return dict(content=content)
+    back = os_gui.get_button('back', URL('profile', 'me'))
+
+    return dict(content=content, back=back)
 
 
 def privacy_get_documents():
