@@ -1518,8 +1518,15 @@ def define_classes():
                 a class is passed to the website."),
                 btn_icon='info'
                 )),
+        Field('CreatedOn', 'datetime',
+              readable=False,
+              writable=False,
+              default=datetime.datetime.now()),
+        Field('CreatedBy', db.auth_user,
+              readable=False,
+              writable=False,
+              default=auth.user.id)
         )
-
 
 
 def define_classes_otc():
