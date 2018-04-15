@@ -67,6 +67,40 @@ def test_index_announcements(client, web2py):
     assert cpa.Announcement in client.text
 
 
+def test_me(client, web2py):
+    """
+        Is the profile edit page showing correctly?
+    """
+    setup_profile_tests(web2py)
+
+    url = '/profile/me'
+    client.get(url)
+    assert client.status == 200
+
+    assert "fa-user-secret" in client.text
+
+
+def test_me_privacy_link_hidden(client, web2py):
+    """
+        Is the profile edit page showing correctly?
+    """
+    setup_profile_tests(web2py)
+
+    url = '/profile/me'
+    client.get(url)
+    assert client.status == 200
+
+    features = web2py.db.customers_profile_features(1)
+    features.Privacy = False
+    features.update_record()
+    web2py.db.commit()
+
+    client.get(url)
+    assert client.status == 200
+
+    assert "fa-user-secret" not in client.text
+
+
 #TODO rework test to check access to 'all' pages from home
 # def test_profile_features(client, web2py):
 #     '''
