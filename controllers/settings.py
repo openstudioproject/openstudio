@@ -127,6 +127,7 @@ def system_general():
               default=time_zone,
               label=T('Time Zone')),
         Field('sys_hostname',
+              requires=IS_NOT_EMPTY(),
               default=sys_hostname,
               label=T('Hostname for this OpenStudio installation'),
               comment=T("eg. demo.openstudioproject.com (without http or https)")),
