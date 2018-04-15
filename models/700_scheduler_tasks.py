@@ -37,6 +37,8 @@ def _task_mollie_subscription_invoices_and_payments():
         msgID = os_mail.render_email_template('email_template_payment_recurring_failed')
         os_mail.send(msgID, cuID)
 
+    # hostname
+    sys_hostname = get_sys_property('sys_hostname')
     # set up Mollie
     mollie = Mollie.API.Client()
     mollie_api_key = get_sys_property('mollie_website_profile')
@@ -102,6 +104,7 @@ def _task_mollie_subscription_invoices_and_payments():
                         'customerId': mollie_customer_id,
                         'recurringType': 'recurring',  # important
                         'description': description,
+                        'webhookUrl': URL('mollie', 'webhook', scheme='https', host=sys_hostname),
                         'metadata': {
                             'invoice_id': invoice.invoice.id,
                             'customers_orders_id': 'invoice' # This lets the webhook function know it's dealing with an invoice

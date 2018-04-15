@@ -103,6 +103,7 @@ def system_general():
     show_welcome = get_sys_property('ShowWelcomeMessage')
     time_zone = get_sys_property('TimeZone')
     date_format = get_sys_property('DateFormat')
+    sys_hostname = get_sys_property('sys_hostname')
 
     for f in DATE_FORMATS:
         if f[1] == date_format:
@@ -125,6 +126,10 @@ def system_general():
                                  zero=T("Please select...")),
               default=time_zone,
               label=T('Time Zone')),
+        Field('sys_hostname',
+              default=sys_hostname,
+              label=T('Hostname for this OpenStudio installation'),
+              comment=T("eg. demo.openstudioproject.com (without http or https)")),
         submit_button=T("Save"),
         separator=' ',
         formstyle='bootstrap3_stacked'
@@ -186,6 +191,16 @@ def system_general():
                 Property='TimeZone', PropertyValue=time_zone)
         else:
             row.PropertyValue = time_zone
+            row.update_record()
+
+        # hostname
+        sys_hostname = request.vars['sys_hostname']
+        row = db.sys_properties(Property='sys_hostname')
+        if not row:
+            db.sys_properties.insert(
+                Property='sys_hostname', PropertyValue=sys_hostname)
+        else:
+            row.PropertyValue = sys_hostname
             row.update_record()
 
 
