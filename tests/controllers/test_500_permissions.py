@@ -410,7 +410,6 @@ def test_classes_otc_delete(client, web2py):
     assert web2py.db(web2py.db.classes_otc).count() == 0
 
 
-
 def test_classes_teachers_delete(client, web2py):
     """
         Is the delete permission for a class teacher working?
@@ -575,6 +574,30 @@ def test_shift_staff_delete(client, web2py):
     assert client.status == 200
 
     assert 'fa-times' in client.text
+
+
+def test_classes_attendance_complementary(client, web2py):
+    """
+        Is the complementary permission working?
+    """
+    setup_permission_tests(web2py)
+    prepare_classes(web2py)
+
+    web2py.auth.add_permission(200, 'read', 'classes_attendance', 0)
+    web2py.auth.add_permission(200, 'update', 'classes_attendance', 0)
+    web2py.db.commit()
+
+    url = '/classes/attendance_booking_options?clsID=1&date=2014-01-13&cuID=1003'
+    client.get(url)
+    assert client.status == 200
+    assert 'Complementary' not in client.text
+
+    web2py.auth.add_permission(200, 'complementary', 'classes_attendance', 0)
+    web2py.db.commit()
+
+    client.get(url)
+    assert client.status == 200
+    assert 'Complementary' in client.text
 
 #NOTE: new attendance page, there is no more delete check in the classes code
 # def test_classes_attendance_delete(client, web2py):

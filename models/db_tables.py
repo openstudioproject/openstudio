@@ -1524,9 +1524,13 @@ def define_classes():
               default=datetime.datetime.now()),
         Field('CreatedBy', db.auth_user,
               readable=False,
-              writable=False,
-              default=auth.user.id)
+              writable=False)
         )
+
+    try:
+        db.classes.CreatedBy.default = auth.user.id
+    except AttributeError:
+        pass
 
 
 def define_classes_otc():
