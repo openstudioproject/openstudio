@@ -491,29 +491,6 @@ def get_backend_menu():
                                 URL('#', extension=''), submenu )
                              ]
 
-        # Flash to
-        submenu = [
-            ( '', False, A((os_gui.get_fa_icon('fa-caret-right'),
-                            SPAN(T('Shop'))),
-                           _href=URL('shop', 'index', extension=''),
-                           _target='_blank')),
-        ]
-
-        if user_helpers.check_read_permission('selfcheckin', user_id):
-            submenu.insert(0, ( '', False, A((os_gui.get_fa_icon('fa-caret-right'),
-                                              SPAN(T('Self check-in'))),
-                                              _href=URL('selfcheckin', 'index', extension=''),
-                                              _target='_blank')))
-
-        menu += [ ((I(_class=jumpto_class + ' fa fa-flash', _title=T('Go to')),
-                            SPAN(T('Go to')),
-                            SPAN(I(_class='fa fa-angle-left pull-right'),
-                                  _class="pull-right-container")),
-                            False,
-                            URL('selfcheckin', 'index', extension=''), submenu )
-                         ]
-
-
         # settings
         if user_helpers.check_read_permission('settings', user_id):
             submenu = []
@@ -538,6 +515,29 @@ def get_backend_menu():
                                 False,
                                 URL('#', extension=''), submenu)
                              ]
+
+        # Flash to
+        submenu = [
+            ( '', False, A((os_gui.get_fa_icon('fa-caret-right'),
+                            SPAN(T('Shop'))),
+                           _href=URL('shop', 'index', extension=''),
+                           _target='_blank')),
+        ]
+
+        if user_helpers.check_read_permission('selfcheckin', user_id):
+            submenu.insert(0, ( '', False, A((os_gui.get_fa_icon('fa-caret-right'),
+                                              SPAN(T('Self check-in'))),
+                                              _href=URL('selfcheckin', 'index', extension=''),
+                                              _target='_blank')))
+
+        menu += [ ((I(_class=jumpto_class + ' fa fa-flash', _title=T('Go to')),
+                            SPAN(T('Go to')),
+                            SPAN(I(_class='fa fa-angle-left pull-right'),
+                                  _class="pull-right-container")),
+                            False,
+                            URL('selfcheckin', 'index', extension=''), submenu )
+                         ]
+
         # help # cannot contain more items yet.. in this version of web2py drop down menu items are forced to load in the same window
         # https://groups.google.com/forum/#!topic/web2py/9S34_LHW2qQ
         # menu += [
@@ -546,6 +546,7 @@ def get_backend_menu():
         #              SPAN(T('Quick start'))),
         #             _href='http://www.openstudioproject.com/content/manual',
         #             _target="_blank")))]
+
 
         return menu
 
