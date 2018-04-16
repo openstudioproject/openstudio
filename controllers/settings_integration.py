@@ -20,6 +20,54 @@ def integration_get_menu(page):
 
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
+def mailchimp():
+    """
+        Page to set mailchimp API key
+    """
+    response.title = T("Integration")
+    response.subtitle = T("MailChimp")
+    response.view = 'general/tabs_menu.html'
+
+    mailchimp_api_key = get_sys_property('mailchimp_api_key')
+
+    form = SQLFORM.factory(
+        Field('mailchimp_api_key',
+              requires=IS_NOT_EMPTY(),
+              default=mailchimp_api_key,
+              label=T('MailChimp API key')),
+        submit_button=T("Save"),
+        formstyle='bootstrap3_stacked',
+        separator=' ')
+
+    form_id = "MainForm"
+    form_element = form.element('form')
+    form['_id'] = form_id
+
+    elements = form.elements('input, select, textarea')
+    for element in elements:
+        element['_form'] = form_id
+
+    submit = form.element('input[type=submit]')
+
+    if form.accepts(request.vars, session):
+        # Check mollie profile
+        mailchimp_api_key = request.vars['mailchimp_api_key']
+        set_sys_property('mailchimp_api_key', mailchimp_api_key)
+
+        # User feedback
+        session.flash = T('Saved')
+        # reload so the user sees how the values are stored in the db now
+        redirect(URL('mailchimp'))
+
+    menu = integration_get_menu(request.function)
+
+    return dict(content=form,
+                menu=menu,
+                save=submit)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'settings'))
 def mollie():
     """
         Page to set Mollie website profile
@@ -72,28 +120,17 @@ def mollie():
             create_mollie_account))
 
     if form.accepts(request.vars, session):
-        # check payment provider
+        # check payment provider and profile id
+        vars = [
+            'online_payment_provider',
+            'mollie_website_profile'
+        ]
+        for var in vars:
+            value = request.vars[var]
+            set_sys_property(var, value)
+
         online_payment_provider = request.vars['online_payment_provider']
-        row = db.sys_properties(Property='online_payment_provider')
-        if not row:
-            db.sys_properties.insert(Property='online_payment_provider',
-                                     PropertyValue=online_payment_provider)
-        else:
-            row.PropertyValue = online_payment_provider
-            row.update_record()
 
-        # Check mollie profile
-        mollie_website_profile = request.vars['mollie_website_profile']
-        row = db.sys_properties(Property='mollie_website_profile')
-        if not row:
-            db.sys_properties.insert(Property='mollie_website_profile',
-                                     PropertyValue=mollie_website_profile)
-        else:
-            row.PropertyValue = mollie_website_profile
-            row.update_record()
-
-        # Clear cache
-        cache_clear_sys_properties()
         # User feedback
         session.flash = T('Saved')
         # reload so the user sees how the values are stored in the db now

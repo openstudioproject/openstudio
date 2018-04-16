@@ -264,6 +264,23 @@ def cache_clear_sys_organizations(var_one=None, var_two=None):
     cache.disk.clear(regex = sys_org_regex)
 
 
+def set_sys_property(property, value):
+    """
+    :param property: string - name of sys property
+    :return: None
+    """
+    row = db.sys_properties(Property=property)
+    if not row:
+        db.sys_properties.insert(Property=property,
+                                 PropertyValue=value)
+    else:
+        row.PropertyValue = value
+        row.update_record()
+
+    # Clear cache
+    cache_clear_sys_properties()
+
+
 def _get_sys_property(value=None, value_type=None):
     '''
         Returns the value of a property in db.sys_properties
