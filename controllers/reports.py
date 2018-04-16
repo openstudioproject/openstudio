@@ -5813,7 +5813,7 @@ def customers_inactive():
     """
         List customers inactive since date and offer option to clean up
     """
-    from openstudio import Customers
+    from openstudio.openstudio import Customers
 
     response.title = T('Reports')
     response.subtitle = T('Inactive customers')
