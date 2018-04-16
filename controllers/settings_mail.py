@@ -7,9 +7,9 @@ def mail_get_menu(page):
     """
         Menu for system settings pages
     """
-    pages = [['lists',
-              T('Lists'),
-              URL('lists')],
+    pages = [['mailing_lists',
+              T('Mailing lists'),
+              URL('mailing_lists')],
              ['templates',
               T('Templates'),
               URL('templates')],
@@ -20,62 +20,58 @@ def mail_get_menu(page):
 
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
-def lists():
+def mailing_lists():
     """
         Show mailing lists
     """
-    from openstudio import ShopSuppliers
-    from openstudio_tools import OsSession
+    from openstudio.os_mail import MailingLists
 
     response.title = T('Settings')
     response.subtitle = T('Mail')
     response.view = 'general/tabs_menu.html'
 
-    suppliers = ShopSuppliers()
-    content = suppliers.list_formatted()
+    mailing_lists = MailingLists()
+    content = mailing_lists.list_formatted()
 
-    add = os_gui.get_button('add', URL('shop_manage', 'supplier_add'))
-    archive_buttons = os_gui.get_archived_radio_buttons(
-        session.shop_manage_suppliers_show)
-    menu = catalog_get_menu(request.function)
+    add = os_gui.get_button('add', URL('settings_mail', 'mailing_list_add'))
+    menu = mail_get_menu(request.function)
 
     return dict(content=content,
                 add=add,
-                header_tools=archive_buttons,
                 menu=menu)
 
 
-def shop_supplier_get_return_url(var=None):
+def mailing_list_get_return_url(var=None):
     """
         :return: URL to lists
     """
-    return URL('settings_mail', 'lists')
+    return URL('settings_mail', 'mailing_lists')
 
 
 @auth.requires_login()
-def supplier_add():
+def mailing_list_add():
     """
-        Add a new supplier
+        Add a new mailing_list
     """
-    from openstudio import OsForms
-    response.title = T('Shop')
-    response.subtitle = T('Catalog')
+    from openstudio.os_forms import OsForms
+    response.title = T('Settings')
+    response.subtitle = T('Mail')
     response.view = 'general/tabs_menu.html'
 
-    return_url = shop_supplier_get_return_url()
+    return_url = mailing_list_get_return_url()
 
     os_forms = OsForms()
     result = os_forms.get_crud_form_create(
-        db.shop_suppliers,
+        db.mailing_lists,
         return_url,
     )
 
     form = result['form']
     back = os_gui.get_button('back', return_url)
-    menu = catalog_get_menu('suppliers')
+    menu = mail_get_menu('mailing_lists')
 
     content = DIV(
-        H4(T('Add supplier')),
+        H4(T('Add mailing list')),
         form
     )
 
@@ -86,33 +82,33 @@ def supplier_add():
 
 
 @auth.requires_login()
-def supplier_edit():
+def mailing_list_edit():
     """
-        Edit a supplier
-        request.vars['sbID'] is expected to be db.shop_brands.id
+        Edit a mailing_list
+        request.vars['mlID'] is expected to be db.mailing_lists.id
     """
-    from openstudio import OsForms
+    from openstudio.os_forms import OsForms
 
     response.title = T('Shop')
     response.subtitle = T('Catalog')
     response.view = 'general/tabs_menu.html'
-    supID = request.vars['supID']
+    mlID = request.vars['mlID']
 
-    return_url = shop_supplier_get_return_url()
+    return_url = mailing_list_get_return_url()
 
     os_forms = OsForms()
     result = os_forms.get_crud_form_update(
-        db.shop_suppliers,
+        db.mailing_lists,
         return_url,
-        supID
+        mlID
     )
 
     form = result['form']
     back = os_gui.get_button('back', return_url)
-    menu = catalog_get_menu('suppliers')
+    menu = mail_get_menu('mailing_lists')
 
     content = DIV(
-        H4(T('Edit supplier')),
+        H4(T('Edit mailing list')),
         form
     )
 
@@ -123,27 +119,20 @@ def supplier_edit():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('update', 'shop_suppliers'))
-def supplier_archive():
+               auth.has_permission('delete', 'mailing_lists'))
+def mailing_list_delete():
     """
-        Archive a supplier
-        request.vars[supID] is expected to be in db.shop_suppliers.id
+        Delete a mailing list
+        request.vars[mlID] is expected to be in db.mailing_lists.id
         :return: None
     """
-    from openstudio_tools import OsArchiver
+    mlID = request.vars['mlID']
 
-    archiver = OsArchiver()
-    archiver.archive(
-        db.shop_suppliers,
-        request.vars['supID'],
-        T('Unable to (un)archive supplier'),
-        shop_supplier_get_return_url()
-    )
+    query = (db.mailing_lists.id == mlID)
+    db(query).delete()
 
-
-
-
-
+    session.flash = T('Deleted mailing list')
+    redirect(mailing_list_get_return_url())
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or

@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from gluon import *
+
 class OsForms:
     def set_form_id_and_get_submit_button(self, form, form_id):
         """

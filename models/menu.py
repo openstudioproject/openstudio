@@ -526,7 +526,7 @@ def get_backend_menu():
                             URL('settings_integration', 'mollie', extension='')))
             submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Mail'))),
                             False,
-                            URL('settings_mail', 'lists', extension='')))
+                            URL('settings_mail', 'mailing_lists', extension='')))
             submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Branding'))),
                             False,
                             URL('settings_branding', 'logos', extension='')))

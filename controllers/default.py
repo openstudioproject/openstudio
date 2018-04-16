@@ -11,7 +11,7 @@
 from general_helpers import User_helpers
 from general_helpers import max_string_length
 
-from openstudio import OsMail
+from openstudio.openstudio import OsMail
 
 import datetime
 

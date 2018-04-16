@@ -4373,28 +4373,29 @@ def define_mailing_lists():
     """
         Define mailing lists table
     """
-    Field('Name',
-          requires=IS_NOT_EMPTY(),
-          label=T('Name')),
-    Field('Description', 'text',
-          requires=IS_NOT_EMPTY(),
-          label=T('Description')),
-    Field('Frequency',
-          label=T('Frequency'),
-          comment=T('eg. Once a month, twice a year, etc.')),
-    Field('MailChimpListID',
-          label=T('MailChimp List ID'),
-          comment=T('Please refer to the MailChimp knowledge base on how to find the list ID for a list.')
-          )
+    db.define_table('mailing_lists',
+        Field('Name',
+              requires=IS_NOT_EMPTY(),
+              label=T('Name')),
+        Field('Description', 'text',
+              requires=IS_NOT_EMPTY(),
+              label=T('Description')),
+        Field('Frequency',
+              label=T('Frequency'),
+              comment=T('eg. Once a month, twice a year, etc.')),
+        Field('MailChimpListID',
+              label=T('MailChimp List ID'),
+              comment=T('Please refer to the MailChimp knowledge base on how to find the list ID for a list.'))
+    )
 
 
 def set_static_payment_methods():
-    '''
+    """
         This function adds the following to the paymentmethods table
         1. Cash
         2. Wire transfer
         3. Direct debit
-    '''
+    """
     methods = [T('Cash'), T('Wire transfer'), T('Direct debit')]
     i = 1
     for method in methods:
@@ -4415,9 +4416,9 @@ def set_static_payment_methods():
 
 
 def set_default_storage_space():
-    '''
+    """
         Sets 5GB (5000MB) as default storage space
-    '''
+    """
     allowed_space = '5000' # In MB
     db.sys_properties.insert(Property='storage_allowed_space',
                              PropertyValue=allowed_space)
