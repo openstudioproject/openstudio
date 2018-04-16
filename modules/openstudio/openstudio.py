@@ -5653,8 +5653,6 @@ class ClassSchedule:
                 else:
                     status = 'ok'
 
-                print status
-
         return status
 
 

@@ -2,7 +2,7 @@
 
 import Mollie
 
-from openstudio import *
+from openstudio.openstudio import *
 
 from general_helpers import workshops_get_full_workshop_product_id
 from general_helpers import datestr_to_python

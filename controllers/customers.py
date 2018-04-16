@@ -16,7 +16,7 @@ from general_helpers import set_form_id_and_get_submit_button
 
 from os_storage import uploads_available_space
 
-from openstudio import *
+from openstudio.openstudio  import *
 
 # from openstudio import \
 #     Classcard, \
