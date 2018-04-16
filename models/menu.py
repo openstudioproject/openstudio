@@ -82,6 +82,15 @@ def profile_menu():
                         False,
                         URL('profile','me', extension='')))
 
+    # Email
+    if features.Mail:
+        menu.append(
+                (SPAN(SPAN(#I(_class='fa fa-folder-open-o'), ' ',
+                            T('Mail')),
+                            _class=featured_class),
+                            False,
+                            URL('profile', 'mail', extension='')))
+
     return menu
 
 

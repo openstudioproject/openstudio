@@ -2,7 +2,7 @@
 '''
     This file provides the customer portal for OpenStudio
 '''
-from openstudio import Customer, Order, Invoice
+from openstudio.openstudio import Customer, Order, Invoice
 
 
 @auth.requires_login()
@@ -96,7 +96,7 @@ def index_get_upcoming_classes(customer):
     :param customer: openstudio.py Customer object
     :return: list of upcoming classes for a customer
     '''
-    from openstudio import ClassAttendance
+    from openstudio.openstudio import ClassAttendance
 
     rows = customer.get_classes_attendance_rows(upcoming=True)
 
