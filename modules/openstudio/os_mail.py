@@ -5,6 +5,7 @@
 
 from gluon import *
 
+
 class MailingLists:
     def list(self):
         """
@@ -74,4 +75,3 @@ class MailingLists:
             table.append(tr)
 
         return table
-    
