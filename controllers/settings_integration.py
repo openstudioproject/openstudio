@@ -24,8 +24,8 @@ def mailchimp():
     """
         Page to set mailchimp API key
     """
-    response.title = T("Integration")
-    response.subtitle = T("MailChimp")
+    response.title = T("Settings")
+    response.subtitle = T("Integration")
     response.view = 'general/tabs_menu.html'
 
     mailchimp_api_key = get_sys_property('mailchimp_api_key')
@@ -72,8 +72,8 @@ def mollie():
     """
         Page to set Mollie website profile
     """
-    response.title = T("Integration")
-    response.subtitle = T("Mollie")
+    response.title = T("Settings")
+    response.subtitle = T("Integration")
     response.view = 'general/tabs_menu.html'
 
     payment_providers = [

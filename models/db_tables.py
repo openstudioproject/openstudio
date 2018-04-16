@@ -4369,6 +4369,24 @@ def define_sys_files():
     )
 
 
+def define_mailing_lists():
+    """
+        Define mailing lists table
+    """
+    Field('Name',
+          requires=IS_NOT_EMPTY(),
+          label=T('Name')),
+    Field('Description', 'text',
+          requires=IS_NOT_EMPTY(),
+          label=T('Description')),
+    Field('Frequency',
+          label=T('Frequency'),
+          comment=T('eg. Once a month, twice a year, etc.')),
+    Field('MailChimpListID',
+          label=T('MailChimp List ID'),
+          comment=T('Please refer to the MailChimp knowledge base on how to find the list ID for a list.')
+          )
+
 
 def set_static_payment_methods():
     '''
@@ -4938,8 +4956,10 @@ ORGANIZATIONS = get_organizations()
 define_payment_methods()
 payment_methods_dict = create_payment_methods_dict()
 
+define_mailing_lists()
 define_postcode_groups()
 define_tax_rates()
+
 
 define_school_subscriptions()
 #mstypes_dict = create_mstypes_dict()

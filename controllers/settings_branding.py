@@ -28,8 +28,8 @@ def logos():
         - self check-in
         - login screen
     """
-    response.title = T('Branding')
-    response.subtitle = T('Logos')
+    response.title = T('Settings')
+    response.subtitle = T('Branding')
     response.view = 'general/tabs_menu.html'
 
     content = DIV(DIV(logos_get_logo('branding_logo_login'),
@@ -171,8 +171,8 @@ def default_templates():
     """
         Set default templates for emails and workshops (pdf)
     """
-    response.title = T("Branding")
-    response.subtitle = T("Default templates")
+    response.title = T("Settings")
+    response.subtitle = T("Branding")
     response.view = 'general/tabs_menu.html'
 
     sprop_t_email = 'branding_default_template_email'

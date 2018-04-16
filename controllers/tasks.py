@@ -4,14 +4,14 @@ from general_helpers import max_string_length
 from general_helpers import get_ajax_loader
 from general_helpers import set_form_id_and_get_submit_button
 
-from openstudio import TasksHelper
+from openstudio.os_tasks import Tasks
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('read', 'tasks'))
 def index():
-    '''
+    """
         Main page for taks
-    '''
+    """
     response.title = T("Tasks")
     response.view = 'general/only_content.html'
 
@@ -30,17 +30,17 @@ def index():
                  auth.has_permission('create', 'tasks')
     if permission:
         #add = os_gui.get_button('add', url_add)
-        th = TasksHelper()
-        add = th.add_get_modal({})
+        tasks = Tasks()
+        add = tasks.add_get_modal({})
 
     return dict(content=content, add=add)
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('read', 'tasks'))
 def list_tasks():
-    '''
+    """
         Creates a list of tasks
-    '''
+    """
     response.js = 'set_form_classes();' # otherwise user select isn't styled
 
     ## filter session variable begin
@@ -280,9 +280,9 @@ def list_tasks():
 
 
 # def list_tasks_get_add(add_vars):
-#     '''
+#     """
 #         Returns add button and modal
-#     '''
+#     """
 #     modal_content = DIV(
 #         LOAD('tasks', 'add.load',
 #              vars=add_vars,
@@ -308,9 +308,9 @@ def list_tasks():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('read', 'tasks'))
 def list_tasks_today():
-    '''
+    """
         Shows a list of tasks for today
-    '''
+    """
     query = (db.tasks.auth_user_id == auth.user.id) & \
             (db.tasks.Duedate <= datetime.date.today()) & \
             (db.tasks.Finished == False)
@@ -386,9 +386,9 @@ def list_tasks_today():
 
 
 def list_tasks_get_date_label_type(row):
-    '''
+    """
     Return color for a date label
-    '''
+    """
     duedate = row.Duedate
     today = TODAY_LOCAL
 
@@ -405,9 +405,9 @@ def list_tasks_get_date_label_type(row):
 
 
 def list_tasks_get_task_color(row):
-    '''
+    """
         Returns color for a task
-    '''
+    """
 
     duedate = row.Duedate
     today = datetime.date.today()
@@ -423,9 +423,9 @@ def list_tasks_get_task_color(row):
 
 
 def list_tasks_get_task_finished_color(row):
-    '''
+    """
         If a task is finished, return the line-through class
-    '''
+    """
     finished_class = ''
     if row.Finished:
         finished_class = 'grey'
@@ -433,9 +433,9 @@ def list_tasks_get_task_finished_color(row):
     return finished_class
 
 def list_tasks_get_task_finished_text_decoration(row):
-    '''
+    """
         If a task is finished, return the line-through class
-    '''
+    """
     finished_class = ''
     if row.Finished:
         finished_class = 'line-through'
@@ -444,9 +444,9 @@ def list_tasks_get_task_finished_text_decoration(row):
 
 
 def list_tasks_get_customers_link(cust_name, cuID):
-    '''
+    """
         Returns link for a customer
-    '''
+    """
     link = ''
     if cuID:
         link = A(max_string_length(cust_name, 22),
@@ -457,9 +457,9 @@ def list_tasks_get_customers_link(cust_name, cuID):
 
 
 def list_tasks_get_workshops_link(ws_name, wsID):
-    '''
+    """
         Returns link for a customer
-    '''
+    """
     link = ''
     if wsID:
         link = A(max_string_length(ws_name, 22),
@@ -471,9 +471,9 @@ def list_tasks_get_workshops_link(ws_name, wsID):
 
 
 def list_tasks_get_header(cuID=None, wsID=None, today=False):
-    '''
+    """
         returns header for table
-    '''
+    """
     header_class = 'header'
 
     if cuID or wsID:
@@ -512,9 +512,9 @@ def list_tasks_get_header(cuID=None, wsID=None, today=False):
 
 
 def list_tasks_get_user_filter(auth_user_id=None):
-    '''
+    """
         returns form to filter users in tasks list
-    '''
+    """
     auth_user_query = (db.auth_user.id > 1) & \
                       (db.auth_user.trashed == False) & \
                       ((db.auth_user.teacher == True) |
@@ -541,9 +541,9 @@ def list_tasks_get_user_filter(auth_user_id=None):
 
 
 def add_edit_delete_get_return_url(var=None):
-    '''
+    """
         return return url for edit pages
-    '''
+    """
     cuID = request.vars['cuID']
     wsID = request.vars['wsID']
     if cuID:
@@ -603,9 +603,9 @@ def add():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('create', 'tasks'))
 def add_edit_redirect():
-    '''
+    """
         Redirect back to list of tasks, to escape add modal
-    '''
+    """
     return_url = add_edit_delete_get_return_url()
 
     return redirect(return_url, client_side=True)
@@ -654,9 +654,9 @@ def edit():
 
 
 def finished_delete_get_redirect_url(var=None):
-    '''
+    """
         return redirect url for delete and finished functions
-    '''
+    """
     cuID = request.vars['cuID']
     wsID = request.vars['wsID']
     page = request.vars['page']
@@ -675,9 +675,9 @@ def finished_delete_get_redirect_url(var=None):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('delete', 'tasks'))
 def delete():
-    '''
+    """
         Deletes a task
-    '''
+    """
     tID = request.vars['tID']
     cuID = request.vars['cuID']
 
@@ -692,9 +692,9 @@ def delete():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('update', 'tasks'))
 def finished():
-    '''
+    """
         Mark a task as finished
-    '''
+    """
     tID = request.vars['tID']
     task = db.tasks(tID)
 
@@ -713,9 +713,9 @@ def finished():
 
 
 def index_get_days(row):
-    '''
+    """
         Returns number of days remaining or past for a task
-    '''
+    """
     duedate = row.Duedate
     today = datetime.date.today()
     delta = duedate - today
@@ -724,9 +724,9 @@ def index_get_days(row):
 
 
 def list_tasks_get_filter(state, _class='pull-right tasks-status-filter'):
-    '''
+    """
         state is expected to be 'all' 'finished' or 'open'
-    '''
+    """
     if state == 'all':
         value = True
         all_class = 'btn-primary'

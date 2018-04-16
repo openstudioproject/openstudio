@@ -5,7 +5,7 @@ import string
 import random
 import pytz
 
-from openstudio import OsGui
+from openstudio.os_gui import OsGui
 from general_helpers import represent_validity_units
 from general_helpers import represent_subscription_units
 
@@ -64,16 +64,16 @@ class IS_IBAN(object):
 
 
     def formatter(self, value):
-        '''
+        """
             Always make it uppercase
-        '''
+        """
         return value.strip().upper()
 
 
     def _is_dutch_iban(self, value):
-        '''
+        """
             Checks if the value is a Dutch IBAN number
-        '''
+        """
         return_value = False
         if not len(value) == 18:  # validate length
             self.error_message = T('Dutch IBAN should be 18 characters')
@@ -90,9 +90,9 @@ class IS_IBAN(object):
 
 
     def _convert_to_integer_and_check_valid(self, check_value):
-        '''
+        """
             Converts letters to integers, following IBAN specs
-        '''
+        """
         replace_map = {}
         for i, letter in enumerate(list(string.ascii_uppercase)):
             replace_map[letter] = unicode(i + 10)
@@ -130,37 +130,37 @@ country_codes = cache.ram('sys_country_codes',
 
 
 def cache_clear(var_one=None, var_two=None):
-    '''
+    """
         Clears all cache entries on disk & in ram
         # Takes arguments in case it's called from a crud form or SQLFORM.grid
-    '''
+    """
     cache.ram.clear()
     cache.disk.clear()
 
 
 def cache_clear_customers_subscriptions(cuID):
-    '''
+    """
         Clears subscription cache entries on disk & in ram
-    '''
+    """
     cu_sub_regex = 'openstudio_customer_get_subscriptions_on_date_' + str(cuID) + '*'
     cache.ram.clear(regex=cu_sub_regex)
     cache.disk.clear(regex=cu_sub_regex)
 
 
 def cache_clear_customers_classcards(cuID):
-    '''
+    """
         Clears subscription cache entries on disk & in ram
-    '''
+    """
     cu_cc_regex = 'openstudio_customer_get_classcards_' + str(cuID) + '*'
     cache.ram.clear(regex=cu_cc_regex)
     cache.disk.clear(regex=cu_cc_regex)
 
 
 def cache_clear_classschedule(var_one=None, var_two=None):
-    '''
+    """
         Clears the class schedule cache 
         takes 2 dummy arguments in case it's called from a CRUD form or from SQLFORM.grid
-    '''
+    """
     class_schedule_regex = 'openstudio_classschedule_get_day_*'
     cache.ram.clear(regex = class_schedule_regex)
     cache.disk.clear(regex = class_schedule_regex)
@@ -171,49 +171,49 @@ def cache_clear_classschedule(var_one=None, var_two=None):
 
 
 def cache_clear_classschedule_trend(var_one=None, var_two=None):
-    '''
+    """
         Clears the class schedule trend column cache
         takes 2 dummy arguments in case it's called from a CRUD form or from SQLFORM.grid
-    '''
+    """
     trend_regex = 'openstudio_classschedule_trend_*'
     cache.ram.clear(regex = trend_regex)
     cache.disk.clear(regex = trend_regex)
 
 
 def cache_clear_sys_properties():
-    '''
+    """
         Clears the sys_properties keys in cache
         :return: None
-    '''
+    """
     sprop_regex = 'openstudio_system_property_*'
     cache.ram.clear(regex = sprop_regex)
     cache.disk.clear(regex = sprop_regex)
 
 
 def cache_clear_menu_backend():
-    '''
+    """
         Clears the backend menu's in cache
-    '''
+    """
     menu_regex = 'openstudio_menu_backend_*'
     cache.ram.clear(regex = menu_regex)
     cache.disk.clear(regex = menu_regex)
 
 
 def cache_clear_workshops(var_one=None, var_two=None):
-    '''
+    """
         Clears the workshops cache
         # accepts two vars to the function can be called from SQLFORM.grid ondelete or crud functions
-    '''
+    """
     workshops_regex = 'openstudio_workshops_*'
     cache.ram.clear(regex = workshops_regex)
     cache.disk.clear(regex = workshops_regex)
 
 
 def cache_clear_school_subscriptions(var_one=None, var_two=None):
-    '''
+    """
         Clears the school subscriptions cache
         # accepts two vars to the function can be called from SQLFORM.grid ondelete or crud functions
-    '''
+    """
     school_subscriptions_regex = 'openstudio_school_subcriptions_api_*'
     cache.ram.clear(regex = school_subscriptions_regex)
     cache.disk.clear(regex = school_subscriptions_regex)
@@ -225,40 +225,40 @@ def cache_clear_school_subscriptions(var_one=None, var_two=None):
 
 
 def cache_clear_school_classcards(var_one=None, var_two=None):
-    '''
+    """
         Clears the school classcards cache
         # accepts two vars to the function can be called from SQLFORM.grid ondelete or crud functions
-    '''
+    """
     school_classcards_regex = 'openstudio_school_classcards_api_*'
     cache.ram.clear(regex = school_classcards_regex)
     cache.disk.clear(regex = school_classcards_regex)
 
 
 def cache_clear_school_teachers(var_one=None, var_two=None):
-    '''
+    """
         Clears the school teachers (API) cache
         # accepts two vars to the function can be called from SQLFORM.grid ondelete or crud functions
-    '''
+    """
     school_teachers_api_regex = 'openstudio_school_teachers_api_get'
     cache.ram.clear(regex = school_teachers_api_regex)
     cache.disk.clear(regex = school_teachers_api_regex)
 
 
 def cache_clear_school_classtypes(var_one=None, var_two=None):
-    '''
+    """
         Clears the school teachers (API) cache
         # accepts two vars to the function can be called from SQLFORM.grid ondelete or crud functions
-    '''
+    """
     school_teachers_api_regex = 'openstudio_school_teachers_api_get'
     cache.ram.clear(regex = school_teachers_api_regex)
     cache.disk.clear(regex = school_teachers_api_regex)
 
 
 def cache_clear_sys_organizations(var_one=None, var_two=None):
-    '''
+    """
         Clears the workshops cache
         # accepts two vars to the function can be called from SQLFORM.grid ondelete or crud functions
-    '''
+    """
     sys_org_regex = 'openstudio_sys_organizations*'
     cache.ram.clear(regex = sys_org_regex)
     cache.disk.clear(regex = sys_org_regex)
@@ -282,9 +282,9 @@ def set_sys_property(property, value):
 
 
 def _get_sys_property(value=None, value_type=None):
-    '''
+    """
         Returns the value of a property in db.sys_properties
-    '''
+    """
     property_value = None
     row = db.sys_properties(Property=value)
     if row:
@@ -300,11 +300,11 @@ def _get_sys_property(value=None, value_type=None):
 
 
 def get_sys_property(value=None, value_type=None):
-    '''
+    """
     :param value: db.sys_properties.Property
     :param value_type: Python data type eg. int
     :return: db.sys_properties.PropertyValue
-    '''
+    """
     cache_key = 'openstudio_system_property_' + value
 
     # Don't cache when running tests
@@ -325,9 +325,9 @@ def set_genders():
 
 
 def set_payment_statuses():
-    '''
+    """
         Return list of payment statuses to use in OpenStudio
-    '''
+    """
     statuses = [['paid', T("Paid")],
                 ['open', T("Open")],
                 ['overdue', T("Overdue")],
@@ -338,9 +338,9 @@ def set_payment_statuses():
 
 
 def set_message_statuses():
-    '''
+    """
         Returns a list of message statuses to use in OpenStudio
-    '''
+    """
     statuses = [['sent', T("Sent")],
                 ['fail', T("Failed")],
                 ]
@@ -349,9 +349,9 @@ def set_message_statuses():
 
 
 def set_invoice_statuses():
-    '''
+    """
         Returns a list of invoice statuses to use in OpenStudio
-    '''
+    """
     statuses = [['draft', T("Draft")],
                 ['sent', T("Sent")],
                 ['paid', T("Paid")],
@@ -361,9 +361,9 @@ def set_invoice_statuses():
 
 
 def set_order_statuses():
-    '''
+    """
         Returns a list of order statuses to use in OpenStudio
-    '''
+    """
     statuses = [ [ 'received', T('Received') ],
                  [ 'awaiting_payment', T('Awaiting payment') ],
                  [ 'paid', T('Paid') ],
@@ -375,9 +375,9 @@ def set_order_statuses():
 
 
 def set_teachers_roles():
-    '''
+    """
         return tuple for teacher roles
-    '''
+    """
     teachers_roles = [[0, T("Normal")],
                       [1, T("Subteacher")],
                       [2, T("Assistant")],
@@ -387,9 +387,9 @@ def set_teachers_roles():
 
 
 def get_invoices_groups_product_types():
-    '''
+    """
         Returns a list of invoices_groups_categories
-    '''
+    """
     categories = [ ['subscription', T('Subscriptions')],
                    ['classcard'   , T('Class cards')],
                    ['dropin'      , T('Drop in classes')],
@@ -401,9 +401,9 @@ def get_invoices_groups_product_types():
 
 
 def set_validity_units():
-    '''
+    """
         Returns a list of validity times
-    '''
+    """
     validity_units = [ ['days', T('Days')],
                        ['weeks', T('Weeks')],
                        ['months', T('Months')] ]
@@ -412,9 +412,9 @@ def set_validity_units():
 
 
 def set_subscription_units():
-    '''
+    """
         Returns a list of validity times
-    '''
+    """
     validity_units = [ ['week', T('Week')],
                        ['month', T('Month')] ]
 
@@ -422,9 +422,9 @@ def set_subscription_units():
 
 
 def set_booking_statuses():
-    '''
+    """
         Returns a list of classes_attendance booking statuses
-    '''
+    """
     booking_statuses = [ ['booked', T('Booked')],
                          ['attending', T('Attending')],
                          ['cancelled', T('Cancelled')] ]
@@ -433,9 +433,9 @@ def set_booking_statuses():
 
 
 def represent_gender(value, row):
-    '''
+    """
         Helper to represent genders
-    '''
+    """
     return_value = ''
     for gender in GENDERS:
         if value == gender[0]:
@@ -462,10 +462,10 @@ def compute_birthday(row):
 
 
 def generate_password(length=30):
-    '''
+    """
         Function to generate a random password.
         Keys are auto generated to increase security.
-    '''
+    """
     chars = string.ascii_uppercase + string.ascii_lowercase + string.digits
     passwd = ''.join(random.SystemRandom().choice(chars)
                      for _ in xrange(length))
