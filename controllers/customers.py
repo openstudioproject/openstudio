@@ -5280,8 +5280,9 @@ def tasks():
                  auth.has_permission('create', 'tasks')
     if permission:
         #add = os_gui.get_button('add', url_add)
-        th = TasksHelper()
-        add = th.add_get_modal({'cuID':cuID})
+        from openstudio.os_tasks import Tasks
+        tasks = Tasks()
+        add = tasks.add_get_modal({'cuID':cuID})
 
     back = edit_get_back()
     menu = customers_get_menu(cuID, request.function)

@@ -1582,6 +1582,20 @@ def populate_api_users(web2py):
     web2py.db.commit()
 
 
+def populate_mailing_lists(web2py):
+    """
+        Populate mailing lists
+    """
+    web2py.db.mailing_lists.insert(
+        Name='Newsletter',
+        Description='Newsletter for this studio',
+        Frequency='Twice a year',
+        MailChimpListID='mcID12345',
+    )
+
+    web2py.db.commit()
+
+
 def populate_shop_products(web2py):
     """
         Populate shop_products
