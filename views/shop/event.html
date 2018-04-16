@@ -1,4 +1,12 @@
 {{extend 'layout_shop.html'}}
+
+{{block head}}
+<meta property="og:title" content="{{=og_title}}" />
+<meta property="og:description" content="{{=og_description}}" />
+<meta property="og:url" content="{{=og_url}}" />
+<meta property="og:image" content="{{=og_image}}" />
+{{end}}
+
 {{block header}}
 {{try:}}{{=breadcrumb}}{{except:}}{{pass}}{{pass}}
 {{try:}}{{=back}}{{except:}}{{pass}}{{pass}}
