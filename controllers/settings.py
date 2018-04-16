@@ -1205,6 +1205,9 @@ def access_group_permissions():
             ['auth_group-update', T("Edit groups")],
             ['auth_group-delete', T("Delete groups")],
             ['auth_group_permissions-update', T("Edit group permissions")],
+            ['mailing_lists-create', T('Add mailing lists')],
+            ['mailing_lists-update', T('Edit mailing lists')],
+            ['mailing_lists-delete', T('Delete mailing lists')]]],
             ['postcode_groups-read', T("View postcode groups"), [
                 ['postcode_groups-create', T('Add postcode groups')],
                 ['postcode_groups-update', T('Edit postcode groups')],
@@ -1216,8 +1219,6 @@ def access_group_permissions():
                  ['sys_organizations-delete', T('Delete organizations')],
             ]],
             ['sys_api_users-delete', T("Delete API users")],
-        ]
-        ]
     ]
 
     permissions_list = [[pinboard_permissions, 'pinboard'],
