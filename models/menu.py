@@ -516,10 +516,24 @@ def get_backend_menu():
 
         # settings
         if user_helpers.check_read_permission('settings', user_id):
+            submenu = []
+
+            submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('System'))),
+                            False,
+                            URL('settings', 'index', extension='')))
+            submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Integration'))),
+                            False,
+                            URL('settings_integration', 'mollie', extension='')))
+            submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Branding'))),
+                            False,
+                            URL('settings_branding', 'logos', extension='')))
+
             menu += [ ((I(_class=settings_class + ' fa fa-cog', _title=T('Settings')),
-                                 SPAN(T('Settings'), _title=T('Settings'))),
+                                 SPAN(T('Settings')),
+                                 SPAN(I(_class='fa fa-angle-left pull-right'),
+                                        _class="pull-right-container")),
                                 False,
-                                URL('settings', 'index', extension=''))
+                                URL('#', extension=''), submenu)
                              ]
         # help # cannot contain more items yet.. in this version of web2py drop down menu items are forced to load in the same window
         # https://groups.google.com/forum/#!topic/web2py/9S34_LHW2qQ
