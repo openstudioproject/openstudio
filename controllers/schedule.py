@@ -7,7 +7,7 @@
 from general_helpers import class_get_teachers
 from general_helpers import set_form_id_and_get_submit_button
 
-from openstudio import ClassSchedule, StaffSchedule, ShiftStatus
+from openstudio.openstudio import ClassSchedule, StaffSchedule, ShiftStatus
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -78,7 +78,6 @@ def holiday_edit_onacept(form):
         :param form: crud form for db.school_holidays
         :return: None
     '''
-    print 'doing stuff..'
     cancel_class_bookings(form.vars.id)
 
 
@@ -87,7 +86,7 @@ def cancel_class_bookings(shID):
         :param shID: db.school_holidays.id
         :return: None
     '''
-    from openstudio import AttendanceHelper
+    from openstudio.openstudio import AttendanceHelper
 
     ah = AttendanceHelper()
     ah.attendance_cancel_classes_in_school_holiday(shID)

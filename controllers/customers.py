@@ -16,22 +16,7 @@ from general_helpers import set_form_id_and_get_submit_button
 
 from os_storage import uploads_available_space
 
-from openstudio import *
-
-# from openstudio import \
-#     Classcard, \
-#     ClasscardsHelper, \
-#     AttendanceHelper, \
-#     WorkshopsHelper, \
-#     Customer, \
-# from os_customers import CustomersHelper
-# from os_customer_subscriptions import CustomerSubscriptionsHelper
-# from os_customer_subscriptions import CustomerSubscription
-# from os_school_subscriptions import SchoolSubscription
-# from os_school_classcards import SchoolClasscard
-# from os_invoices import Invoice
-# from os_invoices import InvoicesHelper
-# from os_orders import Order
+from openstudio.openstudio  import *
 
 # python general modules import
 import cStringIO
@@ -39,9 +24,6 @@ import os
 import openpyxl
 import calendar
 import codecs
-#TODO: change all titles to "Customer"
-#TODO: change all subtitles to customer name
-
 
 # helper functions
 
@@ -3857,7 +3839,7 @@ def subscription_credits_month_add():
     '''
         Add credits for subscriptions in selected month
     '''
-    from openstudio import CustomersSubscriptionsCreditsHelper
+    from openstudio.openstudio import CustomersSubscriptionsCreditsHelper
 
     year = session.customers_subscription_credits_year
     month = session.customers_subscription_credits_month
@@ -5280,8 +5262,9 @@ def tasks():
                  auth.has_permission('create', 'tasks')
     if permission:
         #add = os_gui.get_button('add', url_add)
-        th = TasksHelper()
-        add = th.add_get_modal({'cuID':cuID})
+        from openstudio.os_tasks import Tasks
+        tasks = Tasks()
+        add = tasks.add_get_modal({'cuID':cuID})
 
     back = edit_get_back()
     menu = customers_get_menu(cuID, request.function)

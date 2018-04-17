@@ -2,7 +2,7 @@
 
 import Mollie
 
-from openstudio import *
+from openstudio.openstudio import *
 
 from general_helpers import workshops_get_full_workshop_product_id
 from general_helpers import datestr_to_python
@@ -556,13 +556,12 @@ def event():
     add_to_cart_buttons = result['add_to_cart_buttons']
     activities = event_get_activities(workshop)
     fullwspID = workshops_get_full_workshop_product_id(wsID)
+    picture_url = URL('default', 'download', args=workshop.picture)
 
     content = DIV(
         H2(workshop.Name, _class='center'),
         DIV(DIV(_class='col-md-1'),
-            DIV(IMG(_src=URL('default',
-                         'download',
-                         args=workshop.picture),
+            DIV(IMG(_src=picture_url,
                     _class='workshop_image'),
                 _class='col-md-4'),
             DIV(XML(workshop.Description),
@@ -577,8 +576,6 @@ def event():
         DIV(products_prices, _class='center'),
         #DIV(workshop_get_button_book(fullwspID), _class='center'),
         DIV(add_to_cart_buttons, _class='center'),
-
-
         _class='shop_workshop')
 
     #TODO: add teacher info
@@ -590,7 +587,12 @@ def event():
 
     back = os_gui.get_button('back', URL('shop', 'workshops'))
 
-    return dict(content=content, back=back)
+    return dict(content=content,
+                back=back,
+                og_title=workshop.Name,
+                og_description=workshop.Name, #TODO: workshop.subtitle when field is added
+                og_url=URL('shop', 'event', vars={'wsID':wsID}, scheme=True, host=True),
+                og_image=picture_url)
 
 
 def event_get_products_filter_prices_add_to_cart_buttons(workshop):

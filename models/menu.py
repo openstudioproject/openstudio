@@ -82,6 +82,15 @@ def profile_menu():
                         False,
                         URL('profile','me', extension='')))
 
+    # Email
+    if features.Mail:
+        menu.append(
+                (SPAN(SPAN(#I(_class='fa fa-folder-open-o'), ' ',
+                            T('Mail')),
+                            _class=featured_class),
+                            False,
+                            URL('profile', 'mail', extension='')))
+
     return menu
 
 
@@ -491,6 +500,31 @@ def get_backend_menu():
                                 URL('#', extension=''), submenu )
                              ]
 
+        # settings
+        if user_helpers.check_read_permission('settings', user_id):
+            submenu = []
+
+            submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('System'))),
+                            False,
+                            URL('settings', 'index', extension='')))
+            submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Integration'))),
+                            False,
+                            URL('settings_integration', 'mollie', extension='')))
+            submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Mail'))),
+                            False,
+                            URL('settings_mail', 'mailing_lists', extension='')))
+            submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Branding'))),
+                            False,
+                            URL('settings_branding', 'logos', extension='')))
+
+            menu += [ ((I(_class=settings_class + ' fa fa-cog', _title=T('Settings')),
+                                 SPAN(T('Settings')),
+                                 SPAN(I(_class='fa fa-angle-left pull-right'),
+                                        _class="pull-right-container")),
+                                False,
+                                URL('#', extension=''), submenu)
+                             ]
+
         # Flash to
         submenu = [
             ( '', False, A((os_gui.get_fa_icon('fa-caret-right'),
@@ -513,14 +547,6 @@ def get_backend_menu():
                             URL('selfcheckin', 'index', extension=''), submenu )
                          ]
 
-
-        # settings
-        if user_helpers.check_read_permission('settings', user_id):
-            menu += [ ((I(_class=settings_class + ' fa fa-cog', _title=T('Settings')),
-                                 SPAN(T('Settings'), _title=T('Settings'))),
-                                False,
-                                URL('settings', 'index', extension=''))
-                             ]
         # help # cannot contain more items yet.. in this version of web2py drop down menu items are forced to load in the same window
         # https://groups.google.com/forum/#!topic/web2py/9S34_LHW2qQ
         # menu += [
@@ -529,6 +555,7 @@ def get_backend_menu():
         #              SPAN(T('Quick start'))),
         #             _href='http://www.openstudioproject.com/content/manual',
         #             _target="_blank")))]
+
 
         return menu
 

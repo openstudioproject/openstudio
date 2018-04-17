@@ -28,10 +28,6 @@ def index():
                     T('Currency, payment settings and tax rates'),
                     _class='col-md-4')
 
-    email = DIV(A(H3(T('Email')), _href=URL('email_templates')),
-                T('Configure email templates'),
-                _class='col-md-4')
-
     access = DIV(A(H3(T('Access')), _href=URL('access_groups')),
                  T('Groups, permissions and API access'),
                  _class='col-md-4')
@@ -56,9 +52,8 @@ def index():
                 T('System admin settings / overview pages'),
                 _class='col-md-4')
 
-    content = DIV(DIV(system, financial, email),
-                  DIV(access, selfcheckin, shop),
-                  DIV(branding, about))
+    content = DIV(DIV(system, financial, access),
+                  DIV(shop, selfcheckin, about))
 
     if auth.user.id == 1:
         content.append(DIV(sysadmin))
@@ -222,287 +217,6 @@ def system_general():
                 back=back,
                 menu=menu,
                 save=submit)
-
-
-def branding_get_menu(page):
-    '''
-        Menu for system settings pages
-    '''
-    pages = [['branding_logos',
-              T('Logos'),
-              URL('branding_logos')],
-             ['branding_default_templates',
-              T('Default templates'),
-              URL('branding_default_templates')]
-             ]
-
-    return os_gui.get_submenu(pages, page, horizontal=True, htype='tabs')
-
-
-
-@auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('read', 'settings'))
-def branding_logos():
-    '''
-        Change OpenStudio branding for
-        - back-end
-        - self check-in
-        - login screen
-    '''
-    response.title = T('Branding')
-    response.subtitle = T('Logos')
-    response.view = 'general/tabs_menu.html'
-
-    content = DIV(DIV(branding_logos_get_logo('branding_logo_login'),
-                      branding_logos_get_logo('branding_logo_header'),
-                      branding_logos_get_logo('branding_logo_invoices'),
-                      _class='col-md-12'),
-                  DIV(branding_logos_get_logo('branding_logo_selfcheckin'),
-                      _class='col-md-12'),
-                  _class='row',
-                  _id='settings_branding_logos')
-
-    menu = branding_get_menu(request.function)
-    back = system_get_back()
-
-    return dict(content=content,
-                back=back,
-                menu=menu)
-
-
-@auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('read', 'settings'))
-def branding_logos_remove_logo():
-    '''
-        Remove logo
-    '''
-    sfID = request.vars['sfID']
-
-    row = db.sys_files(sfID)
-
-    # first delete the image copied by branding_logos_set_logo
-    logo_path = branding_logos_get_logo_path(row)
-    import os
-    try:
-        os.remove(logo_path)
-    except OSError:
-        # just continue of the file has already been removed
-        pass
-
-    # now remove the record from the database
-    query = (db.sys_files.id == sfID)
-    db(query).delete()
-
-    redirect(URL('branding_logos'))
-
-
-
-def branding_logos_get_logo(name):
-    '''
-        Returns form and display of small logo
-    '''
-    name = request.vars['Name'] if request.vars['Name'] else name
-    db.sys_files.Name.default = name
-    db.sys_files.SysFile.label = ''
-
-    # set image requirements
-    db.sys_files.SysFile.requires = IS_IMAGE(extensions=('png'),
-        error_message = T("png file required"))
-
-    crud.messages.submit_button = T("Save")
-    crud.messages.record_created = T("Saved")
-    crud.messages.record_updated = T("Saved")
-    crud.settings.create_next = URL()
-    crud.settings.update_next = URL()
-    crud.settings.update_onaccept = [ branding_logos_set_logo ]
-    crud.settings.create_onaccept = [ branding_logos_set_logo ]
-
-    row = db.sys_files(Name=name)
-    if row:
-        form = crud.update(db.sys_files, row.id)
-    else:
-        form = crud.create(db.sys_files)
-
-    # remove not needed stuff from the upload widgets
-    form.elements('span', replace=None)
-    form.elements('img', replace=None)
-    form.elements('br', replace=None)
-    form.elements('tr#delete_record__row', replace=None)
-
-    # add hidden input to specify right form
-    hidden = INPUT(_type="hidden",
-                   _name="Name",
-                   value=name)
-    form.insert(0, hidden)
-
-    img = ''
-    if row:
-        img = IMG(_src=URL('default', 'download', row.SysFile),
-                  _class='settings_branding_logo')
-
-    if name == 'branding_logo_login':
-        h = H3(T('Login screen logo'))
-    elif name == 'branding_logo_header':
-        h = H3(T('Shop header logo'))
-    elif name == 'branding_logo_invoices':
-        h = H3(T('Invoice & email logo'))
-    elif name == 'branding_logo_selfcheckin':
-        h = H3(T('Self check-in logo'))
-
-    if row:
-        form.add_button('Remove', URL('branding_logos_remove_logo',
-                                      vars={'sfID' : row.id}))
-
-    return DIV(h, img, form, _class='col-md-4')
-
-
-def branding_logos_set_logo(form):
-    '''
-        Copies the logos to a specific folder in uploads
-    '''
-    id = form.vars.id
-    row = db.sys_files(id)
-
-    path = os.path.join(request.folder, 'uploads')
-
-    filename = row.SysFile
-    logo = os.path.join(path, filename)
-
-    logo_dest = branding_logos_get_logo_path(row)
-
-    import shutil
-
-    shutil.copy2(logo, logo_dest)
-
-
-def branding_logos_get_logo_path(row):
-    '''
-        Returns location of a logo on disk
-        Takes row from db.sys_files as argument
-    '''
-    logo_path = os.path.join(request.folder,
-                             'static',
-                             'plugin_os-branding',
-                             'logos',
-                             row.Name + '.png')
-
-    return logo_path
-
-
-@auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('read', 'settings'))
-def branding_default_templates():
-    """
-        Set default templates for emails and workshops (pdf)
-    """
-    response.title = T("Branding")
-    response.subtitle = T("Default templates")
-    response.view = 'general/tabs_menu.html'
-
-    sprop_t_email = 'branding_default_template_email'
-    sprop_t_events = 'branding_default_template_events'
-    t_email = get_sys_property(sprop_t_email)
-    t_events = get_sys_property(sprop_t_events)
-
-    form = SQLFORM.factory(
-        Field('t_email',
-              default=t_email,
-              requires=IS_IN_SET(branding_default_templates_list_templates('email')),
-              label=T('Email template')),
-        Field('t_events',
-              default=t_events,
-              requires=IS_IN_SET(branding_default_templates_list_templates('events')),
-              label=T('Events pdf template')),
-        submit_button=T("Save"),
-        separator=' ',
-        formstyle='bootstrap3_stacked'
-    )
-
-    form_id = "MainForm"
-    form_element = form.element('form')
-    form['_id'] = form_id
-
-    elements = form.elements('input, select, textarea')
-    for element in elements:
-        element['_form'] = form_id
-
-    submit = form.element('input[type=submit]')
-
-    if form.accepts(request.vars, session):
-        print 'process template storage'
-        # Check email template
-        t_email = request.vars['t_email']
-        row = db.sys_properties(Property=sprop_t_email)
-        if not row:
-            db.sys_properties.insert(Property=sprop_t_email,
-                                     PropertyValue=t_email)
-        else:
-            row.PropertyValue = t_email
-            row.update_record()
-
-        # Check events template
-        t_events = request.vars['t_events']
-        row = db.sys_properties(Property=sprop_t_events)
-        if not row:
-            db.sys_properties.insert(Property=sprop_t_events,
-                                     PropertyValue=t_events)
-        else:
-            row.PropertyValue = t_events
-            row.update_record()
-
-        session.flash = T('Saved')
-        # Clear cache
-        cache_clear_sys_properties()
-        # reload so the user sees how the values are stored in the db now
-        redirect(URL('branding_default_templates'))
-
-    content = DIV(DIV(form, _class='col-md-6'),
-                  _class='row')
-
-    menu = branding_get_menu(request.function)
-    back = system_get_back()
-
-    return dict(content=content,
-                back=back,
-                save=submit,
-                menu=menu)
-
-
-
-def branding_default_templates_list_templates(template_type):
-    """
-        :param template_type: can be 'email' or 'workshops' for now
-        :return: list of files in view/templates/<template_type> folder
-    """
-    template_types = ['email', 'invoices', 'events']
-    if template_type not in template_types:
-        return ''
-
-    os_template_dir = os.path.join(
-        request.folder,
-        'views',
-        'templates',
-        template_type
-    )
-    os_templates = [ os.path.join(template_type, i)
-                     for i in sorted(os.listdir(os_template_dir))
-                     if not i == '.gitignore' ]
-
-    custom_template_dir = os.path.join(
-        request.folder,
-        'views',
-        'templates',
-        'custom',
-        template_type
-    )
-
-    custom_templates = [ os.path.join('custom', template_type, i)
-                         for i in sorted(os.listdir(custom_template_dir))
-                         if not  i == '.gitignore' ]
-
-    os_templates.extend(custom_templates)
-
-    return os_templates
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
@@ -836,113 +550,6 @@ def email_outgoing():
                 left_sidebar_enabled=True)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('read', 'settings'))
-def email_templates():
-    '''
-        Server settings
-    '''
-    response.title = T('Email Settings')
-    response.subtitle = T('Templates')
-
-    #NOTE: in the end, the drop down select will go here to select a default template
-    content = T('For now you can only use the default template for emails. At some point in the future you can use your own.')
-    content += T(' ')
-    content += T('Until then, this page does nothing.')
-
-    back = os_gui.get_button('back', URL('index'), _class='full-width')
-
-    return dict(content=content,
-                back=back,
-                menu=email_templates_get_menu(request.function),
-                left_sidebar_enabled=True)
-
-
-def email_templates_get_menu(page):
-    '''
-        Return menu for invoice templates
-    '''
-    pages = [ ['email_templates', T('Default template'),
-               URL('email_templates')],
-              # ['email_template_invoice_created', T('Invoice created'),
-              #  URL('email_template', vars={'template':'email_template_invoice_created'})],
-              ['email_template_order_received', T('Order received'),
-               URL('email_template', vars={'template': 'email_template_order_received'})],
-              ['email_template_order_delivered', T('Order delivered'),
-               URL('email_template', vars={'template': 'email_template_order_delivered'})],
-              # ['email_template_payment_received', T('Payment received'),
-              #  URL('email_template', vars={'template':'email_template_payment_received'})],
-              ['email_template_payment_recurring_failed', T('Payment recurring failed'),
-               URL('email_template', vars={'template':'email_template_payment_recurring_failed'})],
-              ['email_template_sys_footer', T('Email footer'),
-               URL('email_template', vars={'template':'email_template_sys_footer'})],
-              ['email_template_sys_reset_password', T('System reset password'),
-               URL('email_template', vars={'template':'email_template_sys_reset_password'})],
-              ['email_template_sys_verify_email', T('System verify email'),
-               URL('email_template', vars={'template':'email_template_sys_verify_email'})]
-              ]
-
-    return os_gui.get_submenu(pages, page, horizontal=True, htype='tabs')
-
-
-@auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('read', 'settings'))
-def email_template():
-    '''
-        Page to edit an email_template
-    '''
-    response.title = T('Email Settings')
-    response.subtitle = T('Templates')
-    response.view = 'settings/email_templates.html'
-
-    template = request.vars['template']
-
-    template_content = get_sys_property(template)
-
-    form = SQLFORM.factory(
-        Field("email_template", 'text',
-              default=template_content,
-              label=T("Edit template")),
-        submit_button=T("Save"),
-        separator=' ',
-        formstyle='bootstrap3_stacked')
-
-    form_element = form.element('#no_table_email_template')
-    form_element['_class'] += ' tmced'
-
-    result = set_form_id_and_get_submit_button(form, 'MainForm')
-    form = result['form']
-    submit = result['submit']
-
-    if form.accepts(request.vars, session):
-        # check smtp_signature
-        email_template = request.vars['email_template']
-        row = db.sys_properties(Property=template)
-        if not row:
-            db.sys_properties.insert(
-                Property=template, PropertyValue=email_template)
-        else:
-            row.PropertyValue = email_template
-            row.update_record()
-
-        # Clear cache
-        cache_clear_sys_properties()
-        # User feedback
-        session.flash = T('Saved')
-
-        # reload so the user sees how the values are stored in the db now
-        redirect(URL(vars={'template':template}))
-
-    content = form
-
-    back = os_gui.get_button('back', URL('index'))
-
-    return dict(content=content,
-                back=back,
-                menu=email_templates_get_menu(template),
-                save=submit)
-
-
 def financial_get_menu(page=None):
     '''
         Menu for financial settings pages
@@ -961,10 +568,7 @@ def financial_get_menu(page=None):
               URL('financial_dd_categories')],
              ['financial_payment_methods',
               T('Payment methods'),
-              URL('financial_payment_methods')],
-             ['financial_online_payments',
-              T('Online payments'),
-              URL('financial_online_payments')],
+              URL('financial_payment_methods')]
              ]
 
     return os_gui.get_submenu(pages, page, horizontal=True, htype='tabs')
@@ -1601,6 +1205,9 @@ def access_group_permissions():
             ['auth_group-update', T("Edit groups")],
             ['auth_group-delete', T("Delete groups")],
             ['auth_group_permissions-update', T("Edit group permissions")],
+            ['mailing_lists-create', T('Add mailing lists')],
+            ['mailing_lists-update', T('Edit mailing lists')],
+            ['mailing_lists-delete', T('Delete mailing lists')]]],
             ['postcode_groups-read', T("View postcode groups"), [
                 ['postcode_groups-create', T('Add postcode groups')],
                 ['postcode_groups-update', T('Edit postcode groups')],
@@ -1612,8 +1219,6 @@ def access_group_permissions():
                  ['sys_organizations-delete', T('Delete organizations')],
             ]],
             ['sys_api_users-delete', T("Delete API users")],
-        ]
-        ]
     ]
 
     permissions_list = [[pinboard_permissions, 'pinboard'],
@@ -2635,97 +2240,6 @@ def financial_invoices_get_submenu(page):
     horizontal = True
 
     return os_gui.get_submenu(pages, page, horizontal=horizontal, htype='tabs')
-
-
-@auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('read', 'settings'))
-def financial_online_payments():
-    '''
-        Page to set Mollie website profile
-    '''
-    response.title = T("Financial Settings")
-    response.subtitle = T("Online payments - Mollie")
-    response.view = 'general/tabs_menu.html'
-
-    payment_providers = [
-        [ 'disabled', T("Don't accept online payments") ],
-        [ 'mollie', T('Mollie') ]
-    ]
-
-    online_payment_provider = get_sys_property('online_payment_provider')
-    mollie_website_profile = get_sys_property('mollie_website_profile')
-
-    form = SQLFORM.factory(
-        Field('online_payment_provider',
-              requires=IS_IN_SET(payment_providers),
-              default=online_payment_provider,
-              label=T("Payment provider")),
-        Field('mollie_website_profile',
-              requires=IS_NOT_EMPTY(),
-              default=mollie_website_profile,
-              label=T('Mollie website profile (API-Key)')),
-        submit_button=T("Save"),
-        formstyle='bootstrap3_stacked',
-        separator=' ')
-
-    form_id = "MainForm"
-    form_element = form.element('form')
-    form['_id'] = form_id
-
-    elements = form.elements('input, select, textarea')
-    for element in elements:
-        element['_form'] = form_id
-
-    submit = form.element('input[type=submit]')
-
-    mollie_signup = ''
-    if not mollie_website_profile:
-        create_mollie_account = A(T('Create Mollie account'),
-                                  _href='https://www.mollie.com/nl/signup/2488481',
-                                  _target="_blank",
-                                  _class='btn btn-info')
-        mollie_signup = os_gui.get_alert('info',
-            SPAN(SPAN(T('Mollie website profile not found'), _class='bold'), BR(),
-            T("Please click the button below to sign up with Mollie and create a website profile, or enter the website profile key below."), BR(),
-            BR(),
-            create_mollie_account))
-
-    if form.accepts(request.vars, session):
-        # check payment provider
-        online_payment_provider = request.vars['online_payment_provider']
-        row = db.sys_properties(Property='online_payment_provider')
-        if not row:
-            db.sys_properties.insert(Property='online_payment_provider',
-                                     PropertyValue=online_payment_provider)
-        else:
-            row.PropertyValue = online_payment_provider
-            row.update_record()
-
-        # Check mollie profile
-        mollie_website_profile = request.vars['mollie_website_profile']
-        row = db.sys_properties(Property='mollie_website_profile')
-        if not row:
-            db.sys_properties.insert(Property='mollie_website_profile',
-                                     PropertyValue=mollie_website_profile)
-        else:
-            row.PropertyValue = mollie_website_profile
-            row.update_record()
-
-        # Clear cache
-        cache_clear_sys_properties()
-        # User feedback
-        session.flash = T('Saved')
-        # reload so the user sees how the values are stored in the db now
-        redirect(URL('financial_online_payments'))
-
-    back = financial_get_back()
-    menu = financial_get_menu(request.function)
-
-    return dict(content=DIV(mollie_signup, form),
-                back=back,
-                menu=menu,
-                save=submit)
-
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or

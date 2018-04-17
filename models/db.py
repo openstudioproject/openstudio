@@ -13,7 +13,6 @@
 # Imports for testing
 # -------------------------------------------------------------------------
 from web2pytest import web2pytest
-#from openstudio import OSMail
 import os
 import datetime
 

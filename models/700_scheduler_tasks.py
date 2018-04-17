@@ -3,7 +3,7 @@
 import datetime
 import Mollie
 
-from openstudio import Customer, CustomerSubscription, Invoice, OsMail
+from openstudio.openstudio import Customer, CustomerSubscription, Invoice, OsMail
 
 
 def task_openstudio_daily():

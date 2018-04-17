@@ -163,7 +163,7 @@ def products():
     """
         List products
     """
-    from openstudio import ShopProducts
+    from openstudio.openstudio import ShopProducts
 
     response.title = T('Shop')
     response.subtitle = T('Catalog')
@@ -192,7 +192,7 @@ def product_add():
     """
         Add a new product
     """
-    from openstudio import OsForms
+    from openstudio.os_forms import OsForms
     response.title = T('Shop')
     response.subtitle = T('Catalog')
     response.view = 'general/tabs_menu.html'
@@ -227,7 +227,7 @@ def product_edit():
     """
         Edit a product
     """
-    from openstudio import OsForms
+    from openstudio.os_forms import OsForms
     response.title = T('Shop')
     response.subtitle = T('Catalog')
     response.view = 'general/tabs_menu.html'
@@ -264,8 +264,8 @@ def product_onaccept(form):
         If there is a product set, add all possible variants
         If not, add a default variant
     """
-    from openstudio import ShopProduct
-    from openstudio import ShopProductsSet
+    from openstudio.openstudio import ShopProduct
+    from openstudio.openstudio import ShopProductsSet
     spID = form.vars.id
     spsID = form.vars.shop_products_sets_id
 
@@ -300,11 +300,11 @@ def product_variants():
     """
         List Product variants for a product
     """
-    from openstudio import ShopProduct
+    from openstudio.openstudio import ShopProduct
+    from openstudio.openstudio import ShopProductsVariants
+
     spID = request.vars['spID']
     product = ShopProduct(spID)
-
-    from openstudio import ShopProductsVariants
 
     response.title = T('Shop')
     response.subtitle = T('Catalog')
@@ -344,7 +344,7 @@ def product_variant_add():
     """
         Add a product variant
     """
-    from openstudio import OsForms
+    from openstudio.os_forms import OsForms
 
     spID = request.vars['spID']
     product_variant_add_check_products_set(spID)
@@ -384,7 +384,7 @@ def product_variant_add_check_products_set(spID):
     :param spID: db.shop_products.id
     :return: None
     """
-    from openstudio import ShopProduct
+    from openstudio.openstudio import ShopProduct
     product = ShopProduct(spID)
     if product.has_products_set():
         session.flash = T("Unable to add variants for a product with a set")
@@ -396,8 +396,8 @@ def product_variant_edit():
     """
         Edit a product variant
     """
-    from openstudio import OsForms
-    from openstudio import ShopProduct
+    from openstudio.os_forms import OsForms
+    from openstudio.openstudio import ShopProduct
 
     spID = request.vars['spID']
     spvID = request.vars['spvID']
@@ -442,8 +442,8 @@ def product_variant_delete():
         Delete variant when not linked to a set
         Disable variant when linked to a set
     """
-    from openstudio import ShopProduct
-    from openstudio import ShopProductsVariant
+    from openstudio.openstudio import ShopProduct
+    from openstudio.openstudio import ShopProductsVariant
 
     spID = request.vars['spID']
     spvID = request.vars['spvID']
@@ -467,7 +467,7 @@ def product_variant_set_default():
     """
         Set product variant as default
     """
-    from openstudio import ShopProductsVariant
+    from openstudio.openstudio import ShopProductsVariant
 
     spID = request.vars['spID']
     spvID = request.vars['spvID']
@@ -484,7 +484,7 @@ def product_variant_enable():
     """
          Enable a product variant
     """
-    from openstudio import ShopProductsVariant
+    from openstudio.openstudio import ShopProductsVariant
 
     spID = request.vars['spID']
     spvID = request.vars['spvID']
@@ -502,8 +502,8 @@ def products_sets():
     """
         List shop product_sets
     """
-    from openstudio import ShopProductsSets
-    from openstudio_tools import OsSession
+    from openstudio.openstudio import ShopProductsSets
+    from openstudio.tools import OsSession
 
     response.title = T('Shop')
     response.subtitle = T('Catalog')
@@ -540,7 +540,7 @@ def products_set_add():
     """
         Add a new product_set
     """
-    from openstudio import OsForms
+    from openstudio.os_forms import OsForms
     response.title = T('Shop')
     response.subtitle = T('Catalog')
     response.view = 'general/tabs_menu.html'
@@ -575,7 +575,7 @@ def products_set_edit():
         Edit a product_set
         request.vars['spsID'] is expected to be db.shop_product_sets.id
     """
-    from openstudio import OsForms
+    from openstudio.os_forms import OsForms
 
     response.title = T('Shop')
     response.subtitle = T('Catalog')
@@ -627,7 +627,7 @@ def products_set_options():
     """
         List products set options
     """
-    from openstudio import ShopProductsSetsOptions
+    from openstudio.openstudio import ShopProductsSetsOptions
     response.title = T('Shop')
     response.subtitle = T('Catalog')
     response.view = 'general/tabs_menu.html'
@@ -695,8 +695,8 @@ def categories():
     """
         List shop categories
     """
-    from openstudio import ShopCategories
-    from openstudio_tools import OsSession
+    from openstudio.openstudio import ShopCategories
+    from openstudio.tools import OsSession
 
     response.title = T('Shop')
     response.subtitle = T('Catalog')
@@ -739,7 +739,7 @@ def category_add():
     """
         Add a new category
     """
-    from openstudio import OsForms
+    from openstudio.os_forms import OsForms
     response.title = T('Shop')
     response.subtitle = T('Catalog')
     response.view = 'general/tabs_menu.html'
@@ -773,7 +773,7 @@ def category_edit():
         Edit a category
         request.vars['scID'] is expected to be db.shop_categories.id
     """
-    from openstudio import OsForms
+    from openstudio.os_forms import OsForms
 
     response.title = T('Shop')
     response.subtitle = T('Catalog')
@@ -812,7 +812,7 @@ def category_archive():
         request.vars[scID] is expected to be in db.shop_categories.id
         :return: None
     """
-    from openstudio_tools import OsArchiver
+    from openstudio.tools import OsArchiver
 
     archiver = OsArchiver()
     archiver.archive(
@@ -829,8 +829,8 @@ def brands():
     """
         List shop brands
     """
-    from openstudio import ShopBrands
-    from openstudio_tools import OsSession
+    from openstudio.openstudio import ShopBrands
+    from openstudio.tools import OsSession
 
     response.title = T('Shop')
     response.subtitle = T('Catalog')
@@ -873,7 +873,7 @@ def brand_add():
     """
         Add a new brand
     """
-    from openstudio import OsForms
+    from openstudio.os_forms import OsForms
     response.title = T('Shop')
     response.subtitle = T('Catalog')
     response.view = 'general/tabs_menu.html'
@@ -907,7 +907,7 @@ def brand_edit():
         Edit a brand
         request.vars['sbID'] is expected to be db.shop_brands.id
     """
-    from openstudio import OsForms
+    from openstudio.os_forms import OsForms
 
     response.title = T('Shop')
     response.subtitle = T('Catalog')
@@ -946,7 +946,7 @@ def brand_archive():
         request.vars[sbID] is expected to be in db.shop_brands.id
         :return: None
     """
-    from openstudio_tools import OsArchiver
+    from openstudio.tools import OsArchiver
 
     archiver = OsArchiver()
     archiver.archive(
@@ -963,8 +963,8 @@ def suppliers():
     """
         List shop suppliers
     """
-    from openstudio import ShopSuppliers
-    from openstudio_tools import OsSession
+    from openstudio.openstudio import ShopSuppliers
+    from openstudio.tools import OsSession
 
     response.title = T('Shop')
     response.subtitle = T('Catalog')
@@ -1007,7 +1007,7 @@ def supplier_add():
     """
         Add a new supplier
     """
-    from openstudio import OsForms
+    from openstudio.os_forms import OsForms
     response.title = T('Shop')
     response.subtitle = T('Catalog')
     response.view = 'general/tabs_menu.html'
@@ -1041,7 +1041,7 @@ def supplier_edit():
         Edit a supplier
         request.vars['sbID'] is expected to be db.shop_brands.id
     """
-    from openstudio import OsForms
+    from openstudio.os_forms import OsForms
 
     response.title = T('Shop')
     response.subtitle = T('Catalog')
@@ -1080,7 +1080,7 @@ def supplier_archive():
         request.vars[supID] is expected to be in db.shop_suppliers.id
         :return: None
     """
-    from openstudio_tools import OsArchiver
+    from openstudio.tools import OsArchiver
 
     archiver = OsArchiver()
     archiver.archive(
@@ -1089,5 +1089,4 @@ def supplier_archive():
         T('Unable to (un)archive supplier'),
         shop_supplier_get_return_url()
     )
-
 

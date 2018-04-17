@@ -1,6 +1,7 @@
 # coding: utf8
 
-from openstudio import Workshop, WorkshopsHelper, WorkshopProduct, Invoice, InvoicesHelper, OsMail, TasksHelper
+from openstudio.openstudio import Workshop, WorkshopsHelper, WorkshopProduct, Invoice, InvoicesHelper, OsMail
+from openstudio.os_tasks import Tasks
 
 from general_helpers import get_weekday
 from general_helpers import get_badge
@@ -3252,7 +3253,7 @@ def tasks():
                  auth.has_permission('create', 'tasks')
     if permission:
         # add = os_gui.get_button('add', url_add)
-        th = TasksHelper()
+        tasks = Tasks()
         add = th.add_get_modal({'wsID': wsID})
 
     back = manage_get_back()

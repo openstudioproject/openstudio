@@ -5,7 +5,7 @@ from general_helpers import get_payment_batches_statuses
 from general_helpers import get_paused_subscriptions
 from general_helpers import max_string_length
 
-from openstudio import Invoice, InvoicesHelper, SchoolSubscription
+from openstudio.openstudio import Invoice, InvoicesHelper, SchoolSubscription
 
 import csv
 import cStringIO
