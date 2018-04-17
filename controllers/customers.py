@@ -18,30 +18,12 @@ from os_storage import uploads_available_space
 
 from openstudio.openstudio  import *
 
-# from openstudio import \
-#     Classcard, \
-#     ClasscardsHelper, \
-#     AttendanceHelper, \
-#     WorkshopsHelper, \
-#     Customer, \
-# from os_customers import CustomersHelper
-# from os_customer_subscriptions import CustomerSubscriptionsHelper
-# from os_customer_subscriptions import CustomerSubscription
-# from os_school_subscriptions import SchoolSubscription
-# from os_school_classcards import SchoolClasscard
-# from os_invoices import Invoice
-# from os_invoices import InvoicesHelper
-# from os_orders import Order
-
 # python general modules import
 import cStringIO
 import os
 import openpyxl
 import calendar
 import codecs
-#TODO: change all titles to "Customer"
-#TODO: change all subtitles to customer name
-
 
 # helper functions
 
