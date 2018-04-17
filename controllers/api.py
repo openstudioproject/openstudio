@@ -428,6 +428,7 @@ def _workshops_get(var=None):
         workshop = {
             'id': row.workshops.id,
             'Name': row.workshops.Name,
+            'Tagline': row.workshops.Tagline,
             'Startdate': row.workshops.Startdate,
             'Enddate': row.workshops.Enddate,
             'Starttime': row.workshops.Starttime,
@@ -556,6 +557,7 @@ def workshop_get():
     workshop = {
         'id': workshop.wsID,
         'Name': workshop.Name,
+        'Tagline': workshop.Tagline,
         'Startdate': workshop.Startdate,
         'Enddate': workshop.Enddate,
         'Starttime': workshop.Starttime,
