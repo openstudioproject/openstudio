@@ -339,3 +339,21 @@ img.workshop_image {
 #cart_total {
     margin-top: 20px;
 }
+
+/* Ajax loader begin */
+
+.ajax_loader {
+    padding: 15px 0 0 15px;
+}
+
+.ajax_loader img {
+    width: 18px;
+    height: 18px;
+    margin-right: 0.5em;
+}
+
+.ajax_loader {
+    padding: 20px;
+}
+
+/* Ajax loader end */

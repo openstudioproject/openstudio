@@ -576,8 +576,6 @@ def event():
         DIV(products_prices, _class='center'),
         #DIV(workshop_get_button_book(fullwspID), _class='center'),
         DIV(add_to_cart_buttons, _class='center'),
-
-
         _class='shop_workshop')
 
     #TODO: add teacher info
@@ -592,7 +590,7 @@ def event():
     return dict(content=content,
                 back=back,
                 og_title=workshop.Name,
-                og_description=workshop.Name,
+                og_description=workshop.Name, #TODO: workshop.subtitle when field is added
                 og_url=URL('shop', 'event', vars={'wsID':wsID}, scheme=True, host=True),
                 og_image=picture_url)
 

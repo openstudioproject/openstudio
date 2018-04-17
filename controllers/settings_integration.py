@@ -29,8 +29,13 @@ def mailchimp():
     response.view = 'general/tabs_menu.html'
 
     mailchimp_api_key = get_sys_property('mailchimp_api_key')
+    mailchimp_username = get_sys_property('mailchimp_username')
 
     form = SQLFORM.factory(
+        Field('mailchimp_username',
+              requires=IS_NOT_EMPTY(),
+              default=mailchimp_username,
+              label=T('MailChimp User name')),
         Field('mailchimp_api_key',
               requires=IS_NOT_EMPTY(),
               default=mailchimp_api_key,
@@ -50,9 +55,10 @@ def mailchimp():
     submit = form.element('input[type=submit]')
 
     if form.accepts(request.vars, session):
-        # Check mollie profile
         mailchimp_api_key = request.vars['mailchimp_api_key']
         set_sys_property('mailchimp_api_key', mailchimp_api_key)
+        mailchimp_username = request.vars['mailchimp_username']
+        set_sys_property('mailchimp_username', mailchimp_username)
 
         # User feedback
         session.flash = T('Saved')

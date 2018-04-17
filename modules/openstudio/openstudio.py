@@ -35,6 +35,18 @@ class Customer:
         return self.row.display_name
 
 
+    def get_email_hash(self, hash_type='md5'):
+        """
+
+        """
+        import hashlib
+
+        md5 = hashlib.md5()
+        md5.update(self.row.email.lower())
+
+        return md5.hexdigest()
+
+
     def _get_subscriptions_on_date(self, date):
         '''
             Returns subscription for a date

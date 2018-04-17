@@ -1273,8 +1273,6 @@ def privacy_get_documents():
     return documents
 
 
-
-
 @auth.requires_login()
 def privacy_download():
     """
@@ -1290,3 +1288,21 @@ def privacy_download():
     response.headers['Content-disposition'] = 'attachment; filename=' + fname
 
     return stream.getvalue()
+
+
+@auth.requires_login()
+def mail():
+    """
+        List
+    """
+    response.title = T('Mail')
+    response.view = 'shop/index.html'
+
+
+    content = DIV(LOAD('mailchimp', 'lists_for_customer.load',
+                              content=os_gui.get_ajax_loader(message=T("Loading mailing lists...")),
+                              vars={'cuID':auth.user.id},
+                              ajax=True))
+
+    return dict(content=content)
+
