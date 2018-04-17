@@ -38,7 +38,6 @@ class OsMailChimp():
         from openstudio.openstudio import Customer
         customer = Customer(cuID)
         subscriber_hash = customer.get_email_hash('md5')
-        print subscriber_hash
 
         mailchimp = self.get_client()
 
