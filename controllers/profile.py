@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
-'''
+"""
     This file provides the customer portal for OpenStudio
-'''
+"""
 from openstudio.openstudio import Customer, Order, Invoice
 
 
 @auth.requires_login()
 def index():
-    '''
+    """
         Main page for customers portal
-    '''
+    """
     response.title = T('Welcome')
     response.subtitle = auth.user.display_name
 
@@ -55,9 +55,9 @@ def index():
 
 
 def index_get_announcements(var=None):
-    '''
+    """
         Get announcements
-    '''
+    """
     content = DIV(_class='row')
 
     query = (db.customers_profile_announcements.PublicAnnouncement == True) & \
@@ -92,10 +92,10 @@ def index_get_announcements(var=None):
 
 
 def index_get_upcoming_classes(customer):
-    '''
+    """
     :param customer: openstudio.py Customer object
     :return: list of upcoming classes for a customer
-    '''
+    """
     from openstudio.openstudio import ClassAttendance
 
     rows = customer.get_classes_attendance_rows(upcoming=True)
@@ -156,9 +156,9 @@ def index_get_upcoming_classes(customer):
 
 
 def index_get_upcoming_events(customer):
-    '''
+    """
         :return: List of workshops for customer
-    '''
+    """
     rows = customer.get_workshops_rows(upcoming=True)
 
     if not rows:
@@ -197,9 +197,9 @@ def index_get_upcoming_events(customer):
 
 
 def index_get_classcards(customer):
-    '''
+    """
     :return: list of current classcards for a customer
-    '''
+    """
     rows = customer.get_classcards(TODAY_LOCAL, from_cache=False)
 
     if not rows:
@@ -237,9 +237,9 @@ def index_get_classcards(customer):
 
 
 def index_get_subscriptions(customer):
-    '''
+    """
     :return: list current subscriptions for a customer
-    '''
+    """
     rows = customer.get_subscriptions_on_date(TODAY_LOCAL, from_cache=False)
 
     if not rows:
@@ -280,9 +280,9 @@ def index_get_subscriptions(customer):
 
 
 def subscription_get_link_credits(row):
-    '''
+    """
         Returns total number of credits for a subscription
-    '''
+    """
     cs = CustomerSubscription(row.customers_subscriptions.id)
     if cs.ssu.Unlimited == True:
         link = SPAN(T("Unlimited"), _class='grey')
@@ -295,9 +295,9 @@ def subscription_get_link_credits(row):
 
 
 def subscription_get_link_info(row):
-    '''
+    """
         Returns info link for a subscription
-    '''
+    """
     csID = row.customers_subscriptions.id
 
     return A(os_gui.get_fa_icon('fa-info-circle'),
@@ -477,9 +477,9 @@ def me_get_link_privacy(var=None):
 
 @auth.requires_login()
 def classcards():
-    '''
+    """
         Lists classcards for a customer
-    '''
+    """
     response.title = T('Profile')
     response.subtitle = T('Class cards')
 
@@ -551,9 +551,9 @@ def classcard_get_remaining(row):
 
 
 def classcard_get_link_info(row):
-    '''
+    """
         Returns info link for a subscription
-    '''
+    """
     ccdID = row.customers_classcards.id
 
     return A(os_gui.get_fa_icon('fa-info-circle'),
@@ -564,10 +564,10 @@ def classcard_get_link_info(row):
 
 @auth.requires_login()
 def classcard_info():
-    '''
+    """
         Page to list permissions for a subscription
-    '''
-    from openstudio import Classcard
+    """
+    from openstudio.openstudio import Classcard
 
     ccdID = request.vars['ccdID']
     response.title = T('Profile')
@@ -608,7 +608,6 @@ def invoices():
 
     customer = Customer(auth.user.id)
     rows = customer.get_invoices_rows()
-    print rows
     back = os_gui.get_button('back', URL('profile', 'orders'), _class='btn-link')
 
     return dict(rows = rows, back=back)
@@ -667,9 +666,9 @@ def orders():
 
 
 def orders_display(var=None):
-    '''
+    """
         Returns orders display
-    '''
+    """
     customer = Customer(auth.user.id)
     orders = customer.get_orders_with_items_and_amounts()
 
@@ -751,9 +750,9 @@ def orders_display(var=None):
 
 @auth.requires_login()
 def order_cancel():
-    '''
+    """
         Cancel order
-    '''
+    """
     coID = request.vars['coID']
     order = Order(coID)
 
@@ -771,9 +770,9 @@ def order_cancel():
 
 @auth.requires_login()
 def order():
-    '''
+    """
         Page to show order content
-    '''
+    """
     coID = request.vars['coID']
 
     features = db.customers_profile_features(1)
@@ -797,10 +796,10 @@ def order():
 
 @auth.requires_login()
 def classes():
-    '''
+    """
         Page to list classes for a customer
-    '''
-    from openstudio import ClassAttendance
+    """
+    from openstudio.openstudio import ClassAttendance
 
     response.title = T('Profile')
     response.subtitle = T('Classes')
@@ -877,9 +876,9 @@ def classes():
 
 
 def class_cancel_get_return_url(var=None):
-    '''
+    """
         Get return url for cancel class confirm and class_cancel functions
-    '''
+    """
     if session.profile_class_cancel_confirm_back == 'profile_index':
         return_url = URL('profile', 'index')
     else:
@@ -890,10 +889,10 @@ def class_cancel_get_return_url(var=None):
 
 @auth.requires_login()
 def class_cancel():
-    '''
+    """
         Cancel class
-    '''
-    from openstudio import ClassAttendance
+    """
+    from openstudio.openstudio import ClassAttendance
 
     clattID = request.vars['clattID']
 
@@ -909,10 +908,10 @@ def class_cancel():
 
 @auth.requires_login()
 def class_cancel_confirm():
-    '''
+    """
         Ask user for confirmation about really cancelling booking for a class
-    '''
-    from openstudio import ClassAttendance, Class
+    """
+    from openstudio.openstudio import ClassAttendance, Class
 
     clattID = request.vars['clattID']
 
@@ -961,9 +960,9 @@ def class_cancel_confirm():
 
 @auth.requires_login()
 def subscriptions():
-    '''
+    """
         Page to list subscriptions for a customer
-    '''
+    """
     response.title = T('Profile')
     response.subtitle = T('Subscriptions')
 
@@ -990,9 +989,9 @@ def subscriptions():
 
 @auth.requires_login()
 def subscription_credits():
-    '''
+    """
         Page to list subscription credits mutations
-    '''
+    """
     response.title = T('Profile')
     response.subtitle = T('Subscription credits')
 
@@ -1031,9 +1030,9 @@ def subscription_credits():
 
 @auth.requires_login()
 def subscription_info():
-    '''
+    """
         Page to list permissions for a subscription
-    '''
+    """
     csID = request.vars['csID']
     response.title = T('Profile')
     response.subtitle = T('Subscription info')
@@ -1059,10 +1058,10 @@ def subscription_info():
 
 
 def enrollments_get_back(var=None):
-    '''
+    """
     :param var: Unused variable to prevent Web2py making this function public
     :return: return url for enrollments
-    '''
+    """
     url = URL('profile', 'index')
 
     return url
@@ -1070,9 +1069,9 @@ def enrollments_get_back(var=None):
 
 @auth.requires_login()
 def enrollments():
-    '''
+    """
         List recurring class reservations for customers
-    '''
+    """
     response.title = T('Profile')
     response.subtitle = T('Enrollments')
 
@@ -1119,9 +1118,9 @@ def enrollments():
 
 @auth.requires_login()
 def enrollment_end():
-    '''
+    """
         Allow customers to end their enrollment
-    '''
+    """
     response.title = T('Profile')
     response.subtitle = T('End enrollment')
 
@@ -1278,7 +1277,7 @@ def privacy_download():
     """
     :return: xlsx document containing all data of an account
     """
-    from openstudio import CustomerExport
+    from openstudio.openstudio import CustomerExport
 
     ce = CustomerExport(auth.user.id)
     stream = ce.excel()

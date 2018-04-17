@@ -301,10 +301,10 @@ def product_variants():
         List Product variants for a product
     """
     from openstudio.openstudio import ShopProduct
+    from openstudio.openstudio import ShopProductsVariants
+
     spID = request.vars['spID']
     product = ShopProduct(spID)
-
-    from openstudio.openstudio import ShopProductsVariants
 
     response.title = T('Shop')
     response.subtitle = T('Catalog')

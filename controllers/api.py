@@ -5,7 +5,7 @@ import datetime
 from general_helpers import iso_to_gregorian
 from general_helpers import NRtoDay
 
-from openstudio import ClassSchedule, WorkshopSchedule, Workshop
+from openstudio.openstudio import ClassSchedule, WorkshopSchedule, Workshop
 
 
 def do_auth(user, key):

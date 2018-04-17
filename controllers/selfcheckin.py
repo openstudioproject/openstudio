@@ -3,7 +3,7 @@
 from general_helpers import max_string_length
 from general_helpers import datestr_to_python
 
-from openstudio import AttendanceHelper, ClassSchedule, Customer, Class
+from openstudio.openstudio import AttendanceHelper, ClassSchedule, Customer, Class
 
 import pytz
 

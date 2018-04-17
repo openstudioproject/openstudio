@@ -24,6 +24,7 @@ def test_mailchimp(client, web2py):
     assert client.status == 200
 
     data = {
+        'mailchimp_username': 'chimpy',
         'mailchimp_api_key': '123456_test'
     }
     client.post(url, data=data)
@@ -31,6 +32,8 @@ def test_mailchimp(client, web2py):
 
     row = web2py.db.sys_properties(Property='mailchimp_api_key')
     assert row.PropertyValue == data['mailchimp_api_key']
+    row = web2py.db.sys_properties(Property='mailchimp_username')
+    assert row.PropertyValue == data['mailchimp_username']
 
 
 def test_mollie(client, web2py):

@@ -3857,7 +3857,7 @@ def subscription_credits_month_add():
     '''
         Add credits for subscriptions in selected month
     '''
-    from openstudio import CustomersSubscriptionsCreditsHelper
+    from openstudio.openstudio import CustomersSubscriptionsCreditsHelper
 
     year = session.customers_subscription_credits_year
     month = session.customers_subscription_credits_month

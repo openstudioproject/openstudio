@@ -5906,7 +5906,7 @@ def customers_inactive_delete():
     """
         :return: None
     """
-    from openstudio import Customers
+    from openstudio.openstudio import Customers
 
     date_formatted = request.vars['date']
     date = datestr_to_python(DATE_FORMAT, date_formatted)

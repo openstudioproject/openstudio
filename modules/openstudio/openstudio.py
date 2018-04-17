@@ -10774,6 +10774,8 @@ class ShopProductsSetsOptions:
         """
             :return: CRUD form to add an option
         """
+        from os_forms import OsForms
+
         T = current.globalenv['T']
         db = current.globalenv['db']
 
@@ -10860,6 +10862,8 @@ class ShopProductsSetsOptionsValues:
         """
             :return: CRUD form to add an option
         """
+        from os_forms import OsForms
+
         T = current.globalenv['T']
         db = current.globalenv['db']
         request = current.globalenv['request']

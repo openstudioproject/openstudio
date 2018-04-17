@@ -4,7 +4,7 @@ from general_helpers import max_string_length
 from general_helpers import datestr_to_python
 from general_helpers import set_form_id_and_get_submit_button
 
-from openstudio import Invoice, InvoicesHelper, Customer, Order
+from openstudio.openstudio import Invoice, InvoicesHelper, Customer, Order
 
 
 from decimal import Decimal, ROUND_HALF_UP

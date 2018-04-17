@@ -4,7 +4,7 @@ from general_helpers import max_string_length
 from general_helpers import datestr_to_python
 from general_helpers import get_last_day_month
 
-from openstudio import Invoice, Order, Customer, CustomerSubscription, OsMail
+from openstudio.openstudio import Invoice, Order, Customer, CustomerSubscription, OsMail
 
 from decimal import Decimal, ROUND_HALF_UP
 
@@ -12,9 +12,9 @@ import Mollie
 
 
 def webhook():
-    '''
+    """
         Webhook called by mollie
-    '''
+    """
     id = request.vars['id']
 
     mlwID = db.mollie_log_webhook.insert(mollie_payment_id=id)
@@ -80,9 +80,9 @@ def webhook():
 
 
 def test_webhook_order_paid():
-    '''
+    """
         A test can call this function to check whether everything works after an order has been paid
-    '''
+    """
     if not web2pytest.is_running_under_test(request, request.application):
         redirect(URL('default', 'user', args=['not_authorized']))
     else:
@@ -95,9 +95,9 @@ def test_webhook_order_paid():
 
 
 def test_webhook_invoice_paid():
-    '''
+    """
         A test can call this function to check whether everything works after an invoice has been paid
-    '''
+    """
     if not web2pytest.is_running_under_test(request, request.application):
         redirect(URL('default', 'user', args=['not_authorized']))
     else:
@@ -110,10 +110,10 @@ def test_webhook_invoice_paid():
 
 
 def webhook_order_paid(coID, payment_amount=None, payment_date=None, mollie_payment_id=None, invoice=True):
-    '''
+    """
         :param coID: db.customers_orders.id
         :return: None
-    '''
+    """
     order = Order(coID)
     result = order.deliver()
 
@@ -143,10 +143,10 @@ def webhook_order_paid(coID, payment_amount=None, payment_date=None, mollie_paym
 
 
 def webhook_invoice_paid(iID, payment_amount, payment_date, mollie_payment_id):
-    '''
+    """
         :param iID: db.invoices.id
         :return: None
-    '''
+    """
     invoice = Invoice(iID)
 
     ipID = invoice.payment_add(
@@ -171,9 +171,9 @@ def webhook_invoice_paid(iID, payment_amount, payment_date, mollie_payment_id):
 
 @auth.requires_login()
 def invoice_pay():
-    '''
+    """
         Link to mollie payment page from invoice payment
-    '''
+    """
     #response.title = T("Pay invoice")
     iID = request.vars['iID']
 
@@ -260,9 +260,9 @@ def invoice_pay():
 
 @auth.requires_login()
 def order_pay():
-    '''
+    """
         Page to pay an order
-    '''
+    """
     coID = request.vars['coID']
 
     order = Order(coID)
@@ -328,9 +328,9 @@ def create_mollie_customer(os_customer, mollie):
 
 @auth.requires_login()
 def subscription_buy_now():
-    '''
+    """
         Get a subscription
-    '''
+    """
     ssuID = request.vars['ssuID']
 
     # init mollie
@@ -388,9 +388,9 @@ def subscription_buy_now():
 
 @auth.requires_login()
 def donate():
-    '''
+    """
         Allow customers to make a donation 
-    '''
+    """
     amount = request.vars['amount']
     description = request.vars['description']
 

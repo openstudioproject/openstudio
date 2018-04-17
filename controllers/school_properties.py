@@ -8,7 +8,7 @@ import openpyxl
 from general_helpers import get_submenu
 from general_helpers import set_form_id_and_get_submit_button
 
-from openstudio import CustomersHelper, SchoolSubscription
+from openstudio.openstudio import CustomersHelper, SchoolSubscription
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
