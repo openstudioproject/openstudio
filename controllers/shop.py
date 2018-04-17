@@ -560,6 +560,7 @@ def event():
 
     content = DIV(
         H2(workshop.Name, _class='center'),
+        H4(workshop.Tagline, _class='center'),
         DIV(DIV(_class='col-md-1'),
             DIV(IMG(_src=picture_url,
                     _class='workshop_image'),
@@ -567,7 +568,7 @@ def event():
             DIV(XML(workshop.Description),
                 _class='col-md-6'),
             DIV(_class='col-md-1'),
-            _class='row'),
+            _class='row shop_workshop_info'),
         DIV(H2(T('Agenda')),
             products_filter,
             _class='center'),
@@ -585,7 +586,7 @@ def event():
     if not features.Workshops:
         content = T('This feature is disabled')
 
-    back = os_gui.get_button('back', URL('shop', 'workshops'))
+    back = os_gui.get_button('back', URL('shop', 'events'))
 
     return dict(content=content,
                 back=back,

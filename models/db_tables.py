@@ -2460,6 +2460,7 @@ def define_workshops():
             requires=IS_NOT_EMPTY(),
             label=T("Name")),
         Field('Tagline',
+              represent=lambda value, row: value or "",
               label=T('Tagline'),
               comment=T('If asked to describe this event in one sentence, it would be...')),
         Field('Startdate', 'date',

@@ -209,19 +209,25 @@ a.btn_date_chooser {
 .workshops-list-workshop a:hover,
 .workshops-list-workshop a:visited,
 .workshops-list-workshop a:active,
-.workshops-list-workshop a h4,
-.workshops-list-workshop a h4:hover,
-.workshops-list-workshop a h4:visited,
-.workshops-list-workshop a h4:active {
+.workshops-list-workshop a h3,
+.workshops-list-workshop a h3:hover,
+.workshops-list-workshop a h3:visited,
+.workshops-list-workshop a h3:active {
     color: #333;
-    font-weight: bold;
-    font-size: 110%;
     text-decoration: none;
 }
 
+.workshops-list-workshop h3 {
+    margin-top: 0;
+}
+
 .workshops-list-workshop a:hover,
-.workshops-list-workshop a h4:hover {
-    color: #777;
+.workshops-list-workshop a h3:hover {
+    color: #000;
+}
+
+.workshops-list-workshop h4 {
+    font-size: 115%;
 }
 
 .workshops-list-workshop-image {
@@ -331,8 +337,13 @@ img.workshop_image {
 }
 
 .shop_workshop h2 {
-    margin-bottom: 50px;
+    margin-bottom: 6px;
 }
+
+.shop_workshop .shop_workshop_info {
+    margin-top: 44px;
+}
+
 
 /* Workshops end */
 

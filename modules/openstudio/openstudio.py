@@ -6581,6 +6581,7 @@ class Workshop:
         repr_row = rows.render(0)
 
         self.Name = self.workshop.Name
+        self.Tagline = self.workshop.Tagline or ''
         self.Startdate = self.workshop.Startdate
         self.Startdate_formatted = repr_row.Startdate
         self.Enddate = self.workshop.Enddate
@@ -7126,6 +7127,7 @@ class WorkshopSchedule:
         fields = [
             db.workshops.id,
             db.workshops.Name,
+            db.workshops.Tagline,
             db.workshops.Startdate,
             db.workshops.Enddate,
             db.workshops.Starttime,
@@ -7143,6 +7145,7 @@ class WorkshopSchedule:
         query = '''
         SELECT ws.id,
                ws.Name,
+               ws.Tagline,
                ws.Startdate,
                ws.Enddate,
                ws.Starttime,
@@ -7179,9 +7182,9 @@ class WorkshopSchedule:
 
 
     def _get_workshops_shop(self):
-        '''
+        """
             Format list of workshops in a suitable way for the shop
-        '''
+        """
         def new_workshop_month():
             _class = 'workshops-list-month'
 
@@ -7206,6 +7209,8 @@ class WorkshopSchedule:
         for i, row in enumerate(rows):
             repr_row = list(rows[i:i + 1].render())[0]
 
+            print row.workshops.Tagline
+
             more_info = os_gui.get_button('noicon',
                 URL('event', vars={'wsID':row.workshops.id}),
                 title=T('More info...'),
@@ -7223,15 +7228,15 @@ class WorkshopSchedule:
                 workshops_month = new_workshop_month()
                 workshops_month_body = DIV(_class='box-body')
 
-
             startdate = SPAN(row.workshops.Startdate.strftime('%d %B').lstrip("0").replace(" 0", " "), _class='label_date')
             enddate = ''
             if not row.workshops.Startdate == row.workshops.Enddate:
                 enddate = SPAN(row.workshops.Enddate.strftime('%d %B').lstrip("0").replace(" 0", " "), _class='label_date')
             workshop = DIV(
                 DIV(DIV(DIV(repr_row.workshops.thumblarge, _class='workshops-list-workshop-image center'),
-                            _class='col-xs-12 col-sm-12 col-md-3'),
-                        DIV(A(H4(row.workshops.Name), _href=URL('shop', 'event', vars={'wsID':row.workshops.id})),
+                        _class='col-xs-12 col-sm-12 col-md-3'),
+                        DIV(A(H3(row.workshops.Name), _href=URL('shop', 'event', vars={'wsID':row.workshops.id})),
+                            H4(repr_row.workshops.Tagline),
                             DIV(os_gui.get_fa_icon('fa-calendar-o'), ' ',
                                 startdate, ' ',
                                 repr_row.workshops.Starttime, ' - ',
@@ -7257,9 +7262,9 @@ class WorkshopSchedule:
 
 
     def get_workshops_shop(self):
-        '''
+        """
             Use caching when not running as test to return the workshops list in the shop
-        '''
+        """
         web2pytest = current.globalenv['web2pytest']
         request = current.globalenv['request']
         auth = current.globalenv['auth']
