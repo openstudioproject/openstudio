@@ -2462,7 +2462,7 @@ def define_workshops():
         Field('Tagline',
               represent=lambda value, row: value or "",
               label=T('Tagline'),
-              comment=T('If asked to describe this event in one sentence, it would be...')),
+              comment=T('If asked to describe this event in a short sentence, it would be...')),
         Field('Startdate', 'date',
             writable=False,
             requires=IS_EMPTY_OR(IS_DATE_IN_RANGE(format=DATE_FORMAT,

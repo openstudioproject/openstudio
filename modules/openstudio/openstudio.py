@@ -7209,8 +7209,6 @@ class WorkshopSchedule:
         for i, row in enumerate(rows):
             repr_row = list(rows[i:i + 1].render())[0]
 
-            print row.workshops.Tagline
-
             more_info = os_gui.get_button('noicon',
                 URL('event', vars={'wsID':row.workshops.id}),
                 title=T('More info...'),

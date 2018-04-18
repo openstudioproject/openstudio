@@ -591,7 +591,7 @@ def event():
     return dict(content=content,
                 back=back,
                 og_title=workshop.Name,
-                og_description=workshop.Name, #TODO: workshop.subtitle when field is added
+                og_description=workshop.Tagline, 
                 og_url=URL('shop', 'event', vars={'wsID':wsID}, scheme=True, host=True),
                 og_image=picture_url)
 
