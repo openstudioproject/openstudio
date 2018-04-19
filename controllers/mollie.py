@@ -17,6 +17,8 @@ def webhook():
     """
     id = request.vars['id']
 
+    print id
+
     mlwID = db.mollie_log_webhook.insert(mollie_payment_id=id)
     mlw = db.mollie_log_webhook(mlwID)
 

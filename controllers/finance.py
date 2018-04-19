@@ -701,7 +701,7 @@ def generate_batch_items_invoices(pbID,
         csID = row.invoices.customers_subscriptions_id
         iID  = row.invoices.id
 
-        amount      = row.invoices_amounts.TotalPriceVAT
+        amount = row.invoices_amounts.TotalPriceVAT
 
         # check for zero amount
         if not pb.IncludeZero and amount == 0:

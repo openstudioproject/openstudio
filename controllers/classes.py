@@ -3015,6 +3015,9 @@ def attendance_remove():
     # Clear cache to refresh subscription credit count
     cache_clear_customers_subscriptions(cuID)
 
+    # Clear api cache to refresh available spaces
+    cache_clear_classschedule_api()
+
 
     if clatt.customers_classcards_id:
         # update class count on classcard
@@ -3031,9 +3034,9 @@ def attendance_remove():
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('update', 'classes_attendance'))
 def attendance_set_status():
-    '''
+    """
          Set status of class booking
-    '''
+    """
     clattID = request.vars['clattID']
     status = request.vars['status']
 
@@ -3045,15 +3048,18 @@ def attendance_set_status():
     clsID = clatt.classes_id
     date_formatted = clatt.ClassDate.strftime(DATE_FORMAT)
 
+    # Clear api cache to refresh available spaces
+    cache_clear_classschedule_api()
+
     redirect(attendance_sign_in_get_returl_url(clsID, date_formatted, cuID))
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('update', 'classes_attendance'))
 def attendance_sign_in_ajaj():
-    '''
+    """
         Sign customer in to a class (change booking status from 'booked' to 'attending'
-    '''
+    """
     clattID = request.vars['clattID']
 
     clatt = db.classes_attendance(clattID)

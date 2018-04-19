@@ -95,9 +95,9 @@ def profile_menu():
 
 
 def shop_links():
-    '''
+    """
         Gets additional links for the shop pages
-    '''
+    """
     menu = []
     rows = db(db.shop_links).select(db.shop_links.ALL,
                                     orderby=db.shop_links.Name)

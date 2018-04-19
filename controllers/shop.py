@@ -889,16 +889,23 @@ def classes():
     response.subtitle = T('Classes')
     response.view = 'shop/index.html'
 
-    if 'year' in request.vars:
-        year = int(request.vars['year'])
+    # if 'year' in request.vars:
+    #     year = int(request.vars['year'])
+    # else:
+    #     year = TODAY_LOCAL.year
+    # if 'week' in request.vars:
+    #     week = int(request.vars['week'])
+    # else:
+    #     week = TODAY_LOCAL.isocalendar()[1]
+    #     if week == 0:
+    #         week = 1
+
+    if 'date' in request.vars:
+        start_date = datestr_to_python(DATE_FORMAT, request.vars['date'])
+        if start_date < TODAY_LOCAL:
+            start_date = TODAY_LOCAL
     else:
-        year = TODAY_LOCAL.year
-    if 'week' in request.vars:
-        week = int(request.vars['week'])
-    else:
-        week = TODAY_LOCAL.isocalendar()[1]
-        if week == 0:
-            week = 1
+        start_date = TODAY_LOCAL
 
     # set up filter variables
     filter_id_school_location = ''
@@ -913,25 +920,22 @@ def classes():
     if 'classtype' in request.vars:
         filter_id_school_classtype = request.vars['classtype']
 
-    filter = classes_get_filter(week,
-                                year,
+    filter = classes_get_filter(start_date,
                                 filter_id_school_classtype=filter_id_school_classtype,
                                 filter_id_school_location=filter_id_school_location,
                                 filter_id_school_level='',
                                 filter_id_teacher=filter_id_teacher)
 
     days = []
-    for day in range(1, 8):
-        date = iso_to_gregorian(year, week, day)
-        classes_list = classes_get_day(year,
-                                       week,
-                                       day,
+    for day in range(0, 7):
+        date = start_date + datetime.timedelta(days=day)
+        classes_list = classes_get_day(date,
                                        filter_id_school_classtype=filter_id_school_classtype,
                                        filter_id_school_location=filter_id_school_location,
                                        filter_id_school_level='',
                                        filter_id_teacher=filter_id_teacher)
 
-        days.append(dict(date=date, weekday=day, classes=classes_list))
+        days.append(dict(date=date, weekday=date.isoweekday(), classes=classes_list))
 
 
     classes = DIV()
@@ -947,7 +951,9 @@ def classes():
             DIV(SPAN(T('Class')),
                 _class='col-md-3'),
             DIV(SPAN(T('Teacher')),
-                _class='col-md-3'),
+                _class='col-md-2'),
+            DIV(SPAN(T('Spaces')),
+                _class='col-md-1'),
             DIV(' ',
                 _class='col-md-2'), # Actions
             _class='row shop_classes_table_header bold'
@@ -971,7 +977,9 @@ def classes():
                 DIV(c['ClassType'],
                     _class='col-md-3'),
                 DIV(c['Teacher'], ' ', sub,
-                    _class='col-md-3'),
+                    _class='col-md-2'),
+                DIV('(', c['BookingSpacesAvailable'] , ')',
+                    _class='col-md-1 grey'),
                 DIV(DIV(book, _class='pull-right'),
                     _class='col-md-2'),  # Actions
                 _class='row'
@@ -1009,8 +1017,7 @@ def classes_get_button_book(c):
     return book
 
 
-def classes_get_filter(week,
-                       year,
+def classes_get_filter(date,
                        filter_id_school_classtype='',
                        filter_id_school_location='',
                        filter_id_school_level='',
@@ -1022,6 +1029,8 @@ def classes_get_filter(week,
         :param filter_id_teacher: db.auth_user.id (teacher = True)
         :return: div containing filter form for shop classes
     """
+    date_formatted = date.strftime(DATE_FORMAT)
+
     au_query = (db.auth_user.teacher == True) & \
                (db.auth_user.trashed == False)
 
@@ -1059,7 +1068,7 @@ def classes_get_filter(week,
         formstyle='divs',
         )
 
-    # sumbit form on change
+    # submit form on change
     selects = form.elements('select')
     for select in selects:
         select.attributes['_onchange'] = "this.form.submit();"
@@ -1073,7 +1082,7 @@ def classes_get_filter(week,
         DIV(form.custom.widget.classtype,
             _class='col-md-3'),
         # form.custom.widget.level,
-        DIV(classes_get_week_browser(week, year),
+        DIV(classes_get_week_browser(date),
             _class='col-md-3'),
         form.custom.end,
         _class='row'
@@ -1082,38 +1091,43 @@ def classes_get_filter(week,
     return div
 
 
-def classes_get_week_browser(week, year):
+def classes_get_week_browser(date):
     """
         :param week: int week
         :param year: int year
         :return: buttons to browse through weeks 
     """
-    lastweek = get_lastweek_year(year)
+    #TODO: Disable going back when date == today
+    #TODO: ONly go back to today when < 6 days away from today
 
-    if week == 1:
-        prev_week  = lastweek
-        prev_year  = year - 1
-    else:
-        prev_week  = week - 1
-        prev_year  = year
+    one_week = datetime.timedelta(days=7)
+    date_prev = (date - one_week).strftime(DATE_FORMAT)
+    date_next = (date + one_week).strftime(DATE_FORMAT)
 
-    if week == lastweek:
-        next_week  = 1
-        next_year  = year + 1
-    else:
-        next_week  = week + 1
-        next_year  = year
+    # if week == 1:
+    #     prev_week  = lastweek
+    #     prev_year  = year - 1
+    # else:
+    #     prev_week  = week - 1
+    #     prev_year  = year
+    #
+    # if week == lastweek:
+    #     next_week  = 1
+    #     next_year  = year + 1
+    # else:
+    #     next_week  = week + 1
+    #     next_year  = year
 
-    url_prev = URL('classes', vars={ 'week' : prev_week,
-                                     'year' : prev_year })
-    url_next = URL('classes', vars={ 'week' : next_week,
-                                     'year' : next_year })
+    url_prev = URL('classes', vars={ 'date': date_prev })
+    if date <= TODAY_LOCAL:
+        url_prev = '#'
+    url_next = URL('classes', vars={ 'date': date_next })
 
     # previous = A(SPAN(_class='glyphicon glyphicon-chevron-left'),
     #              _href=),
     #              _class='btn_date_chooser')
-    info = DIV(unicode(year), ' ', T('Week'), ' ', unicode(week),
-                _class='info bold')
+    # info = DIV(unicode(year), ' ', T('Week'), ' ', unicode(week),
+    #             _class='info bold')
     #
     # nxt = A(SPAN(_class='glyphicon glyphicon-chevron-right'),
     #         _href=
@@ -1122,18 +1136,20 @@ def classes_get_week_browser(week, year):
     previous = A(I(_class='fa fa-angle-left'),
                  _href=url_prev,
                  _class='btn btn-default')
+
+    if date <= TODAY_LOCAL:
+        previous['_disabled'] = 'disabled'
+
     nxt = A(I(_class='fa fa-angle-right'),
             _href=url_next,
             _class='btn btn-default')
 
     buttons = DIV(previous, nxt, _class='btn-group pull-right')
 
-    return DIV(buttons, info, _class='shop-classes-week-chooser')
+    return DIV(buttons, _class='shop-classes-week-chooser')
 
 
-def classes_get_day(year,
-                    week,
-                    day,
+def classes_get_day(date,
                     filter_id_school_classtype,
                     filter_id_school_location,
                     filter_id_school_level,
@@ -1142,9 +1158,6 @@ def classes_get_day(year,
         :param weekday: ISO weekday (1-7)
         :return: List of classes for day
     """
-    date = iso_to_gregorian(int(year), int(week), int(day))
-    date_formatted = date.strftime(DATE_FORMAT)
-
     cs = ClassSchedule(
         date,
         filter_id_school_classtype = filter_id_school_classtype,
@@ -1510,6 +1523,8 @@ def class_book():
                                                                      'date':date_formatted,
                                                                      'ccdID':ccdID}))
 
+    # Clear api cache to update available spaces
+    cache_clear_classschedule_api()
 
     if request.vars['dropin'] == 'true':
         # Add drop in class to shopping cart

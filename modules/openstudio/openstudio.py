@@ -4817,7 +4817,6 @@ class AttendanceHelper:
                     if not classes_remaining == 'unlimited':
                         classes_remaining -= 1
 
-
                     classes_booked += 1
 
             date += datetime.timedelta(days=7)
@@ -4827,13 +4826,13 @@ class AttendanceHelper:
 
 
     def attendance_sign_in_classcard(self, cuID, clsID, ccdID, date, online_booking=False, booking_status='booked'):
-        '''
+        """
             :param cuID: db.auth_user.id 
             :param clsID: db.classes.id
             :param ccdID: db.customers_classcards.id
             :param date: datetime.date
             :return: 
-        '''
+        """
         db = current.globalenv['db']
         T = current.globalenv['T']
 
@@ -5618,10 +5617,10 @@ class ClassSchedule:
 
 
     def _get_day_list_booking_status(self, row):
-        '''
+        """
             :param row: ClassSchedule.get_day_rows() row
             :return: booking status
-        '''
+        """
         pytz = current.globalenv['pytz']
         TIMEZONE = current.globalenv['TIMEZONE']
         NOW_LOCAL = current.globalenv['NOW_LOCAL']
@@ -5653,19 +5652,39 @@ class ClassSchedule:
                 status = 'not_yet_open'
             else:
                 # check spaces for online bookings
-                enrollments = row.classes_schedule_count.Reservations or 0
-                enrollment_spaces = row.classes.MaxReservationsRecurring or 0
-                enrollment_spaces_left = enrollment_spaces - enrollments
-
-                spaces = row.classes.MaxOnlineBooking or 0
-                online_booking = row.classes_schedule_count.OnlineBooking or 0
-
-                if ((spaces + enrollment_spaces_left) - online_booking) < 1:
+                spaces = self._get_day_list_booking_spaces(row)
+                if spaces < 1:
                     status = 'full'
                 else:
                     status = 'ok'
 
         return status
+
+
+    def _get_day_list_booking_spaces(self, row):
+        """
+        :param row: :param row: ClassSchedule.get_day_rows() row
+        :return: int - available online booking spaces for a class
+        """
+        enrollments = row.classes_schedule_count.Reservations or 0
+        enrollment_spaces = row.classes.MaxReservationsRecurring or 0
+        enrollment_spaces_left = enrollment_spaces - enrollments
+
+        spaces = row.classes.MaxOnlineBooking or 0
+        online_booking = row.classes_schedule_count.OnlineBooking or 0
+        #attendance = row.classes_schedule_count.Attendance or 0
+
+        available_spaces = (spaces + enrollment_spaces_left) - online_booking
+        if available_spaces < 1:
+            available_spaces = 0
+        #
+        # print '### clsID' + unicode(row.classes.id)
+        # print spaces
+        # print enrollment_spaces_left
+        # print online_booking
+        # print available_spaces
+
+        return available_spaces
 
 
     def _get_day_rows(self):
@@ -6121,6 +6140,7 @@ class ClassSchedule:
             data['MaxStudents'] = row.classes.Maxstudents or 0 # Spaces for a class
             data['CountAttendance'] = row.classes_schedule_count.Attendance or 0
             data['CountAttendanceOnlineBooking'] = row.classes_schedule_count.OnlineBooking or 0
+            data['BookingSpacesAvailable'] = self._get_day_list_booking_spaces(row)
             data['BookingStatus'] = self._get_day_list_booking_status(row)
             data['BookingOpen'] = self.bookings_open
             data['LinkShop'] = shop_url
@@ -7509,6 +7529,7 @@ class Order:
         '''
             Create invoice for order and deliver goods
         '''
+        cache_clear_classschedule_api = current.globalenv['cache_clear_classschedule_api']
         get_sys_property = current.globalenv['get_sys_property']
         db = current.globalenv['db']
         T = current.globalenv['T']
@@ -7607,6 +7628,9 @@ class Order:
 
                 if create_invoice:
                     invoice.item_add_class(row, result['caID'])
+
+                # Clear api cache to update available spaces
+                cache_clear_classschedule_api()
 
             # Check for donation
             if row.Donation:

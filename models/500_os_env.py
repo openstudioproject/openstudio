@@ -165,9 +165,17 @@ def cache_clear_classschedule(var_one=None, var_two=None):
     cache.ram.clear(regex = class_schedule_regex)
     cache.disk.clear(regex = class_schedule_regex)
 
+    cache_clear_classschedule_api()
+
+
+def cache_clear_classschedule_api(var_one=None, var_two=None):
+    """
+        Clears the class schedule api cache
+        takes 2 dummy arguments in case it's called from a CRUD form or from SQLFORM.grid
+    """
     api_schedule_regex = 'openstudio_api_schedule_get_*'
-    cache.ram.clear(regex = api_schedule_regex)
-    cache.disk.clear(regex = api_schedule_regex)
+    cache.ram.clear(regex=api_schedule_regex)
+    cache.disk.clear(regex=api_schedule_regex)
 
 
 def cache_clear_classschedule_trend(var_one=None, var_two=None):
