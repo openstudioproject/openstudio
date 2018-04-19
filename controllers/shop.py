@@ -1104,34 +1104,11 @@ def classes_get_week_browser(date):
     date_prev = (date - one_week).strftime(DATE_FORMAT)
     date_next = (date + one_week).strftime(DATE_FORMAT)
 
-    # if week == 1:
-    #     prev_week  = lastweek
-    #     prev_year  = year - 1
-    # else:
-    #     prev_week  = week - 1
-    #     prev_year  = year
-    #
-    # if week == lastweek:
-    #     next_week  = 1
-    #     next_year  = year + 1
-    # else:
-    #     next_week  = week + 1
-    #     next_year  = year
 
     url_prev = URL('classes', vars={ 'date': date_prev })
     if date <= TODAY_LOCAL:
         url_prev = '#'
     url_next = URL('classes', vars={ 'date': date_next })
-
-    # previous = A(SPAN(_class='glyphicon glyphicon-chevron-left'),
-    #              _href=),
-    #              _class='btn_date_chooser')
-    # info = DIV(unicode(year), ' ', T('Week'), ' ', unicode(week),
-    #             _class='info bold')
-    #
-    # nxt = A(SPAN(_class='glyphicon glyphicon-chevron-right'),
-    #         _href=
-    #         _class='btn_date_chooser right')
 
     previous = A(I(_class='fa fa-angle-left'),
                  _href=url_prev,
