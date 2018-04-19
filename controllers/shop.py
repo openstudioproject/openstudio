@@ -1097,9 +1097,6 @@ def classes_get_week_browser(date):
         :param year: int year
         :return: buttons to browse through weeks 
     """
-    #TODO: Disable going back when date == today
-    #TODO: ONly go back to today when < 6 days away from today
-
     one_week = datetime.timedelta(days=7)
     date_prev = (date - one_week).strftime(DATE_FORMAT)
     date_next = (date + one_week).strftime(DATE_FORMAT)
@@ -1121,9 +1118,20 @@ def classes_get_week_browser(date):
             _href=url_next,
             _class='btn btn-default')
 
+    today = ''
+    if date > TODAY_LOCAL:
+        today = os_gui.get_button(
+            'noicon',
+            URL('shop', 'classes',
+                vars={'date': TODAY_LOCAL.strftime(DATE_FORMAT)}),
+            title=T('Today'),
+            btn_size='',
+            _class="pull-right"
+        )
+
     buttons = DIV(previous, nxt, _class='btn-group pull-right')
 
-    return DIV(buttons, _class='shop-classes-week-chooser')
+    return DIV(buttons, ' ', today, _class='shop-classes-week-chooser')
 
 
 def classes_get_day(date,
