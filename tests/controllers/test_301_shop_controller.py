@@ -132,39 +132,73 @@ def test_classes(client, web2py):
     assert time in client.text
 
 
-def test_classes_booking_status(client, web2py):
-    '''
+def test_classes_booking_status_cancelled(client, web2py):
+    """
         Check if we can book a class when it's not yet finished
         Check if we can't book a class if it's cancelled or in the past
-    '''
+    """
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
 
+    next_monday = next_weekday(datetime.date.today(), 0)
+    print next_monday
+
     prepare_classes(web2py)
     web2py.db.classes_otc.insert(
         classes_id = 1,
-        ClassDate = '2014-01-06',
+        ClassDate = next_monday,
         Status = 'cancelled'
     )
 
     web2py.db.commit()
 
     # check past & cancelled classes
-    url = '/shop/classes?year=2014&week=2'
+    url = '/shop/classes?date=2014-01-01'
     client.get(url)
     assert client.status == 200
 
-    assert 'Finished' in client.text
+    assert unicode(datetime.date.today().day) in client.text
     assert 'Cancelled' in client.text
 
+
+def test_classes_booking_status_ok(client, web2py):
+    """
+        Check if we can book a class when it's not yet finished
+        Check if we can't book a class if it's cancelled or in the past
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    next_monday = next_weekday(datetime.date.today(), 0)
+    prepare_classes(web2py)
+
     # check bookable classes
-    url = '/shop/classes?year=2099&week=2'
+    url = '/shop/classes?date=2099-12-23'
     client.get(url)
     assert client.status == 200
 
     # is the link to book a class on the page?
     assert '/shop/classes_book_options' in client.text
+
+
+def test_classes_booking_status_full(client, web2py):
+    """
+        Check if we can book a class when it's not yet finished
+        Check if we can't book a class if it's cancelled or in the past
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    next_monday = next_weekday(datetime.date.today(), 0)
+    prepare_classes(web2py)
+
+    # check current classes
+    url = '/shop/classes?date=2014-01-01'
+    client.get(url)
+    assert client.status == 200
 
     # Check fully booked
     next_monday = next_weekday(datetime.date.today(), 0)
@@ -184,7 +218,6 @@ def test_classes_booking_status(client, web2py):
 
     web2py.db.commit()
 
-    url = '/shop/classes?year=' + unicode(next_monday.year) + '&week=' + unicode(next_monday.isocalendar()[1])
     client.get(url)
     assert client.status == 200
 
@@ -193,22 +226,19 @@ def test_classes_booking_status(client, web2py):
 
 
 def test_classes_week_chooser(client, web2py):
-    '''
+    """
         Is the page listing classes for a week working? 
-    '''
+    """
     prepare_classes(web2py)
 
-    url = '/shop/classes?year=2014&week=2'
+    url = '/shop/classes?date=' + unicode(datetime.date.today())
     client.get(url)
     assert client.status == 200
 
-    # Check display current week
-    assert '2014 Week 2' in client.text
-
     # Check previous week link (& becomes &amp; because of client)
-    assert '/shop/classes?week=1&amp;year=2014' in client.text
+    assert 'href="#"' in client.text
     # Check next week link
-    assert '/shop/classes?week=3&amp;year=2014' in client.text
+    assert '/shop/classes?date=' + unicode(datetime.date.today() + datetime.timedelta(days=7)) in client.text
 
 
 def test_classes_filter(client, web2py):
@@ -250,8 +280,8 @@ def test_classes_filter(client, web2py):
 
     te_2 = web2py.db.auth_user(2)
     te_3 = web2py.db.auth_user(3)
-    assert '<div class="col-md-3">' + te_2.display_name not in client.text
-    assert '<div class="col-md-3">' + te_3.display_name in client.text
+    assert '<div class="col-md-2">' + te_2.display_name not in client.text
+    assert '<div class="col-md-2">' + te_3.display_name in client.text
 
 
 def test_classes_book_options(client, web2py):
@@ -344,7 +374,7 @@ def test_classes_book_options_not_yet_open(client, web2py):
     assert 'Bookings for this class are accepted from' in client.text
 
     # Also check for shop/classes
-    client.get('/shop/classes?year=2099&week=2')
+    client.get('/shop/classes?date=' + unicode(datetime.date.today() + datetime.timedelta(days=21)))
     assert client.status == 200
     assert 'Book from' in client.text
 
