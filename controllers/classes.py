@@ -2608,7 +2608,7 @@ def attendance():
             T("This class hasn't started yet on this date")
         )
     elif cls.Enddate:
-        if cls.Enddate <= date:
+        if cls.Enddate < date:
             date_error = True
             content = attendance_get_notice(
                 T("This class has ended on this date")
