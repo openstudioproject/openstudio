@@ -142,7 +142,6 @@ def test_classes_booking_status_cancelled(client, web2py):
     assert client.status == 200
 
     next_monday = next_weekday(datetime.date.today(), 0)
-    print next_monday
 
     prepare_classes(web2py)
     web2py.db.classes_otc.insert(
