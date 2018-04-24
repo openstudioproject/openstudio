@@ -6614,6 +6614,7 @@ class Workshop:
         self.auth_teacher_id2 = self.workshop.auth_teacher_id2
         self.auth_teacher_name = repr_row.auth_teacher_id
         self.auth_teacher_name2 = repr_row.auth_teacher_id2
+        self.Preview = self.workshop.Preview
         self.Description = self.workshop.Description
         self.school_locations_id = self.workshop.school_locations_id
         self.school_location = repr_row.school_locations_id

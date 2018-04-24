@@ -567,7 +567,7 @@ def workshop_get():
         'Location': workshop.school_location,
         'Teacher': teacher,
         'Teacher2': teacher2,
-        'Preview': repr_row.workshops.Preview,
+        'Preview': workshop.Preview,
         'Description': workshop.Description,
         'Price': workshop.get_full_workshop_price(),
         'LinkThumbLarge': thumblarge_url,
