@@ -9,9 +9,9 @@ from openstudio.openstudio import ClassSchedule, WorkshopSchedule, Workshop
 
 
 def do_auth(user, key):
-    '''
+    """
         Checks if a user exists and if so if the supplied key is correct
-    '''
+    """
     query = (db.sys_api_users.Username == user)
     row = db(query).select(db.sys_api_users.ALL).first()
     authenticated = False
@@ -437,6 +437,7 @@ def _workshops_get(var=None):
             'Location': repr_row.workshops.school_locations_id,
             'Teacher': teacher,
             'Teacher2': teacher2,
+            'Preview': repr_row.workshops.Preview,
             'Description': repr_row.workshops.Description,
             'Price': row.workshops_products.Price,
             'LinkThumbLarge': thumblarge_url,
@@ -566,6 +567,7 @@ def workshop_get():
         'Location': workshop.school_location,
         'Teacher': teacher,
         'Teacher2': teacher2,
+        'Preview': repr_row.workshops.Preview,
         'Description': workshop.Description,
         'Price': workshop.get_full_workshop_price(),
         'LinkThumbLarge': thumblarge_url,
@@ -578,10 +580,10 @@ def workshop_get():
 
 
 def workshop_get_url_shop(wsID):
-    '''
+    """
         :param wsID: db.workshops.id
         :return: Link to OpenStudio shop
-    '''
+    """
     shop_url = URL('shop', 'event', vars={'wsID': wsID},
                    scheme=True,
                    host=True,
