@@ -66,6 +66,22 @@ def attendance_get_menu(page=None):
                        htype='tabs')
 
 
+def get_month_subtitle(month, year):
+    """
+    :param month: int 1 - 12
+    :return: subtitle
+    """
+    months = get_months_list()
+    subtitle = ''
+    if year and month:
+        for m in months:
+            if m[0] == month:
+                month_title = m[1]
+        subtitle = month_title + " " + unicode(year)
+
+    return subtitle
+
+
 def get_form_subtitle(month=None, year=None, function=None, _class='col-md-4'):
     months = get_months_list()
     subtitle = ''
@@ -2630,9 +2646,9 @@ def direct_debit_extra():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'reports_attendance'))
 def attendance_classes():
-    '''
+    """
         List classes for a selected month with revenue
-    '''
+    """
     response.title = T("Reports")
     response.view = 'reports/subscriptions.html'
 
@@ -2643,7 +2659,8 @@ def attendance_classes():
     form_subtitle = get_form_subtitle(function=request.function)
     response.subtitle = T('Classes attendance')
 
-
+    year = TODAY_LOCAL.year
+    month = TODAY_LOCAL.month
     soID = None
     slID = None
     content = T("Please click 'Run Report' to generate a report. This might take a little while depending on the number of classes in the schedule for the selected month.")
@@ -2661,15 +2678,13 @@ def attendance_classes():
         firstdaythismonth = date
         next_month = date.replace(day=28) + datetime.timedelta(days=4)  # this will never fail
         lastdaythismonth = next_month - datetime.timedelta(days=next_month.day)
-        content = attendance_classes_get_content(firstdaythismonth, lastdaythismonth)
+        content = attendance_classes_get_content(firstdaythismonth, lastdaythismonth, slID, soID)
 
-        form_subtitle = get_form_subtitle(month, year, request.function)
-        response.subtitle = T('Classes attendance') + ' - ' + form_subtitle['subtitle']
+        subtitle = get_month_subtitle(month, year)
+        response.subtitle = T('Classes attendance') + ' - ' + subtitle
 
-    organization_filter = attendance_classes_get_organization_filter(soID)
-    location_filter = attendance_classes_get_location_filter(slID)
 
-    form = DIV(form_subtitle['form'], location_filter, organization_filter)
+    form = attendance_classes_get_form(year, month, slID, soID)
 
     current = form_subtitle['current']
     submit = form_subtitle['submit']
@@ -2684,13 +2699,10 @@ def attendance_classes():
                 submit=submit)
 
 
-def attendance_classes_get_content(date_start, date_end):
-    '''
+def attendance_classes_get_content(date_start, date_end, slID, soID):
+    """
         Return list of classes with revenue for a selected period
-    '''
-    soID = session.reports_attendance_classes_soID
-    slID = session.reports_attendance_classes_slID # school locations id
-
+    """
     one_day = datetime.timedelta(days=1)
     current_date = date_start
 
@@ -2771,64 +2783,73 @@ def attendance_classes_get_content(date_start, date_end):
     return table
 
 
-def attendance_classes_get_location_filter(locationID):
-    '''
-        Get location filter
-    '''
-    # check if we need a location filter
-    if not session.show_location:
-        form = ''
-    else:
-        # add location filter form
-        loc_query = (db.school_locations.Archived == False)
-        form = SQLFORM.factory(
-            Field('slID',
-                  requires=IS_IN_DB(db(loc_query), 'school_locations.id', '%(Name)s',
-                                    zero=T('All locations')),
-                  default=locationID,
-                  label=T('')))
+def attendance_classes_get_form(year=TODAY_LOCAL.year,
+                                month=TODAY_LOCAL.month,
+                                slID=None,
+                                soID=None):
+    """
+    :param month: int 1 - 12
+    :param year: int 1900 - 2999
+    :param slID: db.school_locations.id
+    :param soID: db.school_organizations.id
+    :return: classes attendance filter form
+    """
+    loc_query = (db.school_locations.Archived == False)
+    so_query = (db.sys_organizations.Archived == False)
 
-        # submit form on change
-        selects = form.elements('select')
-        for select in selects:
-            select.attributes['_onchange'] = "this.form.submit();"
+    months = get_months_list()
 
-        form = DIV(DIV(form.custom.begin,
-                                  form.custom.widget.slID,
-                                  form.custom.end,
-                                  _class='col-md-4'),
-                              _class='row')
+    form = SQLFORM.factory(
+        Field('month',
+               requires=IS_IN_SET(months, zero=None),
+               default=month,
+               label=T("")),
+        Field('year', 'integer',
+              default=year,
+              label=T("")),
+        Field('slID',
+              requires=IS_EMPTY_OR(IS_IN_DB(db(loc_query),
+                                            'school_locations.id',
+                                            '%(Name)s',
+                                            zero=T('All locations'))),
+              default=slID,
+              label=T("")),
+        Field('soID',
+              requires=IS_EMPTY_OR(IS_IN_DB(db(so_query),
+                                            'sys_organizations.id',
+                                            '%(Name)s',
+                                            zero=T('All organizations'))),
+              default=soID,
+              label=T("")),
+        submit_button=T("Run report")
+        )
+    form.attributes['_name']  = 'form_select_date'
+    form.attributes['_class'] = 'overview_form_select_date'
 
-    return form
+    input_month = form.element('select[name=month]')
+    input_year = form.element('input[name=year]')
+    input_year.attributes['_type']     = 'number'
 
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
+    form = result['form']
+    submit = result['submit']
 
-def attendance_classes_get_organization_filter(soID):
-    '''
-        Get organization filter
-    '''
-    # check if we need a organization filter
-    if not len(ORGANIZATIONS) > 2:
-        form = ''
-    else:
-        # add organization filter form
-        so_query = (db.sys_organizations.Archived == False)
-        form = SQLFORM.factory(
-            Field('soID',
-                  requires=IS_IN_DB(db(so_query), 'sys_organizations.id', '%(Name)s',
-                                    zero=T('All organizations')),
-                  default=soID,
-                  label=T('')))
+    location = ''
+    if session.show_location:
+        location = form.custom.widget.slID
 
-        # submit form on change
-        selects = form.elements('select')
-        for select in selects:
-            select.attributes['_onchange'] = "this.form.submit();"
+    organization = ''
+    if len(ORGANIZATIONS) > 2:
+        organization = form.custom.widget.soID
 
-        form = DIV(DIV(form.custom.begin,
-                                  form.custom.widget.soID,
-                                  form.custom.end,
-                                  _class='col-md-4'),
-                              _class='row')
+    form = DIV(DIV(XML('<form id="MainForm" action="#" enctype="multipart/form-data" method="post">'),
+                   form.custom.widget.month,
+                   form.custom.widget.year,
+                   location,
+                   organization,
+                   form.custom.end,
+                   _class='col-md-4'),
+               _class = 'row')
 
     return form
 
@@ -5435,11 +5456,15 @@ def teacher_classes_get_class_revenue_subscription(row, date):
     subscr_month = date.month
     subscr_year  = date.year
 
-    query = (db.invoices.customers_subscriptions_id == csID) & \
+    query = (db.invoices_customers_subscriptions.customers_subscriptions_id == csID) & \
             (db.invoices.SubscriptionMonth == subscr_month) & \
             (db.invoices.SubscriptionYear == subscr_year)
 
-    left = [ db.invoices_amounts.on(db.invoices_amounts.invoices_id == db.invoices.id) ]
+    left = [ db.invoices_amounts.on(db.invoices_amounts.invoices_id == db.invoices.id),
+             db.invoices_customers_subscriptions.on(
+                 db.invoices_customers_subscriptions.invoices_id ==
+                 db.invoices.id
+             )]
 
     rows = db(query).select(db.invoices.ALL,
                             db.invoices_amounts.ALL,

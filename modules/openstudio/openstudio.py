@@ -532,7 +532,7 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
         query = (db.classes_reservation.auth_customer_id == self.cuID)
         if date:
             query &= (db.classes_reservation.Startdate <= date) & \
-                     ((db.classes_reservation.Enddate >= date) | \
+                     ((db.classes_reservation.Enddate >= date) |
                       (db.classes_reservation.Enddate == None))
 
         if recurring_only:
