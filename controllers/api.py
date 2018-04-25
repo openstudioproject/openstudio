@@ -607,10 +607,10 @@ def _get_url_thumbnail(download_url):
 
 
 def _workshop_get_teacher(teID):
-    '''
+    """
         :param teID: db.auth_user.id
         :return: dict containing teacher info
-    '''
+    """
     row = db.auth_user(teID)
     if row is None:
         return ''

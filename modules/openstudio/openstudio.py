@@ -5357,7 +5357,11 @@ class ClassSchedule:
 
             display_class = ''
             capacity = ''
-            avg_att_4w_percentage = (avg_4w_ago / row.classes.Maxstudents) * 100
+
+            try:
+                avg_att_4w_percentage = (avg_4w_ago / row.classes.Maxstudents) * 100
+            except ZeroDivisionError:
+                avg_att_4w_percentage = 0
             avg_att_4w_percentage_display = round(avg_att_4w_percentage, 2)
 
             class_trend_text_color = 'grey'
