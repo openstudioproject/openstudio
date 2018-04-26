@@ -1502,14 +1502,17 @@ def subscriptions_new():
     current = result['current']
     submit = result['submit']
 
-    fields = [ db.auth_user.id,
-               db.auth_user.trashed,
-               db.auth_user.thumbsmall,
-               db.auth_user.birthday,
-               db.auth_user.display_name,
-               db.auth_user.date_of_birth,
-               db.customers_subscriptions.school_subscriptions_id,
-               db.customers_subscriptions.Startdate ]
+    fields = [
+        db.auth_user.id,
+        db.auth_user.trashed,
+        db.auth_user.thumbsmall,
+        db.auth_user.birthday,
+        db.auth_user.display_name,
+        db.auth_user.date_of_birth,
+        db.customers_subscriptions.school_subscriptions_id,
+        db.customers_subscriptions.Startdate,
+        db.customers_subscriptions.payment_methods_id
+     ]
     rows = db.executesql(query, fields=fields)
 
     total = T("Total: " + unicode(len(rows)))
@@ -1519,6 +1522,7 @@ def subscriptions_new():
                     TH(), # name,
                     TH(db.customers_subscriptions.Startdate.label),
                     TH(db.customers_subscriptions.school_subscriptions_id.label),
+                    TH(db.customers_subscriptions.payment_methods_id.label),
                     TH(),
                     _class='header')))
 
@@ -1532,6 +1536,7 @@ def subscriptions_new():
                            _class="os-customer_name"),
                         TD(row.customers_subscriptions.Startdate),
                         TD(row.customers_subscriptions.school_subscriptions_id),
+                        TD(row.customers_subscriptions.payment_methods_id),
                         TD(DIV(DIV(edit),
                                _class='btn-group pull-right'),
                            _class='td-icons table-vertical-align-middle'),

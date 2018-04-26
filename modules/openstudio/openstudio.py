@@ -10401,13 +10401,15 @@ class ReportsHelper:
                           cu.display_name,
                           cu.date_of_birth,
                           csu.school_subscriptions_id,
-                          csu.startdate
+                          csu.startdate,
+                          csu.payment_methods_id
                    FROM auth_user cu
                    LEFT JOIN
                        (SELECT auth_customer_id,
                                startdate,
                                enddate,
-                               school_subscriptions_id
+                               school_subscriptions_id,
+                               payment_methods_id
                         FROM customers_subscriptions
                         GROUP BY auth_customer_id) csu
                    ON cu.id = csu.auth_customer_id
