@@ -222,6 +222,11 @@ def populate_customers_with_subscriptions(web2py,
                 invoices_id = iID
             )
 
+            cisID = web2py.db.invoices_customers_subscriptions.insert(
+                customers_subscriptions_id = csID,
+                invoices_id = iID
+            )
+
             web2py.db.invoices_items.insert(
                 invoices_id = iID,
                 Sorting = 1,
