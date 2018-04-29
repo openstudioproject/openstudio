@@ -168,25 +168,16 @@
 
     <div>
         <span class="grey bold">BILL TO</span><br>
-        {{ if customer['company']: }}
-            {{ =customer['company'] }}<br>
+        {{ if invoice.CustomerCompany: }}
+            {{ =invoice.CustomerCompany }}<br>
         {{ pass }}
-        {{=SPAN(customer.first_name, ' ', customer.last_name)}}<br>
-        {{ if customer['address']: }}
-            {{ =customer['address'] }}<br>
+        {{ if invoice.CustomerListName: }}
+            {{ =invoice.CustomerListName }}<br>
         {{ pass }}
-        {{ if customer['postcode']: }}
-            {{=customer['postcode']}}
+        {{ if invoice.CustomerAddress: }}
+            {{ =XML(invoice.CustomerAddress.replace('\n', '<br>')) }}<br>
         {{ pass }}
-        {{ if customer['city']: }}
-            {{=customer['city']}}
-        {{ pass }}
-        {{ if customer['city'] or customer['postcode']: }}
-            <br>
-        {{ pass }}
-        {{ if customer['country']: }}
-            {{=customer['country']}}<br>
-        {{ pass }}
+
     </div>
 
     {{ if invoice['Description']: }}

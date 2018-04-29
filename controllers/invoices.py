@@ -1481,9 +1481,9 @@ def pdf_template_get_logo(var=None):
 
 
 def pdf_template(iID):
-    '''
+    """
         Print friendly display of invoice
-    '''
+    """
     response.view = 'templates/invoices/default.html'
     iID = request.vars['iID']
 
@@ -1494,17 +1494,21 @@ def pdf_template(iID):
     items = db(query).select(db.invoices_items.ALL,
                              orderby=db.invoices_items.Sorting).render()
     # get customer info
-    query = (db.auth_user.id == invoice.auth_customer_id)
-    customer = db(query).select(db.auth_user.company,
-                                db.auth_user.first_name,
-                                db.auth_user.last_name,
-                                db.auth_user.address,
-                                db.auth_user.city,
-                                db.auth_user.postcode,
-                                db.auth_user.country,
-                                db.auth_user.email,
-                                db.auth_user.phone,
-                                db.auth_user.mobile).first()
+    # query = (db.invoices_customers.invoices_id == invoice.id)
+    # cuID = db(query).select(db.invoices_customers.auth_customer_id).first().auth_customer_id
+    # print cuID
+    #
+    # query = (db.auth_user.id == cuID)
+    # customer = db(query).select(db.auth_user.company,
+    #                             db.auth_user.first_name,
+    #                             db.auth_user.last_name,
+    #                             db.auth_user.address,
+    #                             db.auth_user.city,
+    #                             db.auth_user.postcode,
+    #                             db.auth_user.country,
+    #                             db.auth_user.email,
+    #                             db.auth_user.phone,
+    #                             db.auth_user.mobile).first()
 
     # get amounts
     query = (db.invoices_amounts.invoices_id == iID)
@@ -1547,12 +1551,20 @@ def pdf_template(iID):
 
     logo = pdf_template_get_logo()
 
+    # print studio
+    # print invoice
+    # print items
+    # print amounts
+    # print amounts_vat
+    # print customer
+    # print logo
+    # print base_url
+
     html = response.render('templates/invoices/default.html',
                            dict(invoice     = invoice,
                                 items       = items,
                                 amounts     = amounts,
                                 amounts_vat = amounts_vat,
-                                customer    = customer,
                                 studio      = studio,
                                 logo        = logo,
                                 base_url    = base_url))
