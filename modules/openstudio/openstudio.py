@@ -4317,7 +4317,13 @@ class AttendanceHelper:
 
                 ccd = Classcard(ccdID)
                 classes_remaining = ccd.get_classes_remaining_formatted()
-                if not int(clsID) in ccd.get_allowed_classes_booking():
+
+                if list_type == 'shop':
+                    allowed_classes = ccd.get_allowed_classes_booking()
+                else:
+                    allowed_classes = ccd.get_allowed_classes_attend(public_only=False)
+
+                if not int(clsID) in allowed_classes:
                     # Check book permission
                     button_book = os_gui.get_button('noicon',
                                                     URL('#'),
@@ -6355,9 +6361,9 @@ class Classcard:
 
 
     def get_allowed_classes_booking(self, public_only=True, formatted=False):
-        '''
+        """
             :return: return: list of db.classes.db that are allowed to be booked using this subscription
-        '''
+        """
         permissions = self.get_class_permissions(public_only=public_only)
         class_ids = []
         for clsID in permissions:
@@ -6375,9 +6381,9 @@ class Classcard:
 
 
     def get_allowed_classes_attend(self, public_only=True, formatted=False):
-        '''
+        """
             :return: return list of db.classes that are allowed to be attended using this subscription
-        '''
+        """
         permissions = self.get_class_permissions(public_only=public_only)
         class_ids = []
         for clsID in permissions:
