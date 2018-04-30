@@ -4792,7 +4792,7 @@ class AttendanceHelper:
             # Check classes remaining
             #if classes_remaining != 'unlimited' or classes_remaining < 1:
             if classes_remaining == 0: # This will pass when it's 'unlimited'
-                print 'no classes remaining'
+                # print 'no classes remaining'
                 date = date_until  # Stop loop
                 #TODO: message for customer
                 sign_in_ok = False
