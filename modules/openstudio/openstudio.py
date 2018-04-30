@@ -2916,9 +2916,9 @@ class Class:
 
 
     def is_on_correct_weekday(self):
-        '''
+        """
             Checks if self.date.isoweekday() == self.cls.Week_day
-        '''
+        """
         if self.date.isoweekday() == self.cls.Week_day:
             return True
         else:
@@ -2926,15 +2926,14 @@ class Class:
 
 
     def is_past(self):
-        '''
+        """
             Return True if NOW_LOCAL > Class start else return False
-        '''
+        """
         import pytz
 
         db = current.globalenv['db']
         now = current.globalenv['NOW_LOCAL']
         TIMEZONE = current.globalenv['TIMEZONE']
-
 
         cls_time = self.cls.Starttime
 
@@ -2947,16 +2946,16 @@ class Class:
         # class_dt = pytz.utc.localize(class_dt)
         class_dt = pytz.timezone(TIMEZONE).localize(class_dt)
 
-        if class_dt <= now:
+        if class_dt < now:
             return True
         else:
             return False
 
 
     def is_cancelled(self):
-        '''
+        """
             Return True if the class is cancelled, else return False
-        '''
+        """
         db = current.globalenv['db']
         query = (db.classes_otc.classes_id == self.clsID) & \
                 (db.classes_otc.ClassDate == self.date) & \
@@ -2967,9 +2966,9 @@ class Class:
 
 
     def is_holiday(self):
-        '''
+        """
             Return True if the class is within a holiday, else return False
-        '''
+        """
         db = current.globalenv['db']
 
         # Query school_holidays table to see if there's a holiday for this location
@@ -2979,17 +2978,18 @@ class Class:
                 (db.school_holidays.Enddate >= self.date) & \
                 (db.school_holidays_locations.school_locations_id == self.cls.school_locations_id)
 
-        rows = db(query).select(db.school_holidays.id)
+        rows = db(query).select(db.school_holidays.id,
+                                left=left)
 
         holiday = True if len(rows) else False
         return holiday
 
 
     def is_taking_place(self):
-        '''
+        """
              Check if the class is not in past, cancelled or in a holiday
              Return True if not in past, cancelled or in holiday, else return False
-        '''
+        """
         correct_weekday = self.is_on_correct_weekday()
         past = self.is_past()
         cancelled = self.is_cancelled()
@@ -3002,12 +3002,12 @@ class Class:
 
 
     def is_booked_by_customer(self, cuID):
-        '''
+        """
         :param cuID: db.auth_user.id
         :return: Boolean
 
         Check if the class is booked by this customer or not
-        '''
+        """
         db = current.globalenv['db']
 
         query = ((db.classes_attendance.BookingStatus == 'booked') |
