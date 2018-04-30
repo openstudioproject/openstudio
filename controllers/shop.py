@@ -889,6 +889,10 @@ def classes():
     response.subtitle = T('Classes')
     response.view = 'shop/index.html'
 
+    features = db.customers_shop_features(1)
+    if not features.Classes:
+        return T('This feature is disabled')
+
     # if 'year' in request.vars:
     #     year = int(request.vars['year'])
     # else:
@@ -987,12 +991,8 @@ def classes():
 
             table.append(table_row)
 
-
         class_day = DIV(header, table)
-
         classes.append(class_day)
-
-
 
     return dict(content=DIV(filter, classes))
 
@@ -1212,6 +1212,10 @@ def classes_book_options():
     response.title= T('Shop')
     response.subtitle = T('Book class')
     response.view = 'shop/index.html'
+
+    features = db.customers_shop_features(1)
+    if not features.Classes:
+        return T('This feature is disabled')
 
     back = os_gui.get_button('back', URL('shop', 'classes'))
 
