@@ -2159,13 +2159,13 @@ class CustomersSubscriptionsCreditsHelper:
 
 
     def expire_credits(self, date):
-        '''
+        """
         Check if there are any expired credits, if so, add a subtract mutation with the expired amount
         where the 'Expired' field is set to True
 
         :param date: datetime.date
         :return: number of subscriptions for which credits were expired
-        '''
+        """
         T = current.globalenv['T']
         db = current.globalenv['db']
         NOW_LOCAL = current.globalenv['NOW_LOCAL']
@@ -2179,6 +2179,9 @@ class CustomersSubscriptionsCreditsHelper:
                                 db.school_subscriptions.CreditValidity)
 
         for row in rows:
+            if not row.CreditValidity:
+                continue
+
             # Get list of all active subscriptions
             fields = [
                 db.customers_subscriptions.id,
