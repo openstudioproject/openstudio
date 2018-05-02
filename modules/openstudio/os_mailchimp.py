@@ -172,15 +172,15 @@ class OsMailChimp():
         """
         T = current.T
 
-        if not status or status == 'cleaned':
-            label_type = 'default'
-            label_text = T('Not subscribed')
-        elif status == 'subscribed':
+        if status == 'subscribed':
             label_type = 'success'
             label_text = T('Subscribed')
         elif status == 'pending':
             label_type = 'primary'
             label_text = T('Awaiting confirmation')
+        else:
+            label_type = 'default'
+            label_text = T('Not subscribed')
 
         return os_gui.get_label(label_type, label_text)
 

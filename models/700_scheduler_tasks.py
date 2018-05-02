@@ -71,7 +71,6 @@ def _task_mollie_subscription_invoices_and_payments():
             continue
 
         invoice = Invoice(iID)
-
         # Only do something if the invoice status is sent
         if not invoice.invoice.Status == 'sent':
             continue
