@@ -2226,25 +2226,25 @@ def classes_add_get_list(date, list_type, cuID=None):
 
 
 def classes_add_get_list_get_cancelled_holiday(c):
-    '''
+    """
         Returns class or holiday description when a class is cancelled
         :param: class from ClassSchedule.get_day_list()
-    '''
+    """
     status = ''
 
     if c['Cancelled']:
         status = SPAN(T('Cancelled'), ' ', SPAN(c['CancelledDescription'], _class='grey'))
 
     if c['Holiday']:
-        status = SPAN(T('Holiday'), ' ', SPAN(c[''], _class='grey'))
+        status = SPAN(T('Holiday'), ' ', SPAN(c['HolidayDescription'], _class='grey'))
 
     return status
 
 
 def classes_reservation_add_get_button(clsID):
-    '''
+    """
         Returns add button for a customer to add a reservation
-    '''
+    """
     date = session.customers_classes_reservation_add_vars['date']
     date_formatted = date.strftime(DATE_FORMAT)
     cuID = session.customers_classes_reservation_add_vars['cuID']
