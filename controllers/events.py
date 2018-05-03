@@ -3254,7 +3254,7 @@ def tasks():
     if permission:
         # add = os_gui.get_button('add', url_add)
         tasks = Tasks()
-        add = th.add_get_modal({'wsID': wsID})
+        add = tasks.add_get_modal({'wsID': wsID})
 
     back = manage_get_back()
     menu = get_workshops_menu(request.function, wsID)
