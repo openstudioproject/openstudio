@@ -15,13 +15,13 @@ from general_helpers import represent_validity_units
 
 
 class Customer:
-    '''
+    """
         Class that contains functions for customer
-    '''
+    """
     def __init__(self, cuID):
-        '''
+        """
             Class init function which sets cuID
-        '''
+        """
         db = current.globalenv['db']
 
         self.cuID = cuID
@@ -29,9 +29,9 @@ class Customer:
 
 
     def get_name(self):
-        '''
+        """
             Returns the name for a customer
-        '''
+        """
         return self.row.display_name
 
 

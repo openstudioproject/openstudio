@@ -2261,9 +2261,9 @@ def classes_reservation_add_get_button(clsID):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'classes_waitinglist'))
 def classes_waitinglist():
-    '''
+    """
         Show waitinglist for a customer
-    '''
+    """
     response.view = 'customers/edit_general.html'
 
     cuID = request.vars['cuID']
@@ -5632,9 +5632,9 @@ def account_get_submenu(page, cuID):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('read', 'invoices'))
 def invoices():
-    '''
+    """
         List invoices for a customer
-    '''
+    """
     cuID = request.vars['cuID']
 
     customer = Customer(cuID)

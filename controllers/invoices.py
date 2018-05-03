@@ -244,9 +244,9 @@ def list_invoices_clear_search():
 
 
 def edit_get_link_add_payment(iID):
-    '''
+    """
         Returns an button and modal to add a payment for an invoice
-    '''
+    """
     content = LOAD('invoices', 'payment_add', ajax=False, ajax_trap=True, extension='load',
                     vars={'iID':iID})
 
@@ -1001,9 +1001,9 @@ def invoice_payments():
 
 @auth.requires_login()
 def payment_add():
-    '''
+    """
         Add payments for an invoice
-    '''
+    """
     response.js = 'set_form_classes();'
 
     if not request.extension == 'load':
@@ -1054,7 +1054,7 @@ def payment_add():
 
     submit = form.element('input[type=submit]')
     back = os_gui.get_button('back',
-                             payment_add_get_back(iID, invoice.invoice.auth_customer_id))
+                             payment_add_get_back(iID, invoice.get_linked_customer_id()))
 
     if request.extension == 'load':
         return dict(content=form)
@@ -1084,14 +1084,14 @@ def payment_add():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('create', 'invoices_payments'))
 def payment_add_redirect_oncreate():
-    '''
+    """
         Redirect to invoice list, from the client side, to leave the add modal
-    '''
+    """
     ipID = request.vars['ipID']
     payment = db.invoices_payments(ipID)
-    invoice = db.invoices(payment.invoices_id)
-    cuID = invoice.auth_customer_id
-    iID  = invoice.id
+    invoice = Invoice(payment.invoices_id)
+    cuID = invoice.get_linked_customer_id()
+    iID  = invoice.invoice.id
 
     session.flash = T('Saved')
 
