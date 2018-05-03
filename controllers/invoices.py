@@ -1574,23 +1574,23 @@ def pdf_template(iID):
 
 # No decorator here, permissions are checked inside the function
 def pdf():
-    '''
+    """
         Converts a invoice to PDF
-    '''
+    """
     iID = request.vars['iID']
 
-    invoice = db.invoices(iID)
+    invoice = Invoice(iID)
 
     permission  = ((auth.has_membership(group_id='Admins') or
                     auth.has_permission('read', 'invoices')) or
-                   invoice.auth_customer_id == auth.user.id)
+                   invoice.get_linked_customer_id() == auth.user.id)
 
     if not permission:
         return T("Not authorized")
 
     html = pdf_template(iID)
 
-    fname = u'Invoice_' + invoice.InvoiceID + '.pdf'
+    fname = u'Invoice_' + invoice.invoice.InvoiceID + '.pdf'
     response.headers['Content-Type']='application/pdf'
     response.headers['Content-disposition']='attachment; filename=' + fname
     # return pyfpdf_from_html(html)

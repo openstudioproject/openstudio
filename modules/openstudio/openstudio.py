@@ -8240,6 +8240,22 @@ class Invoice:
         )
 
 
+    def get_linked_customer_id(self):
+        """
+            Returns auth.user.id of account linked to this invoice
+            :return: auth.user.id
+        """
+        db = current.globalenv['db']
+
+        query = (db.invoices_customers.invoices_id == self.invoices_id)
+        rows = db(query).select(db.invoices_customers.auth_customer_id)
+
+        if rows:
+            return rows.first().auth_customer_id
+        else:
+            return None
+
+
 class InvoicesHelper:
     """
         Contains functions for invoices usefull in multiple controllers

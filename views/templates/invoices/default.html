@@ -158,11 +158,11 @@
         </tr>
         <tr>
             <td class="grey bold">ISSUED </td>
-            <td>{{=invoice.DateCreated}}</td>
+            <td>{{=invoice.DateCreated.strftime(DATE_FORMAT)}}</td>
         </tr>
         <tr>
             <td class="grey bold">DUE DATE </td>
-            <td>{{=invoice.DateDue}}</td>
+            <td>{{=invoice.DateDue.strftime(DATE_FORMAT)}}</td>
         </tr>
     </table>
 
