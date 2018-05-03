@@ -1654,7 +1654,6 @@ def export_invoices():
     form_display = export_invoices_payments_get_form_display(form)
     content = DIV(form_display)
 
-
     menu = export_get_menu(request.function)
 
     back = os_gui.get_button('back', URL('finance', 'invoices'))
@@ -1722,6 +1721,9 @@ def export_invoices_get_export(from_date, until_date, invoices_groups_id, filety
 
     left = [ db.invoices.on(db.invoices_items.invoices_id ==
                             db.invoices.id),
+             db.invoices_customers.on(db.invoices_customers.invoices_id ==
+                                      db.invoices.id),
+             db.auth_user.on(db.invoices_customers.auth_customer_id == db.auth_user.id),
              db.tax_rates.on(db.invoices_items.tax_rates_id ==
                              db.tax_rates.id),
              db.customers_subscriptions.on(
@@ -1730,7 +1732,6 @@ def export_invoices_get_export(from_date, until_date, invoices_groups_id, filety
              db.school_subscriptions.on(
                 db.customers_subscriptions.school_subscriptions_id ==
                 db.school_subscriptions.id),
-             db.auth_user.on( db.invoices.auth_customer_id == db.auth_user.id ),
              db.payment_methods.on( db.invoices.payment_methods_id == db.payment_methods.id )
              ]
 
