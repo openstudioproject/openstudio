@@ -1517,7 +1517,14 @@ def define_classes():
                 title=T("When the API is in use, this checkbox defines whether \
                 a class is passed to the website."),
                 btn_icon='info'
-                )),
+            )),
+        Field('AllowShopTrial', 'boolean',
+            default=False,
+            label=T("Trial class in shop"),
+            comment = os_gui.get_info_icon(
+                title=T("Show trial class booking option in shop."),
+                btn_icon='info'
+            )),
         Field('CreatedOn', 'datetime',
               readable=False,
               writable=False,
