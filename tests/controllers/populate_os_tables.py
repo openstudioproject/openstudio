@@ -503,7 +503,8 @@ def prepare_classes(web2py,
                              MaxReservationsRecurring=2,
                              MaxReservationsDT=2,
                              MaxOnlineBooking=15,
-                             AllowAPI=True
+                             AllowAPI=True,
+                             AllowShopTrial=True
                              )
 
     # Tuesday class
@@ -518,7 +519,8 @@ def prepare_classes(web2py,
                              MaxReservationsRecurring=2,
                              MaxReservationsDT=2,
                              MaxOnlineBooking=15,
-                             AllowAPI=True
+                             AllowAPI=True,
+                             AllowShopTrial=True
                              )
 
     # Add Monday class to the first subscriptions & classcard group

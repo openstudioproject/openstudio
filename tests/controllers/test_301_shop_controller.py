@@ -1480,9 +1480,9 @@ def test_order_received(client, web2py):
 
 
 def test_order_paid_delivery_invoice(client, web2py):
-    '''
+    """
         Is the order delivered after it's paid and is an invoice created?
-    '''
+    """
     setup_profile_tests(web2py)
 
     url = '/default/user/login'
