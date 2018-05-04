@@ -3050,6 +3050,17 @@ class Class:
             return True
 
 
+    def get_trialclass_allowed_in_shop(self):
+        """
+        Check whether trial classes in the shop are allowed or not
+        :return: Boolean
+        """
+        if self.cls.AllowShopTrial:
+            return True
+        else:
+            return False
+
+
 class ClassReservationHelper:
     '''
         This class collects functions classes_reservation that can return or modify multple records at once
@@ -4245,6 +4256,7 @@ class AttendanceHelper:
         os_gui = current.globalenv['os_gui']
         CURRSYM = current.globalenv['CURRSYM']
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        get_sys_property = current.globalenv['get_sys_property']
 
         date_formatted = date.strftime(DATE_FORMAT)
 
@@ -4388,6 +4400,9 @@ class AttendanceHelper:
         option = DIV(DIV(T('Drop in'),
                          _class='col-md-3 bold'),
                      DIV(T('Class price:'), ' ', CURRSYM, ' ', format(prices['dropin'], '.2f'),
+                         BR(),
+                         SPAN(get_sys_property('shop_classes_dropin_message') or '',
+                              _class='grey'),
                          _class='col-md-6'),
                      DIV(button_book,
                          _class='col-md-3'),
@@ -4407,6 +4422,9 @@ class AttendanceHelper:
             option = DIV(DIV(T('Trial'),
                              _class='col-md-3 bold'),
                          DIV(T('Class price:'), ' ', CURRSYM, ' ', format(prices['trial'], '.2f'),
+                             BR(),
+                             SPAN(get_sys_property('shop_classes_trial_message') or '',
+                                  _class='grey'),
                              _class='col-md-6'),
                          DIV(button_book,
                              _class='col-md-3'),

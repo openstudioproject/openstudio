@@ -1263,8 +1263,9 @@ def classes_book_options():
     ##
     # Class booking options
     ##
+    trial = cls.get_trialclass_allowed_in_shop()
     ah = AttendanceHelper()
-    options =  ah.get_customer_class_booking_options(clsID, date, customer, controller='shop')
+    options =  ah.get_customer_class_booking_options(clsID, date, customer, trial=trial, controller='shop')
 
     content.append(options)
 
