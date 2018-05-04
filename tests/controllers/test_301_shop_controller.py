@@ -319,6 +319,18 @@ def test_classes_book_options(client, web2py):
         Enddate = '2099-12-31'
     )
 
+    trial_message = '82374238947239sddjshfk'
+    web2py.db.sys_properties.insert(
+        Property = 'shop_classes_trial_message',
+        PropertyValue = trial_message
+    )
+
+    dropin_message = '823742sadtdfgd39sddjsh'
+    web2py.db.sys_properties.insert(
+        Property = 'shop_classes_dropin_message',
+        PropertyValue = dropin_message
+    )
+
     web2py.db.commit()
 
     next_monday = next_weekday(datetime.date.today(), 0)
@@ -328,10 +340,15 @@ def test_classes_book_options(client, web2py):
     assert '<div class="col-md-3 bold">Subscription</div>' in client.text
     assert '<div class="col-md-3 bold">Class card</div>' in client.text
     assert '<div class="col-md-3 bold">Drop in</div>' in client.text
+    assert '<div class="col-md-3 bold">Trial</div>' in client.text
+    assert dropin_message in client.text
+    assert trial_message in client.text
 
     # check drop in price listing
     class_prices = web2py.db.classes_price(1)
     assert format(class_prices.Dropin, '.2f') in client.text
+    assert format(class_prices.Trial, '.2f') in client.text
+
 
 
 def test_classes_book_options_not_yet_open(client, web2py):
