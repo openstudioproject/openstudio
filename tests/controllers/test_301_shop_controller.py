@@ -776,10 +776,56 @@ def test_class_book_subscription_no_shopbook_permission(client, web2py):
     assert "Book this class" in client.text
 
 
+def test_class_book_trial(client, web2py):
+    """
+        Can we book a trial class from the shop?
+    """
+    url = '/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    setup_profile_tests(web2py)
+    prepare_classes(web2py)
+
+    next_monday = next_weekday(datetime.date.today(), 0)
+    # check class card booking
+    url = '/shop/class_book?clsID=1&date=' + unicode(next_monday) + '&trial=true'
+    client.get(url)
+    assert client.status == 200
+
+    cart = web2py.db.customers_shoppingcart(1)
+    assert cart.AttendanceType == 1
+
+    url = '/shop/cart'
+    client.get(url)
+    assert '(Trial)' in client.text
+
+
+def test_class_book_dropin(client, web2py):
+    """
+        Can we book a drop in class from the shop?
+    """
+    url = '/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    setup_profile_tests(web2py)
+    prepare_classes(web2py)
+
+    next_monday = next_weekday(datetime.date.today(), 0)
+    # check class card booking
+    url = '/shop/class_book?clsID=1&date=' + unicode(next_monday) + '&dropin=true'
+    client.get(url)
+    assert client.status == 200
+
+    cart = web2py.db.customers_shoppingcart(1)
+    assert cart.AttendanceType == 2
+
+
 def test_class_book_classcard(client, web2py):
-    '''
+    """
         Can we book a class on a class card from the shop?
-    '''
+    """
     url = '/user/login'
     client.get(url)
     assert client.status == 200
