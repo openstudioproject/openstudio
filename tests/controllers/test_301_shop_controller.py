@@ -1427,9 +1427,9 @@ def test_cart(client, web2py):
 
 
 def test_cart_item_remove(client, web2py):
-    '''
+    """
         Can we remove items from the shopping cart?
-    '''
+    """
     # put two items in the cart and check we only have one left after removing one
     populate_customers_shoppingcart(web2py)
 
@@ -1437,13 +1437,13 @@ def test_cart_item_remove(client, web2py):
     client.get(url)
     assert client.status == 200
 
-    assert web2py.db(web2py.db.customers_shoppingcart).count() == 1
+    assert web2py.db(web2py.db.customers_shoppingcart).count() == 2
 
 
 def test_cart_remove_past_classes(client, web2py):
-    '''
+    """
         Is a class in the past removed from the shopping cart?
-    '''
+    """
     setup_profile_tests(web2py)
 
     # populate classes
@@ -1497,9 +1497,9 @@ def test_checkout(client, web2py):
 
 
 def test_order_received(client, web2py):
-    '''
+    """
         Is the cart processed correctly after ordering?
-    '''
+    """
     populate_customers_shoppingcart(web2py)
 
     url = '/shop/order_received'
@@ -1512,7 +1512,7 @@ def test_order_received(client, web2py):
     order = web2py.db.customers_orders(1)
     assert order.Status == 'awaiting_payment'
     ## check order items
-    assert web2py.db(web2py.db.customers_orders_items).count() == 2
+    assert web2py.db(web2py.db.customers_orders_items).count() == 3
     # check classcard item
     item = web2py.db.customers_orders_items(1)
     scd = web2py.db.school_classcards(1)
@@ -1521,7 +1521,7 @@ def test_order_received(client, web2py):
     assert item.Description == scd.Name
     assert item.school_classcards_id == 1
     assert item.Quantity == 1
-    # check class item
+    # check drop in class item
     cls_price = web2py.db.classes_price(1)
     item = web2py.db.customers_orders_items(2)
     assert item.TotalPriceVAT == cls_price.Dropin
@@ -1530,10 +1530,19 @@ def test_order_received(client, web2py):
     assert item.classes_id == 1
     assert item.ClassDate == datetime.date(2099, 1, 1)
     assert item.AttendanceType == 2
+    # check trial in class item
+    cls_price = web2py.db.classes_price(1)
+    item = web2py.db.customers_orders_items(3)
+    assert item.TotalPriceVAT == cls_price.Trial
+    assert item.ProductName == 'Class'
+    assert item.Description == '2099-01-01 06:00 classtype_1 location_1 (Trial)'
+    assert item.classes_id == 1
+    assert item.ClassDate == datetime.date(2099, 1, 1)
+    assert item.AttendanceType == 1
 
     # check order amounts
     amounts = web2py.db.customers_orders_amounts(1)
-    assert amounts.TotalPriceVAT == scd.Price + cls_price.Dropin
+    assert amounts.TotalPriceVAT == scd.Price + cls_price.Dropin + cls_price.Trial
 
     # Check mollie link
     assert '/mollie/order_pay?coID=1' in client.text

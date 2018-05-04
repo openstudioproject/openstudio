@@ -1439,6 +1439,13 @@ def populate_customers_shoppingcart(web2py):
         AttendanceType=2
     )
 
+    web2py.db.customers_shoppingcart.insert(
+        auth_customer_id=300,
+        classes_id=1,
+        ClassDate='2099-01-01',
+        AttendanceType=1
+    )
+
     web2py.db.commit()
 
 
