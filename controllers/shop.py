@@ -1285,7 +1285,7 @@ def class_book_options_get_enrollment_options(clsID, date, date_formatted, custo
     """
         List enrollment options
     """
-    options = DIV(_class='shop-classes-booking-options')
+    options = DIV(_class='shop-classes-booking-options row')
 
     cls = Class(clsID, date)
 
