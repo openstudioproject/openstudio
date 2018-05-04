@@ -2944,11 +2944,11 @@ def shop_settings():
         Field('shop_classes_dropin_message',
               default=shop_classes_dropin_message,
               label=T('Drop-in class booking options message'),
-              comment=T('Message shown on the drop-in class option on the class booking options page in the shop')),
+              comment=T('Message shown on the drop-in class option on the class booking options pages')),
         Field('shop_classes_trial_message',
               default=shop_classes_trial_message,
               label=T('Trial class booking options message'),
-              comment=T('Message shown on the trial class option on the class booking options page in the shop')),
+              comment=T('Message shown on the trial class option on the class booking options pages')),
         submit_button=T("Save"),
         separator=' ',
         formstyle='bootstrap3_stacked'
