@@ -8207,10 +8207,15 @@ class Invoice:
         if customer.row.country:
             address = ''.join([address, customer.row.country])
 
+        list_name = customer.row.full_name
+        if customer.row.company:
+            list_name = customer.row.company
+
         self.invoice.update_record(
             CustomerCompany = customer.row.company,
             CustomerName = customer.row.full_name,
-            CustomerAddress = address
+            CustomerListName = list_name,
+            CustomerAddress = address,
         )
 
 

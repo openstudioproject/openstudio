@@ -89,9 +89,9 @@ def index():
 
 
 def index_get_link_deliver(row):
-    '''
+    """
         Return deliver link for index list of orders
-    '''
+    """
     link = ''
     if row.customers_orders.Status == 'awaiting_payment':
         confirm_msg = T("Are you sure you want to deliver this order?")
