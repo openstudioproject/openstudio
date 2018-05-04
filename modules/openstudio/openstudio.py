@@ -2904,10 +2904,10 @@ class Class:
 
 
     def add_to_shoppingcart(self, cuID, attendance_type=2):
-        '''
+        """
             Add a workshop product to the shopping cart of a customer
             attendance_type can be 1 for trial class or 2 for drop in class
-        '''
+        """
         db = current.globalenv['db']
 
         db.customers_shoppingcart.insert(
@@ -3048,6 +3048,17 @@ class Class:
             return False
         else:
             return True
+
+
+    def get_trialclass_allowed_in_shop(self):
+        """
+        Check whether trial classes in the shop are allowed or not
+        :return: Boolean
+        """
+        if self.cls.AllowShopTrial:
+            return True
+        else:
+            return False
 
 
 class ClassReservationHelper:
@@ -4245,6 +4256,7 @@ class AttendanceHelper:
         os_gui = current.globalenv['os_gui']
         CURRSYM = current.globalenv['CURRSYM']
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        get_sys_property = current.globalenv['get_sys_property']
 
         date_formatted = date.strftime(DATE_FORMAT)
 
@@ -4388,6 +4400,9 @@ class AttendanceHelper:
         option = DIV(DIV(T('Drop in'),
                          _class='col-md-3 bold'),
                      DIV(T('Class price:'), ' ', CURRSYM, ' ', format(prices['dropin'], '.2f'),
+                         BR(),
+                         SPAN(get_sys_property('shop_classes_dropin_message') or '',
+                              _class='grey'),
                          _class='col-md-6'),
                      DIV(button_book,
                          _class='col-md-3'),
@@ -4407,6 +4422,9 @@ class AttendanceHelper:
             option = DIV(DIV(T('Trial'),
                              _class='col-md-3 bold'),
                          DIV(T('Class price:'), ' ', CURRSYM, ' ', format(prices['trial'], '.2f'),
+                             BR(),
+                             SPAN(get_sys_property('shop_classes_trial_message') or '',
+                                  _class='grey'),
                              _class='col-md-6'),
                          DIV(button_book,
                              _class='col-md-3'),

@@ -7,6 +7,8 @@ from general_helpers import NRtoDay
 
 from openstudio.openstudio import ClassSchedule, WorkshopSchedule, Workshop
 
+cache_15_min = 99
+
 
 def do_auth(user, key):
     """
@@ -276,7 +278,7 @@ def schedule_get():
                             'LevelID_' + unicode(LevelID)
                 data = cache.ram(cache_key,
                                  lambda: _schedule_get(year, week, sorting, TeacherID, ClassTypeID, LocationID, LevelID),
-                                 time_expire=CACHE_LONG)
+                                 time_expire=cache_15_min)
 
         except ValueError:
             data = T("Value error")

@@ -2925,20 +2925,30 @@ def shop_links_get_link_edit(row):
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
 def shop_settings():
-    '''
+    """
         Page for general shop settings
-    '''
+    """
     response.title = T('Settings')
     response.subtitle = T('Shop General')
     response.view = 'general/tabs_menu.html'
 
     shop_header_logo_url = get_sys_property('shop_header_logo_url')
+    shop_classes_dropin_message = get_sys_property('shop_classes_dropin_message')
+    shop_classes_trial_message = get_sys_property('shop_classes_trial_message')
 
     form = SQLFORM.factory(
         Field('shop_header_logo_url',
               requires=IS_EMPTY_OR(IS_URL()),
               default=shop_header_logo_url,
               label=T('Header logo link')),
+        Field('shop_classes_dropin_message',
+              default=shop_classes_dropin_message,
+              label=T('Drop-in class booking options message'),
+              comment=T('Message shown on the drop-in class option on the class booking options pages')),
+        Field('shop_classes_trial_message',
+              default=shop_classes_trial_message,
+              label=T('Trial class booking options message'),
+              comment=T('Message shown on the trial class option on the class booking options pages')),
         submit_button=T("Save"),
         separator=' ',
         formstyle='bootstrap3_stacked'
@@ -2949,15 +2959,16 @@ def shop_settings():
     submit = result['submit']
 
     if form.accepts(request.vars, session):
-        # check shop header logo url
-        shop_header_logo_url = request.vars['shop_header_logo_url']
-        row = db.sys_properties(Property='shop_header_logo_url')
-        if not row:
-            db.sys_properties.insert(Property='shop_header_logo_url',
-                                     PropertyValue=shop_header_logo_url)
-        else:
-            row.PropertyValue = shop_header_logo_url
-            row.update_record()
+        value_names = [
+            'shop_header_logo_url',
+            'shop_classes_dropin_message',
+            'shop_classes_trial_message'
+        ]
+
+        # process vars
+        for value_name in value_names:
+            value = request.vars[value_name]
+            set_sys_property(value_name, value)
 
         # Clear cache
         cache_clear_sys_properties()

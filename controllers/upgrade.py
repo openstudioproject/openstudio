@@ -45,6 +45,13 @@ def index():
         else:
             session.flash = T('Already up to date')
 
+        if version < 2018.4:
+            print version
+            upgrade_to_20184()
+            session.flash = T("Upgraded db to 2018.4")
+        else:
+            session.flash = T('Already up to date')
+
         # always renew permissions for admin group after update
         set_permissions_for_admin_group()
 
@@ -232,6 +239,22 @@ def upgrade_to_20183():
     for row in rows:
         invoice = Invoice(row.invoices_id)
         invoice.set_customer_info(row.auth_customer_id)
+
+    ##
+    # clear cache
+    ##
+    cache.ram.clear(regex='.*')
+
+
+def upgrade_to_20184():
+    """
+        Upgrade operations to 2018.4
+    """
+    ##
+    # Set default value for db.classes.AllowShopTrial
+    ##
+    query = (db.classes.AllowShopTrial == None)
+    db(query).update(AllowShopTrial = False)
 
     ##
     # clear cache

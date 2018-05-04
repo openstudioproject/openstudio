@@ -319,6 +319,18 @@ def test_classes_book_options(client, web2py):
         Enddate = '2099-12-31'
     )
 
+    trial_message = '82374238947239sddjshfk'
+    web2py.db.sys_properties.insert(
+        Property = 'shop_classes_trial_message',
+        PropertyValue = trial_message
+    )
+
+    dropin_message = '823742sadtdfgd39sddjsh'
+    web2py.db.sys_properties.insert(
+        Property = 'shop_classes_dropin_message',
+        PropertyValue = dropin_message
+    )
+
     web2py.db.commit()
 
     next_monday = next_weekday(datetime.date.today(), 0)
@@ -328,10 +340,15 @@ def test_classes_book_options(client, web2py):
     assert '<div class="col-md-3 bold">Subscription</div>' in client.text
     assert '<div class="col-md-3 bold">Class card</div>' in client.text
     assert '<div class="col-md-3 bold">Drop in</div>' in client.text
+    assert '<div class="col-md-3 bold">Trial</div>' in client.text
+    assert dropin_message in client.text
+    assert trial_message in client.text
 
     # check drop in price listing
     class_prices = web2py.db.classes_price(1)
     assert format(class_prices.Dropin, '.2f') in client.text
+    assert format(class_prices.Trial, '.2f') in client.text
+
 
 
 def test_classes_book_options_not_yet_open(client, web2py):
@@ -759,10 +776,56 @@ def test_class_book_subscription_no_shopbook_permission(client, web2py):
     assert "Book this class" in client.text
 
 
+def test_class_book_trial(client, web2py):
+    """
+        Can we book a trial class from the shop?
+    """
+    url = '/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    setup_profile_tests(web2py)
+    prepare_classes(web2py)
+
+    next_monday = next_weekday(datetime.date.today(), 0)
+    # check class card booking
+    url = '/shop/class_book?clsID=1&date=' + unicode(next_monday) + '&trial=true'
+    client.get(url)
+    assert client.status == 200
+
+    cart = web2py.db.customers_shoppingcart(1)
+    assert cart.AttendanceType == 1
+
+    url = '/shop/cart'
+    client.get(url)
+    assert '(Trial)' in client.text
+
+
+def test_class_book_dropin(client, web2py):
+    """
+        Can we book a drop in class from the shop?
+    """
+    url = '/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    setup_profile_tests(web2py)
+    prepare_classes(web2py)
+
+    next_monday = next_weekday(datetime.date.today(), 0)
+    # check class card booking
+    url = '/shop/class_book?clsID=1&date=' + unicode(next_monday) + '&dropin=true'
+    client.get(url)
+    assert client.status == 200
+
+    cart = web2py.db.customers_shoppingcart(1)
+    assert cart.AttendanceType == 2
+
+
 def test_class_book_classcard(client, web2py):
-    '''
+    """
         Can we book a class on a class card from the shop?
-    '''
+    """
     url = '/user/login'
     client.get(url)
     assert client.status == 200
@@ -1364,9 +1427,9 @@ def test_cart(client, web2py):
 
 
 def test_cart_item_remove(client, web2py):
-    '''
+    """
         Can we remove items from the shopping cart?
-    '''
+    """
     # put two items in the cart and check we only have one left after removing one
     populate_customers_shoppingcart(web2py)
 
@@ -1374,13 +1437,13 @@ def test_cart_item_remove(client, web2py):
     client.get(url)
     assert client.status == 200
 
-    assert web2py.db(web2py.db.customers_shoppingcart).count() == 1
+    assert web2py.db(web2py.db.customers_shoppingcart).count() == 2
 
 
 def test_cart_remove_past_classes(client, web2py):
-    '''
+    """
         Is a class in the past removed from the shopping cart?
-    '''
+    """
     setup_profile_tests(web2py)
 
     # populate classes
@@ -1434,9 +1497,9 @@ def test_checkout(client, web2py):
 
 
 def test_order_received(client, web2py):
-    '''
+    """
         Is the cart processed correctly after ordering?
-    '''
+    """
     populate_customers_shoppingcart(web2py)
 
     url = '/shop/order_received'
@@ -1449,7 +1512,7 @@ def test_order_received(client, web2py):
     order = web2py.db.customers_orders(1)
     assert order.Status == 'awaiting_payment'
     ## check order items
-    assert web2py.db(web2py.db.customers_orders_items).count() == 2
+    assert web2py.db(web2py.db.customers_orders_items).count() == 3
     # check classcard item
     item = web2py.db.customers_orders_items(1)
     scd = web2py.db.school_classcards(1)
@@ -1458,7 +1521,7 @@ def test_order_received(client, web2py):
     assert item.Description == scd.Name
     assert item.school_classcards_id == 1
     assert item.Quantity == 1
-    # check class item
+    # check drop in class item
     cls_price = web2py.db.classes_price(1)
     item = web2py.db.customers_orders_items(2)
     assert item.TotalPriceVAT == cls_price.Dropin
@@ -1467,10 +1530,19 @@ def test_order_received(client, web2py):
     assert item.classes_id == 1
     assert item.ClassDate == datetime.date(2099, 1, 1)
     assert item.AttendanceType == 2
+    # check trial in class item
+    cls_price = web2py.db.classes_price(1)
+    item = web2py.db.customers_orders_items(3)
+    assert item.TotalPriceVAT == cls_price.Trial
+    assert item.ProductName == 'Class'
+    assert item.Description == '2099-01-01 06:00 classtype_1 location_1 (Trial)'
+    assert item.classes_id == 1
+    assert item.ClassDate == datetime.date(2099, 1, 1)
+    assert item.AttendanceType == 1
 
     # check order amounts
     amounts = web2py.db.customers_orders_amounts(1)
-    assert amounts.TotalPriceVAT == scd.Price + cls_price.Dropin
+    assert amounts.TotalPriceVAT == scd.Price + cls_price.Dropin + cls_price.Trial
 
     # Check mollie link
     assert '/mollie/order_pay?coID=1' in client.text
@@ -1480,9 +1552,9 @@ def test_order_received(client, web2py):
 
 
 def test_order_paid_delivery_invoice(client, web2py):
-    '''
+    """
         Is the order delivered after it's paid and is an invoice created?
-    '''
+    """
     setup_profile_tests(web2py)
 
     url = '/default/user/login'

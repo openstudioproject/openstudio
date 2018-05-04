@@ -82,20 +82,28 @@ def test_system_organization_edit(client, web2py):
 
 
 def test_shop_settings_general(client, web2py):
-    '''
+    """
         Is the shop general settings page working?
-    '''
+    """
     url = '/settings/shop_settings'
     client.get(url)
     assert client.status == 200
 
-    data = {'shop_header_logo_url':'http://www.groningen.nl'}
+    data = {
+        'shop_header_logo_url':'http://www.groningen.nl',
+        'shop_classes_dropin_message': '23498798fjsdfksd',
+        'shop_classes_trial_message': '23498798fjsdfksd',
+    }
     client.post(url, data=data)
     assert client.status == 200
 
     assert data['shop_header_logo_url'] in client.text
+    assert data['shop_classes_dropin_message'] in client.text
+    assert data['shop_classes_trial_message'] in client.text
 
     assert web2py.db(web2py.db.sys_properties.Property == 'shop_header_logo_url').count() == 1
+    assert web2py.db(web2py.db.sys_properties.Property == 'shop_classes_dropin_message').count() == 1
+    assert web2py.db(web2py.db.sys_properties.Property == 'shop_classes_trial_message').count() == 1
 
     url = '/shop/index'
     client.get(url)
@@ -103,9 +111,9 @@ def test_shop_settings_general(client, web2py):
 
 
 def test_shop_customers_profile_announcements(client, web2py):
-    '''
+    """
         Is the shop profile announcements page working?
-    '''
+    """
     populate_settings_shop_customers_profile_announcements(web2py)
 
     url = '/settings/shop_customers_profile_announcements'

@@ -1263,8 +1263,9 @@ def classes_book_options():
     ##
     # Class booking options
     ##
+    trial = cls.get_trialclass_allowed_in_shop()
     ah = AttendanceHelper()
-    options =  ah.get_customer_class_booking_options(clsID, date, customer, controller='shop')
+    options =  ah.get_customer_class_booking_options(clsID, date, customer, trial=trial, controller='shop')
 
     content.append(options)
 
@@ -1284,7 +1285,7 @@ def class_book_options_get_enrollment_options(clsID, date, date_formatted, custo
     """
         List enrollment options
     """
-    options = DIV(_class='shop-classes-booking-options')
+    options = DIV(_class='shop-classes-booking-options row')
 
     cls = Class(clsID, date)
 
@@ -1515,10 +1516,15 @@ def class_book():
     # Clear api cache to update available spaces
     cache_clear_classschedule_api()
 
-    if request.vars['dropin'] == 'true':
+    dropin = request.vars['dropin']
+    trial = request.vars['trial']
+    if dropin == 'true' or trial =='true':
         # Add drop in class to shopping cart
         redirect(URL('class_add_to_cart', vars={'clsID':clsID,
-                                                'date':date_formatted}))
+                                                'date':date_formatted,
+                                                'dropin':dropin,
+                                                'trial':trial}))
+
 
     redirect(URL('profile', 'classes'))
 
@@ -1633,6 +1639,8 @@ def class_add_to_cart():
         Add a drop in class to the shopping cart 
     """
     clsID = request.vars['clsID']
+    dropin = request.vars['dropin']
+    trial = request.vars['trial']
     date_formatted = request.vars['date']
     date = datestr_to_python(DATE_FORMAT, request.vars['date'])
 
@@ -1645,7 +1653,13 @@ def class_add_to_cart():
         check_add_to_card_requires_complete_profile(auth.user.id)
 
     cls = Class(clsID, date)
-    cls.add_to_shoppingcart(auth.user.id)
+    # Drop in
+    if dropin == 'true':
+        cls.add_to_shoppingcart(auth.user.id, attendance_type=2)
+    # Trial
+    if trial == 'true':
+        cls.add_to_shoppingcart(auth.user.id, attendance_type=1)
+
     redirect(URL('cart'))
 
 

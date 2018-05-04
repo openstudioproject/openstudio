@@ -503,7 +503,8 @@ def prepare_classes(web2py,
                              MaxReservationsRecurring=2,
                              MaxReservationsDT=2,
                              MaxOnlineBooking=15,
-                             AllowAPI=True
+                             AllowAPI=True,
+                             AllowShopTrial=True
                              )
 
     # Tuesday class
@@ -518,7 +519,8 @@ def prepare_classes(web2py,
                              MaxReservationsRecurring=2,
                              MaxReservationsDT=2,
                              MaxOnlineBooking=15,
-                             AllowAPI=True
+                             AllowAPI=True,
+                             AllowShopTrial=True
                              )
 
     # Add Monday class to the first subscriptions & classcard group
@@ -1435,6 +1437,13 @@ def populate_customers_shoppingcart(web2py):
         classes_id=1,
         ClassDate='2099-01-01',
         AttendanceType=2
+    )
+
+    web2py.db.customers_shoppingcart.insert(
+        auth_customer_id=300,
+        classes_id=1,
+        ClassDate='2099-01-01',
+        AttendanceType=1
     )
 
     web2py.db.commit()
