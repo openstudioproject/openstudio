@@ -2904,10 +2904,10 @@ class Class:
 
 
     def add_to_shoppingcart(self, cuID, attendance_type=2):
-        '''
+        """
             Add a workshop product to the shopping cart of a customer
             attendance_type can be 1 for trial class or 2 for drop in class
-        '''
+        """
         db = current.globalenv['db']
 
         db.customers_shoppingcart.insert(
