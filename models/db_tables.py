@@ -3823,9 +3823,9 @@ def define_shifts_cancelled():
 
 
 def define_customers_shoppingcart():
-    '''
+    """
         Table to hold shopping cart entries
-    '''
+    """
     types = [ (1,T("Trial class")),
               (2,T("Drop In")) ]
 
