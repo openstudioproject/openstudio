@@ -7963,8 +7963,6 @@ class Invoice:
         return iiID
 
 
-
-
     def item_add_classcard(self, ccdID):
         '''
             :param ccdID: Add customer classcard to invoice
@@ -8275,6 +8273,22 @@ class Invoice:
 
         if rows:
             return rows.first().auth_customer_id
+        else:
+            return None
+
+
+    def get_linked_customer_subscription_id(self):
+        """
+            Returns auth.user.id of account linked to this invoice
+            :return: auth.user.id
+        """
+        db = current.globalenv['db']
+
+        query = (db.invoices_customers_subscriptions.invoices_id == self.invoices_id)
+        rows = db(query).select(db.invoices_customers_subscriptions.customers_subscriptions_id)
+
+        if rows:
+            return rows.first().customers_subscriptions_id
         else:
             return None
 
