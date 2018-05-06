@@ -1302,6 +1302,63 @@ def define_teachers_holidays():
         )
 
 
+def define_teachers_payment_fixed_rate_default():
+    db.define_table('teachers_payment_fixed_rate_default',
+        Field('auth_user_id', db.auth_user,
+              readable=False,
+              writable=False),
+        Field('ClassRate', 'double',
+              requires=IS_FLOAT_IN_RANGE(0, 99999999, dot='.',
+                                         error_message=T('Too small or too large')),
+              represent=represent_float_as_amount,
+              label=T("Class Rate excl. VAT")),
+        Field('tax_rates_id', db.tax_rates,
+            label=T('Tax rate')),
+    )
+
+
+def define_teachers_payment_fixed_rate_class():
+    db.define_table('teachers_payment_fixed_rate_default',
+        Field('auth_user_id', db.auth_user,
+              readable=False,
+              writable=False),
+        Field('classes_id', db.classes,
+              readable=False,
+              writable=False),
+        Field('ClassRate', 'double',
+              requires=IS_FLOAT_IN_RANGE(0, 99999999, dot='.',
+                                         error_message=T('Too small or too large')),
+              represent=represent_float_as_amount,
+              label=T("Class Rate excl. VAT")),
+        Field('tax_rates_id', db.tax_rates,
+            label=T('Tax rate')),
+    )
+
+
+def define_teachers_payment_fixed_rate_travel():
+    loc_query = (db.school_locations.Archived == False)
+
+    db.define_table('teachers_payment_fixed_rate_travel',
+        Field('auth_user_id', db.auth_user,
+              readable=False,
+              writable=False),
+        Field('school_locations_id', db.school_locations, required=True,
+              requires=IS_IN_DB(db(loc_query),
+                                'school_locations.id',
+                                '%(Name)s',
+                                zero=T("Please select...")),
+              represent=lambda value, row: locations_dict.get(value, T("No location")),
+              label=T("Location")),
+        Field('TravelAllowance', 'double',
+              requires=IS_FLOAT_IN_RANGE(0, 99999999, dot='.',
+                                         error_message=T('Too small or too large')),
+              represent=represent_float_as_amount,
+              label=T("Travel Allowance excl. VAT")),
+        Field('tax_rates_id', db.tax_rates,
+            label=T('Tax rate')),
+    )
+
+
 def define_customers_notes():
     db.define_table('customers_notes',
         Field('auth_customer_id', db.auth_user, # to link note to customer
