@@ -5921,14 +5921,16 @@ def edit_teacher_payment_fixed_rate_default():
     db.teachers_payment_fixed_rate_default.auth_teacher_id.default = cuID
 
     teacher = Teacher(cuID)
-    default_payment = teacher.get_payment_fixed_rate_default()
-    if default_payment:
+    default_payments = teacher.get_payment_fixed_rate_default()
+    if default_payments:
+        title = H4(T('Edit default rate'))
         result = os_forms.get_crud_form_update(
             db.teachers_payment_fixed_rate_default,
             return_url,
-            default_payment.id
+            default_payments.first().id
         )
     else:
+        title = H4(T('Add default rate'))
         result = os_forms.get_crud_form_create(
             db.teachers_payment_fixed_rate_default,
             return_url,
@@ -5937,7 +5939,7 @@ def edit_teacher_payment_fixed_rate_default():
     form = result['form']
 
     content = DIV(
-        H4(T('Add default rate')),
+        title,
         form
     )
 

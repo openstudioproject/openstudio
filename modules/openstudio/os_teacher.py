@@ -52,19 +52,44 @@ class Teacher:
             H3(T("Default rate"))
         )
 
+        edit_url = URL('edit_teacher_payment_fixed_rate_default',
+                            vars={'cuID':self.id})
+
         if not row:
             display.append(
                 A(T('Set default rate'),
-                  _href=URL('edit_teacher_payment_fixed_rate_default',
-                            vars={'cuID':self.id}))
+                  _href=edit_url)
             )
             return display
 
         display.append(DIV(
             SPAN(T('Class rate:'), _class='bold'), ' ',
             row.ClassRate, ' ',
-            row.tax_rates_id
+            row.tax_rates_id, BR(),
+            A(T('Edit'),
+               _href=edit_url)
         ))
 
         return display
+
+
+    def get_payment_fixed_rate_class(self, clsID, render=False):
+        """
+        :return: gluon.dal.row object of db.teachers_payment_fixed_rate_class
+        """
+        db = current.globalenv['db']
+
+        query = (db.teachers_payment_fixed_rate_class.auth_teacher_id ==
+                 self.id) &\
+                (db.teachers_payment_fixed_rate_class.classes_id ==
+                 clsID)
+        rows = db(query).select(db.teachers_payment_fixed_rate_class.ALL)
+
+        if rows:
+            if not render:
+                return rows
+            else:
+                return rows.render()
+        else:
+            return False
 
