@@ -440,7 +440,7 @@ def me():
         DIV(INPUT(_type="checkbox",
                     _id='data_true_and_complete',
                     _class="iCheck-line-aero"), ' ',
-            LABEL(T("I confirm that the data entered in this form is true and complete"),
+            LABEL(T("I confirm that the data above is true and complete"),
                   _for="data_true_and_complete"),
               _class="form-group"),
         DIV(DIV(change_passwd, form.custom.submit, _class='col-md-12'),
