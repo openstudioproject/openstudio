@@ -1304,7 +1304,7 @@ def define_teachers_holidays():
 
 def define_teachers_payment_fixed_rate_default():
     db.define_table('teachers_payment_fixed_rate_default',
-        Field('auth_user_id', db.auth_user,
+        Field('auth_teacher_id', db.auth_user,
               readable=False,
               writable=False),
         Field('ClassRate', 'double',
@@ -1318,8 +1318,8 @@ def define_teachers_payment_fixed_rate_default():
 
 
 def define_teachers_payment_fixed_rate_class():
-    db.define_table('teachers_payment_fixed_rate_default',
-        Field('auth_user_id', db.auth_user,
+    db.define_table('teachers_payment_fixed_rate_class',
+        Field('auth_teacher_id', db.auth_user,
               readable=False,
               writable=False),
         Field('classes_id', db.classes,
@@ -1339,7 +1339,7 @@ def define_teachers_payment_fixed_rate_travel():
     loc_query = (db.school_locations.Archived == False)
 
     db.define_table('teachers_payment_fixed_rate_travel',
-        Field('auth_user_id', db.auth_user,
+        Field('auth_teacher_id', db.auth_user,
               readable=False,
               writable=False),
         Field('school_locations_id', db.school_locations, required=True,
@@ -5102,6 +5102,11 @@ define_announcements()
 define_school_holidays()
 define_school_holidays_locations()
 define_schedule_classes_status()
+
+# teacher payment definitions (depend on classes and auth_user)
+define_teachers_payment_fixed_rate_default()
+define_teachers_payment_fixed_rate_class()
+define_teachers_payment_fixed_rate_travel()
 
 define_customers_subscriptions_credits()
 define_log_customers_accepted_documents()

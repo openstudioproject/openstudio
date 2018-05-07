@@ -5867,12 +5867,17 @@ def edit_teacher_payment_fixed_rate():
     """
         Configure fixed rate payments for this teacher
     """
+    from openstudio.os_teacher import Teacher
+
     cuID = request.vars['cuID']
     response.view = 'customers/edit_general.html'
 
     customer = Customer(cuID)
     response.title = customer.get_name()
     response.subtitle = T("Teacher profile")
+
+    teacher = Teacher(cuID)
+    content = teacher.get_payment_fixed_rate_default_display()
 
 
     back = edit_get_back()
@@ -5881,10 +5886,69 @@ def edit_teacher_payment_fixed_rate():
 
     submit = 'Save!!'
 
-    return dict(content=DIV(submenu, BR(), 'hello world'),
+    return dict(content=DIV(submenu, BR(), content),
                 menu=menu,
                 back=back,
                 save=submit)
+
+
+def edit_teacher_payment_fixed_rate_default_add_edit_return_url(cuID):
+    """
+    :return: URL to redirect back to after adding/editing the default rate
+    """
+    return URL('edit_teacher_payment_fixed_rate', vars={'cuID':cuID})
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+                auth.has_permission('read', 'teachers_payment_fixed_rate_default'))
+def edit_teacher_payment_fixed_rate_default():
+    """
+        Add default fixed rate for this teacher
+    """
+    from openstudio.os_teacher import Teacher
+    from openstudio.os_forms import OsForms
+
+    cuID = request.vars['cuID']
+    response.view = 'customers/edit_general.html'
+
+    customer = Customer(cuID)
+    response.title = customer.get_name()
+    response.subtitle = T("Teacher profile")
+
+    os_forms = OsForms()
+    return_url = edit_teacher_payment_fixed_rate_default_add_edit_return_url(cuID)
+
+    db.teachers_payment_fixed_rate_default.auth_teacher_id.default = cuID
+
+    teacher = Teacher(cuID)
+    default_payment = teacher.get_payment_fixed_rate_default()
+    if default_payment:
+        result = os_forms.get_crud_form_update(
+            db.teachers_payment_fixed_rate_default,
+            return_url,
+            default_payment.id
+        )
+    else:
+        result = os_forms.get_crud_form_create(
+            db.teachers_payment_fixed_rate_default,
+            return_url,
+        )
+
+    form = result['form']
+
+    content = DIV(
+        H4(T('Add default rate')),
+        form
+    )
+
+    back = os_gui.get_button('back', return_url)
+    menu = customers_get_menu(cuID, 'edit_teacher')
+    submenu = edit_teacher_get_submenu(request.function, cuID)
+
+    return dict(content=DIV(submenu, BR(), content),
+                menu=menu,
+                back=back,
+                save=result['submit'])
 
 
 def edit_teacher_get_submenu(page, cuID):
