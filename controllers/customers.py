@@ -2029,9 +2029,9 @@ def classes_reservation_add():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('create', 'classes_attendance'))
 def classes_attendance_add():
-    '''
+    """
         Add customers to attendance for a class
-    '''
+    """
     response.view = 'general/only_content.html'
 
     cuID = request.vars['cuID']
@@ -2041,11 +2041,7 @@ def classes_attendance_add():
     response.title = customer.get_name()
     response.subtitle = T("Add attendance")
 
-
     if 'date' in request.vars:
-        # response.subtitle = SPAN(T('for'), ' ',
-        #                          customer.get_name(), ' ',
-        #                          request.vars['date'])
         date = datestr_to_python(DATE_FORMAT, request.vars['date'])
     else:
         date = datetime.date.today()
@@ -2057,9 +2053,7 @@ def classes_attendance_add():
     form = result['form']
     form_date = result['form_styled']
 
-
     db.classes.id.readable = False
-
     # list of classes
     grid = classes_add_get_list(date, 'attendance', cuID)
 
@@ -2117,11 +2111,10 @@ def classes_attendance_add_booking_options():
                 back=back)
 
 
-
 def classes_add_get_form_date(cuID, date):
-    '''
+    """
         Get date form
-    '''
+    """
     form = SQLFORM.factory(
         Field('date', 'date',
             requires=IS_DATE_IN_RANGE(format=DATE_FORMAT,
@@ -2172,9 +2165,11 @@ def classes_add_get_form_date(cuID, date):
 
 
 def classes_add_get_list(date, list_type, cuID=None):
-    '''
+    """
         Get list of classes for a date
-    '''
+        list_type is expected to be in
+        [ 'attendance', 'reservations', 'tp_fixed_rate' ]
+    """
     if list_type == 'attendance':
         session.classes_attendance_signin_back = 'cu_classes_attendance'
         ah = AttendanceHelper()
@@ -2203,7 +2198,7 @@ def classes_add_get_list(date, list_type, cuID=None):
 
         if list_type == 'reservations':
             buttons = classes_reservation_add_get_button(c['ClassesID'])
-        if list_type == 'attendance' and status == '':
+        elif list_type == 'attendance' and status == '':
             buttons = os_gui.get_button('noicon',
                                         URL('customers', 'classes_attendance_add_booking_options',
                                             vars={'cuID':cuID,
@@ -5900,7 +5895,7 @@ def edit_teacher_payment_fixed_rate_default_add_edit_return_url(cuID):
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-                auth.has_permission('read', 'teachers_payment_fixed_rate_default'))
+               auth.has_permission('read', 'teachers_payment_fixed_rate_default'))
 def edit_teacher_payment_fixed_rate_default():
     """
         Add default fixed rate for this teacher
@@ -5931,6 +5926,95 @@ def edit_teacher_payment_fixed_rate_default():
         )
     else:
         title = H4(T('Add default rate'))
+        result = os_forms.get_crud_form_create(
+            db.teachers_payment_fixed_rate_default,
+            return_url,
+        )
+
+    form = result['form']
+
+    content = DIV(
+        title,
+        form
+    )
+
+    back = os_gui.get_button('back', return_url)
+    menu = customers_get_menu(cuID, 'edit_teacher')
+    submenu = edit_teacher_get_submenu(request.function, cuID)
+
+    return dict(content=DIV(submenu, BR(), content),
+                menu=menu,
+                back=back,
+                save=result['submit'])\
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('create', 'classes_attendance'))
+def edit_teacher_payment_fixed_rate_class_add():
+    """
+        Add customers to attendance for a class
+    """
+    response.view = 'general/only_content.html'
+
+    cuID = request.vars['cuID']
+    customer = Customer(cuID)
+    response.title = customer.get_name()
+    response.subtitle = T("Add class payment rate")
+
+    if 'date' in request.vars:
+        date = datestr_to_python(DATE_FORMAT, request.vars['date'])
+    else:
+        date = TODAY_LOCAL
+
+    result = classes_add_get_form_date(cuID, date)
+    form = result['form']
+    form_date = result['form_styled']
+
+    db.classes.id.readable = False
+    # list of classes
+    grid = classes_add_get_list(date, 'tp_fixed_rate', cuID)
+
+    back = os_gui.get_button('back',
+                             URL('edit_teacher_payment_fixed_rate',
+                                 vars={'cuID':cuID}),
+                             _class='left')
+
+    return dict(content=DIV(form_date, grid),
+                back=back)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'teachers_payment_fixed_rate_class'))
+def edit_teacher_payment_fixed_rate_class():
+    """
+        Add default fixed rate for this teacher
+    """
+    from openstudio.os_teacher import Teacher
+    from openstudio.os_forms import OsForms
+
+    cuID = request.vars['cuID']
+    response.view = 'customers/edit_general.html'
+
+    customer = Customer(cuID)
+    response.title = customer.get_name()
+    response.subtitle = T("Teacher profile")
+
+    os_forms = OsForms()
+    return_url = edit_teacher_payment_fixed_rate_default_add_edit_return_url(cuID)
+
+    db.teachers_payment_fixed_rate_default.auth_teacher_id.default = cuID
+
+    teacher = Teacher(cuID)
+    default_payments = teacher.get_payment_fixed_rate_default()
+    if default_payments:
+        title = H4(T('Edit class rate'))
+        result = os_forms.get_crud_form_update(
+            db.teachers_payment_fixed_rate_default,
+            return_url,
+            default_payments.first().id
+        )
+    else:
+        title = H4(T('Add class rate'))
         result = os_forms.get_crud_form_create(
             db.teachers_payment_fixed_rate_default,
             return_url,
