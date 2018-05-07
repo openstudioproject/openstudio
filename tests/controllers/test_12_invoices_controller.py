@@ -49,10 +49,10 @@ def test_invoice_add_from_customer(client, web2py):
 
 
 def test_invoice_add_from_customer_subscription(client, web2py):
-    '''
+    """
         Can we add a subscription from an invoice and does it set the
         cusotmers_subscriptions_id, year and month correctly
-    '''
+    """
     # get random URL to initialize OpenStudio environment
     url = '/default/user/login'
     client.get(url)
@@ -76,10 +76,17 @@ def test_invoice_add_from_customer_subscription(client, web2py):
     assert data['Description'] in client.text
 
     invoice = web2py.db.invoices(1)
-
-    assert invoice.customers_subscriptions_id == 1
     assert invoice.SubscriptionYear           == 2014
     assert invoice.SubscriptionMonth          == 1
+
+    # Verify linking of invoice to customer and subscription
+    ic = web2py.db.invoices_customers(1)
+    assert ic.invoices_id == 1
+    assert ic.auth_customer_id == 1001
+
+    ics = web2py.db.invoices_customers_subscriptions(1)
+    assert ics.invoices_id == 1
+    assert ics.customers_subscriptions_id == 1
 
     # verify redirection
     assert invoice.InvoiceID in client.text
@@ -261,7 +268,7 @@ def test_subscriptions_create_montly_invoices(client, web2py):
     assert ics.customers_subscriptions_id == 1
 
     # make sure the 2nd customer (1002) doesn't have an invoice, the subscription is paused
-    assert web2py.db(web2py.db.invoices.auth_customer_id==1002).count() == 0
+    assert web2py.db(web2py.db.invoices_customers.auth_customer_id==1002).count() == 0
 
     ## check created invoice items
     # alt. Price subscription item (first subscription gets a different price)

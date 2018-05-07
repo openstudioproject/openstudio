@@ -791,7 +791,7 @@ def dropin_trial_classes_get_rows(date, att_type):
 
     query = '''
         SELECT au.id,
-               au.archived,
+               au.trashed,
                au.thumbsmall,
                au.birthday,
                au.display_name,
@@ -2384,7 +2384,7 @@ def subscriptions_alt_prices():
                                    cs.auth_customer_id,
                                    cs.school_subscriptions_id,
                                    au.id,
-                                   au.archived,
+                                   au.trashed,
                                    au.birthday,
                                    au.display_name,
                                    au.thumbsmall,
@@ -4562,9 +4562,13 @@ def revenue_get_data():
         month = date.month
 
         left = [db.invoices_amounts.on(db.invoices.id ==
-                                       db.invoices_amounts.invoices_id)]
+                                       db.invoices_amounts.invoices_id),
+                db.invoices_customers_subscriptions.on(
+                    db.invoices_customers_subscriptions.invoices_id ==
+                    db.invoices.id)
+                ]
 
-        query = (db.invoices.customers_subscriptions_id != None) & \
+        query = (db.invoices_customers_subscriptions.customers_subscriptions_id != None) & \
                 (db.invoices.SubscriptionMonth == date.month) & \
                 (db.invoices.SubscriptionYear == date.year)
         rows = db(query).select(db.invoices_amounts.ALL,

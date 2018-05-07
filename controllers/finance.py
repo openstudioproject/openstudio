@@ -667,9 +667,9 @@ def generate_batch_items(form):
 def generate_batch_items_invoices(pbID,
                                   pb,
                                   currency):
-    '''
+    """
         Generate invoices batch and write to db.payment_batches_items
-    '''
+    """
     query = (db.invoices.Status == 'sent') & \
             (db.invoices.payment_methods_id == 3) # 3 = Direct Debit
 
@@ -680,6 +680,9 @@ def generate_batch_items_invoices(pbID,
                 db.invoices.id),
              db.invoices_customers.on(db.invoices_customers.invoices_id ==
                                       db.invoices.id),
+             db.invoices_customers_subscriptions.on(
+                 db.invoices_customers_subscriptions.invoices_id ==
+                 db.invoices.id),
              db.auth_user.on(db.invoices_customers.auth_customer_id ==
                              db.auth_user.id),
              db.customers_payment_info.on(
@@ -690,6 +693,7 @@ def generate_batch_items_invoices(pbID,
 
     rows = db(query).select(db.invoices.ALL,
                             db.invoices_amounts.ALL,
+                            db.invoices_customers_subscriptions.ALL,
                             db.customers_payment_info.ALL,
                             db.school_locations.Name,
                             db.auth_user.id,
@@ -698,7 +702,7 @@ def generate_batch_items_invoices(pbID,
 
     for row in rows:
         cuID = row.auth_user.id
-        csID = row.invoices.customers_subscriptions_id
+        csID = row.invoices_customers_subscriptions.customers_subscriptions_id
         iID  = row.invoices.id
 
         amount = row.invoices_amounts.TotalPriceVAT

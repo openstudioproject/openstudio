@@ -2314,10 +2314,10 @@ class CustomerSubscription:
 
 
     def create_invoice_for_month(self, SubscriptionYear, SubscriptionMonth):
-        '''
+        """
             :param SubscriptionYear: Year of subscription
             :param SubscriptionMonth: Month of subscription
-        '''
+        """
         db = current.globalenv['db']
         TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
@@ -2329,11 +2329,17 @@ class CustomerSubscription:
         firstdaythismonth = datetime.date(SubscriptionYear, SubscriptionMonth, 1)
         lastdaythismonth = get_last_day_month(firstdaythismonth)
 
+        left = [ db.invoices_customers_subscriptions.on(
+            db.invoices_customers_subscriptions.invoices_id ==
+            db.invoices.id
+        )]
+
         # Check if an invoice already exists, if so, return invoice id
-        query = (db.invoices.customers_subscriptions_id == self.csID) & \
+        query = (db.invoices_customers_subscriptions.customers_subscriptions_id == self.csID) & \
                 (db.invoices.SubscriptionYear == SubscriptionYear) & \
                 (db.invoices.SubscriptionMonth == SubscriptionMonth)
-        rows = db(query).select(db.invoices.ALL)
+        rows = db(query).select(db.invoices.ALL,
+                                left=left)
         if len(rows):
             return rows.first().id
 
@@ -3249,7 +3255,7 @@ class AttendanceHelper:
 
         query = '''
             SELECT au.id,
-                   au.archived,
+                   au.trashed,
                    au.birthday,
                    au.thumbsmall,
                    au.first_name,
@@ -3364,11 +3370,11 @@ class AttendanceHelper:
 
 
     def get_reservation_rows(self, clsID, date):
-        '''
+        """
             :param clsID: db.classes.id 
             :param date: datetime.date
             :return: reservation rows for a class
-        '''
+        """
         db = current.globalenv['db']
 
         fields = [
@@ -3389,7 +3395,7 @@ class AttendanceHelper:
 
         query = '''
             SELECT au.id,
-                   au.archived,
+                   au.trashed,
                    au.birthday,
                    au.thumbsmall,
                    au.first_name,
@@ -8352,7 +8358,6 @@ class InvoicesHelper:
         db = current.globalenv['db']
 
         cs = CustomerSubscription(csID)
-        db.invoices.customers_subscriptions_id.default = csID
         db.invoices.payment_methods_id.default = cs.payment_methods_id
         db.invoices.SubscriptionYear.readable = True
         db.invoices.SubscriptionYear.writable = True
@@ -8732,7 +8737,6 @@ class InvoicesHelper:
         # General list, list for customer or list for subscription
         if not cuID and not csID:
             # list all invoices
-            db.invoices.auth_customer_id.readable = True
             fields.insert(2, db.invoices.CustomerListName)
 
         if cuID:
@@ -8745,14 +8749,12 @@ class InvoicesHelper:
         delete_permission = auth.has_membership(group_id='Admins') or \
                             auth.has_permission('delete', 'invoices')
 
-        headers = {'invoices.auth_customer_id': T("Customer")}
 
         grid = SQLFORM.grid(query,
                             links=links,
                             left=left,
                             field_id=db.invoices.id,
                             fields=fields,
-                            headers=headers,
                             create=False,
                             editable=False,
                             details=False,

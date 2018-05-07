@@ -150,10 +150,13 @@ def test_add_batch_default_with_zero_lines(client, web2py):
 
 
 def test_add_batch_default_location(client, web2py):
-    '''
+    """
         Check whether we can add an invoice based batch and items are generated
         propery for a selected location
-    '''
+    """
+    client.get('/default/user/login')
+    assert client.status == 200
+
     ## set sys_property
     # without this, the form doesn't accept 'school_locations_id'
     web2py.db.sys_properties.insert(
@@ -204,15 +207,16 @@ def test_add_batch_default_location(client, web2py):
     # check amount total
     left = [ web2py.db.invoices.on(web2py.db.invoices.id ==
                 web2py.db.invoices_amounts.invoices_id),
+             web2py.db.invoices_customers.on(web2py.db.invoices_customers.invoices_id ==
+                                             web2py.db.invoices.id),
              web2py.db.auth_user.on(web2py.db.auth_user.id ==
-                web2py.db.invoices.auth_customer_id)]
+                web2py.db.invoices_customers.auth_customer_id),
+    ]
 
     sum = web2py.db.invoices_amounts.TotalPriceVAT.sum()
     query = (web2py.db.auth_user.school_locations_id == school_locations_id)
     amount = web2py.db(query).select(sum, left=left).first()[sum]
     assert unicode(amount) in client.text.decode('utf-8')
-
-
 
     # check batch item text (first 5 customers get school_locations_id 1)
     payinfo = web2py.db.customers_payment_info(1) # check that the first customer is in the batch
