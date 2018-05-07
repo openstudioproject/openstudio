@@ -5602,7 +5602,6 @@ def account_acceptance_log():
                 back=back)
 
 
-
 def account_get_submenu(page, cuID):
     """
         Returns submenu for account pages
@@ -5787,9 +5786,9 @@ def order():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('update', 'auth_user'))
 def edit_teacher():
-    '''
+    """
         Teacher profile for a user
-    '''
+    """
     cuID = request.vars['cuID']
     response.view = 'customers/edit_general.html'
 
@@ -5854,10 +5853,53 @@ def edit_teacher():
 
     back = edit_get_back()
     menu = customers_get_menu(cuID, request.function)
+    submenu = edit_teacher_get_submenu(request.function, cuID)
 
-    return dict(content=teacher_info,
+    return dict(content=DIV(submenu, BR(), teacher_info),
                 menu=menu,
                 back=back,
-                save=submit,
-                left_sidebar_enabled=True)
+                save=submit)
 
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+                auth.has_permission('read', 'teachers_payment_fixed_rate_default'))
+def edit_teacher_payment_fixed_rate():
+    """
+        Configure fixed rate payments for this teacher
+    """
+    cuID = request.vars['cuID']
+    response.view = 'customers/edit_general.html'
+
+    customer = Customer(cuID)
+    response.title = customer.get_name()
+    response.subtitle = T("Teacher profile")
+
+
+    back = edit_get_back()
+    menu = customers_get_menu(cuID, 'edit_teacher')
+    submenu = edit_teacher_get_submenu(request.function, cuID)
+
+    submit = 'Save!!'
+
+    return dict(content=DIV(submenu, BR(), 'hello world'),
+                menu=menu,
+                back=back,
+                save=submit)
+
+
+def edit_teacher_get_submenu(page, cuID):
+    """
+        Returns submenu for account pages
+    """
+    vars = {'cuID':cuID}
+    pages = [['edit_teacher', T('Profile'), URL('edit_teacher', vars=vars)]]
+
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('read', 'teachers_payment_fixed_rate_default'):
+        pages.append(['edit_teacher_payment_fixed_rate',
+                      T('Payment fixed rate'),
+                      URL('edit_teacher_payment_fixed_rate', vars=vars)])
+
+    horizontal = True
+
+    return os_gui.get_submenu(pages, page, horizontal=horizontal, htype='tabs')
