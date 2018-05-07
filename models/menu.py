@@ -148,7 +148,7 @@ def shop_menu():
     # Class cards
     if features.Classcards:
         menu.append([(#I(_class='fa fa-id-card-o'),
-                      SPAN(T('Classcards'))),
+                      SPAN(T('Class cards'))),
                      False,
                      URL('shop', 'classcards', extension='')])
 

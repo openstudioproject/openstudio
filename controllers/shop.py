@@ -1228,7 +1228,7 @@ def classes_book_options():
 
     customer = Customer(auth.user.id)
 
-    content = DIV(H2(XML(class_header), _class='center'), BR(), H4(T('Book this class')), _class='center')
+    content = DIV(H2(XML(class_header), _class='center'), BR(), H4(T('Booking options for this class')), _class='center')
 
     # Check if class is bookable
     shop_classes_advance_booking_limit = get_sys_property('shop_classes_advance_booking_limit')
@@ -1275,13 +1275,56 @@ def classes_book_options():
     content.append(DIV(DIV(H4(T('Join every week'), _class='center'), _class='col-md-12'),
                        _class='row'))
 
-    enrollment_options = class_book_options_get_enrollment_options(clsID, date, date_formatted, customer)
+    enrollment_options = class_book_options_get_enrollment_options(clsID, date, date_formatted, features, customer)
     content.append(enrollment_options)
+
+    # ##
+    # # Shop options
+    # ##
+    # content.append(DIV(DIV(H4(T('Shop'), _class='center'), _class='col-md-12'),
+    #                    _class='row'))
+    # book_shop_links = class_book_options_get_shop_options(clsID, date, date_formatted, features, customer)
+    # content.append(book_shop_links)
+
 
     return dict(content=content, back=back)
 
 
-def class_book_options_get_enrollment_options(clsID, date, date_formatted, customer):
+# def class_book_options_get_shop_options(clsID, date, date_formatted, features, customer):
+#     """
+#         List shop options for customer
+#     """
+#     options = DIV(_class='row')
+#
+#     ##
+#     # Subscription
+#     ##
+#     if not customer.has_subscription_on_date(date) and features.Subscriptions:
+#         subscriptions = DIV(
+#             A(T('Have a look at our subscriptions'),
+#               _href=URL('shop', 'subscriptions')),
+#             _class='col-md-10 col-md-offset-1 col-xs-12 center'
+#         )
+#         options.append(subscriptions)
+#
+#     ##
+#     # Class card
+#     ##
+#     if not customer.has_classcard_on_date(date) and features.Classcards:
+#         cards = DIV(
+#             A(T('Have a look at our class cards'),
+#               _href=URL('shop', 'classcards')),
+#             _class='col-md-10 col-md-offset-1 col-xs-12 center'
+#         )
+#         options.append(cards)
+#
+#
+#     return options
+
+
+
+
+def class_book_options_get_enrollment_options(clsID, date, date_formatted, features, customer):
     """
         List enrollment options
     """
@@ -1324,7 +1367,15 @@ def class_book_options_get_enrollment_options(clsID, date, date_formatted, custo
             _class='col-md-10 col-md-offset-1 col-xs-12'
         )
 
+        if features.Subscriptions:
+            option.append(BR())
+            option.append(DIV(A(T('Get a subcription'),
+                              _href=URL('shop', 'subscriptions')),
+                            _class='center'))
+
         options.append(option)
+
+
         return options
     else:
         ##

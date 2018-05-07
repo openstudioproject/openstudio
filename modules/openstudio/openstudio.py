@@ -131,11 +131,11 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
 
 
     def has_subscription_on_date(self, date):
-        '''
+        """
         :param date: datetime.date
         :return: Boolean
-        '''
-        if len(self.get_subscriptions_on_date(date)) > 0:
+        """
+        if self.get_subscriptions_on_date(date):
             return True
         else:
             return False
@@ -235,9 +235,9 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
 
 
     def get_classcards(self, date, from_cache=True):
-        '''
+        """
             Get day rows with caching
-        '''
+        """
         web2pytest = current.globalenv['web2pytest']
         request = current.globalenv['request']
 
@@ -254,6 +254,17 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
             rows = cache.ram(cache_key , lambda: self._get_classcards(date), time_expire=CACHE_LONG)
 
         return rows
+
+
+    def has_classcard_on_date(self, date):
+        """
+        :param date: datetime.date
+        :return: Boolean
+        """
+        if self.get_classcards(date):
+            return True
+        else:
+            return False
 
 
     def get_subscriptions_and_classcards_formatted(self,
@@ -3392,7 +3403,6 @@ class AttendanceHelper:
             db.classes_reservation.Enddate,
         ]
 
-
         query = '''
             SELECT au.id,
                    au.trashed,
@@ -4259,6 +4269,7 @@ class AttendanceHelper:
             return button_book
 
         T = current.globalenv['T']
+        db = current.globalenv['db']
         os_gui = current.globalenv['os_gui']
         CURRSYM = current.globalenv['CURRSYM']
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
@@ -4329,6 +4340,24 @@ class AttendanceHelper:
                              _class='col-md-10 col-md-offset-1 col-xs-12')
 
                 options.append(option)
+        elif list_type =='shop':
+            # show buy link if list type shop
+            features = db.customers_shop_features(1)
+            if features.Subscriptions:
+                button_buy = A(SPAN(T('Shop'), ' ', os_gui.get_fa_icon('fa-chevron-right')),
+                               _href=URL('shop', 'subscriptions'),
+                               _class='pull-right btn btn-link')
+
+                option = DIV(DIV(T('Subscription'),
+                                 _class='col-md-3 bold'),
+                             DIV(T('No subscription found'), BR(),
+                                 SPAN(T('Click "Shop" to sign up for a subscription'), _class='grey'),
+                                 _class='col-md-6'),
+                             DIV(button_buy,
+                                 _class='col-md-3'),
+                             _class='col-md-10 col-md-offset-1 col-xs-12')
+
+                options.append(option)
 
         # class cards
         classcards = customer.get_classcards(date)
@@ -4371,8 +4400,7 @@ class AttendanceHelper:
                              _class='col-md-10 col-md-offset-1 col-xs-12')
 
                 options.append(option)
-        else:
-            if list_type == 'attendance':
+        elif list_type == 'attendance':
                 url = URL('customers', 'classcard_add',
                           vars={'cuID': customer.row.id,
                                 'clsID': clsID,
@@ -4387,6 +4415,25 @@ class AttendanceHelper:
                              DIV(T('No cards found - sell a new card',),
                                  _class='col-md-6'),
                              DIV(button_add,
+                                 _class='col-md-3'),
+                             _class='col-md-10 col-md-offset-1 col-xs-12')
+
+                options.append(option)
+
+        elif list_type =='shop':
+            # show buy link if list type shop
+            features = db.customers_shop_features(1)
+            if features.Classcards:
+                button_buy = A(SPAN(T('Shop'), ' ', os_gui.get_fa_icon('fa-chevron-right')),
+                               _href=URL('shop', 'classcards'),
+                               _class='pull-right btn btn-link')
+
+                option = DIV(DIV(T('Class card'),
+                                 _class='col-md-3 bold'),
+                             DIV(T('No class card found'), BR(),
+                                 SPAN(T('Click "Shop" to buy a card'), _class='grey'),
+                                 _class='col-md-6'),
+                             DIV(button_buy,
                                  _class='col-md-3'),
                              _class='col-md-10 col-md-offset-1 col-xs-12')
 
