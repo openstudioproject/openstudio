@@ -46,10 +46,9 @@ class Teacher:
         """
         T = current.T
         row = list(self.get_payment_fixed_rate_default(render=True))[0]
-        represent_float_as_amount = current.globalenv['represent_float_as_amount']
 
         display = DIV(
-            H3(T("Default rate"))
+            H3(T("Default rate")),
         )
 
         edit_url = URL('edit_teacher_payment_fixed_rate_default',
@@ -73,17 +72,28 @@ class Teacher:
         return display
 
 
-    def get_payment_fixed_rate_class(self, clsID, render=False):
+    def get_payment_fixed_rate_classes(self, render=False):
         """
         :return: gluon.dal.row object of db.teachers_payment_fixed_rate_class
         """
         db = current.globalenv['db']
 
+        left = [
+            db.classes.on(db.teachers_payment_fixed_rate_class.classes_id ==
+                          db.classes.id),
+            db.school_locations.on(db.classes.school_locations_id ==
+                                   db.school_locations.id)
+        ]
+
         query = (db.teachers_payment_fixed_rate_class.auth_teacher_id ==
-                 self.id) &\
-                (db.teachers_payment_fixed_rate_class.classes_id ==
-                 clsID)
-        rows = db(query).select(db.teachers_payment_fixed_rate_class.ALL)
+                 self.id)
+        rows = db(query).select(db.teachers_payment_fixed_rate_class.ALL,
+                                db.classes.ALL,
+                                left=left,
+                                orderby=db.classes.Week_day|\
+                                        db.school_locations.Name|\
+                                        db.classes.Starttime)
+
 
         if rows:
             if not render:
@@ -92,4 +102,88 @@ class Teacher:
                 return rows.render()
         else:
             return False
+
+
+    def _get_payment_fixed_rate_classes_display_get_table_header(self):
+        """
+        :return: table header for display
+        """
+        T = current.T
+
+        header = THEAD(
+            TR(
+                TH(T('Week day')),
+                TH(T('Time')),
+                TH(T('Class')),
+                TH(T('Location')),
+                TH(T('Class rate')),
+                TH(T('VAT')),
+                TH(),
+            )
+        )
+
+        return header
+
+
+    def get_payment_fixed_rate_classes_display(self):
+        """
+        :return: gluon.dal.row object of db.teachers_payment_fixed_rate_class
+        """
+        from openstudio.os_gui import OsGui
+
+        T = current.T
+        auth = current.globalenv['auth']
+        os_gui = OsGui()
+        rows = self.get_payment_fixed_rate_classes()
+
+        display = DIV(
+            os_gui.get_button('add',
+                              URL('customers',
+                                  'edit_teacher_payment_fixed_rate_class_add',
+                                  vars={'cuID': self.id}),
+                              _class='pull-right'),
+            H3(T("Class rates")),
+        )
+
+        if not rows:
+            return display
+
+        edit_permission = auth.has_membership(group_id='Admins') or \
+                          auth.has_permission('update', 'teachers_payment_fixed_rate_class')
+
+        table = TABLE(
+            self._get_payment_fixed_rate_classes_display_get_table_header(),
+            _class='table table-hover table-striped'
+        )
+        for i, row in enumerate(rows):
+            repr_row = list(rows[i:i + 1].render())[0]
+
+            if edit_permission:
+                edit_url = URL('edit_teacher_payment_fixed_rate_class',
+                               vars={'cuID':row.teachers_payment_fixed_rate_class.auth_teacher_id,
+                                     'clsID':row.teachers_payment_fixed_rate_class.classes_id})
+                edit = os_gui.get_button('edit', edit_url,
+                                         _class='pull-right')
+
+            time = SPAN(
+                repr_row.classes.Starttime, ' - ', repr_row.classes.Endtime
+            )
+
+            table.append(
+                TR(
+                    TD(repr_row.classes.Week_day),
+                    TD(time),
+                    TD(repr_row.classes.school_classtypes_id),
+                    TD(repr_row.classes.school_locations_id),
+                    TD(repr_row.teachers_payment_fixed_rate_class.ClassRate),
+                    TD(repr_row.teachers_payment_fixed_rate_class.tax_rates_id),
+                    TD(edit)
+                )
+            )
+
+
+
+        display.append(table)
+
+        return display
 

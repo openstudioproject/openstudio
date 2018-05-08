@@ -2729,9 +2729,9 @@ class CustomerSubscription:
 
     
 class Class:
-    '''
+    """
         Class that gathers useful functions for a class in OpenStudio
-    '''
+    """
     def __init__(self, clsID, date):
         self.clsID = clsID
         self.date = date
@@ -2741,9 +2741,9 @@ class Class:
 
 
     def get_name(self, pretty_date=False):
-        '''
+        """
             Returns class name formatted for general use
-        '''
+        """
         db = current.globalenv['db']
         T = current.globalenv['T']
         TIME_FORMAT = current.globalenv['TIME_FORMAT']

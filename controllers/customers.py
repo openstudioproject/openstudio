@@ -2048,7 +2048,6 @@ def classes_attendance_add():
 
     session.customers_classes_attendance_add_vars['date'] = date
 
-
     result = classes_add_get_form_date(cuID, date)
     form = result['form']
     form_date = result['form_styled']
@@ -2206,6 +2205,16 @@ def classes_add_get_list(date, list_type, cuID=None):
                                                   'date':date.strftime(DATE_FORMAT)}),
                                         title='Check in',
                                         _class='pull-right')
+        elif list_type == 'tp_fixed_rate':
+            buttons = os_gui.get_button(
+                'noicon',
+                URL('customers',
+                    'edit_teacher_payment_fixed_rate_class',
+                    vars={'cuID':cuID,
+                          'clsID':c['ClassesID']}),
+                title=T('Set rate'),
+                _class='pull-right'
+            )
 
         tr = TR(
             TD(c['Starttime'], ' - ', c['Endtime']),
@@ -5672,9 +5681,9 @@ def invoices():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('read', 'customers_orders'))
 def orders():
-    '''
+    """
         List orders for a customer
-    '''
+    """
     cuID = request.vars['cuID']
 
     customer = Customer(cuID)
@@ -5724,9 +5733,9 @@ def orders():
 
 
 def orders_get_link_invoice(row):
-    '''
+    """
         Returns invoice for an order in list
-    '''
+    """
     if row.invoices.id:
         ih = InvoicesHelper()
 
@@ -5752,9 +5761,9 @@ def orders_get_link_invoice(row):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('read', 'customers_orders'))
 def order():
-    '''
+    """
         Display order content for a customer
-    '''
+    """
     cuID = request.vars['cuID']
     coID = request.vars['coID']
 
@@ -5872,19 +5881,19 @@ def edit_teacher_payment_fixed_rate():
     response.subtitle = T("Teacher profile")
 
     teacher = Teacher(cuID)
-    content = teacher.get_payment_fixed_rate_default_display()
+    content = DIV(
+        teacher.get_payment_fixed_rate_default_display(),
+        teacher.get_payment_fixed_rate_classes_display()
+    )
 
 
     back = edit_get_back()
     menu = customers_get_menu(cuID, 'edit_teacher')
     submenu = edit_teacher_get_submenu(request.function, cuID)
 
-    submit = 'Save!!'
-
     return dict(content=DIV(submenu, BR(), content),
                 menu=menu,
-                back=back,
-                save=submit)
+                back=back)
 
 
 def edit_teacher_payment_fixed_rate_default_add_edit_return_url(cuID):
@@ -5993,30 +6002,42 @@ def edit_teacher_payment_fixed_rate_class():
     from openstudio.os_forms import OsForms
 
     cuID = request.vars['cuID']
+    clsID = request.vars['clsID']
     response.view = 'customers/edit_general.html'
 
     customer = Customer(cuID)
     response.title = customer.get_name()
     response.subtitle = T("Teacher profile")
 
+    record = db.classes(clsID)
+    location = db.school_locations[record.school_locations_id].Name
+    classtype = db.school_classtypes[record.school_classtypes_id].Name
+    class_name = NRtoDay(record.Week_day) + ' ' + \
+                 record.Starttime.strftime(TIME_FORMAT) + ' - ' + \
+                 classtype + ', ' + location
+
     os_forms = OsForms()
     return_url = edit_teacher_payment_fixed_rate_default_add_edit_return_url(cuID)
 
-    db.teachers_payment_fixed_rate_default.auth_teacher_id.default = cuID
+    db.teachers_payment_fixed_rate_class.auth_teacher_id.default = cuID
+    db.teachers_payment_fixed_rate_class.classes_id.default = clsID
 
     teacher = Teacher(cuID)
-    default_payments = teacher.get_payment_fixed_rate_default()
-    if default_payments:
-        title = H4(T('Edit class rate'))
+    payment = db.teachers_payment_fixed_rate_class(
+        classes_id = clsID,
+        auth_teacher_id = cuID
+    )
+    if payment:
+        title = H4(T('Edit class rate for'), ' ', class_name)
         result = os_forms.get_crud_form_update(
-            db.teachers_payment_fixed_rate_default,
+            db.teachers_payment_fixed_rate_class,
             return_url,
-            default_payments.first().id
+            payment.id
         )
     else:
-        title = H4(T('Add class rate'))
+        title = H4(T('Add class rate for'), ' ', class_name)
         result = os_forms.get_crud_form_create(
-            db.teachers_payment_fixed_rate_default,
+            db.teachers_payment_fixed_rate_class,
             return_url,
         )
 
@@ -6029,7 +6050,7 @@ def edit_teacher_payment_fixed_rate_class():
 
     back = os_gui.get_button('back', return_url)
     menu = customers_get_menu(cuID, 'edit_teacher')
-    submenu = edit_teacher_get_submenu(request.function, cuID)
+    submenu = edit_teacher_get_submenu('edit_teacher_payment_fixed_rate', cuID)
 
     return dict(content=DIV(submenu, BR(), content),
                 menu=menu,
