@@ -737,9 +737,9 @@ def add_redirect_on_create():
         session.flash = T("Added employee")
         redirect(URL('school_properties', 'employees'),
                  client_side=True)
-    elif session.customers_add_back == 'school_teachers':
+    elif session.customers_add_back == 'teachers':
         session.flash = T("Added teacher")
-        redirect(URL('school_properties', 'teachers'),
+        redirect(URL('teachers' , 'index'),
                  client_side=True)
     else:
         # to edit page
@@ -970,7 +970,7 @@ def edit_get_back(_class=''):
         url = URL('school_properties', 'list_keys')
     elif session.customers_back == 'teachers':
         # check if we came from the school / teachers page
-        url = URL('school_properties', 'teachers')
+        url = URL('teachers', 'index')
     elif session.customers_back == 'school_employees':
         # check if we came fromthe school/employees page
         url = URL('school_properties', 'employees')
@@ -5831,11 +5831,6 @@ def edit_teacher():
 
     teacher_info = DIV(
         XML('<form action="#" id="MainForm" enctype="multipart/form-data" method="post">'),
-        #form.custom.begin,
-        # INPUT(_name='email',
-        #       _value=customer.row.email,
-        #       _type='hidden',
-        #       ),
         DIV(DIV(LABEL(form.custom.label.teacher_role),
                 form.custom.widget.teacher_role,
                 _class='col-md-12'),
@@ -5857,237 +5852,8 @@ def edit_teacher():
 
     back = edit_get_back()
     menu = customers_get_menu(cuID, request.function)
-    submenu = edit_teacher_get_submenu(request.function, cuID)
 
-    return dict(content=DIV(submenu, BR(), teacher_info),
+    return dict(content=teacher_info,
                 menu=menu,
                 back=back,
                 save=submit)
-
-
-@auth.requires(auth.has_membership(group_id='Admins') or \
-                auth.has_permission('read', 'teachers_payment_fixed_rate_default'))
-def edit_teacher_payment_fixed_rate():
-    """
-        Configure fixed rate payments for this teacher
-    """
-    from openstudio.os_teacher import Teacher
-
-    cuID = request.vars['cuID']
-    response.view = 'customers/edit_general.html'
-
-    customer = Customer(cuID)
-    response.title = customer.get_name()
-    response.subtitle = T("Teacher profile")
-
-    teacher = Teacher(cuID)
-    content = DIV(
-        teacher.get_payment_fixed_rate_default_display(),
-        teacher.get_payment_fixed_rate_classes_display()
-    )
-
-
-    back = edit_get_back()
-    menu = customers_get_menu(cuID, 'edit_teacher')
-    submenu = edit_teacher_get_submenu(request.function, cuID)
-
-    return dict(content=DIV(submenu, BR(), content),
-                menu=menu,
-                back=back)
-
-
-def edit_teacher_payment_fixed_rate_default_return_url(cuID):
-    """
-    :return: URL to redirect back to after adding/editing the default rate
-    """
-    return URL('edit_teacher_payment_fixed_rate', vars={'cuID':cuID})
-
-
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'teachers_payment_fixed_rate_default'))
-def edit_teacher_payment_fixed_rate_default():
-    """
-        Add default fixed rate for this teacher
-    """
-    from openstudio.os_teacher import Teacher
-    from openstudio.os_forms import OsForms
-
-    cuID = request.vars['cuID']
-    response.view = 'customers/edit_general.html'
-
-    customer = Customer(cuID)
-    response.title = customer.get_name()
-    response.subtitle = T("Teacher profile")
-
-    os_forms = OsForms()
-    return_url = edit_teacher_payment_fixed_rate_default_return_url(cuID)
-
-    db.teachers_payment_fixed_rate_default.auth_teacher_id.default = cuID
-
-    teacher = Teacher(cuID)
-    default_payments = teacher.get_payment_fixed_rate_default()
-    if default_payments:
-        title = H4(T('Edit default rate'))
-        result = os_forms.get_crud_form_update(
-            db.teachers_payment_fixed_rate_default,
-            return_url,
-            default_payments.first().id
-        )
-    else:
-        title = H4(T('Add default rate'))
-        result = os_forms.get_crud_form_create(
-            db.teachers_payment_fixed_rate_default,
-            return_url,
-        )
-
-    form = result['form']
-
-    content = DIV(
-        title,
-        form
-    )
-
-    back = os_gui.get_button('back', return_url)
-    menu = customers_get_menu(cuID, 'edit_teacher')
-    submenu = edit_teacher_get_submenu(request.function, cuID)
-
-    return dict(content=DIV(submenu, BR(), content),
-                menu=menu,
-                back=back,
-                save=result['submit'])\
-
-
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('create', 'classes_attendance'))
-def edit_teacher_payment_fixed_rate_class_add():
-    """
-        Add customers to attendance for a class
-    """
-    response.view = 'general/only_content.html'
-
-    cuID = request.vars['cuID']
-    customer = Customer(cuID)
-    response.title = customer.get_name()
-    response.subtitle = T("Add class payment rate")
-
-    if 'date' in request.vars:
-        date = datestr_to_python(DATE_FORMAT, request.vars['date'])
-    else:
-        date = TODAY_LOCAL
-
-    result = classes_add_get_form_date(cuID, date)
-    form = result['form']
-    form_date = result['form_styled']
-
-    db.classes.id.readable = False
-    # list of classes
-    grid = classes_add_get_list(date, 'tp_fixed_rate', cuID)
-
-    back = os_gui.get_button('back',
-                             URL('edit_teacher_payment_fixed_rate',
-                                 vars={'cuID':cuID}),
-                             _class='left')
-
-    return dict(content=DIV(form_date, grid),
-                back=back)
-
-
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'teachers_payment_fixed_rate_class'))
-def edit_teacher_payment_fixed_rate_class():
-    """
-        Add default fixed rate for this teacher
-    """
-    from openstudio.os_teacher import Teacher
-    from openstudio.os_forms import OsForms
-
-    cuID = request.vars['cuID']
-    clsID = request.vars['clsID']
-    response.view = 'customers/edit_general.html'
-
-    customer = Customer(cuID)
-    response.title = customer.get_name()
-    response.subtitle = T("Teacher profile")
-
-    record = db.classes(clsID)
-    location = db.school_locations[record.school_locations_id].Name
-    classtype = db.school_classtypes[record.school_classtypes_id].Name
-    class_name = NRtoDay(record.Week_day) + ' ' + \
-                 record.Starttime.strftime(TIME_FORMAT) + ' - ' + \
-                 classtype + ', ' + location
-
-    os_forms = OsForms()
-    return_url = edit_teacher_payment_fixed_rate_default_return_url(cuID)
-
-    db.teachers_payment_fixed_rate_class.auth_teacher_id.default = cuID
-    db.teachers_payment_fixed_rate_class.classes_id.default = clsID
-
-    teacher = Teacher(cuID)
-    payment = db.teachers_payment_fixed_rate_class(
-        classes_id = clsID,
-        auth_teacher_id = cuID
-    )
-    if payment:
-        title = H4(T('Edit class rate for'), ' ', class_name)
-        result = os_forms.get_crud_form_update(
-            db.teachers_payment_fixed_rate_class,
-            return_url,
-            payment.id
-        )
-    else:
-        title = H4(T('Add class rate for'), ' ', class_name)
-        result = os_forms.get_crud_form_create(
-            db.teachers_payment_fixed_rate_class,
-            return_url,
-        )
-
-    form = result['form']
-
-    content = DIV(
-        title,
-        form
-    )
-
-    back = os_gui.get_button('back', return_url)
-    menu = customers_get_menu(cuID, 'edit_teacher')
-    submenu = edit_teacher_get_submenu('edit_teacher_payment_fixed_rate', cuID)
-
-    return dict(content=DIV(submenu, BR(), content),
-                menu=menu,
-                back=back,
-                save=result['submit'])
-
-
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('delete', 'teachers_payment_fixed_rate_class'))
-def edit_teacher_payment_fixed_rate_class_delete():
-    """
-    Delete teacher fixed rate class rate
-    :return: None
-    """
-    cuID = request.vars['cuID']
-    tpfrcID = request.vars['tpfrcID']
-
-    query = (db.teachers_payment_fixed_rate_class.id == tpfrcID)
-    db(query).delete()
-
-    session.flash = T('Deleted class rate')
-    redirect(edit_teacher_payment_fixed_rate_default_return_url(cuID))
-
-
-def edit_teacher_get_submenu(page, cuID):
-    """
-        Returns submenu for account pages
-    """
-    vars = {'cuID':cuID}
-    pages = [['edit_teacher', T('Profile'), URL('edit_teacher', vars=vars)]]
-
-    if auth.has_membership(group_id='Admins') or \
-       auth.has_permission('read', 'teachers_payment_fixed_rate_default'):
-        pages.append(['edit_teacher_payment_fixed_rate',
-                      T('Payment fixed rate'),
-                      URL('edit_teacher_payment_fixed_rate', vars=vars)])
-
-    horizontal = True
-
-    return os_gui.get_submenu(pages, page, horizontal=horizontal, htype='tabs')

@@ -295,7 +295,7 @@ def get_backend_menu():
             if user_helpers.check_read_permission('teachers', user_id):
                 submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Teachers')), ),
                                 False,
-                                URL('school_properties', 'teachers', extension='')))
+                                URL('teachers', 'index', extension='')))
 
             if user_helpers.check_read_permission('employees', user_id):
                 submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Employees')), ),

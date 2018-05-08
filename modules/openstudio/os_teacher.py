@@ -51,9 +51,8 @@ class Teacher:
             H3(T("Default rate")),
         )
 
-        edit_url = URL('edit_teacher_payment_fixed_rate_default',
-                            vars={'cuID':self.id})
-
+        edit_url = URL('payment_fixed_rate_default',
+                            vars={'teID':self.id})
         if not row:
             display.append(
                 A(T('Set default rate'),
@@ -138,9 +137,9 @@ class Teacher:
 
         display = DIV(
             os_gui.get_button('add',
-                              URL('customers',
-                                  'edit_teacher_payment_fixed_rate_class_add',
-                                  vars={'cuID': self.id}),
+                              URL('teachers',
+                                  'payment_fixed_rate_class_add',
+                                  vars={'teID': self.id}),
                               _class='pull-right'),
             H3(T("Class rates")),
         )
@@ -160,20 +159,21 @@ class Teacher:
             self._get_payment_fixed_rate_classes_display_get_table_header(),
             _class='table table-hover table-striped'
         )
+
         for i, row in enumerate(rows):
             repr_row = list(rows[i:i + 1].render())[0]
 
             buttons = DIV(_class='pull-right')
             if edit_permission:
-                edit_url = URL('edit_teacher_payment_fixed_rate_class',
-                               vars={'cuID':self.id,
+                edit_url = URL('payment_fixed_rate_class',
+                               vars={'teID':self.id,
                                      'clsID':row.teachers_payment_fixed_rate_class.classes_id})
                 buttons.append(os_gui.get_button('edit', edit_url))
 
             if delete_permission:
-                delete_url = URL('edit_teacher_payment_fixed_rate_class_delete',
+                delete_url = URL('payment_fixed_rate_class_delete',
                                  vars={'tpfrcID': row.teachers_payment_fixed_rate_class.id,
-                                       'cuID':self.id})
+                                       'teID':self.id})
                 buttons.append(os_gui.get_button(
                     'delete_notext',
                     delete_url,

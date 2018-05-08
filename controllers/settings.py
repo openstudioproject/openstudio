@@ -665,8 +665,8 @@ def access_get_back(var=None):
     '''
         Returns back button for access main menu pages
     '''
-    if session.settings_groups_back == 'school_teachers':
-        url = URL('school_properties', 'teachers')
+    if session.settings_groups_back == 'teachers':
+        url = URL('teachers', 'index')
     elif session.settings_groups_back == 'school_employees':
         url = URL('school_properties', 'employees')
     else:
@@ -1024,7 +1024,7 @@ def access_group_permissions():
                 ['auth_user_account-read', T('View account settings'), [
                     ['auth_user_account-update', T('Edit account settings')],
                     ['auth_user-set_password', T('Set a new password for accounts')],
-                    ['auth_user-merge', T('Merge accounts')]]]]
+                    ['auth_user-merge', T('Merge accounts')]]]],
              ],  # end customers-edit
             ['auth_user-delete', T("Delete customers")]]],
     ]
