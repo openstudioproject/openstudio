@@ -11,9 +11,9 @@ from general_helpers import set_form_id_and_get_submit_button
 from openstudio.openstudio import CustomersHelper, SchoolSubscription
 
 def account_get_tools_link_groups(var=None):
-    '''
+    """
         @return: link to settings/groups
-    '''
+    """
     return A(SPAN(os_gui.get_fa_icon('fa-users'), ' ', T('Groups')),
              _href=URL('settings', 'access_groups'),
              _title=T('Define groups and permission for employees'))
@@ -52,7 +52,6 @@ def account_get_link_group(row):
     return ret_val
 
 
-### teachers begin
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('read', 'teachers'))
 def index():
@@ -96,6 +95,11 @@ def index():
                                _class="btn btn-default btn-sm",
                                _href=URL('edit_classtypes',
                                          vars={'uID':row.id})),
+                 lambda row: A(os_gui.get_fa_icon('fa-usd'),
+                               " " + T("Payments"),
+                               _class="btn btn-default btn-sm",
+                               _href=URL('payment_fixed_rate',
+                                         vars={'teID':row.id})),
                  lambda row: os_gui.get_button('edit',
                                     URL('customers', 'edit',
                                         args=[row.id]),
@@ -389,6 +393,9 @@ def index_export_excel():
         return stream.getvalue()
 
 
+def back_index(var=None):
+    return os_gui.get_button('back', URL('index'))
+
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('read', 'teachers_payment_fixed_rate_default'))
 def payment_fixed_rate():
@@ -398,7 +405,7 @@ def payment_fixed_rate():
     from openstudio.os_teacher import Teacher
 
     teID = request.vars['teID']
-    response.view = 'customers/edit_general.html'
+    response.view = 'general/only_content.html'
 
     customer = Customer(teID)
     response.title = customer.get_name()
@@ -410,21 +417,18 @@ def payment_fixed_rate():
         teacher.get_payment_fixed_rate_classes_display()
     )
 
+    back = back_index()
 
-    back = edit_get_back()
-    menu = customers_get_menu(teID, 'edit_teacher')
-    submenu = edit_teacher_get_submenu(request.function, teID)
-
-    return dict(content=DIV(submenu, BR(), content),
-                menu=menu,
+    return dict(content=content,
+                #menu=menu,
                 back=back)
 
 
-def fixed_rate_default_return_url(teID):
+def payment_fixed_rate_default_return_url(teID):
     """
     :return: URL to redirect back to after adding/editing the default rate
     """
-    return URL('edit_teacher_payment_fixed_rate', vars={'teID':teID})
+    return URL('payment_fixed_rate', vars={'teID':teID})
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -437,14 +441,14 @@ def payment_fixed_rate_default():
     from openstudio.os_forms import OsForms
 
     teID = request.vars['teID']
-    response.view = 'customers/edit_general.html'
+    response.view = 'general/only_content.html'
 
     customer = Customer(teID)
     response.title = customer.get_name()
     response.subtitle = T("Teacher profile")
 
     os_forms = OsForms()
-    return_url = edit_teacher_payment_fixed_rate_default_return_url(teID)
+    return_url = payment_fixed_rate_default_return_url(teID)
 
     db.teachers_payment_fixed_rate_default.auth_teacher_id.default = teID
 
@@ -472,13 +476,11 @@ def payment_fixed_rate_default():
     )
 
     back = os_gui.get_button('back', return_url)
-    menu = customers_get_menu(teID, 'edit_teacher')
-    submenu = edit_teacher_get_submenu(request.function, teID)
 
-    return dict(content=DIV(submenu, BR(), content),
-                menu=menu,
+    return dict(content=content,
+                #menu=menu,
                 back=back,
-                save=result['submit'])\
+                save=result['submit'])
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -487,6 +489,9 @@ def payment_fixed_rate_class_add():
     """
         Add customers to attendance for a class
     """
+    from openstudio.openstudio import CustomersHelper
+    from general_helpers import datestr_to_python
+
     response.view = 'general/only_content.html'
 
     teID = request.vars['teID']
@@ -499,16 +504,17 @@ def payment_fixed_rate_class_add():
     else:
         date = TODAY_LOCAL
 
-    result = classes_add_get_form_date(teID, date)
+    ch = CustomersHelper()
+    result = ch.classes_add_get_form_date(teID, date)
     form = result['form']
     form_date = result['form_styled']
 
     db.classes.id.readable = False
     # list of classes
-    grid = classes_add_get_list(date, 'tp_fixed_rate', teID)
+    grid = ch.classes_add_get_list(date, 'tp_fixed_rate', teID)
 
     back = os_gui.get_button('back',
-                             URL('edit_teacher_payment_fixed_rate',
+                             URL('payment_fixed_rate',
                                  vars={'teID':teID}),
                              _class='left')
 
@@ -527,7 +533,7 @@ def payment_fixed_rate_class():
 
     teID = request.vars['teID']
     clsID = request.vars['clsID']
-    response.view = 'customers/edit_general.html'
+    response.view = 'general/only_content.html'
 
     customer = Customer(teID)
     response.title = customer.get_name()
@@ -541,7 +547,7 @@ def payment_fixed_rate_class():
                  classtype + ', ' + location
 
     os_forms = OsForms()
-    return_url = edit_teacher_payment_fixed_rate_default_return_url(teID)
+    return_url = payment_fixed_rate_default_return_url(teID)
 
     db.teachers_payment_fixed_rate_class.auth_teacher_id.default = teID
     db.teachers_payment_fixed_rate_class.classes_id.default = clsID
@@ -573,11 +579,8 @@ def payment_fixed_rate_class():
     )
 
     back = os_gui.get_button('back', return_url)
-    menu = customers_get_menu(teID, 'edit_teacher')
-    submenu = edit_teacher_get_submenu('edit_teacher_payment_fixed_rate', teID)
 
-    return dict(content=DIV(submenu, BR(), content),
-                menu=menu,
+    return dict(content=content,
                 back=back,
                 save=result['submit'])
 
@@ -596,4 +599,4 @@ def payment_fixed_rate_class_delete():
     db(query).delete()
 
     session.flash = T('Deleted class rate')
-    redirect(edit_teacher_payment_fixed_rate_default_return_url(teID))
+    redirect(payment_fixed_rate_default_return_url(teID))

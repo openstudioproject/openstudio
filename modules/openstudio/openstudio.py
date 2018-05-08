@@ -1787,6 +1787,174 @@ class CustomersHelper:
         This class collects functions for customers that are useful in
         multiple controllers
     '''
+    def classes_add_get_form_date(self, cuID, date):
+        """
+            Get date form
+        """
+        T = current.T
+        DATE_FORMAT =  current.globalenv['DATE_FORMAT']
+        os_datepicker_widget = current.globalenv['os_datepicker_widget']
+
+        form = SQLFORM.factory(
+            Field('date', 'date',
+                  requires=IS_DATE_IN_RANGE(format=DATE_FORMAT,
+                                            minimum=datetime.date(1900, 1, 1),
+                                            maximum=datetime.date(2999, 1, 1)),
+                  default=date,
+                  widget=os_datepicker_widget),
+            separator='',
+            submit_button=T('Go'))
+
+        input_date = form.element('#no_table_date')
+        # input_date.attributes['_onchange'] = "this.form.submit();"
+
+        submit = form.element('input[type=submit]')
+
+        delta = datetime.timedelta(days=1)
+        date_prev = (date - delta).strftime(DATE_FORMAT)
+        date_next = (date + delta).strftime(DATE_FORMAT)
+
+        url_prev = URL(vars={'cuID': cuID,
+                             'teID': cuID,
+                             'date': date_prev})
+        url_next = URL(vars={'cuID': cuID,
+                             'teID': cuID,
+                             'date': date_next})
+
+        previous = A(I(_class='fa fa-angle-left'),
+                     _href=url_prev,
+                     _class='btn btn-default')
+        nxt = A(I(_class='fa fa-angle-right'),
+                _href=url_next,
+                _class='btn btn-default')
+
+        chooser = DIV(previous, nxt, _class='btn-group pull-right')
+
+        form_styled = DIV(form.custom.begin,
+                          DIV(B('Show classes on '),
+                              form.custom.widget.date,
+                              _class='col-md-3'),
+                          DIV(BR(),
+                              form.custom.submit,
+                              chooser,
+                              _class='col-md-9 no-padding-left'),
+                          form.custom.end,
+                          _class='row')
+
+        return {'form': form,
+                'form_styled': form_styled}
+
+
+    def classes_add_get_list(self, date, list_type, cuID=None):
+        """
+            Get list of classes for a date
+            list_type is expected to be in
+            [ 'attendance', 'reservations', 'tp_fixed_rate' ]
+        """
+        from os_gui import OsGui
+
+        T = current.T
+        db = current.globalenv['db']
+        os_gui = OsGui()
+        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        session = current.session
+
+        if list_type == 'attendance':
+            session.classes_attendance_signin_back = 'cu_classes_attendance'
+            ah = AttendanceHelper()
+            # links = [ lambda row: ah.get_signin_buttons(row.classes.id, date, cuID) ]
+
+        if session.classes_schedule_sort == 'location':
+            orderby = db.school_locations.Name | db.classes.Starttime
+        elif session.classes_schedule_sort == 'starttime':
+            orderby = db.classes.Starttime | db.school_locations.Name
+        else:
+            orderby = db.school_locations.Name | db.classes.Starttime
+
+        cs = ClassSchedule(date, sorting=orderby)
+        classes = cs.get_day_list()
+
+        header = THEAD(TR(TH(T('Time')),
+                          TH(T('Location')),
+                          TH(T('Class')),
+                          TH(),
+                          TH()  # buttons
+                          ))
+        table = TABLE(header, _class='table table-striped table-hover')
+        for c in classes:
+            status = self._classes_add_get_list_get_cancelled_holiday(c)
+            buttons = ''
+
+            if list_type == 'reservations':
+                buttons = self._classes_reservation_add_get_button(c['ClassesID'])
+            elif list_type == 'attendance' and status == '':
+                buttons = os_gui.get_button('noicon',
+                                            URL('customers', 'classes_attendance_add_booking_options',
+                                                vars={'cuID': cuID,
+                                                      'clsID': c['ClassesID'],
+                                                      'date': date.strftime(DATE_FORMAT)}),
+                                            title='Check in',
+                                            _class='pull-right')
+            elif list_type == 'tp_fixed_rate':
+                buttons = os_gui.get_button(
+                    'noicon',
+                    URL('teachers',
+                        'payment_fixed_rate_class',
+                        vars={'teID': cuID,
+                              'clsID': c['ClassesID']}),
+                    title=T('Set rate'),
+                    _class='pull-right'
+                )
+
+            tr = TR(
+                TD(c['Starttime'], ' - ', c['Endtime']),
+                TD(c['Location']),
+                TD(c['ClassType']),
+                TD(status),
+                TD(buttons)
+            )
+
+            table.append(tr)
+
+        return table
+
+
+    def _classes_reservation_add_get_button(self, clsID):
+        """
+            Returns add button for a customer to add a reservation
+        """
+        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+
+        date = session.customers_classes_reservation_add_vars['date']
+        date_formatted = date.strftime(DATE_FORMAT)
+        cuID = session.customers_classes_reservation_add_vars['cuID']
+        customer = Customer(cuID)
+
+        add = os_gui.get_button('add', URL('classes', 'reservation_add',
+                                           vars={'cuID': cuID, 'clsID': clsID, 'date': date_formatted}),
+                                btn_size='btn-sm',
+                                _class="pull-right")
+
+        return add
+
+
+    def _classes_add_get_list_get_cancelled_holiday(self, c):
+        """
+            Returns class or holiday description when a class is cancelled
+            :param: class from ClassSchedule.get_day_list()
+        """
+        T = current.T
+        status = ''
+
+        if c['Cancelled']:
+            status = SPAN(T('Cancelled'), ' ', SPAN(c['CancelledDescription'], _class='grey'))
+
+        if c['Holiday']:
+            status = SPAN(T('Holiday'), ' ', SPAN(c['HolidayDescription'], _class='grey'))
+
+        return status
+
+
     def get_add_modal(self, button_text  = 'Add',
                             button_class = 'btn-sm',
                             redirect_vars= {}):
@@ -1862,6 +2030,9 @@ class CustomersHelper:
 
 
         return data
+
+
+
 
 
 class CustomersSubscriptionsCreditsHelper:

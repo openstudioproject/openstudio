@@ -44,8 +44,10 @@ class Teacher:
         """
         :return: HTML display of default rate for teacher
         """
+        from os_gui import OsGui
+
         T = current.T
-        row = list(self.get_payment_fixed_rate_default(render=True))[0]
+        os_gui = OsGui()
 
         display = DIV(
             H3(T("Default rate")),
@@ -53,19 +55,25 @@ class Teacher:
 
         edit_url = URL('payment_fixed_rate_default',
                             vars={'teID':self.id})
-        if not row:
+        rows = self.get_payment_fixed_rate_default(render=True)
+        if not rows:
             display.append(
                 A(T('Set default rate'),
                   _href=edit_url)
             )
             return display
 
+
+        row = list(rows)[0]
+
         display.append(DIV(
-            SPAN(T('Class rate:'), _class='bold'), ' ',
-            row.ClassRate, ' ',
+            os_gui.get_button('edit',
+                              edit_url,
+                              _class='pull-right',
+                              title=T('Edit'),
+                              tooltip=T('Edit the default rate')),
+            H4(row.ClassRate), ' ',
             row.tax_rates_id, BR(),
-            A(T('Edit'),
-               _href=edit_url)
         ))
 
         return display
