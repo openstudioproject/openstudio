@@ -5896,7 +5896,7 @@ def edit_teacher_payment_fixed_rate():
                 back=back)
 
 
-def edit_teacher_payment_fixed_rate_default_add_edit_return_url(cuID):
+def edit_teacher_payment_fixed_rate_default_return_url(cuID):
     """
     :return: URL to redirect back to after adding/editing the default rate
     """
@@ -5920,7 +5920,7 @@ def edit_teacher_payment_fixed_rate_default():
     response.subtitle = T("Teacher profile")
 
     os_forms = OsForms()
-    return_url = edit_teacher_payment_fixed_rate_default_add_edit_return_url(cuID)
+    return_url = edit_teacher_payment_fixed_rate_default_return_url(cuID)
 
     db.teachers_payment_fixed_rate_default.auth_teacher_id.default = cuID
 
@@ -6017,7 +6017,7 @@ def edit_teacher_payment_fixed_rate_class():
                  classtype + ', ' + location
 
     os_forms = OsForms()
-    return_url = edit_teacher_payment_fixed_rate_default_add_edit_return_url(cuID)
+    return_url = edit_teacher_payment_fixed_rate_default_return_url(cuID)
 
     db.teachers_payment_fixed_rate_class.auth_teacher_id.default = cuID
     db.teachers_payment_fixed_rate_class.classes_id.default = clsID
@@ -6056,6 +6056,23 @@ def edit_teacher_payment_fixed_rate_class():
                 menu=menu,
                 back=back,
                 save=result['submit'])
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('delete', 'teachers_payment_fixed_rate_class'))
+def edit_teacher_payment_fixed_rate_class_delete():
+    """
+    Delete teacher fixed rate class rate
+    :return: None
+    """
+    cuID = request.vars['cuID']
+    tpfrcID = request.vars['tpfrcID']
+
+    query = (db.teachers_payment_fixed_rate_class.id == tpfrcID)
+    db(query).delete()
+
+    session.flash = T('Deleted class rate')
+    redirect(edit_teacher_payment_fixed_rate_default_return_url(cuID))
 
 
 def edit_teacher_get_submenu(page, cuID):
