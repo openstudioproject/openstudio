@@ -537,7 +537,7 @@ def payment_fixed_rate_class():
 
     customer = Customer(teID)
     response.title = customer.get_name()
-    response.subtitle = T("Teacher profile")
+    response.subtitle = T("Set class rate")
 
     record = db.classes(clsID)
     location = db.school_locations[record.school_locations_id].Name

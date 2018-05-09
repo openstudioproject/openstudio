@@ -387,7 +387,13 @@ def populate_auth_user_teachers(web2py,
                                 teaches_workshops=True):
     """
         Adds 2 teachers to db.
+        auth.user.ids 2 and 3
     """
+    try:
+        populate_tax_rates(web2py)
+    except:
+        print T('Tried to insert tax rates, but one or more already exists in db.tax_rates')
+
     try:
         web2py.db.auth_user.insert(
             id         = 2,
@@ -410,8 +416,37 @@ def populate_auth_user_teachers(web2py,
         )
 
         web2py.db.commit()
+
+
     except:
         print "Tried inserting teachers, but id 2 or 3 already exists in auth_user"
+
+
+def populate_auth_user_teachers_fixed_rate_default(web2py):
+    """
+        Insert dummy data for teachers_payment_fixed_rate_default
+    """
+    web2py.db.teachers_payment_fixed_rate_default.insert(
+        auth_teacher_id = 2,
+        ClassRate = 30,
+        tax_rates_id = 1
+    )
+
+    web2py.db.commit()
+
+
+def populate_auth_user_teachers_fixed_rate_class_1(web2py):
+    """
+        Insert dummy data for teachers_payment_fixed_rate_class
+    """
+    web2py.db.teachers_payment_fixed_rate_class.insert(
+        auth_teacher_id = 2,
+        classes_id = 1,
+        ClassRate = 60,
+        tax_rates_id = 1
+    )
+
+    web2py.db.commit()
 
 
 def populate_classes(web2py, with_otc=False):
@@ -1731,4 +1766,3 @@ def populate_shop_categories(web2py):
     )
 
     web2py.db.commit()
-
