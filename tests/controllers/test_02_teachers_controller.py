@@ -218,7 +218,7 @@ def test_payment_fixed_rate_travel_edit(client, web2py):
     prepare_classes(web2py)
     populate_auth_user_teachers_fixed_rate_travel(web2py)
 
-    url = '/teachers/payment_fixed_rate_travel_edit?teID=2&tpfptID=1'
+    url = '/teachers/payment_fixed_rate_travel_edit?teID=2&tpfrtID=1'
     client.get(url)
     assert client.status == 200
 
@@ -245,7 +245,7 @@ def test_payment_fixed_rate_travel_delete(client, web2py):
     prepare_classes(web2py)
     populate_auth_user_teachers_fixed_rate_travel(web2py)
 
-    url = '/teachers/payment_fixed_rate_travel_delete?teID=2&tpfptID=1'
+    url = '/teachers/payment_fixed_rate_travel_delete?teID=2&tpfrtID=1'
     client.get(url)
     assert client.status == 200
 
