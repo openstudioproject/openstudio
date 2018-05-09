@@ -396,6 +396,7 @@ def index_export_excel():
 def back_index(var=None):
     return os_gui.get_button('back', URL('index'))
 
+
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('read', 'teachers_payment_fixed_rate_default'))
 def payment_fixed_rate():
@@ -409,12 +410,13 @@ def payment_fixed_rate():
 
     customer = Customer(teID)
     response.title = customer.get_name()
-    response.subtitle = T("Teacher profile")
+    response.subtitle = T("Payments")
 
     teacher = Teacher(teID)
     content = DIV(
         teacher.get_payment_fixed_rate_default_display(),
-        teacher.get_payment_fixed_rate_classes_display()
+        teacher.get_payment_fixed_rate_classes_display(),
+        teacher.get_payment_fixed_rate_travel_display()
     )
 
     back = back_index()
@@ -484,7 +486,7 @@ def payment_fixed_rate_default():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('create', 'classes_attendance'))
+               auth.has_permission('create', 'teachers_payment_fixed_rate_class'))
 def payment_fixed_rate_class_add():
     """
         Add customers to attendance for a class
@@ -600,3 +602,88 @@ def payment_fixed_rate_class_delete():
 
     session.flash = T('Deleted class rate')
     redirect(payment_fixed_rate_default_return_url(teID))
+
+
+def payment_fixed_rate_return_url(teID):
+    return URL('payment_fixed_rate', vars={'teID':teID})
+
+
+@auth.requires_login()
+def payment_fixed_rate_travel_add():
+    """
+        Add travel allowance for a teacher
+    """
+    from openstudio.os_forms import OsForms
+
+    teID = request.vars['teID']
+
+    customer = Customer(teID)
+    response.title = customer.get_name()
+    response.subtitle = T("Add travel allowance")
+    response.view = 'general/only_content.html'
+
+
+    db.teachers_payment_fixed_rate_travel.auth_teacher_id.default = teID
+    return_url = payment_fixed_rate_return_url(teID)
+
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_create(
+        db.teachers_payment_fixed_rate_travel,
+        return_url,
+    )
+
+    form = result['form']
+    back = os_gui.get_button('back', return_url)
+
+    return dict(content=form,
+                save=result['submit'],
+                back=back)
+
+
+@auth.requires_login()
+def payment_fixed_rate_travel_edit():
+    """
+        Add travel allowance for a teacher
+    """
+    from openstudio.os_forms import OsForms
+
+    teID = request.vars['teID']
+    tpfrtID = request.vars['tpfrtID']
+
+    customer = Customer(teID)
+    response.title = customer.get_name()
+    response.subtitle = T("Edit travel allowance")
+    response.view = 'general/only_content.html'
+
+    return_url = payment_fixed_rate_return_url(teID)
+
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_update(
+        db.teachers_payment_fixed_rate_travel,
+        return_url,
+        tpfrtID
+    )
+
+    form = result['form']
+    back = os_gui.get_button('back', return_url)
+
+    return dict(content=form,
+                save=result['submit'],
+                back=back)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('delete', 'teachers_payment_fixed_rate_travel'))
+def payment_fixed_rate_travel_delete():
+    """
+    Delete teacher fixed rate travel allowance
+    :return: None
+    """
+    teID = request.vars['teID']
+    tpfrtID = request.vars['tpfrtID']
+
+    query = (db.teachers_payment_fixed_rate_travel.id == tpfrtID)
+    db(query).delete()
+
+    session.flash = T('Deleted travel allowance')
+    redirect(payment_fixed_rate_return_url(teID))

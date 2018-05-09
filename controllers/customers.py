@@ -2562,9 +2562,9 @@ def subscription_credits_edit():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('delete', 'customers_subscriptions_credits'))
 def subscription_credits_delete():
-    '''
+    """
         Delete subscription credits
-    '''
+    """
     cuID = request.vars['cuID']
     csID = request.vars['csID']
     cscID = request.vars['cscID']

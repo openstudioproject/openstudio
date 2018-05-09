@@ -208,3 +208,119 @@ class Teacher:
 
         return display
 
+
+    def get_payment_fixed_rate_travel_allowances(self, render=False):
+        """
+        :return: gluon.dal.row object of db.teachers_payment_fixed_rate_travel
+        """
+        db = current.globalenv['db']
+
+        left = [
+            db.school_locations.on(db.teachers_payment_fixed_rate_travel.school_locations_id ==
+                                   db.school_locations.id)
+        ]
+
+        query = (db.teachers_payment_fixed_rate_travel.auth_teacher_id ==
+                 self.id)
+        rows = db(query).select(db.teachers_payment_fixed_rate_travel.ALL,
+                                db.school_locations.ALL,
+                                left=left,
+                                orderby=db.school_locations.Name)
+
+        if rows:
+            if not render:
+                return rows
+            else:
+                return rows.render()
+        else:
+            return False
+
+
+    def _get_payment_fixed_rate_travel_display_get_table_header(self):
+        """
+        :return: table header for display
+        """
+        T = current.T
+
+        header = THEAD(
+            TR(
+                TH(T('Location')),
+                TH(T('Travel allowance')),
+                TH(T('VAT')),
+                TH(),
+            )
+        )
+
+        return header
+
+
+    def get_payment_fixed_rate_travel_display(self):
+        """
+        :return: gluon.dal.row object of db.teachers_payment_fixed_rate_travel
+        """
+        from openstudio.os_gui import OsGui
+
+        T = current.T
+        auth = current.globalenv['auth']
+        os_gui = OsGui()
+        rows = self.get_payment_fixed_rate_travel_allowances()
+
+        display = DIV(
+            os_gui.get_button('add',
+                              URL('teachers',
+                                  'payment_fixed_rate_travel_add',
+                                  vars={'teID': self.id}),
+                              _class='pull-right'),
+            H3(T("Travel allowance")),
+        )
+
+        if not rows:
+            return display
+
+        edit_permission = auth.has_membership(group_id='Admins') or \
+                          auth.has_permission('update', 'teachers_payment_fixed_rate_travel')
+        delete_permission = auth.has_membership(group_id='Admins') or \
+                          auth.has_permission('delete', 'teachers_payment_fixed_rate_travel')
+        delete_onclick = "return confirm('" + \
+            T('Do you really want to delete the travel allowance for this location?') \
+            + "');"
+
+        table = TABLE(
+            self._get_payment_fixed_rate_travel_display_get_table_header(),
+            _class='table table-hover table-striped'
+        )
+
+        for i, row in enumerate(rows):
+            repr_row = list(rows[i:i + 1].render())[0]
+
+            buttons = DIV(_class='pull-right')
+            if edit_permission:
+                edit_url = URL('payment_fixed_rate_travel_edit',
+                               vars={'teID':self.id,
+                                     'tpfrtID':row.teachers_payment_fixed_rate_travel.id})
+                buttons.append(os_gui.get_button('edit', edit_url))
+
+            if delete_permission:
+                delete_url = URL('payment_fixed_rate_travel_delete',
+                                 vars={'tpfrtID': row.teachers_payment_fixed_rate_travel.id,
+                                       'teID':self.id})
+                buttons.append(os_gui.get_button(
+                    'delete_notext',
+                    delete_url,
+                    onclick=delete_onclick,
+                ))
+
+
+            table.append(
+                TR(
+                    TD(row.school_locations.Name),
+                    TD(repr_row.teachers_payment_fixed_rate_travel.TravelAllowance),
+                    TD(repr_row.teachers_payment_fixed_rate_travel.tax_rates_id),
+                    TD(buttons)
+                )
+            )
+
+        display.append(table)
+
+        return display
+

@@ -428,7 +428,7 @@ def populate_auth_user_teachers_fixed_rate_default(web2py):
     """
     web2py.db.teachers_payment_fixed_rate_default.insert(
         auth_teacher_id = 2,
-        ClassRate = 30,
+        ClassRate = 10343,
         tax_rates_id = 1
     )
 
@@ -442,7 +442,21 @@ def populate_auth_user_teachers_fixed_rate_class_1(web2py):
     web2py.db.teachers_payment_fixed_rate_class.insert(
         auth_teacher_id = 2,
         classes_id = 1,
-        ClassRate = 60,
+        ClassRate = 645570,
+        tax_rates_id = 1
+    )
+
+    web2py.db.commit()
+
+
+def populate_auth_user_teachers_fixed_rate_travel(web2py):
+    """
+        Insert dummy data for teachers_payment_fixed_rate_travel
+    """
+    web2py.db.teachers_payment_fixed_rate_travel.insert(
+        auth_teacher_id = 2,
+        school_locations_id = 1,
+        TravelAllowance = 304753,
         tax_rates_id = 1
     )
 
@@ -496,7 +510,6 @@ def populate_classes(web2py, with_otc=False):
 
 
     web2py.db.commit()
-
 
 
 def prepare_classes(web2py,
