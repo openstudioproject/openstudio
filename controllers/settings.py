@@ -677,10 +677,10 @@ def access_get_back(var=None):
 
 
 def access_get_menu(page):
-    '''
+    """
         This function returns the submenu used for the users/groups pages.
         It takes on argument, page, which is used to highlight the active element.
-    '''
+    """
     pages = (['access_groups',
               T("Groups"),
               URL('access_groups')],
@@ -1135,6 +1135,20 @@ def access_group_permissions():
                 ['teachers-create', T("Add teachers")],
                 ['teachers-update', T("Edit teachers")],
                 ['teachers-delete', T("Remove teacher status")],
+                ['teachers_payment_fixed_rate_default-read', T('View payment rates (fixed rate)'), [
+                    ['teachers_payment_fixed_rate_default-create', T('Set default payment (fixed rate)')],
+                    ['teachers_payment_fixed_rate_default-create', T('Edit default payment (fixed rate)')],
+                    ['teachers_payment_fixed_rate_class-read', T('View class specific rates (fixed rate)'), [
+                        ['teachers_payment_fixed_rate_class-create', T('Add class specific rates (fixed rate)')],
+                        ['teachers_payment_fixed_rate_class-update', T('Edit class specific rates (fixed rate)')],
+                        ['teachers_payment_fixed_rate_class-delete', T('Delete class specific rates (fixed rate)')],
+                    ]],
+                    ['teachers_payment_fixed_rate_travel-read', T('View travel allowances (fixed rate)'), [
+                        ['teachers_payment_fixed_rate_travel-create', T('Add travel allowance (fixed rate)')],
+                        ['teachers_payment_fixed_rate_travel-update', T('Edit travel allowance (fixed rate)')],
+                        ['teachers_payment_fixed_rate_travel-delete', T('Delete travel allowance (fixed rate)')],
+                    ]],
+                ]]
             ]],
             ['employees-read', T("Employees"), [
                 ['employees-create', T("Add employees")],
