@@ -8058,9 +8058,9 @@ class Invoice:
 
 
     def get_balance(self, formatted=False):
-        '''
+        """
             Returns the balance for an invoice
-        '''
+        """
         db = current.globalenv['db']
         paid = self.get_amount_paid()
         total = self.get_amounts()['TotalPriceVAT']
@@ -8078,10 +8078,10 @@ class Invoice:
 
 
     def get_item_next_sort_nr(self):
-        '''
+        """
             Returns the next item number for an invoice
             use to set sorting when adding an item
-        '''
+        """
         db = current.globalenv['db']
         query = (db.invoices_items.invoices_id == self.invoices_id)
 
@@ -8353,14 +8353,10 @@ class Invoice:
         if not default_rates and not class_rates:
             return None  # No rates set, not enough data to create invoice item
 
+        # Set price and tax rate
         default_rate = default_rates.first()
-
         price = default_rate.ClassRate
         tax_rates_id = default_rate.tax_rates_id
-
-        print '@@@@'
-        print clsID
-        print class_rates
 
         if class_rates.get(int(clsID), False):
             price = class_rates[clsID].ClassRate

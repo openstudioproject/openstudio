@@ -3592,6 +3592,7 @@ def define_invoices_amounts():
             represent=represent_float_as_amount)
         )
 
+
 def compute_invoices_amounts_balance(row):
     '''
         Calculates the balance for an invoice amounts row

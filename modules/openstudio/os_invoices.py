@@ -71,4 +71,6 @@ class Invoices:
                         date
                     )
 
+            invoice.set_amounts()
+
         return invoices_created
