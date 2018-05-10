@@ -1076,9 +1076,14 @@ def teacher_payments():
     response.view = 'general/only_content.html'
 
     add = teacher_payments_get_create_invoices()
-    print add
 
-    return dict(content='hi',
+    ih = InvoicesHelper()
+    status_filter = ih.list_get_status_filter()
+    list = ih.list_invoices(only_teacher_credit_invoices=True)
+
+    content = DIV(status_filter, list)
+
+    return dict(content=content,
                 header_tools=add)
 
 

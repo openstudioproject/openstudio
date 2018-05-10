@@ -8844,7 +8844,12 @@ class InvoicesHelper:
         return payments
 
 
-    def list_invoices(self, cuID=None, csID=None, search_enabled=False, group_filter_enabled=False):
+    def list_invoices(self,
+                      cuID=None,
+                      csID=None,
+                      search_enabled=False,
+                      group_filter_enabled=False,
+                      only_teacher_credit_invoices=False):
         db = current.globalenv['db']
         auth = current.globalenv['auth']
         session = current.globalenv['session']
@@ -8888,6 +8893,8 @@ class InvoicesHelper:
             query = self._list_invoices_get_search_query(query)
         if group_filter_enabled:
             query = self._list_invoices_get_groups_query(query)
+        if only_teacher_credit_invoices:
+            query &= (db.invoices.TeacherPayment == True)
 
         # General list, list for customer or list for subscription
         if not cuID and not csID:
