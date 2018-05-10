@@ -1014,9 +1014,9 @@ def export_csv():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'invoices'))
 def invoices():
-    '''
+    """
         Overview page for invoices
-    '''
+    """
     response.title = T('Invoices')
     response.subtitle = T('All invoices')
     response.view = 'general/only_content.html'
@@ -1063,6 +1063,91 @@ def invoices():
     return dict(content=content,
                 header_tools=DIV(export, tools))
 
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'invoices'))
+def teacher_payments():
+    """
+        List teacher payments invoices by month and add button to add invoices for a
+        selected month
+    """
+    response.title = T('Teacher payments')
+    response.subtitle = T('')
+    response.view = 'general/only_content.html'
+
+    add = teacher_payments_get_create_invoices()
+    print add
+
+    return dict(content='hi',
+                header_tools=add)
+
+
+def teacher_payments_get_create_invoices(var=None):
+    """
+        :return: html button linking to create teacher credit invoices page
+    """
+    permission = auth.has_membership(group_id='Admins') or \
+                 auth.has_permission('create', 'invoices')
+
+    if permission:
+        add = os_gui.get_button(
+            'noicon',
+            URL('teacher_payments_generate_invoices_choose_month'),
+            title=T('Create invoices'),
+            btn_class='btn-primary',
+            _class='pull-right'
+        )
+    else:
+        add = ''
+
+    return add
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('create', 'invoices'))
+def teacher_payments_generate_invoices_choose_month():
+    """
+        Choose year and month to create invoices
+    """
+    from openstudio.os_forms import OsForms
+
+    response.title = T('Teacher payments')
+    response.subtitle = T('')
+    response.view = 'general/only_content.html'
+
+    if 'year' in request.vars and 'month' in request.vars:
+        year = int(request.vars['year'])
+        month = int(request.vars['month'])
+        teacher_payments_generate_invoices(year, month)
+
+    os_forms = OsForms()
+    form = os_forms.get_month_year_form(
+        request.vars['year'],
+        request.vars['month'],
+        submit_button = T('Create invoices')
+    )
+
+    content = DIV(
+        H4(T('Create teacher credit invoices for month')),
+        DIV(form['form']),
+        _class='col-md-6'
+    )
+
+    back = os_gui.get_button('back', URL('teacher_payments'))
+
+    return dict(content=content,
+                save=form['submit'],
+                back=back)
+
+
+def teacher_payments_generate_invoices(year, month):
+    """
+        Actually generate teacher payment credit invoices
+    """
+    from openstudio.os_invoices import Invoices
+
+    invoices = Invoices()
+    invoices.batch_generate_teachers_invoices(year, month)
 
 
 #

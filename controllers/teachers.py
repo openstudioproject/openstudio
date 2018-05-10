@@ -687,3 +687,20 @@ def payment_fixed_rate_travel_delete():
 
     session.flash = T('Deleted travel allowance')
     redirect(payment_fixed_rate_return_url(teID))
+
+#
+# def teachers_get_menu(page=None):
+#     pages = []
+#
+#     pages.append(['index',
+#                    T('Teachers'),
+#                   URL('teachers','index')])
+#
+#     if auth.has_membership(group_id='Admins') or \
+#        auth.has_permission('read', 'invoices'):
+#         pages.append(['payments',
+#                       T('Payments'),
+#                       URL('payments',)])
+#
+#
+#     return os_gui.get_submenu(pages, page, horizontal=True, htype='tabs')

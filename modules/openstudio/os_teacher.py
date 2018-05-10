@@ -79,7 +79,7 @@ class Teacher:
         return display
 
 
-    def get_payment_fixed_rate_classes(self, render=False):
+    def get_payment_fixed_rate_classes(self):
         """
         :return: gluon.dal.row object of db.teachers_payment_fixed_rate_class
         """
@@ -101,7 +101,32 @@ class Teacher:
                                         db.school_locations.Name|\
                                         db.classes.Starttime)
 
+        return rows
 
+
+    def get_payment_fixed_rate_classes_dict(self, render=False):
+        """
+        :return: dict object of db.teachers_payment_fixed_rate_class
+        """
+        rows = self.get_payment_fixed_rate_classes()
+        if rows:
+            if render:
+               rows = rows.render()
+
+            data = {}
+            for row in rows:
+                data[int(row.classes.id)] = row.teachers_payment_fixed_rate_class
+
+            return data
+        else:
+            return False
+
+
+    def get_payment_fixed_rate_classes_rows(self, render=False):
+        """
+        :return: gluon.dal.row object of db.teachers_payment_fixed_rate_class
+        """
+        rows = self.get_payment_fixed_rate_classes()
         if rows:
             if not render:
                 return rows
@@ -141,7 +166,7 @@ class Teacher:
         T = current.T
         auth = current.globalenv['auth']
         os_gui = OsGui()
-        rows = self.get_payment_fixed_rate_classes()
+        rows = self.get_payment_fixed_rate_classes_rows()
 
         display = DIV(
             os_gui.get_button('add',

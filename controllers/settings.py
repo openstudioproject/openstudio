@@ -1205,7 +1205,6 @@ def access_group_permissions():
             ['school_languages-read', T("Languages"), [
                 ['school_languages-create', T("Add languages")],
                 ['school_languages-update', T("Edit languages")]]]]],
-
     ]
 
     other_permissions = [

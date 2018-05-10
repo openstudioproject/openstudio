@@ -6094,9 +6094,9 @@ class ClassSchedule:
 
 
     def get_day_rows(self):
-        '''
+        """
             Get day rows with caching 
-        '''
+        """
         #web2pytest = current.globalenv['web2pytest']
         #request = current.globalenv['request']
 
@@ -8788,59 +8788,6 @@ class InvoicesHelper:
         return payments
 
 
-    # def payment_add_get_form(self, iID):
-    #     '''
-    #         Add payments for an invoice
-    #     '''
-    #     db = current.globalenv['db']
-    #     T = current.globalenv['T']
-    #     crud = current.globalenv['crud']
-    #
-    #     invoice = db.invoices(iID)
-    #
-    #     ## default values
-    #     db.invoices_payments.invoices_id.default = iID
-    #     # amount
-    #     amounts = db.invoices_amounts(invoices_id=iID)
-    #     try:
-    #         db.invoices_payments.Amount.default = amounts.TotalPriceVAT
-    #     except AttributeError:
-    #         pass
-    #     # payment method
-    #     try:
-    #         payment_info = db.customers_payment_info(
-    #             auth_customer_id=invoice.auth_customer_id)
-    #         default_method = payment_info.payment_methods_id
-    #         db.invoices_payments.payment_methods_id.default = default_method
-    #     except AttributeError:
-    #         pass
-    #
-    #     # # if session.invoices_payment_add_back == 'invoices_invoice_payments':
-    #     # #     # Don't redirect client side here, stay in the modal on the invoice edit page
-    #     # #     create_next = URL('invoices', 'invoice_payments', vars={'iID':iID})
-    #     # # else:
-    #     # create_next = '/invoices/payment_add_redirect_oncreate?ipID=[id]'
-    #
-    #     crud.messages.submit_button = T("Save")
-    #     crud.messages.record_created = T("Saved")
-    #     #crud.settings.create_next = create_next
-    #     #crud.settings.create_onaccept = [payment_add_update_status]
-    #     form = crud.create(db.invoices_payments)
-    #
-    #     form['_action'] = URL('invoices', 'payment_add', vars={'iID':iID})
-    #     form['_name'] = "fpa_" + unicode(iID)
-    #
-    #     form_id = 'form_payment_add_' + unicode(iID)
-    #     form_element = form.element('form')
-    #     form['_id'] = form_id
-    #
-    #     elements = form.elements('input, select, textarea')
-    #     for element in elements:
-    #         element['_form'] = form_id
-    #
-    #     return form
-
-
     def list_invoices(self, cuID=None, csID=None, search_enabled=False, group_filter_enabled=False):
         db = current.globalenv['db']
         auth = current.globalenv['auth']
@@ -9049,23 +8996,6 @@ class InvoicesHelper:
 
         return form
 
-        ##################### test code begin
-
-
-        # @auth.requires(auth.has_membership(group_id='Admins') or \
-        #                auth.has_permission('read', 'invoices'))
-        # def _list_invoices_clear_search(self):
-        #     '''
-        #         Clears search for invoices page
-        #     '''
-        #     session.invoices_list_invoices_search = None
-        #     session.invoices_list_invoices_date_created_from = None
-        #     session.invoices_list_invoices_date_created_until = None
-        #     session.invoices_list_invoices_date_due_from = None
-        #     session.invoices_list_invoices_date_due_until = None
-        #
-        #     redirect(URL('list_invoices', vars=request.vars))
-
     def _list_invoices_get_status_query(self, query):
         '''
             Returns status query
@@ -9086,6 +9016,7 @@ class InvoicesHelper:
             query &= (db.invoices.DateDue < datetime.date.today())
 
         return query
+
 
     def _list_invoices_get_search_query(self, query):
         '''
@@ -9112,12 +9043,14 @@ class InvoicesHelper:
 
         return query
 
+
     def _list_invoices_get_groups_query(self, query):
         '''
             Adds filter for invoice group to query
         '''
         if session.invoices_list_invoices_group:
             query &= (db.invoices.invoices_groups_id == session.invoices_list_invoices_group)
+
 
     def _list_invoices_get_buttons(self, row):
         '''
@@ -9162,6 +9095,7 @@ class InvoicesHelper:
 
         return buttons
 
+
     def _list_invoices_get_balance(self, row):
         '''
             Retuns the balance for an invoice
@@ -9184,78 +9118,6 @@ class InvoicesHelper:
                                    tooltip=T('Add payment'))
 
         return button
-
-        #
-        # db = current.globalenv['db']
-        # T = current.globalenv['T']
-        # os_gui = current.globalenv['os_gui']
-        #
-        # content = LOAD('invoices', 'payment_add', ajax=False, ajax_trap=True, extension='load',
-        #                 vars={'iID': iID})
-        # #content = self.payment_add_get_form(iID)
-        #
-        # invoice = db.invoices(iID)
-        # title = T('Add payment for invoice') + ' #' + invoice.InvoiceID
-        #
-        # button_text = os_gui.get_modal_button_icon('credit-card')
-        #
-        # form_id = 'form_payment_add_' + unicode(iID)
-        #
-        # result = os_gui.get_modal(button_text=button_text,
-        #                           button_title=T("Add payment"),
-        #                           modal_title=title,
-        #                           modal_content=content,
-        #                           modal_footer_content=os_gui.get_submit_button(form_id),
-        #                           modal_class=form_id,
-        #                           # modal_id='modal_payment_add_' + unicode(iID),
-        #                           button_class='btn-sm')
-        #
-        #
-        #
-        # return result
-
-        #payments.append(SPAN(result['button'], result['modal']))
-
-
-            #################### test code end
-
-
-
-            # def get_add_modal(self, cuID,
-    #                         pbiID        = None,
-    #                         csID         = None,
-    #                         button_text  = current.T('Add'),
-    #                         button_class = 'btn-sm'
-    #                         ):
-    #     '''
-    #         Return button and modal to add a new invoice
-    #     '''
-    #     os_gui = current.globalenv['os_gui']
-    #     gen_passwd = current.globalenv['generate_password']
-    #
-    #     vars = {'cuID':cuID}
-    #     if pbiID:
-    #         vars['pbiID'] = pbiID
-    #     if csID:
-    #         vars['csID'] = csID
-    #
-    #     add = LOAD('invoices', 'add.load', ajax=True, vars=vars)
-    #
-    #     button_text = XML(SPAN(SPAN(_class='glyphicon glyphicon-plus'), ' ',
-    #                       button_text))
-    #
-    #     # get 30 chars of randomness for modal class
-    #     modal_class = gen_passwd()
-    #
-    #     result = os_gui.get_modal(button_text=button_text,
-    #                               modal_title=current.T('Add invoice'),
-    #                               modal_content=add,
-    #                               modal_class=modal_class,
-    #                               button_class=button_class)
-    #     modal = result['modal']
-    #     button = result['button']
-    #
-    #     return DIV(button, modal)
 
 
 class School:
