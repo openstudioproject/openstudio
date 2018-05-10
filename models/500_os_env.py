@@ -403,7 +403,9 @@ def get_invoices_groups_product_types():
                    ['dropin'      , T('Drop in classes')],
                    ['trial'       , T('Trial classes')],
                    ['wsp'         , T('Workshop products')],
-                   ['shop'        , T('OpenStudio shop (All sales from the shop will go into this group)')] ]
+                   ['shop'        , T('OpenStudio shop (All sales from the shop will go into this group)')],
+                   ['teacher_payments', T('Credit invoices for teacher payments')]
+                ]
 
     return categories
 

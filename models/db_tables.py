@@ -3284,6 +3284,18 @@ def define_invoices():
             readable=False,
             writable=False,
             default=False),
+        Field('TeacherPaymentMonth', 'integer',
+              readable=False,
+              writable=False,
+              requires=IS_IN_SET(months, zero=T('Please select...')),
+              represent=NRtoMonth,
+              default=TODAY_LOCAL.month,
+              label=T('Month')),
+        Field('TeacherPaymentYear', 'integer',
+              readable=False,
+              writable=False,
+              default=TODAY_LOCAL.year,
+              label=T('Year')),
         Field('CustomerCompany',
               label=T('Company')),
         Field('CustomerName',
@@ -4564,9 +4576,9 @@ def setup_create_invoice_group():
     )
 
 def setup_create_invoice_group_defaults():
-    '''
+    """
         Set default invoice group as default for products
-    '''
+    """
     product_types = get_invoices_groups_product_types()
 
     for product, name in product_types:

@@ -1119,6 +1119,7 @@ def teacher_payments_generate_invoices_choose_month():
         year = int(request.vars['year'])
         month = int(request.vars['month'])
         teacher_payments_generate_invoices(year, month)
+        redirect(URL('teacher_payments'))
 
     os_forms = OsForms()
     form = os_forms.get_month_year_form(
@@ -1147,7 +1148,10 @@ def teacher_payments_generate_invoices(year, month):
     from openstudio.os_invoices import Invoices
 
     invoices = Invoices()
-    invoices.batch_generate_teachers_invoices(year, month)
+    nr_created = invoices.batch_generate_teachers_invoices(year, month)
+    session.flash = SPAN(T('Created'), ' ', nr_created, ' ', T('invoice'))
+    if nr_created > 1:
+        session.flash.append('s')
 
 
 #

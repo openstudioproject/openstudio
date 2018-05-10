@@ -1871,7 +1871,12 @@ class CustomersHelper:
         else:
             orderby = db.school_locations.Name | db.classes.Starttime
 
-        cs = ClassSchedule(date, sorting=orderby)
+        filter_id_teacher = None
+        if list_type == 'tp_fixed_rate':
+            filter_id_teacher = cuID
+        cs = ClassSchedule(date,
+                           sorting=orderby,
+                           filter_id_teacher=filter_id_teacher)
         classes = cs.get_day_list()
 
         header = THEAD(TR(TH(T('Time')),
@@ -7902,9 +7907,9 @@ class Invoice:
 
 
     def _get_next_invoice_id(self):
-        '''
+        """
             Returns the number for an invoice
-        '''
+        """
         invoice_id = self.invoice_group.InvoicePrefix
 
         if self.invoice_group.PrefixYear:
@@ -8134,8 +8139,6 @@ class Invoice:
         return iiID
 
 
-
-
     def item_add_classcard(self, ccdID):
         '''
             :param ccdID: Add customer classcard to invoice
@@ -8317,6 +8320,63 @@ class Invoice:
             Price        = price,
             Sorting      = next_sort_nr,
             tax_rates_id = tax_rates_id,
+        )
+
+        self.set_amounts()
+
+        return iiID
+
+
+    def item_add_teacher_class_credit_payment(self,
+                                              clsID,
+                                              date,
+                                              payment_type='fixed_rate'):
+        """
+        :param clsID: db.classes.id
+        :param date: datetime.date class date
+        :return:
+        """
+        from os_teacher import Teacher
+
+        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        TIME_FORMAT = current.globalenv['TIME_FORMAT']
+        db = current.globalenv['db']
+        T = current.globalenv['T']
+
+        cls = Class(clsID, date)
+        teID = self.get_linked_customer_id()
+        teacher = Teacher(teID)
+
+        default_rates = teacher.get_payment_fixed_rate_default()
+        class_rates = teacher.get_payment_fixed_rate_classes_dict()
+
+        if not default_rates and not class_rates:
+            return None  # No rates set, not enough data to create invoice item
+
+        default_rate = default_rates.first()
+
+        price = default_rate.ClassRate
+        tax_rates_id = default_rate.tax_rates_id
+
+        print '@@@@'
+        print clsID
+        print class_rates
+
+        if class_rates.get(int(clsID), False):
+            price = class_rates[clsID].ClassRate
+            tax_rates_id = class_rates[clsID].tax_rates_id
+
+        # add item to invoice
+        next_sort_nr = self.get_item_next_sort_nr()
+
+        iiID = db.invoices_items.insert(
+            invoices_id=self.invoices_id,
+            ProductName=T('Class'),
+            Description=cls.get_name(),
+            Quantity=1,
+            Price=price * -1,
+            Sorting=next_sort_nr,
+            tax_rates_id=tax_rates_id,
         )
 
         self.set_amounts()

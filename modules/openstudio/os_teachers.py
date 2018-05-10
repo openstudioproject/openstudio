@@ -40,7 +40,9 @@ class Teachers:
 
         for teID in ids:
             teID = int(teID)
-            data[teID] = []
+            data[teID] = {}
+            data[teID]['classes'] = {}
+            data[teID]['classes_count'] = 0
             for each_day in range(1, last_day.day + 1):
                 # list days
                 day = datetime.date(year, month, each_day)
@@ -53,6 +55,7 @@ class Teachers:
 
                 rows = class_schedule.get_day_rows()
 
-                data[teID].append(rows)
+                data[teID]['classes'][day] = rows
+                data[teID]['classes_count'] += len(rows)
 
         return data

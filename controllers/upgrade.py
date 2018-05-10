@@ -260,3 +260,21 @@ def upgrade_to_20184():
     # clear cache
     ##
     cache.ram.clear(regex='.*')
+
+
+def upgrade_to_20185():
+    """
+        Upgrade operations to 2018.5
+    """
+    ##
+    # Set default group for teacher credit invoices
+    ##
+    db.invoices_groups_product_types.insert(
+        ProductType='teacher_payments',
+        invoices_groups_id=100
+    )
+
+    ##
+    # clear cache
+    ##
+    cache.ram.clear(regex='.*')
