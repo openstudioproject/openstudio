@@ -25,12 +25,12 @@ def batches_index():
     if pbtype == 'collection':
         query = (db.payment_batches.BatchType == 'collection')
         response.subtitle = T("Collection")
-        add_url = URL('add_what_batch', vars=request.vars)
+        add_url = URL('add_collection_batch_type', vars=request.vars)
     elif pbtype == 'payment':
         query = (db.payment_batches.BatchType == 'payment')
         response.subtitle = T("Payment")
 
-        add_url = URL('batch_add', vars=request.vars)
+        add_url = URL('add_payment_batch_type', vars=request.vars)
     else:
         query = (db.payment_batches.id > 0)
         response.subtitle = T("Collection & Payment")
@@ -78,43 +78,74 @@ def batches_index():
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'payment_batches'))
-def add_what_batch():
-    '''
+def add_collection_batch_type():
+    """
         Page to ask what kind of batch the user wants to add
         Can be invoices or category
-    '''
+    """
     export = request.vars['export']
 
     response.title = T("New batch")
-    response.subtitle = T("What kind of batch would you like to create?")
+    response.subtitle = ''
     response.view = 'general/only_content.html'
 
     return_url = URL('batches_index', vars={'export':export})
 
     question = T("What kind of batch would you like to create?")
-    invoices = os_gui.get_button('noicon',
-        URL('batch_add', vars={'export':export,
-                         'what':'invoices'}),
-        title=T("Invoices"),
-        _class='',
-        btn_size='')
-    category = os_gui.get_button('noicon',
-        URL('batch_add', vars={'export':export,
-                         'what':'category'}),
-        title=T("Direct debit extra"),
-        _class='',
-        btn_size='')
+    invoices = LI(A(
+        T('Invoices'),
+        _href=URL('batch_add', vars={'export':export,
+                                     'what':'invoices'})), BR(),
+        T("Create a batch containing all invoices with status 'sent' and payment method 'direct debit'."))
+    category = LI(A(
+        T('Direct debit extra'),
+        _href=URL('batch_add', vars={'export':export,
+                                     'what':'category'})), BR(),
+        T("Create a batch containing items from a direct debit extra category."))
+    back = os_gui.get_button('back', return_url)
+    ul = UL(invoices, category)
+    content = DIV(H3(question), ul)
+
+    return dict(content=content,
+                back=back)
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'payment_batches'))
+def add_payment_batch_type():
+    """
+        Page to ask what kind of batch the user wants to add
+        Can be invoices or category
+    """
+    export = request.vars['export']
+
+    response.title = T("New batch")
+    response.subtitle = ''
+    response.view = 'general/only_content.html'
+
+    return_url = URL('batches_index', vars={'export':export})
+
+    question = T("What kind of batch would you like to create?")
+    invoices = LI(A(
+        T('Teacher payments'),
+        _href=URL('batch_add', vars={'export':export,
+                                     'what':'teacher_payments'})), BR(),
+        T("Create a batch containing all invoices with status 'sent' and payment method 'direct debit'."))
+    category = LI(A(
+        T('Direct debit extra'),
+        _href=URL('batch_add', vars={'export':export,
+                                     'what':'category'})), BR(),
+        T("Create a batch containing items from a direct debit extra category."))
     cancel = os_gui.get_button('noicon',
         return_url,
-        title=T("No thanks, I've changed my mind"),
-        _class='btn btn-link',
+        title=T("Cancel"),
+        _class='btn btn-default',
         btn_size='')
-    buttons = DIV(invoices,' ', category, ' ', cancel)
-    content = DIV(H3(question),
-               DIV(buttons,
-                   _class='well center'))
+    back = os_gui.get_button('back', return_url)
+    ul = UL(invoices, category)
+    content = DIV(H3(question), ul)
 
-    return dict(content=content)
+    return dict(content=content,
+                back=back)
 
 
 @auth.requires_login()
@@ -140,11 +171,11 @@ def batch_add():
         if what == 'category':
             response.subtitle.append(T('Direct debit category batch'))
 
-        return_url = URL('add_what_batch', vars=request.vars)
+        return_url = URL('add_collection_batch_type', vars=request.vars)
 
     elif batchtype == 'payment':
         response.subtitle = SPAN(T('Payment '))
-        return_url = URL('batches_index', vars=request.vars)
+        return_url = URL('add_payment_batch_type', vars=request.vars)
         what = 'category'
 
 
