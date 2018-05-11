@@ -8904,6 +8904,9 @@ class InvoicesHelper:
         grid_ui = current.globalenv['grid_ui']
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
         from general_helpers import datestr_to_python
+        from openstudio.os_gui import OsGui
+        os_gui = OsGui()
+
         T = current.globalenv['T']
 
         session.invoices_invoice_payment_add_back = None
@@ -8917,6 +8920,7 @@ class InvoicesHelper:
 
         links = [dict(header=T("Balance"),
                       body=self._list_invoices_get_balance),
+                 lambda row: os_gui.get_label('primary', T('Teacher inv')) if row.invoices.TeacherPayment else '',
                  self._list_invoices_get_buttons]
         left = [db.invoices_amounts.on(db.invoices_amounts.invoices_id ==
                                        db.invoices.id),
@@ -8932,7 +8936,8 @@ class InvoicesHelper:
                   db.invoices.Description,
                   db.invoices.DateCreated,
                   db.invoices.DateDue,
-                  db.invoices_amounts.TotalPriceVAT]
+                  db.invoices_amounts.TotalPriceVAT,
+                  db.invoices.TeacherPayment]
 
         query = (db.invoices.id > 0)
         # Status filter
