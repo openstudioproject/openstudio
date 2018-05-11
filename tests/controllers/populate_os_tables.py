@@ -426,11 +426,14 @@ def populate_auth_user_teachers_fixed_rate_default(web2py):
     """
         Insert dummy data for teachers_payment_fixed_rate_default
     """
-    web2py.db.teachers_payment_fixed_rate_default.insert(
-        auth_teacher_id = 2,
-        ClassRate = 10343,
-        tax_rates_id = 1
-    )
+    query = (web2py.db.auth_user.teacher == True)
+    rows = web2py.db(query).select(web2py.db.auth_user.ALL)
+    for row in rows:
+        web2py.db.teachers_payment_fixed_rate_default.insert(
+            auth_teacher_id = row.id,
+            ClassRate = 10343,
+            tax_rates_id = 1
+        )
 
     web2py.db.commit()
 

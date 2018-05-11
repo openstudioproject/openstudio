@@ -12,8 +12,15 @@ from populate_os_tables import populate_customers
 from populate_os_tables import populate_invoices
 from populate_os_tables import populate_invoices_items
 
+from populate_os_tables import populate_auth_user_teachers_fixed_rate_default
+from populate_os_tables import populate_auth_user_teachers_fixed_rate_class_1
+from populate_os_tables import populate_auth_user_teachers_fixed_rate_travel
+
 from populate_os_tables import populate_workshops_messages
 from populate_os_tables import populate_customers_with_subscriptions
+
+
+import datetime
 
 
 def test_teacher_payments(client, web2py):
@@ -52,6 +59,61 @@ def test_teacher_payments_generate_invoices(client, web2py):
         Check class specific rate
         Check travel allowance
     """
+    prepare_classes(web2py)
+    populate_auth_user_teachers_fixed_rate_default(web2py)
+    populate_auth_user_teachers_fixed_rate_class_1(web2py)
+    populate_auth_user_teachers_fixed_rate_travel(web2py)
+
+    url = '/finance/teacher_payments_generate_invoices_choose_month'
+    client.get(url)
+    assert client.status == 200
+
+    today = datetime.date.today()
+
+    data = {
+        'month': today.month,
+        'year': today.year
+    }
+    client.post(url, data=data)
+    assert client.status == 200
+
+
+    print web2py.db().select(web2py.db.invoices_items.ALL)
+
+    # Teacher 2 should have an item with the class specific rate
+    query = (web2py.db.invoices_customers.auth_customer_id == 2)
+    ic = web2py.db(query).select(web2py.db.invoices_customers.ALL).first()
+    invoice = web2py.db.invoices(ic.invoices_id)
+
+    assert invoice.TeacherPayment == True
+    assert invoice.TeacherPaymentMonth == data['month']
+    assert invoice.TeacherPaymentYear == data['year']
+
+    query = (web2py.db.invoices_items.invoices_id == ic.invoices_id)
+    rows = web2py.db(query).select(web2py.db.invoices_items.ALL)
+    item = rows.first()
+
+    # check class_specific_rate
+    tpfrc = web2py.db.teachers_payment_fixed_rate_class(1)
+    assert item.Price == tpfrc.ClassRate * -1
+
+    # Teacher 3 should have an item with the default rate
+    query = (web2py.db.invoices_customers.auth_customer_id == 3)
+    ic = web2py.db(query).select(web2py.db.invoices_customers.ALL).first()
+
+    query = (web2py.db.invoices_items.invoices_id == ic.invoices_id)
+    rows = web2py.db(query).select(web2py.db.invoices_items.ALL)
+    item = rows.first()
+
+    # check default_specific_rate
+    tpfrd = web2py.db.teachers_payment_fixed_rate_default(auth_teacher_id=3)
+    assert item.Price == tpfrd.ClassRate * -1
+
+
+    #TODO: Test travel amount
+
+
+
 
 
 

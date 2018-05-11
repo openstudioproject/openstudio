@@ -8354,13 +8354,16 @@ class Invoice:
             return None  # No rates set, not enough data to create invoice item
 
         # Set price and tax rate
-        default_rate = default_rates.first()
-        price = default_rate.ClassRate
-        tax_rates_id = default_rate.tax_rates_id
+        try:
+            class_prices = class_rates.get(int(clsID), False)
+            if class_prices:
+                price = class_prices.ClassRate
+                tax_rates_id = class_prices.tax_rates_id
+        except (AttributeError, KeyError):
+            default_rate = default_rates.first()
+            price = default_rate.ClassRate
+            tax_rates_id = default_rate.tax_rates_id
 
-        if class_rates.get(int(clsID), False):
-            price = class_rates[clsID].ClassRate
-            tax_rates_id = class_rates[clsID].tax_rates_id
 
         # add item to invoice
         next_sort_nr = self.get_item_next_sort_nr()
