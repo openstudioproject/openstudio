@@ -113,6 +113,13 @@ def test_teacher_payments_generate_invoices(client, web2py):
     tpfrd = web2py.db.teachers_payment_fixed_rate_default(auth_teacher_id=3)
     assert item.Price == tpfrd.ClassRate * -1
 
+    # Don't create invoices when they already exist
+    client.post(url, data=data)
+    assert client.status == 200
+
+    query = (web2py.db.invoices.TeacherPayment == True)
+    assert web2py.db(query).count() == 2
+
 
 def test_batches_index_collection(client, web2py):
     """
