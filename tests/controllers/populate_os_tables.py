@@ -1292,7 +1292,7 @@ def populate_tax_rates(web2py):
     web2py.db.commit()
 
 
-def populate_invoices(web2py):
+def populate_invoices(web2py, teacher_fixed_price_invoices=False):
     """
         Adds one invoice for each user found
     """
@@ -1301,6 +1301,15 @@ def populate_invoices(web2py):
     today = datetime.date.today()
     delta = datetime.timedelta(days = 14)
 
+    teacher_payment = False,
+    teacher_payment_month = None
+    teacher_payment_year = None
+
+    if teacher_fixed_price_invoices:
+        teacher_payment = True
+        teacher_payment_month = datetime.date.today().month
+        teacher_payment_year = datetime.date.today().year
+
     rows = web2py.db().select(web2py.db.auth_user.ALL)
     for row in rows:
         cuID = row.id
@@ -1308,6 +1317,10 @@ def populate_invoices(web2py):
         iID = web2py.db.invoices.insert(
             invoices_groups_id = 100,
             payment_methods_id = 3,
+            TeacherPayment=teacher_payment,
+            TeacherPaymentMonth=teacher_payment_month,
+            TeacherPaymentYear=teacher_payment_year,
+            CustomerName=row.display_name,
             Status = 'sent',
             InvoiceID = 'INV' + unicode(cuID),
             DateCreated = today,

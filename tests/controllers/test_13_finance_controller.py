@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-'''
+"""
     py.test test cases to test OpenStudio.
     These tests run based on webclient and need web2py server running.
-'''
+"""
 
 from gluon.contrib.populate import populate
 
@@ -14,10 +14,45 @@ from populate_os_tables import populate_invoices_items
 from populate_os_tables import populate_workshops_messages
 from populate_os_tables import populate_customers_with_subscriptions
 
+
+def test_teacher_payments(client, web2py):
+    """
+         Are teacher payment invoices listed correctly?
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    populate_customers(web2py)
+    populate_invoices(web2py, teacher_fixed_price_invoices=True)
+
+    url = '/finance/teacher_payments'
+    client.get(url)
+    assert client.status == 200
+
+    assert 'INV1001' in client.text
+
+
+def test_teacher_payments_generate_invoices_choose_month(client, web2py):
+    """
+        Is the month chooser working like it should?
+    """
+
+
+def test_teacher_payments_generate_invoices(client, web2py):
+    """
+        Are the credit invoices created like they should?
+        Check default rate
+        Check class specific rate
+        Check travel allowance
+    """
+
+
+
 def test_batches_index_collection(client, web2py):
-    '''
+    """
         Check whether the list of batches shows correctly
-    '''
+    """
     url = '/finance/batches_index?export=collection'
     client.get(url)
     assert client.status == 200
@@ -26,9 +61,9 @@ def test_batches_index_collection(client, web2py):
 
 
 def test_batches_index_payment(client, web2py):
-    '''
+    """
         Check whether the list of batches shows correctly
-    '''
+    """
     url = '/finance/batches_index?export=payment'
     client.get(url)
     assert client.status == 200
@@ -37,10 +72,10 @@ def test_batches_index_payment(client, web2py):
 
 
 def test_add_batch_default_without_zero_lines(client, web2py):
-    '''
+    """
         Check whether we can add a default batch and items are generated
         propery
-    '''
+    """
     url = '/finance/batch_add?export=collection&what=invoices'
     client.get(url)
     assert client.status == 200
@@ -90,10 +125,10 @@ def test_add_batch_default_without_zero_lines(client, web2py):
 
 
 def test_add_batch_default_with_zero_lines(client, web2py):
-    '''
+    """
         Check whether we can add a default batch and items are generated
         propery and check whether lines with amount 0 are included
-    '''
+    """
     url = '/finance/batch_add?export=collection&what=invoices'
     client.get(url)
     assert client.status == 200
@@ -150,10 +185,10 @@ def test_add_batch_default_with_zero_lines(client, web2py):
 
 
 def test_add_batch_default_location(client, web2py):
-    '''
+    """
         Check whether we can add an invoice based batch and items are generated
         propery for a selected location
-    '''
+    """
     ## set sys_property
     # without this, the form doesn't accept 'school_locations_id'
     web2py.db.sys_properties.insert(
@@ -228,9 +263,9 @@ def test_add_batch_default_location(client, web2py):
 
 
 def test_add_batch_category_without_zero_lines(client, web2py):
-    '''
+    """
         Check if a batch for a direct debit extra category is exported correctly
-    '''
+    """
     url = '/finance/batch_add?export=collection&what=category'
     client.get(url)
     assert client.status == 200
@@ -304,10 +339,10 @@ def test_add_batch_category_without_zero_lines(client, web2py):
 
 
 def test_batch_set_status_sent_to_bank_add_payments(client, web2py):
-    '''
+    """
         Check if payments are added to invoices when the status of a batch
         becomes 'sent to bank'
-    '''
+    """
     url = '/finance/batch_add?export=collection&what=invoices'
     client.get(url)
     assert client.status == 200
