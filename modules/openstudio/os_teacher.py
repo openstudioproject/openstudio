@@ -234,6 +234,23 @@ class Teacher:
         return display
 
 
+    def get_payment_fixed_rate_travel_allowance_location(self, slID):
+        """
+        :return: gluon.dal.row object of db.teachers_payment_fixed_rate_travel
+        """
+        db = current.globalenv['db']
+
+        query = (db.teachers_payment_fixed_rate_travel.auth_teacher_id ==
+                 self.id) & \
+                (db.teachers_payment_fixed_rate_travel.school_locations_id == slID)
+        rows = db(query).select(db.teachers_payment_fixed_rate_travel.ALL)
+
+        if rows:
+            return rows.first()
+        else:
+            return False
+
+
     def get_payment_fixed_rate_travel_allowances(self, render=False):
         """
         :return: gluon.dal.row object of db.teachers_payment_fixed_rate_travel

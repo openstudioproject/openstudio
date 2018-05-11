@@ -8353,6 +8353,10 @@ class Invoice:
         if not default_rates and not class_rates:
             return None  # No rates set, not enough data to create invoice item
 
+        default_rate = default_rates.first()
+        price = default_rate.ClassRate
+        tax_rates_id = default_rate.tax_rates_id
+
         # Set price and tax rate
         try:
             class_prices = class_rates.get(int(clsID), False)
@@ -8360,9 +8364,7 @@ class Invoice:
                 price = class_prices.ClassRate
                 tax_rates_id = class_prices.tax_rates_id
         except (AttributeError, KeyError):
-            default_rate = default_rates.first()
-            price = default_rate.ClassRate
-            tax_rates_id = default_rate.tax_rates_id
+            pass
 
 
         # add item to invoice
@@ -8381,6 +8383,49 @@ class Invoice:
         self.set_amounts()
 
         return iiID
+
+
+    def item_add_teacher_class_credit_travel_allowance(self,
+                                                clsID,
+                                                date,
+                                                payment_type='fixed_rate'):
+        """
+        :param clsID: db.classes.id
+        :param date: datetime.date class date
+        :return:
+        """
+        from os_teacher import Teacher
+
+        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        TIME_FORMAT = current.globalenv['TIME_FORMAT']
+        db = current.globalenv['db']
+        T = current.globalenv['T']
+
+        cls = Class(clsID, date)
+        teID = self.get_linked_customer_id()
+        teacher = Teacher(teID)
+
+        travel_allowance = teacher.get_payment_fixed_rate_travel_allowance_location(cls.cls.school_locations_id)
+        if travel_allowance:
+            price = travel_allowance.TravelAllowance
+            tax_rates_id = travel_allowance.tax_rates_id
+
+            # add item to invoice
+            next_sort_nr = self.get_item_next_sort_nr()
+
+            iiID = db.invoices_items.insert(
+                invoices_id=self.invoices_id,
+                ProductName=T('Travel allowance'),
+                Description=cls.get_name(),
+                Quantity=1,
+                Price=price * -1,
+                Sorting=next_sort_nr,
+                tax_rates_id=tax_rates_id,
+            )
+
+            self.set_amounts()
+
+            return iiID
 
 
     def payment_add(self,

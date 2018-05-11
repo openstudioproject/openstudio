@@ -71,6 +71,11 @@ class Invoices:
                         date
                     )
 
+                    invoice.item_add_teacher_class_credit_travel_allowance(
+                        row.classes.id,
+                        date
+                    )
+
             invoice.set_amounts()
 
         return invoices_created

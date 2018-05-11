@@ -77,9 +77,6 @@ def test_teacher_payments_generate_invoices(client, web2py):
     client.post(url, data=data)
     assert client.status == 200
 
-
-    print web2py.db().select(web2py.db.invoices_items.ALL)
-
     # Teacher 2 should have an item with the class specific rate
     query = (web2py.db.invoices_customers.auth_customer_id == 2)
     ic = web2py.db(query).select(web2py.db.invoices_customers.ALL).first()
@@ -93,9 +90,16 @@ def test_teacher_payments_generate_invoices(client, web2py):
     rows = web2py.db(query).select(web2py.db.invoices_items.ALL)
     item = rows.first()
 
-    # check class_specific_rate
+    # Check class_specific_rate
     tpfrc = web2py.db.teachers_payment_fixed_rate_class(1)
     assert item.Price == tpfrc.ClassRate * -1
+
+    # Check travel allowance
+    tpfrt = web2py.db.teachers_payment_fixed_rate_travel(1)
+    item_2 = rows[1]
+    assert item_2.ProductName == 'Travel allowance'
+    assert item_2.Price == tpfrt.TravelAllowance * -1
+
 
     # Teacher 3 should have an item with the default rate
     query = (web2py.db.invoices_customers.auth_customer_id == 3)
@@ -108,13 +112,6 @@ def test_teacher_payments_generate_invoices(client, web2py):
     # check default_specific_rate
     tpfrd = web2py.db.teachers_payment_fixed_rate_default(auth_teacher_id=3)
     assert item.Price == tpfrd.ClassRate * -1
-
-
-    #TODO: Test travel amount
-
-
-
-
 
 
 def test_batches_index_collection(client, web2py):
