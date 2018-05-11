@@ -157,11 +157,11 @@ def batch_add():
     """
     response.title = T("New batch")
     response.view = 'general/only_content.html'
+    what = request.vars['what']
 
     batchtype = request.vars['export']
     if batchtype == 'collection':
         response.subtitle = SPAN(T('Collection'), ' - ')
-        what = request.vars['what']
         if what == 'invoices':
             db.payment_batches.ColYear.requires = ''
             db.payment_batches.ColMonth.requires = ''
@@ -174,10 +174,17 @@ def batch_add():
         return_url = URL('add_collection_batch_type', vars=request.vars)
 
     elif batchtype == 'payment':
-        response.subtitle = SPAN(T('Payment '))
-        return_url = URL('add_payment_batch_type', vars=request.vars)
-        what = 'category'
+        if what == 'teacher_payments':
+            db.payment_batches.ColYear.requires = ''
+            db.payment_batches.ColMonth.requires = ''
+            db.payment_batches.payment_categories_id.requires = None
+            response.subtitle = SPAN(T('Teacher payments'))
 
+        if what == 'category':
+            response.subtitle = SPAN(T('Payment'))
+
+
+        return_url = URL('add_payment_batch_type', vars=request.vars)
 
     if session.show_location:
         db.payment_batches.school_locations_id.readable=True
