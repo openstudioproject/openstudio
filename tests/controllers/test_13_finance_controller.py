@@ -7,6 +7,7 @@
 
 from gluon.contrib.populate import populate
 
+from populate_os_tables import prepare_classes
 from populate_os_tables import populate_customers
 from populate_os_tables import populate_invoices
 from populate_os_tables import populate_invoices_items
@@ -37,6 +38,11 @@ def test_teacher_payments_generate_invoices_choose_month(client, web2py):
     """
         Is the month chooser working like it should?
     """
+    url = '/finance/teacher_payments_generate_invoices_choose_month'
+    client.get(url)
+    assert client.status  == 200
+
+    assert 'Create teacher credit invoices for month' in client.text
 
 
 def test_teacher_payments_generate_invoices(client, web2py):
