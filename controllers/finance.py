@@ -129,7 +129,7 @@ def add_payment_batch_type():
         T('Teacher payments'),
         _href=URL('batch_add', vars={'export':export,
                                      'what':'teacher_payments'})), BR(),
-        T("Create a batch containing all invoices with status 'sent' and payment method 'direct debit'."))
+        T("Create a batch containing all teacher invoices for a chosen month with status 'sent'."))
     category = LI(A(
         T('Direct debit extra'),
         _href=URL('batch_add', vars={'export':export,
@@ -217,7 +217,7 @@ def batch_add():
         locations_row = TR(TD(LABEL(form.custom.label.school_locations_id)),
                            TD(form.custom.widget.school_locations_id))
 
-    if what == 'category':
+    if what == 'category' or 'teacher_payments':
         tr_categories = TR(TD(LABEL(form.custom.label.payment_categories_id)),
                            TD(form.custom.widget.payment_categories_id))
         tr_col_month  = TR(TD(LABEL(form.custom.label.ColMonth)),
