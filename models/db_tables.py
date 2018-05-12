@@ -3183,6 +3183,10 @@ def define_invoices_groups():
             writable=False,
             default=False,
             label=T("Archived")),
+        Field('PublicGroup', 'boolean',
+              default=True,
+              label=T('Public'),
+              comment=T("Show this group in customer profiles")),
         Field('Name',
             requires=IS_NOT_EMPTY(),
             label=T('Group name')),
@@ -3200,9 +3204,10 @@ def define_invoices_groups():
         Field('PrefixYear', 'boolean',
             default=True,
             label=T('Prefix year')),
-        Field('PublicGroup', 'boolean',
-            default=True,
-            label=T('Public')),
+        Field('Terms', 'text',
+              label=T("Terms")),
+        Field('Footer', 'text',
+              label=T("Footer")),
         format='%(Name)s')
 
 
@@ -3233,8 +3238,6 @@ def define_invoices():
     months = get_months_list()
 
     group_query = (db.invoices_groups.Archived == False)
-    default_footer = get_sys_property('invoices_default_footer')
-    default_terms  = get_sys_property('invoices_default_terms')
 
     db.define_table('invoices',
         Field('invoices_groups_id', db.invoices_groups,
@@ -3340,10 +3343,8 @@ def define_invoices():
             label=T("Due"),
             widget=os_datepicker_widget),
         Field('Terms', 'text',
-            default=default_terms,
             label=T("Terms")),
         Field('Footer', 'text',
-            default=default_footer,
             label=T("Footer")),
         Field('Note', 'text',
             label=T("Note")),

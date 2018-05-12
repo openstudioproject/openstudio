@@ -275,6 +275,15 @@ def upgrade_to_20185():
     )
 
     ##
+    # Set current global default values as group terms & footer
+    ##
+    footer = get_sys_property('invoices_default_footer')
+    terms = get_sys_property('invoices_default_terms')
+
+    query = (db.invoices_groups.id > 0)
+    db(query).update(Footer=footer, Terms=terms)
+
+    ##
     # clear cache
     ##
     cache.ram.clear(regex='.*')

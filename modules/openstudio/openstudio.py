@@ -7889,12 +7889,13 @@ class Invoice:
 
         if not self.invoice.InvoiceID:
             self._set_invoice_id_duedate_and_amounts()
+            self._set_terms_and_footer()
 
 
     def _set_invoice_id_duedate_and_amounts(self):
-        '''
+        """
             Set invoice id and duedate for an invoice
-        '''
+        """
         self.invoice.InvoiceID = self._get_next_invoice_id()
 
         delta = datetime.timedelta(days = self.invoice_group.DueDays)
@@ -7904,6 +7905,19 @@ class Invoice:
 
         db = current.globalenv['db']
         db.invoices_amounts.insert(invoices_id = self.invoices_id)
+
+
+    def _set_terms_and_footer(self):
+        """
+            Set terms and footer
+        """
+        if not self.invoice.Terms:
+            self.invoice.Terms = self.invoice_group.Terms
+        if not self.invoice.Footer:
+            self.invoice.Footer = self.invoice_group.Footer
+
+
+        self.invoice.update_record()
 
 
     def _get_next_invoice_id(self):
