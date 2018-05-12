@@ -109,6 +109,7 @@ def add_collection_batch_type():
     return dict(content=content,
                 back=back)
 
+
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'payment_batches'))
 def add_payment_batch_type():
@@ -127,7 +128,7 @@ def add_payment_batch_type():
     question = T("What kind of batch would you like to create?")
     invoices = LI(A(
         T('Teacher payments'),
-        _href=URL('batch_add', vars={'export':export,
+        _href=URL('batch_add', vars={'export': export,
                                      'what':'teacher_payments'})), BR(),
         T("Create a batch containing all teacher invoices for a chosen month with status 'sent'."))
     category = LI(A(
@@ -163,26 +164,26 @@ def batch_add():
     if batchtype == 'collection':
         response.subtitle = SPAN(T('Collection'), ' - ')
         if what == 'invoices':
+            db.payment_batches.BatchTypeDescription.default = 'invoices'
             db.payment_batches.ColYear.requires = ''
             db.payment_batches.ColMonth.requires = ''
             db.payment_batches.payment_categories_id.requires = None
             response.subtitle.append(T('Invoices batch'))
 
         if what == 'category':
+            db.payment_batches.BatchTypeDescription.default = 'category'
             response.subtitle.append(T('Direct debit category batch'))
 
         return_url = URL('add_collection_batch_type', vars=request.vars)
 
     elif batchtype == 'payment':
         if what == 'teacher_payments':
-            db.payment_batches.ColYear.requires = ''
-            db.payment_batches.ColMonth.requires = ''
+            db.payment_batches.BatchTypeDescription.default = 'teacher_payments'
             db.payment_batches.payment_categories_id.requires = None
             response.subtitle = SPAN(T('Teacher payments'))
-
         if what == 'category':
             response.subtitle = SPAN(T('Payment'))
-
+            db.payment_batches.BatchTypeDescription.default = 'category'
 
         return_url = URL('add_payment_batch_type', vars=request.vars)
 
@@ -217,15 +218,18 @@ def batch_add():
         locations_row = TR(TD(LABEL(form.custom.label.school_locations_id)),
                            TD(form.custom.widget.school_locations_id))
 
-    if what == 'category' or 'teacher_payments':
+    tr_categories = ''
+    if what == 'category':
         tr_categories = TR(TD(LABEL(form.custom.label.payment_categories_id)),
                            TD(form.custom.widget.payment_categories_id))
+
+
+    if what == 'category' or 'teacher_payments':
         tr_col_month  = TR(TD(LABEL(form.custom.label.ColMonth)),
                            TD(form.custom.widget.ColMonth))
         tr_col_year = TR(TD(LABEL(form.custom.label.ColYear),
                          TD(form.custom.widget.ColYear)))
     else:
-        tr_categories = ''
         tr_col_month  = ''
         tr_col_year = ''
 
@@ -671,9 +675,9 @@ def batch_edit():
 
 
 def generate_batch_items(form):
-    '''
+    """
         Generates payment batch items
-    '''
+    """
     # set some general values
     pbID = form.vars.id
     pb = db.payment_batches(pbID)
@@ -685,12 +689,16 @@ def generate_batch_items(form):
 
 
     # Default export (No category)
-    if pb.payment_categories_id is None:
-        # Invoices
+    if pb.BatchTypeDescription == 'invoices':
         generate_batch_items_invoices(pbID,
                                       pb,
                                       currency)
+    elif pb.BatchTypeDescription == 'teacher_payments':
+        from openstudio.os_payment_batch import PaymentBatch
+        pb = PaymentBatch(pbID)
+        pb.generate_batch_items()
     else:
+        # Category
         coldate = datetime.date(pb.ColYear, int(pb.ColMonth), 1)
         firstdaythismonth = coldate
         lastdaythismonth = get_last_day_month(coldate)
@@ -705,9 +713,9 @@ def generate_batch_items(form):
 def generate_batch_items_invoices(pbID,
                                   pb,
                                   currency):
-    '''
+    """
         Generate invoices batch and write to db.payment_batches_items
-    '''
+    """
     query = (db.invoices.Status == 'sent') & \
             (db.invoices.payment_methods_id == 3) # 3 = Direct Debit
 
