@@ -121,6 +121,53 @@ def test_teacher_payments_generate_invoices(client, web2py):
     assert web2py.db(query).count() == 2
 
 
+def test_add_batch_teacher_payment(client, web2py):
+    """
+        Can we add a batch for teacher payments?
+    """
+    prepare_classes(web2py)
+    populate_auth_user_teachers_fixed_rate_default(web2py)
+    populate_auth_user_teachers_fixed_rate_class_1(web2py)
+    populate_auth_user_teachers_fixed_rate_travel(web2py)
+
+    # Create invoices
+    url = '/finance/teacher_payments_generate_invoices_choose_month'
+    client.get(url)
+    assert client.status == 200
+
+    today = datetime.date.today()
+
+    data = {
+        'month': today.month,
+        'year': today.year
+    }
+    client.post(url, data=data)
+    assert client.status == 200
+
+    url = '/finance/batch_add?export=payment&what=teacher_payments'
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        'Name': 'Batch3435435',
+        'ColMonth': today.month,
+        'ColYear': today.year,
+        'Exdate': '2099-01-01',
+    }
+    client.post(url, data=data)
+    assert client.status == 200
+
+    invoice_1 = web2py.db.invoices(1)
+    amounts_1 = web2py.db.invoices_amounts(1)
+    pb_item_1 = web2py.db.payment_batches_items(1)
+    assert invoice_1.Description == pb_item_1.Description
+    assert amounts_1.TotalPriceVAT == pb_item_1.Amount
+
+    amounts_2 = web2py.db.invoices_amounts(2)
+    pb_item_2 = web2py.db.payment_batches_items(2)
+    assert amounts_2.TotalPriceVAT == pb_item_2.Amount
+
+
 def test_batches_index_collection(client, web2py):
     """
         Check whether the list of batches shows correctly
