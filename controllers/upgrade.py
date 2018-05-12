@@ -284,6 +284,15 @@ def upgrade_to_20185():
     db(query).update(Footer=footer, Terms=terms)
 
     ##
+    # Set batch type for all current payment batches
+    ##
+    query = (db.payment_batches.payment_categories_id == None)
+    db(query).update(BatchTypeDescription = 'invoices')
+
+    query = (db.payment_batches.payment_categories_id != None)
+    db(query).update(BatchTypeDescription='category')
+    
+    ##
     # clear cache
     ##
     cache.ram.clear(regex='.*')
