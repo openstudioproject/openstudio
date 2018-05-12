@@ -1295,20 +1295,24 @@ def populate_tax_rates(web2py):
     web2py.db.commit()
 
 
-def populate_invoices_groups(web2py):
-    """
-        Populate invoices_groups
-    """
-    web2py.db.invoices_groups.insert(
-        id=100,
-        PublicGroup = True,
-        Name = 'Default',
-        NextID = 1,
-        PrefixYear = True,
-        Terms = 'Invoice Terms here',
-        Footer = 'Invoice Footer here'
-    )
-
+# def populate_invoices_groups(web2py):
+#     """
+#         Populate invoices_groups
+#     """
+#     terms = 'Invoice Terms here'
+#     footer = 'Invoice Footer here'
+#
+#     web2py.db.invoices_groups.insert(
+#         id=100,
+#         PublicGroup = True,
+#         Name = 'Default',
+#         NextID = 1,
+#         PrefixYear = True,
+#         Terms = terms,
+#         Footer = footer
+#     )
+#
+#     web2py.db.commit()
 
 def populate_invoices(web2py, teacher_fixed_price_invoices=False):
     """

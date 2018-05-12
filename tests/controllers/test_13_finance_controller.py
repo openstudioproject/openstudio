@@ -100,6 +100,10 @@ def test_teacher_payments_generate_invoices(client, web2py):
     assert item_2.ProductName == 'Travel allowance'
     assert item_2.Price == tpfrt.TravelAllowance * -1
 
+    # Check invoice terms & footer
+    ig_1 = web2py.db.invoices_groups(100)
+    assert ig_1.Terms == invoice.Terms
+    assert ig_1.Footer == invoice.Footer
 
     # Teacher 3 should have an item with the default rate
     query = (web2py.db.invoices_customers.auth_customer_id == 3)

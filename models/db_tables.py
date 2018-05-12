@@ -4570,9 +4570,16 @@ def set_permissions_for_admin_group():
 
 
 def setup_create_invoice_group():
-    '''
+    """
         Create default invoice group
-    '''
+    """
+    terms = None
+    footer = None
+    if web2pytest.is_running_under_test(request, request.application):
+        terms = 'Terms go there'
+        footer = 'Footer goes here'
+
+
     db.invoices_groups.insert(
         id=100,
         Archived=False,
@@ -4581,6 +4588,8 @@ def setup_create_invoice_group():
         DueDays=30,
         InvoicePrefix='INV',
         PrefixYear=True,
+        Terms=terms,
+        Footer=footer
     )
 
 def setup_create_invoice_group_defaults():
