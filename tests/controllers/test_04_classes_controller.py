@@ -699,6 +699,11 @@ def test_class_book_dropin(client, web2py):
     query = (web2py.db.invoices.id > 0)
     assert web2py.db(query).count() == 1
 
+    invoice = web2py.db.invoices(1)
+    ig_100 = web2py.db.invoices_groups(100)
+    assert ig_100.Terms == invoice.Terms
+    assert ig_100.Footer == invoice.Footer
+
 
 def test_class_book_trial(client, web2py):
     '''
@@ -726,6 +731,11 @@ def test_class_book_trial(client, web2py):
     # Invoice created?
     query = (web2py.db.invoices.id > 0)
     assert web2py.db(query).count() == 1
+
+    invoice = web2py.db.invoices(1)
+    ig_100 = web2py.db.invoices_groups(100)
+    assert ig_100.Terms == invoice.Terms
+    assert ig_100.Footer == invoice.Footer
 
 
 def test_class_book_complementary(client, web2py):

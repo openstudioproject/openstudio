@@ -41,9 +41,9 @@ def test_edit(client, web2py):
 
 
 def test_deliver(client, web2py):
-    '''
+    """
         Are orders delivered and unpaid invoices created correctly?
-    '''
+    """
     url = '/user/login'
     client.get(url)
     assert client.status == 200
@@ -55,7 +55,6 @@ def test_deliver(client, web2py):
     url = '/orders/deliver?coID=2'
     client.get(url)
     assert client.status == 200
-
     assert 'Delivered order' in client.text
 
     ##
@@ -69,7 +68,7 @@ def test_deliver(client, web2py):
     ##
     assert web2py.db(web2py.db.invoices).count() == 1
 
-    print web2py.db().select(web2py.db.customers_orders.ALL)
-    print web2py.db().select(web2py.db.customers_orders_items.ALL)
-    print web2py.db().select(web2py.db.invoices.ALL)
-    print web2py.db().select(web2py.db.invoices_items.ALL)
+    # print web2py.db().select(web2py.db.customers_orders.ALL)
+    # print web2py.db().select(web2py.db.customers_orders_items.ALL)
+    # print web2py.db().select(web2py.db.invoices.ALL)
+    # print web2py.db().select(web2py.db.invoices_items.ALL)

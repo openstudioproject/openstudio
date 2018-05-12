@@ -2007,8 +2007,8 @@ def classes_reservation_add():
 
     session.customers_classes_reservation_add_vars['date'] = default_date
 
-
-    result = classes_add_get_form_date(cuID, default_date)
+    ch = CustomersHelper()
+    result = ch.classes_add_get_form_date(cuID, default_date)
     form = result['form']
     form_date = result['form_styled']
 
@@ -2016,7 +2016,7 @@ def classes_reservation_add():
     db.classes.id.readable = False
 
     # list of classes
-    grid = classes_add_get_list(default_date, 'reservations')
+    grid = ch.classes_add_get_list(default_date, 'reservations')
 
     back = os_gui.get_button('back', URL('classes_reservations',
                                          vars={'cuID':cuID}),
@@ -2048,13 +2048,14 @@ def classes_attendance_add():
 
     session.customers_classes_attendance_add_vars['date'] = date
 
-    result = classes_add_get_form_date(cuID, date)
+    ch = CustomersHelper()
+    result = ch.classes_add_get_form_date(cuID, date)
     form = result['form']
     form_date = result['form_styled']
 
     db.classes.id.readable = False
     # list of classes
-    grid = classes_add_get_list(date, 'attendance', cuID)
+    grid = ch.classes_add_get_list(date, 'attendance', cuID)
 
     back = os_gui.get_button('back', URL('classes_attendance',
                                          vars={'cuID':cuID}),

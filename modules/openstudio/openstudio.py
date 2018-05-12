@@ -1928,6 +1928,10 @@ class CustomersHelper:
         """
             Returns add button for a customer to add a reservation
         """
+        from os_gui import OsGui
+        os_gui = OsGui()
+
+        session = current.globalenv['session']
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
 
         date = session.customers_classes_reservation_add_vars['date']
@@ -1963,9 +1967,9 @@ class CustomersHelper:
     def get_add_modal(self, button_text  = 'Add',
                             button_class = 'btn-sm',
                             redirect_vars= {}):
-        '''
+        """
             Returns button and modal for an add button
-        '''
+        """
         os_gui = current.globalenv['os_gui']
 
         add = LOAD('customers', 'add.load', ajax=True, vars=redirect_vars)
