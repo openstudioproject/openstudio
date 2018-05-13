@@ -196,7 +196,6 @@ def batch_add():
     db.payment_batches.Status.readable=False
     db.payment_batches.Status.writable=False
 
-
     crud.messages.submit_button = T("Save")
     crud.messages.record_created = T("Added batch")
     crud.settings.create_onaccept = [ generate_batch_items ]
@@ -282,7 +281,7 @@ def batch_content():
     ## batch info begin
     # info
     if pb.payment_categories_id is None:
-        category = T("Invoices")
+        category = T("")
         description = pb.Description
     else:
         category = db.payment_categories(pb.payment_categories_id).Name
@@ -302,10 +301,12 @@ def batch_content():
                           TD(pb.Name)),
                        TR(TD(LABEL(T("Batch type"))),
                           TD(batchtype)),
+                       TR(TD(LABEL(T("Batch type description"))),
+                          TD(represent_payment_batchtypes(pb.BatchTypeDescription, pb))),
                        TR(TD(LABEL(T("Category"))),
                           TD(category)),
                        TR(TD(LABEL(T('Default description'))),
-                          TD(description)),
+                          TD(description or '')),
                        TR(TD(LABEL(T('Execution date'))),
                           TD(pb.Exdate.strftime(DATE_FORMAT))),
                        TR(TD(LABEL(T('Include 0'))),

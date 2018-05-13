@@ -23,6 +23,11 @@ def test_customers_add(client, web2py):
     """
         Created a customer?
     """
+    # Set session variable for customers back to customers
+    client.get('/customers/index')
+    assert client.status == 200
+
+
     client.get('/customers/add')
     assert 'name="first_name"' in client.text
     assert 'name="last_name"' in client.text
@@ -32,7 +37,11 @@ def test_customers_add(client, web2py):
                 )
     client.post('/customers/add', data=data)
     assert client.status == 200
+
+    print client.text
+
     assert 'Profile' in client.text # verify redirection to edit page
+
 
     client.get('/customers')
     assert client.status == 200

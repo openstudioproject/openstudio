@@ -2409,14 +2409,14 @@ def employee_delete():
             row.display_name, ' ',
             T('from employees list'))
 
-    redirect(URL('teachers'))
+    redirect(URL('employees'))
 
 
 def account_get_link_group(row):
-    '''
+    """
         This function returns the group a user belongs to and shows it as a link
         to a page which allows users to change it.
-    '''
+    """
     no_group = A(os_gui.get_label('default', T('No group')),
                  _href=URL('account_group_add', args=[row.id]))
 

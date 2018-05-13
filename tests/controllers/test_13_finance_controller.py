@@ -164,6 +164,12 @@ def test_add_batch_teacher_payment(client, web2py):
     invoice_1 = web2py.db.invoices(1)
     amounts_1 = web2py.db.invoices_amounts(1)
     pb_item_1 = web2py.db.payment_batches_items(1)
+
+    print invoice_1
+    print pb_item_1
+
+    print web2py.db().select(web2py.db.payment_batches_items.ALL)
+
     assert invoice_1.Description == pb_item_1.Description
     assert amounts_1.TotalPriceVAT == pb_item_1.Amount
 

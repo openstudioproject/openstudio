@@ -544,6 +544,7 @@ dict_caching = (cache.ram, 20)
 if web2pytest.is_running_under_test(request, request.application):
     dict_caching = None
 
+
 def create_languages_dict():
     rows = db().select(db.school_languages.id, db.school_languages.Name, cache=dict_caching)
     d = dict()
@@ -562,6 +563,8 @@ def create_languages_dict():
 #         d[row.id] = row.first_name + " " + row.last_name
 #     d[None] = ""
 #     return d
+
+
 def create_discovery_dict():
     rows = db().select(db.school_discovery.id, db.school_discovery.Name, cache=dict_caching)
     d = dict()
@@ -569,6 +572,8 @@ def create_discovery_dict():
         d[row.id] = row.Name
     d[None] = ""
     return d
+
+
 def create_mstypes_dict():
     rows = db().select(db.school_subscriptions.id, db.school_subscriptions.Name, cache=dict_caching)
     d = dict()
@@ -576,6 +581,8 @@ def create_mstypes_dict():
         d[row.id] = row.Name
     d[None] = ""
     return d
+
+
 def create_school_levels_dict():
     rows = db().select(db.school_levels.id, db.school_levels.Name, cache=dict_caching)
     d = dict()
@@ -583,14 +590,18 @@ def create_school_levels_dict():
         d[row.id] = row.Name
     d[None] = XML('&nbsp;')
     return d
+
+
 def create_payment_categories_dict():
     rows = db().select(db.payment_categories.id,
                        db.payment_categories.Name, cache=dict_caching)
     d = dict()
     for row in rows:
         d[row.id] = row.Name
-    d[None] = T("Invoices")
+    d[None] = T("")
     return d
+
+
 def create_payment_methods_dict():
     rows = db().select(db.payment_methods.id, db.payment_methods.Name, cache=dict_caching)
     d = dict()
@@ -599,6 +610,8 @@ def create_payment_methods_dict():
     d[None] = ""
     d[0] = ""
     return d
+
+
 # def create_classes_dict():
 #     rows = db().select(db.classes.id,
 #                        db.classes.school_locations_id,
@@ -2980,13 +2993,11 @@ def define_payment_batches():
             label=T("Batch Name")),
         Field('BatchTypeDescription',
               # readable=False,
-              # writable=False,
-              requires=IS_IN_SET(payment_batchtypes),
+              writable=False,
+              requires=IS_EMPTY_OR(IS_IN_SET(payment_batchtypes)),
               represent=represent_payment_batchtypes,
               label=T('Batch Type')),
         Field('payment_categories_id', db.payment_categories,
-            readable=False,
-            writable=False,
             requires=pcID_requires,
             represent=lambda value, row: paycat_dict.get(value, ""),
             label=T("Category")),

@@ -16,27 +16,6 @@ from populate_os_tables import populate_school_classcards_groups
 from gluon.contrib.populate import populate
 
 
-
-def test_teacher_delete(client, web2py):
-    """
-        Can we remove the teacher status from a customer?
-    """
-    populate_customers(web2py)
-
-    row = web2py.db.auth_user(1001)
-    row.teacher = True
-    row.update_record()
-
-    web2py.db.commit()
-
-    url = '/school_properties/teacher_delete?uID=1001'
-    client.get(url)
-    assert client.status == 200
-
-    row = web2py.db.auth_user(1001)
-    assert row.teacher == False
-
-
 def test_employee_delete(client, web2py):
     """
         Can we remove the employee status from a customer?
@@ -49,12 +28,12 @@ def test_employee_delete(client, web2py):
 
     web2py.db.commit()
 
-    url = '/school_properties/teacher_delete?uID=1001'
+    url = '/school_properties/employee_delete?uID=1001'
     client.get(url)
     assert client.status == 200
 
     row = web2py.db.auth_user(1001)
-    assert row.teacher == False
+    assert row.employee == False
 
 
 def test_school_subscriptions_index_and_current_price(client, web2py):

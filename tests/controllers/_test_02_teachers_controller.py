@@ -11,6 +11,7 @@ from populate_os_tables import populate_auth_user_teachers_fixed_rate_default
 from populate_os_tables import populate_auth_user_teachers_fixed_rate_class_1
 from populate_os_tables import populate_auth_user_teachers_fixed_rate_travel
 from populate_os_tables import prepare_classes
+from populate_os_tables import populate_customers
 
 
 def next_weekday(d, weekday):
@@ -251,4 +252,24 @@ def test_payment_fixed_rate_travel_delete(client, web2py):
 
     query = (web2py.db.teachers_payment_fixed_rate_travel.id > 0)
     assert web2py.db(query).count() == 0
+
+
+def test_teacher_delete(client, web2py):
+    """
+        Can we remove the teacher status from a customer?
+    """
+    populate_customers(web2py)
+
+    row = web2py.db.auth_user(1001)
+    row.teacher = True
+    row.update_record()
+
+    web2py.db.commit()
+
+    url = '/teachers/delete?uID=1001'
+    client.get(url)
+    assert client.status == 200
+
+    row = web2py.db.auth_user(1001)
+    assert row.teacher == False
 
