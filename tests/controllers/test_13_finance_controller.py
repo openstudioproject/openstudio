@@ -307,7 +307,6 @@ def test_add_batch_invoices_with_zero_lines(client, web2py):
     assert web2py.db(web2py.db.payment_batches_items).count() == 6
 
 
-
 def test_add_batch_invoices_location(client, web2py):
     """
         Check whether we can add an invoice based batch and items are generated
