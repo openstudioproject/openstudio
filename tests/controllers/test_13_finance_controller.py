@@ -165,11 +165,6 @@ def test_add_batch_teacher_payment(client, web2py):
     amounts_1 = web2py.db.invoices_amounts(1)
     pb_item_1 = web2py.db.payment_batches_items(1)
 
-    print invoice_1
-    print pb_item_1
-
-    print web2py.db().select(web2py.db.payment_batches_items.ALL)
-
     assert invoice_1.Description == pb_item_1.Description
     assert amounts_1.TotalPriceVAT == pb_item_1.Amount
 
@@ -368,15 +363,17 @@ def test_add_batch_default_location(client, web2py):
     # check amount total
     left = [ web2py.db.invoices.on(web2py.db.invoices.id ==
                 web2py.db.invoices_amounts.invoices_id),
+             web2py.db.invoices_customers.on(
+                 web2py.db.invoices_customers.invoices_id ==
+                 web2py.db.invoices.id
+             ),
              web2py.db.auth_user.on(web2py.db.auth_user.id ==
-                web2py.db.invoices.auth_customer_id)]
+                web2py.db.invoices_customers.auth_customer_id)]
 
     sum = web2py.db.invoices_amounts.TotalPriceVAT.sum()
     query = (web2py.db.auth_user.school_locations_id == school_locations_id)
     amount = web2py.db(query).select(sum, left=left).first()[sum]
     assert unicode(amount) in client.text.decode('utf-8')
-
-
 
     # check batch item text (first 5 customers get school_locations_id 1)
     payinfo = web2py.db.customers_payment_info(1) # check that the first customer is in the batch
