@@ -69,7 +69,6 @@ def test_customers_edit(client, web2py):
     assert customer.first_name == data['first_name']
 
 
-
 def test_customers_edit_teacher(client, web2py):
     """'
         Is the edit teacher page accepting submitted data?

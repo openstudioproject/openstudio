@@ -14,9 +14,9 @@ import cStringIO
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('read', 'payment_batches'))
 def batches_index():
-    '''
+    """
         Lists payment batches
-    '''
+    """
     response.title = T("Batches")
     response.view = 'general/only_content.html'
 
