@@ -52,6 +52,13 @@ def index():
         else:
             session.flash = T('Already up to date')
 
+        if version < 2018.5:
+            print version
+            upgrade_to_20185()
+            session.flash = T("Upgraded db to 2018.5")
+        else:
+            session.flash = T('Already up to date')
+
         # always renew permissions for admin group after update
         set_permissions_for_admin_group()
 
