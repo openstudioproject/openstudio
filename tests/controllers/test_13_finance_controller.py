@@ -195,7 +195,7 @@ def test_batches_index_payment(client, web2py):
     assert 'Payment' in client.text
 
 
-def test_add_batch_default_without_zero_lines(client, web2py):
+def test_add_batch_invoices_without_zero_lines(client, web2py):
     """
         Check whether we can add a default batch and items are generated
         propery
@@ -248,7 +248,7 @@ def test_add_batch_default_without_zero_lines(client, web2py):
     assert web2py.db(web2py.db.payment_batches_items).count() == 6
 
 
-def test_add_batch_default_with_zero_lines(client, web2py):
+def test_add_batch_invoices_with_zero_lines(client, web2py):
     """
         Check whether we can add a default batch and items are generated
         propery and check whether lines with amount 0 are included
@@ -308,7 +308,7 @@ def test_add_batch_default_with_zero_lines(client, web2py):
 
 
 
-def test_add_batch_default_location(client, web2py):
+def test_add_batch_invoices_location(client, web2py):
     """
         Check whether we can add an invoice based batch and items are generated
         propery for a selected location
