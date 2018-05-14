@@ -742,9 +742,9 @@ def test_class_book_subscription_no_credits(client, web2py):
 
 
 def test_class_book_subscription_no_shopbook_permission(client, web2py):
-    '''
+    """
         We should be redirected back to the booking options page
-    '''
+    """
     url = '/user/login'
     client.get(url)
     assert client.status == 200
@@ -771,7 +771,7 @@ def test_class_book_subscription_no_shopbook_permission(client, web2py):
     assert client.status == 200
 
     # We should be redirected back to booking options page
-    assert "Book this class" in client.text
+    assert "Booking options for this class" in client.text
 
 
 def test_class_book_trial(client, web2py):
