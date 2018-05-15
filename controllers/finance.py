@@ -578,9 +578,8 @@ def batch_content_set_status():
         # add check for invoices batch
         if ( status == 'sent_to_bank' and
              not current_status == 'sent_to_bank' and
-             pb.BatchType == 'collection' and
-             not pb.payment_categories_id
-            ):
+            (pb.BatchTypeDescription == 'invoices' or
+             pb.BatchTypeDescription == 'teacher_payments')):
             # add payments
             content_add_payments(pb)
 
@@ -594,9 +593,9 @@ def batch_content_set_status():
 
 
 def content_add_payments(pb):
-    '''
+    """
         Add payments for invoices in payment batch
-    '''
+    """
     left = [ db.invoices_payments.on(db.payment_batches_items.invoices_id ==
                                      db.invoices_payments.id) ]
 
@@ -607,6 +606,12 @@ def content_add_payments(pb):
                             db.invoices_payments.ALL,
                             left=left)
 
+    payment_methods_id = 3
+    note = T("Direct debit batch: ")
+    if pb.BatchTypeDescription == 'teacher_payments':
+        payment_methods_id = 2
+        note = T("Payment batch: ")
+
     for row in rows:
         iID = row.payment_batches_items.invoices_id
         amount = row.payment_batches_items.Amount
@@ -615,8 +620,8 @@ def content_add_payments(pb):
             invoices_id        = iID,
             Amount             = amount,
             PaymentDate        = pb.Exdate,
-            payment_methods_id = 3,
-            Note               = T("Direct debit batch: ") + pb.Name
+            payment_methods_id = payment_methods_id,
+            Note               = note + pb.Name
         )
 
         invoice = Invoice(iID)
