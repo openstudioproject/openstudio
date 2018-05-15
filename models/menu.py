@@ -295,7 +295,7 @@ def get_backend_menu():
             if user_helpers.check_read_permission('teachers', user_id):
                 submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Teachers')), ),
                                 False,
-                                URL('school_properties', 'teachers', extension='')))
+                                URL('teachers', 'index', extension='')))
 
             if user_helpers.check_read_permission('employees', user_id):
                 submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Employees')), ),
@@ -439,6 +439,9 @@ def get_backend_menu():
                 submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Invoices'))),
                                 False,
                                 URL('finance', 'invoices', extension='')))
+                submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Teacher payments'))),
+                                False,
+                                URL('finance', 'teacher_payments', extension='')))
                 #submenu.append(( SPAN(os_gui.get_fa_icon('fa-file-o'), ' ', T('Invoices')), False, URL('finance', 'invoices') ))
 
             if user_helpers.check_read_permission('payment_batches', user_id):

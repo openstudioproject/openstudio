@@ -1798,12 +1798,189 @@ class CustomersHelper:
         This class collects functions for customers that are useful in
         multiple controllers
     '''
+    def classes_add_get_form_date(self, cuID, date):
+        """
+            Get date form
+        """
+        T = current.T
+        DATE_FORMAT =  current.globalenv['DATE_FORMAT']
+        os_datepicker_widget = current.globalenv['os_datepicker_widget']
+
+        form = SQLFORM.factory(
+            Field('date', 'date',
+                  requires=IS_DATE_IN_RANGE(format=DATE_FORMAT,
+                                            minimum=datetime.date(1900, 1, 1),
+                                            maximum=datetime.date(2999, 1, 1)),
+                  default=date,
+                  widget=os_datepicker_widget),
+            separator='',
+            submit_button=T('Go'))
+
+        input_date = form.element('#no_table_date')
+        # input_date.attributes['_onchange'] = "this.form.submit();"
+
+        submit = form.element('input[type=submit]')
+
+        delta = datetime.timedelta(days=1)
+        date_prev = (date - delta).strftime(DATE_FORMAT)
+        date_next = (date + delta).strftime(DATE_FORMAT)
+
+        url_prev = URL(vars={'cuID': cuID,
+                             'teID': cuID,
+                             'date': date_prev})
+        url_next = URL(vars={'cuID': cuID,
+                             'teID': cuID,
+                             'date': date_next})
+
+        previous = A(I(_class='fa fa-angle-left'),
+                     _href=url_prev,
+                     _class='btn btn-default')
+        nxt = A(I(_class='fa fa-angle-right'),
+                _href=url_next,
+                _class='btn btn-default')
+
+        chooser = DIV(previous, nxt, _class='btn-group pull-right')
+
+        form_styled = DIV(form.custom.begin,
+                          DIV(B('Show classes on '),
+                              form.custom.widget.date,
+                              _class='col-md-3'),
+                          DIV(BR(),
+                              form.custom.submit,
+                              chooser,
+                              _class='col-md-9 no-padding-left'),
+                          form.custom.end,
+                          _class='row')
+
+        return {'form': form,
+                'form_styled': form_styled}
+
+
+    def classes_add_get_list(self, date, list_type, cuID=None):
+        """
+            Get list of classes for a date
+            list_type is expected to be in
+            [ 'attendance', 'reservations', 'tp_fixed_rate' ]
+        """
+        from os_gui import OsGui
+
+        T = current.T
+        db = current.globalenv['db']
+        os_gui = OsGui()
+        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        session = current.session
+
+        if list_type == 'attendance':
+            session.classes_attendance_signin_back = 'cu_classes_attendance'
+            ah = AttendanceHelper()
+            # links = [ lambda row: ah.get_signin_buttons(row.classes.id, date, cuID) ]
+
+        if session.classes_schedule_sort == 'location':
+            orderby = db.school_locations.Name | db.classes.Starttime
+        elif session.classes_schedule_sort == 'starttime':
+            orderby = db.classes.Starttime | db.school_locations.Name
+        else:
+            orderby = db.school_locations.Name | db.classes.Starttime
+
+        filter_id_teacher = None
+        if list_type == 'tp_fixed_rate':
+            filter_id_teacher = cuID
+        cs = ClassSchedule(date,
+                           sorting=orderby,
+                           filter_id_teacher=filter_id_teacher)
+        classes = cs.get_day_list()
+
+        header = THEAD(TR(TH(T('Time')),
+                          TH(T('Location')),
+                          TH(T('Class')),
+                          TH(),
+                          TH()  # buttons
+                          ))
+        table = TABLE(header, _class='table table-striped table-hover')
+        for c in classes:
+            status = self._classes_add_get_list_get_cancelled_holiday(c)
+            buttons = ''
+
+            if list_type == 'reservations':
+                buttons = self._classes_reservation_add_get_button(c['ClassesID'])
+            elif list_type == 'attendance' and status == '':
+                buttons = os_gui.get_button('noicon',
+                                            URL('customers', 'classes_attendance_add_booking_options',
+                                                vars={'cuID': cuID,
+                                                      'clsID': c['ClassesID'],
+                                                      'date': date.strftime(DATE_FORMAT)}),
+                                            title='Check in',
+                                            _class='pull-right')
+            elif list_type == 'tp_fixed_rate':
+                buttons = os_gui.get_button(
+                    'noicon',
+                    URL('teachers',
+                        'payment_fixed_rate_class',
+                        vars={'teID': cuID,
+                              'clsID': c['ClassesID']}),
+                    title=T('Set rate'),
+                    _class='pull-right'
+                )
+
+            tr = TR(
+                TD(c['Starttime'], ' - ', c['Endtime']),
+                TD(c['Location']),
+                TD(c['ClassType']),
+                TD(status),
+                TD(buttons)
+            )
+
+            table.append(tr)
+
+        return table
+
+
+    def _classes_reservation_add_get_button(self, clsID):
+        """
+            Returns add button for a customer to add a reservation
+        """
+        from os_gui import OsGui
+        os_gui = OsGui()
+
+        session = current.globalenv['session']
+        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+
+        date = session.customers_classes_reservation_add_vars['date']
+        date_formatted = date.strftime(DATE_FORMAT)
+        cuID = session.customers_classes_reservation_add_vars['cuID']
+        customer = Customer(cuID)
+
+        add = os_gui.get_button('add', URL('classes', 'reservation_add',
+                                           vars={'cuID': cuID, 'clsID': clsID, 'date': date_formatted}),
+                                btn_size='btn-sm',
+                                _class="pull-right")
+
+        return add
+
+
+    def _classes_add_get_list_get_cancelled_holiday(self, c):
+        """
+            Returns class or holiday description when a class is cancelled
+            :param: class from ClassSchedule.get_day_list()
+        """
+        T = current.T
+        status = ''
+
+        if c['Cancelled']:
+            status = SPAN(T('Cancelled'), ' ', SPAN(c['CancelledDescription'], _class='grey'))
+
+        if c['Holiday']:
+            status = SPAN(T('Holiday'), ' ', SPAN(c['HolidayDescription'], _class='grey'))
+
+        return status
+
+
     def get_add_modal(self, button_text  = 'Add',
                             button_class = 'btn-sm',
                             redirect_vars= {}):
-        '''
+        """
             Returns button and modal for an add button
-        '''
+        """
         os_gui = current.globalenv['os_gui']
 
         add = LOAD('customers', 'add.load', ajax=True, vars=redirect_vars)
@@ -1873,6 +2050,9 @@ class CustomersHelper:
 
 
         return data
+
+
+
 
 
 class CustomersSubscriptionsCreditsHelper:
@@ -2746,9 +2926,9 @@ class CustomerSubscription:
 
     
 class Class:
-    '''
+    """
         Class that gathers useful functions for a class in OpenStudio
-    '''
+    """
     def __init__(self, clsID, date):
         self.clsID = clsID
         self.date = date
@@ -2758,9 +2938,9 @@ class Class:
 
 
     def get_name(self, pretty_date=False):
-        '''
+        """
             Returns class name formatted for general use
-        '''
+        """
         db = current.globalenv['db']
         T = current.globalenv['T']
         TIME_FORMAT = current.globalenv['TIME_FORMAT']
@@ -5976,9 +6156,9 @@ class ClassSchedule:
 
 
     def get_day_rows(self):
-        '''
+        """
             Get day rows with caching 
-        '''
+        """
         #web2pytest = current.globalenv['web2pytest']
         #request = current.globalenv['request']
 
@@ -7770,12 +7950,13 @@ class Invoice:
 
         if not self.invoice.InvoiceID:
             self._set_invoice_id_duedate_and_amounts()
+            self._set_terms_and_footer()
 
 
     def _set_invoice_id_duedate_and_amounts(self):
-        '''
+        """
             Set invoice id and duedate for an invoice
-        '''
+        """
         self.invoice.InvoiceID = self._get_next_invoice_id()
 
         delta = datetime.timedelta(days = self.invoice_group.DueDays)
@@ -7787,10 +7968,23 @@ class Invoice:
         db.invoices_amounts.insert(invoices_id = self.invoices_id)
 
 
+    def _set_terms_and_footer(self):
+        """
+            Set terms and footer
+        """
+        if not self.invoice.Terms:
+            self.invoice.Terms = self.invoice_group.Terms
+        if not self.invoice.Footer:
+            self.invoice.Footer = self.invoice_group.Footer
+
+
+        self.invoice.update_record()
+
+
     def _get_next_invoice_id(self):
-        '''
+        """
             Returns the number for an invoice
-        '''
+        """
         invoice_id = self.invoice_group.InvoicePrefix
 
         if self.invoice_group.PrefixYear:
@@ -7939,9 +8133,9 @@ class Invoice:
 
 
     def get_balance(self, formatted=False):
-        '''
+        """
             Returns the balance for an invoice
-        '''
+        """
         db = current.globalenv['db']
         paid = self.get_amount_paid()
         total = self.get_amounts()['TotalPriceVAT']
@@ -7959,10 +8153,10 @@ class Invoice:
 
 
     def get_item_next_sort_nr(self):
-        '''
+        """
             Returns the next item number for an invoice
             use to set sorting when adding an item
-        '''
+        """
         db = current.globalenv['db']
         query = (db.invoices_items.invoices_id == self.invoices_id)
 
@@ -8206,6 +8400,107 @@ class Invoice:
         self.set_amounts()
 
         return iiID
+
+
+    def item_add_teacher_class_credit_payment(self,
+                                              clsID,
+                                              date,
+                                              payment_type='fixed_rate'):
+        """
+        :param clsID: db.classes.id
+        :param date: datetime.date class date
+        :return:
+        """
+        from os_teacher import Teacher
+
+        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        TIME_FORMAT = current.globalenv['TIME_FORMAT']
+        db = current.globalenv['db']
+        T = current.globalenv['T']
+
+        cls = Class(clsID, date)
+        teID = self.get_linked_customer_id()
+        teacher = Teacher(teID)
+
+        default_rates = teacher.get_payment_fixed_rate_default()
+        class_rates = teacher.get_payment_fixed_rate_classes_dict()
+
+        if not default_rates and not class_rates:
+            return None  # No rates set, not enough data to create invoice item
+
+        default_rate = default_rates.first()
+        price = default_rate.ClassRate
+        tax_rates_id = default_rate.tax_rates_id
+
+        # Set price and tax rate
+        try:
+            class_prices = class_rates.get(int(clsID), False)
+            if class_prices:
+                price = class_prices.ClassRate
+                tax_rates_id = class_prices.tax_rates_id
+        except (AttributeError, KeyError):
+            pass
+
+
+        # add item to invoice
+        next_sort_nr = self.get_item_next_sort_nr()
+
+        iiID = db.invoices_items.insert(
+            invoices_id=self.invoices_id,
+            ProductName=T('Class'),
+            Description=cls.get_name(),
+            Quantity=1,
+            Price=price * -1,
+            Sorting=next_sort_nr,
+            tax_rates_id=tax_rates_id,
+        )
+
+        self.set_amounts()
+
+        return iiID
+
+
+    def item_add_teacher_class_credit_travel_allowance(self,
+                                                clsID,
+                                                date,
+                                                payment_type='fixed_rate'):
+        """
+        :param clsID: db.classes.id
+        :param date: datetime.date class date
+        :return:
+        """
+        from os_teacher import Teacher
+
+        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        TIME_FORMAT = current.globalenv['TIME_FORMAT']
+        db = current.globalenv['db']
+        T = current.globalenv['T']
+
+        cls = Class(clsID, date)
+        teID = self.get_linked_customer_id()
+        teacher = Teacher(teID)
+
+        travel_allowance = teacher.get_payment_fixed_rate_travel_allowance_location(cls.cls.school_locations_id)
+        if travel_allowance:
+            price = travel_allowance.TravelAllowance
+            tax_rates_id = travel_allowance.tax_rates_id
+
+            # add item to invoice
+            next_sort_nr = self.get_item_next_sort_nr()
+
+            iiID = db.invoices_items.insert(
+                invoices_id=self.invoices_id,
+                ProductName=T('Travel allowance'),
+                Description=cls.get_name(),
+                Quantity=1,
+                Price=price * -1,
+                Sorting=next_sort_nr,
+                tax_rates_id=tax_rates_id,
+            )
+
+            self.set_amounts()
+
+            return iiID
 
 
     def payment_add(self,
@@ -8687,66 +8982,21 @@ class InvoicesHelper:
         return payments
 
 
-    # def payment_add_get_form(self, iID):
-    #     '''
-    #         Add payments for an invoice
-    #     '''
-    #     db = current.globalenv['db']
-    #     T = current.globalenv['T']
-    #     crud = current.globalenv['crud']
-    #
-    #     invoice = db.invoices(iID)
-    #
-    #     ## default values
-    #     db.invoices_payments.invoices_id.default = iID
-    #     # amount
-    #     amounts = db.invoices_amounts(invoices_id=iID)
-    #     try:
-    #         db.invoices_payments.Amount.default = amounts.TotalPriceVAT
-    #     except AttributeError:
-    #         pass
-    #     # payment method
-    #     try:
-    #         payment_info = db.customers_payment_info(
-    #             auth_customer_id=invoice.auth_customer_id)
-    #         default_method = payment_info.payment_methods_id
-    #         db.invoices_payments.payment_methods_id.default = default_method
-    #     except AttributeError:
-    #         pass
-    #
-    #     # # if session.invoices_payment_add_back == 'invoices_invoice_payments':
-    #     # #     # Don't redirect client side here, stay in the modal on the invoice edit page
-    #     # #     create_next = URL('invoices', 'invoice_payments', vars={'iID':iID})
-    #     # # else:
-    #     # create_next = '/invoices/payment_add_redirect_oncreate?ipID=[id]'
-    #
-    #     crud.messages.submit_button = T("Save")
-    #     crud.messages.record_created = T("Saved")
-    #     #crud.settings.create_next = create_next
-    #     #crud.settings.create_onaccept = [payment_add_update_status]
-    #     form = crud.create(db.invoices_payments)
-    #
-    #     form['_action'] = URL('invoices', 'payment_add', vars={'iID':iID})
-    #     form['_name'] = "fpa_" + unicode(iID)
-    #
-    #     form_id = 'form_payment_add_' + unicode(iID)
-    #     form_element = form.element('form')
-    #     form['_id'] = form_id
-    #
-    #     elements = form.elements('input, select, textarea')
-    #     for element in elements:
-    #         element['_form'] = form_id
-    #
-    #     return form
-
-
-    def list_invoices(self, cuID=None, csID=None, search_enabled=False, group_filter_enabled=False):
+    def list_invoices(self,
+                      cuID=None,
+                      csID=None,
+                      search_enabled=False,
+                      group_filter_enabled=False,
+                      only_teacher_credit_invoices=False):
         db = current.globalenv['db']
         auth = current.globalenv['auth']
         session = current.globalenv['session']
         grid_ui = current.globalenv['grid_ui']
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
         from general_helpers import datestr_to_python
+        from openstudio.os_gui import OsGui
+        os_gui = OsGui()
+
         T = current.globalenv['T']
 
         session.invoices_invoice_payment_add_back = None
@@ -8760,6 +9010,7 @@ class InvoicesHelper:
 
         links = [dict(header=T("Balance"),
                       body=self._list_invoices_get_balance),
+                 lambda row: os_gui.get_label('primary', T('Teacher inv')) if row.invoices.TeacherPayment else '',
                  self._list_invoices_get_buttons]
         left = [db.invoices_amounts.on(db.invoices_amounts.invoices_id ==
                                        db.invoices.id),
@@ -8775,7 +9026,8 @@ class InvoicesHelper:
                   db.invoices.Description,
                   db.invoices.DateCreated,
                   db.invoices.DateDue,
-                  db.invoices_amounts.TotalPriceVAT]
+                  db.invoices_amounts.TotalPriceVAT,
+                  db.invoices.TeacherPayment]
 
         query = (db.invoices.id > 0)
         # Status filter
@@ -8784,6 +9036,8 @@ class InvoicesHelper:
             query = self._list_invoices_get_search_query(query)
         if group_filter_enabled:
             query = self._list_invoices_get_groups_query(query)
+        if only_teacher_credit_invoices:
+            query &= (db.invoices.TeacherPayment == True)
 
         # General list, list for customer or list for subscription
         if not cuID and not csID:
@@ -8945,23 +9199,6 @@ class InvoicesHelper:
 
         return form
 
-        ##################### test code begin
-
-
-        # @auth.requires(auth.has_membership(group_id='Admins') or \
-        #                auth.has_permission('read', 'invoices'))
-        # def _list_invoices_clear_search(self):
-        #     '''
-        #         Clears search for invoices page
-        #     '''
-        #     session.invoices_list_invoices_search = None
-        #     session.invoices_list_invoices_date_created_from = None
-        #     session.invoices_list_invoices_date_created_until = None
-        #     session.invoices_list_invoices_date_due_from = None
-        #     session.invoices_list_invoices_date_due_until = None
-        #
-        #     redirect(URL('list_invoices', vars=request.vars))
-
     def _list_invoices_get_status_query(self, query):
         '''
             Returns status query
@@ -8982,6 +9219,7 @@ class InvoicesHelper:
             query &= (db.invoices.DateDue < datetime.date.today())
 
         return query
+
 
     def _list_invoices_get_search_query(self, query):
         '''
@@ -9008,12 +9246,14 @@ class InvoicesHelper:
 
         return query
 
+
     def _list_invoices_get_groups_query(self, query):
         '''
             Adds filter for invoice group to query
         '''
         if session.invoices_list_invoices_group:
             query &= (db.invoices.invoices_groups_id == session.invoices_list_invoices_group)
+
 
     def _list_invoices_get_buttons(self, row):
         '''
@@ -9058,6 +9298,7 @@ class InvoicesHelper:
 
         return buttons
 
+
     def _list_invoices_get_balance(self, row):
         '''
             Retuns the balance for an invoice
@@ -9080,78 +9321,6 @@ class InvoicesHelper:
                                    tooltip=T('Add payment'))
 
         return button
-
-        #
-        # db = current.globalenv['db']
-        # T = current.globalenv['T']
-        # os_gui = current.globalenv['os_gui']
-        #
-        # content = LOAD('invoices', 'payment_add', ajax=False, ajax_trap=True, extension='load',
-        #                 vars={'iID': iID})
-        # #content = self.payment_add_get_form(iID)
-        #
-        # invoice = db.invoices(iID)
-        # title = T('Add payment for invoice') + ' #' + invoice.InvoiceID
-        #
-        # button_text = os_gui.get_modal_button_icon('credit-card')
-        #
-        # form_id = 'form_payment_add_' + unicode(iID)
-        #
-        # result = os_gui.get_modal(button_text=button_text,
-        #                           button_title=T("Add payment"),
-        #                           modal_title=title,
-        #                           modal_content=content,
-        #                           modal_footer_content=os_gui.get_submit_button(form_id),
-        #                           modal_class=form_id,
-        #                           # modal_id='modal_payment_add_' + unicode(iID),
-        #                           button_class='btn-sm')
-        #
-        #
-        #
-        # return result
-
-        #payments.append(SPAN(result['button'], result['modal']))
-
-
-            #################### test code end
-
-
-
-            # def get_add_modal(self, cuID,
-    #                         pbiID        = None,
-    #                         csID         = None,
-    #                         button_text  = current.T('Add'),
-    #                         button_class = 'btn-sm'
-    #                         ):
-    #     '''
-    #         Return button and modal to add a new invoice
-    #     '''
-    #     os_gui = current.globalenv['os_gui']
-    #     gen_passwd = current.globalenv['generate_password']
-    #
-    #     vars = {'cuID':cuID}
-    #     if pbiID:
-    #         vars['pbiID'] = pbiID
-    #     if csID:
-    #         vars['csID'] = csID
-    #
-    #     add = LOAD('invoices', 'add.load', ajax=True, vars=vars)
-    #
-    #     button_text = XML(SPAN(SPAN(_class='glyphicon glyphicon-plus'), ' ',
-    #                       button_text))
-    #
-    #     # get 30 chars of randomness for modal class
-    #     modal_class = gen_passwd()
-    #
-    #     result = os_gui.get_modal(button_text=button_text,
-    #                               modal_title=current.T('Add invoice'),
-    #                               modal_content=add,
-    #                               modal_class=modal_class,
-    #                               button_class=button_class)
-    #     modal = result['modal']
-    #     button = result['button']
-    #
-    #     return DIV(button, modal)
 
 
 class School:

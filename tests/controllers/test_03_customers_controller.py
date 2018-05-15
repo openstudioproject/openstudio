@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-'''py.test test cases to test OpenStudio.
+"""py.test test cases to test OpenStudio.
 
 These tests run based on webclient and need web2py server running.
-'''
+"""
 
 import datetime
 import calendar
@@ -20,9 +20,14 @@ from populate_os_tables import populate_school_subscriptions
 from populate_os_tables import populate_school_classcards
 
 def test_customers_add(client, web2py):
-    '''
+    """
         Created a customer?
-    '''
+    """
+    # Set session variable for customers back to customers
+    client.get('/customers/index')
+    assert client.status == 200
+
+
     client.get('/customers/add')
     assert 'name="first_name"' in client.text
     assert 'name="last_name"' in client.text
@@ -32,7 +37,11 @@ def test_customers_add(client, web2py):
                 )
     client.post('/customers/add', data=data)
     assert client.status == 200
+
+    print client.text
+
     assert 'Profile' in client.text # verify redirection to edit page
+
 
     client.get('/customers')
     assert client.status == 200
@@ -45,9 +54,9 @@ def test_customers_add(client, web2py):
 
 
 def test_customers_edit(client, web2py):
-    '''
+    """
         Can we edit a customer
-    '''
+    """
     populate_customers(web2py)
     assert web2py.db(web2py.db.auth_user).count() > 0
 
@@ -69,11 +78,10 @@ def test_customers_edit(client, web2py):
     assert customer.first_name == data['first_name']
 
 
-
 def test_customers_edit_teacher(client, web2py):
-    ''''
+    """'
         Is the edit teacher page accepting submitted data?
-    '''
+    """
     populate_customers(web2py, 2)
     assert web2py.db(web2py.db.auth_user).count() > 0
 
@@ -201,9 +209,9 @@ def test_customer_index_show_deleted(client, web2py):
 
 
 def test_load_list_birthday_icon(client, web2py):
-    '''
+    """
         Is the birthday icon showing in load_list
-    '''
+    """
     populate_customers(web2py, 1)
 
     # make it the first customers' birthday today
@@ -222,10 +230,10 @@ def test_load_list_birthday_icon(client, web2py):
 
 
 def populate_account_merge(client, web2py):
-    '''
+    """
         Populates all tables with reference to auth_user for user 1002
         Also created user 1001 so we have an id to merge into
-    '''
+    """
     # get a random url to initialize payment methods
     url = '/default/user/login'
     client.get(url)
@@ -398,11 +406,11 @@ def populate_account_merge(client, web2py):
 
 
 def test_account_merge(client, web2py):
-    '''
+    """
         Can we merge an account?
         We'll create 2 customers, attach all data to 2nd customer,
         then merge into first and check if we still have all data.
-    '''
+    """
     def assert_count_customer(table, count):
         print 'Testing customer table: ' + unicode(table)
         query = (table.auth_customer_id == 1001)
@@ -507,9 +515,9 @@ def test_account_merge(client, web2py):
 
 
 def test_customers_subscription_add(client, web2py):
-    '''
+    """
         Can we add a customers_subscription?
-    '''
+    """
     populate_school_subscriptions(web2py)
     populate_customers(web2py)
     assert web2py.db(web2py.db.school_subscriptions).count() > 0
@@ -557,9 +565,9 @@ def populate_customer_subscriptions(client, web2py):
 
 
 def populate_customer_subscriptions_paused(client, web2py):
-    '''
+    """
         Adds pause to subcription starting from 2014-01-01
-    '''
+    """
     populate_customer_subscriptions(client, web2py)
 
     web2py.db.customers_subscriptions_paused.insert(
@@ -572,9 +580,9 @@ def populate_customer_subscriptions_paused(client, web2py):
 
 
 def test_customers_subscription_edit(client, web2py):
-    '''
+    """
         can we edit a subscription?
-    '''
+    """
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
@@ -665,9 +673,9 @@ def test_customers_subscription_delete(client, web2py):
 
 
 def test_customers_subscriptions_list_recent_pauses(client, web2py):
-    '''
+    """
         Is the list of paused subscriptions showing?
-    '''
+    """
     # get random url to initialize payment methods in db
     url = '/default/user/login'
     client.get(url)
@@ -686,9 +694,9 @@ def test_customers_subscriptions_list_recent_pauses(client, web2py):
 
 
 def test_customers_subscriptions_pauses(client, web2py):
-    '''
+    """
         Is the list of pauzed showing?
-    '''
+    """
     # get random url to initialize payment methods in db
     url = '/default/user/login'
     client.get(url)
@@ -708,9 +716,9 @@ def test_customers_subscriptions_pauses(client, web2py):
 
 
 def test_customers_subscriptions_pause_add(client, web2py):
-    '''
+    """
         Test adding of a pause
-    '''
+    """
     # get random url to initialize payment methods in db
     url = '/default/user/login'
     client.get(url)
@@ -741,9 +749,9 @@ def test_customers_subscriptions_pause_add(client, web2py):
 
 
 def test_customers_subscriptions_alt_prices_repeat(client, web2py):
-    '''
+    """
         Test repeating of alt prices
-    '''
+    """
     # get random url to initialize payment methods in db
     url = '/default/user/login'
     client.get(url)
@@ -759,9 +767,9 @@ def test_customers_subscriptions_alt_prices_repeat(client, web2py):
 
 
 def test_customer_subscription_credits_month(client, web2py):
-    '''
+    """
         Is the page listing added subscription credits showing?
-    '''
+    """
     # get a random url to initialize the OS environment
     url = '/default/user/login'
     client.get(url)
@@ -778,9 +786,9 @@ def test_customer_subscription_credits_month(client, web2py):
 
 
 def test_customers_subscription_credits_month_add_confirm(client, web2py):
-    '''
+    """
         Is the confirmation page to add credits showing?
-    '''
+    """
     url = '/customers/subscription_credits_month_add_confirm'
     client.get(url)
     assert client.status == 200
@@ -789,9 +797,9 @@ def test_customers_subscription_credits_month_add_confirm(client, web2py):
 
 
 def test_customers_subscription_credits_month_add(client, web2py):
-    '''
+    """
         Are credits batch-added correctly?
-    '''
+    """
     import calendar
 
     # get a random url to initialize the OS environment
@@ -855,9 +863,9 @@ def test_customers_subscription_credits_month_add(client, web2py):
 
 
 def test_customers_subscription_credits_month_add_book_classes_for_recurring_reservations(client, web2py):
-    '''
+    """
         Are classes for recurring reservations booked?
-    '''
+    """
     ##
     # Check if classes for recurring reservations are booked
     ##
@@ -912,9 +920,9 @@ def test_customers_subscription_credits_month_add_book_classes_for_recurring_res
 
 
 def test_customers_subscription_credits_in_customers_list(client, web2py):
-    '''
+    """
         Test listing of credits in customers list
-    '''
+    """
     # get random url to initialize payment methods in db
     url = '/default/user/login'
     client.get(url)
@@ -931,9 +939,9 @@ def test_customers_subscription_credits_in_customers_list(client, web2py):
 
 
 def test_customers_subscription_credits(client, web2py):
-    '''
+    """
         Test listing of credits
-    '''
+    """
     # get random url to initialize payment methods in db
     url = '/default/user/login'
     client.get(url)
@@ -952,9 +960,9 @@ def test_customers_subscription_credits(client, web2py):
 
 
 def test_customers_subscription_credits_add(client, web2py):
-    '''
+    """
         Can we add credits to a subscription?
-    '''
+    """
     # get random url to initialize payment methods in db
     url = '/default/user/login'
     client.get(url)
@@ -979,9 +987,9 @@ def test_customers_subscription_credits_add(client, web2py):
 
 
 def test_customers_subscription_credits_edit(client, web2py):
-    '''
+    """
         Can we edit a credit mutation?
-    '''
+    """
     # get random url to initialize payment methods in db
     url = '/default/user/login'
     client.get(url)
@@ -1008,9 +1016,9 @@ def test_customers_subscription_credits_edit(client, web2py):
 
 
 def test_customers_subscription_credits_delete(client, web2py):
-    '''
+    """
         Can we delete a subscription credits mutation?
-    '''
+    """
     # get random url to initialize payment methods in db
     url = '/default/user/login'
     client.get(url)
@@ -1026,9 +1034,9 @@ def test_customers_subscription_credits_delete(client, web2py):
 
 
 def test_customers_subscription_credits_month_expired(client, web2py):
-    '''
+    """
         Is the display of expired credits working?
-    '''
+    """
     # get random url to initialize payment methods in db
     url = '/default/user/login'
     client.get(url)
@@ -1056,9 +1064,9 @@ def test_customers_subscription_credits_month_expired(client, web2py):
 
 
 def test_customers_subscription_credits_month_expire_credits(client, web2py):
-    '''
+    """
         Are credits being expired like they should
-    '''
+    """
     # get random url to initialize payment methods in db
     url = '/default/user/login'
     client.get(url)
@@ -1075,9 +1083,9 @@ def test_customers_subscription_credits_month_expire_credits(client, web2py):
 
 
 def test_classcard_add_classic(client, web2py):
-    '''
+    """
         Add a classcard using a drop down menu
-    '''
+    """
     populate_school_classcards(web2py, 8, trialcard = True)
     populate_customers(web2py, 1)
 
@@ -1105,10 +1113,10 @@ def test_classcard_add_classic(client, web2py):
 
 
 def check_classcard_invoice(web2py):
-    '''
+    """
         Check if an invoice is created correctly after adding a classcard
         to a customer
-    '''
+    """
     assert web2py.db(web2py.db.invoices).count() == 1
     invoice = web2py.db.invoices(1)
     assert invoice.invoices_groups_id == 100
@@ -1120,12 +1128,16 @@ def check_classcard_invoice(web2py):
     invoice_amount = web2py.db.invoices_amounts(1).TotalPriceVAT
 
     assert price == invoice_amount
+    
+    ig_100 = web2py.db.invoices_groups(100)
+    assert ig_100.Terms == invoice.Terms
+    assert ig_100.Footer == invoice.Footer
 
 
 def test_classcard_add_classic_trialcard_removed_after_getting_one(client, web2py):
-    '''
+    """
         Check that the trialcard options are no longer listed
-    '''
+    """
     nr_cards = 10
     populate_school_classcards(web2py, nr_cards, trialcard = True)
     populate_customers(web2py, 1)
@@ -1151,9 +1163,9 @@ def test_classcard_add_classic_trialcard_removed_after_getting_one(client, web2p
 
 
 def test_classcard_add_modern(client, web2py):
-    '''
+    """
         Add a classcard using fancy layout
-    '''
+    """
     populate_school_classcards(web2py, 6, trialcard = True)
     populate_customers(web2py, 1)
 
@@ -1182,9 +1194,9 @@ def test_classcard_add_modern(client, web2py):
 
 
 def test_classcard_add_modern_trialcard_removed_after_getting_one(client, web2py):
-    '''
+    """
         Check that the trialcard options are no longer listed
-    '''
+    """
     nr_cards = 5
     populate_school_classcards(web2py, nr_cards, trialcard = True)
     populate_customers(web2py, 1)
@@ -1210,9 +1222,9 @@ def test_classcard_add_modern_trialcard_removed_after_getting_one(client, web2py
 
 
 def test_classcard_edit(client, web2py):
-    '''
+    """
         can we edit a classcard?
-    '''
+    """
     nr_cards = 1
     populate_school_classcards(web2py, nr_cards, trialcard = True)
     populate_customers(web2py, 1)
@@ -1248,10 +1260,10 @@ def test_classcard_edit(client, web2py):
 
 
 def test_classcard_classes_taken(client, web2py):
-    '''
+    """
         Is the list of classes taken on a class card working?
         Is classes_otc applied to this list?
-    '''
+    """
     populate_classes(web2py, with_otc=True)
     populate_customers_with_classcards(web2py)
 
@@ -1278,9 +1290,9 @@ def test_classcard_classes_taken(client, web2py):
 
 
 def test_classes_reservations_recurring(client, web2py):
-    '''
+    """
         List reservations for a customer (this is the default)
-    '''
+    """
     prepare_classes(web2py)
 
     url = '/customers/classes_reservations?cuID=1001'
@@ -1293,9 +1305,9 @@ def test_classes_reservations_recurring(client, web2py):
 
 
 def test_classes_reservations_filter_single(client, web2py):
-    '''
+    """
         Check filter for single classes
-    '''
+    """
     prepare_classes(web2py)
 
     url = '/customers/classes_reservations?cuID=1001&filter=single'
@@ -1308,9 +1320,9 @@ def test_classes_reservations_filter_single(client, web2py):
 
 
 def test_classes_reservations_filter_trial(client, web2py):
-    '''
+    """
         Check filter for trialclasses
-    '''
+    """
     prepare_classes(web2py)
 
     url = '/customers/classes_reservations?cuID=1001&filter=trial'
@@ -1323,9 +1335,9 @@ def test_classes_reservations_filter_trial(client, web2py):
 
 
 def test_classes_reservation_add_list_classes_for_date(client, web2py):
-    '''
+    """
         Does the listing of classes for a specified date work?
-    '''
+    """
     prepare_classes(web2py)
     # we'll have to use a Monday ^ the function above only adds a class on Monday
     url = '/customers/classes_reservation_add?cuID=1001&date=2014-01-06'
@@ -1339,16 +1351,16 @@ def test_classes_reservation_add_list_classes_for_date(client, web2py):
 
 
 ####
-    '''
+    """
         Reservation add and edit are tested in the classes controller
-    '''
+    """
 ####
 
 
 def test_classes_waitinglist(client, web2py):
-    '''
+    """
         Waitinglist for a customer
-    '''
+    """
     prepare_classes(web2py)
 
     url = '/customers/classes_waitinglist?cuID=1001'
@@ -1363,9 +1375,9 @@ def test_classes_waitinglist(client, web2py):
 
 
 def test_classes_attendance(client, web2py):
-    '''
+    """
         Attendance for a customer
-    '''
+    """
     prepare_classes(web2py)
 
     url = '/customers/classes_attendance?cuID=1001'
@@ -1378,9 +1390,9 @@ def test_classes_attendance(client, web2py):
 
 
 def test_classes_attendance_cancel_booking_and_refund_credits(client, web2py):
-    '''
+    """
         Check if a booking is cancelled and credits are returned to a customer
-    '''
+    """
     url = '/user/login'
     client.get(url)
     assert client.status == 200
@@ -1518,9 +1530,9 @@ def test_payments_ap_edit(client, web2py):
 
 
 def test_documents(client, web2py):
-    '''
+    """
         Can we get a list of the documents available?
-    '''
+    """
     populate_customers(web2py, 1)
     assert web2py.db(web2py.db.auth_user).count() == 1
 
@@ -1531,9 +1543,9 @@ def test_documents(client, web2py):
 
 
 def test_notes(client, web2py):
-    '''
+    """
         Can we get a list of notes and add a new note?
-    '''
+    """
     populate_customers(web2py, 1)
     assert web2py.db(web2py.db.auth_user).count() == 1
 
@@ -1561,9 +1573,9 @@ def test_notes(client, web2py):
 
 
 def test_events(client, web2py):
-    '''
+    """
         Test display of workshops
-    '''
+    """
     # get random url to initialize web2py environnment
     url = '/default/user/login'
     client.get(url)
@@ -1585,9 +1597,9 @@ def test_events(client, web2py):
 
 
 def test_event_add(client, web2py):
-    '''
+    """
         Is the list of workshops showing?
-    '''
+    """
     # get random url to initialize web2py environnment
     url = '/default/user/login'
     client.get(url)
@@ -1607,9 +1619,9 @@ def test_event_add(client, web2py):
 
 
 def test_workshop_add_list_products(client, web2py):
-    '''
+    """
         Is the list of workshop products showing from a customer?
-    '''
+    """
     # get random url to initialize web2py environnment
     url = '/default/user/login'
     client.get(url)
@@ -1631,9 +1643,9 @@ def test_workshop_add_list_products(client, web2py):
 
 
 # def test_load_list_sell_workshop_product(client, web2py):
-#     '''
+#     """
 #         Test if the list shows
-#     '''
+#     """
 #     populate_workshops_products_customers(web2py)
 #
 #     url = '/customers/load_list?list_type=workshops_products_sell&wsID=1&wspID=1'
@@ -1645,9 +1657,9 @@ def test_workshop_add_list_products(client, web2py):
 
 
 def test_payment_info_dutch_iban_validator_length_fail(client, web2py):
-    '''
+    """
         Checks if the validator fails when the length of the number is too short
-    '''
+    """
     # by getting some page the payment methods get initialized
     url = '/default/user/login'
     client.get(url)
@@ -1669,9 +1681,9 @@ def test_payment_info_dutch_iban_validator_length_fail(client, web2py):
 
 
 def test_payment_info_dutch_iban_validator_validation_fail(client, web2py):
-    '''
+    """
         Checks if the validator fails when the IBAN isn't valid
-    '''
+    """
     # by getting some page the payment methods get initialized
     url = '/default/user/login'
     client.get(url)
@@ -1693,9 +1705,9 @@ def test_payment_info_dutch_iban_validator_validation_fail(client, web2py):
 
 
 def test_payment_info_dutch_iban_validator_pass(client, web2py):
-    '''
+    """
         Checks if the validator passes on a correct number
-    '''
+    """
     # by getting some page the payment methods get initialized
     url = '/default/user/login'
     client.get(url)
@@ -1722,9 +1734,9 @@ def test_payment_info_dutch_iban_validator_pass(client, web2py):
 
 
 def test_payment_info_not_iban_pass(client, web2py):
-    '''
+    """
         Checks if the validator passes when something other than a dutch IBAN nr is added
-    '''
+    """
     # by getting some page the payment methods get initialized
     url = '/default/user/login'
     client.get(url)

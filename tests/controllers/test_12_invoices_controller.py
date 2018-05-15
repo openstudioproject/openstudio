@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-'''
+"""
     py.test test cases to test OpenStudio.
     These tests run based on webclient and need web2py server running.
-'''
+"""
 
 import datetime
 from gluon.contrib.populate import populate
@@ -15,9 +15,9 @@ from populate_os_tables import populate_invoices
 from populate_os_tables import populate_invoices_items
 
 def test_invoice_add_from_customer(client, web2py):
-    '''
+    """
         Can we add an invoice from a customer?
-    '''
+    """
     populate_customers(web2py, 1)
 
     url = '/customers/invoices?cuID=1001'
@@ -75,7 +75,15 @@ def test_invoice_add_from_customer_subscription(client, web2py):
     # verify display of some values on the page
     assert data['Description'] in client.text
 
+    # Check invoice terms & footer
+    ig_1 = web2py.db.invoices_groups(100)
     invoice = web2py.db.invoices(1)
+
+    assert invoice.customers_subscriptions_id == 1
+    assert invoice.SubscriptionYear == 2014
+    assert invoice.SubscriptionMonth == 1
+    assert invoice.Terms == ig_1.Terms
+    assert invoice.Footer == ig_1.Footer
     assert invoice.SubscriptionYear           == 2014
     assert invoice.SubscriptionMonth          == 1
 
@@ -83,11 +91,9 @@ def test_invoice_add_from_customer_subscription(client, web2py):
     ic = web2py.db.invoices_customers(1)
     assert ic.invoices_id == 1
     assert ic.auth_customer_id == 1001
-
     ics = web2py.db.invoices_customers_subscriptions(1)
     assert ics.invoices_id == 1
     assert ics.customers_subscriptions_id == 1
-
     # verify redirection
     assert invoice.InvoiceID in client.text
 
@@ -100,9 +106,9 @@ def test_invoice_add_from_customer_subscription(client, web2py):
 
 
 def test_invoice_edit(client, web2py):
-    '''
+    """
         Can we edit an invoice?
-    '''
+    """
     populate_customers(web2py, 3)
 
     url = '/customers/invoices?cuID=1001'
@@ -120,9 +126,9 @@ def test_invoice_edit(client, web2py):
 
 
 def test_invoice_item_add(client, web2py):
-    '''
+    """
         Can we add an item to an invoice?
-    '''
+    """
     populate_customers(web2py, 3)
 
     url = '/customers/invoices?cuID=1001'
@@ -178,9 +184,9 @@ def test_invoice_item_add(client, web2py):
 
 
 def test_invoice_item_edit(client, web2py):
-    '''
+    """
         Can we edit an item in an invoice?
-    '''
+    """
     populate_customers(web2py, 3)
 
     url = '/customers/invoices?cuID=1001'
@@ -205,9 +211,9 @@ def test_invoice_item_edit(client, web2py):
 
 
 def test_invoice_item_delete(client, web2py):
-    '''
+    """
         Can we delete an item from an invoice?
-    '''
+    """
     populate_customers(web2py, 3)
 
     url = '/customers/invoices?cuID=1001'
@@ -234,9 +240,9 @@ def test_invoice_item_delete(client, web2py):
 
 
 def test_subscriptions_create_montly_invoices(client, web2py):
-    '''
+    """
         Can we create subscription invoices for a month?
-    '''
+    """
     # Get random url to initialize OpenStudio environment
     url = '/default/user/login'
 
@@ -259,9 +265,12 @@ def test_subscriptions_create_montly_invoices(client, web2py):
     assert 'Created invoices' in client.text
 
     # check the created invoices
+    ig_100 = web2py.db.invoices_groups(100)
     invoice = web2py.db.invoices(1)
     assert invoice.Status == 'sent'
     assert invoice.InvoiceID == 'INV' + unicode(datetime.date.today().year) + '1'
+    assert ig_100.Terms == invoice.Terms
+    assert ig_100.Footer == invoice.Footer
 
     ics = web2py.db.invoices_customers_subscriptions(1)
     assert ics.invoices_id == 1
@@ -284,10 +293,10 @@ def test_subscriptions_create_montly_invoices(client, web2py):
 
 
 def test_invoice_overdue_duedate_is_red(client, web2py):
-    '''
+    """
         Make sure the due date for overdue invoices becomes red in the list
         of invoices
-    '''
+    """
     url = '/finance/invoices'
     client.get(url)
     assert client.status == 200
@@ -310,9 +319,9 @@ def test_invoice_overdue_duedate_is_red(client, web2py):
 
 
 def test_invoice_payment_add_set_status_paid(client, web2py):
-    '''
+    """
         Set status to paid after adding a payment >= invoice amount
-    '''
+    """
     url = '/finance/invoices'
     client.get(url)
     assert client.status == 200
@@ -372,9 +381,9 @@ def test_invoice_payment_add_set_status_paid(client, web2py):
 
 
 def test_list_invoices_status_filter(client, web2py):
-    '''
+    """
         Test if the status filter for list_invoices works
-    '''
+    """
     url = '/finance/invoices'
     client.get(url)
     assert client.status == 200
@@ -401,9 +410,9 @@ def test_list_invoices_status_filter(client, web2py):
 
 
 def test_list_invoices_search(client, web2py):
-    '''
+    """
         Is the search box working?
-    '''
+    """
     url = '/finance/invoices'
     client.get(url)
     assert client.status == 200
@@ -425,9 +434,9 @@ def test_list_invoices_search(client, web2py):
 
 
 def test_cancel_and_create_credit_invoice(client, web2py):
-    '''
+    """
         Is an invoice cancelled and a credit invoice created?
-    '''
+    """
     populate_customers(web2py, 3)
 
     url = '/customers/invoices?cuID=1001'

@@ -52,6 +52,13 @@ def index():
         else:
             session.flash = T('Already up to date')
 
+        if version < 2018.5:
+            print version
+            upgrade_to_20185()
+            session.flash = T("Upgraded db to 2018.5")
+        else:
+            session.flash = T('Already up to date')
+
         # always renew permissions for admin group after update
         set_permissions_for_admin_group()
 
@@ -256,6 +263,42 @@ def upgrade_to_20184():
     query = (db.classes.AllowShopTrial == None)
     db(query).update(AllowShopTrial = False)
 
+    ##
+    # clear cache
+    ##
+    cache.ram.clear(regex='.*')
+
+
+def upgrade_to_20185():
+    """
+        Upgrade operations to 2018.5
+    """
+    ##
+    # Set default group for teacher credit invoices
+    ##
+    db.invoices_groups_product_types.insert(
+        ProductType='teacher_payments',
+        invoices_groups_id=100
+    )
+
+    ##
+    # Set current global default values as group terms & footer
+    ##
+    footer = get_sys_property('invoices_default_footer')
+    terms = get_sys_property('invoices_default_terms')
+
+    query = (db.invoices_groups.id > 0)
+    db(query).update(Footer=footer, Terms=terms)
+
+    ##
+    # Set batch type for all current payment batches
+    ##
+    query = (db.payment_batches.payment_categories_id == None)
+    db(query).update(BatchTypeDescription = 'invoices')
+
+    query = (db.payment_batches.payment_categories_id != None)
+    db(query).update(BatchTypeDescription='category')
+    
     ##
     # clear cache
     ##

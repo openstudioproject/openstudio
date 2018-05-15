@@ -14,9 +14,9 @@ import cStringIO
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('read', 'payment_batches'))
 def batches_index():
-    '''
+    """
         Lists payment batches
-    '''
+    """
     response.title = T("Batches")
     response.view = 'general/only_content.html'
 
@@ -25,12 +25,12 @@ def batches_index():
     if pbtype == 'collection':
         query = (db.payment_batches.BatchType == 'collection')
         response.subtitle = T("Collection")
-        add_url = URL('add_what_batch', vars=request.vars)
+        add_url = URL('add_collection_batch_type', vars=request.vars)
     elif pbtype == 'payment':
         query = (db.payment_batches.BatchType == 'payment')
         response.subtitle = T("Payment")
 
-        add_url = URL('batch_add', vars=request.vars)
+        add_url = URL('add_payment_batch_type', vars=request.vars)
     else:
         query = (db.payment_batches.id > 0)
         response.subtitle = T("Collection & Payment")
@@ -78,43 +78,75 @@ def batches_index():
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'payment_batches'))
-def add_what_batch():
-    '''
+def add_collection_batch_type():
+    """
         Page to ask what kind of batch the user wants to add
         Can be invoices or category
-    '''
+    """
     export = request.vars['export']
 
     response.title = T("New batch")
-    response.subtitle = T("What kind of batch would you like to create?")
+    response.subtitle = ''
     response.view = 'general/only_content.html'
 
     return_url = URL('batches_index', vars={'export':export})
 
     question = T("What kind of batch would you like to create?")
-    invoices = os_gui.get_button('noicon',
-        URL('batch_add', vars={'export':export,
-                         'what':'invoices'}),
-        title=T("Invoices"),
-        _class='',
-        btn_size='')
-    category = os_gui.get_button('noicon',
-        URL('batch_add', vars={'export':export,
-                         'what':'category'}),
-        title=T("Direct debit extra"),
-        _class='',
-        btn_size='')
+    invoices = LI(A(
+        T('Invoices'),
+        _href=URL('batch_add', vars={'export':export,
+                                     'what':'invoices'})), BR(),
+        T("Create a batch containing all invoices with status 'sent' and payment method 'direct debit'."))
+    category = LI(A(
+        T('Direct debit extra'),
+        _href=URL('batch_add', vars={'export':export,
+                                     'what':'category'})), BR(),
+        T("Create a batch containing items from a direct debit extra category."))
+    back = os_gui.get_button('back', return_url)
+    ul = UL(invoices, category)
+    content = DIV(H3(question), ul)
+
+    return dict(content=content,
+                back=back)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'payment_batches'))
+def add_payment_batch_type():
+    """
+        Page to ask what kind of batch the user wants to add
+        Can be invoices or category
+    """
+    export = request.vars['export']
+
+    response.title = T("New batch")
+    response.subtitle = ''
+    response.view = 'general/only_content.html'
+
+    return_url = URL('batches_index', vars={'export':export})
+
+    question = T("What kind of batch would you like to create?")
+    invoices = LI(A(
+        T('Teacher payments'),
+        _href=URL('batch_add', vars={'export': export,
+                                     'what':'teacher_payments'})), BR(),
+        T("Create a batch containing all teacher invoices for a chosen month with status 'sent'."))
+    category = LI(A(
+        T('Direct debit extra'),
+        _href=URL('batch_add', vars={'export':export,
+                                     'what':'category'})), BR(),
+        T("Create a batch containing items from a direct debit extra category."))
     cancel = os_gui.get_button('noicon',
         return_url,
-        title=T("No thanks, I've changed my mind"),
-        _class='btn btn-link',
+        title=T("Cancel"),
+        _class='btn btn-default',
         btn_size='')
-    buttons = DIV(invoices,' ', category, ' ', cancel)
-    content = DIV(H3(question),
-               DIV(buttons,
-                   _class='well center'))
+    back = os_gui.get_button('back', return_url)
+    ul = UL(invoices, category)
+    content = DIV(H3(question), ul)
 
-    return dict(content=content)
+    return dict(content=content,
+                back=back)
 
 
 @auth.requires_login()
@@ -126,27 +158,34 @@ def batch_add():
     """
     response.title = T("New batch")
     response.view = 'general/only_content.html'
+    what = request.vars['what']
 
     batchtype = request.vars['export']
     if batchtype == 'collection':
         response.subtitle = SPAN(T('Collection'), ' - ')
-        what = request.vars['what']
         if what == 'invoices':
+            db.payment_batches.BatchTypeDescription.default = 'invoices'
             db.payment_batches.ColYear.requires = ''
             db.payment_batches.ColMonth.requires = ''
             db.payment_batches.payment_categories_id.requires = None
             response.subtitle.append(T('Invoices batch'))
 
         if what == 'category':
+            db.payment_batches.BatchTypeDescription.default = 'category'
             response.subtitle.append(T('Direct debit category batch'))
 
-        return_url = URL('add_what_batch', vars=request.vars)
+        return_url = URL('add_collection_batch_type', vars=request.vars)
 
     elif batchtype == 'payment':
-        response.subtitle = SPAN(T('Payment '))
-        return_url = URL('batches_index', vars=request.vars)
-        what = 'category'
+        if what == 'teacher_payments':
+            db.payment_batches.BatchTypeDescription.default = 'teacher_payments'
+            db.payment_batches.payment_categories_id.requires = None
+            response.subtitle = SPAN(T('Teacher payments'))
+        if what == 'category':
+            response.subtitle = SPAN(T('Payment'))
+            db.payment_batches.BatchTypeDescription.default = 'category'
 
+        return_url = URL('add_payment_batch_type', vars=request.vars)
 
     if session.show_location:
         db.payment_batches.school_locations_id.readable=True
@@ -156,7 +195,6 @@ def batch_add():
 
     db.payment_batches.Status.readable=False
     db.payment_batches.Status.writable=False
-
 
     crud.messages.submit_button = T("Save")
     crud.messages.record_created = T("Added batch")
@@ -179,15 +217,18 @@ def batch_add():
         locations_row = TR(TD(LABEL(form.custom.label.school_locations_id)),
                            TD(form.custom.widget.school_locations_id))
 
+    tr_categories = ''
     if what == 'category':
         tr_categories = TR(TD(LABEL(form.custom.label.payment_categories_id)),
                            TD(form.custom.widget.payment_categories_id))
+
+
+    if what == 'category' or 'teacher_payments':
         tr_col_month  = TR(TD(LABEL(form.custom.label.ColMonth)),
                            TD(form.custom.widget.ColMonth))
         tr_col_year = TR(TD(LABEL(form.custom.label.ColYear),
                          TD(form.custom.widget.ColYear)))
     else:
-        tr_categories = ''
         tr_col_month  = ''
         tr_col_year = ''
 
@@ -240,7 +281,7 @@ def batch_content():
     ## batch info begin
     # info
     if pb.payment_categories_id is None:
-        category = T("Invoices")
+        category = T("")
         description = pb.Description
     else:
         category = db.payment_categories(pb.payment_categories_id).Name
@@ -260,10 +301,12 @@ def batch_content():
                           TD(pb.Name)),
                        TR(TD(LABEL(T("Batch type"))),
                           TD(batchtype)),
+                       TR(TD(LABEL(T("Batch type description"))),
+                          TD(represent_payment_batchtypes(pb.BatchTypeDescription, pb))),
                        TR(TD(LABEL(T("Category"))),
                           TD(category)),
                        TR(TD(LABEL(T('Default description'))),
-                          TD(description)),
+                          TD(description or '')),
                        TR(TD(LABEL(T('Execution date'))),
                           TD(pb.Exdate.strftime(DATE_FORMAT))),
                        TR(TD(LABEL(T('Include 0'))),
@@ -633,9 +676,9 @@ def batch_edit():
 
 
 def generate_batch_items(form):
-    '''
+    """
         Generates payment batch items
-    '''
+    """
     # set some general values
     pbID = form.vars.id
     pb = db.payment_batches(pbID)
@@ -647,12 +690,16 @@ def generate_batch_items(form):
 
 
     # Default export (No category)
-    if pb.payment_categories_id is None:
-        # Invoices
+    if pb.BatchTypeDescription == 'invoices':
         generate_batch_items_invoices(pbID,
                                       pb,
                                       currency)
+    elif pb.BatchTypeDescription == 'teacher_payments':
+        from openstudio.os_payment_batch import PaymentBatch
+        pb = PaymentBatch(pbID)
+        pb.generate_batch_items()
     else:
+        # Category
         coldate = datetime.date(pb.ColYear, int(pb.ColMonth), 1)
         firstdaythismonth = coldate
         lastdaythismonth = get_last_day_month(coldate)
@@ -1018,9 +1065,9 @@ def export_csv():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'invoices'))
 def invoices():
-    '''
+    """
         Overview page for invoices
-    '''
+    """
     response.title = T('Invoices')
     response.subtitle = T('All invoices')
     response.view = 'general/only_content.html'
@@ -1067,6 +1114,100 @@ def invoices():
     return dict(content=content,
                 header_tools=DIV(export, tools))
 
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'invoices'))
+def teacher_payments():
+    """
+        List teacher payments invoices by month and add button to add invoices for a
+        selected month
+    """
+    response.title = T('Teacher payments')
+    response.subtitle = T('')
+    response.view = 'general/only_content.html'
+
+    add = teacher_payments_get_create_invoices()
+
+    ih = InvoicesHelper()
+    status_filter = ih.list_get_status_filter()
+    list = ih.list_invoices(only_teacher_credit_invoices=True)
+
+    content = DIV(status_filter, list)
+
+    return dict(content=content,
+                header_tools=add)
+
+
+def teacher_payments_get_create_invoices(var=None):
+    """
+        :return: html button linking to create teacher credit invoices page
+    """
+    permission = auth.has_membership(group_id='Admins') or \
+                 auth.has_permission('create', 'invoices')
+
+    if permission:
+        add = os_gui.get_button(
+            'noicon',
+            URL('teacher_payments_generate_invoices_choose_month'),
+            title=T('Create invoices'),
+            btn_class='btn-primary',
+            _class='pull-right'
+        )
+    else:
+        add = ''
+
+    return add
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('create', 'invoices'))
+def teacher_payments_generate_invoices_choose_month():
+    """
+        Choose year and month to create invoices
+    """
+    from openstudio.os_forms import OsForms
+
+    response.title = T('Teacher payments')
+    response.subtitle = T('')
+    response.view = 'general/only_content.html'
+
+    if 'year' in request.vars and 'month' in request.vars:
+        year = int(request.vars['year'])
+        month = int(request.vars['month'])
+        teacher_payments_generate_invoices(year, month)
+        redirect(URL('teacher_payments'))
+
+    os_forms = OsForms()
+    form = os_forms.get_month_year_form(
+        request.vars['year'],
+        request.vars['month'],
+        submit_button = T('Create invoices')
+    )
+
+    content = DIV(
+        H4(T('Create teacher credit invoices for month')),
+        DIV(form['form']),
+        _class='col-md-6'
+    )
+
+    back = os_gui.get_button('back', URL('teacher_payments'))
+
+    return dict(content=content,
+                save=form['submit'],
+                back=back)
+
+
+def teacher_payments_generate_invoices(year, month):
+    """
+        Actually generate teacher payment credit invoices
+    """
+    from openstudio.os_invoices import Invoices
+
+    invoices = Invoices()
+    nr_created = invoices.batch_generate_teachers_invoices(year, month)
+    session.flash = SPAN(T('Created'), ' ', nr_created, ' ', T('invoice'))
+    if nr_created > 1:
+        session.flash.append('s')
 
 
 #

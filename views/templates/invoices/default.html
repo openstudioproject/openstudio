@@ -43,12 +43,12 @@
 
         footer {
             font-size: 90%;
-            position: fixed;
+            position: absolute;
             bottom: 50px;
             width: 100%;
             text-align: center;
             padding-top: 10px;
-            border-top: 2px solid #EAEAEA;
+            border-top: 1px solid #EAEAEA;
         }
 
         .footer-inner {
@@ -81,15 +81,19 @@
             background-color: #EAEAEA;
         }
 
+        .table-items tbody tr:nth-last-child(-n+3) {
+            background-color: #FFFFFF;
+        }
+
         .table-items thead tr th {
             border-bottom-style: solid;
-            border-bottom: 1px solid #CCC;
+            border-bottom: 1px solid #BBB;
         }
 
         th.taxrate { min-width: 40px; }
 
         .border-top {
-            border-top: 1px solid #CCC;
+            border-top: 1px solid #BBB;
         }
 
         div.invoice {
@@ -210,9 +214,7 @@
                 <td><span class="right">{{=item.tax_rates_id}}</span></td>
             </tr>
         {{pass}}
-        </tbody>
-        <tfoot class="border-top">
-        <tr>
+        <tr class="border-top">
             <td></td>
             <td></td>
             <td></td>
@@ -238,8 +240,8 @@
             <td class="border-top"><span class="right">{{ =amounts['TotalPriceVAT'] }}</span></td>
             <td></td>
         </tr>
-        </tfoot>
-
+        </tbody>
+        
     </table>
 
     <!-- Don't forget the terms and footer -->

@@ -1,23 +1,182 @@
 #!/usr/bin/env python
 
-'''
+"""
     py.test test cases to test OpenStudio.
     These tests run based on webclient and need web2py server running.
-'''
+"""
 
 from gluon.contrib.populate import populate
 
+from populate_os_tables import prepare_classes
 from populate_os_tables import populate_customers
 from populate_os_tables import populate_invoices
 from populate_os_tables import populate_invoices_items
 
+from populate_os_tables import populate_auth_user_teachers_fixed_rate_default
+from populate_os_tables import populate_auth_user_teachers_fixed_rate_class_1
+from populate_os_tables import populate_auth_user_teachers_fixed_rate_travel
+
 from populate_os_tables import populate_workshops_messages
 from populate_os_tables import populate_customers_with_subscriptions
 
+
+import datetime
+
+
+def test_teacher_payments(client, web2py):
+    """
+         Are teacher payment invoices listed correctly?
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    populate_customers(web2py)
+    populate_invoices(web2py, teacher_fixed_price_invoices=True)
+
+    url = '/finance/teacher_payments'
+    client.get(url)
+    assert client.status == 200
+
+    assert 'INV1001' in client.text
+
+
+def test_teacher_payments_generate_invoices_choose_month(client, web2py):
+    """
+        Is the month chooser working like it should?
+    """
+    url = '/finance/teacher_payments_generate_invoices_choose_month'
+    client.get(url)
+    assert client.status  == 200
+
+    assert 'Create teacher credit invoices for month' in client.text
+
+
+def test_teacher_payments_generate_invoices(client, web2py):
+    """
+        Are the credit invoices created like they should?
+        Check default rate
+        Check class specific rate
+        Check travel allowance
+    """
+    prepare_classes(web2py)
+    populate_auth_user_teachers_fixed_rate_default(web2py)
+    populate_auth_user_teachers_fixed_rate_class_1(web2py)
+    populate_auth_user_teachers_fixed_rate_travel(web2py)
+
+    url = '/finance/teacher_payments_generate_invoices_choose_month'
+    client.get(url)
+    assert client.status == 200
+
+    today = datetime.date.today()
+
+    data = {
+        'month': today.month,
+        'year': today.year
+    }
+    client.post(url, data=data)
+    assert client.status == 200
+
+    # Teacher 2 should have an item with the class specific rate
+    query = (web2py.db.invoices_customers.auth_customer_id == 2)
+    ic = web2py.db(query).select(web2py.db.invoices_customers.ALL).first()
+    invoice = web2py.db.invoices(ic.invoices_id)
+
+    assert invoice.TeacherPayment == True
+    assert invoice.TeacherPaymentMonth == data['month']
+    assert invoice.TeacherPaymentYear == data['year']
+
+    query = (web2py.db.invoices_items.invoices_id == ic.invoices_id)
+    rows = web2py.db(query).select(web2py.db.invoices_items.ALL)
+    item = rows.first()
+
+    # Check class_specific_rate
+    tpfrc = web2py.db.teachers_payment_fixed_rate_class(1)
+    assert item.Price == tpfrc.ClassRate * -1
+
+    # Check travel allowance
+    tpfrt = web2py.db.teachers_payment_fixed_rate_travel(1)
+    item_2 = rows[1]
+    assert item_2.ProductName == 'Travel allowance'
+    assert item_2.Price == tpfrt.TravelAllowance * -1
+
+    # Check invoice terms & footer
+    ig_1 = web2py.db.invoices_groups(100)
+    assert ig_1.Terms == invoice.Terms
+    assert ig_1.Footer == invoice.Footer
+
+    # Teacher 3 should have an item with the default rate
+    query = (web2py.db.invoices_customers.auth_customer_id == 3)
+    ic = web2py.db(query).select(web2py.db.invoices_customers.ALL).first()
+
+    query = (web2py.db.invoices_items.invoices_id == ic.invoices_id)
+    rows = web2py.db(query).select(web2py.db.invoices_items.ALL)
+    item = rows.first()
+
+    # check default_specific_rate
+    tpfrd = web2py.db.teachers_payment_fixed_rate_default(auth_teacher_id=3)
+    assert item.Price == tpfrd.ClassRate * -1
+
+    # Don't create invoices when they already exist
+    client.post(url, data=data)
+    assert client.status == 200
+
+    query = (web2py.db.invoices.TeacherPayment == True)
+    assert web2py.db(query).count() == 2
+
+
+def test_add_batch_teacher_payment(client, web2py):
+    """
+        Can we add a batch for teacher payments?
+    """
+    prepare_classes(web2py)
+    populate_auth_user_teachers_fixed_rate_default(web2py)
+    populate_auth_user_teachers_fixed_rate_class_1(web2py)
+    populate_auth_user_teachers_fixed_rate_travel(web2py)
+
+    # Create invoices
+    url = '/finance/teacher_payments_generate_invoices_choose_month'
+    client.get(url)
+    assert client.status == 200
+
+    today = datetime.date.today()
+
+    data = {
+        'month': today.month,
+        'year': today.year
+    }
+    client.post(url, data=data)
+    assert client.status == 200
+
+    url = '/finance/batch_add?export=payment&what=teacher_payments'
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        'Name': 'Batch3435435',
+        'ColMonth': today.month,
+        'ColYear': today.year,
+        'Exdate': '2099-01-01',
+    }
+    client.post(url, data=data)
+    assert client.status == 200
+
+    invoice_1 = web2py.db.invoices(1)
+    amounts_1 = web2py.db.invoices_amounts(1)
+    pb_item_1 = web2py.db.payment_batches_items(1)
+
+    assert invoice_1.Description == pb_item_1.Description
+    assert amounts_1.TotalPriceVAT == pb_item_1.Amount
+
+    amounts_2 = web2py.db.invoices_amounts(2)
+    pb_item_2 = web2py.db.payment_batches_items(2)
+    assert amounts_2.TotalPriceVAT == pb_item_2.Amount
+
+
 def test_batches_index_collection(client, web2py):
-    '''
+    """
         Check whether the list of batches shows correctly
-    '''
+    """
     url = '/finance/batches_index?export=collection'
     client.get(url)
     assert client.status == 200
@@ -26,9 +185,9 @@ def test_batches_index_collection(client, web2py):
 
 
 def test_batches_index_payment(client, web2py):
-    '''
+    """
         Check whether the list of batches shows correctly
-    '''
+    """
     url = '/finance/batches_index?export=payment'
     client.get(url)
     assert client.status == 200
@@ -36,11 +195,11 @@ def test_batches_index_payment(client, web2py):
     assert 'Payment' in client.text
 
 
-def test_add_batch_default_without_zero_lines(client, web2py):
-    '''
+def test_add_batch_invoices_without_zero_lines(client, web2py):
+    """
         Check whether we can add a default batch and items are generated
         propery
-    '''
+    """
     url = '/finance/batch_add?export=collection&what=invoices'
     client.get(url)
     assert client.status == 200
@@ -89,11 +248,11 @@ def test_add_batch_default_without_zero_lines(client, web2py):
     assert web2py.db(web2py.db.payment_batches_items).count() == 6
 
 
-def test_add_batch_default_with_zero_lines(client, web2py):
-    '''
+def test_add_batch_invoices_with_zero_lines(client, web2py):
+    """
         Check whether we can add a default batch and items are generated
         propery and check whether lines with amount 0 are included
-    '''
+    """
     url = '/finance/batch_add?export=collection&what=invoices'
     client.get(url)
     assert client.status == 200
@@ -146,17 +305,15 @@ def test_add_batch_default_with_zero_lines(client, web2py):
     # customer10's subscription has price 0, so no invoice was created
 
     assert web2py.db(web2py.db.payment_batches_items).count() == 6
+    
 
-
-
-def test_add_batch_default_location(client, web2py):
+def test_add_batch_invoices_location(client, web2py):
     """
         Check whether we can add an invoice based batch and items are generated
         propery for a selected location
     """
     client.get('/default/user/login')
     assert client.status == 200
-
     ## set sys_property
     # without this, the form doesn't accept 'school_locations_id'
     web2py.db.sys_properties.insert(
@@ -207,11 +364,13 @@ def test_add_batch_default_location(client, web2py):
     # check amount total
     left = [ web2py.db.invoices.on(web2py.db.invoices.id ==
                 web2py.db.invoices_amounts.invoices_id),
-             web2py.db.invoices_customers.on(web2py.db.invoices_customers.invoices_id ==
-                                             web2py.db.invoices.id),
+             web2py.db.invoices_customers.on(
+                 web2py.db.invoices_customers.invoices_id ==
+                 web2py.db.invoices.id
+             ),
              web2py.db.auth_user.on(web2py.db.auth_user.id ==
-                web2py.db.invoices_customers.auth_customer_id),
-    ]
+                web2py.db.invoices_customers.auth_customer_id)
+           ]
 
     sum = web2py.db.invoices_amounts.TotalPriceVAT.sum()
     query = (web2py.db.auth_user.school_locations_id == school_locations_id)
@@ -232,9 +391,9 @@ def test_add_batch_default_location(client, web2py):
 
 
 def test_add_batch_category_without_zero_lines(client, web2py):
-    '''
+    """
         Check if a batch for a direct debit extra category is exported correctly
-    '''
+    """
     url = '/finance/batch_add?export=collection&what=category'
     client.get(url)
     assert client.status == 200
@@ -308,10 +467,10 @@ def test_add_batch_category_without_zero_lines(client, web2py):
 
 
 def test_batch_set_status_sent_to_bank_add_payments(client, web2py):
-    '''
+    """
         Check if payments are added to invoices when the status of a batch
         becomes 'sent to bank'
-    '''
+    """
     url = '/finance/batch_add?export=collection&what=invoices'
     client.get(url)
     assert client.status == 200

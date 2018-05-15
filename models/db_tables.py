@@ -544,6 +544,7 @@ dict_caching = (cache.ram, 20)
 if web2pytest.is_running_under_test(request, request.application):
     dict_caching = None
 
+
 def create_languages_dict():
     rows = db().select(db.school_languages.id, db.school_languages.Name, cache=dict_caching)
     d = dict()
@@ -562,6 +563,8 @@ def create_languages_dict():
 #         d[row.id] = row.first_name + " " + row.last_name
 #     d[None] = ""
 #     return d
+
+
 def create_discovery_dict():
     rows = db().select(db.school_discovery.id, db.school_discovery.Name, cache=dict_caching)
     d = dict()
@@ -569,6 +572,8 @@ def create_discovery_dict():
         d[row.id] = row.Name
     d[None] = ""
     return d
+
+
 def create_mstypes_dict():
     rows = db().select(db.school_subscriptions.id, db.school_subscriptions.Name, cache=dict_caching)
     d = dict()
@@ -576,6 +581,8 @@ def create_mstypes_dict():
         d[row.id] = row.Name
     d[None] = ""
     return d
+
+
 def create_school_levels_dict():
     rows = db().select(db.school_levels.id, db.school_levels.Name, cache=dict_caching)
     d = dict()
@@ -583,14 +590,18 @@ def create_school_levels_dict():
         d[row.id] = row.Name
     d[None] = XML('&nbsp;')
     return d
+
+
 def create_payment_categories_dict():
     rows = db().select(db.payment_categories.id,
                        db.payment_categories.Name, cache=dict_caching)
     d = dict()
     for row in rows:
         d[row.id] = row.Name
-    d[None] = T("Invoices")
+    d[None] = T("")
     return d
+
+
 def create_payment_methods_dict():
     rows = db().select(db.payment_methods.id, db.payment_methods.Name, cache=dict_caching)
     d = dict()
@@ -599,6 +610,8 @@ def create_payment_methods_dict():
     d[None] = ""
     d[0] = ""
     return d
+
+
 # def create_classes_dict():
 #     rows = db().select(db.classes.id,
 #                        db.classes.school_locations_id,
@@ -1300,6 +1313,63 @@ def define_teachers_holidays():
               writable=False,
               default=datetime.datetime.now())
         )
+
+
+def define_teachers_payment_fixed_rate_default():
+    db.define_table('teachers_payment_fixed_rate_default',
+        Field('auth_teacher_id', db.auth_user,
+              readable=False,
+              writable=False),
+        Field('ClassRate', 'double',
+              requires=IS_FLOAT_IN_RANGE(0, 99999999, dot='.',
+                                         error_message=T('Too small or too large')),
+              represent=represent_float_as_amount,
+              label=T("Class Rate excl. VAT")),
+        Field('tax_rates_id', db.tax_rates,
+            label=T('Tax rate')),
+    )
+
+
+def define_teachers_payment_fixed_rate_class():
+    db.define_table('teachers_payment_fixed_rate_class',
+        Field('auth_teacher_id', db.auth_user,
+              readable=False,
+              writable=False),
+        Field('classes_id', db.classes,
+              readable=False,
+              writable=False),
+        Field('ClassRate', 'double',
+              requires=IS_FLOAT_IN_RANGE(0, 99999999, dot='.',
+                                         error_message=T('Too small or too large')),
+              represent=represent_float_as_amount,
+              label=T("Class Rate excl. VAT")),
+        Field('tax_rates_id', db.tax_rates,
+            label=T('Tax rate')),
+    )
+
+
+def define_teachers_payment_fixed_rate_travel():
+    loc_query = (db.school_locations.Archived == False)
+
+    db.define_table('teachers_payment_fixed_rate_travel',
+        Field('auth_teacher_id', db.auth_user,
+              readable=False,
+              writable=False),
+        Field('school_locations_id', db.school_locations, required=True,
+              requires=IS_IN_DB(db(loc_query),
+                                'school_locations.id',
+                                '%(Name)s',
+                                zero=T("Please select...")),
+              represent=lambda value, row: locations_dict.get(value, T("No location")),
+              label=T("Location")),
+        Field('TravelAllowance', 'double',
+              requires=IS_FLOAT_IN_RANGE(0, 99999999, dot='.',
+                                         error_message=T('Too small or too large')),
+              represent=represent_float_as_amount,
+              label=T("Travel Allowance excl. VAT")),
+        Field('tax_rates_id', db.tax_rates,
+            label=T('Tax rate')),
+    )
 
 
 def define_customers_notes():
@@ -2928,6 +2998,12 @@ def define_payment_batches():
         Field('Name',
             requires=IS_NOT_EMPTY(),
             label=T("Batch Name")),
+        Field('BatchTypeDescription',
+              # readable=False,
+              writable=False,
+              requires=IS_EMPTY_OR(IS_IN_SET(payment_batchtypes)),
+              represent=represent_payment_batchtypes,
+              label=T('Batch Type')),
         Field('payment_categories_id', db.payment_categories,
             requires=pcID_requires,
             represent=lambda value, row: paycat_dict.get(value, ""),
@@ -3127,6 +3203,10 @@ def define_invoices_groups():
             writable=False,
             default=False,
             label=T("Archived")),
+        Field('PublicGroup', 'boolean',
+              default=True,
+              label=T('Public'),
+              comment=T("Show this group in customer profiles")),
         Field('Name',
             requires=IS_NOT_EMPTY(),
             label=T('Group name')),
@@ -3144,9 +3224,10 @@ def define_invoices_groups():
         Field('PrefixYear', 'boolean',
             default=True,
             label=T('Prefix year')),
-        Field('PublicGroup', 'boolean',
-            default=True,
-            label=T('Public')),
+        Field('Terms', 'text',
+              label=T("Terms")),
+        Field('Footer', 'text',
+              label=T("Footer")),
         format='%(Name)s')
 
 
@@ -3177,8 +3258,6 @@ def define_invoices():
     months = get_months_list()
 
     group_query = (db.invoices_groups.Archived == False)
-    default_footer = get_sys_property('invoices_default_footer')
-    default_terms  = get_sys_property('invoices_default_terms')
 
     db.define_table('invoices',
         Field('invoices_groups_id', db.invoices_groups,
@@ -3230,6 +3309,22 @@ def define_invoices():
             writable=False,
             default=TODAY_LOCAL.year,
             label=T('Year')),
+        Field('TeacherPayment', 'boolean',
+            readable=False,
+            writable=False,
+            default=False),
+        Field('TeacherPaymentMonth', 'integer',
+              readable=False,
+              writable=False,
+              requires=IS_IN_SET(months, zero=T('Please select...')),
+              represent=NRtoMonth,
+              default=TODAY_LOCAL.month,
+              label=T('Month')),
+        Field('TeacherPaymentYear', 'integer',
+              readable=False,
+              writable=False,
+              default=TODAY_LOCAL.year,
+              label=T('Year')),
         Field('CustomerCompany',
               label=T('Company')),
         Field('CustomerName',
@@ -3268,10 +3363,8 @@ def define_invoices():
             label=T("Due"),
             widget=os_datepicker_widget),
         Field('Terms', 'text',
-            default=default_terms,
             label=T("Terms")),
         Field('Footer', 'text',
-            default=default_footer,
             label=T("Footer")),
         Field('Note', 'text',
             label=T("Note")),
@@ -3525,6 +3618,7 @@ def define_invoices_amounts():
             default=0,
             represent=represent_float_as_amount)
         )
+
 
 def compute_invoices_amounts_balance(row):
     '''
@@ -4496,9 +4590,16 @@ def set_permissions_for_admin_group():
 
 
 def setup_create_invoice_group():
-    '''
+    """
         Create default invoice group
-    '''
+    """
+    terms = None
+    footer = None
+    if web2pytest.is_running_under_test(request, request.application):
+        terms = 'Terms go there'
+        footer = 'Footer goes here'
+
+
     db.invoices_groups.insert(
         id=100,
         Archived=False,
@@ -4507,12 +4608,14 @@ def setup_create_invoice_group():
         DueDays=30,
         InvoicePrefix='INV',
         PrefixYear=True,
+        Terms=terms,
+        Footer=footer
     )
 
 def setup_create_invoice_group_defaults():
-    '''
+    """
         Set default invoice group as default for products
-    '''
+    """
     product_types = get_invoices_groups_product_types()
 
     for product, name in product_types:
@@ -5052,6 +5155,11 @@ define_announcements()
 define_school_holidays()
 define_school_holidays_locations()
 define_schedule_classes_status()
+
+# teacher payment definitions (depend on classes and auth_user)
+define_teachers_payment_fixed_rate_default()
+define_teachers_payment_fixed_rate_class()
+define_teachers_payment_fixed_rate_travel()
 
 define_customers_subscriptions_credits()
 define_log_customers_accepted_documents()

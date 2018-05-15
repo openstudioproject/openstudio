@@ -551,9 +551,9 @@ def email_outgoing():
 
 
 def financial_get_menu(page=None):
-    '''
+    """
         Menu for financial settings pages
-    '''
+    """
     pages = [['financial_currency',
               T('Currency'),
               URL('financial_currency')],
@@ -562,7 +562,7 @@ def financial_get_menu(page=None):
               URL('financial_tax_rates')],
              ['financial_invoices',
               T('Invoices'),
-              URL('financial_invoices_texts')],
+              URL('financial_invoices_groups')],
              ['financial_dd_categories',
               T('Direct debit extra'),
               URL('financial_dd_categories')],
@@ -575,9 +575,9 @@ def financial_get_menu(page=None):
 
 
 def financial_get_back(var=None):
-    '''
+    """
         Returns back button for financial settings pages
-    '''
+    """
     return os_gui.get_button('back', URL('index'))
 
 
@@ -665,8 +665,8 @@ def access_get_back(var=None):
     '''
         Returns back button for access main menu pages
     '''
-    if session.settings_groups_back == 'school_teachers':
-        url = URL('school_properties', 'teachers')
+    if session.settings_groups_back == 'teachers':
+        url = URL('teachers', 'index')
     elif session.settings_groups_back == 'school_employees':
         url = URL('school_properties', 'employees')
     else:
@@ -677,10 +677,10 @@ def access_get_back(var=None):
 
 
 def access_get_menu(page):
-    '''
+    """
         This function returns the submenu used for the users/groups pages.
         It takes on argument, page, which is used to highlight the active element.
-    '''
+    """
     pages = (['access_groups',
               T("Groups"),
               URL('access_groups')],
@@ -1024,7 +1024,7 @@ def access_group_permissions():
                 ['auth_user_account-read', T('View account settings'), [
                     ['auth_user_account-update', T('Edit account settings')],
                     ['auth_user-set_password', T('Set a new password for accounts')],
-                    ['auth_user-merge', T('Merge accounts')]]]]
+                    ['auth_user-merge', T('Merge accounts')]]]],
              ],  # end customers-edit
             ['auth_user-delete', T("Delete customers")]]],
     ]
@@ -1135,6 +1135,20 @@ def access_group_permissions():
                 ['teachers-create', T("Add teachers")],
                 ['teachers-update', T("Edit teachers")],
                 ['teachers-delete', T("Remove teacher status")],
+                ['teachers_payment_fixed_rate_default-read', T('View payment rates (fixed rate)'), [
+                    ['teachers_payment_fixed_rate_default-create', T('Set default payment (fixed rate)')],
+                    ['teachers_payment_fixed_rate_default-create', T('Edit default payment (fixed rate)')],
+                    ['teachers_payment_fixed_rate_class-read', T('View class specific rates (fixed rate)'), [
+                        ['teachers_payment_fixed_rate_class-create', T('Add class specific rates (fixed rate)')],
+                        ['teachers_payment_fixed_rate_class-update', T('Edit class specific rates (fixed rate)')],
+                        ['teachers_payment_fixed_rate_class-delete', T('Delete class specific rates (fixed rate)')],
+                    ]],
+                    ['teachers_payment_fixed_rate_travel-read', T('View travel allowances (fixed rate)'), [
+                        ['teachers_payment_fixed_rate_travel-create', T('Add travel allowance (fixed rate)')],
+                        ['teachers_payment_fixed_rate_travel-update', T('Edit travel allowance (fixed rate)')],
+                        ['teachers_payment_fixed_rate_travel-delete', T('Delete travel allowance (fixed rate)')],
+                    ]],
+                ]]
             ]],
             ['employees-read', T("Employees"), [
                 ['employees-create', T("Add employees")],
@@ -1191,7 +1205,6 @@ def access_group_permissions():
             ['school_languages-read', T("Languages"), [
                 ['school_languages-create', T("Add languages")],
                 ['school_languages-update', T("Edit languages")]]]]],
-
     ]
 
     other_permissions = [
@@ -1880,6 +1893,8 @@ def financial_invoices_groups():
         session.settings_invoices_groups_show = show
 
     db.invoices_groups.id.readable = False
+    db.invoices_groups.Terms.readable = False
+    db.invoices_groups.Footer.readable = False
 
     links = [lambda row: os_gui.get_button('edit',
                                            URL('financial_invoices_group_edit', vars={'igID': row.id})),
@@ -1953,7 +1968,12 @@ def financial_invoices_group_add():
     crud.messages.submit_button = T("Save")
     crud.messages.record_created = T("Saved")
     crud.settings.create_next = return_url
+    crud.settings.formstyle = 'bootstrap3_stacked'
     form = crud.create(db.invoices_groups)
+
+    textareas = form.elements('textarea')
+    for textarea in textareas:
+        textarea['_class'] += ' tmced'
 
     form_id = "MainForm"
     form_element = form.element('form')
@@ -1988,7 +2008,12 @@ def financial_invoices_group_edit():
     crud.messages.record_updated = T("Saved")
     crud.settings.update_next = return_url
     crud.settings.update_deletable = False
+    crud.settings.formstyle = 'bootstrap3_stacked'
     form = crud.update(db.invoices_groups, igID)
+
+    textareas = form.elements('textarea')
+    for textarea in textareas:
+        textarea['_class'] += ' tmced'
 
     form_id = "MainForm"
     form_element = form.element('form')
@@ -2137,100 +2162,98 @@ def financial_invoices_groups_default_edit():
     return dict(content=form, save=submit, back=back)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('read', 'settings'))
-def financial_invoices_texts():
-    '''
-        View default texts for invoices
-    '''
-    response.title = T("Financial Settings")
-    response.subtitle = T("Invoices")
-    response.view = 'general/tabs_menu.html'
-
-    default_footer = get_sys_property('invoices_default_footer')
-    default_terms = get_sys_property('invoices_default_terms')
-
-    form = SQLFORM.factory(
-        Field('default_footer', 'text',
-              default=default_footer,
-              label=T('Default footer')),
-        Field('default_terms', 'text',
-              default=default_terms,
-              label=T('Default terms')),
-        submit_button=T("Save"),
-        separator=' '
-    )
-
-    textareas = form.elements('textarea')
-    for textarea in textareas:
-        textarea['_class'] += ' tmced'
-
-    form_id = "MainForm"
-    form_element = form.element('form')
-    form['_id'] = form_id
-
-    elements = form.elements('input, select, textarea')
-    for element in elements:
-        element['_form'] = form_id
-
-    submit = form.element('input[type=submit]')
-
-    if form.accepts(request.vars, session):
-        # check default footer
-        default_footer = request.vars['default_footer']
-        row = db.sys_properties(Property='invoices_default_footer')
-        if not row:
-            db.sys_properties.insert(Property='invoices_default_footer',
-                                     PropertyValue=default_footer)
-        else:
-            row.PropertyValue = default_footer
-            row.update_record()
-
-        # check default terms
-        default_terms = request.vars['default_terms']
-        row = db.sys_properties(Property='invoices_default_terms')
-        if not row:
-            db.sys_properties.insert(Property='invoices_default_terms',
-                                     PropertyValue=default_terms)
-        else:
-            row.PropertyValue = default_terms
-            row.update_record()
-
-        # Clear cache
-        cache_clear_sys_properties()
-        # User feedback
-        session.flash = T('Saved')
-        # reload so the user sees how the values are stored in the db now
-        redirect(URL('financial_invoices_texts'))
-
-    form = DIV(
-        XML('<form action="#" class="form-horizontal" enctype="multipart/form-data" id="MainForm" method="post">'),
-        LABEL(form.custom.label.default_footer), BR(),
-        form.custom.widget.default_footer,
-        LABEL(form.custom.label.default_terms), BR(),
-        form.custom.widget.default_terms,
-        form.custom.submit,
-        form.custom.end)
-
-    submenu = financial_invoices_get_submenu(request.function)
-    content = DIV(submenu, form)
-
-    back = financial_get_back()
-    menu = financial_get_menu('financial_invoices')
-
-    return dict(content=content,
-                back=back,
-                menu=menu,
-                save=submit)
+# @auth.requires(auth.has_membership(group_id='Admins') or
+#                auth.has_permission('read', 'settings'))
+# def financial_invoices_texts():
+#     '''
+#         View default texts for invoices
+#     '''
+#     response.title = T("Financial Settings")
+#     response.subtitle = T("Invoices")
+#     response.view = 'general/tabs_menu.html'
+#
+#     default_footer = get_sys_property('invoices_default_footer')
+#     default_terms = get_sys_property('invoices_default_terms')
+#
+#     form = SQLFORM.factory(
+#         Field('default_footer', 'text',
+#               default=default_footer,
+#               label=T('Default footer')),
+#         Field('default_terms', 'text',
+#               default=default_terms,
+#               label=T('Default terms')),
+#         submit_button=T("Save"),
+#         separator=' '
+#     )
+#
+#     textareas = form.elements('textarea')
+#     for textarea in textareas:
+#         textarea['_class'] += ' tmced'
+#
+#     form_id = "MainForm"
+#     form_element = form.element('form')
+#     form['_id'] = form_id
+#
+#     elements = form.elements('input, select, textarea')
+#     for element in elements:
+#         element['_form'] = form_id
+#
+#     submit = form.element('input[type=submit]')
+#
+#     if form.accepts(request.vars, session):
+#         # check default footer
+#         default_footer = request.vars['default_footer']
+#         row = db.sys_properties(Property='invoices_default_footer')
+#         if not row:
+#             db.sys_properties.insert(Property='invoices_default_footer',
+#                                      PropertyValue=default_footer)
+#         else:
+#             row.PropertyValue = default_footer
+#             row.update_record()
+#
+#         # check default terms
+#         default_terms = request.vars['default_terms']
+#         row = db.sys_properties(Property='invoices_default_terms')
+#         if not row:
+#             db.sys_properties.insert(Property='invoices_default_terms',
+#                                      PropertyValue=default_terms)
+#         else:
+#             row.PropertyValue = default_terms
+#             row.update_record()
+#
+#         # Clear cache
+#         cache_clear_sys_properties()
+#         # User feedback
+#         session.flash = T('Saved')
+#         # reload so the user sees how the values are stored in the db now
+#         redirect(URL('financial_invoices_texts'))
+#
+#     form = DIV(
+#         XML('<form action="#" class="form-horizontal" enctype="multipart/form-data" id="MainForm" method="post">'),
+#         LABEL(form.custom.label.default_footer), BR(),
+#         form.custom.widget.default_footer,
+#         LABEL(form.custom.label.default_terms), BR(),
+#         form.custom.widget.default_terms,
+#         form.custom.submit,
+#         form.custom.end)
+#
+#     submenu = financial_invoices_get_submenu(request.function)
+#     content = DIV(submenu, form)
+#
+#     back = financial_get_back()
+#     menu = financial_get_menu('financial_invoices')
+#
+#     return dict(content=content,
+#                 back=back,
+#                 menu=menu,
+#                 save=submit)
 
 
 def financial_invoices_get_submenu(page):
     '''
         Returns submenu for financial invoices pages
     '''
-    pages = [['financial_invoices_texts',
-              T('Footer & Terms'), URL('financial_invoices_texts')],
-             ['financial_invoices_groups',
+    pages = [['financial_invoices_groups',
               T('Groups'), URL('financial_invoices_groups')],
              ['financial_invoices_groups_default',
               T('Default groups'), URL('financial_invoices_groups_default')],

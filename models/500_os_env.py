@@ -403,7 +403,9 @@ def get_invoices_groups_product_types():
                    ['dropin'      , T('Drop in classes')],
                    ['trial'       , T('Trial classes')],
                    ['wsp'         , T('Workshop products')],
-                   ['shop'        , T('OpenStudio shop (All sales from the shop will go into this group)')] ]
+                   ['shop'        , T('OpenStudio shop (All sales from the shop will go into this group)')],
+                   ['teacher_payments', T('Credit invoices for teacher payments')]
+                ]
 
     return categories
 
@@ -438,6 +440,30 @@ def set_booking_statuses():
                          ['cancelled', T('Cancelled')] ]
 
     return booking_statuses
+
+
+def set_payment_batchtypes():
+    """
+        Returns a list of payment batchtypes
+    """
+    payment_batchtypes = [ ['teacher_payments', T('Teacher payments')],
+                           ['invoices', T('Invoices')],
+                           ['category', T('Category')] ]
+
+    return payment_batchtypes
+
+
+def represent_payment_batchtypes(value, row):
+    """
+        Batchtype name
+    """
+    return_value = ''
+    for pbt in payment_batchtypes:
+        if value == pbt[0]:
+            return_value = pbt[1]
+            break
+
+    return return_value
 
 
 def represent_gender(value, row):
@@ -487,6 +513,7 @@ def LTE_MENU(menu, _class, li_class, ul_class):
 
     return lte_menu
 
+
 CACHE_LONG = myconf.get('cache.max_cache_time') # 3 days
 GENDERS = set_genders()
 VALIDITY_UNITS = set_validity_units()
@@ -497,6 +524,7 @@ message_statuses = set_message_statuses()
 invoice_statuses = set_invoice_statuses()
 order_statuses = set_order_statuses()
 booking_statuses = set_booking_statuses()
+payment_batchtypes = set_payment_batchtypes()
 
 
 os_gui = OsGui()

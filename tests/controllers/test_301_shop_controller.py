@@ -1637,6 +1637,11 @@ def test_order_paid_delivery_invoice(client, web2py):
     amounts = web2py.db.invoices_amounts(1)
     assert amounts.TotalPriceVAT == scd.Price + wsp.Price + class_price.Dropin + donation_price
 
+    # invoice footer & terms
+    ig_100 = web2py.db.invoices_groups(100)
+    assert ig_100.Terms == invoice.Terms
+    assert ig_100.Footer == invoice.Footer
+
     # Check order status
     order = web2py.db.customers_orders(1)
     assert order.Status == 'delivered'

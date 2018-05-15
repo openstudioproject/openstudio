@@ -737,9 +737,9 @@ def add_redirect_on_create():
         session.flash = T("Added employee")
         redirect(URL('school_properties', 'employees'),
                  client_side=True)
-    elif session.customers_add_back == 'school_teachers':
+    elif session.customers_add_back == 'teachers':
         session.flash = T("Added teacher")
-        redirect(URL('school_properties', 'teachers'),
+        redirect(URL('teachers' , 'index'),
                  client_side=True)
     else:
         # to edit page
@@ -970,7 +970,7 @@ def edit_get_back(_class=''):
         url = URL('school_properties', 'list_keys')
     elif session.customers_back == 'teachers':
         # check if we came from the school / teachers page
-        url = URL('school_properties', 'teachers')
+        url = URL('teachers', 'index')
     elif session.customers_back == 'school_employees':
         # check if we came fromthe school/employees page
         url = URL('school_properties', 'employees')
@@ -2007,8 +2007,8 @@ def classes_reservation_add():
 
     session.customers_classes_reservation_add_vars['date'] = default_date
 
-
-    result = classes_add_get_form_date(cuID, default_date)
+    ch = CustomersHelper()
+    result = ch.classes_add_get_form_date(cuID, default_date)
     form = result['form']
     form_date = result['form_styled']
 
@@ -2016,7 +2016,7 @@ def classes_reservation_add():
     db.classes.id.readable = False
 
     # list of classes
-    grid = classes_add_get_list(default_date, 'reservations')
+    grid = ch.classes_add_get_list(default_date, 'reservations')
 
     back = os_gui.get_button('back', URL('classes_reservations',
                                          vars={'cuID':cuID}),
@@ -2029,9 +2029,9 @@ def classes_reservation_add():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('create', 'classes_attendance'))
 def classes_attendance_add():
-    '''
+    """
         Add customers to attendance for a class
-    '''
+    """
     response.view = 'general/only_content.html'
 
     cuID = request.vars['cuID']
@@ -2041,27 +2041,21 @@ def classes_attendance_add():
     response.title = customer.get_name()
     response.subtitle = T("Add attendance")
 
-
     if 'date' in request.vars:
-        # response.subtitle = SPAN(T('for'), ' ',
-        #                          customer.get_name(), ' ',
-        #                          request.vars['date'])
         date = datestr_to_python(DATE_FORMAT, request.vars['date'])
     else:
         date = datetime.date.today()
 
     session.customers_classes_attendance_add_vars['date'] = date
 
-
-    result = classes_add_get_form_date(cuID, date)
+    ch = CustomersHelper()
+    result = ch.classes_add_get_form_date(cuID, date)
     form = result['form']
     form_date = result['form_styled']
 
-
     db.classes.id.readable = False
-
     # list of classes
-    grid = classes_add_get_list(date, 'attendance', cuID)
+    grid = ch.classes_add_get_list(date, 'attendance', cuID)
 
     back = os_gui.get_button('back', URL('classes_attendance',
                                          vars={'cuID':cuID}),
@@ -2115,147 +2109,6 @@ def classes_attendance_add_booking_options():
 
     return dict(content=content,
                 back=back)
-
-
-
-def classes_add_get_form_date(cuID, date):
-    '''
-        Get date form
-    '''
-    form = SQLFORM.factory(
-        Field('date', 'date',
-            requires=IS_DATE_IN_RANGE(format=DATE_FORMAT,
-                          minimum=datetime.date(1900,1,1),
-                          maximum=datetime.date(2999,1,1)),
-            default=date,
-            widget=os_datepicker_widget),
-        separator = '',
-        submit_button = T('Go'))
-
-    input_date = form.element('#no_table_date')
-    #input_date.attributes['_onchange'] = "this.form.submit();"
-
-    submit = form.element('input[type=submit]')
-
-    delta = datetime.timedelta(days=1)
-    date_prev = (date - delta).strftime(DATE_FORMAT)
-    date_next = (date + delta).strftime(DATE_FORMAT)
-
-    url_prev = URL(vars={'cuID': cuID,
-                         'date': date_prev})
-    url_next = URL(vars={'cuID': cuID,
-                         'date': date_next})
-
-    previous = A(I(_class='fa fa-angle-left'),
-                 _href=url_prev,
-                 _class='btn btn-default')
-    nxt = A(I(_class='fa fa-angle-right'),
-            _href=url_next,
-            _class='btn btn-default')
-
-    chooser = DIV(previous, nxt, _class='btn-group pull-right')
-
-    form_styled = DIV(form.custom.begin,
-                      DIV(B('Show classes on '),
-                          form.custom.widget.date,
-                          _class='col-md-3'),
-                      DIV(BR(),
-                          form.custom.submit,
-                          chooser,
-                          _class='col-md-9 no-padding-left'),
-                      form.custom.end,
-                      _class='row')
-
-
-    return {'form':form,
-            'form_styled':form_styled}
-
-
-def classes_add_get_list(date, list_type, cuID=None):
-    '''
-        Get list of classes for a date
-    '''
-    if list_type == 'attendance':
-        session.classes_attendance_signin_back = 'cu_classes_attendance'
-        ah = AttendanceHelper()
-        #links = [ lambda row: ah.get_signin_buttons(row.classes.id, date, cuID) ]
-
-    if session.classes_schedule_sort == 'location':
-        orderby = db.school_locations.Name | db.classes.Starttime
-    elif session.classes_schedule_sort == 'starttime':
-        orderby = db.classes.Starttime | db.school_locations.Name
-    else:
-        orderby = db.school_locations.Name | db.classes.Starttime
-
-    cs = ClassSchedule(date, sorting=orderby)
-    classes = cs.get_day_list()
-
-    header = THEAD(TR(TH(T('Time')),
-                      TH(T('Location')),
-                      TH(T('Class')),
-                      TH(),
-                      TH() # buttons
-                      ))
-    table = TABLE(header, _class='table table-striped table-hover')
-    for c in classes:
-        status = classes_add_get_list_get_cancelled_holiday(c)
-        buttons = ''
-
-        if list_type == 'reservations':
-            buttons = classes_reservation_add_get_button(c['ClassesID'])
-        if list_type == 'attendance' and status == '':
-            buttons = os_gui.get_button('noicon',
-                                        URL('customers', 'classes_attendance_add_booking_options',
-                                            vars={'cuID':cuID,
-                                                  'clsID':c['ClassesID'],
-                                                  'date':date.strftime(DATE_FORMAT)}),
-                                        title='Check in',
-                                        _class='pull-right')
-
-        tr = TR(
-            TD(c['Starttime'], ' - ', c['Endtime']),
-            TD(c['Location']),
-            TD(c['ClassType']),
-            TD(status),
-            TD(buttons)
-        )
-
-        table.append(tr)
-
-    return table
-
-
-def classes_add_get_list_get_cancelled_holiday(c):
-    """
-        Returns class or holiday description when a class is cancelled
-        :param: class from ClassSchedule.get_day_list()
-    """
-    status = ''
-
-    if c['Cancelled']:
-        status = SPAN(T('Cancelled'), ' ', SPAN(c['CancelledDescription'], _class='grey'))
-
-    if c['Holiday']:
-        status = SPAN(T('Holiday'), ' ', SPAN(c['HolidayDescription'], _class='grey'))
-
-    return status
-
-
-def classes_reservation_add_get_button(clsID):
-    """
-        Returns add button for a customer to add a reservation
-    """
-    date = session.customers_classes_reservation_add_vars['date']
-    date_formatted = date.strftime(DATE_FORMAT)
-    cuID = session.customers_classes_reservation_add_vars['cuID']
-    customer = Customer(cuID)
-
-    add = os_gui.get_button('add', URL('classes', 'reservation_add',
-                                       vars={'cuID':cuID, 'clsID':clsID, 'date':date_formatted}),
-                            btn_size='btn-sm',
-                            _class="pull-right")
-
-    return add
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -2710,9 +2563,9 @@ def subscription_credits_edit():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('delete', 'customers_subscriptions_credits'))
 def subscription_credits_delete():
-    '''
+    """
         Delete subscription credits
-    '''
+    """
     cuID = request.vars['cuID']
     csID = request.vars['csID']
     cscID = request.vars['cscID']
@@ -5602,7 +5455,6 @@ def account_acceptance_log():
                 back=back)
 
 
-
 def account_get_submenu(page, cuID):
     """
         Returns submenu for account pages
@@ -5678,9 +5530,9 @@ def invoices():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('read', 'customers_orders'))
 def orders():
-    '''
+    """
         List orders for a customer
-    '''
+    """
     cuID = request.vars['cuID']
 
     customer = Customer(cuID)
@@ -5730,9 +5582,9 @@ def orders():
 
 
 def orders_get_link_invoice(row):
-    '''
+    """
         Returns invoice for an order in list
-    '''
+    """
     if row.invoices.id:
         ih = InvoicesHelper()
 
@@ -5758,9 +5610,9 @@ def orders_get_link_invoice(row):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('read', 'customers_orders'))
 def order():
-    '''
+    """
         Display order content for a customer
-    '''
+    """
     cuID = request.vars['cuID']
     coID = request.vars['coID']
 
@@ -5787,9 +5639,9 @@ def order():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('update', 'auth_user'))
 def edit_teacher():
-    '''
+    """
         Teacher profile for a user
-    '''
+    """
     cuID = request.vars['cuID']
     response.view = 'customers/edit_general.html'
 
@@ -5828,11 +5680,6 @@ def edit_teacher():
 
     teacher_info = DIV(
         XML('<form action="#" id="MainForm" enctype="multipart/form-data" method="post">'),
-        #form.custom.begin,
-        # INPUT(_name='email',
-        #       _value=customer.row.email,
-        #       _type='hidden',
-        #       ),
         DIV(DIV(LABEL(form.custom.label.teacher_role),
                 form.custom.widget.teacher_role,
                 _class='col-md-12'),
@@ -5858,6 +5705,4 @@ def edit_teacher():
     return dict(content=teacher_info,
                 menu=menu,
                 back=back,
-                save=submit,
-                left_sidebar_enabled=True)
-
+                save=submit)

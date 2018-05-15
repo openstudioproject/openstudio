@@ -387,7 +387,13 @@ def populate_auth_user_teachers(web2py,
                                 teaches_workshops=True):
     """
         Adds 2 teachers to db.
+        auth.user.ids 2 and 3
     """
+    try:
+        populate_tax_rates(web2py)
+    except:
+        print T('Tried to insert tax rates, but one or more already exists in db.tax_rates')
+
     try:
         web2py.db.auth_user.insert(
             id         = 2,
@@ -410,8 +416,54 @@ def populate_auth_user_teachers(web2py,
         )
 
         web2py.db.commit()
+
+
     except:
         print "Tried inserting teachers, but id 2 or 3 already exists in auth_user"
+
+
+def populate_auth_user_teachers_fixed_rate_default(web2py):
+    """
+        Insert dummy data for teachers_payment_fixed_rate_default
+    """
+    query = (web2py.db.auth_user.teacher == True)
+    rows = web2py.db(query).select(web2py.db.auth_user.ALL)
+    for row in rows:
+        web2py.db.teachers_payment_fixed_rate_default.insert(
+            auth_teacher_id = row.id,
+            ClassRate = 10343,
+            tax_rates_id = 1
+        )
+
+    web2py.db.commit()
+
+
+def populate_auth_user_teachers_fixed_rate_class_1(web2py):
+    """
+        Insert dummy data for teachers_payment_fixed_rate_class
+    """
+    web2py.db.teachers_payment_fixed_rate_class.insert(
+        auth_teacher_id = 2,
+        classes_id = 1,
+        ClassRate = 645570,
+        tax_rates_id = 1
+    )
+
+    web2py.db.commit()
+
+
+def populate_auth_user_teachers_fixed_rate_travel(web2py):
+    """
+        Insert dummy data for teachers_payment_fixed_rate_travel
+    """
+    web2py.db.teachers_payment_fixed_rate_travel.insert(
+        auth_teacher_id = 2,
+        school_locations_id = 1,
+        TravelAllowance = 304753,
+        tax_rates_id = 1
+    )
+
+    web2py.db.commit()
 
 
 def populate_classes(web2py, with_otc=False):
@@ -461,7 +513,6 @@ def populate_classes(web2py, with_otc=False):
 
 
     web2py.db.commit()
-
 
 
 def prepare_classes(web2py,
@@ -1244,7 +1295,26 @@ def populate_tax_rates(web2py):
     web2py.db.commit()
 
 
-def populate_invoices(web2py):
+# def populate_invoices_groups(web2py):
+#     """
+#         Populate invoices_groups
+#     """
+#     terms = 'Invoice Terms here'
+#     footer = 'Invoice Footer here'
+#
+#     web2py.db.invoices_groups.insert(
+#         id=100,
+#         PublicGroup = True,
+#         Name = 'Default',
+#         NextID = 1,
+#         PrefixYear = True,
+#         Terms = terms,
+#         Footer = footer
+#     )
+#
+#     web2py.db.commit()
+
+def populate_invoices(web2py, teacher_fixed_price_invoices=False):
     """
         Adds one invoice for each user found
     """
@@ -1253,6 +1323,15 @@ def populate_invoices(web2py):
     today = datetime.date.today()
     delta = datetime.timedelta(days = 14)
 
+    teacher_payment = False,
+    teacher_payment_month = None
+    teacher_payment_year = None
+
+    if teacher_fixed_price_invoices:
+        teacher_payment = True
+        teacher_payment_month = datetime.date.today().month
+        teacher_payment_year = datetime.date.today().year
+
     rows = web2py.db().select(web2py.db.auth_user.ALL)
     for row in rows:
         cuID = row.id
@@ -1260,6 +1339,10 @@ def populate_invoices(web2py):
         iID = web2py.db.invoices.insert(
             invoices_groups_id = 100,
             payment_methods_id = 3,
+            TeacherPayment=teacher_payment,
+            TeacherPaymentMonth=teacher_payment_month,
+            TeacherPaymentYear=teacher_payment_year,
+            CustomerName=row.display_name,
             Status = 'sent',
             InvoiceID = 'INV' + unicode(cuID),
             DateCreated = today,
@@ -1731,4 +1814,3 @@ def populate_shop_categories(web2py):
     )
 
     web2py.db.commit()
-

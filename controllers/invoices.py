@@ -604,7 +604,15 @@ def edit_get_customer_info(invoice, form):
         form.custom.widget.CustomerAddress,
         _class='box-body')
 
-    box = DIV(DIV(H3(T("To"), _class='box-title'),
+    link_customer = ''
+    cuID = invoice.get_linked_customer_id()
+    if cuID:
+        link_customer = A(T('Customer profile'),
+                          _href=URL('customers', 'edit', args=cuID))
+
+
+    box = DIV(DIV(SPAN(link_customer, _class='pull-right'),
+                  H3(T("To"), _class='box-title'),
                   _class='box-header'),
               info,
               _class='box box-primary')
