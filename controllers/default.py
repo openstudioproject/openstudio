@@ -98,7 +98,6 @@ def user():
 
     if 'register' in request.args:
         response.view = 'default/user_login.html'
-        #auth.settings.formstyle = 'divs'
         user_registration_set_visible_fields()
         #db.auth_user.password.requires=IS_STRONG()
 
@@ -119,39 +118,25 @@ def user():
                            form.custom.widget.school_locations_id,
                            _class='form-group')
 
-        privacy_notice = ''
-        terms_and_conditions = ''
-        link_pp = ''
-        link_tc = ''
+        accept_ul = UL(_id='accept_ul')
+        accept_ul.append(
+            LI(T('Confirm that the data above is true and complete'))
+        )
         if organization:
-            tc_pp_links = DIV(' ', _class="form-group")
             if organization['TermsConditionsURL']:
-                tc_pp_links.append(A(T('Terms and conditions'),
-                                     _href=organization['TermsConditionsURL'],
-                                     _target="_blank"))
-                terms_and_conditions = DIV(INPUT(_type="checkbox",
-                                                 _id="accept_terms_and_conditions",
-                                                 _class="iCheck-line-aero"), ' ',
-                                           LABEL(T("I accept the Terms and conditions")),
-                                           _class="form-group")
+                accept_ul.append(SPAN(
+                    T('Agree to the'), ' ',
+                    A(T('Terms and conditions'),
+                      _href=organization['TermsConditionsURL'],
+                      _target="_blank")))
 
             if organization['PrivacyNoticeURL']:
-                tc_pp_links.append(SPAN(
-                    SPAN(' ', XML('&bull;'), ' ', _class='grey'),
+                accept_ul.append(SPAN(
+                    T('Accept the'), ' ',
                     A(T('Privacy notice'),
                       _href=organization['PrivacyNoticeURL'],
                       _target="_blank")))
-                privacy_notice = DIV(INPUT(_type="checkbox",
-                                           _id='accept_privacy_policy',
-                                           _class="iCheck-line-aero"), ' ',
-                                     LABEL(T("I accept the privacy notice")),
-                                     _class="form-group")
 
-        complete_data = DIV(INPUT(_type="checkbox",
-                                  _id='data_true_and_complete',
-                                  _class="iCheck-line-aero"), ' ',
-                             LABEL(T("I confirm that the data entered in this form is true and complete")),
-                             _class="form-group")
 
         form = DIV(
             H4(T('Register'), _class='grey text-center no-margin-top'),
@@ -172,10 +157,8 @@ def user():
                 form.custom.widget.password_two,
                 _class='form-group'),
             location,
-            tc_pp_links,
-            terms_and_conditions,
-            privacy_notice,
-            complete_data,
+            SPAN(T('By signing up I'), _class='bold'),
+            accept_ul,
             BR(),
             A(T('Cancel'),
               _href=URL(args='login'),

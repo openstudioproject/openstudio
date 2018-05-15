@@ -180,7 +180,7 @@ def invoice_pay():
     invoice = Invoice(iID)
     invoice_amounts = invoice.get_amounts()
 
-    if not invoice.invoice.auth_customer_id == auth.user.id:
+    if not invoice.get_linked_customer_id() == auth.user.id:
         return 'Not authorized'
 
     mollie = Mollie.API.Client()
@@ -192,7 +192,7 @@ def invoice_pay():
     mollie_customer_id = None
 
     # Subscription invoice?
-    if invoice.invoice.customers_subscriptions_id:
+    if invoice.get_linked_customer_subscription_id():
         # subscription invoice
         # customer = Customer(auth.user.id)
         # mollie_customer_id = customer.row.mollie_customer_id
@@ -353,7 +353,7 @@ def subscription_buy_now():
             #print str(e)
             #print 'customer id invalid, create new customer'
             if 'The customer id is invalid' in str(e):
-                create_mollie_customer(os_customer)
+                create_mollie_customer(os_customer, mollie)
     else:
         create_mollie_customer(os_customer, mollie)
 

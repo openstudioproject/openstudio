@@ -131,11 +131,11 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
 
 
     def has_subscription_on_date(self, date):
-        '''
+        """
         :param date: datetime.date
         :return: Boolean
-        '''
-        if len(self.get_subscriptions_on_date(date)) > 0:
+        """
+        if self.get_subscriptions_on_date(date):
             return True
         else:
             return False
@@ -235,9 +235,9 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
 
 
     def get_classcards(self, date, from_cache=True):
-        '''
+        """
             Get day rows with caching
-        '''
+        """
         web2pytest = current.globalenv['web2pytest']
         request = current.globalenv['request']
 
@@ -254,6 +254,17 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
             rows = cache.ram(cache_key , lambda: self._get_classcards(date), time_expire=CACHE_LONG)
 
         return rows
+
+
+    def has_classcard_on_date(self, date):
+        """
+        :param date: datetime.date
+        :return: Boolean
+        """
+        if self.get_classcards(date):
+            return True
+        else:
+            return False
 
 
     def get_subscriptions_and_classcards_formatted(self,
@@ -2494,10 +2505,10 @@ class CustomerSubscription:
 
 
     def create_invoice_for_month(self, SubscriptionYear, SubscriptionMonth):
-        '''
+        """
             :param SubscriptionYear: Year of subscription
             :param SubscriptionMonth: Month of subscription
-        '''
+        """
         db = current.globalenv['db']
         TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
@@ -2509,11 +2520,17 @@ class CustomerSubscription:
         firstdaythismonth = datetime.date(SubscriptionYear, SubscriptionMonth, 1)
         lastdaythismonth = get_last_day_month(firstdaythismonth)
 
+        left = [ db.invoices_customers_subscriptions.on(
+            db.invoices_customers_subscriptions.invoices_id ==
+            db.invoices.id
+        )]
+
         # Check if an invoice already exists, if so, return invoice id
-        query = (db.invoices.customers_subscriptions_id == self.csID) & \
+        query = (db.invoices_customers_subscriptions.customers_subscriptions_id == self.csID) & \
                 (db.invoices.SubscriptionYear == SubscriptionYear) & \
                 (db.invoices.SubscriptionMonth == SubscriptionMonth)
-        rows = db(query).select(db.invoices.ALL)
+        rows = db(query).select(db.invoices.ALL,
+                                left=left)
         if len(rows):
             return rows.first().id
 
@@ -3429,7 +3446,7 @@ class AttendanceHelper:
 
         query = '''
             SELECT au.id,
-                   au.archived,
+                   au.trashed,
                    au.birthday,
                    au.thumbsmall,
                    au.first_name,
@@ -3544,11 +3561,11 @@ class AttendanceHelper:
 
 
     def get_reservation_rows(self, clsID, date):
-        '''
+        """
             :param clsID: db.classes.id 
             :param date: datetime.date
             :return: reservation rows for a class
-        '''
+        """
         db = current.globalenv['db']
 
         fields = [
@@ -3566,10 +3583,9 @@ class AttendanceHelper:
             db.classes_reservation.Enddate,
         ]
 
-
         query = '''
             SELECT au.id,
-                   au.archived,
+                   au.trashed,
                    au.birthday,
                    au.thumbsmall,
                    au.first_name,
@@ -4433,6 +4449,7 @@ class AttendanceHelper:
             return button_book
 
         T = current.globalenv['T']
+        db = current.globalenv['db']
         os_gui = current.globalenv['os_gui']
         CURRSYM = current.globalenv['CURRSYM']
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
@@ -4503,6 +4520,24 @@ class AttendanceHelper:
                              _class='col-md-10 col-md-offset-1 col-xs-12')
 
                 options.append(option)
+        elif list_type =='shop':
+            # show buy link if list type shop
+            features = db.customers_shop_features(1)
+            if features.Subscriptions:
+                button_buy = A(SPAN(T('Shop'), ' ', os_gui.get_fa_icon('fa-chevron-right')),
+                               _href=URL('shop', 'subscriptions'),
+                               _class='pull-right btn btn-link')
+
+                option = DIV(DIV(T('Subscription'),
+                                 _class='col-md-3 bold'),
+                             DIV(T('No subscription found'), BR(),
+                                 SPAN(T('Click "Shop" to sign up for a subscription'), _class='grey'),
+                                 _class='col-md-6'),
+                             DIV(button_buy,
+                                 _class='col-md-3'),
+                             _class='col-md-10 col-md-offset-1 col-xs-12')
+
+                options.append(option)
 
         # class cards
         classcards = customer.get_classcards(date)
@@ -4545,8 +4580,7 @@ class AttendanceHelper:
                              _class='col-md-10 col-md-offset-1 col-xs-12')
 
                 options.append(option)
-        else:
-            if list_type == 'attendance':
+        elif list_type == 'attendance':
                 url = URL('customers', 'classcard_add',
                           vars={'cuID': customer.row.id,
                                 'clsID': clsID,
@@ -4561,6 +4595,25 @@ class AttendanceHelper:
                              DIV(T('No cards found - sell a new card',),
                                  _class='col-md-6'),
                              DIV(button_add,
+                                 _class='col-md-3'),
+                             _class='col-md-10 col-md-offset-1 col-xs-12')
+
+                options.append(option)
+
+        elif list_type =='shop':
+            # show buy link if list type shop
+            features = db.customers_shop_features(1)
+            if features.Classcards:
+                button_buy = A(SPAN(T('Shop'), ' ', os_gui.get_fa_icon('fa-chevron-right')),
+                               _href=URL('shop', 'classcards'),
+                               _class='pull-right btn btn-link')
+
+                option = DIV(DIV(T('Class card'),
+                                 _class='col-md-3 bold'),
+                             DIV(T('No class card found'), BR(),
+                                 SPAN(T('Click "Shop" to buy a card'), _class='grey'),
+                                 _class='col-md-6'),
+                             DIV(button_buy,
                                  _class='col-md-3'),
                              _class='col-md-10 col-md-offset-1 col-xs-12')
 
@@ -6827,6 +6880,8 @@ class Workshop:
         self.auth_teacher_name2 = repr_row.auth_teacher_id2
         self.Preview = self.workshop.Preview
         self.Description = self.workshop.Description
+        self.school_levels_id = self.workshop.school_levels_id
+        self.school_level = repr_row.school_levels_id
         self.school_locations_id = self.workshop.school_locations_id
         self.school_location = repr_row.school_locations_id
         self.picture = self.workshop.picture
@@ -7370,6 +7425,7 @@ class WorkshopSchedule:
             db.workshops.auth_teacher_id2,
             db.workshops.Preview,
             db.workshops.Description,
+            db.workshops.school_levels_id,
             db.workshops.school_locations_id,
             db.workshops.picture,
             db.workshops.thumbsmall,
@@ -7389,6 +7445,7 @@ class WorkshopSchedule:
                ws.auth_teacher_id2,
                ws.Preview,
                ws.Description,
+               ws.school_levels_id,
                ws.school_locations_id,
                ws.picture,
                ws.thumbsmall,
@@ -8572,6 +8629,22 @@ class Invoice:
             return None
 
 
+    def get_linked_customer_subscription_id(self):
+        """
+            Returns auth.user.id of account linked to this invoice
+            :return: auth.user.id
+        """
+        db = current.globalenv['db']
+
+        query = (db.invoices_customers_subscriptions.invoices_id == self.invoices_id)
+        rows = db(query).select(db.invoices_customers_subscriptions.customers_subscriptions_id)
+
+        if rows:
+            return rows.first().customers_subscriptions_id
+        else:
+            return None
+
+
 class InvoicesHelper:
     """
         Contains functions for invoices usefull in multiple controllers
@@ -8631,7 +8704,6 @@ class InvoicesHelper:
         db = current.globalenv['db']
 
         cs = CustomerSubscription(csID)
-        db.invoices.customers_subscriptions_id.default = csID
         db.invoices.payment_methods_id.default = cs.payment_methods_id
         db.invoices.SubscriptionYear.readable = True
         db.invoices.SubscriptionYear.writable = True
@@ -8970,7 +9042,6 @@ class InvoicesHelper:
         # General list, list for customer or list for subscription
         if not cuID and not csID:
             # list all invoices
-            db.invoices.auth_customer_id.readable = True
             fields.insert(2, db.invoices.CustomerListName)
 
         if cuID:
@@ -8983,14 +9054,12 @@ class InvoicesHelper:
         delete_permission = auth.has_membership(group_id='Admins') or \
                             auth.has_permission('delete', 'invoices')
 
-        headers = {'invoices.auth_customer_id': T("Customer")}
 
         grid = SQLFORM.grid(query,
                             links=links,
                             left=left,
                             field_id=db.invoices.id,
                             fields=fields,
-                            headers=headers,
                             create=False,
                             editable=False,
                             details=False,

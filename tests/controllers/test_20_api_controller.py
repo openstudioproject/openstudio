@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
     py.test test cases to test the API controller (api.py)
-'''
+"""
 
 import urllib
 import gluon.contrib.simplejson as sj
@@ -17,9 +17,9 @@ from populate_os_tables import populate_school_classcards
 base_url = 'http://dev.openstudioproject.com:8000'
 
 def populate_schedule(web2py):
-    '''
+    """
         Sets up a class and API user to test with
-    '''
+    """
     populate_api_users(web2py)
 
     web2py.db.auth_user.insert(id=2,
@@ -108,37 +108,37 @@ def populate_schedule(web2py):
 
 
 def test_schedule_get_extension_error():
-    '''
+    """
         Check whether we get a value error when a call is made without variables
-    '''
+    """
     url = base_url + '/api/schedule_get'
     page = urllib.urlopen(url).read()
     assert "Extension error" in page
 
 
 def test_schedule_get_days_extension_error():
-    '''
+    """
         Check whether we get a value error when a call is made without variables
-    '''
+    """
     url = base_url + '/api/schedule_get_days'
     page = urllib.urlopen(url).read()
     assert "Extension error" in page
 
 
 def test_workshops_get_extension_error():
-    '''
+    """
         Check whether we get a value error when a class is made without variabled
-    '''
+    """
     url = base_url + '/api/workshops_get'
     page = urllib.urlopen(url).read()
     assert "Extension error" in page
 
 
 def test_schedule_get_authentication_error():
-    '''
+    """
         Check whether we get an authentication error when we don't supply
         a username and password or a wrong username and password
-    '''
+    """
     url = base_url + \
         '/api/schedule_get.json?user=test&key=test&year=2014&week=1'
     page = urllib.urlopen(url).read()
@@ -146,10 +146,10 @@ def test_schedule_get_authentication_error():
 
 
 def test_schedule_get_days_authentication_error():
-    '''
+    """
         Check whether we get an authentication error when we don't supply
         a username and password or a wrong username and password
-    '''
+    """
     url = base_url + \
         '/api/schedule_get_days.json?user=test&key=test&date_start=2014-01-01&date_end=2014-01-06'
     page = urllib.urlopen(url).read()
@@ -157,10 +157,10 @@ def test_schedule_get_days_authentication_error():
 
 
 def test_workshops_get_authentication_error():
-    '''
+    """
         Check whether we get an authentication error when we don't supply
         a username and password or a wrong username and password
-    '''
+    """
     url = base_url + \
         '/api/workshops_get.json?user=test&key=test'
     page = urllib.urlopen(url).read()
@@ -168,9 +168,9 @@ def test_workshops_get_authentication_error():
 
 
 def test_schedule_get_value_error():
-    '''
+    """
         Check whether we specify a string for year and week
-    '''
+    """
     url = base_url + \
         '/api/schedule_get.json?user=test&key=test&year=bla&week=bla'
     page = urllib.urlopen(url).read()
@@ -178,9 +178,9 @@ def test_schedule_get_value_error():
 
 
 def test_schedule_get_days_value_error():
-    '''
+    """
         Check whether we specify a string for year and week
-    '''
+    """
     url = base_url + \
         '/api/schedule_get_days.json?user=test&key=test&date_start=2000&date_end=2014-01-06'
     page = urllib.urlopen(url).read()
@@ -188,9 +188,9 @@ def test_schedule_get_days_value_error():
 
 
 def test_schedule_get_missing_value():
-    '''
+    """
         Check whether we specify a string for year and week
-    '''
+    """
     url = base_url + \
         '/api/schedule_get.json'
     page = urllib.urlopen(url).read()
@@ -198,9 +198,9 @@ def test_schedule_get_missing_value():
 
 
 def test_schedule_get_days_missing_value():
-    '''
+    """
         Check whether we specify a string for year and week
-    '''
+    """
     url = base_url + \
         '/api/schedule_get_days.json'
     page = urllib.urlopen(url).read()
@@ -208,10 +208,10 @@ def test_schedule_get_days_missing_value():
 
 
 def test_schedule_get_json(client, web2py):
-    '''
+    """
         Check whether we can get the information in the database through the api
         using the JSON interface.
-    '''
+    """
     populate_schedule(web2py)
 
     url = base_url + \
@@ -313,9 +313,9 @@ def test_schedule_get_json(client, web2py):
 
 
 def test_shedule_get_days_json(client, web2py):
-    '''
+    """
         test schedule_get_days API endpoint
-    '''
+    """
     populate_schedule(web2py)
 
 
@@ -381,9 +381,9 @@ def test_shedule_get_days_json(client, web2py):
 
 
 def test_workshops_get_json(client, web2py):
-    '''
+    """
         test workshops_get API endpoint
-    '''
+    """
     populate_workshops_for_api_tests(web2py)
 
     # Check if workshop is in the list
@@ -410,9 +410,9 @@ def test_workshops_get_json(client, web2py):
 
 
 def test_workshop_get_json(client, web2py):
-    '''
+    """
         test workshop_get API endpoint
-    '''
+    """
     populate_workshops_for_api_tests(web2py)
 
     # Check if workshop is in the list
@@ -439,10 +439,10 @@ def test_workshop_get_json(client, web2py):
 
 
 def workshop_get_dates(activities):
-    '''
+    """
         :param workshop: Workshop object
         :param activities: workshop activities rows
-    '''
+    """
     date_until = ''
     if len(activities) > 0:
         date_from = activities[0].Activitydate
@@ -459,9 +459,9 @@ def workshop_get_dates(activities):
 
 
 def test_school_subscriptions_get_json(client, web2py):
-    '''
+    """
         Are the subscriptions returned correctly?
-    '''
+    """
     populate_api_users(web2py)
 
     populate_school_subscriptions(web2py)
@@ -477,9 +477,9 @@ def test_school_subscriptions_get_json(client, web2py):
 
 
 def test_school_classcards_get_json(client, web2py):
-    '''
+    """
         Are the class cards returned correctly?
-    '''
+    """
     populate_api_users(web2py)
 
     populate_school_classcards(web2py, 2)
@@ -493,9 +493,9 @@ def test_school_classcards_get_json(client, web2py):
 
 
 def test_school_teachers_get_json(client, web2py):
-    '''
+    """
         Are the teachers returned correctly?
-    '''
+    """
     from populate_os_tables import populate_auth_user_teachers
 
     populate_api_users(web2py)

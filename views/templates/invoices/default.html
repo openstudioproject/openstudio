@@ -175,8 +175,8 @@
         {{ if invoice.CustomerCompany: }}
             {{ =invoice.CustomerCompany }}<br>
         {{ pass }}
-        {{ if invoice.CustomerListName: }}
-            {{ =invoice.CustomerListName }}<br>
+        {{ if invoice.CustomerName: }}
+            {{ =invoice.CustomerName }}<br>
         {{ pass }}
         {{ if invoice.CustomerAddress: }}
             {{ =XML(invoice.CustomerAddress.replace('\n', '<br>')) }}<br>

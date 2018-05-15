@@ -6,6 +6,10 @@
     background-color: #ECF0F5;
 } */
 
+.bold {
+    font-weight: bold;
+}
+
 .alert {
     background-image: none;
 }
@@ -75,4 +79,8 @@ img.logo_os_clouds {
 
 #label_remember {
     font-weight: 500;
+}
+
+#accept_ul {
+    padding-left: 20px;
 }

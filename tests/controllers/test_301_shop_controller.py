@@ -153,7 +153,7 @@ def test_classes_booking_status_cancelled(client, web2py):
     web2py.db.commit()
 
     # check past & cancelled classes
-    url = '/shop/classes?date=2014-01-01'
+    url = '/shop/classes?date=' + unicode(next_monday)
     client.get(url)
     assert client.status == 200
 
@@ -195,13 +195,11 @@ def test_classes_booking_status_full(client, web2py):
     prepare_classes(web2py)
 
     # check current classes
-    url = '/shop/classes?date=2014-01-01'
+    url = '/shop/classes?date=' + unicode(next_monday)
     client.get(url)
     assert client.status == 200
 
     # Check fully booked
-    next_monday = next_weekday(datetime.date.today(), 0)
-
     cls = web2py.db.classes(1)
     cls.MaxOnlineBooking = 1
     cls.update_record()
@@ -744,9 +742,9 @@ def test_class_book_subscription_no_credits(client, web2py):
 
 
 def test_class_book_subscription_no_shopbook_permission(client, web2py):
-    '''
+    """
         We should be redirected back to the booking options page
-    '''
+    """
     url = '/user/login'
     client.get(url)
     assert client.status == 200
@@ -773,7 +771,7 @@ def test_class_book_subscription_no_shopbook_permission(client, web2py):
     assert client.status == 200
 
     # We should be redirected back to booking options page
-    assert "Book this class" in client.text
+    assert "Booking options for this class" in client.text
 
 
 def test_class_book_trial(client, web2py):
@@ -1468,9 +1466,9 @@ def test_cart_remove_past_classes(client, web2py):
 
 
 def test_checkout(client, web2py):
-    '''
+    """
         Is the checkout page listing all items from the cart?
-    '''
+    """
     populate_customers_shoppingcart(web2py)
 
     url = '/shop/checkout'

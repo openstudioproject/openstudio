@@ -632,9 +632,10 @@ def test_customers_subscription_delete(client, web2py):
     populate_customers_with_subscriptions(web2py, 2)
 
     # insert invoice and check that the subscription isn't deletable anymore
+    csID = 1
     iID = web2py.db.invoices.insert(
         invoices_groups_id          = 100,
-        customers_subscriptions_id  = 1,
+        customers_subscriptions_id  = csID,
         SubscriptionMonth           = 1,
         SubscriptionYear            = 2014,
         Status                      = 'sent',
@@ -645,6 +646,11 @@ def test_customers_subscription_delete(client, web2py):
     ciID = web2py.db.invoices_customers.insert(
         auth_customer_id=1001,
         invoices_id=iID
+    )
+
+    icsID = web2py.db.invoices_customers_subscriptions.insert(
+        customers_subscriptions_id = csID,
+        invoices_id = iID
     )
 
     web2py.db.commit()

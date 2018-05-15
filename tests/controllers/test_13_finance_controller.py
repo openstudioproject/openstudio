@@ -305,13 +305,15 @@ def test_add_batch_invoices_with_zero_lines(client, web2py):
     # customer10's subscription has price 0, so no invoice was created
 
     assert web2py.db(web2py.db.payment_batches_items).count() == 6
-
+    
 
 def test_add_batch_invoices_location(client, web2py):
     """
         Check whether we can add an invoice based batch and items are generated
         propery for a selected location
     """
+    client.get('/default/user/login')
+    assert client.status == 200
     ## set sys_property
     # without this, the form doesn't accept 'school_locations_id'
     web2py.db.sys_properties.insert(
@@ -367,7 +369,8 @@ def test_add_batch_invoices_location(client, web2py):
                  web2py.db.invoices.id
              ),
              web2py.db.auth_user.on(web2py.db.auth_user.id ==
-                web2py.db.invoices_customers.auth_customer_id)]
+                web2py.db.invoices_customers.auth_customer_id)
+           ]
 
     sum = web2py.db.invoices_amounts.TotalPriceVAT.sum()
     query = (web2py.db.auth_user.school_locations_id == school_locations_id)

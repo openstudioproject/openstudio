@@ -2518,6 +2518,7 @@ def define_workshops():
                (db.auth_user.teacher == True) & \
                (db.auth_user.teaches_workshops == True)
 
+    sl_query = (db.school_levels.Archived == False)
     loc_query = (db.school_locations.Archived == False)
 
     db.define_table('workshops',
@@ -2540,6 +2541,12 @@ def define_workshops():
               represent=lambda value, row: value or "",
               label=T('Tagline'),
               comment=T('If asked to describe this event in a short sentence, it would be...')),
+        Field('school_levels_id', db.school_levels, required=False,
+            requires=IS_EMPTY_OR(IS_IN_DB(db(sl_query),
+                                 'school_levels.id',
+                                 '%(Name)s')),
+            represent=lambda value, row: levels_dict.get(value, T("")),
+            label=T("Level")),
         Field('Startdate', 'date',
             writable=False,
             requires=IS_EMPTY_OR(IS_DATE_IN_RANGE(format=DATE_FORMAT,

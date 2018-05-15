@@ -1197,7 +1197,7 @@ def list_payments():
     db.invoices.Note.readable = False
     db.invoices.Terms.readable = False
 
-    query = (db.invoices.auth_customer_id == cuID)
+    query = (db.invoices_customers.auth_customer_id == cuID)
     #links = [ list_invoices_get_links ]
     links = ''
 
@@ -1208,9 +1208,11 @@ def list_payments():
                db.invoices_payments.payment_methods_id,
                db.invoices_payments.Note ]
 
-    left = [ db.invoices.on(db.invoices_payments.invoices_id == \
+    left = [ db.invoices.on(db.invoices_payments.invoices_id ==
                             db.invoices.id),
-             db.invoices_amounts.on(db.invoices_payments.invoices_id == \
+             db.invoices_customers.on(db.invoices_customers.invoices_id ==
+                                      db.invoices.id),
+             db.invoices_amounts.on(db.invoices_payments.invoices_id ==
                                     db.invoices.id) ]
 
     delete_permission = auth.has_membership(group_id='Admins') or \
@@ -1312,9 +1314,9 @@ def subscriptions_create_invoices():
 
 
 def subscriptions_create_invoices_execute(year, month, description):
-    '''
+    """
         Actually create invoices for subscriptions for a given month
-    '''
+    """
     firstdaythismonth = datetime.date(year, month, 1)
     lastdaythismonth  = get_last_day_month(firstdaythismonth)
 
@@ -1337,9 +1339,6 @@ def subscriptions_create_invoices_execute(year, month, description):
         csap.Amount,
         csap.Description
     ]
-
-
-    #TODO: Link invoices id using invoices_customers and invoices_customers_subscriptions
 
     rows = db.executesql(
         """
@@ -1403,12 +1402,14 @@ def subscriptions_create_invoices_execute(year, month, description):
                   (cs.Enddate >= '{firstdaythismonth}' OR cs.Enddate IS NULL) AND
                   ssp.Price <> 0 AND
                   ssp.Price IS NOT NULL AND
-                  au.archived = 'F'
+                  au.trashed = 'F'
         """.format(firstdaythismonth=firstdaythismonth,
                    lastdaythismonth =lastdaythismonth,
                    year=year,
                    month=month),
       fields=fields)
+
+    print db._lastsql[0]
 
     igpt = db.invoices_groups_product_types(ProductType = 'subscription')
     igID = igpt.invoices_groups_id
@@ -1734,8 +1735,11 @@ def export_invoices_get_export(from_date, until_date, invoices_groups_id, filety
              db.auth_user.on(db.invoices_customers.auth_customer_id == db.auth_user.id),
              db.tax_rates.on(db.invoices_items.tax_rates_id ==
                              db.tax_rates.id),
+             db.invoices_customers_subscriptions.on(
+                 db.invoices_customers_subscriptions.invoices_id ==
+                 db.invoices.id),
              db.customers_subscriptions.on(
-                db.invoices.customers_subscriptions_id ==
+                db.invoices_customers_subscriptions.customers_subscriptions_id ==
                 db.customers_subscriptions.id),
              db.school_subscriptions.on(
                 db.customers_subscriptions.school_subscriptions_id ==
@@ -1927,9 +1931,9 @@ def export_payments():
 
 
 def export_payments_get_export(from_date, until_date, invoices_groups_id):
-    '''
+    """
         Payments export
-    '''
+    """
     # create filestream
     stream = cStringIO.StringIO()
 
@@ -1970,13 +1974,19 @@ def export_payments_get_export(from_date, until_date, invoices_groups_id):
                                     db.invoices_payments.invoices_id),
              db.payment_methods.on(db.invoices_payments.payment_methods_id ==
                                    db.payment_methods.id),
+             db.invoices_customers_subscriptions.on(
+                 db.invoices_customers_subscriptions.invoices_id ==
+                 db.invoices.id),
              db.customers_subscriptions.on(
-                db.invoices.customers_subscriptions_id ==
+                db.invoices_customers_subscriptions.customers_subscriptions_id ==
                 db.customers_subscriptions.id),
              db.school_subscriptions.on(
                 db.customers_subscriptions.school_subscriptions_id ==
                 db.school_subscriptions.id),
-             db.auth_user.on(db.invoices.auth_customer_id == db.auth_user.id),
+             db.invoices_customers.on(db.invoices_customers.invoices_id ==
+                                      db.invoices.id),
+             db.auth_user.on(db.invoices_customers.auth_customer_id == db.auth_user.id),
+
              ]
 
     rows = db(query).select(db.invoices_payments.ALL,
