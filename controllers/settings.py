@@ -2481,7 +2481,7 @@ def shop_customer_profile_features():
         Customer profile settings
     '''
     response.title = T("Settings")
-    response.subtitle = T('Shop customer profiles [BETA]')
+    response.subtitle = T('Shop profiles')
     response.view = 'general/tabs_menu.html'
 
     crud.messages.submit_button = T("Save")
@@ -2495,7 +2495,7 @@ def shop_customer_profile_features():
     form = result['form']
     submit = result['submit']
 
-    content = DIV(H4(T('Customer login features')),
+    content = DIV(H4(T('Profile features')),
                   form)
 
     back = system_get_back()
@@ -2544,7 +2544,7 @@ def shop_customers_profile_announcements():
     grid.elements('span[title=Delete]', replace=None)
 
     add_url = URL('shop_customers_profile_announcement_add')
-    add = os_gui.get_button('add', add_url, T("Add a new announcement to customer profiles"))
+    add = os_gui.get_button('add', add_url, T("Add a new announcement to profiles"))
 
     back = system_get_back()
     menu = shop_get_menu(request.function)
@@ -2570,9 +2570,9 @@ def shop_customers_profile_announcements_get_link_edit(row):
 
 def shop_customers_profile_announcement_add():
     '''
-        Add a new announcement to customer profiles
+        Add a new announcement to profiles
     '''
-    response.title = T("New customer profile announcement")
+    response.title = T("New profile announcement")
     response.subtitle = T('')
     response.view = 'general/only_content.html'
 
@@ -3023,7 +3023,7 @@ def shop_get_menu(page):
               T('Features'),
               URL('shop_features')],
              ['shop_customer_profile_features',
-              T('Customer profiles'),
+              T('Profiles'),
               URL('shop_customer_profile_features')],
              ['shop_customers_profile_announcements',
               T('Profile announcements'),

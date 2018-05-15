@@ -4384,9 +4384,9 @@ def define_mollie_log_webhook():
 
 
 def define_customers_profile_features():
-    '''
+    """
         Define table to hold which features are enabled for customer logins
-    '''
+    """
     db.define_table('customers_profile_features',
         Field('Classes', 'boolean',
             default=True,
@@ -4409,6 +4409,10 @@ def define_customers_profile_features():
         Field('Mail', 'boolean',
             default=True,
             label=T('Mailing lists')),
+        Field('StaffPayments', 'boolean',
+            default=True,
+            label=T('Staff payments'),
+            comment=T("List payments for teachers and other employees (Customers don't see this menu item)")),
         Field('Privacy', 'boolean',
             default=True,
             label=T('Privacy'),
@@ -4417,9 +4421,9 @@ def define_customers_profile_features():
 
 
 def define_customers_profile_announcements():
-    '''
+    """
         Define table to hold announcements shown on customer profiles
-    '''
+    """
     db.define_table('customers_profile_announcements',
         Field('PublicAnnouncement', 'boolean', required=True,
             default=True,
