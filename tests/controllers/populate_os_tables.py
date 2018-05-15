@@ -466,6 +466,40 @@ def populate_auth_user_teachers_fixed_rate_travel(web2py):
     web2py.db.commit()
 
 
+def populate_auth_user_teachers_payment_invoices(web2py):
+    """
+        Insert teacher payment invoices for all teachers
+    """
+    query = (web2py.db.auth_user.teacher == True)
+    rows = web2py.db(query).select(web2py.db.auth_user.ALL)
+
+    today = datetime.date.today()
+
+    for row in rows:
+        iID = web2py.db.invoices.insert(
+            TeacherPayment = True,
+            TeacherPaymentMonth = today.month,
+            TeacherPaymentYear = today.year,
+            CustomerName = row.display_name,
+            Status = 'sent',
+            InvoiceID = 'INV00' + unicode(row.id),
+            Description = 'Payment test',
+            DateCreated = today,
+            DateDue = today + datetime.timedelta(days=31),
+        )
+
+        icID = web2py.db.invoices_customers.insert(
+            auth_customer_id=row.id,
+            invoices_id=iID
+        )
+
+        web2py.db.invoices_amounts.insert(invoices_id=iID)
+
+    web2py.db.commit()
+
+    populate_invoices_items(web2py, credit_items=True)
+
+
 def populate_classes(web2py, with_otc=False):
     """
         This function creates a class and populates the required tables for that.
@@ -1359,16 +1393,20 @@ def populate_invoices(web2py, teacher_fixed_price_invoices=False):
     web2py.db.commit()
 
 
-def populate_invoices_items(web2py):
+def populate_invoices_items(web2py, credit_items=False):
     """
         Adds an item for each invoice found
     """
+    quantity = 10
+    price = 12
+
+    if credit_items:
+        quantity = quantity * -1
+        price = price * -1
+
     rows = web2py.db().select(web2py.db.invoices.ALL)
     for row in rows:
         iID = row.id
-
-        quantity = 10
-        price    = 12
 
         web2py.db.invoices_items.insert(
             invoices_id         = iID,

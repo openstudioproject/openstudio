@@ -298,7 +298,7 @@ def upgrade_to_20185():
 
     query = (db.payment_batches.payment_categories_id != None)
     db(query).update(BatchTypeDescription='category')
-    
+
     ##
     # clear cache
     ##

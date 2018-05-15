@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-'''
+"""
     py.test test cases to test OpenStudio.
     These tests run based on webclient and need web2py server running.
-'''
+"""
 
 import datetime
 
@@ -29,9 +29,9 @@ from setup_profile_tests import setup_profile_tests
 
 
 def next_weekday(d, weekday):
-    '''
+    """
         Function to find next weekday after given date
-    '''
+    """
     days_ahead = weekday - d.weekday()
     if days_ahead <= 0: # Target day already happened this week
         days_ahead += 7
@@ -39,9 +39,9 @@ def next_weekday(d, weekday):
 
 
 def test_customers_shop_features(client, web2py):
-    '''
+    """
         Are the settings to control of which pages to show in the shop working?
-    '''
+    """
     # get random url to setup OpenStudio environment
     url = '/default/user/login'
     client.get(url)
@@ -110,9 +110,9 @@ def test_customers_shop_features(client, web2py):
 
 
 def test_classes(client, web2py):
-    '''
+    """
         Is the page listing classes for a week working? 
-    '''
+    """
     prepare_classes(web2py)
 
     url = '/shop/classes'
@@ -239,9 +239,9 @@ def test_classes_week_chooser(client, web2py):
 
 
 def test_classes_filter(client, web2py):
-    '''
+    """
         Is the page listing classes for a week working? 
-    '''
+    """
     prepare_classes(web2py)
     # Check location filter
     url = '/shop/classes?year=2014&week=2'
@@ -282,9 +282,9 @@ def test_classes_filter(client, web2py):
 
 
 def test_classes_book_options(client, web2py):
-    '''
+    """
         Is the page listing the booking options showing everything? 
-    '''
+    """
     url = '/user/login'
     client.get(url)
     assert client.status == 200
@@ -350,9 +350,9 @@ def test_classes_book_options(client, web2py):
 
 
 def test_classes_book_options_not_yet_open(client, web2py):
-    '''
+    """
         Is the not yet open for bookings message displayed?
-    '''
+    """
     url = '/user/login'
     client.get(url)
     assert client.status == 200
@@ -394,9 +394,9 @@ def test_classes_book_options_not_yet_open(client, web2py):
 
 
 def test_classes_book_options_already_booked(client, web2py):
-    '''
+    """
         Is the already booked message displayed?
-    '''
+    """
     url = '/user/login'
     client.get(url)
     assert client.status == 200
@@ -431,9 +431,9 @@ def test_classes_book_options_already_booked(client, web2py):
 
 
 def test_classes_book_options_no_past_class_bookings(client, web2py):
-    '''
+    """
          Are we redirected to the next class that's actually happening when we're trying to book a class in the past?
-    '''
+    """
     setup_profile_tests(web2py)
     prepare_classes(web2py)
 
@@ -448,9 +448,9 @@ def test_classes_book_options_no_past_class_bookings(client, web2py):
 
 
 def test_classes_book_options_no_class_bookings_on_wrong_weekday(client, web2py):
-    '''
+    """
          Are we redirected to the next class that's actually happening when we're trying to book a class in the past?
-    '''
+    """
     setup_profile_tests(web2py)
     prepare_classes(web2py)
 
@@ -465,9 +465,9 @@ def test_classes_book_options_no_class_bookings_on_wrong_weekday(client, web2py)
 
 
 def test_classes_book_options_no_cancelled_class_bookings(client, web2py):
-    '''
+    """
          Are we redirected to the next class that's actually happening when we're trying to book a cancelled class?
-    '''
+    """
     setup_profile_tests(web2py)
     prepare_classes(web2py)
 
@@ -490,10 +490,10 @@ def test_classes_book_options_no_cancelled_class_bookings(client, web2py):
 
 
 def test_classes_book_options_no_bookings_during_holidays(client, web2py):
-    '''
+    """
          Are we redirected to the next class that's actually happening when we're trying to book a class
          during a holiday?
-    '''
+    """
     setup_profile_tests(web2py)
     prepare_classes(web2py)
 
@@ -522,9 +522,9 @@ def test_classes_book_options_no_bookings_during_holidays(client, web2py):
 
 
 def test_classes_book_options_enroll_show(client, web2py):
-    '''
+    """
          Is the enroll option showing?
-    '''
+    """
     url = '/user/login'
     client.get(url)
     assert client.status == 200
@@ -553,9 +553,9 @@ def test_classes_book_options_enroll_show(client, web2py):
 
 
 def test_classes_book_options_enroll_not_allowed_message(client, web2py):
-    '''
+    """
          Is the enroll option showing?
-    '''
+    """
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
@@ -585,9 +585,9 @@ def test_classes_book_options_enroll_not_allowed_message(client, web2py):
 
 
 def test_classes_book_options_enroll_no_subscription_message(client, web2py):
-    '''
+    """
          Is the enroll option showing?
-    '''
+    """
     setup_profile_tests(web2py)
     prepare_classes(web2py)
 
@@ -604,9 +604,9 @@ def test_classes_book_options_enroll_no_subscription_message(client, web2py):
 
 
 def test_classes_book_options_enroll_already_enrolled_message(client, web2py):
-    '''
+    """
          Is the enroll option showing?
-    '''
+    """
     setup_profile_tests(web2py)
     prepare_classes(web2py)
 
@@ -629,9 +629,9 @@ def test_classes_book_options_enroll_already_enrolled_message(client, web2py):
 
 
 def test_classes_book_options_enroll_no_spaces_message(client, web2py):
-    '''
+    """
          Is the enroll option showing?
-    '''
+    """
     setup_profile_tests(web2py)
     prepare_classes(web2py)
 
@@ -658,9 +658,9 @@ def test_classes_book_options_enroll_no_spaces_message(client, web2py):
 
 
 def test_class_book_subscription(client, web2py):
-    '''
+    """
         Can we actually book a class? 
-    '''
+    """
     url = '/user/login'
     client.get(url)
     assert client.status == 200
@@ -700,9 +700,9 @@ def test_class_book_subscription(client, web2py):
 
 
 def test_class_book_subscription_no_credits(client, web2py):
-    '''
+    """
         Is a message shown to the customer when there are no classes remaining
-    '''
+    """
     url = '/user/login'
     client.get(url)
     assert client.status == 200
@@ -862,9 +862,9 @@ def test_class_book_classcard(client, web2py):
 
 
 def test_class_book_classcard_no_shopbook_permission(client, web2py):
-    '''
+    """
         We should be redirected back to the booking options page
-    '''
+    """
     url = '/user/login'
     client.get(url)
     assert client.status == 200
@@ -891,13 +891,13 @@ def test_class_book_classcard_no_shopbook_permission(client, web2py):
     assert client.status == 200
 
     # We should be redirected back to booking options page
-    assert "Book this class" in client.text
+    assert "Booking options for this class" in client.text
 
 
 def test_class_book_classcard_recurring_class_cancelled(client, web2py):
-    '''
+    """
         Recurring booking not possible when class is cancelled
-    '''
+    """
     url = '/user/login'
     client.get(url)
     assert client.status == 200
@@ -943,9 +943,9 @@ def test_class_book_classcard_recurring_class_cancelled(client, web2py):
 
 
 def test_class_book_classcard_recurring_class_during_holiday(client, web2py):
-    '''
+    """
         Recurring booking not possible when class is in a holiday
-    '''
+    """
     url = '/user/login'
     client.get(url)
     assert client.status == 200
@@ -997,9 +997,9 @@ def test_class_book_classcard_recurring_class_during_holiday(client, web2py):
 
 
 def test_class_book_classcard_recurring_class_full(client, web2py):
-    '''
+    """
         Recurring booking not possible when OnlineBooking spaces for a class are full
-    '''
+    """
     url = '/user/login'
     client.get(url)
     assert client.status == 200
@@ -1045,9 +1045,9 @@ def test_class_book_classcard_recurring_class_full(client, web2py):
 
 
 def test_class_book_classcard_recurring_no_classcard_classes_remaining(client, web2py):
-    '''
+    """
         It should not be possible to recur a booking on a class card without remaining classes
-    '''
+    """
     url = '/user/login'
     client.get(url)
     assert client.status == 200
@@ -1092,9 +1092,9 @@ def test_class_book_classcard_recurring_no_classcard_classes_remaining(client, w
 
 
 def test_class_book_classcard_recurring_past_advance_booking_limit(client, web2py):
-    '''
+    """
         Recurring booking not possible when OnlineBooking spaces for a class are full
-    '''
+    """
     url = '/user/login'
     client.get(url)
     assert client.status == 200
@@ -1141,9 +1141,9 @@ def test_class_book_classcard_recurring_past_advance_booking_limit(client, web2p
 
 
 def test_class_book_classcard_recurring_class_past_classcard_enddate(client, web2py):
-    '''
+    """
         Recurring class not booked when after classcard enddate
-    '''
+    """
     url = '/user/login'
     client.get(url)
     assert client.status == 200
@@ -1183,9 +1183,9 @@ def test_class_book_classcard_recurring_class_past_classcard_enddate(client, web
 
 
 def test_class_book_classcard_recurring(client, web2py):
-    '''
+    """
         Are recurring classes booked?
-    '''
+    """
     url = '/user/login'
     client.get(url)
     assert client.status == 200
@@ -1226,9 +1226,9 @@ def test_class_book_classcard_recurring(client, web2py):
 
 
 def test_class_enroll(client, web2py):
-    '''
+    """
         Can we add enrollments?
-    '''
+    """
     from populate_os_tables import populate_classes
 
     url = '/profile/index'
@@ -1264,9 +1264,9 @@ def test_class_enroll(client, web2py):
 
 
 def test_class_add_to_cart(client, web2py):
-    '''
+    """
         Can we add a drop in class to the shopping cart? 
-    '''
+    """
     url = '/user/login'
     client.get(url)
     assert client.status == 200
@@ -1286,9 +1286,9 @@ def test_class_add_to_cart(client, web2py):
 
 
 def test_class_add_to_cart_requires_complete_profile(client, web2py):
-    '''
+    """
         Can we add a drop in class to the shopping cart?
-    '''
+    """
     url = '/user/login'
     client.get(url)
     assert client.status == 200
@@ -1314,9 +1314,9 @@ def test_class_add_to_cart_requires_complete_profile(client, web2py):
 
 
 def test_classcards(client, web2py):
-    '''
+    """
         Is the page that lists class cards working?
-    '''
+    """
     # populate a regular card and a trial card
     populate_school_classcards(web2py, 1)
 
@@ -1352,9 +1352,9 @@ def test_classcards(client, web2py):
 
 
 def test_classcard_add_to_cart(client, web2py):
-    '''
+    """
         Are classcards added to the shopping cart as expected?
-    '''
+    """
     setup_profile_tests(web2py)
 
     # populate a regular card and a trial card
@@ -1374,9 +1374,9 @@ def test_classcard_add_to_cart(client, web2py):
 
 
 def test_classcard_add_to_cart_requires_complete_profile(client, web2py):
-    '''
+    """
         Are classcards added to the shopping cart as expected?
-    '''
+    """
     setup_profile_tests(web2py)
     web2py.db.sys_properties.insert(
         Property="shop_requires_complete_profile",
@@ -1396,9 +1396,9 @@ def test_classcard_add_to_cart_requires_complete_profile(client, web2py):
 
 
 def test_cart(client, web2py):
-    '''
+    """
         Is the shoppingcart page displaying things as expected?
-    '''
+    """
     populate_customers_shoppingcart(web2py)
 
     url = '/shop/cart'
@@ -1651,9 +1651,9 @@ def test_order_paid_delivery_invoice(client, web2py):
 
 
 def test_invoice_paid(client, web2py):
-    '''
+    """
         Is a payment added when an invoice is paid?
-    '''
+    """
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
@@ -1678,9 +1678,9 @@ def test_invoice_paid(client, web2py):
 
 
 def test_complete(client, web2py):
-    '''
+    """
         Is the order/payment complete page showing correctly?
-    '''
+    """
     setup_profile_tests(web2py)
     populate_customers(web2py)
     populate_customers_orders(web2py)
@@ -1714,9 +1714,9 @@ def test_complete(client, web2py):
 
 
 def test_contact(client, web2py):
-    '''
+    """
         Is the contact page showing all info?
-    '''
+    """
     populate_sys_organizations(web2py)
 
     url = '/shop/contact'
@@ -1741,9 +1741,9 @@ def test_contact(client, web2py):
 
 
 def test_event_add_to_cart(client, web2py):
-    '''
+    """
         Can we add a workshop to the shopping cart?
-    '''
+    """
     setup_profile_tests(web2py)
 
     # populate workshops table
@@ -1763,9 +1763,9 @@ def test_event_add_to_cart(client, web2py):
 
 
 def test_event_add_to_cart_requires_complete_profile(client, web2py):
-    '''
+    """
         Is the required profile check working for workshops?
-    '''
+    """
     setup_profile_tests(web2py)
 
     # populate workshops table
@@ -1786,9 +1786,9 @@ def test_event_add_to_cart_requires_complete_profile(client, web2py):
 
 
 def test_event_sold_out(client, web2py):
-    '''
+    """
         Is the 'sold out' text showing correctly for sold out workshops
-    '''
+    """
     populate_workshops_for_api_tests(web2py)
 
     url = '/shop/event?wsID=1'
@@ -1799,9 +1799,9 @@ def test_event_sold_out(client, web2py):
 
 
 def test_event_product_price_donation(client, web2py):
-    '''
+    """
         Is the text "Donation based" showing when the "Donation" checkbox is enabled for a workshop product?
-    '''
+    """
     setup_profile_tests(web2py)
     populate_workshops_for_api_tests(web2py)
 
@@ -1821,9 +1821,9 @@ def test_event_product_price_donation(client, web2py):
 
 
 def test_event_product_already_purchased(client, web2py):
-    '''
+    """
         Is the error message showing when a customer has already bought a product
-    '''
+    """
     setup_profile_tests(web2py)
     populate_workshops_for_api_tests(web2py, auth_customer_id=300)
 
@@ -1835,9 +1835,9 @@ def test_event_product_already_purchased(client, web2py):
 
 
 def test_event_product_external_shop_url_and_alt_btn_text(client, web2py):
-    '''
+    """
         Are the fields to link to an external shop from the workshops page working? 
-    '''
+    """
     setup_profile_tests(web2py)
     populate_workshops_for_api_tests(web2py, auth_customer_id=300)
 
@@ -1851,10 +1851,10 @@ def test_event_product_external_shop_url_and_alt_btn_text(client, web2py):
 
 
 def test_subscription_terms(client, web2py):
-    '''
+    """
         Are the terms for a subscription showing correctly?
          ( First the general terms defined in settings and below the specific terms from the subscription in school )
-    '''
+    """
     setup_profile_tests(web2py)
 
     # get random url to init OpenStudio env
@@ -1884,10 +1884,10 @@ def test_subscription_terms(client, web2py):
 
 
 def test_subscription_terms_requires_complete_profile(client, web2py):
-    '''
+    """
         Are the terms for a subscription showing correctly?
          ( First the general terms defined in settings and below the specific terms from the subscription in school )
-    '''
+    """
     setup_profile_tests(web2py)
 
     # get random url to init OpenStudio env
@@ -1918,11 +1918,11 @@ def test_subscription_terms_requires_complete_profile(client, web2py):
 
 
 def test_donate(client, web2py):
-    '''
+    """
         Is an order created with the right amount when a donation is made?
         
         ( Invoice creation for donations is tested in test_order_paid_delivery_invoice ) 
-    '''
+    """
     url = '/shop/donate'
     client.get(url)
     assert client.status == 200

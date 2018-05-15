@@ -37,11 +37,7 @@ def test_customers_add(client, web2py):
                 )
     client.post('/customers/add', data=data)
     assert client.status == 200
-
-    print client.text
-
     assert 'Profile' in client.text # verify redirection to edit page
-
 
     client.get('/customers')
     assert client.status == 200
