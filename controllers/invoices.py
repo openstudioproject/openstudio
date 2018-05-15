@@ -290,7 +290,10 @@ def edit():
     except AttributeError:
         cuID = None
 
-    csID = invoice.invoice.customers_subscriptions_id
+    try:
+        csID = db.invoices_customers_subscriptions(invoices_id = iID).customers_subscriptions_id
+    except AttributeError:
+        csID = None
 
     return_url = edit_get_back(cuID, csID)
 
@@ -313,7 +316,7 @@ def edit():
     for textarea in textareas:
         textarea['_class'] += ' tmced'
 
-    back     = os_gui.get_button('back', return_url)
+    back = os_gui.get_button('back', return_url)
     modal_payments = edit_get_modal_payments(iID)
     modal_payment_add = edit_get_link_add_payment(iID)
     modals.append(modal_payments)
@@ -488,9 +491,9 @@ def edit_get_amounts(invoice, formatted=True):
 
 
 def edit_get_back(cuID, csID=None):
-    '''
+    """
         Returns back link for invoice edit page
-    '''
+    """
 
     if session.invoices_edit_back == 'customers_invoices':
         url = URL('customers', 'invoices', vars={'cuID':cuID})
