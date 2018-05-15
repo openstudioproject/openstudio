@@ -466,7 +466,7 @@ def test_add_batch_category_without_zero_lines(client, web2py):
     assert not alt_desc_3 in client.text
 
 
-def test_batch_set_status_sent_to_bank_add_payments(client, web2py):
+def test_invoices_batch_set_status_sent_to_bank_add_payments(client, web2py):
     """
         Check if payments are added to invoices when the status of a batch
         becomes 'sent to bank'
@@ -507,8 +507,73 @@ def test_batch_set_status_sent_to_bank_add_payments(client, web2py):
     client.get(url)
     assert client.status == 200
 
-    # check if 8 payments have been added
+    # check if 6 payments have been added
     assert web2py.db(web2py.db.invoices_payments.id > 0).count() == 6
+
+    ip = web2py.db.invoices_payments(1)
+    assert ip.payment_methods_id == 3
+
+    # check payment amounts
+    sum = web2py.db.invoices_amounts.TotalPriceVAT.sum()
+    invoices_amount = web2py.db().select(sum).first()[sum]
+
+    sum = web2py.db.invoices_payments.Amount.sum()
+    payments_amount = web2py.db().select(sum).first()[sum]
+
+    assert invoices_amount == payments_amount
+
+
+def test_teacher_payments_batch_set_status_sent_to_bank_add_payments(client, web2py):
+    """
+        Check if payments are added to invoices when the status of a batch
+        becomes 'sent to bank'
+    """
+    url = '/finance/batch_add?export=payment&what=teacher_invoices'
+    client.get(url)
+    assert client.status == 200
+
+    prepare_classes(web2py)
+    populate_auth_user_teachers_fixed_rate_default(web2py)
+    populate_auth_user_teachers_fixed_rate_class_1(web2py)
+    populate_auth_user_teachers_fixed_rate_travel(web2py)
+
+    # Create invoices
+    url = '/finance/teacher_payments_generate_invoices_choose_month'
+    client.get(url)
+    assert client.status == 200
+
+    today = datetime.date.today()
+
+    data = {
+        'month': today.month,
+        'year': today.year
+    }
+    client.post(url, data=data)
+    assert client.status == 200
+
+    url = '/finance/batch_add?export=payment&what=teacher_payments'
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        'Name': 'Batch3435435',
+        'ColMonth': today.month,
+        'ColYear': today.year,
+        'Exdate': '2099-01-01',
+    }
+    client.post(url, data=data)
+    assert client.status == 200
+
+    # check setting of status 'sent_to_bank'
+    url = '/finance/batch_content_set_status?pbID=1&status=sent_to_bank'
+    client.get(url)
+    assert client.status == 200
+
+    # check if 8 payments have been added
+    assert web2py.db(web2py.db.invoices_payments.id > 0).count() == 2
+
+    ip = web2py.db.invoices_payments(1)
+    assert ip.payment_methods_id == 2
 
     # check payment amounts
     sum = web2py.db.invoices_amounts.TotalPriceVAT.sum()

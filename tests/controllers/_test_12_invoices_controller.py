@@ -79,7 +79,6 @@ def test_invoice_add_from_customer_subscription(client, web2py):
     ig_1 = web2py.db.invoices_groups(100)
     invoice = web2py.db.invoices(1)
 
-    assert invoice.customers_subscriptions_id == 1
     assert invoice.SubscriptionYear == 2014
     assert invoice.SubscriptionMonth == 1
     assert invoice.Terms == ig_1.Terms
