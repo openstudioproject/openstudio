@@ -1238,7 +1238,7 @@ def privacy():
     return dict(content=content, back=back)
 
 
-def privacy_get_documents():
+def privacy_get_documents(var=None):
     """
         returns list of documents for customer
     """
@@ -1279,6 +1279,11 @@ def privacy_download():
     """
     from openstudio.openstudio import CustomerExport
 
+    # Check whether the privacy feature is enabled
+    features = db.customers_profile_features(1)
+    if not features.Privacy:
+        redirect(URL('profile', 'index'))
+
     ce = CustomerExport(auth.user.id)
     stream = ce.excel()
 
@@ -1292,11 +1297,15 @@ def privacy_download():
 @auth.requires_login()
 def mail():
     """
-        List
+        List MailChimp mailing lists
     """
     response.title = T('Mail')
     response.view = 'shop/index.html'
 
+    # Check whether the privacy feature is enabled
+    features = db.customers_profile_features(1)
+    if not features.Mail:
+        redirect(URL('profile', 'index'))
 
     content = DIV(LOAD('mailchimp', 'lists_for_customer.load',
                               content=os_gui.get_ajax_loader(message=T("Loading mailing lists...")),
@@ -1305,3 +1314,21 @@ def mail():
 
     return dict(content=content)
 
+
+@auth.requires_login()
+def staff_payments():
+    """
+        List staff payments
+    """
+    response.Title = T('Payments')
+    response.view = 'shop/index.html'
+
+    if auth.user.teacher == False and auth.user.employee == False:
+        redirect(URL('profile', 'index'))
+
+    # Check whether the privacy feature is enabled
+    features = db.customers_profile_features(1)
+    if not features.StaffPayments:
+        redirect(URL('profile', 'index'))
+
+    
