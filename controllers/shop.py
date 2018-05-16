@@ -598,18 +598,21 @@ def event_get_pictures(workshop):
     :param wsID: db.workshops.id
     :return: pictures for event
     """
+    def get_img_thumbnail(thumbnail):
+        return IMG(_src=URL('default', 'download', args=thumbnail))
+
     thumbnails = DIV()
 
     if workshop.picture:
-        thumbnails.append(IMG(_src=URL('default', 'download', args=workshop.thumbsmall)))
+        thumbnails.append(get_img_thumbnail(workshop.thumbsmall))
     if workshop.picture_2:
-        thumbnails.append(IMG(_src=URL('default', 'download', args=workshop.thumbsmall_2)))
+        thumbnails.append(get_img_thumbnail(workshop.thumbsmall_2))
     if workshop.picture_3:
-        thumbnails.append(IMG(_src=URL('default', 'download', args=workshop.thumbsmall_3)))
+        thumbnails.append(get_img_thumbnail(workshop.thumbsmall_3))
     if workshop.picture_4:
-        thumbnails.append(IMG(_src=URL('default', 'download', args=workshop.thumbsmall_4)))
+        thumbnails.append(get_img_thumbnail(workshop.thumbsmall_4))
     if workshop.picture_5:
-        thumbnails.append(IMG(_src=URL('default', 'download', args=workshop.thumbsmall_5)))
+        thumbnails.append(get_img_thumbnail(workshop.thumbsmall_5))
 
     pictures = DIV(IMG(_src=URL('default', 'download', args=workshop.picture),
                        _class='workshop_image'),
