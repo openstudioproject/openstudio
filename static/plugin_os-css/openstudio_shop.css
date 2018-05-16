@@ -345,6 +345,16 @@ img.workshop_image {
     margin-top: 44px;
 }
 
+.shop_workshop_thumbnails {
+    margin: 10px 0;
+}
+
+.shop_workshop_thumbnails img {
+    width: 50px;
+    padding-right: 6px;
+    vertical-align: bottom;
+}
+
 /* Workshops end */
 
 /* Staff payments begin */

@@ -6894,7 +6894,19 @@ class Workshop:
         self.picture = self.workshop.picture
         self.thumbsmall = self.workshop.thumbsmall
         self.thumblarge = self.workshop.thumblarge
-        self.PublicWorkshop = self.workshop.PublicWorkshop
+        self.picture_2 = self.workshop.picture_2
+        self.thumbsmall_2 = self.workshop.thumbsmall_2
+        self.thumblarge_2 = self.workshop.thumblarge_2
+        self.picture_3 = self.workshop.picture_3
+        self.thumbsmall_3 = self.workshop.thumbsmall_3
+        self.thumblarge_3 = self.workshop.thumblarge_3
+        self.picture_4 = self.workshop.picture_3
+        self.thumbsmall_4 = self.workshop.thumbsmall_4
+        self.thumblarge_4 = self.workshop.thumblarge_4
+        self.picture_5 = self.workshop.picture_5
+        self.thumbsmall_5 = self.workshop.thumbsmall_5
+        self.thumblarge_5 = self.workshop.thumblarge_5
+        self.PublicWorkshop_5 = self.workshop.PublicWorkshop
 
 
     def get_products(self, filter_public = False):

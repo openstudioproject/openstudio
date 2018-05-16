@@ -556,15 +556,12 @@ def event():
     add_to_cart_buttons = result['add_to_cart_buttons']
     activities = event_get_activities(workshop)
     fullwspID = workshops_get_full_workshop_product_id(wsID)
-    picture_url = URL('default', 'download', args=workshop.picture)
 
     content = DIV(
         H2(workshop.Name, _class='center'),
         H4(workshop.Tagline, _class='center'),
         DIV(DIV(_class='col-md-1'),
-            DIV(IMG(_src=picture_url,
-                    _class='workshop_image'),
-                _class='col-md-4'),
+            event_get_pictures(workshop),
             DIV(XML(workshop.Description),
                 _class='col-md-6'),
             DIV(_class='col-md-1'),
@@ -593,7 +590,33 @@ def event():
                 og_title=workshop.Name,
                 og_description=workshop.Tagline, 
                 og_url=URL('shop', 'event', vars={'wsID':wsID}, scheme=True, host=True),
-                og_image=picture_url)
+                og_image=URL('default', 'download', args=workshop.picture))
+
+
+def event_get_pictures(workshop):
+    """
+    :param wsID: db.workshops.id
+    :return: pictures for event
+    """
+    thumbnails = DIV()
+
+    if workshop.picture:
+        thumbnails.append(IMG(_src=URL('default', 'download', args=workshop.thumbsmall)))
+    if workshop.picture_2:
+        thumbnails.append(IMG(_src=URL('default', 'download', args=workshop.thumbsmall_2)))
+    if workshop.picture_3:
+        thumbnails.append(IMG(_src=URL('default', 'download', args=workshop.thumbsmall_3)))
+    if workshop.picture_4:
+        thumbnails.append(IMG(_src=URL('default', 'download', args=workshop.thumbsmall_4)))
+    if workshop.picture_5:
+        thumbnails.append(IMG(_src=URL('default', 'download', args=workshop.thumbsmall_5)))
+
+    pictures = DIV(IMG(_src=URL('default', 'download', args=workshop.picture),
+                       _class='workshop_image'),
+                   DIV(thumbnails, _class='shop_workshop_thumbnails'),
+                   _class='col-md-4')
+
+    return pictures
 
 
 def event_get_products_filter_prices_add_to_cart_buttons(workshop):
@@ -1374,7 +1397,6 @@ def class_book_options_get_enrollment_options(clsID, date, date_formatted, featu
                             _class='center'))
 
         options.append(option)
-
 
         return options
     else:
