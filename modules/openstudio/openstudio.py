@@ -461,9 +461,9 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
 
 
     def get_orders_rows(self):
-        '''
+        """
             Returns orders for a customer
-        '''
+        """
         db = current.globalenv['db']
 
         query = (db.customers_orders.auth_customer_id == self.cuID)
