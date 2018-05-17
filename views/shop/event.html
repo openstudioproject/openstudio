@@ -92,7 +92,16 @@
                 $book_now.show();
             }
         }
-
-        
     });
+</script>
+
+<!-- Script for images -->
+<script>
+$(document).ready(function() {
+    $('.workshop_thumbsmall').on('click', function() {
+        var link = $(this).attr('data_link');
+        $('#workshop_thumblarge').attr("src", link);
+    });
+});
+
 </script>

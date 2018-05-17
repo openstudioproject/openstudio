@@ -598,24 +598,32 @@ def event_get_pictures(workshop):
     :param wsID: db.workshops.id
     :return: pictures for event
     """
-    def get_img_thumbnail(thumbnail):
-        return IMG(_src=URL('default', 'download', args=thumbnail))
+    def get_img_thumbnail(thumbsmall, thumblarge):
+        return IMG(_src=URL('default', 'download', args=thumbsmall),
+                   _data_link=URL('default', 'download', args=thumblarge),
+                   _class='workshop_thumbsmall')
 
     thumbnails = DIV()
 
     if workshop.picture:
-        thumbnails.append(get_img_thumbnail(workshop.thumbsmall))
+        thumbnails.append(get_img_thumbnail(workshop.thumbsmall,
+                                            workshop.thumblarge))
     if workshop.picture_2:
-        thumbnails.append(get_img_thumbnail(workshop.thumbsmall_2))
+        thumbnails.append(get_img_thumbnail(workshop.thumbsmall_2,
+                                            workshop.thumblarge_2))
     if workshop.picture_3:
-        thumbnails.append(get_img_thumbnail(workshop.thumbsmall_3))
+        thumbnails.append(get_img_thumbnail(workshop.thumbsmall_3,
+                                            workshop.thumblarge_3))
     if workshop.picture_4:
-        thumbnails.append(get_img_thumbnail(workshop.thumbsmall_4))
+        thumbnails.append(get_img_thumbnail(workshop.thumbsmall_4,
+                                            workshop.thumbsmall_4))
     if workshop.picture_5:
-        thumbnails.append(get_img_thumbnail(workshop.thumbsmall_5))
+        thumbnails.append(get_img_thumbnail(workshop.thumbsmall_5,
+                                            workshop.thumblarge_5))
 
-    pictures = DIV(IMG(_src=URL('default', 'download', args=workshop.picture),
-                       _class='workshop_image'),
+    pictures = DIV(IMG(_src=URL('default', 'download', args=workshop.thumblarge),
+                       _class='workshop_image',
+                       _id='workshop_thumblarge'),
                    DIV(thumbnails, _class='shop_workshop_thumbnails'),
                    _class='col-md-4')
 
