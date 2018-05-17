@@ -601,7 +601,7 @@ def event_get_pictures(workshop):
     def get_img_thumbnail(thumbsmall, thumblarge):
         return IMG(_src=URL('default', 'download', args=thumbsmall),
                    _data_link=URL('default', 'download', args=thumblarge),
-                   _class='workshop_thumbsmall')
+                   _class='workshop_thumbsmall clickable')
 
     thumbnails = DIV()
 
