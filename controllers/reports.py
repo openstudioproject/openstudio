@@ -2355,14 +2355,6 @@ def subscriptions_alt_prices():
     submit = form_subtitle['submit']
 
     csap = db.customers_subscriptions_alt_prices
-    # left = [ db.customers_subscriptions.on(csap.customers_subscriptions_id == \
-    #                                        db.customers_subscriptions.id),
-    #          db.auth_user.on(db.customers_subscriptions.auth_customer_id == \
-    #                          db.auth_user.id),
-    #          db.invoices.on(db.customers_subscriptions.id ==
-    #             db.invoices.customers_subscriptions_id)]
-    # query = (csap.SubscriptionYear == session.reports_subscriptions_year) & \
-    #         (csap.SubscriptionMonth == session.reports_subscriptions_month)
 
     fields = [csap.Description,
               csap.Amount,
@@ -2388,28 +2380,28 @@ def subscriptions_alt_prices():
                                    au.birthday,
                                    au.display_name,
                                    au.thumbsmall,
-                                   inv.id,
-                                   inv.InvoiceID,
+                                   i.id,
+                                   i.InvoiceID,
                                    inva.TotalPriceVAT
                             FROM customers_subscriptions_alt_prices csap
                             LEFT JOIN customers_subscriptions cs
                                    ON cs.id = csap.customers_subscriptions_id
                             LEFT JOIN auth_user au
                                    ON au.id = cs.auth_customer_id
-                            LEFT JOIN
-                                (SELECT id,
-                                        customers_subscriptions_id,
-                                        SubscriptionYear,
-                                        SubscriptionMonth,
-                                        InvoiceID
-                                 FROM invoices
-                                 WHERE SubscriptionYear = {year} AND
-                                       SubscriptionMonth = {month}) inv
-                                 ON inv.customers_subscriptions_id = cs.id
-                            LEFT JOIN invoices_amounts inva
-                                   ON inva.invoices_id = inv.id
-                            WHERE csap.SubscriptionYear = {year} AND
-                                  csap.SubscriptionMonth = {month}
+							LEFT JOIN 
+								(SELECT i.id,
+										i.InvoiceID,
+										i.SubscriptionYear,
+                                        i.SubscriptionMonth,
+                                        ics.customers_subscriptions_id
+									FROM invoices i
+                                    LEFT JOIN invoices_customers_subscriptions ics ON ics.invoices_id = i.id
+                                    WHERE i.SubscriptionYear = '{year}' AND i.SubscriptionMonth = '{month}'
+								) i ON i.customers_subscriptions_id = cs.id
+							LEFT JOIN invoices_amounts inva 
+								   ON inva.invoices_id = i.id
+                            WHERE csap.SubscriptionYear = '{year}' AND
+                                  csap.SubscriptionMonth = '{month}'
                             ORDER BY au.display_name DESC """.format(
                                 year=session.reports_subscriptions_year,
                                 month=session.reports_subscriptions_month
