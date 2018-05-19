@@ -572,7 +572,7 @@ def event():
                 _class='col-md-6'),
             DIV(_class='col-md-1'),
             _class='row shop_workshop_info'),
-        DIV(DIV(H2(T('Tickets')),
+        DIV(DIV(H2(T('Agenda')),
                 products_filter,
                 _class="col-md-10 col-md-offset-1"),
             _class='row'),
@@ -713,7 +713,7 @@ def event_get_products_filter_prices_add_to_cart_buttons(workshop):
                 _class='col-md-4'),
             _class='row')
 
-    return dict(products_filter=DIV(BR(),
+    return dict(products_filter=DIV(LABEL(T("Tickets")),
                                     products_filter),
                 products_prices=products_prices,
                 add_to_cart_buttons=add_to_cart_buttons)
