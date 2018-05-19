@@ -559,8 +559,11 @@ def event():
     picture_url = URL('default', 'download', args=workshop.picture)
 
     content = DIV(
-        H2(workshop.Name, _class='center'),
-        H4(workshop.Tagline, _class='center'),
+        DIV(
+            DIV(H2(workshop.Name),
+                H4(workshop.Tagline),
+                _class="col-md-10 col-md-offset-1"),
+            _class='row'),
         DIV(DIV(_class='col-md-1'),
             DIV(IMG(_src=picture_url,
                     _class='workshop_image'),
@@ -569,14 +572,19 @@ def event():
                 _class='col-md-6'),
             DIV(_class='col-md-1'),
             _class='row shop_workshop_info'),
-        DIV(H2(T('Agenda')),
-            products_filter,
-            _class='center'),
+        DIV(DIV(H2(T('Tickets')),
+                products_filter,
+                _class="col-md-10 col-md-offset-1"),
+            _class='row'),
         activities,
-        BR(), BR(), BR(),
-        DIV(products_prices, _class='center'),
+        BR(), BR(),
+        DIV(DIV(products_prices,
+                _class="col-md-10 col-md-offset-1"),
+            _class="row"),
         #DIV(workshop_get_button_book(fullwspID), _class='center'),
-        DIV(add_to_cart_buttons, _class='center'),
+        DIV(DIV(add_to_cart_buttons,
+                _class="col-md-10 col-md-offset-1"),
+            _class="row"),
         _class='shop_workshop')
 
     #TODO: add teacher info
@@ -697,15 +705,16 @@ def event_get_products_filter_prices_add_to_cart_buttons(workshop):
 
         add_to_cart_buttons.append(add_to_cart)
 
-
     if len(products) == 1:
         products_filter = ''
-    if len(products) > 3:
-        products_filter = DIV(DIV(products_select, BR(), BR(),
-                                  _class='col-md-4 col-md-offset-4'),
-                              _class='row')
+    if len(products) > 2:
+        products_filter = DIV(
+            DIV(products_select, BR(),
+                _class='col-md-4'),
+            _class='row')
 
-    return dict(products_filter=products_filter,
+    return dict(products_filter=DIV(BR(),
+                                    products_filter),
                 products_prices=products_prices,
                 add_to_cart_buttons=add_to_cart_buttons)
 
@@ -763,9 +772,7 @@ def event_get_activities(workshop):
 
         activities.append(activity_mobile)
 
-    return DIV(DIV(_class='col-md-1'),
-               DIV(activities, _class='col-md-10'),
-               DIV(_class='col-md-1'),
+    return DIV(DIV(activities, _class='col-md-10 col-md-offset-1'),
                _class='row workshop-activities')
 
 
