@@ -556,7 +556,6 @@ def event():
     add_to_cart_buttons = result['add_to_cart_buttons']
     activities = event_get_activities(workshop)
     fullwspID = workshops_get_full_workshop_product_id(wsID)
-    picture_url = URL('default', 'download', args=workshop.picture)
 
     content = DIV(
         DIV(
@@ -565,9 +564,7 @@ def event():
                 _class="col-md-10 col-md-offset-1"),
             _class='row'),
         DIV(DIV(_class='col-md-1'),
-            DIV(IMG(_src=picture_url,
-                    _class='workshop_image'),
-                _class='col-md-4'),
+            event_get_pictures(workshop),
             DIV(XML(workshop.Description),
                 _class='col-md-6'),
             DIV(_class='col-md-1'),
@@ -600,7 +597,44 @@ def event():
                 og_title=workshop.Name,
                 og_description=workshop.Tagline, 
                 og_url=URL('shop', 'event', vars={'wsID':wsID}, scheme=True, host=True),
-                og_image=picture_url)
+                og_image=URL('default', 'download', args=workshop.picture))
+
+
+def event_get_pictures(workshop):
+    """
+    :param wsID: db.workshops.id
+    :return: pictures for event
+    """
+    def get_img_thumbnail(thumbsmall, thumblarge):
+        return IMG(_src=URL('default', 'download', args=thumbsmall),
+                   _data_link=URL('default', 'download', args=thumblarge),
+                   _class='workshop_thumbsmall clickable')
+
+    thumbnails = DIV()
+
+    if workshop.picture:
+        thumbnails.append(get_img_thumbnail(workshop.thumbsmall,
+                                            workshop.thumblarge))
+    if workshop.picture_2:
+        thumbnails.append(get_img_thumbnail(workshop.thumbsmall_2,
+                                            workshop.thumblarge_2))
+    if workshop.picture_3:
+        thumbnails.append(get_img_thumbnail(workshop.thumbsmall_3,
+                                            workshop.thumblarge_3))
+    if workshop.picture_4:
+        thumbnails.append(get_img_thumbnail(workshop.thumbsmall_4,
+                                            workshop.thumbsmall_4))
+    if workshop.picture_5:
+        thumbnails.append(get_img_thumbnail(workshop.thumbsmall_5,
+                                            workshop.thumblarge_5))
+
+    pictures = DIV(IMG(_src=URL('default', 'download', args=workshop.thumblarge),
+                       _class='workshop_image',
+                       _id='workshop_thumblarge'),
+                   DIV(thumbnails, _class='shop_workshop_thumbnails'),
+                   _class='col-md-4')
+
+    return pictures
 
 
 def event_get_products_filter_prices_add_to_cart_buttons(workshop):
@@ -1380,7 +1414,6 @@ def class_book_options_get_enrollment_options(clsID, date, date_formatted, featu
                             _class='center'))
 
         options.append(option)
-
 
         return options
     else:

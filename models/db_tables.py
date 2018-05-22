@@ -2645,6 +2645,78 @@ def define_workshops():
                                              (400, 400),
                                              name="Large"),
             represent = represent_workshops_thumblarge),
+        Field('picture_2', 'upload', autodelete=True,
+            requires=IS_EMPTY_OR([IS_IMAGE(extensions=('jpeg', 'jpg', 'png')),
+                                           IS_LENGTH(maxsize=665600,
+                                                     error_message=T('650KB or less'))]), # 650KB
+            label=T("Image (Max 650KB)")),
+        Field('thumbsmall_2', 'upload', # generate 50*50 for list view
+            autodelete=True, writable=False,
+            compute = lambda row: SMARTHUMB(row.picture_2,
+                                            (50, 50),
+                                             name="Small"),
+            represent = represent_workshops_thumbsmall,
+            label=T("Image")),
+        Field('thumblarge_2', 'upload', # generate 400*400 for edit view
+            autodelete=True, writable=False,
+            compute = lambda row: SMARTHUMB(row.picture_2,
+                                             (400, 400),
+                                             name="Large"),
+            represent = represent_workshops_thumblarge),
+        Field('picture_3', 'upload', autodelete=True,
+            requires=IS_EMPTY_OR([IS_IMAGE(extensions=('jpeg', 'jpg', 'png')),
+                                           IS_LENGTH(maxsize=665600,
+                                                     error_message=T('650KB or less'))]), # 650KB
+            label=T("Image (Max 650KB)")),
+        Field('thumbsmall_3', 'upload', # generate 50*50 for list view
+            autodelete=True, writable=False,
+            compute = lambda row: SMARTHUMB(row.picture_3,
+                                            (50, 50),
+                                             name="Small"),
+            represent = represent_workshops_thumbsmall,
+            label=T("Image")),
+        Field('thumblarge_3', 'upload', # generate 400*400 for edit view
+            autodelete=True, writable=False,
+            compute = lambda row: SMARTHUMB(row.picture_3,
+                                             (400, 400),
+                                             name="Large"),
+            represent = represent_workshops_thumblarge),
+        Field('picture_4', 'upload', autodelete=True,
+            requires=IS_EMPTY_OR([IS_IMAGE(extensions=('jpeg', 'jpg', 'png')),
+                                           IS_LENGTH(maxsize=665600,
+                                                     error_message=T('650KB or less'))]), # 650KB
+            label=T("Image (Max 650KB)")),
+        Field('thumbsmall_4', 'upload', # generate 50*50 for list view
+            autodelete=True, writable=False,
+            compute = lambda row: SMARTHUMB(row.picture_4,
+                                            (50, 50),
+                                             name="Small"),
+            represent = represent_workshops_thumbsmall,
+            label=T("Image")),
+        Field('thumblarge_4', 'upload', # generate 400*400 for edit view
+            autodelete=True, writable=False,
+            compute = lambda row: SMARTHUMB(row.picture_4,
+                                             (400, 400),
+                                             name="Large"),
+            represent = represent_workshops_thumblarge),
+        Field('picture_5', 'upload', autodelete=True,
+            requires=IS_EMPTY_OR([IS_IMAGE(extensions=('jpeg', 'jpg', 'png')),
+                                           IS_LENGTH(maxsize=665600,
+                                                     error_message=T('650KB or less'))]), # 650KB
+            label=T("Image (Max 650KB)")),
+        Field('thumbsmall_5', 'upload', # generate 50*50 for list view
+            autodelete=True, writable=False,
+            compute = lambda row: SMARTHUMB(row.picture_5,
+                                            (50, 50),
+                                             name="Small"),
+            represent = represent_workshops_thumbsmall,
+            label=T("Image")),
+        Field('thumblarge_5', 'upload', # generate 400*400 for edit view
+            autodelete=True, writable=False,
+            compute = lambda row: SMARTHUMB(row.picture_5,
+                                             (400, 400),
+                                             name="Large"),
+            represent = represent_workshops_thumblarge),
         format='%(Name)s')
 
 
