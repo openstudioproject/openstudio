@@ -17,6 +17,7 @@ class Invoices:
         from os_teacher import Teacher
         from os_teachers import Teachers
         from openstudio import Invoice
+        import datetime
 
         db = current.globalenv['db']
         T = current.T
@@ -65,13 +66,41 @@ class Invoices:
             invoice.link_to_customer(teID)
 
             for date, rows in teacher_classes.iteritems():
+                prev_class_end = datetime.datetime(
+                    date.year,
+                    date.month,
+                    date.day,
+                    0,
+                    0
+                )
                 for row in rows:
-                    invoice.item_add_teacher_class_credit_payment(
-                        row.classes.id,
-                        date
+                    ## Check not adding travel allowance for consecutive classes
+                    class_start = datetime.datetime(
+                        date.year,
+                        date.month,
+                        date.day,
+                        row.classes.Starttime.hour,
+                        row.classes.Starttime.minute
                     )
 
-                    invoice.item_add_teacher_class_credit_travel_allowance(
+                    consecutive = class_start <= (prev_class_end + datetime.timedelta(minutes=30))
+
+                    if not consecutive:
+                        invoice.item_add_teacher_class_credit_travel_allowance(
+                            row.classes.id,
+                            date
+                        )
+
+                    prev_class_end = datetime.datetime(
+                        date.year,
+                        date.month,
+                        date.day,
+                        row.classes.Endtime.hour,
+                        row.classes.Endtime.minute
+                    )
+
+                    # Add class
+                    invoice.item_add_teacher_class_credit_payment(
                         row.classes.id,
                         date
                     )
