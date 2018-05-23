@@ -1343,7 +1343,7 @@ def test_classes_reservation_add_list_classes_for_date(client, web2py):
     # check if we have a location and an add button
     assert 'Add' in client.text
     location_name = web2py.db.school_locations(1).Name.split(' ')[0]
-    assert client.text.count(location_name) == 1
+    assert client.text.count(location_name) == 2
 
 
 ####

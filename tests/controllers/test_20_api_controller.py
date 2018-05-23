@@ -418,6 +418,9 @@ def test_workshop_get_json(client, web2py):
     # Check if workshop is in the list
     url = base_url + '/api/workshop_get.json?user=test&key=test&id=1'
     page = urllib.urlopen(url).read()
+
+    print page
+
     json = sj.loads(page)
 
     workshop = web2py.db.workshops(1)

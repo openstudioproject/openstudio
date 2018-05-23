@@ -592,6 +592,22 @@ def prepare_classes(web2py,
                              AllowShopTrial=True
                              )
 
+    # Monday class 2
+    web2py.db.classes.insert(school_locations_id=1,
+                             school_classtypes_id=1,
+                             Week_day=1,
+                             Starttime='09:15:00',
+                             Endtime='10:45:00',
+                             Startdate='2014-01-01',
+                             Enddate='2999-01-01',
+                             Maxstudents=20,
+                             MaxReservationsRecurring=2,
+                             MaxReservationsDT=2,
+                             MaxOnlineBooking=15,
+                             AllowAPI=True,
+                             AllowShopTrial=True
+                             )
+
     # Tuesday class
     web2py.db.classes.insert(school_locations_id=2,
                              school_classtypes_id=2,
@@ -651,6 +667,9 @@ def prepare_classes(web2py,
                                       auth_teacher_id=2,
                                       Startdate='2014-01-01')
     web2py.db.classes_teachers.insert(classes_id=2,
+                                      auth_teacher_id=2,
+                                      Startdate='2014-01-01')
+    web2py.db.classes_teachers.insert(classes_id=3,
                                       auth_teacher_id=3,
                                       Startdate='2014-01-01')
 

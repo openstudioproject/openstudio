@@ -88,17 +88,27 @@ def test_teacher_payments_generate_invoices(client, web2py):
 
     query = (web2py.db.invoices_items.invoices_id == ic.invoices_id)
     rows = web2py.db(query).select(web2py.db.invoices_items.ALL)
-    item = rows.first()
+    item = rows[0]
 
-    # Check class_specific_rate
-    tpfrc = web2py.db.teachers_payment_fixed_rate_class(1)
-    assert item.Price == tpfrc.ClassRate * -1
+    print web2py.db().select(web2py.db.invoices_items.ALL)
 
     # Check travel allowance
     tpfrt = web2py.db.teachers_payment_fixed_rate_travel(1)
+    assert item.ProductName == 'Travel allowance'
+    assert item.Price == tpfrt.TravelAllowance * -1
+
+    # Check no travel allowance for consecutive classes
     item_2 = rows[1]
-    assert item_2.ProductName == 'Travel allowance'
-    assert item_2.Price == tpfrt.TravelAllowance * -1
+    item_3 = rows[2]
+    assert not item_2.ProductName == 'Travel allowance'
+    assert not item_3.ProductName == 'Travel allowance'
+
+    # Check class_specific_rate
+    item_2 = rows[1]
+    tpfrc = web2py.db.teachers_payment_fixed_rate_class(1)
+    assert item_2.Price == tpfrc.ClassRate * -1
+
+
 
     # Check invoice terms & footer
     ig_1 = web2py.db.invoices_groups(100)

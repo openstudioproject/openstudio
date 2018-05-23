@@ -456,9 +456,9 @@ def _workshops_get(var=None):
 
 
 def workshops_get():
-    '''
+    """
         Cache workshops list for API
-    '''
+    """
     # forget session
     session.forget(response)
 
