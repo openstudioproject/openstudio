@@ -8234,10 +8234,10 @@ class Invoice:
 
 
     def item_add_classcard(self, ccdID):
-        '''
+        """
             :param ccdID: Add customer classcard to invoice
             :return: None
-        '''
+        """
         db = current.globalenv['db']
         T  = current.globalenv['T']
 
@@ -8255,7 +8255,7 @@ class Invoice:
         iiID = db.invoices_items.insert(
             invoices_id=self.invoices_id,
             ProductName=T("Class card"),
-            Description=classcard.name + ' (' + T("Class card") + ' ' + unicode(ccdID) + ')',
+            Description=classcard.name.decode('utf-8') + u' (' + T("Class card") + u' ' + unicode(ccdID) + u')',
             Quantity=1,
             Price=price,
             Sorting=next_sort_nr,
@@ -8290,7 +8290,7 @@ class Invoice:
         iiID = db.invoices_items.insert(
             invoices_id=self.invoices_id,
             ProductName=T('Event'),
-            Description=ws.Name + ' - ' + wsp.Name,
+            Description=ws.Name.decode('utf-8') + u' - ' + wsp.Name.decode('utf-8'),
             Quantity=1,
             Price=wsp.Price,
             Sorting=next_sort_nr,
@@ -8322,7 +8322,7 @@ class Invoice:
         iiID = db.invoices_items.insert(
             invoices_id=self.invoices_id,
             ProductName=T("Donation"),
-            Description=description,
+            Description=description.decode('utf-8'),
             Quantity=1,
             Price=price,
             Sorting=next_sort_nr,
@@ -8404,7 +8404,7 @@ class Invoice:
                 price = round(float(cs_days) / float(total_days) * float(price), 2)
 
             if not description:
-                description = cs.name + ' ' + period_start.strftime(DATE_FORMAT) + ' - ' + period_end.strftime(DATE_FORMAT)
+                description = cs.name.decode('utf-8') + u' ' + period_start.strftime(DATE_FORMAT) + u' - ' + period_end.strftime(DATE_FORMAT)
 
         iiID = db.invoices_items.insert(
             invoices_id  = self.invoices_id,
