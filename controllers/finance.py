@@ -222,8 +222,7 @@ def batch_add():
         tr_categories = TR(TD(LABEL(form.custom.label.payment_categories_id)),
                            TD(form.custom.widget.payment_categories_id))
 
-
-    if what == 'category' or 'teacher_payments':
+    if what == 'category' or what == 'teacher_payments':
         tr_col_month  = TR(TD(LABEL(form.custom.label.ColMonth)),
                            TD(form.custom.widget.ColMonth))
         tr_col_year = TR(TD(LABEL(form.custom.label.ColYear),
@@ -1213,7 +1212,6 @@ def teacher_payments_generate_invoices(year, month):
     session.flash = SPAN(T('Created'), ' ', nr_created, ' ', T('invoice'))
     if nr_created > 1:
         session.flash.append('s')
-
 
 #
 # def orders_get_menu_actions(row):
