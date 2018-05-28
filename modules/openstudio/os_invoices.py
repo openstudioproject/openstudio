@@ -43,6 +43,7 @@ class Invoices:
 
             # Check if we have an invoice already, if so, skip
             query = (db.invoices_customers.auth_customer_id == teID) & \
+                    (db.invoices.TeacherPayment == True) & \
                     (db.invoices.TeacherPaymentMonth == month) & \
                     (db.invoices.TeacherPaymentYear == year) & \
                     (db.invoices_customers.invoices_id == db.invoices.id)
@@ -64,7 +65,6 @@ class Invoices:
 
             invoice = Invoice(iID)
             invoice.link_to_customer(teID)
-
 
             for date, rows in sorted(teacher_classes.iteritems()):
                 prev_class_end = datetime.datetime(
