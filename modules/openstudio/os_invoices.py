@@ -65,7 +65,8 @@ class Invoices:
             invoice = Invoice(iID)
             invoice.link_to_customer(teID)
 
-            for date, rows in teacher_classes.iteritems():
+
+            for date, rows in sorted(teacher_classes.iteritems()):
                 prev_class_end = datetime.datetime(
                     date.year,
                     date.month,
