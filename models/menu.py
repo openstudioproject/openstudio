@@ -301,12 +301,6 @@ def get_backend_menu():
         if user_helpers.check_read_permission('schoolproperties', user_id):
             submenu = []
 
-            # if user_helpers.check_read_permission('school_workflow', user_id):
-            #     submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Workflow')),),
-            #                      False,
-            #                      URL('school_properties', 'workflow',
-            #                          extension='')))
-
             if user_helpers.check_read_permission('teachers', user_id):
                 submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Teachers')), ),
                                 False,

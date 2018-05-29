@@ -1131,7 +1131,6 @@ def access_group_permissions():
 
     school_permissions = [
         ['schoolproperties-read', T("School properties"), [
-            # ['school_workflow-read', T("Workflow")],
             ['teachers-read', T("Teachers"), [
                 ['teachers-create', T("Add teachers")],
                 ['teachers-update', T("Edit teachers")],
