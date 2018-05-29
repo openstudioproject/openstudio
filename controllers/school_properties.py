@@ -712,9 +712,9 @@ def memberships():
                   body=memberships_get_link_current_price),
              lambda row: os_gui.get_button('edit',
                                            URL('membership_edit',
-                                               vars={'ssuID': row.id}),
+                                               vars={'smID': row.id}),
                                            T("Edit this membership type")),
-             subscriptions_get_link_archive]
+             memberships_get_link_archive]
     maxtextlengths = {'school_memberships.Name': 40}
     maxtextlengths = {'school_memberships.Description': 40}
     grid = SQLFORM.grid(query, fields=fields, links=links,
@@ -744,16 +744,16 @@ def memberships():
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'school_memberships'))
-def memberships_archive():
+def membership_archive():
     """
         This function archives a membership
         request.vars[ssuID] is expected to be the school_memberships ID
     """
-    ssuID = request.vars['ssuID']
-    if not ssuID:
+    smID = request.vars['smID']
+    if not smID:
         session.flash = T('Unable to (un)archive membership')
     else:
-        row = db.school_memberships(ssuID)
+        row = db.school_memberships(smID)
 
         if row.Archived:
             session.flash = T('Moved to current')
@@ -763,7 +763,7 @@ def memberships_archive():
         row.Archived = not row.Archived
         row.update_record()
 
-        cache_clear_school_memberships()
+        #cache_clear_school_memberships()
 
     redirect(URL('memberships'))
 
@@ -817,11 +817,12 @@ def membership_edit():
     )
 
     form = result['form']
-    menu = membership_get_submenu()
+    menu = membership_get_submenu(request.function, smID)
     back = membership_edit_get_back(return_url)
 
     return dict(content=form,
                 save=result['submit'],
+                menu=menu,
                 back=back)
 
 
@@ -837,12 +838,12 @@ def membership_get_submenu(page, smID):
         Returns submenu for memberships
     """
     vars = {'smID': smID}
-    pages = [['memberships_edit',
+    pages = [['membership_edit',
               T('Edit'),
-              URL('memberships_edit', vars=vars)],
-             ['memberships_prices',
+              URL('membership_edit', vars=vars)],
+             ['membership_prices',
               T('Prices'),
-              URL('memberships_prices', vars=vars)]]
+              URL('membership_prices', vars=vars)]]
 
     return get_submenu(pages, page, horizontal=True, htype='tabs')
 
@@ -877,7 +878,7 @@ def memberships_get_link_archive(row):
         tt = T("Archive")
 
     return os_gui.get_button('archive',
-                             URL('membership_archive', vars={'ssuID': row.id}),
+                             URL('membership_archive', vars={'smID': row.id}),
                              tooltip=tt)
 
 
@@ -887,7 +888,7 @@ def membership_prices():
     """
         Shows list of prices for a membership
     """
-    ssuID = request.vars['ssuID']
+    smID = request.vars['smID']
     response.title = T("Edit membership")
     response.subtitle = T('')
     response.view = 'general/tabs_menu.html'
@@ -896,15 +897,15 @@ def membership_prices():
 
     db.school_memberships_price.id.readable = False
 
-    query = (db.school_memberships_price.school_memberships_id == ssuID)
+    query = (db.school_memberships_price.school_memberships_id == smID)
     fields = [db.school_memberships_price.Startdate,
               db.school_memberships_price.Enddate,
               db.school_memberships_price.Price,
               db.school_memberships_price.tax_rates_id]
     links = [lambda row: os_gui.get_button('edit',
-                                           URL('memberships_price_edit',
-                                               vars={'ssuID': ssuID,
-                                                     'sspID': row.id}),
+                                           URL('membership_price_edit',
+                                               vars={'smID': smID,
+                                                     'smpID': row.id}),
                                            T("Edit this price for this memberships"))]
     grid = SQLFORM.grid(query, fields=fields, links=links,
                         create=False,
@@ -918,18 +919,17 @@ def membership_prices():
     grid.element('.web2py_counter', replace=None)  # remove the counter
     grid.elements('span[title=Delete]', replace=None)  # remove text from delete button
 
-    alert_msg = T(
-        "Please make sure the new price starts on the first day of a month and the previous price ends on the last day of the month before. ")
-    alert_msg = T("Otherwise you might see unexpected results in the revenue stats.")
+    alert_msg = T("Please make sure the new price starts on the first day of a month and the previous price ends on the last day of the month before. ")
+    alert_msg += T("Otherwise you might see unexpected results in the revenue stats.")
     alert_icon = SPAN(_class='glyphicon glyphicon-info-sign')
     alert = os_gui.get_alert('default', SPAN(alert_icon, ' ', alert_msg))
 
     add = os_gui.get_button('add',
-                            URL('memberships_price_add',
-                                vars={'ssuID': ssuID}))
+                            URL('membership_price_add',
+                                vars={'smID': smID}))
 
-    menu = memberships_get_submenu(request.function, ssuID)
-    back = memberships_edit_get_back(return_url)
+    menu = membership_get_submenu(request.function, smID)
+    back = membership_edit_get_back(return_url)
 
     content = DIV(alert, grid)
 
@@ -952,7 +952,9 @@ def membership_price_add():
     response.view = 'general/only_content.html'
     smID = request.vars['smID']
 
-    return_url = return_url = membership_price_get_return_url(ssuID)
+    return_url = return_url = membership_price_get_return_url(smID)
+
+    db.school_memberships_price.school_memberships_id.default = smID
 
     os_forms = OsForms()
     result = os_forms.get_crud_form_create(
@@ -978,15 +980,15 @@ def membership_price_edit():
     response.subtitle = T('')
     response.view = 'general/only_content.html'
     smID = request.vars['smID']
-    sspID = request.vars['sspID']
+    smpID = request.vars['smpID']
 
-    return_url = return_url = membership_price_get_return_url(ssuID)
+    return_url = return_url = membership_price_get_return_url(smID)
 
     os_forms = OsForms()
     result = os_forms.get_crud_form_update(
         db.school_memberships_price,
         return_url,
-        smID
+        smpID
     )
 
     form = result['form']
@@ -1024,9 +1026,9 @@ def subscriptions_get_menu(page=None):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'school_subscriptions'))
 def subscriptions():
-    '''
+    """
         This function shows a page to list subscriptions.
-    '''
+    """
     response.title = T("School")
     response.subtitle = T("Subscriptions")
     response.view = 'general/tabs_menu.html'

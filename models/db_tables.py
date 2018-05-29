@@ -1142,7 +1142,7 @@ def define_school_memberships_price():
             requires=IS_FLOAT_IN_RANGE(0,99999999, dot='.',
                 error_message=T('Too small or too large')),
             represent = represent_float_as_amount,
-            label=T("Monthly Fee incl VAT")),
+            label=T("Price")),
         Field('tax_rates_id', db.tax_rates,
             label=T('Tax rate')),
         )
