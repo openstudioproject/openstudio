@@ -5840,7 +5840,7 @@ def membership_add():
 
 
 @auth.requires_login()
-def memberships_edit():
+def membership_edit():
     """
         This function shows an edit page for a membership
         request.args[0] is expected to be the customers_id
@@ -5881,6 +5881,17 @@ def memberships_edit():
                 menu=menu,
                 save=submit,
                 back=back)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'customers_memberships'))
+def membership_delete():
+    """
+        Function to delete a membership
+    """
+    cmID = request.vars['cmID']
+
+    #TODO: write function
 
 
 def memberships_clear_cache(form):

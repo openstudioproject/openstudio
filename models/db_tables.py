@@ -5257,6 +5257,7 @@ define_tax_rates()
 
 
 define_school_memberships()
+define_school_memberships_price()
 define_school_subscriptions()
 #mstypes_dict = create_mstypes_dict()
 define_school_subscriptions_price()

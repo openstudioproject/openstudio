@@ -853,13 +853,12 @@ def memberships_get_link_current_price(row):
     """
     from openstudio.os_school_memberships import SchoolMembership
 
-    today = datetime.date.today()
+    smID = row.id
+    sm = SchoolMembership(smID)
 
-    sm = SchoolMembership(row.id)
-
-    price = sm.get_price_on_date(today)
+    price = sm.get_price_on_date(TODAY_LOCAL)
     link = A(price,
-             _href=URL('memberships_prices', vars={'ssuID': ssuID}),
+             _href=URL('memberships_prices', vars={'smID': smID}),
              _title=T("Edit prices"))
 
     return link
@@ -878,13 +877,13 @@ def memberships_get_link_archive(row):
         tt = T("Archive")
 
     return os_gui.get_button('archive',
-                             URL('memberships_archive', vars={'ssuID': row.id}),
+                             URL('membership_archive', vars={'ssuID': row.id}),
                              tooltip=tt)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'school_memberships_price'))
-def memberships_prices():
+def membership_prices():
     """
         Shows list of prices for a membership
     """
@@ -943,80 +942,66 @@ def memberships_prices():
 
 
 @auth.requires_login()
-def memberships_price_add():
+def membership_price_add():
     """
         Add a new price for a membership
     """
+    from openstudio.os_forms import OsForms
     response.title = T("New membership price")
     response.subtitle = T('')
     response.view = 'general/only_content.html'
-    ssuID = request.vars['ssuID']
+    smID = request.vars['smID']
 
-    return_url = memberships_price_get_return_url(ssuID)
+    return_url = return_url = membership_price_get_return_url(ssuID)
 
-    db.school_memberships_price.school_memberships_id.default = ssuID
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_create(
+        db.school_memberships_price,
+        return_url,
+    )
 
-    crud.messages.submit_button = T("Save")
-    crud.messages.record_created = T("Saved price")
-    crud.settings.create_next = return_url
-    crud.settings.create_onaccept = [cache_clear_school_memberships]
-    form = crud.create(db.school_memberships_price)
+    form = result['form']
+    back = membership_edit_get_back(return_url)
 
-    form_id = "MainForm"
-    form_element = form.element('form')
-    form['_id'] = form_id
-
-    elements = form.elements('input, select, textarea')
-    for element in elements:
-        element['_form'] = form_id
-
-    submit = form.element('input[type=submit]')
-
-    back = os_gui.get_button('back', return_url)
-
-    return dict(content=form, back=back, save=submit)
+    return dict(content=form,
+                save=result['submit'],
+                back=back)
 
 
 @auth.requires_login()
-def memberships_price_edit():
+def membership_price_edit():
     """
         Edit price for a membership
     """
+    from openstudio.os_forms import OsForms
     response.title = T("Edit membership price")
     response.subtitle = T('')
     response.view = 'general/only_content.html'
-    ssuID = request.vars['ssuID']
+    smID = request.vars['smID']
     sspID = request.vars['sspID']
 
-    return_url = memberships_price_get_return_url(ssuID)
+    return_url = return_url = membership_price_get_return_url(ssuID)
 
-    crud.messages.submit_button = T("Save")
-    crud.messages.record_updated = T("Saved price")
-    crud.settings.update_next = return_url
-    crud.settings.update_deletable = False
-    crud.settings.update_onaccept = [cache_clear_school_memberships]
-    form = crud.update(db.school_memberships_price, sspID)
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_update(
+        db.school_memberships_price,
+        return_url,
+        smID
+    )
 
-    form_id = "MainForm"
-    form_element = form.element('form')
-    form['_id'] = form_id
+    form = result['form']
+    back = membership_edit_get_back(return_url)
 
-    elements = form.elements('input, select, textarea')
-    for element in elements:
-        element['_form'] = form_id
-
-    submit = form.element('input[type=submit]')
-
-    back = os_gui.get_button('back', return_url)
-
-    return dict(content=form, back=back, save=submit)
+    return dict(content=form,
+                save=result['submit'],
+                back=back)
 
 
-def memberships_price_get_return_url(ssuID):
+def membership_price_get_return_url(smID):
     """
         Returns returl url for memberships
     """
-    return URL('memberships_prices', vars={'ssuID': ssuID})
+    return URL('membership_prices', vars={'smID': smID})
 
 
 def subscriptions_get_menu(page=None):
