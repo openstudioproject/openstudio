@@ -1211,6 +1211,24 @@ def populate_announcements(web2py, nr=10):
     populate(web2py.db.announcements, nr)
 
 
+def populate_school_memberships(web2py):
+    """
+        Add a membership with a price
+    """
+    web2py.db.school_memberships.insert(
+        Archived    = False,
+        Name        = 'one class a week',
+        Description = 'premium membership'
+       )
+
+    web2py.db.school_memberships_price.insert(
+        school_memberships_id = 1,
+        Startdate = '1900-01-01',
+        Price     = 40)
+
+    web2py.db.commit()
+
+
 def populate_school_subscriptions(web2py):
     """
         Add a few subscriptions with some prices
