@@ -669,6 +669,367 @@ def level_edit():
     return dict(content=form, back=back, save=submit)
 
 
+def memberships_get_return_url(var=None):
+    """
+    :return: URL linking back to memberships index
+    """
+    return URL('memberships')
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'school_memberships'))
+def memberships():
+    """
+        This function shows a page to list memberships.
+    """
+    response.title = T("School")
+    response.subtitle = T("Memberships")
+    response.view = "general/only_content.html"
+
+    show = 'current'
+    query = (db.school_memberships.Archived == False)
+
+    if 'show_archive' in request.vars:
+        show = request.vars['show_archive']
+        session.school_memberships_show = show
+        if show == 'current':
+            query = (db.school_memberships.Archived == False)
+        elif show == 'archive':
+            query = (db.school_memberships.Archived == True)
+    elif session.school_memberships_show == 'archive':
+        query = (db.school_memberships.Archived == True)
+    else:
+        session.school_memberships_show = show
+
+    db.school_memberships.id.readable = False
+
+    fields = [
+        db.school_memberships.Name,
+        db.school_memberships.Description
+
+    ]
+
+    links = [dict(header=T('Monthly Fee incl. VAT'),
+                  body=memberships_get_link_current_price),
+             lambda row: os_gui.get_button('edit',
+                                           URL('membership_edit',
+                                               vars={'ssuID': row.id}),
+                                           T("Edit this membership type")),
+             subscriptions_get_link_archive]
+    maxtextlengths = {'school_memberships.Name': 40}
+    maxtextlengths = {'school_memberships.Description': 40}
+    grid = SQLFORM.grid(query, fields=fields, links=links,
+                        maxtextlengths=maxtextlengths,
+                        create=False,
+                        editable=False,
+                        deletable=False,
+                        details=False,
+                        searchable=False,
+                        csv=False,
+                        orderby=db.school_memberships.Name,
+                        ui=grid_ui)
+    grid.element('.web2py_counter', replace=None)  # remove the counter
+    grid.elements('span[title=Delete]', replace=None)  # remove text from delete button
+
+    add_url = URL('membership_add')
+    add = os_gui.get_button('add', add_url, T("Add a new memberships"), _class='pull-right')
+    archive_buttons = os_gui.get_archived_radio_buttons(
+        session.school_memberships_show)
+
+    back = DIV(add, archive_buttons)
+    content = grid
+
+    return dict(back=back,
+                content=content)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'school_memberships'))
+def memberships_archive():
+    """
+        This function archives a membership
+        request.vars[ssuID] is expected to be the school_memberships ID
+    """
+    ssuID = request.vars['ssuID']
+    if not ssuID:
+        session.flash = T('Unable to (un)archive membership')
+    else:
+        row = db.school_memberships(ssuID)
+
+        if row.Archived:
+            session.flash = T('Moved to current')
+        else:
+            session.flash = T('Archived')
+
+        row.Archived = not row.Archived
+        row.update_record()
+
+        cache_clear_school_memberships()
+
+    redirect(URL('memberships'))
+
+
+@auth.requires_login()
+def membership_add():
+    """
+        This function shows an add page for a memberships
+    """
+    from openstudio.os_forms import OsForms
+    response.title = T("New membership")
+    response.subtitle = T('')
+    response.view = 'general/only_content.html'
+
+    return_url = memberships_get_return_url()
+
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_create(
+        db.school_memberships,
+        return_url,
+    )
+
+    form = result['form']
+    back = os_gui.get_button('back', return_url)
+
+    return dict(content=form,
+                save=result['submit'],
+                back=back)
+
+
+@auth.requires_login()
+def membership_edit():
+    """
+        This function shows an edit page for a membership
+        request.vars['ssuID'] is expected to be the membershipID (ssuID)
+    """
+    ssuID = request.vars['ssuID']
+    response.title = T("Edit memberships")
+    response.subtitle = T('')
+    response.view = 'general/tabs_menu.html'
+
+    return_url = URL('memberships')
+
+    crud.messages.submit_button = T("Save")
+    crud.messages.record_updated = T("Updated memberships")
+    crud.settings.update_next = return_url
+    crud.settings.update_deletable = False
+    crud.settings.update_onaccept = [cache_clear_school_memberships]
+    form = crud.update(db.school_memberships, ssuID)
+
+    textareas = form.elements('textarea')
+    for textarea in textareas:
+        textarea['_class'] = ' tmced'
+
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
+    form = result['form']
+    submit = result['submit']
+
+    form.element('#school_memberships_CreditValidity')['_placeholder'] = T("Credits don't expire")
+
+    # input_classes = form.element('#school_memberships_NRofClasses')
+    # input_classes['_placeholder'] = T('Unlimited')
+
+    menu = memberships_get_submenu(request.function, ssuID)
+    back = memberships_edit_get_back(return_url)
+
+    return dict(content=form,
+                back=back,
+                save=submit,
+                menu=menu)
+
+
+def memberships_edit_get_back(return_url):
+    """
+        Returns back button for membership edit pages
+    """
+    return os_gui.get_button('back', return_url)
+
+
+def memberships_get_submenu(page, ssuID):
+    """
+        Returns submenu for memberships
+    """
+    vars = {'ssuID': ssuID}
+    pages = [['memberships_edit',
+              T('Edit'),
+              URL('memberships_edit', vars=vars)],
+             ['memberships_prices',
+              T('Prices'),
+              URL('memberships_prices', vars=vars)]]
+
+    return get_submenu(pages, page, horizontal=True, htype='tabs')
+
+
+def memberships_get_link_current_price(row):
+    """
+        Returns the current price for a membership
+    """
+    ssuID = row.id
+    today = datetime.date.today()
+
+    ssu = SchoolMembership(ssuID)
+
+    price = ssu.get_price_on_date(today)
+    link = A(price,
+             _href=URL('memberships_prices', vars={'ssuID': ssuID}),
+             _title=T("Edit prices"))
+
+    return link
+
+
+def memberships_get_link_archive(row):
+    """
+        Called from the index function. Changes title of archive button
+        depending on whether a workshop is archived or not
+    """
+    row = db.school_memberships(row.id)
+
+    if row.Archived:
+        tt = T("Move to current")
+    else:
+        tt = T("Archive")
+
+    return os_gui.get_button('archive',
+                             URL('memberships_archive', vars={'ssuID': row.id}),
+                             tooltip=tt)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'school_memberships_price'))
+def memberships_prices():
+    """
+        Shows list of prices for a membership
+    """
+    ssuID = request.vars['ssuID']
+    response.title = T("Edit membership")
+    response.subtitle = T('')
+    response.view = 'general/tabs_menu.html'
+
+    return_url = URL('memberships')
+
+    db.school_memberships_price.id.readable = False
+
+    query = (db.school_memberships_price.school_memberships_id == ssuID)
+    fields = [db.school_memberships_price.Startdate,
+              db.school_memberships_price.Enddate,
+              db.school_memberships_price.Price,
+              db.school_memberships_price.tax_rates_id]
+    links = [lambda row: os_gui.get_button('edit',
+                                           URL('memberships_price_edit',
+                                               vars={'ssuID': ssuID,
+                                                     'sspID': row.id}),
+                                           T("Edit this price for this memberships"))]
+    grid = SQLFORM.grid(query, fields=fields, links=links,
+                        create=False,
+                        editable=False,
+                        details=False,
+                        searchable=False,
+                        csv=False,
+                        # orderby = db.school_memberships_price.Startdate,
+                        field_id=db.school_memberships_price.id,
+                        ui=grid_ui)
+    grid.element('.web2py_counter', replace=None)  # remove the counter
+    grid.elements('span[title=Delete]', replace=None)  # remove text from delete button
+
+    alert_msg = T(
+        "Please make sure the new price starts on the first day of a month and the previous price ends on the last day of the month before. ")
+    alert_msg = T("Otherwise you might see unexpected results in the revenue stats.")
+    alert_icon = SPAN(_class='glyphicon glyphicon-info-sign')
+    alert = os_gui.get_alert('default', SPAN(alert_icon, ' ', alert_msg))
+
+    add = os_gui.get_button('add',
+                            URL('memberships_price_add',
+                                vars={'ssuID': ssuID}))
+
+    menu = memberships_get_submenu(request.function, ssuID)
+    back = memberships_edit_get_back(return_url)
+
+    content = DIV(alert, grid)
+
+    return_url = URL('memberships')
+
+    return dict(content=content,
+                back=back,
+                add=add,
+                menu=menu)
+
+
+@auth.requires_login()
+def memberships_price_add():
+    """
+        Add a new price for a membership
+    """
+    response.title = T("New membership price")
+    response.subtitle = T('')
+    response.view = 'general/only_content.html'
+    ssuID = request.vars['ssuID']
+
+    return_url = memberships_price_get_return_url(ssuID)
+
+    db.school_memberships_price.school_memberships_id.default = ssuID
+
+    crud.messages.submit_button = T("Save")
+    crud.messages.record_created = T("Saved price")
+    crud.settings.create_next = return_url
+    crud.settings.create_onaccept = [cache_clear_school_memberships]
+    form = crud.create(db.school_memberships_price)
+
+    form_id = "MainForm"
+    form_element = form.element('form')
+    form['_id'] = form_id
+
+    elements = form.elements('input, select, textarea')
+    for element in elements:
+        element['_form'] = form_id
+
+    submit = form.element('input[type=submit]')
+
+    back = os_gui.get_button('back', return_url)
+
+    return dict(content=form, back=back, save=submit)
+
+
+@auth.requires_login()
+def memberships_price_edit():
+    """
+        Edit price for a membership
+    """
+    response.title = T("Edit membership price")
+    response.subtitle = T('')
+    response.view = 'general/only_content.html'
+    ssuID = request.vars['ssuID']
+    sspID = request.vars['sspID']
+
+    return_url = memberships_price_get_return_url(ssuID)
+
+    crud.messages.submit_button = T("Save")
+    crud.messages.record_updated = T("Saved price")
+    crud.settings.update_next = return_url
+    crud.settings.update_deletable = False
+    crud.settings.update_onaccept = [cache_clear_school_memberships]
+    form = crud.update(db.school_memberships_price, sspID)
+
+    form_id = "MainForm"
+    form_element = form.element('form')
+    form['_id'] = form_id
+
+    elements = form.elements('input, select, textarea')
+    for element in elements:
+        element['_form'] = form_id
+
+    submit = form.element('input[type=submit]')
+
+    back = os_gui.get_button('back', return_url)
+
+    return dict(content=form, back=back, save=submit)
+
+
+def memberships_price_get_return_url(ssuID):
+    """
+        Returns returl url for memberships
+    """
+    return URL('memberships_prices', vars={'ssuID': ssuID})
+
+
 def subscriptions_get_menu(page=None):
     pages = []
 
