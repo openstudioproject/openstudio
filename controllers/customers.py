@@ -5706,3 +5706,88 @@ def edit_teacher():
                 menu=menu,
                 back=back,
                 save=submit)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'customers_memberships'))
+def memberships():
+    """
+        Lists memberships for a customer
+        request.vars['cuID'] is expected to be the customersID
+    """
+    customers_id = request.vars['cuID']
+    response.view = 'customers/edit_general.html'
+
+    row = db.auth_user(customers_id)
+    response.title = row.display_name
+    response.subtitle = T("Memberships")
+
+    header = THEAD(TR(TH('#'),
+                      TH(db.customers_memberships.school_memberships_id.label),
+                      TH(db.customers_memberships.Startdate.label),
+                      TH(db.customers_memberships.Enddate.label),
+                      TH(db.customers_memberships.payment_methods_id.label),
+                      TH(db.customers_memberships.Note.label),
+                      TH())  # buttons
+                   )
+
+    table = TABLE(header, _class='table table-hover table-striped')
+
+    query = (db.customers_subscriptions.auth_customer_id == customers_id)
+    rows = db(query).select(db.customers_memberships.id,
+                            db.customers_memberships.auth_customer_id,
+                            db.customers_memberships.school_memberships_id,
+                            db.customers_memberships.Startdate,
+                            db.customers_memberships.Enddate,
+                            db.customers_memberships.payment_methods_id,
+                            db.customers_memberships.Note,
+                            orderby=~db.customers_memberships.Startdate)
+
+    for i, row in enumerate(rows):
+        repr_row = list(rows[i:i + 1].render())[0]
+
+        delete_permission = auth.has_membership(group_id='Admins') or \
+                            auth.has_permission('delete', 'customers_memberships')
+
+        delete = ''
+        if delete_permission:
+            confirm_msg = T("Really delete this membership?")
+            onclick_del = "return confirm('" + confirm_msg + "');"
+            delete = os_gui.get_button('delete_notext',
+                                       URL('membership_delete', vars={'cuID': customers_id,
+                                                                      'csID': row.id}),
+                                       onclick=onclick_del,
+                                       _class='pull-right')
+
+        edit = memberships_get_link_edit(row)
+
+        tr = TR(TD(row.id),
+                TD(repr_row.school_memberships_id),
+                TD(repr_row.Startdate),
+                TD(repr_row.Enddate),
+                TD(repr_row.payment_methods_id),
+                TD(repr_row.Note),
+                TD(memberships_get_link_latest_pauses(row)),
+                TD(memberships_get_link_credits(row)),
+                TD(delete, edit))
+
+        table.append(tr)
+
+    add = ''
+    if (auth.has_membership(group_id='Admins') or
+            auth.has_permission('create', 'customers_memberships')):
+        add_url = URL('membership_add', vars={'cuID': customers_id})
+        add = os_gui.get_button(
+            'add',
+            add_url,
+            T("Add a new membership"),
+            btn_size='btn-sm',
+            _class='pull-right'
+        )
+
+    content = DIV(table)
+
+    back = edit_get_back()
+    menu = customers_get_menu(customers_id, request.function)
+
+    return dict(content=content, menu=menu, back=back, tools=add)
