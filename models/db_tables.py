@@ -994,6 +994,9 @@ def define_school_classcards():
               default=True,
               required=True,
               label=T('Show in shop')),
+        Field('MembershipRequired', 'boolean',
+            default=False,
+            label=T('Require membership')),
         Field('sys_organizations_id', db.sys_organizations,
               readable=True if len(ORGANIZATIONS) > 2 else False,
               writable=True if len(ORGANIZATIONS) > 2 else False,
@@ -1084,9 +1087,9 @@ def define_school_classcards_groups():
 
 
 def define_school_classcards_groups_classcards():
-    '''
+    """
          Table to hold subscriptions in a subscriptions group
-    '''
+    """
     db.define_table('school_classcards_groups_classcards',
         Field('school_classcards_groups_id', db.school_classcards_groups,
             required=True,
@@ -1097,6 +1100,21 @@ def define_school_classcards_groups_classcards():
             required=True,
             label=T('Class card')),
     )
+
+
+def define_school_memberships():
+    db.define_table('school_memberships',
+        Field('Archived', 'boolean',
+            readable=False,
+            writable=False,
+            default= False,
+            label=T("Archived")),
+        Field('Name', required=True,
+            requires= IS_NOT_EMPTY(),
+            label= T("Name")),
+        Field('Description',
+             label=T('Description'))
+        )
 
 
 def define_school_subscriptions():
@@ -1114,6 +1132,9 @@ def define_school_subscriptions():
         Field('PublicSubscription', 'boolean',
             default=False,
             label=T('Show in shop')),
+        Field('MembershipRequired', 'boolean',
+              default=False,
+              label=T('Require membership')),
         Field('Name', required=True,
               requires=IS_NOT_EMPTY(),
               label=T("Name")),
@@ -2101,6 +2122,44 @@ def define_customers_payment_info():
     #         _name=f.name, _id="%s_%s" % (f._tablename, f.name),
     #         _value=v,
     #         value=v)
+
+
+def define_customers_memberships():
+    ms_query = (db.school_memberships.Archived == False)
+    pm_query = (db.payment_methods.Archived == False)
+
+    school_memberships_format = '%(Name)s'
+
+    db.define_table('customers_memberships',
+        Field('auth_customer_id', db.auth_user, required=True,
+              readable=False,
+              writable=False,
+              label=T('CustomerID')),
+        Field('school_memberships_id', db.school_memberships,
+              requires=IS_IN_DB(db(ms_query),
+                                'school_memberships.id', school_memberships_format,
+                                zero=T("Please select...")),
+              label=T("Membership")),
+        Field('Startdate', 'date', required=True,
+              requires=IS_DATE_IN_RANGE(format=DATE_FORMAT,
+                                        minimum=datetime.date(1900, 1, 1),
+                                        maximum=datetime.date(2999, 1, 1)),
+              represent=represent_date,
+              default=TODAY_LOCAL,
+              label=T("Start"),
+              widget=os_datepicker_widget),
+        Field('Enddate', 'date', required=False,
+              requires=IS_EMPTY_OR(IS_DATE_IN_RANGE(format=DATE_FORMAT,
+                                                    minimum=datetime.date(1900, 1, 1),
+                                                    maximum=datetime.date(2999, 1, 1))),
+              represent=represent_date,
+              label=T("End"),
+              widget=os_datepicker_widget),
+        Field('Note', 'text',
+              represent=lambda value, row: value or '',
+              label=T("Note")),
+        singular=T("Membership"), plural=T("Memberships")
+    )
 
 
 def define_customers_subscriptions():
@@ -5166,6 +5225,7 @@ define_postcode_groups()
 define_tax_rates()
 
 
+define_school_memberships()
 define_school_subscriptions()
 #mstypes_dict = create_mstypes_dict()
 define_school_subscriptions_price()
@@ -5194,6 +5254,7 @@ define_customers_documents()
 define_customers_notes()
 define_customers_payment_info()
 define_customers_messages()
+define_customers_memberships()
 define_customers_subscriptions()
 define_customers_subscriptions_paused()
 define_customers_subscriptions_alt_prices()
