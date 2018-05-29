@@ -5791,3 +5791,112 @@ def memberships():
     menu = customers_get_menu(customers_id, request.function)
 
     return dict(content=content, menu=menu, back=back, tools=add)
+
+
+@auth.requires_login()
+def membership_add():
+    """
+        This function shows an add page for a membership
+        request.vars['cuID is expected to be the customers_id
+    """
+    customers_id = request.vars['cuID']
+    customer = Customer(customers_id)
+    response.view = 'general/tabs_menu.html'
+    response.title = customer.get_name()
+    response.subtitle = T("New membership")
+
+    db.customers_memberships.auth_customer_id.default = customers_id
+
+    return_url = memberships_get_return_url(customers_id)
+
+    crud.messages.submit_button = T("Save")
+    crud.messages.record_created = T("Added membership")
+    crud.settings.create_next = return_url
+    crud.settings.create_onaccept = [memberships_clear_cache]
+    form = crud.create(db.customers_memberships)
+
+    element_form = form.element('form')
+    element_form['_id'] = "MainForm"
+
+    elements = form.elements('input, select, textarea')
+    for element in elements:
+        element['_form'] = "MainForm"
+
+    submit = form.element('input[type=submit]')
+
+    cm_back = os_gui.get_button('back_bs', URL('memberships', vars={'cuID':customers_id}))
+    content = DIV(
+        dm_back,
+        form
+    )
+
+    back = os_gui.get_button("back", return_url, _class='')
+    menu = customers_get_menu(customers_id, 'memberships')
+
+    return dict(content=content,
+                back=back,
+                menu=menu,
+                save=submit)
+
+
+@auth.requires_login()
+def memberships_edit():
+    """
+        This function shows an edit page for a membership
+        request.args[0] is expected to be the customers_id
+        request.args[1] is expected to be the membershipID
+    """
+    response.view = 'general/only_content.html'
+    cuID = request.vars['cuID']
+    cmID = request.vars['cmID']
+    customer = Customer(cuID)
+    response.title = customer.get_name()
+    response.subtitle = membership_edit_get_subtitle(csID)
+
+    return_url = subscriptions_get_return_url(cuID)
+
+    crud.messages.submit_button = T("Save")
+    crud.messages.record_updated = T("Saved")
+    crud.settings.update_next = return_url
+    crud.settings.update_onaccept = [
+        memberships_clear_cache,
+        memberships_edit_onaccept
+    ]
+    crud.settings.update_deletable = False
+    form = crud.update(db.customers_memberships, cmID)
+
+    element_form = form.element('form')
+    element_form['_id'] = "MainForm"
+
+    elements = form.elements('input, select, textarea')
+    for element in elements:
+        element['_form'] = "MainForm"
+
+    submit = form.element('input[type=submit]')
+
+    back = memberships_edit_get_back(cuID)
+    menu = memberships_edit_get_menu(cuID, csID, request.function)
+
+    return dict(content=form,
+                menu=menu,
+                save=submit,
+                back=back)
+
+
+def memberships_clear_cache(form):
+    """
+        Clear the subscriptions cache for customer
+    """
+    csID = form.vars.id
+    cs = db.customers_memberships(csID)
+    cuID = cs.auth_customer_id
+
+    cache_clear_customers_memberships(cuID)
+
+
+def memberships_get_return_url(customers_id):
+    """
+        Returns return URL for memberships
+    """
+    return URL('memberships', vars={'cuID':customers_id})
+
