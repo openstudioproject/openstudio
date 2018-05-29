@@ -888,7 +888,7 @@ def brand_add():
 
     form = result['form']
     back = os_gui.get_button('back', return_url)
-    menu = catalog_get_menu('brandsd')
+    menu = catalog_get_menu('brands')
 
     content = DIV(
         H4(T('Add brand')),

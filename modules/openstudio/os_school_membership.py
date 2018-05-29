@@ -5,7 +5,7 @@ from gluon import *
 
 class SchoolMembership:
     """
-        Class that contains functions for school subscriptions
+        Class for school membership
     """
     def __init__(self, smID):
         """

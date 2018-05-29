@@ -1051,6 +1051,12 @@ def customers_get_menu(customers_id, page=None):
                       URL('edit_teacher', vars={'cuID':customers_id})])
 
     if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('read', 'customers_memberships'):
+        pages.append(['memberships',
+                      T("Memberships"),
+                      URL("customers","memberships",
+                          vars={'cuID':customers_id})])
+    if auth.has_membership(group_id='Admins') or \
        auth.has_permission('read', 'customers_subscriptions'):
         pages.append(['subscriptions',
                       T("Subscriptions"),
@@ -3137,9 +3143,9 @@ def subscription_alt_prices_edit():
 
 
 def subscription_edit_get_subtitle(csID):
-    '''
+    """
         Returns subtitle for subscription edit pages
-    '''
+    """
     cs = CustomerSubscription(csID)
 
     return SPAN(T("Edit subscription"), ' ', cs.name)
@@ -5726,7 +5732,6 @@ def memberships():
                       TH(db.customers_memberships.school_memberships_id.label),
                       TH(db.customers_memberships.Startdate.label),
                       TH(db.customers_memberships.Enddate.label),
-                      TH(db.customers_memberships.payment_methods_id.label),
                       TH(db.customers_memberships.Note.label),
                       TH())  # buttons
                    )
@@ -5739,15 +5744,16 @@ def memberships():
                             db.customers_memberships.school_memberships_id,
                             db.customers_memberships.Startdate,
                             db.customers_memberships.Enddate,
-                            db.customers_memberships.payment_methods_id,
                             db.customers_memberships.Note,
                             orderby=~db.customers_memberships.Startdate)
 
+    edit_permission = auth.has_membership(group_id='Admins') or \
+                        auth.has_permission('update', 'customers_memberships')
+    delete_permission = auth.has_membership(group_id='Admins') or \
+                        auth.has_permission('delete', 'customers_memberships')
+
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
-
-        delete_permission = auth.has_membership(group_id='Admins') or \
-                            auth.has_permission('delete', 'customers_memberships')
 
         delete = ''
         if delete_permission:
@@ -5758,17 +5764,15 @@ def memberships():
                                                                       'csID': row.id}),
                                        onclick=onclick_del,
                                        _class='pull-right')
-
-        edit = memberships_get_link_edit(row)
+        edit = ''
+        if edit_permission:
+            edit = memberships_get_link_edit(row)
 
         tr = TR(TD(row.id),
                 TD(repr_row.school_memberships_id),
                 TD(repr_row.Startdate),
                 TD(repr_row.Enddate),
-                TD(repr_row.payment_methods_id),
                 TD(repr_row.Note),
-                TD(memberships_get_link_latest_pauses(row)),
-                TD(memberships_get_link_credits(row)),
                 TD(delete, edit))
 
         table.append(tr)
@@ -5793,50 +5797,69 @@ def memberships():
     return dict(content=content, menu=menu, back=back, tools=add)
 
 
+def memberships_get_link_edit(row):
+    """
+    :param row: gluon.dal.rows containing db.customers_memberships fields
+    :return: edit button for customer membership
+    """
+    cmID = row.id
+
+    return os_gui.get_button(
+        'edit',
+        URL('membership_edit', vars={'cmID':row.id,
+                                     'cuID':row.auth_customer_id}),
+        _class='pull-right'
+    )
+
+
 @auth.requires_login()
 def membership_add():
     """
         This function shows an add page for a membership
         request.vars['cuID is expected to be the customers_id
     """
-    customers_id = request.vars['cuID']
-    customer = Customer(customers_id)
+    from openstudio.os_forms import OsForms
+
+    cuID = request.vars['cuID']
+    customer = Customer(cuID)
     response.view = 'general/tabs_menu.html'
     response.title = customer.get_name()
-    response.subtitle = T("New membership")
+    response.subtitle = T("Memberships")
 
-    db.customers_memberships.auth_customer_id.default = customers_id
+    return_url = memberships_get_return_url(cuID)
 
-    return_url = memberships_get_return_url(customers_id)
+    db.customers_memberships.auth_customer_id.default = cuID
 
-    crud.messages.submit_button = T("Save")
-    crud.messages.record_created = T("Added membership")
-    crud.settings.create_next = return_url
-    crud.settings.create_onaccept = [memberships_clear_cache]
-    form = crud.create(db.customers_memberships)
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_create(
+        db.customers_memberships,
+        return_url,
+    )
 
-    element_form = form.element('form')
-    element_form['_id'] = "MainForm"
+    form = result['form']
+    back = os_gui.get_button('back', return_url)
+    menu = customers_get_menu(cuID, 'memberships')
 
-    elements = form.elements('input, select, textarea')
-    for element in elements:
-        element['_form'] = "MainForm"
-
-    submit = form.element('input[type=submit]')
-
-    cm_back = os_gui.get_button('back_bs', URL('memberships', vars={'cuID':customers_id}))
     content = DIV(
-        dm_back,
+        H4(T('Add membership')),
         form
     )
 
-    back = os_gui.get_button("back", return_url, _class='')
-    menu = customers_get_menu(customers_id, 'memberships')
-
     return dict(content=content,
+                save=result['submit'],
                 back=back,
-                menu=menu,
-                save=submit)
+                menu=menu)
+
+
+def membership_edit_get_subtitle(cmID):
+    """
+        Returns subtitle for subscription edit pages
+    """
+    from openstudio.os_customer_membership import CustomerMembership
+
+    cm = CustomerMembership(cmID)
+
+    return SPAN(T("Edit membership"), ' ', cm.school_membership.Name)
 
 
 @auth.requires_login()
@@ -5846,41 +5869,39 @@ def membership_edit():
         request.args[0] is expected to be the customers_id
         request.args[1] is expected to be the membershipID
     """
-    response.view = 'general/only_content.html'
+    from openstudio.os_forms import OsForms
+
     cuID = request.vars['cuID']
     cmID = request.vars['cmID']
     customer = Customer(cuID)
+    response.view = 'general/tabs_menu.html'
     response.title = customer.get_name()
-    response.subtitle = membership_edit_get_subtitle(csID)
+    response.subtitle = T("Memberships")
 
-    return_url = subscriptions_get_return_url(cuID)
+    return_url = memberships_get_return_url(cuID)
 
-    crud.messages.submit_button = T("Save")
-    crud.messages.record_updated = T("Saved")
-    crud.settings.update_next = return_url
-    crud.settings.update_onaccept = [
-        memberships_clear_cache,
-        memberships_edit_onaccept
-    ]
-    crud.settings.update_deletable = False
-    form = crud.update(db.customers_memberships, cmID)
+    db.customers_memberships.auth_customer_id.default = cuID
 
-    element_form = form.element('form')
-    element_form['_id'] = "MainForm"
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_update(
+        db.customers_memberships,
+        return_url,
+        cmID
+    )
 
-    elements = form.elements('input, select, textarea')
-    for element in elements:
-        element['_form'] = "MainForm"
+    form = result['form']
+    back = os_gui.get_button('back', return_url)
+    menu = customers_get_menu(cuID, 'memberships')
 
-    submit = form.element('input[type=submit]')
+    content = DIV(
+        H4(T('Edit membership')),
+        form
+    )
 
-    back = memberships_edit_get_back(cuID)
-    menu = memberships_edit_get_menu(cuID, csID, request.function)
-
-    return dict(content=form,
-                menu=menu,
-                save=submit,
-                back=back)
+    return dict(content=content,
+                save=result['submit'],
+                back=back,
+                menu=menu)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \

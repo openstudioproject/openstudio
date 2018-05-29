@@ -1113,7 +1113,8 @@ def define_school_memberships():
             requires= IS_NOT_EMPTY(),
             label= T("Name")),
         Field('Description',
-             label=T('Description'))
+             label=T('Description')),
+        format='%(Name)s'
         )
 
 
