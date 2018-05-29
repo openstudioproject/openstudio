@@ -1100,9 +1100,9 @@ def customers_get_menu(customers_id, page=None):
                       URL("customers","invoices", vars={'cuID':customers_id})])
     if auth.has_membership(group_id='Admins') or \
        auth.has_permission('read', 'customers_payments'):
-        pages.append(['payments',
-                      T("Payment info"),
-                      URL("customers", "payments", vars={'cuID':customers_id})])
+        pages.append(['bankaccount',
+                      T("Bank account"),
+                      URL("customers", "bankaccount", vars={'cuID':customers_id})])
     if auth.has_membership(group_id='Admins') or \
        auth.has_permission('read', 'auth_user_account'):
         pages.append(['account',
@@ -3711,21 +3711,53 @@ def subscription_credits_month_add():
     redirect(URL('subscription_credits_month'))
 
 
+def payments_get_submenu(page, cuID):
+    """
+        Returns submenu for account pages
+    """
+    vars = {'cuID':cuID}
+
+    pages = []
+
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('read', 'customers_payments'):
+        pages.append(
+            [
+                'bankaccount',
+                T('Bank account'),
+                URL('bankaccount', vars=vars)
+            ]
+        )
+
+        pages.append(
+            [
+                'direct_debit_extra',
+                T('Direct debit extra'),
+                URL('direct_debit_extra', vars=vars)
+            ]
+        )
+
+    horizontal = True
+
+    return os_gui.get_submenu(pages, page, horizontal=horizontal, htype='tabs')
+
+
+
 def payments_delete_payment_info(form):
     page = redirect(URL('payments', vars={'cuID':customers_id}))
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'customers_payments'))
-def payments():
-    '''
-        Lists all payments a customer has made for invoices
-    '''
+def bankaccount():
+    """
+        Lists bank account info
+    """
     customers_id = request.vars['cuID']
     customer = Customer(customers_id)
     response.title = customer.get_name()
     response.subtitle = T("Payment info")
-    function = request.function
+    response.view = 'general/tabs_menu.html'
 
     # back button
     back = edit_get_back()
@@ -3733,14 +3765,18 @@ def payments():
     # payment_info
     db.customers_payment_info.id.readable=False
     db.customers_payment_info.auth_customer_id.readable=False
+
     query = (db.customers_payment_info.auth_customer_id == customers_id)
+
     db.customers_payment_info.auth_customer_id.default = customers_id
+
     fields = [ db.customers_payment_info.payment_methods_id,
                db.customers_payment_info.AccountNumber,
                db.customers_payment_info.AccountHolder,
                db.customers_payment_info.BIC,
                db.customers_payment_info.BankName,
                db.customers_payment_info.BankLocation ]
+
     links = [lambda row: os_gui.get_button('edit',
                                     URL('payment_info_edit',
                                         args=[customers_id, row.id])) ]
@@ -3765,7 +3801,33 @@ def payments():
         add = ''
     bd_grid.element('.web2py_counter', replace=None) # remove the counter
     bd_grid.elements('span[title=Delete]', replace=None) # remove text from delete button
-    bd = DIV(add, bd_grid)
+
+    menu = customers_get_menu(customers_id, request.function)
+    submenu = payments_get_submenu(request.function, customers_id)
+
+    content = DIV(submenu, BR(), bd_grid)
+
+
+    return dict(content=content,
+                menu=menu,
+                back=back,
+                tools=add)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'customers_payments'))
+def direct_debit_extra():
+    """
+        List direct debit extra lines
+    """
+    customers_id = request.vars['cuID']
+    customer = Customer(customers_id)
+    response.title = customer.get_name()
+    response.subtitle = T("Payment info")
+    response.view = 'general/tabs_menu.html'
+
+    # back button
+    back = edit_get_back()
 
     # alternative payments
     db.alternativepayments.id.readable=False
@@ -3811,43 +3873,16 @@ def payments():
     add = os_gui.get_button('add', URL('alternativepayment_add', args=[customers_id]))
     ap_grid.element('.web2py_counter', replace=None) # remove the counter
     ap_grid.elements('span[title=Delete]', replace=None) # remove text from delete button
-    ap = DIV(add, ap_grid)
 
-    menu = customers_get_menu(customers_id, request.function)
+    menu = customers_get_menu(customers_id, 'bankaccount')
+    submenu = payments_get_submenu(request.function, customers_id)
 
-    tabs = UL(LI(A(T("Payment info"),
-                   _href='#bd',
-                   _role='tab'),
-                 _role='presentation',
-                 _class='active pay_tab'),
-              LI(A(T("Direct debit extra"),
-                   _href='#ap',
-                   _role='tab'),
-                 _role='presentation',
-                 _class='pay_tab'),
-              _class='nav nav-tabs',
-              _role='tablist',
-              _id='payment_tabs')
-
-    tab_content = DIV(DIV(bd,
-                          _id='bd',
-                          _role='tabpanel',
-                          _class='tab-pane fade in active'),
-                      DIV(ap,
-                          _id='ap',
-                          _role='tabpanel',
-                          _class='tab-pane fade'),
-                      _class='tab-content')
-    content = DIV(tabs, BR(), tab_content, _role='tabpanel')
-
-    # assign default value
-    if not session.customers_payments_tab:
-        session.customers_payments_tab = '#bd'
+    content = DIV(submenu, BR(), ap_grid)
 
     return dict(content=content,
                 menu=menu,
-                back=back,
-                left_sidebar_enabled=True)
+                tools=add,
+                back=back)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -4071,10 +4106,10 @@ def notes_get_add(var=None):
 
 
 def payment_info_get_returl_url(customers_id):
-    '''
+    """
         Returns the return url for payment_info_add and payment_info_edit
-    '''
-    return URL('payments', vars={'cuID':customers_id})
+    """
+    return URL('bankaccount', vars={'cuID':customers_id})
 
 
 @auth.requires_login()
@@ -4151,7 +4186,7 @@ def alternativepayment_get_return_url(customers_id):
     '''
         Returns return url for alternative payments
     '''
-    return URL('payments', vars={'cuID':customers_id})
+    return URL('direct_debit_extra', vars={'cuID':customers_id})
 
 
 @auth.requires_login()
