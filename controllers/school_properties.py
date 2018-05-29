@@ -851,7 +851,7 @@ def memberships_get_link_current_price(row):
     """
         Returns the current price for a membership
     """
-    from openstudio.os_school_memberships import SchoolMemberships
+    from openstudio.os_school_memberships import SchoolMembership
 
     today = datetime.date.today()
 
