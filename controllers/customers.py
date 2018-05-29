@@ -1044,11 +1044,6 @@ def customers_get_menu(customers_id, page=None):
     pages.append(['general',
                    T('Profile'),
                   URL("customers","edit", args=[customers_id])])
-    auth_user = db.auth_user(customers_id)
-    if auth_user.teacher:
-        pages.append(['edit_teacher',
-                      T('Teacher profile'),
-                      URL('edit_teacher', vars={'cuID':customers_id})])
 
     if auth.has_membership(group_id='Admins') or \
        auth.has_permission('read', 'customers_memberships'):
@@ -1098,16 +1093,39 @@ def customers_get_menu(customers_id, page=None):
         pages.append(['invoices',
                       T("Invoices"),
                       URL("customers","invoices", vars={'cuID':customers_id})])
+
+
+    more = []
+
+    customer = Customer(customers_id)
+    if customer.row.teacher:
+        more.append([
+            'edit_teacher',
+            (os_gui.get_fa_icon('fa-graduation-cap'), ' ', T('Teacher profile')),
+            URL('edit_teacher', vars={'cuID':customers_id})
+        ])
+
     if auth.has_membership(group_id='Admins') or \
        auth.has_permission('read', 'customers_payments'):
-        pages.append(['bankaccount',
-                      T("Bank account"),
-                      URL("customers", "bankaccount", vars={'cuID':customers_id})])
+        more.append([
+            'bankaccount',
+            (os_gui.get_fa_icon('fa-university'), ' ', T("Bank account")),
+            URL("customers", "bankaccount", vars={'cuID':customers_id})])
+
     if auth.has_membership(group_id='Admins') or \
        auth.has_permission('read', 'auth_user_account'):
-        pages.append(['account',
-                      T('Account'),
-                      URL('customers', 'account', vars={'cuID':customers_id})])
+        more.append([
+            'account',
+            (os_gui.get_fa_icon('fa-user-circle'), ' ', T('Account')),
+            URL('customers', 'account', vars={'cuID':customers_id})
+        ])
+
+    pages.append([
+        'more',
+        T('More'),
+        more
+    ])
+
 
     return os_gui.get_submenu(pages, page, _id='os-customers_edit_menu', horizontal=True, htype='tabs')
 

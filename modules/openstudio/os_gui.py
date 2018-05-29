@@ -690,7 +690,44 @@ class OsGui:
                 active = ''
                 if p[0] == page:
                     active = 'active'
-                menu.append(LI(A(p[1], _href=p[2]), _class=active))
+
+                if not isinstance(p[2], list):
+                    menu.append(
+                        LI(
+                            A(p[1], _href=p[2]),
+                            _class=active,
+                            _role="presentation"
+                        )
+                    )
+                else:
+                    dropdown = UL(_class="dropdown-menu")
+                    for link in p[2]:
+                        dropdown.append(
+                            LI(
+                                A(
+                                    link[1],
+                                    _href=link[2]
+                                  )
+                            )
+                        )
+
+                    menu.append(
+                        LI(
+                            A(
+                                p[1], '...',
+                                SPAN(_class='caret'),
+                                _href="#",
+                                _class="dropdown-toggle",
+                                **{'_data-toggle': 'dropdown',
+                                   'role': 'button',
+                                   'aria-haspopup': 'true',
+                                   'aria-expanded': 'false'}
+                            ),
+                            dropdown,
+                            _class=active,
+                            _role="presentation"
+                        )
+                    )
         else:
             menu = []
             for p in pages:
