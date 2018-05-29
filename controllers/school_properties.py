@@ -706,7 +706,6 @@ def memberships():
     fields = [
         db.school_memberships.Name,
         db.school_memberships.Description
-
     ]
 
     links = [dict(header=T('Monthly Fee incl. VAT'),
@@ -799,56 +798,45 @@ def membership_add():
 def membership_edit():
     """
         This function shows an edit page for a membership
-        request.vars['ssuID'] is expected to be the membershipID (ssuID)
+        request.vars['smID'] is expected to be the db.school_memberships.id
     """
-    ssuID = request.vars['ssuID']
-    response.title = T("Edit memberships")
+    from openstudio.os_forms import OsForms
+    response.title = T("Edit membership")
     response.subtitle = T('')
     response.view = 'general/tabs_menu.html'
 
-    return_url = URL('memberships')
+    smID = request.vars['smID']
 
-    crud.messages.submit_button = T("Save")
-    crud.messages.record_updated = T("Updated memberships")
-    crud.settings.update_next = return_url
-    crud.settings.update_deletable = False
-    crud.settings.update_onaccept = [cache_clear_school_memberships]
-    form = crud.update(db.school_memberships, ssuID)
+    return_url = memberships_get_return_url()
 
-    textareas = form.elements('textarea')
-    for textarea in textareas:
-        textarea['_class'] = ' tmced'
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_update(
+        db.school_memberships,
+        return_url,
+        smID
+    )
 
-    result = set_form_id_and_get_submit_button(form, 'MainForm')
     form = result['form']
-    submit = result['submit']
-
-    form.element('#school_memberships_CreditValidity')['_placeholder'] = T("Credits don't expire")
-
-    # input_classes = form.element('#school_memberships_NRofClasses')
-    # input_classes['_placeholder'] = T('Unlimited')
-
-    menu = memberships_get_submenu(request.function, ssuID)
-    back = memberships_edit_get_back(return_url)
+    menu = membership_get_submenu()
+    back = membership_edit_get_back(return_url)
 
     return dict(content=form,
-                back=back,
-                save=submit,
-                menu=menu)
+                save=result['submit'],
+                back=back)
 
 
-def memberships_edit_get_back(return_url):
+def membership_edit_get_back(return_url):
     """
         Returns back button for membership edit pages
     """
     return os_gui.get_button('back', return_url)
 
 
-def memberships_get_submenu(page, ssuID):
+def membership_get_submenu(page, smID):
     """
         Returns submenu for memberships
     """
-    vars = {'ssuID': ssuID}
+    vars = {'smID': smID}
     pages = [['memberships_edit',
               T('Edit'),
               URL('memberships_edit', vars=vars)],
@@ -863,12 +851,13 @@ def memberships_get_link_current_price(row):
     """
         Returns the current price for a membership
     """
-    ssuID = row.id
+    from openstudio.os_school_memberships import SchoolMemberships
+
     today = datetime.date.today()
 
-    ssu = SchoolMembership(ssuID)
+    sm = SchoolMembership(row.id)
 
-    price = ssu.get_price_on_date(today)
+    price = sm.get_price_on_date(today)
     link = A(price,
              _href=URL('memberships_prices', vars={'ssuID': ssuID}),
              _title=T("Edit prices"))
