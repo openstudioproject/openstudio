@@ -5887,6 +5887,7 @@ def membership_add():
     result = os_forms.get_crud_form_create(
         db.customers_memberships,
         return_url,
+        on_accept = [membership_add_create_invoice]
     )
 
     form = result['form']

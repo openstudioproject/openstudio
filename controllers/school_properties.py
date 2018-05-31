@@ -705,7 +705,9 @@ def memberships():
 
     fields = [
         db.school_memberships.Name,
-        db.school_memberships.Description
+        db.school_memberships.Description,
+        db.school_memberships.Validity,
+        db.school_memberships.ValidityUnit,
     ]
 
     links = [dict(header=T('Monthly Fee incl. VAT'),
@@ -852,7 +854,7 @@ def memberships_get_link_current_price(row):
     """
         Returns the current price for a membership
     """
-    from openstudio.os_school_memberships import SchoolMembership
+    from openstudio.os_school_membership import SchoolMembership
 
     smID = row.id
     sm = SchoolMembership(smID)

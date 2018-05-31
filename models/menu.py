@@ -311,6 +311,11 @@ def get_backend_menu():
                                 False,
                                 URL('school_properties', 'employees', extension='')))
 
+            if user_helpers.check_read_permission('school_memberships', user_id):
+                submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Memberships')), ),
+                                False,
+                                URL('school_properties', 'memberships', extension='')))
+
             if user_helpers.check_read_permission('school_subscriptions', user_id):
                 submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Subscriptions')), ),
                                 False,
