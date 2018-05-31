@@ -9081,6 +9081,7 @@ class InvoicesHelper:
         db.invoices.Footer.readable = False
         db.invoices.Note.readable = False
         db.invoices.Terms.readable = False
+        db.invoices.TeacherPayment.readable = False
 
         links = [dict(header=T("Balance"),
                       body=self._list_invoices_get_balance),
