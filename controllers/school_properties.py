@@ -710,7 +710,7 @@ def memberships():
         db.school_memberships.ValidityUnit,
     ]
 
-    links = [dict(header=T('Monthly Fee incl. VAT'),
+    links = [dict(header=T('Price'),
                   body=memberships_get_link_current_price),
              lambda row: os_gui.get_button('edit',
                                            URL('membership_edit',
