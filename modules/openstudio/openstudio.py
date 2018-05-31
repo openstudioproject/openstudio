@@ -8426,22 +8426,27 @@ class Invoice:
         :param cmID: db.customers_memberships.id
         :return: db.invoices_items.id
         """
-        from openstudio.customer_membership import CustomerMembership
-        from openstudio.school_membership import SchoolMembership
+        from openstudio.os_customer_membership import CustomerMembership
+        from openstudio.os_school_membership import SchoolMembership
+
+        db = current.globalenv['db']
+        DATE_FORMAT = current.globalenv['DATE_FORMAT']
 
         next_sort_nr = self.get_item_next_sort_nr()
 
         cm = CustomerMembership(cmID)
         sm = SchoolMembership(cm.row.school_memberships_id)
-        row = sm.get_tax_rates_on_date(cm.Startdate)
+        row = sm.get_tax_rates_on_date(cm.row.Startdate)
 
         if row:
-            tax_rates_id = row.school_subscriptions_price.tax_rates_id
+            tax_rates_id = row.school_memberships_price.tax_rates_id
         else:
             tax_rates_id = None
 
-        price = sm.get_price_on_date(cm.startdate, False)
-        description = cm.name + ' ' + cm.startdate.strftime(DATE_FORMAT) + ' - ' + cm.enddate.strftime(DATE_FORMAT)
+        price = sm.get_price_on_date(cm.row.Startdate, False)
+        description = cm.get_name() + ' ' + \
+                      cm.row.Startdate.strftime(DATE_FORMAT) + ' - ' + \
+                      cm.row.Enddate.strftime(DATE_FORMAT)
 
         iiID = db.invoices_items.insert(
             invoices_id  = self.invoices_id,
@@ -8676,7 +8681,7 @@ class Invoice:
         """
         db = current.globalenv['db']
         db.invoices_customers_memberships.insert(
-            invoices_id=iID,
+            invoices_id=self.invoices_id,
             customers_memberships_id=cmID
         )
 

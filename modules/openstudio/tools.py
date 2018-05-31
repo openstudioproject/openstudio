@@ -32,6 +32,9 @@ class OsTools:
                 delta = datetime.timedelta(days=1)
                 return ret_val - delta
 
+        import calendar
+        import datetime
+
         db = current.globalenv['db']
 
         if validity_unit == 'months':

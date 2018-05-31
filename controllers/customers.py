@@ -5814,7 +5814,7 @@ def memberships():
             onclick_del = "return confirm('" + confirm_msg + "');"
             delete = os_gui.get_button('delete_notext',
                                        URL('membership_delete', vars={'cuID': customers_id,
-                                                                      'csID': row.id}),
+                                                                      'cmID': row.id}),
                                        onclick=onclick_del,
                                        _class='pull-right')
         edit = ''
@@ -5882,12 +5882,14 @@ def membership_add():
     return_url = memberships_get_return_url(cuID)
 
     db.customers_memberships.auth_customer_id.default = cuID
+    db.customers_memberships.Enddate.readable = False
+    db.customers_memberships.Enddate.writable = False
 
     os_forms = OsForms()
     result = os_forms.get_crud_form_create(
         db.customers_memberships,
         return_url,
-        on_accept = [membership_add_create_invoice]
+        onaccept = [membership_add_create_invoice_and_set_enddate]
     )
 
     form = result['form']
@@ -5905,17 +5907,26 @@ def membership_add():
                 menu=menu)
 
 
-def membership_add_create_invoice(form):
+def membership_add_create_invoice_and_set_enddate(form):
     """
-        Add an invoice after adding a classcard
+        Add an invoice after adding a membership
     """
-    from openstudio.os_school_membership import SchoolMemership
+    from openstudio.os_school_membership import SchoolMembership
 
     cmID = form.vars.id
     smID   = form.vars.school_memberships_id
 
-    sm = SchoolMemership(smID)
+    sm = SchoolMembership(smID)
+
+    enddate = sm.sell_to_customer_get_enddate(form.vars.Startdate)
+    # set enddate
+    row = db.customers_memberships(form.vars.id)
+    row.Enddate = enddate
+    row.update_record()
+
+    # create invoice
     sm.sell_to_customer_create_invoice(cmID)
+
 
 
 def membership_edit_get_subtitle(cmID):
@@ -5978,8 +5989,14 @@ def membership_delete():
         Function to delete a membership
     """
     cmID = request.vars['cmID']
+    cuID = request.vars['cuID']
 
-    #TODO: write function
+    query = (db.customers_memberships.id == cmID)
+    db(query).delete()
+
+    session.flash = T('Deleted membership')
+
+    redirect(memberships_get_return_url(cuID))
 
 
 def memberships_clear_cache(form):
