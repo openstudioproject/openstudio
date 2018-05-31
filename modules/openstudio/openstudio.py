@@ -8421,6 +8421,43 @@ class Invoice:
         return iiID
 
 
+    def item_add_membership(self, cmID):
+        """
+        :param cmID: db.customers_memberships.id
+        :return: db.invoices_items.id
+        """
+        from openstudio.customer_membership import CustomerMembership
+        from openstudio.school_membership import SchoolMembership
+
+        next_sort_nr = self.get_item_next_sort_nr()
+
+        cm = CustomerMembership(cmID)
+        sm = SchoolMembership(cm.row.school_memberships_id)
+        row = sm.get_tax_rates_on_date(cm.Startdate)
+
+        if row:
+            tax_rates_id = row.school_subscriptions_price.tax_rates_id
+        else:
+            tax_rates_id = None
+
+        price = sm.get_price_on_date(cm.startdate, False)
+        description = cm.name + ' ' + cm.startdate.strftime(DATE_FORMAT) + ' - ' + cm.enddate.strftime(DATE_FORMAT)
+
+        iiID = db.invoices_items.insert(
+            invoices_id  = self.invoices_id,
+            ProductName  = current.T("Membership") + ' ' + unicode(cmID),
+            Description  = description,
+            Quantity     = 1,
+            Price        = price,
+            Sorting      = next_sort_nr,
+            tax_rates_id = tax_rates_id,
+        )
+
+        self.set_amounts()
+
+        return iiID
+
+
     def item_add_teacher_class_credit_payment(self,
                                               clsID,
                                               date,

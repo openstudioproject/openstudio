@@ -43,3 +43,32 @@ class SchoolMembership:
             price = 0
 
         return price
+    
+    
+    def get_tax_rates_on_date(self, date):
+        """
+            Returns tax rates on date
+        """
+        db = current.globalenv['db']
+
+        left = [ db.tax_rates.on(db.school_memberships_price.tax_rates_id ==
+                                 db.tax_rates.id) ]
+
+        query = (db.school_memberships_price.school_memberships_id ==
+                 self.smID) & \
+                (db.school_memberships_price.Startdate <= date) & \
+                ((db.school_memberships_price.Enddate >= date) |
+                 (db.school_memberships_price.Enddate == None))
+
+        rows = db(query).select(db.school_memberships.ALL,
+                                db.school_memberships_price.ALL,
+                                db.tax_rates.ALL,
+                                left=left,
+                                orderby=db.school_memberships_price.Startdate)
+
+        if rows:
+            row = rows.first()
+        else:
+            row = None
+
+        return row
