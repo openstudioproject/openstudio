@@ -3,6 +3,51 @@
 from gluon import *
 
 
+class OsTools:
+    """
+        General tools
+    """
+    def calculate_validity_enddate(self, date_start, validity, validity_unit):
+        """
+        :param date_start: datetime.date startdate 
+        :param validity: integer
+        :param validity_unit: 'weeks' or 'months' or 'days'
+        :return: datetime.date
+        """
+        def add_months(date_start, months):
+            month = date_start.month - 1 + months
+            year = int(date_start.year + month / 12)
+            month = month % 12 + 1
+            last_day_new = calendar.monthrange(year, month)[1]
+            day = min(date_start.day, last_day_new)
+
+            ret_val = datetime.date(year, month, day)
+
+            last_day_source = calendar.monthrange(date_start.year,
+                                                  date_start.month)[1]
+
+            if date_start.day == last_day_source and last_day_source > last_day_new:
+                return ret_val
+            else:
+                delta = datetime.timedelta(days=1)
+                return ret_val - delta
+
+        db = current.globalenv['db']
+
+        if validity_unit == 'months':
+            enddate = add_months(date_start, validity)
+        else:
+            if card.ValidityUnit == 'weeks':
+                days = validity * 7
+            else:
+                days = validity
+
+            delta_days = datetime.timedelta(days=days)
+            enddate = (date_start + delta_days) - datetime.timedelta(days=1)
+
+        return enddate
+
+
 class OsArchiver:
     def parse_request_vars(self, rvars, sesssion_var):
         """

@@ -5904,6 +5904,19 @@ def membership_add():
                 menu=menu)
 
 
+def membership_add_create_invoice(form):
+    """
+        Add an invoice after adding a classcard
+    """
+    from openstudio.os_school_membership import SchoolMemership
+
+    cmID = form.vars.id
+    smID   = form.vars.school_memberships_id
+
+    sm = SchoolMemership(smID)
+    sm.sell_to_customer_create_invoice(cmID)
+
+
 def membership_edit_get_subtitle(cmID):
     """
         Returns subtitle for subscription edit pages

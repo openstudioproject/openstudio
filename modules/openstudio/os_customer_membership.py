@@ -13,3 +13,8 @@ class CustomerMembership:
         self.cmID = cmID
         self.row = db.customers_memberships(self.cmID)
         self.school_membership = db.school_memberships(self.row.school_memberships_id)
+
+
+    def get_name(self):
+        return self.school_membership.Name
+

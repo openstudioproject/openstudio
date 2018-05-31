@@ -8453,6 +8453,7 @@ class Invoice:
             tax_rates_id = tax_rates_id,
         )
 
+        self.link_to_customer_membership(cmID)
         self.set_amounts()
 
         return iiID
@@ -8666,6 +8667,17 @@ class Invoice:
         db.invoices_customers_subscriptions.insert(
             invoices_id = self.invoices_id,
             customers_subscriptions_id = csID
+        )
+
+
+    def link_to_customer_membership(self, cmID):
+        """
+            Link invoice to customer subscription
+        """
+        db = current.globalenv['db']
+        db.invoices_customers_memberships.insert(
+            invoices_id=iID,
+            customers_memberships_id=cmID
         )
 
 

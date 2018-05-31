@@ -398,14 +398,16 @@ def get_invoices_groups_product_types():
     """
         Returns a list of invoices_groups_categories
     """
-    categories = [ ['subscription', T('Subscriptions')],
-                   ['classcard'   , T('Class cards')],
-                   ['dropin'      , T('Drop in classes')],
-                   ['trial'       , T('Trial classes')],
-                   ['wsp'         , T('Workshop products')],
-                   ['shop'        , T('OpenStudio shop (All sales from the shop will go into this group)')],
-                   ['teacher_payments', T('Credit invoices for teacher payments')]
-                ]
+    categories = [
+        ['membership', T('Memberships')],
+        ['subscription', T('Subscriptions')],
+        ['classcard', T('Class cards')],
+        ['dropin', T('Drop in classes')],
+        ['trial', T('Trial classes')],
+        ['wsp', T('Workshop products')],
+        ['shop', T('OpenStudio shop (All sales from the shop will go into this group)')],
+        ['teacher_payments', T('Credit invoices for teacher payments')]
+    ]
 
     return categories
 

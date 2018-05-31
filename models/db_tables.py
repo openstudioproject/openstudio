@@ -1114,6 +1114,14 @@ def define_school_memberships():
             label= T("Name")),
         Field('Description',
              label=T('Description')),
+        Field('Validity', 'integer',
+              requires=IS_INT_IN_RANGE(1, 2000,
+                                       error_message=T('Please enter a number between 0 and 2000')),
+              label=T('Validity')),
+        Field('ValidityUnit',
+              requires=IS_IN_SET(VALIDITY_UNITS, zero=None),
+              represent=represent_validity_units,
+              label=T('Validity In')),
         format='%(Name)s'
         )
 
@@ -3305,6 +3313,19 @@ def define_invoices_customers():
         Field('auth_customer_id', db.auth_user,
               writable=False,
               label=T('Customer')))
+
+
+def define_invoices_customers_memberships():
+    """
+        Table to link customer memberships to invoices
+    """
+    db.define_table('invoices_customers_memberships',
+        Field('invoices_id', db.invoices,
+            readable=False,
+            writable=False),
+        Field('customers_memberships_id', db.customers_memberships,
+            readable=False,
+            writable=False))
 
 
 def define_invoices_customers_subscriptions():
