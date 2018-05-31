@@ -294,8 +294,12 @@ def edit():
         csID = db.invoices_customers_subscriptions(invoices_id = iID).customers_subscriptions_id
     except AttributeError:
         csID = None
+    try:
+        cmID = db.invoices_customers_memberships(invoices_id = iID).customers_memberships_id
+    except AttributeError:
+        cmID = None
 
-    return_url = edit_get_back(cuID, csID)
+    return_url = edit_get_back(cuID, csID, cmID)
 
     crud.messages.submit_button = T("Save")
     crud.messages.record_updated = T("Saved")
@@ -490,7 +494,7 @@ def edit_get_amounts(invoice, formatted=True):
         return content
 
 
-def edit_get_back(cuID, csID=None):
+def edit_get_back(cuID, csID=None, cmID=None):
     """
         Returns back link for invoice edit page
     """
@@ -499,6 +503,9 @@ def edit_get_back(cuID, csID=None):
         url = URL('customers', 'invoices', vars={'cuID':cuID})
     if session.invoices_edit_back == 'customers_orders':
         url = URL('customers', 'orders', vars={'cuID':cuID})
+    elif session.invoices_edit_back == 'customers_membership_invoices':
+        url = URL('customers', 'membership_invoices', vars={'cuID':cuID,
+                                                            'cmID':cmID})
     elif session.invoices_edit_back == 'customers_subscription_invoices':
         url = URL('customers', 'subscription_invoices', vars={'cuID':cuID,
                                                               'csID':csID})
@@ -1121,6 +1128,10 @@ def payment_add_get_back(iID, cuID):
         url = URL('customers', 'classes_attendance', vars={'cuID': cuID}, extension='')
     elif session.invoices_payment_add_back == 'customers_subscription_invoices':
         url = URL('customers', 'subscription_invoices',
+                  vars={'cuID':cuID},
+                  extension='')
+    elif session.invoices_payment_add_back == 'customers_membership_invoices':
+        url = URL('customers', 'membership_invoices',
                   vars={'cuID':cuID},
                   extension='')
     elif session.invoices_payment_add_back == 'customers_events':

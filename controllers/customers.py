@@ -2911,9 +2911,9 @@ def subscription_delete():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'invoices'))
 def subscription_invoices():
-    '''
+    """
         Page to list invoices for a subscription
-    '''
+    """
     if 'csID' in request.vars:
         csID = request.vars['csID']
         session.customers_subscription_invoices_csID = csID
@@ -2952,16 +2952,8 @@ def subscription_invoices():
 
     # main list
     content = DIV(DIV(status_filter,list))
-                      # DIV(LOAD('invoices', 'list_invoices.load',
-                      #          ajax_trap=True,
-                      #          vars=request.vars,
-                      #          content=os_gui.get_ajax_loader())),
-                      # _class='col-md-12'),
-                  #_class="row")
-
 
     menu = subscription_edit_get_menu(cuID, csID, request.function)
-
     back = subscription_edit_get_back(cuID)
 
     return dict(content=content,
@@ -2969,8 +2961,7 @@ def subscription_invoices():
                 add=add,
                 back=back,
                 form_add=form,
-                modal_class=modal_class,
-                left_sidebar_enabled=True)
+                modal_class=modal_class)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -3302,9 +3293,9 @@ def subscriptions():
 
 
 def subscriptions_get_link_edit(row):
-    '''
+    """
         Returns drop down link for subscriptions
-    '''
+    """
     vars = {'cuID': row.auth_customer_id,
             'csID': row.id}
 
@@ -5852,17 +5843,38 @@ def memberships():
 
 def memberships_get_link_edit(row):
     """
-    :param row: gluon.dal.rows containing db.customers_memberships fields
-    :return: edit button for customer membership
+        Returns drop down link for subscriptions
     """
+    vars = {'cuID': row.auth_customer_id,
+            'cmID': row.id}
+
     cmID = row.id
 
-    return os_gui.get_button(
-        'edit',
-        URL('membership_edit', vars={'cmID':row.id,
-                                     'cuID':row.auth_customer_id}),
-        _class='pull-right'
-    )
+    links = []
+
+    permission = ( auth.has_membership(group_id='Admins') or
+                   auth.has_permission('update', 'customers_memberships') )
+    if permission:
+        link_edit = A((os_gui.get_fa_icon('fa-pencil'), T('Edit')),
+                      _href=URL('membership_edit', vars=vars))
+        links.append(link_edit)
+
+    permission = ( auth.has_membership(group_id='Admins') or
+                   auth.has_permission('read', 'invoices') )
+    if permission:
+        link_invoices = A((os_gui.get_fa_icon('fa-file-o'), ' ', T('Invoices')),
+                          _href=URL('membership_invoices', vars=vars))
+
+        links.append(link_invoices)
+
+    menu = os_gui.get_dropdown_menu(
+        links=links,
+        btn_text='',
+        btn_size='btn-sm',
+        btn_icon='pencil',
+        menu_class='btn-group pull-right')
+
+    return menu
 
 
 @auth.requires_login()
@@ -5940,6 +5952,39 @@ def membership_edit_get_subtitle(cmID):
     return SPAN(T("Edit membership"), ' ', cm.school_membership.Name)
 
 
+def membership_edit_get_back(cuID):
+    """
+        Returns back button for customer membership edit pages
+    """
+    return os_gui.get_button('back',
+        URL('memberships', vars={'cuID':cuID}),
+        _class='')
+
+
+def membership_edit_get_menu(cuID, cmID, page):
+    """
+        Returns submenu for subscription edit pages
+    """
+    vars = { 'cuID':cuID,
+             'cmID':cmID }
+
+    pages = []
+
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('update', 'customers_memberships'):
+        pages.append(['membership_edit',
+                      SPAN(os_gui.get_fa_icon('fa-edit'), ' ', T("Edit")),
+                      URL('membership_edit', vars=vars)])
+
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('read', 'invoices'):
+        pages.append(['membership_invoices',
+                      SPAN(os_gui.get_fa_icon('fa-file-o'), ' ', T("Invoices")),
+                      URL('membership_invoices', vars=vars)])
+
+    return os_gui.get_submenu(pages, page, horizontal=True, htype='tabs')
+
+
 @auth.requires_login()
 def membership_edit():
     """
@@ -5947,14 +5992,24 @@ def membership_edit():
         request.args[0] is expected to be the customers_id
         request.args[1] is expected to be the membershipID
     """
+    from openstudio.os_customer_membership import CustomerMembership
     from openstudio.os_forms import OsForms
 
     cuID = request.vars['cuID']
     cmID = request.vars['cmID']
-    customer = Customer(cuID)
     response.view = 'general/tabs_menu.html'
+
+    session.invoices_edit_back = 'customers_membership_invoices'
+    session.invoices_payment_add_back = 'customers_membership_invoices'
+
+    # Always reset filter
+    session.invoices_list_status = None
+
+    customer = Customer(cuID)
+    cm = CustomerMembership(cmID)
     response.title = customer.get_name()
-    response.subtitle = T("Memberships")
+    response.subtitle = SPAN(T("Edit membership"), ' ',
+                             cm.get_name())
 
     return_url = memberships_get_return_url(cuID)
 
@@ -5968,15 +6023,10 @@ def membership_edit():
     )
 
     form = result['form']
-    back = os_gui.get_button('back', return_url)
-    menu = customers_get_menu(cuID, 'memberships')
+    back = membership_edit_get_back(cuID)
+    menu = membership_edit_get_menu(cuID, cmID, request.function)
 
-    content = DIV(
-        H4(T('Edit membership')),
-        form
-    )
-
-    return dict(content=content,
+    return dict(content=form,
                 save=result['submit'],
                 back=back,
                 menu=menu)
@@ -5999,15 +6049,74 @@ def membership_delete():
     redirect(memberships_get_return_url(cuID))
 
 
-def memberships_clear_cache(form):
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'invoices'))
+def membership_invoices():
     """
-        Clear the subscriptions cache for customer
+        Page to list invoices for a subscription
     """
-    csID = form.vars.id
-    cs = db.customers_memberships(csID)
-    cuID = cs.auth_customer_id
+    from openstudio.tools import OsSession
+    from openstudio.os_customer_membership import CustomerMembership
 
-    cache_clear_customers_memberships(cuID)
+    os_session = OsSession()
+    cmID = os_session.get_request_var_or_session(
+        'cmID',
+        None,
+        'customers_membership_invoices_cmID'
+    )
+
+    cuID  = request.vars['cuID']
+    response.view = 'general/tabs_menu.html'
+
+    session.invoices_edit_back = 'customers_membership_invoices'
+    session.invoices_payment_add_back = 'customers_membership_invoices'
+
+    # Always reset filter
+    session.invoices_list_status = None
+
+    customer = Customer(cuID)
+    cm = CustomerMembership(cmID)
+    response.title = customer.get_name()
+    response.subtitle = SPAN(T("Edit membership"), ' ',
+                             cm.get_name())
+
+    # add button
+    ih = InvoicesHelper()
+    form = ih.add_get_form(cuID, cmID)
+    result = ih.add_get_modal(form)
+    add = result['button']
+    modal_class = result['modal_class']
+
+    status_filter = ih.list_get_status_filter()
+
+    if len(form.errors):
+        response.js = "show_add_modal();"
+
+    list = ih.list_invoices(cuID=cuID, cmID=cmID)
+
+    # main list
+    content = DIV(DIV(status_filter,list))
+
+    menu = membership_edit_get_menu(cuID, cmID, request.function)
+    back = membership_edit_get_back(cuID)
+
+    return dict(content=content,
+                menu=menu,
+                add=add,
+                back=back,
+                form_add=form,
+                modal_class=modal_class)
+
+
+# def memberships_clear_cache(form):
+#     """
+#         Clear the subscriptions cache for customer
+#     """
+#     csID = form.vars.id
+#     cs = db.customers_memberships(csID)
+#     cuID = cs.auth_customer_id
+#
+#     cache_clear_customers_memberships(cuID)
 
 
 def memberships_get_return_url(customers_id):

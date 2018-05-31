@@ -9058,6 +9058,7 @@ class InvoicesHelper:
     def list_invoices(self,
                       cuID=None,
                       csID=None,
+                      cmID=None,
                       search_enabled=False,
                       group_filter_enabled=False,
                       only_teacher_credit_invoices=False):
@@ -9091,6 +9092,9 @@ class InvoicesHelper:
                     db.invoices_customers.invoices_id == db.invoices.id),
                 db.invoices_customers_subscriptions.on(
                     db.invoices_customers_subscriptions.invoices_id ==
+                    db.invoices.id),
+                db.invoices_customers_memberships.on(
+                    db.invoices_customers_memberships.invoices_id ==
                     db.invoices.id)
                 ]
 
@@ -9119,6 +9123,8 @@ class InvoicesHelper:
 
         if cuID:
             query &= (db.invoices_customers.auth_customer_id == cuID)
+        if cmID:
+            query &= (db.invoices_customers_memberships.customers_memberships_id == cmID)
         if csID:
             query &= (db.invoices_customers_subscriptions.customers_subscriptions_id == csID)
             fields.insert(3, db.invoices.SubscriptionMonth)
