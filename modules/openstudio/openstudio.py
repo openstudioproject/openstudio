@@ -9620,6 +9620,103 @@ class School:
                 row_item = 0
 
         return subscriptions
+        
+        
+    def _get_memberships_formatted_button_to_cart(self, ssuID):
+        """
+            Get button to add card to shopping cart
+        """
+        os_gui = current.globalenv['os_gui']
+        T = current.globalenv['T']
+
+        return A(SPAN(os_gui.get_fa_icon('fa-shopping-cart'), ' ', T('Get this subscription')),
+                 _href=URL('membership_terms', vars={'smID':smID}))
+
+
+    def get_memberships(self, public_only=True):
+        """
+            :param public: boolean, defines whether to show only public or all memberships
+            :return: list of school_memberships
+        """
+        db = current.globalenv['db']
+
+        query = (db.school_memberships.id > 0)
+
+        if public_only:
+            query &= (db.school_memberships.PublicMembership == True)
+
+        rows = db(query).select(db.school_memberships.ALL,
+                                orderby=~db.school_memberships.SortOrder|db.school_memberships.Name)
+
+        return rows
+
+
+    def get_memberships_formatted(self, per_row=3, public_only=True, link_type='shop'):
+        """
+            :param public: boolean, defines whether to show only public or all memberships
+            :return: list of school_memberships formatted for shop
+        """
+        from openstudio.tools import OsTools
+        from openstudio.os_school_memberships import SchoolMembership
+
+        os_gui = current.globalenv['os_gui']
+        T = current.globalenv['T']
+        os_tools = OsTools()
+
+        if per_row == 3:
+            card_class = 'col-md-4'
+        elif per_row == 4:
+            card_class = 'col-md-3'
+        else:
+            raise ValueError('Incompatible value: per_row has to be 3 or 4')
+
+        rows = self.get_memberships(public_only=public_only)
+
+        memberships = DIV()
+        display_row = DIV(_class='row')
+        row_item = 0
+
+        for i, row in enumerate(rows):
+            repr_row = list(rows[i:i + 1].render())[0]
+
+            sm = SchoolMembership(row.id)
+            name = max_string_length(row.Name, 33)
+
+            validity = os_tools.format_validity(row.Validity, row.ValidityUnit)
+
+            membership_content = TABLE(TR(TD(T('Validity')),
+                                            TD(validity)),
+                                         TR(TD(T('Price')),
+                                            TD(ssu.get_price_on_date(datetime.date.today()))),
+                                         TR(TD(T('Description')),
+                                            TD(row.Description or '')),
+                                         _class='table')
+
+            panel_class = 'box-primary'
+
+            footer_content = ''
+            if link_type == 'shop':
+                footer_content = self._get_memberships_formatted_button_to_cart(row.id)
+
+
+            membership = DIV(os_gui.get_box_table(
+                    name,
+                    membership_content,
+                    panel_class,
+                    show_footer=True,
+                    footer_content=footer_content),
+               _class=card_class)
+
+            display_row.append(membership)
+
+            row_item += 1
+
+            if row_item == per_row or i == (len(rows) - 1):
+                memberships.append(display_row)
+                display_row = DIV(_class='row')
+                row_item = 0
+
+        return memberships
 
 
 class SchoolClasscard:

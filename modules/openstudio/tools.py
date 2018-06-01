@@ -51,6 +51,24 @@ class OsTools:
         return enddate
 
 
+    def format_validity(self, validity, unit):
+        """
+        :param validity: integer
+        :param unit: item from validity_units
+        :return: formatted validity
+        """
+        represent_validity_units = current.globalenv['represent_validity_units']
+
+        validity = SPAN(unicode(validity), ' ')
+        validity_in = represent_validity_units(row.ValidityUnit, row)
+        if validity == 1:  # Cut the last 's"
+            validity_in = validity_in[:-1]
+
+        validity.append(validity_in)
+
+        return validity
+
+
 class OsArchiver:
     def parse_request_vars(self, rvars, sesssion_var):
         """

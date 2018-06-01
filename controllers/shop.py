@@ -826,7 +826,7 @@ def event_get_activities_get_products(wsaID):
 
 def events():
     """
-        Workshops list for shop
+        Events list for shop
     """
     response.title= T('Shop')
     response.subtitle = T('Events')
@@ -838,6 +838,23 @@ def events():
             filter_date_start = TODAY_LOCAL
         )
         content = workshop_schedule.get_workshops_shop()
+
+    return dict(content = content)
+
+
+def memberships():
+    """
+        Memberships list for shop
+    """
+    response.title= T('Shop')
+    response.subtitle = T('Subscriptions')
+    response.view = 'shop/no_box.html'
+
+    content = T('No memberships available at this time, please check back later.')
+    features = db.customers_shop_features(1)
+    if features.Memberships:
+        school = School()
+        content = school.get_memberships_formatted(public_only=True, link_type='shop')
 
     return dict(content = content)
 

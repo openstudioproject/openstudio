@@ -1109,6 +1109,9 @@ def define_school_memberships():
             writable=False,
             default= False,
             label=T("Archived")),
+        Field('PublicMembership', 'boolean',
+              default=False,
+              label=T('Show in shop')),
         Field('Name', required=True,
             requires= IS_NOT_EMPTY(),
             label= T("Name")),
@@ -4643,9 +4646,9 @@ def define_customers_profile_announcements():
 
 
 def define_customers_shop_features():
-    '''
+    """
         Define table to hold which features are enabled in the shop
-    '''
+    """
     db.define_table('customers_shop_features',
         Field('Memberships', 'boolean',
               default=True,
