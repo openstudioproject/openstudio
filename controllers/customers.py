@@ -1161,7 +1161,7 @@ def classcards_count_classes(row):
                auth.has_permission('update', 'auth_user'))
 def export_excel():
     """
-    valid export_types include: payment_summary, mailinglist, attendance_list, customers_list, subscription_list
+        valid export_types include: payment_summary, mailinglist, attendance_list, customers_list, subscription_list
     """
     export_type = request.vars['export']
 
