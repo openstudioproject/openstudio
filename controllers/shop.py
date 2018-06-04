@@ -894,7 +894,7 @@ def membership_terms():
         terms.append(B(T('General terms & conditions')))
         terms.append(XML(general_terms))
     if specific_terms:
-        terms.append(B(T('Subscription specific terms & conditions')))
+        terms.append(B(T('Membership specific terms & conditions')))
         terms.append(XML(specific_terms))
 
     conditions = DIV(terms, _class='well')
@@ -906,7 +906,7 @@ def membership_terms():
                _href=URL('subscriptions'),
                _class='btn btn-default')
 
-    content = DIV(H4(T('Membership terms & conditions')),
+    content = DIV(H4(T('Terms & conditions')),
                   conditions,
                   confirm,
                   cancel)
@@ -981,7 +981,7 @@ def subscription_terms():
                _href=URL('subscriptions'),
                _class='btn btn-default')
 
-    content = DIV(H4(T('Subscription terms & conditions')),
+    content = DIV(H4(T('Terms & conditions')),
                   subscription_conditions,
                   confirm,
                   cancel)
