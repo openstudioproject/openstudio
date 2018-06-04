@@ -847,7 +847,7 @@ def memberships():
         Memberships list for shop
     """
     response.title= T('Shop')
-    response.subtitle = T('Subscriptions')
+    response.subtitle = T('Memberships')
     response.view = 'shop/no_box.html'
 
     content = T('No memberships available at this time, please check back later.')

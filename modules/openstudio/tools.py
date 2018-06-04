@@ -60,7 +60,7 @@ class OsTools:
         represent_validity_units = current.globalenv['represent_validity_units']
 
         validity = SPAN(unicode(validity), ' ')
-        validity_in = represent_validity_units(row.ValidityUnit, row)
+        validity_in = represent_validity_units(unit)
         if validity == 1:  # Cut the last 's"
             validity_in = validity_in[:-1]
 

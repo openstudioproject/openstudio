@@ -9622,14 +9622,14 @@ class School:
         return subscriptions
         
         
-    def _get_memberships_formatted_button_to_cart(self, ssuID):
+    def _get_memberships_formatted_button_to_cart(self, smID):
         """
             Get button to add card to shopping cart
         """
         os_gui = current.globalenv['os_gui']
         T = current.globalenv['T']
 
-        return A(SPAN(os_gui.get_fa_icon('fa-shopping-cart'), ' ', T('Get this subscription')),
+        return A(SPAN(os_gui.get_fa_icon('fa-shopping-cart'), ' ', T('Get this membership')),
                  _href=URL('membership_terms', vars={'smID':smID}))
 
 
@@ -9646,7 +9646,7 @@ class School:
             query &= (db.school_memberships.PublicMembership == True)
 
         rows = db(query).select(db.school_memberships.ALL,
-                                orderby=~db.school_memberships.SortOrder|db.school_memberships.Name)
+                                orderby=db.school_memberships.Name)
 
         return rows
 
@@ -9657,7 +9657,7 @@ class School:
             :return: list of school_memberships formatted for shop
         """
         from openstudio.tools import OsTools
-        from openstudio.os_school_memberships import SchoolMembership
+        from openstudio.os_school_membership import SchoolMembership
 
         os_gui = current.globalenv['os_gui']
         T = current.globalenv['T']
@@ -9687,7 +9687,7 @@ class School:
             membership_content = TABLE(TR(TD(T('Validity')),
                                             TD(validity)),
                                          TR(TD(T('Price')),
-                                            TD(ssu.get_price_on_date(datetime.date.today()))),
+                                            TD(sm.get_price_on_date(datetime.date.today()))),
                                          TR(TD(T('Description')),
                                             TD(row.Description or '')),
                                          _class='table')

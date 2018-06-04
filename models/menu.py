@@ -154,7 +154,7 @@ def shop_menu():
                      URL('shop', 'classes', extension='')])
 
     # Memberships
-    if features.Membershi[s]:
+    if features.Memberships:
         menu.append([(#I(_class='fa fa-pencil-square-o'),
                       SPAN(T('Memberships'))),
                      False,

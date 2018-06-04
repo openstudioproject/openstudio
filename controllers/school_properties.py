@@ -708,6 +708,7 @@ def memberships():
         db.school_memberships.Description,
         db.school_memberships.Validity,
         db.school_memberships.ValidityUnit,
+        db.school_memberships.PublicMembership
     ]
 
     links = [dict(header=T('Price'),

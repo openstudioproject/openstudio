@@ -691,7 +691,7 @@ def get_payment_batches_statuses():
     return statuses
 
 
-def represent_validity_units(value, row):
+def represent_validity_units(value, row=None):
     '''
         Function to represent validity units
     '''
