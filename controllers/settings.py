@@ -2734,7 +2734,7 @@ def shop_membership_terms():
     response.subtitle = T('Shop membership terms')
     response.view = 'general/tabs_menu.html'
 
-    sys_property = 'shop_membership_terms'
+    sys_property = 'shop_memberships_terms'
     terms = get_sys_property(sys_property)
 
     form = SQLFORM.factory(
@@ -2755,7 +2755,7 @@ def shop_membership_terms():
     if form.accepts(request.vars, session):
         # check terms
         set_sys_property(
-            'shop_membership_terms',
+            sys_property,
             request.vars['membership_terms']
         )
 

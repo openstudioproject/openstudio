@@ -859,6 +859,61 @@ def memberships():
     return dict(content = content)
 
 
+def membership_terms():
+    """
+        Buy membership confirmation page
+    """
+    from openstudio.os_school_membership import SchoolMembership
+
+    response.title= T('Shop')
+    response.subtitle = T('Membership')
+    response.view = 'shop/index.html'
+
+    smID = request.vars['smID']
+
+    features = db.customers_shop_features(1)
+    if not features.Memberships:
+        return T('This feature is disabled')
+
+    # check if we require a complete profile
+    shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile')
+    if shop_requires_complete_profile:
+        check_add_to_card_requires_complete_profile(auth.user.id)
+
+    sm = SchoolMembership(smID)
+    price = sm.get_price_on_date(TODAY_LOCAL)
+
+    response.subtitle += ' '
+    response.subtitle += sm.row.Name
+
+    general_terms = get_sys_property('shop_memberships_terms')
+    specific_terms = sm.row.Terms
+
+    terms = DIV()
+    if general_terms:
+        terms.append(B(T('General terms & conditions')))
+        terms.append(XML(general_terms))
+    if specific_terms:
+        terms.append(B(T('Subscription specific terms & conditions')))
+        terms.append(XML(specific_terms))
+
+    conditions = DIV(terms, _class='well')
+
+    confirm = A(B(T('I agree')),
+                _href=URL('mollie', 'membership_buy_now', vars={'smID':smID}),
+                _class='btn btn-primary')
+    cancel = A(B(T('Cancel')),
+               _href=URL('subscriptions'),
+               _class='btn btn-default')
+
+    content = DIV(H4(T('Membership terms & conditions')),
+                  conditions,
+                  confirm,
+                  cancel)
+
+    return dict(content=content)
+
+
 def subscriptions():
     """
         Subscriptions list in shop
@@ -900,7 +955,7 @@ def subscription_terms():
     # automatic payment
 
     ssu = SchoolSubscription(ssuID)
-    price = ssu.get_price_on_date(datetime.date.today())
+    price = ssu.get_price_on_date(TODAY_LOCAL)
     classes = ssu.get_classes_formatted()
 
     response.subtitle += ' '
