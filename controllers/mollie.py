@@ -308,22 +308,39 @@ def order_pay():
         return 'API call failed: ' + e.message
 
 
-def create_mollie_customer(os_customer, mollie):
+def mollie_customer_check_valid(auth_user_id):
+    """
+    :param var: None
+    :return: Boolean - True if there is a valid mollie customer for this OpenStudio customer
+    """
+    os_customer = Customer(auth_user_id)
+    if not os_customer.row.mollie_customer_id:
+        return False
+    else:
+        try:
+            mollie_customer = mollie.customers.get(mollie_customer_id)
+            return True
+        except Exception as e:
+            return False
+
+
+def create_mollie_customer(auth_user_id, mollie):
     """
     :param os_customer: Customer object
     :return:
     """
-    mollie_customer = mollie.customers.create({
-        'name': os_customer.row.display_name,
-        'email': os_customer.row.email
-    })
+    if not mollie_customer_check_valid(auth_user_id):
+        mollie_customer = mollie.customers.create({
+            'name': os_customer.row.display_name,
+            'email': os_customer.row.email
+        })
 
-    #print mollie_customer
+        #print mollie_customer
 
-    os_customer.row.mollie_customer_id = mollie_customer['id']
-    os_customer.row.update_record()
+        os_customer.row.mollie_customer_id = mollie_customer['id']
+        os_customer.row.update_record()
 
-    #print 'created mollie customer'
+        #print 'created mollie customer'
 
 
 @auth.requires_login()
@@ -338,26 +355,9 @@ def subscription_buy_now():
     mollie_api_key = get_sys_property('mollie_website_profile')
     mollie.setApiKey(mollie_api_key)
 
-    # check if we have a mollie customer id
-    os_customer = Customer(auth.user.id)
-    if os_customer.row.mollie_customer_id:
-        # yep
-        mollie_customer_id = os_customer.row.mollie_customer_id
-        try:
-            mollie_customer = mollie.customers.get(mollie_customer_id)
-            #print "we've got one!"
-            #print mollie_customer
-            #print mollie.customers.all()
-        except Exception as e:
-            #print e.__class__.__name__
-            #print str(e)
-            #print 'customer id invalid, create new customer'
-            if 'The customer id is invalid' in str(e):
-                create_mollie_customer(os_customer, mollie)
-    else:
-        create_mollie_customer(os_customer, mollie)
+    create_mollie_customer(auth.user.id, mollie)
 
-    # add subscription to customer
+    # add subscription to customer﻿​_
     startdate = TODAY_LOCAL
     shop_subscriptions_start = get_sys_property('shop_subscriptions_start')
     if not shop_subscriptions_start == None:
@@ -381,6 +381,43 @@ def subscription_buy_now():
     # Create invoice
     cs = CustomerSubscription(csID)
     iID = cs.create_invoice_for_month(TODAY_LOCAL.year, TODAY_LOCAL.month)
+
+    # Pay invoice ... SHOW ME THE MONEY!! :)
+    redirect(URL('invoice_pay', vars={'iID':iID}))
+
+
+@auth.requires_login()
+def membership_buy_now():
+    """
+        Get a membership
+    """
+    from openstudio.os_school_membership import SchoolMembership
+
+    smID = request.vars['smID']
+
+    # init mollie
+    mollie = Mollie.API.Client()
+    mollie_api_key = get_sys_property('mollie_website_profile')
+    mollie.setApiKey(mollie_api_key)
+
+    # check if we have a mollie customer id
+    create_mollie_customer(auth.user.id, mollie)
+
+    # add membership to customer﻿​_
+
+    cmID = db.customers_memberships.insert(
+        auth_customer_id = auth.user.id,
+        school_memberships_id = smID,
+        Startdate = TODAY_LOCAL,
+        payment_methods_id = 100, # important, 100 is the payment_methods_id for Mollie
+    )
+
+    # clear cache to make sure it shows in the back end
+    # cache_clear_customers_subscriptions(auth.user.id)
+
+    # Create invoice
+    sm = SchoolMembership(smID)
+    iID = sm.sell_to_customer_create_invoice(cmID)
 
     # Pay invoice ... SHOW ME THE MONEY!! :)
     redirect(URL('invoice_pay', vars={'iID':iID}))

@@ -130,7 +130,9 @@ class SchoolMembership:
 
     def sell_to_customer_create_invoice(self, cmID):
         """
-            Add an invoice after adding a membership
+        Add an invoice after adding a membership
+        :param cmID: db.customers_memberships.id
+        :return: db.invoices.id
         """
         from openstudio.os_customer_membership import CustomerMembership
         from openstudio.openstudio import Invoice
@@ -151,7 +153,8 @@ class SchoolMembership:
         invoice = Invoice(iID)
         invoice.link_to_customer(cm.row.auth_customer_id)
         invoice.item_add_membership(cmID)
-        
+
+        return iID
 
 
     def sell_to_customer_get_enddate(self, date_start):
