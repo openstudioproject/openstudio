@@ -2721,6 +2721,61 @@ def shop_subscription_terms():
     return dict(content=content,
                 menu=menu,
                 back=back,
+                save=submit)\
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'settings'))
+def shop_membership_terms():
+    '''
+        Set default terms for all subscriptions
+    '''
+    response.title = T("Settings")
+    response.subtitle = T('Shop membership terms')
+    response.view = 'general/tabs_menu.html'
+
+    sys_property = 'shop_membership_terms'
+    terms = get_sys_property(sys_property)
+
+    form = SQLFORM.factory(
+        Field("membership_terms", 'text',
+              default=terms,
+              label=T("Terms & conditions for all memberships")),
+        submit_button=T("Save"),
+        separator=' ',
+        formstyle='bootstrap3_stacked')
+
+    form_element = form.element('#no_table_membership_terms')
+    form_element['_class'] += ' tmced'
+
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
+    form = result['form']
+    submit = result['submit']
+
+    if form.accepts(request.vars, session):
+        # check terms
+        set_sys_property(
+            'shop_membership_terms',
+            request.vars['membership_terms']
+        )
+
+        # Clear cache
+        cache_clear_sys_properties()
+        # User feedback
+        session.flash = T('Saved')
+
+        # reload so the user sees how the values are stored in the db now
+        redirect(URL())
+
+    content = form
+
+    back = system_get_back()
+
+    menu = shop_get_menu(request.function)
+
+    return dict(content=content,
+                menu=menu,
+                back=back,
                 save=submit)
 
 @auth.requires(auth.has_membership(group_id='Admins') or
@@ -3031,6 +3086,9 @@ def shop_get_menu(page):
              ['shop_subscription_terms',
               T('Subscription terms'),
               URL('shop_subscription_terms')],
+             ['shop_membership_terms',
+              T('Membership terms'),
+              URL('shop_membership_terms')],
              ['shop_donations',
               T('Donations'),
               URL('shop_donations')],
