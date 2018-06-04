@@ -1125,6 +1125,8 @@ def define_school_memberships():
               requires=IS_IN_SET(VALIDITY_UNITS, zero=None),
               represent=represent_validity_units,
               label=T('Validity In')),
+        Field('Terms', 'text',
+              label=T('Terms & conditions')),
         format='%(Name)s'
         )
 

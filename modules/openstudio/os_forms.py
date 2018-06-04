@@ -28,6 +28,7 @@ class OsForms:
                              onaccept=[],
                              formstyle="bootstrap3_stacked",
                              form_id="MainForm",
+                             tinymce_enabled=False
                              ):
         """
             Return a crud form to add a record to the database
@@ -42,6 +43,9 @@ class OsForms:
         crud.settings.formstyle = formstyle
         form = crud.create(db_table)
 
+        if tinymce_enabled:
+            form = self.tinymce_all_textareas(form)
+
         result = self.set_form_id_and_get_submit_button(form, form_id)
         # This contains ['form'] and ['submit']
         return result
@@ -54,7 +58,8 @@ class OsForms:
                              submit_button='',
                              onaccept=[],
                              formstyle="bootstrap3_stacked",
-                             form_id="MainForm"
+                             form_id="MainForm",
+                             tinymce_enabled=False
                              ):
         """
             Return a crud form to add a record to the database
@@ -68,6 +73,9 @@ class OsForms:
         crud.settings.update_onaccept = onaccept
         crud.settings.formstyle = formstyle
         form = crud.update(db_table, record_id)
+
+        if tinymce_enabled:
+            form = self.tinymce_all_textareas(form)
 
         result = self.set_form_id_and_get_submit_button(form, form_id)
         # This contains ['form'] and ['submit']
@@ -122,3 +130,11 @@ class OsForms:
 
         return dict(form = result['form'],
                     submit = result['submit'])
+
+
+    def tinymce_all_textareas(self, form):
+        textareas = form.elements('textarea')
+        for textarea in textareas:
+            textarea['_class'] += ' tmced'
+
+        return form

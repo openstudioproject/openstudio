@@ -787,6 +787,7 @@ def membership_add():
     result = os_forms.get_crud_form_create(
         db.school_memberships,
         return_url,
+        tinymce_enabled=True
     )
 
     form = result['form']
@@ -816,7 +817,8 @@ def membership_edit():
     result = os_forms.get_crud_form_update(
         db.school_memberships,
         return_url,
-        smID
+        smID,
+        tinymce_enabled=True
     )
 
     form = result['form']
