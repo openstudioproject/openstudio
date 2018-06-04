@@ -1,0 +1,36 @@
+{{extend 'layout_shop.html'}}
+{{ block header }}
+    {{try:}}{{=breadcrumb}}{{except:}}{{pass}}{{pass}}
+    {{try:}}{{=back}}{{except:}}{{pass}}{{pass}}
+{{ end }}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="box box-solid">
+            <div class="box-body">
+                {{header = THEAD(TR(TH(T('#')),
+                                    TH(T('Membership')),
+                                    TH(T('Start')),
+                                    TH(T('End')),
+                                    ))}}
+                {{table = TABLE(header, _class='table table-striped table-hover')}}
+
+                {{ if rows: }}
+                    {{for i, row in enumerate(rows):}}
+                        {{repr_row = list(rows[i:i+1].render())[0]}}
+                        {{credits = fcredits(row)}}
+                        {{info = SPAN(finfo(row), _class="pull-right")}}
+                        {{table.append(TR(TD(row.customers_memberships.id),
+                                          TD(repr_row.school_memberships.Name),
+                                          TD(repr_row.customers_memberships.Startdate),
+                                          TD(repr_row.customers_memberships.Enddate)
+                                       )}}
+                    {{pass}}
+                {{pass}}
+
+                {{=table}}
+            </div>
+        </div>
+    </div>
+</div>
+
