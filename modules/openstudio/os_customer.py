@@ -116,45 +116,6 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
         return rows
 
 
-    def _get_memberships_on_date(self, date):
-        """
-        :param date: datetime.date
-        :return: db.customers_memberships rows for customer
-        """
-        db = current.globalenv['db']
-
-        query = (db.customers_memberships.auth_customer_id == self.cuID) & \
-                (db.customers_memberships.Startdate <= date) & \
-                ((db.customers_memberships.Enddate >= date) |
-                 (db.customers_memberships.Enddate == None))
-        rows = db(query).select(db.customers_memberships.ALL,
-                                orderby=db.customers_memberships.Startdate)
-
-        return rows
-
-
-    def get_memberships_on_date(self, date, from_cache=True):
-        """
-            Get day rows with caching
-        """
-        web2pytest = current.globalenv['web2pytest']
-        request = current.globalenv['request']
-
-        # Don't cache when running tests
-        if web2pytest.is_running_under_test(request, request.application) or not from_cache:
-            rows = self._get_memberships_on_date(date)
-        else:
-            cache = current.globalenv['cache']
-            DATE_FORMAT = current.globalenv['DATE_FORMAT']
-            CACHE_LONG = current.globalenv['CACHE_LONG']
-            cache_key = 'openstudio_customer_get_memberships_on_date_' + \
-                        str(self.cuID) + '_' + \
-                        date.strftime(DATE_FORMAT)
-            rows = cache.ram(cache_key , lambda: self._get_memberships_on_date(date), time_expire=CACHE_LONG)
-
-        return rows
-
-
     def has_subscription_on_date(self, date):
         """
         :param date: datetime.date
@@ -218,6 +179,54 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
             except AttributeError:
                 return False
 
+        else:
+            return False
+        
+
+    def _get_memberships_on_date(self, date):
+        """
+        :param date: datetime.date
+        :return: db.customers_memberships rows for customer
+        """
+        db = current.globalenv['db']
+
+        query = (db.customers_memberships.auth_customer_id == self.cuID) & \
+                (db.customers_memberships.Startdate <= date) & \
+                ((db.customers_memberships.Enddate >= date) |
+                 (db.customers_memberships.Enddate == None))
+        rows = db(query).select(db.customers_memberships.ALL,
+                                orderby=db.customers_memberships.Startdate)
+
+        return rows
+
+    def get_memberships_on_date(self, date, from_cache=True):
+        """
+            Get day rows with caching
+        """
+        web2pytest = current.globalenv['web2pytest']
+        request = current.globalenv['request']
+
+        # Don't cache when running tests
+        if web2pytest.is_running_under_test(request, request.application) or not from_cache:
+            rows = self._get_memberships_on_date(date)
+        else:
+            cache = current.globalenv['cache']
+            DATE_FORMAT = current.globalenv['DATE_FORMAT']
+            CACHE_LONG = current.globalenv['CACHE_LONG']
+            cache_key = 'openstudio_customer_get_memberships_on_date_' + \
+                        str(self.cuID) + '_' + \
+                        date.strftime(DATE_FORMAT)
+            rows = cache.ram(cache_key, lambda: self._get_memberships_on_date(date), time_expire=CACHE_LONG)
+
+        return rows
+
+    def has_membership_on_date(self, date):
+        """
+        :param date: datetime.date
+        :return: Boolean
+        """
+        if self.get_memberships_on_date(date):
+            return True
         else:
             return False
 
