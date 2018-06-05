@@ -26,7 +26,11 @@ class School:
                                         db.school_classcards.Name)
 
 
-    def get_classcards_formatted(self, public_only=True, per_row=3, link_type=None):
+    def get_classcards_formatted(self,
+                                 auth_user_id,
+                                 public_only=True,
+                                 per_row=3,
+                                 link_type=None):
         """
             :param public_only: show only public cards - Default: True
             :param per_row: Number of cards in each row - Default 4. Allowed values: [3, 4]
@@ -51,8 +55,14 @@ class School:
 
             return validity
 
+        from os_customer import Customer
+
+        TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
         os_gui = current.globalenv['os_gui']
         T = current.globalenv['T']
+
+        customer = Customer(auth_user_id)
+        customer_has_membership = customer.has_membership_on_date(TODAY_LOCAL)
 
         if per_row == 3:
             card_class = 'col-md-4'
@@ -90,7 +100,11 @@ class School:
 
             footer_content = ''
             if link_type == 'shop':
-                footer_content = self._get_classcards_formatted_button_to_cart(row.id)
+                footer_content = self._get_classcards_formatted_button_to_cart(
+                    row.id,
+                    row.MembershipRequired,
+                    customer_has_membership
+                )
 
             card = DIV(os_gui.get_box_table(card_name,
                                             card_content,
@@ -112,12 +126,19 @@ class School:
         return cards
 
 
-    def _get_classcards_formatted_button_to_cart(self, scdID):
+    def _get_classcards_formatted_button_to_cart(self,
+                                                 scdID,
+                                                 membership_required,
+                                                 customer_has_membership):
         """
             Get button to add card to shopping cart
         """
         os_gui = current.globalenv['os_gui']
         T = current.globalenv['T']
+
+        if membership_required and not customer_has_membership:
+            return A(SPAN(T("Membership required")),
+                     _href=URL('shop', 'memberships'))
 
         return A(SPAN(os_gui.get_fa_icon('fa-shopping-cart'), ' ', T('Add to cart')),
                  _href=URL('classcard_add_to_cart', vars={'scdID': scdID}))

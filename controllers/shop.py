@@ -126,7 +126,12 @@ def classcards():
     features = db.customers_shop_features(1)
     if features.Classcards:
         school = School()
-        cards = school.get_classcards_formatted(public_only=True, per_row=3, link_type='shop')
+        cards = school.get_classcards_formatted(
+            auth.user.id,
+            public_only=True,
+            per_row=3,
+            link_type='shop'
+        )
 
     return dict(content=cards)
 
