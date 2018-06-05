@@ -134,7 +134,8 @@ class School:
         T = current.globalenv['T']
 
         if membership_required and not customer_has_membership:
-            return SPAN(T("Membership required"))
+            return A(SPAN(T("Membership required")),
+                     _href=URL('shop', 'memberships'))
 
         return A(SPAN(os_gui.get_fa_icon('fa-shopping-cart'), ' ', T('Get this subscription')),
                  _href=URL('subscription_terms', vars={'ssuID': ssuID}))
