@@ -983,6 +983,11 @@ def access_group_permissions():
                 ['customers_payments-read', T('View payments'), [
                     ['customers_payments-create', T('Add payments')],
                     ['customers_payments-update', T('Edit payments')]]],
+                ['customers_memberships-read', T("View memberships"), [
+                    ['customers_memberships-create', T("Add memberships")],
+                    ['customers_memberships-update', T("Edit memberships")],
+                    ['customers_memberships-delete', T("Delete memberships")],
+                ]],
                 ['customers_subscriptions-read', T("View subscriptions"), [
                     ['customers_subscriptions-create', T("Add subscriptions")],
                     ['customers_subscriptions-update',

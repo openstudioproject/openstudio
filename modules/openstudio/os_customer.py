@@ -297,6 +297,8 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
             Returns a formatted list of subscriptions and classcards for
             a customer
         '''
+        from openstudio.os_customers_subscriptions import CustomerSubscriptions
+
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
         T = current.globalenv['T']
         os_gui = current.globalenv['os_gui']
@@ -325,8 +327,8 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
                                               T('Credits'))
                     subscription.append(SPAN(cs.school_subscriptions.Name, subscr_dates, subscr_credits))
 
-                    csh = CustomerSubscriptionsHelper(csID)
-                    paused = csh.get_paused(date)
+                    cs = CustomerSubscriptions(csID)
+                    paused = cs.get_paused(date)
                     if paused:
                         pause_text = SPAN(' | ', paused, _class='bold')
                         subscription.append(pause_text)

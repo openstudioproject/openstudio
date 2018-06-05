@@ -27,12 +27,13 @@ from openstudio.openstudio import ClasscardsHelper, \
     AttendanceHelper, \
     ReservationHelper, \
     Class, \
-    ClassSchedule, \
-    Customer, \
+    ClassSchedule, \`
     CustomersHelper, \
-    CustomerSubscriptionsHelper, \
     Invoice, \
     InvoicesHelper
+
+from openstudio.os_customers_subscriptions import CustomerSubscriptions
+from openstudio.os_customer import Customer
 
 # helper functions
 
@@ -1944,7 +1945,7 @@ def waitinglist():
             csID = cs.customers_subscriptions.id
             subscription = SPAN(cs.school_subscriptions.Name)
 
-            csh = CustomerSubscriptionsHelper(csID)
+            csh = CustomerSubscriptions(csID)
             paused = csh.get_paused(date)
             if paused:
                 paused = T("Yes")
