@@ -3,7 +3,6 @@
 from gluon import *
 
 
-
 class ShopProductsSet:
     def __init__(self, spsID):
         db = current.globalenv['db']
