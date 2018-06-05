@@ -297,6 +297,7 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
             Returns a formatted list of subscriptions and classcards for
             a customer
         '''
+        from openstudio.openstudio import Classcard
         from openstudio.os_customers_subscriptions import CustomerSubscriptions
 
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
@@ -337,42 +338,36 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
 
         # get class card for customer
         has_classcard = False
-        classcards = self.get_classcards(date)
-        if classcards:
+        customer_classcards = self.get_classcards(date)
+        if customer_classcards:
             has_classcard = True
-            classcard = DIV()
-            ccdh  = ClasscardsHelper()
-            for ccd in classcards:
-                ccdID = ccd.customers_classcards.id
-                remaining_classes = ccdh.get_classes_remaining(ccdID)
+            classcards = DIV()
+            for card in classcards:
+                ccdID = card.customers_classcards.id
+                classcard = Classcard(ccdID)
+                remaining_classes = ccd.get_classes_remaining()
                 if not remaining_classes:
                     continue
 
                 try:
-                    enddate = ccd.customers_classcards.Enddate.strftime(DATE_FORMAT)
+                    enddate = card.customers_classcards.Enddate.strftime(DATE_FORMAT)
                 except AttributeError:
                     enddate = T('No expiry')
 
-                classcard.append(SPAN(ccd.school_classcards.Name, XML(' &bull; '),
-                                 T('expires'), ' ',
-                                 enddate, XML(' &bull; '),
-                                 remaining_classes))
+                classcards.append(
+                    SPAN(card.school_classcards.Name, XML(' &bull; '),
+                    T('expires'), ' ',
+                    enddate, XML(' &bull; '),
+                    remaining_classes)
+                )
 
-                if not ccd.school_classcards.Unlimited:
-                    classcard.append(SPAN(' ', T("Classes remaining")))
+                if not card.school_classcards.Unlimited:
+                    classcards.append(SPAN(' ', T("Classes remaining")))
 
-                classcard.append(BR())
+                classcards.append(BR())
 
-            # if remaining_classes == 0 and new_cards:
-            #     link_new = A(T("New card"),
-            #                  _href=URL('classcard_add',
-            #                            vars={'cuID' : cuID},
-            #                            extension=''),
-            #                  _title=T("Add new card"))
-            #     classcard.append(' - ')
-            #     classcard.append(link_new)
         else:
-            classcard = T("No class card")
+            classcards = T("")
 
         # format data for display
         subscr_cards = TABLE(_class='grey small_font')
@@ -388,7 +383,7 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
             if subscription and show_subscriptions:
                 subscr_cards.append(TR(subscription))
             if classcards:
-                subscr_cards.append(TR(classcard))
+                subscr_cards.append(TR(classcards))
 
         return subscr_cards
 

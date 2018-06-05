@@ -27,7 +27,7 @@ from openstudio.openstudio import ClasscardsHelper, \
     AttendanceHelper, \
     ReservationHelper, \
     Class, \
-    ClassSchedule, \`
+    ClassSchedule, \
     CustomersHelper, \
     Invoice, \
     InvoicesHelper
@@ -39,12 +39,12 @@ from openstudio.os_customer import Customer
 
 
 def classes_get_menu(page, clsID, date_formatted):
-    '''
+    """
         This function returns a menu for the manage page
         page is expected to be a function name showing a page
         class_id is expected to be the class ID
         class_date is expected to be the class date, formatted using DATE_FORMAT
-    '''
+    """
     vars = {'clsID' : clsID,
             'date'  : date_formatted}
 

@@ -14,6 +14,9 @@ from general_helpers import NRtoDay
 from general_helpers import represent_validity_units
 
 
+from openstudio.os_customer import Customer
+
+
 class CustomerExport:
     def __init__(self, cuID):
         """
