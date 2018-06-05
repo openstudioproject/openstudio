@@ -123,7 +123,10 @@ class School:
                  _href=URL('classcard_add_to_cart', vars={'scdID': scdID}))
 
 
-    def _get_subscriptions_formatted_button_to_cart(self, ssuID):
+    def _get_subscriptions_formatted_button_to_cart(self,
+                                                    ssuID,
+                                                    membership_required,
+                                                    customer_has_membership):
         """
             Get button to add card to shopping cart
         """
@@ -152,15 +155,23 @@ class School:
         return rows
 
 
-    def get_subscriptions_formatted(self, per_row=3, public_only=True, link_type='shop'):
+    def get_subscriptions_formatted(self,
+                                    auth_customer_id,
+                                    per_row=3,
+                                    public_only=True,
+                                    link_type='shop'):
         """
             :param public: boolean, defines whether to show only public or all subscriptions
             :return: list of school_subscriptions formatted for shop
         """
         from openstudio.openstudio import SchoolSubscription
+        from openstudio.os_customer import Customer
 
         os_gui = current.globalenv['os_gui']
         T = current.globalenv['T']
+
+        customer = Customer(auth_customer_id)
+        customer_has_membership = customer.has_membership_on_date(TODAY_LOCAL)
 
         if per_row == 3:
             card_class = 'col-md-4'
@@ -201,7 +212,10 @@ class School:
 
             footer_content = ''
             if link_type == 'shop':
-                footer_content = self._get_subscriptions_formatted_button_to_cart(row.id)
+                footer_content = self._get_subscriptions_formatted_button_to_cart(
+                    row.id,
+                    membership_required,
+                    customer_has_membership)
 
             subscription = DIV(os_gui.get_box_table(name,
                                                     subscription_content,
@@ -251,7 +265,10 @@ class School:
         return rows
 
 
-    def get_memberships_formatted(self, per_row=3, public_only=True, link_type='shop'):
+    def get_memberships_formatted(self,
+                                  per_row=3,
+                                  public_only=True,
+                                  link_type='shop'):
         """
             :param public: boolean, defines whether to show only public or all memberships
             :return: list of school_memberships formatted for shop
