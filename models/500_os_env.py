@@ -138,6 +138,15 @@ def cache_clear(var_one=None, var_two=None):
     cache.disk.clear()
 
 
+def cache_clear_customers_memberships(cuID):
+    """
+        Clears memberships cache entries on disk & in ram
+    """
+    cu_sub_regex = 'openstudio_customer_get_memberships_on_date_' + str(cuID) + '*'
+    cache.ram.clear(regex=cu_sub_regex)
+    cache.disk.clear(regex=cu_sub_regex)
+
+
 def cache_clear_customers_subscriptions(cuID):
     """
         Clears subscription cache entries on disk & in ram

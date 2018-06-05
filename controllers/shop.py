@@ -932,7 +932,7 @@ def subscriptions():
     features = db.customers_shop_features(1)
     if features.Subscriptions:
         school = School()
-        content = school.get_subscriptions_formatted(public_only=True, link_type='shop')
+        content = school.get_subscriptions_formatted(auth.user.id, public_only=True, link_type='shop')
 
     return dict(content = content)
 

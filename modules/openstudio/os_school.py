@@ -133,6 +133,9 @@ class School:
         os_gui = current.globalenv['os_gui']
         T = current.globalenv['T']
 
+        if membership_required and not customer_has_membership:
+            return SPAN(T("Membership required"))
+
         return A(SPAN(os_gui.get_fa_icon('fa-shopping-cart'), ' ', T('Get this subscription')),
                  _href=URL('subscription_terms', vars={'ssuID': ssuID}))
 
@@ -167,6 +170,8 @@ class School:
         from openstudio.openstudio import SchoolSubscription
         from openstudio.os_customer import Customer
 
+
+        TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
         os_gui = current.globalenv['os_gui']
         T = current.globalenv['T']
 
@@ -214,7 +219,7 @@ class School:
             if link_type == 'shop':
                 footer_content = self._get_subscriptions_formatted_button_to_cart(
                     row.id,
-                    membership_required,
+                    row.MembershipRequired,
                     customer_has_membership)
 
             subscription = DIV(os_gui.get_box_table(name,

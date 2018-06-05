@@ -2441,9 +2441,9 @@ def classes_edit():
 
 
 def subscription_credits_clear_cache(form):
-    '''
+    """
         Clear the subscriptions cache for customer
-    '''
+    """
     cscID = form.vars.id
     csc = db.customers_subscriptions_credits(cscID)
     cs = db.customers_subscriptions(csc.customers_subscriptions_id)
@@ -2736,16 +2736,16 @@ def subscription_pause_add():
 
 
 def subscriptions_get_return_url(customers_id):
-    '''
+    """
         Returns return URL for subscriptions
-    '''
+    """
     return URL('subscriptions', vars={'cuID':customers_id})
 
 
 def subscriptions_clear_cache(form):
-    '''
+    """
         Clear the subscriptions cache for customer 
-    '''
+    """
     csID = form.vars.id
     cs = db.customers_subscriptions(csID)
     cuID = cs.auth_customer_id
@@ -5878,6 +5878,17 @@ def memberships_get_link_edit(row):
     return menu
 
 
+def memberships_clear_cache(form):
+    """
+        Clear the memberships cache for customer
+    """
+    cmID = form.vars.id
+    cm = db.customers_memberships(cmID)
+    cuID = cm.auth_customer_id
+
+    cache_clear_customers_memberships(cuID)
+
+
 @auth.requires_login()
 def membership_add():
     """
@@ -5902,7 +5913,10 @@ def membership_add():
     result = os_forms.get_crud_form_create(
         db.customers_memberships,
         return_url,
-        onaccept = [membership_add_create_invoice_and_set_enddate]
+        onaccept = [
+            membership_add_create_invoice_and_set_enddate,
+            memberships_clear_cache
+        ]
     )
 
     form = result['form']
@@ -6020,7 +6034,10 @@ def membership_edit():
     result = os_forms.get_crud_form_update(
         db.customers_memberships,
         return_url,
-        cmID
+        cmID,
+        onaccept = [
+            memberships_clear_cache
+        ]
     )
 
     form = result['form']
@@ -6045,8 +6062,9 @@ def membership_delete():
     query = (db.customers_memberships.id == cmID)
     db(query).delete()
 
-    session.flash = T('Deleted membership')
+    cache_clear_customers_memberships(cuID)
 
+    session.flash = T('Deleted membership')
     redirect(memberships_get_return_url(cuID))
 
 
