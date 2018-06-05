@@ -116,6 +116,8 @@ def classcards():
     """
         List available classcards
     """
+    from openstudio.os_school import School
+
     response.title = T('Shop')
     response.subtitle = T('Class cards')
     response.view = 'shop/no_box.html'
@@ -846,6 +848,8 @@ def memberships():
     """
         Memberships list for shop
     """
+    from openstudio.os_school import School
+
     response.title= T('Shop')
     response.subtitle = T('Memberships')
     response.view = 'shop/no_box.html'
@@ -918,6 +922,8 @@ def subscriptions():
     """
         Subscriptions list in shop
     """
+    from openstudio.os_school import School
+
     response.title= T('Shop')
     response.subtitle = T('Subscriptions')
     response.view = 'shop/no_box.html'

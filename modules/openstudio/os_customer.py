@@ -181,7 +181,7 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
 
         else:
             return False
-        
+
 
     def _get_memberships_on_date(self, date):
         """
@@ -198,6 +198,7 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
                                 orderby=db.customers_memberships.Startdate)
 
         return rows
+
 
     def get_memberships_on_date(self, date, from_cache=True):
         """
@@ -220,6 +221,7 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
 
         return rows
 
+
     def has_membership_on_date(self, date):
         """
         :param date: datetime.date
@@ -232,9 +234,9 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
 
 
     def _get_classcards(self, date):
-        '''
+        """
             Returns classcards for customer(cuID) on date
-        '''
+        """
         db = current.globalenv['db']
         cache = current.globalenv['cache']
         request = current.globalenv['request']
