@@ -1160,6 +1160,13 @@ def access_group_permissions():
                 ['employees-update', T("Edit employees")],
                 ['employees-delete', T("Remove employee status")],
             ]],
+            ['school_memberships-read', T("Memberships"), [
+                ['school_memberships-create', T("Add memberships")],
+                ['school_memberships-update', T("Edit memberships")],
+                ['school_memberships_price-read', T('View membership prices'), [
+                    ['school_memberships_price-create', T("Add membership prices")],
+                    ['school_memberships_price-update', T("Edit membership prices")],
+                    ['school_memberships_price-delete', T("Delete membership prices")]]]]],
             ['school_subscriptions-read', T("Subscriptions"), [
                 ['school_subscriptions-create', T("Add subscription")],
                 ['school_subscriptions-update', T("Edit subscriptions")],

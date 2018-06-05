@@ -887,7 +887,7 @@ def memberships_get_link_archive(row):
                              tooltip=tt)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
+@auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'school_memberships_price'))
 def membership_prices():
     """
@@ -912,12 +912,17 @@ def membership_prices():
                                                vars={'smID': smID,
                                                      'smpID': row.id}),
                                            T("Edit this price for this memberships"))]
+
+    delete_permission = (auth.has_membership(group_id='Admins') or
+                         auth.has_permission('delete', 'school_memberships_price'))
+
     grid = SQLFORM.grid(query, fields=fields, links=links,
                         create=False,
                         editable=False,
                         details=False,
                         searchable=False,
                         csv=False,
+                        deletable=delete_permission,
                         # orderby = db.school_memberships_price.Startdate,
                         field_id=db.school_memberships_price.id,
                         ui=grid_ui)
