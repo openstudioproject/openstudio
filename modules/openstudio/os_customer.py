@@ -123,7 +123,10 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
         """
         db = current.globalenv['db']
 
-        query = (db.customers_memberships.auth_customer_id == self.cuID)
+        query = (db.customers_memberships.auth_customer_id == self.cuID) & \
+                (db.customers_memberships.Startdate <= date) & \
+                ((db.customers_memberships.Enddate >= date) |
+                 (db.customers_memberships.Enddate == None))
         rows = db(query).select(db.customers_memberships.ALL,
                                 orderby=db.customers_memberships.Startdate)
 
