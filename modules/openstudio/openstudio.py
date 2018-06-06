@@ -7295,10 +7295,10 @@ class WorkshopProduct:
 
 
     def sell_to_customer(self, cuID, waitinglist=False, invoice=True):
-        '''
+        """
             Sells a workshop to a customer and creates an invoice
             Creates an invoice when a workshop product is sold
-        '''
+        """
         db = current.globalenv['db']
         T = current.globalenv['T']
 
