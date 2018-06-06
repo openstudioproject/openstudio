@@ -4411,7 +4411,7 @@ def events_add_get_list(cuID):
                         URL('events_add_list_tickets',
                             vars={'wsID' : row.id,
                             'cuID' : cuID}),
-                        title=T('Products'),
+                        title=T('Tickets'),
                         tooltip=T('Show products for workshop')) ]
 
     fields = [ db.workshops.thumbsmall,
@@ -4444,9 +4444,9 @@ def events_add_get_list(cuID):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'workshops_products_customers'))
 def events_add_list_tickets():
-    '''
+    """
         List products for a workshop
-    '''
+    """
     response.title = T("Add workshop product")
     response.view = 'general/only_content.html'
 
@@ -4465,7 +4465,7 @@ def events_add_list_tickets():
     # list of workhsops
     grid = events_add_list_products_get_list(wsID, cuID)
 
-    back = os_gui.get_button('back', URL('workshops_add',
+    back = os_gui.get_button('back', URL('event_add',
                                          vars={'cuID':cuID}))
 
     return dict(content=grid,

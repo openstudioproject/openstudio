@@ -7327,28 +7327,10 @@ class WorkshopProduct:
                 Status = 'sent'
                 )
 
-            # link invoice to sold workshop product for customer
-            db.invoices_workshops_products_customers.insert(
-                invoices_id = iID,
-                workshops_products_customers_id = wspcID )
-
             # create object to set Invoice# and due date
             invoice = Invoice(iID)
-            next_sort_nr = invoice.get_item_next_sort_nr()
+            invoice.item_add_workshop_product(wspcID)
 
-            price = self.price
-
-            iiID = db.invoices_items.insert(
-                invoices_id  = iID,
-                ProductName  = T("Event"),
-                Description  = description,
-                Quantity     = 1,
-                Price        = price,
-                Sorting      = next_sort_nr,
-                tax_rates_id = self.tax_rates_id,
-            )
-
-            invoice.set_amounts()
             invoice.link_to_customer(cuID)
 
         ##
@@ -8267,10 +8249,11 @@ class Invoice:
 
 
     def item_add_workshop_product(self, wspcID):
-        '''
+        """
             :param wspID: db.workshops_products_id
             :return: db.invoices_items.id
-        '''
+        """
+        DATE_FORMAT = current.globalenv['DATE_FORMAT']
         db = current.globalenv['db']
         T  = current.globalenv['T']
 
@@ -8289,7 +8272,9 @@ class Invoice:
         iiID = db.invoices_items.insert(
             invoices_id=self.invoices_id,
             ProductName=T('Event'),
-            Description=ws.Name.decode('utf-8') + u' - ' + wsp.Name.decode('utf-8'),
+            Description=ws.Name.decode('utf-8') + u' [' + \
+                        ws.Startdate.strftime(DATE_FORMAT) + u'] - ' + \
+                        wsp.Name.decode('utf-8'),
             Quantity=1,
             Price=wsp.Price,
             Sorting=next_sort_nr,
