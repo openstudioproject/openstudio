@@ -1893,8 +1893,7 @@ class CustomersHelper:
         if list_type == 'tp_fixed_rate':
             filter_id_teacher = cuID
         cs = ClassSchedule(date,
-                           sorting=orderby,
-                           filter_id_teacher=filter_id_teacher)
+                           sorting=orderby)
         classes = cs.get_day_list()
 
         header = THEAD(TR(TH(T('Time')),
