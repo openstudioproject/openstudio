@@ -6098,7 +6098,7 @@ def membership_invoices():
 
     # add button
     ih = InvoicesHelper()
-    form = ih.add_get_form(cuID, cmID)
+    form = ih.add_get_form(cuID, cmID=cmID)
     result = ih.add_get_modal(form)
     add = result['button']
     modal_class = result['modal_class']

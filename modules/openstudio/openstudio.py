@@ -7944,8 +7944,7 @@ class InvoicesHelper:
 
     def add_get_form(self, cuID,
                            csID = None,
-                           subscription_year = '',
-                           subscription_month = '',
+                           cmID = None,
                            full_width = True):
         """
             Returns add form for an invoice
@@ -7960,6 +7959,8 @@ class InvoicesHelper:
         self._add_get_form_enable_minimal_fields()
         if csID:
             self._add_get_form_enable_subscription_fields(csID)
+        if cmID:
+            self._add_get_form_enable_membership_fields(cmID)
 
         form = SQLFORM(db.invoices, formstyle='bootstrap3_stacked')
 
@@ -7982,6 +7983,9 @@ class InvoicesHelper:
                     form.vars.SubscriptionYear,
                     form.vars.SubscriptionMonth
                 )
+
+            if cmID:
+                invoice.link_to_customer_membership(cmID)
 
             redirect(URL('invoices', 'edit', vars={'iID':iID}))
 
