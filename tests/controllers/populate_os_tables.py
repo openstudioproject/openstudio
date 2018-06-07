@@ -1216,15 +1216,16 @@ def populate_school_memberships(web2py):
         Add a membership with a price
     """
     web2py.db.school_memberships.insert(
-        Archived    = False,
-        Name        = 'one class a week',
-        Description = 'premium membership'
+        Archived = False,
+        Name = 'one class a week',
+        Description = 'premium membership',
+        Terms = "Mango season"
        )
 
     web2py.db.school_memberships_price.insert(
         school_memberships_id = 1,
         Startdate = '1900-01-01',
-        Price     = 40)
+        Price = 40)
 
     web2py.db.commit()
 

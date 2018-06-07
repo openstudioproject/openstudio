@@ -518,9 +518,11 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
 
 
     def get_orders_with_items_and_amounts(self):
-        '''
+        """
             Returns orders info for a customer with additional info
-        '''
+        """
+        from openstudio.openstudio import Order
+
         db = current.globalenv['db']
 
         orders = []
@@ -768,9 +770,11 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
 
 
     def shoppingcart_remove_past_classes(self):
-        '''
+        """
             Check if a class is already past, if so, remove it from the shopping cart.
-        '''
+        """
+        from openstudio.openstudio import Class
+
         import pytz
 
         T = current.globalenv['T']

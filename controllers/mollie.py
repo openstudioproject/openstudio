@@ -4,7 +4,7 @@ from general_helpers import max_string_length
 from general_helpers import datestr_to_python
 from general_helpers import get_last_day_month
 
-from openstudio.openstudio import Invoice, Order, Customer, CustomerSubscription, OsMail
+from openstudio.openstudio import Invoice, Order, CustomerSubscription, OsMail
 
 from decimal import Decimal, ROUND_HALF_UP
 
@@ -174,6 +174,8 @@ def invoice_pay():
     """
         Link to mollie payment page from invoice payment
     """
+    from openstudio.os_customer import Customer
+
     #response.title = T("Pay invoice")
     iID = request.vars['iID']
 
@@ -308,12 +310,11 @@ def order_pay():
         return 'API call failed: ' + e.message
 
 
-def mollie_customer_check_valid(auth_user_id):
+def mollie_customer_check_valid(os_customer):
     """
     :param var: None
     :return: Boolean - True if there is a valid mollie customer for this OpenStudio customer
     """
-    os_customer = Customer(auth_user_id)
     if not os_customer.row.mollie_customer_id:
         return False
     else:
@@ -329,7 +330,10 @@ def create_mollie_customer(auth_user_id, mollie):
     :param os_customer: Customer object
     :return:
     """
-    if not mollie_customer_check_valid(auth_user_id):
+    from os_customer import Customer
+    os_customer = Customer(auth_user_id)
+
+    if not mollie_customer_check_valid(os_customer):
         mollie_customer = mollie.customers.create({
             'name': os_customer.row.display_name,
             'email': os_customer.row.email

@@ -347,6 +347,8 @@ def user_register_log_acceptance(form):
     """
         Log acceptance of general terms, privacy policy and true data
     """
+    from openstudio.os_customer import Customer
+
     cuID = form.vars.id
     customer = Customer(cuID)
 

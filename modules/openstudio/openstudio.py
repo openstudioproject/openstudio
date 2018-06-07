@@ -4072,16 +4072,17 @@ class AttendanceHelper:
 
 
     def _attedance_sign_in_subscription_check_paused(self, csID, date):
-        '''
+        """
             Check if the subscription if paused on given date, if so, display
             a message for the user
-        '''
-        T = current.globalenv['T']
+        """
+        from openstudio.os_customer_subscriptions import CustomerSubscriptions
 
+        T = current.globalenv['T']
         message = ''
 
-        csh = CustomerSubscriptions(csID)
-        paused = csh.get_paused(date)
+        cs = CustomerSubscriptions(csID)
+        paused = cs.get_paused(date)
         if paused:
             message = T("Subscription is paused on this date")
 
@@ -4094,9 +4095,9 @@ class AttendanceHelper:
                                            clsID,
                                            date,
                                            product_type):
-        '''
+        """
             Creates an invoice for a drop in or trial class
-        '''
+        """
         db = current.globalenv['db']
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
         T = current.globalenv['T']
