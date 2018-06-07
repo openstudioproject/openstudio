@@ -4820,7 +4820,7 @@ def load_list():
 
         # get email if requested
         email = ''
-        if show_email:
+        if show_email and row.email:
             email = TD(os_gui.get_fa_icon('fa-envelope-o'), ' ',
                        A(row.email,
                          _href='mailto:' + row.email,
