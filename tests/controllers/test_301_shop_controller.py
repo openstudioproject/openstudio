@@ -1374,6 +1374,23 @@ def test_classcard_add_to_cart(client, web2py):
     assert cart_row.school_classcards_id == 1
 
 
+def test_classcards_membership_required_message(client, web2py):
+    """
+    Is the Membership required link showing like it should?
+    """
+    setup_profile_tests(web2py)
+    web2py.db.commit()
+
+    # populate a regular card and a trial card
+    populate_school_classcards(web2py, 1, membership_required=True)
+
+    url = '/shop/classcards'
+    client.get(url)
+    assert client.status == 200
+
+    assert 'Membership required' in client.text
+
+
 def test_classcard_add_to_cart_requires_complete_profile(client, web2py):
     """
         Are classcards added to the shopping cart as expected?
@@ -1851,6 +1868,23 @@ def test_event_product_external_shop_url_and_alt_btn_text(client, web2py):
     assert wsp.AddToCartText in client.text
 
 
+def test_subscriptions_required_message(client, web2py):
+    """
+    Is the Membership required link showing like it should?
+    """
+    setup_profile_tests(web2py)
+    web2py.db.commit()
+
+    # populate a regular card and a trial card
+    populate_school_subscriptions(web2py, membership_required=True)
+
+    url = '/shop/subscriptions'
+    client.get(url)
+    assert client.status == 200
+
+    assert 'Membership required' in client.text
+
+
 def test_subscription_terms(client, web2py):
     """
         Are the terms for a subscription showing correctly?
@@ -1916,6 +1950,7 @@ def test_subscription_terms_requires_complete_profile(client, web2py):
 
     # Check general terms
     assert "best service possible" in client.text
+
 
 
 def test_membership_terms(client, web2py):
