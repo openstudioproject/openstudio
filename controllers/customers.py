@@ -5938,22 +5938,20 @@ def membership_add_create_invoice_and_set_enddate(form):
     """
         Add an invoice after adding a membership
     """
+    from openstudio.os_customer_membership import CustomerMembership
     from openstudio.os_school_membership import SchoolMembership
 
     cmID = form.vars.id
     smID   = form.vars.school_memberships_id
 
+    cm = CustomerMembership(cmID)
     sm = SchoolMembership(smID)
 
-    enddate = sm.sell_to_customer_get_enddate(form.vars.Startdate)
     # set enddate
-    row = db.customers_memberships(form.vars.id)
-    row.Enddate = enddate
-    row.update_record()
+    cm.set_enddate()
 
     # create invoice
     sm.sell_to_customer_create_invoice(cmID)
-
 
 
 def membership_edit_get_subtitle(cmID):

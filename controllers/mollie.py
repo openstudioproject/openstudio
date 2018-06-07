@@ -395,6 +395,7 @@ def membership_buy_now():
     """
         Get a membership
     """
+    from openstudio.os_customer_membership import CustomerMembership
     from openstudio.os_school_membership import SchoolMembership
 
     smID = request.vars['smID']
@@ -407,8 +408,7 @@ def membership_buy_now():
     # check if we have a mollie customer id
     create_mollie_customer(auth.user.id, mollie)
 
-    # add membership to customer﻿​_
-
+    # add membership to customer
     cmID = db.customers_memberships.insert(
         auth_customer_id = auth.user.id,
         school_memberships_id = smID,
@@ -416,8 +416,11 @@ def membership_buy_now():
         payment_methods_id = 100, # important, 100 is the payment_methods_id for Mollie
     )
 
+    cm = CustomerMembership(cmID)
+    cm.set_enddate()
+
     # clear cache to make sure it shows in the back end
-    # cache_clear_customers_subscriptions(auth.user.id)
+    cache_clear_customers_memberships(auth.user.id)
 
     # Create invoice
     sm = SchoolMembership(smID)
