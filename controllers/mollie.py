@@ -330,7 +330,7 @@ def create_mollie_customer(auth_user_id, mollie):
     :param os_customer: Customer object
     :return:
     """
-    from os_customer import Customer
+    from openstudio.os_customer import Customer
     os_customer = Customer(auth_user_id)
 
     if not mollie_customer_check_valid(os_customer):
