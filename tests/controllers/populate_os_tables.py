@@ -384,6 +384,76 @@ def populate_customers_with_classcards(web2py,
     web2py.db.commit()
 
 
+def populate_customers_with_memberships(web2py,
+                                        nr_of_customers=10,
+                                        nr_memberships=1,
+                                        invoices=False,
+                                        customers_populated=False,
+                                        created_on=datetime.date.today()):
+
+    populate_school_memberships(web2py)
+
+    print web2py.db().select(web2py.db.school_memberships.ALL)
+
+    if not customers_populated:
+        populate_customers(web2py, nr_of_customers, created_on=created_on)
+
+    for i in range(1, nr_of_customers+1):
+        aucID = i + 1000
+        cmID = web2py.db.customers_memberships.insert(
+            auth_customer_id = aucID,
+            school_memberships_id = 1,
+            Startdate = '2014-01-01',
+            Enddate = '2014-01-31',
+            Note = 'Cherries',
+            payment_methods_id = 1,
+        )
+
+        # Add invoices?
+        if invoices:
+            smp = web2py.db.school_memberships_price(1)
+
+            iID = web2py.db.invoices.insert(
+                invoices_groups_id=100,
+                SubscriptionMonth=1,
+                SubscriptionYear=2014,
+            )
+
+            ciID = web2py.db.invoices_customers.insert(
+                auth_customer_id = aucID,
+                invoices_id = iID
+            )
+
+            web2py.db.invoices_items.insert(
+                invoices_id=iID,
+                Sorting=1,
+                ProductName='Membership',
+                Description='First membership in school',
+                Quantity=1,
+                Price=smp.Price,
+                tax_rates_id=smp.tax_rates_id
+            )
+
+            # tax rates (1) = 21%
+            TotalPrice = round(smp.Price / 1.21, 2)
+            VAT = round(smp.Price - TotalPrice, 2)
+
+            web2py.db.invoices_amounts.insert(
+                invoices_id=iID,
+                TotalPrice=TotalPrice,
+                VAT=VAT,
+                TotalPriceVAT=smp.Price,
+
+            )
+
+            web2py.db.invoices_customers_memberships.insert(
+                invoices_id=iID,
+                customers_memberships_id=cmID
+            )
+
+    web2py.db.commit()
+
+
 def populate_auth_user_teachers(web2py,
                                 teaches_classes=True,
                                 teaches_workshops=True):
@@ -1213,21 +1283,26 @@ def populate_announcements(web2py, nr=10):
     populate(web2py.db.announcements, nr)
 
 
-def populate_school_memberships(web2py):
+def populate_school_memberships(web2py, price=True):
     """
         Add a membership with a price
     """
     web2py.db.school_memberships.insert(
         Archived = False,
-        Name = 'one class a week',
+        Name = 'Premium membership',
         Description = 'premium membership',
-        Terms = "Mango season"
+        Terms = "Mango season",
+        Validity = 1,
+        ValidityUnit = 'months'
        )
 
-    web2py.db.school_memberships_price.insert(
-        school_memberships_id = 1,
-        Startdate = '1900-01-01',
-        Price = 40)
+    if price:
+        web2py.db.school_memberships_price.insert(
+            school_memberships_id = 1,
+            Startdate = '1900-01-01',
+            Price = 40,
+            tax_rates_id=1
+        )
 
     web2py.db.commit()
 

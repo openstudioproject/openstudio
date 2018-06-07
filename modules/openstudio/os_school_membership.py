@@ -142,34 +142,38 @@ class SchoolMembership:
 
         cm = CustomerMembership(cmID)
 
-        igpt = db.invoices_groups_product_types(ProductType='membership')
+        # Check if price exists and > 0:
+        if self.get_price_on_date(cm.row.Startdate):
+            igpt = db.invoices_groups_product_types(ProductType='membership')
 
-        iID = db.invoices.insert(
-            invoices_groups_id=igpt.invoices_groups_id,
-            Description=cm.get_name(),
-            Status='sent'
-        )
-        
-        invoice = Invoice(iID)
-        invoice.link_to_customer(cm.row.auth_customer_id)
-        invoice.item_add_membership(cmID)
+            iID = db.invoices.insert(
+                invoices_groups_id=igpt.invoices_groups_id,
+                Description=cm.get_name(),
+                Status='sent'
+            )
 
-        return iID
+            invoice = Invoice(iID)
+            invoice.link_to_customer(cm.row.auth_customer_id)
+            invoice.item_add_membership(cmID)
+
+            return iID
+        else:
+            return None
 
 
-    def sell_to_customer_get_enddate(self, date_start):
-        """
-           Calculate and set enddate when adding a membership
-           :param ccdID: db.customers_classcards.id
-           :return : enddate for a classcard
-        """
-        from openstudio.tools import OsTools
-        
-        tools = OsTools()
-
-        return tools.calculate_validity_enddate(
-            date_start, 
-            self.row.Validity, 
-            self.row.ValidityUnit
-        )
+    # def sell_to_customer_get_enddate(self, date_start):
+    #     """
+    #        Calculate and set enddate when adding a membership
+    #        :param ccdID: db.customers_classcards.id
+    #        :return : enddate for a classcard
+    #     """
+    #     from openstudio.tools import OsTools
+    #
+    #     tools = OsTools()
+    #
+    #     return tools.calculate_validity_enddate(
+    #         date_start,
+    #         self.row.Validity,
+    #         self.row.ValidityUnit
+    #     )
         

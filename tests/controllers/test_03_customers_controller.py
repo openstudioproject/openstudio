@@ -13,11 +13,14 @@ from populate_os_tables import populate_classes
 from populate_os_tables import populate_customers
 from populate_os_tables import populate_customers_with_subscriptions
 from populate_os_tables import populate_customers_with_classcards
+from populate_os_tables import populate_customers_with_memberships
 from populate_os_tables import populate_customers_payment_info
 from populate_os_tables import populate_workshops_products_customers
 from populate_os_tables import populate_workshops_with_activity
+from populate_os_tables import populate_school_memberships
 from populate_os_tables import populate_school_subscriptions
 from populate_os_tables import populate_school_classcards
+from populate_os_tables import populate_tax_rates
 
 def test_customers_add(client, web2py):
     """
@@ -508,6 +511,170 @@ def test_account_merge(client, web2py):
 
     # verify the flash message
     assert 'Merge success' in client.text
+
+
+def test_customers_memberships(client, web2py):
+    """
+    Are customers memberships listed correctly?
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    populate_tax_rates(web2py)
+    populate_customers_with_memberships(web2py)
+
+    url = '/customers/memberships?cuID=1001'
+    client.get(url)
+    assert client.status == 200
+
+    sm = web2py.db.school_memberships(1)
+    assert sm.Name in client.text
+
+
+def test_customers_membership_add(client, web2py):
+    """
+    Are customer memberships added?
+    Is an invoice created?
+    Is the enddate set?
+    """
+    populate_customers(web2py)
+    populate_school_memberships(web2py)
+
+    url = '/customers/membership_add?cuID=1001'
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        'school_memberships_id': 1,
+        'Startdate': '2014-01-01',
+        'payment_methods_id': 1
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+    assert web2py.db(web2py.db.customers_memberships).count() == 1
+    assert web2py.db(web2py.db.invoices_customers_memberships).count() == 1
+
+    smp = web2py.db.school_memberships_price(1)
+    invoice = web2py.db.invoices(1)
+    invoice_item = web2py.db.invoices_items(1)
+    invoice_amounts = web2py.db.invoices_amounts(1)
+
+    print invoice_item
+
+    assert invoice_item.ProductName == "Membership 1"
+    # assert invoice_item.Description == 'Premium membership'
+    assert invoice_item.TotalPriceVAT == smp.Price
+    assert invoice_item.tax_rates_id == smp.tax_rates_id
+    assert invoice_amounts.TotalPriceVAT == smp.Price
+
+    # Check enddate
+    row = web2py.db.customers_memberships(1)
+    assert row.Enddate == datetime.date(2014, 1, 31)
+
+
+def test_membership_invoices(client, web2py):
+    """
+    Are invoices for memberships listed correctly?
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    populate_tax_rates(web2py)
+    populate_customers_with_memberships(web2py, invoices=True)
+
+    url = '/customers/membership_invoices?cuID=1001&cmID=1'
+    client.get(url)
+    assert client.status == 200
+
+    invoice = web2py.db.invoices(1)
+    assert invoice.InvoiceID in client.text
+
+
+def test_membership_invoice_add(client, web2py):
+    """
+    Add an invoice for a membership
+    """
+
+
+def test_customers_membership_add_no_invoice_when_price_0(client, web2py):
+    """
+    Are customer memberships added?
+    Is an invoice created?
+    Is the enddate set?
+    """
+    populate_customers(web2py)
+    populate_school_memberships(web2py, price=False)
+
+    url = '/customers/membership_add?cuID=1001'
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        'school_memberships_id': 1,
+        'Startdate': '2014-01-01',
+        'payment_methods_id': 1
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+    assert web2py.db(web2py.db.customers_memberships).count() == 1
+
+    # No invoice when there's no price for a membership
+    assert web2py.db(web2py.db.invoices_customers_memberships).count() == 0
+
+
+
+def test_customers_membership_edit(client, web2py):
+    """
+    Can we edit a membership?
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    populate_tax_rates(web2py)
+    populate_customers_with_memberships(web2py)
+
+    url = '/customers/membership_edit?cuID=1001&cmID=1'
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        'id': 1,
+        'school_memberships_id': 1,
+        'Startdate': '2014-01-01',
+        'payment_methods_id': 1,
+        'Note': 'Strawberries'
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+    row = web2py.db.customers_memberships(1)
+    assert row.Note == data['Note']
+
+
+def test_customers_membership_delete(client, web2py):
+    """
+    Can we delete a membership?
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    populate_tax_rates(web2py)
+    populate_customers_with_memberships(web2py)
+
+    count = web2py.db(web2py.db.customers_memberships).count()
+
+    url = '/customers/membership_delete?cuID=1001&cmID=1'
+    client.get(url)
+    assert web2py.db(web2py.db.customers_memberships).count() == count - 1
 
 
 def test_customers_subscription_add(client, web2py):

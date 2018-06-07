@@ -40,7 +40,7 @@ class OsTools:
         if validity_unit == 'months':
             enddate = add_months(date_start, validity)
         else:
-            if card.ValidityUnit == 'weeks':
+            if validity_unit == 'weeks':
                 days = validity * 7
             else:
                 days = validity

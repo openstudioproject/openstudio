@@ -4871,7 +4871,7 @@ def load_list():
 
         # get email if requested
         email = ''
-        if show_email:
+        if show_email and row.email:
             email = TD(os_gui.get_fa_icon('fa-envelope-o'), ' ',
                        A(row.email,
                          _href='mailto:' + row.email,
@@ -5783,7 +5783,7 @@ def memberships():
 
     table = TABLE(header, _class='table table-hover table-striped')
 
-    query = (db.customers_subscriptions.auth_customer_id == customers_id)
+    query = (db.customers_memberships.auth_customer_id == customers_id)
     rows = db(query).select(db.customers_memberships.id,
                             db.customers_memberships.auth_customer_id,
                             db.customers_memberships.school_memberships_id,
@@ -5944,13 +5944,12 @@ def membership_add_create_invoice_and_set_enddate(form):
     cmID = form.vars.id
     smID   = form.vars.school_memberships_id
 
-    cm = CustomerMembership(cmID)
-    sm = SchoolMembership(smID)
-
     # set enddate
+    cm = CustomerMembership(cmID)
     cm.set_enddate()
 
     # create invoice
+    sm = SchoolMembership(smID)
     sm.sell_to_customer_create_invoice(cmID)
 
 

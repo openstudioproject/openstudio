@@ -307,12 +307,12 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
                 date,
                 new_cards=True,
                 show_subscriptions=True):
-        '''
+        """
             Returns a formatted list of subscriptions and classcards for
             a customer
-        '''
+        """
         from openstudio.openstudio import Classcard
-        from openstudio.os_customers_subscriptions import CustomerSubscriptions
+        from openstudio.os_customer_subscriptions import CustomerSubscriptions
 
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
         T = current.globalenv['T']

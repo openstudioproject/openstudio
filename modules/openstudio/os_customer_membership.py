@@ -34,5 +34,5 @@ class CustomerMembership:
             self.school_membership.ValidityUnit
         )
 
-        self.row.enddate = enddate
+        self.row.Enddate = enddate
         self.row.update_record()
