@@ -3881,6 +3881,22 @@ def class_price_edit():
                 save=result['submit'])
 
 
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('delete', 'classes_price'))
+def class_price_delete():
+    """
+        Delete class price
+    """
+    clsID = request.vars['clsID']
+    clpID = request.vars['clpID']
+
+    query = (db.classes_price.id == clpID)
+    db(query).delete()
+
+    session.flash = T("Deleted price")
+    redirect(class_prices_add_edit_get_return_url(clsID))
+
+
 def class_prices_add_edit_get_return_url(clsID):
     """
         Returns return url for adding or editing a teacher
