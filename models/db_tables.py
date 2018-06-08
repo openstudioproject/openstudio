@@ -386,9 +386,9 @@ def represent_birthday(value, row):
 
 
 def represent_float_as_amount(value, row=None):
-    '''
+    """
         Takes value and rounds it to a 2 decimal number.
-    '''
+    """
     if value is None or not isinstance(value, float):
         return ''
     else:
