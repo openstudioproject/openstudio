@@ -68,6 +68,32 @@ def test_index_announcements(client, web2py):
     assert cpa.Announcement in client.text
 
 
+def test_index_memberships(client, web2py):
+    """
+        Are current memberships on the index page?
+    """
+    url = '/profile/index'
+    client.get(url)
+    assert client.status == 200
+
+    setup_profile_tests(web2py)
+    populate_customers_with_memberships(web2py)
+
+    cm = web2py.db.customers_memberships(1)
+    cm.auth_customer_id = 300
+    cm.Enddate = None
+    cm.update_record()
+
+    web2py.db.commit()
+
+    client.get(url)
+    assert client.status == 200
+
+    sm = web2py.db.school_memberships(1)
+    assert sm.Name in client.text
+    assert unicode(cm.Startdate) in client.text
+
+
 def test_me(client, web2py):
     """
         Is the profile edit page showing correctly?
@@ -593,7 +619,7 @@ def test_memberships(client, web2py):
     assert client.status == 200
 
     setup_profile_tests(web2py)
-    
+
     populate_customers_with_memberships(web2py)
 
     cm = web2py.db.customers_memberships(1)
