@@ -21,7 +21,12 @@ def populate_sys_properties_school_info(web2py):
     web2py.db.commit()
 
 
-def populate_school_classcards(web2py, nr=1, trialcard=True, membership_required=False):
+def populate_school_classcards(
+        web2py,
+        nr=1,
+        trialcard=True,
+        membership_required=False
+    ):
     """
         Add 'nr' of cards to school_classcards
     """
@@ -187,6 +192,7 @@ def populate_customers_with_subscriptions(web2py,
                                           nr_of_customers=4,
                                           invoices=False,
                                           credits=False,
+                                          membership_required=False,
                                           created_on=datetime.date.today()):
     if nr_of_customers < 4:
         # Set minimum number of customers, at least one for each school subscription
@@ -196,7 +202,7 @@ def populate_customers_with_subscriptions(web2py,
     populate_customers(web2py, nr_of_customers, created_on=created_on)
     populate_payment_methods(web2py)
     populate_customers_payment_info(web2py, nr_of_customers)
-    populate_school_subscriptions(web2py)
+    populate_school_subscriptions(web2py, membership_required=membership_required)
 
     ss_one_price = web2py.db.school_subscriptions_price(1).Price
 
@@ -322,9 +328,15 @@ def populate_customers_with_classcards(web2py,
                                       trialcard=True,
                                       invoices=False,
                                       customers_populated=False,
+                                      membership_required=False,
                                       created_on=datetime.date.today()):
 
-    populate_school_classcards(web2py, nr_cards, trialcard = trialcard)
+    populate_school_classcards(
+        web2py,
+        nr_cards,
+        trialcard = trialcard,
+        membership_required = membership_required,
+    )
     scd = web2py.db.school_classcards(1)
 
     if not customers_populated:

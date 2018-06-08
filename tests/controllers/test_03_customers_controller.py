@@ -696,6 +696,25 @@ def test_membership_delete(client, web2py):
     assert web2py.db(web2py.db.customers_memberships).count() == count - 1
 
 
+def test_subscriptions_membership_required_warning(client, web2py):
+    """
+        Is the "No membership" warning showing like it should?
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    populate_customers_with_subscriptions(web2py, membership_required=True)
+
+    url = '/customers/subscriptions?cuID=1001'
+    client.get(url)
+    assert client.status == 200
+
+    print client.text
+
+    assert "No membership" in client.text
+
+
 def test_subscription_add(client, web2py):
     """
         Can we add a customers_subscription?
@@ -1262,6 +1281,19 @@ def test_subscription_credits_month_expire_credits(client, web2py):
 
     query = (web2py.db.customers_subscriptions_credits.Expiration == True)
     assert web2py.db(query).count() == 1
+
+
+def test_classcards_membership_required_warning(client, web2py):
+    """
+        Is the "No membership" warning showing like it should?
+    """
+    populate_customers_with_classcards(web2py, membership_required=True)
+
+    url = '/customers/classcards?cuID=1001'
+    client.get(url)
+    assert client.status == 200
+
+    assert "No membership" in client.text
 
 
 def test_classcard_add_classic(client, web2py):
