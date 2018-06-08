@@ -393,8 +393,6 @@ def populate_customers_with_memberships(web2py,
 
     populate_school_memberships(web2py)
 
-    print web2py.db().select(web2py.db.school_memberships.ALL)
-
     if not customers_populated:
         populate_customers(web2py, nr_of_customers, created_on=created_on)
 
@@ -1291,6 +1289,8 @@ def populate_school_memberships(web2py, price=True):
     """
         Add a membership with a price
     """
+    populate_tax_rates(web2py)
+
     web2py.db.school_memberships.insert(
         Archived = False,
         Name = 'Premium membership',

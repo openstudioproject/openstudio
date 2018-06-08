@@ -1021,10 +1021,8 @@ def memberships():
     if not features.Memberships:
         redirect(URL('profile', 'index'))
 
-    session.profile_subscription_credits_back = 'profile_subscriptions'
-
     left = db.school_memberships.on(
-        db.customers_subscriptions.school_memberships_id ==
+        db.customers_memberships.school_memberships_id ==
         db.school_memberships.id
     )
 

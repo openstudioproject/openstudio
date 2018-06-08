@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
     py.test test cases to test the Profile controller (profile.py)
-'''
+"""
 
 from gluon.contrib.populate import populate
 
@@ -14,6 +14,7 @@ from populate_os_tables import populate_classes
 from populate_os_tables import prepare_classes
 from populate_os_tables import populate_customers_with_classcards
 from populate_os_tables import populate_customers_with_subscriptions
+from populate_os_tables import populate_customers_with_memberships
 from populate_os_tables import populate_workshops_products_customers
 from populate_os_tables import populate_settings_shop_customers_profile_announcements
 from setup_profile_tests import setup_profile_tests
@@ -30,18 +31,18 @@ def next_weekday(d, weekday):
 
 
 def test_logout_for_profile(client, web2py):
-    '''
+    """
         This is not an actual test, but just logs out the user
-    '''
+    """
     url = '/default/user/logout'
     client.get(url)
     assert client.status == 200
 
 
 def test_login_profile_user(client, web2py):
-    '''
+    """
         Logs in with a user without any permissions by default
-    '''
+    """
     setup_profile_tests(web2py)
 
     data = dict(email='profile@openstudioproject.com',
@@ -53,9 +54,9 @@ def test_login_profile_user(client, web2py):
 
 
 def test_index_announcements(client, web2py):
-    '''
+    """
         Are the announcements shown correctly?
-    '''
+    """
     populate_settings_shop_customers_profile_announcements(web2py)
 
     url = '/profile/index'
@@ -154,9 +155,9 @@ def test_staff_payments(client, web2py):
 
 #TODO rework test to check access to 'all' pages from home
 # def test_profile_features(client, web2py):
-#     '''
+#     """
 #         Are the profile menu items showing when enabled/disabled in settings
-#     '''
+#     """
 #     # get random url to setup OpenStudio environment
 #     url = '/default/user/login'
 #     client.get(url)
@@ -211,9 +212,9 @@ def test_staff_payments(client, web2py):
 
 #NOTE: depricated - shop and profile have been merged so no more need for links to shop from profile
 # def test_shop_links_features(client, web2py):
-#     '''
+#     """
 #         Are the shop links showing when features are enabled in settings
-#     '''
+#     """
 #     # get random url to setup OpenStudio environment
 #     url = '/default/user/login'
 #     client.get(url)
@@ -269,9 +270,9 @@ def test_staff_payments(client, web2py):
 
 # Depricated for now (2017-04-06)
 # def test_index_reservations(client, web2py):
-#     '''
+#     """
 #         Are the reservations showing properly on the index controller
-#     '''
+#     """
 #     setup_profile_tests(web2py)
 #     populate_classes(web2py)
 #
@@ -351,9 +352,9 @@ def test_classes(client, web2py):
 
 
 def test_classes_show_cancel_link(client, web2py):
-    '''
+    """
         Is the cancel link shown when it should?
-    '''
+    """
     setup_profile_tests(web2py)
     populate_classes(web2py)
 
@@ -391,9 +392,9 @@ def test_classes_show_cancel_link(client, web2py):
 
 
 def test_classes_hide_cancel_link(client, web2py):
-    '''
+    """
         Is the cancel link hidden when it should?
-    '''
+    """
     setup_profile_tests(web2py)
     populate_classes(web2py)
 
@@ -431,9 +432,9 @@ def test_classes_hide_cancel_link(client, web2py):
 
 
 def test_class_cancel_confirmation(client, web2py):
-    '''
+    """
          Is the cancel conformation page showing?
-    '''
+    """
     setup_profile_tests(web2py)
     populate_classes(web2py)
 
@@ -463,9 +464,9 @@ def test_class_cancel_confirmation(client, web2py):
 
 
 def test_class_cancel_confirmation_cannot_be_cancelled(client, web2py):
-    '''
+    """
         Is the message showing notifying the customer that the class can't be cancelled anymore
-    '''
+    """
     setup_profile_tests(web2py)
     populate_classes(web2py)
 
@@ -495,9 +496,9 @@ def test_class_cancel_confirmation_cannot_be_cancelled(client, web2py):
 
 
 def test_class_cancel(client, web2py):
-    '''
+    """
         Can a customer cancel a class?
-    '''
+    """
     setup_profile_tests(web2py)
     populate_classes(web2py)
 
@@ -528,9 +529,9 @@ def test_class_cancel(client, web2py):
 
 
 def test_classcards(client, web2py):
-    '''
+    """
         Is the list of class cards showing?
-    '''
+    """
     setup_profile_tests(web2py)
 
     populate_customers_with_classcards(web2py)
@@ -553,9 +554,9 @@ def test_classcards(client, web2py):
 
 
 def test_classcard_info(client, web2py):
-    '''
+    """
         Is the classcard info page showing correctly?
-    '''
+    """
     setup_profile_tests(web2py)
     prepare_classes(web2py)
 
@@ -581,12 +582,38 @@ def test_classcard_info(client, web2py):
     assert client.status == 200
 
     assert client.text.count('<span class="text-green"><i class="fa fa-check">') == 2
+    
+    
+def test_memberships(client, web2py):
+    """
+        Is the list of memberships showing? 
+    """
+    url = '/profile/memberships'
+    client.get(url)
+    assert client.status == 200
 
+    setup_profile_tests(web2py)
+    
+    populate_customers_with_memberships(web2py)
+
+    cm = web2py.db.customers_memberships(1)
+    cm.auth_customer_id = 300
+    cm.update_record()
+    
+    web2py.db.commit()
+
+    client.get(url)
+    assert client.status == 200
+
+    sm = web2py.db.school_memberships(1)
+    assert sm.Name in client.text
+    assert unicode(cm.Startdate) in client.text
+    
 
 def test_subscriptions(client, web2py):
-    '''
+    """
         Is the list of subscriptions showing?
-    '''
+    """
     # get the url, for some reason the customers_subscriptions table is empty if not when asserting
     url = '/profile/subscriptions'
     client.get(url)
@@ -613,9 +640,9 @@ def test_subscriptions(client, web2py):
 
 
 def test_subscriptions_display_credits_unlimited(client, web2py):
-    '''
+    """
         Is the list of subscriptions showing?
-    '''
+    """
     # get the url, for some reason the customers_subscriptions table is empty if not when asserting
     url = '/profile/subscriptions'
     client.get(url)
@@ -646,9 +673,9 @@ def test_subscriptions_display_credits_unlimited(client, web2py):
 
 
 def test_subscription_credits_profile_home(client, web2py):
-    '''
+    """
         Check if subscription credits are displayed on the home page of a profile
-    '''
+    """
     # get the url, for some reason the customers_subscriptions table is empty if not when asserting
     url = '/profile/index'
     client.get(url)
@@ -671,9 +698,9 @@ def test_subscription_credits_profile_home(client, web2py):
 
 
 def test_subscription_unlimited_credits_profile_home(client, web2py):
-    '''
+    """
         Check if subscription credits are displayed on the home page of a profile
-    '''
+    """
     # get the url, for some reason the customers_subscriptions table is empty if not when asserting
     url = '/profile/index'
     client.get(url)
@@ -700,9 +727,9 @@ def test_subscription_unlimited_credits_profile_home(client, web2py):
 
 
 def test_subscription_info(client, web2py):
-    '''
+    """
         Is the subscription info page showing correctly?
-    '''
+    """
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
@@ -736,9 +763,9 @@ def test_subscription_info(client, web2py):
 
 
 def test_events(client, web2py):
-    '''
+    """
         Is the list of workshops showing?
-    '''
+    """
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
@@ -767,9 +794,9 @@ def test_events(client, web2py):
 
 
 def test_orders(client, web2py):
-    '''
+    """
         Is the list of orders showing?
-    '''
+    """
     url = '/profile/orders'
     client.get(url)
     assert client.status == 200
@@ -821,9 +848,9 @@ def test_orders(client, web2py):
 
 
 def test_order_cancel(client, web2py):
-    '''
+    """
         Can we actually cancel an order?
-    '''
+    """
     url = '/profile/orders'
     client.get(url)
     assert client.status == 200
@@ -843,9 +870,9 @@ def test_order_cancel(client, web2py):
 
 
 def test_invoices(client, web2py):
-    '''
+    """
         Is the list of invoices showing?
-    '''
+    """
     url = '/profile/invoices'
     client.get(url)
     assert client.status == 200
@@ -872,9 +899,9 @@ def test_invoices(client, web2py):
 
 
 def test_enrollments(client, web2py):
-    '''
+    """
         Are class enrollments listed correctly?
-    '''
+    """
     # get the url, for some reason the customers_subscriptions table is empty if we don't get this first
     url = '/profile/index'
     client.get(url)
@@ -900,9 +927,9 @@ def test_enrollments(client, web2py):
 
 
 def test_enrollment_end(client, web2py):
-    '''
+    """
         Are class enrollments listed correctly?
-    '''
+    """
     # get the url, for some reason the customers_subscriptions table is empty if we don't get this first
     url = '/profile/index'
     client.get(url)
