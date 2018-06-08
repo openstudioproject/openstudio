@@ -8002,7 +8002,6 @@ class InvoicesHelper:
                 )
 
             if cmID:
-                invoice.link_to_customer_membership(cmID)
                 invoice.item_add_membership(
                     cmID,
                     form.vars.MembershipPeriodStart,
@@ -8593,11 +8592,24 @@ class SchoolClasscard:
     '''
         Class that contains functions for a class card
     '''
-    def __init__(self, scdID):
+    def __init__(self, scdID, set_db_info=False):
         '''
             Class init function which sets ssuID
         '''
         self.scdID = scdID
+
+        if set_db_info:
+            self._set_db_info()
+
+
+    def _set_db_info(self):
+        """
+        Set db info
+        :return: None
+        """
+        db = current.globalenv['db']
+
+        self.row = db.school_classcards(self.scdID)
 
 
     def get_validity_formatted(self):
@@ -9255,7 +9267,7 @@ class SchoolSubscription:
     '''
         Class that contains functions for school subscriptions
     '''
-    def __init__(self, ssuID):
+    def __init__(self, ssuID, set_db_info=False):
         '''
             Class init function which sets ssuID
         '''
@@ -9263,21 +9275,25 @@ class SchoolSubscription:
 
         self.ssuID = ssuID
 
+        if set_db_info:
+            self._set_dbinfo()
+
 
     def _set_dbinfo(self):
-        '''
+        """
             Gets information about the subscription from db and adds it
             to the object
-        '''
+        """
         db = current.globalenv['db']
 
         row = db.school_subscriptions(self.ssuID)
 
-        self.Name               = row.Name
-        self.Classes            = row.Classes
-        self.SubscriptionUnit   = row.SubscriptionUnit
-        self.Archived           = row.Archived
-        self.Terms              = row.Terms
+        self.MembershipRequired = row.MembershipRequired
+        self.Name = row.Name
+        self.Classes = row.Classes
+        self.SubscriptionUnit = row.SubscriptionUnit
+        self.Archived = row.Archived
+        self.Terms = row.Terms
 
 
     def get_price_on_date(self, date, formatted=True):

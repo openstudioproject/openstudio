@@ -323,6 +323,26 @@ def edit_remodel_form(form,
 #     return query
 
 
+def subscriptions_get_link_membership_check(row):
+    """
+    :param row: gluon.dal.row object of db.customers_subscriptions
+    :return: Warning if membership required for subscription but not found
+    """
+    ssu = SchoolSubscription(row.school_subscriptions_id, set_db_info=True)
+    membership_required = ssu.MembershipRequired
+
+    customer = Customer(row.auth_customer_id)
+
+    if membership_required and not customer.has_membership_on_date(TODAY_LOCAL):
+        return os_gui.get_label(
+            'warning',
+            T('No membership'),
+            title=T("A membership is required for this subscription but wasn't found.")
+        )
+    else:
+        return ''
+
+
 def subscriptions_get_link_latest_pauses(row):
     '''
         Returns latest pauses for a subscription
@@ -1352,6 +1372,7 @@ def classcards():
 
     links = [ dict(header=T('Classes'), body=classcards_count_classes),
               dict(header=T('Invoices'), body=classcards_get_link_invoice),
+              classcards_get_link_membership_check,
               lambda row: os_gui.get_button('edit',
                     URL('classcard_edit',
                         vars={'cuID':customers_id,
@@ -1360,7 +1381,7 @@ def classcards():
                db.customers_classcards.Startdate,
                db.customers_classcards.Enddate,
                db.customers_classcards.school_classcards_id,
-               db.customers_classcards.Note,
+               db.customers_classcards.auth_customer_id,
                db.invoices.id,
                db.invoices.Status,
                db.invoices.payment_methods_id ]
@@ -1418,6 +1439,27 @@ def classcards_ondelete(table, record_id):
 
     # Clear cache
     cache_clear_customers_classcards(cuID)
+
+
+def classcards_get_link_membership_check(row):
+    """
+    :param row: gluon.dal.row object of db.customers_classcards
+    :return: Warning if membership required for card but not found
+    """
+    scd = SchoolClasscard(row.customers_classcards.school_classcards_id, set_db_info=True)
+    membership_required = scd.row.MembershipRequired
+
+
+    customer = Customer(row.customers_classcards.auth_customer_id)
+
+    if membership_required and not customer.has_membership_on_date(TODAY_LOCAL):
+        return os_gui.get_label(
+            'warning',
+            T('No membership'),
+            title=T("A membership is required for this classcard but wasn't found.")
+        )
+    else:
+        return ''
 
 
 def classcards_get_link_invoice(row):
@@ -3233,6 +3275,7 @@ def subscriptions():
                       TH(db.customers_subscriptions.Note.label),
                       TH(T('Pauses')),
                       TH(T('Credits')),
+                      TH(), # membership warning (if any)
                       TH()) # buttons
                    )
 
@@ -3275,6 +3318,7 @@ def subscriptions():
                 TD(repr_row.Note),
                 TD(subscriptions_get_link_latest_pauses(row)),
                 TD(subscriptions_get_link_credits(row)),
+                TD(subscriptions_get_link_membership_check(row)),
                 TD(delete, edit))
 
         table.append(tr)
