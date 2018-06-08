@@ -19,10 +19,10 @@ class CustomerMembership:
         return self.school_membership.Name
 
 
-    def set_enddate(self):
+    def get_period_enddate(self, startdate):
         """
-        Set enddate for membership
-        :return: None
+
+        :return:
         """
         from openstudio.tools import OsTools
 
@@ -34,5 +34,4 @@ class CustomerMembership:
             self.school_membership.ValidityUnit
         )
 
-        self.row.Enddate = enddate
-        self.row.update_record()
+        return enddate

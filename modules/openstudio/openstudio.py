@@ -7507,8 +7507,6 @@ class Invoice:
                              int(SubscriptionMonth),
                              1)
 
-
-
         ics = db.invoices_customers_subscriptions(invoices_id = self.invoices_id)
         csID = ics.customers_subscriptions_id
         cs = CustomerSubscription(csID)
@@ -7579,7 +7577,7 @@ class Invoice:
         return iiID
 
 
-    def item_add_membership(self, cmID):
+    def item_add_membership(self, cmID, period_start, period_end):
         """
         :param cmID: db.customers_memberships.id
         :return: db.invoices_items.id
@@ -7594,7 +7592,7 @@ class Invoice:
 
         cm = CustomerMembership(cmID)
         sm = SchoolMembership(cm.row.school_memberships_id)
-        row = sm.get_tax_rates_on_date(cm.row.Startdate)
+        row = sm.get_tax_rates_on_date(period_start)
 
         if row:
             tax_rates_id = row.school_memberships_price.tax_rates_id
@@ -7603,8 +7601,8 @@ class Invoice:
 
         price = sm.get_price_on_date(cm.row.Startdate, False)
         description = cm.get_name() + ' ' + \
-                      cm.row.Startdate.strftime(DATE_FORMAT) + ' - ' + \
-                      cm.row.Enddate.strftime(DATE_FORMAT)
+                      period_start.strftime(DATE_FORMAT) + ' - ' + \
+                      period_end.strftime(DATE_FORMAT)
 
         iiID = db.invoices_items.insert(
             invoices_id  = self.invoices_id,
@@ -7942,6 +7940,25 @@ class InvoicesHelper:
         db.invoices.SubscriptionMonth.writable = True
 
 
+    def _add_get_form_enable_membership_fields(self, cmID):
+        """
+        Enable fields required for customer memberships
+
+        :param cmID: db.customers_memberships.id
+        :return: None
+        """
+        from openstudio.os_customer_membership import CustomerMembership
+
+        db = current.globalenv['db']
+
+        cm = CustomerMembership(cmID)
+        db.invoices.payment_methods_id.default = cm.row.payment_methods_id
+        db.invoices.MembershipPeriodStart.readable = True
+        db.invoices.MembershipPeriodStart.writable = True
+        db.invoices.MembershipPeriodEnd.readable = True
+        db.invoices.MembershipPeriodEnd.writable = True
+
+
     def add_get_form(self, cuID,
                            csID = None,
                            cmID = None,
@@ -7986,6 +8003,11 @@ class InvoicesHelper:
 
             if cmID:
                 invoice.link_to_customer_membership(cmID)
+                invoice.item_add_membership(
+                    cmID,
+                    form.vars.MembershipPeriodStart,
+                    form.vars.MembershipPeriodEnd
+                )
 
             redirect(URL('invoices', 'edit', vars={'iID':iID}))
 

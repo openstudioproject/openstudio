@@ -2849,10 +2849,10 @@ def subscription_edit():
 
 
 def subscription_edit_onaccept(form):
-    '''
+    """
         :param form: CRUD form from db.customers_subscriptions
         :return: None
-    '''
+    """
     if not form.vars.Enddate is None:
         enddate = form.vars.Enddate
 
@@ -2871,10 +2871,10 @@ def subscription_edit_onaccept(form):
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('delete', 'customers_subscriptions'))
 def subscription_delete():
-    '''
+    """
         Delete a subscription if no invoices are linked to it
         Otherwise display a message saying to have a look at those first
-    '''
+    """
     response.view = 'general/only_content.html'
     cuID = request.vars['cuID']
     csID = request.vars['csID']
@@ -5914,7 +5914,7 @@ def membership_add():
         db.customers_memberships,
         return_url,
         onaccept = [
-            membership_add_create_invoice_and_set_enddate,
+            membership_add_create_invoice,
             memberships_clear_cache
         ]
     )
@@ -5934,7 +5934,7 @@ def membership_add():
                 menu=menu)
 
 
-def membership_add_create_invoice_and_set_enddate(form):
+def membership_add_create_invoice(form):
     """
         Add an invoice after adding a membership
     """
@@ -5943,10 +5943,6 @@ def membership_add_create_invoice_and_set_enddate(form):
 
     cmID = form.vars.id
     smID   = form.vars.school_memberships_id
-
-    # set enddate
-    cm = CustomerMembership(cmID)
-    cm.set_enddate()
 
     # create invoice
     sm = SchoolMembership(smID)
