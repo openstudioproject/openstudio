@@ -2163,6 +2163,8 @@ class Class:
             prices = prices.first()
             dropin = prices.Dropin or 0
             trial  = prices.Trial or 0
+            dropin_membership = prices.DropinMembership or 0
+            trial_membership = prices.TrialMembership or 0
 
             trial_tax = db.tax_rates(prices.tax_rates_id_trial)
             dropin_tax = db.tax_rates(prices.tax_rates_id_dropin)
@@ -2181,10 +2183,10 @@ class Class:
                 dropin_tax_percentage = None
 
             try:
-                trial_tax_rates_id_membership = trial_tax.id
-                dropin_tax_rates_id_membership = dropin_tax.id
-                trial_tax_percentage_membership = trial_tax.Percentage
-                dropin_tax_percentage_membership = dropin_tax.Percentage
+                trial_tax_rates_id_membership = trial_tax_membership.id
+                dropin_tax_rates_id_membership = dropin_tax_membership.id
+                trial_tax_percentage_membership = trial_tax_membership.Percentage
+                dropin_tax_percentage_membership = dropin_tax_membership.Percentage
             except AttributeError:
                 trial_tax_rates_id_membership = None
                 dropin_tax_rates_id_membership = None
@@ -3821,9 +3823,17 @@ class AttendanceHelper:
                                       'date': date_formatted})
         button_book = classes_book_options_get_button_book(url)
 
+        price = prices['dropin']
+        membership_notification = ''
+        if customer.has_membership_on_date(date) and prices['dropin_membership']:
+            price = prices['dropin_membership']
+            membership_notification = SPAN(' ', XML('&bull;'), ' ', '(', T('Membership price'), ')',
+                                           _class='grey')
+
         option = DIV(DIV(T('Drop in'),
                          _class='col-md-3 bold'),
-                     DIV(T('Class price:'), ' ', CURRSYM, ' ', format(prices['dropin'], '.2f'),
+                     DIV(T('Class price:'), ' ', CURRSYM, ' ', format(price, '.2f'), ' ',
+                         membership_notification,
                          BR(),
                          SPAN(get_sys_property('shop_classes_dropin_message') or '',
                               _class='grey'),
