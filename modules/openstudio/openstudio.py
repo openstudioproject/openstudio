@@ -2146,10 +2146,10 @@ class Class:
         return class_name
 
 
-    def get_price(self):
-        '''
+    def get_prices(self):
+        """
             Returns the price for a class
-        '''
+        """
         db = current.globalenv['db']
 
         query = (db.classes_price.classes_id == self.clsID) & \
@@ -2166,6 +2166,8 @@ class Class:
 
             trial_tax = db.tax_rates(prices.tax_rates_id_trial)
             dropin_tax = db.tax_rates(prices.tax_rates_id_dropin)
+            trial_tax_membership = db.tax_rates(prices.tax_rates_id_trial_membership)
+            dropin_tax_membership = db.tax_rates(prices.tax_rates_id_dropin_membership)
 
             try:
                 trial_tax_rates_id    = trial_tax.id
@@ -2178,6 +2180,17 @@ class Class:
                 trial_tax_percentage  = None
                 dropin_tax_percentage = None
 
+            try:
+                trial_tax_rates_id_membership = trial_tax.id
+                dropin_tax_rates_id_membership = dropin_tax.id
+                trial_tax_percentage_membership = trial_tax.Percentage
+                dropin_tax_percentage_membership = dropin_tax.Percentage
+            except AttributeError:
+                trial_tax_rates_id_membership = None
+                dropin_tax_rates_id_membership = None
+                trial_tax_percentage_membership = None
+                dropin_tax_percentage_membership= None
+
         else:
             dropin = 0
             trial  = 0
@@ -2185,14 +2198,28 @@ class Class:
             dropin_tax_rates_id   = None
             trial_tax_percentage  = None
             dropin_tax_percentage = None
+            dropin_membership = 0
+            trial_membership = 0
+            trial_tax_rates_id_membership = None
+            dropin_tax_rates_id_membership = None
+            trial_tax_percentage_membership = None
+            dropin_tax_percentage_membership = None
 
 
-        return dict(trial  = trial,
-                    dropin = dropin,
-                    trial_tax_rates_id   = trial_tax_rates_id,
-                    dropin_tax_rates_id   = dropin_tax_rates_id,
-                    trial_tax_percentage  = trial_tax_percentage,
-                    dropin_tax_percentage = dropin_tax_percentage)
+        return dict(
+            trial  = trial,
+            dropin = dropin,
+            trial_tax_rates_id   = trial_tax_rates_id,
+            dropin_tax_rates_id   = dropin_tax_rates_id,
+            trial_tax_percentage  = trial_tax_percentage,
+            dropin_tax_percentage = dropin_tax_percentage,
+            trial_membership = trial_membership,
+            dropin_membership = dropin_membership,
+            trial_tax_rates_id_membership = trial_tax_rates_id_membership,
+            dropin_tax_rates_id_membership = dropin_tax_rates_id_membership,
+            trial_tax_percentage_membership = trial_tax_percentage_membership,
+            dropin_tax_percentage_membership = dropin_tax_percentage_membership,
+        )
 
 
     def get_full(self):
@@ -2241,7 +2268,7 @@ class Class:
         db = current.globalenv['db']
         T  = current.globalenv['T']
 
-        prices = self.get_price()
+        prices = self.get_prices()
         if attendance_type == 1:
             price = prices['trial']
             tax_rates_id = prices['trial_tax_rates_id']
@@ -3785,7 +3812,7 @@ class AttendanceHelper:
 
         # Get class prices
         cls = Class(clsID, date)
-        prices = cls.get_price()
+        prices = cls.get_prices()
 
         # drop in
         url = URL(controller, 'class_book', vars={'clsID': clsID,
@@ -4108,7 +4135,7 @@ class AttendanceHelper:
             raise ValueError('Product type has to be trial or dropin')
 
         cls = Class(clsID, date)
-        prices = cls.get_price()
+        prices = cls.get_prices()
 
         if product_type == 'dropin':
             price = prices['dropin']
@@ -6879,7 +6906,7 @@ class Order:
         T  = current.globalenv['T']
 
         cls = Class(clsID, class_date)
-        prices = cls.get_price()
+        prices = cls.get_prices()
         if attendance_type == 1:
             price = prices['trial']
             tax_rates_id = prices['trial_tax_rates_id']
@@ -7077,7 +7104,7 @@ class Order:
                                                           invoice=False)
 
                 if create_invoice:
-                    invoice.item_add_class(row, result['caID'])
+                    invoice.item_add_class_from_order(row, result['caID'])
 
                 # Clear api cache to update available spaces
                 cache_clear_classschedule_api()
@@ -7352,8 +7379,75 @@ class Invoice:
         return rows
 
 
-    def item_add_class(self, order_item_row, caID):
+    def item_add_class(self,
+                       cuID,
+                       caID,
+                       clsID,
+                       date,
+                       product_type):
+        """
+        Add invoice item when checking in to a class
+
+        :param cuID: db.auth_user.id
+        :param caID: db.classes_attendance.id
+        :param clsID: db.classes.id
+        :param date: datetime.date (class date)
+        :param product_type: has to be 'trial' or 'dropin'
+        :return:
+        """
+        db = current.globalenv['db']
+        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        T = current.T
+
+        date_formatted = date.strftime(DATE_FORMAT)
+
+        if product_type not in ['trial', 'dropin']:
+            raise ValueError("Product type has to be 'trial' or 'dropin'.")
+
+        customer = Customer(cuID)
+        cls = Class(clsID, date)
+        prices = cls.get_prices()
+
+        #TODO: use membership prices if customer has mebership
+        has_membership = customer.has_membership_on_date(date)
+
+        if product_type == 'dropin':
+            price = prices['dropin']
+            tax_rates_id = prices['dropin_tax_rates_id']
+
+            description = cls.get_invoice_order_description(2) # 2 = drop in class
+
+        elif product_type == 'trial':
+            price = prices['trial']
+            tax_rates_id = prices['trial_tax_rates_id']
+
+            if has_membership and prices['trial_membership']:
+
+
+            description = cls.get_invoice_order_description(1) # 1 = trial class
+
+        # link invoice to attendance
+        self.link_to_classes_attendance(caID)
+
+        next_sort_nr = self.get_item_next_sort_nr()
+        iiID = db.invoices_items.insert(
+            invoices_id=self.invoices_id,
+            ProductName=T("Class"),
+            Description=description,
+            Quantity=1,
+            Price=price,
+            Sorting=next_sort_nr,
+            tax_rates_id=tax_rates_id,
+        )
+
+        invoice.set_amounts()
+        invoice.link_to_customer(cuID)
+
+
+    def item_add_class_from_order(self, order_item_row, caID):
         '''
+            Add class to invoice from Order.deliver()
+
             :param clsID: db.classes.id
             :param class_date: datetime.date
             :param attendance_type: int 1 or 2 
@@ -7839,6 +7933,19 @@ class Invoice:
         db.invoices_customers_memberships.insert(
             invoices_id=self.invoices_id,
             customers_memberships_id=cmID
+        )
+
+
+    def link_to_classes_attendance(self, caID):
+        """
+        Link invoice to classes attendance
+        :param caID: db.classes_attendance.id
+        :return: None
+        """
+        db = current.globalenv['db']
+        db.invoices_classes_attendance.insert(
+            invoices_id=self.invoices_id,
+            classes_attendance_id=caID
         )
 
 
