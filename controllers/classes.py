@@ -3806,6 +3806,8 @@ def class_price_add():
     """
         This function shows an add page for classes_teachers
     """
+    from openstudio.os_forms import OsForms
+
     clsID = request.vars['clsID']
     date_formatted = request.vars['date']
 
@@ -3828,24 +3830,17 @@ def class_price_add():
 
     return_url = class_prices_add_edit_get_return_url(clsID, date_formatted)
 
-    crud.messages.submit_button = T("Save")
-    crud.messages.record_created = T("Saved price")
-    crud.settings.create_next = return_url
-    form = crud.create(db.classes_price)
-
-    form_id = "MainForm"
-    form_element = form.element('form')
-    form['_id'] = form_id
-
-    elements = form.elements('input, select, textarea')
-    for element in elements:
-        element['_form'] = form_id
-
-    submit = form.element('input[type=submit]')
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_create(
+        db.classes_price,
+        return_url,
+    )
 
     back = os_gui.get_button('back', return_url)
 
-    return dict(content=form, back=back, save=submit)
+    return dict(content=result['form'],
+                save=result['submit'],
+                back=back)
 
 
 @auth.requires_login()
@@ -3854,6 +3849,8 @@ def class_price_edit():
         This function shows an edit page for a teacher of a class
         request.vars[clsID] is expected to be the classes_id
     """
+    from openstudio.os_forms import OsForms
+
     response.title = T("Edit price")
     clpID = request.vars['clpID']
     clsID = request.vars['clsID']
@@ -3864,28 +3861,18 @@ def class_price_edit():
 
     return_url = class_prices_add_edit_get_return_url(clsID, date_formatted)
 
-    crud.messages.submit_button = T("Save")
-    crud.messages.record_updated = T("Saved price")
-    crud.messages.record_deleted = T('Deleted price for') + ': ' + classname
-    crud.settings.update_next = return_url
-    crud.settings.update_deletable = False
-    form = crud.update(db.classes_price, clpID)
-
-    form_id = "MainForm"
-    form_element = form.element('form')
-    form['_id'] = form_id
-
-    elements = form.elements('input, select, textarea')
-    for element in elements:
-        element['_form'] = form_id
-
-    submit = form.element('input[type=submit]')
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_update(
+        db.classes_price,
+        return_url,
+        clpID
+    )
 
     back = os_gui.get_button('back', return_url)
 
-    return dict(content=form,
+    return dict(content=result['form'],
                 back=back,
-                save=submit)
+                save=result['submit'])
 
 
 def class_prices_add_edit_get_return_url(clsID, date_formatted):
