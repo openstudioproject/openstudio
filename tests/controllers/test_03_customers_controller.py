@@ -22,7 +22,7 @@ from populate_os_tables import populate_school_subscriptions
 from populate_os_tables import populate_school_classcards
 from populate_os_tables import populate_tax_rates
 
-def test_customers_add(client, web2py):
+def test_add(client, web2py):
     """
         Created a customer?
     """
@@ -52,7 +52,7 @@ def test_customers_add(client, web2py):
     assert web2py.db(web2py.db.auth_user.first_name == data['first_name']).count() == 1
 
 
-def test_customers_edit(client, web2py):
+def test_edit(client, web2py):
     """
         Can we edit a customer
     """
@@ -77,7 +77,7 @@ def test_customers_edit(client, web2py):
     assert customer.first_name == data['first_name']
 
 
-def test_customers_edit_teacher(client, web2py):
+def test_edit_teacher(client, web2py):
     """'
         Is the edit teacher page accepting submitted data?
     """
@@ -513,7 +513,7 @@ def test_account_merge(client, web2py):
     assert 'Merge success' in client.text
 
 
-def test_customers_memberships(client, web2py):
+def test_memberships(client, web2py):
     """
     Are customers memberships listed correctly?
     """
@@ -532,7 +532,7 @@ def test_customers_memberships(client, web2py):
     assert sm.Name in client.text
 
 
-def test_customers_membership_add(client, web2py):
+def test_membership_add(client, web2py):
     """
     Are customer memberships added?
     Is an invoice created?
@@ -619,7 +619,7 @@ def test_membership_invoice_add(client, web2py):
     assert invoice.MembershipPeriodEnd == datetime.date(2014, 1, 31)
 
 
-def test_customers_membership_add_no_invoice_when_price_0(client, web2py):
+def test_membership_add_no_invoice_when_price_0(client, web2py):
     """
     Are customer memberships added?
     Is an invoice created?
@@ -648,7 +648,7 @@ def test_customers_membership_add_no_invoice_when_price_0(client, web2py):
 
 
 
-def test_customers_membership_edit(client, web2py):
+def test_membership_edit(client, web2py):
     """
     Can we edit a membership?
     """
@@ -678,7 +678,7 @@ def test_customers_membership_edit(client, web2py):
     assert row.Note == data['Note']
 
 
-def test_customers_membership_delete(client, web2py):
+def test_membership_delete(client, web2py):
     """
     Can we delete a membership?
     """
@@ -696,7 +696,7 @@ def test_customers_membership_delete(client, web2py):
     assert web2py.db(web2py.db.customers_memberships).count() == count - 1
 
 
-def test_customers_subscription_add(client, web2py):
+def test_subscription_add(client, web2py):
     """
         Can we add a customers_subscription?
     """
@@ -761,7 +761,7 @@ def populate_customer_subscriptions_paused(client, web2py):
     web2py.db.commit()
 
 
-def test_customers_subscription_edit(client, web2py):
+def test_subscription_edit(client, web2py):
     """
         can we edit a subscription?
     """
@@ -802,7 +802,7 @@ def test_customers_subscription_edit(client, web2py):
     assert clatt.BookingStatus == 'cancelled'
 
 
-def test_customers_subscription_delete(client, web2py):
+def test_subscription_delete(client, web2py):
     """
         Is the custom delete function for customer subscriptions working?
     """
@@ -854,7 +854,7 @@ def test_customers_subscription_delete(client, web2py):
     assert 'Deleted subscription' in client.text
 
 
-def test_customers_subscriptions_list_recent_pauses(client, web2py):
+def test_subscriptions_list_recent_pauses(client, web2py):
     """
         Is the list of paused subscriptions showing?
     """
@@ -875,7 +875,7 @@ def test_customers_subscriptions_list_recent_pauses(client, web2py):
     assert '2014-01-01 - 2014-01-31' in client.text
 
 
-def test_customers_subscriptions_pauses(client, web2py):
+def test_subscriptions_pauses(client, web2py):
     """
         Is the list of pauzed showing?
     """
@@ -897,7 +897,7 @@ def test_customers_subscriptions_pauses(client, web2py):
     assert pause.Description in client.text
 
 
-def test_customers_subscriptions_pause_add(client, web2py):
+def test_subscriptions_pause_add(client, web2py):
     """
         Test adding of a pause
     """
@@ -930,7 +930,7 @@ def test_customers_subscriptions_pause_add(client, web2py):
     assert web2py.db(web2py.db.customers_subscriptions_paused).count() == 1
 
 
-def test_customers_subscriptions_alt_prices_repeat(client, web2py):
+def test_subscriptions_alt_prices_repeat(client, web2py):
     """
         Test repeating of alt prices
     """
@@ -967,7 +967,7 @@ def test_customer_subscription_credits_month(client, web2py):
     assert str(round(csc.MutationAmount, 1)) in client.text
 
 
-def test_customers_subscription_credits_month_add_confirm(client, web2py):
+def test_subscription_credits_month_add_confirm(client, web2py):
     """
         Is the confirmation page to add credits showing?
     """
@@ -978,7 +978,7 @@ def test_customers_subscription_credits_month_add_confirm(client, web2py):
     assert "Add confirmation" in client.text
 
 
-def test_customers_subscription_credits_month_add(client, web2py):
+def test_subscription_credits_month_add(client, web2py):
     """
         Are credits batch-added correctly?
     """
@@ -1044,7 +1044,7 @@ def test_customers_subscription_credits_month_add(client, web2py):
     assert web2py.db.customers_subscriptions_credits(3).MutationAmount == credits
 
 
-def test_customers_subscription_credits_month_add_book_classes_for_recurring_reservations(client, web2py):
+def test_subscription_credits_month_add_book_classes_for_recurring_reservations(client, web2py):
     """
         Are classes for recurring reservations booked?
     """
@@ -1101,7 +1101,7 @@ def test_customers_subscription_credits_month_add_book_classes_for_recurring_res
     assert web2py.db(query).count() == 2
 
 
-def test_customers_subscription_credits_in_customers_list(client, web2py):
+def test_subscription_credits_in_customers_list(client, web2py):
     """
         Test listing of credits in customers list
     """
@@ -1120,7 +1120,7 @@ def test_customers_subscription_credits_in_customers_list(client, web2py):
     assert '3456.0' in client.text
 
 
-def test_customers_subscription_credits(client, web2py):
+def test_subscription_credits(client, web2py):
     """
         Test listing of credits
     """
@@ -1141,7 +1141,7 @@ def test_customers_subscription_credits(client, web2py):
     assert unicode(round(csc.MutationAmount, 1)) in client.text
 
 
-def test_customers_subscription_credits_add(client, web2py):
+def test_subscription_credits_add(client, web2py):
     """
         Can we add credits to a subscription?
     """
@@ -1168,7 +1168,7 @@ def test_customers_subscription_credits_add(client, web2py):
     assert web2py.db(web2py.db.customers_subscriptions_credits.id > 0).count() == 1
 
 
-def test_customers_subscription_credits_edit(client, web2py):
+def test_subscription_credits_edit(client, web2py):
     """
         Can we edit a credit mutation?
     """
@@ -1197,7 +1197,7 @@ def test_customers_subscription_credits_edit(client, web2py):
     assert csc.Description == data['Description']
 
 
-def test_customers_subscription_credits_delete(client, web2py):
+def test_subscription_credits_delete(client, web2py):
     """
         Can we delete a subscription credits mutation?
     """
@@ -1215,7 +1215,7 @@ def test_customers_subscription_credits_delete(client, web2py):
     assert web2py.db(web2py.db.customers_subscriptions_credits.id > 0).count() == 0
 
 
-def test_customers_subscription_credits_month_expired(client, web2py):
+def test_subscription_credits_month_expired(client, web2py):
     """
         Is the display of expired credits working?
     """
@@ -1245,7 +1245,7 @@ def test_customers_subscription_credits_month_expired(client, web2py):
     assert str(amount) in client.text
 
 
-def test_customers_subscription_credits_month_expire_credits(client, web2py):
+def test_subscription_credits_month_expire_credits(client, web2py):
     """
         Are credits being expired like they should
     """
