@@ -32,7 +32,7 @@ from openstudio.openstudio import ClasscardsHelper, \
     Invoice, \
     InvoicesHelper
 
-from openstudio.os_customers_subscriptions import CustomerSubscriptions
+from openstudio.os_customer_subscriptions import CustomerSubscriptions
 from openstudio.os_customer import Customer
 
 # helper functions
