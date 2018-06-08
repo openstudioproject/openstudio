@@ -7415,6 +7415,10 @@ class Invoice:
             price = prices['dropin']
             tax_rates_id = prices['dropin_tax_rates_id']
 
+            if has_membership and prices['dropin_membership']:
+                price = prices['dropin_membership']
+                tax_rates_id = prices['dropin_tax_rates_id_membership']
+
             description = cls.get_invoice_order_description(2) # 2 = drop in class
 
         elif product_type == 'trial':
@@ -7422,7 +7426,8 @@ class Invoice:
             tax_rates_id = prices['trial_tax_rates_id']
 
             if has_membership and prices['trial_membership']:
-
+                price = prices['trial_membership']
+                tax_rates_id = prices['trial_tax_rates_id_membership']
 
             description = cls.get_invoice_order_description(1) # 1 = trial class
 
