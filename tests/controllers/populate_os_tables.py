@@ -398,13 +398,16 @@ def populate_customers_with_memberships(web2py,
     if not customers_populated:
         populate_customers(web2py, nr_of_customers, created_on=created_on)
 
+    startdate = '2014-01-01'
+    enddate = '2014-01-31'
+
     for i in range(1, nr_of_customers+1):
         aucID = i + 1000
         cmID = web2py.db.customers_memberships.insert(
             auth_customer_id = aucID,
             school_memberships_id = 1,
-            Startdate = '2014-01-01',
-            Enddate = '2014-01-31',
+            Startdate = startdate,
+            Enddate = enddate,
             Note = 'Cherries',
             payment_methods_id = 1,
         )
@@ -415,8 +418,9 @@ def populate_customers_with_memberships(web2py,
 
             iID = web2py.db.invoices.insert(
                 invoices_groups_id=100,
-                SubscriptionMonth=1,
-                SubscriptionYear=2014,
+                InvoiceID="INV2018" + unicode(i),
+                MembershipPeriodStart=startdate,
+                MembershipPeriodEnd=enddate,
             )
 
             ciID = web2py.db.invoices_customers.insert(

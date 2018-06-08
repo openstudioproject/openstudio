@@ -562,17 +562,11 @@ def test_customers_membership_add(client, web2py):
     invoice_item = web2py.db.invoices_items(1)
     invoice_amounts = web2py.db.invoices_amounts(1)
 
-    print invoice_item
-
     assert invoice_item.ProductName == "Membership 1"
-    # assert invoice_item.Description == 'Premium membership'
+    assert invoice_item.Description == "Premium membership 2014-01-01 - 2014-01-31"
     assert invoice_item.TotalPriceVAT == smp.Price
     assert invoice_item.tax_rates_id == smp.tax_rates_id
     assert invoice_amounts.TotalPriceVAT == smp.Price
-
-    # Check enddate
-    row = web2py.db.customers_memberships(1)
-    assert row.Enddate == datetime.date(2014, 1, 31)
 
 
 def test_membership_invoices(client, web2py):
@@ -598,6 +592,31 @@ def test_membership_invoice_add(client, web2py):
     """
     Add an invoice for a membership
     """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    populate_tax_rates(web2py)
+    populate_customers_with_memberships(web2py, invoices=False)
+
+    url = '/customers/membership_invoices?cuID=1001&cmID=1'
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        'invoices_groups_id': 100,
+        'MembershipPeriodStart': '2014-01-01',
+        'MembershipPeriodEnd': '2014-01-31',
+        'Description': 'Tropical fruits',
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+    assert web2py.db(web2py.db.invoices).count() == 1
+
+    invoice = web2py.db.invoices(1)
+    assert invoice.MembershipPeriodStart == datetime.date(2014, 1, 1)
+    assert invoice.MembershipPeriodEnd == datetime.date(2014, 1, 31)
 
 
 def test_customers_membership_add_no_invoice_when_price_0(client, web2py):
