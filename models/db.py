@@ -152,6 +152,13 @@ auth.messages.email_verified = 'Email verified, you can now log in'
 # auth.settings.actions_disabled.append('register')
 # auth.settings.actions_disabled.append('profile')
 
+# -------------------------------------------------------------------------
+# Make some objects accessible in modules through current imported from gluon
+# -------------------------------------------------------------------------
+current.db = db
+current.auth = auth
+current.crud = crud
+
 
 # -------------------------------------------------------------------------
 # Define your tables below (or better in another model file) for example

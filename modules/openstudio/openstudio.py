@@ -3853,9 +3853,17 @@ class AttendanceHelper:
                                                       'date': date_formatted})
             button_book = classes_book_options_get_button_book(url)
 
+            price = prices['trial']
+            membership_notification = ''
+            if customer.has_membership_on_date(date) and prices['trial_membership']:
+                price = prices['trial_membership']
+                membership_notification = SPAN(' ', XML('&bull;'), ' ', '(', T('Membership price'), ')',
+                                               _class='grey')
+
             option = DIV(DIV(T('Trial'),
                              _class='col-md-3 bold'),
-                         DIV(T('Class price:'), ' ', CURRSYM, ' ', format(prices['trial'], '.2f'),
+                         DIV(T('Class price:'), ' ', CURRSYM, ' ', format(prices['trial'], '.2f'), ' ',
+                             membership_notification,
                              BR(),
                              SPAN(get_sys_property('shop_classes_trial_message') or '',
                                   _class='grey'),
