@@ -4152,21 +4152,6 @@ class AttendanceHelper:
         if product_type not in ['trial', 'dropin']:
             raise ValueError('Product type has to be trial or dropin')
 
-        cls = Class(clsID, date)
-        prices = cls.get_prices()
-
-        if product_type == 'dropin':
-            price = prices['dropin']
-            tax_percentage = prices['dropin_tax_percentage']
-            tax_rates_id = prices['dropin_tax_rates_id']
-            description = cls.get_invoice_order_description(2) # 2 = drop in class
-
-        elif product_type == 'trial':
-            price = prices['trial']
-            tax_percentage = prices['trial_tax_percentage']
-            tax_rates_id = prices['dropin_tax_rates_id']
-            description = cls.get_invoice_order_description(1) # 1 = trial class
-
         # check if the price is > 0 when adding an invoice
         if price == 0:
             return
@@ -4180,32 +4165,21 @@ class AttendanceHelper:
             Status='sent'
         )
 
-        # link invoice to attendance
-        db.invoices_classes_attendance.insert(
-            invoices_id=iID,
-            classes_attendance_id=caID
-        )
-
         # create object to set Invoice# and due date
         invoice = Invoice(iID)
-        next_sort_nr = invoice.get_item_next_sort_nr()
-
-        iiID = db.invoices_items.insert(
-            invoices_id=iID,
-            ProductName=product_type,
-            Description=description,
-            Quantity=1,
-            Price=price,
-            Sorting=next_sort_nr,
-            tax_rates_id=tax_rates_id,
+        invoice.item_add_class(
+            cuID,
+            caID,
+            clsID,
+            date,
+            product_type
         )
-
         invoice.set_amounts()
         invoice.link_to_customer(cuID)
 
 
     def attendance_sign_in_classcard_recurring(self, cuID, clsID, ccdID, date, date_until, online_booking=False, booking_status='booked'):
-        '''
+        """
         :param cuID:
         :param clsID:
         :param ccdID:
@@ -4214,7 +4188,7 @@ class AttendanceHelper:
         :param online_booking:
         :param booking_status:
         :return:
-        '''
+        """
         T = current.T
         TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
         DATE_FORMAT = current.globalenv['DATE_FORMAT']

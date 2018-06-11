@@ -3,6 +3,7 @@ import datetime
 import pytz
 
 from gluon.scheduler import Scheduler
+from gluon import current
 
 from smarthumb import SMARTHUMB
 
@@ -5026,6 +5027,7 @@ def set_timeformat():
 def set_datetimeformat():
     return DATE_FORMAT + ' ' + TIME_FORMAT
 
+
 DATE_FORMATS = set_dateformats()
 DATE_FORMAT = set_dateformat()
 DATE_MASK = set_datemask(DATE_FORMAT)
@@ -5040,6 +5042,15 @@ TODAY_UTC = datetime.date.today()
 
 NOW_LOCAL = NOW_UTC.astimezone(pytz.timezone(TIMEZONE))
 TODAY_LOCAL = datetime.date(NOW_LOCAL.year, NOW_LOCAL.month, NOW_LOCAL.day)
+
+
+current.DATE_FORMATS = DATE_FORMATS
+current.DATE_FORMAT = DATE_FORMAT
+current.TIME_FORMAT = TIME_FORMAT
+current.DATETIME_FORMAT = DATETIME_FORMAT
+current.TIMEZONE = TIMEZONE
+current.NOW_LOCAL = NOW_LOCAL
+current.UTC_LOCAL = UTC_LOCAL
 
 
 def represent_date(date, row=None):
