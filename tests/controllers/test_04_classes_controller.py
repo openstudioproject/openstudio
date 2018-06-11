@@ -13,6 +13,7 @@ from populate_os_tables import populate_classes
 from populate_os_tables import populate_customers
 from populate_os_tables import populate_customers_with_classcards
 from populate_os_tables import populate_customers_with_subscriptions
+from populate_os_tables import populate_customers_with_memberships
 from populate_os_tables import populate_school_classcards
 from populate_os_tables import populate_school_classcards_groups
 from populate_os_tables import populate_workshop_activity_overlapping_class
@@ -705,6 +706,35 @@ def test_class_book_dropin(client, web2py):
     assert ig_100.Footer == invoice.Footer
 
 
+def test_class_book_dropin_membership_invoice_amounts(client, web2py):
+    """
+        Are membership prices put on the invoice for drop in classes?
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    classdate = '2014-01-06'
+    prepare_classes(web2py, attendance=False)
+    populate_customers_with_memberships(web2py, customers_populated=True)
+
+    assert web2py.db(web2py.db.classes_attendance).count() == 0
+
+    url = '/classes/class_book?dropin=true&date=2014-01-06&cuID=1001&clsID=1'
+    client.get(url)
+    assert client.status == 200
+
+    # Invoice created?
+    query = (web2py.db.invoices.id > 0)
+    assert web2py.db(query).count() == 1
+
+    # Invoice item amounts?
+    prices = web2py.db.classes_price(1)
+    item = web2py.db.invoices_items(1)
+    assert item.TotalPriceVAT == prices.DropinMembership
+    assert item.tax_rates_id == prices.tax_rates_id_dropin_membership
+
+
 def test_class_book_trial(client, web2py):
     """
         Can we book a class as trial class?
@@ -736,6 +766,35 @@ def test_class_book_trial(client, web2py):
     ig_100 = web2py.db.invoices_groups(100)
     assert ig_100.Terms == invoice.Terms
     assert ig_100.Footer == invoice.Footer
+
+
+def test_class_book_trial_membership_invoice_amounts(client, web2py):
+    """
+        Are membership prices put on the invoice for trial classes?
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    classdate = '2014-01-06'
+    prepare_classes(web2py, attendance=False)
+    populate_customers_with_memberships(web2py, customers_populated=True)
+
+    assert web2py.db(web2py.db.classes_attendance).count() == 0
+
+    url = '/classes/class_book?trial=true&date=2014-01-06&cuID=1001&clsID=1'
+    client.get(url)
+    assert client.status == 200
+
+    # Invoice created?
+    query = (web2py.db.invoices.id > 0)
+    assert web2py.db(query).count() == 1
+
+    # Invoice item amounts?
+    prices = web2py.db.classes_price(1)
+    item = web2py.db.invoices_items(1)
+    assert item.TotalPriceVAT == prices.TrialMembership
+    assert item.tax_rates_id == prices.tax_rates_id_trial_membership
 
 
 def test_class_book_complementary(client, web2py):
@@ -1361,16 +1420,19 @@ def test_class_price_edit(client, web2py):
     client.get(url)
     assert client.status == 200
 
-    data = dict(Dropin=254098303,
-                tax_rates_id_dropin=1,
-                Trial=1324243,
-                tax_rates_id_trial=1,
-                DropinMembership=1230987,
-                tax_rates_id_dropin_membership=1,
-                TrialMembership=934579,
-                tax_rates_id_trial_membership=1,
-                Startdate='2014-01-01',
-                Enddate='2014-02-01')
+    data = dict(
+        id = 1,
+        Dropin=254098303,
+        tax_rates_id_dropin=1,
+        Trial=1324243,
+        tax_rates_id_trial=1,
+        DropinMembership=1230987,
+        tax_rates_id_dropin_membership=1,
+        TrialMembership=934579,
+        tax_rates_id_trial_membership=1,
+        Startdate='2014-01-01',
+        Enddate='2014-02-01'
+    )
     client.post(url, data=data)
     assert client.status == 200
 

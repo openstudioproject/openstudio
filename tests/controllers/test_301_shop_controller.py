@@ -1733,7 +1733,6 @@ def test_complete(client, web2py):
     populate_customers_orders(web2py)
     populate_customers_orders_items(web2py)
 
-
     url = '/shop/complete?coID=2'
     client.get(url)
     assert client.status == 200
