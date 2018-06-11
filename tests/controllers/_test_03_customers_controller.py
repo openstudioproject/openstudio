@@ -710,8 +710,6 @@ def test_subscriptions_membership_required_warning(client, web2py):
     client.get(url)
     assert client.status == 200
 
-    print client.text
-
     assert "No membership" in client.text
 
 
