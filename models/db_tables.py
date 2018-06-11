@@ -1853,9 +1853,9 @@ def represent_classes_subscriptions_group_boolean(value, row):
 
 
 def define_classes_price():
-    '''
+    """
         Define prices for a class
-    '''
+    """
     db.define_table('classes_price',
         Field('classes_id', db.classes, required=True,
             readable=False,

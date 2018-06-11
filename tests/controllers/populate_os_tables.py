@@ -619,7 +619,13 @@ def populate_classes(web2py, with_otc=False):
 
     web2py.db.classes_price.insert(classes_id = 1,
                                    Dropin     = 17.5,
+                                   tax_rates_id_dropin = 1,
                                    Trial      = 12.5,
+                                   tax_rates_id_trial = 1,
+                                   DropinMembership = 15,
+                                   tax_rates_id_dropin_membership = 1,
+                                   TrialMembership = 15,
+                                   tax_rates_id_trial_membership = 1,
                                    Startdate  = '2014-01-01')
 
 
@@ -761,9 +767,17 @@ def prepare_classes(web2py,
 
     trial_price = 10
     dropin_price = 18
+    trial_price_membership = 8
+    dropin_price_membership = 15
     web2py.db.classes_price.insert(classes_id = 1,
-                                   Dropin     = dropin_price,
-                                   Trial      = trial_price,
+                                   Dropin = dropin_price,
+                                   tax_rates_id_dropin = 1,
+                                   DropinMembership = dropin_price_membership,
+                                   tax_rates_id_dropin_membership = 1,
+                                   Trial = trial_price,
+                                   tax_rates_id_trial = 1,
+                                   TrialMembership=trial_price_membership,
+                                   tax_rates_id_trial_membership=1,
                                    Startdate  = '2014-01-01')
     if attendance:
         # Trial class
