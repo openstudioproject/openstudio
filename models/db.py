@@ -155,6 +155,7 @@ auth.messages.email_verified = 'Email verified, you can now log in'
 # -------------------------------------------------------------------------
 # Make some objects accessible in modules through current imported from gluon
 # -------------------------------------------------------------------------
+from gluon import current
 current.db = db
 current.auth = auth
 current.crud = crud

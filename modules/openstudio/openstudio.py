@@ -3862,7 +3862,7 @@ class AttendanceHelper:
 
             option = DIV(DIV(T('Trial'),
                              _class='col-md-3 bold'),
-                         DIV(T('Class price:'), ' ', CURRSYM, ' ', format(prices['trial'], '.2f'), ' ',
+                         DIV(T('Class price:'), ' ', CURRSYM, ' ', format(price, '.2f'), ' ',
                              membership_notification,
                              BR(),
                              SPAN(get_sys_property('shop_classes_trial_message') or '',
