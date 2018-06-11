@@ -3439,18 +3439,18 @@ def define_invoices_groups():
 
 
 def define_invoices_groups_product_types():
-    '''
+    """
         Table to hold default invoice group assignments to certain categories
         of products
-    '''
-    categories = get_invoices_groups_product_types()
+    """
+    product_types = get_invoices_groups_product_types()
     group_query = (db.invoices_groups.Archived == False)
 
     db.define_table('invoices_groups_product_types',
         Field('ProductType',
             readable=False,
             writable=False,
-            requires=IS_IN_SET(categories),
+            requires=IS_IN_SET(product_types),
             label=T("Type of product")),
         Field('invoices_groups_id', db.invoices_groups,
             requires=IS_IN_DB(db(group_query),

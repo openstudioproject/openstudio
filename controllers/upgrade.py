@@ -59,6 +59,13 @@ def index():
         else:
             session.flash = T('Already up to date')
 
+        if version < 2018.6:
+            print version
+            upgrade_to_20186()
+            session.flash = T("Upgraded db to 2018.6")
+        else:
+            session.flash = T('Already up to date')
+
         # always renew permissions for admin group after update
         set_permissions_for_admin_group()
 
@@ -303,3 +310,22 @@ def upgrade_to_20185():
     # clear cache
     ##
     cache.ram.clear(regex='.*')
+
+
+def upgrade_to_20186():
+    """
+        Upgrade operations to 2018.6
+    """
+    ##
+    # Membership upgrade operations
+    ##
+    db.invoices_groups_product_types.insert(
+        ProductType = 'membership',
+        invoices_groups_id = 100
+    )
+
+    query = (db.school_subscriptions.MembershipRequired == None)
+    db(query).update(MembershipRequired = True)
+
+    query = (db.school_classcards.MembershipRequired == None)
+    db(query).update(MembershipRequired = True)
