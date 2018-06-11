@@ -937,7 +937,7 @@ WHERE (au.last_login < '{date}' OR au.last_login IS NULL) AND
                           count=number of inactive customers)
         """
         T = current.T
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        DATE_FORMAT = current.DATE_FORMAT
 
         records = self.list_inactive_after_date(date)
 
@@ -999,7 +999,7 @@ class CustomersHelper:
             Get date form
         """
         T = current.T
-        DATE_FORMAT =  current.globalenv['DATE_FORMAT']
+        DATE_FORMAT =  current.DATE_FORMAT
         os_datepicker_widget = current.globalenv['os_datepicker_widget']
 
         form = SQLFORM.factory(
@@ -1063,7 +1063,7 @@ class CustomersHelper:
         T = current.T
         db = current.db
         os_gui = OsGui()
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        DATE_FORMAT = current.DATE_FORMAT
         session = current.session
 
         if list_type == 'attendance':
@@ -1139,7 +1139,7 @@ class CustomersHelper:
         os_gui = OsGui()
 
         session = current.session
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        DATE_FORMAT = current.DATE_FORMAT
 
         date = session.customers_classes_reservation_add_vars['date']
         date_formatted = date.strftime(DATE_FORMAT)
@@ -1364,9 +1364,9 @@ class CustomersSubscriptionsCreditsHelper:
         '''
         T = current.T
         db = current.db
-        now = current.globalenv['NOW_LOCAL']
+        now = current.NOW_LOCAL
         cache_clear_customers_subscriptions = current.globalenv['cache_clear_customers_subscriptions']
-        TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
+        TODAY_LOCAL = current.TODAY_LOCAL
 
         first_day = datetime.date(year, month, 1)
         last_day = get_last_day_month(first_day)
@@ -1555,7 +1555,7 @@ class CustomersSubscriptionsCreditsHelper:
         """
         T = current.T
         db = current.db
-        NOW_LOCAL = current.globalenv['NOW_LOCAL']
+        NOW_LOCAL = current.NOW_LOCAL
         web2pytest = current.globalenv['web2pytest']
         request = current.request
 
@@ -1674,8 +1674,8 @@ class CustomerSubscription:
             :param SubscriptionMonth: Month of subscription
         """
         db = current.db
-        TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        TODAY_LOCAL = current.TODAY_LOCAL
+        DATE_FORMAT = current.DATE_FORMAT
 
         # create invoice linked to subscription for first subscription term to know the right amount.
         SubscriptionYear = TODAY_LOCAL.year
@@ -1895,7 +1895,7 @@ class CustomerSubscription:
         '''
         T = current.T
         db = current.db
-        TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
+        TODAY_LOCAL = current.TODAY_LOCAL
 
         query = (db.classes.AllowAPI == True) & \
                 (db.classes.id.belongs(class_ids)) & \
@@ -1990,7 +1990,7 @@ class CustomerSubscription:
         T = current.T
         db = current.db
         os_gui = current.globalenv['os_gui']
-        TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
+        TODAY_LOCAL = current.TODAY_LOCAL
 
         class_ids = []
         for clsID in permissions:
@@ -2107,8 +2107,8 @@ class Class:
         """
         db = current.db
         T = current.T
-        TIME_FORMAT = current.globalenv['TIME_FORMAT']
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        TIME_FORMAT = current.TIME_FORMAT
+        DATE_FORMAT = current.DATE_FORMAT
 
         if pretty_date:
             date = self.date.strftime('%d %B %Y')
@@ -2132,7 +2132,7 @@ class Class:
         '''
         db = current.db
         T = current.T
-        TIME_FORMAT = current.globalenv['TIME_FORMAT']
+        TIME_FORMAT = current.TIME_FORMAT
 
         record = self.cls
         location = db.school_locations[record.school_locations_id].Name
@@ -2264,8 +2264,8 @@ class Class:
         '''        
             :return: string with a description of the class 
         '''
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
-        TIME_FORMAT = current.globalenv['TIME_FORMAT']
+        DATE_FORMAT = current.DATE_FORMAT
+        TIME_FORMAT = current.TIME_FORMAT
 
         db = current.db
         T  = current.T
@@ -2325,8 +2325,8 @@ class Class:
         import pytz
 
         db = current.db
-        now = current.globalenv['NOW_LOCAL']
-        TIMEZONE = current.globalenv['TIMEZONE']
+        now = current.NOW_LOCAL
+        TIMEZONE = current.TIMEZONE
 
         cls_time = self.cls.Starttime
 
@@ -2527,7 +2527,7 @@ class ClassAttendance:
              Can we still cancel this booking?
              Allow cancellation when within the configures hours limit and not already attending
         '''
-        NOW_LOCAL = current.globalenv['NOW_LOCAL']
+        NOW_LOCAL = current.NOW_LOCAL
         cancel_before = self.get_cancel_before()
 
         if NOW_LOCAL < cancel_before and not self.row.BookingStatus == 'attending':
@@ -2542,7 +2542,7 @@ class ClassAttendance:
         '''
         T = current.T
         db = current.db
-        NOW_LOCAL = current.globalenv['NOW_LOCAL']
+        NOW_LOCAL = current.NOW_LOCAL
         return_message = T('Cancelled class')
 
         # check hours in advance policy
@@ -3117,7 +3117,7 @@ class AttendanceHelper:
         db = current.db
         auth = current.auth
         os_gui = current.globalenv['os_gui']
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        DATE_FORMAT = current.DATE_FORMAT
 
         modals = DIV()
 
@@ -3293,7 +3293,7 @@ class AttendanceHelper:
         db = current.db
         auth = current.auth
         os_gui = current.globalenv['os_gui']
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        DATE_FORMAT = current.DATE_FORMAT
 
         modals = DIV()
 
@@ -3443,7 +3443,7 @@ class AttendanceHelper:
         '''
         db = current.db
         os_gui = current.globalenv['os_gui']
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        DATE_FORMAT = current.DATE_FORMAT
         date_formatted = date.strftime(DATE_FORMAT)
 
         customer = Customer(cuID)
@@ -3622,7 +3622,7 @@ class AttendanceHelper:
         """
         :param clsID: db.classes.id
         :param date: datetime.date
-        :param date_formatted: datetime.date object formatted with current.globalenv['DATE_FORMAT']
+        :param date_formatted: datetime.date object formatted with current.DATE_FORMAT
         :param customer: Customer object
         :param: list_type: [shop, attendance, selfcheckin]
         :return:
@@ -3645,7 +3645,7 @@ class AttendanceHelper:
         db = current.db
         os_gui = current.globalenv['os_gui']
         CURRSYM = current.globalenv['CURRSYM']
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        DATE_FORMAT = current.DATE_FORMAT
         get_sys_property = current.globalenv['get_sys_property']
 
         date_formatted = date.strftime(DATE_FORMAT)
@@ -3957,7 +3957,7 @@ class AttendanceHelper:
         '''
         db = current.db
         T = current.T
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        DATE_FORMAT = current.DATE_FORMAT
         cache_clear_customers_subscriptions = current.globalenv['cache_clear_customers_subscriptions']
 
 
@@ -4059,7 +4059,7 @@ class AttendanceHelper:
     #
     #     T  = current.T
     #     db = current.db
-    #     TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
+    #     TODAY_LOCAL = current.TODAY_LOCAL
     #
     #     csu = db.customers_subscriptions(csID)
     #     ssu = db.school_subscriptions(csu.school_subscriptions_id)
@@ -4144,7 +4144,7 @@ class AttendanceHelper:
             Creates an invoice for a drop in or trial class
         """
         db = current.db
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        DATE_FORMAT = current.DATE_FORMAT
         T = current.T
 
         date_formatted = date.strftime(DATE_FORMAT)
@@ -4190,8 +4190,8 @@ class AttendanceHelper:
         :return:
         """
         T = current.T
-        TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        TODAY_LOCAL = current.TODAY_LOCAL
+        DATE_FORMAT = current.DATE_FORMAT
         get_sys_property = current.globalenv['get_sys_property']
 
         ccd = Classcard(ccdID)
@@ -4513,7 +4513,7 @@ class ReservationHelper:
         '''
         db = current.db
         os_gui = current.globalenv['os_gui']
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        DATE_FORMAT = current.DATE_FORMAT
         date_formatted = date.strftime(DATE_FORMAT)
 
         query = (db.classes_reservation.auth_customer_id == cuID) & \
@@ -4692,7 +4692,7 @@ class ClassSchedule:
 
             return average
 
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        DATE_FORMAT = current.DATE_FORMAT
         db = current.db
         T = current.T
         weekday = self.date.isoweekday()
@@ -4873,7 +4873,7 @@ class ClassSchedule:
         else:
             twelve_hours = 12*60*60
             cache = current.cache
-            DATE_FORMAT = current.globalenv['DATE_FORMAT']
+            DATE_FORMAT = current.DATE_FORMAT
             # A key that isn't cleared when schedule changes occur.
             cache_key = 'openstudio_classschedule_trend_get_day_table_' + \
                         self.date.strftime(DATE_FORMAT)
@@ -5072,9 +5072,9 @@ class ClassSchedule:
             :return: booking status
         """
         pytz = current.globalenv['pytz']
-        TIMEZONE = current.globalenv['TIMEZONE']
-        NOW_LOCAL = current.globalenv['NOW_LOCAL']
-        TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
+        TIMEZONE = current.TIMEZONE
+        NOW_LOCAL = current.NOW_LOCAL
+        TODAY_LOCAL = current.TODAY_LOCAL
 
         local_tz = pytz.timezone(TIMEZONE)
 
@@ -5144,7 +5144,7 @@ class ClassSchedule:
             a SQLFORM.grid for a selected day which is within 1 - 7 (ISO standard).
         """
         date = self.date
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        DATE_FORMAT = current.DATE_FORMAT
         db = current.db
         weekday = date.isoweekday()
 
@@ -5351,7 +5351,7 @@ class ClassSchedule:
         #     rows = self._get_day_rows()
         # else:
         #     cache = current.cache
-        #     DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        #     DATE_FORMAT = current.DATE_FORMAT
         #     CACHE_LONG = current.globalenv['CACHE_LONG']
         #     cache_key = 'openstudio_classschedule_get_day_rows_' + self.date.strftime(DATE_FORMAT)
         #     rows = cache.ram(cache_key , lambda: self._get_day_rows(), time_expire=CACHE_LONG)
@@ -5366,7 +5366,7 @@ class ClassSchedule:
             Returns table for today
         """
         os_gui = current.globalenv['os_gui']
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        DATE_FORMAT = current.DATE_FORMAT
         ORGANIZATIONS = current.globalenv['ORGANIZATIONS']
         T = current.T
         date_formatted = self.date.strftime(DATE_FORMAT)
@@ -5483,7 +5483,7 @@ class ClassSchedule:
             rows = self._get_day_table()
         else:
             cache = current.cache
-            DATE_FORMAT = current.globalenv['DATE_FORMAT']
+            DATE_FORMAT = current.DATE_FORMAT
             CACHE_LONG = current.globalenv['CACHE_LONG']
             cache_key = 'openstudio_classschedule_get_day_table_' + \
                         self.date.strftime(DATE_FORMAT) + '_' + \
@@ -5507,7 +5507,7 @@ class ClassSchedule:
             Format rows as list
         '''
         os_gui = current.globalenv['os_gui']
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        DATE_FORMAT = current.DATE_FORMAT
         T = current.T
         date_formatted = self.date.strftime(DATE_FORMAT)
 
@@ -5751,7 +5751,7 @@ class Classcard:
         '''
         T = current.T
         db = current.db
-        TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
+        TODAY_LOCAL = current.TODAY_LOCAL
 
         query = (db.classes.AllowAPI == True) & \
                 (db.classes.id.belongs(class_ids)) & \
@@ -5846,7 +5846,7 @@ class Classcard:
         T = current.T
         db = current.db
         os_gui = current.globalenv['os_gui']
-        TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
+        TODAY_LOCAL = current.TODAY_LOCAL
 
         class_ids = []
         for clsID in permissions:
@@ -6682,7 +6682,7 @@ class WorkshopSchedule:
         request = current.request
         os_gui = current.globalenv['os_gui']
         T = current.T
-        TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
+        TODAY_LOCAL = current.TODAY_LOCAL
 
         rows = self.get_workshops_rows()
 
@@ -6892,8 +6892,8 @@ class Order:
             :param workshops_products_id: db.workshops_products.id
             :return: db.customers_orders_items.id of inserted item
         '''
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
-        TIME_FORMAT = current.globalenv['TIME_FORMAT']
+        DATE_FORMAT = current.DATE_FORMAT
+        TIME_FORMAT = current.TIME_FORMAT
         db = current.db
         T  = current.T
 
@@ -7388,7 +7388,7 @@ class Invoice:
         :return:
         """
         db = current.db
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        DATE_FORMAT = current.DATE_FORMAT
         T = current.T
 
         date_formatted = date.strftime(DATE_FORMAT)
@@ -7450,8 +7450,8 @@ class Invoice:
             :param attendance_type: int 1 or 2 
             :return: db.invoices_items.id
         '''
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
-        TIME_FORMAT = current.globalenv['TIME_FORMAT']
+        DATE_FORMAT = current.DATE_FORMAT
+        TIME_FORMAT = current.TIME_FORMAT
         db = current.db
         T  = current.T
 
@@ -7590,7 +7590,7 @@ class Invoice:
             :return: db.invoices_items.id
         """
         db = current.db
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        DATE_FORMAT = current.DATE_FORMAT
 
         next_sort_nr = self.get_item_next_sort_nr()
 
@@ -7677,7 +7677,7 @@ class Invoice:
         from openstudio.os_school_membership import SchoolMembership
 
         db = current.db
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        DATE_FORMAT = current.DATE_FORMAT
 
         next_sort_nr = self.get_item_next_sort_nr()
 
@@ -7722,8 +7722,8 @@ class Invoice:
         """
         from os_teacher import Teacher
 
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
-        TIME_FORMAT = current.globalenv['TIME_FORMAT']
+        DATE_FORMAT = current.DATE_FORMAT
+        TIME_FORMAT = current.TIME_FORMAT
         db = current.db
         T = current.T
 
@@ -7780,8 +7780,8 @@ class Invoice:
         """
         from os_teacher import Teacher
 
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
-        TIME_FORMAT = current.globalenv['TIME_FORMAT']
+        DATE_FORMAT = current.DATE_FORMAT
+        TIME_FORMAT = current.TIME_FORMAT
         db = current.db
         T = current.T
 
@@ -8353,7 +8353,7 @@ class InvoicesHelper:
         auth = current.auth
         session = current.session
         grid_ui = current.globalenv['grid_ui']
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        DATE_FORMAT = current.DATE_FORMAT
         from general_helpers import datestr_to_python
         from openstudio.os_gui import OsGui
         os_gui = OsGui()
@@ -8506,7 +8506,7 @@ class InvoicesHelper:
         '''
         T = current.T
         session = current.session
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        DATE_FORMAT = current.DATE_FORMAT
 
         form = SQLFORM.factory(
             Field('search',
@@ -8955,7 +8955,7 @@ class StaffSchedule:
         auth = current.auth
         os_gui = current.globalenv['os_gui']
         T = current.T
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        DATE_FORMAT = current.DATE_FORMAT
         date_formatted = self.date.strftime(DATE_FORMAT)
 
         buttons = DIV(_class='pull-right')
@@ -9033,7 +9033,7 @@ class StaffSchedule:
             a SQLFORM.grid for a selected day which is within 1 - 7 (ISO standard).
         '''
         date = self.date
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        DATE_FORMAT = current.DATE_FORMAT
         db = current.db
         weekday = date.isoweekday()
 
@@ -9145,7 +9145,7 @@ class StaffSchedule:
             Calls the schedule_get_day_rows function and formats the rows
             in a desktop friendly table
         '''
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        DATE_FORMAT = current.DATE_FORMAT
         T = current.T
         auth = current.auth
 
@@ -9226,7 +9226,7 @@ class StaffSchedule:
             Format rows as list
         '''
         os_gui = current.globalenv['os_gui']
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        DATE_FORMAT = current.DATE_FORMAT
         T = current.T
         date_formatted = self.date.strftime(DATE_FORMAT)
 
@@ -9551,7 +9551,7 @@ class OsMail:
 
 
         T = current.T
-        DATETIME_FORMAT = current.globalenv['DATETIME_FORMAT']
+        DATETIME_FORMAT = current.DATETIME_FORMAT
         represent_float_as_amount = current.globalenv['represent_float_as_amount']
 
         order = Order(customers_orders_id)
@@ -9590,7 +9590,7 @@ class OsMail:
     #         :return: mail body for invoice
     #     '''
     #     T = current.T
-    #     DATETIME_FORMAT = current.globalenv['DATETIME_FORMAT']
+    #     DATETIME_FORMAT = current.DATETIME_FORMAT
     #
     #     invoice = Invoice(invoices_id)
     #     item_rows = invoice.get_invoice_items_rows()
@@ -9630,7 +9630,7 @@ class OsMail:
     #     '''
     #     db = current.db
     #     T = current.T
-    #     DATE_FORMAT = current.globalenv['DATE_FORMAT']
+    #     DATE_FORMAT = current.DATE_FORMAT
     #     CURRSYM = current.globalenv['CURRSYM']
     #
     #     payment = db.invoices_payments(invoices_payments_id)
@@ -9651,7 +9651,7 @@ class OsMail:
         '''
         db = current.db
         T = current.T
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        DATE_FORMAT = current.DATE_FORMAT
 
         # TODO: Add to manual & button on page available variables;
         return XML(template_content.format(link_profile_invoices=URL('profile', 'invoices', scheme=True, host=True)))
@@ -9665,8 +9665,8 @@ class OsMail:
         '''
         db = current.db
         T = current.T
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
-        TIME_FORMAT = current.globalenv['TIME_FORMAT']
+        DATE_FORMAT = current.DATE_FORMAT
+        TIME_FORMAT = current.TIME_FORMAT
         customer = Customer(wspc.auth_customer_id)
 
         try:
@@ -9708,7 +9708,7 @@ class OsMail:
         '''
         db = current.db
         T = current.T
-        DATETIME_FORMAT = current.globalenv['DATETIME_FORMAT']
+        DATETIME_FORMAT = current.DATETIME_FORMAT
 
         get_sys_property = current.globalenv['get_sys_property']
         request = current.request

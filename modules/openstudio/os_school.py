@@ -57,7 +57,7 @@ class School:
 
         from os_customer import Customer
 
-        TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
+        TODAY_LOCAL = current.TODAY_LOCAL
         os_gui = current.globalenv['os_gui']
         T = current.T
 
@@ -193,7 +193,7 @@ class School:
         from openstudio.os_customer import Customer
 
 
-        TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
+        TODAY_LOCAL = current.TODAY_LOCAL
         os_gui = current.globalenv['os_gui']
         T = current.T
 

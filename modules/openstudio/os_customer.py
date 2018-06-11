@@ -106,7 +106,7 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
             rows = self._get_subscriptions_on_date(date)
         else:
             cache = current.cache
-            DATE_FORMAT = current.globalenv['DATE_FORMAT']
+            DATE_FORMAT = current.DATE_FORMAT
             CACHE_LONG = current.globalenv['CACHE_LONG']
             cache_key = 'openstudio_customer_get_subscriptions_on_date_' + \
                         str(self.cuID) + '_' + \
@@ -133,7 +133,7 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
         '''
         db = current.db
         os_gui = current.globalenv['os_gui']
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        DATE_FORMAT = current.DATE_FORMAT
 
         fields = [
             db.auth_user.id,
@@ -212,7 +212,7 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
             rows = self._get_memberships_on_date(date)
         else:
             cache = current.cache
-            DATE_FORMAT = current.globalenv['DATE_FORMAT']
+            DATE_FORMAT = current.DATE_FORMAT
             CACHE_LONG = current.globalenv['CACHE_LONG']
             cache_key = 'openstudio_customer_get_memberships_on_date_' + \
                         str(self.cuID) + '_' + \
@@ -282,7 +282,7 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
             rows = self._get_classcards(date)
         else:
             cache = current.cache
-            DATE_FORMAT = current.globalenv['DATE_FORMAT']
+            DATE_FORMAT = current.DATE_FORMAT
             CACHE_LONG = current.globalenv['CACHE_LONG']
             cache_key = 'openstudio_customer_get_classcards_' + \
                         str(self.cuID) + '_' + \
@@ -314,7 +314,7 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
         from openstudio.openstudio import Classcard
         from openstudio.os_customer_subscriptions import CustomerSubscriptions
 
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        DATE_FORMAT = current.DATE_FORMAT
         T = current.T
         os_gui = current.globalenv['os_gui']
 
@@ -426,7 +426,7 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
             Returns workshops for a customer
         """
         db = current.db
-        TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
+        TODAY_LOCAL = current.TODAY_LOCAL
 
         db_icwspc = db.invoices_workshops_products_customers
 
@@ -606,7 +606,7 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
             @return: gluon.dal.rows obj with classes attendance rows for
             customer
         '''
-        TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
+        TODAY_LOCAL = current.TODAY_LOCAL
         db = current.db
 
         fields = [
@@ -779,8 +779,8 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
 
         T = current.T
         db = current.db
-        now = current.globalenv['NOW_LOCAL']
-        TIMEZONE = current.globalenv['TIMEZONE']
+        now = current.NOW_LOCAL
+        TIMEZONE = current.TIMEZONE
 
         message = False
 

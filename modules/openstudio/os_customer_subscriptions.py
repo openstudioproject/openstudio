@@ -17,7 +17,7 @@ class CustomerSubscriptions:
             Returns whether a subscription is paused on provided date
         """
         db = current.db
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        DATE_FORMAT = current.DATE_FORMAT
 
         query = (db.customers_subscriptions_paused.customers_subscriptions_id ==
                  self.csID) & \

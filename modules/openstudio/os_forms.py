@@ -91,7 +91,7 @@ class OsForms:
 
         # Set default values
         T = current.T
-        TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
+        TODAY_LOCAL = current.TODAY_LOCAL
         if not year:
             year = TODAY_LOCAL.year
         if not month:
