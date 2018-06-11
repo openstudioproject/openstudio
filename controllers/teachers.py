@@ -403,6 +403,7 @@ def payment_fixed_rate():
     """
         Configure fixed rate payments for this teacher
     """
+    from openstudio.os_customer import Customer
     from openstudio.os_teacher import Teacher
 
     teID = request.vars['teID']
@@ -439,6 +440,7 @@ def payment_fixed_rate_default():
     """
         Add default fixed rate for this teacher
     """
+    from openstudio.os_customer import Customer
     from openstudio.os_teacher import Teacher
     from openstudio.os_forms import OsForms
 
@@ -491,6 +493,7 @@ def payment_fixed_rate_class_add():
     """
         Add customers to attendance for a class
     """
+    from openstudio.os_customer import Customer
     from openstudio.openstudio import CustomersHelper
     from general_helpers import datestr_to_python
 
@@ -530,6 +533,7 @@ def payment_fixed_rate_class():
     """
         Add default fixed rate for this teacher
     """
+    from openstudio.os_customer import Customer
     from openstudio.os_teacher import Teacher
     from openstudio.os_forms import OsForms
 
@@ -613,6 +617,7 @@ def payment_fixed_rate_travel_add():
     """
         Add travel allowance for a teacher
     """
+    from openstudio.os_customer import Customer
     from openstudio.os_forms import OsForms
 
     teID = request.vars['teID']
@@ -645,6 +650,7 @@ def payment_fixed_rate_travel_edit():
     """
         Add travel allowance for a teacher
     """
+    from openstudio.os_customer import Customer
     from openstudio.os_forms import OsForms
 
     teID = request.vars['teID']
