@@ -3,6 +3,7 @@ import datetime
 import pytz
 
 from gluon.scheduler import Scheduler
+from gluon import current
 
 from smarthumb import SMARTHUMB
 
@@ -386,9 +387,9 @@ def represent_birthday(value, row):
 
 
 def represent_float_as_amount(value, row=None):
-    '''
+    """
         Takes value and rounds it to a 2 decimal number.
-    '''
+    """
     if value is None or not isinstance(value, float):
         return ''
     else:
@@ -994,6 +995,9 @@ def define_school_classcards():
               default=True,
               required=True,
               label=T('Show in shop')),
+        Field('MembershipRequired', 'boolean',
+              default=False,
+              label=T('Requires membership')),
         Field('sys_organizations_id', db.sys_organizations,
               readable=True if len(ORGANIZATIONS) > 2 else False,
               writable=True if len(ORGANIZATIONS) > 2 else False,
@@ -1099,6 +1103,66 @@ def define_school_classcards_groups_classcards():
     )
 
 
+def define_school_memberships():
+    db.define_table('school_memberships',
+        Field('Archived', 'boolean',
+            readable=False,
+            writable=False,
+            default= False,
+            label=T("Archived")),
+        Field('PublicMembership', 'boolean',
+              default=False,
+              label=T('Show in shop')),
+        Field('Name', required=True,
+            requires= IS_NOT_EMPTY(),
+            label= T("Name")),
+        Field('Description',
+             label=T('Description')),
+        Field('Validity', 'integer',
+              requires=IS_INT_IN_RANGE(1, 2000,
+                                       error_message=T('Please enter a number between 0 and 2000')),
+              label=T('Validity')),
+        Field('ValidityUnit',
+              requires=IS_IN_SET(VALIDITY_UNITS, zero=None),
+              represent=represent_validity_units,
+              label=T('Validity In')),
+        Field('Terms', 'text',
+              label=T('Terms & conditions')),
+        format='%(Name)s'
+        )
+
+
+def define_school_memberships_price():
+    today = TODAY_LOCAL
+
+    db.define_table('school_memberships_price',
+        Field('school_memberships_id', db.school_memberships,
+            required=True,
+            readable=False,
+            writable=False),
+        Field('Startdate', 'date', required=True,
+            requires=IS_DATE_IN_RANGE(format=DATE_FORMAT,
+                       minimum=datetime.date(2000,1,1),
+                       maximum=datetime.date(2999,12,31)),
+            represent=represent_date,
+            default=datetime.date(today.year, today.month, 1),
+            widget=os_datepicker_widget),
+        Field('Enddate', 'date',
+            requires=IS_EMPTY_OR(IS_DATE_IN_RANGE(format=DATE_FORMAT,
+                       minimum=datetime.date(2000,1,1),
+                       maximum=datetime.date(2999,12,31))),
+            represent=represent_date,
+            widget=os_datepicker_widget),
+        Field('Price', 'float', required=True,
+            requires=IS_FLOAT_IN_RANGE(0,99999999, dot='.',
+                error_message=T('Too small or too large')),
+            represent = represent_float_as_amount,
+            label=T("Price")),
+        Field('tax_rates_id', db.tax_rates,
+            label=T('Tax rate')),
+        )
+
+
 def define_school_subscriptions():
     so_query = (db.sys_organizations.Archived == False)
     format = '%(Name)s'
@@ -1114,6 +1178,9 @@ def define_school_subscriptions():
         Field('PublicSubscription', 'boolean',
             default=False,
             label=T('Show in shop')),
+        Field('MembershipRequired', 'boolean',
+              default=False,
+              label=T('Requires membership')),
         Field('Name', required=True,
               requires=IS_NOT_EMPTY(),
               label=T("Name")),
@@ -1786,9 +1853,9 @@ def represent_classes_subscriptions_group_boolean(value, row):
 
 
 def define_classes_price():
-    '''
+    """
         Define prices for a class
-    '''
+    """
     db.define_table('classes_price',
         Field('classes_id', db.classes, required=True,
             readable=False,
@@ -1810,15 +1877,27 @@ def define_classes_price():
         Field('Dropin', 'double', required=False,
             represent=represent_float_as_amount,
             default=0,
-            label=T("Drop-in price incl. VAT")),
+            label=T("Drop-in incl. VAT")),
         Field('tax_rates_id_dropin', db.tax_rates,
             label=T('Drop-in tax rate')),
         Field('Trial', 'double', required=False,
             represent=represent_float_as_amount,
             default=0,
-            label=T("Trial class price incl. VAT")),
+            label=T("Trial incl. VAT")),
         Field('tax_rates_id_trial', db.tax_rates,
-            label=T('Trial class tax rate')),
+            label=T('Trial tax rate')),
+        Field('DropinMembership', 'double', required=False,
+            represent=represent_float_as_amount,
+            default=0,
+            label=T("Membership drop-in incl. VAT")),
+        Field('tax_rates_id_dropin_membership', db.tax_rates,
+            label=T('Membership drop-in tax rate')),
+        Field('TrialMembership', 'double', required=False,
+            represent=represent_float_as_amount,
+            default=0,
+            label=T("Membership trial incl. VAT")),
+        Field('tax_rates_id_trial_membership', db.tax_rates,
+            label=T('Membership trial tax rate')),
         )
 
 
@@ -2101,6 +2180,49 @@ def define_customers_payment_info():
     #         _name=f.name, _id="%s_%s" % (f._tablename, f.name),
     #         _value=v,
     #         value=v)
+
+
+def define_customers_memberships():
+    ms_query = (db.school_memberships.Archived == False)
+    pm_query = (db.payment_methods.Archived == False)
+
+    school_memberships_format = '%(Name)s'
+
+    db.define_table('customers_memberships',
+        Field('auth_customer_id', db.auth_user, required=True,
+              readable=False,
+              writable=False,
+              label=T('CustomerID')),
+        Field('school_memberships_id', db.school_memberships,
+              requires=IS_IN_DB(db(ms_query),
+                                'school_memberships.id', school_memberships_format,
+                                zero=T("Please select...")),
+              label=T("Membership")),
+        Field('Startdate', 'date', required=True,
+              requires=IS_DATE_IN_RANGE(format=DATE_FORMAT,
+                                        minimum=datetime.date(1900, 1, 1),
+                                        maximum=datetime.date(2999, 1, 1)),
+              represent=represent_date,
+              default=TODAY_LOCAL,
+              label=T("Start"),
+              widget=os_datepicker_widget),
+        Field('Enddate', 'date', required=False,
+              requires=IS_EMPTY_OR(IS_DATE_IN_RANGE(format=DATE_FORMAT,
+                                                    minimum=datetime.date(1900, 1, 1),
+                                                    maximum=datetime.date(2999, 1, 1))),
+              represent=represent_date,
+              label=T("End"),
+              widget=os_datepicker_widget),
+        Field('payment_methods_id', db.payment_methods, required=True,
+              requires=IS_EMPTY_OR(IS_IN_DB(db(pm_query), 'payment_methods.id', '%(Name)s',
+                                            zero=T("Please select..."))),
+              represent=lambda value, row: payment_methods_dict.get(value),
+              label=T("Payment method")),
+        Field('Note', 'text',
+              represent=lambda value, row: value or '',
+              label=T("Note")),
+        singular=T("Membership"), plural=T("Memberships")
+        )
 
 
 def define_customers_subscriptions():
@@ -3216,6 +3338,19 @@ def define_invoices_customers():
               label=T('Customer')))
 
 
+def define_invoices_customers_memberships():
+    """
+        Table to link customer memberships to invoices
+    """
+    db.define_table('invoices_customers_memberships',
+        Field('invoices_id', db.invoices,
+            readable=False,
+            writable=False),
+        Field('customers_memberships_id', db.customers_memberships,
+            readable=False,
+            writable=False))
+
+
 def define_invoices_customers_subscriptions():
     """
         Table to link customer subscriptions to invoices
@@ -3304,18 +3439,18 @@ def define_invoices_groups():
 
 
 def define_invoices_groups_product_types():
-    '''
+    """
         Table to hold default invoice group assignments to certain categories
         of products
-    '''
-    categories = get_invoices_groups_product_types()
+    """
+    product_types = get_invoices_groups_product_types()
     group_query = (db.invoices_groups.Archived == False)
 
     db.define_table('invoices_groups_product_types',
         Field('ProductType',
             readable=False,
             writable=False,
-            requires=IS_IN_SET(categories),
+            requires=IS_IN_SET(product_types),
             label=T("Type of product")),
         Field('invoices_groups_id', db.invoices_groups,
             requires=IS_IN_DB(db(group_query),
@@ -3369,6 +3504,24 @@ def define_invoices():
             readable=False,
             writable=False,
             default=None),
+        Field('MembershipPeriodStart', 'date',
+            readable=False,
+            writable=False,
+            requires=IS_DATE_IN_RANGE(format=DATE_FORMAT,
+                                      minimum=datetime.date(1900, 1, 1),
+                                      maximum=datetime.date(2999, 1, 1)),
+            represent=represent_invoices_datedue,
+            label=T("Membership period start"),
+            widget=os_datepicker_widget),
+        Field('MembershipPeriodEnd', 'date',
+            readable=False,
+            writable=False,
+            requires=IS_DATE_IN_RANGE(format=DATE_FORMAT,
+                                      minimum=datetime.date(1900, 1, 1),
+                                      maximum=datetime.date(2999, 1, 1)),
+            represent=represent_invoices_datedue,
+            label=T("Membership period end"),
+            widget=os_datepicker_widget),
         Field('SubscriptionMonth', 'integer',
             readable=False,
             writable=False,
@@ -4460,15 +4613,18 @@ def define_customers_profile_features():
         Define table to hold which features are enabled for customer logins
     """
     db.define_table('customers_profile_features',
+        Field('Memberships', 'boolean',
+              default=True,
+              label=T('Memberships')),
+        Field('Subscriptions', 'boolean',
+              default=True,
+              label=T('Subscriptions')),
         Field('Classes', 'boolean',
             default=True,
             label=T('Classes')),
         Field('Classcards', 'boolean',
             default=True,
             label=T('Class cards')),
-        Field('Subscriptions', 'boolean',
-            default=True,
-            label=T('Subscriptions')),
         Field('Workshops', 'boolean',
             default=True,
             label=T('Events')),
@@ -4528,19 +4684,22 @@ def define_customers_profile_announcements():
 
 
 def define_customers_shop_features():
-    '''
+    """
         Define table to hold which features are enabled in the shop
-    '''
+    """
     db.define_table('customers_shop_features',
+        Field('Memberships', 'boolean',
+              default=True,
+              label=T('Memberships')),
+        Field('Subscriptions', 'boolean',
+              default=True,
+              label=T('Subscriptions [BETA]')),
         Field('Classes', 'boolean',
               default=True,
               label=T('Classes')),
         Field('Classcards', 'boolean',
               default=True,
               label=T('Class cards')),
-        Field('Subscriptions', 'boolean',
-              default=True,
-              label=T('Subscriptions [BETA]')),
         Field('Workshops', 'boolean',
               default=True,
               label=T('Events')),
@@ -4868,6 +5027,7 @@ def set_timeformat():
 def set_datetimeformat():
     return DATE_FORMAT + ' ' + TIME_FORMAT
 
+
 DATE_FORMATS = set_dateformats()
 DATE_FORMAT = set_dateformat()
 DATE_MASK = set_datemask(DATE_FORMAT)
@@ -4882,6 +5042,15 @@ TODAY_UTC = datetime.date.today()
 
 NOW_LOCAL = NOW_UTC.astimezone(pytz.timezone(TIMEZONE))
 TODAY_LOCAL = datetime.date(NOW_LOCAL.year, NOW_LOCAL.month, NOW_LOCAL.day)
+
+
+current.DATE_FORMATS = DATE_FORMATS
+current.DATE_FORMAT = DATE_FORMAT
+current.TIME_FORMAT = TIME_FORMAT
+current.DATETIME_FORMAT = DATETIME_FORMAT
+current.TIMEZONE = TIMEZONE
+current.NOW_LOCAL = NOW_LOCAL
+current.TODAY_LOCAL = TODAY_LOCAL
 
 
 def represent_date(date, row=None):
@@ -5166,6 +5335,8 @@ define_postcode_groups()
 define_tax_rates()
 
 
+define_school_memberships()
+define_school_memberships_price()
 define_school_subscriptions()
 #mstypes_dict = create_mstypes_dict()
 define_school_subscriptions_price()
@@ -5194,6 +5365,7 @@ define_customers_documents()
 define_customers_notes()
 define_customers_payment_info()
 define_customers_messages()
+define_customers_memberships()
 define_customers_subscriptions()
 define_customers_subscriptions_paused()
 define_customers_subscriptions_alt_prices()
@@ -5258,6 +5430,7 @@ define_invoices_workshops_products_customers()
 define_invoices_customers_classcards()
 define_invoices_classes_attendance()
 define_invoices_customers()
+define_invoices_customers_memberships()
 define_invoices_customers_subscriptions()
 define_invoices_customers_orders()
 define_invoices_mollie_payment_ids()

@@ -14,818 +14,7 @@ from general_helpers import NRtoDay
 from general_helpers import represent_validity_units
 
 
-class Customer:
-    """
-        Class that contains functions for customer
-    """
-    def __init__(self, cuID):
-        """
-            Class init function which sets cuID
-        """
-        db = current.globalenv['db']
-
-        self.cuID = cuID
-        self.row = db.auth_user(cuID)
-
-
-    def get_name(self):
-        """
-            Returns the name for a customer
-        """
-        return self.row.display_name
-
-
-    def get_email_hash(self, hash_type='md5'):
-        """
-
-        """
-        import hashlib
-
-        md5 = hashlib.md5()
-        md5.update(self.row.email.lower())
-
-        return md5.hexdigest()
-
-
-    def _get_subscriptions_on_date(self, date):
-        '''
-            Returns subscription for a date
-        '''
-        db = current.globalenv['db']
-        cache = current.globalenv['cache']
-        request = current.globalenv['request']
-        web2pytest = current.globalenv['web2pytest']
-
-        fields = [
-            db.customers_subscriptions.id,
-            db.customers_subscriptions.auth_customer_id,
-            db.customers_subscriptions.Startdate,
-            db.customers_subscriptions.Enddate,
-            db.customers_subscriptions.payment_methods_id,
-            db.customers_subscriptions.Note,
-            db.school_subscriptions.Name,
-            db.school_subscriptions.ReconciliationClasses,
-            db.school_subscriptions.Unlimited,
-            db.customers_subscriptions.CreditsRemaining,
-        ]
-
-        sql = '''SELECT cs.id,
-                        cs.auth_customer_id,
-                        cs.Startdate,
-                        cs.Enddate,
-                        cs.payment_methods_id,
-                        cs.Note,
-                        ssu.Name,
-                        ssu.ReconciliationClasses,
-                        ssu.Unlimited,
-(IFNULL(( SELECT SUM(csc.MutationAmount)
- FROM customers_subscriptions_credits csc
- WHERE csc.customers_subscriptions_id = cs.id AND
-	   csc.MutationType = 'add'), 0) -
-IFNULL(( SELECT SUM(csc.MutationAmount)
- FROM customers_subscriptions_credits csc
- WHERE csc.customers_subscriptions_id = cs.id AND
-	   csc.MutationType = 'sub'), 0)) AS credits
-FROM customers_subscriptions cs
-LEFT JOIN
-school_subscriptions ssu ON cs.school_subscriptions_id = ssu.id
-WHERE cs.auth_customer_id = {cuID} AND
-(cs.Startdate <= '{date}' AND (cs.Enddate >= '{date}' OR cs.Enddate IS NULL))
-ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
-
-        rows = db.executesql(sql, fields=fields)
-
-        #print db._lastsql[0]
-
-        if len(rows) > 0:
-            return_value = rows
-        else:
-            return_value = False
-
-        return return_value
-
-
-    def get_subscriptions_on_date(self, date, from_cache=True):
-        '''
-            Get day rows with caching
-        '''
-        web2pytest = current.globalenv['web2pytest']
-        request = current.globalenv['request']
-
-        # Don't cache when running tests
-        if web2pytest.is_running_under_test(request, request.application) or not from_cache:
-            rows = self._get_subscriptions_on_date(date)
-            # if rows:
-            #     for row in rows:
-            #         row.customers_subscriptions.CreditsRemaining = 3456.0
-        else:
-            cache = current.globalenv['cache']
-            DATE_FORMAT = current.globalenv['DATE_FORMAT']
-            CACHE_LONG = current.globalenv['CACHE_LONG']
-            cache_key = 'openstudio_customer_get_subscriptions_on_date_' + \
-                        str(self.cuID) + '_' + \
-                        date.strftime(DATE_FORMAT)
-            rows = cache.ram(cache_key , lambda: self._get_subscriptions_on_date(date), time_expire=CACHE_LONG)
-
-        return rows
-
-
-    def has_subscription_on_date(self, date):
-        """
-        :param date: datetime.date
-        :return: Boolean
-        """
-        if self.get_subscriptions_on_date(date):
-            return True
-        else:
-            return False
-
-
-    def get_subscription_latest(self):
-        '''
-            @return: Latest subscription for a customer
-        '''
-        db = current.globalenv['db']
-        os_gui = current.globalenv['os_gui']
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
-
-        fields = [
-            db.auth_user.id,
-            db.school_subscriptions.Name,
-            db.customers_subscriptions.Startdate,
-            db.customers_subscriptions.Enddate
-        ]
-
-        query = """
-            SELECT au.id,
-                   ssu.name,
-                   cs.startdate,
-                   cs.enddate
-                   FROM auth_user au
-            LEFT JOIN customers_subscriptions cs ON cs.auth_customer_id = au.id
-            LEFT JOIN
-                (SELECT auth_customer_id,
-                        school_subscriptions_id,
-                        max(startdate) as startdate,
-                        enddate
-                FROM customers_subscriptions GROUP BY auth_customer_id) chk
-            ON au.id = chk.auth_customer_id
-            LEFT JOIN
-                (SELECT id, name FROM school_subscriptions) ssu
-            ON ssu.id = cs.school_subscriptions_id
-            WHERE cs.startdate = chk.startdate
-                  AND au.id = {cuID} """.format(cuID=self.cuID)
-
-        # show the latest subscription
-        result = db.executesql(query, fields=fields)
-
-        if len(result):
-            record = result.first()
-            try:
-                return SPAN(os_gui.get_fa_icon('fa-clock-o'), ' ',
-                            record.school_subscriptions.Name,
-                            ' [',
-                            record.customers_subscriptions.Startdate.strftime(DATE_FORMAT), ' - ',
-                            record.customers_subscriptions.Enddate.strftime(DATE_FORMAT),
-                            '] ',
-                            _class='small_font',
-                            _title='Latest subscription (past)')
-            except AttributeError:
-                return False
-
-        else:
-            return False
-
-
-    def _get_classcards(self, date):
-        '''
-            Returns classcards for customer(cuID) on date
-        '''
-        db = current.globalenv['db']
-        cache = current.globalenv['cache']
-        request = current.globalenv['request']
-        web2pytest = current.globalenv['web2pytest']
-
-        left = [ db.school_classcards.on(
-            db.customers_classcards.school_classcards_id==\
-            db.school_classcards.id)]
-        query = (db.customers_classcards.auth_customer_id == self.cuID) & \
-                (db.customers_classcards.Startdate <= date) & \
-                ((db.customers_classcards.Enddate >= date) |
-                 (db.customers_classcards.Enddate == None)) & \
-                ((db.school_classcards.Classes > db.customers_classcards.ClassesTaken) |
-                 (db.school_classcards.Classes == 0) |
-                 (db.school_classcards.Unlimited == True))
-
-        rows = db(query).select(db.customers_classcards.ALL,
-                                db.school_classcards.Name,
-                                db.school_classcards.Classes,
-                                db.school_classcards.Unlimited,
-                                left=left,
-                                orderby=db.customers_classcards.Enddate)
-
-        #print rows
-
-        if len(rows) > 0:
-            return_value = rows
-        else:
-            return_value = False
-
-        return return_value
-
-
-    def get_classcards(self, date, from_cache=True):
-        """
-            Get day rows with caching
-        """
-        web2pytest = current.globalenv['web2pytest']
-        request = current.globalenv['request']
-
-        # Don't cache when running tests
-        if web2pytest.is_running_under_test(request, request.application) or not from_cache:
-            rows = self._get_classcards(date)
-        else:
-            cache = current.globalenv['cache']
-            DATE_FORMAT = current.globalenv['DATE_FORMAT']
-            CACHE_LONG = current.globalenv['CACHE_LONG']
-            cache_key = 'openstudio_customer_get_classcards_' + \
-                        str(self.cuID) + '_' + \
-                        date.strftime(DATE_FORMAT)
-            rows = cache.ram(cache_key , lambda: self._get_classcards(date), time_expire=CACHE_LONG)
-
-        return rows
-
-
-    def has_classcard_on_date(self, date):
-        """
-        :param date: datetime.date
-        :return: Boolean
-        """
-        if self.get_classcards(date):
-            return True
-        else:
-            return False
-
-
-    def get_subscriptions_and_classcards_formatted(self,
-                date,
-                new_cards=True,
-                show_subscriptions=True):
-        '''
-            Returns a formatted list of subscriptions and classcards for
-            a customer
-        '''
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
-        T = current.globalenv['T']
-        os_gui = current.globalenv['os_gui']
-
-        cuID = self.cuID
-        subscription = ''
-        has_subscription = False
-        if show_subscriptions:
-            subscriptions = self.get_subscriptions_on_date(date)
-            if subscriptions:
-                has_subscription = True
-                subscription = DIV()
-                for cs in subscriptions:
-                    csID = cs.customers_subscriptions.id
-                    # dates
-                    subscr_dates = SPAN(' [', cs.customers_subscriptions.Startdate.strftime(DATE_FORMAT))
-                    if cs.customers_subscriptions.Enddate:
-                        subscr_dates.append(' - ')
-                        subscr_dates.append(cs.customers_subscriptions.Enddate.strftime(DATE_FORMAT))
-                    subscr_dates.append('] ')
-                    # credits
-                    #TODO: Add check for system setting if we should show the credits
-                    subscr_credits = ''
-                    if cs.customers_subscriptions.CreditsRemaining:
-                        subscr_credits = SPAN(XML(' &bull; '), round(cs.customers_subscriptions.CreditsRemaining, 1), ' ',
-                                              T('Credits'))
-                    subscription.append(SPAN(cs.school_subscriptions.Name, subscr_dates, subscr_credits))
-
-                    csh = CustomerSubscriptionsHelper(csID)
-                    paused = csh.get_paused(date)
-                    if paused:
-                        pause_text = SPAN(' | ', paused, _class='bold')
-                        subscription.append(pause_text)
-                    subscription.append(BR())
-
-
-        # get class card for customer
-        has_classcard = False
-        classcards = self.get_classcards(date)
-        if classcards:
-            has_classcard = True
-            classcard = DIV()
-            ccdh  = ClasscardsHelper()
-            for ccd in classcards:
-                ccdID = ccd.customers_classcards.id
-                remaining_classes = ccdh.get_classes_remaining(ccdID)
-                if not remaining_classes:
-                    continue
-
-                try:
-                    enddate = ccd.customers_classcards.Enddate.strftime(DATE_FORMAT)
-                except AttributeError:
-                    enddate = T('No expiry')
-
-                classcard.append(SPAN(ccd.school_classcards.Name, XML(' &bull; '),
-                                 T('expires'), ' ',
-                                 enddate, XML(' &bull; '),
-                                 remaining_classes))
-
-                if not ccd.school_classcards.Unlimited:
-                    classcard.append(SPAN(' ', T("Classes remaining")))
-
-                classcard.append(BR())
-
-            # if remaining_classes == 0 and new_cards:
-            #     link_new = A(T("New card"),
-            #                  _href=URL('classcard_add',
-            #                            vars={'cuID' : cuID},
-            #                            extension=''),
-            #                  _title=T("Add new card"))
-            #     classcard.append(' - ')
-            #     classcard.append(link_new)
-        else:
-            classcard = T("No class card")
-
-        # format data for display
-        subscr_cards = TABLE(_class='grey small_font')
-
-        if not has_subscription and not has_classcard:
-            if show_subscriptions:
-                subscr_cards.append(DIV(T("No subscription or class card"),
-                                         _class='red'))
-                latest = self.get_subscription_latest()
-                subscr_cards.append(latest if latest else '')
-
-        else:
-            if subscription and show_subscriptions:
-                subscr_cards.append(TR(subscription))
-            if classcards:
-                subscr_cards.append(TR(classcard))
-
-        return subscr_cards
-
-
-    def get_had_trialclass(self):
-        '''
-            Returns True if a customer has had a trialclass and false when not
-        '''
-        db = current.globalenv['db']
-
-        query = (db.classes_attendance.auth_customer_id == self.cuID) & \
-                (db.classes_attendance.AttendanceType == 1)
-
-        count = db(query).count()
-
-        if count > 0:
-            had_trial = True
-        else:
-            had_trial = False
-
-        return had_trial
-
-
-    def get_workshops_rows(self, upcoming=False):
-        """
-            Returns workshops for a customer
-        """
-        db = current.globalenv['db']
-        TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
-
-        db_icwspc = db.invoices_workshops_products_customers
-
-
-        orderby = ~db.workshops.Startdate
-        query = (db.workshops_products_customers.auth_customer_id == self.cuID)
-
-        if upcoming:
-            query &= (db.workshops.Startdate >= TODAY_LOCAL)
-            orderby = db.workshops.Startdate
-
-        rows = db(query).select(
-            db.workshops_products_customers.ALL,
-            db.workshops.ALL,
-            db.workshops_products.Name,
-            db.workshops_products.FullWorkshop,
-            db.invoices.ALL,
-            left=[db.workshops_products.on(
-                db.workshops_products.id == \
-                db.workshops_products_customers.workshops_products_id),
-                db.workshops.on(db.workshops_products.workshops_id == \
-                                db.workshops.id),
-                db.invoices_workshops_products_customers.on(
-                    db_icwspc.workshops_products_customers_id ==
-                    db.workshops_products_customers.id),
-                db.invoices.on(db_icwspc.invoices_id == db.invoices.id)
-            ],
-            orderby=~db.workshops.Startdate)
-
-        return rows
-
-
-    def get_invoices_rows(self,
-                          public_group=True,
-                          payments_only=False):
-        """
-            Returns invoices records for a customer as gluon.dal.rows object
-        """
-        db = current.globalenv['db']
-
-        left = [
-            db.invoices_amounts.on(
-                db.invoices_amounts.invoices_id == db.invoices.id),
-            db.invoices_groups.on(
-                db.invoices.invoices_groups_id == db.invoices_groups.id),
-            db.invoices_customers.on(
-                db.invoices_customers.invoices_id ==
-                db.invoices.id
-            )
-        ]
-        query = (db.invoices_customers.auth_customer_id == self.cuID) & \
-                (db.invoices.Status != 'draft')
-        if public_group:
-                (db.invoices_groups.PublicGroup == True)
-
-        if payments_only:
-            query &= (db.invoices.TeacherPayment == True)
-
-        rows = db(query).select(db.invoices.ALL,
-                                db.invoices_amounts.ALL,
-                                left=left,
-                                orderby=~db.invoices.DateCreated)
-
-        return rows
-
-
-    def get_orders_rows(self):
-        """
-            Returns orders for a customer
-        """
-        db = current.globalenv['db']
-
-        query = (db.customers_orders.auth_customer_id == self.cuID)
-        rows = db(query).select(
-            db.customers_orders.ALL,
-            db.customers_orders_amounts.ALL,
-            db.invoices.ALL,
-            db.invoices_amounts.ALL,
-            left = [ db.customers_orders_amounts.on(db.customers_orders.id ==
-                                                    db.customers_orders_amounts.customers_orders_id),
-                     db.invoices_customers_orders.on(db.customers_orders.id ==
-                                                     db.invoices_customers_orders.customers_orders_id),
-                     db.invoices.on(db.invoices.id == db.invoices_customers_orders.invoices_id),
-                     db.invoices_amounts.on(db.invoices_amounts.invoices_id == db.invoices.id)],
-            orderby = ~db.customers_orders.id
-        )
-
-        return rows
-
-
-    def get_orders_with_items_and_amounts(self):
-        '''
-            Returns orders info for a customer with additional info
-        '''
-        db = current.globalenv['db']
-
-        orders = []
-        rows = self.get_orders_rows()
-        for i, row in enumerate(rows):
-            repr_row = list(rows[i:i + 1].render())[0]
-
-            order_obj = Order(row.customers_orders.id)
-            order = {}
-            order['row'] = row
-            order['repr_row'] = repr_row
-            order['items'] = order_obj.get_order_items_rows()
-
-            orders.append(order)
-
-        return orders
-
-
-    def get_documents_rows(self):
-        """
-        :return: document rows for customer
-        """
-        db = current.globalenv['db']
-
-        query = (db.customers_documents.auth_customer_id == self.cuID)
-        return db(query).select(db.customers_documents.ALL)
-
-
-    def has_recurring_reservation_for_class(self, clsID, date):
-        '''
-        :param clsID: db.classes.id
-        :param date: datetime.date
-        :return: Boolean
-        '''
-        db = current.globalenv['db']
-
-        query = (db.classes_reservation.auth_customer_id == self.cuID) & \
-                (db.classes_reservation.classes_id == clsID) & \
-                (db.classes_reservation.Startdate <= date) & \
-                ((db.classes_reservation.Enddate >= date) |
-                 (db.classes_reservation.Enddate == None)) & \
-                (db.classes_reservation.ResType == 'recurring')
-
-        count = db(query).count()
-
-        if count > 0:
-            return True
-        else:
-            return False
-
-
-    def get_reservations_rows(self, date=None, recurring_only=True):
-        '''
-            Returns upcoming reservations for this customer
-        '''
-        db = current.globalenv['db']
-
-        left = [ db.classes.on(db.classes_reservation.classes_id == db.classes.id) ]
-
-        query = (db.classes_reservation.auth_customer_id == self.cuID)
-        if date:
-            query &= (db.classes_reservation.Startdate <= date) & \
-                     ((db.classes_reservation.Enddate >= date) |
-                      (db.classes_reservation.Enddate == None))
-
-        if recurring_only:
-            query &= (db.classes_reservation.ResType == 'recurring')
-
-
-        rows = db(query).select(db.classes_reservation.ALL,
-                                db.classes.ALL,
-                                left=left,
-                                orderby=~db.classes_reservation.Startdate)
-
-        return rows
-
-
-    def get_classes_attendance_rows(self, limit=False, upcoming=False):
-        '''
-            @param limit: (int) number of attendance records to return
-            @return: gluon.dal.rows obj with classes attendance rows for
-            customer
-        '''
-        TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
-        db = current.globalenv['db']
-
-        fields = [
-            db.classes_attendance.id,
-            db.classes_attendance.ClassDate,
-            db.classes_attendance.AttendanceType,
-            db.classes_attendance.customers_subscriptions_id,
-            db.classes_attendance.customers_classcards_id,
-            db.classes_attendance.auth_customer_id,
-            db.classes_attendance.BookingStatus,
-            db.classes.id,
-            db.classes.school_locations_id,
-            db.classes.school_classtypes_id,
-            db.classes.school_levels_id,
-            db.classes.Week_day,
-            db.classes.Starttime,
-            db.classes.Endtime,
-            db.classes.Startdate,
-            db.classes.Enddate,
-            db.invoices.id,
-            db.invoices.InvoiceID,
-            db.invoices.Status,
-            db.invoices.payment_methods_id,
-            db.school_classcards.Name
-        ]
-
-        where_sql = ''
-        if upcoming:
-            where_sql = "AND clatt.ClassDate >= '{today}'".format(today=TODAY_LOCAL)
-            limit = 20
-
-        limit_sql = ''
-        if limit:
-            limit_sql = 'LIMIT ' + unicode(limit)
-
-        orderby_sql = 'clatt.ClassDate DESC, cla.Starttime DESC'
-
-
-        query = '''
-        SELECT clatt.id,
-               clatt.ClassDate,
-               clatt.AttendanceType,
-               clatt.customers_subscriptions_id,
-               clatt.customers_classcards_id,
-               clatt.auth_customer_id,
-               clatt.BookingStatus,
-               cla.id,
-               CASE WHEN cotc.school_locations_id IS NOT NULL
-                    THEN cotc.school_locations_id
-                    ELSE cla.school_locations_id
-                    END AS school_locations_id,
-               CASE WHEN cotc.school_classtypes_id IS NOT NULL
-                    THEN cotc.school_classtypes_id
-                    ELSE cla.school_classtypes_id
-                    END AS school_classtypes_id,
-               cla.school_levels_id,
-               cla.Week_day,
-               CASE WHEN cotc.Starttime IS NOT NULL
-                    THEN cotc.Starttime
-                    ELSE cla.Starttime
-                    END AS Starttime,
-               CASE WHEN cotc.Endtime IS NOT NULL
-                    THEN cotc.Endtime
-                    ELSE cla.Endtime
-                    END AS Endtime,
-               cla.Startdate,
-               cla.Enddate,
-               inv.id,
-               inv.InvoiceID,
-               inv.Status,
-               inv.payment_methods_id,
-               scd.Name
-        FROM classes_attendance clatt
-        LEFT JOIN classes cla on cla.id = clatt.classes_id
-        LEFT JOIN customers_classcards cd ON cd.id = clatt.customers_classcards_id
-        LEFT JOIN school_classcards scd ON scd.id = cd.school_classcards_id
-        LEFT JOIN
-            invoices_classes_attendance ica
-            ON ica.classes_attendance_id = clatt.id
-        LEFT JOIN
-            invoices inv ON ica.invoices_id = inv.id
-        LEFT JOIN
-            ( SELECT id,
-                     classes_id,
-                     ClassDate,
-                     Status,
-                     school_locations_id,
-                     school_classtypes_id,
-                     Starttime,
-                     Endtime,
-                     auth_teacher_id,
-                     teacher_role,
-                     auth_teacher_id2,
-                     teacher_role2
-              FROM classes_otc ) cotc
-            ON clatt.classes_id = cotc.classes_id AND clatt.ClassDate = cotc.ClassDate
-        WHERE clatt.auth_customer_id = {cuID}
-        {where_sql}
-        ORDER BY {orderby_sql}
-        {limit_sql}
-        '''.format(orderby_sql = orderby_sql,
-                   where_sql = where_sql,
-                   limit_sql = limit_sql,
-                   cuID = self.cuID)
-
-        rows = db.executesql(query, fields=fields)
-
-        # print db._lastsql
-        # print rows
-
-        return rows
-
-
-    def get_shoppingcart_rows(self):
-        '''
-            Get shopping cart rows for customer
-        '''
-        db = current.globalenv['db']
-
-        left = [
-            db.workshops_products.on(db.workshops_products.id == db.customers_shoppingcart.workshops_products_id),
-            db.workshops.on(db.workshops.id == db.workshops_products.workshops_id),
-            db.school_classcards.on(db.school_classcards.id == db.customers_shoppingcart.school_classcards_id),
-            db.classes.on(db.classes.id == db.customers_shoppingcart.classes_id)
-        ]
-
-        query = (db.customers_shoppingcart.auth_customer_id == self.cuID)
-        rows = db(query).select(db.customers_shoppingcart.ALL,
-                                db.workshops.Name,
-                                db.workshops.Startdate,
-                                db.workshops_products.id,
-                                db.workshops_products.Name,
-                                db.workshops_products.Price,
-                                db.workshops_products.tax_rates_id,
-                                db.school_classcards.id,
-                                db.school_classcards.Name,
-                                db.school_classcards.Price,
-                                db.school_classcards.Classes,
-                                db.school_classcards.Unlimited,
-                                db.school_classcards.tax_rates_id,
-                                db.classes.id,
-                                db.classes.school_classtypes_id,
-                                db.classes.school_locations_id,
-                                db.classes.Starttime,
-                                db.classes.Endtime,
-                                left=left)
-
-        return rows
-
-
-    def shoppingcart_maintenance(self):
-        '''
-            Do some housekeeping to keep things neat and tidy
-        '''
-        messages = []
-        message = self.shoppingcart_remove_past_classes()
-        if message:
-            messages.append(message)
-
-        return messages
-
-
-    def shoppingcart_remove_past_classes(self):
-        '''
-            Check if a class is already past, if so, remove it from the shopping cart.
-        '''
-        import pytz
-
-        T = current.globalenv['T']
-        db = current.globalenv['db']
-        now = current.globalenv['NOW_LOCAL']
-        TIMEZONE = current.globalenv['TIMEZONE']
-
-        message = False
-
-        query = (db.customers_shoppingcart.auth_customer_id == self.cuID) & \
-                (db.customers_shoppingcart.classes_id != None)
-        rows = db(query).select(db.customers_shoppingcart.id,
-                                db.customers_shoppingcart.classes_id,
-                                db.customers_shoppingcart.ClassDate)
-        for row in rows:
-            cls = Class(row.classes_id, row.ClassDate)
-
-            if cls.is_past():
-                del_query = (db.customers_shoppingcart.id == row.id)
-                db(query).delete()
-
-                message = T('One past class was removed from your shopping cart')
-
-        return message
-
-
-    def get_mollie_mandates(self):
-        """
-            Returns mollie mandates
-        """
-        get_sys_property = current.globalenv['get_sys_property']
-
-        import Mollie
-        # init mollie
-        mollie = Mollie.API.Client()
-        mollie_api_key = get_sys_property('mollie_website_profile')
-        mollie.setApiKey(mollie_api_key)
-
-        # check if we have a mollie customer id
-        if self.row.mollie_customer_id:
-            mollie_customer_id = self.row.mollie_customer_id
-            #print mollie_customer_id
-        else:
-            # create one
-            mollie_customer = mollie.customers.create({
-                'name': self.row.display_name,
-                'email': self.row.email
-            })
-            mollie_customer_id = mollie_customer['id']
-            self.row.mollie_customer_id = mollie_customer_id
-            self.row.update_record()
-
-        return mollie.customer_mandates.withParentId(mollie_customer_id).all()
-
-
-    def get_accepted_documents(self):
-        """
-        :return: rows object with rows of accepted documents for this customer
-        """
-        db = current.globalenv['db']
-
-        query = (db.log_customers_accepted_documents.auth_customer_id == self.cuID)
-        rows = db(query).select(db.log_customers_accepted_documents.ALL,
-                                orderby=db.log_customers_accepted_documents.CreatedOn)
-        return rows
-
-
-    def log_document_acceptance(self,
-                                document_name,
-                                document_description='',
-                                document_version='',
-                                document_url=''):
-        """
-            :return:
-        """
-        db = current.globalenv['db']
-
-        version = db.sys_properties(Property='Version').PropertyValue
-        release = db.sys_properties(Property='VersionRelease').PropertyValue
-
-        db.log_customers_accepted_documents.insert(
-            auth_customer_id = self.cuID,
-            DocumentName = document_name,
-            DocumentDescription = document_description,
-            DocumentVersion = document_version,
-            DocumentURL = document_url,
-            OpenStudioVersion = '.'.join([version, release])
-        )
+from openstudio.os_customer import Customer
 
 
 class CustomerExport:
@@ -833,7 +22,7 @@ class CustomerExport:
         """
             :param cuID: db.auth_user.id
         """
-        db = current.globalenv['db']
+        db = current.db
 
         self.cuID = cuID
         self.row = db.auth_user(self.cuID)
@@ -847,7 +36,7 @@ class CustomerExport:
         import openpyxl
 
 
-        db = current.globalenv['db']
+        db = current.db
 
         stream = StringIO()
         # Create the workbook
@@ -1640,7 +829,7 @@ class Customers:
             :param: date: datetime.date
             :return: List of all records in auth_user with activity
         """
-        db = current.globalenv['db']
+        db = current.db
         query = """
 SELECT au.id, 
 	   au.first_name, 
@@ -1730,7 +919,7 @@ WHERE (au.last_login < '{date}' OR au.last_login IS NULL) AND
         :param date: datetime.date
         :return: Integer - count of customers deleted
         """
-        db = current.globalenv['db']
+        db = current.db
 
         records = self.list_inactive_after_date(date)
         ids = [record[0] for record in records]
@@ -1747,8 +936,8 @@ WHERE (au.last_login < '{date}' OR au.last_login IS NULL) AND
             :return: dict(table=Table listing inactive customers,
                           count=number of inactive customers)
         """
-        T = current.globalenv['T']
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        T = current.T
+        DATE_FORMAT = current.DATE_FORMAT
 
         records = self.list_inactive_after_date(date)
 
@@ -1810,7 +999,7 @@ class CustomersHelper:
             Get date form
         """
         T = current.T
-        DATE_FORMAT =  current.globalenv['DATE_FORMAT']
+        DATE_FORMAT =  current.DATE_FORMAT
         os_datepicker_widget = current.globalenv['os_datepicker_widget']
 
         form = SQLFORM.factory(
@@ -1872,9 +1061,9 @@ class CustomersHelper:
         from os_gui import OsGui
 
         T = current.T
-        db = current.globalenv['db']
+        db = current.db
         os_gui = OsGui()
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        DATE_FORMAT = current.DATE_FORMAT
         session = current.session
 
         if list_type == 'attendance':
@@ -1893,7 +1082,8 @@ class CustomersHelper:
         if list_type == 'tp_fixed_rate':
             filter_id_teacher = cuID
         cs = ClassSchedule(date,
-                           sorting=orderby)
+                           sorting=orderby,
+                           filter_id_teacher=filter_id_teacher)
         classes = cs.get_day_list()
 
         header = THEAD(TR(TH(T('Time')),
@@ -1948,8 +1138,8 @@ class CustomersHelper:
         from os_gui import OsGui
         os_gui = OsGui()
 
-        session = current.globalenv['session']
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        session = current.session
+        DATE_FORMAT = current.DATE_FORMAT
 
         date = session.customers_classes_reservation_add_vars['date']
         date_formatted = date.strftime(DATE_FORMAT)
@@ -2018,7 +1208,7 @@ class CustomersHelper:
         :return: Dictionary of customerID's containing current balance and total of reconcilliation credits allowed
         by all subscriptions a customer has on given date
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         query = '''SELECT cs.id, 
                           cs.auth_customer_id, 
@@ -2075,7 +1265,7 @@ class CustomersSubscriptionsCreditsHelper:
         '''
             Get list of classes a customer has a reservation for in a selected month
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         ah = AttendanceHelper()
         crh = ClassReservationHelper()
@@ -2138,7 +1328,7 @@ class CustomersSubscriptionsCreditsHelper:
             :param query: query containing constraints for period and classes from classes_attendance
             :return: None
         '''
-        db = current.globalenv['db']
+        db = current.db
         rows = db(query).select(db.classes_attendance.id)
         att_ids = []
         for row in rows:
@@ -2172,11 +1362,11 @@ class CustomersSubscriptionsCreditsHelper:
             :param subscription_unit: string either 'week' or 'month'
             :return: None
         '''
-        T = current.globalenv['T']
-        db = current.globalenv['db']
-        now = current.globalenv['NOW_LOCAL']
+        T = current.T
+        db = current.db
+        now = current.NOW_LOCAL
         cache_clear_customers_subscriptions = current.globalenv['cache_clear_customers_subscriptions']
-        TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
+        TODAY_LOCAL = current.TODAY_LOCAL
 
         first_day = datetime.date(year, month, 1)
         last_day = get_last_day_month(first_day)
@@ -2239,7 +1429,7 @@ class CustomersSubscriptionsCreditsHelper:
         '''
             return subscription rows for month
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         first_day = datetime.date(year, month, 1)
         last_day = get_last_day_month(first_day)
@@ -2296,8 +1486,8 @@ class CustomersSubscriptionsCreditsHelper:
         '''
             Add subscription credits for month
         '''
-        T = current.globalenv['T']
-        db = current.globalenv['db']
+        T = current.T
+        db = current.db
 
         first_day = datetime.date(year, month, 1)
         last_day = get_last_day_month(first_day)
@@ -2354,7 +1544,6 @@ class CustomersSubscriptionsCreditsHelper:
 
         return customers_credits_added
 
-
     def expire_credits(self, date):
         """
         Check if there are any expired credits, if so, add a subtract mutation with the expired amount
@@ -2363,11 +1552,11 @@ class CustomersSubscriptionsCreditsHelper:
         :param date: datetime.date
         :return: number of subscriptions for which credits were expired
         """
-        T = current.globalenv['T']
-        db = current.globalenv['db']
-        NOW_LOCAL = current.globalenv['NOW_LOCAL']
+        T = current.T
+        db = current.db
+        NOW_LOCAL = current.NOW_LOCAL
         web2pytest = current.globalenv['web2pytest']
-        request = current.globalenv['request']
+        request = current.request
 
         # Create dictionary of expiration for school_subscriptions
         subscriptions_count_expired = 0
@@ -2455,38 +1644,6 @@ class CustomersSubscriptionsCreditsHelper:
         return subscriptions_count_expired
 
 
-class CustomerSubscriptionsHelper:
-    '''
-        Class that contains functions for customer subscriptions
-    '''
-    def __init__(self, csID):
-        '''
-            Class init function which sets csID
-        '''
-        self.csID = csID
-
-    def get_paused(self, date):
-        '''
-            Returns whether a subscription is paused on provided date
-        '''
-        db = current.globalenv['db']
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
-
-        query = (db.customers_subscriptions_paused.customers_subscriptions_id ==
-                 self.csID) & \
-                (db.customers_subscriptions_paused.Startdate <= date) & \
-                ((db.customers_subscriptions_paused.Enddate >= date) |
-                 (db.customers_subscriptions_paused.Enddate == None))
-        row = db(query).select(db.customers_subscriptions_paused.ALL).first()
-        if row:
-            return_value = SPAN(current.T('Paused until'), ' ',
-                                row.Enddate.strftime(DATE_FORMAT))
-        else:
-            return_value = False
-
-        return return_value
-
-
 class CustomerSubscription:
     '''
         Class that contains functions for customer subscriptions
@@ -2495,7 +1652,7 @@ class CustomerSubscription:
         '''
             Class init function which sets csID
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         self.csID = csID
         self.cs = db.customers_subscriptions(csID)
@@ -2515,9 +1672,9 @@ class CustomerSubscription:
             :param SubscriptionYear: Year of subscription
             :param SubscriptionMonth: Month of subscription
         """
-        db = current.globalenv['db']
-        TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        db = current.db
+        TODAY_LOCAL = current.TODAY_LOCAL
+        DATE_FORMAT = current.DATE_FORMAT
 
         # create invoice linked to subscription for first subscription term to know the right amount.
         SubscriptionYear = TODAY_LOCAL.year
@@ -2600,7 +1757,7 @@ class CustomerSubscription:
         '''
             Calculate total credits remaining for a subscription
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         sum = db.customers_subscriptions_credits.MutationAmount.sum()
 
@@ -2625,9 +1782,9 @@ class CustomerSubscription:
             Returns raw rows of credit mutations for a subscription
         '''
         os_gui = current.globalenv['os_gui']
-        auth = current.globalenv['auth']
-        db = current.globalenv['db']
-        T = current.globalenv['T']
+        auth = current.auth
+        db = current.db
+        T = current.T
 
         left = [ db.classes_attendance.on(db.customers_subscriptions_credits.classes_attendance_id ==
                                           db.classes_attendance.id),
@@ -2735,9 +1892,9 @@ class CustomerSubscription:
             :param class_ids: list of db.classes.id
             :return: html table
         '''
-        T = current.globalenv['T']
-        db = current.globalenv['db']
-        TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
+        T = current.T
+        db = current.db
+        TODAY_LOCAL = current.TODAY_LOCAL
 
         query = (db.classes.AllowAPI == True) & \
                 (db.classes.id.belongs(class_ids)) & \
@@ -2829,10 +1986,10 @@ class CustomerSubscription:
             :param permissions: dictionary of class permissions
             :return: html table
         '''
-        T = current.globalenv['T']
-        db = current.globalenv['db']
+        T = current.T
+        db = current.db
         os_gui = current.globalenv['os_gui']
-        TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
+        TODAY_LOCAL = current.TODAY_LOCAL
 
         class_ids = []
         for clsID in permissions:
@@ -2892,7 +2049,7 @@ class CustomerSubscription:
         '''
             :return: return list of class permissons (clsID: enroll, book in shop, attend)
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         # get groups for subscription
         query = (db.school_subscriptions_groups_subscriptions.school_subscriptions_id == self.ssuID)
@@ -2939,7 +2096,7 @@ class Class:
         self.clsID = clsID
         self.date = date
 
-        db = current.globalenv['db']
+        db = current.db
         self.cls = db.classes(self.clsID)
 
 
@@ -2947,10 +2104,10 @@ class Class:
         """
             Returns class name formatted for general use
         """
-        db = current.globalenv['db']
-        T = current.globalenv['T']
-        TIME_FORMAT = current.globalenv['TIME_FORMAT']
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        db = current.db
+        T = current.T
+        TIME_FORMAT = current.TIME_FORMAT
+        DATE_FORMAT = current.DATE_FORMAT
 
         if pretty_date:
             date = self.date.strftime('%d %B %Y')
@@ -2972,9 +2129,9 @@ class Class:
         '''
             Returns class name formatted for use in customer profile and shop
         '''
-        db = current.globalenv['db']
-        T = current.globalenv['T']
-        TIME_FORMAT = current.globalenv['TIME_FORMAT']
+        db = current.db
+        T = current.T
+        TIME_FORMAT = current.TIME_FORMAT
 
         record = self.cls
         location = db.school_locations[record.school_locations_id].Name
@@ -2988,11 +2145,11 @@ class Class:
         return class_name
 
 
-    def get_price(self):
-        '''
+    def get_prices(self):
+        """
             Returns the price for a class
-        '''
-        db = current.globalenv['db']
+        """
+        db = current.db
 
         query = (db.classes_price.classes_id == self.clsID) & \
                 (db.classes_price.Startdate <= self.date) & \
@@ -3005,9 +2162,13 @@ class Class:
             prices = prices.first()
             dropin = prices.Dropin or 0
             trial  = prices.Trial or 0
+            dropin_membership = prices.DropinMembership or 0
+            trial_membership = prices.TrialMembership or 0
 
             trial_tax = db.tax_rates(prices.tax_rates_id_trial)
             dropin_tax = db.tax_rates(prices.tax_rates_id_dropin)
+            trial_tax_membership = db.tax_rates(prices.tax_rates_id_trial_membership)
+            dropin_tax_membership = db.tax_rates(prices.tax_rates_id_dropin_membership)
 
             try:
                 trial_tax_rates_id    = trial_tax.id
@@ -3020,6 +2181,106 @@ class Class:
                 trial_tax_percentage  = None
                 dropin_tax_percentage = None
 
+            try:
+                trial_tax_rates_id_membership = trial_tax_membership.id
+                dropin_tax_rates_id_membership = dropin_tax_membership.id
+                trial_tax_percentage_membership = trial_tax_membership.Percentage
+                dropin_tax_percentage_membership = dropin_tax_membership.Percentage
+            except AttributeError:
+                trial_tax_rates_id_membership = None
+                dropin_tax_rates_id_membership = None
+                trial_tax_percentage_membership = None
+                dropin_tax_percentage_membership= None
+
+        else:
+            dropin = 0
+            trial  = 0
+            trial_tax_rates_id    = None
+            dropin_tax_rates_id   = None
+            trial_tax_percentage  = None
+            dropin_tax_percentage = None
+            dropin_membership = 0
+            trial_membership = 0
+            trial_tax_rates_id_membership = None
+            dropin_tax_rates_id_membership = None
+            trial_tax_percentage_membership = None
+            dropin_tax_percentage_membership = None
+
+
+        return dict(
+            trial  = trial,
+            dropin = dropin,
+            trial_tax_rates_id   = trial_tax_rates_id,
+            dropin_tax_rates_id   = dropin_tax_rates_id,
+            trial_tax_percentage  = trial_tax_percentage,
+            dropin_tax_percentage = dropin_tax_percentage,
+            trial_membership = trial_membership,
+            dropin_membership = dropin_membership,
+            trial_tax_rates_id_membership = trial_tax_rates_id_membership,
+            dropin_tax_rates_id_membership = dropin_tax_rates_id_membership,
+            trial_tax_percentage_membership = trial_tax_percentage_membership,
+            dropin_tax_percentage_membership = dropin_tax_percentage_membership,
+        )
+
+
+    def get_prices_customer(self, cuID):
+        """
+            Returns the price for a class
+            :param cuID: db.auth_user.id
+            :return: dict of class prices
+        """
+        from openstudio.os_customer import Customer
+
+        db = current.db
+        customer = Customer(cuID)
+        has_membership = customer.has_membership_on_date(self.date)
+
+
+        query = (db.classes_price.classes_id == self.clsID) & \
+                (db.classes_price.Startdate <= self.date) & \
+                ((db.classes_price.Enddate >= self.date) |
+                 (db.classes_price.Enddate == None))
+        prices = db(query).select(db.classes_price.ALL,
+                                  orderby=db.classes_price.Startdate)
+
+        if prices:
+            prices = prices.first()
+
+            if not has_membership:
+                dropin = prices.Dropin or 0
+                trial = prices.Trial or 0
+
+                trial_tax = db.tax_rates(prices.tax_rates_id_trial)
+                dropin_tax = db.tax_rates(prices.tax_rates_id_dropin)
+
+                try:
+                    trial_tax_rates_id = trial_tax.id
+                    dropin_tax_rates_id = dropin_tax.id
+                    trial_tax_percentage = trial_tax.Percentage
+                    dropin_tax_percentage = dropin_tax.Percentage
+                except AttributeError:
+                    trial_tax_rates_id = None
+                    dropin_tax_rates_id = None
+                    trial_tax_percentage = None
+                    dropin_tax_percentage = None
+            else: # has membership
+                dropin = prices.DropinMembership or 0
+                trial = prices.TrialMembership or 0
+
+                trial_tax = db.tax_rates(prices.tax_rates_id_trial_membership)
+                dropin_tax = db.tax_rates(prices.tax_rates_id_dropin_membership)
+
+                try:
+                    trial_tax_rates_id = trial_tax.id
+                    dropin_tax_rates_id = dropin_tax.id
+                    trial_tax_percentage = trial_tax.Percentage
+                    dropin_tax_percentage = dropin_tax.Percentage
+                except AttributeError:
+                    trial_tax_rates_id = None
+                    dropin_tax_rates_id = None
+                    trial_tax_percentage = None
+                    dropin_tax_percentage = None
+
         else:
             dropin = 0
             trial  = 0
@@ -3029,19 +2290,21 @@ class Class:
             dropin_tax_percentage = None
 
 
-        return dict(trial  = trial,
-                    dropin = dropin,
-                    trial_tax_rates_id   = trial_tax_rates_id,
-                    dropin_tax_rates_id   = dropin_tax_rates_id,
-                    trial_tax_percentage  = trial_tax_percentage,
-                    dropin_tax_percentage = dropin_tax_percentage)
+        return dict(
+            trial  = trial,
+            dropin = dropin,
+            trial_tax_rates_id   = trial_tax_rates_id,
+            dropin_tax_rates_id   = dropin_tax_rates_id,
+            trial_tax_percentage  = trial_tax_percentage,
+            dropin_tax_percentage = dropin_tax_percentage,
+        )
 
 
     def get_full(self):
         '''
             Check whether or not this class is full
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         spaces = self.cls.Maxstudents
 
@@ -3059,7 +2322,7 @@ class Class:
         '''
             Check whether there are spaces left for online bookings
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         spaces = self.cls.MaxOnlineBooking
         query = (db.classes_attendance.classes_id == self.clsID) & \
@@ -3077,13 +2340,13 @@ class Class:
         '''        
             :return: string with a description of the class 
         '''
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
-        TIME_FORMAT = current.globalenv['TIME_FORMAT']
+        DATE_FORMAT = current.DATE_FORMAT
+        TIME_FORMAT = current.TIME_FORMAT
 
-        db = current.globalenv['db']
-        T  = current.globalenv['T']
+        db = current.db
+        T  = current.T
 
-        prices = self.get_price()
+        prices = self.get_prices()
         if attendance_type == 1:
             price = prices['trial']
             tax_rates_id = prices['trial_tax_rates_id']
@@ -3111,7 +2374,7 @@ class Class:
             Add a workshop product to the shopping cart of a customer
             attendance_type can be 1 for trial class or 2 for drop in class
         """
-        db = current.globalenv['db']
+        db = current.db
 
         db.customers_shoppingcart.insert(
             auth_customer_id = cuID,
@@ -3137,9 +2400,9 @@ class Class:
         """
         import pytz
 
-        db = current.globalenv['db']
-        now = current.globalenv['NOW_LOCAL']
-        TIMEZONE = current.globalenv['TIMEZONE']
+        db = current.db
+        now = current.NOW_LOCAL
+        TIMEZONE = current.TIMEZONE
 
         cls_time = self.cls.Starttime
 
@@ -3162,7 +2425,7 @@ class Class:
         """
             Return True if the class is cancelled, else return False
         """
-        db = current.globalenv['db']
+        db = current.db
         query = (db.classes_otc.classes_id == self.clsID) & \
                 (db.classes_otc.ClassDate == self.date) & \
                 (db.classes_otc.Status == 'cancelled')
@@ -3175,7 +2438,7 @@ class Class:
         """
             Return True if the class is within a holiday, else return False
         """
-        db = current.globalenv['db']
+        db = current.db
 
         # Query school_holidays table to see if there's a holiday for this location
         left = [db.school_holidays_locations.on(db.school_holidays.id ==
@@ -3214,7 +2477,7 @@ class Class:
 
         Check if the class is booked by this customer or not
         """
-        db = current.globalenv['db']
+        db = current.db
 
         query = ((db.classes_attendance.BookingStatus == 'booked') |
                  (db.classes_attendance.BookingStatus == 'attending')) & \
@@ -3235,7 +2498,7 @@ class Class:
         :param date: datetime.date
         :return: Boolean
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         spaces = self.cls.MaxReservationsRecurring
 
@@ -3273,7 +2536,7 @@ class ClassReservationHelper:
         :param date: datetime.date
         :return: rows of all recurring reservations on a given date
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.classes_reservation.Startdate <= date) & \
                 ((db.classes_reservation.Enddate >= date) |
@@ -3288,7 +2551,7 @@ class ClassAttendance:
         This class collects functions related to a class attendance record
     '''
     def __init__(self, clattID):
-        db = current.globalenv['db']
+        db = current.db
         self.id = clattID
         self.row = db.classes_attendance(clattID)
 
@@ -3297,7 +2560,7 @@ class ClassAttendance:
         '''
             Returns datetime object of class start
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         pytz = current.globalenv['pytz']
         TIMEZONE = 'Etc/UTC' # Class times in DB be considered local and shouldn't have extra hours added / subtracted
@@ -3319,7 +2582,7 @@ class ClassAttendance:
             Calculates datetime of latest cancellation possibility
         '''
         import math
-        db = current.globalenv['db']
+        db = current.db
 
         cls = db.classes(self.row.classes_id)
         date = self.row.ClassDate
@@ -3340,7 +2603,7 @@ class ClassAttendance:
              Can we still cancel this booking?
              Allow cancellation when within the configures hours limit and not already attending
         '''
-        NOW_LOCAL = current.globalenv['NOW_LOCAL']
+        NOW_LOCAL = current.NOW_LOCAL
         cancel_before = self.get_cancel_before()
 
         if NOW_LOCAL < cancel_before and not self.row.BookingStatus == 'attending':
@@ -3353,9 +2616,9 @@ class ClassAttendance:
         '''
             Set status cancelled
         '''
-        T = current.globalenv['T']
-        db = current.globalenv['db']
-        NOW_LOCAL = current.globalenv['NOW_LOCAL']
+        T = current.T
+        db = current.db
+        NOW_LOCAL = current.NOW_LOCAL
         return_message = T('Cancelled class')
 
         # check hours in advance policy
@@ -3381,7 +2644,7 @@ class AttendanceHelper:
     #     '''
     #         Returns wheter or not a customer is attending a class
     #     '''
-    #     db = current.globalenv['db']
+    #     db = current.db
     #
     #     attending = db.classes_attendance(classes_id       = clsID,
     #                                       ClassDate        = date,
@@ -3400,7 +2663,7 @@ class AttendanceHelper:
     #         Return list of customers attending a class as list of
     #         db.auth_user.id
     #     '''
-    #     db = current.globalenv['db']
+    #     db = current.db
     #
     #     query = (db.classes_attendance.classes_id == clsID) & \
     #             (db.classes_attendance.ClassDate  == date)
@@ -3420,7 +2683,7 @@ class AttendanceHelper:
             :param date: class date
             :return: attendance rows
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         filter_date_teacher_notes = date - datetime.timedelta(days=92)
 
@@ -3527,8 +2790,8 @@ class AttendanceHelper:
             :param days: int
             :return: 
         '''
-        db = current.globalenv['db']
-        cache = current.globalenv['cache']
+        db = current.db
+        cache = current.cache
 
         cls = Class(clsID, date)
 
@@ -3572,7 +2835,7 @@ class AttendanceHelper:
             :param date: datetime.date
             :return: reservation rows for a class
         """
-        db = current.globalenv['db']
+        db = current.db
 
         fields = [
             db.auth_user.id,
@@ -3638,7 +2901,7 @@ class AttendanceHelper:
             Returns distincs a list of customers attending any classes between start_date
             and end_date as a list of db.auth_user_id
         """
-        db = current.globalenv['db']
+        db = current.db
 
         left = [ db.auth_user.on(db.classes_attendance.auth_customer_id == db.auth_user.id) ]
 
@@ -3667,7 +2930,7 @@ class AttendanceHelper:
 
             :param customer_ids: the customers to check
         """
-        db = current.globalenv['db']
+        db = current.db
         max = db.classes_attendance.ClassDate.max()
         having_query = (db.classes_attendance.auth_customer_id.belongs(customer_ids))
         rows = db().select(db.classes_attendance.auth_customer_id,
@@ -3927,10 +3190,10 @@ class AttendanceHelper:
         # Start main function
         ##
         T = current.T
-        db = current.globalenv['db']
-        auth = current.globalenv['auth']
+        db = current.db
+        auth = current.auth
         os_gui = current.globalenv['os_gui']
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        DATE_FORMAT = current.DATE_FORMAT
 
         modals = DIV()
 
@@ -4103,10 +3366,10 @@ class AttendanceHelper:
 
         # Set some values from the globalenv
         T = current.T
-        db = current.globalenv['db']
-        auth = current.globalenv['auth']
+        db = current.db
+        auth = current.auth
         os_gui = current.globalenv['os_gui']
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        DATE_FORMAT = current.DATE_FORMAT
 
         modals = DIV()
 
@@ -4177,7 +3440,7 @@ class AttendanceHelper:
             :return: list containing email addresses for all people attending, with reservations or expected to attend
         '''
         # Set some values from the globalenv
-        db = current.globalenv['db']
+        db = current.db
 
         mailing_list = []
         # ## get list of customers attending this class
@@ -4226,7 +3489,7 @@ class AttendanceHelper:
             :return: cStringIO stream containing: 
                 list containing email addresses for all people attending, with reservations or expected to attend
         '''
-        T = current.globalenv['T']
+        T = current.T
 
         import cStringIO, openpyxl
         stream = cStringIO.StringIO()
@@ -4254,9 +3517,9 @@ class AttendanceHelper:
         '''
             Returns sign in buttons for a class
         '''
-        db = current.globalenv['db']
+        db = current.db
         os_gui = current.globalenv['os_gui']
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        DATE_FORMAT = current.DATE_FORMAT
         date_formatted = date.strftime(DATE_FORMAT)
 
         customer = Customer(cuID)
@@ -4435,7 +3698,7 @@ class AttendanceHelper:
         """
         :param clsID: db.classes.id
         :param date: datetime.date
-        :param date_formatted: datetime.date object formatted with current.globalenv['DATE_FORMAT']
+        :param date_formatted: datetime.date object formatted with current.DATE_FORMAT
         :param customer: Customer object
         :param: list_type: [shop, attendance, selfcheckin]
         :return:
@@ -4454,11 +3717,11 @@ class AttendanceHelper:
 
             return button_book
 
-        T = current.globalenv['T']
-        db = current.globalenv['db']
+        T = current.T
+        db = current.db
         os_gui = current.globalenv['os_gui']
         CURRSYM = current.globalenv['CURRSYM']
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        DATE_FORMAT = current.DATE_FORMAT
         get_sys_property = current.globalenv['get_sys_property']
 
         date_formatted = date.strftime(DATE_FORMAT)
@@ -4627,7 +3890,7 @@ class AttendanceHelper:
 
         # Get class prices
         cls = Class(clsID, date)
-        prices = cls.get_price()
+        prices = cls.get_prices()
 
         # drop in
         url = URL(controller, 'class_book', vars={'clsID': clsID,
@@ -4636,9 +3899,17 @@ class AttendanceHelper:
                                       'date': date_formatted})
         button_book = classes_book_options_get_button_book(url)
 
+        price = prices['dropin']
+        membership_notification = ''
+        if customer.has_membership_on_date(date) and prices['dropin_membership']:
+            price = prices['dropin_membership']
+            membership_notification = SPAN(' ', XML('&bull;'), ' ', '(', T('Membership price'), ')',
+                                           _class='grey')
+
         option = DIV(DIV(T('Drop in'),
                          _class='col-md-3 bold'),
-                     DIV(T('Class price:'), ' ', CURRSYM, ' ', format(prices['dropin'], '.2f'),
+                     DIV(T('Class price:'), ' ', CURRSYM, ' ', format(price, '.2f'), ' ',
+                         membership_notification,
                          BR(),
                          SPAN(get_sys_property('shop_classes_dropin_message') or '',
                               _class='grey'),
@@ -4658,9 +3929,17 @@ class AttendanceHelper:
                                                       'date': date_formatted})
             button_book = classes_book_options_get_button_book(url)
 
+            price = prices['trial']
+            membership_notification = ''
+            if customer.has_membership_on_date(date) and prices['trial_membership']:
+                price = prices['trial_membership']
+                membership_notification = SPAN(' ', XML('&bull;'), ' ', '(', T('Membership price'), ')',
+                                               _class='grey')
+
             option = DIV(DIV(T('Trial'),
                              _class='col-md-3 bold'),
-                         DIV(T('Class price:'), ' ', CURRSYM, ' ', format(prices['trial'], '.2f'),
+                         DIV(T('Class price:'), ' ', CURRSYM, ' ', format(price, '.2f'), ' ',
+                             membership_notification,
                              BR(),
                              SPAN(get_sys_property('shop_classes_trial_message') or '',
                                   _class='grey'),
@@ -4700,8 +3979,8 @@ class AttendanceHelper:
         '''
             Returns a modal popup for teacher notes
         '''
-        T = current.globalenv['T']
-        db = current.globalenv['db']
+        T = current.T
+        db = current.db
         os_gui = current.globalenv['os_gui']
 
         notes = LOAD('customers', 'notes.load', ajax=True,
@@ -4752,9 +4031,9 @@ class AttendanceHelper:
             :param date: datetime.date
             :return: dict status[ok|fail], message
         '''
-        db = current.globalenv['db']
-        T = current.globalenv['T']
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        db = current.db
+        T = current.T
+        DATE_FORMAT = current.DATE_FORMAT
         cache_clear_customers_subscriptions = current.globalenv['cache_clear_customers_subscriptions']
 
 
@@ -4828,8 +4107,8 @@ class AttendanceHelper:
         :param date:
         :return:
         '''
-        T = current.globalenv['T']
-        db = current.globalenv['db']
+        T = current.T
+        db = current.db
 
         cs = CustomerSubscription(csID)
         balance = cs.get_credits_balance()
@@ -4854,9 +4133,9 @@ class AttendanceHelper:
     #         )
     #
     #
-    #     T  = current.globalenv['T']
-    #     db = current.globalenv['db']
-    #     TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
+    #     T  = current.T
+    #     db = current.db
+    #     TODAY_LOCAL = current.TODAY_LOCAL
     #
     #     csu = db.customers_subscriptions(csID)
     #     ssu = db.school_subscriptions(csu.school_subscriptions_id)
@@ -4914,16 +4193,17 @@ class AttendanceHelper:
 
 
     def _attedance_sign_in_subscription_check_paused(self, csID, date):
-        '''
+        """
             Check if the subscription if paused on given date, if so, display
             a message for the user
-        '''
-        T = current.globalenv['T']
+        """
+        from openstudio.os_customer_subscriptions import CustomerSubscriptions
 
+        T = current.T
         message = ''
 
-        csh = CustomerSubscriptionsHelper(csID)
-        paused = csh.get_paused(date)
+        cs = CustomerSubscriptions(csID)
+        paused = cs.get_paused(date)
         if paused:
             message = T("Subscription is paused on this date")
 
@@ -4936,32 +4216,35 @@ class AttendanceHelper:
                                            clsID,
                                            date,
                                            product_type):
-        '''
+        """
             Creates an invoice for a drop in or trial class
-        '''
-        db = current.globalenv['db']
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
-        T = current.globalenv['T']
+        """
+        db = current.db
+        DATE_FORMAT = current.DATE_FORMAT
+        T = current.T
 
         date_formatted = date.strftime(DATE_FORMAT)
 
         if product_type not in ['trial', 'dropin']:
             raise ValueError('Product type has to be trial or dropin')
 
+        customer = Customer(cuID)
         cls = Class(clsID, date)
-        prices = cls.get_price()
+        prices = cls.get_prices()
+
+        has_membership = customer.has_membership_on_date(date)
 
         if product_type == 'dropin':
             price = prices['dropin']
-            tax_percentage = prices['dropin_tax_percentage']
-            tax_rates_id = prices['dropin_tax_rates_id']
-            description = cls.get_invoice_order_description(2) # 2 = drop in class
+
+            if has_membership and prices['dropin_membership']:
+                price = prices['dropin_membership']
 
         elif product_type == 'trial':
             price = prices['trial']
-            tax_percentage = prices['trial_tax_percentage']
-            tax_rates_id = prices['dropin_tax_rates_id']
-            description = cls.get_invoice_order_description(1) # 1 = trial class
+
+            if has_membership and prices['trial_membership']:
+                price = prices['trial_membership']
 
         # check if the price is > 0 when adding an invoice
         if price == 0:
@@ -4976,32 +4259,21 @@ class AttendanceHelper:
             Status='sent'
         )
 
-        # link invoice to attendance
-        db.invoices_classes_attendance.insert(
-            invoices_id=iID,
-            classes_attendance_id=caID
-        )
-
         # create object to set Invoice# and due date
         invoice = Invoice(iID)
-        next_sort_nr = invoice.get_item_next_sort_nr()
-
-        iiID = db.invoices_items.insert(
-            invoices_id=iID,
-            ProductName=product_type,
-            Description=description,
-            Quantity=1,
-            Price=price,
-            Sorting=next_sort_nr,
-            tax_rates_id=tax_rates_id,
+        invoice.item_add_class(
+            cuID,
+            caID,
+            clsID,
+            date,
+            product_type
         )
-
         invoice.set_amounts()
         invoice.link_to_customer(cuID)
 
 
     def attendance_sign_in_classcard_recurring(self, cuID, clsID, ccdID, date, date_until, online_booking=False, booking_status='booked'):
-        '''
+        """
         :param cuID:
         :param clsID:
         :param ccdID:
@@ -5010,10 +4282,10 @@ class AttendanceHelper:
         :param online_booking:
         :param booking_status:
         :return:
-        '''
-        T = current.globalenv['T']
-        TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        """
+        T = current.T
+        TODAY_LOCAL = current.TODAY_LOCAL
+        DATE_FORMAT = current.DATE_FORMAT
         get_sys_property = current.globalenv['get_sys_property']
 
         ccd = Classcard(ccdID)
@@ -5101,8 +4373,8 @@ class AttendanceHelper:
             :param date: datetime.date
             :return: 
         """
-        db = current.globalenv['db']
-        T = current.globalenv['T']
+        db = current.db
+        T = current.T
 
         ccdh = ClasscardsHelper()
         classes_available = ccdh.get_classes_available(ccdID)
@@ -5149,8 +4421,8 @@ class AttendanceHelper:
             :param date: datetime.date
             :return: 
         '''
-        db = current.globalenv['db']
-        T = current.globalenv['T']
+        db = current.db
+        T = current.T
 
         status = 'fail'
         message = ''
@@ -5193,8 +4465,8 @@ class AttendanceHelper:
             :param date: datetime.date
             :return: 
         '''
-        db = current.globalenv['db']
-        T = current.globalenv['T']
+        db = current.db
+        T = current.T
 
         status = 'fail'
         message = ''
@@ -5236,8 +4508,8 @@ class AttendanceHelper:
             :param date: datetime.date
             :return:
         '''
-        db = current.globalenv['db']
-        T = current.globalenv['T']
+        db = current.db
+        T = current.T
 
         status = 'fail'
         message = ''
@@ -5266,7 +4538,7 @@ class AttendanceHelper:
         '''
             Check if a customer isn't already signed in to a class
         '''
-        db = current.globalenv['db']
+        db = current.db
         query = (db.classes_attendance.classes_id == clsID) & \
                 (db.classes_attendance.auth_customer_id == cuID) & \
                 (db.classes_attendance.ClassDate == date) & \
@@ -5280,7 +4552,7 @@ class AttendanceHelper:
             :param shID: db.school_holidays.id
             :return: list of db.classes.id
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         # Get locations
         query = (db.school_holidays_locations.school_holidays_id == shID)
@@ -5308,7 +4580,7 @@ class AttendanceHelper:
             :param p_end: datetime.date
             :return: None
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         # in case end period is not specified, assume it's for one day
         if not p_end:
@@ -5333,9 +4605,9 @@ class ReservationHelper:
         '''
            returns reservation for a customer, if any
         '''
-        db = current.globalenv['db']
+        db = current.db
         os_gui = current.globalenv['os_gui']
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        DATE_FORMAT = current.DATE_FORMAT
         date_formatted = date.strftime(DATE_FORMAT)
 
         query = (db.classes_reservation.auth_customer_id == cuID) & \
@@ -5463,7 +4735,7 @@ class ClassSchedule:
               applied
         '''
         os_gui = current.globalenv['os_gui']
-        T = current.globalenv['T']
+        T = current.T
 
         teacher_id = row.classes_teachers.auth_teacher_id
         teacher_id2 = row.classes_teachers.auth_teacher_id2
@@ -5514,9 +4786,9 @@ class ClassSchedule:
 
             return average
 
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
-        db = current.globalenv['db']
-        T = current.globalenv['T']
+        DATE_FORMAT = current.DATE_FORMAT
+        db = current.db
+        T = current.T
         weekday = self.date.isoweekday()
 
         date_formatted = self.date.strftime(DATE_FORMAT)
@@ -5683,9 +4955,9 @@ class ClassSchedule:
             when it's date doesn't appear in classes_attendance
         '''
         web2pytest = current.globalenv['web2pytest']
-        request = current.globalenv['request']
-        auth = current.globalenv['auth']
-        T = current.globalenv['T']
+        request = current.request
+        auth = current.auth
+        T = current.T
 
         # get attendance data from cache or db
 
@@ -5694,8 +4966,8 @@ class ClassSchedule:
             data = self._get_day_get_table_class_trend_data()
         else:
             twelve_hours = 12*60*60
-            cache = current.globalenv['cache']
-            DATE_FORMAT = current.globalenv['DATE_FORMAT']
+            cache = current.cache
+            DATE_FORMAT = current.DATE_FORMAT
             # A key that isn't cleared when schedule changes occur.
             cache_key = 'openstudio_classschedule_trend_get_day_table_' + \
                         self.date.strftime(DATE_FORMAT)
@@ -5709,7 +4981,7 @@ class ClassSchedule:
         """
             :return: dict containing button permissions for a user
         """
-        auth = current.globalenv['auth']
+        auth = current.auth
         permissions = {}
 
         if auth.has_membership(group_id='Admins') or \
@@ -5744,7 +5016,7 @@ class ClassSchedule:
             - separate button for delete
         '''
         os_gui = current.globalenv['os_gui']
-        T = current.globalenv['T']
+        T = current.T
         buttons = DIV(_class='pull-right')
 
         vars = { 'clsID':clsID,
@@ -5810,8 +5082,8 @@ class ClassSchedule:
             Returns tools for schedule
             - reservations
         '''
-        auth = current.globalenv['auth']
-        T = current.globalenv['T']
+        auth = current.auth
+        T = current.T
 
         tools = DIV()
 
@@ -5841,8 +5113,8 @@ class ClassSchedule:
             Returns messages for a class
         '''
         os_gui = current.globalenv['os_gui']
-        auth = current.globalenv['auth']
-        T = current.globalenv['T']
+        auth = current.auth
+        T = current.T
 
         class_messages = []
 
@@ -5894,9 +5166,9 @@ class ClassSchedule:
             :return: booking status
         """
         pytz = current.globalenv['pytz']
-        TIMEZONE = current.globalenv['TIMEZONE']
-        NOW_LOCAL = current.globalenv['NOW_LOCAL']
-        TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
+        TIMEZONE = current.TIMEZONE
+        NOW_LOCAL = current.NOW_LOCAL
+        TODAY_LOCAL = current.TODAY_LOCAL
 
         local_tz = pytz.timezone(TIMEZONE)
 
@@ -5966,8 +5238,8 @@ class ClassSchedule:
             a SQLFORM.grid for a selected day which is within 1 - 7 (ISO standard).
         """
         date = self.date
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
-        db = current.globalenv['db']
+        DATE_FORMAT = current.DATE_FORMAT
+        db = current.db
         weekday = date.isoweekday()
 
         date_formatted = date.strftime(DATE_FORMAT)
@@ -6166,14 +5438,14 @@ class ClassSchedule:
             Get day rows with caching 
         """
         #web2pytest = current.globalenv['web2pytest']
-        #request = current.globalenv['request']
+        #request = current.request
 
         # # Don't cache when running tests
         # if web2pytest.is_running_under_test(request, request.application):
         #     rows = self._get_day_rows()
         # else:
-        #     cache = current.globalenv['cache']
-        #     DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        #     cache = current.cache
+        #     DATE_FORMAT = current.DATE_FORMAT
         #     CACHE_LONG = current.globalenv['CACHE_LONG']
         #     cache_key = 'openstudio_classschedule_get_day_rows_' + self.date.strftime(DATE_FORMAT)
         #     rows = cache.ram(cache_key , lambda: self._get_day_rows(), time_expire=CACHE_LONG)
@@ -6188,9 +5460,9 @@ class ClassSchedule:
             Returns table for today
         """
         os_gui = current.globalenv['os_gui']
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        DATE_FORMAT = current.DATE_FORMAT
         ORGANIZATIONS = current.globalenv['ORGANIZATIONS']
-        T = current.globalenv['T']
+        T = current.T
         date_formatted = self.date.strftime(DATE_FORMAT)
 
         table = TABLE(TR(TH(' ', _class='td_status_marker'), # status marker
@@ -6297,15 +5569,15 @@ class ClassSchedule:
             Get day table with caching
         """
         web2pytest = current.globalenv['web2pytest']
-        request = current.globalenv['request']
-        auth = current.globalenv['auth']
+        request = current.request
+        auth = current.auth
 
         # Don't cache when running tests
         if web2pytest.is_running_under_test(request, request.application):
             rows = self._get_day_table()
         else:
-            cache = current.globalenv['cache']
-            DATE_FORMAT = current.globalenv['DATE_FORMAT']
+            cache = current.cache
+            DATE_FORMAT = current.DATE_FORMAT
             CACHE_LONG = current.globalenv['CACHE_LONG']
             cache_key = 'openstudio_classschedule_get_day_table_' + \
                         self.date.strftime(DATE_FORMAT) + '_' + \
@@ -6329,8 +5601,8 @@ class ClassSchedule:
             Format rows as list
         '''
         os_gui = current.globalenv['os_gui']
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
-        T = current.globalenv['T']
+        DATE_FORMAT = current.DATE_FORMAT
+        T = current.T
         date_formatted = self.date.strftime(DATE_FORMAT)
 
         rows = self.get_day_rows()
@@ -6431,7 +5703,7 @@ class Classcard:
         '''
             Set some initial values
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         self.ccdID = ccdID
         self.classcard = db.customers_classcards(ccdID)
@@ -6461,7 +5733,7 @@ class Classcard:
             Returns the tax rate percentage for a card
             Returns None if nothing is set
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         trID = self.school_classcard.tax_rates_id
         if not trID:
@@ -6476,7 +5748,7 @@ class Classcard:
         '''
             Returns rows of classes taken on this card
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         fields = [
             db.classes_attendance.id,
@@ -6536,7 +5808,7 @@ class Classcard:
         '''
             :return: Remaining classes
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         if self.unlimited:
             return 'unlimited'
@@ -6551,8 +5823,8 @@ class Classcard:
         '''
             :return: Representation of remaining classes
         '''
-        db = current.globalenv['db']
-        T = current.globalenv['T']
+        db = current.db
+        T = current.T
 
         remaining = self.get_classes_remaining()
 
@@ -6571,9 +5843,9 @@ class Classcard:
             :param class_ids: list of db.classes.id
             :return: html table
         '''
-        T = current.globalenv['T']
-        db = current.globalenv['db']
-        TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
+        T = current.T
+        db = current.db
+        TODAY_LOCAL = current.TODAY_LOCAL
 
         query = (db.classes.AllowAPI == True) & \
                 (db.classes.id.belongs(class_ids)) & \
@@ -6665,10 +5937,10 @@ class Classcard:
             :param permissions: dictionary of class permissions
             :return: html table
         '''
-        T = current.globalenv['T']
-        db = current.globalenv['db']
+        T = current.T
+        db = current.db
         os_gui = current.globalenv['os_gui']
-        TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
+        TODAY_LOCAL = current.TODAY_LOCAL
 
         class_ids = []
         for clsID in permissions:
@@ -6727,7 +5999,7 @@ class Classcard:
         '''
             :return: return list of class permissons (clsID: enroll, book in shop, attend)
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         # get groups for classcard
         query = (db.school_classcards_groups_classcards.school_classcards_id == self.scdID)
@@ -6776,7 +6048,7 @@ class ClasscardsHelper:
         '''
             Returns payment for a cuID and wspID
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.classes_attendance.customers_classcards_id == ccdID) & \
                 (db.classes_attendance.BookingStatus != 'cancelled')
@@ -6790,7 +6062,7 @@ class ClasscardsHelper:
         '''
             Returns classes taken on a card
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.classes_attendance.customers_classcards_id == ccdID) & \
                 (db.classes_attendance.BookingStatus != 'cancelled')
@@ -6802,7 +6074,7 @@ class ClasscardsHelper:
         '''
             Returns the total classes on a card
         '''
-        db = current.globalenv['db']
+        db = current.db
         classcard = db.customers_classcards(ccdID)
         school_classcard = db.school_classcards(classcard.school_classcards_id)
 
@@ -6866,7 +6138,7 @@ class Workshop:
     def __init__(self, wsID):
         self.wsID = wsID
 
-        db = current.globalenv['db']
+        db = current.db
         query = (db.workshops.id == self.wsID)
         rows = db(query).select(db.workshops.ALL)
         self.workshop = rows.first()
@@ -6913,7 +6185,7 @@ class Workshop:
             :param filter_public: boolean - show only Public products when set to True
             :return: workshop product rows for a workshop
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.workshops_products.workshops_id == self.wsID)
         if filter_public:
@@ -6935,7 +6207,7 @@ class Workshop:
 
 
     def get_activities(self):
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.workshops_activities.workshops_id == self.wsID)
         rows = db(query).select(db.workshops_activities.ALL,
@@ -6978,7 +6250,7 @@ class Workshop:
             After selling a product online or adding a customer to a product, check whether products aren't sold out.
             If a product is sold out, check for open orders containing the sold out product and cancel them.
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         products = self.get_products()
         for product in products:
@@ -7004,7 +6276,7 @@ class WorkshopsHelper:
             Returns checkboxes for payment confirmation and workshop info
             wsp_cuID = workshops_products_customers.id
         '''
-        T = current.globalenv['T']
+        T = current.T
 
         form = SQLFORM.factory(
             Field('WorkshopInfo', 'boolean',
@@ -7041,7 +6313,7 @@ class WorkshopsHelper:
         '''
         # Get list of all customers with email for a workshop
         # Get all workshop_products_ids
-        db = current.globalenv['db']
+        db = current.db
         query = (db.workshops_products.workshops_id == wsID)
         rows = db(query).select(db.workshops_products.id)
         products_ids = []
@@ -7081,7 +6353,7 @@ class WorkshopsHelper:
             Returns buttons for workshop_product_sell list type
             This is a select button to select a customer to sell a product to
         """
-        db = current.globalenv['db']
+        db = current.db
         os_gui = current.globalenv['os_gui']
 
         buttons = DIV(DIV(current.T("Already added"), _class='btn'),
@@ -7124,7 +6396,7 @@ class WorkshopsHelper:
         '''
             Return id of full workshop product
         '''
-        db = current.globalenv['db']
+        db = current.db
         query = (db.workshops_products.workshops_id == wsID) & \
                 (db.workshops_products.FullWorkshop == True)
 
@@ -7136,7 +6408,7 @@ class WorkshopProduct:
         Class for workshop products
     '''
     def __init__(self, wspID):
-        db = current.globalenv['db']
+        db = current.db
 
         self.wspID = int(wspID)
         self.workshop_product = db.workshops_products(self.wspID)
@@ -7165,7 +6437,7 @@ class WorkshopProduct:
         '''
             Returns the tax percentage for a workshop product, if any
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         if self.workshop_product.tax_rates_id:
             tax_rate = db.tax_rates(self.workshop_product.tax_rates_id)
@@ -7180,7 +6452,7 @@ class WorkshopProduct:
         '''
             Returns all activities for a workshop product
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         if self.workshop_product.FullWorkshop:
             query = (db.workshops_activities.workshops_id == self.workshop.id)
@@ -7205,7 +6477,7 @@ class WorkshopProduct:
             :param cuID: db.auth_user.id
             :return: True when sold to customer, False when not
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.workshops_products_customers.auth_customer_id == cuID) & \
                 (db.workshops_products_customers.workshops_products_id == self.wspID)
@@ -7247,7 +6519,7 @@ class WorkshopProduct:
 
             return count_full_ws + count_activity
 
-        db = current.globalenv['db']
+        db = current.db
         check = False
 
         fwsID = workshops_get_full_workshop_product_id(self.workshop.id)
@@ -7286,7 +6558,7 @@ class WorkshopProduct:
         '''
             Add a workshop product to the shopping cart of a customer
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         db.customers_shoppingcart.insert(
             auth_customer_id = cuID,
@@ -7295,12 +6567,12 @@ class WorkshopProduct:
 
 
     def sell_to_customer(self, cuID, waitinglist=False, invoice=True):
-        """
+        '''
             Sells a workshop to a customer and creates an invoice
             Creates an invoice when a workshop product is sold
-        """
-        db = current.globalenv['db']
-        T = current.globalenv['T']
+        '''
+        db = current.db
+        T = current.T
 
         info = False
         if self.workshop.AutoSendInfoMail:
@@ -7320,17 +6592,35 @@ class WorkshopProduct:
             igpt = db.invoices_groups_product_types(ProductType = 'wsp')
 
             description = self.workshop_name + ' - ' + self.name
-
+            
             iID = db.invoices.insert(
                 invoices_groups_id = igpt.invoices_groups_id,
                 Description = description,
                 Status = 'sent'
                 )
 
+            # link invoice to sold workshop product for customer
+            db.invoices_workshops_products_customers.insert(
+                invoices_id = iID,
+                workshops_products_customers_id = wspcID )
+
             # create object to set Invoice# and due date
             invoice = Invoice(iID)
-            invoice.item_add_workshop_product(wspcID)
+            next_sort_nr = invoice.get_item_next_sort_nr()
 
+            price = self.price
+
+            iiID = db.invoices_items.insert(
+                invoices_id  = iID,
+                ProductName  = T("Event"),
+                Description  = description,
+                Quantity     = 1,
+                Price        = price,
+                Sorting      = next_sort_nr,
+                tax_rates_id = self.tax_rates_id,
+            )
+
+            invoice.set_amounts()
             invoice.link_to_customer(cuID)
 
         ##
@@ -7395,7 +6685,7 @@ class WorkshopSchedule:
         '''
             Apply right sorting to rows
         '''
-        db = current.globalenv['db']
+        db = current.db
         orderby = 'ws.Startdate'
 
         if self.sorting == 'name':
@@ -7408,7 +6698,7 @@ class WorkshopSchedule:
         '''
             Gets workshop rows
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         orderby_sql = self._get_workshops_rows_orderby()
         where_filter = self._get_workshops_rows_filter_query()
@@ -7483,10 +6773,10 @@ class WorkshopSchedule:
 
             return DIV(H2(last_day_month.strftime('%B %Y'), _class='center'), _class=_class)
 
-        request = current.globalenv['request']
+        request = current.request
         os_gui = current.globalenv['os_gui']
-        T = current.globalenv['T']
-        TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
+        T = current.T
+        TODAY_LOCAL = current.TODAY_LOCAL
 
         rows = self.get_workshops_rows()
 
@@ -7557,14 +6847,14 @@ class WorkshopSchedule:
             Use caching when not running as test to return the workshops list in the shop
         """
         web2pytest = current.globalenv['web2pytest']
-        request = current.globalenv['request']
-        auth = current.globalenv['auth']
+        request = current.request
+        auth = current.auth
 
         # Don't cache when running tests
         if web2pytest.is_running_under_test(request, request.application):
             rows = self._get_workshops_shop()
         else:
-            cache = current.globalenv['cache']
+            cache = current.cache
             CACHE_LONG = current.globalenv['CACHE_LONG']
             cache_key = 'openstudio_workshops_workshops_schedule_shop'
 
@@ -7581,7 +6871,7 @@ class Order:
         '''
             Init class
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         self.coID = coID
         self.order = db.customers_orders(coID)
@@ -7616,8 +6906,8 @@ class Order:
             :param school_classcards_id: db.school_classcards.id
             :return : db.customers_orders_items.id of inserted item
         '''
-        db = current.globalenv['db']
-        T  = current.globalenv['T']
+        db = current.db
+        T  = current.T
 
         school_classcard = db.school_classcards(school_classcards_id)
 
@@ -7641,8 +6931,8 @@ class Order:
             :param workshops_products_id: db.workshops_products.id
             :return: db.customers_orders_items.id of inserted item
         '''
-        db = current.globalenv['db']
-        T  = current.globalenv['T']
+        db = current.db
+        T  = current.T
 
         wsp = db.workshops_products(workshops_products_id)
         ws = db.workshops(wsp.workshops_id)
@@ -7668,8 +6958,8 @@ class Order:
             :param description: donation description
             :return: db.customers_orders.items.id of inserted item 
         '''
-        db = current.globalenv['db']
-        T  = current.globalenv['T']
+        db = current.db
+        T  = current.T
         get_sys_property = current.globalenv['get_sys_property']
 
         sys_property = 'shop_donations_tax_rates_id'
@@ -7692,17 +6982,17 @@ class Order:
 
 
     def order_item_add_class(self, clsID, class_date, attendance_type):
-        '''
+        """
             :param workshops_products_id: db.workshops_products.id
             :return: db.customers_orders_items.id of inserted item
-        '''
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
-        TIME_FORMAT = current.globalenv['TIME_FORMAT']
-        db = current.globalenv['db']
-        T  = current.globalenv['T']
+        """
+        DATE_FORMAT = current.DATE_FORMAT
+        TIME_FORMAT = current.TIME_FORMAT
+        db = current.db
+        T  = current.T
 
         cls = Class(clsID, class_date)
-        prices = cls.get_price()
+        prices = cls.get_prices_customer(self.order.auth_customer_id)
         if attendance_type == 1:
             price = prices['trial']
             tax_rates_id = prices['trial_tax_rates_id']
@@ -7730,10 +7020,10 @@ class Order:
 
 
     def get_order_items_rows(self):
-        '''
+        """
             :return: db.customers_orders_items rows for order
-        '''
-        db = current.globalenv['db']
+        """
+        db = current.db
 
         query = (db.customers_orders_items.customers_orders_id == self.coID)
         rows = db(query).select(db.customers_orders_items.ALL)
@@ -7745,7 +7035,7 @@ class Order:
         '''
             Get subtotal, vat and total incl vat
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         amounts = db.customers_orders_amounts(customers_orders_id = self.coID)
 
@@ -7756,7 +7046,7 @@ class Order:
         '''
             Set subtotal, vat and total incl vat
         '''
-        db = current.globalenv['db']
+        db = current.db
         # set sums
         sum_subtotal = db.customers_orders_items.TotalPrice.sum()
         sum_vat = db.customers_orders_items.VAT.sum()
@@ -7804,8 +7094,8 @@ class Order:
         '''
         cache_clear_classschedule_api = current.globalenv['cache_clear_classschedule_api']
         get_sys_property = current.globalenv['get_sys_property']
-        db = current.globalenv['db']
-        T = current.globalenv['T']
+        db = current.db
+        T = current.T
 
         create_invoice = False
         iID = None
@@ -7900,7 +7190,7 @@ class Order:
                                                           invoice=False)
 
                 if create_invoice:
-                    invoice.item_add_class(row, result['caID'])
+                    invoice.item_add_class_from_order(row, result['caID'])
 
                 # Clear api cache to update available spaces
                 cache_clear_classschedule_api()
@@ -7942,7 +7232,7 @@ class Invoice:
         """
             Init function for an invoice
         """
-        db = current.globalenv['db']
+        db = current.db
 
         self.invoices_id = iID
         self.invoice = db.invoices(iID)
@@ -7964,7 +7254,7 @@ class Invoice:
 
         self.invoice.update_record()
 
-        db = current.globalenv['db']
+        db = current.db
         db.invoices_amounts.insert(invoices_id = self.invoices_id)
 
 
@@ -8020,7 +7310,7 @@ class Invoice:
         '''
             Set subtotal, vat and total incl vat
         '''
-        db = current.globalenv['db']
+        db = current.db
         # set sums
         sum_subtotal = db.invoices_items.TotalPrice.sum()
         sum_vat = db.invoices_items.VAT.sum()
@@ -8073,7 +7363,7 @@ class Invoice:
         '''
             Get subtotal, vat and total incl vat
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         amounts = db.invoices_amounts(invoices_id = self.invoices_id)
 
@@ -8085,7 +7375,7 @@ class Invoice:
             Returns vat for each tax rate as list sorted by tax rate percentage
             format: [ [ Name, Amount ] ]
         '''
-        db = current.globalenv['db']
+        db = current.db
         iID = self.invoices_id
         CURRSYM = current.globalenv['CURRSYM']
 
@@ -8114,7 +7404,7 @@ class Invoice:
         '''
             Returns the total amount paid
         '''
-        db = current.globalenv['db']
+        db = current.db
         sum = db.invoices_payments.Amount.sum()
         query = (db.invoices_payments.invoices_id == self.invoices_id)
 
@@ -8136,7 +7426,7 @@ class Invoice:
         """
             Returns the balance for an invoice
         """
-        db = current.globalenv['db']
+        db = current.db
         paid = self.get_amount_paid()
         total = self.get_amounts()['TotalPriceVAT']
 
@@ -8157,7 +7447,7 @@ class Invoice:
             Returns the next item number for an invoice
             use to set sorting when adding an item
         """
-        db = current.globalenv['db']
+        db = current.db
         query = (db.invoices_items.invoices_id == self.invoices_id)
 
         return db(query).count() + 1
@@ -8167,7 +7457,7 @@ class Invoice:
         '''
             :return: db.customers_orders_items rows for order
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.invoices_items.invoices_id == self.invoices_id)
         rows = db(query).select(db.invoices_items.ALL)
@@ -8175,17 +7465,88 @@ class Invoice:
         return rows
 
 
-    def item_add_class(self, order_item_row, caID):
-        '''
+    def item_add_class(self,
+                       cuID,
+                       caID,
+                       clsID,
+                       date,
+                       product_type):
+        """
+        Add invoice item when checking in to a class
+
+        :param cuID: db.auth_user.id
+        :param caID: db.classes_attendance.id
+        :param clsID: db.classes.id
+        :param date: datetime.date (class date)
+        :param product_type: has to be 'trial' or 'dropin'
+        :return:
+        """
+        db = current.db
+        DATE_FORMAT = current.DATE_FORMAT
+        T = current.T
+
+        date_formatted = date.strftime(DATE_FORMAT)
+
+        if product_type not in ['trial', 'dropin']:
+            raise ValueError("Product type has to be 'trial' or 'dropin'.")
+
+        customer = Customer(cuID)
+        cls = Class(clsID, date)
+        prices = cls.get_prices()
+
+        has_membership = customer.has_membership_on_date(date)
+
+        if product_type == 'dropin':
+            price = prices['dropin']
+            tax_rates_id = prices['dropin_tax_rates_id']
+
+            if has_membership and prices['dropin_membership']:
+                price = prices['dropin_membership']
+                tax_rates_id = prices['dropin_tax_rates_id_membership']
+
+            description = cls.get_invoice_order_description(2) # 2 = drop in class
+
+        elif product_type == 'trial':
+            price = prices['trial']
+            tax_rates_id = prices['trial_tax_rates_id']
+
+            if has_membership and prices['trial_membership']:
+                price = prices['trial_membership']
+                tax_rates_id = prices['trial_tax_rates_id_membership']
+
+            description = cls.get_invoice_order_description(1) # 1 = trial class
+
+        # link invoice to attendance
+        self.link_to_classes_attendance(caID)
+
+        next_sort_nr = self.get_item_next_sort_nr()
+        iiID = db.invoices_items.insert(
+            invoices_id=self.invoices_id,
+            ProductName=T("Class"),
+            Description=description,
+            Quantity=1,
+            Price=price,
+            Sorting=next_sort_nr,
+            tax_rates_id=tax_rates_id,
+        )
+
+        self.set_amounts()
+        self.link_to_customer(cuID)
+
+
+    def item_add_class_from_order(self, order_item_row, caID):
+        """
+            Add class to invoice from Order.deliver()
+
             :param clsID: db.classes.id
             :param class_date: datetime.date
             :param attendance_type: int 1 or 2 
             :return: db.invoices_items.id
-        '''
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
-        TIME_FORMAT = current.globalenv['TIME_FORMAT']
-        db = current.globalenv['db']
-        T  = current.globalenv['T']
+        """
+        DATE_FORMAT = current.DATE_FORMAT
+        TIME_FORMAT = current.TIME_FORMAT
+        db = current.db
+        T  = current.T
 
         cls = Class(order_item_row.classes_id, order_item_row.ClassDate)
 
@@ -8219,8 +7580,8 @@ class Invoice:
             :param ccdID: Add customer classcard to invoice
             :return: None
         """
-        db = current.globalenv['db']
-        T  = current.globalenv['T']
+        db = current.db
+        T  = current.T
 
         classcard = Classcard(ccdID)
         # link invoice to classcard sold to customer
@@ -8249,13 +7610,12 @@ class Invoice:
 
 
     def item_add_workshop_product(self, wspcID):
-        """
+        '''
             :param wspID: db.workshops_products_id
             :return: db.invoices_items.id
-        """
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
-        db = current.globalenv['db']
-        T  = current.globalenv['T']
+        '''
+        db = current.db
+        T  = current.T
 
         wspc = db.workshops_products_customers(wspcID)
         wsp = db.workshops_products(wspc.workshops_products_id)
@@ -8272,9 +7632,7 @@ class Invoice:
         iiID = db.invoices_items.insert(
             invoices_id=self.invoices_id,
             ProductName=T('Event'),
-            Description=ws.Name.decode('utf-8') + u' [' + \
-                        ws.Startdate.strftime(DATE_FORMAT) + u'] - ' + \
-                        wsp.Name.decode('utf-8'),
+            Description=ws.Name.decode('utf-8') + u' - ' + wsp.Name.decode('utf-8'),
             Quantity=1,
             Price=wsp.Price,
             Sorting=next_sort_nr,
@@ -8292,8 +7650,8 @@ class Invoice:
             :param description: donation description
             :return: db.customers_orders.items.id of inserted item 
         '''
-        db = current.globalenv['db']
-        T  = current.globalenv['T']
+        db = current.db
+        T  = current.T
         get_sys_property = current.globalenv['get_sys_property']
 
         sys_property = 'shop_donations_tax_rates_id'
@@ -8324,16 +7682,14 @@ class Invoice:
             :param SubscriptionMonth: Month of subscription
             :return: db.invoices_items.id
         """
-        db = current.globalenv['db']
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        db = current.db
+        DATE_FORMAT = current.DATE_FORMAT
 
         next_sort_nr = self.get_item_next_sort_nr()
 
         date = datetime.date(int(SubscriptionYear),
                              int(SubscriptionMonth),
                              1)
-
-
 
         ics = db.invoices_customers_subscriptions(invoices_id = self.invoices_id)
         csID = ics.customers_subscriptions_id
@@ -8405,6 +7761,49 @@ class Invoice:
         return iiID
 
 
+    def item_add_membership(self, cmID, period_start, period_end):
+        """
+        :param cmID: db.customers_memberships.id
+        :return: db.invoices_items.id
+        """
+        from openstudio.os_customer_membership import CustomerMembership
+        from openstudio.os_school_membership import SchoolMembership
+
+        db = current.db
+        DATE_FORMAT = current.DATE_FORMAT
+
+        next_sort_nr = self.get_item_next_sort_nr()
+
+        cm = CustomerMembership(cmID)
+        sm = SchoolMembership(cm.row.school_memberships_id)
+        row = sm.get_tax_rates_on_date(period_start)
+
+        if row:
+            tax_rates_id = row.school_memberships_price.tax_rates_id
+        else:
+            tax_rates_id = None
+
+        price = sm.get_price_on_date(cm.row.Startdate, False)
+        description = cm.get_name() + ' ' + \
+                      period_start.strftime(DATE_FORMAT) + ' - ' + \
+                      period_end.strftime(DATE_FORMAT)
+
+        iiID = db.invoices_items.insert(
+            invoices_id  = self.invoices_id,
+            ProductName  = current.T("Membership") + ' ' + unicode(cmID),
+            Description  = description,
+            Quantity     = 1,
+            Price        = price,
+            Sorting      = next_sort_nr,
+            tax_rates_id = tax_rates_id,
+        )
+
+        self.link_to_customer_membership(cmID)
+        self.set_amounts()
+
+        return iiID
+
+
     def item_add_teacher_class_credit_payment(self,
                                               clsID,
                                               date,
@@ -8416,10 +7815,10 @@ class Invoice:
         """
         from os_teacher import Teacher
 
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
-        TIME_FORMAT = current.globalenv['TIME_FORMAT']
-        db = current.globalenv['db']
-        T = current.globalenv['T']
+        DATE_FORMAT = current.DATE_FORMAT
+        TIME_FORMAT = current.TIME_FORMAT
+        db = current.db
+        T = current.T
 
         cls = Class(clsID, date)
         teID = self.get_linked_customer_id()
@@ -8474,10 +7873,10 @@ class Invoice:
         """
         from os_teacher import Teacher
 
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
-        TIME_FORMAT = current.globalenv['TIME_FORMAT']
-        db = current.globalenv['db']
-        T = current.globalenv['T']
+        DATE_FORMAT = current.DATE_FORMAT
+        TIME_FORMAT = current.TIME_FORMAT
+        db = current.db
+        T = current.T
 
         cls = Class(clsID, date)
         teID = self.get_linked_customer_id()
@@ -8515,7 +7914,7 @@ class Invoice:
         '''
             Add payment to invoice
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         ipID = db.invoices_payments.insert(
             invoices_id = self.invoices_id,
@@ -8535,7 +7934,7 @@ class Invoice:
         '''
             Check if the status should be changed to 'paid'
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         # Update invoice status
         sum_payments = db.invoices_payments.Amount.sum()
@@ -8594,7 +7993,7 @@ class Invoice:
         """
             Link invoice to customer
         """
-        db = current.globalenv['db']
+        db = current.db
         # Insert link
         db.invoices_customers.insert(
             invoices_id = self.invoices_id,
@@ -8609,10 +8008,34 @@ class Invoice:
         """
             Link invoice to customer subscription
         """
-        db = current.globalenv['db']
+        db = current.db
         db.invoices_customers_subscriptions.insert(
             invoices_id = self.invoices_id,
             customers_subscriptions_id = csID
+        )
+
+
+    def link_to_customer_membership(self, cmID):
+        """
+            Link invoice to customer subscription
+        """
+        db = current.db
+        db.invoices_customers_memberships.insert(
+            invoices_id=self.invoices_id,
+            customers_memberships_id=cmID
+        )
+
+
+    def link_to_classes_attendance(self, caID):
+        """
+        Link invoice to classes attendance
+        :param caID: db.classes_attendance.id
+        :return: None
+        """
+        db = current.db
+        db.invoices_classes_attendance.insert(
+            invoices_id=self.invoices_id,
+            classes_attendance_id=caID
         )
 
 
@@ -8621,7 +8044,7 @@ class Invoice:
             Returns auth.user.id of account linked to this invoice
             :return: auth.user.id
         """
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.invoices_customers.invoices_id == self.invoices_id)
         rows = db(query).select(db.invoices_customers.auth_customer_id)
@@ -8637,7 +8060,7 @@ class Invoice:
             Returns auth.user.id of account linked to this invoice
             :return: auth.user.id
         """
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.invoices_customers_subscriptions.invoices_id == self.invoices_id)
         rows = db(query).select(db.invoices_customers_subscriptions.customers_subscriptions_id)
@@ -8657,7 +8080,7 @@ class InvoicesHelper:
             Check if the currently logged in user is allowed to create
             invoices
         """
-        auth = current.globalenv['auth']
+        auth = current.auth
         if not (auth.has_membership(group_id='Admins') or
                 auth.has_permission('create', 'invoices')):
             redirect(URL('default', 'user', args=['not_authorized']))
@@ -8668,7 +8091,7 @@ class InvoicesHelper:
         :param customer: Customer object
         :return: None
         """
-        db = current.globalenv['db']
+        db = current.db
         address = ''
         if customer.row.address:
             address = ''.join([address, customer.row.address, '\n'])
@@ -8688,7 +8111,7 @@ class InvoicesHelper:
         """
             Only enable the bare minimum of fields
         """
-        db = current.globalenv['db']
+        db = current.db
 
         for field in db.invoices:
             field.readable=False
@@ -8704,7 +8127,7 @@ class InvoicesHelper:
         """
             Enable fields required for subscriptions
         """
-        db = current.globalenv['db']
+        db = current.db
 
         cs = CustomerSubscription(csID)
         db.invoices.payment_methods_id.default = cs.payment_methods_id
@@ -8714,24 +8137,44 @@ class InvoicesHelper:
         db.invoices.SubscriptionMonth.writable = True
 
 
+    def _add_get_form_enable_membership_fields(self, cmID):
+        """
+        Enable fields required for customer memberships
+
+        :param cmID: db.customers_memberships.id
+        :return: None
+        """
+        from openstudio.os_customer_membership import CustomerMembership
+
+        db = current.db
+
+        cm = CustomerMembership(cmID)
+        db.invoices.payment_methods_id.default = cm.row.payment_methods_id
+        db.invoices.MembershipPeriodStart.readable = True
+        db.invoices.MembershipPeriodStart.writable = True
+        db.invoices.MembershipPeriodEnd.readable = True
+        db.invoices.MembershipPeriodEnd.writable = True
+
+
     def add_get_form(self, cuID,
                            csID = None,
-                           subscription_year = '',
-                           subscription_month = '',
+                           cmID = None,
                            full_width = True):
         """
             Returns add form for an invoice
         """
         self._add_get_form_permissions_check()
 
-        db = current.globalenv['db']
-        T  = current.globalenv['T']
+        db = current.db
+        T  = current.T
 
         customer = Customer(cuID)
         self._add_get_form_set_default_values_customer(customer)
         self._add_get_form_enable_minimal_fields()
         if csID:
             self._add_get_form_enable_subscription_fields(csID)
+        if cmID:
+            self._add_get_form_enable_membership_fields(cmID)
 
         form = SQLFORM(db.invoices, formstyle='bootstrap3_stacked')
 
@@ -8755,6 +8198,13 @@ class InvoicesHelper:
                     form.vars.SubscriptionMonth
                 )
 
+            if cmID:
+                invoice.item_add_membership(
+                    cmID,
+                    form.vars.MembershipPeriodStart,
+                    form.vars.MembershipPeriodEnd
+                )
+
             redirect(URL('invoices', 'edit', vars={'iID':iID}))
 
 
@@ -8763,8 +8213,8 @@ class InvoicesHelper:
             field.readable=True
 
 
-        # crud = current.globalenv['crud']
-        # # request = current.globalenv['request']
+        # crud = current.crud
+        # # request = current.request
         #
         # create_onaccept = [ self._add_set_invoice_nr_and_due_date,
         #                     self._add_reset_list_status_filter]
@@ -8826,7 +8276,7 @@ class InvoicesHelper:
         '''
             Returns add modal for new invoice
         '''
-        T = current.globalenv['T']
+        T = current.T
         os_gui = current.globalenv['os_gui']
         gen_passwd = current.globalenv['generate_password']
 
@@ -8850,7 +8300,7 @@ class InvoicesHelper:
         '''
             Reset session variable that holds status for filter
         '''
-        session = current.globalenv['session']
+        session = current.session
         session.invoices_list_status = None
 
 
@@ -8858,8 +8308,8 @@ class InvoicesHelper:
         '''
             Sets session variable that holds the status for the filter
         '''
-        request = current.globalenv['request']
-        session = current.globalenv['session']
+        request = current.request
+        session = current.session
         # status definitions
         if 'status' in request.vars:
             session.invoices_list_status = request.vars['status']
@@ -8878,7 +8328,7 @@ class InvoicesHelper:
         invoice_statuses = current.globalenv['invoice_statuses']
         invoice_statuses.append(['overdue', current.T('Overdue')])
 
-        session = current.globalenv['session']
+        session = current.session
 
         form = SQLFORM.factory(
             Field('status',
@@ -8935,9 +8385,9 @@ class InvoicesHelper:
             Get add payment modal when no payment is found, or just
             show the information for the payments found.
         '''
-        db = current.globalenv['db']
+        db = current.db
         os_gui = current.globalenv['os_gui']
-        T = current.globalenv['T']
+        T = current.T
 
         query = (db.invoices_payments.invoices_id == iID)
         rows = db(query).select(db.invoices_payments.ALL)
@@ -8988,19 +8438,20 @@ class InvoicesHelper:
     def list_invoices(self,
                       cuID=None,
                       csID=None,
+                      cmID=None,
                       search_enabled=False,
                       group_filter_enabled=False,
                       only_teacher_credit_invoices=False):
-        db = current.globalenv['db']
-        auth = current.globalenv['auth']
-        session = current.globalenv['session']
+        db = current.db
+        auth = current.auth
+        session = current.session
         grid_ui = current.globalenv['grid_ui']
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        DATE_FORMAT = current.DATE_FORMAT
         from general_helpers import datestr_to_python
         from openstudio.os_gui import OsGui
         os_gui = OsGui()
 
-        T = current.globalenv['T']
+        T = current.T
 
         session.invoices_invoice_payment_add_back = None
 
@@ -9010,6 +8461,7 @@ class InvoicesHelper:
         db.invoices.Footer.readable = False
         db.invoices.Note.readable = False
         db.invoices.Terms.readable = False
+        db.invoices.TeacherPayment.readable = False
 
         links = [dict(header=T("Balance"),
                       body=self._list_invoices_get_balance),
@@ -9021,6 +8473,9 @@ class InvoicesHelper:
                     db.invoices_customers.invoices_id == db.invoices.id),
                 db.invoices_customers_subscriptions.on(
                     db.invoices_customers_subscriptions.invoices_id ==
+                    db.invoices.id),
+                db.invoices_customers_memberships.on(
+                    db.invoices_customers_memberships.invoices_id ==
                     db.invoices.id)
                 ]
 
@@ -9049,6 +8504,8 @@ class InvoicesHelper:
 
         if cuID:
             query &= (db.invoices_customers.auth_customer_id == cuID)
+        if cmID:
+            query &= (db.invoices_customers_memberships.customers_memberships_id == cmID)
         if csID:
             query &= (db.invoices_customers_subscriptions.customers_subscriptions_id == csID)
             fields.insert(3, db.invoices.SubscriptionMonth)
@@ -9079,7 +8536,7 @@ class InvoicesHelper:
         content = DIV()
         if search_enabled:
             #response.js = 'set_form_classes();' # we're no longer in a loaded component
-            request = current.globalenv['request']
+            request = current.request
             if 'search' in request.vars:
                 session.invoices_list_invoices_search = request.vars['search']
                 # date_created_from = datestr_to_python(DATE_FORMAT, request.vars['date_created_from'])
@@ -9140,9 +8597,9 @@ class InvoicesHelper:
         '''
             Returns search form for invoices page
         '''
-        T = current.globalenv['T']
-        session = current.globalenv['session']
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        T = current.T
+        session = current.session
+        DATE_FORMAT = current.DATE_FORMAT
 
         form = SQLFORM.factory(
             Field('search',
@@ -9206,8 +8663,8 @@ class InvoicesHelper:
         '''
             Returns status query
         '''
-        db = current.globalenv['db']
-        session = current.globalenv['session']
+        db = current.db
+        session = current.session
 
         if session.invoices_list_status == 'draft':
             query &= (db.invoices.Status == 'draft')
@@ -9228,8 +8685,8 @@ class InvoicesHelper:
         '''
             Adds search for invoice number to query
         '''
-        db = current.globalenv['db']
-        session = current.globalenv['session']
+        db = current.db
+        session = current.session
 
         if session.invoices_list_invoices_search:
             search = session.invoices_list_invoices_search.strip()
@@ -9262,9 +8719,9 @@ class InvoicesHelper:
         '''
             Group all links for invoices into .btn-group
         '''
-        auth = current.globalenv['auth']
+        auth = current.auth
         os_gui = current.globalenv['os_gui']
-        T = current.globalenv['T']
+        T = current.T
 
         iID = row.invoices.id
         modals = SPAN()
@@ -9316,7 +8773,7 @@ class InvoicesHelper:
         '''
             Returns an button and modal to add a payment for an invoice
         '''
-        T = current.globalenv['T']
+        T = current.T
         os_gui = current.globalenv['os_gui']
 
         button = os_gui.get_button('credit-card',
@@ -9326,242 +8783,38 @@ class InvoicesHelper:
         return button
 
 
-class School:
-    def get_classcards(self, public_only=True):
-        '''
-            :param public_only: Defines whether or not to show only public classcards, True by default
-                                False means all cards are returned
-            Returns classcards for school
-        '''
-        db = current.globalenv['db']
-
-        query = (db.school_classcards.Archived == False)
-        if public_only:
-            query &= (db.school_classcards.PublicCard == True)
-
-        return db(query).select(db.school_classcards.ALL,
-                                orderby=db.school_classcards.Trialcard|
-                                        db.school_classcards.Name)
-
-
-    def get_classcards_formatted(self, public_only=True, per_row=3, link_type=None):
-        '''
-            :param public_only: show only public cards - Default: True
-            :param per_row: Number of cards in each row - Default 4. Allowed values: [3, 4]
-            :param link_type: Specified what kind of link will be shown in the footer of each classcard.
-                Allowed values: ['backend', 'shop']
-                - backend adds a modal to choose date
-                - shop adds a button to add the card to the shopping cart
-            Returns classcards formatted in BS3 style
-
-        '''
-        def get_validity(row):
-            '''
-                takes a db.school_classcards() row as argument
-            '''
-            validity = SPAN(unicode(row.Validity), ' ')
-
-            validity_in = represent_validity_units(row.ValidityUnit, row)
-            if row.Validity == 1:  # Cut the last 's"
-                validity_in = validity_in[:-1]
-
-            validity.append(validity_in)
-
-            return validity
-
-
-        os_gui = current.globalenv['os_gui']
-        T = current.globalenv['T']
-
-
-        if per_row == 3:
-            card_class = 'col-md-4'
-        elif per_row == 4:
-            card_class = 'col-md-3'
-        else:
-            raise ValueError('Incompatible value: per_row has to be 3 or 4')
-
-        rows = self.get_classcards(public_only=public_only)
-
-        cards = DIV()
-        display_row = DIV(_class='row')
-        row_item = 0
-
-        for i, row in enumerate(rows):
-            repr_row = list(rows[i:i + 1].render())[0]
-
-            card_name = max_string_length(row.Name, 37)
-            validity  = get_validity(row)
-
-            card_content = TABLE(TR(TD(T('Validity')),
-                                    TD(validity)),
-                                 TR(TD(T('Classes')),
-                                    TD(repr_row.Classes)),
-                                 TR(TD(T('Price')),
-                                    TD(repr_row.Price)),
-                                 TR(TD(T('Description')),
-                                    TD(repr_row.Description or '')),
-                                 _class='table')
-
-
-            if row.Trialcard:
-                panel_class = 'box-success'
-            else:
-                panel_class = 'box-primary'
-
-
-            footer_content = ''
-            if link_type == 'shop':
-                footer_content = self._get_classcards_formatted_button_to_cart(row.id)
-
-
-            card = DIV(os_gui.get_box_table(card_name,
-                                            card_content,
-                                            panel_class,
-                                            show_footer=True,
-                                            footer_content=footer_content),
-                       _class=card_class)
-
-            display_row.append(card)
-
-            row_item += 1
-
-            if row_item == per_row or i == (len(rows) - 1):
-                cards.append(display_row)
-                display_row = DIV(_class='row')
-
-                row_item = 0
-
-        return cards
-
-
-    def _get_classcards_formatted_button_to_cart(self, scdID):
-        '''
-            Get button to add card to shopping cart
-        '''
-        os_gui = current.globalenv['os_gui']
-        T = current.globalenv['T']
-
-        return A(SPAN(os_gui.get_fa_icon('fa-shopping-cart'), ' ', T('Add to cart')),
-                 _href=URL('classcard_add_to_cart', vars={'scdID':scdID}))
-
-
-    def _get_subscriptions_formatted_button_to_cart(self, ssuID):
-        '''
-            Get button to add card to shopping cart
-        '''
-        os_gui = current.globalenv['os_gui']
-        T = current.globalenv['T']
-
-        return A(SPAN(os_gui.get_fa_icon('fa-shopping-cart'), ' ', T('Get this subscription')),
-                 _href=URL('subscription_terms', vars={'ssuID':ssuID}))
-
-
-    def get_subscriptions(self, public_only=True):
-        '''
-            :param public: boolean, defines whether to show only public or all subscriptions
-            :return: list of school_subscriptions
-        '''
-        db = current.globalenv['db']
-
-        query = (db.school_subscriptions.id > 0)
-
-        if public_only:
-            query &= (db.school_subscriptions.PublicSubscription == True)
-
-        rows = db(query).select(db.school_subscriptions.ALL,
-                                orderby=~db.school_subscriptions.SortOrder|db.school_subscriptions.Name)
-
-        return rows
-
-
-    def get_subscriptions_formatted(self, per_row=3, public_only=True, link_type='shop'):
-        '''
-            :param public: boolean, defines whether to show only public or all subscriptions
-            :return: list of school_subscriptions formatted for shop
-        '''
-        os_gui = current.globalenv['os_gui']
-        T = current.globalenv['T']
-
-        if per_row == 3:
-            card_class = 'col-md-4'
-        elif per_row == 4:
-            card_class = 'col-md-3'
-        else:
-            raise ValueError('Incompatible value: per_row has to be 3 or 4')
-
-        rows = self.get_subscriptions(public_only=public_only)
-
-        subscriptions = DIV()
-        display_row = DIV(_class='row')
-        row_item = 0
-
-        for i, row in enumerate(rows):
-            repr_row = list(rows[i:i + 1].render())[0]
-
-            ssu = SchoolSubscription(row.id)
-            name = max_string_length(row.Name, 33)
-
-            classes = ''
-            if row.Unlimited:
-                classes = T('Unlimited')
-            elif row.SubscriptionUnit == 'week':
-                classes = SPAN(unicode(row.Classes) + ' / ' + T('Week'))
-            elif row.SubscriptionUnit == 'month':
-                classes = SPAN(unicode(row.Classes) + ' / ' + T('Month'))
-
-            subscription_content = TABLE(TR(TD(T('Classes')),
-                                            TD(classes)),
-                                         TR(TD(T('Monthly')),
-                                            TD(ssu.get_price_on_date(datetime.date.today()))),
-                                         TR(TD(T('Description')),
-                                            TD(row.Description or '')),
-                                         _class='table')
-
-            panel_class = 'box-primary'
-
-
-            footer_content = ''
-            if link_type == 'shop':
-                footer_content = self._get_subscriptions_formatted_button_to_cart(row.id)
-
-
-            subscription = DIV(os_gui.get_box_table(name,
-                                                    subscription_content,
-                                                    panel_class,
-                                                    show_footer=True,
-                                                    footer_content=footer_content),
-                               _class=card_class)
-
-            display_row.append(subscription)
-
-            row_item += 1
-
-            if row_item == per_row or i == (len(rows) - 1):
-                subscriptions.append(display_row)
-                display_row = DIV(_class='row')
-                row_item = 0
-
-        return subscriptions
 
 
 class SchoolClasscard:
     '''
         Class that contains functions for a class card
     '''
-    def __init__(self, scdID):
+    def __init__(self, scdID, set_db_info=False):
         '''
             Class init function which sets ssuID
         '''
         self.scdID = scdID
+
+        if set_db_info:
+            self._set_db_info()
+
+
+    def _set_db_info(self):
+        """
+        Set db info
+        :return: None
+        """
+        db = current.db
+
+        self.row = db.school_classcards(self.scdID)
 
 
     def get_validity_formatted(self):
         '''
             :return: Validity for school classcard
         '''
-        T  = current.globalenv['T']
-        db = current.globalenv['db']
+        T  = current.T
+        db = current.db
 
         row = db.school_classcards(self.scdID)
         validity = SPAN(unicode(row.Validity), ' ')
@@ -9579,7 +8832,7 @@ class SchoolClasscard:
         '''
             :param auth_user_id: db.auth_user.id
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         db.customers_shoppingcart.insert(
             auth_customer_id     = auth_user_id,
@@ -9591,7 +8844,7 @@ class SchoolClasscard:
         '''
             :param auth_user_id: Sell classcard to customer
         '''
-        db = current.globalenv['db']
+        db = current.db
         cache_clear_customers_classcards = current.globalenv['cache_clear_customers_classcards']
 
         ccdID = db.customers_classcards.insert(
@@ -9614,8 +8867,8 @@ class SchoolClasscard:
         '''
             Add an invoice after adding a classcard
         '''
-        db = current.globalenv['db']
-        T = current.globalenv['T']
+        db = current.db
+        T = current.T
 
         classcard = Classcard(ccdID)
 
@@ -9676,7 +8929,7 @@ class SchoolClasscard:
                 delta = datetime.timedelta(days=1)
                 return ret_val - delta
 
-        db = current.globalenv['db']
+        db = current.db
 
         # get info
         card = db.school_classcards(self.scdID)
@@ -9792,10 +9045,10 @@ class StaffSchedule:
         '''
             Returns edit & delete buttons for schedule
         '''
-        auth = current.globalenv['auth']
+        auth = current.auth
         os_gui = current.globalenv['os_gui']
-        T = current.globalenv['T']
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        T = current.T
+        DATE_FORMAT = current.DATE_FORMAT
         date_formatted = self.date.strftime(DATE_FORMAT)
 
         buttons = DIV(_class='pull-right')
@@ -9873,8 +9126,8 @@ class StaffSchedule:
             a SQLFORM.grid for a selected day which is within 1 - 7 (ISO standard).
         '''
         date = self.date
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
-        db = current.globalenv['db']
+        DATE_FORMAT = current.DATE_FORMAT
+        db = current.db
         weekday = date.isoweekday()
 
         date_formatted = date.strftime(DATE_FORMAT)
@@ -9985,9 +9238,9 @@ class StaffSchedule:
             Calls the schedule_get_day_rows function and formats the rows
             in a desktop friendly table
         '''
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
-        T = current.globalenv['T']
-        auth = current.globalenv['auth']
+        DATE_FORMAT = current.DATE_FORMAT
+        T = current.T
+        auth = current.auth
 
         rows = self.get_day_rows()
 
@@ -10066,8 +9319,8 @@ class StaffSchedule:
             Format rows as list
         '''
         os_gui = current.globalenv['os_gui']
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
-        T = current.globalenv['T']
+        DATE_FORMAT = current.DATE_FORMAT
+        T = current.T
         date_formatted = self.date.strftime(DATE_FORMAT)
 
         rows = self.get_day_rows()
@@ -10143,7 +9396,7 @@ class ShiftStatus:
         '''
             :return: db.shifts_otc.id
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.shifts_otc.shifts_id == self.shID) & \
                 (db.shifts_otc.ShiftDate == self.date)
@@ -10161,8 +9414,8 @@ class ShiftStatus:
             :param status: ['open' or 'cancelled']
             :return: None
         '''
-        db = current.globalenv['db']
-        T = current.globalenv['T']
+        db = current.db
+        T = current.T
 
         sotcID = self.set_normal()
 
@@ -10181,7 +9434,7 @@ class ShiftStatus:
         '''
             Remove status if found
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         sotcID = self._get_sotcID()
 
@@ -10211,36 +9464,40 @@ class SchoolSubscription:
     '''
         Class that contains functions for school subscriptions
     '''
-    def __init__(self, ssuID):
+    def __init__(self, ssuID, set_db_info=False):
         '''
             Class init function which sets ssuID
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         self.ssuID = ssuID
 
+        if set_db_info:
+            self._set_dbinfo()
+
 
     def _set_dbinfo(self):
-        '''
+        """
             Gets information about the subscription from db and adds it
             to the object
-        '''
-        db = current.globalenv['db']
+        """
+        db = current.db
 
         row = db.school_subscriptions(self.ssuID)
 
-        self.Name               = row.Name
-        self.Classes            = row.Classes
-        self.SubscriptionUnit   = row.SubscriptionUnit
-        self.Archived           = row.Archived
-        self.Terms              = row.Terms
+        self.MembershipRequired = row.MembershipRequired
+        self.Name = row.Name
+        self.Classes = row.Classes
+        self.SubscriptionUnit = row.SubscriptionUnit
+        self.Archived = row.Archived
+        self.Terms = row.Terms
 
 
     def get_price_on_date(self, date, formatted=True):
         '''
             Returns the price for a subscription on a given date
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         price = ''
         query = (db.school_subscriptions_price.school_subscriptions_id ==
@@ -10268,7 +9525,7 @@ class SchoolSubscription:
         '''
             Returns tax rates on date
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         left = [ db.tax_rates.on(db.school_subscriptions_price.tax_rates_id ==
                                  db.tax_rates.id) ]
@@ -10305,7 +9562,7 @@ class SchoolSubscription:
         '''
             SPAN object containing
         '''
-        T = current.globalenv['T']
+        T = current.T
         self._set_dbinfo()
 
         classes_text = T('classes')
@@ -10327,7 +9584,7 @@ class OsMail:
             Send a message to a customer
             returns True when a mail is sent and False when it failed
         '''
-        db = current.globalenv['db']
+        db = current.db
         MAIL = current.globalenv['MAIL']
 
         customer = db.auth_user(cuID)
@@ -10386,8 +9643,8 @@ class OsMail:
             return tr
 
 
-        T = current.globalenv['T']
-        DATETIME_FORMAT = current.globalenv['DATETIME_FORMAT']
+        T = current.T
+        DATETIME_FORMAT = current.DATETIME_FORMAT
         represent_float_as_amount = current.globalenv['represent_float_as_amount']
 
         order = Order(customers_orders_id)
@@ -10425,8 +9682,8 @@ class OsMail:
     #         :param invoices_id: db.invoices.id
     #         :return: mail body for invoice
     #     '''
-    #     T = current.globalenv['T']
-    #     DATETIME_FORMAT = current.globalenv['DATETIME_FORMAT']
+    #     T = current.T
+    #     DATETIME_FORMAT = current.DATETIME_FORMAT
     #
     #     invoice = Invoice(invoices_id)
     #     item_rows = invoice.get_invoice_items_rows()
@@ -10464,9 +9721,9 @@ class OsMail:
     #         :param invoices_id: db.invoices_payments_id
     #         :return: mail body for invoice
     #     '''
-    #     db = current.globalenv['db']
-    #     T = current.globalenv['T']
-    #     DATE_FORMAT = current.globalenv['DATE_FORMAT']
+    #     db = current.db
+    #     T = current.T
+    #     DATE_FORMAT = current.DATE_FORMAT
     #     CURRSYM = current.globalenv['CURRSYM']
     #
     #     payment = db.invoices_payments(invoices_payments_id)
@@ -10485,9 +9742,9 @@ class OsMail:
             :param invoices_id: db.invoices_payments_id
             :return: mail body for invoice
         '''
-        db = current.globalenv['db']
-        T = current.globalenv['T']
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
+        db = current.db
+        T = current.T
+        DATE_FORMAT = current.DATE_FORMAT
 
         # TODO: Add to manual & button on page available variables;
         return XML(template_content.format(link_profile_invoices=URL('profile', 'invoices', scheme=True, host=True)))
@@ -10499,10 +9756,10 @@ class OsMail:
         :param workshops_products_id: db.workshops_products.id
         :return: mail body for workshop
         '''
-        db = current.globalenv['db']
-        T = current.globalenv['T']
-        DATE_FORMAT = current.globalenv['DATE_FORMAT']
-        TIME_FORMAT = current.globalenv['TIME_FORMAT']
+        db = current.db
+        T = current.T
+        DATE_FORMAT = current.DATE_FORMAT
+        TIME_FORMAT = current.TIME_FORMAT
         customer = Customer(wspc.auth_customer_id)
 
         try:
@@ -10542,12 +9799,12 @@ class OsMail:
         '''
             Renders default email template
         '''
-        db = current.globalenv['db']
-        T = current.globalenv['T']
-        DATETIME_FORMAT = current.globalenv['DATETIME_FORMAT']
+        db = current.db
+        T = current.T
+        DATETIME_FORMAT = current.DATETIME_FORMAT
 
         get_sys_property = current.globalenv['get_sys_property']
-        request = current.globalenv['request']
+        request = current.request
         response = current.globalenv['response']
 
         title = ''
@@ -10616,7 +9873,7 @@ class OsMail:
         '''
             Returns logo for email template
         '''
-        request = current.globalenv['request']
+        request = current.request
 
         branding_logo = os.path.join(request.folder,
                                      'static',
@@ -10666,7 +9923,7 @@ class OsScheduler:
         '''
             Removes all scheduled tasks
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.scheduler_task.id > 0)
         db(query).delete()
@@ -10717,989 +9974,4 @@ class ReportsHelper:
         return query
 
 
-class ShopBrands:
-    def __init__(self, show_archive=False):
-        self.show_archive = show_archive
 
-
-    def list(self):
-        """
-            :return: List of shop brands (gluon.dal.rows)
-        """
-        db = current.globalenv['db']
-
-        query = (db.shop_brands.Archived == self.show_archive)
-        rows = db(query).select(db.shop_brands.ALL,
-                                orderby=db.shop_brands.Name)
-
-        return rows
-
-
-    def list_formatted(self):
-        """
-            :return: HTML table with shop brands
-        """
-        T = current.globalenv['T']
-        os_gui = current.globalenv['os_gui']
-        auth = current.globalenv['auth']
-
-        header = THEAD(TR(TH(T('Brand')),
-                          TH(T('Description')),
-                          TH()))
-        table = TABLE(header, _class='table table-striped table-hover')
-
-        permission_edit = (auth.has_membership(group_id='Admins') or
-                           auth.has_permission('update', 'shop_brands'))
-
-        rows = self.list()
-        for row in rows:
-            buttons = ''
-            edit = ''
-            archive = ''
-            vars = {'sbID':row.id}
-
-            if permission_edit:
-                edit = os_gui.get_button('edit',
-                    URL('shop_manage', 'brand_edit', vars=vars))
-                archive = os_gui.get_button('archive',
-                    URL('shop_manage', 'brand_archive', vars=vars))
-                buttons = DIV(edit, archive, _class='pull-right')
-
-            tr = TR(
-                TD(os_gui.max_string_length(row.Name, 30)),
-                TD(os_gui.max_string_length(row.Description, 60)),
-                TD(buttons)
-            )
-
-            table.append(tr)
-
-        return table
-
-
-class ShopProductsSet:
-    def __init__(self, spsID):
-        db = current.globalenv['db']
-        self.spsID = spsID
-        self.row = db.shop_products_sets(self.spsID)
-
-
-    def options(self):
-        """
-            :return: list of options for a products set
-        """
-        db = current.globalenv['db']
-
-        query = (db.shop_products_sets_options.shop_products_sets_id ==
-                 self.spsID)
-        return db(query).select(db.shop_products_sets_options.ALL,
-                                orderby=db.shop_products_sets_options.Name)
-
-
-    def get_option_names(self):
-        """
-            :return: dict mapping ids to option names
-        """
-        options = self.options()
-        names = {}
-        for option in options:
-            names[option.id] = option.Name
-
-        return names
-
-
-    def options_with_values(self):
-        """
-            :return: list of options with values for a products set
-        """
-        db = current.globalenv['db']
-
-        options = {}
-        for option in self.options():
-            query = (db.shop_products_sets_options_values.shop_products_sets_options_id ==
-                     option.id)
-            rows = db(query).select(db.shop_products_sets_options_values.ALL,
-                                    orderby=db.shop_products_sets_options_values.Name)
-            values = []
-            for row in rows:
-                values.append(int(row.id))
-
-            options[option.id] = {
-                'name': option.Name,
-                'values': values
-            }
-
-        return options
-
-
-    def get_value_names(self):
-        """
-             :return: dict[db.shop_products_sets_options_values.id] = name
-        """
-        db = current.globalenv['db']
-
-        option_ids = []
-        for option in self.options():
-            option_ids.append(option.id)
-
-        query = (db.shop_products_sets_options_values.shop_products_sets_options_id.belongs(option_ids))
-        rows = db(query).select(db.shop_products_sets_options_values.id,
-                                db.shop_products_sets_options_values.Name)
-        value_names = {}
-        for row in rows:
-            value_names[row.id] = row.Name
-
-        return value_names
-
-
-    def get_linked_products(self):
-        """
-        :return: list containing ids of linked products
-        """
-        db = current.globalenv['db']
-
-        query = (db.shop_products.shop_products_sets_id == self.spsID)
-        rows = db(query).select(db.shop_products.id)
-        ids = []
-        for row in rows:
-            ids.append(row.id)
-
-        return ids
-
-
-    def insert_variants(self, enabled=True):
-        """
-        insert (missing) variants for all products linked to this set
-        :param enabled: boolean
-        :return: None
-        """
-        linked_products = self.get_linked_products()
-        for shop_products_id in linked_products:
-            self.insert_variants_for_product(shop_products_id,
-                                             enabled=enabled)
-
-
-    def insert_variants_for_product(self, shop_products_id, enabled=True):
-        """
-        :param shop_products_id: db.shop_products.id
-        :param enabled: boolean
-        :return: None
-        """
-        from itertools import product, combinations, permutations
-
-        db = current.globalenv['db']
-        options = self.options_with_values()
-        value_names = self.get_value_names()
-
-        values = []
-        for key in options:
-            values.append(options[key]['values'])
-        variants = list(product(*values))
-
-        for i, variant in enumerate(variants):
-            variant_code = '-'.join(str(value) for value in variant)
-            variant_name = ''
-            for value in variant:
-                option_name = ''
-                value_name = value_names.get(value, '')
-                for key in options:
-                    if value in options[key]['values']:
-                        option_name = options[key]['name']
-                        if len(variant_name):
-                            variant_name += ', '
-                        variant_name += option_name + ': ' + value_name
-                        break
-
-            query = (db.shop_products_variants.VariantCode == variant_code) & \
-                    (db.shop_products_variants.shop_products_id == shop_products_id)
-            count = db(query).count()
-            if not count:
-                db.shop_products_variants.insert(
-                    Enabled=enabled,
-                    shop_products_id = shop_products_id,
-                    Name = variant_name,
-                    DefaultVariant = True if not i else False,
-                    VariantCode = variant_code
-                )
-
-
-class ShopProductsSets:
-    def list(self):
-        """
-            :return: List of shop products_sets (gluon.dal.rows)
-        """
-        db = current.globalenv['db']
-
-        query = (db.shop_products_sets)
-        rows = db(query).select(db.shop_products_sets.ALL,
-                                orderby=db.shop_products_sets.Name)
-
-        return rows
-
-
-    def list_formatted(self):
-        """
-            :return: HTML table with shop products_sets
-        """
-        T = current.globalenv['T']
-        os_gui = current.globalenv['os_gui']
-        auth = current.globalenv['auth']
-
-        header = THEAD(TR(TH(T('Product set')),
-                          TH(T('Description')),
-                          TH()))
-        table = TABLE(header, _class='table table-striped table-hover')
-
-        permission_options = (auth.has_membership(group_id='Admins') or
-                              auth.has_permission('read', 'shop_products_sets_options'))
-        permission_edit = (auth.has_membership(group_id='Admins') or
-                           auth.has_permission('update', 'shop_products_sets'))
-        permission_delete = (auth.has_membership(group_id='Admins') or
-                             auth.has_permission('delete', 'shop_products_sets'))
-
-        onclick_delete = "return confirm('" \
-            + T('Do you really want to delete this product set?') + ' ' \
-            + T('It will remove all product variants in products linked to this set.') \
-            + "');"
-
-
-        rows = self.list()
-        for row in rows:
-            buttons = ''
-            edit = ''
-            delete = ''
-            vars = {'spsID':row.id}
-            buttons = DIV(_class="pull-right")
-
-            if permission_options:
-                options = os_gui.get_button(
-                    'noicon',
-                    URL('shop_manage', 'products_set_options', vars=vars),
-                    title=T('Options')
-                )
-                buttons.append(options)
-
-            if permission_edit:
-                edit = os_gui.get_button('edit',
-                    URL('shop_manage', 'products_set_edit', vars=vars))
-                buttons.append(edit)
-            if permission_delete:
-                delete = os_gui.get_button('delete_notext',
-                    URL('shop_manage', 'products_set_delete', vars=vars),
-                    onclick = onclick_delete)
-                buttons.append(delete)
-
-            tr = TR(
-                TD(os_gui.max_string_length(row.Name, 30)),
-                TD(os_gui.max_string_length(row.Description, 60)),
-                TD(buttons)
-            )
-
-            table.append(tr)
-
-        return table
-
-
-class ShopProductsSetsOptions:
-    def __init__(self,
-                 products_sets_id,
-                 url_list):
-        self.products_sets_id = products_sets_id
-        self.url_list = url_list
-
-
-    def has_linked_products(self):
-        """
-            :return: boolean
-        """
-        db = current.globalenv['db']
-
-        query = (db.shop_products.shop_products_sets_id ==
-                 self.products_sets_id)
-
-        return True if db(query).count() else False
-
-
-    def list(self):
-        """
-            :return: List of shop products sets options
-        """
-        db = current.globalenv['db']
-
-        query = (db.shop_products_sets_options.shop_products_sets_id ==
-                 db.shop_products_sets.id)
-        rows = db(query).select(db.shop_products_sets_options.ALL,
-                                orderby=db.shop_products_sets_options.Name)
-
-        return rows
-
-
-    def list_formatted(self):
-        """
-            :return: HTML table with shop products sets options
-        """
-        T = current.globalenv['T']
-        os_gui = current.globalenv['os_gui']
-        auth = current.globalenv['auth']
-
-        linked_products = self.has_linked_products()
-
-        header = THEAD(TR(TH(T('Option')),
-                          TH(T('Values')),
-                          TH()))
-        table = TABLE(header, _class='table')
-
-        if linked_products:
-            permission_delete = False
-        else:
-            permission_delete = (auth.has_membership(group_id='Admins') or
-                                 auth.has_permission('delete', 'shop_products_options'))
-
-        onclick_delete = "return confirm('" \
-            + T('Do you really want to delete this option?') + "');"
-
-        rows = self.list()
-        for row in rows:
-            buttons = DIV()
-            delete = ''
-            vars = {'spsoID':row.id}
-
-            if permission_delete:
-                delete = os_gui.get_button('delete_notext',
-                    URL('shop_manage',
-                        'shop_products_sets_options_delete',
-                        vars=vars),
-                    onclick=onclick_delete,
-                    _class='pull-right')
-                buttons.append(delete)
-
-            tr = TR(
-                TD(os_gui.max_string_length(row.Name, 30)),
-                TD(self._list_formatted_get_option_values(row.id,
-                                                          self.url_list)),
-                TD(buttons)
-            )
-
-            table.append(tr)
-
-        if not linked_products:
-            table.append(TR(TD(self._list_formatted_get_form_add())))
-
-        return table
-
-
-    def _list_formatted_get_option_values(self, options_id, url_list):
-        """
-            :return: returns a list of option values for an option
-        """
-        spsov = ShopProductsSetsOptionsValues(options_id, url_list)
-        return spsov.list_formatted()
-
-
-    def _list_formatted_get_form_add(self):
-        """
-            :return: CRUD form to add an option
-        """
-        from os_forms import OsForms
-
-        T = current.globalenv['T']
-        db = current.globalenv['db']
-
-        db.shop_products_sets_options.Name.label = ''
-        db.shop_products_sets_options.shop_products_sets_id.default = \
-            self.products_sets_id
-
-        os_forms = OsForms()
-        result = os_forms.get_crud_form_create(
-            db.shop_products_sets_options,
-            self.url_list,
-            submit_button=T("Add option"),
-            form_id="AddOption"
-        )
-
-        return DIV(result['form'], result['submit'])
-
-
-class ShopProductsSetsOptionsValues:
-    def __init__(self, options_id, url_list):
-        self.options_id = options_id
-        self.url_list = url_list
-
-
-    def list(self):
-        """
-            :return: List of shop products sets options values (gluon.dal.rows)
-        """
-        db = current.globalenv['db']
-
-        query = (db.shop_products_sets_options_values.shop_products_sets_options_id == \
-                 self.options_id)
-        rows = db(query).select(db.shop_products_sets_options_values.ALL,
-                                orderby=db.shop_products_sets_options_values.Name)
-
-        return rows
-
-
-    def list_formatted(self):
-        """
-            :return: HTML table with shop categories
-        """
-        T = current.globalenv['T']
-        os_gui = current.globalenv['os_gui']
-        auth = current.globalenv['auth']
-
-        table = TABLE(_class='table')
-
-        permission_create = (auth.has_membership(group_id='Admins') or
-                             auth.has_permission('create', 'shop_products_options_values'))
-        permission_delete = (auth.has_membership(group_id='Admins') or
-                             auth.has_permission('delete', 'shop_products_options_values'))
-        onclick_delete = "return confirm('" \
-            + T('Do you really want to delete this option value?') + "');"
-
-        rows = self.list()
-        for row in rows:
-            buttons = DIV()
-            delete = ''
-            vars = {'spsovID':row.id}
-
-            if permission_delete:
-                delete = os_gui.get_button('delete_notext',
-                    URL('shop_manage',
-                        'shop_products_sets_options_value_delete',
-                        vars=vars),
-                    onclick=onclick_delete,
-                    _class='pull-right')
-                buttons.append(delete)
-
-            tr = TR(
-                TD(os_gui.max_string_length(row.Name, 30)),
-                TD(buttons)
-            )
-
-            table.append(tr)
-
-        table.append(TR(TD(self._list_formatted_get_form_add())))
-
-        return table
-
-
-    def _list_formatted_get_form_add(self):
-        """
-            :return: CRUD form to add an option
-        """
-        from os_forms import OsForms
-
-        T = current.globalenv['T']
-        db = current.globalenv['db']
-        request = current.globalenv['request']
-
-        # make sure the value is saved for the right option
-        if 'shop_products_sets_options_id' in request.vars:
-            options_id = request.vars['shop_products_sets_options_id']
-        else:
-            options_id = self.options_id
-
-        db.shop_products_sets_options_values.Name.label = ''
-        db.shop_products_sets_options_values.shop_products_sets_options_id.default = \
-            options_id
-
-        form_id = "AddValue_" + unicode(self.options_id)
-
-        os_forms = OsForms()
-        result = os_forms.get_crud_form_create(
-            db.shop_products_sets_options_values,
-            self.url_list,
-            submit_button=T("Add value"),
-            form_id=form_id,
-            onaccept=[self._product_set_options_update_variants]
-        )
-
-        form = result['form']
-        field_id = INPUT(_type='hidden',
-                         _value=self.options_id,
-                         _form=form_id,
-                         _name='shop_products_sets_options_id')
-
-        form.insert(0, field_id)
-
-        return DIV(form, result['submit'])
-
-
-    def _product_set_options_update_variants(self, form):
-        """
-        :param form:
-        :return:
-        """
-        db = current.globalenv['db']
-
-        spsovID = form.vars.id
-        option = db.shop_products_sets_options(self.options_id)
-        spsID = option.shop_products_sets_id
-        product_set = ShopProductsSet(spsID)
-        product_set.insert_variants(enabled=False)
-
-
-class ShopCategories:
-    def __init__(self, show_archive=False):
-        self.show_archive = show_archive
-
-
-    def list(self):
-        """
-            :return: List of shop categories (gluon.dal.rows)
-        """
-        db = current.globalenv['db']
-
-        query = (db.shop_categories.Archived == self.show_archive)
-        rows = db(query).select(db.shop_categories.ALL,
-                                orderby=db.shop_categories.Name)
-
-        return rows
-
-
-    def list_formatted(self):
-        """
-            :return: HTML table with shop categories
-        """
-        T = current.globalenv['T']
-        os_gui = current.globalenv['os_gui']
-        auth = current.globalenv['auth']
-
-        header = THEAD(TR(TH(T('Category')),
-                          TH(T('Description')),
-                          TH()))
-        table = TABLE(header, _class='table table-striped table-hover')
-
-        permission_edit = (auth.has_membership(group_id='Admins') or
-                           auth.has_permission('update', 'shop_categories'))
-
-        rows = self.list()
-        for row in rows:
-            buttons = ''
-            edit = ''
-            archive = ''
-            vars = {'scID':row.id}
-
-            if permission_edit:
-                edit = os_gui.get_button('edit',
-                    URL('shop_manage', 'category_edit', vars=vars))
-                archive = os_gui.get_button('archive',
-                    URL('shop_manage', 'category_archive', vars=vars))
-                buttons = DIV(edit, archive, _class='pull-right')
-
-            tr = TR(
-                TD(os_gui.max_string_length(row.Name, 30)),
-                TD(os_gui.max_string_length(row.Description, 60)),
-                TD(buttons)
-            )
-
-            table.append(tr)
-
-        return table
-
-
-class ShopSuppliers:
-    def __init__(self, show_archive=False):
-        self.show_archive = show_archive
-
-
-    def list(self):
-        """
-            :return: List of shop suppliers (gluon.dal.rows)
-        """
-        db = current.globalenv['db']
-
-        query = (db.shop_suppliers.Archived == self.show_archive)
-        rows = db(query).select(db.shop_suppliers.ALL,
-                                orderby=db.shop_suppliers.Name)
-
-        return rows
-
-
-    def list_formatted(self):
-        """
-            :return: HTML table with shop brands
-        """
-        T = current.globalenv['T']
-        os_gui = current.globalenv['os_gui']
-        auth = current.globalenv['auth']
-
-        header = THEAD(TR(TH(T('Name')),
-                          TH(T('Description')),
-                          TH(T('Contact')),
-                          TH(T('Phone')),
-                          TH(T('Email')),
-                          TH()))
-        table = TABLE(header, _class='table table-striped table-hover')
-
-        permission_edit = (auth.has_membership(group_id='Admins') or
-                           auth.has_permission('update', 'shop_suppliers'))
-
-        rows = self.list()
-        for row in rows:
-            buttons = ''
-            edit = ''
-            archive = ''
-            vars = {'supID':row.id}
-
-            if permission_edit:
-                edit = os_gui.get_button('edit',
-                    URL('shop_manage', 'supplier_edit', vars=vars))
-                archive = os_gui.get_button('archive',
-                    URL('shop_manage', 'supplier_archive', vars=vars))
-                buttons = DIV(edit, archive, _class='pull-right')
-
-            tr = TR(
-                TD(os_gui.max_string_length(row.Name, 30)),
-                TD(os_gui.max_string_length(row.Description, 30)),
-                TD(os_gui.max_string_length(row.ContactName, 20),
-                   _title=row.ContactName),
-                TD(os_gui.max_string_length(row.ContactPhone, 15)),
-                TD(os_gui.max_string_length(row.ContactEmail, 32),
-                   _title=row.ContactEmail),
-                TD(buttons)
-            )
-
-            table.append(tr)
-
-        return table
-
-
-class ShopProducts:
-    def list(self):
-        """
-            :return: List of shop products (gluon.dal.rows)
-        """
-        db = current.globalenv['db']
-
-        rows = db(db.shop_products).select(db.shop_products.ALL,
-                                           orderby=db.shop_products.Name)
-
-        return rows
-
-
-    def list_formatted(self):
-        """
-            :return: HTML table with shop products
-        """
-        T = current.globalenv['T']
-        os_gui = current.globalenv['os_gui']
-        auth = current.globalenv['auth']
-
-        header = THEAD(TR(TH(),
-                          TH(T('Name')),
-                          TH(T('Description')),
-                          TH()))
-        table = TABLE(header, _class='table table-striped table-hover')
-
-        permission_variants = (auth.has_membership(group_id='Admins') or
-                               auth.has_permission('read', 'shop_products_variants'))
-        permission_edit = (auth.has_membership(group_id='Admins') or
-                           auth.has_permission('update', 'shop_products'))
-        permission_delete = (auth.has_membership(group_id='Admins') or
-                             auth.has_permission('delete', 'shop_products'))
-
-        onclick_delete = "return confirm('" \
-            + T('Do you really want to delete this product?') + "');"
-
-        rows = self.list()
-        for i, row in enumerate(rows):
-            repr_row = list(rows[i:i + 1].render())[0]
-            buttons = DIV(_class='pull-right')
-            vars = {'spID':row.id}
-
-            if permission_variants:
-                variants = os_gui.get_button('noicon',
-                    URL('shop_manage', 'product_variants', vars=vars),
-                    title=T('Variants'))
-                buttons.append(variants)
-            if permission_edit:
-                edit = os_gui.get_button('edit',
-                    URL('shop_manage', 'product_edit', vars=vars))
-                buttons.append(edit)
-            if permission_delete:
-                delete = os_gui.get_button('delete_notext',
-                    URL('shop_manage', 'product_delete', vars=vars),
-                    onclick=onclick_delete)
-                buttons.append(delete)
-
-            tr = TR(
-                TD(repr_row.thumbsmall),
-                TD(os_gui.max_string_length(row.Name, 30)),
-                TD(os_gui.max_string_length(row.Description, 30)),
-                TD(buttons)
-            )
-
-            table.append(tr)
-
-        return table
-
-
-class ShopProduct:
-    def __init__(self, spID):
-        """
-            :param spID: db.shop_products.id
-        """
-        db = current.globalenv['db']
-
-        self.id = spID
-        self.row = db.shop_products(self.id)
-
-
-    def count_variants(self):
-        """
-            :return: integer - number of variants for this product
-        """
-        db = current.globalenv['db']
-        query = (db.shop_products_variants.shop_products_id == self.id)
-
-        return db(query).count()
-
-
-    def add_default_variant(self):
-        """
-            Create default variant for a product without a product set
-            :return: None
-        """
-        T = current.globalenv['T']
-        db = current.globalenv['db']
-
-        db.shop_products_variants.insert(
-            Enabled=True,
-            shop_products_id = self.id,
-            Name = T('Default'),
-            DefaultVariant = True
-        )
-
-
-    # def add_product_set_variants(self):
-    #     """
-    #     :param spsID:
-    #     :return: None
-    #     """
-    #     db = current.globalenv['db']
-
-
-    def has_products_set(self):
-        """
-        :return: boolean
-        """
-        return True if self.row.shop_products_sets_id else False
-
-
-class ShopProductsVariant:
-    def __init__(self, shop_products_variants_id):
-        db = current.globalenv['db']
-
-        self.id = shop_products_variants_id
-        self.row = db.shop_products_variants(self.id)
-
-
-    def set_default(self):
-        """
-            Set this product variant as default for a product
-        """
-        db = current.globalenv['db']
-
-        query = (db.shop_products_variants.shop_products_id ==
-                 self.row.shop_products_id)
-        db(query).update(DefaultVariant=False)
-
-        self.row.DefaultVariant = True
-        self.row.update_record()
-
-
-    def disable(self):
-        """
-            Disable variant
-        """
-        self.row.Enabled = False
-        self.row.update_record()
-
-
-    def enable(self):
-        """
-            Enable variant
-        """
-        self.row.Enabled = True
-        self.row.update_record()
-
-
-class ShopProductsVariants:
-    def __init__(self, shop_products_id):
-        self.shop_products_id = shop_products_id
-
-    def list(self):
-        """
-            :return: List of shop product variants(gluon.dal.rows)
-        """
-        db = current.globalenv['db']
-
-        query = (db.shop_products_variants.shop_products_id ==
-                 self.shop_products_id)
-        rows = db(query).select(db.shop_products_variants.ALL,
-                                orderby=db.shop_products_variants.Name)
-
-        return rows
-
-
-    def list_formatted(self):
-        """
-            :return: HTML table with shop products variants
-        """
-        T = current.globalenv['T']
-        os_gui = current.globalenv['os_gui']
-        auth = current.globalenv['auth']
-
-        product = ShopProduct(self.shop_products_id)
-
-        header = THEAD(TR(TH(),
-                          TH(T('Name')),
-                          TH(T('Price')),
-                          TH(T('Article Code')),
-                          TH(T('Keep stock')),
-                          TH(T('Stock shop')),
-                          TH(T('Stock warehouse')),
-                          TD(),
-                          TH()))
-        table = TABLE(header, _class='table table-striped table-hover')
-        table_disabled = TABLE(header, _class='table table-striped table-hover')
-
-        permission_edit = (auth.has_membership(group_id='Admins') or
-                           auth.has_permission('update', 'shop_products_variants'))
-        permission_delete = (auth.has_membership(group_id='Admins') or
-                             auth.has_permission('delete', 'shop_products_variants'))
-
-        onclick_delete = self._list_formatted_get_onclick_delete()
-
-        rows = self.list()
-        for i, row in enumerate(rows):
-            repr_row = list(rows[i:i + 1].render())[0]
-
-            default = self._list_formatted_get_label_default(T, os_gui, row)
-            buttons = self._list_formatted_get_buttons(
-                permission_edit,
-                permission_delete,
-                onclick_delete,
-                T,
-                os_gui,
-                row
-            )
-
-            tr = TR(
-                TD(repr_row.thumbsmall),
-                TD(os_gui.max_string_length(row.Name, 50)),
-                TD(repr_row.Price),
-                TD(repr_row.ArticleCode),
-                TD(repr_row.KeepStock),
-                TD(row.StockShop),
-                TD(row.StockWarehouse),
-                TD(default),
-                TD(buttons)
-            )
-
-            if row.Enabled:
-                table.append(tr)
-            else:
-                table_disabled.append(tr)
-
-        if product.has_products_set():
-            return DIV(table, H4(T('Disabled')), table_disabled)
-        else:
-            return table
-
-
-    def _list_formatted_get_label_default(self, T, os_gui, row):
-        """
-
-        """
-        default = ''
-        if row.DefaultVariant:
-            default = os_gui.get_label('success', T('Default'))
-
-        return default
-
-
-    def _list_formatted_get_buttons(self,
-                                    permission_edit,
-                                    permission_delete,
-                                    onclick_delete,
-                                    T,
-                                    os_gui,
-                                    row):
-        """
-            :return:
-        """
-        buttons = DIV(_class='pull-right')
-        vars = {'spvID': row.id, 'spID': self.shop_products_id}
-
-        if row.Enabled:
-            if permission_delete:
-                disabled = False if not row.DefaultVariant else True
-                delete = os_gui.get_button('delete_notext',
-                                           URL('shop_manage', 'product_variant_delete',
-                                               vars=vars),
-                                           onclick=onclick_delete,
-                                           _class='pull-right',
-                                           _disabled=disabled)
-                buttons.append(delete)
-
-            if permission_edit:
-                edit = self._list_formatted_get_buttons_edit(
-                    T,
-                    os_gui,
-                    row,
-                    vars
-                )
-                buttons.append(edit)
-        else:
-            buttons.append(A(T('Enable'),
-                             _href=URL('shop_manage',
-                                       'product_variant_enable',
-                                       vars=vars)))
-        return buttons
-
-
-    def _list_formatted_get_buttons_edit(self, T, os_gui, row, vars):
-        """
-            Return edit drop down
-        """
-        edit = A(os_gui.get_fa_icon('fa-pencil'),
-                 T('Edit'),
-                 _href=URL('shop_manage', 'product_variant_edit',
-                           vars=vars))
-        set_default = ''
-        if not row.DefaultVariant:
-            set_default = A(os_gui.get_fa_icon('fa-check-circle'),
-                            T('Set default'),
-                            _href=URL('shop_manage', 'product_variant_set_default',
-                                      vars=vars))
-        links = [
-            edit,
-            set_default
-        ]
-
-        dd = os_gui.get_dropdown_menu(
-            links=links,
-            btn_text=T('Actions'),
-            btn_size='btn-sm',
-            btn_icon='actions',
-            menu_class='btn-group pull-right')
-
-        return dd
-
-
-    def _list_formatted_get_onclick_delete(self):
-        """
-            :return: onclick delete for
-        """
-        T = current.globalenv['T']
-        product = ShopProduct(self.shop_products_id)
-        if product.has_products_set():
-            delete_message = T('Do you really want to disable this variant?')
-        else:
-            delete_message = T('Do you really want to delete this variant?')
-        onclick_delete = "return confirm('" \
-            + delete_message + "');"
-
-        return onclick_delete

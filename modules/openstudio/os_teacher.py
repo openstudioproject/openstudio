@@ -15,7 +15,7 @@ class Teacher:
         """
             Init function for teacher
         """
-        db = current.globalenv['db']
+        db = current.db
 
         self.id = auID
         self.row = db.auth_user(auID)
@@ -25,7 +25,7 @@ class Teacher:
         """
         :return: gluon.dal.row object of db.teachers_payment_fixed_rate_default
         """
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.teachers_payment_fixed_rate_default.auth_teacher_id ==
                  self.id)
@@ -83,7 +83,7 @@ class Teacher:
         """
         :return: gluon.dal.row object of db.teachers_payment_fixed_rate_class
         """
-        db = current.globalenv['db']
+        db = current.db
 
         left = [
             db.classes.on(db.teachers_payment_fixed_rate_class.classes_id ==
@@ -164,7 +164,7 @@ class Teacher:
         from openstudio.os_gui import OsGui
 
         T = current.T
-        auth = current.globalenv['auth']
+        auth = current.auth
         os_gui = OsGui()
         rows = self.get_payment_fixed_rate_classes_rows()
 
@@ -238,7 +238,7 @@ class Teacher:
         """
         :return: gluon.dal.row object of db.teachers_payment_fixed_rate_travel
         """
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.teachers_payment_fixed_rate_travel.auth_teacher_id ==
                  self.id) & \
@@ -255,7 +255,7 @@ class Teacher:
         """
         :return: gluon.dal.row object of db.teachers_payment_fixed_rate_travel
         """
-        db = current.globalenv['db']
+        db = current.db
 
         left = [
             db.school_locations.on(db.teachers_payment_fixed_rate_travel.school_locations_id ==
@@ -303,7 +303,7 @@ class Teacher:
         from openstudio.os_gui import OsGui
 
         T = current.T
-        auth = current.globalenv['auth']
+        auth = current.auth
         os_gui = OsGui()
         rows = self.get_payment_fixed_rate_travel_allowances()
 

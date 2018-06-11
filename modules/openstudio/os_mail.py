@@ -11,7 +11,7 @@ class MailingLists:
         """
             :return: List of mailinglists (gluon.dal.rows)
         """
-        db = current.globalenv['db']
+        db = current.db
 
         query = db.mailing_lists
         rows = db(query).select(db.mailing_lists.ALL,
@@ -28,7 +28,7 @@ class MailingLists:
 
         T = current.T
         os_gui = OsGui()
-        auth = current.globalenv['auth']
+        auth = current.auth
 
         header = THEAD(TR(TH(T('Name')),
                           TH(T('Description')),

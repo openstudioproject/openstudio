@@ -28,22 +28,23 @@ from openstudio.openstudio import ClasscardsHelper, \
     ReservationHelper, \
     Class, \
     ClassSchedule, \
-    Customer, \
     CustomersHelper, \
-    CustomerSubscriptionsHelper, \
     Invoice, \
     InvoicesHelper
+
+from openstudio.os_customer_subscriptions import CustomerSubscriptions
+from openstudio.os_customer import Customer
 
 # helper functions
 
 
 def classes_get_menu(page, clsID, date_formatted):
-    '''
+    """
         This function returns a menu for the manage page
         page is expected to be a function name showing a page
         class_id is expected to be the class ID
         class_date is expected to be the class date, formatted using DATE_FORMAT
-    '''
+    """
     vars = {'clsID' : clsID,
             'date'  : date_formatted}
 
@@ -1944,7 +1945,7 @@ def waitinglist():
             csID = cs.customers_subscriptions.id
             subscription = SPAN(cs.school_subscriptions.Name)
 
-            csh = CustomerSubscriptionsHelper(csID)
+            csh = CustomerSubscriptions(csID)
             paused = csh.get_paused(date)
             if paused:
                 paused = T("Yes")
@@ -3731,9 +3732,11 @@ def overlapping_workshops_get_query(row, class_date):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'classes'))
 def class_prices():
-    '''
+    """
         List prices for a class
-    '''
+    """
+    from openstudio.os_class_prices import ClassPrices
+
     clsID = request.vars['clsID']
     date_formatted = request.vars['date']
     response.title = T("Edit class")
@@ -3741,38 +3744,45 @@ def class_prices():
     response.subtitle = classname
     response.view = 'general/tabs_menu.html'
 
-    links = [lambda row: os_gui.get_button('edit',
-                                           URL('class_price_edit',
-                                               vars={'clpID':row.id,
-                                                     'clsID':clsID,
-                                                     'date' :date_formatted}))]
+    clp = ClassPrices()
+    table = clp.get_prices_for_class_display(clsID)
 
-    query = (db.classes_price.classes_id == clsID)
 
-    fields = [ db.classes_price.Startdate,
-               db.classes_price.Enddate,
-               db.classes_price.Dropin,
-               db.classes_price.tax_rates_id_dropin,
-               db.classes_price.Trial,
-               db.classes_price.tax_rates_id_trial ]
 
-    delete_permission = auth.has_membership(group_id='Admins') or \
-                        auth.has_permission('delete', 'classes_price')
 
-    grid = SQLFORM.grid(query,
-                        fields=fields,
-                        links=links,
-                        details=False,
-                        searchable=False,
-                        deletable=delete_permission,
-                        csv=False,
-                        create=False,
-                        editable=False,
-                        orderby=~db.classes_price.Startdate,
-                        field_id=db.classes_price.id,
-                        ui = grid_ui)
-    grid.element('.web2py_counter', replace=None) # remove the counter
-    grid.elements('span[title=Delete]', replace=None) # remove text from delete button
+
+    # links = [lambda row: os_gui.get_button('edit',
+    #                                        URL('class_price_edit',
+    #                                            vars={'clpID':row.id,
+    #                                                  'clsID':clsID,
+    #                                                  'date' :date_formatted}))]
+    #
+    # query = (db.classes_price.classes_id == clsID)
+    #
+    # fields = [ db.classes_price.Startdate,
+    #            db.classes_price.Enddate,
+    #            db.classes_price.Dropin,
+    #            db.classes_price.tax_rates_id_dropin,
+    #            db.classes_price.Trial,
+    #            db.classes_price.tax_rates_id_trial ]
+    #
+    # delete_permission = auth.has_membership(group_id='Admins') or \
+    #                     auth.has_permission('delete', 'classes_price')
+    #
+    # grid = SQLFORM.grid(query,
+    #                     fields=fields,
+    #                     links=links,
+    #                     details=False,
+    #                     searchable=False,
+    #                     deletable=delete_permission,
+    #                     csv=False,
+    #                     create=False,
+    #                     editable=False,
+    #                     orderby=~db.classes_price.Startdate,
+    #                     field_id=db.classes_price.id,
+    #                     ui = grid_ui)
+    # grid.element('.web2py_counter', replace=None) # remove the counter
+    # grid.elements('span[title=Delete]', replace=None) # remove text from delete button
 
     alert_msg = T("Please make sure the new price starts on the first day of a month and the previous price ends on the last day of the month before. ")
     alert_msg += T("Otherwise you might see unexpected results in the stats.")
@@ -3792,7 +3802,7 @@ def class_prices():
     menu = class_edit_get_menu(request.function, clsID)
     back = class_get_back()
 
-    content = DIV(alert, grid)
+    content = DIV(alert, table)
 
     return dict(content=content,
                 menu=menu,
@@ -3805,10 +3815,10 @@ def class_price_add():
     """
         This function shows an add page for classes_teachers
     """
-    clsID = request.vars['clsID']
-    date_formatted = request.vars['date']
+    from openstudio.os_forms import OsForms
 
-    response.title = T("Add price")
+    clsID = request.vars['clsID']
+    response.title = T("Add prices")
     classname = get_classname(clsID)
     response.subtitle = classname
 
@@ -3825,26 +3835,19 @@ def class_price_add():
 
     db.classes_price.classes_id.default = clsID
 
-    return_url = class_prices_add_edit_get_return_url(clsID, date_formatted)
+    return_url = class_prices_add_edit_get_return_url(clsID)
 
-    crud.messages.submit_button = T("Save")
-    crud.messages.record_created = T("Saved price")
-    crud.settings.create_next = return_url
-    form = crud.create(db.classes_price)
-
-    form_id = "MainForm"
-    form_element = form.element('form')
-    form['_id'] = form_id
-
-    elements = form.elements('input, select, textarea')
-    for element in elements:
-        element['_form'] = form_id
-
-    submit = form.element('input[type=submit]')
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_create(
+        db.classes_price,
+        return_url,
+    )
 
     back = os_gui.get_button('back', return_url)
 
-    return dict(content=form, back=back, save=submit)
+    return dict(content=result['form'],
+                save=result['submit'],
+                back=back)
 
 
 @auth.requires_login()
@@ -3853,46 +3856,52 @@ def class_price_edit():
         This function shows an edit page for a teacher of a class
         request.vars[clsID] is expected to be the classes_id
     """
-    response.title = T("Edit price")
+    from openstudio.os_forms import OsForms
+
+    response.title = T("Edit prices")
     clpID = request.vars['clpID']
     clsID = request.vars['clsID']
-    date_formatted = request.vars['date']
     classname = get_classname(clsID)
     response.subtitle = classname
     response.view = 'general/only_content.html'
 
-    return_url = class_prices_add_edit_get_return_url(clsID, date_formatted)
+    return_url = class_prices_add_edit_get_return_url(clsID)
 
-    crud.messages.submit_button = T("Save")
-    crud.messages.record_updated = T("Saved price")
-    crud.messages.record_deleted = T('Deleted price for') + ': ' + classname
-    crud.settings.update_next = return_url
-    crud.settings.update_deletable = False
-    form = crud.update(db.classes_price, clpID)
-
-    form_id = "MainForm"
-    form_element = form.element('form')
-    form['_id'] = form_id
-
-    elements = form.elements('input, select, textarea')
-    for element in elements:
-        element['_form'] = form_id
-
-    submit = form.element('input[type=submit]')
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_update(
+        db.classes_price,
+        return_url,
+        clpID
+    )
 
     back = os_gui.get_button('back', return_url)
 
-    return dict(content=form,
+    return dict(content=result['form'],
                 back=back,
-                save=submit)
+                save=result['submit'])
 
 
-def class_prices_add_edit_get_return_url(clsID, date_formatted):
-    '''
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('delete', 'classes_price'))
+def class_price_delete():
+    """
+        Delete class price
+    """
+    clsID = request.vars['clsID']
+    clpID = request.vars['clpID']
+
+    query = (db.classes_price.id == clpID)
+    db(query).delete()
+
+    session.flash = T("Deleted price")
+    redirect(class_prices_add_edit_get_return_url(clsID))
+
+
+def class_prices_add_edit_get_return_url(clsID):
+    """
         Returns return url for adding or editing a teacher
-    '''
-    return URL('class_prices', vars ={'clsID':clsID,
-                                        'date' :date_formatted})
+    """
+    return URL('class_prices', vars ={'clsID':clsID})
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \

@@ -6,7 +6,7 @@ class Tasks:
         '''
             Returns add button and modal
         '''
-        T = current.globalenv['T']
+        T = current.T
         os_gui = current.globalenv['os_gui']
 
         modal_content = DIV(

@@ -21,7 +21,12 @@ def populate_sys_properties_school_info(web2py):
     web2py.db.commit()
 
 
-def populate_school_classcards(web2py, nr=1, trialcard=True):
+def populate_school_classcards(
+        web2py,
+        nr=1,
+        trialcard=True,
+        membership_required=False
+    ):
     """
         Add 'nr' of cards to school_classcards
     """
@@ -29,6 +34,7 @@ def populate_school_classcards(web2py, nr=1, trialcard=True):
     for i in range(i, nr):
         web2py.db.school_classcards.insert(
             PublicCard = True,
+            MembershipRequired = membership_required,
             Name = 'Classcard_' + unicode(i),
             Description = 'General card ' + unicode(i),
             Price = 125,
@@ -40,6 +46,7 @@ def populate_school_classcards(web2py, nr=1, trialcard=True):
     if trialcard:
         web2py.db.school_classcards.insert(
             PublicCard = True,
+            MembershipRequired = membership_required,
             Name = 'Proefweek',
             Description = 'General trialcard',
             Price = 15,
@@ -185,6 +192,7 @@ def populate_customers_with_subscriptions(web2py,
                                           nr_of_customers=4,
                                           invoices=False,
                                           credits=False,
+                                          membership_required=False,
                                           created_on=datetime.date.today()):
     if nr_of_customers < 4:
         # Set minimum number of customers, at least one for each school subscription
@@ -194,7 +202,7 @@ def populate_customers_with_subscriptions(web2py,
     populate_customers(web2py, nr_of_customers, created_on=created_on)
     populate_payment_methods(web2py)
     populate_customers_payment_info(web2py, nr_of_customers)
-    populate_school_subscriptions(web2py)
+    populate_school_subscriptions(web2py, membership_required=membership_required)
 
     ss_one_price = web2py.db.school_subscriptions_price(1).Price
 
@@ -320,9 +328,15 @@ def populate_customers_with_classcards(web2py,
                                       trialcard=True,
                                       invoices=False,
                                       customers_populated=False,
+                                      membership_required=False,
                                       created_on=datetime.date.today()):
 
-    populate_school_classcards(web2py, nr_cards, trialcard = trialcard)
+    populate_school_classcards(
+        web2py,
+        nr_cards,
+        trialcard = trialcard,
+        membership_required = membership_required,
+    )
     scd = web2py.db.school_classcards(1)
 
     if not customers_populated:
@@ -377,6 +391,78 @@ def populate_customers_with_classcards(web2py,
             web2py.db.invoices_customers_classcards.insert(
                 invoices_id=iID,
                 customers_classcards_id=ccdID
+            )
+
+    web2py.db.commit()
+
+
+def populate_customers_with_memberships(web2py,
+                                        nr_of_customers=10,
+                                        nr_memberships=1,
+                                        invoices=False,
+                                        customers_populated=False,
+                                        created_on=datetime.date.today()):
+
+    populate_school_memberships(web2py)
+
+    if not customers_populated:
+        populate_customers(web2py, nr_of_customers, created_on=created_on)
+
+    startdate = '2014-01-01'
+    enddate = '2014-01-31'
+
+    for i in range(1, nr_of_customers+1):
+        aucID = i + 1000
+        cmID = web2py.db.customers_memberships.insert(
+            auth_customer_id = aucID,
+            school_memberships_id = 1,
+            Startdate = startdate,
+            Enddate = enddate,
+            Note = 'Cherries',
+            payment_methods_id = 1,
+        )
+
+        # Add invoices?
+        if invoices:
+            smp = web2py.db.school_memberships_price(1)
+
+            iID = web2py.db.invoices.insert(
+                invoices_groups_id=100,
+                InvoiceID="INV2018" + unicode(i),
+                MembershipPeriodStart=startdate,
+                MembershipPeriodEnd=enddate,
+            )
+
+            ciID = web2py.db.invoices_customers.insert(
+                auth_customer_id = aucID,
+                invoices_id = iID
+            )
+
+            web2py.db.invoices_items.insert(
+                invoices_id=iID,
+                Sorting=1,
+                ProductName='Membership',
+                Description='First membership in school',
+                Quantity=1,
+                Price=smp.Price,
+                tax_rates_id=smp.tax_rates_id
+            )
+
+            # tax rates (1) = 21%
+            TotalPrice = round(smp.Price / 1.21, 2)
+            VAT = round(smp.Price - TotalPrice, 2)
+
+            web2py.db.invoices_amounts.insert(
+                invoices_id=iID,
+                TotalPrice=TotalPrice,
+                VAT=VAT,
+                TotalPriceVAT=smp.Price,
+
+            )
+
+            web2py.db.invoices_customers_memberships.insert(
+                invoices_id=iID,
+                customers_memberships_id=cmID
             )
 
     web2py.db.commit()
@@ -533,7 +619,13 @@ def populate_classes(web2py, with_otc=False):
 
     web2py.db.classes_price.insert(classes_id = 1,
                                    Dropin     = 17.5,
+                                   tax_rates_id_dropin = 1,
                                    Trial      = 12.5,
+                                   tax_rates_id_trial = 1,
+                                   DropinMembership = 15,
+                                   tax_rates_id_dropin_membership = 1,
+                                   TrialMembership = 15,
+                                   tax_rates_id_trial_membership = 1,
                                    Startdate  = '2014-01-01')
 
 
@@ -675,9 +767,17 @@ def prepare_classes(web2py,
 
     trial_price = 10
     dropin_price = 18
+    trial_price_membership = 8
+    dropin_price_membership = 15
     web2py.db.classes_price.insert(classes_id = 1,
-                                   Dropin     = dropin_price,
-                                   Trial      = trial_price,
+                                   Dropin = dropin_price,
+                                   tax_rates_id_dropin = 1,
+                                   DropinMembership = dropin_price_membership,
+                                   tax_rates_id_dropin_membership = 1,
+                                   Trial = trial_price,
+                                   tax_rates_id_trial = 1,
+                                   TrialMembership=trial_price_membership,
+                                   tax_rates_id_trial_membership=1,
                                    Startdate  = '2014-01-01')
     if attendance:
         # Trial class
@@ -1211,7 +1311,33 @@ def populate_announcements(web2py, nr=10):
     populate(web2py.db.announcements, nr)
 
 
-def populate_school_subscriptions(web2py):
+def populate_school_memberships(web2py, price=True):
+    """
+        Add a membership with a price
+    """
+    populate_tax_rates(web2py)
+
+    web2py.db.school_memberships.insert(
+        Archived = False,
+        Name = 'Premium membership',
+        Description = 'premium membership',
+        Terms = "Mango season",
+        Validity = 1,
+        ValidityUnit = 'months'
+       )
+
+    if price:
+        web2py.db.school_memberships_price.insert(
+            school_memberships_id = 1,
+            Startdate = '1900-01-01',
+            Price = 40,
+            tax_rates_id=1
+        )
+
+    web2py.db.commit()
+
+
+def populate_school_subscriptions(web2py, membership_required=False):
     """
         Add a few subscriptions with some prices
     """
@@ -1219,7 +1345,8 @@ def populate_school_subscriptions(web2py):
     web2py.db.school_subscriptions.insert(
         Archived    = False,
         PublicSubscription = True,
-        Name        = 'one class a week',
+        MembershipRequired = membership_required,
+        Name = 'one class a week',
         Classes = 1,
         SubscriptionUnit = 'week',
         CreditValidity=28, # 4 weeks
@@ -1229,6 +1356,7 @@ def populate_school_subscriptions(web2py):
     # 2
     web2py.db.school_subscriptions.insert(
         Archived    = False,
+        MembershipRequired=membership_required,
         Name        = 'Unlimited for free',
         Classes     = 0,
         CreditValidity=28,  # 4 weeks
@@ -1238,6 +1366,7 @@ def populate_school_subscriptions(web2py):
     # 3
     web2py.db.school_subscriptions.insert(
         Archived           = False,
+        MembershipRequired=membership_required,
         Name               = 'one class a month',
         Classes            = 1,
         CreditValidity=28,  # 4 weeks
@@ -1248,6 +1377,7 @@ def populate_school_subscriptions(web2py):
     # 4
     web2py.db.school_subscriptions.insert(
         Archived=False,
+        MembershipRequired=membership_required,
         Name='Unit not defined',
         Classes=1,
         CreditValidity=28,  # 4 weeks
@@ -1258,6 +1388,7 @@ def populate_school_subscriptions(web2py):
     # 5
     web2py.db.school_subscriptions.insert(
         Archived = False,
+        MembershipRequired=membership_required,
         Name = 'Classes not defined',
         Classes = None,
         CreditValidity=28,  # 4 weeks

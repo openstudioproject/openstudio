@@ -116,6 +116,8 @@ def classcards():
     """
         List available classcards
     """
+    from openstudio.os_school import School
+
     response.title = T('Shop')
     response.subtitle = T('Class cards')
     response.view = 'shop/no_box.html'
@@ -124,7 +126,12 @@ def classcards():
     features = db.customers_shop_features(1)
     if features.Classcards:
         school = School()
-        cards = school.get_classcards_formatted(public_only=True, per_row=3, link_type='shop')
+        cards = school.get_classcards_formatted(
+            auth.user.id,
+            public_only=True,
+            per_row=3,
+            link_type='shop'
+        )
 
     return dict(content=cards)
 
@@ -168,7 +175,7 @@ def cart_get_price_total(rows):
         if row.customers_shoppingcart.classes_id:
             cls = Class(row.customers_shoppingcart.classes_id,
                         row.customers_shoppingcart.ClassDate)
-            prices = cls.get_price()
+            prices = cls.get_prices_customer(cuID)
 
             if row.customers_shoppingcart.AttendanceType == 1:
                 total += prices['trial']
@@ -826,7 +833,7 @@ def event_get_activities_get_products(wsaID):
 
 def events():
     """
-        Workshops list for shop
+        Events list for shop
     """
     response.title= T('Shop')
     response.subtitle = T('Events')
@@ -842,10 +849,86 @@ def events():
     return dict(content = content)
 
 
+def memberships():
+    """
+        Memberships list for shop
+    """
+    from openstudio.os_school import School
+
+    response.title= T('Shop')
+    response.subtitle = T('Memberships')
+    response.view = 'shop/no_box.html'
+
+    content = T('No memberships available at this time, please check back later.')
+    features = db.customers_shop_features(1)
+    if features.Memberships:
+        school = School()
+        content = school.get_memberships_formatted(public_only=True, link_type='shop')
+
+    return dict(content = content)
+
+
+def membership_terms():
+    """
+        Buy membership confirmation page
+    """
+    from openstudio.os_school_membership import SchoolMembership
+
+    response.title= T('Shop')
+    response.subtitle = T('Membership')
+    response.view = 'shop/index.html'
+
+    smID = request.vars['smID']
+
+    features = db.customers_shop_features(1)
+    if not features.Memberships:
+        return T('This feature is disabled')
+
+    # check if we require a complete profile
+    shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile')
+    if shop_requires_complete_profile:
+        check_add_to_card_requires_complete_profile(auth.user.id)
+
+    sm = SchoolMembership(smID)
+    price = sm.get_price_on_date(TODAY_LOCAL)
+
+    response.subtitle += ' '
+    response.subtitle += sm.row.Name
+
+    general_terms = get_sys_property('shop_memberships_terms')
+    specific_terms = sm.row.Terms
+
+    terms = DIV()
+    if general_terms:
+        terms.append(B(T('General terms & conditions')))
+        terms.append(XML(general_terms))
+    if specific_terms:
+        terms.append(B(T('Membership specific terms & conditions')))
+        terms.append(XML(specific_terms))
+
+    conditions = DIV(terms, _class='well')
+
+    confirm = A(B(T('I agree')),
+                _href=URL('mollie', 'membership_buy_now', vars={'smID':smID}),
+                _class='btn btn-primary')
+    cancel = A(B(T('Cancel')),
+               _href=URL('subscriptions'),
+               _class='btn btn-default')
+
+    content = DIV(H4(T('Terms & conditions')),
+                  conditions,
+                  confirm,
+                  cancel)
+
+    return dict(content=content)
+
+
 def subscriptions():
     """
         Subscriptions list in shop
     """
+    from openstudio.os_school import School
+
     response.title= T('Shop')
     response.subtitle = T('Subscriptions')
     response.view = 'shop/no_box.html'
@@ -854,7 +937,7 @@ def subscriptions():
     features = db.customers_shop_features(1)
     if features.Subscriptions:
         school = School()
-        content = school.get_subscriptions_formatted(public_only=True, link_type='shop')
+        content = school.get_subscriptions_formatted(auth.user.id, public_only=True, link_type='shop')
 
     return dict(content = content)
 
@@ -883,7 +966,7 @@ def subscription_terms():
     # automatic payment
 
     ssu = SchoolSubscription(ssuID)
-    price = ssu.get_price_on_date(datetime.date.today())
+    price = ssu.get_price_on_date(TODAY_LOCAL)
     classes = ssu.get_classes_formatted()
 
     response.subtitle += ' '
@@ -909,7 +992,7 @@ def subscription_terms():
                _href=URL('subscriptions'),
                _class='btn btn-default')
 
-    content = DIV(H4(T('Subscription terms & conditions')),
+    content = DIV(H4(T('Terms & conditions')),
                   subscription_conditions,
                   confirm,
                   cancel)

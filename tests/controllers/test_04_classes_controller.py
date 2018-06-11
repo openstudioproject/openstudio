@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-'''py.test test cases to test OpenStudio.
+"""py.test test cases to test OpenStudio.
 
 These tests run based on webclient and need web2py server running.
-'''
+"""
 
 import datetime
 import gluon.contrib.simplejson as sj
@@ -13,6 +13,7 @@ from populate_os_tables import populate_classes
 from populate_os_tables import populate_customers
 from populate_os_tables import populate_customers_with_classcards
 from populate_os_tables import populate_customers_with_subscriptions
+from populate_os_tables import populate_customers_with_memberships
 from populate_os_tables import populate_school_classcards
 from populate_os_tables import populate_school_classcards_groups
 from populate_os_tables import populate_workshop_activity_overlapping_class
@@ -28,9 +29,9 @@ def next_weekday(d, weekday):
 
 
 def test_class_add(client, web2py):
-    '''
+    """
         Can we add a class?
-    '''
+    """
     populate(web2py.db.school_locations, 1)
     populate(web2py.db.school_classtypes, 1)
 
@@ -65,9 +66,9 @@ def test_class_add(client, web2py):
 
 
 def test_class_edit(client, web2py):
-    '''
+    """
         Can we edit a class?
-    '''
+    """
     populate_classes(web2py)
     assert web2py.db(web2py.db.classes).count() == 1
 
@@ -94,9 +95,9 @@ def test_class_edit(client, web2py):
 
 
 def test_schedule(client, web2py):
-    '''
+    """
         Is the schedule showing all things as it should?
-    '''
+    """
     populate_classes(web2py)
     assert web2py.db(web2py.db.classes).count() == 1
 
@@ -120,9 +121,9 @@ def test_schedule(client, web2py):
 
 
 def test_schedule_classes_otc(client, web2py):
-    '''
+    """
         Is a change from classes_otc showing in the schedule?
-    '''
+    """
     populate_classes(web2py, with_otc=True)
 
     url = '/classes/schedule?year=2014&week=2'
@@ -137,9 +138,9 @@ def test_schedule_classes_otc(client, web2py):
 
 
 def test_class_edit_on_date(client, web2py):
-    '''
+    """
         Is the page to edit a single class working?
-    '''
+    """
     prepare_classes(web2py)
 
     url = '/classes/class_edit_on_date?clsID=1&date=2014-01-06'
@@ -158,9 +159,9 @@ def test_class_edit_on_date(client, web2py):
 
 
 def test_class_edit_on_date_remove_changes(client, web2py):
-    '''
+    """
         Can we remove the changes in classes_otc
-    '''
+    """
     prepare_classes(web2py)
 
     web2py.db.classes_otc.insert(
@@ -177,9 +178,9 @@ def test_class_edit_on_date_remove_changes(client, web2py):
 
 
 def test_class_edit_on_date_cancel_class(client, web2py):
-    '''
+    """
         Are credits returned to all customers and booking cancelled when a class is cancelled
-    '''
+    """
     url = '/user/login'
     client.get(url)
     assert client.status == 200
@@ -211,9 +212,9 @@ def test_class_edit_on_date_cancel_class(client, web2py):
 
 
 def test_classes_otc_subteacher(client, web2py):
-    '''
+    """
         Can we add substitute teachers for a class?
-    '''
+    """
     populate_classes(web2py)
     assert web2py.db(web2py.db.classes).count() == 1
 
@@ -237,9 +238,9 @@ def test_classes_otc_subteacher(client, web2py):
 
 
 def test_attendance_list_add_customer(client, web2py):
-    '''
+    """
         Add a customer from the attendance list
-    '''
+    """
     prepare_classes(web2py)
 
     rvars = 'clsID=1&date=2014-01-06'
@@ -268,9 +269,9 @@ def test_attendance_list_add_customer(client, web2py):
 
 
 # def test_expected_attendance_reservations(client, web2py):
-#     '''
+#     """
 #         Does the expected attendance page show?
-#     '''
+#     """
 #     populate_classes(web2py)
 #     populate_customers(web2py, 1)
 #     web2py.db.classes_reservation.insert(classes_id='1',
@@ -290,10 +291,10 @@ def test_attendance_list_add_customer(client, web2py):
 
 
 # def test_expected_attendance_from_previous_attendance_classcard(client, web2py):
-#     '''
+#     """
 #         Does the expected attendance page show customers without reservations
 #         who attended using a class card or subscription in the past month?
-#     '''
+#     """
 #     # get random url to init payment methods
 #     url = '/default/user/login'
 #     client.get(url)
@@ -319,10 +320,10 @@ def test_attendance_list_add_customer(client, web2py):
 
 
 # def test_attendance_sign_in_trialclass(client, web2py):
-#     '''
+#     """
 #         Can we check in a customer for a trial class?
 #         Check using auth_user.id 1002
-#     '''
+#     """
 #     classdate = '2014-01-06'
 #     prepare_classes(web2py)
 #
@@ -349,10 +350,10 @@ def test_attendance_list_add_customer(client, web2py):
 
 
 # def test_attendance_sign_in_dropin(client, web2py):
-#     '''
+#     """
 #         Can we check in a customer for a drop in class?
 #         Check using auth_user.id 1002
-#     '''
+#     """
 #     classdate = '2014-01-06'
 #     prepare_classes(web2py)
 #
@@ -379,10 +380,10 @@ def test_attendance_list_add_customer(client, web2py):
 
 
 # def test_attendance_sign_in_subscription(client, web2py):
-#     '''
+#     """
 #         Can we check in a customer for a class using a subscription?
 #         Check using auth_user.id 1001
-#     '''
+#     """
 #     # get random url to init payment methods for subscription
 #     client.get('/default/user/login')
 #     assert client.status == 200
@@ -420,11 +421,11 @@ def test_attendance_list_add_customer(client, web2py):
 #
 #
 # def test_attendance_sign_in_subscription_check_paused(client, web2py):
-#     '''
+#     """
 #         Can we check in a customer for a class using a subscription
 #         does it show a message when the subscription is paused'?
 #         Check using auth_user.id 1001
-#     '''
+#     """
 #     # get random url to init payment methods for subscription
 #     client.get('/default/user/login')
 #     assert client.status == 200
@@ -464,10 +465,10 @@ def test_attendance_list_add_customer(client, web2py):
 
 
 # def test_attendance_sign_in_subscription_weekly_classes_check(client, web2py):
-#     '''
+#     """
 #         Can we check in a customer for a class using a subscription?
 #         Check using auth_user.id 1001
-#     '''
+#     """
 #     # get random url to init payment methods for subscription
 #     client.get('/default/user/login')
 #     assert client.status == 200
@@ -517,10 +518,10 @@ def test_attendance_list_add_customer(client, web2py):
 #
 #
 # def test_attendance_sign_in_subscription_monthly_classes_check(client, web2py):
-#     '''
+#     """
 #         Can we check in a customer for a class using a subscription?
 #         Check using auth_user.id 1001
-#     '''
+#     """
 #     # get random url to init payment methods for subscription
 #     client.get('/default/user/login')
 #     assert client.status == 200
@@ -572,10 +573,10 @@ def test_attendance_list_add_customer(client, web2py):
 
 
 # def test_attendance_sign_in_classcard(client, web2py):
-#     '''
+#     """
 #         Can we check in a customer for a class using a class card?
 #         Check using auth_user.id 1002
-#     '''
+#     """
 #     classdate = '2014-01-06'
 #     populate_customers_with_classcards(web2py)
 #
@@ -623,9 +624,9 @@ def test_attendance_list_add_customer(client, web2py):
 #     assert unicode(card_total) + ' Classes remaining' in client.text
 
 def test_class_book_subscription(client, web2py):
-    '''
+    """
         Can we book a class on a subscription?
-    '''
+    """
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
@@ -648,9 +649,9 @@ def test_class_book_subscription(client, web2py):
 
 
 def test_class_book_classcard(client, web2py):
-    '''
+    """
         Can we book a class on a card?
-    '''
+    """
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
@@ -673,9 +674,9 @@ def test_class_book_classcard(client, web2py):
 
 
 def test_class_book_dropin(client, web2py):
-    '''
+    """
         Can we book a class as drop in?
-    '''
+    """
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
@@ -705,10 +706,39 @@ def test_class_book_dropin(client, web2py):
     assert ig_100.Footer == invoice.Footer
 
 
+def test_class_book_dropin_membership_invoice_amounts(client, web2py):
+    """
+        Are membership prices put on the invoice for drop in classes?
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    classdate = '2014-01-06'
+    prepare_classes(web2py, attendance=False)
+    populate_customers_with_memberships(web2py, customers_populated=True)
+
+    assert web2py.db(web2py.db.classes_attendance).count() == 0
+
+    url = '/classes/class_book?dropin=true&date=2014-01-06&cuID=1001&clsID=1'
+    client.get(url)
+    assert client.status == 200
+
+    # Invoice created?
+    query = (web2py.db.invoices.id > 0)
+    assert web2py.db(query).count() == 1
+
+    # Invoice item amounts?
+    prices = web2py.db.classes_price(1)
+    item = web2py.db.invoices_items(1)
+    assert item.TotalPriceVAT == prices.DropinMembership
+    assert item.tax_rates_id == prices.tax_rates_id_dropin_membership
+
+
 def test_class_book_trial(client, web2py):
-    '''
+    """
         Can we book a class as trial class?
-    '''
+    """
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
@@ -738,10 +768,39 @@ def test_class_book_trial(client, web2py):
     assert ig_100.Footer == invoice.Footer
 
 
+def test_class_book_trial_membership_invoice_amounts(client, web2py):
+    """
+        Are membership prices put on the invoice for trial classes?
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    classdate = '2014-01-06'
+    prepare_classes(web2py, attendance=False)
+    populate_customers_with_memberships(web2py, customers_populated=True)
+
+    assert web2py.db(web2py.db.classes_attendance).count() == 0
+
+    url = '/classes/class_book?trial=true&date=2014-01-06&cuID=1001&clsID=1'
+    client.get(url)
+    assert client.status == 200
+
+    # Invoice created?
+    query = (web2py.db.invoices.id > 0)
+    assert web2py.db(query).count() == 1
+
+    # Invoice item amounts?
+    prices = web2py.db.classes_price(1)
+    item = web2py.db.invoices_items(1)
+    assert item.TotalPriceVAT == prices.TrialMembership
+    assert item.tax_rates_id == prices.tax_rates_id_trial_membership
+
+
 def test_class_book_complementary(client, web2py):
-    '''
+    """
         Can we book a class as complementary?
-    '''
+    """
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
@@ -763,9 +822,9 @@ def test_class_book_complementary(client, web2py):
 
 
 def test_attendance_set_status_attending(client, web2py):
-    '''
+    """
         Can we change the status of an attendance record?
-    '''
+    """
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
@@ -783,9 +842,9 @@ def test_attendance_set_status_attending(client, web2py):
 
 
 def test_attendance_remove(client, web2py):
-    '''
+    """
         Can we remove attendance using JSON after adding it?
-    '''
+    """
     classdate = '2014-01-06'
     prepare_classes(web2py)
     assert web2py.db(web2py.db.classes_attendance).count() == 4
@@ -807,9 +866,9 @@ def test_attendance_remove(client, web2py):
 
 
 def test_attendance_remove_cancel_invoice(client, web2py):
-    '''
+    """
         Test cancelling of invoice after removing attendance for drop in classes
-    '''
+    """
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
@@ -836,9 +895,9 @@ def test_attendance_remove_cancel_invoice(client, web2py):
 
 
 def test_attendance_booking_options_subscription_not_allowed(client, web2py):
-    '''
+    """
         Is the subscription not allowed message shown to customers like it should?
-    '''
+    """
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
@@ -862,9 +921,9 @@ def test_attendance_booking_options_subscription_not_allowed(client, web2py):
 
 
 def test_attendance_booking_options_classcard_not_allowed(client, web2py):
-    '''
+    """
         Is the subscription not allowed message shown to customers like it should?
-    '''
+    """
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
@@ -886,9 +945,9 @@ def test_attendance_booking_options_classcard_not_allowed(client, web2py):
 
 
 def test_attendance_teacher_notes(client, web2py):
-    '''
+    """
         Are the notes shown correctly?
-    '''
+    """
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
@@ -912,9 +971,9 @@ def test_attendance_teacher_notes(client, web2py):
 
 
 def test_attendance_teacher_notes_add(client, web2py):
-    '''
+    """
         Can we add teacher notes?
-    '''
+    """
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
@@ -937,9 +996,9 @@ def test_attendance_teacher_notes_add(client, web2py):
 
 
 def test_attendance_teacher_notes_edit(client, web2py):
-    '''
+    """
         Can we edit teacher notes?
-    '''
+    """
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
@@ -965,9 +1024,9 @@ def test_attendance_teacher_notes_edit(client, web2py):
 
 
 def test_attendance_teacher_notes_delete(client, web2py):
-    '''
+    """
         Can we delete teacher notes?
-    '''
+    """
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
@@ -986,9 +1045,9 @@ def test_attendance_teacher_notes_delete(client, web2py):
 
 
 def test_attendance_teacher_notes_recent_and_injury(client, web2py):
-    '''
+    """
         Are recent notes (made within the last 3 months) shown in the classes/attendance page
-    '''
+    """
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
@@ -1013,9 +1072,9 @@ def test_attendance_teacher_notes_recent_and_injury(client, web2py):
 
 
 def test_attendance_teacher_notes_injury_status(client, web2py):
-    '''
+    """
         Can we update the injury status for a note?
-    '''
+    """
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
@@ -1031,9 +1090,9 @@ def test_attendance_teacher_notes_injury_status(client, web2py):
 
 #TODO: Update this test for class_book classes taken
 # def test_attendance_classcard_class_count_classestaken(client, web2py):
-#     '''
+#     """
 #         Is the class count increased when a class is added to a customer?
-#     '''
+#     """
 #     populate_classes(web2py)
 #
 #     nr_cards = 1
@@ -1067,9 +1126,9 @@ def test_attendance_teacher_notes_injury_status(client, web2py):
 
 
 def test_classes_override_attendance(client, web2py):
-    '''
+    """
         Does the override attendance page work?
-    '''
+    """
     populate_classes(web2py)
     assert web2py.db(web2py.db.classes).count() == 1
 
@@ -1102,9 +1161,9 @@ def test_classes_override_attendance(client, web2py):
 
 
 def test_classes_otc_status_cancelled(client, web2py):
-    '''
+    """
         Does the cancel status work?
-    '''
+    """
     populate_classes(web2py)
     assert web2py.db(web2py.db.classes).count() == 1
 
@@ -1129,9 +1188,9 @@ def test_classes_otc_status_cancelled(client, web2py):
 
 
 def test_classes_otc_status_open(client, web2py):
-    '''
+    """
         Does the cancel status work?
-    '''
+    """
     populate_classes(web2py)
     assert web2py.db(web2py.db.classes).count() == 1
 
@@ -1156,9 +1215,9 @@ def test_classes_otc_status_open(client, web2py):
 
 
 def test_classes_open(client, web2py):
-    '''
+    """
         Check if classes appear on the classes_open list
-    '''
+    """
     populate_classes(web2py)
     assert web2py.db(web2py.db.classes).count() == 1
 
@@ -1206,9 +1265,9 @@ def test_classes_open(client, web2py):
 
 
 def test_overlapping_workshops(client, web2py):
-    '''
+    """
         Test if the overlapping workshop activities show up
-    '''
+    """
     populate_workshop_activity_overlapping_class(web2py)
 
     # test overlapping page
@@ -1220,10 +1279,10 @@ def test_overlapping_workshops(client, web2py):
 
 
 def test_overlapping_workshops_count(client, web2py):
-    '''
+    """
         Test if the count shows up correctly for overlapping workshops
         in the shedule
-    '''
+    """
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
@@ -1244,9 +1303,9 @@ def test_overlapping_workshops_count(client, web2py):
 
 
 def test_class_teachers(client, web2py):
-    '''
+    """
         Test if we can get a list of teachers for a class
-    '''
+    """
     populate_classes(web2py)
     assert web2py.db(web2py.db.classes).count() == 1
 
@@ -1260,9 +1319,9 @@ def test_class_teachers(client, web2py):
 
 
 def test_class_teacher_add(client, web2py):
-    '''
+    """
         Test if we can add a teacher
-    '''
+    """
     populate_classes(web2py)
     assert web2py.db(web2py.db.classes).count() == 1
 
@@ -1282,9 +1341,9 @@ def test_class_teacher_add(client, web2py):
     assert teacher.first_name in client.text
 
 def test_class_teacher_edit(client, web2py):
-    '''
+    """
         Test if we can edit a teacher
-    '''
+    """
     populate_classes(web2py)
     assert web2py.db(web2py.db.classes).count() == 1
 
@@ -1305,9 +1364,9 @@ def test_class_teacher_edit(client, web2py):
 
 
 def test_class_prices(client, web2py):
-    '''
+    """
         Test if we can get a list of prices for a class
-    '''
+    """
     populate_classes(web2py)
     assert web2py.db(web2py.db.classes).count() == 1
 
@@ -1321,9 +1380,9 @@ def test_class_prices(client, web2py):
 
 
 def test_class_price_add(client, web2py):
-    '''
+    """
         Test if we can add a price
-    '''
+    """
     populate_classes(web2py)
     assert web2py.db(web2py.db.classes).count() == 1
 
@@ -1335,6 +1394,10 @@ def test_class_price_add(client, web2py):
                 tax_rates_id_dropin=1,
                 Trial=1324243,
                 tax_rates_id_trial=1,
+                DropinMembership=1230987,
+                tax_rates_id_dropin_membership=1,
+                TrialMembership=934579,
+                tax_rates_id_trial_membership=1,
                 Startdate='2014-01-01',
                 Enddate='2014-02-01')
     client.post(url, data=data)
@@ -1347,9 +1410,9 @@ def test_class_price_add(client, web2py):
 
 
 def test_class_price_edit(client, web2py):
-    '''
+    """
         Test if we can edit a teacher
-    '''
+    """
     populate_classes(web2py)
     assert web2py.db(web2py.db.classes).count() == 1
 
@@ -1357,13 +1420,19 @@ def test_class_price_edit(client, web2py):
     client.get(url)
     assert client.status == 200
 
-    data = dict(id=1,
-                Dropin=254098303,
-                tax_rates_id_dropin=1,
-                Trial=1324243,
-                tax_rates_id_trial=1,
-                Startdate='2014-01-01',
-                Enddate='2014-02-01')
+    data = dict(
+        id = 1,
+        Dropin=254098303,
+        tax_rates_id_dropin=1,
+        Trial=1324243,
+        tax_rates_id_trial=1,
+        DropinMembership=1230987,
+        tax_rates_id_dropin_membership=1,
+        TrialMembership=934579,
+        tax_rates_id_trial_membership=1,
+        Startdate='2014-01-01',
+        Enddate='2014-02-01'
+    )
     client.post(url, data=data)
     assert client.status == 200
 
@@ -1375,9 +1444,9 @@ def test_class_price_edit(client, web2py):
 
 
 def test_class_teacher_display_schedule(client, web2py):
-    '''
+    """
         Test whether a teacher shows up currectly in the schedule
-    '''
+    """
     populate_classes(web2py)
     assert web2py.db(web2py.db.classes).count() == 1
 
@@ -1390,9 +1459,9 @@ def test_class_teacher_display_schedule(client, web2py):
 
 
 def test_class_edit_notification_no_subscription_or_classcard_group(client, web2py):
-    '''
+    """
         Is a notification shown to the user when no subscription or class card groups are assigned to a class
-    '''
+    """
     prepare_classes(web2py)
 
     web2py.db(web2py.db.classes_school_subscriptions_groups.id > 0).delete()
@@ -1408,9 +1477,9 @@ def test_class_edit_notification_no_subscription_or_classcard_group(client, web2
 
 
 def test_class_subscriptions(client, web2py):
-    '''
+    """
         Are school_subscription_groups listed correctly
-    '''
+    """
     # get random url to initialize web2py environnment
     url = '/default/user/login'
     client.get(url)
@@ -1438,9 +1507,9 @@ def test_class_subscriptions(client, web2py):
 
 
 def test_class_subscription_group_add(client, web2py):
-    '''
+    """
         Can we add a subscription group to a class
-    '''
+    """
     # get random url to initialize web2py environnment
     url = '/default/user/login'
     client.get(url)
@@ -1485,9 +1554,9 @@ def test_class_subscription_group_add(client, web2py):
 
 
 def test_class_subscription_group_edit(client, web2py):
-    '''
+    """
         Can we add a subscription group to a class
-    '''
+    """
     # get random url to initialize web2py environnment
     url = '/default/user/login'
     client.get(url)
@@ -1525,9 +1594,9 @@ def test_class_subscription_group_edit(client, web2py):
 
 
 def test_class_subscription_group_delete(client, web2py):
-    '''
+    """
         Can we delete a subscription group?
-    '''
+    """
     # get random url to initialize web2py environnment
     url = '/default/user/login'
     client.get(url)
@@ -1546,9 +1615,9 @@ def test_class_subscription_group_delete(client, web2py):
 
 
 def test_class_copy_subscription_classcards(client, web2py):
-    '''
+    """
         Is the page to list other classes to copy subscription and classcard setting from working?
-    '''
+    """
     # get random url to initialize web2py environnment
     url = '/default/user/login'
     client.get(url)
@@ -1574,9 +1643,9 @@ def test_class_copy_subscription_classcards(client, web2py):
 
 
 def test_class_copy_subscription_classcards_execute(client, web2py):
-    '''
+    """
         Can we copy subscription and classcards settings from another class?
-    '''
+    """
     # get random url to initialize web2py environnment
     url = '/default/user/login'
     client.get(url)
@@ -1603,9 +1672,9 @@ def test_class_copy_subscription_classcards_execute(client, web2py):
     
     
 def test_class_classcards(client, web2py):
-    '''
+    """
         Are school_classcard_groups listed correctly
-    '''
+    """
     # get random url to initialize web2py environnment
     url = '/default/user/login'
     client.get(url)
@@ -1633,9 +1702,9 @@ def test_class_classcards(client, web2py):
 
 
 def test_class_classcard_group_add(client, web2py):
-    '''
+    """
         Can we add a classcard group to a class
-    '''
+    """
     # get random url to initialize web2py environnment
     url = '/default/user/login'
     client.get(url)
@@ -1679,9 +1748,9 @@ def test_class_classcard_group_add(client, web2py):
 
 
 def test_class_classcard_group_edit(client, web2py):
-    '''
+    """
         Can we add a classcard group to a class
-    '''
+    """
     # get random url to initialize web2py environnment
     url = '/default/user/login'
     client.get(url)
@@ -1711,9 +1780,9 @@ def test_class_classcard_group_edit(client, web2py):
 
 
 def test_class_classcard_group_delete(client, web2py):
-    '''
+    """
         Can we delete a classcard group?
-    '''
+    """
     # get random url to initialize web2py environnment
     url = '/default/user/login'
     client.get(url)
@@ -1733,9 +1802,9 @@ def test_class_classcard_group_delete(client, web2py):
 
 #TODO: move this test to reports
 # def test_teacher_classes(client, web2py):
-#     '''
+#     """
 #         Test if classes are listed for a teacher
-#     '''
+#     """
 #     populate_classes(web2py)
 #
 #     url = '/classes/teacher_classes?teachers_id=2&year=2014&month=1'
@@ -1747,9 +1816,9 @@ def test_class_classcard_group_delete(client, web2py):
 
 #TODO: move this test to reports
 # def test_teacher_classes_role_display(client, web2py):
-#     '''
+#     """
 #         Test if the role for teacher 2 is displayed correctly
-#     '''
+#     """
 #     populate_classes(web2py)
 #
 #     url = '/classes/teacher_classes?teachers_id=2&year=2014&month=1'
@@ -1761,9 +1830,9 @@ def test_class_classcard_group_delete(client, web2py):
 
 
 def test_school_holiday_display_schedule(client, web2py):
-    '''
+    """
         Is a holiday displayed properly in the schedule?
-    '''
+    """
     populate_classes(web2py)
     description = 'fslkdfjlkrjlkdf'
     web2py.db.school_holidays.insert(Description=description,
@@ -1783,9 +1852,9 @@ def test_school_holiday_display_schedule(client, web2py):
 
 
 def test_reservations(client, web2py):
-    '''
+    """
         Test list of reservations
-    '''
+    """
     prepare_classes(web2py)
 
     url = '/classes/reservations?filter=this&clsID=1&date=2014-01-06'
@@ -1798,10 +1867,10 @@ def test_reservations(client, web2py):
 
 
 # def test_resevations_maxstudents_reached(client, web2py):
-#     '''
+#     """
 #         Does a warning message show on the reservations page when the
 #         reservations count exceeds the Maxstudents for a class?
-#     '''
+#     """
 #     prepare_classes(web2py)
 #
 #     # lower number of available spaces to get a warning
@@ -1819,10 +1888,10 @@ def test_reservations(client, web2py):
 
 
 def test_reservation_maxreservations_recurring_reached(client, web2py):
-    '''
+    """
         Does a warning message show on the reservations page when the
         reservations count exceeds the Maxstudents for a class?
-    '''
+    """
     prepare_classes(web2py)
 
     # lower number of available spaces to get a warning
@@ -1847,10 +1916,10 @@ def test_reservation_maxreservations_recurring_reached(client, web2py):
 
 
 # def test_reservation_maxreservations_dropin_trial_reached(client, web2py):
-#     '''
+#     """
 #         Does a warning message show on the reservations page when the
 #         reservations count exceeds the Maxstudents for a class?
-#     '''
+#     """
 #     prepare_classes(web2py)
 #
 #     # lower number of available spaces to get a warning
@@ -1874,9 +1943,9 @@ def test_reservation_maxreservations_recurring_reached(client, web2py):
 #     assert 'Warning' in client.text
 
 def test_reservations_recurring(client, web2py):
-    '''
+    """
         List reservations for a customer (this is the default)
-    '''
+    """
     prepare_classes(web2py)
 
     url = '/classes/reservations?filter=recurring&clsID=1&date=2014-01-06'
@@ -1887,9 +1956,9 @@ def test_reservations_recurring(client, web2py):
 
 
 def test_notes(client, web2py):
-    '''
+    """
         Test list of class notes
-    '''
+    """
     prepare_classes(web2py)
 
     note = web2py.db.classes_notes(1)
@@ -1902,9 +1971,9 @@ def test_notes(client, web2py):
 
 
 def test_notes_add(client, web2py):
-    '''
+    """
         Can we add a note?
-    '''
+    """
     prepare_classes(web2py)
 
     url = '/classes/notes?clsID=1&date=2014-01-06'
@@ -1925,9 +1994,9 @@ def test_notes_add(client, web2py):
 
 
 def test_notes_edit(client, web2py):
-    '''
+    """
         Can we edit a note?
-    '''
+    """
     prepare_classes(web2py)
 
     url = '/classes/note_edit?clsID=1&date=2014-01-06&cnID=1'
@@ -1949,9 +2018,9 @@ def test_notes_edit(client, web2py):
 
 
 def test_notes_delete(client, web2py):
-    '''
+    """
         Can we delete a note?
-    '''
+    """
     prepare_classes(web2py)
 
     url = '/classes/note_delete?clsID=1&date=2014-01-06&cnID=1'

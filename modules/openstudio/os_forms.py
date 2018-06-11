@@ -28,12 +28,13 @@ class OsForms:
                              onaccept=[],
                              formstyle="bootstrap3_stacked",
                              form_id="MainForm",
+                             tinymce_enabled=False
                              ):
         """
             Return a crud form to add a record to the database
         """
-        T = current.globalenv['T']
-        crud = current.globalenv['crud']
+        T = current.T
+        crud = current.crud
 
         crud.messages.submit_button = submit_button or T("Save")
         crud.messages.record_created = T("Saved")
@@ -41,6 +42,9 @@ class OsForms:
         crud.settings.create_onaccept = onaccept
         crud.settings.formstyle = formstyle
         form = crud.create(db_table)
+
+        if tinymce_enabled:
+            form = self.tinymce_all_textareas(form)
 
         result = self.set_form_id_and_get_submit_button(form, form_id)
         # This contains ['form'] and ['submit']
@@ -54,13 +58,14 @@ class OsForms:
                              submit_button='',
                              onaccept=[],
                              formstyle="bootstrap3_stacked",
-                             form_id="MainForm"
+                             form_id="MainForm",
+                             tinymce_enabled=False
                              ):
         """
             Return a crud form to add a record to the database
         """
-        T = current.globalenv['T']
-        crud = current.globalenv['crud']
+        T = current.T
+        crud = current.crud
 
         crud.messages.submit_button = submit_button or T("Save")
         crud.messages.record_updated = T("Saved")
@@ -68,6 +73,9 @@ class OsForms:
         crud.settings.update_onaccept = onaccept
         crud.settings.formstyle = formstyle
         form = crud.update(db_table, record_id)
+
+        if tinymce_enabled:
+            form = self.tinymce_all_textareas(form)
 
         result = self.set_form_id_and_get_submit_button(form, form_id)
         # This contains ['form'] and ['submit']
@@ -83,7 +91,7 @@ class OsForms:
 
         # Set default values
         T = current.T
-        TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
+        TODAY_LOCAL = current.TODAY_LOCAL
         if not year:
             year = TODAY_LOCAL.year
         if not month:
@@ -122,3 +130,11 @@ class OsForms:
 
         return dict(form = result['form'],
                     submit = result['submit'])
+
+
+    def tinymce_all_textareas(self, form):
+        textareas = form.elements('textarea')
+        for textarea in textareas:
+            textarea['_class'] += ' tmced'
+
+        return form

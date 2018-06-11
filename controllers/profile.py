@@ -2,7 +2,7 @@
 """
     This file provides the customer portal for OpenStudio
 """
-from openstudio.openstudio import Customer, Order, Invoice
+from openstudio.openstudio import Order, Invoice
 
 
 @auth.requires_login()
@@ -10,6 +10,8 @@ def index():
     """
         Main page for customers portal
     """
+    from openstudio.os_customer import Customer
+
     response.title = T('Welcome')
     response.subtitle = auth.user.display_name
 
@@ -44,6 +46,10 @@ def index():
     if features.Subscriptions:
         subscriptions = index_get_subscriptions(customer)
         cc_right.append(DIV(subscriptions, _class='no-padding-left no-padding-right col-md-12'))
+
+    if features.Memberships:
+        memberships = index_get_memberships(customer)
+        cc_left.append(DIV(memberships, _class='no-padding-left no-padding-right col-md-12'))
 
 
     customer_content.append(cc_left)
@@ -276,6 +282,44 @@ def index_get_subscriptions(customer):
                                                _href=URL('profile', 'subscriptions'),
                                                _class='btn btn-link pull-right'),
                                                _title=T('List all subscriptions'),
+                                             _class='center'))
+
+
+def index_get_memberships(customer):
+    """
+    :return: list current subscriptions for a customer
+    """
+    rows = customer.get_memberships_on_date(TODAY_LOCAL, from_cache=False)
+
+    if not rows:
+        table = T('No current memberships')
+    else:
+        header = THEAD(TR(TH(T('#')),
+                          TH(T('Membership')),
+                          TH(T('Start')),
+                          TH(),
+                          ))
+        table = TABLE(header, _class='table table-condensed')
+        for i, row in enumerate(rows):
+            repr_row = list(rows[i:i+1].render())[0]
+
+            tr = TR(TD(row.id),
+                    TD(repr_row.school_memberships_id),
+                    TD(repr_row.Startdate),
+                    TD())
+
+            table.append(tr)
+
+    return os_gui.get_box(T('My Memberships'),
+                          table,
+                          box_class='box-solid',
+                          with_border=False,
+                          show_footer=True,
+                          footer_padding=False,
+                          footer_content=DIV(A(SPAN(os_gui.get_fa_icon('fa-history'), ' ', T('All')),
+                                               _href=URL('profile', 'memberships'),
+                                               _class='btn btn-link pull-right'),
+                                               _title=T('List all memberships'),
                                              _class='center'))
 
 
@@ -598,6 +642,8 @@ def invoices():
     """
         Shows all invoices for a customer
     """
+    from openstudio.os_customer import Customer
+
     response.title = T('Invoices')
     response.subtitle = ''
     #response.view = 'shop/index.html'
@@ -618,6 +664,8 @@ def events():
     """
         Page to show list of workshops with invoices for a customer
     """
+    from openstudio.os_customer import Customer
+
     response.title = T('Profile')
     response.subtitle = T('Events')
     # response.view = 'shop/index.html'
@@ -669,6 +717,8 @@ def orders_display(var=None):
     """
         Returns orders display
     """
+    from openstudio.os_customer import Customer
+
     customer = Customer(auth.user.id)
     orders = customer.get_orders_with_items_and_amounts()
 
@@ -799,6 +849,7 @@ def classes():
     """
         Page to list classes for a customer
     """
+    from openstudio.os_customer import Customer
     from openstudio.openstudio import ClassAttendance
 
     response.title = T('Profile')
@@ -959,6 +1010,35 @@ def class_cancel_confirm():
 
 
 @auth.requires_login()
+def memberships():
+    """
+        Page to list subscriptions for a customer
+    """
+    response.title = T('Profile')
+    response.subtitle = T('Memberships')
+
+    features = db.customers_profile_features(1)
+    if not features.Memberships:
+        redirect(URL('profile', 'index'))
+
+    left = db.school_memberships.on(
+        db.customers_memberships.school_memberships_id ==
+        db.school_memberships.id
+    )
+
+    query = (db.customers_memberships.auth_customer_id == auth.user.id)
+    rows = db(query).select(db.customers_memberships.ALL,
+                            db.school_memberships.Name,
+                            left=left,
+                            orderby=~db.customers_memberships.Startdate)
+
+
+    back = os_gui.get_button('back', URL('index'))
+
+    return dict(rows=rows, back=back)
+
+
+@auth.requires_login()
 def subscriptions():
     """
         Page to list subscriptions for a customer
@@ -1072,6 +1152,8 @@ def enrollments():
     """
         List recurring class reservations for customers
     """
+    from openstudio.os_customer import Customer
+
     response.title = T('Profile')
     response.subtitle = T('Enrollments')
 
@@ -1242,6 +1324,8 @@ def privacy_get_documents(var=None):
     """
         returns list of documents for customer
     """
+    from openstudio.os_customer import Customer
+
     customer = Customer(auth.user.id)
     rows = customer.get_documents_rows()
 
@@ -1342,6 +1426,8 @@ def staff_payments_get_content(var=None):
     :param var:
     :return:
     """
+    from openstudio.os_customer import Customer
+
     customer = Customer(auth.user.id)
     rows = customer.get_invoices_rows(
         public_group=False,

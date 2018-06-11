@@ -163,7 +163,7 @@ def products():
     """
         List products
     """
-    from openstudio.openstudio import ShopProducts
+    from openstudio.os_shop_products import ShopProducts
 
     response.title = T('Shop')
     response.subtitle = T('Catalog')
@@ -264,8 +264,8 @@ def product_onaccept(form):
         If there is a product set, add all possible variants
         If not, add a default variant
     """
-    from openstudio.openstudio import ShopProduct
-    from openstudio.openstudio import ShopProductsSet
+    from openstudio.os_shop_product import ShopProduct
+    from openstudio.os_shop_products_set import ShopProductsSet
     spID = form.vars.id
     spsID = form.vars.shop_products_sets_id
 
@@ -300,8 +300,8 @@ def product_variants():
     """
         List Product variants for a product
     """
-    from openstudio.openstudio import ShopProduct
-    from openstudio.openstudio import ShopProductsVariants
+    from openstudio.os_shop_product import ShopProduct
+    from openstudio.os_shop_products_variants import ShopProductsVariants
 
     spID = request.vars['spID']
     product = ShopProduct(spID)
@@ -384,7 +384,7 @@ def product_variant_add_check_products_set(spID):
     :param spID: db.shop_products.id
     :return: None
     """
-    from openstudio.openstudio import ShopProduct
+    from openstudio.os_shop_product import ShopProduct
     product = ShopProduct(spID)
     if product.has_products_set():
         session.flash = T("Unable to add variants for a product with a set")
@@ -397,7 +397,7 @@ def product_variant_edit():
         Edit a product variant
     """
     from openstudio.os_forms import OsForms
-    from openstudio.openstudio import ShopProduct
+    from openstudio.os_shop_product import ShopProduct
 
     spID = request.vars['spID']
     spvID = request.vars['spvID']
@@ -442,8 +442,8 @@ def product_variant_delete():
         Delete variant when not linked to a set
         Disable variant when linked to a set
     """
-    from openstudio.openstudio import ShopProduct
-    from openstudio.openstudio import ShopProductsVariant
+    from openstudio.os_shop_product import ShopProduct
+    from openstudio.os_shop_products_variant import ShopProductsVariant
 
     spID = request.vars['spID']
     spvID = request.vars['spvID']
@@ -467,7 +467,7 @@ def product_variant_set_default():
     """
         Set product variant as default
     """
-    from openstudio.openstudio import ShopProductsVariant
+    from openstudio.os_shop_products_variant import ShopProductsVariant
 
     spID = request.vars['spID']
     spvID = request.vars['spvID']
@@ -484,7 +484,7 @@ def product_variant_enable():
     """
          Enable a product variant
     """
-    from openstudio.openstudio import ShopProductsVariant
+    from openstudio.os_shop_products_variant import ShopProductsVariant
 
     spID = request.vars['spID']
     spvID = request.vars['spvID']
@@ -502,7 +502,7 @@ def products_sets():
     """
         List shop product_sets
     """
-    from openstudio.openstudio import ShopProductsSets
+    from openstudio.os_shop_products_sets import ShopProductsSets
     from openstudio.tools import OsSession
 
     response.title = T('Shop')
@@ -627,7 +627,7 @@ def products_set_options():
     """
         List products set options
     """
-    from openstudio.openstudio import ShopProductsSetsOptions
+    from openstudio.os_shop_products_sets_options import ShopProductsSetsOptions
     response.title = T('Shop')
     response.subtitle = T('Catalog')
     response.view = 'general/tabs_menu.html'
@@ -695,7 +695,7 @@ def categories():
     """
         List shop categories
     """
-    from openstudio.openstudio import ShopCategories
+    from openstudio.os_shop_categories import ShopCategories
     from openstudio.tools import OsSession
 
     response.title = T('Shop')
@@ -829,7 +829,7 @@ def brands():
     """
         List shop brands
     """
-    from openstudio.openstudio import ShopBrands
+    from openstudio.os_shop_brands import ShopBrands
     from openstudio.tools import OsSession
 
     response.title = T('Shop')
@@ -888,7 +888,7 @@ def brand_add():
 
     form = result['form']
     back = os_gui.get_button('back', return_url)
-    menu = catalog_get_menu('brandsd')
+    menu = catalog_get_menu('brands')
 
     content = DIV(
         H4(T('Add brand')),
@@ -963,7 +963,7 @@ def suppliers():
     """
         List shop suppliers
     """
-    from openstudio.openstudio import ShopSuppliers
+    from openstudio.os_shop_suppliers import ShopSuppliers
     from openstudio.tools import OsSession
 
     response.title = T('Shop')

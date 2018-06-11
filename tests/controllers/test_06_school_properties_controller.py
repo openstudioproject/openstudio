@@ -7,6 +7,7 @@ These tests run based on webclient and need web2py server running.
 from populate_os_tables import populate_tax_rates
 from populate_os_tables import populate_sys_organizations
 from populate_os_tables import populate_customers
+from populate_os_tables import populate_school_memberships
 from populate_os_tables import populate_school_subscriptions
 from populate_os_tables import populate_school_subscriptions_groups
 from populate_os_tables import populate_school_classcards
@@ -34,6 +35,149 @@ def test_employee_delete(client, web2py):
 
     row = web2py.db.auth_user(1001)
     assert row.employee == False
+
+
+def test_memberships_index_and_current_price(client, web2py):
+    """
+        Is the index page showing?
+        Is the current price showing?
+    """
+    web2py.db.school_memberships.insert(Name='banana class',
+                                          NRofClasses='15')
+
+    web2py.db.school_memberships_price.insert(
+        school_memberships_id = 1,
+        Startdate               = '2014-01-01',
+        Price                   = 123456)
+    web2py.db.commit()
+
+    assert web2py.db(web2py.db.school_memberships).count() == 1
+    assert web2py.db(web2py.db.school_memberships_price).count() == 1
+
+    url = '/school_properties/memberships'
+    client.get(url)
+    assert client.status == 200
+    assert 'Memberships' in client.text
+
+    assert format(123456, '.2f') in client.text
+
+
+
+def test_membership_add(client, web2py):
+    """
+        Can we add a membership?
+    """
+    url = '/school_properties/membership_add'
+    client.get(url)
+    assert client.status == 200
+    assert 'New membership' in client.text
+
+    data = dict(
+        Name='Premium membership',
+        Description='Premium member of the club',
+        Validity=12,
+        ValidityUnit='months'
+    )
+    client.post(url, data=data)
+    assert client.status == 200
+
+
+    assert 'Memberships' in client.text # verify redirection
+    assert data['Name'] in client.text
+
+    assert web2py.db(web2py.db.school_memberships).count() == 1
+
+
+def test_membership_edit(client, web2py):
+    """
+        Can we edit a membership?
+    """
+    web2py.db.school_memberships.insert(Name='banana class')
+    web2py.db.commit()
+    assert web2py.db(web2py.db.school_memberships).count() == 1
+
+    url = '/school_properties/membership_edit?smID=1'
+    client.get(url)
+    assert client.status == 200
+    assert 'Edit membership' in client.text
+
+    data = dict(
+        id=1,
+        Name='Premium membership',
+        Description='Premium member of the club',
+        Validity=12,
+        ValidityUnit='months'
+    )
+
+    client.post(url, data=data)
+    assert client.status == 200
+    assert 'Membership' in client.text # verify redirection
+    assert data['Name'] in client.text
+
+    assert web2py.db(web2py.db.school_memberships).count() > 0
+
+
+def test_membership_prices(client, web2py):
+    """
+        Is the index page showing for memberships_prices?
+    """
+    url = '/school_properties/membership_prices'
+    client.get(url)
+    assert client.status == 200
+    assert 'Edit membership' in client.text
+
+
+def test_membership_price_add(client, web2py):
+    """
+        Can we add a membership price?
+    """
+    populate_tax_rates(web2py)
+    web2py.db.school_memberships.insert(Name='banana class')
+    web2py.db.commit()
+
+    assert web2py.db(web2py.db.school_memberships).count() == 1
+
+    url = '/school_properties/membership_price_add?smID=1'
+    client.get(url)
+    assert client.status == 200
+    assert 'New membership price' in client.text
+
+    data = dict(Startdate    = '2014-01-01',
+                Price        = 12345,
+                tax_rates_id = 1)
+    client.post(url, data=data)
+    assert client.status == 200
+    assert 'Edit membership' in client.text # verify redirection
+    assert format(data['Price'], '.2f') in client.text
+
+    assert web2py.db(web2py.db.school_memberships_price).count() == 1
+
+
+def test_membership_price_edit(client, web2py):
+    """
+        Can we edit a memberships price?
+    """
+    populate_school_memberships(web2py)
+
+    assert web2py.db(web2py.db.school_memberships).count() == 1
+    assert web2py.db(web2py.db.school_memberships_price).count() == 1
+
+    url = '/school_properties/membership_price_edit?smID=1&smpID=1'
+    client.get(url)
+    assert client.status == 200
+    assert 'Edit membership price' in client.text
+
+    data = dict(id           = 1,
+                Startdate    = '2014-01-01',
+                Price        = 12345,
+                tax_rates_id = 1)
+    client.post(url, data=data)
+    assert client.status == 200
+    assert 'Edit membership' in client.text # verify redirection
+
+    assert format(data['Price'], '.2f') in client.text
+
+    assert web2py.db(web2py.db.school_memberships_price).count() == 1
 
 
 def test_school_subscriptions_index_and_current_price(client, web2py):
@@ -886,3 +1030,4 @@ def test_shifts_edit(client, web2py):
     assert data['Name'] in client.text
 
     assert web2py.db(web2py.db.school_shifts).count() > 0
+    

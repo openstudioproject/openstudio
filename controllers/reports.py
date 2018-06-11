@@ -327,7 +327,7 @@ def trialclasses():
         date = row.classes_attendance.ClassDate
         cls = Class(clsID, date)
 
-        prices = cls.get_price()
+        prices = cls.get_prices()
         if prices['trial']:
             price = prices['trial']
             trialprice_total += price
@@ -706,7 +706,7 @@ def dropinclasses():
         date = row.classes_attendance.ClassDate
         cls = Class(clsID, date)
 
-        prices = cls.get_price()
+        prices = cls.get_prices()
         if prices['dropin']:
             price = prices['dropin']
             price_total += price

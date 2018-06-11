@@ -81,7 +81,7 @@ class OsMailChimp():
         """
             returns gluon.dal.rows object containing rows from db.mailing_lists
         """
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.mailing_lists.MailChimpListID != None)
         rows = db(query).select(db.mailing_lists.ALL,

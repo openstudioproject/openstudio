@@ -3,7 +3,7 @@
 import datetime
 import Mollie
 
-from openstudio.openstudio import Customer, CustomerSubscription, Invoice, OsMail
+from openstudio.openstudio import CustomerSubscription, Invoice, OsMail
 
 
 def task_openstudio_daily():
@@ -36,6 +36,8 @@ def _task_mollie_subscription_invoices_and_payments():
         os_mail = OsMail()
         msgID = os_mail.render_email_template('email_template_payment_recurring_failed')
         os_mail.send(msgID, cuID)
+
+    from openstudio.os_customer import Customer
 
     # hostname
     sys_hostname = get_sys_property('sys_hostname')

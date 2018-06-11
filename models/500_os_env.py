@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 
+# -------------------------------------------------------------------------
+# once in production, comment out the following line
+# -------------------------------------------------------------------------
+from gluon.custom_import import track_changes; track_changes(True)
+
 import re
 import string
 import random
@@ -136,6 +141,15 @@ def cache_clear(var_one=None, var_two=None):
     """
     cache.ram.clear()
     cache.disk.clear()
+
+
+def cache_clear_customers_memberships(cuID):
+    """
+        Clears memberships cache entries on disk & in ram
+    """
+    cu_sub_regex = 'openstudio_customer_get_memberships_on_date_' + str(cuID) + '*'
+    cache.ram.clear(regex=cu_sub_regex)
+    cache.disk.clear(regex=cu_sub_regex)
 
 
 def cache_clear_customers_subscriptions(cuID):
@@ -398,14 +412,16 @@ def get_invoices_groups_product_types():
     """
         Returns a list of invoices_groups_categories
     """
-    categories = [ ['subscription', T('Subscriptions')],
-                   ['classcard'   , T('Class cards')],
-                   ['dropin'      , T('Drop in classes')],
-                   ['trial'       , T('Trial classes')],
-                   ['wsp'         , T('Workshop products')],
-                   ['shop'        , T('OpenStudio shop (All sales from the shop will go into this group)')],
-                   ['teacher_payments', T('Credit invoices for teacher payments')]
-                ]
+    categories = [
+        ['membership', T('Memberships')],
+        ['subscription', T('Subscriptions')],
+        ['classcard', T('Class cards')],
+        ['dropin', T('Drop in classes')],
+        ['trial', T('Trial classes')],
+        ['wsp', T('Workshop products')],
+        ['shop', T('OpenStudio shop (All sales from the shop will go into this group)')],
+        ['teacher_payments', T('Credit invoices for teacher payments')]
+    ]
 
     return categories
 

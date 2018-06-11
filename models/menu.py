@@ -153,13 +153,12 @@ def shop_menu():
                      False,
                      URL('shop', 'classes', extension='')])
 
-
-    # Class cards
-    if features.Classcards:
-        menu.append([(#I(_class='fa fa-id-card-o'),
-                      SPAN(T('Class cards'))),
+    # Memberships
+    if features.Memberships:
+        menu.append([(#I(_class='fa fa-pencil-square-o'),
+                      SPAN(T('Memberships'))),
                      False,
-                     URL('shop', 'classcards', extension='')])
+                     URL('shop', 'memberships', extension='')])
 
     # Subscriptions
     if features.Subscriptions:
@@ -167,6 +166,13 @@ def shop_menu():
                       SPAN(T('Subscriptions'))),
                      False,
                      URL('shop', 'subscriptions', extension='')])
+
+    # Class cards
+    if features.Classcards:
+        menu.append([(#I(_class='fa fa-id-card-o'),
+                      SPAN(T('Class cards'))),
+                     False,
+                     URL('shop', 'classcards', extension='')])
 
     # Events
     if features.Workshops:
@@ -310,6 +316,11 @@ def get_backend_menu():
                 submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Employees')), ),
                                 False,
                                 URL('school_properties', 'employees', extension='')))
+
+            if user_helpers.check_read_permission('school_memberships', user_id):
+                submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Memberships')), ),
+                                False,
+                                URL('school_properties', 'memberships', extension='')))
 
             if user_helpers.check_read_permission('school_subscriptions', user_id):
                 submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Subscriptions')), ),

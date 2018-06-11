@@ -3,6 +3,72 @@
 from gluon import *
 
 
+class OsTools:
+    """
+        General tools
+    """
+    def calculate_validity_enddate(self, date_start, validity, validity_unit):
+        """
+        :param date_start: datetime.date startdate 
+        :param validity: integer
+        :param validity_unit: 'weeks' or 'months' or 'days'
+        :return: datetime.date
+        """
+        def add_months(date_start, months):
+            month = date_start.month - 1 + months
+            year = int(date_start.year + month / 12)
+            month = month % 12 + 1
+            last_day_new = calendar.monthrange(year, month)[1]
+            day = min(date_start.day, last_day_new)
+
+            ret_val = datetime.date(year, month, day)
+
+            last_day_source = calendar.monthrange(date_start.year,
+                                                  date_start.month)[1]
+
+            if date_start.day == last_day_source and last_day_source > last_day_new:
+                return ret_val
+            else:
+                delta = datetime.timedelta(days=1)
+                return ret_val - delta
+
+        import calendar
+        import datetime
+
+        db = current.db
+
+        if validity_unit == 'months':
+            enddate = add_months(date_start, validity)
+        else:
+            if validity_unit == 'weeks':
+                days = validity * 7
+            else:
+                days = validity
+
+            delta_days = datetime.timedelta(days=days)
+            enddate = (date_start + delta_days) - datetime.timedelta(days=1)
+
+        return enddate
+
+
+    def format_validity(self, validity, unit):
+        """
+        :param validity: integer
+        :param unit: item from validity_units
+        :return: formatted validity
+        """
+        represent_validity_units = current.globalenv['represent_validity_units']
+
+        validity = SPAN(unicode(validity), ' ')
+        validity_in = represent_validity_units(unit)
+        if validity == 1:  # Cut the last 's"
+            validity_in = validity_in[:-1]
+
+        validity.append(validity_in)
+
+        return validity
+
+
 class OsArchiver:
     def parse_request_vars(self, rvars, sesssion_var):
         """
@@ -39,8 +105,8 @@ class OsArchiver:
         :param return_url: URL to send user to after operation
         :return: None
         """
-        T = current.globalenv['T']
-        session = current.globalenv['session']
+        T = current.T
+        session = current.session
 
         if not record_id:
             session.flash = error_message
@@ -69,8 +135,8 @@ class OsSession:
         :return: variable when in session.vars, session var when parameter
         found in session otherwise use the default value
         """
-        request = current.globalenv['request']
-        session = current.globalenv['session']
+        request = current.request
+        session = current.session
 
         if r_var in request.vars:
             value = request.vars[r_var]

@@ -1105,7 +1105,7 @@ def test_customer_classes_attendance_delete(client, web2py):
     assert 'fa-times' in client.text
 
 
-def test_customer_payments_payment_info_delete(client, web2py):
+def test_customer_bankaccount_delete(client, web2py):
     """
         Is the delete permission for payment info under customers working?
     """
@@ -1125,7 +1125,7 @@ def test_customer_payments_payment_info_delete(client, web2py):
     web2py.auth.add_permission(200, 'read', 'customers_payments', 0)
     web2py.db.commit()
 
-    url = '/customers/payments?cuID=1001'
+    url = '/customers/bankaccount?cuID=1001'
     client.get(url)
     assert client.status == 200
 
@@ -1141,7 +1141,7 @@ def test_customer_payments_payment_info_delete(client, web2py):
     assert 'fa-times' in client.text
 
 
-def test_customer_payments_alternativepayments_delete(client, web2py):
+def test_customer_direct_debit_extra_delete(client, web2py):
     """
         Is the delete permission for alternative under customers working?
     """
@@ -1158,7 +1158,7 @@ def test_customer_payments_alternativepayments_delete(client, web2py):
     web2py.auth.add_permission(200, 'read', 'alternativepayments', 0)
     web2py.db.commit()
 
-    url = '/customers/payments?cuID=1001'
+    url = '/customers/direct_debit_extra?cuID=1001'
     client.get(url)
     assert client.status == 200
 

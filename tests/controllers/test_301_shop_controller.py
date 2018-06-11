@@ -11,9 +11,11 @@ from gluon.contrib.populate import populate
 
 from populate_os_tables import populate_customers
 from populate_os_tables import populate_customers_with_subscriptions
+from populate_os_tables import populate_customers_with_memberships
 from populate_os_tables import prepare_classes
 from populate_os_tables import populate_school_classcards
 from populate_os_tables import populate_school_subscriptions
+from populate_os_tables import populate_school_memberships
 from populate_os_tables import populate_customers_shoppingcart
 from populate_os_tables import populate_customers_orders
 from populate_os_tables import populate_customers_orders_items
@@ -342,11 +344,39 @@ def test_classes_book_options(client, web2py):
     assert dropin_message in client.text
     assert trial_message in client.text
 
-    # check drop in price listing
+    # check drop in and trial price listing
     class_prices = web2py.db.classes_price(1)
     assert format(class_prices.Dropin, '.2f') in client.text
     assert format(class_prices.Trial, '.2f') in client.text
 
+
+def test_classes_book_options_dropin_trial_membership_prices(client, web2py):
+    """
+        Is the page listing the booking options showing everything?
+    """
+    url = '/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    setup_profile_tests(web2py)
+    prepare_classes(web2py, credits=True)
+    populate_customers_with_memberships(web2py, customers_populated=True)
+
+    cm = web2py.db.customers_memberships(1)
+    cm.auth_customer_id = 300
+    cm.Enddate = None
+    cm.update_record()
+
+    web2py.db.commit()
+
+    next_monday = next_weekday(datetime.date.today(), 0)
+    client.get('/shop/classes_book_options?clsID=1&date=' + unicode(next_monday))
+    assert client.status == 200
+
+    # check drop in and trial price listing
+    class_prices = web2py.db.classes_price(1)
+    assert format(class_prices.DropinMembership, '.2f') in client.text
+    assert format(class_prices.TrialMembership, '.2f') in client.text
 
 
 def test_classes_book_options_not_yet_open(client, web2py):
@@ -1373,6 +1403,23 @@ def test_classcard_add_to_cart(client, web2py):
     assert cart_row.school_classcards_id == 1
 
 
+def test_classcards_membership_required_message(client, web2py):
+    """
+    Is the Membership required link showing like it should?
+    """
+    setup_profile_tests(web2py)
+    web2py.db.commit()
+
+    # populate a regular card and a trial card
+    populate_school_classcards(web2py, 1, membership_required=True)
+
+    url = '/shop/classcards'
+    client.get(url)
+    assert client.status == 200
+
+    assert 'Membership required' in client.text
+
+
 def test_classcard_add_to_cart_requires_complete_profile(client, web2py):
     """
         Are classcards added to the shopping cart as expected?
@@ -1686,7 +1733,6 @@ def test_complete(client, web2py):
     populate_customers_orders(web2py)
     populate_customers_orders_items(web2py)
 
-
     url = '/shop/complete?coID=2'
     client.get(url)
     assert client.status == 200
@@ -1850,6 +1896,23 @@ def test_event_product_external_shop_url_and_alt_btn_text(client, web2py):
     assert wsp.AddToCartText in client.text
 
 
+def test_subscriptions_required_message(client, web2py):
+    """
+    Is the Membership required link showing like it should?
+    """
+    setup_profile_tests(web2py)
+    web2py.db.commit()
+
+    # populate a regular card and a trial card
+    populate_school_subscriptions(web2py, membership_required=True)
+
+    url = '/shop/subscriptions'
+    client.get(url)
+    assert client.status == 200
+
+    assert 'Membership required' in client.text
+
+
 def test_subscription_terms(client, web2py):
     """
         Are the terms for a subscription showing correctly?
@@ -1910,6 +1973,74 @@ def test_subscription_terms_requires_complete_profile(client, web2py):
     web2py.db.commit()
 
     url = '/shop/subscription_terms?ssuID=1'
+    client.get(url)
+    assert client.status == 200
+
+    # Check general terms
+    assert "best service possible" in client.text
+
+
+
+def test_membership_terms(client, web2py):
+    """
+        Are the terms for a membership showing correctly?
+         ( First the general terms defined in settings and below the specific terms from the membership in school )
+    """
+    setup_profile_tests(web2py)
+
+    # get random url to init OpenStudio env
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    populate_school_memberships(web2py)
+
+    terms = 'GeneralTerms'
+    web2py.db.sys_properties.insert(
+        Property = 'shop_memberships_terms',
+        PropertyValue = terms
+    )
+
+    web2py.db.commit()
+
+    url = '/shop/membership_terms?smID=1'
+    client.get(url)
+    assert client.status == 200
+
+    # Check general terms
+    assert terms in client.text
+    # Check subscription specific terms
+    sm = web2py.db.school_memberships(1)
+    assert sm.Terms in client.text
+
+
+def test_membership_terms_requires_complete_profile(client, web2py):
+    """
+        Are the terms for a membership showing correctly?
+         ( First the general terms defined in settings and below the specific terms from the membership in school )
+    """
+    setup_profile_tests(web2py)
+
+    # get random url to init OpenStudio env
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    populate_school_memberships(web2py)
+    web2py.db.sys_properties.insert(
+        Property="shop_requires_complete_profile",
+        PropertyValue="on"
+    )
+
+    terms = 'GeneralTerms'
+    web2py.db.sys_properties.insert(
+        Property = 'shop_memberships_terms',
+        PropertyValue = terms
+    )
+
+    web2py.db.commit()
+
+    url = '/shop/membership_terms?smID=1'
     client.get(url)
     assert client.status == 200
 

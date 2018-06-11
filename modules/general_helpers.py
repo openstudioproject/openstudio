@@ -13,7 +13,7 @@ def classes_get_status(clsID, date):
         open
         cancelled
     '''
-    db = current.globalenv['db']
+    db = current.db
 
     status = 'normal'
     status_marker = DIV(_class='status_marker bg_green')
@@ -48,7 +48,7 @@ def class_get_teachers(clsID, class_date):
     teacher_role2 = ''
     status = 'normal'
 
-    dba = current.globalenv['db']
+    dba = current.db
 
     # check regular teachers
     query = (dba.classes_teachers.classes_id == clsID) & \
@@ -204,7 +204,7 @@ def get_paused_subscriptions(date):
     lastdaythismonth = get_last_day_month(date)
     firstdaythismonth = datetime.date(date.year, date.month, 1)
 
-    dba = current.globalenv['db']
+    dba = current.db
     query = (dba.customers_subscriptions_paused.Startdate <=
              lastdaythismonth) & \
             ((dba.customers_subscriptions_paused.Enddate >=
@@ -219,7 +219,7 @@ def get_paused_subscriptions(date):
 
 
 def get_classname(clsID):
-    dba = current.globalenv['db']
+    dba = current.db
     record = dba.classes[clsID]
     location = dba.school_locations[record.school_locations_id].Name
     classtype = dba.school_classtypes[record.school_classtypes_id].Name
@@ -269,8 +269,8 @@ def get_group_id():
     '''
         This function returns the group id of the currently logged in user
     '''
-    dba = current.globalenv['db']
-    w2p_auth = current.globalenv['auth']
+    dba = current.db
+    w2p_auth = current.auth
     row = dba(dba.auth_membership.user_id == w2p_auth.user.id).select(dba.auth_membership.group_id).first()
     return row.group_id
 
@@ -340,7 +340,7 @@ def workshops_get_full_workshop_product_id(wsID):
     '''
         Return id of full workshop product
     '''
-    dba = current.globalenv['db']
+    dba = current.db
     query = (dba.workshops_products.workshops_id == wsID) & \
             (dba.workshops_products.FullWorkshop == True)
     return dba(query).select().first().id
@@ -460,7 +460,7 @@ def NRtoPriority(value, row=None):
 
 
 def create_teachers_dict():
-    db = current.globalenv['db']
+    db = current.db
     query = db.auth_user.teacher == True
     rows = db(query).select(db.auth_user.id,
                        db.auth_user.first_name,
@@ -474,7 +474,7 @@ def create_teachers_dict():
 
 
 def create_locations_dict():
-    dba = current.globalenv['db']
+    dba = current.db
     rows = dba().select(dba.school_locations.id, dba.school_locations.Name)
     d = dict()
     for row in rows:
@@ -484,7 +484,7 @@ def create_locations_dict():
 
 
 def create_classtypes_dict():
-    dba = current.globalenv['db']
+    dba = current.db
     rows = dba().select(dba.school_classtypes.id, dba.school_classtypes.Name)
     d = dict()
     for row in rows:
@@ -510,8 +510,8 @@ def get_ajax_loader(msg='', big=False):
 
 class User_helpers():
     def __init__(self):
-        self.auth = current.globalenv['auth']
-        self.dba = current.globalenv['db']
+        self.auth = current.auth
+        self.dba = current.db
     # def on_user_create(self, form):
     #     '''
     #         This function creates a new group for a user. We're using this function
@@ -691,7 +691,7 @@ def get_payment_batches_statuses():
     return statuses
 
 
-def represent_validity_units(value, row):
+def represent_validity_units(value, row=None):
     '''
         Function to represent validity units
     '''

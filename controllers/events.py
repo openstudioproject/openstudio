@@ -2,6 +2,7 @@
 
 from openstudio.openstudio import Workshop, WorkshopsHelper, WorkshopProduct, Invoice, InvoicesHelper, OsMail
 from openstudio.os_tasks import Tasks
+from openstudio.os_customer import Customer
 
 from general_helpers import get_weekday
 from general_helpers import get_badge
