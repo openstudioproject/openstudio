@@ -5050,7 +5050,7 @@ current.TIME_FORMAT = TIME_FORMAT
 current.DATETIME_FORMAT = DATETIME_FORMAT
 current.TIMEZONE = TIMEZONE
 current.NOW_LOCAL = NOW_LOCAL
-current.UTC_LOCAL = UTC_LOCAL
+current.TODAY_LOCAL = TODAY_LOCAL
 
 
 def represent_date(date, row=None):

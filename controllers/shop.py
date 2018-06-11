@@ -175,7 +175,7 @@ def cart_get_price_total(rows):
         if row.customers_shoppingcart.classes_id:
             cls = Class(row.customers_shoppingcart.classes_id,
                         row.customers_shoppingcart.ClassDate)
-            prices = cls.get_prices()
+            prices = cls.get_prices_customer(cuID)
 
             if row.customers_shoppingcart.AttendanceType == 1:
                 total += prices['trial']

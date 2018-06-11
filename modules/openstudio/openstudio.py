@@ -2224,6 +2224,83 @@ class Class:
         )
 
 
+    def get_prices_customer(self, cuID):
+        """
+            Returns the price for a class
+            :param cuID: db.auth_user.id
+            :return: dict of class prices
+        """
+        from openstudio.os_customer import Customer
+
+        db = current.db
+        customer = Customer(cuID)
+        has_membership = customer.has_membership_on_date(self.date)
+
+
+        query = (db.classes_price.classes_id == self.clsID) & \
+                (db.classes_price.Startdate <= self.date) & \
+                ((db.classes_price.Enddate >= self.date) |
+                 (db.classes_price.Enddate == None))
+        prices = db(query).select(db.classes_price.ALL,
+                                  orderby=db.classes_price.Startdate)
+
+        if prices:
+            prices = prices.first()
+
+            if not has_membership:
+                dropin = prices.Dropin or 0
+                trial = prices.Trial or 0
+
+                trial_tax = db.tax_rates(prices.tax_rates_id_trial)
+                dropin_tax = db.tax_rates(prices.tax_rates_id_dropin)
+
+                try:
+                    trial_tax_rates_id = trial_tax.id
+                    dropin_tax_rates_id = dropin_tax.id
+                    trial_tax_percentage = trial_tax.Percentage
+                    dropin_tax_percentage = dropin_tax.Percentage
+                except AttributeError:
+                    trial_tax_rates_id = None
+                    dropin_tax_rates_id = None
+                    trial_tax_percentage = None
+                    dropin_tax_percentage = None
+            else: # has membership
+                dropin = prices.DropinMembership or 0
+                trial = prices.TrialMembership or 0
+
+                trial_tax = db.tax_rates(prices.tax_rates_id_trial_membership)
+                dropin_tax = db.tax_rates(prices.tax_rates_id_dropin_membership)
+
+                try:
+                    trial_tax_rates_id = trial_tax.id
+                    dropin_tax_rates_id = dropin_tax.id
+                    trial_tax_percentage = trial_tax.Percentage
+                    dropin_tax_percentage = dropin_tax.Percentage
+                except AttributeError:
+                    trial_tax_rates_id = None
+                    dropin_tax_rates_id = None
+                    trial_tax_percentage = None
+                    dropin_tax_percentage = None
+
+        else:
+            dropin = 0
+            trial  = 0
+            trial_tax_rates_id    = None
+            dropin_tax_rates_id   = None
+            trial_tax_percentage  = None
+            dropin_tax_percentage = None
+
+
+        return dict(
+            trial  = trial,
+            dropin = dropin,
+            trial_tax_rates_id   = trial_tax_rates_id,
+            dropin_tax_rates_id   = dropin_tax_rates_id,
+            trial_tax_percentage  = trial_tax_percentage,
+            dropin_tax_percentage = dropin_tax_percentage,
+        )
+
+
     def get_full(self):
         '''
             Check whether or not this class is full
@@ -4151,6 +4228,24 @@ class AttendanceHelper:
 
         if product_type not in ['trial', 'dropin']:
             raise ValueError('Product type has to be trial or dropin')
+
+        customer = Customer(cuID)
+        cls = Class(clsID, date)
+        prices = cls.get_prices()
+
+        has_membership = customer.has_membership_on_date(date)
+
+        if product_type == 'dropin':
+            price = prices['dropin']
+
+            if has_membership and prices['dropin_membership']:
+                price = prices['dropin_membership']
+
+        elif product_type == 'trial':
+            price = prices['trial']
+
+            if has_membership and prices['trial_membership']:
+                price = prices['trial_membership']
 
         # check if the price is > 0 when adding an invoice
         if price == 0:
@@ -6888,17 +6983,17 @@ class Order:
 
 
     def order_item_add_class(self, clsID, class_date, attendance_type):
-        '''
+        """
             :param workshops_products_id: db.workshops_products.id
             :return: db.customers_orders_items.id of inserted item
-        '''
+        """
         DATE_FORMAT = current.DATE_FORMAT
         TIME_FORMAT = current.TIME_FORMAT
         db = current.db
         T  = current.T
 
         cls = Class(clsID, class_date)
-        prices = cls.get_prices()
+        prices = cls.get_prices_customer(self.order.auth_customer_id)
         if attendance_type == 1:
             price = prices['trial']
             tax_rates_id = prices['trial_tax_rates_id']
@@ -7400,7 +7495,6 @@ class Invoice:
         cls = Class(clsID, date)
         prices = cls.get_prices()
 
-        #TODO: use membership prices if customer has mebership
         has_membership = customer.has_membership_on_date(date)
 
         if product_type == 'dropin':
@@ -7437,19 +7531,19 @@ class Invoice:
             tax_rates_id=tax_rates_id,
         )
 
-        invoice.set_amounts()
-        invoice.link_to_customer(cuID)
+        self.set_amounts()
+        self.link_to_customer(cuID)
 
 
     def item_add_class_from_order(self, order_item_row, caID):
-        '''
+        """
             Add class to invoice from Order.deliver()
 
             :param clsID: db.classes.id
             :param class_date: datetime.date
             :param attendance_type: int 1 or 2 
             :return: db.invoices_items.id
-        '''
+        """
         DATE_FORMAT = current.DATE_FORMAT
         TIME_FORMAT = current.TIME_FORMAT
         db = current.db
