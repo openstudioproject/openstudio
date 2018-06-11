@@ -1130,7 +1130,7 @@ def customers_get_menu(customers_id, page=None):
        auth.has_permission('read', 'customers_payments'):
         more.append([
             'bankaccount',
-            (os_gui.get_fa_icon('fa-university'), ' ', T("Bank account")),
+            (os_gui.get_fa_icon('fa-university'), ' ', T("Finance")),
             URL("customers", "bankaccount", vars={'cuID':customers_id})])
 
     if auth.has_membership(group_id='Admins') or \
