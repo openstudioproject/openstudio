@@ -1826,8 +1826,8 @@ def test_event_add(client, web2py):
     # check that the workshop is listed
     workshop = web2py.db.workshops(1)
     assert workshop.Name.split(' ')[0] in client.text
-    # assert that the products button is showing
-    assert 'Products' in client.text
+    # assert that the tickets button is showing
+    assert 'Tickets' in client.text
 
 
 def test_workshop_add_list_products(client, web2py):
