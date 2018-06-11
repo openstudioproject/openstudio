@@ -100,12 +100,13 @@ def _task_mollie_subscription_invoices_and_payments():
                 # Do a normal payment, probably an automatic payment failed somewhere in the process
                 # and customer should pay manually now
                 try:
+                    webhook_url = URL('mollie', 'webhook', scheme='https', host=sys_hostname)
                     payment = mollie.payments.create({
                         'amount': invoice_amounts.TotalPriceVAT,
                         'customerId': mollie_customer_id,
                         'recurringType': 'recurring',  # important
                         'description': description,
-                        'webhookUrl': URL('mollie', 'webhook', scheme='https', host=sys_hostname),
+                        'webhookUrl': webhook_url,
                         'metadata': {
                             'invoice_id': invoice.invoice.id,
                             'customers_orders_id': 'invoice' # This lets the webhook function know it's dealing with an invoice
@@ -117,11 +118,10 @@ def _task_mollie_subscription_invoices_and_payments():
                     # send mail to ask customer to pay manually
                     send_mail_failed(cs.auth_customer_id)
                     # return error
-                    return 'API call failed: ' + e.message
+                    # return 'API call failed: ' + e.message
         else:
             # send mail to ask customer to pay manually
             send_mail_failed(cs.auth_customer_id)
-
 
     # For scheduled tasks, db has to be committed manually
     db.commit()

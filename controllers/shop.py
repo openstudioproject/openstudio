@@ -508,7 +508,7 @@ def complete():
     if iID:
         invoice = Invoice(iID)
 
-        if not invoice.invoice.auth_customer_id == auth.user.id:
+        if not invoice.get_linked_customer_id() == auth.user.id:
             session.flash = T("That invoice isn't yours...")
             redirect(URL('profile', 'index'))
 

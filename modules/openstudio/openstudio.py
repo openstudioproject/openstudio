@@ -1544,7 +1544,6 @@ class CustomersSubscriptionsCreditsHelper:
 
         return customers_credits_added
 
-
     def expire_credits(self, date):
         """
         Check if there are any expired credits, if so, add a subtract mutation with the expired amount
@@ -6593,7 +6592,7 @@ class WorkshopProduct:
             igpt = db.invoices_groups_product_types(ProductType = 'wsp')
 
             description = self.workshop_name + ' - ' + self.name
-
+            
             iID = db.invoices.insert(
                 invoices_groups_id = igpt.invoices_groups_id,
                 Description = description,
