@@ -114,6 +114,8 @@ class ShopProductsSetsOptionsValues:
         :param form:
         :return:
         """
+        from openstudio.os_shop_products_set import ShopProductsSet
+
         db = current.db
 
         spsovID = form.vars.id

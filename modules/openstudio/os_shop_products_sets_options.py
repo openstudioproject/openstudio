@@ -95,6 +95,8 @@ class ShopProductsSetsOptions:
         """
             :return: returns a list of option values for an option
         """
+        from openstudio.os_shop_products_sets_options_values import ShopProductsSetsOptionsValues
+
         spsov = ShopProductsSetsOptionsValues(options_id, url_list)
         return spsov.list_formatted()
 

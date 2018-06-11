@@ -7021,9 +7021,9 @@ class Order:
 
 
     def get_order_items_rows(self):
-        '''
+        """
             :return: db.customers_orders_items rows for order
-        '''
+        """
         db = current.db
 
         query = (db.customers_orders_items.customers_orders_id == self.coID)

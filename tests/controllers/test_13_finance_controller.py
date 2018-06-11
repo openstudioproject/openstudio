@@ -90,8 +90,6 @@ def test_teacher_payments_generate_invoices(client, web2py):
     rows = web2py.db(query).select(web2py.db.invoices_items.ALL)
     item = rows[0]
 
-    print web2py.db().select(web2py.db.invoices_items.ALL)
-
     # Check travel allowance
     tpfrt = web2py.db.teachers_payment_fixed_rate_travel(1)
     assert item.ProductName == 'Travel allowance'

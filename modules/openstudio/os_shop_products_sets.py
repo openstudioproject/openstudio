@@ -3,7 +3,6 @@
 from gluon import *
 
 
-
 class ShopProductsSets:
     def list(self):
         """

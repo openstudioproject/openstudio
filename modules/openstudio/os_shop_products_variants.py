@@ -25,6 +25,8 @@ class ShopProductsVariants:
         """
             :return: HTML table with shop products variants
         """
+        from openstudio.os_shop_product import ShopProduct
+
         T = current.T
         os_gui = current.globalenv['os_gui']
         auth = current.auth
@@ -171,6 +173,8 @@ class ShopProductsVariants:
         """
             :return: onclick delete for
         """
+        from openstudio.os_shop_product import ShopProduct
+
         T = current.T
         product = ShopProduct(self.shop_products_id)
         if product.has_products_set():
