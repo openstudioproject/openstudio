@@ -14,7 +14,7 @@ class Teachers:
         """
         :return: gluon.dal.rows containing db.auth_user.id where teacher == True
         """
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.auth_user.trashed == False) & \
                 (db.auth_user.teacher == True)

@@ -35,7 +35,7 @@ def uploads_available_space(app_dir):
         Gets the used space for the uploads directory, returns a dictionairy 
         containing allowed, used and available space.
     '''
-    dba = current.globalenv['db']
+    dba = current.db
     row = dba.sys_properties(Property='storage_allowed_space')
     allowed_space = int(row.PropertyValue)
     

@@ -12,7 +12,7 @@ class ShopSuppliers:
         """
             :return: List of shop suppliers (gluon.dal.rows)
         """
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.shop_suppliers.Archived == self.show_archive)
         rows = db(query).select(db.shop_suppliers.ALL,
@@ -25,9 +25,9 @@ class ShopSuppliers:
         """
             :return: HTML table with shop brands
         """
-        T = current.globalenv['T']
+        T = current.T
         os_gui = current.globalenv['os_gui']
-        auth = current.globalenv['auth']
+        auth = current.auth
 
         header = THEAD(TR(TH(T('Name')),
                           TH(T('Description')),

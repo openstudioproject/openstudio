@@ -11,7 +11,7 @@ class Customer:
         """
             Class init function which sets cuID
         """
-        db = current.globalenv['db']
+        db = current.db
 
         self.cuID = cuID
         self.row = db.auth_user(cuID)
@@ -40,9 +40,9 @@ class Customer:
         '''
             Returns subscription for a date
         '''
-        db = current.globalenv['db']
-        cache = current.globalenv['cache']
-        request = current.globalenv['request']
+        db = current.db
+        cache = current.cache
+        request = current.request
         web2pytest = current.globalenv['web2pytest']
 
         fields = [
@@ -99,13 +99,13 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
             Get day rows with caching
         '''
         web2pytest = current.globalenv['web2pytest']
-        request = current.globalenv['request']
+        request = current.request
 
         # Don't cache when running tests
         if web2pytest.is_running_under_test(request, request.application) or not from_cache:
             rows = self._get_subscriptions_on_date(date)
         else:
-            cache = current.globalenv['cache']
+            cache = current.cache
             DATE_FORMAT = current.globalenv['DATE_FORMAT']
             CACHE_LONG = current.globalenv['CACHE_LONG']
             cache_key = 'openstudio_customer_get_subscriptions_on_date_' + \
@@ -131,7 +131,7 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
         '''
             @return: Latest subscription for a customer
         '''
-        db = current.globalenv['db']
+        db = current.db
         os_gui = current.globalenv['os_gui']
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
 
@@ -188,7 +188,7 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
         :param date: datetime.date
         :return: db.customers_memberships rows for customer
         """
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.customers_memberships.auth_customer_id == self.cuID) & \
                 (db.customers_memberships.Startdate <= date) & \
@@ -205,13 +205,13 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
             Get day rows with caching
         """
         web2pytest = current.globalenv['web2pytest']
-        request = current.globalenv['request']
+        request = current.request
 
         # Don't cache when running tests
         if web2pytest.is_running_under_test(request, request.application) or not from_cache:
             rows = self._get_memberships_on_date(date)
         else:
-            cache = current.globalenv['cache']
+            cache = current.cache
             DATE_FORMAT = current.globalenv['DATE_FORMAT']
             CACHE_LONG = current.globalenv['CACHE_LONG']
             cache_key = 'openstudio_customer_get_memberships_on_date_' + \
@@ -237,9 +237,9 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
         """
             Returns classcards for customer(cuID) on date
         """
-        db = current.globalenv['db']
-        cache = current.globalenv['cache']
-        request = current.globalenv['request']
+        db = current.db
+        cache = current.cache
+        request = current.request
         web2pytest = current.globalenv['web2pytest']
 
         left = [ db.school_classcards.on(
@@ -275,13 +275,13 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
             Get day rows with caching
         """
         web2pytest = current.globalenv['web2pytest']
-        request = current.globalenv['request']
+        request = current.request
 
         # Don't cache when running tests
         if web2pytest.is_running_under_test(request, request.application) or not from_cache:
             rows = self._get_classcards(date)
         else:
-            cache = current.globalenv['cache']
+            cache = current.cache
             DATE_FORMAT = current.globalenv['DATE_FORMAT']
             CACHE_LONG = current.globalenv['CACHE_LONG']
             cache_key = 'openstudio_customer_get_classcards_' + \
@@ -315,7 +315,7 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
         from openstudio.os_customer_subscriptions import CustomerSubscriptions
 
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
-        T = current.globalenv['T']
+        T = current.T
         os_gui = current.globalenv['os_gui']
 
         cuID = self.cuID
@@ -406,7 +406,7 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
         '''
             Returns True if a customer has had a trialclass and false when not
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.classes_attendance.auth_customer_id == self.cuID) & \
                 (db.classes_attendance.AttendanceType == 1)
@@ -425,7 +425,7 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
         """
             Returns workshops for a customer
         """
-        db = current.globalenv['db']
+        db = current.db
         TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
 
         db_icwspc = db.invoices_workshops_products_customers
@@ -465,7 +465,7 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
         """
             Returns invoices records for a customer as gluon.dal.rows object
         """
-        db = current.globalenv['db']
+        db = current.db
 
         left = [
             db.invoices_amounts.on(
@@ -497,7 +497,7 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
         """
             Returns orders for a customer
         """
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.customers_orders.auth_customer_id == self.cuID)
         rows = db(query).select(
@@ -523,7 +523,7 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
         """
         from openstudio.openstudio import Order
 
-        db = current.globalenv['db']
+        db = current.db
 
         orders = []
         rows = self.get_orders_rows()
@@ -545,7 +545,7 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
         """
         :return: document rows for customer
         """
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.customers_documents.auth_customer_id == self.cuID)
         return db(query).select(db.customers_documents.ALL)
@@ -557,7 +557,7 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
         :param date: datetime.date
         :return: Boolean
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.classes_reservation.auth_customer_id == self.cuID) & \
                 (db.classes_reservation.classes_id == clsID) & \
@@ -578,7 +578,7 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
         '''
             Returns upcoming reservations for this customer
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         left = [ db.classes.on(db.classes_reservation.classes_id == db.classes.id) ]
 
@@ -607,7 +607,7 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
             customer
         '''
         TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
-        db = current.globalenv['db']
+        db = current.db
 
         fields = [
             db.classes_attendance.id,
@@ -724,7 +724,7 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
         '''
             Get shopping cart rows for customer
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         left = [
             db.workshops_products.on(db.workshops_products.id == db.customers_shoppingcart.workshops_products_id),
@@ -777,8 +777,8 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
 
         import pytz
 
-        T = current.globalenv['T']
-        db = current.globalenv['db']
+        T = current.T
+        db = current.db
         now = current.globalenv['NOW_LOCAL']
         TIMEZONE = current.globalenv['TIMEZONE']
 
@@ -834,7 +834,7 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
         """
         :return: rows object with rows of accepted documents for this customer
         """
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.log_customers_accepted_documents.auth_customer_id == self.cuID)
         rows = db(query).select(db.log_customers_accepted_documents.ALL,
@@ -850,7 +850,7 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
         """
             :return:
         """
-        db = current.globalenv['db']
+        db = current.db
 
         version = db.sys_properties(Property='Version').PropertyValue
         release = db.sys_properties(Property='VersionRelease').PropertyValue

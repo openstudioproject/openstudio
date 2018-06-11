@@ -11,7 +11,7 @@ class PaymentBatch:
         """
         :param pbID: db.payment_batches_id
         """
-        db = current.globalenv['db']
+        db = current.db
         get_sys_property = current.globalenv['get_sys_property']
 
         self.id = pbID
@@ -33,7 +33,7 @@ class PaymentBatch:
         """
         :return: None
         """
-        db = current.globalenv['db']
+        db = current.db
 
         # Get teacher payment invoices with status sent for month
         left = [

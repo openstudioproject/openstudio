@@ -13,7 +13,7 @@ class ShopProductsSetsOptionsValues:
         """
             :return: List of shop products sets options values (gluon.dal.rows)
         """
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.shop_products_sets_options_values.shop_products_sets_options_id == \
                  self.options_id)
@@ -27,9 +27,9 @@ class ShopProductsSetsOptionsValues:
         """
             :return: HTML table with shop categories
         """
-        T = current.globalenv['T']
+        T = current.T
         os_gui = current.globalenv['os_gui']
-        auth = current.globalenv['auth']
+        auth = current.auth
 
         table = TABLE(_class='table')
 
@@ -73,9 +73,9 @@ class ShopProductsSetsOptionsValues:
         """
         from os_forms import OsForms
 
-        T = current.globalenv['T']
-        db = current.globalenv['db']
-        request = current.globalenv['request']
+        T = current.T
+        db = current.db
+        request = current.request
 
         # make sure the value is saved for the right option
         if 'shop_products_sets_options_id' in request.vars:
@@ -114,7 +114,7 @@ class ShopProductsSetsOptionsValues:
         :param form:
         :return:
         """
-        db = current.globalenv['db']
+        db = current.db
 
         spsovID = form.vars.id
         option = db.shop_products_sets_options(self.options_id)

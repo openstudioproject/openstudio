@@ -35,7 +35,7 @@ class OsTools:
         import calendar
         import datetime
 
-        db = current.globalenv['db']
+        db = current.db
 
         if validity_unit == 'months':
             enddate = add_months(date_start, validity)
@@ -105,8 +105,8 @@ class OsArchiver:
         :param return_url: URL to send user to after operation
         :return: None
         """
-        T = current.globalenv['T']
-        session = current.globalenv['session']
+        T = current.T
+        session = current.session
 
         if not record_id:
             session.flash = error_message
@@ -135,8 +135,8 @@ class OsSession:
         :return: variable when in session.vars, session var when parameter
         found in session otherwise use the default value
         """
-        request = current.globalenv['request']
-        session = current.globalenv['session']
+        request = current.request
+        session = current.session
 
         if r_var in request.vars:
             value = request.vars[r_var]

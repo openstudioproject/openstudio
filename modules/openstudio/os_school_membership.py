@@ -11,7 +11,7 @@ class SchoolMembership:
         """
             Class init function which sets ssuID
         """
-        db = current.globalenv['db']
+        db = current.db
 
         self.smID = smID
         self.row = db.school_memberships(smID)
@@ -21,7 +21,7 @@ class SchoolMembership:
         """
             Returns the price for a membership on a given date
         """
-        db = current.globalenv['db']
+        db = current.db
 
         price = ''
         query = (db.school_memberships_price.school_memberships_id ==
@@ -50,7 +50,7 @@ class SchoolMembership:
         """
             Returns tax rates on date
         """
-        db = current.globalenv['db']
+        db = current.db
 
         left = [ db.tax_rates.on(db.school_memberships_price.tax_rates_id ==
                                  db.tax_rates.id) ]
@@ -80,7 +80,7 @@ class SchoolMembership:
             :return: Validity for school membership
         """
         T  = current.T
-        db = current.globalenv['db']
+        db = current.db
 
         validity = SPAN(unicode(self.row.Validity), ' ')
 
@@ -97,7 +97,7 @@ class SchoolMembership:
         """
             :param auth_user_id: db.auth_user.id
         """
-        db = current.globalenv['db']
+        db = current.db
 
         db.customers_shoppingcart.insert(
             auth_customer_id     = auth_user_id,
@@ -109,7 +109,7 @@ class SchoolMembership:
         """
             :param auth_user_id: Sell membership to customer
         """
-        db = current.globalenv['db']
+        db = current.db
         cache_clear_customers_classcards = current.globalenv['cache_clear_customers_classcards']
 
         cmID = db.customers_memberships.insert(
@@ -137,7 +137,7 @@ class SchoolMembership:
         from openstudio.os_customer_membership import CustomerMembership
         from openstudio.openstudio import Invoice
         
-        db = current.globalenv['db']
+        db = current.db
         T = current.T
 
         cm = CustomerMembership(cmID)

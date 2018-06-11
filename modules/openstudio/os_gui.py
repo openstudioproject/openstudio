@@ -162,7 +162,7 @@ class OsGui:
         :param form_id: string
         :return: INPUT()
         """
-        T = current.globalenv['T']
+        T = current.T
 
         return INPUT(_type='submit',
                      _value=T('Save'),

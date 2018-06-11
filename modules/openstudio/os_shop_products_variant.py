@@ -5,7 +5,7 @@ from gluon import *
 
 class ShopProductsVariant:
     def __init__(self, shop_products_variants_id):
-        db = current.globalenv['db']
+        db = current.db
 
         self.id = shop_products_variants_id
         self.row = db.shop_products_variants(self.id)
@@ -15,7 +15,7 @@ class ShopProductsVariant:
         """
             Set this product variant as default for a product
         """
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.shop_products_variants.shop_products_id ==
                  self.row.shop_products_id)

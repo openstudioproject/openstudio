@@ -9,7 +9,7 @@ class ShopProductsSets:
         """
             :return: List of shop products_sets (gluon.dal.rows)
         """
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.shop_products_sets)
         rows = db(query).select(db.shop_products_sets.ALL,
@@ -22,9 +22,9 @@ class ShopProductsSets:
         """
             :return: HTML table with shop products_sets
         """
-        T = current.globalenv['T']
+        T = current.T
         os_gui = current.globalenv['os_gui']
-        auth = current.globalenv['auth']
+        auth = current.auth
 
         header = THEAD(TR(TH(T('Product set')),
                           TH(T('Description')),

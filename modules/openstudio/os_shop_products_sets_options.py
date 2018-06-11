@@ -15,7 +15,7 @@ class ShopProductsSetsOptions:
         """
             :return: boolean
         """
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.shop_products.shop_products_sets_id ==
                  self.products_sets_id)
@@ -27,7 +27,7 @@ class ShopProductsSetsOptions:
         """
             :return: List of shop products sets options
         """
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.shop_products_sets_options.shop_products_sets_id ==
                  db.shop_products_sets.id)
@@ -41,9 +41,9 @@ class ShopProductsSetsOptions:
         """
             :return: HTML table with shop products sets options
         """
-        T = current.globalenv['T']
+        T = current.T
         os_gui = current.globalenv['os_gui']
-        auth = current.globalenv['auth']
+        auth = current.auth
 
         linked_products = self.has_linked_products()
 
@@ -105,8 +105,8 @@ class ShopProductsSetsOptions:
         """
         from os_forms import OsForms
 
-        T = current.globalenv['T']
-        db = current.globalenv['db']
+        T = current.T
+        db = current.db
 
         db.shop_products_sets_options.Name.label = ''
         db.shop_products_sets_options.shop_products_sets_id.default = \

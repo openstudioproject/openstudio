@@ -8,7 +8,7 @@ class CustomerMembership:
         Class for customer memberships
     """
     def __init__(self, cmID):
-        db = current.globalenv['db']
+        db = current.db
 
         self.cmID = cmID
         self.row = db.customers_memberships(self.cmID)

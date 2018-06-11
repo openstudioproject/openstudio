@@ -11,7 +11,7 @@ class ShopProductsVariants:
         """
             :return: List of shop product variants(gluon.dal.rows)
         """
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.shop_products_variants.shop_products_id ==
                  self.shop_products_id)
@@ -25,9 +25,9 @@ class ShopProductsVariants:
         """
             :return: HTML table with shop products variants
         """
-        T = current.globalenv['T']
+        T = current.T
         os_gui = current.globalenv['os_gui']
-        auth = current.globalenv['auth']
+        auth = current.auth
 
         product = ShopProduct(self.shop_products_id)
 
@@ -171,7 +171,7 @@ class ShopProductsVariants:
         """
             :return: onclick delete for
         """
-        T = current.globalenv['T']
+        T = current.T
         product = ShopProduct(self.shop_products_id)
         if product.has_products_set():
             delete_message = T('Do you really want to disable this variant?')

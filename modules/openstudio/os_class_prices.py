@@ -8,7 +8,7 @@ class ClassPrices:
         :param clsID: db.classes.id
         :return: gluon.dal.rows object containing db.classes_price for a class
         """
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.classes_price.classes_id == clsID)
 
@@ -24,7 +24,7 @@ class ClassPrices:
         from openstudio.os_gui import  OsGui
 
         os_gui = OsGui()
-        auth = current.globalenv['auth']
+        auth = current.auth
 
         rows = self.get_prices_for_class(clsID)
         table = TABLE(

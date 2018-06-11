@@ -19,7 +19,7 @@ class Invoices:
         from openstudio import Invoice
         import datetime
 
-        db = current.globalenv['db']
+        db = current.db
         T = current.T
 
         # Get list of teachers

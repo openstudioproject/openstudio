@@ -8,7 +8,7 @@ class ShopProduct:
         """
             :param spID: db.shop_products.id
         """
-        db = current.globalenv['db']
+        db = current.db
 
         self.id = spID
         self.row = db.shop_products(self.id)
@@ -18,7 +18,7 @@ class ShopProduct:
         """
             :return: integer - number of variants for this product
         """
-        db = current.globalenv['db']
+        db = current.db
         query = (db.shop_products_variants.shop_products_id == self.id)
 
         return db(query).count()
@@ -29,8 +29,8 @@ class ShopProduct:
             Create default variant for a product without a product set
             :return: None
         """
-        T = current.globalenv['T']
-        db = current.globalenv['db']
+        T = current.T
+        db = current.db
 
         db.shop_products_variants.insert(
             Enabled=True,

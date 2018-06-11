@@ -33,8 +33,8 @@ class OsForms:
         """
             Return a crud form to add a record to the database
         """
-        T = current.globalenv['T']
-        crud = current.globalenv['crud']
+        T = current.T
+        crud = current.crud
 
         crud.messages.submit_button = submit_button or T("Save")
         crud.messages.record_created = T("Saved")
@@ -64,8 +64,8 @@ class OsForms:
         """
             Return a crud form to add a record to the database
         """
-        T = current.globalenv['T']
-        crud = current.globalenv['crud']
+        T = current.T
+        crud = current.crud
 
         crud.messages.submit_button = submit_button or T("Save")
         crud.messages.record_updated = T("Saved")

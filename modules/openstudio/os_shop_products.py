@@ -8,7 +8,7 @@ class ShopProducts:
         """
             :return: List of shop products (gluon.dal.rows)
         """
-        db = current.globalenv['db']
+        db = current.db
 
         rows = db(db.shop_products).select(db.shop_products.ALL,
                                            orderby=db.shop_products.Name)
@@ -20,9 +20,9 @@ class ShopProducts:
         """
             :return: HTML table with shop products
         """
-        T = current.globalenv['T']
+        T = current.T
         os_gui = current.globalenv['os_gui']
-        auth = current.globalenv['auth']
+        auth = current.auth
 
         header = THEAD(TR(TH(),
                           TH(T('Name')),

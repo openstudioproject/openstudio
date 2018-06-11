@@ -6,7 +6,7 @@ def set_version():
     """
         Set version of current OpenStudio release
     """
-    db = current.globalenv['db']
+    db = current.db
     cache_clear_sys_properties = current.globalenv['cache_clear_sys_properties']
 
     row = db.sys_properties(Property='Version')

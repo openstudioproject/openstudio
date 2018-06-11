@@ -12,7 +12,7 @@ class ShopCategories:
         """
             :return: List of shop categories (gluon.dal.rows)
         """
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.shop_categories.Archived == self.show_archive)
         rows = db(query).select(db.shop_categories.ALL,
@@ -25,9 +25,9 @@ class ShopCategories:
         """
             :return: HTML table with shop categories
         """
-        T = current.globalenv['T']
+        T = current.T
         os_gui = current.globalenv['os_gui']
-        auth = current.globalenv['auth']
+        auth = current.auth
 
         header = THEAD(TR(TH(T('Category')),
                           TH(T('Description')),

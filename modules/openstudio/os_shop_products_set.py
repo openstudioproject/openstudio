@@ -5,7 +5,7 @@ from gluon import *
 
 class ShopProductsSet:
     def __init__(self, spsID):
-        db = current.globalenv['db']
+        db = current.db
         self.spsID = spsID
         self.row = db.shop_products_sets(self.spsID)
 
@@ -14,7 +14,7 @@ class ShopProductsSet:
         """
             :return: list of options for a products set
         """
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.shop_products_sets_options.shop_products_sets_id ==
                  self.spsID)
@@ -38,7 +38,7 @@ class ShopProductsSet:
         """
             :return: list of options with values for a products set
         """
-        db = current.globalenv['db']
+        db = current.db
 
         options = {}
         for option in self.options():
@@ -62,7 +62,7 @@ class ShopProductsSet:
         """
              :return: dict[db.shop_products_sets_options_values.id] = name
         """
-        db = current.globalenv['db']
+        db = current.db
 
         option_ids = []
         for option in self.options():
@@ -82,7 +82,7 @@ class ShopProductsSet:
         """
         :return: list containing ids of linked products
         """
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.shop_products.shop_products_sets_id == self.spsID)
         rows = db(query).select(db.shop_products.id)
@@ -113,7 +113,7 @@ class ShopProductsSet:
         """
         from itertools import product, combinations, permutations
 
-        db = current.globalenv['db']
+        db = current.db
         options = self.options_with_values()
         value_names = self.get_value_names()
 

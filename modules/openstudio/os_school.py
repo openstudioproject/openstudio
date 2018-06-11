@@ -15,7 +15,7 @@ class School:
                                 False means all cards are returned
             Returns classcards for school
         """
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.school_classcards.Archived == False)
         if public_only:
@@ -59,7 +59,7 @@ class School:
 
         TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
         os_gui = current.globalenv['os_gui']
-        T = current.globalenv['T']
+        T = current.T
 
         customer = Customer(auth_user_id)
         customer_has_membership = customer.has_membership_on_date(TODAY_LOCAL)
@@ -134,7 +134,7 @@ class School:
             Get button to add card to shopping cart
         """
         os_gui = current.globalenv['os_gui']
-        T = current.globalenv['T']
+        T = current.T
 
         if membership_required and not customer_has_membership:
             return A(SPAN(T("Membership required")),
@@ -152,7 +152,7 @@ class School:
             Get button to add card to shopping cart
         """
         os_gui = current.globalenv['os_gui']
-        T = current.globalenv['T']
+        T = current.T
 
         if membership_required and not customer_has_membership:
             return A(SPAN(T("Membership required")),
@@ -167,7 +167,7 @@ class School:
             :param public: boolean, defines whether to show only public or all subscriptions
             :return: list of school_subscriptions
         """
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.school_subscriptions.id > 0)
 
@@ -195,7 +195,7 @@ class School:
 
         TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
         os_gui = current.globalenv['os_gui']
-        T = current.globalenv['T']
+        T = current.T
 
         customer = Customer(auth_customer_id)
         customer_has_membership = customer.has_membership_on_date(TODAY_LOCAL)
@@ -268,7 +268,7 @@ class School:
             Get button to add card to shopping cart
         """
         os_gui = current.globalenv['os_gui']
-        T = current.globalenv['T']
+        T = current.T
 
         return A(SPAN(os_gui.get_fa_icon('fa-shopping-cart'), ' ', T('Get this membership')),
                  _href=URL('membership_terms', vars={'smID': smID}))
@@ -279,7 +279,7 @@ class School:
             :param public: boolean, defines whether to show only public or all memberships
             :return: list of school_memberships
         """
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.school_memberships.id > 0)
 
@@ -304,7 +304,7 @@ class School:
         from openstudio.os_school_membership import SchoolMembership
 
         os_gui = current.globalenv['os_gui']
-        T = current.globalenv['T']
+        T = current.T
         os_tools = OsTools()
 
         if per_row == 3:

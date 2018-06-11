@@ -22,7 +22,7 @@ class CustomerExport:
         """
             :param cuID: db.auth_user.id
         """
-        db = current.globalenv['db']
+        db = current.db
 
         self.cuID = cuID
         self.row = db.auth_user(self.cuID)
@@ -36,7 +36,7 @@ class CustomerExport:
         import openpyxl
 
 
-        db = current.globalenv['db']
+        db = current.db
 
         stream = StringIO()
         # Create the workbook
@@ -829,7 +829,7 @@ class Customers:
             :param: date: datetime.date
             :return: List of all records in auth_user with activity
         """
-        db = current.globalenv['db']
+        db = current.db
         query = """
 SELECT au.id, 
 	   au.first_name, 
@@ -919,7 +919,7 @@ WHERE (au.last_login < '{date}' OR au.last_login IS NULL) AND
         :param date: datetime.date
         :return: Integer - count of customers deleted
         """
-        db = current.globalenv['db']
+        db = current.db
 
         records = self.list_inactive_after_date(date)
         ids = [record[0] for record in records]
@@ -936,7 +936,7 @@ WHERE (au.last_login < '{date}' OR au.last_login IS NULL) AND
             :return: dict(table=Table listing inactive customers,
                           count=number of inactive customers)
         """
-        T = current.globalenv['T']
+        T = current.T
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
 
         records = self.list_inactive_after_date(date)
@@ -1061,7 +1061,7 @@ class CustomersHelper:
         from os_gui import OsGui
 
         T = current.T
-        db = current.globalenv['db']
+        db = current.db
         os_gui = OsGui()
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
         session = current.session
@@ -1138,7 +1138,7 @@ class CustomersHelper:
         from os_gui import OsGui
         os_gui = OsGui()
 
-        session = current.globalenv['session']
+        session = current.session
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
 
         date = session.customers_classes_reservation_add_vars['date']
@@ -1208,7 +1208,7 @@ class CustomersHelper:
         :return: Dictionary of customerID's containing current balance and total of reconcilliation credits allowed
         by all subscriptions a customer has on given date
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         query = '''SELECT cs.id, 
                           cs.auth_customer_id, 
@@ -1265,7 +1265,7 @@ class CustomersSubscriptionsCreditsHelper:
         '''
             Get list of classes a customer has a reservation for in a selected month
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         ah = AttendanceHelper()
         crh = ClassReservationHelper()
@@ -1328,7 +1328,7 @@ class CustomersSubscriptionsCreditsHelper:
             :param query: query containing constraints for period and classes from classes_attendance
             :return: None
         '''
-        db = current.globalenv['db']
+        db = current.db
         rows = db(query).select(db.classes_attendance.id)
         att_ids = []
         for row in rows:
@@ -1362,8 +1362,8 @@ class CustomersSubscriptionsCreditsHelper:
             :param subscription_unit: string either 'week' or 'month'
             :return: None
         '''
-        T = current.globalenv['T']
-        db = current.globalenv['db']
+        T = current.T
+        db = current.db
         now = current.globalenv['NOW_LOCAL']
         cache_clear_customers_subscriptions = current.globalenv['cache_clear_customers_subscriptions']
         TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
@@ -1429,7 +1429,7 @@ class CustomersSubscriptionsCreditsHelper:
         '''
             return subscription rows for month
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         first_day = datetime.date(year, month, 1)
         last_day = get_last_day_month(first_day)
@@ -1486,8 +1486,8 @@ class CustomersSubscriptionsCreditsHelper:
         '''
             Add subscription credits for month
         '''
-        T = current.globalenv['T']
-        db = current.globalenv['db']
+        T = current.T
+        db = current.db
 
         first_day = datetime.date(year, month, 1)
         last_day = get_last_day_month(first_day)
@@ -1553,11 +1553,11 @@ class CustomersSubscriptionsCreditsHelper:
         :param date: datetime.date
         :return: number of subscriptions for which credits were expired
         """
-        T = current.globalenv['T']
-        db = current.globalenv['db']
+        T = current.T
+        db = current.db
         NOW_LOCAL = current.globalenv['NOW_LOCAL']
         web2pytest = current.globalenv['web2pytest']
-        request = current.globalenv['request']
+        request = current.request
 
         # Create dictionary of expiration for school_subscriptions
         subscriptions_count_expired = 0
@@ -1653,7 +1653,7 @@ class CustomerSubscription:
         '''
             Class init function which sets csID
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         self.csID = csID
         self.cs = db.customers_subscriptions(csID)
@@ -1673,7 +1673,7 @@ class CustomerSubscription:
             :param SubscriptionYear: Year of subscription
             :param SubscriptionMonth: Month of subscription
         """
-        db = current.globalenv['db']
+        db = current.db
         TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
 
@@ -1758,7 +1758,7 @@ class CustomerSubscription:
         '''
             Calculate total credits remaining for a subscription
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         sum = db.customers_subscriptions_credits.MutationAmount.sum()
 
@@ -1783,9 +1783,9 @@ class CustomerSubscription:
             Returns raw rows of credit mutations for a subscription
         '''
         os_gui = current.globalenv['os_gui']
-        auth = current.globalenv['auth']
-        db = current.globalenv['db']
-        T = current.globalenv['T']
+        auth = current.auth
+        db = current.db
+        T = current.T
 
         left = [ db.classes_attendance.on(db.customers_subscriptions_credits.classes_attendance_id ==
                                           db.classes_attendance.id),
@@ -1893,8 +1893,8 @@ class CustomerSubscription:
             :param class_ids: list of db.classes.id
             :return: html table
         '''
-        T = current.globalenv['T']
-        db = current.globalenv['db']
+        T = current.T
+        db = current.db
         TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
 
         query = (db.classes.AllowAPI == True) & \
@@ -1987,8 +1987,8 @@ class CustomerSubscription:
             :param permissions: dictionary of class permissions
             :return: html table
         '''
-        T = current.globalenv['T']
-        db = current.globalenv['db']
+        T = current.T
+        db = current.db
         os_gui = current.globalenv['os_gui']
         TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
 
@@ -2050,7 +2050,7 @@ class CustomerSubscription:
         '''
             :return: return list of class permissons (clsID: enroll, book in shop, attend)
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         # get groups for subscription
         query = (db.school_subscriptions_groups_subscriptions.school_subscriptions_id == self.ssuID)
@@ -2097,7 +2097,7 @@ class Class:
         self.clsID = clsID
         self.date = date
 
-        db = current.globalenv['db']
+        db = current.db
         self.cls = db.classes(self.clsID)
 
 
@@ -2105,8 +2105,8 @@ class Class:
         """
             Returns class name formatted for general use
         """
-        db = current.globalenv['db']
-        T = current.globalenv['T']
+        db = current.db
+        T = current.T
         TIME_FORMAT = current.globalenv['TIME_FORMAT']
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
 
@@ -2130,8 +2130,8 @@ class Class:
         '''
             Returns class name formatted for use in customer profile and shop
         '''
-        db = current.globalenv['db']
-        T = current.globalenv['T']
+        db = current.db
+        T = current.T
         TIME_FORMAT = current.globalenv['TIME_FORMAT']
 
         record = self.cls
@@ -2150,7 +2150,7 @@ class Class:
         """
             Returns the price for a class
         """
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.classes_price.classes_id == self.clsID) & \
                 (db.classes_price.Startdate <= self.date) & \
@@ -2228,7 +2228,7 @@ class Class:
         '''
             Check whether or not this class is full
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         spaces = self.cls.Maxstudents
 
@@ -2246,7 +2246,7 @@ class Class:
         '''
             Check whether there are spaces left for online bookings
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         spaces = self.cls.MaxOnlineBooking
         query = (db.classes_attendance.classes_id == self.clsID) & \
@@ -2267,8 +2267,8 @@ class Class:
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
         TIME_FORMAT = current.globalenv['TIME_FORMAT']
 
-        db = current.globalenv['db']
-        T  = current.globalenv['T']
+        db = current.db
+        T  = current.T
 
         prices = self.get_prices()
         if attendance_type == 1:
@@ -2298,7 +2298,7 @@ class Class:
             Add a workshop product to the shopping cart of a customer
             attendance_type can be 1 for trial class or 2 for drop in class
         """
-        db = current.globalenv['db']
+        db = current.db
 
         db.customers_shoppingcart.insert(
             auth_customer_id = cuID,
@@ -2324,7 +2324,7 @@ class Class:
         """
         import pytz
 
-        db = current.globalenv['db']
+        db = current.db
         now = current.globalenv['NOW_LOCAL']
         TIMEZONE = current.globalenv['TIMEZONE']
 
@@ -2349,7 +2349,7 @@ class Class:
         """
             Return True if the class is cancelled, else return False
         """
-        db = current.globalenv['db']
+        db = current.db
         query = (db.classes_otc.classes_id == self.clsID) & \
                 (db.classes_otc.ClassDate == self.date) & \
                 (db.classes_otc.Status == 'cancelled')
@@ -2362,7 +2362,7 @@ class Class:
         """
             Return True if the class is within a holiday, else return False
         """
-        db = current.globalenv['db']
+        db = current.db
 
         # Query school_holidays table to see if there's a holiday for this location
         left = [db.school_holidays_locations.on(db.school_holidays.id ==
@@ -2401,7 +2401,7 @@ class Class:
 
         Check if the class is booked by this customer or not
         """
-        db = current.globalenv['db']
+        db = current.db
 
         query = ((db.classes_attendance.BookingStatus == 'booked') |
                  (db.classes_attendance.BookingStatus == 'attending')) & \
@@ -2422,7 +2422,7 @@ class Class:
         :param date: datetime.date
         :return: Boolean
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         spaces = self.cls.MaxReservationsRecurring
 
@@ -2460,7 +2460,7 @@ class ClassReservationHelper:
         :param date: datetime.date
         :return: rows of all recurring reservations on a given date
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.classes_reservation.Startdate <= date) & \
                 ((db.classes_reservation.Enddate >= date) |
@@ -2475,7 +2475,7 @@ class ClassAttendance:
         This class collects functions related to a class attendance record
     '''
     def __init__(self, clattID):
-        db = current.globalenv['db']
+        db = current.db
         self.id = clattID
         self.row = db.classes_attendance(clattID)
 
@@ -2484,7 +2484,7 @@ class ClassAttendance:
         '''
             Returns datetime object of class start
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         pytz = current.globalenv['pytz']
         TIMEZONE = 'Etc/UTC' # Class times in DB be considered local and shouldn't have extra hours added / subtracted
@@ -2506,7 +2506,7 @@ class ClassAttendance:
             Calculates datetime of latest cancellation possibility
         '''
         import math
-        db = current.globalenv['db']
+        db = current.db
 
         cls = db.classes(self.row.classes_id)
         date = self.row.ClassDate
@@ -2540,8 +2540,8 @@ class ClassAttendance:
         '''
             Set status cancelled
         '''
-        T = current.globalenv['T']
-        db = current.globalenv['db']
+        T = current.T
+        db = current.db
         NOW_LOCAL = current.globalenv['NOW_LOCAL']
         return_message = T('Cancelled class')
 
@@ -2568,7 +2568,7 @@ class AttendanceHelper:
     #     '''
     #         Returns wheter or not a customer is attending a class
     #     '''
-    #     db = current.globalenv['db']
+    #     db = current.db
     #
     #     attending = db.classes_attendance(classes_id       = clsID,
     #                                       ClassDate        = date,
@@ -2587,7 +2587,7 @@ class AttendanceHelper:
     #         Return list of customers attending a class as list of
     #         db.auth_user.id
     #     '''
-    #     db = current.globalenv['db']
+    #     db = current.db
     #
     #     query = (db.classes_attendance.classes_id == clsID) & \
     #             (db.classes_attendance.ClassDate  == date)
@@ -2607,7 +2607,7 @@ class AttendanceHelper:
             :param date: class date
             :return: attendance rows
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         filter_date_teacher_notes = date - datetime.timedelta(days=92)
 
@@ -2714,8 +2714,8 @@ class AttendanceHelper:
             :param days: int
             :return: 
         '''
-        db = current.globalenv['db']
-        cache = current.globalenv['cache']
+        db = current.db
+        cache = current.cache
 
         cls = Class(clsID, date)
 
@@ -2759,7 +2759,7 @@ class AttendanceHelper:
             :param date: datetime.date
             :return: reservation rows for a class
         """
-        db = current.globalenv['db']
+        db = current.db
 
         fields = [
             db.auth_user.id,
@@ -2825,7 +2825,7 @@ class AttendanceHelper:
             Returns distincs a list of customers attending any classes between start_date
             and end_date as a list of db.auth_user_id
         """
-        db = current.globalenv['db']
+        db = current.db
 
         left = [ db.auth_user.on(db.classes_attendance.auth_customer_id == db.auth_user.id) ]
 
@@ -2854,7 +2854,7 @@ class AttendanceHelper:
 
             :param customer_ids: the customers to check
         """
-        db = current.globalenv['db']
+        db = current.db
         max = db.classes_attendance.ClassDate.max()
         having_query = (db.classes_attendance.auth_customer_id.belongs(customer_ids))
         rows = db().select(db.classes_attendance.auth_customer_id,
@@ -3114,8 +3114,8 @@ class AttendanceHelper:
         # Start main function
         ##
         T = current.T
-        db = current.globalenv['db']
-        auth = current.globalenv['auth']
+        db = current.db
+        auth = current.auth
         os_gui = current.globalenv['os_gui']
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
 
@@ -3290,8 +3290,8 @@ class AttendanceHelper:
 
         # Set some values from the globalenv
         T = current.T
-        db = current.globalenv['db']
-        auth = current.globalenv['auth']
+        db = current.db
+        auth = current.auth
         os_gui = current.globalenv['os_gui']
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
 
@@ -3364,7 +3364,7 @@ class AttendanceHelper:
             :return: list containing email addresses for all people attending, with reservations or expected to attend
         '''
         # Set some values from the globalenv
-        db = current.globalenv['db']
+        db = current.db
 
         mailing_list = []
         # ## get list of customers attending this class
@@ -3413,7 +3413,7 @@ class AttendanceHelper:
             :return: cStringIO stream containing: 
                 list containing email addresses for all people attending, with reservations or expected to attend
         '''
-        T = current.globalenv['T']
+        T = current.T
 
         import cStringIO, openpyxl
         stream = cStringIO.StringIO()
@@ -3441,7 +3441,7 @@ class AttendanceHelper:
         '''
             Returns sign in buttons for a class
         '''
-        db = current.globalenv['db']
+        db = current.db
         os_gui = current.globalenv['os_gui']
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
         date_formatted = date.strftime(DATE_FORMAT)
@@ -3641,8 +3641,8 @@ class AttendanceHelper:
 
             return button_book
 
-        T = current.globalenv['T']
-        db = current.globalenv['db']
+        T = current.T
+        db = current.db
         os_gui = current.globalenv['os_gui']
         CURRSYM = current.globalenv['CURRSYM']
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
@@ -3903,8 +3903,8 @@ class AttendanceHelper:
         '''
             Returns a modal popup for teacher notes
         '''
-        T = current.globalenv['T']
-        db = current.globalenv['db']
+        T = current.T
+        db = current.db
         os_gui = current.globalenv['os_gui']
 
         notes = LOAD('customers', 'notes.load', ajax=True,
@@ -3955,8 +3955,8 @@ class AttendanceHelper:
             :param date: datetime.date
             :return: dict status[ok|fail], message
         '''
-        db = current.globalenv['db']
-        T = current.globalenv['T']
+        db = current.db
+        T = current.T
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
         cache_clear_customers_subscriptions = current.globalenv['cache_clear_customers_subscriptions']
 
@@ -4031,8 +4031,8 @@ class AttendanceHelper:
         :param date:
         :return:
         '''
-        T = current.globalenv['T']
-        db = current.globalenv['db']
+        T = current.T
+        db = current.db
 
         cs = CustomerSubscription(csID)
         balance = cs.get_credits_balance()
@@ -4057,8 +4057,8 @@ class AttendanceHelper:
     #         )
     #
     #
-    #     T  = current.globalenv['T']
-    #     db = current.globalenv['db']
+    #     T  = current.T
+    #     db = current.db
     #     TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
     #
     #     csu = db.customers_subscriptions(csID)
@@ -4123,7 +4123,7 @@ class AttendanceHelper:
         """
         from openstudio.os_customer_subscriptions import CustomerSubscriptions
 
-        T = current.globalenv['T']
+        T = current.T
         message = ''
 
         cs = CustomerSubscriptions(csID)
@@ -4143,9 +4143,9 @@ class AttendanceHelper:
         """
             Creates an invoice for a drop in or trial class
         """
-        db = current.globalenv['db']
+        db = current.db
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
-        T = current.globalenv['T']
+        T = current.T
 
         date_formatted = date.strftime(DATE_FORMAT)
 
@@ -4215,7 +4215,7 @@ class AttendanceHelper:
         :param booking_status:
         :return:
         '''
-        T = current.globalenv['T']
+        T = current.T
         TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
         get_sys_property = current.globalenv['get_sys_property']
@@ -4305,8 +4305,8 @@ class AttendanceHelper:
             :param date: datetime.date
             :return: 
         """
-        db = current.globalenv['db']
-        T = current.globalenv['T']
+        db = current.db
+        T = current.T
 
         ccdh = ClasscardsHelper()
         classes_available = ccdh.get_classes_available(ccdID)
@@ -4353,8 +4353,8 @@ class AttendanceHelper:
             :param date: datetime.date
             :return: 
         '''
-        db = current.globalenv['db']
-        T = current.globalenv['T']
+        db = current.db
+        T = current.T
 
         status = 'fail'
         message = ''
@@ -4397,8 +4397,8 @@ class AttendanceHelper:
             :param date: datetime.date
             :return: 
         '''
-        db = current.globalenv['db']
-        T = current.globalenv['T']
+        db = current.db
+        T = current.T
 
         status = 'fail'
         message = ''
@@ -4440,8 +4440,8 @@ class AttendanceHelper:
             :param date: datetime.date
             :return:
         '''
-        db = current.globalenv['db']
-        T = current.globalenv['T']
+        db = current.db
+        T = current.T
 
         status = 'fail'
         message = ''
@@ -4470,7 +4470,7 @@ class AttendanceHelper:
         '''
             Check if a customer isn't already signed in to a class
         '''
-        db = current.globalenv['db']
+        db = current.db
         query = (db.classes_attendance.classes_id == clsID) & \
                 (db.classes_attendance.auth_customer_id == cuID) & \
                 (db.classes_attendance.ClassDate == date) & \
@@ -4484,7 +4484,7 @@ class AttendanceHelper:
             :param shID: db.school_holidays.id
             :return: list of db.classes.id
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         # Get locations
         query = (db.school_holidays_locations.school_holidays_id == shID)
@@ -4512,7 +4512,7 @@ class AttendanceHelper:
             :param p_end: datetime.date
             :return: None
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         # in case end period is not specified, assume it's for one day
         if not p_end:
@@ -4537,7 +4537,7 @@ class ReservationHelper:
         '''
            returns reservation for a customer, if any
         '''
-        db = current.globalenv['db']
+        db = current.db
         os_gui = current.globalenv['os_gui']
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
         date_formatted = date.strftime(DATE_FORMAT)
@@ -4667,7 +4667,7 @@ class ClassSchedule:
               applied
         '''
         os_gui = current.globalenv['os_gui']
-        T = current.globalenv['T']
+        T = current.T
 
         teacher_id = row.classes_teachers.auth_teacher_id
         teacher_id2 = row.classes_teachers.auth_teacher_id2
@@ -4719,8 +4719,8 @@ class ClassSchedule:
             return average
 
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
-        db = current.globalenv['db']
-        T = current.globalenv['T']
+        db = current.db
+        T = current.T
         weekday = self.date.isoweekday()
 
         date_formatted = self.date.strftime(DATE_FORMAT)
@@ -4887,9 +4887,9 @@ class ClassSchedule:
             when it's date doesn't appear in classes_attendance
         '''
         web2pytest = current.globalenv['web2pytest']
-        request = current.globalenv['request']
-        auth = current.globalenv['auth']
-        T = current.globalenv['T']
+        request = current.request
+        auth = current.auth
+        T = current.T
 
         # get attendance data from cache or db
 
@@ -4898,7 +4898,7 @@ class ClassSchedule:
             data = self._get_day_get_table_class_trend_data()
         else:
             twelve_hours = 12*60*60
-            cache = current.globalenv['cache']
+            cache = current.cache
             DATE_FORMAT = current.globalenv['DATE_FORMAT']
             # A key that isn't cleared when schedule changes occur.
             cache_key = 'openstudio_classschedule_trend_get_day_table_' + \
@@ -4913,7 +4913,7 @@ class ClassSchedule:
         """
             :return: dict containing button permissions for a user
         """
-        auth = current.globalenv['auth']
+        auth = current.auth
         permissions = {}
 
         if auth.has_membership(group_id='Admins') or \
@@ -4948,7 +4948,7 @@ class ClassSchedule:
             - separate button for delete
         '''
         os_gui = current.globalenv['os_gui']
-        T = current.globalenv['T']
+        T = current.T
         buttons = DIV(_class='pull-right')
 
         vars = { 'clsID':clsID,
@@ -5014,8 +5014,8 @@ class ClassSchedule:
             Returns tools for schedule
             - reservations
         '''
-        auth = current.globalenv['auth']
-        T = current.globalenv['T']
+        auth = current.auth
+        T = current.T
 
         tools = DIV()
 
@@ -5045,8 +5045,8 @@ class ClassSchedule:
             Returns messages for a class
         '''
         os_gui = current.globalenv['os_gui']
-        auth = current.globalenv['auth']
-        T = current.globalenv['T']
+        auth = current.auth
+        T = current.T
 
         class_messages = []
 
@@ -5171,7 +5171,7 @@ class ClassSchedule:
         """
         date = self.date
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
-        db = current.globalenv['db']
+        db = current.db
         weekday = date.isoweekday()
 
         date_formatted = date.strftime(DATE_FORMAT)
@@ -5370,13 +5370,13 @@ class ClassSchedule:
             Get day rows with caching 
         """
         #web2pytest = current.globalenv['web2pytest']
-        #request = current.globalenv['request']
+        #request = current.request
 
         # # Don't cache when running tests
         # if web2pytest.is_running_under_test(request, request.application):
         #     rows = self._get_day_rows()
         # else:
-        #     cache = current.globalenv['cache']
+        #     cache = current.cache
         #     DATE_FORMAT = current.globalenv['DATE_FORMAT']
         #     CACHE_LONG = current.globalenv['CACHE_LONG']
         #     cache_key = 'openstudio_classschedule_get_day_rows_' + self.date.strftime(DATE_FORMAT)
@@ -5394,7 +5394,7 @@ class ClassSchedule:
         os_gui = current.globalenv['os_gui']
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
         ORGANIZATIONS = current.globalenv['ORGANIZATIONS']
-        T = current.globalenv['T']
+        T = current.T
         date_formatted = self.date.strftime(DATE_FORMAT)
 
         table = TABLE(TR(TH(' ', _class='td_status_marker'), # status marker
@@ -5501,14 +5501,14 @@ class ClassSchedule:
             Get day table with caching
         """
         web2pytest = current.globalenv['web2pytest']
-        request = current.globalenv['request']
-        auth = current.globalenv['auth']
+        request = current.request
+        auth = current.auth
 
         # Don't cache when running tests
         if web2pytest.is_running_under_test(request, request.application):
             rows = self._get_day_table()
         else:
-            cache = current.globalenv['cache']
+            cache = current.cache
             DATE_FORMAT = current.globalenv['DATE_FORMAT']
             CACHE_LONG = current.globalenv['CACHE_LONG']
             cache_key = 'openstudio_classschedule_get_day_table_' + \
@@ -5534,7 +5534,7 @@ class ClassSchedule:
         '''
         os_gui = current.globalenv['os_gui']
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
-        T = current.globalenv['T']
+        T = current.T
         date_formatted = self.date.strftime(DATE_FORMAT)
 
         rows = self.get_day_rows()
@@ -5635,7 +5635,7 @@ class Classcard:
         '''
             Set some initial values
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         self.ccdID = ccdID
         self.classcard = db.customers_classcards(ccdID)
@@ -5665,7 +5665,7 @@ class Classcard:
             Returns the tax rate percentage for a card
             Returns None if nothing is set
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         trID = self.school_classcard.tax_rates_id
         if not trID:
@@ -5680,7 +5680,7 @@ class Classcard:
         '''
             Returns rows of classes taken on this card
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         fields = [
             db.classes_attendance.id,
@@ -5740,7 +5740,7 @@ class Classcard:
         '''
             :return: Remaining classes
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         if self.unlimited:
             return 'unlimited'
@@ -5755,8 +5755,8 @@ class Classcard:
         '''
             :return: Representation of remaining classes
         '''
-        db = current.globalenv['db']
-        T = current.globalenv['T']
+        db = current.db
+        T = current.T
 
         remaining = self.get_classes_remaining()
 
@@ -5775,8 +5775,8 @@ class Classcard:
             :param class_ids: list of db.classes.id
             :return: html table
         '''
-        T = current.globalenv['T']
-        db = current.globalenv['db']
+        T = current.T
+        db = current.db
         TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
 
         query = (db.classes.AllowAPI == True) & \
@@ -5869,8 +5869,8 @@ class Classcard:
             :param permissions: dictionary of class permissions
             :return: html table
         '''
-        T = current.globalenv['T']
-        db = current.globalenv['db']
+        T = current.T
+        db = current.db
         os_gui = current.globalenv['os_gui']
         TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
 
@@ -5931,7 +5931,7 @@ class Classcard:
         '''
             :return: return list of class permissons (clsID: enroll, book in shop, attend)
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         # get groups for classcard
         query = (db.school_classcards_groups_classcards.school_classcards_id == self.scdID)
@@ -5980,7 +5980,7 @@ class ClasscardsHelper:
         '''
             Returns payment for a cuID and wspID
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.classes_attendance.customers_classcards_id == ccdID) & \
                 (db.classes_attendance.BookingStatus != 'cancelled')
@@ -5994,7 +5994,7 @@ class ClasscardsHelper:
         '''
             Returns classes taken on a card
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.classes_attendance.customers_classcards_id == ccdID) & \
                 (db.classes_attendance.BookingStatus != 'cancelled')
@@ -6006,7 +6006,7 @@ class ClasscardsHelper:
         '''
             Returns the total classes on a card
         '''
-        db = current.globalenv['db']
+        db = current.db
         classcard = db.customers_classcards(ccdID)
         school_classcard = db.school_classcards(classcard.school_classcards_id)
 
@@ -6070,7 +6070,7 @@ class Workshop:
     def __init__(self, wsID):
         self.wsID = wsID
 
-        db = current.globalenv['db']
+        db = current.db
         query = (db.workshops.id == self.wsID)
         rows = db(query).select(db.workshops.ALL)
         self.workshop = rows.first()
@@ -6117,7 +6117,7 @@ class Workshop:
             :param filter_public: boolean - show only Public products when set to True
             :return: workshop product rows for a workshop
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.workshops_products.workshops_id == self.wsID)
         if filter_public:
@@ -6139,7 +6139,7 @@ class Workshop:
 
 
     def get_activities(self):
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.workshops_activities.workshops_id == self.wsID)
         rows = db(query).select(db.workshops_activities.ALL,
@@ -6182,7 +6182,7 @@ class Workshop:
             After selling a product online or adding a customer to a product, check whether products aren't sold out.
             If a product is sold out, check for open orders containing the sold out product and cancel them.
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         products = self.get_products()
         for product in products:
@@ -6208,7 +6208,7 @@ class WorkshopsHelper:
             Returns checkboxes for payment confirmation and workshop info
             wsp_cuID = workshops_products_customers.id
         '''
-        T = current.globalenv['T']
+        T = current.T
 
         form = SQLFORM.factory(
             Field('WorkshopInfo', 'boolean',
@@ -6245,7 +6245,7 @@ class WorkshopsHelper:
         '''
         # Get list of all customers with email for a workshop
         # Get all workshop_products_ids
-        db = current.globalenv['db']
+        db = current.db
         query = (db.workshops_products.workshops_id == wsID)
         rows = db(query).select(db.workshops_products.id)
         products_ids = []
@@ -6285,7 +6285,7 @@ class WorkshopsHelper:
             Returns buttons for workshop_product_sell list type
             This is a select button to select a customer to sell a product to
         """
-        db = current.globalenv['db']
+        db = current.db
         os_gui = current.globalenv['os_gui']
 
         buttons = DIV(DIV(current.T("Already added"), _class='btn'),
@@ -6328,7 +6328,7 @@ class WorkshopsHelper:
         '''
             Return id of full workshop product
         '''
-        db = current.globalenv['db']
+        db = current.db
         query = (db.workshops_products.workshops_id == wsID) & \
                 (db.workshops_products.FullWorkshop == True)
 
@@ -6340,7 +6340,7 @@ class WorkshopProduct:
         Class for workshop products
     '''
     def __init__(self, wspID):
-        db = current.globalenv['db']
+        db = current.db
 
         self.wspID = int(wspID)
         self.workshop_product = db.workshops_products(self.wspID)
@@ -6369,7 +6369,7 @@ class WorkshopProduct:
         '''
             Returns the tax percentage for a workshop product, if any
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         if self.workshop_product.tax_rates_id:
             tax_rate = db.tax_rates(self.workshop_product.tax_rates_id)
@@ -6384,7 +6384,7 @@ class WorkshopProduct:
         '''
             Returns all activities for a workshop product
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         if self.workshop_product.FullWorkshop:
             query = (db.workshops_activities.workshops_id == self.workshop.id)
@@ -6409,7 +6409,7 @@ class WorkshopProduct:
             :param cuID: db.auth_user.id
             :return: True when sold to customer, False when not
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.workshops_products_customers.auth_customer_id == cuID) & \
                 (db.workshops_products_customers.workshops_products_id == self.wspID)
@@ -6451,7 +6451,7 @@ class WorkshopProduct:
 
             return count_full_ws + count_activity
 
-        db = current.globalenv['db']
+        db = current.db
         check = False
 
         fwsID = workshops_get_full_workshop_product_id(self.workshop.id)
@@ -6490,7 +6490,7 @@ class WorkshopProduct:
         '''
             Add a workshop product to the shopping cart of a customer
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         db.customers_shoppingcart.insert(
             auth_customer_id = cuID,
@@ -6503,8 +6503,8 @@ class WorkshopProduct:
             Sells a workshop to a customer and creates an invoice
             Creates an invoice when a workshop product is sold
         '''
-        db = current.globalenv['db']
-        T = current.globalenv['T']
+        db = current.db
+        T = current.T
 
         info = False
         if self.workshop.AutoSendInfoMail:
@@ -6617,7 +6617,7 @@ class WorkshopSchedule:
         '''
             Apply right sorting to rows
         '''
-        db = current.globalenv['db']
+        db = current.db
         orderby = 'ws.Startdate'
 
         if self.sorting == 'name':
@@ -6630,7 +6630,7 @@ class WorkshopSchedule:
         '''
             Gets workshop rows
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         orderby_sql = self._get_workshops_rows_orderby()
         where_filter = self._get_workshops_rows_filter_query()
@@ -6705,9 +6705,9 @@ class WorkshopSchedule:
 
             return DIV(H2(last_day_month.strftime('%B %Y'), _class='center'), _class=_class)
 
-        request = current.globalenv['request']
+        request = current.request
         os_gui = current.globalenv['os_gui']
-        T = current.globalenv['T']
+        T = current.T
         TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
 
         rows = self.get_workshops_rows()
@@ -6779,14 +6779,14 @@ class WorkshopSchedule:
             Use caching when not running as test to return the workshops list in the shop
         """
         web2pytest = current.globalenv['web2pytest']
-        request = current.globalenv['request']
-        auth = current.globalenv['auth']
+        request = current.request
+        auth = current.auth
 
         # Don't cache when running tests
         if web2pytest.is_running_under_test(request, request.application):
             rows = self._get_workshops_shop()
         else:
-            cache = current.globalenv['cache']
+            cache = current.cache
             CACHE_LONG = current.globalenv['CACHE_LONG']
             cache_key = 'openstudio_workshops_workshops_schedule_shop'
 
@@ -6803,7 +6803,7 @@ class Order:
         '''
             Init class
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         self.coID = coID
         self.order = db.customers_orders(coID)
@@ -6838,8 +6838,8 @@ class Order:
             :param school_classcards_id: db.school_classcards.id
             :return : db.customers_orders_items.id of inserted item
         '''
-        db = current.globalenv['db']
-        T  = current.globalenv['T']
+        db = current.db
+        T  = current.T
 
         school_classcard = db.school_classcards(school_classcards_id)
 
@@ -6863,8 +6863,8 @@ class Order:
             :param workshops_products_id: db.workshops_products.id
             :return: db.customers_orders_items.id of inserted item
         '''
-        db = current.globalenv['db']
-        T  = current.globalenv['T']
+        db = current.db
+        T  = current.T
 
         wsp = db.workshops_products(workshops_products_id)
         ws = db.workshops(wsp.workshops_id)
@@ -6890,8 +6890,8 @@ class Order:
             :param description: donation description
             :return: db.customers_orders.items.id of inserted item 
         '''
-        db = current.globalenv['db']
-        T  = current.globalenv['T']
+        db = current.db
+        T  = current.T
         get_sys_property = current.globalenv['get_sys_property']
 
         sys_property = 'shop_donations_tax_rates_id'
@@ -6920,8 +6920,8 @@ class Order:
         '''
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
         TIME_FORMAT = current.globalenv['TIME_FORMAT']
-        db = current.globalenv['db']
-        T  = current.globalenv['T']
+        db = current.db
+        T  = current.T
 
         cls = Class(clsID, class_date)
         prices = cls.get_prices()
@@ -6955,7 +6955,7 @@ class Order:
         '''
             :return: db.customers_orders_items rows for order
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.customers_orders_items.customers_orders_id == self.coID)
         rows = db(query).select(db.customers_orders_items.ALL)
@@ -6967,7 +6967,7 @@ class Order:
         '''
             Get subtotal, vat and total incl vat
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         amounts = db.customers_orders_amounts(customers_orders_id = self.coID)
 
@@ -6978,7 +6978,7 @@ class Order:
         '''
             Set subtotal, vat and total incl vat
         '''
-        db = current.globalenv['db']
+        db = current.db
         # set sums
         sum_subtotal = db.customers_orders_items.TotalPrice.sum()
         sum_vat = db.customers_orders_items.VAT.sum()
@@ -7026,8 +7026,8 @@ class Order:
         '''
         cache_clear_classschedule_api = current.globalenv['cache_clear_classschedule_api']
         get_sys_property = current.globalenv['get_sys_property']
-        db = current.globalenv['db']
-        T = current.globalenv['T']
+        db = current.db
+        T = current.T
 
         create_invoice = False
         iID = None
@@ -7164,7 +7164,7 @@ class Invoice:
         """
             Init function for an invoice
         """
-        db = current.globalenv['db']
+        db = current.db
 
         self.invoices_id = iID
         self.invoice = db.invoices(iID)
@@ -7186,7 +7186,7 @@ class Invoice:
 
         self.invoice.update_record()
 
-        db = current.globalenv['db']
+        db = current.db
         db.invoices_amounts.insert(invoices_id = self.invoices_id)
 
 
@@ -7242,7 +7242,7 @@ class Invoice:
         '''
             Set subtotal, vat and total incl vat
         '''
-        db = current.globalenv['db']
+        db = current.db
         # set sums
         sum_subtotal = db.invoices_items.TotalPrice.sum()
         sum_vat = db.invoices_items.VAT.sum()
@@ -7295,7 +7295,7 @@ class Invoice:
         '''
             Get subtotal, vat and total incl vat
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         amounts = db.invoices_amounts(invoices_id = self.invoices_id)
 
@@ -7307,7 +7307,7 @@ class Invoice:
             Returns vat for each tax rate as list sorted by tax rate percentage
             format: [ [ Name, Amount ] ]
         '''
-        db = current.globalenv['db']
+        db = current.db
         iID = self.invoices_id
         CURRSYM = current.globalenv['CURRSYM']
 
@@ -7336,7 +7336,7 @@ class Invoice:
         '''
             Returns the total amount paid
         '''
-        db = current.globalenv['db']
+        db = current.db
         sum = db.invoices_payments.Amount.sum()
         query = (db.invoices_payments.invoices_id == self.invoices_id)
 
@@ -7358,7 +7358,7 @@ class Invoice:
         """
             Returns the balance for an invoice
         """
-        db = current.globalenv['db']
+        db = current.db
         paid = self.get_amount_paid()
         total = self.get_amounts()['TotalPriceVAT']
 
@@ -7379,7 +7379,7 @@ class Invoice:
             Returns the next item number for an invoice
             use to set sorting when adding an item
         """
-        db = current.globalenv['db']
+        db = current.db
         query = (db.invoices_items.invoices_id == self.invoices_id)
 
         return db(query).count() + 1
@@ -7389,7 +7389,7 @@ class Invoice:
         '''
             :return: db.customers_orders_items rows for order
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.invoices_items.invoices_id == self.invoices_id)
         rows = db(query).select(db.invoices_items.ALL)
@@ -7413,7 +7413,7 @@ class Invoice:
         :param product_type: has to be 'trial' or 'dropin'
         :return:
         """
-        db = current.globalenv['db']
+        db = current.db
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
         T = current.T
 
@@ -7478,8 +7478,8 @@ class Invoice:
         '''
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
         TIME_FORMAT = current.globalenv['TIME_FORMAT']
-        db = current.globalenv['db']
-        T  = current.globalenv['T']
+        db = current.db
+        T  = current.T
 
         cls = Class(order_item_row.classes_id, order_item_row.ClassDate)
 
@@ -7513,8 +7513,8 @@ class Invoice:
             :param ccdID: Add customer classcard to invoice
             :return: None
         """
-        db = current.globalenv['db']
-        T  = current.globalenv['T']
+        db = current.db
+        T  = current.T
 
         classcard = Classcard(ccdID)
         # link invoice to classcard sold to customer
@@ -7547,8 +7547,8 @@ class Invoice:
             :param wspID: db.workshops_products_id
             :return: db.invoices_items.id
         '''
-        db = current.globalenv['db']
-        T  = current.globalenv['T']
+        db = current.db
+        T  = current.T
 
         wspc = db.workshops_products_customers(wspcID)
         wsp = db.workshops_products(wspc.workshops_products_id)
@@ -7583,8 +7583,8 @@ class Invoice:
             :param description: donation description
             :return: db.customers_orders.items.id of inserted item 
         '''
-        db = current.globalenv['db']
-        T  = current.globalenv['T']
+        db = current.db
+        T  = current.T
         get_sys_property = current.globalenv['get_sys_property']
 
         sys_property = 'shop_donations_tax_rates_id'
@@ -7615,7 +7615,7 @@ class Invoice:
             :param SubscriptionMonth: Month of subscription
             :return: db.invoices_items.id
         """
-        db = current.globalenv['db']
+        db = current.db
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
 
         next_sort_nr = self.get_item_next_sort_nr()
@@ -7702,7 +7702,7 @@ class Invoice:
         from openstudio.os_customer_membership import CustomerMembership
         from openstudio.os_school_membership import SchoolMembership
 
-        db = current.globalenv['db']
+        db = current.db
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
 
         next_sort_nr = self.get_item_next_sort_nr()
@@ -7750,8 +7750,8 @@ class Invoice:
 
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
         TIME_FORMAT = current.globalenv['TIME_FORMAT']
-        db = current.globalenv['db']
-        T = current.globalenv['T']
+        db = current.db
+        T = current.T
 
         cls = Class(clsID, date)
         teID = self.get_linked_customer_id()
@@ -7808,8 +7808,8 @@ class Invoice:
 
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
         TIME_FORMAT = current.globalenv['TIME_FORMAT']
-        db = current.globalenv['db']
-        T = current.globalenv['T']
+        db = current.db
+        T = current.T
 
         cls = Class(clsID, date)
         teID = self.get_linked_customer_id()
@@ -7847,7 +7847,7 @@ class Invoice:
         '''
             Add payment to invoice
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         ipID = db.invoices_payments.insert(
             invoices_id = self.invoices_id,
@@ -7867,7 +7867,7 @@ class Invoice:
         '''
             Check if the status should be changed to 'paid'
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         # Update invoice status
         sum_payments = db.invoices_payments.Amount.sum()
@@ -7926,7 +7926,7 @@ class Invoice:
         """
             Link invoice to customer
         """
-        db = current.globalenv['db']
+        db = current.db
         # Insert link
         db.invoices_customers.insert(
             invoices_id = self.invoices_id,
@@ -7941,7 +7941,7 @@ class Invoice:
         """
             Link invoice to customer subscription
         """
-        db = current.globalenv['db']
+        db = current.db
         db.invoices_customers_subscriptions.insert(
             invoices_id = self.invoices_id,
             customers_subscriptions_id = csID
@@ -7952,7 +7952,7 @@ class Invoice:
         """
             Link invoice to customer subscription
         """
-        db = current.globalenv['db']
+        db = current.db
         db.invoices_customers_memberships.insert(
             invoices_id=self.invoices_id,
             customers_memberships_id=cmID
@@ -7965,7 +7965,7 @@ class Invoice:
         :param caID: db.classes_attendance.id
         :return: None
         """
-        db = current.globalenv['db']
+        db = current.db
         db.invoices_classes_attendance.insert(
             invoices_id=self.invoices_id,
             classes_attendance_id=caID
@@ -7977,7 +7977,7 @@ class Invoice:
             Returns auth.user.id of account linked to this invoice
             :return: auth.user.id
         """
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.invoices_customers.invoices_id == self.invoices_id)
         rows = db(query).select(db.invoices_customers.auth_customer_id)
@@ -7993,7 +7993,7 @@ class Invoice:
             Returns auth.user.id of account linked to this invoice
             :return: auth.user.id
         """
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.invoices_customers_subscriptions.invoices_id == self.invoices_id)
         rows = db(query).select(db.invoices_customers_subscriptions.customers_subscriptions_id)
@@ -8013,7 +8013,7 @@ class InvoicesHelper:
             Check if the currently logged in user is allowed to create
             invoices
         """
-        auth = current.globalenv['auth']
+        auth = current.auth
         if not (auth.has_membership(group_id='Admins') or
                 auth.has_permission('create', 'invoices')):
             redirect(URL('default', 'user', args=['not_authorized']))
@@ -8024,7 +8024,7 @@ class InvoicesHelper:
         :param customer: Customer object
         :return: None
         """
-        db = current.globalenv['db']
+        db = current.db
         address = ''
         if customer.row.address:
             address = ''.join([address, customer.row.address, '\n'])
@@ -8044,7 +8044,7 @@ class InvoicesHelper:
         """
             Only enable the bare minimum of fields
         """
-        db = current.globalenv['db']
+        db = current.db
 
         for field in db.invoices:
             field.readable=False
@@ -8060,7 +8060,7 @@ class InvoicesHelper:
         """
             Enable fields required for subscriptions
         """
-        db = current.globalenv['db']
+        db = current.db
 
         cs = CustomerSubscription(csID)
         db.invoices.payment_methods_id.default = cs.payment_methods_id
@@ -8079,7 +8079,7 @@ class InvoicesHelper:
         """
         from openstudio.os_customer_membership import CustomerMembership
 
-        db = current.globalenv['db']
+        db = current.db
 
         cm = CustomerMembership(cmID)
         db.invoices.payment_methods_id.default = cm.row.payment_methods_id
@@ -8098,8 +8098,8 @@ class InvoicesHelper:
         """
         self._add_get_form_permissions_check()
 
-        db = current.globalenv['db']
-        T  = current.globalenv['T']
+        db = current.db
+        T  = current.T
 
         customer = Customer(cuID)
         self._add_get_form_set_default_values_customer(customer)
@@ -8146,8 +8146,8 @@ class InvoicesHelper:
             field.readable=True
 
 
-        # crud = current.globalenv['crud']
-        # # request = current.globalenv['request']
+        # crud = current.crud
+        # # request = current.request
         #
         # create_onaccept = [ self._add_set_invoice_nr_and_due_date,
         #                     self._add_reset_list_status_filter]
@@ -8209,7 +8209,7 @@ class InvoicesHelper:
         '''
             Returns add modal for new invoice
         '''
-        T = current.globalenv['T']
+        T = current.T
         os_gui = current.globalenv['os_gui']
         gen_passwd = current.globalenv['generate_password']
 
@@ -8233,7 +8233,7 @@ class InvoicesHelper:
         '''
             Reset session variable that holds status for filter
         '''
-        session = current.globalenv['session']
+        session = current.session
         session.invoices_list_status = None
 
 
@@ -8241,8 +8241,8 @@ class InvoicesHelper:
         '''
             Sets session variable that holds the status for the filter
         '''
-        request = current.globalenv['request']
-        session = current.globalenv['session']
+        request = current.request
+        session = current.session
         # status definitions
         if 'status' in request.vars:
             session.invoices_list_status = request.vars['status']
@@ -8261,7 +8261,7 @@ class InvoicesHelper:
         invoice_statuses = current.globalenv['invoice_statuses']
         invoice_statuses.append(['overdue', current.T('Overdue')])
 
-        session = current.globalenv['session']
+        session = current.session
 
         form = SQLFORM.factory(
             Field('status',
@@ -8318,9 +8318,9 @@ class InvoicesHelper:
             Get add payment modal when no payment is found, or just
             show the information for the payments found.
         '''
-        db = current.globalenv['db']
+        db = current.db
         os_gui = current.globalenv['os_gui']
-        T = current.globalenv['T']
+        T = current.T
 
         query = (db.invoices_payments.invoices_id == iID)
         rows = db(query).select(db.invoices_payments.ALL)
@@ -8375,16 +8375,16 @@ class InvoicesHelper:
                       search_enabled=False,
                       group_filter_enabled=False,
                       only_teacher_credit_invoices=False):
-        db = current.globalenv['db']
-        auth = current.globalenv['auth']
-        session = current.globalenv['session']
+        db = current.db
+        auth = current.auth
+        session = current.session
         grid_ui = current.globalenv['grid_ui']
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
         from general_helpers import datestr_to_python
         from openstudio.os_gui import OsGui
         os_gui = OsGui()
 
-        T = current.globalenv['T']
+        T = current.T
 
         session.invoices_invoice_payment_add_back = None
 
@@ -8469,7 +8469,7 @@ class InvoicesHelper:
         content = DIV()
         if search_enabled:
             #response.js = 'set_form_classes();' # we're no longer in a loaded component
-            request = current.globalenv['request']
+            request = current.request
             if 'search' in request.vars:
                 session.invoices_list_invoices_search = request.vars['search']
                 # date_created_from = datestr_to_python(DATE_FORMAT, request.vars['date_created_from'])
@@ -8530,8 +8530,8 @@ class InvoicesHelper:
         '''
             Returns search form for invoices page
         '''
-        T = current.globalenv['T']
-        session = current.globalenv['session']
+        T = current.T
+        session = current.session
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
 
         form = SQLFORM.factory(
@@ -8596,8 +8596,8 @@ class InvoicesHelper:
         '''
             Returns status query
         '''
-        db = current.globalenv['db']
-        session = current.globalenv['session']
+        db = current.db
+        session = current.session
 
         if session.invoices_list_status == 'draft':
             query &= (db.invoices.Status == 'draft')
@@ -8618,8 +8618,8 @@ class InvoicesHelper:
         '''
             Adds search for invoice number to query
         '''
-        db = current.globalenv['db']
-        session = current.globalenv['session']
+        db = current.db
+        session = current.session
 
         if session.invoices_list_invoices_search:
             search = session.invoices_list_invoices_search.strip()
@@ -8652,9 +8652,9 @@ class InvoicesHelper:
         '''
             Group all links for invoices into .btn-group
         '''
-        auth = current.globalenv['auth']
+        auth = current.auth
         os_gui = current.globalenv['os_gui']
-        T = current.globalenv['T']
+        T = current.T
 
         iID = row.invoices.id
         modals = SPAN()
@@ -8706,7 +8706,7 @@ class InvoicesHelper:
         '''
             Returns an button and modal to add a payment for an invoice
         '''
-        T = current.globalenv['T']
+        T = current.T
         os_gui = current.globalenv['os_gui']
 
         button = os_gui.get_button('credit-card',
@@ -8737,7 +8737,7 @@ class SchoolClasscard:
         Set db info
         :return: None
         """
-        db = current.globalenv['db']
+        db = current.db
 
         self.row = db.school_classcards(self.scdID)
 
@@ -8746,8 +8746,8 @@ class SchoolClasscard:
         '''
             :return: Validity for school classcard
         '''
-        T  = current.globalenv['T']
-        db = current.globalenv['db']
+        T  = current.T
+        db = current.db
 
         row = db.school_classcards(self.scdID)
         validity = SPAN(unicode(row.Validity), ' ')
@@ -8765,7 +8765,7 @@ class SchoolClasscard:
         '''
             :param auth_user_id: db.auth_user.id
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         db.customers_shoppingcart.insert(
             auth_customer_id     = auth_user_id,
@@ -8777,7 +8777,7 @@ class SchoolClasscard:
         '''
             :param auth_user_id: Sell classcard to customer
         '''
-        db = current.globalenv['db']
+        db = current.db
         cache_clear_customers_classcards = current.globalenv['cache_clear_customers_classcards']
 
         ccdID = db.customers_classcards.insert(
@@ -8800,8 +8800,8 @@ class SchoolClasscard:
         '''
             Add an invoice after adding a classcard
         '''
-        db = current.globalenv['db']
-        T = current.globalenv['T']
+        db = current.db
+        T = current.T
 
         classcard = Classcard(ccdID)
 
@@ -8862,7 +8862,7 @@ class SchoolClasscard:
                 delta = datetime.timedelta(days=1)
                 return ret_val - delta
 
-        db = current.globalenv['db']
+        db = current.db
 
         # get info
         card = db.school_classcards(self.scdID)
@@ -8978,9 +8978,9 @@ class StaffSchedule:
         '''
             Returns edit & delete buttons for schedule
         '''
-        auth = current.globalenv['auth']
+        auth = current.auth
         os_gui = current.globalenv['os_gui']
-        T = current.globalenv['T']
+        T = current.T
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
         date_formatted = self.date.strftime(DATE_FORMAT)
 
@@ -9060,7 +9060,7 @@ class StaffSchedule:
         '''
         date = self.date
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
-        db = current.globalenv['db']
+        db = current.db
         weekday = date.isoweekday()
 
         date_formatted = date.strftime(DATE_FORMAT)
@@ -9172,8 +9172,8 @@ class StaffSchedule:
             in a desktop friendly table
         '''
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
-        T = current.globalenv['T']
-        auth = current.globalenv['auth']
+        T = current.T
+        auth = current.auth
 
         rows = self.get_day_rows()
 
@@ -9253,7 +9253,7 @@ class StaffSchedule:
         '''
         os_gui = current.globalenv['os_gui']
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
-        T = current.globalenv['T']
+        T = current.T
         date_formatted = self.date.strftime(DATE_FORMAT)
 
         rows = self.get_day_rows()
@@ -9329,7 +9329,7 @@ class ShiftStatus:
         '''
             :return: db.shifts_otc.id
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.shifts_otc.shifts_id == self.shID) & \
                 (db.shifts_otc.ShiftDate == self.date)
@@ -9347,8 +9347,8 @@ class ShiftStatus:
             :param status: ['open' or 'cancelled']
             :return: None
         '''
-        db = current.globalenv['db']
-        T = current.globalenv['T']
+        db = current.db
+        T = current.T
 
         sotcID = self.set_normal()
 
@@ -9367,7 +9367,7 @@ class ShiftStatus:
         '''
             Remove status if found
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         sotcID = self._get_sotcID()
 
@@ -9401,7 +9401,7 @@ class SchoolSubscription:
         '''
             Class init function which sets ssuID
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         self.ssuID = ssuID
 
@@ -9414,7 +9414,7 @@ class SchoolSubscription:
             Gets information about the subscription from db and adds it
             to the object
         """
-        db = current.globalenv['db']
+        db = current.db
 
         row = db.school_subscriptions(self.ssuID)
 
@@ -9430,7 +9430,7 @@ class SchoolSubscription:
         '''
             Returns the price for a subscription on a given date
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         price = ''
         query = (db.school_subscriptions_price.school_subscriptions_id ==
@@ -9458,7 +9458,7 @@ class SchoolSubscription:
         '''
             Returns tax rates on date
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         left = [ db.tax_rates.on(db.school_subscriptions_price.tax_rates_id ==
                                  db.tax_rates.id) ]
@@ -9495,7 +9495,7 @@ class SchoolSubscription:
         '''
             SPAN object containing
         '''
-        T = current.globalenv['T']
+        T = current.T
         self._set_dbinfo()
 
         classes_text = T('classes')
@@ -9517,7 +9517,7 @@ class OsMail:
             Send a message to a customer
             returns True when a mail is sent and False when it failed
         '''
-        db = current.globalenv['db']
+        db = current.db
         MAIL = current.globalenv['MAIL']
 
         customer = db.auth_user(cuID)
@@ -9576,7 +9576,7 @@ class OsMail:
             return tr
 
 
-        T = current.globalenv['T']
+        T = current.T
         DATETIME_FORMAT = current.globalenv['DATETIME_FORMAT']
         represent_float_as_amount = current.globalenv['represent_float_as_amount']
 
@@ -9615,7 +9615,7 @@ class OsMail:
     #         :param invoices_id: db.invoices.id
     #         :return: mail body for invoice
     #     '''
-    #     T = current.globalenv['T']
+    #     T = current.T
     #     DATETIME_FORMAT = current.globalenv['DATETIME_FORMAT']
     #
     #     invoice = Invoice(invoices_id)
@@ -9654,8 +9654,8 @@ class OsMail:
     #         :param invoices_id: db.invoices_payments_id
     #         :return: mail body for invoice
     #     '''
-    #     db = current.globalenv['db']
-    #     T = current.globalenv['T']
+    #     db = current.db
+    #     T = current.T
     #     DATE_FORMAT = current.globalenv['DATE_FORMAT']
     #     CURRSYM = current.globalenv['CURRSYM']
     #
@@ -9675,8 +9675,8 @@ class OsMail:
             :param invoices_id: db.invoices_payments_id
             :return: mail body for invoice
         '''
-        db = current.globalenv['db']
-        T = current.globalenv['T']
+        db = current.db
+        T = current.T
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
 
         # TODO: Add to manual & button on page available variables;
@@ -9689,8 +9689,8 @@ class OsMail:
         :param workshops_products_id: db.workshops_products.id
         :return: mail body for workshop
         '''
-        db = current.globalenv['db']
-        T = current.globalenv['T']
+        db = current.db
+        T = current.T
         DATE_FORMAT = current.globalenv['DATE_FORMAT']
         TIME_FORMAT = current.globalenv['TIME_FORMAT']
         customer = Customer(wspc.auth_customer_id)
@@ -9732,12 +9732,12 @@ class OsMail:
         '''
             Renders default email template
         '''
-        db = current.globalenv['db']
-        T = current.globalenv['T']
+        db = current.db
+        T = current.T
         DATETIME_FORMAT = current.globalenv['DATETIME_FORMAT']
 
         get_sys_property = current.globalenv['get_sys_property']
-        request = current.globalenv['request']
+        request = current.request
         response = current.globalenv['response']
 
         title = ''
@@ -9806,7 +9806,7 @@ class OsMail:
         '''
             Returns logo for email template
         '''
-        request = current.globalenv['request']
+        request = current.request
 
         branding_logo = os.path.join(request.folder,
                                      'static',
@@ -9856,7 +9856,7 @@ class OsScheduler:
         '''
             Removes all scheduled tasks
         '''
-        db = current.globalenv['db']
+        db = current.db
 
         query = (db.scheduler_task.id > 0)
         db(query).delete()
