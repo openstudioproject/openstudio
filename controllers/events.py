@@ -1,6 +1,6 @@
 # coding: utf8
 
-from openstudio.openstudio import WorkshopsHelper
+from openstudio.os_workshops_helper import WorkshopsHelper
 
 from openstudio.os_workshop_product import WorkshopProduct
 from openstudio.os_workshop import Workshop
