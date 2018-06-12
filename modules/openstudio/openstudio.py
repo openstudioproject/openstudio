@@ -17,38 +17,6 @@ from general_helpers import represent_validity_units
 from openstudio.os_customer import Customer
 
 
-
-
-
-class ReservationHelper:
-    '''
-        This class collects common functions for reservations in OpenStudio
-    '''
-    def get_reservation(self, cuID, clsID, date):
-        '''
-           returns reservation for a customer, if any
-        '''
-        db = current.db
-        os_gui = current.globalenv['os_gui']
-        DATE_FORMAT = current.DATE_FORMAT
-        date_formatted = date.strftime(DATE_FORMAT)
-
-        query = (db.classes_reservation.auth_customer_id == cuID) & \
-                (db.classes_reservation.classes_id == clsID) & \
-                (db.classes_reservation.Startdate <= date) & \
-                ((db.classes_reservation.Enddate >= date) |
-                 (db.classes_reservation.Enddate == None))
-
-        rows = db(query).select(db.classes_reservation.ALL)
-
-        if rows:
-            return_value = rows
-        else:
-            return_value = None
-
-        return return_value
-
-
 class ClassSchedule:
     def __init__(self, date,
                        filter_id_sys_organization = None,
