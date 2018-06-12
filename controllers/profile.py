@@ -2,7 +2,8 @@
 """
     This file provides the customer portal for OpenStudio
 """
-from openstudio.openstudio import Order, Invoice
+from openstudio.openstudio import Order
+from openstudio.os_invoice import Invoice
 
 
 @auth.requires_login()

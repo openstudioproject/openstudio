@@ -3,7 +3,8 @@
 import datetime
 import Mollie
 
-from openstudio.openstudio import CustomerSubscription, Invoice
+from openstudio.openstudio import CustomerSubscription
+from openstudio.os_invoice import Invoice
 from openstudio.os_mail import OsMail
 
 
