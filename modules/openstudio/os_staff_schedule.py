@@ -58,10 +58,6 @@ class StaffSchedule:
             Return employees for a row
         """
         if status == 'sub':
-            print row
-            print '---'
-            print repr_row
-
             employee_id  = row.shifts_otc.auth_employee_id
             employee_id2 = row.shifts_otc.auth_employee_id2
             employee     = repr_row.shifts_otc.auth_employee_id
@@ -288,10 +284,6 @@ class StaffSchedule:
                           _class='os-schedule')
             # Generate list of classes
             for i, row in enumerate(rows):
-                print '###########'
-                print unicode(i)
-
-
                 repr_row = list(rows[i:i+1].render())[0]
                 shID = row.shifts.id
 
@@ -299,16 +291,12 @@ class StaffSchedule:
                 status = get_status['status']
                 status_marker = get_status['marker']
 
-                print status
-
                 # filter status
                 if self.filter_id_status:
                     if status != self.filter_id_status:
                         continue
 
                 result = self._get_day_row_staff(row, repr_row, status)
-
-                print result
 
                 employee_id  = result['employee_id']
                 employee_id2 = result['employee_id2']
