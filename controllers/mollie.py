@@ -4,7 +4,7 @@ from general_helpers import max_string_length
 from general_helpers import datestr_to_python
 from general_helpers import get_last_day_month
 
-from openstudio.openstudio import CustomerSubscription
+from openstudio.os_customer_subscription import CustomerSubscription
 from openstudio.os_mail import OsMail
 from openstudio.os_invoice import Invoice
 from openstudio.os_order import Order
