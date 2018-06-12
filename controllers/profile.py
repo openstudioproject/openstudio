@@ -103,7 +103,7 @@ def index_get_upcoming_classes(customer):
     :param customer: openstudio.py Customer object
     :return: list of upcoming classes for a customer
     """
-    from openstudio.openstudio import ClassAttendance
+    from openstudio.os_class_attendance import ClassAttendance
 
     rows = customer.get_classes_attendance_rows(upcoming=True)
 
@@ -851,7 +851,7 @@ def classes():
         Page to list classes for a customer
     """
     from openstudio.os_customer import Customer
-    from openstudio.openstudio import ClassAttendance
+    from openstudio.os_class_attendance import ClassAttendance
 
     response.title = T('Profile')
     response.subtitle = T('Classes')
@@ -944,7 +944,7 @@ def class_cancel():
     """
         Cancel class
     """
-    from openstudio.openstudio import ClassAttendance
+    from openstudio.os_class_attendance import ClassAttendance
 
     clattID = request.vars['clattID']
 
@@ -963,7 +963,8 @@ def class_cancel_confirm():
     """
         Ask user for confirmation about really cancelling booking for a class
     """
-    from openstudio.openstudio import ClassAttendance, Class
+    from openstudio.os_class_attendance import ClassAttendance
+    from openstudio.os_class import Class
 
     clattID = request.vars['clattID']
 
