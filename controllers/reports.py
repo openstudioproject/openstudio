@@ -16,7 +16,9 @@ from general_helpers import set_form_id_and_get_submit_button
 
 from gluon.tools import prettydate
 
-from openstudio.openstudio import Class, ClassSchedule, ClasscardsHelper, Classcard, AttendanceHelper
+from openstudio.openstudio import ClassSchedule, ClasscardsHelper, Classcard
+from openstudio.os_class import Class
+from openstudio.os_attendance_helper import AttendanceHelper
 from openstudio.os_reports import Reports
 from openstudio.os_invoice import Invoice
 from openstudio.os_invoices import Invoices

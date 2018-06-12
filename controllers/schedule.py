@@ -87,7 +87,7 @@ def cancel_class_bookings(shID):
         :param shID: db.school_holidays.id
         :return: None
     """
-    from openstudio.openstudio import AttendanceHelper
+    from openstudio.os_attendance_helper import AttendanceHelper
 
     ah = AttendanceHelper()
     ah.attendance_cancel_classes_in_school_holiday(shID)

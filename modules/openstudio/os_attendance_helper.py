@@ -1,0 +1,1856 @@
+# -*- coding: utf-8 -*-
+
+from gluon import *
+
+
+
+class AttendanceHelper:
+    """
+        This class collects common function for attendance in OpenStudio
+    """
+    def get_attendance_rows(self, clsID, date):
+        """
+            :param clsID: db.classes.db
+            :param date: class date
+            :return: attendance rows
+        """
+        db = current.db
+
+        filter_date_teacher_notes = date - datetime.timedelta(days=92)
+
+        fields = [
+            db.auth_user.id,
+            db.auth_user.trashed,
+            db.auth_user.birthday,
+            db.auth_user.thumbsmall,
+            db.auth_user.first_name,
+            db.auth_user.last_name,
+            db.auth_user.display_name,
+            db.auth_user.email,
+            db.classes_reservation.id,
+            db.classes_reservation.ResType,
+            db.classes_reservation.Startdate,
+            db.classes_reservation.Enddate,
+            db.invoices.id,
+            db.invoices.InvoiceID,
+            db.invoices.Status,
+            db.invoices.payment_methods_id,
+            db.classes_attendance.id,
+            db.classes_attendance.AttendanceType,
+            db.classes_attendance.online_booking,
+            db.classes_attendance.BookingStatus,
+            db.classes_attendance.CreatedOn,
+            db.auth_user.teacher_notes_count,  # Holds count of recent teacher notes
+            db.auth_user.teacher_notes_count_injuries
+        ]
+
+        query = """
+            SELECT au.id,
+                   au.trashed,
+                   au.birthday,
+                   au.thumbsmall,
+                   au.first_name,
+                   au.last_name,
+                   au.display_name,
+                   au.email, 
+                   clr.id,
+                   clr.restype,
+                   clr.Startdate,
+                   clr.Enddate,
+                   inv.id,
+                   inv.InvoiceID,
+                   inv.Status,
+                   inv.payment_methods_id,
+                   clatt.id,
+                   clatt.AttendanceType,
+                   clatt.online_booking,
+                   clatt.BookingStatus,
+                   clatt.CreatedOn,
+                   ( SELECT COUNT(*) FROM customers_notes cn 
+                     WHERE cn.TeacherNote = 'T' AND 
+                           cn.auth_customer_id = au.id AND
+                           cn.NoteDate >= '{filter_date_teacher_notes}' ),
+                   ( SELECT COUNT(*) FROM customers_notes cn 
+                     WHERE cn.TeacherNote = 'T' AND 
+                           cn.auth_customer_id = au.id AND
+                           cn.Injury = 'T' )
+            FROM auth_user au
+            LEFT JOIN
+                ( SELECT id,
+                         auth_customer_id,
+                         AttendanceType,
+                         online_booking,
+                         BookingStatus,
+                         CreatedOn
+                  FROM classes_attendance
+                  WHERE ClassDate = '{date}' AND classes_id = {clsID} ) clatt
+                ON clatt.auth_customer_id = au.id
+            LEFT JOIN
+                ( SELECT id,
+                         auth_customer_id,
+                         classes_id,
+                         Startdate,
+                         Enddate,
+                         ResType,
+                         TrialClass
+                  FROM classes_reservation
+                  WHERE classes_id = {clsID} AND
+                        Startdate <= '{date}' AND
+                        (Enddate >= '{date}' or Enddate IS NULL)) clr
+                ON clr.auth_customer_id = au.id
+            LEFT JOIN
+                invoices_classes_attendance ica
+                ON ica.classes_attendance_id = clatt.id
+            LEFT JOIN
+                invoices inv ON ica.invoices_id = inv.id
+            WHERE clatt.id IS NOT NULL
+            ORDER BY au.display_name
+        """.format(date  = date,
+                   filter_date_teacher_notes = filter_date_teacher_notes,
+                   clsID = clsID)
+
+        rows = db.executesql(query, fields=fields)
+
+        return rows
+
+
+    def get_attendance_rows_past_days(self, clsID, date, days):
+        """
+            :param clsID: db.classes.id 
+            :param date: datetime.date
+            :param days: int
+            :return: 
+        """
+        db = current.db
+        cache = current.cache
+
+        cls = Class(clsID, date)
+
+        delta = datetime.timedelta(days=days)
+        x_days_ago = date - delta
+
+        left = [ db.classes.on(db.classes_attendance.classes_id ==
+                               db.classes.id),
+                 db.auth_user.on(db.classes_attendance.auth_customer_id ==
+                                 db.auth_user.id) ]
+
+        query = (db.classes.school_classtypes_id == cls.cls.school_classtypes_id) & \
+                (db.classes.school_locations_id == cls.cls.school_locations_id) & \
+                (db.classes_attendance.classes_id == clsID) & \
+                (db.classes_attendance.ClassDate <= date) & \
+                (db.classes_attendance.ClassDate >= x_days_ago) & \
+                (db.auth_user.trashed == False) & \
+                (db.auth_user.customer == True)
+
+
+        rows = db(query).select(db.auth_user.id,
+                                db.auth_user.trashed,
+                                db.auth_user.birthday,
+                                db.auth_user.thumbsmall,
+                                db.auth_user.first_name,
+                                db.auth_user.last_name,
+                                db.auth_user.display_name,
+                                db.auth_user.email,
+                                db.classes.school_classtypes_id,
+                                left=left,
+                                orderby=db.auth_user.display_name,
+                                distinct=True,
+                                cache=(cache.ram, 30))
+
+        return rows
+
+
+    def get_reservation_rows(self, clsID, date):
+        """
+            :param clsID: db.classes.id 
+            :param date: datetime.date
+            :return: reservation rows for a class
+        """
+        db = current.db
+
+        fields = [
+            db.auth_user.id,
+            db.auth_user.trashed,
+            db.auth_user.birthday,
+            db.auth_user.thumbsmall,
+            db.auth_user.first_name,
+            db.auth_user.last_name,
+            db.auth_user.display_name,
+            db.auth_user.email,
+            db.classes_reservation.id,
+            db.classes_reservation.ResType,
+            db.classes_reservation.Startdate,
+            db.classes_reservation.Enddate,
+        ]
+
+        query = """
+            SELECT au.id,
+                   au.trashed,
+                   au.birthday,
+                   au.thumbsmall,
+                   au.first_name,
+                   au.last_name,
+                   au.display_name,
+                   au.email,
+                   clr.id,
+                   clr.restype,
+                   clr.Startdate,
+                   clr.Enddate
+            FROM auth_user au
+            LEFT JOIN
+                ( SELECT id,
+                         auth_customer_id
+                  FROM classes_attendance
+                  WHERE ClassDate = '{date}' AND classes_id = {clsID} ) clatt
+                ON clatt.auth_customer_id = au.id
+            LEFT JOIN
+                ( SELECT id,
+                         auth_customer_id,
+                         classes_id,
+                         Startdate,
+                         Enddate,
+                         ResType,
+                         TrialClass
+                  FROM classes_reservation
+                  WHERE Startdate <= '{date}' AND
+                        (Enddate >= '{date}' or Enddate IS NULL)) clr
+                ON clr.auth_customer_id = au.id
+            WHERE clr.classes_id = '{clsID}'
+            ORDER BY clr.TrialClass DESC, au.display_name
+        """.format(date  = date,
+                   clsID = clsID)
+
+        rows = db.executesql(query, fields=fields)
+
+        return rows
+
+
+    def get_attending_list_between(self,
+                                   start_date,
+                                   end_date):
+        """
+            Returns distincs a list of customers attending any classes between start_date
+            and end_date as a list of db.auth_user_id
+        """
+        db = current.db
+
+        left = [ db.auth_user.on(db.classes_attendance.auth_customer_id == db.auth_user.id) ]
+
+        query = (db.classes_attendance.ClassDate >= start_date) & \
+                (db.classes_attendance.ClassDate <= end_date) & \
+                ((db.classes_attendance.AttendanceType == None) |
+                 (db.classes_attendance.AttendanceType == 3))
+
+        rows = db(query).select(db.classes_attendance.auth_customer_id,
+                                distinct=True,
+                                left=left,
+                                orderby=db.auth_user.display_name)
+
+        attending = []
+        for row in rows:
+            attending.append(row.auth_customer_id)
+
+        return attending
+
+
+    def get_last_attendance(self, customer_ids):
+        """
+            For each customer id returns the date when the customer last attended
+            a class. Returns a dictionary where the key is the customer id and the
+            value is the last date when the customer attended a class.
+
+            :param customer_ids: the customers to check
+        """
+        db = current.db
+        max = db.classes_attendance.ClassDate.max()
+        having_query = (db.classes_attendance.auth_customer_id.belongs(customer_ids))
+        rows = db().select(db.classes_attendance.auth_customer_id,
+            max,
+            groupby=db.classes_attendance.auth_customer_id,
+            having=having_query)
+
+        last_dates = {}
+        for row in rows:
+            last_dates[row.classes_attendance.auth_customer_id] = row[max]
+
+        return last_dates
+
+
+    def get_checkin_list_customers_booked(self,
+                                          clsID,
+                                          date,
+                                          class_full=False,
+                                          pictures=True,
+                                          reservations=True,
+                                          invoices=True,
+                                          show_notes=True,
+                                          show_booking_time=True,
+                                          show_subscriptions=True,
+                                          manage_checkin=True):
+        """
+            :param clsID: db.classes.id
+            :param date: Class date
+            :return: Table of customers checked in for this class
+        """
+        def add_table_row(row,
+                          repr_row,
+                          pictures=pictures,
+                          #manual_enabled=False,
+                          #this_class=False,
+                          reservations=reservations,
+                          show_subscriptions=show_subscriptions,
+                          invoices=invoices,
+                          show_notes=show_notes,
+                          show_booking_time=show_booking_time,
+                          #class_full=False
+                          ):
+            """'
+                Adds a row to the table
+            """
+            cuID = row.auth_user.id
+
+            customer = Customer(cuID)
+            subscr_cards = ''
+            if show_subscriptions:
+                subscr_cards = customer.get_subscriptions_and_classcards_formatted(
+                    date,
+                    new_cards=False,
+                    show_subscriptions=show_subscriptions,
+                    )
+
+            # check attendance
+            if row.classes_attendance.BookingStatus == 'attending':
+                links = []
+                # Check update permission
+                if (auth.has_membership(group_id='Admins') or
+                    auth.has_permission('update', 'classes_attendance')):
+                    links = [['header', T('Booking status')]]
+                    links.append(A(os_gui.get_fa_icon('fa-check-circle-o'),
+                                   T('Booked'), ' ',
+                                   _href=URL('classes', 'attendance_set_status',
+                                             vars={'clattID':row.classes_attendance.id,
+                                                   'status':'booked'}),
+                                   _class="text-blue"))
+                    links.append(A(os_gui.get_fa_icon('fa-ban'),
+                                   T('Cancelled'), ' ',
+                                   _href=URL('classes', 'attendance_set_status',
+                                             vars={'clattID':row.classes_attendance.id,
+                                                   'status':'cancelled'}),
+                                   _class="text-yellow"))
+
+                # Check delete permission
+                if (auth.has_membership(group_id='Admins') or
+                    auth.has_permission('delete', 'classes_attendance')):
+                    delete_onclick = "return confirm('" + \
+                              T('Do you really want to remove this booking?') + "');"
+
+                    links.append('divider')
+                    links.append(A(os_gui.get_fa_icon('fa-minus-circle'),
+                                   T('Remove'), ' ',
+                                   _href=URL('classes', 'attendance_remove', vars={'clattID':row.classes_attendance.id}),
+                                   _onclick=delete_onclick,
+                                   _class="text-red"))
+
+                btn = os_gui.get_dropdown_menu(
+                    links=links,
+                    btn_text=T('Actions'),
+                    btn_size='btn-sm',
+                    btn_icon='actions',
+                    menu_class='btn-group pull-right')
+
+                # btn = DIV(_class='btn-group pull-right')
+                attending = SPAN(_class='glyphicon glyphicon-ok green very_big_check')
+
+
+            else:
+                attending = SPAN(_class='glyphicon glyphicon-ok grey-light very_big_check')
+                btn = ''
+                # Check update permission
+                if (auth.has_membership(group_id='Admins') or
+                    auth.has_permission('update', 'classes_attendance')):
+
+                    checkin = ''
+                    if not class_full:
+                        checkin = os_gui.get_button('noicon',
+                                                    URL('classes', 'attendance_set_status',
+                                                        vars={'clattID':row.classes_attendance.id,
+                                                              'status':'attending'}),
+                                                    title=T('Check in'))
+
+                    links = [['header', T('Booking status')]]
+                    links.append(A(os_gui.get_fa_icon('fa-ban'),
+                                   T('Cancelled'), ' ',
+                                   _href=URL('classes', 'attendance_set_status',
+                                             vars={'clattID':row.classes_attendance.id,
+                                                   'status':'cancelled'}),
+                                   _class="text-yellow"))
+
+                # Check delete permission
+                if (auth.has_membership(group_id='Admins') or
+                        auth.has_permission('delete', 'classes_attendance')):
+                    delete_onclick = "return confirm('" + \
+                                     T('Do you really want to remove this booking?') + "');"
+
+                    links.append('divider')
+                    links.append(A(os_gui.get_fa_icon('fa-minus-circle'),
+                                   T('Remove'), ' ',
+                                   _href=URL('classes', 'attendance_remove',
+                                             vars={'clattID': row.classes_attendance.id}),
+                                   _onclick=delete_onclick,
+                                   _class="text-red"))
+
+                dropdown = os_gui.get_dropdown_menu(
+                    links=links,
+                    btn_text='',
+                    btn_size='btn-sm',
+                    btn_icon='actions',
+                    menu_class='btn-group pull-right')
+
+
+                if not manage_checkin:
+                    # Remove additional options on check-in button for self checkin
+                    btn = DIV(checkin, _class='pull-right')
+                else:
+                    btn = DIV(checkin, dropdown, _class='btn-group pull-right')
+
+
+                # if not class_full:
+                # btn = self.get_signin_buttons(clsID,
+                #                               date,
+                #                               cuID,
+                #                               manual_enabled=manual_enabled)
+                # else:
+                #     btn = ''
+
+            # Customer picture
+            td_pic = ''
+            if pictures:
+                td_pic = TD(repr_row.auth_user.thumbsmall,
+                            _class='os-customer_image_td hidden-xs')
+
+
+            td_labels = TD(repr_row.classes_attendance.BookingStatus, _class='hidden-xs')
+            if reservations and row.classes_reservation.id:
+                date_formatted = date.strftime(DATE_FORMAT)
+                crID = row.classes_reservation.id
+
+                td_labels.append(SPAN(' ', repr_row.classes_reservation.ResType))
+
+                try:
+                    if row.classes_attendance.AttendanceType == 1:
+                        td_labels.append(' ')
+                        td_labels.append(os_gui.get_label('success', T('Trial class')))
+
+                    elif row.classes_attendance.AttendanceType == 2:
+                        td_labels.append(' ')
+                        td_labels.append(os_gui.get_label('primary', T('Drop in')))
+                except AttributeError:
+                    pass
+
+
+            if show_booking_time:
+                td_labels.append(BR())
+                td_labels.append(SPAN(T('Booked on'), ' ', repr_row.classes_attendance.CreatedOn,
+                                      _class='vsmall_font grey'))
+
+            # Add a small label for online bookings
+            try:
+                if row.classes_attendance.online_booking:
+                    td_labels.append(TD(os_gui.get_label('info', T('Online'))))
+            except AttributeError:
+                pass
+
+
+            ##
+            # Invoice for drop in or trial class
+            ##
+            td_inv = ''
+            if invoices:
+                invs = Invoices()
+                if row.invoices.id:
+                    invoice = ih.represent_invoice_for_list(
+                        row.invoices.id,
+                        repr_row.invoices.InvoiceID,
+                        repr_row.invoices.Status,
+                        row.invoices.Status,
+                        row.invoices.payment_methods_id
+                    )
+                else:
+                    invoice = ''
+
+                td_inv = TD(invoice)
+
+            ##
+            # Link to notes page
+            ##
+            link_notes = ''
+            if show_notes:
+                notes_text = T('notes')
+                if row.auth_user.teacher_notes_count == 1:
+                    notes_text = T('note')
+                notes_link_text = SPAN(row.auth_user.teacher_notes_count, ' ', T('Recent'), ' ', notes_text)
+
+                count_injuries = row.auth_user.teacher_notes_count_injuries
+                if count_injuries > 0:
+                    injuries_text = T('Injuries')
+                    if count_injuries == 1:
+                        injuries_text = T('Injury')
+                    notes_link_text.append(BR())
+                    notes_link_text.append(SPAN(count_injuries, ' ', injuries_text, _class='smaller_font text-red bold'))
+
+                link_notes = SPAN(A(notes_link_text,
+                                    _href=URL('classes', 'attendance_teacher_notes',
+                                              vars={'cuID':row.auth_user.id,
+                                                    'clsID':clsID,
+                                                    'date':date.strftime(DATE_FORMAT)})))
+
+            # TD('notes', row.auth_user.eetra_field_intxtra_field_int),
+
+            tr = TR(TD(attending, _class='very_big_check'),
+                    td_pic,
+                    TD(SPAN(row.auth_user.display_name, _class='bold'), BR(),
+                       subscr_cards),
+                    td_labels,
+                    td_inv,
+                    TD(link_notes),
+                    btn)
+
+            table.append(tr)
+
+        ##
+        # Start main function
+        ##
+        T = current.T
+        db = current.db
+        auth = current.auth
+        os_gui = current.globalenv['os_gui']
+        DATE_FORMAT = current.DATE_FORMAT
+
+        modals = DIV()
+
+        cls = db.classes(clsID)
+
+        header = THEAD(TR(TH(),
+                          TH(),
+                          TH(T('Customer')),
+                          TH(T('Status')), # Booking Status [and Enrollment]
+                          TH(),
+                          TH(),
+                          TH()))
+
+        rows = self.get_attendance_rows(clsID, date)
+        table = TABLE(header, _class='table table-striped table-hover')
+
+        for i, row in enumerate(rows):
+            #print row
+            repr_row = list(rows[i:i+1].render())[0]
+            add_table_row(row,
+                          repr_row,
+                          reservations=reservations,
+                          show_subscriptions=show_subscriptions,
+                          invoices=invoices,
+                          show_notes=show_notes,
+                          show_booking_time=show_booking_time)
+
+        return table
+
+
+    def get_checkin_list_customers(self,
+                                   clsID,
+                                   date,
+                                   pictures=False,
+                                   manual_enabled=False,
+                                   this_class=False,
+                                   reservations=False,
+                                   reservations_cancel=False,
+                                   subscriptions=True,
+                                   invoices=False,
+                                   show_notes=False,
+                                   class_full=False):
+        """
+            Returns a list of customers who have a reservation or have attended
+            a class of this type in the past month
+
+            this_class
+            True: look for attendance for this class in the past month
+            False: look for attendance for this classtype in the past month
+        """
+        def add_table_row(row,
+                          repr_row,
+                          reservations=False,
+                          invoices=False,
+                          show_notes=False,
+                          modals=None):
+            """'
+                Adds a row to the table
+            """
+            cuID = row.auth_user.id
+
+            customer = Customer(cuID)
+            subscr_cards = customer.get_subscriptions_and_classcards_formatted(
+                date,
+                new_cards=False,
+                show_subscriptions=subscriptions,
+                )
+
+            # check attendance
+            if cuID in attendance_list:
+                btn = DIV(_class='btn-group pull-right')
+                attending = SPAN(_class='glyphicon glyphicon-ok green very_big_check')
+                date_formatted = date.strftime(DATE_FORMAT)
+
+                notes = ''
+                notes_perm = auth.has_membership(group_id='Admins') or \
+                             auth.has_permission('read', 'customers_notes_teachers')
+                if show_notes and notes_perm:
+                    result = self._get_teachers_note_modal(customer.row.id,
+                                                           customer.row.display_name,
+                                                           modals)
+                    modals = result['modals_div']
+                    btn.append(result['button'])
+
+                onclick = "return confirm('" + \
+                          T('Really check out?') + "');"
+                remove = os_gui.get_button('delete_notext',
+                                           URL('classes', 'attendance_remove',
+                                               vars={'clsID': clsID,
+                                                     'cuID': cuID,
+                                                     'date': date_formatted}),
+                                           title=T('Cancel'),
+                                           btn_class='btn-danger',
+                                           btn_size='',
+                                           onclick=onclick)
+                btn.append(remove)
+
+
+            else:
+                attending = SPAN(_class='glyphicon glyphicon-ok grey-light very_big_check')
+                if not class_full:
+                    btn = self.get_signin_buttons(clsID,
+                                                  date,
+                                                  cuID,
+                                                  manual_enabled=manual_enabled)
+                else:
+                    btn = ''
+
+            # Customer picture
+            td_pic = ''
+            if pictures:
+                td_pic = TD(repr_row.auth_user.thumbsmall,
+                            _class='os-customer_image_td hidden-xs')
+
+            td_res = ''
+            if reservations and row.classes_reservation.id:
+                date_formatted = date.strftime(DATE_FORMAT)
+                crID = row.classes_reservation.id
+
+                td_res = TD(repr_row.classes_reservation.ResType, _class='hidden-xs')
+
+            td_atttype = ''
+            try:
+                td_atttype = TD()
+                if row.classes_attendance.AttendanceType == 1:
+                    td_atttype.append(os_gui.get_label('success', T('Trial class')))
+
+                elif row.classes_attendance.AttendanceType == 2:
+                    td_atttype.append(os_gui.get_label('primary', T('Drop in')))
+            except AttributeError:
+                pass
+
+            # Add a small label for online bookings
+            td_online_booking = ''
+            try:
+                if row.classes_attendance.online_booking:
+                    td_online_booking = TD(os_gui.get_label('info', T('Online')))
+            except AttributeError:
+                pass
+
+
+            td_inv = ''
+            if invoices:
+                invs = Invoices()
+                if row.invoices.id:
+                    invoice = ih.represent_invoice_for_list(
+                        row.invoices.id,
+                        repr_row.invoices.InvoiceID,
+                        repr_row.invoices.Status,
+                        row.invoices.Status,
+                        row.invoices.payment_methods_id
+                    )
+                else:
+                    invoice = ''
+
+                td_inv = TD(invoice)
+
+
+            tr = TR(TD(attending, _class='very_big_check'),
+                    td_pic,
+                    TD(SPAN(row.auth_user.display_name, _class='bold'), BR(),
+                       subscr_cards),
+                    td_res,
+                    td_atttype,
+                    td_online_booking,
+                    td_inv,
+                    btn)
+
+            table.append(tr)
+
+        # Set some values from the globalenv
+        T = current.T
+        db = current.db
+        auth = current.auth
+        os_gui = current.globalenv['os_gui']
+        DATE_FORMAT = current.DATE_FORMAT
+
+        modals = DIV()
+
+        cls = db.classes(clsID)
+
+        header = THEAD(TR(TH(),
+                          TH(),
+                          TH(),
+                          TH(), # Enrollment
+                          TH(),
+                          TH()))
+
+
+        table = TABLE(header,
+                      _class='table table-striped table-hover full-width')
+
+        # ## get list of customers attending this class
+        rows = self.get_attendance_rows(clsID, date)
+
+        attendance_list = []
+        for i, row in enumerate(rows):
+            attendance_list.append(row.auth_user.id)
+
+            repr_row = list(rows[i:i+1].render())[0]
+            add_table_row(row,
+                          repr_row,
+                          reservations=True,
+                          invoices=invoices,
+                          show_notes=show_notes,
+                          modals=modals)
+
+
+        ## get list of reservations
+        rows = self.get_reservation_rows(clsID, date)
+
+        reservations_list = []
+        for i, row in enumerate(rows):
+            if row.auth_user.id in attendance_list:
+                continue
+
+            repr_row = list(rows[i:i+1].render())[0]
+            add_table_row(row, repr_row, reservations=True)
+
+            reservations_list.append(row.auth_user.id)
+
+
+        ## get list of customers who have attended this class during the last 2 weeks
+        rows = self.get_attendance_rows_past_days(clsID, date, days=15)
+
+        for i, row in enumerate(rows):
+            if row.auth_user.id in attendance_list:
+                continue
+
+            if row.auth_user.id in reservations_list:
+                continue
+
+            repr_row = list(rows[i:i+1].render())[0]
+            add_table_row(row, repr_row, reservations=False)
+
+        return DIV(table, modals)
+
+
+    def get_checkin_list_customers_email_list(self, clsID, date, days=15):
+        """
+            :param clsID: db.classes.is 
+            :param date: datetime.date
+            :param days: int
+            :return: list containing email addresses for all people attending, with reservations or expected to attend
+        """
+        # Set some values from the globalenv
+        db = current.db
+
+        mailing_list = []
+        # ## get list of customers attending this class
+        rows = self.get_attendance_rows(clsID, date)
+
+        attendance_list = []
+        for i, row in enumerate(rows):
+            attendance_list.append(row.auth_user.id)
+
+            mailing_list.append([row.auth_user.first_name, row.auth_user.last_name, row.auth_user.email])
+
+
+        ## get list of reservations
+        rows = self.get_reservation_rows(clsID, date)
+
+        reservations_list = []
+        for i, row in enumerate(rows):
+            if row.auth_user.id in attendance_list:
+                continue
+
+            mailing_list.append([row.auth_user.first_name, row.auth_user.last_name, row.auth_user.email])
+
+            reservations_list.append(row.auth_user.id)
+
+
+        ## get list of customers who have attended this class during the last x days
+        rows = self.get_attendance_rows_past_days(clsID, date, days=days)
+
+        for i, row in enumerate(rows):
+            if row.auth_user.id in attendance_list:
+                continue
+
+            if row.auth_user.id in reservations_list:
+                continue
+
+                mailing_list.append([row.auth_user.first_name, row.auth_user.last_name, row.auth_user.email])
+
+        return mailing_list
+
+
+    def get_checkin_list_customers_email_excel(self, clsID, date, days=15):
+        """
+            :param clsID: db.classes.is 
+            :param date: datetime.date
+            :param days: int
+            :return: cStringIO stream containing: 
+                list containing email addresses for all people attending, with reservations or expected to attend
+        """
+        T = current.T
+
+        import cStringIO, openpyxl
+        stream = cStringIO.StringIO()
+
+        title = T('MailingList')
+        wb = openpyxl.workbook.Workbook(write_only=True)
+        ws = wb.create_sheet(title=title)
+
+        header = [ "First name",
+                   "Last name",
+                   "Email" ]
+        ws.append(header)
+
+        mailing_list = self.get_checkin_list_customers_email_list(clsID, date, days)
+        for row in mailing_list:
+            ws.append(row)
+
+        wb.save(stream)
+
+
+        return stream
+
+
+    def get_signin_buttons(self, clsID, date, cuID, manual_enabled=True):
+        """
+            Returns sign in buttons for a class
+        """
+        db = current.db
+        os_gui = current.globalenv['os_gui']
+        DATE_FORMAT = current.DATE_FORMAT
+        date_formatted = date.strftime(DATE_FORMAT)
+
+        customer = Customer(cuID)
+        # set random id, used for modal classes
+        random_id = unicode(int(random.random() * 1000000000000))
+
+        li_link_class = 'btn btn-default btn-lg full-width'
+
+        button = ''
+        btn_group = DIV(_class='btn-group pull-right')
+        modals = DIV()
+        button_text = current.T('Check in')
+        # check if not already added
+        check = db.classes_attendance(auth_customer_id = cuID,
+                                      classes_id       = clsID,
+                                      ClassDate        = date)
+        if not check:
+            # check for subscription
+            subscription = ''
+            li_subscription = ''
+            li_trial = ''
+            li_dropin = ''
+
+            rows = customer.get_subscriptions_on_date(date)
+            if rows:
+                subscription = rows.first()
+                csID = subscription.customers_subscriptions.id
+                subscription_url = URL('classes', 'attendance_sign_in_subscription',
+                                       vars={'cuID'  : cuID,
+                                             'clsID' : clsID,
+                                             'csID'  : csID,
+                                             'date'  : date_formatted})
+                li_subscription = LI(A(SPAN(os_gui.get_fa_icon('fa-edit'), ' ', current.T('Subscription')),
+                                        _href=subscription_url,
+                                        _class=li_link_class))
+
+            ## check for class card
+            classcard = ''
+            classcard_choose_url = URL('classes',
+                                       'attendance_list_classcards',
+                                        vars={'cuID'  : cuID,
+                                              'clsID' : clsID,
+                                              'date'  : date_formatted},
+                                        extension='')
+            # set default classcard li, which links to page with add button
+            li_classcard = LI(A(SPAN(os_gui.get_fa_icon('fa-ticket'), ' ', current.T('Class card')),
+                              _href=classcard_choose_url,
+                              _class=li_link_class))
+
+
+            rows = customer.get_classcards(date)
+            if rows:
+                classcard_count = len(rows)
+                classcard = rows.first()
+                ccdID = classcard.customers_classcards.id
+
+                classcard_sign_in_url = URL('classes',
+                                            'attendance_sign_in_classcard',
+                                            vars={'cuID'  : cuID,
+                                                  'clsID' : clsID,
+                                                  'ccdID' : ccdID,
+                                                  'date'  : date_formatted})
+
+                if classcard_count == 1:
+                    classcard_url = classcard_sign_in_url
+                else: # more than 1 card, allow user to choose
+                    classcard_url = classcard_choose_url
+
+                li_classcard = LI(A(SPAN(os_gui.get_fa_icon('fa-ticket'), ' ', current.T('Class card')),
+                                    _href=classcard_url,
+                                    _class=li_link_class))
+
+
+            dropin_url = URL('classes', 'attendance_sign_in_dropin',
+                             vars={'cuID'  : cuID,
+                                   'clsID' : clsID,
+                                   'date'  : date_formatted})
+            li_dropin = LI(A(SPAN(os_gui.get_fa_icon('fa-level-down'), ' ', current.T('Drop in class')),
+                             _href=dropin_url,
+                             _class=li_link_class))
+            trial_url = URL('classes', 'attendance_sign_in_trialclass',
+                             vars={'cuID'  : cuID,
+                                   'clsID' : clsID,
+                                   'date'  : date_formatted})
+            li_trial = LI(A(SPAN(os_gui.get_fa_icon('fa-compass'), ' ', current.T('Trial class')),
+                            _href=trial_url,
+                            _class=li_link_class))
+
+            if classcard and subscription:
+                modal_content = UL(li_subscription,
+                                   li_classcard,
+                                   _class='check-in_options')
+                modal_class   = 'modal_signin_' + random_id
+                button_class  = 'btn btn-default btn-checkin'
+                modal_title   = current.T('Check in on subscription or class card?')
+                result = os_gui.get_modal(button_text   = button_text,
+                                          button_class  = button_class,
+                                          modal_title   = modal_title,
+                                          modal_content = modal_content,
+                                          modal_class   = modal_class)
+                btn_group.append(result['button'])
+                modals.append(result['modal'])
+            elif subscription:
+                 # subscription button
+                button = A(
+                    button_text,
+                    _href=subscription_url,
+                    _class='btn btn-default btn-checkin')
+                btn_group.append(button)
+            elif classcard:
+                button = A(
+                    button_text,
+                    _href=classcard_url,
+                    _class='btn btn-default btn-checkin')
+                btn_group.append(button)
+            else:
+                # drop in or trial class?
+                # classes_attendance customers_id & trialclass attendance type count
+                message = SPAN(current.T('No subscription or classcard found for this date.'))
+                message.append(' ')
+                message.append(current.T("Available options:"))
+                modal_content = DIV(message,
+                                    BR(), BR(),
+                                    UL(li_trial,
+                                       li_dropin,
+                                       _class='check-in_options'))
+                modal_class   = 'modal_signin_' + random_id
+                button_class  = 'btn btn-default btn-checkin'
+                modal_title   = current.T('Sign in as trial class or drop in class?')
+                result = os_gui.get_modal(button_text   = button_text,
+                                          button_class  = button_class,
+                                          modal_title   = modal_title,
+                                          modal_content = modal_content,
+                                          modal_class   = modal_class)
+                btn_group.append(result['button'])
+                modals.append(result['modal'])
+
+            ### Button with modal for manual choice ###
+
+            modal_content = UL(_class='check-in_options')
+            if li_subscription:
+                modal_content.append(li_subscription)
+            if li_classcard:
+                modal_content.append(li_classcard)
+            if li_dropin:
+                modal_content.append(li_dropin)
+            if li_trial:
+                modal_content.append(li_trial)
+
+            modal_class = 'modal_signin_manual_' + random_id
+            button_class = 'btn btn-default pull-right'
+            button_text = XML(SPAN(_class='glyphicon glyphicon-edit'))
+            modal_title = current.T('Manual check in')
+            result = os_gui.get_modal(button_text   = button_text,
+                                      button_class  = button_class,
+                                      button_title  = current.T("Manual check in"),
+                                      modal_title   = modal_title,
+                                      modal_content = modal_content,
+                                      modal_class   = modal_class)
+            if manual_enabled:
+                btn_group.append(result['button'])
+                modals.append(result['modal'])
+
+
+        return SPAN(btn_group, modals)
+
+
+    def get_customer_class_booking_options(self,
+                                           clsID,
+                                           date,
+                                           customer,
+                                           trial=False,
+                                           complementary=False,
+                                           list_type='shop',
+                                           controller=''):
+        """
+        :param clsID: db.classes.id
+        :param date: datetime.date
+        :param date_formatted: datetime.date object formatted with current.DATE_FORMAT
+        :param customer: Customer object
+        :param: list_type: [shop, attendance, selfcheckin]
+        :return:
+        """
+        def classes_book_options_get_button_book(url):
+            """
+                Return book button for booking options
+            """
+            button_text = T('Book')
+            if list_type == 'attendance' or list_type == 'selfcheckin':
+                button_text = T('Check in')
+
+            button_book = A(SPAN(button_text, ' ', os_gui.get_fa_icon('fa-chevron-right')),
+                            _href=url,
+                            _class='pull-right btn btn-link')
+
+            return button_book
+
+        T = current.T
+        db = current.db
+        os_gui = current.globalenv['os_gui']
+        CURRSYM = current.globalenv['CURRSYM']
+        DATE_FORMAT = current.DATE_FORMAT
+        get_sys_property = current.globalenv['get_sys_property']
+
+        date_formatted = date.strftime(DATE_FORMAT)
+
+        options = DIV(_class='shop-classes-booking-options row')
+        # subscriptions
+        subscriptions = customer.get_subscriptions_on_date(date)
+        if subscriptions:
+            for subscription in subscriptions:
+                csID = subscription.customers_subscriptions.id
+                # Shop urls are the default for this function when no list_type has been specified
+                # Check remaining credits
+                credits_remaining = subscription.customers_subscriptions.CreditsRemaining or 0
+                recon_classes = subscription.school_subscriptions.ReconciliationClasses
+                # Create subscription object
+                cs = CustomerSubscription(csID)
+
+                if list_type == 'shop':
+                    subscription_permission_check = not int(clsID) in cs.get_allowed_classes_booking(public_only=True)
+                else:
+                    subscription_permission_check = not int(clsID) in cs.get_allowed_classes_attend(public_only=False)
+
+                if subscription_permission_check:
+                    # Check book permission
+                    button_book = os_gui.get_button('noicon',
+                                                    URL('#'),
+                                                    title=SPAN(T("Not allowed for this class")),
+                                                    btn_class='btn-link',
+                                                    _class='disabled pull-right grey')
+                else:
+
+                    if credits_remaining > (recon_classes * -1):
+                        url = URL(controller, 'class_book', vars={'clsID': clsID,
+                                                      'csID': csID,
+                                                      'cuID': customer.row.id,
+                                                      'date': date_formatted})
+                        button_book = classes_book_options_get_button_book(url)
+                    else:
+                        button_book = os_gui.get_button('noicon',
+                                                        URL('#'),
+                                                        title=SPAN(T('No credits remaining')),
+                                                        btn_class='btn-link',
+                                                        _class='disabled pull-right grey')
+
+                # Check Credits display
+                if subscription.school_subscriptions.Unlimited:
+                    credits_display = T('Unlimited')
+                else:
+                    if credits_remaining < 0:
+                        credits_display = SPAN(round(credits_remaining, 1), ' ', T('Credits'))
+                    else:
+                        credits_display = SPAN(round(credits_remaining, 1), ' ',
+                                               T('Credits remaining'))
+
+                # let's put everything together
+                option = DIV(DIV(T('Subscription'),
+                                 _class='col-md-3 bold'),
+                             DIV(subscription.school_subscriptions.Name,
+                                 SPAN(XML(' &bull; '),
+                                      credits_display,
+                                      _class='grey'),
+                                 _class='col-md-6'),
+                             DIV(button_book,
+                                 _class='col-md-3'),
+                             _class='col-md-10 col-md-offset-1 col-xs-12')
+
+                options.append(option)
+        elif list_type =='shop':
+            # show buy link if list type shop
+            features = db.customers_shop_features(1)
+            if features.Subscriptions:
+                button_buy = A(SPAN(T('Shop'), ' ', os_gui.get_fa_icon('fa-chevron-right')),
+                               _href=URL('shop', 'subscriptions'),
+                               _class='pull-right btn btn-link')
+
+                option = DIV(DIV(T('Subscription'),
+                                 _class='col-md-3 bold'),
+                             DIV(T('No subscription found'), BR(),
+                                 SPAN(T('Click "Shop" to sign up for a subscription'), _class='grey'),
+                                 _class='col-md-6'),
+                             DIV(button_buy,
+                                 _class='col-md-3'),
+                             _class='col-md-10 col-md-offset-1 col-xs-12')
+
+                options.append(option)
+
+        # class cards
+        classcards = customer.get_classcards(date)
+        if classcards:
+            for classcard in classcards:
+                ccdID = classcard.customers_classcards.id
+
+                ccd = Classcard(ccdID)
+                classes_remaining = ccd.get_classes_remaining_formatted()
+
+                if list_type == 'shop':
+                    allowed_classes = ccd.get_allowed_classes_booking()
+                else:
+                    allowed_classes = ccd.get_allowed_classes_attend(public_only=False)
+
+                if not int(clsID) in allowed_classes:
+                    # Check book permission
+                    button_book = os_gui.get_button('noicon',
+                                                    URL('#'),
+                                                    title=SPAN(T("Not allowed for this class")),
+                                                    btn_class='btn-link',
+                                                    _class='disabled pull-right grey')
+                else:
+                    url = URL(controller, 'class_book', vars={'clsID': clsID,
+                                                  'ccdID': ccdID,
+                                                  'cuID': customer.row.id,
+                                                  'date': date_formatted})
+                    button_book = classes_book_options_get_button_book(url)
+
+                option = DIV(DIV(T('Class card'),
+                                 _class='col-md-3 bold'),
+                             DIV(classcard.school_classcards.Name, ' ',
+                                 SPAN(XML(' &bull; '), T('expires'), ' ',
+                                      classcard.customers_classcards.Enddate.strftime(DATE_FORMAT),
+                                      XML(' &bull; '), classes_remaining,
+                                      _class='small_font grey'),
+                                 _class='col-md-6'),
+                             DIV(button_book,
+                                 _class='col-md-3'),
+                             _class='col-md-10 col-md-offset-1 col-xs-12')
+
+                options.append(option)
+        elif list_type == 'attendance':
+                url = URL('customers', 'classcard_add',
+                          vars={'cuID': customer.row.id,
+                                'clsID': clsID,
+                                'date': date_formatted})
+                button_add = A(SPAN(T('Sell card'), ' ', os_gui.get_fa_icon('fa-chevron-right')),
+                                _href=url,
+                                _class='pull-right btn btn-link')
+
+
+                option = DIV(DIV(T('Class card'),
+                                 _class='col-md-3 bold'),
+                             DIV(T('No cards found - sell a new card',),
+                                 _class='col-md-6'),
+                             DIV(button_add,
+                                 _class='col-md-3'),
+                             _class='col-md-10 col-md-offset-1 col-xs-12')
+
+                options.append(option)
+
+        elif list_type =='shop':
+            # show buy link if list type shop
+            features = db.customers_shop_features(1)
+            if features.Classcards:
+                button_buy = A(SPAN(T('Shop'), ' ', os_gui.get_fa_icon('fa-chevron-right')),
+                               _href=URL('shop', 'classcards'),
+                               _class='pull-right btn btn-link')
+
+                option = DIV(DIV(T('Class card'),
+                                 _class='col-md-3 bold'),
+                             DIV(T('No class card found'), BR(),
+                                 SPAN(T('Click "Shop" to buy a card'), _class='grey'),
+                                 _class='col-md-6'),
+                             DIV(button_buy,
+                                 _class='col-md-3'),
+                             _class='col-md-10 col-md-offset-1 col-xs-12')
+
+                options.append(option)
+
+        # Get class prices
+        cls = Class(clsID, date)
+        prices = cls.get_prices()
+
+        # drop in
+        url = URL(controller, 'class_book', vars={'clsID': clsID,
+                                      'dropin': 'true',
+                                      'cuID': customer.row.id,
+                                      'date': date_formatted})
+        button_book = classes_book_options_get_button_book(url)
+
+        price = prices['dropin']
+        membership_notification = ''
+        if customer.has_membership_on_date(date) and prices['dropin_membership']:
+            price = prices['dropin_membership']
+            membership_notification = SPAN(' ', XML('&bull;'), ' ', '(', T('Membership price'), ')',
+                                           _class='grey')
+
+        option = DIV(DIV(T('Drop in'),
+                         _class='col-md-3 bold'),
+                     DIV(T('Class price:'), ' ', CURRSYM, ' ', format(price, '.2f'), ' ',
+                         membership_notification,
+                         BR(),
+                         SPAN(get_sys_property('shop_classes_dropin_message') or '',
+                              _class='grey'),
+                         _class='col-md-6'),
+                     DIV(button_book,
+                         _class='col-md-3'),
+                     _class='col-md-10 col-md-offset-1 col-xs-12')
+
+        options.append(option)
+
+        # Trial
+        # get trial class price
+        if trial:
+            url = URL(controller, 'class_book', vars={'clsID': clsID,
+                                                      'trial': 'true',
+                                                      'cuID': customer.row.id,
+                                                      'date': date_formatted})
+            button_book = classes_book_options_get_button_book(url)
+
+            price = prices['trial']
+            membership_notification = ''
+            if customer.has_membership_on_date(date) and prices['trial_membership']:
+                price = prices['trial_membership']
+                membership_notification = SPAN(' ', XML('&bull;'), ' ', '(', T('Membership price'), ')',
+                                               _class='grey')
+
+            option = DIV(DIV(T('Trial'),
+                             _class='col-md-3 bold'),
+                         DIV(T('Class price:'), ' ', CURRSYM, ' ', format(price, '.2f'), ' ',
+                             membership_notification,
+                             BR(),
+                             SPAN(get_sys_property('shop_classes_trial_message') or '',
+                                  _class='grey'),
+                             _class='col-md-6'),
+                         DIV(button_book,
+                             _class='col-md-3'),
+                         _class='col-md-10 col-md-offset-1 col-xs-12')
+
+            options.append(option)
+
+        # Complementary
+        if complementary:
+            options.append(DIV(HR(), _class='col-md-10 col-md-offset-1'))
+            url = URL(controller, 'class_book', vars={'clsID': clsID,
+                                                      'complementary': 'true',
+                                                      'cuID': customer.row.id,
+                                                      'date': date_formatted})
+            button_book = classes_book_options_get_button_book(url)
+
+            option = DIV(DIV(T('Complementary'),
+                             _class='col-md-3 bold'),
+                         DIV(T('Give this class for free'),
+                             _class='col-md-6'),
+                         DIV(button_book,
+                             _class='col-md-3'),
+                         _class='col-md-10 col-md-offset-1 col-xs-12')
+
+            options.append(option)
+
+        return options
+
+
+    def _get_teachers_note_modal(self,
+                                 cuID,
+                                 customers_name,
+                                 modals_div):
+        """
+            Returns a modal popup for teacher notes
+        """
+        T = current.T
+        db = current.db
+        os_gui = current.globalenv['os_gui']
+
+        notes = LOAD('customers', 'notes.load', ajax=True,
+                     vars={'cuID':cuID,
+                           'note_type':'teachers'})
+
+        modal_class = 'customers_te_notes_' + unicode(cuID)
+        modal_title = SPAN(T('Teacher notes for'), ' ', customers_name)
+
+        query = (db.customers_notes.TeacherNote == True) & \
+                (db.customers_notes.auth_customer_id == cuID)
+        count_notes = db(query).count()
+
+        notes_text = T('Notes')
+        if count_notes == 1:
+            notes_text = T('Note ')
+
+        notes_text = SPAN(unicode(count_notes), ' ', notes_text)
+
+
+        #button_text = XML(SPAN(os_gui.get_fa_icon('fa-sticky-note-o'), ' ', notes_text))
+        button_text = XML(notes_text)
+
+        result = os_gui.get_modal(button_text=button_text,
+                                  modal_title=modal_title,
+                                  modal_content=notes,
+                                  modal_class=modal_class,
+                                  button_class='btn btn-default btn-checkin')
+        modals_div.append(result['modal'])
+        button = result['button']
+
+        return dict(modals_div = modals_div,
+                    button=button)
+
+
+    def attendance_sign_in_subscription(self,
+                                        cuID,
+                                        clsID,
+                                        csID,
+                                        date,
+                                        online_booking=False,
+                                        credits_hard_limit=False,
+                                        booking_status='booked'):
+        """
+            :param cuID: db.auth_user.id
+            :param clsID: db.classes.id 
+            :param csID: db.customers_subscriptions.id
+            :param date: datetime.date
+            :return: dict status[ok|fail], message
+        """
+        db = current.db
+        T = current.T
+        DATE_FORMAT = current.DATE_FORMAT
+        cache_clear_customers_subscriptions = current.globalenv['cache_clear_customers_subscriptions']
+
+
+        status = 'fail'
+        message = ''
+        signed_in = self.attendance_sign_in_check_signed_in(clsID, cuID, date)
+        # check credits remaining
+
+        credits_remaining = self._attendance_sign_in_subscription_credits_remaining(csID)
+        message_no_credits = T('No credits remaining on this subscription')
+
+        if signed_in:
+            message = T("Customer is already checked in")
+        elif not credits_remaining and credits_hard_limit:
+            # return message, don't sign in
+            message = message_no_credits
+        else:
+            #print 'signing in customer'
+
+            status = 'ok'
+            clattID = db.classes_attendance.insert(
+                auth_customer_id           = cuID,
+                classes_id                 = clsID,
+                ClassDate                  = date,
+                AttendanceType             = None, # None = subscription
+                customers_subscriptions_id = csID,
+                online_booking=online_booking,
+                BookingStatus=booking_status
+                )
+
+            # Take 1 credit
+            cls = Class(clsID, date)
+            cscID = db.customers_subscriptions_credits.insert(
+                customers_subscriptions_id = csID,
+                classes_attendance_id = clattID,
+                MutationType = 'sub',
+                MutationAmount = '1',
+                Description = cls.get_name(pretty_date=True)
+            )
+
+            #print cscID
+
+            cache_clear_customers_subscriptions(cuID)
+
+            # check subscription classes exceeded
+            #result = self._attendance_sign_in_subscription_check_classes_exceeded(csID, clattID, date)
+            #if result:
+            #    message = result
+
+            # # check credits remaining
+            if not credits_remaining:
+                message = message_no_credits
+            # result = self._attendance_sign_in_subscription_credits_remaining(csID)
+            # if result:
+            #     message = result
+
+            # check for paused subscription
+            result = self._attedance_sign_in_subscription_check_paused(csID, date)
+            if result:
+                message = result
+
+        return dict(status=status, message=message)
+
+
+    def _attendance_sign_in_subscription_credits_remaining(self, csID):
+        """
+        Check if this subscription has remaining classes, if not, set message
+
+        :param csID:
+        :param clattID:
+        :param date:
+        :return:
+        """
+        T = current.T
+        db = current.db
+
+        cs = CustomerSubscription(csID)
+        balance = cs.get_credits_balance()
+        recon_classes = cs.ssu.ReconciliationClasses
+
+        credits_remaining = balance > (recon_classes * -1)
+
+        return credits_remaining
+
+
+    def _attedance_sign_in_subscription_check_paused(self, csID, date):
+        """
+            Check if the subscription if paused on given date, if so, display
+            a message for the user
+        """
+        from openstudio.os_customer_subscriptions import CustomerSubscriptions
+
+        T = current.T
+        message = ''
+
+        cs = CustomerSubscriptions(csID)
+        paused = cs.get_paused(date)
+        if paused:
+            message = T("Subscription is paused on this date")
+
+        return message
+
+
+    def _attendance_sign_in_create_invoice(self,
+                                           cuID,
+                                           caID,
+                                           clsID,
+                                           date,
+                                           product_type):
+        """
+            Creates an invoice for a drop in or trial class
+        """
+        db = current.db
+        DATE_FORMAT = current.DATE_FORMAT
+        T = current.T
+
+        date_formatted = date.strftime(DATE_FORMAT)
+
+        if product_type not in ['trial', 'dropin']:
+            raise ValueError('Product type has to be trial or dropin')
+
+        customer = Customer(cuID)
+        cls = Class(clsID, date)
+        prices = cls.get_prices()
+
+        has_membership = customer.has_membership_on_date(date)
+
+        if product_type == 'dropin':
+            price = prices['dropin']
+
+            if has_membership and prices['dropin_membership']:
+                price = prices['dropin_membership']
+
+        elif product_type == 'trial':
+            price = prices['trial']
+
+            if has_membership and prices['trial_membership']:
+                price = prices['trial_membership']
+
+        # check if the price is > 0 when adding an invoice
+        if price == 0:
+            return
+
+        igpt = db.invoices_groups_product_types(ProductType=product_type)
+
+        iID = db.invoices.insert(
+            invoices_groups_id=igpt.invoices_groups_id,
+            # classes_attendance_id      = caID,
+            Description=T('Class on ') + date_formatted,
+            Status='sent'
+        )
+
+        # create object to set Invoice# and due date
+        invoice = Invoice(iID)
+        invoice.item_add_class(
+            cuID,
+            caID,
+            clsID,
+            date,
+            product_type
+        )
+        invoice.set_amounts()
+        invoice.link_to_customer(cuID)
+
+
+    def attendance_sign_in_classcard_recurring(self, cuID, clsID, ccdID, date, date_until, online_booking=False, booking_status='booked'):
+        """
+        :param cuID:
+        :param clsID:
+        :param ccdID:
+        :param date:
+        :param until_date:
+        :param online_booking:
+        :param booking_status:
+        :return:
+        """
+        T = current.T
+        TODAY_LOCAL = current.TODAY_LOCAL
+        DATE_FORMAT = current.DATE_FORMAT
+        get_sys_property = current.globalenv['get_sys_property']
+
+        ccd = Classcard(ccdID)
+        ccd_enddate = ccd.classcard.Enddate
+
+
+        classes_booked = 0
+        messages = []
+
+        classes_remaining = ccd.get_classes_remaining()
+
+        shop_classes_advance_booking_limit = get_sys_property('shop_classes_advance_booking_limit')
+        # print shop_classes_advance_booking_limit
+        book_date_limit = False
+        if shop_classes_advance_booking_limit:
+            book_date_limit = TODAY_LOCAL + datetime.timedelta(int(shop_classes_advance_booking_limit))
+
+
+        while date <= date_until:
+            # print date
+            date_formatted = date.strftime(DATE_FORMAT)
+            sign_in_ok = True
+            # Check if class is taking place
+            cls = Class(clsID, date)
+            if cls.is_taking_place() == False:
+                sign_in_ok = False
+                # print 'class not happening'
+                messages.append(T("Class is cancelled or falls within a holiday"))
+
+            # Check online booking spaces available
+            if cls.get_full_bookings_shop() == True: # no spaces available
+                sign_in_ok = False
+                # print "Class full"
+                messages.append(T("There are no more spaces for online bookings available for this class"))
+
+            # Check classes remaining
+            #if classes_remaining != 'unlimited' or classes_remaining < 1:
+            if classes_remaining == 0: # This will pass when it's 'unlimited'
+                # print 'no classes remaining'
+                date = date_until  # Stop loop
+                #TODO: message for customer
+                sign_in_ok = False
+                messages.append(T('No more classes remaining on this card for class on') + ' ' + date_formatted)
+
+            # Check not past max sign in date
+            # print 'booking date limit'
+            # print book_date_limit
+            if book_date_limit:
+                if date > book_date_limit:
+                    # print 'class past booking in advance limit'
+                    # TODO: message for customer
+                    date = date_until # Stop loop
+                    sign_in_ok = False
+
+            # Check not past classcard enddate
+            if date >= ccd_enddate:
+                # print 'class past classcard enddate'
+                date = date_until  # Stop loop
+                #TODO: message for customer
+                sign_in_ok = False
+                messages.append(T('Date is past card expiration date:') + ' ' + date_formatted)
+
+            # Check sign in status for fail (if fail, don't add count)
+            if sign_in_ok:
+                result = self.attendance_sign_in_classcard(cuID, clsID, ccdID, date)
+                if not result['status'] == 'fail':
+                    messages.append(T("Booked class on") + ' ' + date_formatted)
+                    # update remaining classes
+                    if not classes_remaining == 'unlimited':
+                        classes_remaining -= 1
+
+                    classes_booked += 1
+
+            date += datetime.timedelta(days=7)
+
+        return dict(classes_booked=classes_booked,
+                    messages=messages)
+
+
+    def attendance_sign_in_classcard(self, cuID, clsID, ccdID, date, online_booking=False, booking_status='booked'):
+        """
+            :param cuID: db.auth_user.id 
+            :param clsID: db.classes.id
+            :param ccdID: db.customers_classcards.id
+            :param date: datetime.date
+            :return: 
+        """
+        db = current.db
+        T = current.T
+
+        ccdh = ClasscardsHelper()
+        classes_available = ccdh.get_classes_available(ccdID)
+
+        status = 'fail'
+        message = ''
+        if classes_available:
+            signed_in = self.attendance_sign_in_check_signed_in(clsID, cuID, date)
+            if signed_in:
+                message = T("Already checked in for this class")
+            else:
+                status = 'success'
+
+                db.classes_attendance.insert(
+                    auth_customer_id=cuID,
+                    classes_id=clsID,
+                    ClassDate=date,
+                    AttendanceType=3,  # 3 = classcard
+                    customers_classcards_id=ccdID,
+                    online_booking=online_booking,
+                    BookingStatus=booking_status
+                )
+
+                # update class count
+                ccdh = ClasscardsHelper()
+                ccdh.set_classes_taken(ccdID)
+        else:
+            message = T("Unable to add, no classes left on card")
+
+
+        return dict(status=status, message=message)
+
+
+    def attendance_sign_in_dropin(self,
+                                  cuID,
+                                  clsID,
+                                  date,
+                                  online_booking=False,
+                                  invoice=True,
+                                  booking_status='booked'):
+        """
+            :param cuID: db.auth_user.id
+            :param clsID: db.classes.id
+            :param date: datetime.date
+            :return: 
+        """
+        db = current.db
+        T = current.T
+
+        status = 'fail'
+        message = ''
+        caID = ''
+
+        signed_in = self.attendance_sign_in_check_signed_in(clsID, cuID, date)
+        if signed_in:
+            message = T("Already checked in for this class")
+        else:
+            status = 'ok'
+            caID = db.classes_attendance.insert(
+                auth_customer_id=cuID,
+                classes_id=clsID,
+                ClassDate=date,
+                AttendanceType=2,  # 2 = drop in class
+                online_booking=online_booking,
+                BookingStatus=booking_status
+            )
+
+            if invoice:
+                self._attendance_sign_in_create_invoice(cuID,
+                                                        caID,
+                                                        clsID,
+                                                        date,
+                                                        'dropin')
+
+        return dict(status=status, message=message, caID=caID)
+
+
+    def attendance_sign_in_trialclass(self,
+                                      cuID,
+                                      clsID,
+                                      date,
+                                      online_booking=False,
+                                      invoice=True,
+                                      booking_status='booked'):
+        """
+            :param cuID: db.auth_user.id
+            :param clsID: db.classes.id
+            :param date: datetime.date
+            :return: 
+        """
+        db = current.db
+        T = current.T
+
+        status = 'fail'
+        message = ''
+        caID = ''
+
+        signed_in = self.attendance_sign_in_check_signed_in(clsID, cuID, date)
+
+        if signed_in:
+            message = T("Already checked in for this class")
+        else:
+            status = 'ok'
+            caID = db.classes_attendance.insert(
+                auth_customer_id=cuID,
+                classes_id=clsID,
+                ClassDate=date,
+                AttendanceType=1,  # 1 = trial class
+                online_booking=online_booking,
+                BookingStatus=booking_status
+            )
+
+            if invoice:
+                self._attendance_sign_in_create_invoice(cuID,
+                                                        caID,
+                                                        clsID,
+                                                        date,
+                                                        'trial')
+
+        return dict(status=status, message=message, caID=caID)
+
+
+    def attendance_sign_in_complementary(self,
+                                         cuID,
+                                         clsID,
+                                         date,
+                                         booking_status='booked'):
+        """
+            :param cuID: db.auth_user.id
+            :param clsID: db.classes.id
+            :param date: datetime.date
+            :return:
+        """
+        db = current.db
+        T = current.T
+
+        status = 'fail'
+        message = ''
+        caID = ''
+
+        signed_in = self.attendance_sign_in_check_signed_in(clsID, cuID, date)
+
+        if signed_in:
+            message = T("Already checked in for this class")
+        else:
+            status = 'ok'
+            caID = db.classes_attendance.insert(
+                auth_customer_id=cuID,
+                classes_id=clsID,
+                ClassDate=date,
+                AttendanceType=4,  # 4 = Complementary class
+                online_booking=False,
+                BookingStatus=booking_status
+            )
+
+
+        return dict(status=status, message=message, caID=caID)
+
+
+    def attendance_sign_in_check_signed_in(self, clsID, cuID, date):
+        """
+            Check if a customer isn't already signed in to a class
+        """
+        db = current.db
+        query = (db.classes_attendance.classes_id == clsID) & \
+                (db.classes_attendance.auth_customer_id == cuID) & \
+                (db.classes_attendance.ClassDate == date) & \
+                (db.classes_attendance.BookingStatus != 'cancelled')
+
+        return db(query).count()
+
+
+    def attendance_cancel_classes_in_school_holiday(self, shID):
+        """
+            :param shID: db.school_holidays.id
+            :return: list of db.classes.id
+        """
+        db = current.db
+
+        # Get locations
+        query = (db.school_holidays_locations.school_holidays_id == shID)
+        rows =  db(query).select(db.school_holidays_locations.school_locations_id)
+        location_ids = []
+        for row in rows:
+            location_ids.append(row.school_locations_id)
+
+        # Get classes
+        query = (db.classes.school_locations_id.belongs(location_ids))
+        rows = db(query).select(db.classes.id)
+        class_ids = []
+        for row in rows:
+            class_ids.append(row.id)
+
+        # Get holiday record and cancel classes
+        sh = db.school_holidays(shID)
+        self.attendance_cancel_reservations_for_classes(class_ids, sh.Startdate, sh.Enddate)
+
+
+    def attendance_cancel_reservations_for_classes(self, class_ids, p_start, p_end = None):
+        """
+            :param class_ids: list of db.classes.id
+            :param p_start: datetime.date
+            :param p_end: datetime.date
+            :return: None
+        """
+        db = current.db
+
+        # in case end period is not specified, assume it's for one day
+        if not p_end:
+            p_end = p_start
+
+        query = (db.classes_attendance.classes_id.belongs(class_ids)) & \
+                (db.classes_attendance.ClassDate >= p_start) & \
+                (db.classes_attendance.ClassDate <= p_end)
+
+        db(query).update(BookingStatus='cancelled')
+
+        # Return subscription credits to customers
+        csch = CustomersSubscriptionsCredits()
+        csch.refund_credits_in_period(query)
+        
