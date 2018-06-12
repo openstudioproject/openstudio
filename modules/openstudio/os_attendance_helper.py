@@ -1145,7 +1145,7 @@ class AttendanceHelper:
             for classcard in classcards:
                 ccdID = classcard.customers_classcards.id
 
-                ccd = Classcard(ccdID)
+                ccd = CustomerClasscard(ccdID)
                 classes_remaining = ccd.get_classes_remaining_formatted()
 
                 if list_type == 'shop':
@@ -1546,7 +1546,7 @@ class AttendanceHelper:
         DATE_FORMAT = current.DATE_FORMAT
         get_sys_property = current.globalenv['get_sys_property']
 
-        ccd = Classcard(ccdID)
+        ccd = CustomerClasscard(ccdID)
         ccd_enddate = ccd.classcard.Enddate
 
 

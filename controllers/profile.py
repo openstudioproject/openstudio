@@ -612,7 +612,7 @@ def classcard_info():
     """
         Page to list permissions for a subscription
     """
-    from openstudio.openstudio import Classcard
+    from openstudio.os_customer_classcard import CustomerClasscard
 
     ccdID = request.vars['ccdID']
     response.title = T('Profile')
@@ -625,7 +625,7 @@ def classcard_info():
         redirect(URL('profile', 'index'))
 
     # Check if this subscription belongs to the currently signed in user
-    ccd = Classcard(ccdID)
+    ccd = CustomerClasscard(ccdID)
     if ccd.classcard.auth_customer_id != auth.user.id:
         session.flash = T("That class card doesn't belong to this user")
         return URL('profile', 'index')

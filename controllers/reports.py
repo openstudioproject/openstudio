@@ -16,7 +16,7 @@ from general_helpers import set_form_id_and_get_submit_button
 
 from gluon.tools import prettydate
 
-from openstudio.openstudio import ClasscardsHelper, Classcard
+from openstudio.openstudio import ClasscardsHelper
 from openstudio.os_class import Class
 from openstudio.os_class_schedule import ClassSchedule
 from openstudio.os_attendance_helper import AttendanceHelper
@@ -24,6 +24,7 @@ from openstudio.os_reports import Reports
 from openstudio.os_invoice import Invoice
 from openstudio.os_invoices import Invoices
 from openstudio.os_school_subscription import SchoolSubscription
+from openstudio.os_customer_classcard import CustomerClasscard
 
 import datetime
 import operator
@@ -5350,7 +5351,7 @@ def teacher_classes_get_class_revenue_classcard(row):
         :return: Revenue for class taken on a card
     """
     ccdID = row.classes_attendance.customers_classcards_id
-    classcard = Classcard(ccdID)
+    classcard = CustomerClasscard(ccdID)
 
     query = (db.invoices_customers_classcards.customers_classcards_id == ccdID)
     rows = db(query).select(db.invoices_customers_classcards.ALL)

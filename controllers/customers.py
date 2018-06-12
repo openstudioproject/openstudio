@@ -1154,7 +1154,7 @@ def customers_get_menu(customers_id, page=None):
 
 
 def classcards_count_classes(row):
-    ccd = Classcard(row.customers_classcards.id)
+    ccd = CustomerClasscard(row.customers_classcards.id)
     link_text = ccd.get_classes_remaining_formatted()
 
 
@@ -1842,7 +1842,7 @@ def classcard_edit():
     classcardID = request.vars['ccdID']
     response.title = T("Edit Class card") + " " + unicode(classcardID)
     customer = Customer(customers_id)
-    classcard = Classcard(classcardID)
+    classcard = CustomerClasscard(classcardID)
     response.subtitle = customer.get_name()
     response.view = 'general/tabs_menu.html'
 
@@ -1904,7 +1904,7 @@ def classcard_classes():
     row = db.customers_classcards(ccdID)
     customers_id = row.auth_customer_id
 
-    classcard = Classcard(ccdID)
+    classcard = CustomerClasscard(ccdID)
     rows = classcard.get_rows_classes_taken()
 
     table = TABLE(TR(TH(T("Class date")),

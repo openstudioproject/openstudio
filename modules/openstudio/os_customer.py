@@ -311,7 +311,7 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
             Returns a formatted list of subscriptions and classcards for
             a customer
         """
-        from openstudio.openstudio import Classcard
+        from openstudio.os_customer_classcard import CustomerClasscard
         from openstudio.os_customer_subscriptions import CustomerSubscriptions
 
         DATE_FORMAT = current.DATE_FORMAT
@@ -358,7 +358,7 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
             classcards = DIV()
             for card in classcards:
                 ccdID = card.customers_classcards.id
-                classcard = Classcard(ccdID)
+                classcard = CustomerClasscard(ccdID)
                 remaining_classes = ccd.get_classes_remaining()
                 if not remaining_classes:
                     continue

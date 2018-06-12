@@ -1654,7 +1654,7 @@ def class_book():
             session.flash = T('Class booked')
 
     if ccdID:
-        ccd = Classcard(ccdID)
+        ccd = CustomerClasscard(ccdID)
         if not (ccd.classcard.auth_customer_id == auth.user.id):
             wrong_user()
 
@@ -1718,7 +1718,7 @@ def class_book_classcard_recurring():
 
     return_url = URL('profile', 'classes')
 
-    ccd = Classcard(ccdID)
+    ccd = CustomerClasscard(ccdID)
     if not (ccd.classcard.auth_customer_id == auth.user.id):
         redirect(return_url)
 

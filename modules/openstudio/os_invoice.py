@@ -362,7 +362,7 @@ class Invoice:
         db = current.db
         T  = current.T
 
-        classcard = Classcard(ccdID)
+        classcard = CustomerClasscard(ccdID)
         # link invoice to classcard sold to customer
         db.invoices_customers_classcards.insert(
             invoices_id=self.invoices_id,

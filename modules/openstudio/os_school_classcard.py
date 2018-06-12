@@ -88,7 +88,7 @@ class SchoolClasscard:
         db = current.db
         T = current.T
 
-        classcard = Classcard(ccdID)
+        classcard = CustomerClasscard(ccdID)
 
         igpt = db.invoices_groups_product_types(ProductType='classcard')
 
