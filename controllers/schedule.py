@@ -7,7 +7,7 @@
 from general_helpers import class_get_teachers
 from general_helpers import set_form_id_and_get_submit_button
 
-from openstudio.openstudio import ClassSchedule
+from openstudio.os_class_schedule import ClassSchedule
 from openstudio.os_staff_schedule import StaffSchedule
 
 

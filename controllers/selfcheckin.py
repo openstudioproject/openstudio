@@ -5,8 +5,8 @@ from general_helpers import datestr_to_python
 
 from openstudio.os_attendance_helper import AttendanceHelper
 from openstudio.os_class import Class
+from openstudio.os_class_schedule import ClassSchedule
 from openstudio.os_customer import Customer
-from openstudio.openstudio import ClassSchedule
 
 import pytz
 

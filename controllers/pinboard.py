@@ -19,7 +19,8 @@ from general_helpers import max_string_length
 
 from gluon.tools import prettydate
 
-from openstudio.openstudio import Class, ClassSchedule
+from openstudio.os_class import Class
+from openstudio.os_class_schedule import ClassSchedule
 
 
 import datetime

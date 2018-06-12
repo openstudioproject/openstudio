@@ -28,7 +28,7 @@ class Teachers:
         :param month: int
         :return: dict(teacher_id=[classes])
         """
-        from openstudio import ClassSchedule
+        from openstudio.os_class_schedule import ClassSchedule
         from general_helpers import get_last_day_month
 
         ids = self.get_teacher_ids()
