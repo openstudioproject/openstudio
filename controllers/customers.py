@@ -3456,7 +3456,7 @@ def subscription_credits_month_expire_credits():
     """
         Expire credits on the current day
     """
-    csch = CustomersSubscriptionsCreditsHelper()
+    csch = CustomersSubscriptionsCredits()
     sub_credits_expired = csch.expire_credits(TODAY_LOCAL)
 
     session.flash = T('Expired credits for') + ' ' + unicode(sub_credits_expired) + ' ' + T('subscriptions')
@@ -3754,12 +3754,12 @@ def subscription_credits_month_add():
     """
         Add credits for subscriptions in selected month
     """
-    from openstudio.openstudio import CustomersSubscriptionsCreditsHelper
+    from openstudio.os_customers_subscriptions_credits import CustomersSubscriptionsCredits
 
     year = session.customers_subscription_credits_year
     month = session.customers_subscription_credits_month
 
-    csch = CustomersSubscriptionsCreditsHelper()
+    csch = CustomersSubscriptionsCredits()
     added = csch.add_credits(year, month)
 
     session.flash = T("Added subscription credits for") + ' ' + unicode(added) + ' ' + T('customers') + '.'
