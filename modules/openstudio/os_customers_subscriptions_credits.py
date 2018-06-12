@@ -18,10 +18,11 @@ class CustomersSubscriptionsCredits:
         """
             Get list of classes a customer has a reservation for in a selected month
         """
+        from openstudio.os_classes_reservations import ClassesReservations
         db = current.db
 
         ah = AttendanceHelper()
-        crh = ClassReservationHelper()
+        crh = ClassesReservations()
         first_day = datetime.date(year, month, 1)
         last_day = get_last_day_month(first_day)
 
