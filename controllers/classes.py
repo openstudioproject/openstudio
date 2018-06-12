@@ -28,12 +28,12 @@ from openstudio.openstudio import ClasscardsHelper, \
     ReservationHelper, \
     Class, \
     ClassSchedule, \
-    CustomersHelper, \
     Invoice, \
     InvoicesHelper
 
 from openstudio.os_customer_subscriptions import CustomerSubscriptions
 from openstudio.os_customer import Customer
+from openstudio.os_customers import Customers
 
 # helper functions
 
@@ -2539,8 +2539,8 @@ def attendance():
 
     attendance = ah.get_checkin_list_customers_booked(clsID, date)
 
-    ch = CustomersHelper()
-    result = ch.get_add_modal(
+    customers = Customers()
+    result = customers.get_add_modal(
         button_text   = "Customer",
         button_class  = '',
         redirect_vars = {'clsID' : clsID,

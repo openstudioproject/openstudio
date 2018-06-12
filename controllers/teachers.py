@@ -8,7 +8,7 @@ import openpyxl
 from general_helpers import get_submenu
 from general_helpers import set_form_id_and_get_submit_button
 
-from openstudio.openstudio import CustomersHelper
+from openstudio.os_customers import Customers
 from openstudio.os_school_subscription import SchoolSubscription
 
 def account_get_tools_link_groups(var=None):
@@ -148,8 +148,8 @@ def index():
     back = os_gui.get_button('back', URL('school_properties', 'index'))
 
     #add = os_gui.get_button('add', URL('teacher_add'))
-    ch = CustomersHelper()
-    result = ch.get_add_modal(redirect_vars={'teacher':True}, button_class='btn-sm pull-right')
+    customers = Customers()
+    result = customers.get_add_modal(redirect_vars={'teacher':True}, button_class='btn-sm pull-right')
     add = SPAN(result['button'], result['modal'])
 
     contact_list = A(SPAN(os_gui.get_fa_icon('fa-volume-control-phone'), ' ',
@@ -495,7 +495,7 @@ def payment_fixed_rate_class_add():
         Add customers to attendance for a class
     """
     from openstudio.os_customer import Customer
-    from openstudio.openstudio import CustomersHelper
+    from openstudio.os_customers import Customers
     from general_helpers import datestr_to_python
 
     response.view = 'general/only_content.html'
@@ -510,8 +510,8 @@ def payment_fixed_rate_class_add():
     else:
         date = TODAY_LOCAL
 
-    ch = CustomersHelper()
-    result = ch.classes_add_get_form_date(teID, date)
+    customers = Customers()
+    result = customers.classes_add_get_form_date(teID, date)
     form = result['form']
     form_date = result['form_styled']
 

@@ -8,7 +8,7 @@ import openpyxl
 from general_helpers import get_submenu
 from general_helpers import set_form_id_and_get_submit_button
 
-from openstudio.openstudio import CustomersHelper
+from openstudio.os_customers import CUstomers
 from openstudio.os_school_subscription import SchoolSubscription
 
 
@@ -2724,8 +2724,8 @@ def employees():
     grid.elements('span[title=Delete]', replace=None)
 
     # modal to add employee
-    ch = CustomersHelper()
-    result = ch.get_add_modal(redirect_vars={'employee':True}, button_class='btn-sm pull-right')
+    customers = Customers()
+    result = customers.get_add_modal(redirect_vars={'employee':True}, button_class='btn-sm pull-right')
     add = SPAN(result['button'], result['modal'])
 
     tools = employees_get_tools()
