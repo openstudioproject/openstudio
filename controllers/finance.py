@@ -1083,7 +1083,7 @@ def invoices():
     # enable search in load
     #request.vars['search_enabled'] = True
 
-    ih = InvoicesHelper()
+    invs = Invoices()
     status_filter = ih.list_get_status_filter()
     list = ih.list_invoices(search_enabled=True)
 
@@ -1133,7 +1133,7 @@ def teacher_payments():
 
     add = teacher_payments_get_create_invoices()
 
-    ih = InvoicesHelper()
+    invs = Invoices()
     status_filter = ih.list_get_status_filter()
     list = ih.list_invoices(only_teacher_credit_invoices=True)
 

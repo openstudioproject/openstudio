@@ -19,6 +19,7 @@ from os_storage import uploads_available_space
 from openstudio.openstudio  import *
 from openstudio.os_customer import Customer
 from openstudio.os_school_classcard import SchoolClasscard
+from openstudio.os_invoices import Invoices
 
 # python general modules import
 import cStringIO
@@ -1468,7 +1469,7 @@ def classcards_get_link_invoice(row):
         Returns invoice for classcard in list
     """
     if row.invoices.id:
-        ih = InvoicesHelper()
+        invs = Invoices()
 
         query = (db.invoices.id == row.invoices.id)
         rows = db(query).select(db.invoices.ALL)
@@ -2323,7 +2324,7 @@ def classes_attendance():
         ##
         invoice = ''
         if row.invoices.id:
-            ih = InvoicesHelper()
+            invs = Invoices()
             invoice = ih.represent_invoice_for_list(
                 row.invoices.id,
                 repr_row.invoices.InvoiceID,
@@ -2981,7 +2982,7 @@ def subscription_invoices():
                              cs.name)
 
     # add button
-    ih = InvoicesHelper()
+    invs = Invoices()
     form = ih.add_get_form(cuID, csID)
     result = ih.add_get_modal(form)
     add = result['button']
@@ -4361,7 +4362,7 @@ def events():
 
                       )))
     table = TABLE(header, _class="table table-hover table-striped")
-    ih = InvoicesHelper()
+    invs = Invoices()
 
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i+1].render())[0]
@@ -5595,7 +5596,7 @@ def invoices():
     # Always reset filter
     session.invoices_list_status = None
 
-    ih = InvoicesHelper()
+    invs = Invoices()
     form = ih.add_get_form(cuID)
     result = ih.add_get_modal(form)
     add = result['button']
@@ -5605,7 +5606,7 @@ def invoices():
 
     content = DIV(status_filter, BR())
 
-    ih = InvoicesHelper()
+    invs = Invoices()
     list = ih.list_invoices(cuID=cuID)
     content.append(list)
 
@@ -5682,7 +5683,7 @@ def orders_get_link_invoice(row):
         Returns invoice for an order in list
     """
     if row.invoices.id:
-        ih = InvoicesHelper()
+        invs = Invoices()
 
         query = (db.invoices.id == row.invoices.id)
         rows = db(query).select(db.invoices.ALL)
@@ -6138,7 +6139,7 @@ def membership_invoices():
                              cm.get_name())
 
     # add button
-    ih = InvoicesHelper()
+    invs = Invoices()
     form = ih.add_get_form(cuID, cmID=cmID)
     result = ih.add_get_modal(form)
     add = result['button']

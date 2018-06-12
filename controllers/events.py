@@ -2086,7 +2086,7 @@ def tickets_list_customers_get_list(table,
                db.invoices.on(db_icwspc.invoices_id == db.invoices.id)
            ],
 
-    ih = InvoicesHelper()
+    invs = Invoices()
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
