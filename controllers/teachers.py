@@ -8,7 +8,8 @@ import openpyxl
 from general_helpers import get_submenu
 from general_helpers import set_form_id_and_get_submit_button
 
-from openstudio.openstudio import CustomersHelper, SchoolSubscription
+from openstudio.openstudio import CustomersHelper
+from openstudio.os_school_subscription import SchoolSubscription
 
 def account_get_tools_link_groups(var=None):
     """
