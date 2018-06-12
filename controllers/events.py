@@ -1,6 +1,10 @@
 # coding: utf8
 
-from openstudio.openstudio import Workshop, WorkshopsHelper, WorkshopProduct, Invoice, InvoicesHelper
+from openstudio.openstudio import WorkshopsHelper, WorkshopProduct
+
+from openstudio.os_workshop import Workshop
+from openstudio.os_invoice import Invoice
+from openstudio.os_invoices import Invoices
 from openstudio.os_tasks import Tasks
 from openstudio.os_customer import Customer
 from openstudio.os_mail import OsMail
