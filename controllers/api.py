@@ -5,7 +5,7 @@ import datetime
 from general_helpers import iso_to_gregorian
 from general_helpers import NRtoDay
 
-from openstudio.openstudio import WorkshopSchedule
+from openstudio.os_workshop_schedule import WorkshopSchedule
 from openstudio.os_workshop import Workshop
 from openstudio.os_class_schedule import ClassSchedule
 
