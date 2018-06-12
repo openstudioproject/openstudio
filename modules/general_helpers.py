@@ -463,11 +463,23 @@ def create_teachers_dict():
     db = current.db
     query = db.auth_user.teacher == True
     rows = db(query).select(db.auth_user.id,
-                       db.auth_user.first_name,
-                       db.auth_user.last_name)
+                       db.auth_user.full_name)
     d = dict()
     for row in rows:
-        d[row.id] = row.first_name + " "  + row.last_name
+        d[row.id] = row.full_name
+    d[None] = ""
+
+    return d
+
+
+def create_employees_dict():
+    db = current.db
+    query = db.auth_user.employee == True
+    rows = db(query).select(db.auth_user.id,
+                            db.auth_user.full_name)
+    d = dict()
+    for row in rows:
+        d[row.id] = row.full_name
     d[None] = ""
 
     return d

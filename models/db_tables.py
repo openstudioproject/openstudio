@@ -18,6 +18,7 @@ from general_helpers import get_payment_batches_statuses
 from general_helpers import string_to_int
 
 from general_helpers import create_teachers_dict
+from general_helpers import create_employees_dict
 from general_helpers import create_locations_dict
 from general_helpers import create_classtypes_dict
 
@@ -4036,7 +4037,7 @@ def define_shifts_otc():
                                    'auth_user.id',
                                    '%(first_name)s %(last_name)s',
                                    zero=(T('')))),
-              represent=lambda value, row: teachers_dict.get(value,
+              represent=lambda value, row: employees_dict.get(value,
                                                              None),
               # represent=lambda value, row: value or '',
               label=T("Sub Employee")),
@@ -4044,7 +4045,7 @@ def define_shifts_otc():
               requires=IS_EMPTY_OR(IS_IN_DB(db(au_query),
                                             'auth_user.id',
                                             '%(first_name)s %(last_name)s')),
-              represent=lambda value, row: teachers_dict.get(value,
+              represent=lambda value, row: employees_dict.get(value,
                                                              None),
               # represent=lambda value, row: value or '',
               label=T("Sub Employee 2")),
@@ -5349,6 +5350,7 @@ define_payment_categories()
 paycat_dict = create_payment_categories_dict()
 define_teachers_holidays()
 teachers_dict = create_teachers_dict()
+employees_dict = create_employees_dict()
 
 define_messages()
 

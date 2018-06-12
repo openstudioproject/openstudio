@@ -1,21 +1,22 @@
 # -*- coding: utf-8 -*-
-'''
+"""
     This controller contains functions shared by the classes, employees and
     workshop schedules.
-'''
+"""
 
 from general_helpers import class_get_teachers
 from general_helpers import set_form_id_and_get_submit_button
 
-from openstudio.openstudio import ClassSchedule, StaffSchedule, ShiftStatus
+from openstudio.openstudio import ClassSchedule
+from openstudio.os_staff_schedule import StaffSchedule
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'school_holidays'))
 def holidays():
-    '''
+    """
         List holidays
-    '''
+    """
     response.title = T("School")
     response.subtitle = T("Holidays")
     response.view = 'general/only_content.html'
@@ -56,9 +57,9 @@ def holidays():
 
 
 def holidays_get_link_locations(row):
-    '''
+    """
         Lists all locations linked to a holiday as info bootstrap labels
-    '''
+    """
     query = (db.school_holidays_locations.school_holidays_id == row.id)
     left = [ db.school_locations.on(db.school_locations.id == \
                 db.school_holidays_locations.school_locations_id) ]
@@ -74,18 +75,18 @@ def holidays_get_link_locations(row):
 
 
 def holiday_edit_onacept(form):
-    '''
+    """
         :param form: crud form for db.school_holidays
         :return: None
-    '''
+    """
     cancel_class_bookings(form.vars.id)
 
 
 def cancel_class_bookings(shID):
-    '''
+    """
         :param shID: db.school_holidays.id
         :return: None
-    '''
+    """
     from openstudio.openstudio import AttendanceHelper
 
     ah = AttendanceHelper()
@@ -163,9 +164,9 @@ def holiday_edit():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'school_holidays_locations'))
 def holiday_edit_locations():
-    '''
+    """
         Edit locations assigned to a school holiday
-    '''
+    """
     shID = request.vars['shID']
 
     holiday = db.school_holidays(shID)
@@ -236,9 +237,9 @@ def holiday_edit_locations():
 
 
 def holiday_add_get_menu(page):
-    '''
+    """
         Returns submenu for adding an holiday
-    '''
+    """
     pages = [ ['holiday_add', T('1. Add holiday'), "#"],
               ['holiday_edit_locations', T('2. Choose locations'), "#"] ]
 
@@ -246,9 +247,9 @@ def holiday_add_get_menu(page):
 
 
 def holiday_edit_get_menu(page, shID):
-    '''
+    """
         Returns submenu for editing an holiday
-    '''
+    """
     vars = {'shID':shID}
 
     pages = [ ['holiday_edit',
@@ -265,13 +266,13 @@ def holiday_edit_get_menu(page, shID):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'teacher_holidays'))
 def staff_holidays():
-    '''
+    """
         Select a staff member and set all classes as open within a range of dates.
         response.flash allows you to flash a message to the user when the page
         is returned.
         Use session.flash instead of response.flash to display a message
         after redirection.
-    '''
+    """
     response.view = 'general/only_content.html'
     response.title = T('Staff holidays')
     response.subtitle = ''
@@ -389,9 +390,9 @@ def staff_holiday_edit():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'class_status'))
 def staff_holidays_choose_status():
-    '''
+    """
         Page to choose status for all classes in period
-    '''
+    """
     response.view = 'general/content_left_sidebar.html'
     response.title = T("Staff holiday")
     response.subtitle = T('Choose class & shift status')
@@ -442,9 +443,11 @@ def staff_holidays_choose_status():
 
 
 def staff_holidays_set_status(sthID, status, apply_teacher2):
-    '''
+    """
         This function sets the status for classes during a teachers' holiday
-    '''
+    """
+    from openstudio.os_shift import Shift
+
     holiday = db.teachers_holidays(sthID)
     teachers_id = holiday.auth_teacher_id
     startdate = holiday.Startdate
@@ -476,10 +479,10 @@ def staff_holidays_set_status(sthID, status, apply_teacher2):
                         record.Status = status
                         record.update_record()
                     else:
-                        '''
+                        """
                          if the status is normal:
                             check if there are any other changes
-                            otherwise just delete. '''
+                            otherwise just delete. """
                         change = False
                         fields = [
                             record.school_locations_id,
@@ -511,14 +514,14 @@ def staff_holidays_set_status(sthID, status, apply_teacher2):
                                        filter_id_employee = teachers_id)
         shifts = staff_schedule.get_day_list(show_id = True)
         for shift in shifts:
-            shift_status = ShiftStatus(shift['id'], current_date)
+            shift = Status(shift['id'], current_date)
             # apply new status
             if status == 'normal':
-                shift_status.set_normal()
+                shift.set_status_normal()
             elif status == 'open':
-                shift_status.set_open()
+                shift.set_status_open()
             elif status == 'cancelled':
-                shift_status.set_cancelled()
+                shift.set_status_cancelled()
 
         current_date += delta
 

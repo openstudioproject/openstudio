@@ -158,6 +158,8 @@ class School:
             return A(SPAN(T("Membership required")),
                      _href=URL('shop', 'memberships'))
 
+        #TODO: add check to see if customer already has this as an active subscription (Pay now link?)
+
         return A(SPAN(os_gui.get_fa_icon('fa-shopping-cart'), ' ', T('Get this subscription')),
                  _href=URL('subscription_terms', vars={'ssuID': ssuID}))
 

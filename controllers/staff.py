@@ -16,7 +16,7 @@ from general_helpers import get_lastweek_year
 from general_helpers import get_months_list
 from general_helpers import set_form_id_and_get_submit_button
 
-from openstudio.openstudio import StaffSchedule
+from openstudio.os_staff_schedule import StaffSchedule
 
 
 def get_shiftname(shID):
