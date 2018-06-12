@@ -1,7 +1,8 @@
 # coding: utf8
 
-from openstudio.openstudio import WorkshopsHelper, WorkshopProduct
+from openstudio.openstudio import WorkshopsHelper
 
+from openstudio.os_workshop_product import WorkshopProduct
 from openstudio.os_workshop import Workshop
 from openstudio.os_invoice import Invoice
 from openstudio.os_invoices import Invoices

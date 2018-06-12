@@ -3,7 +3,7 @@
 from general_helpers import max_string_length
 from general_helpers import get_ajax_loader
 
-from openstudio.openstudio WorkshopProduct
+from openstudio.os_workshop_product import WorkshopProduct
 from openstudio.os_invoice import Invoice
 
 from os_upgrade import set_version
