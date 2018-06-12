@@ -24,7 +24,7 @@ def mailing_lists():
     """
         Show mailing lists
     """
-    from openstudio.os_mail import MailingLists
+    from openstudio.os_mailinglists import MailingLists
 
     response.title = T('Settings')
     response.subtitle = T('Mail')

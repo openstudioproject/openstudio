@@ -1,6 +1,7 @@
 # coding: utf8
 
-from openstudio.openstudio import OsMail, WorkshopsHelper
+from openstudio.os_mail import OsMail
+from openstudio.openstudio import WorkshopsHelper
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
