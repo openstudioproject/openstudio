@@ -23,7 +23,7 @@ from general_helpers import get_lastweek_year
 from general_helpers import get_months_list
 from general_helpers import set_form_id_and_get_submit_button
 
-from openstudio.openstudio import ClasscardsHelper
+from openstudio.os_classcards_helper import ClasscardsHelper
 
 from openstudio.os_attendance_helper import AttendanceHelper
 from openstudio.os_class import Class
