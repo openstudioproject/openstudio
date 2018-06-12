@@ -6,13 +6,13 @@ import string
 from gluon import *
 
 def classes_get_status(clsID, date):
-    '''
+    """
         Returns the status and status marker for a class, possible options:
         normal
         subteacher
         open
         cancelled
-    '''
+    """
     db = current.db
 
     status = 'normal'
@@ -35,10 +35,10 @@ def classes_get_status(clsID, date):
 
 
 def class_get_teachers(clsID, class_date):
-    '''
+    """
         Returns the teachers for a class based on the classes_id and
         date of the class
-    '''
+    """
     os_gui = current.globalenv['os_gui']
 
     teachers_dict = current.globalenv['teachers_dict']
@@ -136,9 +136,9 @@ def class_get_teachers(clsID, class_date):
 
 
 def get_months_list():
-    '''
+    """
         This function returns a list of tuples [0] is the number of the month and [1] is the name in English
-    '''
+    """
     return [(1,current.T("January")),
             (2,current.T("February")),
             (3,current.T("March")),
@@ -154,12 +154,12 @@ def get_months_list():
 
 
 def get_number_weekdays_in_month(year, month, iso_weekday):
-    '''
+    """
     :param year: year
     :param month: month
     :param iso_weekday: day in range 1 - 7 where Monday is 1 and Sunday is 7
     :return: count of days in month
-    '''
+    """
     day = datetime.date(year, month, 1)
     delta = datetime.timedelta(days=1)
 
@@ -173,34 +173,34 @@ def get_number_weekdays_in_month(year, month, iso_weekday):
 
 
 def get_last_day_month(date):
-    '''
+    """
         This function returns the last day of the month as a datetime.date object
-    '''
+    """
     return datetime.date(date.year,
                          date.month,
                          calendar.monthrange(date.year,date.month)[1])
 
 
 def get_lastweek_year(year):
-    '''
+    """
         The 28th of December is always in the last week...
         The 31st might be in week 1 according to the iso calendar
-    '''
+    """
     lastday = datetime.date(year,12,28)
     return lastday.isocalendar()[1]
 
 
 def get_weekday(date):
-    '''
+    """
         Returns day of week for given datetime.date object
-    '''
+    """
     return date.isocalendar()[2]
 
 
 def get_paused_subscriptions(date):
-    '''
+    """
         This helper function returns the paused subscriptions the month of date
-    '''
+    """
     lastdaythismonth = get_last_day_month(date)
     firstdaythismonth = datetime.date(date.year, date.month, 1)
 
@@ -235,13 +235,13 @@ def get_submenu(pages,
                 htype='', # tabs or pills
                 _id='',
                 _class=''):
-    '''
+    """
         This function returns a submenu based on the list pages which
         is in the following format:
         [ page, title, url ]
         when page matches pages[n][0] the menu whill receive an extra tag to
         indicate it's active
-    '''
+    """
     submenu_class = "os-submenu"
     if horizontal:
         submenu_class = "os-submenu-horizontal"
@@ -266,9 +266,9 @@ def get_submenu(pages,
     return menu
 
 def get_group_id():
-    '''
+    """
         This function returns the group id of the currently logged in user
-    '''
+    """
     dba = current.db
     w2p_auth = current.auth
     row = dba(dba.auth_membership.user_id == w2p_auth.user.id).select(dba.auth_membership.group_id).first()
@@ -276,9 +276,9 @@ def get_group_id():
 
 
 def get_badge(badge_type, value):
-    '''
+    """
         Returns a span with a badge class
-    '''
+    """
     _class = 'badge'
     if badge_type == 'default':
         pass
@@ -297,9 +297,9 @@ def get_badge(badge_type, value):
 
 
 def get_label(label_type, value):
-    '''
+    """
         Returns a span with a badge class
-    '''
+    """
     _class = 'label'
     if label_type == 'default':
         _class += ' label-default'
@@ -326,9 +326,9 @@ def get_priorities():
             (3, current.T("Low"))]
 
 def get_input_search(_class='', _id=''):
-    '''
+    """
         Returns an input with Search... as placeholder
-    '''
+    """
     return INPUT(_name='search',
                  _placeholder=current.T('Search...'),
                  _autocomplete='off',
@@ -337,9 +337,9 @@ def get_input_search(_class='', _id=''):
 
 
 def workshops_get_full_workshop_product_id(wsID):
-    '''
+    """
         Return id of full workshop product
-    '''
+    """
     dba = current.db
     query = (dba.workshops_products.workshops_id == wsID) & \
             (dba.workshops_products.FullWorkshop == True)
@@ -371,9 +371,9 @@ def datestr_to_python(date_format, datestr):
 
 
 def next_weekday(date, isoweekday):
-    '''
+    """
          Return next weekday after given date
-    '''
+    """
     days_ahead = isoweekday - date.isoweekday()
     if days_ahead <= 1: # Target day already happened this week
         days_ahead += 7
@@ -434,11 +434,11 @@ def iso_to_gregorian(iso_year, iso_week, iso_day):
 
 
 def set_form_id_and_get_submit_button(form, form_id):
-    '''
+    """
     :param form: html form
     :param form_id: form id to be set
     :return: form with id and submit button
-    '''
+    """
     form_element = form.element('form')
     form['_id'] = form_id
 
@@ -511,9 +511,9 @@ def highlight_submenu(menu_link_title):
     return (SPAN(menu_link_title, _style="font-weight:900;"))
 
 def get_ajax_loader(msg='', big=False):
-    '''
+    """
         This function returns a div with a message and a loading gif
-    '''
+    """
     if big:
         loader = IMG(_src=URL('static', 'plugin_os-layout/images/ajax-loader-big.gif'))
     else:
@@ -525,11 +525,11 @@ class User_helpers():
         self.auth = current.auth
         self.dba = current.db
     # def on_user_create(self, form):
-    #     '''
+    #     """
     #         This function creates a new group for a user. We're using this function
     #         because we're manually adding users and the web2py auth functions
     #         aren't called at those times.
-    #     '''
+    #     """
     #     user_id = form.vars.id
     #     group_name = "user_{0}".format(user_id)
     #     group_id = self.auth.add_group(group_name, group_name)
@@ -538,10 +538,10 @@ class User_helpers():
     #     row = self.dba.auth_user(user_id)
     #
     # def on_user_delete(self, table, record_id):
-    #     '''
+    #     """
     #         This function creates a removed the group created for user and
     #         removes the membership form the group.
-    #     '''
+    #     """
     #     user_id = record_id
     #     group_name = "user_{0}".format(user_id)
     #     group_id = self.auth.id_group(group_name)
@@ -549,9 +549,9 @@ class User_helpers():
     #     self.auth.del_group(group_id)
 
     def check_read_permission(self, item, user_id):
-        '''
+        """
             This function checks the permission for a menu link
-        '''
+        """
         if self.auth.has_permission('read', item, 0, user_id) or self.auth.has_membership(1, user_id):
             return True
         else:
@@ -651,10 +651,10 @@ class Memo_links():
 # memo funcions end
 
 def max_string_length(string, length):
-    '''
+    """
         Cuts string to desired length, if longer, cuts and replaces last 3
         characters with "..."
-    '''
+    """
     if string is None:
         return_value = ''
     elif len(string) > length:
@@ -666,9 +666,9 @@ def max_string_length(string, length):
 
 
 def string_to_int(str_in):
-    '''
+    """
         Translates string to integer where A=10 & Z=35
-    '''
+    """
     if not (isinstance(str_in, unicode) or isinstance(str_in, str)) or len(str_in) == 0:
         return None
     # format the string
@@ -692,9 +692,9 @@ def string_to_int(str_in):
 
 
 def get_payment_batches_statuses():
-    '''
+    """
         Returns statuses for use with payment batches
-    '''
+    """
     statuses = [ [ 'sent_to_bank', current.T('Sent to Bank') ],
                  [ 'approved', current.T('Approved') ],
                  [ 'awaiting_approval', current.T("Awaiting approval") ],
@@ -704,9 +704,9 @@ def get_payment_batches_statuses():
 
 
 def represent_validity_units(value, row=None):
-    '''
+    """
         Function to represent validity units
-    '''
+    """
     VALIDITY_UNITS = current.globalenv['VALIDITY_UNITS']
 
     return_value = ''
@@ -722,9 +722,9 @@ def represent_validity_units(value, row=None):
 
 
 def represent_subscription_units(value, row):
-    '''
+    """
         Function to represent validity units
-    '''
+    """
     SUBSCRIPTION_UNITS = current.globalenv['SUBSCRIPTION_UNITS']
 
     return_value = ''
