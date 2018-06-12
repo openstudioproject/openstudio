@@ -1361,7 +1361,7 @@ def privacy_download():
     """
     :return: xlsx document containing all data of an account
     """
-    from openstudio.openstudio import CustomerExport
+    from openstudio.os_customer_export import CustomerExport
 
     # Check whether the privacy feature is enabled
     features = db.customers_profile_features(1)
