@@ -23,13 +23,13 @@ from general_helpers import get_lastweek_year
 from general_helpers import get_months_list
 from general_helpers import set_form_id_and_get_submit_button
 
-from openstudio.openstudio import ClasscardsHelper, \
-    AttendanceHelper,
-    Class, \
-    ClassSchedule, \
-    Invoice, \
-    InvoicesHelper
+from openstudio.openstudio import ClasscardsHelper
 
+from openstudio.os_attendance_helper import AttendanceHelper
+from openstudio.os_class import Class
+from openstudio.os_class_schedule import ClassSchedule
+from openstudio.os_invoice import  Invoice
+from openstudio.os_invoices import  Invoices
 from openstudio.os_customer_subscriptions import CustomerSubscriptions
 from openstudio.os_customer import Customer
 from openstudio.os_customers import Customers

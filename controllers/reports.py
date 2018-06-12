@@ -16,7 +16,7 @@ from general_helpers import set_form_id_and_get_submit_button
 
 from gluon.tools import prettydate
 
-from openstudio.openstudio ClasscardsHelper, Classcard
+from openstudio.openstudio import ClasscardsHelper, Classcard
 from openstudio.os_class import Class
 from openstudio.os_class_schedule import ClassSchedule
 from openstudio.os_attendance_helper import AttendanceHelper
@@ -31,9 +31,9 @@ import cStringIO
 import openpyxl
 
 def index():
-    '''
+    """
         Main page for reports controller
-    '''
+    """
     pass
 
 
@@ -179,9 +179,9 @@ def get_form_subtitle(month=None, year=None, function=None, _class='col-md-4'):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('read', 'reports_trial'))
 def trialclasses_export():
-    '''
+    """
         Export list of trialclasses to Excel sheet
-    '''
+    """
     year = session.reports_tc_year
     month = session.reports_tc_month
 
@@ -572,9 +572,9 @@ def trialcards():
 
 
 def trial_get_subscription(cuID):
-    '''
+    """
         Check if a customer has/had a subscription, ever
-    '''
+    """
     left = [ db.school_subscriptions.on(
         db.customers_subscriptions.school_subscriptions_id == \
         db.school_subscriptions.id) ]
@@ -598,9 +598,9 @@ def trial_get_subscription(cuID):
 
 
 def trial_get_classcard(cuID):
-    '''
+    """
         Check if a customer has/had a subscription, ever
-    '''
+    """
     left = [ db.school_classcards.on(
         db.customers_classcards.school_classcards_id == \
         db.school_classcards.id) ]
@@ -767,11 +767,11 @@ def dropinclasses():
 
 
 def dropin_trial_classes_get_rows(date, att_type):
-    '''
+    """
     @param date: datetime.date - first day of month for the selected month
     @param attendance_type - can be 'dropin' or 'trial'
     @return: gluon.dal.rows object containing all drop in classes for a given month
-    '''
+    """
     if att_type == 'trial':
         att_type = 1
     elif att_type == 'dropin':
@@ -796,7 +796,7 @@ def dropin_trial_classes_get_rows(date, att_type):
         db.classes.Endtime
     ]
 
-    query = '''
+    query = """
         SELECT au.id,
                au.trashed,
                au.thumbsmall,
@@ -843,7 +843,7 @@ def dropin_trial_classes_get_rows(date, att_type):
               clatt.ClassDate <= '{lastdaythismonth}' AND
               clatt.AttendanceType = {att_type}
         ORDER BY clatt.ClassDate, clatt.classes_id, au.display_name
-    '''.format(firstdaythismonth=firstdaythismonth,
+    """.format(firstdaythismonth=firstdaythismonth,
                lastdaythismonth=lastdaythismonth,
                att_type=att_type)
 
@@ -863,9 +863,9 @@ def classcards_show_current():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'reports_classcards'))
 def classcards_set_month():
-    '''
+    """
         Sets the session variables for classcards year and month
-    '''
+    """
     year  = request.vars['year']
     month = request.vars['month']
     back  = request.vars['back']
@@ -879,9 +879,9 @@ def classcards_set_month():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'reports_dropinclasses'))
 def dropinclasses_set_month():
-    '''
+    """
         Sets the session variables for dropin classes year and month
-    '''
+    """
     year  = request.vars['year']
     month = request.vars['month']
     back  = request.vars['back']
@@ -895,9 +895,9 @@ def dropinclasses_set_month():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'reports_attendance'))
 def attendance_set_month():
-    '''
+    """
         Sets the session variables for classtypes year and month
-    '''
+    """
     year  = request.vars['year']
     month = request.vars['month']
     back  = request.vars['back']
@@ -911,9 +911,9 @@ def attendance_set_month():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'reports_teacherclasses'))
 def teacher_classes_set_month():
-    '''
+    """
         Sets the session variables for teacher_classes year and month
-    '''
+    """
     year  = request.vars['year']
     month = request.vars['month']
     back  = request.vars['back']
@@ -927,9 +927,9 @@ def teacher_classes_set_month():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'reports_trial'))
 def trialclasses_set_month():
-    '''
+    """
         Sets the session variables for trial classes year and month
-    '''
+    """
     year  = request.vars['year']
     month = request.vars['month']
     back  = request.vars['back']
@@ -943,9 +943,9 @@ def trialclasses_set_month():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'reports_trial'))
 def trialcards_set_month():
-    '''
+    """
         Sets the session variables for trial cards year and month
-    '''
+    """
     year  = request.vars['year']
     month = request.vars['month']
     back  = request.vars['back']
@@ -959,9 +959,9 @@ def trialcards_set_month():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('read', 'reports_subscriptions'))
 def subscriptions_set_month():
-    '''
+    """
         Sets the session variables for classcards year and month
-    '''
+    """
     year  = request.vars['year']
     month = request.vars['month']
     back  = request.vars['back']
@@ -975,9 +975,9 @@ def subscriptions_set_month():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'reports_direct_debit_extra'))
 def direct_debit_extra_set_month():
-    '''
+    """
         Sets the session variables for classcards year and month
-    '''
+    """
     year  = request.vars['year']
     month = request.vars['month']
     back  = request.vars['back']
@@ -989,9 +989,9 @@ def direct_debit_extra_set_month():
 
 
 def overview_get_month_chooser(page):
-    '''
+    """
         Returns month chooser for overview
-    '''
+    """
     if page == 'classcards':
         year  = session.reports_cc_year
         month = session.reports_cc_month
@@ -1359,9 +1359,9 @@ def classcards_current():
 
 
 def classcards_current_get_form_sort(sort_by):
-    '''
+    """
         :return: SQLFORM to choose sorting for list of current class cards
-    '''
+    """
     sort_options = [
         [ 'startdate', T('Start date') ],
         [ 'expiration', T('Expiration date') ],
@@ -1431,9 +1431,9 @@ def classcards_get_menu(page=None):
 
 
 def subscriptions_count_totals(rows):
-    '''
+    """
         Returns panel of counts for each subscription type
-    '''
+    """
     # count subscriptions
     counts = {}
     for row in rows.render():
@@ -1473,10 +1473,10 @@ def subscriptions_count_totals(rows):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'reports_subscriptions'))
 def subscriptions_show_current():
-    '''
+    """
         Reset the session variables for month and year to show the current
         month.
-    '''
+    """
     session.reports_subscriptions_year = None
     session.reports_subscriptions_month = None
 
@@ -1752,9 +1752,9 @@ def subscriptions_paused():
 
 
 def subscriptions_get_location_filter(locationID):
-    '''
+    """
         Get subscriptions location filter
-    '''
+    """
     # check if we need a location filter
     if not session.show_location:
         location_filter = ''
@@ -1784,9 +1784,9 @@ def subscriptions_get_location_filter(locationID):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('read', 'reports_subscriptions'))
 def subscriptions_overview():
-    '''
+    """
         Lists current subscriptions by type
-    '''
+    """
     response.title = T("Reports")
     response.view = 'reports/subscriptions.html'
 
@@ -1929,9 +1929,9 @@ def subscriptions_overview():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('read', 'reports_subscriptions'))
 def subscriptions_overview_export_all_customers():
-    '''
+    """
         Export all customers with a subscription this month to Excel
-    '''
+    """
     # create filestream
     stream = cStringIO.StringIO()
     # create dictionary to lookup latest subscription values
@@ -2052,9 +2052,9 @@ def subscriptions_overview_export_all_customers():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('read', 'reports_subscriptions'))
 def subscriptions_overview_export_mailinglist():
-    '''
+    """
         Export mailinglist based on subscriptions overview
-    '''
+    """
     ssuID = request.vars['ssuID']
     year  = session.reports_subscriptions_year
     month = session.reports_subscriptions_month
@@ -2085,9 +2085,9 @@ def subscriptions_overview_export_mailinglist():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('read', 'reports_subscriptions'))
 def subscriptions_overview_export_attendance():
-    '''
+    """
         Export mailinglist based on subscriptions overview
-    '''
+    """
     ssuID = request.vars['ssuID']
     year  = session.reports_subscriptions_year
     month = session.reports_subscriptions_month
@@ -2165,9 +2165,9 @@ def subscriptions_overview_export_attendance():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'reports_subscriptions'))
 def subscriptions_overview_customers():
-    '''
+    """
         Lists customers for a selected subscription in a month
-    '''
+    """
     # add location filter form
     if 'locationID' in request.vars:
         locationID = request.vars['locationID']
@@ -2264,9 +2264,9 @@ def subscriptions_overview_customers():
 
 
 def subscriptions_overview_customers_get_rows(ssuID, locationID=None):
-    '''
+    """
         Returns rows for customers
-    '''
+    """
     # get first and last day of this month
     date = datetime.date(session.reports_subscriptions_year,
                          session.reports_subscriptions_month,
@@ -2303,9 +2303,9 @@ def subscriptions_overview_customers_get_rows(ssuID, locationID=None):
 
 
 def subscriptions_overview_customers_get_ssu_form(ssuID):
-    '''
+    """
         Returns form to select school subscription
-    '''
+    """
     subsc_query = (db.school_subscriptions.Archived == False)
     form = SQLFORM.factory(
         Field('ssuID',
@@ -2334,9 +2334,9 @@ def subscriptions_overview_customers_get_ssu_form(ssuID):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'reports_subscriptions'))
 def subscriptions_alt_prices():
-    '''
+    """
         Alternative prices for all subscriptions in a month
-    '''
+    """
     response.title = T("Reports")
     response.view = 'reports/subscriptions.html'
 
@@ -2478,9 +2478,9 @@ def subscriptions_alt_prices():
 
 @auth.requires_login()
 def subscriptions_set_date():
-    '''
+    """
         This function takes the request.vars as a argument and
-    '''
+    """
     today = datetime.date.today()
     if 'year' in request.vars:
         year = int(request.vars['year'])
@@ -2861,9 +2861,9 @@ def attendance_classes_get_form(year=TODAY_LOCAL.year,
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'reports_attendance'))
 def attendance_classtypes():
-    '''
+    """
         Shows how many customers are attending a class type in a given month
-    '''
+    """
     response.title = T("Reports")
     response.view = 'reports/subscriptions.html'
 
@@ -2962,9 +2962,9 @@ def attendance_classtypes():
 
 
 def attendance_classtypes_export_excel_mailinglist():
-    '''
+    """
         :return: Openpyxl.worbook with email addresses of customers attending a certain class type in a chosen month
-    '''
+    """
     cltID = request.vars['cltID']
     month = session.reports_att_month
     year  = session.reports_att_year
@@ -3039,9 +3039,9 @@ def attendance_show_current():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'reports_attendance'))
 def attendance_organizations_list_attendance():
-    '''
+    """
         List attendance for a selected month and organization
-    '''
+    """
     response.view = 'general/only_content.html'
     response.title = T('Reports')
 
@@ -3126,9 +3126,9 @@ def attendance_organizations_list_attendance():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'reports_attendance'))
 def attendance_organizations_list_attendance_export():
-    '''
+    """
         Export attendance for an organization
-    '''
+    """
     soID = request.vars['soID']
     year = int(request.vars['year'])
     month = int(request.vars['month'])
@@ -3192,9 +3192,9 @@ def attendance_organizations_list_attendance_export():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'reports_attendance'))
 def attendance_organizations():
-    '''
+    """
         Shows how many customers are attending a class type in a given month
-    '''
+    """
     response.title = T("Reports")
     response.view = 'reports/subscriptions.html'
 
@@ -3244,9 +3244,9 @@ def attendance_organizations():
 
 
 def attendance_organizations_get_tools(var=None):
-    '''
+    """
         Returns tools for schedule
-    '''
+    """
     att_tools = []
 
     # teacher holidays
@@ -3272,9 +3272,9 @@ def attendance_organizations_get_tools(var=None):
 
 
 def attendance_organizations_get_content(year, month):
-    '''
+    """
         Get and display data for attendance_organizations
-    '''
+    """
     content = DIV()
 
     query = (db.sys_organizations.Archived == False)
@@ -3330,9 +3330,9 @@ def attendance_organizations_get_content(year, month):
 
 
 def attendance_organizations_get_content_classes_taught(year, month, soID, formatted=False):
-    '''
+    """
         Returns total classes taught for an organization
-    '''
+    """
     from general_helpers import get_number_weekdays_in_month
 
     # get all classes for organization
@@ -3355,12 +3355,12 @@ def attendance_organizations_get_content_classes_taught(year, month, soID, forma
 
 
 def attendance_organizations_list_attendance_get_rows(year, month, soID, customers=False):
-    '''
+    """
         :param year: int
         :param month: int
         :param soID: db.sys_organizations.id
         :return: rows
-    '''
+    """
     first_day = datetime.date(year, month, 1)
     last_day = get_last_day_month(first_day)
 
@@ -3411,9 +3411,9 @@ def attendance_organizations_list_attendance_get_rows(year, month, soID, custome
 
 
 def attendance_organizations_get_content_attendance_total(year, month, soID, formatted=False):
-    '''
+    """
         Returns total attendance for an organization
-    '''
+    """
     rows = attendance_organizations_list_attendance_get_rows(year, month, soID)
 
     if not formatted:
@@ -3430,9 +3430,9 @@ def attendance_organizations_get_content_attendance_total(year, month, soID, for
 
 
 def attendance_organizations_get_content_attendance_other_organizations(year, month, soID, formatted=False):
-    '''
+    """
         Returns attendance from other organizations
-    '''
+    """
     first_day = datetime.date(year, month, 1)
     last_day = get_last_day_month(first_day)
 
@@ -3520,11 +3520,11 @@ def attendance_organizations_get_content_attendance_other_organizations(year, mo
 
 
 def attendance_organizations_get_content_organization_resolve(year, month, soID, organizations_rows, formatted=False):
-    '''
+    """
         Return resolve for organization
         eg. StudioX owns...
             StudioY owns...
-    '''
+    """
     # get class prices
     class_prices = {}
     for organization in ORGANIZATIONS:
@@ -3605,9 +3605,9 @@ def attendance_organizations_get_content_organization_resolve(year, month, soID,
 
 
 def attendance_organizations_get_content_resolve_total(year, month, organizations_rows, formatted=False):
-    '''
+    """
         Total resolve between all studios
-    '''
+    """
     resolve = {}
     for row in organizations_rows:
         resolve[row.id] = {'owed': attendance_organizations_get_content_organization_resolve(year,
@@ -3653,9 +3653,9 @@ def attendance_organizations_get_content_resolve_total(year, month, organization
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'sys_organizations'))
 def attendance_organizations_res_prices():
-    '''
+    """
         List organizations and resolve class prices
-    '''
+    """
     response.title = T("Reports")
     response.subtitle = T("Attendance organizations - Resolve prices")
     response.view = 'general/only_content.html'
@@ -3698,9 +3698,9 @@ def attendance_organizations_res_prices():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'sys_organizations'))
 def attendance_organizations_res_price_edit():
-    '''
+    """
         Set resolve class price for an organization
-    '''
+    """
     soID = request.vars['soID']
 
     so = db.sys_organizations(soID)
@@ -3747,10 +3747,10 @@ def attendance_organizations_res_price_edit():
 # @auth.requires(auth.has_membership(group_id='Admins') or \
 #                auth.has_permission('read', 'reports_attendance'))
 # def attendance_subcription_exceeded():
-#     '''
+#     """
 #         Show list of customers who exceeded the number of classes allowed by
 #         their subscription
-#     '''
+#     """
 #     response.title = T("Reports")
 #     response.view = 'reports/subscriptions.html'
 #
@@ -3877,9 +3877,9 @@ def attendance_organizations_res_price_edit():
 def attendance_subcription_exceeded_get_classes_allowed(classes=None,
                                                         unit=None,
                                                         unlimited=False):
-    '''
+    """
         Returns a friendly representation of classes allowed for a subscription
-    '''
+    """
     allowed = ''
     allowed_week  = SPAN(unicode(classes) + ' / ' + T('Week'))
     allowed_month = SPAN(unicode(classes) + ' / ' + T('Month'))
@@ -3896,9 +3896,9 @@ def attendance_subcription_exceeded_get_classes_allowed(classes=None,
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('read', 'reports_discovery'))
 def discovery():
-    '''
+    """
         Show a doughnut chart of discovery field from auth_user
-    '''
+    """
     response.title = T("Reports")
     response.subtitle = T("Discovery")
 
@@ -3911,9 +3911,9 @@ def discovery():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('read', 'reports_discovery'))
 def discovery_get_data():
-    '''
+    """
         Return chart data discovery field from auth_user
-    '''
+    """
     if request.extension == 'json':
         response.view = 'generic.json'
 
@@ -3982,9 +3982,9 @@ def geography_get_submenu(page):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('read', 'reports_geography'))
 def geography():
-    '''
+    """
         Lists top 10 cities and countries for people
-    '''
+    """
     response.title = T("Reports")
     response.subtitle = T("Geography - Top 10 cities and countries")
 
@@ -4002,9 +4002,9 @@ def geography():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('read', 'reports_geography'))
 def geography_get_data():
-    '''
+    """
         Returns JSON data for geography page
-    '''
+    """
     if request.extension == 'json':
         response.view = 'generic.json'
     # chart datasets for chart.js
@@ -4108,9 +4108,9 @@ def geography_get_data():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'postcode_groups'))
 def postcodes():
-    '''
+    """
         Overview page for postcode groups
-    '''
+    """
     response.title = T('Reports')
     response.subtitle = T('Postcodes')
 
@@ -4140,9 +4140,9 @@ def postcodes():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'postcode_groups'))
 def postcodes_get_data():
-    '''
+    """
         Returns sorted list of items
-    '''
+    """
     # get groups
     data = {}
     query = (db.postcode_groups.Archived == False)
@@ -4201,9 +4201,9 @@ def postcodes_get_data():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'postcode_groups'))
 def postcodes_groups_list():
-    '''
+    """
         List postcode groups
-    '''
+    """
     response.title = T("Reports")
     response.subtitle = T("Edit postcode groups")
 
@@ -4267,10 +4267,10 @@ def postcodes_groups_list():
 
 
 def postcode_groups_get_link_archive(row):
-    '''
+    """
         Called from the index function. Changes title of archive button
         depending on whether a postcode group is archived or not
-    '''
+    """
     row = db.postcode_groups(row.id)
 
     if row.Archived:
@@ -4286,10 +4286,10 @@ def postcode_groups_get_link_archive(row):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'postcode_groups'))
 def postcode_groups_archive():
-    '''
+    """
         This function archives a subscription
         request.vars[pgID] is expected to be db.postcode_groups.id
-    '''
+    """
     pgID = request.vars['pgID']
     if not pgID:
         session.flash = T('Unable to (un)archive group')
@@ -4453,9 +4453,9 @@ def revenue():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('read', 'reports_revenue'))
 def revenue_get_data():
-    '''
+    """
         Returns data for revenue graphs / data tables
-    '''
+    """
     ### Common useful values
     today = datetime.date.today()
     year = session.reports_revenue_year
@@ -4528,9 +4528,9 @@ def revenue_get_data():
                  )
 
     def get_average_table(totals):
-        '''
+        """
             Returns average table
-        '''
+        """
         average = calculate_average(totals[1])
 
         return TABLE(THEAD(TR(TH(total[0]), TH(average[0]))),
@@ -4540,9 +4540,9 @@ def revenue_get_data():
 
 
     def get_data_table(data, title):
-        '''
+        """
             Formats data into a nice table
-        '''
+        """
         table = TABLE(_class='table table-condensed dataTable')
 
         for i in range(0, 12):
@@ -4841,9 +4841,9 @@ def revenue_get_data():
 
 
 def revenue_get_year_chooser(page='revenue'):
-    '''
+    """
         Returns month chooser for overview
-    '''
+    """
 
     if page == 'revenue':
         year  = session.reports_revenue_year
@@ -4869,9 +4869,9 @@ def revenue_get_year_chooser(page='revenue'):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'reports_revenue'))
 def revenue_set_year():
-    '''
+    """
         Sets the year session variable for revenue overview
-    '''
+    """
     year  = request.vars['year']
 
     session.reports_revenue_year = int(year)
@@ -4882,11 +4882,11 @@ def revenue_set_year():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('read', 'classes_attendance'))
 def class_attendance_get_json():
-    '''
+    """
         This function returns the attendance data for a class in a year
         specified by session.stats_attendance_year
         and should be calles as .json
-    '''
+    """
     response.view = 'generic.json'
 
     def count_attendance(clsID, date):
@@ -4991,9 +4991,9 @@ def class_attendance_get_json():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'reports_teacherclasses'))
 def teacher_classes():
-    '''
+    """
         show a list with all classes of a teacher by month
-    '''
+    """
     response.title = T('Reports')
     response.subtitle = T('')
     response.view = 'reports/general.html'
@@ -5136,9 +5136,9 @@ def teacher_classes():
 
 
 def teacher_classes_get_form_teachers(teachers_id):
-    '''
+    """
         returns list teachers select form
-    '''
+    """
     au_query = (db.auth_user.trashed == False) &\
                (db.auth_user.teacher == True)
     form = SQLFORM.factory(
@@ -5169,10 +5169,10 @@ def teacher_classes_get_form_teachers(teachers_id):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'reports_teacherclasses'))
 def teacher_classes_show_current():
-    '''
+    """
         Resets some session variables to show the current month for
         teacher_classes
-    '''
+    """
     session.reports_te_classes_year = None
     session.reports_te_classes_month = None
 
@@ -5182,9 +5182,9 @@ def teacher_classes_show_current():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'reports_teacherclasses_revenue'))
 def teacher_classes_class_revenue():
-    '''
+    """
         Page to show revenue breakdown for a class
-    '''
+    """
     clsID = request.vars['clsID']
     date_formatted = request.vars['date']
     date = datestr_to_python(DATE_FORMAT, date_formatted)
@@ -5279,11 +5279,11 @@ def teacher_classes_class_revenue():
 
 
 def teacher_classes_get_class_revenue_rows(clsID, date):
-    '''
+    """
     :param clsID: db.classes.id
     :param date: Class date
     :return: All customers attending a class (db.customers_attendance.ALL & db.customers_subscriptions.ALL)
-    '''
+    """
     left = [db.customers_classcards.on(
                 db.customers_classcards.id == db.classes_attendance.customers_classcards_id),
             db.customers_subscriptions.on(
@@ -5302,11 +5302,11 @@ def teacher_classes_get_class_revenue_rows(clsID, date):
 
 
 def teacher_classes_get_class_revenue_total(clsID, date):
-    '''
+    """
     :param clsID: db.classes.id
     :param date: class date
     :return: total revenue
-    '''
+    """
     rows = teacher_classes_get_class_revenue_rows(clsID, date)
 
     total_revenue_in_vat = 0
@@ -5345,10 +5345,10 @@ def teacher_classes_get_class_revenue_total(clsID, date):
 
 
 def teacher_classes_get_class_revenue_classcard(row):
-    '''
+    """
         :param row: row from db.classes_attendance with left join on db.customers_subscriptions
         :return: Revenue for class taken on a card
-    '''
+    """
     ccdID = row.classes_attendance.customers_classcards_id
     classcard = Classcard(ccdID)
 
@@ -5388,12 +5388,12 @@ def teacher_classes_get_class_revenue_classcard(row):
 
 
 def teacher_classes_get_class_revenue_dropin_trial(row, date):
-    '''
+    """
         :param row: row from db.classes_attendance with left join on db.customers_subscriptions
         :param date: date of class
         :param product_type: 'dropin' or 'trial'
         :return : revenue for a drop in or trial class
-    '''
+    """
     query = (db.invoices_classes_attendance.classes_attendance_id == row.classes_attendance.id)
 
     rows = db(query).select(db.invoices_classes_attendance.ALL)
@@ -5662,9 +5662,9 @@ def retention_or_dropoff_rate(retention=True):
 
 
 def retention_get_customer_table(customer_ids):
-    '''
+    """
         Builds a table of customers that is used on the retention rate page.
-    '''
+    """
     rows = db(db.auth_user.id.belongs(customer_ids)).select(db.auth_user.ALL,
                                                             orderby=db.auth_user.display_name)
 
@@ -5688,9 +5688,9 @@ def retention_get_customer_table(customer_ids):
 
 
 def retention_get_info(p1_start, p1_end, p2_start, p2_end, retention):
-    '''
+    """
         Returns the subtitle string for the  retention rate repport
-    '''
+    """
 
     if retention:
         retention_text = T('also')
@@ -5710,9 +5710,9 @@ def retention_get_info(p1_start, p1_end, p2_start, p2_end, retention):
 
 
 def retention_get_menu(page=None):
-    '''
+    """
         Builds the top menu for the retention and dropoff report pages
-    '''
+    """
     pages = [
         (['retention_rate', T('Retention rate'), URL('reports',"retention_rate")]),
         (['dropoff_rate', T('Drop off rate'), URL('reports',"dropoff_rate")]),
