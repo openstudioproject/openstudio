@@ -521,7 +521,7 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
         """
             Returns orders info for a customer with additional info
         """
-        from openstudio.openstudio import Order
+        from openstudio.os_order import Order
 
         db = current.db
 

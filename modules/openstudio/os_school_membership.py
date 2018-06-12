@@ -135,7 +135,7 @@ class SchoolMembership:
         :return: db.invoices.id
         """
         from openstudio.os_customer_membership import CustomerMembership
-        from openstudio.openstudio import Invoice
+        from openstudio.os_invoice import Invoice
         
         db = current.db
         T = current.T

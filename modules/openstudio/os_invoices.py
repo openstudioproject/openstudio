@@ -16,7 +16,7 @@ class Invoices:
         from general_helpers import NRtoMonth
         from os_teacher import Teacher
         from os_teachers import Teachers
-        from openstudio import Invoice
+        from openstudio.os_invoice import Invoice
         import datetime
 
         db = current.db
