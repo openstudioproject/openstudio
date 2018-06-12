@@ -18,6 +18,7 @@ from os_storage import uploads_available_space
 
 from openstudio.openstudio  import *
 from openstudio.os_customer import Customer
+from openstudio.os_school_classcard import SchoolClasscard
 
 # python general modules import
 import cStringIO
@@ -37,10 +38,10 @@ def _edit_check_picture(form):
         row.update_record()
 
 def classes_check_reservation(row):
-    '''
+    """
         Check if a customer is already reserved for a class.
         If not, return an add button to use in the grid.
-    '''
+    """
     customers_id = request.vars['cuID']
     clsID = row.id
     check = db.classes_reservation(customers_id=customers_id, classes_id=clsID)
@@ -344,9 +345,9 @@ def subscriptions_get_link_membership_check(row):
 
 
 def subscriptions_get_link_latest_pauses(row):
-    '''
+    """
         Returns latest pauses for a subscription
-    '''
+    """
     csID = row.id
     cuID = row.auth_customer_id
     query = (db.customers_subscriptions_paused.customers_subscriptions_id == row.id)
@@ -371,9 +372,9 @@ def subscriptions_get_link_latest_pauses(row):
 
 
 def subscriptions_get_link_credits(row):
-    '''
+    """
         Returns total number of credits for a subscription
-    '''
+    """
     cs = CustomerSubscription(row.id)
 
     credits = cs.get_credits_balance()
@@ -667,10 +668,10 @@ def delete():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('create', 'auth_user'))
 def add():
-    '''
+    """
         Page to add a new customer, only show the required field and after
         adding redirect to the edit page
-    '''
+    """
     # call js for styling the form
     response.js = 'set_form_classes();'
 
@@ -745,9 +746,9 @@ def add():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('create', 'auth_user'))
 def add_redirect_on_create():
-    '''
+    """
         Redirect to edit, from the client side, to leave the add modal
-    '''
+    """
     cuID = request.vars['cuID']
 
     if session.customers_add_back == 'classes_attendance':
@@ -981,11 +982,11 @@ def edit_picture():
 
 
 def edit_get_back(_class=''):
-    '''
+    """
         This function looks at the session variable
             session.customers_back
         to determine where the back button for customers edit pages should link to.
-    '''
+    """
     if session.customers_back == 'keys':
         # check if we came from the edit button on the keys list page in school properties
         url = URL('school_properties', 'list_keys')
@@ -1344,9 +1345,9 @@ def export_excel():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'customers_classcards'))
 def classcards():
-    '''
+    """
         List class cards for a customer
-    '''
+    """
     response.view = 'customers/edit_general.html'
     customers_id = request.vars['cuID']
 
@@ -1423,9 +1424,9 @@ def classcards():
 
 
 def classcards_ondelete(table, record_id):
-    '''
+    """
         Function to clear cache for customer after deleting a card 
-    '''
+    """
     # Find customer id
     ccd = db.customers_classcards(record_id)
     cuID = ccd.auth_customer_id
@@ -1463,9 +1464,9 @@ def classcards_get_link_membership_check(row):
 
 
 def classcards_get_link_invoice(row):
-    '''
+    """
         Returns invoice for classcard in list
-    '''
+    """
     if row.invoices.id:
         ih = InvoicesHelper()
 
@@ -1503,9 +1504,9 @@ def classcards_get_return_url(cuID, clsID=None, date_formatted=None):
 
 
 def classcards_clear_cache(form):
-    '''
+    """
         Clear the subscriptions cache for customer 
-    '''
+    """
     ccdID = form.vars.id
     ccd = db.customers_classcards(ccdID)
     cuID = ccd.auth_customer_id
@@ -1515,11 +1516,11 @@ def classcards_clear_cache(form):
 
 @auth.requires_login()
 def classcard_add():
-    '''
+    """
         Determine whether to use the classic or new style classcards add page
         > 6 cards = classic
         request.vars['cuID'] is expected to be the customers_id
-    '''
+    """
     vars = request.vars
 
     query = (db.school_classcards.Archived == False)
@@ -1532,9 +1533,9 @@ def classcard_add():
 
 
 def classcard_add_check_trialcard(cuID):
-    '''
+    """
         Check whether a customer has already had a trialcard
-    '''
+    """
     tc_query = (db.school_classcards.id ==
                 db.customers_classcards.school_classcards_id) & \
                (db.school_classcards.Trialcard == True) & \
@@ -1547,11 +1548,11 @@ def classcard_add_check_trialcard(cuID):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('create', 'customers_classcards'))
 def classcard_add_modern():
-    '''
+    """
         Add a new classcard for a customer in more graphic way than
         a drop down menu
         request.vars['cuID'] is expected to be the customers_id
-    '''
+    """
     customers_id   = request.vars['cuID']
     clsID          = request.vars['clsID'] # for redirect to classes attendance_list_classcards
     date_formatted = request.vars['date'] # for redirect to classes attendance_list_classcards
@@ -1643,9 +1644,9 @@ def classcard_add_modern():
 
 
 def classcard_get_validity(row):
-    '''
+    """
         takes a db.school_classcards() row as argument
-    '''
+    """
     validity = SPAN(unicode(row.Validity), ' ')
 
     validity_in = represent_validity_units(row.ValidityUnit, row)
@@ -1705,11 +1706,11 @@ def classcard_add_modern_add_card():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('create', 'customers_classcards'))
 def classcard_add_modern_add_card_redirect_classcards():
-    '''
+    """
         Redirect back to classcards list after adding a new card
         We need this extra function, because otherwise we're stuck in the modal
         This way we can call redirect() with client_side=True
-    '''
+    """
     session.flash = T("Added card")
     cuID  = request.vars['cuID']
     clsID = request.vars['clsID']
@@ -1773,9 +1774,9 @@ def classcard_add_classic():
 
 
 def classcard_add_check_trialcard_set_query(customers_id):
-    '''
+    """
         Don't allow adding trialcard when one has already been added
-    '''
+    """
     if classcard_add_check_trialcard(customers_id):
         scd_query = (db.school_classcards.Archived == False) & \
                     (db.school_classcards.Trialcard == False)
@@ -1787,9 +1788,9 @@ def classcard_add_check_trialcard_set_query(customers_id):
 
 
 def classcard_add_get_functions(var=None):
-    '''
+    """
         Functions to execute after adding a classcard
-    '''
+    """
     functions = [ classcard_add_set_enddate,
                   classcard_add_create_invoice,
                   classcards_clear_cache ]
@@ -1798,9 +1799,9 @@ def classcard_add_get_functions(var=None):
 
 
 def classcard_add_set_enddate(form):
-    '''
+    """
         Calculate and set enddate when adding a classcard
-    '''
+    """
     # get info
     if 'school_classcards_id' in form.vars:
         # used for classic classcards
@@ -1819,9 +1820,9 @@ def classcard_add_set_enddate(form):
 
 
 def classcard_add_create_invoice(form):
-    '''
+    """
         Add an invoice after adding a classcard
-    '''
+    """
     ccdID   = form.vars.id
     scdID   = form.vars.school_classcards_id
 
@@ -1884,9 +1885,9 @@ def classcard_edit():
 
 
 def classcard_edit_update_classes_taken(form):
-    '''
+    """
         Updates number of classes taken when saving a classcard
-    '''
+    """
     ccdh = ClasscardsHelper()
     ccdh.set_classes_taken(form.vars.id)
 
@@ -2049,10 +2050,10 @@ def classes_reservations():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('create', 'classes_reservation'))
 def classes_reservation_add():
-    '''
+    """
         Add a new reservation for a customer on the selected date
         request.vars['cuID'] is expected to be db.customers.id
-    '''
+    """
     response.view = 'general/only_content.html'
 
     cuID = request.vars['cuID']
@@ -2135,9 +2136,9 @@ def classes_attendance_add():
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('create', 'classes_attendance'))
 def classes_attendance_add_booking_options():
-    '''
+    """
         Page to show listing of booking options for customer
-    '''
+    """
     cuID = request.vars['cuID']
     clsID = request.vars['clsID']
     date_formatted = request.vars['date']
@@ -2236,9 +2237,9 @@ def classes_waitinglist():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('read', 'classes_attendance'))
 def classes_attendance():
-    '''
+    """
         Show waitinglist for a customer
-    '''
+    """
     response.view = 'customers/edit_general.html'
 
     session.classes_attendance_remove_back = 'customers'
@@ -2371,9 +2372,9 @@ def classes_attendance():
 
 
 def classes_attendance_get_link_cancel(row):
-    '''
+    """
         Returns cancel button for classes_attendance
-    '''
+    """
     button = ''
 
     onclick_cancel = "return confirm('" + \
@@ -2391,9 +2392,9 @@ def classes_attendance_get_link_cancel(row):
 
 
 def classes_attendance_get_link_delete(row):
-    '''
+    """
         Checks delete permissions and returns button if granted
-    '''
+    """
     button = ''
 
     onclick_delete = "return confirm('" + \
@@ -2416,10 +2417,10 @@ def classes_attendance_get_link_delete(row):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('update', 'classes_attendance'))
 def classes_attendance_cancel():
-    '''
+    """
         Actually cancel a booking
         request.vars['caID'] is expected to be from db.classes_attendance.id
-    '''
+    """
     caID = request.vars['caID']
     clatt = ClassAttendance(caID)
 
@@ -2497,10 +2498,10 @@ def subscription_credits_clear_cache(form):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'customers_subscriptions_credits'))
 def subscription_credits():
-    '''
+    """
         This function shows a page listing the credits total for a subscription
         request.vars['csID'] is expected to be db.customers_subscriptions.id
-    '''
+    """
     response.view = 'general/tabs_menu.html'
     cuID = request.vars['cuID']
     csID = request.vars['csID']
@@ -2529,9 +2530,9 @@ def subscription_credits():
 
 
 def subscription_credits_get_return_url(cuID, csID):
-    '''
+    """
         Return url for subscription credits
-    '''
+    """
     return URL('customers', 'subscription_credits', vars={'cuID':cuID,
                                                           'csID':csID})
 
@@ -2648,10 +2649,10 @@ def subscription_credits_delete():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'customers_subscriptions'))
 def subscription_pauses():
-    '''
+    """
         This function shows a page which lists all pauses for a subscription
         request.vars['csID'] is expected to be the subscription ID
-    '''
+    """
     response.view = 'general/tabs_menu.html'
     cuID = request.vars['cuID']
     csID = request.vars['csID']
@@ -2690,10 +2691,10 @@ def subscription_pauses():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'customers_subscriptions'))
 def subscription_pause_add():
-    '''
+    """
         This function shows a page to allow a user to pause a subscription for multiple months
         request.vars['csID'] is expected to be the customers_subscriptions.id
-    '''
+    """
     response.view = 'general/tabs_menu.html'
     csID = request.vars['csID']
     cs   = CustomerSubscription(csID)
@@ -2838,9 +2839,9 @@ def subscription_add():
 
 
 def subscription_add_add_credits(form):
-    '''
+    """
         Add credits when adding a subscription
-    '''
+    """
     csID = form.vars.id
     date = form.vars.Startdate
 
@@ -3010,9 +3011,9 @@ def subscription_invoices():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'customers_subscriptions_alt_prices'))
 def subscription_alt_prices():
-    '''
+    """
         Specify a different price for a given month for a subscription
-    '''
+    """
     csID = request.vars['csID']
     cuID  = request.vars['cuID']
     response.view = 'general/tabs_menu.html'
@@ -3098,9 +3099,9 @@ def subscription_alt_prices():
 
 
 def subscription_alt_prices_get_add_form(cuID, csID, full_width=True):
-    '''
+    """
         Returns add form for an invoice
-    '''
+    """
     csap = db.customers_subscriptions_alt_prices
     csap.customers_subscriptions_id.default = csID
 
@@ -3157,9 +3158,9 @@ def subscription_alt_price_repeat():
 
 @auth.requires_login()
 def subscription_alt_prices_edit():
-    '''
+    """
         Edit page for subscription alternative price
-    '''
+    """
     csID = request.vars['csID']
     cuID  = request.vars['cuID']
     csapID = request.vars['csapID']
@@ -3204,18 +3205,18 @@ def subscription_edit_get_subtitle(csID):
 
 
 def subscription_edit_get_back(cuID):
-    '''
+    """
         Returns back button for customer subscription edit pages
-    '''
+    """
     return os_gui.get_button('back',
         URL('subscriptions', vars={'cuID':cuID}),
         _class='')
 
 
 def subscription_edit_get_menu(cuID, csID, page):
-    '''
+    """
         Returns submenu for subscription edit pages
-    '''
+    """
     vars = { 'cuID':cuID,
              'csID':csID }
 
@@ -3256,10 +3257,10 @@ def subscription_edit_get_menu(cuID, csID, page):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'customers_subscriptions'))
 def subscriptions():
-    '''
+    """
         Lists subscriptions for a customer
         request.vars['cuID'] is expected to be the customersID
-    '''
+    """
     customers_id = request.vars['cuID']
     response.view = 'customers/edit_general.html'
 
@@ -3398,9 +3399,9 @@ def subscriptions_get_link_edit(row):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'customers_subscriptions_credits'))
 def subscription_credits_month_expired():
-    '''
+    """
         Page to list given credits for a selected month for all customers
-    '''
+    """
     # process request.vars
     subscription_credits_month_set_date()
 
@@ -3451,9 +3452,9 @@ def subscription_credits_month_expired():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'customers_subscriptions_credits'))
 def subscription_credits_month_expire_credits():
-    '''
+    """
         Expire credits on the current day
-    '''
+    """
     csch = CustomersSubscriptionsCreditsHelper()
     sub_credits_expired = csch.expire_credits(TODAY_LOCAL)
 
@@ -3465,9 +3466,9 @@ def subscription_credits_month_expire_credits():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'customers_subscriptions_credits'))
 def subscription_credits_month():
-    '''
+    """
         Page to list given credits for a selected month for all customers
-    '''
+    """
     # process request.vars
     subscription_credits_month_set_date()
 
@@ -3508,11 +3509,11 @@ def subscription_credits_month():
 
 
 def subscription_credits_month_get_content(expired=False):
-    '''
+    """
         :param expired: Boolean
         Get list of credits of this month, default is added credits, but expired credits are returned when
         expired boolean is True
-    '''
+    """
     first_day = datetime.date(session.customers_subscription_credits_year,
                               session.customers_subscription_credits_month,
                               1)
@@ -3589,9 +3590,9 @@ def subscription_credits_month_get_content(expired=False):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'customers_subscriptions_credits'))
 def subscription_credits_set_month():
-    '''
+    """
         Sets the session variables for customers_subscriptions_credits year and month
-    '''
+    """
     year  = request.vars['year']
     month = request.vars['month']
     back  = request.vars['back']
@@ -3603,9 +3604,9 @@ def subscription_credits_set_month():
 
 
 def subscription_credits_month_set_date(var=None):
-    '''
+    """
         Set session variable for date vars
-    '''
+    """
     today = TODAY_LOCAL
     if 'year' in request.vars:
         year = int(request.vars['year'])
@@ -3626,9 +3627,9 @@ def subscription_credits_month_set_date(var=None):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'customers_subscriptions_credits'))
 def subscription_credits_month_show_current():
-    '''
+    """
         Show current
-    '''
+    """
     session.customers_subscription_credits_year  = int(TODAY_LOCAL.year)
     session.customers_subscription_credits_month = int(TODAY_LOCAL.month)
 
@@ -3636,9 +3637,9 @@ def subscription_credits_month_show_current():
 
 
 def subscription_credits_month_get_form(month, year, current_url, _class='col-md-4'):
-    '''
+    """
         Get month chooser form for subscription_credits_month
-    '''
+    """
     months = get_months_list()
 
     for m in months:
@@ -3704,9 +3705,9 @@ def subscription_credits_month_get_menu(page=None):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('create', 'customers_subscriptions_credits'))
 def subscription_credits_month_add_confirm():
-    '''
+    """
         Show confirmation page before adding credits for a month
-    '''
+    """
     response.title = T('Customers')
     response.subtitle = T('Subscription credits - Add confirmation')
     response.view = 'general/only_content_header_footer.html'
@@ -3749,9 +3750,9 @@ def subscription_credits_month_add_confirm():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('create', 'customers_subscriptions_credits'))
 def subscription_credits_month_add():
-    '''
+    """
         Add credits for subscriptions in selected month
-    '''
+    """
     from openstudio.openstudio import CustomersSubscriptionsCreditsHelper
 
     year = session.customers_subscription_credits_year
@@ -3943,12 +3944,12 @@ def direct_debit_extra():
                auth.has_permission('read', 'customers_notes_backoffice') or \
                auth.has_permission('read', 'customers_notes_teachers'))
 def notes():
-    '''
+    """
         Lists all notes for the backoffice
         request.vars['note_type'] can be 2 values
             'backoffice' for a backoffice note
             'teacher' for a teacher note
-    '''
+    """
     customers_id = request.vars['cuID']
     note_type = request.vars['note_type']
     latest = request.vars['latest']
@@ -4059,10 +4060,10 @@ def notes():
 
 @auth.requires_login()
 def note_edit():
-    '''
+    """
         Provides an edit page for a note.
         request.args[0] is expected to be the customers_note_id (cn_id)
-    '''
+    """
     cn_id = request.args[0]
 
     note = db.customers_notes(cn_id)
@@ -4104,9 +4105,9 @@ def note_edit():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('delete', 'customers_notes'))
 def note_delete():
-    '''
+    """
         Called as JSON, used to remove a note
-    '''
+    """
     response.view = 'generic.json'
     cn_id = request.vars['id']
 
@@ -4122,12 +4123,12 @@ def note_delete():
 
 
 def notes_get_add(var=None):
-    '''
+    """
         Provides a page to add a note
         request.vars['note_type'] can be 2 values
             'backoffice' for a backoffice note
             'teachers' for a teachers note
-    '''
+    """
     note_type = request.vars['note_type']
     customers_id = request.vars['cuID']
 
@@ -4237,9 +4238,9 @@ def payment_info_edit():
 
 
 def alternativepayment_get_return_url(customers_id):
-    '''
+    """
         Returns return url for alternative payments
-    '''
+    """
     return URL('direct_debit_extra', vars={'cuID':customers_id})
 
 
@@ -4626,9 +4627,9 @@ def event_add_list_products_get_list_get_link_add(row):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'customers_documents'))
 def documents():
-    '''
+    """
         This function shows a list of documents uploaded for a customer
-    '''
+    """
     customers_id = request.vars['cuID']
     response.view = 'customers/edit_general.html'
     customer = Customer(customers_id)
@@ -4679,9 +4680,9 @@ def documents():
 
 
 def documents_get_return_url(customers_id):
-    '''
+    """
         Returns the return url for documents add and edit
-    '''
+    """
     return URL('documents', vars={'cuID':customers_id})
 
 
@@ -4769,12 +4770,12 @@ def document_edit():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'auth_user'))
 def load_list_set_search():
-    '''
+    """
         Expected to be called as JSON
 
         variables that can be set are:
         - name
-    '''
+    """
     name = request.vars['name']
     session.customers_load_list_search_name = '%' + name.strip() + '%'
     try:
@@ -5020,9 +5021,9 @@ def load_list():
 def load_list_get_reservation_list_buttons(row,
                                            clsID,
                                            date_formatted):
-    '''
+    """
         Returns buttons for the manage_reservation list type
-    '''
+    """
     cuID = row.id
     date = datestr_to_python(DATE_FORMAT, date_formatted)
     customer = Customer(cuID)
@@ -5042,9 +5043,9 @@ def load_list_get_reservation_list_buttons(row,
 
 
 def load_list_get_customer_index_buttons(row):
-    '''
+    """
         Returns buttons for customers.py/index
-    '''
+    """
     buttons = DIV(_class='btn-group')
 
     btn_mail = ''
@@ -5125,9 +5126,9 @@ def load_list_get_customer_index_deleted_buttons(row, permission):
 def load_list_get_attendance_list_buttons(row,
                                           clsID,
                                           date_formatted):
-    '''
+    """
         Returns buttons for the attendance_list list type
-    '''
+    """
     date = datestr_to_python(DATE_FORMAT, date_formatted)
     check = db.classes_attendance(auth_customer_id=row.id,
                                   classes_id=clsID,
@@ -5149,9 +5150,9 @@ def load_list_get_attendance_list_buttons(row,
 def load_list_get_selfcheckin_checkin_buttons(row,
                                               clsID,
                                               date_formatted):
-    '''
+    """
         Returns buttons for the selfcheckin_checkin list type
-    '''
+    """
     date = datestr_to_python(DATE_FORMAT, date_formatted)
     check = db.classes_attendance(auth_customer_id=row.id,
                                   classes_id=clsID,
@@ -5173,10 +5174,10 @@ def load_list_get_selfcheckin_checkin_buttons(row,
 def load_list_get_events_ticket_sell_buttons(row,
                                              wsID,
                                              wspID):
-    '''
+    """
         Returns buttons for workshop_product_sell list type
         This is a select button to select a customer to sell a product to
-    '''
+    """
     cuID = row.id
 
     wh = WorkshopsHelper()
@@ -5189,9 +5190,9 @@ def load_list_get_events_ticket_sell_buttons(row,
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'tasks'))
 def tasks():
-    '''
+    """
         Display list of tasks for a customer
-    '''
+    """
     response.view = 'customers/edit_general.html'
     cuID = request.vars['cuID']
     customer = Customer(cuID)
@@ -5288,9 +5289,9 @@ def account():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('merge', 'auth_user'))
 def account_merge():
-    '''
+    """
         Page to allow merging of 2 entries in auth_user
-    '''
+    """
     response.view = 'customers/edit_general.html'
     cuID = request.vars['cuID']
     customer = Customer(cuID)
@@ -5348,9 +5349,9 @@ def account_merge():
 
 
 def account_merge_get_input_form(auth_merge_id):
-    '''
+    """
         Simple input form to enter an auth_user_id to merge with
-    '''
+    """
     db.auth_user._format = '%(id)s - %(display_name)s'
 
     merge_query = (db.auth_user.merged == False) & \
@@ -5376,9 +5377,9 @@ def account_merge_get_input_form(auth_merge_id):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('merge', 'auth_user'))
 def account_merge_execute():
-    '''
+    """
         Actually merge account
-    '''
+    """
     cuID          = request.vars['cuID'] # merge into
     auth_merge_id = request.vars['auth_merge_id'] # merge from
 
@@ -5458,9 +5459,9 @@ def account_merge_execute():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('set_password', 'auth_user'))
 def account_set_password():
-    '''
+    """
         Set a new password for an account
-    '''
+    """
     response.view = 'customers/edit_general.html'
     cuID = request.vars['cuID']
     customer = Customer(cuID)
