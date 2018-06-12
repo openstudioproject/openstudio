@@ -4961,7 +4961,7 @@ def setup():
         from os_upgrade import set_version
         set_version()
 
-        from openstudio.openstudio import OsScheduler
+        from openstudio.os_scheduler import OsScheduler
         oss = OsScheduler()
         oss.set_tasks()
 
