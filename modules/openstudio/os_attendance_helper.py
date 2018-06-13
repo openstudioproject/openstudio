@@ -673,9 +673,9 @@ class AttendanceHelper:
 
             td_inv = ''
             if invoices:
-                invs = Invoices()
+                invoices = Invoices()
                 if row.invoices.id:
-                    invoice = ih.represent_invoice_for_list(
+                    invoice = invoices.represent_invoice_for_list(
                         row.invoices.id,
                         repr_row.invoices.InvoiceID,
                         repr_row.invoices.Status,

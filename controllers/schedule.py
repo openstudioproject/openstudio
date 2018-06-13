@@ -514,7 +514,7 @@ def staff_holidays_set_status(sthID, status, apply_teacher2):
                                        filter_id_employee = teachers_id)
         shifts = staff_schedule.get_day_list(show_id = True)
         for shift in shifts:
-            shift = Status(shift['id'], current_date)
+            shift = Shift(shift['id'], current_date)
             # apply new status
             if status == 'normal':
                 shift.set_status_normal()

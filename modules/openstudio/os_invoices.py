@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-"""
-    This file holds OpenStudio Invoices class
-"""
+
+import datetime
+
 
 from gluon import *
 
@@ -163,6 +163,8 @@ class Invoices:
         """
             Enable fields required for subscriptions
         """
+        from os_customer_subscription import CustomerSubscription
+
         db = current.db
 
         cs = CustomerSubscription(csID)

@@ -2331,8 +2331,8 @@ def classes_attendance():
         ##
         invoice = ''
         if row.invoices.id:
-            invs = Invoices()
-            invoice = ih.represent_invoice_for_list(
+            invoices = Invoices()
+            invoice = invoices.represent_invoice_for_list(
                 row.invoices.id,
                 repr_row.invoices.InvoiceID,
                 repr_row.invoices.Status,
@@ -2989,18 +2989,18 @@ def subscription_invoices():
                              cs.name)
 
     # add button
-    invs = Invoices()
-    form = ih.add_get_form(cuID, csID)
-    result = ih.add_get_modal(form)
+    invoices = Invoices()
+    form = invoices.add_get_form(cuID, csID)
+    result = invoices.add_get_modal(form)
     add = result['button']
     modal_class = result['modal_class']
 
-    status_filter = ih.list_get_status_filter()
+    status_filter = invoices.list_get_status_filter()
 
     if len(form.errors):
         response.js = "show_add_modal();"
 
-    list = ih.list_invoices(cuID=cuID, csID=csID)
+    list = invoices.list_invoices(cuID=cuID, csID=csID)
 
     # main list
     content = DIV(DIV(status_filter,list))
@@ -5605,18 +5605,17 @@ def invoices():
     # Always reset filter
     session.invoices_list_status = None
 
-    invs = Invoices()
-    form = ih.add_get_form(cuID)
-    result = ih.add_get_modal(form)
+    invoices = Invoices()
+    form = invoices.add_get_form(cuID)
+    result = invoices.add_get_modal(form)
     add = result['button']
     modal_class = result['modal_class']
 
-    status_filter = ih.list_get_status_filter()
+    status_filter = invoices.list_get_status_filter()
 
     content = DIV(status_filter, BR())
 
-    invs = Invoices()
-    list = ih.list_invoices(cuID=cuID)
+    list = invoices.list_invoices(cuID=cuID)
     content.append(list)
 
     back = edit_get_back()
@@ -5692,13 +5691,13 @@ def orders_get_link_invoice(row):
         Returns invoice for an order in list
     """
     if row.invoices.id:
-        invs = Invoices()
+        invoices = Invoices()
 
         query = (db.invoices.id == row.invoices.id)
         rows = db(query).select(db.invoices.ALL)
         repr_row = rows.render(0)
 
-        invoice_link = ih.represent_invoice_for_list(
+        invoice_link = invoices.represent_invoice_for_list(
             row.invoices.id,
             repr_row.InvoiceID,
             repr_row.Status,

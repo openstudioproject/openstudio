@@ -1425,8 +1425,6 @@ def subscriptions_create_invoices_execute(year, month, description):
                    month=month),
       fields=fields)
 
-    print db._lastsql[0]
-
     igpt = db.invoices_groups_product_types(ProductType = 'subscription')
     igID = igpt.invoices_groups_id
 

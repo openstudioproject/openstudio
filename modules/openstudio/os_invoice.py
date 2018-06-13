@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import datetime
+from decimal import Decimal, ROUND_HALF_UP
 
 from gluon import *
 
@@ -466,6 +467,11 @@ class Invoice:
             :param SubscriptionMonth: Month of subscription
             :return: db.invoices_items.id
         """
+        from general_helpers import get_last_day_month
+
+        from os_customer_subscription import CustomerSubscription
+        from os_school_subscription import SchoolSubscription
+
         db = current.db
         DATE_FORMAT = current.DATE_FORMAT
 
@@ -597,6 +603,7 @@ class Invoice:
         :param date: datetime.date class date
         :return:
         """
+        from os_class import Class
         from os_teacher import Teacher
 
         DATE_FORMAT = current.DATE_FORMAT
@@ -655,6 +662,7 @@ class Invoice:
         :param date: datetime.date class date
         :return:
         """
+        from os_class import Class
         from os_teacher import Teacher
 
         DATE_FORMAT = current.DATE_FORMAT

@@ -69,6 +69,8 @@ class OsMail:
             return tr
 
 
+        from os_order import Order
+
         T = current.T
         DATETIME_FORMAT = current.DATETIME_FORMAT
         represent_float_as_amount = current.globalenv['represent_float_as_amount']
