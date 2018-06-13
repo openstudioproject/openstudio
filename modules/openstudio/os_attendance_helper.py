@@ -1558,6 +1558,9 @@ class AttendanceHelper:
         :param booking_status:
         :return:
         """
+        from os_class import Class
+        from os_customer_classcard import CustomerClasscard
+
         T = current.T
         TODAY_LOCAL = current.TODAY_LOCAL
         DATE_FORMAT = current.DATE_FORMAT

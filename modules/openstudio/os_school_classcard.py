@@ -34,6 +34,8 @@ class SchoolClasscard:
         """
             :return: Validity for school classcard
         """
+        from general_helpers import represent_validity_units
+
         T  = current.T
         db = current.db
 

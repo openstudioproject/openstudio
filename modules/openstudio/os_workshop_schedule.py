@@ -135,6 +135,8 @@ class WorkshopSchedule:
 
             return DIV(H2(last_day_month.strftime('%B %Y'), _class='center'), _class=_class)
 
+        from general_helpers import get_last_day_month
+
         request = current.request
         os_gui = current.globalenv['os_gui']
         T = current.T

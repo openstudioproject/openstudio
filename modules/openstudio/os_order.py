@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import datetime
+
 from gluon import *
 
 
@@ -126,6 +128,8 @@ class Order:
             :param workshops_products_id: db.workshops_products.id
             :return: db.customers_orders_items.id of inserted item
         """
+        from os_class import Class
+
         DATE_FORMAT = current.DATE_FORMAT
         TIME_FORMAT = current.TIME_FORMAT
         db = current.db
@@ -232,6 +236,13 @@ class Order:
         """
             Create invoice for order and deliver goods
         """
+        from os_attendance_helper import AttendanceHelper
+        from os_invoice import Invoice
+        from os_school_classcard import SchoolClasscard
+        from os_school_subscription import SchoolSubscription
+        from os_workshop import Workshop
+        from os_workshop_product import WorkshopProduct
+
         cache_clear_classschedule_api = current.globalenv['cache_clear_classschedule_api']
         get_sys_property = current.globalenv['get_sys_property']
         db = current.db
@@ -358,6 +369,8 @@ class Order:
         """
             Notify customer of order delivery
         """
+        from os_mail import OsMail
+
         osmail = OsMail()
         msgID = osmail.render_email_template('email_template_order_delivered', customers_orders_id=self.coID)
 

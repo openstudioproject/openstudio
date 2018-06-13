@@ -35,6 +35,8 @@ class CustomerSubscription:
             :param SubscriptionYear: Year of subscription
             :param SubscriptionMonth: Month of subscription
         """
+        from os_invoice import Invoice
+
         db = current.db
         TODAY_LOCAL = current.TODAY_LOCAL
         DATE_FORMAT = current.DATE_FORMAT

@@ -328,6 +328,8 @@ class Invoice:
             :param attendance_type: int 1 or 2 
             :return: db.invoices_items.id
         """
+        from os_class import Class
+
         DATE_FORMAT = current.DATE_FORMAT
         TIME_FORMAT = current.TIME_FORMAT
         db = current.db
@@ -365,6 +367,8 @@ class Invoice:
             :param ccdID: Add customer classcard to invoice
             :return: None
         """
+        from os_customer_classcard import CustomerClasscard
+
         db = current.db
         T  = current.T
 
