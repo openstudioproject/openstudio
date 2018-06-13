@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import datetime
+
 from gluon import *
 
 
@@ -744,6 +746,8 @@ class Invoice:
         """
             Set customer information for an invoice
         """
+        from os_customer import Customer
+
         customer = Customer(cuID)
 
         address = ''

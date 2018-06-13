@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import datetime
+
 from gluon import *
 
 
@@ -232,6 +234,7 @@ WHERE (au.last_login < '{date}' OR au.last_login IS NULL) AND
             list_type is expected to be in
             [ 'attendance', 'reservations', 'tp_fixed_rate' ]
         """
+        from os_class_schedule import ClassSchedule
         from os_gui import OsGui
 
         T = current.T
@@ -308,6 +311,7 @@ WHERE (au.last_login < '{date}' OR au.last_login IS NULL) AND
         """
             Returns add button for a customer to add a reservation
         """
+        from os_customer import Customer
         from os_gui import OsGui
         os_gui = OsGui()
 

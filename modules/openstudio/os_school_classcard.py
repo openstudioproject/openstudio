@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+import calendar
+import datetime
+
 from gluon import *
 
 
@@ -85,6 +88,9 @@ class SchoolClasscard:
         """
             Add an invoice after adding a classcard
         """
+        from os_customer_classcard import CustomerClasscard
+        from os_invoice import Invoice
+
         db = current.db
         T = current.T
 

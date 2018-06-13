@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import datetime
+
 from gluon import *
 
 
@@ -1362,6 +1364,8 @@ class AttendanceHelper:
             :param date: datetime.date
             :return: dict status[ok|fail], message
         """
+        from os_class import Class
+
         db = current.db
         T = current.T
         DATE_FORMAT = current.DATE_FORMAT
@@ -1438,6 +1442,8 @@ class AttendanceHelper:
         :param date:
         :return:
         """
+        from os_customer_subscription import CustomerSubscription
+
         T = current.T
         db = current.db
 

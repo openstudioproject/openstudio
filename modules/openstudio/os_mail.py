@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import os
+
 from gluon import *
 
 class OsMail:

@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+import datetime
+
+from general_helpers import get_last_day_month
+
 from gluon import *
 
 
@@ -219,6 +223,8 @@ class CustomerSubscription:
         """
             Add credits for selected month
         """
+        from os_customers_subscriptions_credits import CustomersSubscriptionsCredits
+
         first_day = datetime.date(year, month, 1)
         last_day = get_last_day_month(first_day)
 

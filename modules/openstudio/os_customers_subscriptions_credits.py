@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 
+import datetime
+
 from gluon import *
+
+from general_helpers import get_last_day_month
 
 
 class CustomersSubscriptionsCredits:
@@ -18,7 +22,9 @@ class CustomersSubscriptionsCredits:
         """
             Get list of classes a customer has a reservation for in a selected month
         """
-        from openstudio.os_classes_reservations import ClassesReservations
+        from os_attendance_helper import AttendanceHelper
+        from os_class_schedule import ClassSchedule
+        from os_classes_reservations import ClassesReservations
         db = current.db
 
         ah = AttendanceHelper()
@@ -116,6 +122,9 @@ class CustomersSubscriptionsCredits:
             :param subscription_unit: string either 'week' or 'month'
             :return: None
         """
+        from os_attendance_helper import AttendanceHelper
+        from os_customer_subscription import CustomerSubscription
+
         T = current.T
         db = current.db
         now = current.NOW_LOCAL
@@ -240,6 +249,8 @@ class CustomersSubscriptionsCredits:
         """
             Add subscription credits for month
         """
+        from os_customers import Customers
+
         T = current.T
         db = current.db
 

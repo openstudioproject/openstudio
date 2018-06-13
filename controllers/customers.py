@@ -16,10 +16,17 @@ from general_helpers import set_form_id_and_get_submit_button
 
 from os_storage import uploads_available_space
 
-from openstudio.openstudio  import *
+from openstudio.os_class_attendance import ClassAttendance
+from openstudio.os_customers import Customers
 from openstudio.os_customer import Customer
+from openstudio.os_customer_classcard import CustomerClasscard
+from openstudio.os_classcards_helper import ClasscardsHelper
 from openstudio.os_school_classcard import SchoolClasscard
+from openstudio.os_school_subscription import SchoolSubscription
 from openstudio.os_invoices import Invoices
+from openstudio.os_workshops_helper import WorkshopsHelper
+
+from openstudio.os_customers_subscriptions_credits import CustomersSubscriptionsCredits
 
 # python general modules import
 import cStringIO
@@ -1469,13 +1476,13 @@ def classcards_get_link_invoice(row):
         Returns invoice for classcard in list
     """
     if row.invoices.id:
-        invs = Invoices()
+        invoices = Invoices()
 
         query = (db.invoices.id == row.invoices.id)
         rows = db(query).select(db.invoices.ALL)
         repr_row = rows.render(0)
 
-        invoice_link = ih.represent_invoice_for_list(
+        invoice_link = invoices.represent_invoice_for_list(
             row.invoices.id,
             repr_row.InvoiceID,
             repr_row.Status,
@@ -3456,6 +3463,8 @@ def subscription_credits_month_expire_credits():
     """
         Expire credits on the current day
     """
+    from openstudio.os_customers_subscriptions_credits import CustomersSubscriptionsCredits
+
     csch = CustomersSubscriptionsCredits()
     sub_credits_expired = csch.expire_credits(TODAY_LOCAL)
 
@@ -4362,7 +4371,7 @@ def events():
 
                       )))
     table = TABLE(header, _class="table table-hover table-striped")
-    invs = Invoices()
+    invoices = Invoices()
 
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i+1].render())[0]
@@ -4372,7 +4381,7 @@ def events():
 
         # invoice
         if row.invoices.id:
-            invoice = ih.represent_invoice_for_list(
+            invoice = invoices.represent_invoice_for_list(
                 row.invoices.id,
                 repr_row.invoices.InvoiceID,
                 repr_row.invoices.Status,
@@ -6139,18 +6148,18 @@ def membership_invoices():
                              cm.get_name())
 
     # add button
-    invs = Invoices()
-    form = ih.add_get_form(cuID, cmID=cmID)
-    result = ih.add_get_modal(form)
+    invoices = Invoices()
+    form = invoices.add_get_form(cuID, cmID=cmID)
+    result = invoices.add_get_modal(form)
     add = result['button']
     modal_class = result['modal_class']
 
-    status_filter = ih.list_get_status_filter()
+    status_filter = invoices.list_get_status_filter()
 
     if len(form.errors):
         response.js = "show_add_modal();"
 
-    list = ih.list_invoices(cuID=cuID, cmID=cmID)
+    list = invoices.list_invoices(cuID=cuID, cmID=cmID)
 
     # main list
     content = DIV(DIV(status_filter,list))

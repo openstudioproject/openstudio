@@ -199,6 +199,9 @@ class Invoices:
         """
             Returns add form for an invoice
         """
+        from os_customer import Customer
+        from os_invoice import Invoice
+
         self._add_get_form_permissions_check()
 
         db = current.db
@@ -799,6 +802,8 @@ class Invoices:
         """
             Retuns the balance for an invoice
         """
+        from os_invoice import Invoice
+
         iID = row.invoices.id
         invoice = Invoice(iID)
 
