@@ -113,6 +113,8 @@ class WorkshopProduct:
 
             return count_full_ws + count_activity
 
+        from general_helpers import workshops_get_full_workshop_product_id
+
         db = current.db
         check = False
 
@@ -162,6 +164,10 @@ class WorkshopProduct:
             Sells a workshop to a customer and creates an invoice
             Creates an invoice when a workshop product is sold
         """
+        from os_mail import OsMail
+        from os_workshop import Workshop
+        from os_invoice import Invoice
+
         db = current.db
         T = current.T
 

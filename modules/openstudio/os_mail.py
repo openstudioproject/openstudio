@@ -182,6 +182,8 @@ class OsMail:
         :param workshops_products_id: db.workshops_products.id
         :return: mail body for workshop
         """
+        from os_customer import Customer
+
         db = current.db
         T = current.T
         DATE_FORMAT = current.DATE_FORMAT

@@ -8,7 +8,7 @@ import openpyxl
 from general_helpers import get_submenu
 from general_helpers import set_form_id_and_get_submit_button
 
-from openstudio.os_customers import CUstomers
+from openstudio.os_customers import Customers
 from openstudio.os_school_subscription import SchoolSubscription
 
 

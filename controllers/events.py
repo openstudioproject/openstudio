@@ -2091,7 +2091,7 @@ def tickets_list_customers_get_list(table,
                db.invoices.on(db_icwspc.invoices_id == db.invoices.id)
            ],
 
-    invs = Invoices()
+    invoices = Invoices()
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
@@ -2141,7 +2141,7 @@ def tickets_list_customers_get_list(table,
 
         # invoice
         if row.invoices.id:
-            invoice = ih.represent_invoice_for_list(
+            invoice = invoices.represent_invoice_for_list(
                 row.invoices.id,
                 repr_row.invoices.InvoiceID,
                 repr_row.invoices.Status,
