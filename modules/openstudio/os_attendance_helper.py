@@ -468,9 +468,9 @@ class AttendanceHelper:
             ##
             td_inv = ''
             if invoices:
-                invs = Invoices()
+                invoices = Invoices()
                 if row.invoices.id:
-                    invoice = ih.represent_invoice_for_list(
+                    invoice = invoices.represent_invoice_for_list(
                         row.invoices.id,
                         repr_row.invoices.InvoiceID,
                         repr_row.invoices.Status,
@@ -522,6 +522,9 @@ class AttendanceHelper:
         ##
         # Start main function
         ##
+        from os_customer import Customer
+        from os_invoices import Invoices
+
         T = current.T
         db = current.db
         auth = current.auth
@@ -1050,6 +1053,10 @@ class AttendanceHelper:
 
             return button_book
 
+        from os_class import Class
+        from os_customer_classcard import CustomerClasscard
+        from os_customer_subscription import CustomerSubscription
+
         T = current.T
         db = current.db
         os_gui = current.globalenv['os_gui']
@@ -1483,6 +1490,10 @@ class AttendanceHelper:
         """
             Creates an invoice for a drop in or trial class
         """
+        from os_class import Class
+        from os_customer import Customer
+        from os_invoice import Invoice
+
         db = current.db
         DATE_FORMAT = current.DATE_FORMAT
         T = current.T
@@ -1637,6 +1648,8 @@ class AttendanceHelper:
             :param date: datetime.date
             :return: 
         """
+        from os_classcards_helper import ClasscardsHelper
+
         db = current.db
         T = current.T
 
@@ -1844,6 +1857,8 @@ class AttendanceHelper:
             :param p_end: datetime.date
             :return: None
         """
+        from os_customers_subscriptions_credits import CustomersSubscriptionsCredits
+
         db = current.db
 
         # in case end period is not specified, assume it's for one day

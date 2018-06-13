@@ -4,6 +4,9 @@ import datetime
 
 from gluon import *
 
+from general_helpers import max_string_length
+from general_helpers import NRtoDay
+
 
 class ClassSchedule:
     def __init__(self, date,

@@ -262,6 +262,9 @@ class Invoice:
         :param product_type: has to be 'trial' or 'dropin'
         :return:
         """
+        from os_customer import Customer
+        from os_class import Class
+
         db = current.db
         DATE_FORMAT = current.DATE_FORMAT
         T = current.T
