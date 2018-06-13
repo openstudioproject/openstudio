@@ -5847,7 +5847,7 @@ def customers_inactive():
     """
         List customers inactive since date and offer option to clean up
     """
-    from openstudio.openstudio import Customers
+    from openstudio.os_customers import Customers
 
     response.title = T('Reports')
     response.subtitle = T('Inactive customers')
@@ -5940,7 +5940,7 @@ def customers_inactive_delete():
     """
         :return: None
     """
-    from openstudio.openstudio import Customers
+    from openstudio.os_customers import Customers
 
     date_formatted = request.vars['date']
     date = datestr_to_python(DATE_FORMAT, date_formatted)
