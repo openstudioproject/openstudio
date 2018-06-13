@@ -2,7 +2,8 @@
 {{try:}}{{=breadcrumb}}{{except:}}{{pass}}{{pass}}
 {{try:}}{{=back}}{{except:}}{{pass}}{{pass}}
 
-{{ from openstudio.openstudio import SchoolClasscard, Class }}
+{{ from openstudio.os_school_classcard import SchoolClasscard }}
+{{ from openstudio.os_class import Class }}
 
 
 {{block header}}

@@ -2,7 +2,8 @@
 """
     This file provides the customer portal for OpenStudio
 """
-from openstudio.openstudio import Order, Invoice
+from openstudio.os_order import Order
+from openstudio.os_invoice import Invoice
 
 
 @auth.requires_login()
@@ -102,7 +103,7 @@ def index_get_upcoming_classes(customer):
     :param customer: openstudio.py Customer object
     :return: list of upcoming classes for a customer
     """
-    from openstudio.openstudio import ClassAttendance
+    from openstudio.os_class_attendance import ClassAttendance
 
     rows = customer.get_classes_attendance_rows(upcoming=True)
 
@@ -611,7 +612,7 @@ def classcard_info():
     """
         Page to list permissions for a subscription
     """
-    from openstudio.openstudio import Classcard
+    from openstudio.os_customer_classcard import CustomerClasscard
 
     ccdID = request.vars['ccdID']
     response.title = T('Profile')
@@ -624,7 +625,7 @@ def classcard_info():
         redirect(URL('profile', 'index'))
 
     # Check if this subscription belongs to the currently signed in user
-    ccd = Classcard(ccdID)
+    ccd = CustomerClasscard(ccdID)
     if ccd.classcard.auth_customer_id != auth.user.id:
         session.flash = T("That class card doesn't belong to this user")
         return URL('profile', 'index')
@@ -850,7 +851,7 @@ def classes():
         Page to list classes for a customer
     """
     from openstudio.os_customer import Customer
-    from openstudio.openstudio import ClassAttendance
+    from openstudio.os_class_attendance import ClassAttendance
 
     response.title = T('Profile')
     response.subtitle = T('Classes')
@@ -943,7 +944,7 @@ def class_cancel():
     """
         Cancel class
     """
-    from openstudio.openstudio import ClassAttendance
+    from openstudio.os_class_attendance import ClassAttendance
 
     clattID = request.vars['clattID']
 
@@ -962,7 +963,8 @@ def class_cancel_confirm():
     """
         Ask user for confirmation about really cancelling booking for a class
     """
-    from openstudio.openstudio import ClassAttendance, Class
+    from openstudio.os_class_attendance import ClassAttendance
+    from openstudio.os_class import Class
 
     clattID = request.vars['clattID']
 
@@ -1361,7 +1363,7 @@ def privacy_download():
     """
     :return: xlsx document containing all data of an account
     """
-    from openstudio.openstudio import CustomerExport
+    from openstudio.os_customer_export import CustomerExport
 
     # Check whether the privacy feature is enabled
     features = db.customers_profile_features(1)

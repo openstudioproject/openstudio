@@ -2,8 +2,6 @@
 
 import Mollie
 
-from openstudio.openstudio import *
-
 from general_helpers import workshops_get_full_workshop_product_id
 from general_helpers import datestr_to_python
 from general_helpers import iso_to_gregorian
@@ -86,6 +84,8 @@ def event_add_to_cart():
     """
         Actually book a workshop & create an invoice for customer
     """
+    from openstudio.os_workshop_product import WorkshopProduct
+
     wspID = request.vars['wspID']
 
     features = db.customers_shop_features(1)
@@ -141,6 +141,8 @@ def classcard_add_to_cart():
     """
         Add classcard to cart for customer
     """
+    from openstudio.os_school_classcard import SchoolClasscard
+
     scdID = request.vars['scdID']
 
     features = db.customers_shop_features(1)
@@ -162,6 +164,8 @@ def cart_get_price_total(rows):
     """
         @return: total price for items in shopping cart
     """
+    from openstudio.os_class import Class
+
     cuID = auth.user.id
 
     total = 0
@@ -191,6 +195,8 @@ def cart():
     """
         Page showing shopping cart for customer
     """
+    from openstudio.os_customer import Customer
+
     response.title = T('Shopping cart')
     response.subtitle = ''
 
@@ -259,6 +265,8 @@ def checkout():
     """
         Page showing review page for shopping cart
     """
+    from openstudio.os_customer import Customer
+
     response.title = T('Check out')
     response.subtitle = ''
     response.view  = 'shop/cart.html'
@@ -282,6 +290,9 @@ def order_received():
     """
         Page to thank customer for placing order
     """
+    from openstudio.os_customer import Customer
+    from openstudio.os_order import Order
+
     response.title = T('Thank you')
 
     # get cart
@@ -365,6 +376,8 @@ def order_received_redirect_complete(coID):
         Handle free products/events
         :param coID: db.customers_orders.id
     """
+    from openstudio.os_order import Order
+
     order = Order(coID)
     result = order.deliver()
     redirect(URL('shop', 'complete', vars={'coID': coID}))
@@ -377,6 +390,8 @@ def order_received_mail_customer(coID):
     """
         Mail email with invoice to customer
     """
+    from openstudio.os_mail import OsMail
+
     osmail = OsMail()
     msgID = osmail.render_email_template('email_template_order_received', customers_orders_id=coID)
 
@@ -440,6 +455,9 @@ def complete():
     """
         Landing page for customer after Mollie session
     """
+    from openstudio.os_order import Order
+    from openstudio.os_invoice import Invoice
+
     response.title = T('Shop')
 
     iID = request.vars['iID']
@@ -541,6 +559,8 @@ def event():
     """
         Details for an event
     """
+    from openstudio.os_workshop import Workshop
+
     wsID = request.vars['wsID']
     workshop = Workshop(wsID)
     response.title = T('Shop')
@@ -649,6 +669,8 @@ def event_get_products_filter_prices_add_to_cart_buttons(workshop):
         :param workshop: Workshop object
         :return: div button group for products filter
     """
+    from openstudio.os_workshop_product import WorkshopProduct
+
     #NOTE: maybe add prices here as well, saves a db query to get the products again
     products_filter = DIV(_class='btn-group workshop-products-filter', _role='group', **{'_data-toggle':'buttons'})
     products_prices = DIV()
@@ -835,6 +857,8 @@ def events():
     """
         Events list for shop
     """
+    from openstudio.os_workshop_schedule import WorkshopSchedule
+
     response.title= T('Shop')
     response.subtitle = T('Events')
 
@@ -946,6 +970,8 @@ def subscription_terms():
     """
         Buy subscription confirmation page
     """
+    from openstudio.os_school_subscription import SchoolSubscription
+
     response.title= T('Shop')
     response.subtitle = T('Subscription')
     response.view = 'shop/index.html'
@@ -1266,6 +1292,8 @@ def classes_get_day(date,
         :param weekday: ISO weekday (1-7)
         :return: List of classes for day
     """
+    from openstudio.os_class_schedule import ClassSchedule
+
     cs = ClassSchedule(
         date,
         filter_id_school_classtype = filter_id_school_classtype,
@@ -1294,6 +1322,7 @@ def class_book_options_get_url_next_weekday(clsID, date, isoweekday):
         Go to next weekday
     """
     from general_helpers import next_weekday
+    from openstudio.os_class import Class
 
     # Check if today's class is taking place, if not, go to next week.
     cls_today = Class(clsID, TODAY_LOCAL)
@@ -1310,6 +1339,8 @@ def class_book_get_class_header(clsID, date):
     """
         Pretty display of class name
     """
+    from openstudio.os_class import Class
+
     cls = Class(clsID, date)
     location = db.school_locations[cls.cls.school_locations_id].Name
 
@@ -1332,6 +1363,10 @@ def classes_book_options():
          - cards
          - drop in (with price & add to cart button)
     """
+    from openstudio.os_attendance_helper import AttendanceHelper
+    from openstudio.os_class import Class
+    from openstudio.os_customer import Customer
+
     response.title= T('Shop')
     response.subtitle = T('Book class')
     response.view = 'shop/index.html'
@@ -1451,6 +1486,8 @@ def class_book_options_get_enrollment_options(clsID, date, date_formatted, featu
     """
         List enrollment options
     """
+    from openstudio.os_class import Class
+
     options = DIV(_class='shop-classes-booking-options row')
 
     cls = Class(clsID, date)
@@ -1544,6 +1581,8 @@ def class_enroll():
     """
     :return:
     """
+    from openstudio.os_class import Class
+
     response.title= T('Shop')
     response.subtitle = T('Enroll in class')
     response.view = 'shop/index.html'
@@ -1613,6 +1652,11 @@ def class_book():
     def wrong_user():
         return "Looks like this subscription or class card isn't yours..."
 
+    from openstudio.os_attendance_helper import AttendanceHelper
+    from openstudio.os_class import Class
+    from openstudio.os_customer_classcard import CustomerClasscard
+    from openstudio.os_customer_subscription import CustomerSubscription
+
     cuID = auth.user.id
     csID = request.vars['csID']
     ccdID = request.vars['ccdID']
@@ -1654,7 +1698,7 @@ def class_book():
             session.flash = T('Class booked')
 
     if ccdID:
-        ccd = Classcard(ccdID)
+        ccd = CustomerClasscard(ccdID)
         if not (ccd.classcard.auth_customer_id == auth.user.id):
             wrong_user()
 
@@ -1707,6 +1751,10 @@ def class_book_classcard_recurring():
     """
         Offer option to make multiple booking for this class
     """
+    from openstudio.os_attendance_helper import AttendanceHelper
+    from openstudio.os_class import Class
+    from openstudio.os_customer_classcard import CustomerClasscard
+
     ccdID = request.vars['ccdID']
     clsID = request.vars['clsID']
     date_formatted = request.vars['date']
@@ -1718,7 +1766,7 @@ def class_book_classcard_recurring():
 
     return_url = URL('profile', 'classes')
 
-    ccd = Classcard(ccdID)
+    ccd = CustomerClasscard(ccdID)
     if not (ccd.classcard.auth_customer_id == auth.user.id):
         redirect(return_url)
 
@@ -1811,6 +1859,8 @@ def class_add_to_cart():
     """
         Add a drop in class to the shopping cart 
     """
+    from openstudio.os_class import Class
+
     clsID = request.vars['clsID']
     dropin = request.vars['dropin']
     trial = request.vars['trial']
@@ -1841,6 +1891,8 @@ def donate():
     """
         Donate page for shop
     """
+    from openstudio.os_order import Order
+
     response.title= T('Shop')
     response.subtitle = T('Donate')
     response.view = 'shop/index.html'

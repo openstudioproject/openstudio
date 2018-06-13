@@ -7,7 +7,7 @@
 from general_helpers import class_get_teachers
 from general_helpers import set_form_id_and_get_submit_button
 
-from openstudio.openstudio import ClassSchedule
+from openstudio.os_class_schedule import ClassSchedule
 from openstudio.os_staff_schedule import StaffSchedule
 
 
@@ -87,7 +87,7 @@ def cancel_class_bookings(shID):
         :param shID: db.school_holidays.id
         :return: None
     """
-    from openstudio.openstudio import AttendanceHelper
+    from openstudio.os_attendance_helper import AttendanceHelper
 
     ah = AttendanceHelper()
     ah.attendance_cancel_classes_in_school_holiday(shID)
@@ -514,7 +514,7 @@ def staff_holidays_set_status(sthID, status, apply_teacher2):
                                        filter_id_employee = teachers_id)
         shifts = staff_schedule.get_day_list(show_id = True)
         for shift in shifts:
-            shift = Status(shift['id'], current_date)
+            shift = Shift(shift['id'], current_date)
             # apply new status
             if status == 'normal':
                 shift.set_status_normal()

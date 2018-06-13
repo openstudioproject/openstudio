@@ -37,9 +37,9 @@ class Customer:
 
 
     def _get_subscriptions_on_date(self, date):
-        '''
+        """
             Returns subscription for a date
-        '''
+        """
         db = current.db
         cache = current.cache
         request = current.request
@@ -58,7 +58,7 @@ class Customer:
             db.customers_subscriptions.CreditsRemaining,
         ]
 
-        sql = '''SELECT cs.id,
+        sql = """SELECT cs.id,
                         cs.auth_customer_id,
                         cs.Startdate,
                         cs.Enddate,
@@ -80,7 +80,7 @@ LEFT JOIN
 school_subscriptions ssu ON cs.school_subscriptions_id = ssu.id
 WHERE cs.auth_customer_id = {cuID} AND
 (cs.Startdate <= '{date}' AND (cs.Enddate >= '{date}' OR cs.Enddate IS NULL))
-ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
+ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
 
         rows = db.executesql(sql, fields=fields)
 
@@ -95,9 +95,9 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
 
 
     def get_subscriptions_on_date(self, date, from_cache=True):
-        '''
+        """
             Get day rows with caching
-        '''
+        """
         web2pytest = current.globalenv['web2pytest']
         request = current.request
 
@@ -128,9 +128,9 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
 
 
     def get_subscription_latest(self):
-        '''
+        """
             @return: Latest subscription for a customer
-        '''
+        """
         db = current.db
         os_gui = current.globalenv['os_gui']
         DATE_FORMAT = current.DATE_FORMAT
@@ -311,7 +311,7 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
             Returns a formatted list of subscriptions and classcards for
             a customer
         """
-        from openstudio.openstudio import Classcard
+        from openstudio.os_customer_classcard import CustomerClasscard
         from openstudio.os_customer_subscriptions import CustomerSubscriptions
 
         DATE_FORMAT = current.DATE_FORMAT
@@ -358,7 +358,7 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
             classcards = DIV()
             for card in classcards:
                 ccdID = card.customers_classcards.id
-                classcard = Classcard(ccdID)
+                classcard = CustomerClasscard(ccdID)
                 remaining_classes = ccd.get_classes_remaining()
                 if not remaining_classes:
                     continue
@@ -403,9 +403,9 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
 
 
     def get_had_trialclass(self):
-        '''
+        """
             Returns True if a customer has had a trialclass and false when not
-        '''
+        """
         db = current.db
 
         query = (db.classes_attendance.auth_customer_id == self.cuID) & \
@@ -521,7 +521,7 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
         """
             Returns orders info for a customer with additional info
         """
-        from openstudio.openstudio import Order
+        from openstudio.os_order import Order
 
         db = current.db
 
@@ -552,11 +552,11 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
 
 
     def has_recurring_reservation_for_class(self, clsID, date):
-        '''
+        """
         :param clsID: db.classes.id
         :param date: datetime.date
         :return: Boolean
-        '''
+        """
         db = current.db
 
         query = (db.classes_reservation.auth_customer_id == self.cuID) & \
@@ -575,9 +575,9 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
 
 
     def get_reservations_rows(self, date=None, recurring_only=True):
-        '''
+        """
             Returns upcoming reservations for this customer
-        '''
+        """
         db = current.db
 
         left = [ db.classes.on(db.classes_reservation.classes_id == db.classes.id) ]
@@ -601,11 +601,11 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
 
 
     def get_classes_attendance_rows(self, limit=False, upcoming=False):
-        '''
+        """
             @param limit: (int) number of attendance records to return
             @return: gluon.dal.rows obj with classes attendance rows for
             customer
-        '''
+        """
         TODAY_LOCAL = current.TODAY_LOCAL
         db = current.db
 
@@ -645,7 +645,7 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
         orderby_sql = 'clatt.ClassDate DESC, cla.Starttime DESC'
 
 
-        query = '''
+        query = """
         SELECT clatt.id,
                clatt.ClassDate,
                clatt.AttendanceType,
@@ -707,7 +707,7 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
         {where_sql}
         ORDER BY {orderby_sql}
         {limit_sql}
-        '''.format(orderby_sql = orderby_sql,
+        """.format(orderby_sql = orderby_sql,
                    where_sql = where_sql,
                    limit_sql = limit_sql,
                    cuID = self.cuID)
@@ -721,9 +721,9 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
 
 
     def get_shoppingcart_rows(self):
-        '''
+        """
             Get shopping cart rows for customer
-        '''
+        """
         db = current.db
 
         left = [
@@ -758,9 +758,9 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
 
 
     def shoppingcart_maintenance(self):
-        '''
+        """
             Do some housekeeping to keep things neat and tidy
-        '''
+        """
         messages = []
         message = self.shoppingcart_remove_past_classes()
         if message:
@@ -773,7 +773,7 @@ ORDER BY cs.Startdate'''.format(cuID=self.cuID, date=date)
         """
             Check if a class is already past, if so, remove it from the shopping cart.
         """
-        from openstudio.openstudio import Class
+        from os_class import Class
 
         import pytz
 

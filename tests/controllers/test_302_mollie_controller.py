@@ -8,9 +8,9 @@ from populate_os_tables import populate_school_subscriptions
 
 
 def test_subscription_buy_now(client, web2py):
-    '''
+    """
         Can a subscription be bought
-    '''
+    """
     setup_profile_tests(web2py)
     populate_school_subscriptions(web2py)
 
@@ -32,9 +32,9 @@ def test_subscription_buy_now(client, web2py):
 
 
 def test_subscription_buy_now_start_first_day_of_next_month(client, web2py):
-    '''
+    """
         Can a subscription be bought
-    '''
+    """
     import calendar
 
     setup_profile_tests(web2py)

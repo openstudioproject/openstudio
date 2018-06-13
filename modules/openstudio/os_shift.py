@@ -37,7 +37,7 @@ class Shift:
         db = current.db
         T = current.T
 
-        sotcID = self.set_normal()
+        sotcID = self.set_status_normal()
 
         row = db.shifts_otc(sotcID)
         if row:

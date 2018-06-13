@@ -191,7 +191,7 @@ class School:
             :param public: boolean, defines whether to show only public or all subscriptions
             :return: list of school_subscriptions formatted for shop
         """
-        from openstudio.openstudio import SchoolSubscription
+        from openstudio.os_school_subscription import SchoolSubscription
         from openstudio.os_customer import Customer
 
 

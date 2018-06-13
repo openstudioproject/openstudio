@@ -5,7 +5,9 @@ from general_helpers import get_payment_batches_statuses
 from general_helpers import get_paused_subscriptions
 from general_helpers import max_string_length
 
-from openstudio.openstudio import Invoice, InvoicesHelper, SchoolSubscription
+from openstudio.os_invoice import Invoice
+from openstudio.os_invoices import Invoices
+from openstudio.os_school_subscription import SchoolSubscription
 
 import csv
 import cStringIO
@@ -1082,9 +1084,9 @@ def invoices():
     # enable search in load
     #request.vars['search_enabled'] = True
 
-    ih = InvoicesHelper()
-    status_filter = ih.list_get_status_filter()
-    list = ih.list_invoices(search_enabled=True)
+    invoices = Invoices()
+    status_filter = invoices.list_get_status_filter()
+    list = invoices.list_invoices(search_enabled=True)
 
     content = DIV(status_filter, list)
                   # DIV(LOAD('invoices', 'list_invoices.load',
@@ -1132,9 +1134,9 @@ def teacher_payments():
 
     add = teacher_payments_get_create_invoices()
 
-    ih = InvoicesHelper()
-    status_filter = ih.list_get_status_filter()
-    list = ih.list_invoices(only_teacher_credit_invoices=True)
+    invoices = Invoices()
+    status_filter = invoices.list_get_status_filter()
+    list = invoices.list_invoices(only_teacher_credit_invoices=True)
 
     content = DIV(status_filter, list)
 

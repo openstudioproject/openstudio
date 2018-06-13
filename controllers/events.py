@@ -1,8 +1,14 @@
 # coding: utf8
 
-from openstudio.openstudio import Workshop, WorkshopsHelper, WorkshopProduct, Invoice, InvoicesHelper, OsMail
+from openstudio.os_workshops_helper import WorkshopsHelper
+
+from openstudio.os_workshop_product import WorkshopProduct
+from openstudio.os_workshop import Workshop
+from openstudio.os_invoice import Invoice
+from openstudio.os_invoices import Invoices
 from openstudio.os_tasks import Tasks
 from openstudio.os_customer import Customer
+from openstudio.os_mail import OsMail
 
 from general_helpers import get_weekday
 from general_helpers import get_badge
@@ -2085,7 +2091,7 @@ def tickets_list_customers_get_list(table,
                db.invoices.on(db_icwspc.invoices_id == db.invoices.id)
            ],
 
-    ih = InvoicesHelper()
+    invoices = Invoices()
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
@@ -2135,7 +2141,7 @@ def tickets_list_customers_get_list(table,
 
         # invoice
         if row.invoices.id:
-            invoice = ih.represent_invoice_for_list(
+            invoice = invoices.represent_invoice_for_list(
                 row.invoices.id,
                 repr_row.invoices.InvoiceID,
                 repr_row.invoices.Status,
