@@ -3,14 +3,14 @@
 OpenStudio is freely distributed web based yoga studio software. 
 OpenStudio will help you manage customers, subscriptions, class cards, schedule classes, plan events and more. 
 
-More information can be found on [www.openstudioproject.com](https://www.openstudioproject.com)
+More information can be found on [www.openstudioproject.com](https://www.openstudioproject.com).
 
-Although initially written for yoga studio's, OpenStudio has turned out to be useful for different industries as well like dance studios or Buddhist centers.
-Basically any organization dealing with subscriptions and classes could benefit from using OpenStudio.
+Although initially written for yoga studio's, OpenStudio has turned out to be useful for different organizations as well like dance studios or Buddhist centers.
+Basically any organization or business dealing with subscriptions and classes could benefit from using OpenStudio.
 
 ## Installation
 
-Please refer to the manual found [here](http://openstudio-docs.readthedocs.io/en/latest/)
+Please refer to the manual found [here](http://openstudio-docs.readthedocs.io/en/latest/).
 
 ## Getting involved
 
