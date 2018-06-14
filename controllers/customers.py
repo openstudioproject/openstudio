@@ -3851,7 +3851,6 @@ def mollie_mandates():
                 tools=add)
 
 
-
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'customers_payments'))
 def bankaccount():

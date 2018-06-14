@@ -114,6 +114,14 @@ def _task_mollie_subscription_invoices_and_payments():
                         }
                     })
 
+                    # link invoice to mollie_payment_id
+                    db.invoices_mollie_payment_ids.insert(
+                        invoices_id=invoice.invoice.id,
+                        mollie_payment_id=payment['id'],
+                        RecurringType=payment['recurringType'],
+                        WebhookURL=webhook_url
+                    )
+
                 except Mollie.API.Error as e:
                     print e
                     # send mail to ask customer to pay manually
