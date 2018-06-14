@@ -54,6 +54,7 @@ class Customer:
             db.customers_subscriptions.Enddate,
             db.customers_subscriptions.payment_methods_id,
             db.customers_subscriptions.Note,
+            db.school_subscriptions.id,
             db.school_subscriptions.Name,
             db.school_subscriptions.ReconciliationClasses,
             db.school_subscriptions.Unlimited,
@@ -66,6 +67,7 @@ class Customer:
                         cs.Enddate,
                         cs.payment_methods_id,
                         cs.Note,
+                        ssu.id,
                         ssu.Name,
                         ssu.ReconciliationClasses,
                         ssu.Unlimited,
@@ -116,6 +118,20 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
             rows = cache.ram(cache_key , lambda: self._get_subscriptions_on_date(date), time_expire=CACHE_LONG)
 
         return rows
+
+
+    def get_school_subscriptions_ids_on_date(self, date, from_cache=True):
+        """
+        :param date: datetime.date
+        :param from_cache: Boolean
+        :return: list of subscription ids on date
+        """
+        rows = self.get_subscriptions_on_date(date, from_cache=from_cache)
+        ids = []
+        for row in rows:
+            ids.append(row.school_subscriptions.id)
+
+        return ids
 
 
     def has_subscription_on_date(self, date):

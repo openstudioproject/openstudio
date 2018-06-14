@@ -147,7 +147,8 @@ class School:
     def _get_subscriptions_formatted_button_to_cart(self,
                                                     ssuID,
                                                     membership_required,
-                                                    customer_has_membership):
+                                                    customer_has_membership,
+                                                    customer_subscription_ids):
         """
             Get button to add card to shopping cart
         """
@@ -158,7 +159,12 @@ class School:
             return A(SPAN(T("Membership required")),
                      _href=URL('shop', 'memberships'))
 
-        #TODO: add check to see if customer already has this as an active subscription (Pay now link?)
+        if ssuID in customer_subscription_ids:
+            return SPAN(
+                SPAN(T("You have this subscription"), _class='bold'), ' ', XML('&bull;'), ' ',
+                SPAN(A(T("View invoices"),
+                       _href=URL('profile', 'invoices')))
+            )
 
         return A(SPAN(os_gui.get_fa_icon('fa-shopping-cart'), ' ', T('Get this subscription')),
                  _href=URL('subscription_terms', vars={'ssuID': ssuID}))
@@ -201,6 +207,7 @@ class School:
 
         customer = Customer(auth_customer_id)
         customer_has_membership = customer.has_membership_on_date(TODAY_LOCAL)
+        customer_subscriptions_ids = customer.get_school_subscriptions_ids_on_date(TODAY_LOCAL)
 
         if per_row == 3:
             card_class = 'col-md-4'
@@ -244,7 +251,9 @@ class School:
                 footer_content = self._get_subscriptions_formatted_button_to_cart(
                     row.id,
                     row.MembershipRequired,
-                    customer_has_membership)
+                    customer_has_membership,
+                    customer_subscriptions_ids
+                )
 
             subscription = DIV(os_gui.get_box_table(name,
                                                     subscription_content,
