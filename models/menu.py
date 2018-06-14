@@ -33,9 +33,9 @@ response.google_analytics_id = None
 
 
 def shoppingcart_menu_item():
-    '''
+    """
         @return: shopping cart menu link
-    '''
+    """
     # check login
     try:
         query = (db.customers_shoppingcart.auth_customer_id == auth.user.id)
@@ -539,6 +539,11 @@ def get_backend_menu():
             submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Branding'))),
                             False,
                             URL('settings_branding', 'logos', extension='')))
+
+            if auth.user.id == 1:
+                submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Sysadmin'))),
+                                False,
+                                URL('settings', 'admin_redis_cache', extension='')))
 
             menu += [ ((I(_class=settings_class + ' fa fa-cog', _title=T('Settings')),
                                  SPAN(T('Settings')),
