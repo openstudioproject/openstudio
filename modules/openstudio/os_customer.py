@@ -128,8 +128,11 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         """
         rows = self.get_subscriptions_on_date(date, from_cache=from_cache)
         ids = []
-        for row in rows:
-            ids.append(row.school_subscriptions.id)
+        try:
+            for row in rows:
+                ids.append(row.school_subscriptions.id)
+        except TypeError: # Bool is not iterable
+            pass
 
         return ids
 
