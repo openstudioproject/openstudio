@@ -13,10 +13,10 @@ def task_openstudio_daily():
         Daily tasks for OpenStudio
     """
     today = datetime.date.today()
-    if today.day == 1:
-        _task_mollie_subscription_invoices_and_payments()
+    # if today.day == 1:
+    _task_mollie_subscription_invoices_and_payments()
 
-    return 'Success'
+    return 'Daily task - OK'
 
 
 def task_openstudio_test():

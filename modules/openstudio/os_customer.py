@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import datetime
+
 from gluon import *
 
 
@@ -828,6 +830,47 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
             self.row.update_record()
 
         return mollie.customer_mandates.withParentId(mollie_customer_id).all()
+
+
+    def get_mollie_mandates_formatted(self):
+        """
+            Returns mollie mandates
+        """
+        T = current.T
+
+        get_sys_property = current.globalenv['get_sys_property']
+        mollie_api_key = get_sys_property('mollie_website_profile')
+
+        if not mollie_api_key:
+            return T("Mollie not configured")
+
+        mollie_mandates = self.get_mollie_mandates()
+        if mollie_mandates['count'] == 0:
+            return T("No active Mollie mandates")
+        else:
+            header = THEAD(TR(
+                TH(T('Mandate')),
+                TH(T('Created')),
+                TH(T('Signature Date')),
+                TH(T('Status')),
+                TH(T('Method')),
+            ))
+
+            table = TABLE(header, _class="table table-striped table-hover")
+
+            for m in mollie_mandates['data']:
+                # 2018-06-14T10:35:01.0Z -- createdDatetime format
+
+                table.append(TR(
+                    TD(m['id']),
+                    TD(m['createdDatetime']),
+                    TD(m['signatureDate']),
+                    TD(m['status']),
+                    TD(m['method'])
+                ))
+
+
+        return table
 
 
     def get_accepted_documents(self):

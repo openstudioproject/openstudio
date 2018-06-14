@@ -3725,7 +3725,13 @@ def define_invoices_mollie_payment_ids():
         Field('invoices_id', db.invoices,
             label=T('Invoices_id')),
         Field('mollie_payment_id',
-            label=T('Mollie payment id')))
+            label=T('Mollie payment id')),
+        Field('CreatedOn', 'datetime',
+            readable=False,
+            writable=False,
+            default=datetime.datetime.now(),
+            represent=represent_datetime)
+    )
 
 
 def represent_invoice_status(value, row):

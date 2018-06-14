@@ -3802,6 +3802,14 @@ def payments_get_submenu(page, cuID):
             ]
         )
 
+        pages.append(
+            [
+                'mollie_mandates',
+                T('Mollie mandates'),
+                URL('mollie_mandates', vars=vars)
+            ]
+        )
+
     horizontal = True
 
     return os_gui.get_submenu(pages, page, horizontal=horizontal, htype='tabs')
@@ -3810,6 +3818,38 @@ def payments_get_submenu(page, cuID):
 
 def payments_delete_payment_info(form):
     page = redirect(URL('payments', vars={'cuID':customers_id}))
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'customers_payments'))
+def mollie_mandates():
+    """
+        Lists mollie mandates for customer
+    """
+    cuID = request.vars['cuID']
+    customer = Customer(cuID)
+    response.title = customer.get_name()
+    response.subtitle = T("Payment info")
+    response.view = 'general/tabs_menu.html'
+
+    # back button
+    back = edit_get_back()
+
+    customer = Customer(cuID)
+    mollie_mandates = customer.get_mollie_mandates_formatted()
+   
+   
+    menu = customers_get_menu(cuID, request.function)
+    submenu = payments_get_submenu(request.function, cuID)
+
+    content = DIV(submenu, BR(), mollie_mandates)
+
+
+    return dict(content=content,
+                menu=menu,
+                back=back,
+                tools=add)
+
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
