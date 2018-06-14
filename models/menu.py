@@ -529,7 +529,19 @@ def get_backend_menu():
 
             submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('System'))),
                             False,
-                            URL('settings', 'index', extension='')))
+                            URL('settings', 'system_general', extension='')))
+            submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Financial'))),
+                            False,
+                            URL('settings', 'financial_currency', extension=''))),
+            submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Access'))),
+                            False,
+                            URL('settings', 'access_groups', extension=''))),
+            submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Shop'))),
+                            False,
+                            URL('settings', 'shop_settings', extension=''))),
+            submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Self check-in'))),
+                            False,
+                            URL('settings', 'selfcheckin', extension=''))),
             submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Integration'))),
                             False,
                             URL('settings_integration', 'mollie', extension='')))
@@ -538,7 +550,10 @@ def get_backend_menu():
                             URL('settings_mail', 'mailing_lists', extension='')))
             submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Branding'))),
                             False,
-                            URL('settings_branding', 'logos', extension='')))
+                            URL('settings_branding', 'logos', extension=''))),
+            submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('About'))),
+                            False,
+                            URL('about', 'about', extension='')))
 
             if auth.user.id == 1:
                 submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Sysadmin'))),
