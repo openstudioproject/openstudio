@@ -1798,13 +1798,18 @@ def export_invoices_get_export(from_date, until_date, invoices_groups_id, filety
         item_nr = 1
         prev_iID = None
         for c, row in enumerate(rows):
-
+            unicode_list = []
+            for i in row:
+                try:
+                    unicode_list.append(i.encode('utf-8'))
+                except:
+                    unicode_list.append(i)
 
 
             if filetype == 'excel':
-                ws.append(row)
+                ws.append(unicode_list)
             else:
-                csv_writer.writerow(row)
+                csv_writer.writerow(unicode_list)
 
         if len(rows) < m: break
         i += 1
