@@ -123,6 +123,8 @@ class AttendanceHelper:
             :param days: int
             :return: 
         """
+        from os_class import Class
+
         db = current.db
         cache = current.cache
 

@@ -137,28 +137,28 @@ def get_form_subtitle(month=None, year=None, function=None, _class='col-md-4'):
             function == 'subscriptions_overview' or \
             function == 'subscriptions_overview_customers' or \
             function == 'subscriptions_alt_prices':
-        url_current = URL('subscriptions_show_current')
+        url_current_month = URL('subscriptions_show_current')
     elif function == 'dropinclasses':
-        url_current = URL('dropinclasses_show_current')
+        url_current_month = URL('dropinclasses_show_current')
     elif function == 'trialclasses':
-        url_current = URL('trialclasses_show_current')
+        url_current_month = URL('trialclasses_show_current')
     elif function == 'trialcards':
-        url_current = URL('trialcards_show_current')
+        url_current_month = URL('trialcards_show_current')
     elif function == 'classcards':
-        url_current =  URL('classcards_show_current')
+        url_current_month =  URL('classcards_show_current')
     elif function == 'attendance_classtypes' or \
             function == 'attendance_classes' or \
             function == 'attendance_subcription_exceeded' or \
             function == 'attendance_organizations':
-        url_current = URL('attendance_show_current')
+        url_current_month = URL('attendance_show_current')
     elif function == 'direct_debit_extra':
-        url_current = URL('direct_debit_extra_show_current')
+        url_current_month = URL('direct_debit_extra_show_current')
     elif function == 'teacher_classes':
-        url_current = URL('teacher_classes_show_current')
+        url_current_month = URL('teacher_classes_show_current')
 
 
-    show_current = A(T("Current month"),
-                     _href=url_current,
+    show_current_month = A(T("Current month"),
+                     _href=url_current_month,
                      _class='btn btn-default')
     month_chooser = ''
     if not function == 'attendance_classes':
@@ -172,7 +172,13 @@ def get_form_subtitle(month=None, year=None, function=None, _class='col-md-4'):
                form.custom.end,
                _class='row')
 
-    return dict(form=form, subtitle=subtitle, month_chooser=month_chooser, current=show_current, submit=submit)
+    return dict(
+        form=form,
+        subtitle=subtitle,
+        month_chooser=month_chooser,
+        current_month=show_current_month,
+        submit=submit
+    )
 
 # helpers end
 
@@ -308,7 +314,7 @@ def trialclasses():
     response.subtitle =  T("Trial classes") + ' - ' + form_subtitle['subtitle']
     form = form_subtitle['form']
     month_chooser = form_subtitle['month_chooser']
-    current = form_subtitle['current']
+    current_month = form_subtitle['current_month']
     submit = form_subtitle['submit']
 
     rows = dropin_trial_classes_get_rows(date, 'trial')
@@ -426,7 +432,7 @@ def trialclasses():
                 content=table,
                 modals=modals,
                 export=export,
-                current=current,
+                current_month=current_month,
                 month_chooser=month_chooser,
                 submit=submit)
 
@@ -463,7 +469,7 @@ def trialcards():
     response.subtitle = T("Trial cards") + ' - ' + form_subtitle['subtitle']
     form = form_subtitle['form']
     month_chooser = form_subtitle['month_chooser']
-    current = form_subtitle['current']
+    current_month = form_subtitle['current_month']
     submit = form_subtitle['submit']
 
     query = (db.customers_classcards.Startdate >= firstdaythismonth) &\
@@ -567,7 +573,7 @@ def trialcards():
                 total=total,
                 content=table,
                 modals=modals,
-                current=current,
+                current_month=current_month,
                 month_chooser=month_chooser,
                 submit=submit)
 
@@ -689,7 +695,7 @@ def dropinclasses():
     response.subtitle = T("Drop in classes") + ' - ' + result['subtitle']
     form = result['form']
     month_chooser = result['month_chooser']
-    current = result['current']
+    current_month = result['current_month']
     submit = result['submit']
 
     rows = dropin_trial_classes_get_rows(date, 'dropin')
@@ -762,7 +768,7 @@ def dropinclasses():
                 content=table,
                 modals=modals,
                 month_chooser=month_chooser,
-                current=current,
+                current_month=current_month,
                 submit=submit)
 
 
@@ -1130,7 +1136,7 @@ def classcards():
     response.subtitle = T('Class cards') + ' - ' + result['subtitle']
     form = result['form']
     month_chooser = result['month_chooser']
-    current = result['current']
+    current_month = result['current_month']
     submit = result['submit']
 
 
@@ -1219,7 +1225,7 @@ def classcards():
                 total=total,
                 content=classcards,
                 month_chooser=month_chooser,
-                current=current,
+                current_month=current_month,
                 modals=modals,
                 submit=submit)
 
@@ -1487,6 +1493,8 @@ def subscriptions_show_current():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('read', 'reports_subscriptions'))
 def subscriptions_new():
+    from openstudio.os_reports import Reports
+
     response.title = T("Reports")
     session.customers_back = 'subscriptions_new'
     response.view = 'reports/subscriptions.html'
@@ -1498,8 +1506,8 @@ def subscriptions_new():
                          session.reports_subscriptions_month,
                          1)
 
-    rh = ReportsHelper()
-    query = rh.get_query_subscriptions_new_in_month(date)
+    reports = Reports()
+    query = reports.get_query_subscriptions_new_in_month(date)
 
     result = get_form_subtitle(session.reports_subscriptions_month,
                                session.reports_subscriptions_year,
@@ -1507,7 +1515,7 @@ def subscriptions_new():
     response.subtitle = T('Subscriptions') + ' - ' + result['subtitle']
     form = result['form']
     month_chooser = result['month_chooser']
-    current = result['current']
+    current_month = result['current_month']
     submit = result['submit']
 
     fields = [
@@ -1564,7 +1572,7 @@ def subscriptions_new():
                 menu=menu,
                 modals=modals,
                 month_chooser=month_chooser,
-                current=current,
+                current_month=current_month,
                 submit=submit)
 
 
@@ -1592,7 +1600,7 @@ def subscriptions_stopped():
     response.subtitle = T('Subscriptions') + ' - ' + form_subtitle['subtitle']
     form = form_subtitle['form']
     month_chooser = form_subtitle['month_chooser']
-    current = form_subtitle['current']
+    current_month = form_subtitle['current_month']
     submit = form_subtitle['submit']
 
     fields = [ db.auth_user.id,
@@ -1673,7 +1681,7 @@ def subscriptions_stopped():
                 menu=menu,
                 modals=modals,
                 month_chooser=month_chooser,
-                current=current,
+                current_month=current_month,
                 submit=submit)
 
 
@@ -1700,7 +1708,7 @@ def subscriptions_paused():
     response.subtitle = T('Subscriptions') + ' - ' + form_subtitle['subtitle']
     form = form_subtitle['form']
     month_chooser = form_subtitle['month_chooser']
-    current = form_subtitle['current']
+    current_month = form_subtitle['current_month']
     submit = form_subtitle['submit']
 
     # Paused subscriptions
@@ -1748,7 +1756,7 @@ def subscriptions_paused():
                 form=form,
                 menu=menu,
                 month_chooser=month_chooser,
-                current=current,
+                current_month=current_month,
                 submit=submit)
 
 
@@ -1808,7 +1816,7 @@ def subscriptions_overview():
     response.subtitle = T('Subscriptions') + ' - ' + form_subtitle['subtitle']
     form = form_subtitle['form']
     month_chooser = form_subtitle['month_chooser']
-    current = form_subtitle['current']
+    current_month = form_subtitle['current_month']
     submit = form_subtitle['submit']
 
     # add location filter form
@@ -1923,7 +1931,7 @@ def subscriptions_overview():
                 export=export,
                 menu=menu,
                 month_chooser=month_chooser,
-                current=current,
+                current_month=current_month,
                 submit=submit)
 
 
@@ -2359,7 +2367,7 @@ def subscriptions_alt_prices():
     response.subtitle = T('Subscriptions') + ' - ' + form_subtitle['subtitle']
     form = form_subtitle['form']
     month_chooser = form_subtitle['month_chooser']
-    current = form_subtitle['current']
+    current_month = form_subtitle['current_month']
     submit = form_subtitle['submit']
 
     csap = db.customers_subscriptions_alt_prices
@@ -2473,7 +2481,7 @@ def subscriptions_alt_prices():
                 form=form,
                 menu=menu,
                 month_chooser=month_chooser,
-                current=current,
+                current_month=current_month,
                 submit=submit)
 
 
@@ -2539,7 +2547,7 @@ def direct_debit_extra():
     response.subtitle = form_subtitle['subtitle']
     form = form_subtitle['form']
     month_chooser = form_subtitle['month_chooser']
-    current = form_subtitle['current']
+    current_month = form_subtitle['current_month']
     submit = form_subtitle['submit']
 
     # collection
@@ -2644,7 +2652,7 @@ def direct_debit_extra():
     return dict(form=form,
                 content=content,
                 month_chooser=month_chooser,
-                current=current,
+                current_month=current_month,
                 submit=submit)
 
 
@@ -2691,7 +2699,7 @@ def attendance_classes():
 
     form = attendance_classes_get_form(year, month, slID, soID)
 
-    current = form_subtitle['current']
+    current_month = form_subtitle['current_month']
     submit = form_subtitle['submit']
 
     menu = attendance_get_menu(request.function)
@@ -2699,7 +2707,7 @@ def attendance_classes():
     return dict(form=form,
                 menu=menu,
                 content=content,
-                current='',
+                current_month='',
                 month_chooser='', # Month chooser doesn't work here as we require the form the be submitted before anything happens
                 submit=submit)
 
@@ -2736,7 +2744,7 @@ def attendance_classes_get_content(date_start, date_end, slID, soID):
     while current_date <= date_end:
         # get list of today's classes.
         class_schedule = ClassSchedule(
-            date=current_date,
+            date=current_month_date,
             filter_id_school_location=slID,
             filter_id_sys_organization=soID,
         )
@@ -2895,7 +2903,7 @@ def attendance_classtypes():
     response.subtitle = T('Attendance classtypes') + ' - ' + form_subtitle['subtitle']
     form = form_subtitle['form']
     month_chooser = form_subtitle['month_chooser']
-    current = form_subtitle['current']
+    current_month = form_subtitle['current_month']
     submit = form_subtitle['submit']
 
     count = db.classes.school_classtypes_id.count()
@@ -2957,7 +2965,7 @@ def attendance_classtypes():
     return dict(form=form,
                 menu=menu,
                 content=table,
-                current=current,
+                current_month=current_month,
                 month_chooser=month_chooser,
                 submit=submit)
 
@@ -3226,7 +3234,7 @@ def attendance_organizations():
     response.subtitle = T('Attendance - Organizations') + ' - ' + form_subtitle['subtitle']
     form = form_subtitle['form']
     month_chooser = form_subtitle['month_chooser']
-    current = form_subtitle['current']
+    current_month = form_subtitle['current_month']
     submit = form_subtitle['submit']
 
     table = attendance_organizations_get_content(year, month)
@@ -3238,7 +3246,7 @@ def attendance_organizations():
     return dict(form=form,
                 menu=menu,
                 content=table,
-                current=current,
+                current_month=current_month,
                 header_tools=tools,
                 month_chooser=month_chooser,
                 submit=submit)
@@ -3783,7 +3791,7 @@ def attendance_organizations_res_price_edit():
 #     response.subtitle = T('Attendance - subscription exceeded') + ' - ' + form_subtitle['subtitle']
 #     form = form_subtitle['form']
 #     month_chooser = form_subtitle['month_chooser']
-#     current = form_subtitle['current']
+#     current_month = form_subtitle['current_month']
 #     submit = form_subtitle['submit']
 #
 #     header = THEAD(TR(TH(),
@@ -3870,7 +3878,7 @@ def attendance_organizations_res_price_edit():
 #     return dict(form=form,
 #                 menu=menu,
 #                 content=table,
-#                 current=current,
+#                 current_month=current_month,
 #                 month_chooser=month_chooser,
 #                 submit=submit)
 
@@ -5118,7 +5126,7 @@ def teacher_classes():
     response.subtitle = form_subtitle['subtitle']
     form_month = form_subtitle['form']
     month_chooser = form_subtitle['month_chooser']
-    current = form_subtitle['current']
+    current_month = form_subtitle['current_month']
     submit = form_subtitle['submit']
 
     response.subtitle = SPAN(T('Teacher classes'), ' ',
@@ -5132,7 +5140,7 @@ def teacher_classes():
                 menu='',
                 content=table,
                 month_chooser=month_chooser,
-                current=current,
+                current_month=current_month,
                 run_report=submit)
 
 
@@ -5879,12 +5887,9 @@ def customers_inactive():
     form = result['form']
     submit = result['submit']
 
-    back = os_gui.get_button('back', URL('customers', 'index'))
-
     return dict(content=content,
                 form=DIV(form, _class='col-md-4'),
-                run_report=submit,
-                back=back)
+                run_report=submit)
 
 
 def customers_inactive_get_button_delete(date):
