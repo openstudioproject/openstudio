@@ -12,7 +12,7 @@ Although initially written for yoga studio, OpenStudio is now used by different 
 
 ## Website integration
 
-The following can be integrated into your website from OpenStudio:
+The following can be integrated into your website using the OpenStudio API:
 
 - Class schedule
 - Events list
