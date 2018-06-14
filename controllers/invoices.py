@@ -18,9 +18,9 @@ import openpyxl
 # @auth.requires(auth.has_membership(group_id='Admins') or \
 #                auth.has_permission('read', 'invoices'))
 # def list_invoices():
-#     '''
+#     """
 #         Lists invoices
-#     '''
+#     """
 #     session.invoices_invoice_payment_add_back = None
 #
 #     cuID = request.vars['cuID']
@@ -163,9 +163,9 @@ import openpyxl
 #
 #
 # def list_invoices_get_form_search(var=None):
-#     '''
+#     """
 #         Returns search form for invoices page
-#     '''
+#     """
 # #    print type(session.invoices_list_invoices_date_created_from)
 # #    print session.invoices_list_invoices_date_created_from
 #
@@ -233,9 +233,9 @@ import openpyxl
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'invoices'))
 def list_invoices_clear_search():
-    '''
+    """
         Clears search for invoices page
-    '''
+    """
     session.invoices_list_invoices_search = None
     session.invoices_list_invoices_date_created_from = None
     session.invoices_list_invoices_date_created_until = None
@@ -416,10 +416,10 @@ def edit():
 
 
 def edit_get_tools(iID):
-    '''
+    """
         :param iID: db.invoices.id
         :return: tools dropdown for invoice
-    '''
+    """
     invoice_tools = []
 
     # teacher holidays
@@ -446,20 +446,20 @@ def edit_get_tools(iID):
 
 
 def edit_set_amounts(form):
-    '''
+    """
     :param form: crud update form for db.invoices
     :return: None
-    '''
+    """
     iID = form.vars.id
     invoice = Invoice(iID)
     invoice.set_amounts()
 
 
 def edit_get_amounts(invoice, formatted=True):
-    '''
+    """
     :param iID: db.invoices.is
     :return: returns box with total amounts & balance
-    '''
+    """
     # subtotal
     # tax
     # total
@@ -530,9 +530,9 @@ def edit_get_back(cuID, csID=None, cmID=None):
 
 
 def edit_get_modal_payments(iID):
-    '''
+    """
         Retuns payments div for an invoice
-    '''
+    """
     content = LOAD('invoices', 'invoice_payments.load', ajax=True,
                     vars={'iID':iID})
 
@@ -566,9 +566,9 @@ def edit_get_payments_button(iID):
 
 
 def edit_get_studio_info(var=None):
-    '''
+    """
         Returns a div with address info for studio
-    '''
+    """
     try:
         organization = ORGANIZATIONS[ORGANIZATIONS['default']]
 
@@ -635,11 +635,11 @@ def edit_get_customer_info(invoice, form):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'invoices'))
 def list_items():
-    '''
+    """
         Lists items for an invoice and shows an add form at the top of the
         page, intended to be used as LOAD component
         request.vars['iID'] is expected to be invoices.id
-    '''
+    """
     # call js for styling the form
     response.js = 'set_form_classes();'
 
@@ -773,9 +773,9 @@ def list_items():
 
 @auth.requires_login()
 def item_edit():
-    '''
+    """
         Edit invoice item
-    '''
+    """
     # call js for styling the form
     response.js = 'set_form_classes();'
 
@@ -827,18 +827,18 @@ def item_edit():
 
 
 def item_edit_delete_get_return_url(iID):
-    '''
+    """
         Return url for item_edit & item_delete
-    '''
+    """
     return URL('list_items', vars={'iID':iID, 'reload_list':True})
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('delete', 'invoices_items'))
 def item_delete_confirm():
-    '''
+    """
         Confirm deleting item
-    '''
+    """
     iID = request.vars['iID']
     iiID = request.vars['iiID']
 
@@ -873,9 +873,9 @@ def item_delete_confirm():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('delete', 'invoices_items'))
 def item_delete():
-    '''
+    """
         Delete item from invoice
-    '''
+    """
     iID = request.vars['iID']
     iiID = request.vars['iiID']
 
@@ -891,9 +891,9 @@ def item_delete():
 
 
 def list_items_get_form_add(iID):
-    '''
+    """
         Returns add form for invoice items
-    '''
+    """
     db.invoices_items.invoices_id.default = iID
 
     invoice = Invoice(iID)
@@ -908,19 +908,19 @@ def list_items_get_form_add(iID):
 
 
 def list_items_create_update_onaccept(form):
-    '''
+    """
         Set the current amounts in the db after adding a new item
-    '''
+    """
     iiID = form.vars.id # invoice item
     iID = db.invoices_items(iiID).invoices_id # invoice
     list_items_set_invoice_amounts(iID)
 
 
 def list_items_set_invoice_amounts(iID):
-    '''
+    """
         Set invoice amounts
         iiID is expected to be db.invoices_items.id
-    '''
+    """
     invoice = Invoice(iID)
     invoice.set_amounts()
 
@@ -928,9 +928,9 @@ def list_items_set_invoice_amounts(iID):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'invoices_items'))
 def items_update_sorting():
-    '''
+    """
         Called as JSON, sets the sorting for invoice items in the db
-    '''
+    """
     # check if we're using json, if not, provide a fail message
     if not request.extension == 'json':
         return dict(status  = 'fail',
@@ -976,9 +976,9 @@ def items_update_sorting():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'invoices_payments'))
 def invoice_payments():
-    '''
+    """
         List payments for an invoice
-    '''
+    """
     iID = request.vars['iID']
     query = (db.invoices_payments.invoices_id == iID)
     rows = db(query).select(db.invoices_payments.ALL,
@@ -1119,9 +1119,9 @@ def payment_add_redirect_oncreate():
 
 
 def payment_add_get_back(iID, cuID):
-    '''
+    """
         Returns redirect url to use after adding a payment
-    '''
+    """
     if session.invoices_payment_add_back == 'customers_invoices':
         url = URL('customers', 'invoices', vars={'cuID':cuID}, extension='')
     elif session.invoices_payment_add_back == 'customers_orders':
@@ -1160,9 +1160,9 @@ def payment_add_get_back(iID, cuID):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('delete', 'invoices_payments'))
 def payment_delete():
-    '''
+    """
         Delete invoice payment
-    '''
+    """
     ipID = request.vars['ipID']
     payment = db.invoices_payments(ipID)
 
@@ -1178,18 +1178,18 @@ def payment_delete():
 
 
 def payments_get_return_url(iID):
-    '''
+    """
         Return URL for payments
-    '''
+    """
     return URL('edit', vars={'iID':iID})
 
 
 def payment_add_update_status(form):
-    '''
+    """
         Checks if the total of payments for an invoice
         >= invoices_amounts.TotalPriceVAT
         if so, set the invoice status to paid.
-    '''
+    """
     ipID = form.vars.id
     payment = db.invoices_payments(ipID)
 
@@ -1202,9 +1202,9 @@ def payment_add_update_status(form):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'invoices'))
 def list_payments():
-    '''
+    """
         Lists all payments by a customer
-    '''
+    """
     cuID = request.vars['cuID']
 
     db.invoices.id.readable = False
@@ -1482,9 +1482,9 @@ def subscriptions_create_invoices_execute(year, month, description):
 
 
 def pdf_template_get_logo(var=None):
-    '''
+    """
         Returns logo for pdf template
-    '''
+    """
     branding_logo = os.path.join(request.folder,
                                  'static',
                                  'plugin_os-branding',
@@ -1635,9 +1635,9 @@ def pdf_template_show():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'invoices'))
 def export_invoices():
-    '''
+    """
         Shows a page which exports all invoices in a selected date range
-    '''
+    """
     response.title = T('Invoices')
     response.subtitle = T('Export invoices')
 
@@ -1687,9 +1687,9 @@ def export_invoices():
 
 
 def export_invoices_get_export(from_date, until_date, invoices_groups_id, filetype='excel', include_subscriptions=True):
-    '''
+    """
         Invoices export
-    '''
+    """
     # create filestream
     stream = cStringIO.StringIO()
 
@@ -1723,7 +1723,8 @@ def export_invoices_get_export(from_date, until_date, invoices_groups_id, filety
         'School SubscriptionID',
         'School Subscription Name',
         'Subscription Year',
-        'Subscription Month'
+        'Subscription Month',
+        'Payment date(s)'
     ]
 
     if filetype == 'excel':
@@ -1731,92 +1732,84 @@ def export_invoices_get_export(from_date, until_date, invoices_groups_id, filety
     else:
         csv_writer.writerow(header)
 
-    query = (db.invoices.DateCreated >= from_date)
+
+    where_query = "i.DateCreated >= '{from_date}'".format(from_date=from_date)
 
     if until_date:
-        query &= (db.invoices.DateCreated <= until_date)
+        where_query += " AND i.DateCreated <= '{until_date}'".format(until_date=until_date)
 
     if invoices_groups_id:
-        query &= (db.invoices.invoices_groups_id == invoices_groups_id)
+        where_query += " AND i.invoices_groups_id = {invoices_groups_id}".format(
+            invoices_groups_id=invoices_groups_id
+        )
 
     if not include_subscriptions:
-        query &= (db.customers_subscriptions.id == None)
-
-    left = [ db.invoices.on(db.invoices_items.invoices_id ==
-                            db.invoices.id),
-             db.invoices_customers.on(db.invoices_customers.invoices_id ==
-                                      db.invoices.id),
-             db.auth_user.on(db.invoices_customers.auth_customer_id == db.auth_user.id),
-             db.tax_rates.on(db.invoices_items.tax_rates_id ==
-                             db.tax_rates.id),
-             db.invoices_customers_subscriptions.on(
-                 db.invoices_customers_subscriptions.invoices_id ==
-                 db.invoices.id),
-             db.customers_subscriptions.on(
-                db.invoices_customers_subscriptions.customers_subscriptions_id ==
-                db.customers_subscriptions.id),
-             db.school_subscriptions.on(
-                db.customers_subscriptions.school_subscriptions_id ==
-                db.school_subscriptions.id),
-             db.payment_methods.on( db.invoices.payment_methods_id == db.payment_methods.id )
-             ]
+        where_query += " AND cs.id IS NULL"
 
     i, m = 0, 1000
     while True:
-        rows = db(query).select(db.invoices_items.ALL,
-                            db.invoices.ALL,
-                            db.tax_rates.ALL,
-                            db.customers_subscriptions.ALL,
-                            db.school_subscriptions.Name,
-                            db.auth_user.id,
-                            db.auth_user.display_name,
-                            db.auth_user.business,
-                            db.payment_methods.Name,
-                            left=left,
-                            orderby=db.invoices.InvoiceID|\
-                                    db.invoices_items.Sorting,
-                            limitby=(i * m, (i + 1) * m))
+        query = '''
+        SELECT i.InvoiceID,
+               au.id,
+               au.display_name,
+               CASE WHEN au.business = 'F' THEN "No" ELSE "Yes" END AS Business,
+               i.DateCreated,
+               i.DateDue,
+               i.Status,
+               i.Description,
+               ii.Sorting,
+               ii.ProductName,
+               ii.Description,
+               ii.Quantity,
+               ii.Price,
+               tr.Percentage,
+               tr.Name,
+               ii.TotalPrice,
+               ii.VAT,
+               ii.TotalPriceVAT,
+               pm.Name,
+               ssu.id as ssuID,
+               ssu.Name,
+               i.SubscriptionYear,
+               i.SubscriptionMonth,
+               ip.payment_dates
+        FROM invoices_items ii
+        LEFT JOIN invoices i on ii.invoices_id = i.id
+        LEFT JOIN (SELECT invoices_id, GROUP_CONCAT(PaymentDate SEPARATOR ', ') AS payment_dates
+                   FROM invoices_payments GROUP BY invoices_id) ip ON ip.invoices_id = i.id
+        LEFT JOIN invoices_customers ic ON ic.invoices_id = i.id
+        LEFT JOIN invoices_customers_subscriptions ics ON ics.invoices_id = i.id
+        LEFT JOIN customers_subscriptions cs ON ics.customers_subscriptions_id = cs.id
+        LEFT JOIN school_subscriptions ssu ON cs.school_subscriptions_id = ssu.id
+        LEFT JOIN auth_user au ON ic.auth_customer_id = au.id
+        LEFT JOIN tax_rates tr ON ii.tax_rates_id = tr.id
+        LEFT JOIN payment_methods pm ON i.payment_methods_id = pm.id 
+        WHERE {where_query} 
+        ORDER BY i.InvoiceID, ii.Sorting
+        LIMIT {m} OFFSET {i}
+        '''.format(
+            where_query=where_query,
+            m=m,
+            i=i
+        )
+
+        rows = db.executesql(query)
+
         item_nr = 1
         prev_iID = None
         for c, row in enumerate(rows):
-            if prev_iID == row.invoices.InvoiceID:
-                item_nr += 1
-            else:
-                prev_iID = row.invoices.InvoiceID
-                item_nr = 1
+            unicode_list = []
+            for i in row:
+                try:
+                    unicode_list.append(i.encode('utf-8'))
+                except:
+                    unicode_list.append(i)
 
-            business = 'Yes' if row.auth_user.business else 'No'
-
-            line = [
-                row.invoices.InvoiceID,
-                row.auth_user.id,
-                row.auth_user.display_name,
-                business,
-                row.invoices.DateCreated,
-                row.invoices.DateDue,
-                row.invoices.Status,
-                row.invoices.Description,
-                item_nr,
-                row.invoices_items.ProductName,
-                row.invoices_items.Description,
-                row.invoices_items.Quantity,
-                row.invoices_items.Price,
-                row.tax_rates.Percentage,
-                row.tax_rates.Name,
-                row.invoices_items.TotalPrice,
-                row.invoices_items.VAT,
-                row.invoices_items.TotalPriceVAT,
-                row.payment_methods.Name,
-                row.customers_subscriptions.school_subscriptions_id,
-                row.school_subscriptions.Name,
-                row.invoices.SubscriptionYear,
-                row.invoices.SubscriptionMonth,
-            ]
 
             if filetype == 'excel':
-                ws.append(line)
+                ws.append(unicode_list)
             else:
-                csv_writer.writerow(line)
+                csv_writer.writerow(unicode_list)
 
         if len(rows) < m: break
         i += 1
@@ -1829,10 +1822,10 @@ def export_invoices_get_export(from_date, until_date, invoices_groups_id, filety
 
 
 def export_invoices_payments_get_form(from_date_default, form_type='invoices'):
-    '''
+    """
         :param from_date_default: datetime.date
         :return: Invoices and payments export form
-    '''
+    """
     ig_query = (db.invoices_groups.Archived == False)
 
     form = SQLFORM.factory(
@@ -1862,10 +1855,10 @@ def export_invoices_payments_get_form(from_date_default, form_type='invoices'):
 
 
 def export_invoices_payments_get_form_display(form, form_type='invoices'):
-    '''
+    """
     :param form: form returned by export_invoices_payments_get_form
     :return: display form
-    '''
+    """
     include_subscriptions = ''
     if form_type == 'invoices':
         include_subscriptions = DIV(
@@ -1899,9 +1892,9 @@ def export_invoices_payments_get_form_display(form, form_type='invoices'):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'invoices'))
 def export_payments():
-    '''
+    """
         Shows a page which exports all paymentsin a selected date range
-    '''
+    """
     response.title = T('Invoices')
     response.subtitle = T('Export payments')
 
@@ -2042,9 +2035,9 @@ def export_payments_get_export(from_date, until_date, invoices_groups_id):
 
 
 def export_get_menu(page):
-    '''
+    """
         Returns submenu for export pages
-    '''
+    """
     pages = [
         [ 'export_invoices', T('Invoices'), URL('export_invoices') ],
         [ 'export_payments', T('Payments'), URL('export_payments') ],
@@ -2058,9 +2051,9 @@ def export_get_menu(page):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('create', 'invoices'))
 def cancel_and_create_credit_invoice():
-    '''
+    """
         Cancel invoice and create credit invoice
-    '''
+    """
     iID = request.vars['iID']
 
     # Duplicate invoice
