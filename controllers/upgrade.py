@@ -330,3 +330,9 @@ def upgrade_to_20186():
 
     query = (db.school_classcards.MembershipRequired == None)
     db(query).update(MembershipRequired = True)
+
+
+    ##
+    # clear cache
+    ##
+    cache.ram.clear(regex='.*')

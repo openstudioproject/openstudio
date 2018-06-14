@@ -132,12 +132,6 @@ def webhook_order_paid(coID, payment_amount=None, payment_date=None, mollie_paym
                 mollie_payment_id=mollie_payment_id
             )
 
-            # link invoice to mollie_payment_id
-            db.invoices_mollie_payment_ids.insert(
-                invoices_id=invoice.invoice.id,
-                mollie_payment_id=mollie_payment_id
-            )
-
             # notify customer
             # os_mail = OsMail()
             # msg = os_mail.render_email_template('email_template_payment_received', invoices_payments_id=ipID)
@@ -156,12 +150,6 @@ def webhook_invoice_paid(iID, payment_amount, payment_date, mollie_payment_id):
         payment_amount,
         payment_date,
         payment_methods_id=100,  # Static id for Mollie payments
-        mollie_payment_id=mollie_payment_id
-    )
-
-    # link invoice to mollie_payment_id
-    db.invoices_mollie_payment_ids.insert(
-        invoices_id=invoice.invoice.id,
         mollie_payment_id=mollie_payment_id
     )
 
@@ -192,7 +180,7 @@ def invoice_pay():
     mollie_api_key = get_sys_property('mollie_website_profile')
     mollie.setApiKey(mollie_api_key)
 
-    description = invoice.invoice.Description + ' [' + invoice.invoice.InvoiceID + ']'
+    description = invoice.invoice.Description + ' - ' + invoice.invoice.InvoiceID
     recurring_type = None
     mollie_customer_id = None
 
@@ -253,7 +241,9 @@ def invoice_pay():
 
         db.invoices_mollie_payment_ids.insert(
             invoices_id=iID,
-            mollie_payment_id=payment['id']
+            mollie_payment_id=payment['id'],
+            RecurringType=payment['recurringType'],
+            WebhookURL=payment['webhookUrl']
         )
 
         # Send the customer off to complete the payment.
@@ -455,7 +445,9 @@ def donate():
 
     db.invoices_mollie_payment_ids.insert(
         invoices_id=iID,
-        mollie_payment_id=payment['id']
+        mollie_payment_id=payment['id'],
+        RecurringType=payment['recurringType'],
+        WebhookURL=payment['webhookUrl']
     )
 
     # Send the customer off to complete the payment.

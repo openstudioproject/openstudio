@@ -16,7 +16,7 @@ def task_openstudio_daily():
     if today.day == 1:
         _task_mollie_subscription_invoices_and_payments()
 
-    return 'Success'
+    return 'Daily task - OK'
 
 
 def task_openstudio_test():
@@ -82,7 +82,7 @@ def _task_mollie_subscription_invoices_and_payments():
         # We're good, continue processing
         invoice_amounts = invoice.get_amounts()
         #print invoice.invoice.InvoiceID
-        description = invoice.invoice.Description + ' [' + invoice.invoice.InvoiceID + ']'
+        description = invoice.invoice.Description + ' - ' + invoice.invoice.InvoiceID
         db.commit()
 
         #create recurring payments using mandates
@@ -99,8 +99,7 @@ def _task_mollie_subscription_invoices_and_payments():
                     break
 
             if valid_mandate:
-                # Do a normal payment, probably an automatic payment failed somewhere in the process
-                # and customer should pay manually now
+                # Create recurring payment
                 try:
                     webhook_url = URL('mollie', 'webhook', scheme='https', host=sys_hostname)
                     payment = mollie.payments.create({
@@ -115,8 +114,16 @@ def _task_mollie_subscription_invoices_and_payments():
                         }
                     })
 
-                    #print payment
+                    # link invoice to mollie_payment_id
+                    db.invoices_mollie_payment_ids.insert(
+                        invoices_id=invoice.invoice.id,
+                        mollie_payment_id=payment['id'],
+                        RecurringType=payment['recurringType'],
+                        WebhookURL=webhook_url
+                    )
+
                 except Mollie.API.Error as e:
+                    print e
                     # send mail to ask customer to pay manually
                     send_mail_failed(cs.auth_customer_id)
                     # return error

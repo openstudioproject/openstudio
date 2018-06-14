@@ -48,23 +48,18 @@ def index():
                 T('About OpenStudio, version and credits'),
                 _class='col-md-4')
 
-    sysadmin = DIV(A(H3(T('Sysadmin')), _href=URL('admin_redis_cache')),
-                T('System admin settings / overview pages'),
-                _class='col-md-4')
 
     content = DIV(DIV(system, financial, access),
                   DIV(shop, selfcheckin, about))
 
-    if auth.user.id == 1:
-        content.append(DIV(sysadmin))
 
     return dict(content=content)
 
 
 def system_get_menu(page):
-    '''
+    """
         Menu for system settings pages
-    '''
+    """
     pages = [['system_general',
               T('General'),
               URL('system_general')],
@@ -80,16 +75,16 @@ def system_get_menu(page):
 
 
 def system_get_back(var=None):
-    '''
+    """
         Back button for system pages
-    '''
+    """
     return os_gui.get_button('back', URL('index'))
 
 
 def system_general():
-    '''
+    """
         General OpenStudio settings
-    '''
+    """
     response.title = T('System Settings')
     response.subtitle = T('General')
     response.view = 'general/tabs_menu.html'
@@ -222,9 +217,9 @@ def system_general():
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
 def system_storage():
-    '''
+    """
         Shows a page with the used and available storage
-    '''
+    """
     response.title = T("System Settings")
     response.subtitle = T("Storage")
 
@@ -343,9 +338,9 @@ def system_organizations():
 
 
 def system_organizations_get_link_set_default(row):
-    '''
+    """
         Called from the index function. Add a "set default" link for all not default organizations
-    '''
+    """
     set_default = A(T('Set default'),
                     _href=URL('system_organizations_set_default', vars={'soID': row.id}))
 
@@ -356,10 +351,10 @@ def system_organizations_get_link_set_default(row):
 
 
 def system_organizations_get_link_archive(row):
-    '''
+    """
         Called from the index function. Changes title of archive button
         depending on whether a language is archived or not
-    '''
+    """
     if row.Archived:
         tt = T("Move to current")
     else:
@@ -392,10 +387,10 @@ def system_organizations_set_default():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'system_organizations'))
 def system_organizations_archive():
-    '''
+    """
         This function archives an organization
         request.vars[sdID] is expected to be from db.system_organizations
-    '''
+    """
     def go_back():
         redirect(URL('system_organizations'))
 
@@ -505,9 +500,9 @@ def system_organization_edit():
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
 def email_outgoing():
-    '''
+    """
         Server settings
-    '''
+    """
     response.title = T('Email Settings')
     response.subtitle = T('Outgoing email')
     response.view = 'general/content_left_sidebar.html'
@@ -584,9 +579,9 @@ def financial_get_back(var=None):
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
 def financial_currency():
-    '''
+    """
         Settings for currency
-    '''
+    """
     response.title = T('Financial Settings')
     response.subtitle = T('Currency')
     response.view = 'general/tabs_menu.html'
@@ -662,9 +657,9 @@ def financial_currency():
 # helpers begin
 
 def access_get_back(var=None):
-    '''
+    """
         Returns back button for access main menu pages
-    '''
+    """
     if session.settings_groups_back == 'teachers':
         url = URL('teachers', 'index')
     elif session.settings_groups_back == 'school_employees':
@@ -696,9 +691,9 @@ def access_get_menu(page):
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
 def access_groups():
-    '''
+    """
         This function shows a page which lists all user groups
-    '''
+    """
     def get_edit_button(row):
         if not row.id == 1:
             return os_gui.get_button('edit', URL('access_group_edit', args=[row.id]))
@@ -753,9 +748,9 @@ def access_groups():
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
 def access_group_add():
-    '''
+    """
         This function shows a page to add a new user group
-    '''
+    """
     response.title = T("New user group")
     response.subtitle = T("")
     response.view = 'general/only_content.html'
@@ -808,15 +803,15 @@ def access_group_edit():
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('update', 'auth_group_permissions'))
 def access_group_permissions():
-    '''
+    """
         This page allows the user to configure the permissions of a group
         request.args[0] is expected to the the id from auth_group (gID)
-    '''
+    """
     def append_table(permissions_list, parent=None, depth=0):
-        '''
+        """
             This is a helper function to make a nice overview from the permissions list.
             Layout permissions list: [ name, label, bold(boolean), [optional submenu list] ]
-        '''
+        """
         table = TABLE(TR(TH(T('Permission')),
                          TH()),
                       _class='unselectable',
@@ -824,10 +819,10 @@ def access_group_permissions():
         odd = False
 
         for field in permissions_list[0]:
-            '''
+            """
                 check if we're at the top level, if so set an id for the
                 container div
-            '''
+            """
 
             # process permissions list
             value = check_permission(group_id, field[0])
@@ -851,9 +846,9 @@ def access_group_permissions():
         return parent
 
     def check_permission(group_id, permission):
-        '''
+        """
             This function checks whether a group has a certain permission
-        '''
+        """
         (obj, name) = permission.split('-')
         row = db.auth_permission(group_id=group_id, name=name, table_name=obj)
         if row:
@@ -1401,10 +1396,10 @@ def financial_dd_categories():
 
 
 def financial_dd_category_get_link_archive(row):
-    '''
+    """
         Called from the index function. Changes title of archive button
         depending on whether a category is archived or not
-    '''
+    """
     row = db.payment_categories(row.id)
 
     if row.Archived:
@@ -1421,10 +1416,10 @@ def financial_dd_category_get_link_archive(row):
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('update', 'payment_categories'))
 def financial_dd_category_archive():
-    '''
+    """
         This function archives a subscription
         request.vars[pcID] is expected to be the payment_category ID
-    '''
+    """
     pcID = request.vars['pcID']
     if not pcID:
         session.flash = T('Unable to (un)archive category')
@@ -1640,10 +1635,10 @@ def financial_payment_method_edit():
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
 def financial_payment_method_archive():
-    '''
+    """
         This function archives a subscription
         request.vars[pmID] is expected to be the payment_methods ID
-    '''
+    """
     pmID = request.vars['pmID']
     if not pmID:
         session.flash = T('Unable to (un)archive method')
@@ -1664,11 +1659,11 @@ def financial_payment_method_archive():
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
 def financial_payment_methods_get_link_edit(row):
-    '''
+    """
         This function returns the edit link for a payment method,
         if the id is > 3. The first 3 are reserved for OpenStudio defined
         methods.
-    '''
+    """
     edit = ''
     if not row.SystemMethod:
         edit = os_gui.get_button('edit',
@@ -1682,11 +1677,11 @@ def financial_payment_methods_get_link_edit(row):
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
 def financial_payment_methods_get_link_archive(row):
-    '''
+    """
         This function returns the archive link for a payment method,
         if the id is > 3. The first 3 are reserved for OpenStudio defined
         methods.
-    '''
+    """
     archive = ''
     if not row.SystemMethod:
         row = db.payment_methods(row.id)
@@ -1707,9 +1702,9 @@ def financial_payment_methods_get_link_archive(row):
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
 def financial_tax_rates():
-    '''
+    """
         List tax rates
-    '''
+    """
     response.title = T("Financial Settings")
     response.subtitle = T("Tax rates")
     response.view = 'general/tabs_menu.html'
@@ -1772,9 +1767,9 @@ def financial_tax_rates():
 
 
 def financial_tax_rates_get_link_archive(row):
-    '''
+    """
         Returns archive button for list of tax rates
-    '''
+    """
     row = db.tax_rates(row.id)
 
     if row.Archived:
@@ -1791,9 +1786,9 @@ def financial_tax_rates_get_link_archive(row):
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
 def financial_tax_rate_add():
-    '''
+    """
         Add a tax rate
-    '''
+    """
     response.title = T("New tax rate")
     response.subtitle = T('')
     response.view = 'general/only_content.html'
@@ -1823,10 +1818,10 @@ def financial_tax_rate_add():
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
 def financial_tax_rate_edit():
-    '''
+    """
         Edit a tax rate
         request.vars['tID'] is expected to be db.tax_rates.id
-    '''
+    """
     tID = request.vars['tID']
     response.title = T("Edit tax rate")
     response.subtitle = T('')
@@ -1858,10 +1853,10 @@ def financial_tax_rate_edit():
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
 def financial_tax_rate_archive():
-    '''
+    """
         This function archives a subscription
         request.vars[tID] is expected to be the tax_rates.id
-    '''
+    """
     tID = request.vars['tID']
     if not tID:
         session.flash = T('Unable to (un)archive tax rate')
@@ -1882,9 +1877,9 @@ def financial_tax_rate_archive():
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
 def financial_invoices_groups():
-    '''
+    """
         List invoice groups
-    '''
+    """
     response.title = T("Financial Settings")
     response.subtitle = T("Invoices")
     response.view = 'general/tabs_menu.html'
@@ -1949,9 +1944,9 @@ def financial_invoices_groups():
 
 
 def financial_invoices_groups_get_link_archive(row):
-    '''
+    """
         Returns archive button for list of tax rates
-    '''
+    """
     row = db.invoices_groups(row.id)
 
     if row.Archived:
@@ -1968,9 +1963,9 @@ def financial_invoices_groups_get_link_archive(row):
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
 def financial_invoices_group_add():
-    '''
+    """
         Add an invoice group
-    '''
+    """
     response.title = T("New invoice group")
     response.subtitle = T('')
     response.view = 'general/only_content.html'
@@ -2005,10 +2000,10 @@ def financial_invoices_group_add():
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
 def financial_invoices_group_edit():
-    '''
+    """
         Edit a tax rate
         request.vars['igID'] is expected to be db.invoices_groups.id
-    '''
+    """
     igID = request.vars['igID']
     response.title = T("Edit invoice group")
     response.subtitle = T('')
@@ -2045,10 +2040,10 @@ def financial_invoices_group_edit():
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
 def financial_invoices_group_archive():
-    '''
+    """
         This function archives a subscription
         request.vars[igID] is expected to be the invoices_groups.id
-    '''
+    """
     igID = request.vars['igID']
     if not igID:
         session.flash = T('Unable to (un)archive invoice group')
@@ -2069,10 +2064,10 @@ def financial_invoices_group_archive():
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
 def financial_invoices_groups_default():
-    '''
+    """
         Page to list the default invoice groups for certain categories in
         OpenStudio (subscriptions, workshop products, etc.)
-    '''
+    """
     response.title = T("Financial Settings")
     response.subtitle = T("Invoices")
     response.view = 'general/tabs_menu.html'
@@ -2132,9 +2127,9 @@ def financial_invoices_groups_default():
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
 def financial_invoices_groups_default_edit():
-    '''
+    """
         Edit default invoice group for product categories
-    '''
+    """
     response.title = T("Set default invoice group")
 
     igptID       = request.vars['igptID']
@@ -2177,9 +2172,9 @@ def financial_invoices_groups_default_edit():
 # @auth.requires(auth.has_membership(group_id='Admins') or
 #                auth.has_permission('read', 'settings'))
 # def financial_invoices_texts():
-#     '''
+#     """
 #         View default texts for invoices
-#     '''
+#     """
 #     response.title = T("Financial Settings")
 #     response.subtitle = T("Invoices")
 #     response.view = 'general/tabs_menu.html'
@@ -2262,9 +2257,9 @@ def financial_invoices_groups_default_edit():
 
 
 def financial_invoices_get_submenu(page):
-    '''
+    """
         Returns submenu for financial invoices pages
-    '''
+    """
     pages = [['financial_invoices_groups',
               T('Groups'), URL('financial_invoices_groups')],
              ['financial_invoices_groups_default',
@@ -2280,9 +2275,9 @@ def financial_invoices_get_submenu(page):
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
 def access_api_users():
-    '''
+    """
         This page shows an overview of current API users
-    '''
+    """
     response.title = T("Access Settings")
     response.subtitle = T("API users")
     response.view = 'general/tabs_menu.html'
@@ -2337,9 +2332,9 @@ def access_api_users():
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
 def access_api_user_add():
-    '''
+    """
         Shows a page to add a new api user
-    '''
+    """
     response.title = T("New API user")
     response.subtitle = T('')
     response.view = 'general/only_content.html'
@@ -2367,10 +2362,10 @@ def access_api_user_add():
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
 def access_api_user_generate_new_key():
-    '''
+    """
         Sets a new API key for an api user.
         request.args[0] is expected to be the sys_api_users id (suaID)
-    '''
+    """
     suaID = request.args[0]
     key = access_api_user_generate_key()
 
@@ -2382,11 +2377,11 @@ def access_api_user_generate_new_key():
 
 
 def access_api_user_generate_key(length=30):
-    '''
+    """
         Function to generate a key for an api user.
         Keys are auto generated to increase security, it's impossible now to
         add weak keys.
-    '''
+    """
     key = generate_password(length)
 
     return key
@@ -2395,10 +2390,10 @@ def access_api_user_generate_key(length=30):
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
 def access_api_user_change_active_state():
-    '''
+    """
         Enables or disables an api user.
         request.args[0] is expected to be the sys_api_users id (suaID)
-    '''
+    """
     suaID = request.args[0]
     record = db.sys_api_users(suaID)
 
@@ -2412,9 +2407,9 @@ def access_api_user_change_active_state():
 
 @auth.requires_login()
 def access_api_user_link_active(row):
-    '''
+    """
         Returns a link which allows (de)activating an api user.
-    '''
+    """
     record = db.sys_api_users(row.id)
     active = record.ActiveUser
     if active:
@@ -2436,9 +2431,9 @@ def access_api_user_link_active(row):
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
 def selfcheckin():
-    '''
+    """
         Self check-in settings
-    '''
+    """
     response.title = T("Settings")
     response.subtitle = T('Self check-in')
     response.view = 'general/only_content.html'
@@ -2489,9 +2484,9 @@ def selfcheckin():
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
 def shop_customer_profile_features():
-    '''
+    """
         Customer profile settings
-    '''
+    """
     response.title = T("Settings")
     response.subtitle = T('Shop profiles')
     response.view = 'general/tabs_menu.html'
@@ -2522,9 +2517,9 @@ def shop_customer_profile_features():
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
 def shop_customers_profile_announcements():
-    '''
+    """
         List announcements for customer profiles
-    '''
+    """
     response.title = T("Settings")
     response.subtitle = T('Shop customer profile announcements')
     response.view = 'general/tabs_menu.html'
@@ -2568,11 +2563,11 @@ def shop_customers_profile_announcements():
 
 
 def shop_customers_profile_announcements_get_link_edit(row):
-    '''
+    """
         This function returns the edit link for a payment method,
         if the id is > 3. The first 3 are reserved for OpenStudio defined
         methods.
-    '''
+    """
     edit = os_gui.get_button('edit',
                              URL('shop_customers_profile_announcement_edit', vars={'cpaID':row.id}),
                              T("Edit this announcement"))
@@ -2581,9 +2576,9 @@ def shop_customers_profile_announcements_get_link_edit(row):
 
 
 def shop_customers_profile_announcement_add():
-    '''
+    """
         Add a new announcement to profiles
-    '''
+    """
     response.title = T("New profile announcement")
     response.subtitle = T('')
     response.view = 'general/only_content.html'
@@ -2611,9 +2606,9 @@ def shop_customers_profile_announcement_add():
 
 
 def shop_customers_profile_announcement_edit():
-    '''
+    """
         Edit an announcement
-    '''
+    """
     response.title = T("Edit customer profile announcement")
     response.subtitle = T('')
     response.view = 'general/only_content.html'
@@ -2646,9 +2641,9 @@ def shop_customers_profile_announcement_edit():
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
 def shop_features():
-    '''
+    """
         Customer shop settings
-    '''
+    """
     response.title = T("Settings")
     response.subtitle = T('Shop features')
     response.view = 'general/tabs_menu.html'
@@ -2680,9 +2675,9 @@ def shop_features():
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
 def shop_subscription_terms():
-    '''
+    """
         Set default terms for all subscriptions
-    '''
+    """
     response.title = T("Settings")
     response.subtitle = T('Shop subscription terms')
     response.view = 'general/tabs_menu.html'
@@ -2739,9 +2734,9 @@ def shop_subscription_terms():
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
 def shop_membership_terms():
-    '''
+    """
         Set default terms for all subscriptions
-    '''
+    """
     response.title = T("Settings")
     response.subtitle = T('Shop membership terms')
     response.view = 'general/tabs_menu.html'
@@ -2793,9 +2788,9 @@ def shop_membership_terms():
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
 def shop_donations():
-    '''
+    """
         Set default terms for all subscriptions
-    '''
+    """
     response.title = T("Settings")
     response.subtitle = T('Shop donations')
     response.view = 'general/tabs_menu.html'
@@ -2892,9 +2887,9 @@ def shop_donations():
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
 def shop_links():
-    '''
+    """
         Add links to shop menu
-    '''
+    """
     response.title = T("Settings")
     response.subtitle = T('Shop links')
     response.view = 'general/tabs_menu.html'
@@ -3000,11 +2995,11 @@ def shop_link_edit():
 
 
 def shop_links_get_link_edit(row):
-    '''
+    """
         This function returns the edit link for a payment method,
         if the id is > 3. The first 3 are reserved for OpenStudio defined
         methods.
-    '''
+    """
     edit = os_gui.get_button('edit',
                              URL('shop_link_edit', vars={'slID':row.id}),
                              T("Edit this link"))
@@ -3080,9 +3075,9 @@ def shop_settings():
 
 
 def shop_get_menu(page):
-    '''
+    """
         Menu for system settings pages
-    '''
+    """
     pages = [['shop_settings',
               T('General'),
               URL('shop_settings')],
@@ -3114,9 +3109,9 @@ def shop_get_menu(page):
 
 @auth.requires(auth.user_id == 1)
 def admin_redis_cache():
-    '''
+    """
         View cache stats
-    '''
+    """
     response.title = T("Sysadmin")
     response.subtitle = T('Redis cache')
     response.view = 'general/tabs_menu.html'
@@ -3169,9 +3164,9 @@ def admin_redis_cache():
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
 def admin_redis_cache_clear():
-    '''
+    """
         Clears the cache
-    '''
+    """
     cache.ram.clear(regex='.*')
 
     redirect(URL('admin_redis_cache'))

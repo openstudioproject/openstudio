@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import datetime
+
 from gluon import *
 
 
@@ -52,6 +54,7 @@ class Customer:
             db.customers_subscriptions.Enddate,
             db.customers_subscriptions.payment_methods_id,
             db.customers_subscriptions.Note,
+            db.school_subscriptions.id,
             db.school_subscriptions.Name,
             db.school_subscriptions.ReconciliationClasses,
             db.school_subscriptions.Unlimited,
@@ -64,6 +67,7 @@ class Customer:
                         cs.Enddate,
                         cs.payment_methods_id,
                         cs.Note,
+                        ssu.id,
                         ssu.Name,
                         ssu.ReconciliationClasses,
                         ssu.Unlimited,
@@ -114,6 +118,20 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
             rows = cache.ram(cache_key , lambda: self._get_subscriptions_on_date(date), time_expire=CACHE_LONG)
 
         return rows
+
+
+    def get_school_subscriptions_ids_on_date(self, date, from_cache=True):
+        """
+        :param date: datetime.date
+        :param from_cache: Boolean
+        :return: list of subscription ids on date
+        """
+        rows = self.get_subscriptions_on_date(date, from_cache=from_cache)
+        ids = []
+        for row in rows:
+            ids.append(row.school_subscriptions.id)
+
+        return ids
 
 
     def has_subscription_on_date(self, date):
@@ -828,6 +846,47 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
             self.row.update_record()
 
         return mollie.customer_mandates.withParentId(mollie_customer_id).all()
+
+
+    def get_mollie_mandates_formatted(self):
+        """
+            Returns mollie mandates
+        """
+        T = current.T
+
+        get_sys_property = current.globalenv['get_sys_property']
+        mollie_api_key = get_sys_property('mollie_website_profile')
+
+        if not mollie_api_key:
+            return T("Mollie not configured")
+
+        mollie_mandates = self.get_mollie_mandates()
+        if mollie_mandates['count'] == 0:
+            return T("No active Mollie mandates")
+        else:
+            header = THEAD(TR(
+                TH(T('Mandate')),
+                TH(T('Created')),
+                TH(T('Signature Date')),
+                TH(T('Status')),
+                TH(T('Method')),
+            ))
+
+            table = TABLE(header, _class="table table-striped table-hover")
+
+            for m in mollie_mandates['data']:
+                # 2018-06-14T10:35:01.0Z -- createdDatetime format
+
+                table.append(TR(
+                    TD(m['id']),
+                    TD(m['createdDatetime']),
+                    TD(m['signatureDate']),
+                    TD(m['status']),
+                    TD(m['method'])
+                ))
+
+
+        return table
 
 
     def get_accepted_documents(self):
