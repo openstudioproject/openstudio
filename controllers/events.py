@@ -1429,7 +1429,6 @@ def tickets_export_excel():
 
     for row in rows:
         # distinct isn't working here in w2p 2.15.4, this is a workaround
-        print emails
         if row.auth_user.email not in emails:
             if export_type == 'mailinglist':
                 ws.append([row.auth_user.first_name,
