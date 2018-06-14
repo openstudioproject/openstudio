@@ -33,9 +33,9 @@ scheduler = Scheduler(db,
 
 # Set global variable to show how many organizations we have
 def _get_organizations():
-    '''
+    """
         Get organizations
-    '''
+    """
     query = (db.sys_organizations.Archived == False)
     rows = db(query).select(db.sys_organizations.ALL)
 
@@ -348,9 +348,9 @@ def represent_shop_products_variants_thumblarge(value, row):
 
 
 def represent_payment_batch_status(value, row):
-    '''
+    """
         Returns a label for the status
-    '''
+    """
     label = ''
     statuses = get_payment_batches_statuses()
     for s, sd in statuses:
@@ -410,9 +410,9 @@ def represent_boolean_as_checkbox(value, row=None):
 
 
 def represent_classes_attendance_bookingstatus(value, row):
-    '''
+    """
         Returns representation of booking status for classes attendance table
-    '''
+    """
     return_value = ''
     for status in booking_statuses:
         if value == status[0]:
@@ -428,9 +428,9 @@ def represent_classes_attendance_bookingstatus(value, row):
 
 
 def represent_message_status(value, row):
-    '''
+    """
         Represent status of sent mails
-    '''
+    """
     if value == 'sent':
         rvalue = os_gui.get_label('success', T("Sent"))
     elif value == 'fail':
@@ -440,9 +440,9 @@ def represent_message_status(value, row):
 
 
 def represent_teacher_role(value, row):
-    '''
+    """
         returns teacher role
-    '''
+    """
     teacher_role = ''
     for terID, role in teachers_roles:
         if terID == value:
@@ -866,10 +866,10 @@ def define_tasks():
 
 
 def tasks_represent_user(value, row):
-    '''
+    """
         returns first_name last_name for user or "Unassigned" when no
         user id is assigned
-    '''
+    """
     auth_user = db.auth_user(value)
     if auth_user is None:
         return_value = os_gui.get_label('danger', T("Unassigned"))
@@ -1063,11 +1063,11 @@ def define_school_classcards():
 
 
 def represent_school_classcards_classes(value, row):
-    '''
+    """
     :param value: db.school_classcards.Classes
     :param row: db.school_classcards
     :return: representation for db.school_classcards.Classes
-    '''
+    """
     if row.Unlimited:
         return T('Unlimited')
     else:
@@ -1075,9 +1075,9 @@ def represent_school_classcards_classes(value, row):
 
 
 def define_school_classcards_groups():
-    '''
+    """
         Table to hold classcard groups
-    '''
+    """
     db.define_table('school_classcards_groups',
         Field('Name',
               requires=IS_NOT_EMPTY(),
@@ -1089,9 +1089,9 @@ def define_school_classcards_groups():
 
 
 def define_school_classcards_groups_classcards():
-    '''
+    """
          Table to hold subscriptions in a subscriptions group
-    '''
+    """
     db.define_table('school_classcards_groups_classcards',
         Field('school_classcards_groups_id', db.school_classcards_groups,
             required=True,
@@ -1246,11 +1246,11 @@ def define_school_subscriptions():
 
 
 def represent_school_subscriptions_classes(value, row):
-    '''
+    """
     :param value: db.school_classcards.Classes
     :param row: db.school_classcards
     :return: representation for db.school_classcards.Classes
-    '''
+    """
     if row.Unlimited:
         return T('Unlimited')
     else:
@@ -1258,9 +1258,9 @@ def represent_school_subscriptions_classes(value, row):
 
 
 def define_school_subscriptions_groups():
-    '''
+    """
         Table to hold subscription groups
-    '''
+    """
     db.define_table('school_subscriptions_groups',
         Field('Name',
               requires=IS_NOT_EMPTY(),
@@ -1272,9 +1272,9 @@ def define_school_subscriptions_groups():
 
 
 def define_school_subscriptions_groups_subscriptions():
-    '''
+    """
          Table to hold subscriptions in a subscriptions group
-    '''
+    """
     db.define_table('school_subscriptions_groups_subscriptions',
         Field('school_subscriptions_groups_id', db.school_subscriptions_groups,
             required=True,
@@ -1784,11 +1784,11 @@ def define_classes_school_subscriptions_groups():
     """
     #TODO: Smart query for school_subscriptions_id, to check if it isn't in set classes_id + school_subscriptions_id for this table
 
-    '''
+    """
     something like this in the controller:
         db.classes_subscriptions.school_subscriptions_id.requires = IS_NOT_IN_DB(records)
 
-    '''
+    """
     db.define_table('classes_school_subscriptions_groups',
         Field('classes_id', db.classes,
               readable=False,
@@ -1812,16 +1812,16 @@ def define_classes_school_subscriptions_groups():
 
 
 def define_classes_school_classcards_groups():
-    '''
+    """
         Table to store which classcards have which access to a class
-    '''
+    """
     #TODO: Smart query for school_classcards_id, to check if it isn't in set classes_id + school_classcards_id for this table
 
-    '''
+    """
     something like this in the controller:
         db.classes_classcards.school_classcards_id.requires = IS_NOT_IN_DB(records)
 
-    '''
+    """
     db.define_table('classes_school_classcards_groups',
         Field('classes_id', db.classes,
               readable=False,
@@ -1971,10 +1971,10 @@ def define_classes_cancelled():
         )
 
 def define_classes_schedule_counts():
-    '''
+    """
         This table won't hold any actual data. It's used as a way to get the
         result of custom query for the class schedule into a web2py DAL row.
-    '''
+    """
     db.define_table('classes_schedule_count',
         Field('classes_id', db.classes, required=True),
         Field('Reservations', 'integer'),
@@ -2099,9 +2099,9 @@ def define_classes_attendance():
 
 
 def represent_customer_subscription(value, row):
-    '''
+    """
         Returns name of subscription with startdate
-    '''
+    """
     return_value = ''
 
     if value:
@@ -2281,9 +2281,9 @@ def define_customers_subscriptions():
 
 
 def define_customers_subscriptions_credits():
-    '''
+    """
         Table to hold credit transactions for subscriptions
-    '''
+    """
     months = get_months_list()
     mutation_types = [ ['add', T('Add')],
                        ['sub', T('Subtract')] ]
@@ -2564,9 +2564,9 @@ def define_classes_reservation():
 
 
 def compute_classes_reservation_restype(row):
-    '''
+    """
         Returns reservation type based on data in row
-    '''
+    """
     restype = 'recurring'
     if row.SingleClass == True and row.TrialClass == False:
         restype = 'single'
@@ -2577,9 +2577,9 @@ def compute_classes_reservation_restype(row):
 
 
 def represent_classes_reservation_restype(value, row):
-    '''
+    """
         Returns reservation type for a class
-    '''
+    """
     repr_val = ''
     if value == 'single':
         repr_val = os_gui.get_label('primary', T("Drop in"))
@@ -2592,10 +2592,10 @@ def represent_classes_reservation_restype(value, row):
 
 
 def represent_classes_reservation_single_class(value, row):
-    '''
+    """
         returns 'Single class' when row.SingleClass == True
         returns 'Recurring' when row.SingleClass != True
-    '''
+    """
     return_value = SPAN(T("Enrolled from "), row.Startdate)
     if row.Enddate:
         return_value.append(T(' until '))
@@ -3023,9 +3023,9 @@ def define_workshops_products_customers():
 
 
 def define_workshops_activities_customers():
-    '''
+    """
         Table used to store attendance for a workshop activity
-    '''
+    """
     db.define_table('workshops_activities_customers',
         Field('workshops_activities_id', db.workshops_activities,
             requires=IS_EMPTY_OR(IS_IN_DB(db, 'workshops_activities.id',
@@ -3081,9 +3081,9 @@ def define_school_holidays_locations():
 
 
 def represent_school_locations_ids(value, row):
-    '''
+    """
         Represent school_locations_ids
-    '''
+    """
     if value is None:
         r_value = ''
     else:
@@ -3314,9 +3314,9 @@ def define_payment_batches_exports():
 
 
 def define_invoices_workshops_products_customers():
-    '''
+    """
         Table to link workshop products to invoices
-    '''
+    """
     db.define_table('invoices_workshops_products_customers',
         Field('invoices_id', db.invoices,
             readable=False,
@@ -3366,9 +3366,9 @@ def define_invoices_customers_subscriptions():
 
 
 def define_invoices_customers_classcards():
-    '''
+    """
         Table to link customer classcards to invoices
-    '''
+    """
     db.define_table('invoices_customers_classcards',
         Field('invoices_id', db.invoices,
             readable=False,
@@ -3379,9 +3379,9 @@ def define_invoices_customers_classcards():
 
 
 def define_invoices_customers_orders():
-    '''
+    """
         Table to link customers_orders to invoices
-    '''
+    """
     db.define_table('invoices_customers_orders',
         Field('invoices_id', db.invoices,
             readable=False,
@@ -3392,9 +3392,9 @@ def define_invoices_customers_orders():
 
 
 def define_invoices_classes_attendance():
-    '''
+    """
         Table to link invoices to class attendance
-    '''
+    """
     db.define_table('invoices_classes_attendance',
         Field('invoices_id', db.invoices,
               readable=False,
@@ -3628,11 +3628,11 @@ def compute_invoices_CustomerListName(row):
 
 
 def represent_invoices_invoiceid(value, row):
-    '''
+    """
     :param value: db.invoices.InvoiceID
     :param row: gluon.dal.row
     :return: link to invoice
-    '''
+    """
     if not value:
         return ''
 
@@ -3651,11 +3651,11 @@ def represent_invoices_invoiceid(value, row):
 
 
 def represent_invoices_datedue(date, row):
-    '''
+    """
         Try to set a represent date, but if the supplied row doesn't have
         the required fields, just don't do anything. We won't need this field
         anyway in that case.
-    '''
+    """
     try:
         if date is None:
             return ""
@@ -3726,6 +3726,12 @@ def define_invoices_mollie_payment_ids():
             label=T('Invoices_id')),
         Field('mollie_payment_id',
             label=T('Mollie payment id')),
+        Field('RecurringType',
+            readable=False,
+            writable=False),
+        Field('WebhookURL',
+            readable=False,
+            writable=False),
         Field('CreatedOn', 'datetime',
             readable=False,
             writable=False,
@@ -3735,9 +3741,9 @@ def define_invoices_mollie_payment_ids():
 
 
 def represent_invoice_status(value, row):
-    '''
+    """
         Returns label for invoice status
-    '''
+    """
     label = ''
 
     if value == 'draft':
@@ -3800,9 +3806,9 @@ def define_invoices_items():
 
 
 def compute_invoice_item_total_price(row):
-    '''
+    """
         Returns the total price for an invoice item
-    '''
+    """
     total_price_vat = Decimal(row.TotalPriceVAT)
 
     total = Decimal(Decimal(total_price_vat - row.VAT).quantize(Decimal('.01'),
@@ -3811,9 +3817,9 @@ def compute_invoice_item_total_price(row):
 
 
 def compute_invoice_item_vat(row):
-    '''
+    """
         Returns the vat for an invoice item
-    '''
+    """
     tID = row.tax_rates_id
     if not tID:
         vat = 0
@@ -3856,16 +3862,16 @@ def define_invoices_amounts():
 
 
 def compute_invoices_amounts_balance(row):
-    '''
+    """
         Calculates the balance for an invoice amounts row
-    '''
+    """
     return row.TotalPriceVAT - row.Paid
 
 
 def represent_tax_rate(value, row):
-    '''
+    """
         Returns name for a tax rate
-    '''
+    """
     name = ''
     if value:
         name = db.tax_rates(value).Name
@@ -3895,9 +3901,9 @@ def define_tax_rates():
 
 
 def define_postcode_groups():
-    '''
+    """
         Create groups for postcodes
-    '''
+    """
     db.define_table('postcode_groups',
         Field('Archived', 'boolean',
             readable=False,
@@ -3986,9 +3992,9 @@ def define_shifts():
 
 
 def define_shifts_otc():
-    '''
+    """
         Define one time change table for classes
-    '''
+    """
     loc_query = (db.school_locations.Archived == False)
     ss_query = (db.school_shifts.Archived == False)
     sl_query = (db.school_levels.Archived == False)
@@ -4198,9 +4204,9 @@ def define_customers_shoppingcart():
 
 
 def define_customers_orders():
-    '''
+    """
         Table to hold orders made through online shop for a customer
-    '''
+    """
     db.define_table('customers_orders',
         Field('auth_customer_id', db.auth_user, required=True,
             readable=False,
@@ -4474,9 +4480,9 @@ def define_shop_suppliers():
 
 
 def define_shop_links():
-    '''
+    """
         Hold additional links in shop
-    '''
+    """
     db.define_table('shop_links',
         Field('Name',
               label=T('Name')),
@@ -4487,9 +4493,9 @@ def define_shop_links():
 
 
 def represent_customers_orders_status(value, row):
-    '''
+    """
         Returns label for order status
-    '''
+    """
     label = ''
 
     if value == 'received':
@@ -4535,9 +4541,9 @@ def define_customers_orders_amounts():
 
 
 def define_customers_orders_items():
-    '''
+    """
         Table to hold customers_orders items
-    '''
+    """
     types = [ (1,T("Trial class")),
               (2,T("Drop In")) ]
 
@@ -4720,9 +4726,9 @@ def define_customers_shop_features():
 
 
 def define_sys_files():
-    '''
+    """
         System file uploads
-    '''
+    """
     db.define_table('sys_files',
         Field('Name',
             readable=False,
@@ -4791,12 +4797,12 @@ def set_default_storage_space():
 
 
 def set_preferences_permissions():
-    '''
+    """
         Set the additional required permissions for the groups with the read
         permission for preferences.
         Currently create, read, update, delete and select will be set for
         payment_methods and payment_categories.
-    '''
+    """
     if not auth.user is None:
         user_id = auth.user.id
         check = auth.has_permission('read', 'preferences', 0, user_id)
@@ -4871,9 +4877,9 @@ def setup_create_invoice_group_defaults():
 
 
 def setup_set_customers_profile_features():
-    '''
+    """
         Enable all profile features for customers by default
-    '''
+    """
     db.customers_profile_features.insert(
         id=1,
         Classes=True,
@@ -4886,9 +4892,9 @@ def setup_set_customers_profile_features():
 
 
 def setup_set_customers_shop_features():
-    '''
+    """
         Enable all profile features for customers by default
-    '''
+    """
     db.customers_shop_features.insert(
         id=1,
         Classcards=True,
@@ -4898,52 +4904,52 @@ def setup_set_customers_shop_features():
 
 
 def setup_set_email_templates():
-    '''
+    """
         Insert default email templates
-    '''
+    """
     templates = [
 #         [ 'email_template_invoice_created',
-#           '''<h3>A new invoice has been added to your account</h3>
+#           """<h3>A new invoice has been added to your account</h3>
 # <p>&nbsp;</p>
 # <p>{invoice_items}</p>
 # <p>&nbsp;</p>
 # <p>To view your invoices, please click <a href="{link_profile_invoices}">here</a>.</p>
-# <p>&nbsp;</p>''' ],
+# <p>&nbsp;</p>""" ],
         [ 'email_template_order_received',
-          '''<h3>We have received your order with number #{order_id} on {order_date}</h3>
+          """<h3>We have received your order with number #{order_id} on {order_date}</h3>
 <p>&nbsp;</p>
 <p>{order_items}</p>
 <p>&nbsp;</p>
-<p>To view your orders, please click <a href="{link_profile_orders}">here</a>.</p>''' ],
+<p>To view your orders, please click <a href="{link_profile_orders}">here</a>.</p>""" ],
         [ 'email_template_order_delivered',
-           '''<h3>Your order&nbsp;with number #{order_id} has been delivered</h3>
+           """<h3>Your order&nbsp;with number #{order_id} has been delivered</h3>
 <p>All items listed below have been added to your account</p>
 <p>&nbsp;</p>
 <p>{order_items}</p>
 <p>&nbsp;</p>
 <p>To view your orders, please click <a href="{link_profile_orders}">here</a>.</p>
-<p>To view your invoices, please click <a href="{link_profile_invoices}">here</a>.</p>'''],
+<p>To view your invoices, please click <a href="{link_profile_invoices}">here</a>.</p>"""],
 #         [ 'email_template_payment_received',
-#           '''<h3>Payment received for invoice #{invoice_id}</h3>
+#           """<h3>Payment received for invoice #{invoice_id}</h3>
 # <p>&nbsp;</p>
 # <p>On {payment_date} we have received a payment of {payment_amount} for invoice #{invoice_id}</p>
 # <p>&nbsp;</p>
-# <p>To view your invoices, please click <a href="{link_profile_invoices}">here</a>.</p>'''],
+# <p>To view your invoices, please click <a href="{link_profile_invoices}">here</a>.</p>"""],
         ['email_template_sys_footer',
-         ''' '''],
+         """ """],
         ['email_template_sys_reset_password',
-         '''<h3>Reset password</h3>
-<p>Please click on the <a href="%(link)s">link</a> to reset your password</p>'''],
+         """<h3>Reset password</h3>
+<p>Please click on the <a href="%(link)s">link</a> to reset your password</p>"""],
         ['email_template_sys_verify_email',
-         '''<h3>Verify email</h3>
+         """<h3>Verify email</h3>
 <p>Welcome %(first_name)s!</p>
-<p>Please click on the <a href="%(link)s">link</a> to verify your email</p>'''],
+<p>Please click on the <a href="%(link)s">link</a> to verify your email</p>"""],
         ['email_template_payment_recurring_failed',
-         '''<h3>Recurring payment failed</h3>
+         """<h3>Recurring payment failed</h3>
 <p>&nbsp;</p>
 <p>One or more recurring payments failed, please log in to your account and pay any open invoices before the due date.</p>
 <p>&nbsp;</p>
-<p>To view your invoices, please click <a href="{link_profile_invoices}">here</a>.</p>''']
+<p>To view your invoices, please click <a href="{link_profile_invoices}">here</a>.</p>"""]
     ]
 
     for template, template_content in templates:
@@ -5017,9 +5023,9 @@ def set_dateformat():
 
 
 def set_datemask(date_format):
-    '''
+    """
         :return: datemask for inputs based on date format
-    '''
+    """
     if date_format == '%d-%m-%Y':
         mask = 'dd-mm-yyyy'
     elif date_format == '%m-%d-%Y':

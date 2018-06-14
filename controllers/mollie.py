@@ -192,7 +192,7 @@ def invoice_pay():
     mollie_api_key = get_sys_property('mollie_website_profile')
     mollie.setApiKey(mollie_api_key)
 
-    description = invoice.invoice.Description + ' [' + invoice.invoice.InvoiceID + ']'
+    description = invoice.invoice.Description + ' - ' + invoice.invoice.InvoiceID
     recurring_type = None
     mollie_customer_id = None
 

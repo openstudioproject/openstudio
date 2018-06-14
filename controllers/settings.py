@@ -47,7 +47,7 @@ def index():
     about = DIV(A(H3(T('About')), _href=URL('about', 'about')),
                 T('About OpenStudio, version and credits'),
                 _class='col-md-4')
-    
+
 
     content = DIV(DIV(system, financial, access),
                   DIV(shop, selfcheckin, about))
