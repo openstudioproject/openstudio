@@ -20,37 +20,7 @@ def index():
 
     session.settings_groups_back = None
 
-    system = DIV(A(H3(T("System")), _href=URL('system_general')),
-                 T("Configure OpenStudio and view available storage."),
-                 _class='col-md-4')
-
-    financial = DIV(A(H3(T('Financial')), _href=URL('financial_currency')),
-                    T('Currency, payment settings and tax rates'),
-                    _class='col-md-4')
-
-    access = DIV(A(H3(T('Access')), _href=URL('access_groups')),
-                 T('Groups, permissions and API access'),
-                 _class='col-md-4')
-
-    selfcheckin = DIV(A(H3(T('Self check-in')), _href=URL('selfcheckin')),
-                      T('Configure what to show in self check-in'),
-                      _class='col-md-4')
-
-    shop = DIV(A(H3(T('Shop')), _href=URL('shop_settings')),
-                 T('OpenStudio shop settings'),
-                 _class='col-md-4')
-
-    branding = DIV(A(H3(T('Branding')), _href=URL('branding_logos')),
-                        T('Apply your style to parts of OpenStudio'),
-                        _class='col-md-4')
-
-    about = DIV(A(H3(T('About')), _href=URL('about', 'about')),
-                T('About OpenStudio, version and credits'),
-                _class='col-md-4')
-
-
-    content = DIV(DIV(system, financial, access),
-                  DIV(shop, selfcheckin, about))
+    content = T("Please use the main menu to navigate to shop settings pages")
 
 
     return dict(content=content)
@@ -72,13 +42,6 @@ def system_get_menu(page):
              ]
 
     return os_gui.get_submenu(pages, page, horizontal=True, htype='tabs')
-
-
-def system_get_back(var=None):
-    """
-        Back button for system pages
-    """
-    return os_gui.get_button('back', URL('index'))
 
 
 def system_general():
@@ -206,10 +169,8 @@ def system_general():
                   _class='row')
 
     menu = system_get_menu(request.function)
-    back = system_get_back()
 
     return dict(content=content,
-                back=back,
                 menu=menu,
                 save=submit)
 
@@ -260,11 +221,9 @@ def system_storage():
                                       data_table)
 
     menu = system_get_menu(request.function)
-    back = system_get_back()
 
     return dict(data_table=data_table,
                 json_data=json_data,
-                back=back,
                 menu=menu,
                 left_sidebar_enabled=True)
 
@@ -329,8 +288,7 @@ def system_organizations():
     archive_buttons = os_gui.get_archived_radio_buttons(
         session.settings_sys_organizations_show)
 
-    back = os_gui.get_button('back', URL('index'))
-    back = DIV(add, archive_buttons, back)
+    back = DIV(add, archive_buttons)
 
     menu = system_get_menu(request.function)
 
@@ -569,13 +527,6 @@ def financial_get_menu(page=None):
     return os_gui.get_submenu(pages, page, horizontal=True, htype='tabs')
 
 
-def financial_get_back(var=None):
-    """
-        Returns back button for financial settings pages
-    """
-    return os_gui.get_button('back', URL('index'))
-
-
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
 def financial_currency():
@@ -644,12 +595,10 @@ def financial_currency():
         # reload so the user sees how the values are stored in the db now
         redirect(URL('financial_currency'))
 
-    back = financial_get_back()
     menu = financial_get_menu(request.function)
 
     return dict(content=DIV(DIV(form, _class="col-md-6"),
                             _class='row'),
-                back=back,
                 menu=menu,
                 save=submit)
 
@@ -734,15 +683,15 @@ def access_groups():
     # remove text from delete button
     grid.elements('span[title=Delete]', replace=None)
 
-    back = access_get_back()
-
     add_url = URL('access_group_add')
     add = os_gui.get_button('add', add_url, T("Add a new group"))
 
 
     menu = access_get_menu(request.function)
 
-    return dict(content=grid, menu=menu, back=back, add=add)
+    return dict(content=grid,
+                menu=menu,
+                add=add)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
@@ -1380,7 +1329,6 @@ def financial_dd_categories():
     # remove text from delete button
     grid.elements('span[title=Delete]', replace=None)
 
-    back = financial_get_back()
     menu = financial_get_menu(request.function)
 
     add = os_gui.get_button('add', URL('financial_dd_category_add'))
@@ -1390,7 +1338,6 @@ def financial_dd_categories():
     content = DIV(archive_buttons, grid)
 
     return dict(content=content,
-                back=back,
                 menu=menu,
                 add=add)
 
@@ -1556,11 +1503,9 @@ def financial_payment_methods():
 
     content = DIV(archive_buttons, grid)
 
-    back = financial_get_back()
     menu = financial_get_menu(request.function)
 
     return dict(content=content,
-                back=back,
                 menu=menu,
                 add=add)
 
@@ -1757,11 +1702,9 @@ def financial_tax_rates():
     content = DIV(DIV(archive_buttons),
                   grid)
 
-    back = financial_get_back()
     menu = financial_get_menu(request.function)
 
     return dict(content=content,
-                back=back,
                 menu=menu,
                 add=add)
 
@@ -1934,11 +1877,9 @@ def financial_invoices_groups():
                   archive_buttons,
                   grid)
 
-    back = financial_get_back()
     menu = financial_get_menu('financial_invoices')
 
     return dict(content=content,
-                back=back,
                 menu=menu,
                 add=add)
 
@@ -2115,11 +2056,9 @@ def financial_invoices_groups_default():
     content = DIV(submenu,
                   table)
 
-    back = financial_get_back()
     menu = financial_get_menu('financial_invoices')
 
     return dict(content=content,
-                back=back,
                 menu=menu,
                 left_sidebar_enabled=True)
 
@@ -2317,14 +2256,12 @@ def access_api_users():
     # remove text from delete button
     grid.elements('span[title=Delete]', replace=None)
 
-    back = access_get_back()
     menu = access_get_menu(request.function)
 
     add_url = URL('access_api_user_add')
     add = os_gui.get_button('add', add_url, T("Add a new api user"))
 
     return dict(content=grid,
-                back=back,
                 menu=menu,
                 add=add)
 
@@ -2473,11 +2410,7 @@ def selfcheckin():
         # reload so the user sees how the values are stored in the db now
         redirect(URL('selfcheckin'))
 
-
-    back = system_get_back()
-
     return dict(content=DIV(form, _class="col-md-6"),
-                back=back,
                 save=submit)
 
 
@@ -2505,11 +2438,9 @@ def shop_customer_profile_features():
     content = DIV(H4(T('Profile features')),
                   form)
 
-    back = system_get_back()
     menu = shop_get_menu(request.function)
 
     return dict(content=content,
-                back=back,
                 menu=menu,
                 save=submit)
 
@@ -2553,12 +2484,10 @@ def shop_customers_profile_announcements():
     add_url = URL('shop_customers_profile_announcement_add')
     add = os_gui.get_button('add', add_url, T("Add a new announcement to profiles"))
 
-    back = system_get_back()
     menu = shop_get_menu(request.function)
 
     return dict(content=grid,
                 menu=menu,
-                back=back,
                 add=add)
 
 
@@ -2662,13 +2591,10 @@ def shop_features():
     content = DIV(H4(T('Shop features')),
                   form)
 
-    back = system_get_back()
-
     menu = shop_get_menu(request.function)
 
     return dict(content=content,
                 menu=menu,
-                back=back,
                 save=submit)
 
 
@@ -2720,15 +2646,11 @@ def shop_subscription_terms():
         redirect(URL())
 
     content = form
-
-    back = system_get_back()
-
     menu = shop_get_menu(request.function)
 
     return dict(content=content,
                 menu=menu,
-                back=back,
-                save=submit)\
+                save=submit)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
@@ -2775,14 +2697,10 @@ def shop_membership_terms():
         redirect(URL())
 
     content = form
-
-    back = system_get_back()
-
     menu = shop_get_menu(request.function)
 
     return dict(content=content,
                 menu=menu,
-                back=back,
                 save=submit)
 
 @auth.requires(auth.has_membership(group_id='Admins') or
@@ -2873,14 +2791,10 @@ def shop_donations():
         redirect(URL())
 
     content = DIV(B(T('Invoices')), form)
-
-    back = system_get_back()
-
     menu = shop_get_menu(request.function)
 
     return dict(content=content,
                 menu=menu,
-                back=back,
                 save=submit)
 
 
@@ -2925,14 +2839,10 @@ def shop_links():
     add = os_gui.get_button('add', add_url, T("Add a new link to the shop menu"))
 
     content = grid
-
-    back = system_get_back()
-
     menu = shop_get_menu(request.function)
 
     return dict(content=content,
                 menu=menu,
-                back=back,
                 add=add)
 
 
@@ -3066,10 +2976,8 @@ def shop_settings():
                   _class='row')
 
     menu = shop_get_menu(request.function)
-    back = system_get_back()
 
     return dict(content=content,
-                back=back,
                 menu=menu,
                 save=submit)
 
@@ -3154,11 +3062,9 @@ def admin_redis_cache():
     )
 
     menu = admin_get_menu(request.function)
-    back = system_get_back()
 
     return dict(content=content,
-                menu=menu,
-                back=back)
+                menu=menu)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
@@ -3200,14 +3106,17 @@ def admin_storage_set_limit():
 
         redirect(URL('system_storage'))
 
-    back = system_get_back()
     menu = admin_get_menu(request.function)
 
     result = set_form_id_and_get_submit_button(form, 'MainForm')
     form = result['form']
     submit = result['submit']
 
-    return dict(content=form, back=back, menu=menu, save=submit)
+    return dict(
+        content=form,
+        menu=menu,
+        save=submit
+    )
 
 
 @auth.requires(auth.user_id == 1)
@@ -3307,11 +3216,9 @@ def admin_scheduled_tasks_run():
     ## Pager End
 
     submenu = admin_scheduler_get_menu(request.function)
-    back = system_get_back()
     menu = admin_get_menu('admin_scheduled_tasks')
 
     return dict(content=DIV(submenu, table, navigation),
-                back=back,
                 menu=menu)
 
 
@@ -3421,12 +3328,10 @@ def admin_scheduled_tasks():
 
     submenu = admin_scheduler_get_menu(request.function)
     add = os_gui.get_button('add', URL('admin_scheduled_tasks_add'))
-    back = system_get_back()
     menu = admin_get_menu(request.function)
 
     return dict(content=DIV(submenu, table),
                 add = add,
-                back=back,
                 menu=menu)
 
 
@@ -3471,11 +3376,9 @@ def admin_scheduler_workers():
         table.append(tr)
 
     submenu = admin_scheduler_get_menu(request.function)
-    back = system_get_back()
     menu = admin_get_menu('admin_scheduled_tasks')
 
     return dict(content=DIV(submenu, table),
-                back=back,
                 menu=menu)
 
 

@@ -25,12 +25,10 @@ def credits():
                              _title="Creative Commons BY 3.0",
                              _target="_blank"))))
 
-    back = about_get_back()
     menu = about_get_menu(request.function)
 
 
     return dict(content=content,
-                back=back,
                 menu=menu,
                 left_sidebar_enabled=True)
 
@@ -64,27 +62,18 @@ def about():
     "Copyright © 2012-{0} Edwin van de Ven".format(today.year)
     )
 
-    back = about_get_back()
     menu = about_get_menu(request.function)
 
     return dict(content=content,
-                back=back,
                 menu=menu,
                 left_sidebar_enabled=True)
 
 
-def about_get_back(var=None):
-    '''
-        Returns back button for about menu
-    '''
-    return os_gui.get_button('back', URL('settings', 'index'),
-                             _class='full-width')
-
 
 def about_get_menu(page):
-    '''
+    """
         Returns menu for about/credits pages
-    '''
+    """
     pages = ( ['about',
                T("About"),
                URL("about")],
