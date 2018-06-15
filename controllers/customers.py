@@ -4918,6 +4918,15 @@ def load_list():
         title = H4(T('Search results'))
 
     if search_name:
+        if list_type == 'classes_attendance_list' and session.customers_load_list_search_name_int:
+            cuID = session.customers_load_list_search_name_int
+            redirect(URL('classes', 'attendance_booking_options',
+                         vars={'cuID':cuID,
+                               'clsID':clsID,
+                               'date':date_formatted},
+                         extension=''),
+                     client_side=True)
+
         query &= ((db.auth_user.display_name.like(search_name)) |
                   (db.auth_user.email == search_name.replace('%', '')) |
                   (db.auth_user.id == session.customers_load_list_search_name_int))

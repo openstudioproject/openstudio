@@ -187,9 +187,9 @@ def get_customers_searchform(clsID,
 
 
 def attendance_list_classcards_count_classes(row):
-    '''
+    """
         Returns classes remaining for a class card
-    '''
+    """
     try:
         ccdID = row.customers_classcards.id
     except AttributeError:
@@ -202,9 +202,9 @@ def attendance_list_classcards_count_classes(row):
 ### helpers end ###
 
 def class_get_back(var=None):
-    '''
+    """
         General back button for class edit pages
-    '''
+    """
     if session.classes_attendance_back == 'reports_teacher_classes':
         url = URL('reports', 'teacher_classes')
     elif session.classes_attendance_back == 'reports_attendance_classes':
@@ -235,9 +235,9 @@ def attendance_count_classes(customers_id, date):
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('delete', 'classes_otc'))
 def class_edit_on_date_remove_changes():
-    '''
+    """
         Remove all changes made to a class
-    '''
+    """
     clsID = request.vars['clsID']
     date_formatted = request.vars['date']
     cotcID = request.vars['cotcID']
@@ -254,10 +254,10 @@ def class_edit_on_date_remove_changes():
 
 
 def class_edit_on_date_get_link_remove(cotcID, clsID, date_formatted):
-    '''
+    """
         @param cotcID: db.classes_otc.id
         @return: link with confirmation to remove a all changes made to a class
-    '''
+    """
     if cotcID is None:
         return ''
 
@@ -278,9 +278,9 @@ def class_edit_on_date_get_link_remove(cotcID, clsID, date_formatted):
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('update', 'classes'))
 def class_edit_on_date():
-    '''
+    """
         Edit class on a selected date without editing other classes in range
-    '''
+    """
     clsID = request.vars['clsID']
     date_formatted = request.vars['date']
     date = datestr_to_python(DATE_FORMAT, date_formatted)
@@ -324,10 +324,10 @@ def class_edit_on_date():
 
 
 def class_edit_on_accept(form):
-    '''
+    """
         :param form: crud form for db.classes_otc
         :return: None
-    '''
+    """
     cotcID = form.vars.id
 
     cotc = db.classes_otc(cotcID)
@@ -339,9 +339,9 @@ def class_edit_on_accept(form):
 
 
 def class_edit_on_date_get_form(clsID, date_formatted):
-    '''
+    """
         Returns add or edit crud form for one time class change
-    '''
+    """
     date = datestr_to_python(DATE_FORMAT, date_formatted)
 
     query = (db.classes_otc.classes_id == clsID) & \
@@ -399,9 +399,9 @@ def class_add():
 
 
 def class_add_get_menu(page):
-    '''
+    """
         Returns submenu for adding a workshop
-    '''
+    """
     pages = [ ['class_add', T('1. Class'), "#"],
               ['class_teacher_add', T('2. Teachers'), "#"] ]
 
@@ -509,10 +509,10 @@ def class_edit():
 
 
 def class_edit_get_notification_no_access_defined(clsID):
-    '''
+    """
         :param clsID: db.classes.id
         :return: warning to notify user that no classcards or subscriptions are defined for access
-    '''
+    """
     query = (db.classes_school_subscriptions_groups.classes_id == clsID)
     count_subscriptions = db(query).count()
 
@@ -534,10 +534,10 @@ def class_edit_get_notification_no_access_defined(clsID):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'classes'))
 def class_teachers():
-    '''
+    """
         Overview with teachers for a class
         request.vars[clsID] is required to be classes_id
-    '''
+    """
     clsID = request.vars['clsID']
     date_formatted = request.vars['date']
 
@@ -691,17 +691,17 @@ def class_teacher_edit():
 
 
 def class_teachers_add_edit_get_return_url(clsID, date_formatted):
-    '''
+    """
         Returns return url for adding or editing a teacher
-    '''
+    """
     return URL('class_teachers', vars ={'clsID':clsID,
                                         'date' :date_formatted})
 
 
 def class_teachers_check_classtype(form):
-    '''
+    """
         Check if this teacher is assigned to this classtype
-    '''
+    """
     teID = form.vars['auth_teacher_id']
     clsID = request.vars['clsID']
 
@@ -728,10 +728,10 @@ def class_teachers_check_classtype(form):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('delete', 'classes'))
 def class_delete():
-    '''
+    """
         Removed the selected class and redirect to the manage page
         request.args[0] is expected to be the classes_id (clsID)
-    '''
+    """
     clsID = request.args[0]
 
     flash_msg = T('Failed to delete class')
@@ -835,15 +835,15 @@ def check_class(form):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'classes'))
 def schedule():
-    '''
+    """
         Main list of classes
-    '''
+    """
     def get_day(weekday, trend_medium, trend_high):
-        '''
+        """
             Helper function that returns a dict containing a title for the weekday,
             a date for the class and
             a SQLFORM.grid for a selected day which is within 1 - 7 (ISO standard).
-        '''
+        """
         title = NRtoDay(weekday)
         date = iso_to_gregorian(int(year), int(week), int(weekday))
         session.schedule_get_day_date = date # used for schedule_get_filled
@@ -1046,9 +1046,9 @@ def schedule():
 
 
 def schedule_get_query(weekday, date):
-    '''
+    """
         Returns the default query for the schedule workshops check
-    '''
+    """
     return (db.classes.Week_day == weekday) & \
            (db.classes.Startdate <= date) & \
            ((db.classes.Enddate >= date) |
@@ -1056,17 +1056,17 @@ def schedule_get_query(weekday, date):
 
 
 def schedule_get_subtitle(year, week):
-    '''
+    """
         Returns subtitle for schedule
-    '''
+    """
     return unicode(year) + " " + T("week") + " " + unicode(week)
 
 
 
 def schedule_get_form_week(year, week):
-    '''
+    """
         Returns week selection form for schedule
-    '''
+    """
     lastweek = get_lastweek_year(year)
 
     input_week = INPUT(_name='schedule_week',
@@ -1092,9 +1092,9 @@ def schedule_get_form_week(year, week):
 
 
 def schedule_get_form_year(year):
-    '''
+    """
         Returns week selection form for schedule
-    '''
+    """
     lastweek = get_lastweek_year(year)
 
     input_year = INPUT(_name='schedule_year',
@@ -1119,9 +1119,9 @@ def schedule_get_form_year(year):
     return form
 
 # def schedule_get_form_week(year, week):
-#     '''
+#     """
 #         Returns week/year selection form for schedule
-#     '''
+#     """
 #     lastweek = get_lastweek_year(year)
 #
 #     input_year = INPUT(_name='schedule_year',
@@ -1161,9 +1161,9 @@ def schedule_get_form_year(year):
 
 
 def schedule_get_form_jump(jump_date):
-    '''
+    """
         Returns a form to jump to a date
-    '''
+    """
     form_jump = SQLFORM.factory(
                 Field('schedule_jump_date', 'date',
                       requires=IS_DATE_IN_RANGE(
@@ -1192,9 +1192,9 @@ def schedule_get_form_jump(jump_date):
 
 
 def schedule_get_week_chooser(var=None):
-    '''
+    """
         Returns a week chooser for the schedule
-    '''
+    """
     year = session.schedule_year
     week = session.schedule_week
 
@@ -1228,9 +1228,9 @@ def schedule_get_week_chooser(var=None):
 
 
 def schedule_get_day_chooser(var=None):
-    '''
+    """
         Links to quickly go to a selected day
-    '''
+    """
     day_chooser = DIV(_class='schedule_day_chooser text-center grey')
 
     for i in range (1, 8):
@@ -1243,9 +1243,9 @@ def schedule_get_day_chooser(var=None):
 
 
 def schedule_get_schedule_tools(var=None):
-    '''
+    """
         Returns tools for schedule
-    '''
+    """
     schedule_tools = []
 
     # teacher holidays
@@ -1306,9 +1306,9 @@ def schedule_get_schedule_tools(var=None):
 
 
 def schedule_get_export(var=None):
-    '''
+    """
         Returns export drop down for schedule
-    '''
+    """
     export_locations = A(os_gui.get_fa_icon('fa-calendar'), T("Schedule"),
                           _href=URL('schedule_export_excel',
                                     vars=dict(year=session.schedule_year,
@@ -1330,9 +1330,9 @@ def schedule_get_export(var=None):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'workshops_activities'))
 def schedule_get_overlapping_workshops():
-    '''
+    """
         Returns overlapping workhshops for a week in the schedule
-    '''
+    """
     year = request.vars['year']
     week = request.vars['week']
 
@@ -1360,9 +1360,9 @@ def schedule_get_overlapping_workshops():
 
 
 def schedule_get_status(modals):
-    '''
+    """
         Returns status for schedule
-    '''
+    """
     if auth.has_membership(group_id='Admins') or \
        auth.has_permission('read', 'schedule_classes_status'):
 
@@ -1412,9 +1412,9 @@ def schedule_get_status(modals):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'classes'))
 def schedule_set_week():
-    '''
+    """
         Set the session variables for schedule week and year
-    '''
+    """
     year  = request.vars['year']
     week  = request.vars['week']
 
@@ -1427,9 +1427,9 @@ def schedule_set_week():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'schedule_classes_status'))
 def schedule_set_week_status():
-    '''
+    """
         Function to set the weekly status of the schedule
-    '''
+    """
     status = request.vars['status']
     row = db.schedule_classes_status(ScheduleYear=session.schedule_year,
                                      ScheduleWeek=session.schedule_week)
@@ -1453,9 +1453,9 @@ def schedule_set_week_status():
 
 @auth.requires_login()
 def schedule_get_sort_options():
-    '''
+    """
         returns a list of sorting options for classes
-    '''
+    """
     sort_options = [ ['location', T('Location')],
                      ['starttime', T('Start time')] ]
 
@@ -1465,9 +1465,9 @@ def schedule_get_sort_options():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'schedule_set_default_sort'))
 def schedule_set_sort_default():
-    '''
+    """
         Displays a page to edit the default sorting order for the schedule
-    '''
+    """
     response.title = T('Schedule')
     response.subtitle = T('Set default sort order for classes')
     response.view = 'general/only_content.html'
@@ -1522,18 +1522,18 @@ def schedule_set_sort_default():
 
 
 def schedule_get_back(var=None):
-    '''
+    """
         Return to class schedule
-    '''
+    """
     return os_gui.get_button('back', URL('schedule'))
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'classes_schedule_set_trend_precentages'))
 def schedule_set_trend_percentages():
-    '''
+    """
         Set percentages for trend colors
-    '''
+    """
     response.title = T('Schedule')
     response.subtitle = T('Set trend color percentages')
     response.view = 'general/only_content.html'
@@ -1618,9 +1618,9 @@ def schedule_set_trend_percentages():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'classes_schedule_set_trend_precentages'))
 def schedule_set_trend_percentages_clear():
-    '''
+    """
         Clear trend percentages
-    '''
+    """
     # Clear values in DB
     query = (db.sys_properties.Property == 'classes_schedule_trend_medium') | \
             (db.sys_properties.Property == 'classes_schedule_trend_high')
@@ -1745,9 +1745,9 @@ def schedule_export_excel():
     export = request.vars['export']
 
     def get_cell_id(col, row):
-        '''
+        """
             Returns cell id for colums / row
-        '''
+        """
         col_letter = openpyxl.utils.get_column_letter(col)
         return col_letter + unicode(row)
 
@@ -1846,11 +1846,11 @@ def schedule_export_excel():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('create', 'classes_attendance_override'))
 def attendance_override():
-    '''
+    """
         This function shows a page that allows the customer count of attendance to be overridden
         request.args[0] is expected to be the classes_id
         request.args[1] is expected to be the data formatted using DATE_FORMAT
-    '''
+    """
     clsID = request.vars['clsID']
     date_formatted = request.vars['date']
     date = datestr_to_python(DATE_FORMAT, date_formatted)
@@ -1909,12 +1909,12 @@ def attendance_override():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('update', 'classes_waitinglist'))
 def waitinglist():
-    '''
+    """
         lists waitinglist for a class
         request.vars['clsID'] is expected to be classes.id
         request.vars['date']  is expected to be classdate formatted using
             DATE_FORMAT
-    '''
+    """
     clsID = request.vars['clsID']
     date_formatted = request.vars['date']
     date = datestr_to_python(DATE_FORMAT, date_formatted)
@@ -1974,9 +1974,9 @@ def waitinglist():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'classes_reservation'))
 def reservations():
-    '''
+    """
         Manage reservations for a class
-    '''
+    """
     response.title = T("Class")
     session.classes_reserve_back = None
     session.classes_reservation_cancel_next = 'reservations'
@@ -2128,10 +2128,10 @@ def reservations():
 
 
 def reservations_get_export(clsID, date_formatted):
-    '''
+    """
         Returns dict with export button and bs3 modal containing the links
         to different export options.
-    '''
+    """
     mailinglist = A((os_gui.get_fa_icon('fa-envelope-o'),
                      T("Mailing list")),
                     _href=URL('reservations_export_mailinglist', vars={'clsID':clsID, 'date':date_formatted}),
@@ -2152,9 +2152,9 @@ def reservations_get_export(clsID, date_formatted):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'classes_reservation'))
 def reservations_export_mailinglist():
-    '''
+    """
         Excel export mailing list
-    '''
+    """
     clsID = request.vars['clsID']
     date_formatted = request.vars['date']
     date = datestr_to_python(DATE_FORMAT, request.vars['date'])
@@ -2215,9 +2215,9 @@ def reservations_export_mailinglist():
 
 
 def reservations_get_spaces(clsID, date):
-    '''
+    """
         Returns number of spaces for a class based on reservation
-    '''
+    """
     # get cancelled
     cancelled = reservation_get_spaces_cancelled(clsID, date)
     # get reserved
@@ -2256,9 +2256,9 @@ def reservations_get_spaces(clsID, date):
 
 
 def reservation_get_spaces_cancelled(clsID, date):
-    '''
+    """
         Returns count of cancelled reservations for a class
-    '''
+    """
     reservations_cancelled = {}
 
     res_types = ['recurring', 'single', 'trial']
@@ -2280,9 +2280,9 @@ def reservation_get_spaces_cancelled(clsID, date):
 
 
 def reservation_get_spaces_reserved(clsID, date):
-    '''
+    """
         Returns count of reservations for a class
-    '''
+    """
     reservations = {}
 
     res_types = ['recurring', 'single', 'trial']
@@ -2402,9 +2402,9 @@ def waitinglist_edit():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('update', 'classes_attendance'))
 def attendance_get_chart_title():
-    '''
+    """
         This function returns the title for the attendance chart
-    '''
+    """
     return dict(title=T("Attendance chart") + " " +
                  unicode(session.stats_attendance_year))
 
@@ -2412,11 +2412,11 @@ def attendance_get_chart_title():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'classes_attendance'))
 def attendance_set_chart_year():
-    '''
+    """
         This function is calles as json and sets the attendance year + or - 1
         year. It's part of the back-end for the attendance chart buttons on the
         attendance page.
-    '''
+    """
     response.view = 'generic.json'
     try:
         session.stats_attendance_year += int(request.vars['year'])
@@ -2434,9 +2434,9 @@ def attendance_set_chart_year():
 
 
 def classes_get_week_chooser(function, clsID, date):
-    '''
+    """
         Returns a week chooser for the schedule
-    '''
+    """
     delta = datetime.timedelta(days=7)
     date_prev = (date-delta).strftime(DATE_FORMAT)
     date_next = (date+delta).strftime(DATE_FORMAT)
@@ -2469,22 +2469,25 @@ def classes_get_week_chooser(function, clsID, date):
 
 
 def attendance_get_notice(message):
-    '''
+    """
         Returns info message to inform user that the selected date isn't
         valid for this class
-    '''
+    """
     return os_gui.get_alert('info', message, dismissable=False)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'classes_attendance'))
 def attendance():
-    '''
+    """
         This function shows a page of people expected to attend a class
         request.vars['clsID'] is expected to be the classes_id
         request.vars['date']  is expected to be the class date
             formatted using DATE_FORMAT
-    '''
+    """
+    
+    session.customers_load_list_search_name_int = None
+    
     # set classes ID
     if 'clsID' in request.vars:
         clsID = request.vars['clsID']
@@ -2647,9 +2650,9 @@ def attendance():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'customers_contact'))
 def attendance_export_excel_mailinglist():
-    '''
+    """
         :return: Mailing list for a class
-    '''
+    """
     clsID = request.vars['clsID']
     date_formatted  = request.vars['date']
     date = datestr_to_python(DATE_FORMAT, date_formatted)
@@ -2666,10 +2669,10 @@ def attendance_export_excel_mailinglist():
 
 
 def attendance_get_export(clsID, date_formatted):
-    '''
+    """
         Returns dict with export button and bs3 modal containing the links
         to different export options.
-    '''
+    """
     mailinglist = A(SPAN(os_gui.get_fa_icon('fa-envelope-o'), ' ',
                          T("Mailing list")),
                     _href=URL('attendance_export_excel_mailinglist', vars={'clsID': clsID,
@@ -2689,11 +2692,11 @@ def attendance_get_export(clsID, date_formatted):
 
 
 def attendance_get_count(clsID, date):
-    '''
+    """
         :param clsID: db.classes.id
         :param date: date of class
         :return: SPAN with count of attending customers
-    '''
+    """
     query = (db.classes_attendance.classes_id == clsID) & \
             (db.classes_attendance.ClassDate == date)
     count = db(query).count()
@@ -2772,9 +2775,9 @@ def reservation_get_return_url(clsID, date):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('update', 'classes_reservation'))
 def reservation_remove():
-    '''
+    """
         Remove reservation
-    '''
+    """
     crID  = request.vars['crID']
     clsID = request.vars['clsID']
     date_formatted  = request.vars['date']
@@ -2793,9 +2796,9 @@ def reservation_add():
 
         if startdate is not set, a one time reservation for 'date' is assumed
     """
-    '''
+    """
         Edit page for recurring reservations
-    '''
+    """
     cuID  = request.vars['cuID']
     clsID = request.vars['clsID']
     date_formatted = request.vars['date']
@@ -2891,9 +2894,9 @@ def reservation_edit():
 
 
 def reservation_get_cancelled(crID, date):
-    '''
+    """
         Checks if a reservation is cancelled
-    '''
+    """
     cancelled = False
     # check if the reservation exists in the database
     query = (db.classes_reservation_cancelled.classes_reservation_id == crID) & \
@@ -2907,9 +2910,9 @@ def reservation_get_cancelled(crID, date):
 
 
 def reservation_get_cancel_button(crID, date):
-    '''
+    """
         Returns cancel button for a reservation
-    '''
+    """
     date_formatted = date.strftime(DATE_FORMAT)
 
     permission = auth.has_membership(group_id='Admins') or \
@@ -2959,9 +2962,9 @@ def waitinglist_process():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('update', 'classes_attendance'))
 def attendance_remove_ajaj():
-    '''
+    """
         Called as JSON, used to remove the attendance to a class for a customer
-    '''
+    """
     response.view = 'generic.json'
     customers_id = request.vars['cuID']
     clattID = request.vars['clattID']
@@ -2987,9 +2990,9 @@ def attendance_remove_ajaj():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('delete', 'classes_attendance'))
 def attendance_remove():
-    '''
+    """
         Removes a customer from a class
-    '''
+    """
     clattID = request.vars['clattID']
 
     clatt = db.classes_attendance(clattID)
@@ -3072,9 +3075,9 @@ def attendance_sign_in_ajaj():
 
 
 def class_book():
-    '''
+    """
         Actually book class
-    '''
+    """
     cuID = request.vars['cuID']
     csID = request.vars['csID']
     ccdID = request.vars['ccdID']
@@ -3117,9 +3120,9 @@ def class_book():
 
 
 def attendance_sign_in_get_returl_url(clsID, date_formatted, cuID):
-    '''
+    """
         Return url for sign in functions
-    '''
+    """
     if session.classes_attendance_signin_back == 'attendance_list':
         url = URL('attendance_list',
                    vars={'clsID': clsID,
@@ -3230,9 +3233,9 @@ def attendance_list_classcards():
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'customers_notes_teachers'))
 def attendance_teacher_notes():
-    '''
+    """
         List teacher notes for a customer
-    '''
+    """
     cuID = request.vars['cuID']
     clsID = request.vars['clsID']
     date_formatted = request.vars['date']
@@ -3287,10 +3290,10 @@ def attendance_teacher_notes():
 
 
 def attendance_teacher_notes_get_content(cuID, clsID, date_formatted):
-    '''
+    """
         :param cuID: db.auth_user.id
         :return:
-    '''
+    """
     query = (db.customers_notes.auth_customer_id == cuID) & \
             (db.customers_notes.TeacherNote == True)
     rows = db(query).select(db.customers_notes.ALL,
@@ -3362,9 +3365,9 @@ def attendance_teacher_notes_get_content(cuID, clsID, date_formatted):
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('update', 'customers_notes'))
 def attendance_teacher_notes_injury_status():
-    '''
+    """
         Set or unset the Injury boolean for a customer note
-    '''
+    """
     cnID = request.vars['cnID']
     clsID = request.vars['clsID']
     date_formatted = request.vars['date']
@@ -3381,9 +3384,9 @@ def attendance_teacher_notes_injury_status():
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('edit', 'customers_notes_teachers'))
 def attendance_teacher_note_edit():
-    '''
+    """
         List teacher notes for a customer
-    '''
+    """
     cnID = request.vars['cnID']
     cuID = request.vars['cuID']
     clsID = request.vars['clsID']
@@ -3443,9 +3446,9 @@ def attendance_teacher_note_edit():
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('delete', 'customers_notes'))
 def attendance_teacher_note_delete():
-    '''
+    """
         Delete a teacher note
-    '''
+    """
     cnID = request.vars['cnID']
     cuID = request.vars['cuID']
     clsID = request.vars['clsID']
@@ -3462,10 +3465,10 @@ def attendance_teacher_note_delete():
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'classes_open'))
 def classes_open():
-    '''
+    """
         List all open classes. Initially list 25, list 25 more each time
         more is clicked
-    '''
+    """
     response.title = T('Open classes')
     response.subtitle = ''
     response.view = 'general/only_content.html'
@@ -3535,9 +3538,9 @@ def classes_open():
 
 
 def classes_open_get_rows(from_date):
-    '''
+    """
         Return rows for classes_open
-    '''
+    """
     fields = [
         db.classes_otc.id,
         db.classes_otc.ClassDate,
@@ -3549,7 +3552,7 @@ def classes_open_get_rows(from_date):
         db.classes.Endtime
     ]
 
-    query = '''
+    query = """
     SELECT cotc.id,
            cotc.ClassDate,
            cotc.Status,
@@ -3574,7 +3577,7 @@ def classes_open_get_rows(from_date):
     LEFT JOIN classes cla on cla.id = cotc.classes_id
     WHERE cotc.ClassDate >= '{date}' AND cotc.Status = 'open'
     ORDER BY cotc.ClassDate, Starttime
-    '''.format(date=from_date)
+    """.format(date=from_date)
 
     rows = db.executesql(query, fields=fields)
 
@@ -3582,9 +3585,9 @@ def classes_open_get_rows(from_date):
 
 
 def overlapping_workshops_count():
-    '''
+    """
         Returns a count for overlapping workshops
-    '''
+    """
     year = session.schedule_year
     week = session.schedule_week
 
@@ -3609,9 +3612,9 @@ def overlapping_workshops_count():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'workshops_activities'))
 def overlapping_workshops():
-    '''
+    """
         Shows a list of overlapping workshop activities
-    '''
+    """
     response.title = T("Overlapping events")
     year = request.vars['year']
     week = request.vars['week']
@@ -3639,9 +3642,9 @@ def overlapping_workshops():
 
 
 def overlapping_workshops_get_overlapping(date):
-    '''
+    """
         Return a list of overlapping workshops
-    '''
+    """
     return_value = None
 
     query = schedule_get_query(date.isoweekday(), date)
@@ -3685,9 +3688,9 @@ def overlapping_workshops_get_overlapping(date):
 
 
 def overlapping_workshops_get_overlapping_buttons(wsID):
-    '''
+    """
         Returns edit button to link to manage page of workshops
-    '''
+    """
     btn_group = ''
     permission = auth.has_membership(group_id='Admins') or \
                  auth.has_permission('update', 'workshops')
@@ -3701,11 +3704,11 @@ def overlapping_workshops_get_overlapping_buttons(wsID):
 
 
 def overlapping_workshops_get_query(row, class_date):
-    '''
+    """
         Returns a query to check whether a class overlaps with workshop
         activities
         The row parameter is expected to be a record from db.classes
-    '''
+    """
     starttime = row.Starttime
     endtime = row.Endtime
 
@@ -3906,9 +3909,9 @@ def class_prices_add_edit_get_return_url(clsID):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'classes_notes'))
 def notes():
-    '''
+    """
         Add notes to a class
-    '''
+    """
     clsID = request.vars['clsID']
     note_type = request.vars['note_type']
     date_formatted = request.vars['date']
@@ -4024,9 +4027,9 @@ def notes():
 
 
 def notes_get_filter_form(page, _class='pull-right'):
-    '''
+    """
         Backoffice / Teachers view selection form
-    '''
+    """
     pages = [('backoffice', T('Back office')), ('teachers', T('Teachers'))]
 
     if page == 'backoffice':
@@ -4072,9 +4075,9 @@ def notes_get_filter_form(page, _class='pull-right'):
 
 @auth.requires_login()
 def note_edit():
-    '''
+    """
         Provides an edit page for a note.
-    '''
+    """
     clsID = request.vars['clsID']
     date_formatted = request.vars['date']
     date = datestr_to_python(DATE_FORMAT, date_formatted)
@@ -4131,9 +4134,9 @@ def note_edit():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('delete', 'classes_notes'))
 def note_delete():
-    '''
+    """
         Used to remove a note
-    '''
+    """
     response.view = 'generic.json'
     cnID = request.vars['cnID']
     date_formatted = request.vars['date']
@@ -4148,12 +4151,12 @@ def note_delete():
 
 
 def notes_get_add(var=None):
-    '''
+    """
         Provides a page to add a note
         request.vars['note_type'] can be 2 values
             'backoffice' for a backoffice note
             'teachers' for a teachers note
-    '''
+    """
     note_type = request.vars['note_type']
     clsID = request.vars['clsID']
     date_formatted = request.vars['date']
@@ -4196,9 +4199,9 @@ def notes_get_add(var=None):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'classes_school_subscriptions_groups'))
 def class_copy_subscriptions_classcards():
-    '''
+    """
         :return: page to copy subscription and classcard settings from another class
-    '''
+    """
     clsID = request.vars['clsID']
     response.title = T("Edit class")
     classname = get_classname(clsID)
@@ -4236,9 +4239,9 @@ def class_copy_subscriptions_classcards():
 
 
 def class_copy_subscriptions_classcards_get_form(date):
-    '''
+    """
         :return: copy subscriptins and classcards groups from another class
-    '''
+    """
     form = SQLFORM.factory(
         Field('class_date', 'date',
               default=date,
@@ -4255,9 +4258,9 @@ def class_copy_subscriptions_classcards_get_form(date):
 
 
 def class_copy_subscriptions_classcards_get_classes(clsID, date):
-    '''
+    """
         :return: List of classes to copy settings from
-    '''
+    """
     header = THEAD(TR(TH(T('Location')),
                       TH(T('Time')),
                       TH(T('Class')),
@@ -4290,9 +4293,9 @@ def class_copy_subscriptions_classcards_get_classes(clsID, date):
 
 
 def class_subscriptions_get_tools(clsID):
-    '''
+    """
         Returns tools for schedule
-    '''
+    """
     links = []
 
     vars = {'clsID':clsID}
@@ -4322,9 +4325,9 @@ def class_subscriptions_get_tools(clsID):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'classes_school_subscriptions_groups'))
 def class_copy_subscriptions_classcards_execute():
-    '''
+    """
         Copy subscription and classcard settings from another class
-    '''
+    """
     clsID_from = request.vars['clsID_from']
     clsID_to = request.vars['clsID_to']
 
@@ -4368,9 +4371,9 @@ def class_copy_subscriptions_classcards_execute():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'classes_school_subscriptions_groups'))
 def class_subscriptions():
-    '''
+    """
         List subscriptions allowed for this class
-    '''
+    """
     clsID = request.vars['clsID']
     response.title = T("Edit class")
     classname = get_classname(clsID)
@@ -4395,9 +4398,9 @@ def class_subscriptions():
 
 
 def class_subscriptions_get_content(clsID):
-    '''
+    """
         List subscription groups for a class
-    '''
+    """
     left = [ db.school_subscriptions_groups.on(db.classes_school_subscriptions_groups.school_subscriptions_groups_id ==
                                                db.school_subscriptions_groups.id)]
     query = (db.classes_school_subscriptions_groups.classes_id == clsID)
@@ -4459,9 +4462,9 @@ def class_subscriptions_get_content(clsID):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('delete', 'classes_school_subscriptions_groups'))
 def class_subscription_group_delete():
-    '''
+    """
         Delete a subscription group from this class
-    '''
+    """
     clsID = request.vars['clsID']
     cssgID = request.vars['cssgID']
 
@@ -4475,9 +4478,9 @@ def class_subscription_group_delete():
 
 
 def class_subscription_add_edit_onaccept(form):
-    '''
+    """
         Set the "Attend" permission if either "Enroll" or "ShopBook" is set
-    '''
+    """
     csspID = form.vars.id
 
     cssp = db.classes_school_subscriptions_groups(csspID)
@@ -4488,9 +4491,9 @@ def class_subscription_add_edit_onaccept(form):
 
 @auth.requires_login()
 def class_subscription_group_add():
-    '''
+    """
         Add subscription group for a class
-    '''
+    """
     clsID = request.vars['clsID']
     response.title = T("Edit class")
     classname = get_classname(clsID)
@@ -4533,9 +4536,9 @@ def class_subscription_group_add():
 
 @auth.requires_login()
 def class_subscription_group_edit():
-    '''
+    """
         Add subscription group for a class
-    '''
+    """
     clsID = request.vars['clsID']
     cssgID = request.vars['cssgID']
     response.title = T("Edit class")
@@ -4570,10 +4573,10 @@ def class_subscription_group_edit():
 
 
 def class_subscription_group_add_get_already_added(clsID):
-    '''
+    """
         :param clsID: db.classes.id
         :return: list of db.school_subscriptions_group already added to this class
-    '''
+    """
     query = (db.classes_school_subscriptions_groups.classes_id == clsID)
     rows = db(query).select(db.classes_school_subscriptions_groups.school_subscriptions_groups_id)
 
@@ -4587,9 +4590,9 @@ def class_subscription_group_add_get_already_added(clsID):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'classes_school_classcards_groups'))
 def class_classcards():
-    '''
+    """
         List classcards allowed for this class
-    '''
+    """
     clsID = request.vars['clsID']
     response.title = T("Edit class")
     classname = get_classname(clsID)
@@ -4614,9 +4617,9 @@ def class_classcards():
 
 
 def class_classcards_get_content(clsID):
-    '''
+    """
         List classcard groups for a class
-    '''
+    """
     left = [ db.school_classcards_groups.on(db.classes_school_classcards_groups.school_classcards_groups_id ==
                                                db.school_classcards_groups.id)]
     query = (db.classes_school_classcards_groups.classes_id == clsID)
@@ -4678,9 +4681,9 @@ def class_classcards_get_content(clsID):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('delete', 'classes_school_classcards_groups'))
 def class_classcard_group_delete():
-    '''
+    """
         Delete a classcard group from this class
-    '''
+    """
     clsID = request.vars['clsID']
     cssgID = request.vars['cssgID']
 
@@ -4694,9 +4697,9 @@ def class_classcard_group_delete():
 
 
 def class_classcard_add_edit_onaccept(form):
-    '''
+    """
         Set the "Attend" permission if either "Enroll" or "ShopBook" is set
-    '''
+    """
     csspID = form.vars.id
 
     cssp = db.classes_school_classcards_groups(csspID)
@@ -4707,9 +4710,9 @@ def class_classcard_add_edit_onaccept(form):
 
 @auth.requires_login()
 def class_classcard_group_add():
-    '''
+    """
         Add classcard group for a class
-    '''
+    """
     clsID = request.vars['clsID']
     response.title = T("Edit class")
     classname = get_classname(clsID)
@@ -4752,9 +4755,9 @@ def class_classcard_group_add():
 
 @auth.requires_login()
 def class_classcard_group_edit():
-    '''
+    """
         Add classcard group for a class
-    '''
+    """
     clsID = request.vars['clsID']
     cssgID = request.vars['cssgID']
     response.title = T("Edit class")
@@ -4789,10 +4792,10 @@ def class_classcard_group_edit():
 
 
 def class_classcard_group_add_get_already_added(clsID):
-    '''
+    """
         :param clsID: db.classes.id
         :return: list of db.school_classcards_group already added to this class
-    '''
+    """
     query = (db.classes_school_classcards_groups.classes_id == clsID)
     rows = db(query).select(db.classes_school_classcards_groups.school_classcards_groups_id)
 
