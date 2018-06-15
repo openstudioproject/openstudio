@@ -4919,13 +4919,28 @@ def load_list():
 
     if search_name:
         if list_type == 'classes_attendance_list' and session.customers_load_list_search_name_int:
+            date = datestr_to_python(DATE_FORMAT, date_formatted)
             cuID = session.customers_load_list_search_name_int
-            redirect(URL('classes', 'attendance_booking_options',
-                         vars={'cuID':cuID,
-                               'clsID':clsID,
-                               'date':date_formatted},
-                         extension=''),
-                     client_side=True)
+            vars = {'cuID': cuID,
+                    'clsID': clsID,
+                    'date': date_formatted}
+
+
+            check = db.classes_attendance(auth_customer_id=cuID,
+                                          classes_id=clsID,
+                                          ClassDate=date)
+
+            if check:
+                session.flash = T("Customer is already checked-in")
+                redirect(URL('classes', 'attendance',
+                             vars=vars,
+                             extension=''),
+                         client_side=True)
+            else:
+                redirect(URL('classes', 'attendance_booking_options',
+                             vars=vars,
+                             extension=''),
+                         client_side=True)
 
         query &= ((db.auth_user.display_name.like(search_name)) |
                   (db.auth_user.email == search_name.replace('%', '')) |

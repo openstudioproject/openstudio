@@ -2724,6 +2724,8 @@ def attendance_booking_options():
     response.subtitle = get_classname(clsID) + ": " + date_formatted
     response.view = 'general/tabs_menu.html'
 
+    session.customers_load_list_search_name_int = None
+
     return_url = URL('attendance', vars={'clsID':clsID, 'date':date_formatted})
 
     customer = Customer(cuID)
