@@ -556,6 +556,7 @@ def test_membership_add(client, web2py):
 
     cm = web2py.db.customers_memberships(1)
     assert cm.DateID == '2014010100001'
+    assert not cm.Barcode == None
 
     assert web2py.db(web2py.db.customers_memberships).count() == 1
     assert web2py.db(web2py.db.invoices_customers_memberships).count() == 1
