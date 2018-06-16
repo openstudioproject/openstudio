@@ -2486,8 +2486,6 @@ def attendance():
             formatted using DATE_FORMAT
     """
     
-    session.customers_load_list_search_name_int = None
-    
     # set classes ID
     if 'clsID' in request.vars:
         clsID = request.vars['clsID']
@@ -2723,8 +2721,6 @@ def attendance_booking_options():
     response.title = T("Class")
     response.subtitle = get_classname(clsID) + ": " + date_formatted
     response.view = 'general/tabs_menu.html'
-
-    session.customers_load_list_search_name_int = None
 
     return_url = URL('attendance', vars={'clsID':clsID, 'date':date_formatted})
 

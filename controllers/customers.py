@@ -4925,6 +4925,20 @@ def load_list():
                     'clsID': clsID,
                     'date': date_formatted}
 
+            session.customers_load_list_search_name = None
+            session.customers_load_list_search_name_int = None
+
+            check_customer_exists = db.auth_user(id = cuID)
+            if not check_customer_exists:
+                session.flash = SPAN(
+                    T("No customer registered with id"), ' ',
+                    unicode(cuID), ', ',
+                    "please try again."
+                )
+                redirect(URL('classes', 'attendance',
+                             vars=vars,
+                             extension=''),
+                         client_side=True)
 
             check = db.classes_attendance(auth_customer_id=cuID,
                                           classes_id=clsID,
