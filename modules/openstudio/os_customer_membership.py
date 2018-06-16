@@ -49,7 +49,6 @@ class CustomerMembership:
         set_sys_property = current.globalenv['set_sys_property']
 
         sys_property = 'customers_memberships_next_id'
-
         cmDateID = get_sys_property(sys_property) or 1
 
         # Reset numbering when adding first membership of the year
@@ -58,11 +57,13 @@ class CustomerMembership:
         if db(query).count() == 1:
             cmDateID = 1
 
+        # Update number
         set_sys_property(
             sys_property,
             int(cmDateID) + 1
         )
 
+        # Make sure we have 5 characters
         cmDateID = unicode(cmDateID)
         while len(cmDateID) < digits:
             cmDateID = '0' + cmDateID
