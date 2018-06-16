@@ -2222,6 +2222,9 @@ def define_customers_memberships():
         Field('Note', 'text',
               represent=lambda value, row: value or '',
               label=T("Note")),
+        Field('DateID',
+              readable=False,
+              writable=False),
         singular=T("Membership"), plural=T("Memberships")
         )
 

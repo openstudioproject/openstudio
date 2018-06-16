@@ -6008,7 +6008,8 @@ def membership_add():
         return_url,
         onaccept = [
             membership_add_create_invoice,
-            memberships_clear_cache
+            membership_add_set_date_id,
+            memberships_clear_cache,
         ]
     )
 
@@ -6031,15 +6032,25 @@ def membership_add_create_invoice(form):
     """
         Add an invoice after adding a membership
     """
-    from openstudio.os_customer_membership import CustomerMembership
     from openstudio.os_school_membership import SchoolMembership
 
     cmID = form.vars.id
-    smID   = form.vars.school_memberships_id
+    smID = form.vars.school_memberships_id
 
     # create invoice
     sm = SchoolMembership(smID)
     sm.sell_to_customer_create_invoice(cmID)
+
+
+def membership_add_set_date_id(form):
+    """
+        Set db.customers_memberships.DateID field
+    """
+    from openstudio.os_customer_membership import CustomerMembership
+
+    cmID = form.vars.id
+    cm = CustomerMembership(cmID)
+    cm.set_date_id()
 
 
 def membership_edit_get_subtitle(cmID):
