@@ -6050,7 +6050,7 @@ def membership_add_set_date_id(form):
 
     cmID = form.vars.id
     cm = CustomerMembership(cmID)
-    cm.set_date_id()
+    cm.set_date_id_and_barcode()
 
 
 def membership_edit_get_subtitle(cmID):

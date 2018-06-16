@@ -75,3 +75,40 @@ class CustomerMembership:
         self.row.update_record()
 
         return date_id
+
+
+    def set_barcode(self, date_id):
+        """
+            Set barcode
+        """
+        import barcode
+        from barcode.writer import ImageWriter
+        from cStringIO import StringIO
+
+        db = current.db
+        stream = StringIO()
+
+        CODE39 = barcode.get_barcode_class('code39')
+        code39_barcode = CODE39(
+            date_id,
+            writer=ImageWriter(),
+            add_checksum=False
+        )
+
+        code39_barcode.write(stream)
+        # print stream.getvalue()
+        stream.seek(0)
+
+        self.row.update_record(
+            Barcode = db.customers_memberships.Barcode.store(
+                stream,
+                filename=date_id + '.png'
+            )
+        )
+
+
+    def set_date_id_and_barcode(self):
+        """
+            Set date_id and barcode
+        """
+        self.set_barcode(self.set_date_id())

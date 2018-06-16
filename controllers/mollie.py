@@ -410,7 +410,7 @@ def membership_buy_now():
     )
 
     cm = CustomerMembership(cmID)
-    cm.set_date_id()
+    cm.set_date_id_and_barcode()
 
     # clear cache to make sure it shows in the back end
     cache_clear_customers_memberships(auth.user.id)
