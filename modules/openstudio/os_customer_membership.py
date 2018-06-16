@@ -45,26 +45,15 @@ class CustomerMembership:
         """
         db = current.db
 
-        get_sys_property = current.globalenv['get_sys_property']
-        set_sys_property = current.globalenv['set_sys_property']
-
-        sys_property = 'customers_memberships_next_id'
-        cmDateID = get_sys_property(sys_property) or 1
-
         # Reset numbering when adding first membership of the year
         first_day_year = datetime.date(self.row.Startdate.year, 1, 1)
-        query = (db.customers_memberships.Startdate >= first_day_year)
-        if db(query).count() == 1:
-            cmDateID = 1
-
-        # Update number
-        set_sys_property(
-            sys_property,
-            int(cmDateID) + 1
-        )
+        last_day_year = datetime.date(self.row.Startdate.year, 12, 31)
+        query = (db.customers_memberships.Startdate >= first_day_year) & \
+                (db.customers_memberships.Startdate <= last_day_year)
+        count = db(query).count()
 
         # Make sure we have 5 characters
-        cmDateID = unicode(cmDateID)
+        cmDateID = unicode(count)
         while len(cmDateID) < digits:
             cmDateID = '0' + cmDateID
 

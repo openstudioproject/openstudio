@@ -536,7 +536,7 @@ def test_membership_add(client, web2py):
     """
     Are customer memberships added?
     Is an invoice created?
-    Is the enddate set?
+    Is the DateID field set?
     """
     populate_customers(web2py)
     populate_school_memberships(web2py)
@@ -553,6 +553,9 @@ def test_membership_add(client, web2py):
 
     client.post(url, data=data)
     assert client.status == 200
+
+    cm = web2py.db.customers_memberships(1)
+    assert cm.DateID == '2014010100001'
 
     assert web2py.db(web2py.db.customers_memberships).count() == 1
     assert web2py.db(web2py.db.invoices_customers_memberships).count() == 1
