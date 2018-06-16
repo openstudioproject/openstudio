@@ -4,6 +4,7 @@ import datetime
 
 from setup_profile_tests import setup_profile_tests
 
+from populate_os_tables import populate_school_memberships
 from populate_os_tables import populate_school_subscriptions
 
 
