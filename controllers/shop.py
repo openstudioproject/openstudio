@@ -672,7 +672,8 @@ def event_get_products_filter_prices_add_to_cart_buttons(workshop):
     from openstudio.os_workshop_product import WorkshopProduct
 
     #NOTE: maybe add prices here as well, saves a db query to get the products again
-    products_filter = DIV(_class='btn-group workshop-products-filter', _role='group', **{'_data-toggle':'buttons'})
+    # products_filter = DIV(_class='btn-group workshop-products-filter', _role='group', **{'_data-toggle':'buttons'})
+    products_filter = DIV()
     products_prices = DIV()
     products_select = SELECT(_id='workshops-products-select', _name='products')
     add_to_cart_buttons = DIV(_class='workshop-add-to-cart-buttons')
@@ -685,7 +686,8 @@ def event_get_products_filter_prices_add_to_cart_buttons(workshop):
 
     for i, product in enumerate(products):
         # Products filter
-        label_class = 'btn btn-default'
+        # label_class = 'btn btn-default'
+        label_class= ''
         if i == 0:
             label_class += ' active fullws'
 
@@ -704,15 +706,16 @@ def event_get_products_filter_prices_add_to_cart_buttons(workshop):
                   product.Name, ' (', CURRSYM, ' ', format(product.Price, '.2f'), ')',
                   _class=label_class,
                   _id=product.id))
+        products_filter.append(BR())
 
-        products_select.append(
-            OPTION(
-                product.Name, ' (', CURRSYM, ' ', format(product.Price, '.2f'), ')',
-                _value=product.id,
-                _class=label_class,
-                _id=product.id
-            )
-        )
+        # products_select.append(
+        #     OPTION(
+        #         product.Name, ' (', CURRSYM, ' ', format(product.Price, '.2f'), ')',
+        #         _value=product.id,
+        #         _class=label_class,
+        #         _id=product.id
+        #     )
+        # )
 
         # Products prices
         price_class = 'workshop_price'
@@ -769,11 +772,11 @@ def event_get_products_filter_prices_add_to_cart_buttons(workshop):
 
     if len(products) == 1:
         products_filter = ''
-    if len(products) > 2:
-        products_filter = DIV(
-            DIV(products_select, BR(),
-                _class='col-md-4'),
-            _class='row')
+    # if len(products) > 2:
+    #     products_filter = DIV(
+    #         DIV(products_select, BR(),
+    #             _class='col-md-4'),
+    #         _class='row')
 
     return dict(products_filter=DIV(LABEL(T("Tickets")),
                                     products_filter),
