@@ -39,25 +39,16 @@
             $fullws_book_now.show();
         }
    
-        // handler for label click
-        $('label.btn').click(function() {
+        // handler for radio change
+        $('input:radio[name=products]').change(function() {
+			console.log('change');
+			console.log(this)
             var $id = $(this).attr('id');
             var fullws = $(this).hasClass('fullws');
             var sold_out = $(this).hasClass('sold_out');
             
             update_activities_and_price($id, fullws, sold_out);
         }); // end button click
-            
-        $("#workshops-products-select").on('change', function() {
-            console.log('changed');
-            var $id = this.value;
-            var fullws = $("#workshops-products-select option:selected" ).hasClass('fullws');
-            var sold_out = $("#workshops-products-select option:selected" ).hasClass('sold_out');
-            
-            update_activities_and_price($id, fullws, sold_out);
-            
-        }); // end select on change
-                       
                        
         function update_activities_and_price($id, fullws, sold_out) {
             var $book_now = $('#add_to_cart_'+$id);
