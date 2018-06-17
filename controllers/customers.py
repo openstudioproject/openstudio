@@ -4918,6 +4918,44 @@ def load_list():
         title = H4(T('Search results'))
 
     if search_name:
+        if list_type == 'classes_attendance_list' and session.customers_load_list_search_name_int:
+            date = datestr_to_python(DATE_FORMAT, date_formatted)
+            cuID = session.customers_load_list_search_name_int
+            vars = {'cuID': cuID,
+                    'clsID': clsID,
+                    'date': date_formatted}
+
+            session.customers_load_list_search_name = None
+            session.customers_load_list_search_name_int = None
+
+            check_customer_exists = db.auth_user(id = cuID)
+            if not check_customer_exists:
+                session.flash = SPAN(
+                    T("No customer registered with id"), ' ',
+                    unicode(cuID), ', ',
+                    "please try again."
+                )
+                redirect(URL('classes', 'attendance',
+                             vars=vars,
+                             extension=''),
+                         client_side=True)
+
+            check = db.classes_attendance(auth_customer_id=cuID,
+                                          classes_id=clsID,
+                                          ClassDate=date)
+
+            if check:
+                session.flash = T("Customer is already checked-in")
+                redirect(URL('classes', 'attendance',
+                             vars=vars,
+                             extension=''),
+                         client_side=True)
+            else:
+                redirect(URL('classes', 'attendance_booking_options',
+                             vars=vars,
+                             extension=''),
+                         client_side=True)
+
         query &= ((db.auth_user.display_name.like(search_name)) |
                   (db.auth_user.email == search_name.replace('%', '')) |
                   (db.auth_user.id == session.customers_load_list_search_name_int))
