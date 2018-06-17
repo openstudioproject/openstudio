@@ -2222,6 +2222,15 @@ def define_customers_memberships():
         Field('Note', 'text',
               represent=lambda value, row: value or '',
               label=T("Note")),
+        Field('DateID',
+              readable=False,
+              writable=False),
+        Field('Barcode', 'upload', autodelete=True,
+              readable=False,
+              writable=False,
+              represent=lambda value, row: A(T("Download"),
+                                             _href=URL('default', 'download', args=value)),
+              label=T("Barcode")),
         singular=T("Membership"), plural=T("Memberships")
         )
 

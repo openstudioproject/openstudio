@@ -409,8 +409,8 @@ def membership_buy_now():
         payment_methods_id = 100, # important, 100 is the payment_methods_id for Mollie
     )
 
-    # cm = CustomerMembership(cmID)
-    # cm.set_enddate()
+    cm = CustomerMembership(cmID)
+    cm.set_date_id_and_barcode()
 
     # clear cache to make sure it shows in the back end
     cache_clear_customers_memberships(auth.user.id)
