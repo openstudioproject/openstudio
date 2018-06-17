@@ -36,9 +36,9 @@ def do_auth(user, key):
 
 
 def call_check_extension(var=None):
-    '''
+    """
         check extension
-    '''
+    """
     error = False
     error_msg = ''
     msg_extension_fail = T("Extension error: please call with a .json or \
@@ -209,14 +209,14 @@ def _schedule_get(year, week, sorting, TeacherID, ClassTypeID, LocationID, Level
 
 
 def schedule_get():
-    '''
+    """
         Returns the schedule as XML or JSON depending on the extension used
         Variables required:
         - user: OpenStudio API user
         - key: Key for OpenStudio API user
         - year: Choose year to return schedule for
         - week: Chose week to return schedule for
-    '''
+    """
     # forget session
     session.forget(response)
     # check extension
@@ -297,9 +297,9 @@ def schedule_get():
 
 
 def schedule_get_day_get_teachers(class_date):
-    '''
+    """
         Function returns teachers for a selected day
-    '''
+    """
     query = (db.classes_teachers.Startdate <= class_date) &\
             ((db.classes_teachers.Enddate >= class_date) |
              (db.classes_teachers.Enddate == None))
@@ -314,9 +314,9 @@ def schedule_get_day_get_teachers(class_date):
 
 
 def schedule_get_days():
-    '''
+    """
 
-    '''
+    """
     # forget session
     session.forget(response)
     # check extension
@@ -409,12 +409,12 @@ def schedule_get_days():
 
 
 def _workshops_get(var=None):
-    '''
+    """
         Returns upcoming workshops as XML or JSON depending on the extension used
         Variables required:
         - user: OpenStudio API user
         - key: Key for OpenStudio API user
-    '''
+    """
     ws = WorkshopSchedule(TODAY_LOCAL,
                           filter_only_public=True)
     rows = ws.get_workshops_rows()
@@ -423,8 +423,9 @@ def _workshops_get(var=None):
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
-        thumblarge_url = _get_url_thumbnail(row.workshops.thumblarge)
-        thumbsmall_url = _get_url_thumbnail(row.workshops.thumbsmall)
+        thumblarge_url = _get_url_image(row.workshops.thumblarge)
+        thumbsmall_url = _get_url_image(row.workshops.thumbsmall)
+        picture_url = _get_url_image(workshop.picture)
 
         teacher = _workshop_get_teacher(row.workshops.auth_teacher_id)
         teacher2 = _workshop_get_teacher(row.workshops.auth_teacher_id2)
@@ -448,6 +449,7 @@ def _workshops_get(var=None):
             'Price': row.workshops_products.Price,
             'LinkThumbLarge': thumblarge_url,
             'LinkThumbSmall': thumbsmall_url,
+            'LinkImage': picture_url,
             'LinkShop': workshop_get_url_shop(row.workshops.id)
         }
 
@@ -535,8 +537,9 @@ def workshop_get():
 
     # Ok, return stuff
     shop_url = workshop_get_url_shop(wsID)
-    thumblarge_url = _get_url_thumbnail(workshop.thumblarge)
-    thumbsmall_url = _get_url_thumbnail(workshop.thumbsmall)
+    thumblarge_url = _get_url_image(workshop.thumblarge)
+    thumbsmall_url = _get_url_image(workshop.thumbsmall)
+    picture_url = _get_url_image(workshop.picture)
 
     activities = []
     rows = workshop.get_activities()
@@ -580,6 +583,7 @@ def workshop_get():
         'Price': workshop.get_full_workshop_price(),
         'LinkThumbLarge': thumblarge_url,
         'LinkThumbSmall': thumbsmall_url,
+        'LinkImage': picture_url,
         'LinkShop': workshop_get_url_shop(workshop.wsID),
         'Activities': activities,
     }
@@ -600,11 +604,11 @@ def workshop_get_url_shop(wsID):
     return shop_url
 
 
-def _get_url_thumbnail(download_url):
-    '''
+def _get_url_image(download_url):
+    """
         :param rel_url: db.workshops.thumblarge
         :return: formatted url
-    '''
+    """
     url = ''
     if download_url:
         url = URL('default', 'download', args=download_url,
@@ -623,8 +627,8 @@ def _workshop_get_teacher(teID):
     if row is None:
         return ''
 
-    thumblarge_url = _get_url_thumbnail(row.thumblarge)
-    thumbsmall_url = _get_url_thumbnail(row.thumbsmall)
+    thumblarge_url = _get_url_image(row.thumblarge)
+    thumbsmall_url = _get_url_image(row.thumbsmall)
 
     return dict(id=row.id,
                 Name=row.full_name,
@@ -640,7 +644,7 @@ def _school_subscriptions_get(var=None):
     """
         Get school subscriptions from the database and return as list sorted by name
     """
-    query = '''
+    query = """
         SELECT sc.Name,
                sc.SortOrder,
                sc.Description,
@@ -658,7 +662,7 @@ def _school_subscriptions_get(var=None):
         ) scp ON sc.id = scp.school_subscriptions_id
         WHERE sc.PublicSubscription = 'T' AND sc.Archived = 'F'
         ORDER BY sc.SortOrder DESC, sc.Name
-    '''.format(today=TODAY_LOCAL)
+    """.format(today=TODAY_LOCAL)
 
     fields = [ db.school_subscriptions.Name,
                db.school_subscriptions.SortOrder,
@@ -686,12 +690,12 @@ def _school_subscriptions_get(var=None):
 
 
 def school_subscriptions_get():
-    '''
+    """
         Returns public subscriptions as XML or JSON depending on the extension used
         Variables required:
         - user: OpenStudio API user
         - key: Key for OpenStudio API user
-    '''
+    """
     # forget session
     session.forget(response)
 
@@ -727,9 +731,9 @@ def school_subscriptions_get():
 
 
 def _school_classcards_get(var=None):
-    '''
+    """
         Get public school classcards
-    '''
+    """
     query = (db.school_classcards.PublicCard == True) & \
             (db.school_classcards.Archived == False)
     rows = db(query).select(db.school_classcards.Name,
@@ -746,12 +750,12 @@ def _school_classcards_get(var=None):
 
 
 def school_classcards_get():
-    '''
+    """
         Returns public subscriptions as XML or JSON depending on the extension used
         Variables required:
         - user: OpenStudio API user
         - key: Key for OpenStudio API user
-    '''
+    """
     # forget session
     session.forget(response)
 
@@ -787,9 +791,9 @@ def school_classcards_get():
 
 
 def _school_teachers_get_classtypes(teID):
-    '''
+    """
         Return dict of classtypes for a teacher
-    '''
+    """
     query = (db.teachers_classtypes.auth_user_id == teID) & \
             (db.school_classtypes.AllowAPI == True) & \
             (db.school_classtypes.Archived == False)
@@ -811,9 +815,9 @@ def _school_teachers_get_classtypes(teID):
 
 
 def _school_teachers_get_by_classtype(ctID):
-    '''
+    """
         Get school teachers
-    '''
+    """
     left = None
 
     query = (db.auth_user.teacher == True) & \
@@ -848,8 +852,8 @@ def _school_teachers_get_by_classtype(ctID):
             'LinkToBio': row.teacher_bio_link,
             'Bio': row.teacher_bio,
             'Website': row.teacher_website,
-            'LinkThumbSmall': _get_url_thumbnail(row.thumbsmall),
-            'LinkThumbLarge': _get_url_thumbnail(row.thumblarge),
+            'LinkThumbSmall': _get_url_image(row.thumbsmall),
+            'LinkThumbLarge': _get_url_image(row.thumblarge),
             'ClassTypes': _school_teachers_get_classtypes(row.id)
         })
 
@@ -857,12 +861,12 @@ def _school_teachers_get_by_classtype(ctID):
 
 
 def school_teachers_get():
-    '''
+    """
         Returns list of teachers as XML or JSON depending on the extension used
         Variables required:
         - user: OpenStudio API user
         - key: Key for OpenStudio API user
-    '''
+    """
     # forget session
     session.forget(response)
 
@@ -904,9 +908,9 @@ def school_teachers_get():
 
 
 def _school_classtypes_get(var=None):
-    '''
+    """
         Get school class types
-    '''
+    """
     # ClassTypes
     classtypes = []
     query = (db.school_classtypes.Archived == False) & \
@@ -923,8 +927,8 @@ def _school_classtypes_get(var=None):
         classtypes.append(dict(id=row.id,
                                Name=row.Name,
                                Link=row.Link,
-                               LinkThumbSmall=_get_url_thumbnail(row.thumbsmall),
-                               LinkThumbLarge=_get_url_thumbnail(row.thumblarge),
+                               LinkThumbSmall=_get_url_image(row.thumbsmall),
+                               LinkThumbLarge=_get_url_image(row.thumblarge),
                                Description=row.Description,
                                ))
 
@@ -932,12 +936,12 @@ def _school_classtypes_get(var=None):
 
 
 def school_classtypes_get():
-    '''
+    """
         Returns list of teachers as XML or JSON depending on the extension used
         Variables required:
         - user: OpenStudio API user
         - key: Key for OpenStudio API user
-    '''
+    """
     # forget session
     session.forget(response)
 
