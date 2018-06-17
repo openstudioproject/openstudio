@@ -700,22 +700,21 @@ def event_get_products_filter_prices_add_to_cart_buttons(workshop):
         if sold_out:
             label_class += ' sold_out'
 
-
-        products_filter.append(
-            LABEL(INPUT(_type='radio', _name='products'),
-                  product.Name, ' (', CURRSYM, ' ', format(product.Price, '.2f'), ')',
-                  _class=label_class,
-                  _id=product.id))
+        if product.FullWorkshop:
+            products_filter.append(
+                LABEL(INPUT(_type='radio',
+                            _name='products',
+                            _checked='checked',
+                            _id=product.id,
+                            _class=label_class),
+                      product.Name, ' (', CURRSYM, ' ', format(product.Price, '.2f'), ')'))
+        else:
+            products_filter.append(
+                LABEL(XML('<input type="radio" name="products" id="{id}" class="{label_class}">'.format(
+                          id=product.id,
+                          label_class=label_class)),
+                      product.Name, ' (', CURRSYM, ' ', format(product.Price, '.2f'), ')'))
         products_filter.append(BR())
-
-        # products_select.append(
-        #     OPTION(
-        #         product.Name, ' (', CURRSYM, ' ', format(product.Price, '.2f'), ')',
-        #         _value=product.id,
-        #         _class=label_class,
-        #         _id=product.id
-        #     )
-        # )
 
         # Products prices
         price_class = 'workshop_price'
@@ -772,13 +771,8 @@ def event_get_products_filter_prices_add_to_cart_buttons(workshop):
 
     if len(products) == 1:
         products_filter = ''
-    # if len(products) > 2:
-    #     products_filter = DIV(
-    #         DIV(products_select, BR(),
-    #             _class='col-md-4'),
-    #         _class='row')
 
-    return dict(products_filter=DIV(LABEL(T("Tickets")),
+    return dict(products_filter=DIV(H3(T("Tickets")),
                                     products_filter),
                 products_prices=products_prices,
                 add_to_cart_buttons=add_to_cart_buttons)
@@ -830,14 +824,14 @@ def event_get_activities(workshop):
                 os_gui.get_fa_icon('fa-clock-o'), ' ',
                 activity_time,
                 _class='col-sm-12 col-xs-12 mobile-bold'),
-            DIV(activity_name, T(' with '), activity_teacher, _class='grey'),
+            DIV(activity_name, T(' with '), activity_teacher, _class='col-sm-12 grey'),
             DIV(SPAN(repr_row.school_locations_id), _class='col-sm-12 grey'),
-            _class='row mobile-center workshop-activity hidden-md hidden-lg'  + class_product_ids)
+            _class='row workshop-activity hidden-md hidden-lg'  + class_product_ids)
             #_class='row mobile-center workshop-activity'  + class_product_ids)
 
         activities.append(activity_mobile)
 
-    return DIV(DIV(activities, _class='col-md-10 col-md-offset-1'),
+    return DIV(DIV(H3(T('Agenda')), activities, _class='col-md-10 col-md-offset-1'),
                _class='row workshop-activities')
 
 
