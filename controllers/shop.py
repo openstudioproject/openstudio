@@ -771,11 +771,13 @@ def event_get_products_filter_prices_add_to_cart_buttons(workshop):
 
         add_to_cart_buttons.append(add_to_cart)
 
+    products_filter = DIV(H3(T("Tickets")),
+        products_filter),
+
     if len(products) == 1:
         products_filter = ''
 
-    return dict(products_filter=DIV(H3(T("Tickets")),
-                                    products_filter),
+    return dict(products_filter=products_filter,
                 products_prices=products_prices,
                 add_to_cart_buttons=add_to_cart_buttons)
 
