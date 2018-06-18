@@ -678,7 +678,6 @@ def event_get_products_filter_prices_add_to_cart_buttons(workshop):
     products_select = SELECT(_id='workshops-products-select', _name='products')
     add_to_cart_buttons = DIV(_class='workshop-add-to-cart-buttons')
 
-
     # get public workshops
     products = workshop.get_products(filter_public=True)
 
@@ -751,13 +750,16 @@ def event_get_products_filter_prices_add_to_cart_buttons(workshop):
 
         if product.ExternalShopURL:
             _target='_blank'
+            button_icon = 'noicon'
+            btn_class = 'btn-primary'
             url = product.ExternalShopURL
             if product.AddToCartText:
                 btn_text = product.AddToCartText
         else:
             url = URL('shop', 'event_add_to_cart', vars={'wspID':product.id})
+            button_icon = 'shopping-cart'
 
-        add_to_cart = os_gui.get_button('shopping-cart',
+        add_to_cart = os_gui.get_button(button_icon,
                 url,
                 btn_class=btn_class,
                 btn_size='',
