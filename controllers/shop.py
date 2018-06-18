@@ -637,29 +637,39 @@ def event_get_pictures(workshop):
                    _data_link=URL('default', 'download', args=thumblarge),
                    _class='workshop_thumbsmall clickable')
 
-    thumbnails = DIV()
+    count_thumbnails = 0
+    thumbnails = DIV(_class='shop_workshop_thumbnails')
 
     if workshop.picture:
+        count_thumbnails += 1
         thumbnails.append(get_img_thumbnail(workshop.thumbsmall,
                                             workshop.thumblarge))
     if workshop.picture_2:
+        count_thumbnails += 1
         thumbnails.append(get_img_thumbnail(workshop.thumbsmall_2,
                                             workshop.thumblarge_2))
     if workshop.picture_3:
+        count_thumbnails += 1
         thumbnails.append(get_img_thumbnail(workshop.thumbsmall_3,
                                             workshop.thumblarge_3))
     if workshop.picture_4:
+        count_thumbnails += 1
         thumbnails.append(get_img_thumbnail(workshop.thumbsmall_4,
                                             workshop.thumbsmall_4))
     if workshop.picture_5:
+        count_thumbnails += 1
         thumbnails.append(get_img_thumbnail(workshop.thumbsmall_5,
                                             workshop.thumblarge_5))
+
+
 
     pictures = DIV(IMG(_src=URL('default', 'download', args=workshop.thumblarge),
                        _class='workshop_image',
                        _id='workshop_thumblarge'),
-                   DIV(thumbnails, _class='shop_workshop_thumbnails'),
                    _class='col-md-4')
+
+    if count_thumbnails > 1:
+        pictures.append(thumbnails)
 
     return pictures
 
