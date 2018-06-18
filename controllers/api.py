@@ -425,7 +425,7 @@ def _workshops_get(var=None):
 
         thumblarge_url = _get_url_image(row.workshops.thumblarge)
         thumbsmall_url = _get_url_image(row.workshops.thumbsmall)
-        picture_url = _get_url_image(workshop.picture)
+        picture_url = _get_url_image(row.workshops.picture)
 
         teacher = _workshop_get_teacher(row.workshops.auth_teacher_id)
         teacher2 = _workshop_get_teacher(row.workshops.auth_teacher_id2)
