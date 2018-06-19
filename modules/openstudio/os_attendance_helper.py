@@ -1390,7 +1390,7 @@ class AttendanceHelper:
         message_no_credits = T('No credits remaining on this subscription')
 
         if signed_in:
-            message = T("Customer is already checked in")
+            message = T("Customer has already booked or is already checked-in")
         elif not credits_remaining and credits_hard_limit:
             # return message, don't sign in
             message = message_no_credits

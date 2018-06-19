@@ -4945,7 +4945,19 @@ def load_list():
                                           ClassDate=date)
 
             if check:
-                session.flash = T("Customer is already checked-in")
+                if check.BookingStatus == "booked":
+                    session.flash = None
+                    redirect(URL('classes', 'attendance_set_status',
+                                 vars={'clattID':check.id,
+                                       'status':'attending'},
+                                 extension=''
+                                 ),
+                             client_side=True)
+                elif check.BookingStatus == "cancelled":
+                    session.flash = T("Customer booking for this class has status 'Cancelled'")
+                else:
+                    session.flash = T("Customer is already checked-in")
+
                 redirect(URL('classes', 'attendance',
                              vars=vars,
                              extension=''),
