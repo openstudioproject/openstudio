@@ -2502,7 +2502,7 @@ def attendance():
 
     session.invoices_edit_back = 'classes_attendance'
     session.invoices_payment_add_back = 'classes_attendance'
-
+    session.customers_load_list_search_name_int = None
 
     date = datestr_to_python(DATE_FORMAT, date_formatted)
 
@@ -2721,6 +2721,8 @@ def attendance_booking_options():
     response.title = T("Class")
     response.subtitle = get_classname(clsID) + ": " + date_formatted
     response.view = 'general/tabs_menu.html'
+
+    session.customers_load_list_search_name_int = None
 
     return_url = URL('attendance', vars={'clsID':clsID, 'date':date_formatted})
 
