@@ -672,6 +672,18 @@ def event_duplicate():
         picture=workshop.picture,
         thumbsmall=workshop.thumbsmall,
         thumblarge=workshop.thumblarge,
+        picture_2=workshop.picture_2,
+        thumbsmall_2=workshop.thumbsmall_2,
+        thumblarge_2=workshop.thumblarge_2,
+        picture_3=workshop.picture_3,
+        thumbsmall_3=workshop.thumbsmall_3,
+        thumblarge_3=workshop.thumblarge_3,
+        picture_4=workshop.picture_4,
+        thumbsmall_4=workshop.thumbsmall_4,
+        thumblarge_4=workshop.thumblarge_4,
+        picture_5=workshop.picture_5,
+        thumbsmall_5=workshop.thumbsmall_5,
+        thumblarge_5=workshop.thumblarge_5,
     )
 
     # activities
