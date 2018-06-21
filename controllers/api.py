@@ -379,7 +379,8 @@ def schedule_get_days():
 
     current_date = date_start
     delta = datetime.timedelta(days=1)
-    data = []
+    data = {}
+    data['schedule'] = []
     while current_date <= date_end:
         today = {}
         class_schedule = ClassSchedule(
@@ -395,9 +396,144 @@ def schedule_get_days():
         today['classes'] = class_schedule.get_day_list()
 
         today['date'] = current_date
-        data.append(today)
+        data['schedule'].append(today)
 
         current_date += delta
+
+    # Define caching
+    caching = (cache.ram, 120)
+    if web2pytest.is_running_under_test(request, request.application):
+        caching = None
+
+    teacher_ids = []
+    classtype_ids = []
+    location_ids = []
+    level_ids = []
+    for day in data['schedule']:
+        for cls in day['classes']:
+            # check teachers
+            if 'TeacherID' in cls and cls['TeacherID'] not in teacher_ids:
+                teacher_ids.append(cls['TeacherID'])
+            if 'TeacherID2' in cls and cls['TeacherID2'] not in teacher_ids:
+                teacher_ids.append(cls['TeacherID2'])
+            # check classtypes
+            if 'ClassTypeID' in cls and cls['ClassTypeID'] not in classtype_ids:
+                classtype_ids.append(cls['ClassTypeID'])
+            # check locations
+            if 'LocationID' in cls and cls['LocationID'] not in location_ids:
+                location_ids.append(cls['LocationID'])
+            # check levels
+            if 'LevelID' in cls and cls['LevelID'] not in level_ids:
+                level_ids.append(cls['LevelID'])
+
+
+    # ClassTypes
+    classtypes = []
+    query = (db.school_classtypes.Archived == False) & \
+            (db.school_classtypes.AllowAPI == True) & \
+            (db.school_classtypes.id.belongs(classtype_ids))
+    rows = db(query).select(db.school_classtypes.id,
+                            db.school_classtypes.Name,
+                            db.school_classtypes.Link,
+                            db.school_classtypes.Description,
+                            db.school_classtypes.thumbsmall,
+                            db.school_classtypes.thumblarge,
+                            orderby=db.school_classtypes.Name,
+                            cache=caching)
+
+    for row in rows:
+
+        thumblarge_url = ''
+        thumbsmall_url = ''
+
+        if row.thumblarge:
+            thumblarge_url = '%s://%s%s' % (request.env.wsgi_url_scheme,
+                                            request.env.http_host,
+                                            URL('default', 'download', args=row.thumblarge,
+                                                extension=''))
+        if row.thumbsmall:
+            thumbsmall_url = '%s://%s%s' % (request.env.wsgi_url_scheme,
+                                            request.env.http_host,
+                                            URL('default', 'download', args=row.thumbsmall,
+                                                extension=''))
+
+        classtypes.append(dict(id=row.id,
+                               Name=row.Name,
+                               Link=row.Link,
+                               LinkThumbSmall=thumbsmall_url,
+                               LinkThumbLarge=thumblarge_url,
+                               Description=row.Description,
+                               ))
+
+    data['classtypes'] = classtypes
+
+
+
+
+
+    # Teachers
+    query = (db.auth_user.trashed == False) & \
+            (db.auth_user.teacher == True) & \
+            (db.auth_user.id.belongs(teacher_ids))
+    teachers = []
+    rows = db(query).select(db.auth_user.id,
+                            db.auth_user.full_name,
+                            db.auth_user.teacher_role,
+                            db.auth_user.teacher_bio,
+                            db.auth_user.teacher_bio_link,
+                            db.auth_user.teacher_website,
+                            db.auth_user.thumbsmall,
+                            db.auth_user.thumblarge,
+                            orderby=db.auth_user.full_name,
+                            cache=caching)
+    for row in rows:
+        name = row.full_name
+
+        thumblarge_url = ''
+        thumbsmall_url = ''
+
+        if row.thumblarge:
+            thumblarge_url = '%s://%s%s' % (request.env.wsgi_url_scheme,
+                                            request.env.http_host,
+                                            URL('default', 'download', args=row.thumblarge,
+                                                extension=''))
+
+        if row.thumbsmall:
+            thumbsmall_url = '%s://%s%s' % (request.env.wsgi_url_scheme,
+                                            request.env.http_host,
+                                            URL('default', 'download', args=row.thumbsmall,
+                                                extension=''))
+
+        teachers.append(dict(id=row.id,
+                             name=name,  # for legacy purposes. Was the only one with name.
+                             Role=row.teacher_role,
+                             LinkToBio=row.teacher_bio_link,
+                             Bio=row.teacher_bio,
+                             Website=row.teacher_website,
+                             LinkThumbLarge=thumblarge_url,
+                             LinkThumbSmall=thumbsmall_url,
+                             Name=name))
+
+    data['teachers'] = teachers
+
+
+
+    # Locations
+    query = (db.school_locations.AllowAPI == True) & \
+            (db.school_locations.Archived == False) & \
+            (db.school_locations.id.belongs(location_ids))
+    rows = db(query).select(db.school_locations.id,
+                            db.school_locations.Name,
+                            cache=caching).as_list()
+    data['locations'] = rows
+
+    # Practice levels
+    query = (db.school_levels.Archived == False) & \
+            (db.school_levels.id.belongs(level_ids))
+    rows = db(query).select(db.school_levels.id,
+                            db.school_levels.Name,
+                            cache=caching).as_list()
+    data['levels'] = rows
 
 
     ## allow all domains to request this resource

@@ -326,21 +326,21 @@ def test_shedule_get_days_json(client, web2py):
     json = sj.loads(page)
 
 
-    assert json['data'][0]['date'] == '2014-01-06'
-    assert not json['data'][0]['classes'][0]['Holiday']
-    assert json['data'][0]['classes'][0]['LocationID'] == 1
-    assert json['data'][0]['classes'][0]['Location'] == 'Sittard'
-    assert json['data'][0]['classes'][0]['ClassTypeID'] == 1
-    assert json['data'][0]['classes'][0]['ClassType'] == 'Mysore'
-    assert json['data'][0]['classes'][0]['Starttime'] == '06:00'
-    assert json['data'][0]['classes'][0]['Endtime'] == '09:00'
-    assert json['data'][0]['classes'][0]['TeacherID'] == 2
-    assert json['data'][0]['classes'][0]['Teacher'] == 'Edwin van de Ven'
-    assert json['data'][0]['classes'][0]['TeacherID2'] == 3
-    assert json['data'][0]['classes'][0]['LevelID'] == 1
-    assert json['data'][0]['classes'][0]['Level'] == 'Level 1'
-    assert not json['data'][0]['classes'][0]['Subteacher']
-    assert not json['data'][0]['classes'][0]['Cancelled']
+    assert json['data']['schedule'][0]['date'] == '2014-01-06'
+    assert not json['data']['schedule'][0]['classes'][0]['Holiday']
+    assert json['data']['schedule'][0]['classes'][0]['LocationID'] == 1
+    assert json['data']['schedule'][0]['classes'][0]['Location'] == 'Sittard'
+    assert json['data']['schedule'][0]['classes'][0]['ClassTypeID'] == 1
+    assert json['data']['schedule'][0]['classes'][0]['ClassType'] == 'Mysore'
+    assert json['data']['schedule'][0]['classes'][0]['Starttime'] == '06:00'
+    assert json['data']['schedule'][0]['classes'][0]['Endtime'] == '09:00'
+    assert json['data']['schedule'][0]['classes'][0]['TeacherID'] == 2
+    assert json['data']['schedule'][0]['classes'][0]['Teacher'] == 'Edwin van de Ven'
+    assert json['data']['schedule'][0]['classes'][0]['TeacherID2'] == 3
+    assert json['data']['schedule'][0]['classes'][0]['LevelID'] == 1
+    assert json['data']['schedule'][0]['classes'][0]['Level'] == 'Level 1'
+    assert not json['data']['schedule'][0]['classes'][0]['Subteacher']
+    assert not json['data']['schedule'][0]['classes'][0]['Cancelled']
 
     # check subteachers class
     url = base_url + \
@@ -348,16 +348,16 @@ def test_shedule_get_days_json(client, web2py):
     page = urllib.urlopen(url).read()
     json = sj.loads(page)
 
-    assert json['data'][0]['date'] == '2014-01-13'
-    assert not json['data'][0]['classes'][0]['Holiday']
-    assert json['data'][0]['classes'][0]['TeacherID'] == 4
-    assert json['data'][0]['classes'][0]['Teacher'] == \
+    assert json['data']['schedule'][0]['date'] == '2014-01-13'
+    assert not json['data']['schedule'][0]['classes'][0]['Holiday']
+    assert json['data']['schedule'][0]['classes'][0]['TeacherID'] == 4
+    assert json['data']['schedule'][0]['classes'][0]['Teacher'] == \
         'Aimee Garcias'
-    assert json['data'][0]['classes'][0]['TeacherID2'] == 3
-    assert json['data'][0]['classes'][0]['Teacher2'] == \
+    assert json['data']['schedule'][0]['classes'][0]['TeacherID2'] == 3
+    assert json['data']['schedule'][0]['classes'][0]['Teacher2'] == \
         'Pietje Puk'
-    assert json['data'][0]['classes'][0]['Subteacher']
-    assert not json['data'][0]['classes'][0]['Cancelled']
+    assert json['data']['schedule'][0]['classes'][0]['Subteacher']
+    assert not json['data']['schedule'][0]['classes'][0]['Cancelled']
 
 
     # check cancelled
@@ -366,9 +366,9 @@ def test_shedule_get_days_json(client, web2py):
     page = urllib.urlopen(url).read()
     json = sj.loads(page)
 
-    assert json['data'][0]['date'] == '2014-01-20'
-    assert json['data'][0]['classes'][0]['Cancelled']
-    assert not json['data'][0]['classes'][0]['Holiday']
+    assert json['data']['schedule'][0]['date'] == '2014-01-20'
+    assert json['data']['schedule'][0]['classes'][0]['Cancelled']
+    assert not json['data']['schedule'][0]['classes'][0]['Holiday']
 
     # check holiday
     url = base_url + \
@@ -376,8 +376,8 @@ def test_shedule_get_days_json(client, web2py):
     page = urllib.urlopen(url).read()
     json = sj.loads(page)
 
-    assert json['data'][0]['date'] == '2014-01-27'
-    assert json['data'][0]['classes'][0]['Holiday']
+    assert json['data']['schedule'][0]['date'] == '2014-01-27'
+    assert json['data']['schedule'][0]['classes'][0]['Holiday']
 
 
 def test_workshops_get_json(client, web2py):
