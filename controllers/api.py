@@ -400,9 +400,24 @@ def schedule_get_days():
             sorting=sorting,
         )
 
-        today['classes'] = class_schedule.get_day_list()
+        # Don't cache when running tests or when day == today
+        if web2pytest.is_running_under_test(request, request.application) or current_date == TODAY_LOCAL:
+            classes = class_schedule.get_day_list()
+        else:
+            cache_key = 'openstudio_api_schedule_get_days_' + unicode(date_start) + '_' + \
+                        unicode(date_end) + '_' + \
+                        'sorting_' + sorting + '_' + \
+                        'TeacherID_' + unicode(TeacherID) + '_' + \
+                        'ClassTypeID_' + unicode(ClassTypeID) + '_' + \
+                        'LocationID_' + unicode(LocationID) + '_' + \
+                        'LevelID_' + unicode(LevelID)
+            classes = cache.ram(cache_key,
+                             lambda: class_schedule.get_day_list(),
+                             time_expire=CACHE_LONG)
 
+        today['classes'] = classes
         today['date'] = current_date
+
         data['schedule'].append(today)
 
         current_date += delta
