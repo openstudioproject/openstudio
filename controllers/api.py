@@ -389,7 +389,6 @@ def schedule_get_days():
     data = {}
     data['schedule'] = []
     while current_date <= date_end:
-        today = {}
         class_schedule = ClassSchedule(
             current_date,
             filter_id_school_classtype = ClassTypeID,
@@ -415,10 +414,10 @@ def schedule_get_days():
                              lambda: class_schedule.get_day_list(),
                              time_expire=CACHE_LONG)
 
-        today['classes'] = classes
-        today['date'] = current_date
-
-        data['schedule'].append(today)
+        data['schedule'].append({
+            'classes': classes,
+            'date': current_date
+        })
 
         current_date += delta
 
@@ -488,10 +487,6 @@ def schedule_get_days():
                                ))
 
     data['classtypes'] = classtypes
-
-
-
-
 
     # Teachers
     query = (db.auth_user.trashed == False) & \
