@@ -962,6 +962,7 @@ class ClassSchedule:
             DATE_FORMAT = current.DATE_FORMAT
             CACHE_LONG = current.globalenv['CACHE_LONG']
             cache_key = 'openstudio_classschedule_get_day_table_' + \
+                        unicode(auth.user.id) + '_' + \
                         self.date.strftime(DATE_FORMAT) + '_' + \
                         unicode(self.filter_id_school_classtype) + '_' + \
                         unicode(self.filter_id_school_location) + '_' + \
