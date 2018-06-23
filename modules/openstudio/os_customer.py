@@ -281,8 +281,6 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
                                 left=left,
                                 orderby=db.customers_classcards.Enddate)
 
-        #print rows
-
         if len(rows) > 0:
             return_value = rows
         else:
@@ -377,10 +375,10 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         if customer_classcards:
             has_classcard = True
             classcards = DIV()
-            for card in classcards:
+            for card in customer_classcards:
                 ccdID = card.customers_classcards.id
                 classcard = CustomerClasscard(ccdID)
-                remaining_classes = ccd.get_classes_remaining()
+                remaining_classes = classcard.get_classes_remaining()
                 if not remaining_classes:
                     continue
 
