@@ -326,10 +326,10 @@ def upgrade_to_20186():
     )
 
     query = (db.school_subscriptions.MembershipRequired == None)
-    db(query).update(MembershipRequired = True)
+    db(query).update(MembershipRequired = False)
 
     query = (db.school_classcards.MembershipRequired == None)
-    db(query).update(MembershipRequired = True)
+    db(query).update(MembershipRequired = False)
 
 
     ##
