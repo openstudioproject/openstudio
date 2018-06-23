@@ -32,7 +32,7 @@ We always have a lot of great ideas for OpenStudio and any contribution is more 
 
 ## Support and hosting
 
-Professional hosting is provided.
+Professional hosting is available.
 
 - Managed Hosting
 - SSL certificate included
