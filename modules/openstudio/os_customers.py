@@ -234,6 +234,7 @@ WHERE (au.last_login < '{date}' OR au.last_login IS NULL) AND
             list_type is expected to be in
             [ 'attendance', 'reservations', 'tp_fixed_rate' ]
         """
+        from os_attendance_helper import AttendanceHelper
         from os_class_schedule import ClassSchedule
         from os_gui import OsGui
 

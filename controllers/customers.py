@@ -2147,6 +2147,9 @@ def classes_attendance_add_booking_options():
     """
         Page to show listing of booking options for customer
     """
+    from openstudio.os_attendance_helper import AttendanceHelper
+    from openstudio.os_class import Class
+
     cuID = request.vars['cuID']
     clsID = request.vars['clsID']
     date_formatted = request.vars['date']
