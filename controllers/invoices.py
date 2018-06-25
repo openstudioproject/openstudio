@@ -1437,6 +1437,9 @@ def subscriptions_create_invoices_execute(year, month, description):
         if row.customers_subscriptions_paused.id:
             # the subscription is paused, don't create an invoice
             continue
+        if row.customers_subscriptions_alt_prices.Amount == 0:
+            # Don't create an invoice if there's an alt price for the subscription with amount 0.
+            continue
 
         csID = row.customers_subscriptions.id
         cuID = row.customers_subscriptions.auth_customer_id
