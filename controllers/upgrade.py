@@ -67,6 +67,13 @@ def index():
         else:
             session.flash = T('Already up to date')
 
+        if version < 2018.7:
+            print version
+            upgrade_to_20186()
+            session.flash = T("Upgraded db to 2018.7")
+        else:
+            session.flash = T('Already up to date')
+
         # always renew permissions for admin group after update
         set_permissions_for_admin_group()
 
@@ -336,3 +343,33 @@ def upgrade_to_20186():
     # clear cache
     ##
     cache.ram.clear(regex='.*')
+
+
+def upgrade_to_20187():
+    """
+        Upgrade operations to 2018.7
+    """
+    ##
+    # Delete duplicate entries in invoices_customers
+    ##
+    db.executesql("""
+    DELETE `a`
+    FROM
+    `invoices_customers` AS `a`,
+    `invoices_customers` AS `b`
+    WHERE
+    -- IMPORTANT: Ensures one version remains
+    -- Change "ID" to your unique column's name
+    `a`.`id` < `b`.`id`
+
+    -- Any duplicates you want to check for
+    AND `a`.`invoices_id` <=> `b`.`invoices_id`
+    AND `a`.`auth_customer_id` <=> `b`.`auth_customer_id`
+    """)
+
+
+    ##
+    # clear cache
+    ##
+    cache.ram.clear(regex='.*')
+
