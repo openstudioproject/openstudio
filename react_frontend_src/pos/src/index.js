@@ -15,12 +15,10 @@ import {
 
 ReactDOM.render(
   <HashRouter>
-    <div className="main">
       <Switch>
         <Route exact path="/" component={POS} />
         <Route component={Whoops404} />
       </Switch>
-    </div>
   </HashRouter>, 
   document.getElementById("app")
 )

@@ -8,6 +8,7 @@ import Navbar from "./ui/Navbar"
 import NavbarHeader from "./ui/NavbarHeader"
 import NavbarCollapse from "./ui/NavbarCollapse";
 import NavbarNav from "./ui/NavbarNav";
+import Content from "./ui/Content";
 
 const PageTemplate = ({children}) => 
     <div className="wrapper">
@@ -21,11 +22,9 @@ const PageTemplate = ({children}) =>
                 </NavbarCollapse>
             </Navbar>
         </Header>
-        <div class="content-wrapper">
-            <section className="content">
-                {children}
-            </section>
-        </div>
+        <Content>
+            Hello world!
+        </Content>
         <Footer />
     </div>
 
