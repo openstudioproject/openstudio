@@ -11,7 +11,7 @@ const PageTemplate = ({children}) =>
         <Content>
             {children}
         </Content>
-        <Footer />
+        {/* <Footer /> */}
     </div>
 
 export default PageTemplate
