@@ -1,5 +1,4 @@
 import React, { Component } from "react"
-import { render } from "react-dom"
 
 const Content = ({children}) =>
     <div className="content-wrapper">
