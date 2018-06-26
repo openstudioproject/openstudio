@@ -555,7 +555,6 @@ class Invoices:
         delete_permission = auth.has_membership(group_id='Admins') or \
                             auth.has_permission('delete', 'invoices')
 
-
         grid = SQLFORM.grid(query,
                             links=links,
                             left=left,

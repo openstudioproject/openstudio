@@ -1546,7 +1546,6 @@ class AttendanceHelper:
             product_type
         )
         invoice.set_amounts()
-        invoice.link_to_customer(cuID)
 
 
     def attendance_sign_in_classcard_recurring(self, cuID, clsID, ccdID, date, date_until, online_booking=False, booking_status='booked'):
