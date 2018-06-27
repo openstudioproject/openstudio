@@ -28,19 +28,28 @@ export class Welcome extends Component {
         this.props.setLoaderStatus(status)
     }
 
+    setLoaderMessage(message) {
+        this.props.setLoaderMessage(message)
+    }
+
     componentWillMount() {
         this.setLoaderStatus('loading')
     }
 
     componentDidMount() {
-        // setTimeout(function() {console.log('done loading...')}, 2000)
-        setTimeout(() => this.setLoaderStatus('ready'), 1500)
+        setTimeout(() => this.setLoaderMessage('phase 1'), 0)
+        setTimeout(() => this.setLoaderMessage('phase 2'), 1000)
+        setTimeout(() => this.setLoaderMessage('phase 3'), 2500)
+
+        setTimeout(() => this.setLoaderStatus('ready'), 3000)
+        setTimeout(() => this.setLoaderMessage('Loading done!'), 3500)
+        
     }
 
     render() {
         console.log('Welcome here')
         return (this.props.loader.status === 'loading') ?
-            <div>Loading...</div> :
+            <div>Loading... <br /> {this.props.loader.message} </div> :
             <PageTemplate>
             <section className="Welcome">
                 <div>Welcome page</div>
