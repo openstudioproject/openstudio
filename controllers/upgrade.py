@@ -367,6 +367,11 @@ def upgrade_to_20187():
     AND `a`.`auth_customer_id` <=> `b`.`auth_customer_id`
     """)
 
+    ##
+    # Migrate customers_orders_items and invoices_items field to float
+    ##
+    db.executesql("""ALTER TABLE invoices_items MODIFY Quantity float;""")
+    db.executesql("""ALTER TABLE customers_orders_items MODIFY Quantity float;""")
 
     ##
     # clear cache

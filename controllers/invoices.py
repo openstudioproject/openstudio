@@ -328,7 +328,7 @@ def edit():
     modals.append(modal_payments)
     modals.append(modal_payment_add['modal'])
     payments = edit_get_payments_button(iID)
-    pdf      = os_gui.get_button('print',
+    pdf = os_gui.get_button('print',
                                  URL('pdf', vars={'iID':iID}),
                                  title='PDF',
                                  btn_size='btn')
