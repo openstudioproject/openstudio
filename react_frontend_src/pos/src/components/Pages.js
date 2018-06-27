@@ -1,14 +1,22 @@
 import React, { Component } from "react"
-import { render } from "react-dom"
-
 import PageTemplate from "./PageTemplate"
 
-export const POS = () =>
-    <PageTemplate>
-        <section className = "POS">
-            <div>POS</div>
-        </section>
-    </PageTemplate>
+
+export class POS extends Component {
+    constructor() {
+        super()
+    }
+
+    render() {
+        return (
+            <PageTemplate>
+            <section className = "POS">
+                <div>POS</div>
+            </section>
+            </PageTemplate>
+        )
+    }
+}
 
 
 export const Whoops404 = ({ location }) =>
