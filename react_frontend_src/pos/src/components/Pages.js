@@ -47,7 +47,6 @@ export class Welcome extends Component {
     }
 
     render() {
-        console.log('Welcome here')
         return (this.props.loader.status === 'loading') ?
             <div>Loading... <br /> {this.props.loader.message} </div> :
             <PageTemplate>
