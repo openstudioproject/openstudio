@@ -15,7 +15,7 @@ const MainMenu = () =>
             <NavbarHeader />
             <NavbarCollapse>
                 <NavbarNav>
-                    <li><NavLink to="/" activeClassName={activeClassName}>Check-in</NavLink></li>
+                    <li><NavLink to="/check-in" activeClassName={activeClassName}>Check-in</NavLink></li>
                     <li><NavLink to="/products" activeClassName={activeClassName}>Point of Sale</NavLink></li>
                 </NavbarNav>                
             </NavbarCollapse>

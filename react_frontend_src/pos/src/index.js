@@ -12,22 +12,21 @@ import {
 } from 'react-router-dom'
 
 import {
+  Welcome,
   POS,
   Whoops404 
 } from './components/Pages'
 
-const store = storeFactory()
+import { App } from "./components/App"
 
-store.dispatch(setLoaderStatus('loading'))
-store.dispatch(setLoaderMessage('test'))
-store.dispatch(setLoaderMessage('new state'))
-store.dispatch(setLoaderStatus('done'))
+const store = storeFactory()
+console.log(store.getState())
 
 ReactDOM.render(
   <Provider store={store}>
     <HashRouter>
         <Switch>
-          <Route exact path="/" component={POS} />
+          <Route exact path="/" component={App} />
           <Route component={Whoops404} />
         </Switch>
     </HashRouter>
