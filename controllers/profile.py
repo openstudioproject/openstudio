@@ -756,7 +756,7 @@ def orders_display(var=None):
                         _href=URL('invoices', 'pdf', vars={'iID':order['row'].invoices.id}),
                         _title=T('Save invoice as PDF'))
 
-        items = TABLE(items_header, _class='table table-condensed grey')
+        items = TABLE(items_header, _class='table table-condensed')
         for i, item in enumerate(order['items']):
             repr_item = list(order['items'][i:i + 1].render())[0]
             items.append(TR(TD(item.ProductName),
@@ -782,6 +782,15 @@ def orders_display(var=None):
         elif status == 'awaiting_payment' or status == 'received':
             box_class = 'box-primary'
 
+        customer_message = ''
+        if order['row'].customers_orders.CustomerNote:
+            customer_message = DIV(
+                T("We received the following message with your order:"), BR(),
+                order['row'].customers_orders.CustomerNote,
+                _class='small_font grey'
+            )
+
+
         display_order = DIV(
             display_status,
             H5(order['repr_row'].customers_orders.DateCreated),
@@ -790,6 +799,7 @@ def orders_display(var=None):
                     _class='box-header with-border'),
                 DIV(DIV(items,
                         _class='small_font'),
+                    customer_message,
                     _class='box-body'),
             _class='box ' + box_class)
         )

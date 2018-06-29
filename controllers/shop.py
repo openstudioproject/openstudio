@@ -275,13 +275,42 @@ def checkout():
 
     total = SPAN(CURRSYM, ' ', format(cart_get_price_total(rows), '.2f'))
 
-    order = ''
+    form = ''
     if len(rows):
-        order = A(B(T('Place order')),
-                  _href=URL('order_received'),
-                  _class='btn btn-primary')
+        form = checkout_get_form_order()
+        if form.process().accepted:
+            # response.flash = T('Accepted order')
+            redirect(URL('shop', 'order_received',
+                         vars={'coID': form.vars.id}))
 
-    return dict(rows=rows, total=total, order=order, progress=checkout_get_progress(request.function), messages='')
+
+    return dict(
+        rows=rows,
+        total=total,
+        progress=checkout_get_progress(request.function),
+        form=form
+    )
+
+
+def checkout_get_form_order(var=None):
+    """
+    :return: SQLForm to create an order
+    """
+    db.customers_orders.Status.readable = False
+    db.customers_orders.Status.writable = False
+    db.customers_orders.DateCreated.readable = False
+    db.customers_orders.DateCreated.writable = False
+
+    db.customers_orders.auth_customer_id.default = auth.user.id
+
+    form = SQLFORM(
+        db.customers_orders,
+        formstyle="bootstrap3_stacked",
+        submit_button=T("Place order")
+    )
+
+    return form
+
 
 
 @auth.requires_login()
@@ -293,6 +322,8 @@ def order_received():
     from openstudio.os_order import Order
 
     response.title = T('Thank you')
+    coID = request.vars['coID']
+    order = Order(coID)
 
     # get cart
     customer = Customer(auth.user.id)
@@ -301,11 +332,6 @@ def order_received():
     if not rows:
         redirect(URL('profile', 'orders'))
 
-    coID = db.customers_orders.insert(
-        auth_customer_id = auth.user.id,
-    )
-
-    order = Order(coID)
 
     # process cart, add products to customer and add items to invoice
     for row in rows:
