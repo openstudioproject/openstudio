@@ -378,6 +378,14 @@ img.workshop_image {
     margin-top: 20px;
 }
 
+#customers_orders_CustomerNote {
+	min-height: 80px;
+	height: 80px;
+	width: 100%;
+	min-width: 100%;
+	max-width: 100%;
+}
+
 /* Ajax loader begin */
 
 .ajax_loader {
