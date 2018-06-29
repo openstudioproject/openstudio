@@ -220,7 +220,7 @@ def cart():
     if len(rows):
         order = A(B(T('Proceed to Checkout')),
                   _href=URL('checkout'),
-                  _class='btn btn-primary')
+                  _class='btn btn-primary pull-right')
 
     return dict(rows=rows, total=total, order=order, progress='', messages=alert)
 

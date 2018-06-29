@@ -787,7 +787,7 @@ def orders_display(var=None):
             customer_message = DIV(
                 T("We received the following message with your order:"), BR(),
                 order['row'].customers_orders.CustomerNote,
-                _class='small_font grey'
+                _class='grey'
             )
 
 
@@ -798,7 +798,7 @@ def orders_display(var=None):
                         H3(T('Order'), ' #', order['row'].customers_orders.id, _class='box-title'),
                     _class='box-header with-border'),
                 DIV(DIV(items,
-                        _class='small_font'),
+                        _class=''),
                     customer_message,
                     _class='box-body'),
             _class='box ' + box_class)
