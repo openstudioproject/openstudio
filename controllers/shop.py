@@ -267,14 +267,26 @@ def checkout():
     """
     from openstudio.os_customer import Customer
 
-    response.title = T('Check out')
+    response.title = T('Shopping cart')
     response.subtitle = ''
     response.view  = 'shop/cart.html'
 
     customer = Customer(auth.user.id)
+    customer = Customer(auth.user.id)
+    messages = customer.shoppingcart_maintenance()
+    alert = ''
+    if len(messages):
+        alert_content = SPAN()
+        for m in messages:
+            alert_content.append(m)
+            alert_content.append(BR())
+
+        alert = os_gui.get_alert('info', alert_content, dismissable=True)
+
     rows = customer.get_shoppingcart_rows()
 
     total = SPAN(CURRSYM, ' ', format(cart_get_price_total(rows), '.2f'))
+
 
     order = ''
     if len(rows):
@@ -282,7 +294,13 @@ def checkout():
                   _href=URL('order_received'),
                   _class='btn btn-primary')
 
-    return dict(rows=rows, total=total, order=order, progress=checkout_get_progress(request.function), messages='')
+    return dict(
+        rows=rows,
+        total=total,
+        order=order,
+        progress=checkout_get_progress(request.function),
+        messages=alert
+    )
 
 
 @auth.requires_login()
