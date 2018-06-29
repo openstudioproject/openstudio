@@ -4229,6 +4229,8 @@ def define_customers_orders():
             represent=represent_customers_orders_status,
             default='received',
             label=T('Status')),
+        Field('CustomerNote', 'text',
+            label=T("Anything you'd like to tell us about this order?")),
         Field('DateCreated', 'datetime',
               #readable=False,
               writable=False,
