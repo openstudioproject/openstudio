@@ -20,9 +20,9 @@ import openpyxl
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'customers_orders'))
 def index():
-    '''
+    """
         Lists all orders
-    '''
+    """
     response.title = T('Shop')
     response.subtitle = T('Orders')
     response.view = 'general/only_content.html'
@@ -111,9 +111,9 @@ def index_get_link_deliver(row):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('read', 'customers_orders'))
 def edit():
-    '''
+    """
         :return: shows order
-    '''
+    """
     response.title = T('Order #') + request.vars['coID']
     response.subtitle = T('Edit')
     response.view = 'general/only_content.html'
@@ -126,6 +126,7 @@ def edit():
     # Info table
     info = TABLE(THEAD(TR(TH(T('Customer')),
                           TH(T('Ordered on')),
+                          TH(T('Customer message')),
                           TH(T('Status')),
                           )),
                  _class='table')
@@ -156,10 +157,15 @@ def edit():
     ordered_on = represent_datetime(order.order.DateCreated, order.order)
     customer_link = A(customer.get_name(),
                       _href=URL('customers', 'edit', args=customer.row.id))
-    info.append(TR(TD(customer_link), TD(ordered_on), TD(form)))
+    info.append(TR(
+        TD(customer_link),
+        TD(ordered_on),
+        TD(XML(order.order.CustomerNote.replace("\n", "<br>"))),
+        TD(form)
+    ))
 
     # Info content
-    content = DIV(DIV(info, _class='col-md-6 no-padding-left'))
+    content = DIV(DIV(info, _class='col-md-12 no-padding-left'))
 
     # Display items
     rows = order.get_order_items_rows()
@@ -210,9 +216,9 @@ def edit():
 
 
 def edit_get_return_url(cuID):
-    '''
+    """
         Returns back url for customers orders
-    '''
+    """
     url = URL('orders', 'index')
 
     if session.orders_edit_back == 'customers_orders':
@@ -224,9 +230,9 @@ def edit_get_return_url(cuID):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'customers_orders'))
 def deliver():
-    '''
+    """
         Deliver selected order
-    '''
+    """
     coID = request.vars['coID']
 
     order = Order(coID)
