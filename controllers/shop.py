@@ -190,6 +190,41 @@ def cart_get_price_total(rows):
     return total
 
 
+@auth.requires_login()
+def cart():
+    """
+        Page showing shopping cart for customer
+    """
+    from openstudio.os_customer import Customer
+
+    response.title = T('Shopping cart')
+    response.subtitle = ''
+
+    customer = Customer(auth.user.id)
+    messages = customer.shoppingcart_maintenance()
+    alert = ''
+    if len(messages):
+        alert_content = SPAN()
+        for m in messages:
+            alert_content.append(m)
+            alert_content.append(BR())
+
+        alert = os_gui.get_alert('info', alert_content, dismissable=True)
+
+    rows = customer.get_shoppingcart_rows()
+
+    total = SPAN(CURRSYM, ' ', format(cart_get_price_total(rows), '.2f'))
+
+
+    order = ''
+    if len(rows):
+        order = A(B(T('Proceed to Checkout')),
+                  _href=URL('checkout'),
+                  _class='btn btn-primary')
+
+    return dict(rows=rows, total=total, order=order, progress='', messages=alert)
+
+
 def checkout_get_progress(function):
     """
         :param function:
@@ -232,26 +267,13 @@ def checkout():
     """
     from openstudio.os_customer import Customer
 
-    response.title = T('Shopping cart')
+    response.title = T('Check out')
     response.subtitle = ''
-    response.view  = 'shop/cart.html'
 
     customer = Customer(auth.user.id)
-    customer = Customer(auth.user.id)
-    messages = customer.shoppingcart_maintenance()
-    alert = ''
-    if len(messages):
-        alert_content = SPAN()
-        for m in messages:
-            alert_content.append(m)
-            alert_content.append(BR())
-
-        alert = os_gui.get_alert('info', alert_content, dismissable=True)
-
     rows = customer.get_shoppingcart_rows()
 
     total = SPAN(CURRSYM, ' ', format(cart_get_price_total(rows), '.2f'))
-
 
     order = ''
     if len(rows):
@@ -259,13 +281,7 @@ def checkout():
                   _href=URL('order_received'),
                   _class='btn btn-primary')
 
-    return dict(
-        rows=rows,
-        total=total,
-        order=order,
-        progress=checkout_get_progress(request.function),
-        messages=alert
-    )
+    return dict(rows=rows, total=total, order=order, progress=checkout_get_progress(request.function), messages='')
 
 
 @auth.requires_login()

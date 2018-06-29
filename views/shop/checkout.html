@@ -22,8 +22,7 @@
 
                 {{header = THEAD(TR(TH(T('Product')),
                                     TH(T('Description')),
-                                    TH(DIV(T('Price incl. VAT'), _class='pull-right')),
-                                    TH()))}}
+                                    TH(DIV(T('Price incl. VAT'), _class='pull-right'))))}}
                 {{table = TABLE(header, _class='table table-hover')}}
 
 
@@ -59,22 +58,21 @@
 						{{ pass }}
                     {{pass}}
                     
-                    {{ remove = os_gui.get_button('delete_notext', 
-                                                  URL('cart_item_remove', vars={'cscID':row.customers_shoppingcart.id}), 
-                                                  _class='pull-right') }}
-                    
                     {{table.append(TR(TD(product),
                                       TD(description),
                                       TD(DIV(price, _class='pull-right')),
-                                      TD(remove),
-                                      )
-                                   )}}
+                                      ))}}
                 {{pass}}
+
+                {{table.append(TR(
+                    TD(),
+                    TD(),
+                    TD(DIV(T("Total incl. VAT"), " ", total, _class="bold pull-right"))
+                ))}}
 
                 {{=table}}
 
                 <div id="cart_total" class="well pull-right col-md-6">
-                    {{=SPAN(T('Total'), ' ', total, _class='bold')}}<br><br>
                     {{=order}}
                 </div>
 

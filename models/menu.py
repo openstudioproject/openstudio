@@ -46,7 +46,7 @@ def shoppingcart_menu_item():
 
     return A(I(_class=os_gui.get_icon('shopping-cart')), ' ',
                       os_gui.get_badge(count),
-                _href=URL('shop', 'checkout', extension=''),
+                _href=URL('shop', 'cart', extension=''),
                 _title=T('Shopping cart'))
 
 
