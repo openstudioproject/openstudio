@@ -126,7 +126,6 @@ def edit():
     # Info table
     info = TABLE(THEAD(TR(TH(T('Customer')),
                           TH(T('Ordered on')),
-                          TH(T('Customer message')),
                           TH(T('Status')),
                           )),
                  _class='table')
@@ -160,12 +159,11 @@ def edit():
     info.append(TR(
         TD(customer_link),
         TD(ordered_on),
-        TD(XML(order.order.CustomerNote.replace("\n", "<br>"))),
         TD(form)
     ))
 
     # Info content
-    content = DIV(DIV(info, _class='col-md-12 no-padding-left'))
+    content = DIV(DIV(info, _class='col-md-8 no-padding-left'))
 
     # Display items
     rows = order.get_order_items_rows()
@@ -209,6 +207,15 @@ def edit():
     table.append(footer)
 
     content.append(table)
+
+    # Customer message
+    customer_message = ''
+    if order.order.CustomerNote:
+        customer_message = DIV(
+            B(T('Customer message')), BR(), BR(),
+            XML(order.order.CustomerNote.replace("\n", "<br>")),
+        )
+    content.append(customer_message)
 
     back = os_gui.get_button('back', edit_get_return_url(cuID))
 
