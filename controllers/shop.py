@@ -709,6 +709,11 @@ def event_get_products_filter_prices_add_to_cart_buttons(workshop):
         if sold_out:
             label_class += ' sold_out'
 
+        if auth.user:
+            price = wsp.get_price_for_customer(auth.user.id)
+        else:
+            price = product.Price
+
         if product.FullWorkshop:
             products_filter.append(
                 LABEL(INPUT(_type='radio',
@@ -716,13 +721,13 @@ def event_get_products_filter_prices_add_to_cart_buttons(workshop):
                             _checked='checked',
                             _id=product.id,
                             _class=label_class),
-                      product.Name, ' (', CURRSYM, ' ', format(product.Price, '.2f'), ')'))
+                      product.Name, ' (', CURRSYM, ' ', format(price, '.2f'), ')'))
         else:
             products_filter.append(
                 LABEL(XML('<input type="radio" name="products" id="{id}" class="{label_class}">'.format(
                           id=product.id,
                           label_class=label_class)),
-                      product.Name, ' (', CURRSYM, ' ', format(product.Price, '.2f'), ')'))
+                      product.Name, ' (', CURRSYM, ' ', format(price, '.2f'), ')'))
         products_filter.append(BR())
 
         # Products prices
@@ -735,11 +740,6 @@ def event_get_products_filter_prices_add_to_cart_buttons(workshop):
         else:
             # Set price
             if product.Price:
-                wsp = WorkshopProduct(product.id)
-                if auth.user:
-                    price = wsp.get_price_for_customer(auth.user.id)
-                else:
-                    price = product.Price
                 display_price = SPAN(CURRSYM, ' ', format(price, '.2f'))
             else:
                 display_price = T("No admission fee")
