@@ -1143,43 +1143,54 @@ def stats_get_revenue(wsID):
     """
         Returns revenue of a workshop, specified by product
     """
-    total_revenue = 0
-    table = TABLE(TR(TH(T("Ticket")),
-                     TH(T("Sold")),
-                     TH(SPAN(T('Price'), _class='pull-right')),
-                     TH(SPAN(T('Total'), _class='pull-right'))),
-                  _class='table')
-
     # first get all products
     query = (db.workshops_products.workshops_id == wsID)
     rows = db(query).select(db.workshops_products.ALL,
                             orderby=~db.workshops_products.FullWorkshop | \
                                     db.workshops_products.Name)
+
+    products_ids = []
     for row in rows:
-        # get nr of sold products
-        query = (db.workshops_products_customers.workshops_products_id == row.id)
-        count = db(query).count()
+        products_ids.append(row.id)
 
-        if count:
-            total = count * (row.Price or 0)
-            total_revenue += total
-        else:
-            total = 0
+    # Get all workshops_products_customers rows
+    query = (db.workshops_products_customers.workshops_products_id.belongs(products_ids))
+    rows = db(query).select(db.workshops_products_customers.ALL)
+    wspc_ids = []
 
-        table.append(TR(TD(row.Name),
-                        TD(count),
-                        TD(SPAN(CURRSYM, ' ',
-                                row.Price or '', _class='pull-right')),
-                        TD(SPAN(CURRSYM, ' ',
-                                total, _class='pull-right'))))
+    for row in rows:
+        wspc_ids.append(row.id)
 
-    table.append(TR(TD(T("Total")),
-                    TD(),
-                    TD(),
-                    TD(SPAN(CURRSYM, ' ',
-                            format(total_revenue, '.2f'), _class='pull-right')),
-                    _class='total'))
+
+    # Get invoices
+    left = [
+        db.invoices_amounts.on(
+            db.invoices_workshops_products_customers.invoices_id ==
+            db.invoices_amounts.invoices_id
+        )
+    ]
+    query = (db.invoices_workshops_products_customers.workshops_products_customers_id.belongs(wspc_ids))
+    rows = db(query).select(db.invoices_workshops_products_customers.ALL,
+                            db.invoices_amounts.ALL,
+                            left=left)
+
+    revenue_total = 0
+    for row in rows:
+        revenue_total += row.invoices_amounts.TotalPriceVAT
+
+
     title = T("Revenue")
+    table = TABLE(
+        TR(
+            TH(T("Tickets sold")),
+            TD(len(rows))
+        ),
+        TR(
+            TH(T("Revenue")),
+            TD(SPAN(CURRSYM, ' ', revenue_total))
+        ),
+        _class='table table-hover table-striped'
+    )
 
     panel = os_gui.get_panel_table(title, table)
 
