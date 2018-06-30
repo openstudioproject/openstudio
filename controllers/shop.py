@@ -283,10 +283,13 @@ def checkout():
             redirect(URL('shop', 'order_received',
                          vars={'coID': form.vars.id}))
 
+    checkout_message = get_sys_property('shop_checkout_message')
+
 
     return dict(
         rows=rows,
         total=total,
+        checkout_message=checkout_message,
         progress=checkout_get_progress(request.function),
         form=form
     )
