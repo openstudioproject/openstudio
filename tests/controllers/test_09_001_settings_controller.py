@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-'''py.test test cases to test OpenStudio.
+"""py.test test cases to test OpenStudio.
 
 These tests run based on webclient and need web2py server running.
-'''
+"""
 
 from gluon.contrib.populate import populate
 
@@ -15,9 +15,9 @@ from populate_os_tables import populate_settings_shop_customers_profile_announce
 
 
 def test_system_organizations(client, web2py):
-    '''
+    """
         Is the list of organizations working?
-    '''
+    """
     populate_sys_organizations(web2py)
 
     url = '/settings/system_organizations'
@@ -29,9 +29,9 @@ def test_system_organizations(client, web2py):
 
 
 def test_system_organization_add(client, web2py):
-    '''
+    """
         Can we add an organization?
-    '''
+    """
     url = '/settings/system_organization_add'
     client.get(url)
     assert client.status == 200
@@ -93,6 +93,7 @@ def test_shop_settings_general(client, web2py):
         'shop_header_logo_url':'http://www.groningen.nl',
         'shop_classes_dropin_message': '23498798fjsdfksd',
         'shop_classes_trial_message': '23498798fjsdfksd',
+        'shop_checkout_message': 'blablabla and blah!'
     }
     client.post(url, data=data)
     assert client.status == 200
@@ -100,10 +101,12 @@ def test_shop_settings_general(client, web2py):
     assert data['shop_header_logo_url'] in client.text
     assert data['shop_classes_dropin_message'] in client.text
     assert data['shop_classes_trial_message'] in client.text
+    assert data['shop_checkout_message'] in client.text
 
     assert web2py.db(web2py.db.sys_properties.Property == 'shop_header_logo_url').count() == 1
     assert web2py.db(web2py.db.sys_properties.Property == 'shop_classes_dropin_message').count() == 1
     assert web2py.db(web2py.db.sys_properties.Property == 'shop_classes_trial_message').count() == 1
+    assert web2py.db(web2py.db.sys_properties.Property == 'shop_checkout_message').count() == 1
 
     url = '/shop/index'
     client.get(url)
@@ -122,9 +125,9 @@ def test_shop_customers_profile_announcements(client, web2py):
 
 
 def test_shop_customers_profile_announcement_add(client, web2py):
-    '''
+    """
         Can we add a new link?
-    '''
+    """
     url = '/settings/shop_customers_profile_announcement_add'
     client.get(url)
     assert client.status == 200
@@ -141,9 +144,9 @@ def test_shop_customers_profile_announcement_add(client, web2py):
 
 
 def test_shop_customers_profile_announcement_edit(client, web2py):
-    '''
+    """
         Can we edit a link?
-    '''
+    """
     populate_settings_shop_customers_profile_announcements(web2py)
 
     url = '/settings/shop_customers_profile_announcement_edit?cpaID=1'
@@ -162,9 +165,9 @@ def test_shop_customers_profile_announcement_edit(client, web2py):
 
 
 def test_shop_links(client, web2py):
-    '''
+    """
         Is the list of links working?
-    '''
+    """
     populate_settings_shop_links(web2py)
     url = '/settings/shop_links'
     client.get(url)
@@ -175,9 +178,9 @@ def test_shop_links(client, web2py):
 
 
 def test_shop_link_add(client, web2py):
-    '''
+    """
         Can we add a new link?
-    '''
+    """
     url = '/settings/shop_link_add'
     client.get(url)
     assert client.status == 200
@@ -192,9 +195,9 @@ def test_shop_link_add(client, web2py):
 
 
 def test_shop_link_edit(client, web2py):
-    '''
+    """
         Can we edit a link?
-    '''
+    """
     populate_settings_shop_links(web2py)
 
     url = '/settings/shop_link_edit?slID=1'
@@ -212,9 +215,9 @@ def test_shop_link_edit(client, web2py):
 
 
 def test_shop_link_display_in_shop(client, web2py):
-    '''
+    """
         Is a link actually showing in the shop?
-    '''
+    """
     populate_settings_shop_links(web2py)
 
     url = '/shop/index'
@@ -227,9 +230,9 @@ def test_shop_link_display_in_shop(client, web2py):
 
 
 def test_financial_invoices_groups_index(client, web2py):
-    '''
+    """
         Is the index page showing?
-    '''
+    """
     url = '/settings/financial_invoices_groups'
     client.get(url)
     assert client.status == 200
@@ -237,9 +240,9 @@ def test_financial_invoices_groups_index(client, web2py):
 
 
 def test_financial_invoices_group_add(client, web2py):
-    '''
+    """
         Can we add a direct debit category?
-    '''
+    """
     url = '/settings/financial_invoices_group_add'
     client.get(url)
     assert client.status == 200
@@ -256,16 +259,16 @@ def test_financial_invoices_group_add(client, web2py):
     assert 'Groups' in client.text
     assert data['Name'] in client.text
 
-    '''
+    """
         There'll be 2 groups, one is added by the OpenStudio setup() function
-    '''
+    """
     assert web2py.db(web2py.db.invoices_groups).count() == 2
 
 
 def test_financial_invoices_group_edit(client, web2py):
-    '''
+    """
         Can we edit a invoice group?
-    '''
+    """
     populate(web2py.db.invoices_groups, 1)
     assert web2py.db(web2py.db.invoices_groups).count() == 1
 
@@ -288,9 +291,9 @@ def test_financial_invoices_group_edit(client, web2py):
 
 
 def test_financial_invoices_group_archive(client, web2py):
-    '''
+    """
         Can we archive a invoice group?
-    '''
+    """
     # add one to archive
     web2py.db.invoices_groups.insert(
         Name='Invoices',
@@ -309,9 +312,9 @@ def test_financial_invoices_group_archive(client, web2py):
 
 
 def test_financial_dd_categories_index(client, web2py):
-    '''
+    """
         Is the index page showing?
-    '''
+    """
     url = '/settings/financial_dd_categories'
     client.get(url)
     assert client.status == 200
@@ -319,9 +322,9 @@ def test_financial_dd_categories_index(client, web2py):
 
 
 def test_financial_dd_categories_add(client, web2py):
-    '''
+    """
         Can we add a direct debit category?
-    '''
+    """
     url = '/settings/financial_dd_category_add'
     client.get(url)
     assert client.status == 200
@@ -338,9 +341,9 @@ def test_financial_dd_categories_add(client, web2py):
 
 
 def test_financial_dd_categories_edit(client, web2py):
-    '''
+    """
         Can we edit a direct debit category?
-    '''
+    """
     populate(web2py.db.payment_categories, 1)
     assert web2py.db(web2py.db.payment_categories).count() == 1
 
@@ -362,9 +365,9 @@ def test_financial_dd_categories_edit(client, web2py):
 
 
 def test_financial_dd_category_archive(client, web2py):
-    '''
+    """
         Can we archive a direct debit category?
-    '''
+    """
     # add one to archive
     populate(web2py.db.payment_categories, 1)
     assert web2py.db(web2py.db.payment_categories).count() == 1
@@ -381,9 +384,9 @@ def test_financial_dd_category_archive(client, web2py):
 
 
 def test_financial_payment_methods_index(client, web2py):
-    '''
+    """
         Is the index page showing?
-    '''
+    """
     url = '/settings/financial_payment_methods'
     client.get(url)
     assert client.status == 200
@@ -396,9 +399,9 @@ def test_financial_payment_methods_index(client, web2py):
 
 
 def test_financial_payment_method_add(client, web2py):
-    '''
+    """
         Can we add a payment method?
-    '''
+    """
     url = '/settings/financial_payment_method_add'
     client.get(url)
     assert client.status == 200
@@ -414,9 +417,9 @@ def test_financial_payment_method_add(client, web2py):
 
 
 def test_financial_payment_method_edit(client, web2py):
-    '''
+    """
         Can we edit a payment method?
-    '''
+    """
     # Get URL first so the default payment methods (id 1 - 3) get generated
     url = '/settings/financial_payment_methods'
     client.get(url)
@@ -442,9 +445,9 @@ def test_financial_payment_method_edit(client, web2py):
 
 
 def test_financial_payment_method_archive(client, web2py):
-    '''
+    """
         Can we archive a payment method?
-    '''
+    """
     # Get URL first so the default payment methods (id 1 - 3) get generated
     url = '/settings/financial_payment_methods'
     client.get(url)
@@ -465,10 +468,10 @@ def test_financial_payment_method_archive(client, web2py):
 
 
 def test_financial_invoices_groups_setup(client, web2py):
-    '''
+    """
         Is the setup function working and inserting '100' for all
         groups?
-    '''
+    """
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
@@ -488,9 +491,9 @@ def test_financial_invoices_groups_setup(client, web2py):
 
 
 def test_financial_invoices_groups_default_edit(client, web2py):
-    '''
+    """
         Can we edit the default invoice group for a product type?
-    '''
+    """
     name = 'ChocolateShake'
     web2py.db.invoices_groups.insert(
         id = 200,
@@ -518,9 +521,9 @@ def test_financial_invoices_groups_default_edit(client, web2py):
 
 
 def test_access_api_users_index(client, web2py):
-    '''
+    """
         Can we list the API users?
-    '''
+    """
     web2py.db.sys_api_users.insert(ActiveUser=True,
                                    Username='magicdesign',
                                    APIKey='1234567890',
@@ -534,9 +537,9 @@ def test_access_api_users_index(client, web2py):
     assert 'magicdesign' in client.text
 
 def test_access_api_user(client, web2py):
-    '''
+    """
         Can we add an api user?
-    '''
+    """
     url = '/settings/access_api_user_add'
     client.get(url)
     assert client.status == 200
