@@ -67,6 +67,16 @@ class WorkshopProduct:
         return price
 
 
+    def get_price_for_customer_formatted(self, cuID):
+        """
+        :param cuID: db.auth_user.id
+        :return: display for ticket price
+        """
+        CURRSYM = current.globalenv['CURRSYM']
+
+        return SPAN(CURRSYM, ' ', format(self.get_price_for_customer(cuID), '.2f'))
+
+
     def get_tax_rate_percentage(self):
         """
             Returns the tax percentage for a workshop product, if any
@@ -186,6 +196,7 @@ class WorkshopProduct:
 
         return check
 
+
     def add_to_shoppingcart(self, cuID):
         """
             Add a workshop product to the shopping cart of a customer
@@ -196,6 +207,7 @@ class WorkshopProduct:
             auth_customer_id=cuID,
             workshops_products_id=self.wspID
         )
+
 
     def sell_to_customer(self, cuID, waitinglist=False, invoice=True):
         """
@@ -243,7 +255,7 @@ class WorkshopProduct:
             invoice = Invoice(iID)
             next_sort_nr = invoice.get_item_next_sort_nr()
 
-            price = self.price
+            price = self.get_price_for_customer(cuID)
 
             iiID = db.invoices_items.insert(
                 invoices_id=iID,
