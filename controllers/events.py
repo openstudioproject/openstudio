@@ -2292,6 +2292,7 @@ def ticket_add():
     crud.messages.record_created = T("Saved product")
     crud.settings.create_next = next_url
     crud.settings.create_onaccept = [cache_clear_workshops]
+    crud.settings.formstyle = 'bootstrap3_stacked'
     form = crud.create(db.workshops_products)
 
     form_id = "MainForm"
@@ -2333,6 +2334,7 @@ def ticket_edit():
     crud.settings.update_next = return_url
     crud.settings.update_onaccept = [cache_clear_workshops]
     crud.settings.update_deletable = False
+    crud.settings.formstyle = 'bootstrap3_stacked'
     form = crud.update(db.workshops_products, wspID)
 
     form_id = "MainForm"
