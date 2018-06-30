@@ -1786,6 +1786,33 @@ def test_contact(client, web2py):
         assert org[p] in client.text
 
 
+def test_event_price(client, web2py):
+    """
+        Is the regular price applied?
+    """
+    assert 1 == 0
+
+
+def test_event_price_earlybird(client, web2py):
+    """
+        Is the earlybird price applied?
+    """
+    assert 1 == 0
+
+def test_event_price_subscription(client, web2py):
+    """
+        Is the subscription price applied?
+    """
+    assert 1 == 0
+
+
+
+def test_event_price_subscription_earlybird(client, web2py):
+    """
+        Is the earlybird price for customers with a subscription applied?
+    """
+    assert 1 == 0
+
 def test_event_add_to_cart(client, web2py):
     """
         Can we add a workshop to the shopping cart?
