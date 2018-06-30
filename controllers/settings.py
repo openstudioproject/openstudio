@@ -2930,6 +2930,7 @@ def shop_settings():
     shop_header_logo_url = get_sys_property('shop_header_logo_url')
     shop_classes_dropin_message = get_sys_property('shop_classes_dropin_message')
     shop_classes_trial_message = get_sys_property('shop_classes_trial_message')
+    shop_checkout_message = get_sys_property('shop_checkout_message')
 
     form = SQLFORM.factory(
         Field('shop_header_logo_url',
@@ -2944,6 +2945,10 @@ def shop_settings():
               default=shop_classes_trial_message,
               label=T('Trial class booking options message'),
               comment=T('Message shown on the trial class option on the class booking options pages')),
+        Field('shop_checkout_message', 'text',
+              default=shop_checkout_message,
+              label=T('Check out message'),
+              comment=T('Message shown on the check out page')),
         submit_button=T("Save"),
         separator=' ',
         formstyle='bootstrap3_stacked'
@@ -2953,11 +2958,16 @@ def shop_settings():
     form = result['form']
     submit = result['submit']
 
+    textareas = form.elements('textarea')
+    for textarea in textareas:
+        textarea['_class'] += ' tmced'
+
     if form.accepts(request.vars, session):
         value_names = [
             'shop_header_logo_url',
             'shop_classes_dropin_message',
-            'shop_classes_trial_message'
+            'shop_classes_trial_message',
+            'shop_checkout_message'
         ]
 
         # process vars
@@ -2972,7 +2982,7 @@ def shop_settings():
         # reload so the user sees how the values are stored in the db now
         redirect(URL('shop_settings'))
 
-    content = DIV(DIV(form, _class='col-md-6'),
+    content = DIV(DIV(form, _class="col-md-12"),
                   _class='row')
 
     menu = shop_get_menu(request.function)
