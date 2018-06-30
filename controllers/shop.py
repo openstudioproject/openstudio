@@ -735,8 +735,12 @@ def event_get_products_filter_prices_add_to_cart_buttons(workshop):
         else:
             # Set price
             if product.Price:
-                price = format(product.Price, '.2f')
-                display_price = SPAN(CURRSYM, ' ', price)
+                wsp = WorkshopProduct(product.id)
+                if auth.user:
+                    price = wsp.get_price_for_customer(auth.user.id)
+                else:
+                    price = product.Price
+                display_price = SPAN(CURRSYM, ' ', format(price, '.2f'))
             else:
                 display_price = T("No admission fee")
 

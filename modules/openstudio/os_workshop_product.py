@@ -21,14 +21,51 @@ class WorkshopProduct:
 
         self._set_price()
 
+
     def _set_price(self):
         if self.workshop_product.Price:
             self.price = self.workshop_product.Price
         else:
             self.price = 0
 
+
     def get_price(self):
         return self.workshop_product.Price
+
+
+    def get_price_for_customer(self, cuID):
+        """
+        :param cuID: db.auth_user.id
+        :return: product price for customer
+        """
+        from os_customer import Customer
+        TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
+
+        price = self.workshop_product.Price
+        if not cuID:
+            return price
+
+
+        customer = Customer(cuID)
+        # Check subscription
+        if customer.has_subscription_on_date(self.workshop.Startdate):
+            if self.workshop_product.PriceSubscription:
+                price = self.workshop_product.PriceSubscription
+
+            # Check subscription earlybird
+            if ( self.workshop_product.PriceSubscriptionEarlybird
+                 and self.workshop_product.EarlybirdUntil <= TODAY_LOCAL ):
+                price = self.workshop_product.PriceSubscriptionEarlybird
+
+            return price
+
+        # Check earlybird
+        if ( self.workshop_product.PriceEarlybird and
+             row.EarlybirdUntil <= TODAY_LOCAL ):
+            price = self.workshop_product.PriceEarlybird
+
+        return price
+
 
     def get_tax_rate_percentage(self):
         """
@@ -43,6 +80,7 @@ class WorkshopProduct:
             tax_rate_percentage = None
 
         return tax_rate_percentage
+
 
     def get_activities(self):
         """
