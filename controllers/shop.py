@@ -165,13 +165,15 @@ def cart_get_price_total(rows):
         @return: total price for items in shopping cart
     """
     from openstudio.os_class import Class
+    from openstudio.os_workshop_product import WorkshopProduct
 
     cuID = auth.user.id
 
     total = 0
     for row in rows:
         if row.customers_shoppingcart.workshops_products_id:
-            total += row.workshops_products.Price or 0
+            wsp = WorkshopProduct(row.customers_shoppingcart.workshops_products_id)
+            total += wsp.get_price_for_customer(row.customers_shoppingcart.auth_customer_id) or 0
 
         if row.customers_shoppingcart.school_classcards_id:
             total += row.school_classcards.Price or 0
