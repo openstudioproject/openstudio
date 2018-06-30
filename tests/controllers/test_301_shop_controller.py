@@ -40,6 +40,8 @@ def next_weekday(d, weekday):
     return d + datetime.timedelta(days_ahead)
 
 
+
+
 def test_customers_shop_features(client, web2py):
     """
         Are the settings to control of which pages to show in the shop working?
@@ -1518,6 +1520,15 @@ def test_checkout(client, web2py):
     """
     populate_customers_shoppingcart(web2py)
 
+    checkout_message = '123kljfdskj4958'
+
+    web2py.db.sys_properties.insert(
+        Property='shop_checkout_message',
+        PropertyValue=checkout_message
+    )
+
+    web2py.db.commit()
+
     url = '/shop/checkout'
     client.get(url)
     assert client.status == 200
@@ -1537,8 +1548,21 @@ def test_checkout(client, web2py):
     total += scd.Price
     assert str(total) in client.text
 
-    # Check order link
-    assert '/shop/order_received' in client.text
+    # Check message
+    assert checkout_message in client.text
+
+    # Check order creation and redirect
+    data = {
+        'CustomerNote': '009356sdjflkj18329u'
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+    assert web2py.db(web2py.db.customers_orders).count() == 1
+    order = web2py.db.customers_orders(1)
+    assert order.CustomerNote == data['CustomerNote']
+    assert order.auth_customer_id == 300
 
 
 def test_order_received(client, web2py):
@@ -1547,7 +1571,12 @@ def test_order_received(client, web2py):
     """
     populate_customers_shoppingcart(web2py)
 
-    url = '/shop/order_received'
+    web2py.db.customers_orders.insert(
+        auth_customer_id = 300,
+    )
+    web2py.db.commit()
+
+    url = '/shop/order_received?coID=1'
     client.get(url)
     assert client.status == 200
     assert 'Thank you' in client.text
