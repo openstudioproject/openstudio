@@ -3259,7 +3259,7 @@ def admin_scheduled_tasks_run_result():
             DIV(sr.run_result, _class='col-md-9'),
             _class='row'),
         DIV(DIV(LABEL(T('Traceback')), _class='col-md-2'),
-            DIV(sr.traceback, _class='col-md-9'),
+            DIV(XML(sr.traceback.replace("\n", "<br>")), _class='col-md-9'),
             _class='row'),
     )
 
