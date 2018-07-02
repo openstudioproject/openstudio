@@ -131,7 +131,7 @@ def classcards():
     if features.Classcards:
         school = School()
         cards = school.get_classcards_formatted(
-            auth.user.id,
+            auth_user_id,
             public_only=True,
             per_row=3,
             link_type='shop'
