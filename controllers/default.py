@@ -85,6 +85,19 @@ def user():
     # actually create auth form
     form=auth()
 
+    form_login = ''
+    login_link = ''
+    login_title = ''
+    login_message = ''
+    form_register = ''
+    register_link = ''
+    register_title = ''
+    reset_passwd = ''
+
+
+    self_checkin  = ''
+    error_msg = ''
+
     try:
         organization = ORGANIZATIONS[ORGANIZATIONS['default']]
         company_name = organization['Name']
@@ -97,6 +110,17 @@ def user():
         has_privacy_notice = False
 
     if 'register' in request.args:
+        register_title = T("Register")
+        login_title = T("Already have an account?")
+        login_link = A(T("Click here to log in"),
+                       _href=URL(args='login'))
+        login_message = DIV(
+            B("Can't register?"), BR(),
+            T("In case you can't register because your email address already has an account, click"), ' ',
+            A(T("here"),
+              _href=URL(args='request_reset_password')), ' ',
+            T("to request a new password."), BR(), BR(),
+        )
         response.view = 'default/user_login.html'
         user_registration_set_visible_fields()
         #db.auth_user.password.requires=IS_STRONG()
@@ -139,7 +163,6 @@ def user():
 
 
         form = DIV(
-            H4(T('Register'), _class='grey text-center no-margin-top'),
             form.custom.begin,
             DIV(LABEL(form.custom.label.first_name),
                 form.custom.widget.first_name,
@@ -167,10 +190,7 @@ def user():
             DIV(form.custom.submit, _class='pull-right'),
             form.custom.end)
 
-    reset_passwd = ''
-    register = ''
-    self_checkin  = ''
-    error_msg = ''
+        form_register = form
 
     # set logo
     branding_logo = os.path.join(request.folder,
@@ -199,6 +219,8 @@ def user():
 
     if 'login' in request.args:
         response.view = 'default/user_login.html'
+        login_title = T("Log in")
+        register_title = T("New here?")
 
         auth.messages.login_button = T('Sign In')
 
@@ -222,8 +244,6 @@ def user():
                   _id='label_remember'),
             DIV(form.custom.submit, _class='pull-right'),
             form.custom.end,
-            BR(),
-            HR(),
             )
 
         if not 'request_reset_password' in auth.settings.actions_disabled:
@@ -232,8 +252,10 @@ def user():
 
 
         if not 'register' in auth.settings.actions_disabled:
-            register = A(T("I don't have an account yet"),
-                          _href=URL(args='register'))
+            register_link = A(T("Click here to register"),
+                               _href=URL(args='register'))
+
+        form_login = form
 
 
     if 'request_reset_password' in request.args or \
@@ -250,11 +272,22 @@ def user():
                    _class='btn btn-default')
         form = DIV(
             form.custom.begin,
-            DIV(LABEL('Request reset password'),
-                form.custom.widget.email, _class='form-group'),
+            DIV(form.custom.widget.email, _class='form-group'),
             DIV(form.custom.submit, _class='pull-right'),
             cancel,
             form.custom.end)
+
+        form_login = form
+        login_title = T("Reset password")
+
+        register_title = T("Info")
+        register_link = SPAN(
+            T("After entering your email address and clicking the Reset password button"), ' ',
+            T("you should receive an email with a link to reset your password within a few minutes."), ' ',
+            T("In case you don't receive an email, please check your spam folder."), BR(), BR(),
+            A(T("Click here to log in"),
+              _href=URL(args="login"))
+        )
 
     if 'reset_password' in request.args:
         response.view = 'default/user_login.html'
@@ -270,6 +303,16 @@ def user():
             os_gui.get_form_group(form.custom.label.new_password2, form.custom.widget.new_password2),
             form.custom.submit,
             form.custom.end)
+
+        form_login = form
+        login_title = T("Reset password")
+        register_title = T("Info")
+        register_link = SPAN(
+            T("After setting a new password, you will be logged in automatically."), ' ',
+            T("Please use your new password for future logins."), BR(), BR(),
+            A(T("Click here to log in"),
+              _href=URL(args="login"))
+        )
 
 
     if 'change_password' in request.args:
@@ -288,7 +331,6 @@ def user():
                    _class='btn btn-default')
 
         form = DIV(
-            H4(T('Change password'), _class='grey text-center no-margin-top'),
             form.custom.begin,
             os_gui.get_form_group(form.custom.label.old_password, form.custom.widget.old_password),
             os_gui.get_form_group(form.custom.label.new_password, form.custom.widget.new_password),
@@ -298,12 +340,20 @@ def user():
             form.custom.end
         )
 
+        form_login = form
+        login_title = T("Change password")
 
-    return dict(form=form,
+
+    return dict(form_login=form_login,
+                form_register=form_register,
                 content=form,
                 error_msg=error_msg,
                 reset_passwd=reset_passwd,
-                register=register,
+                register_link=register_link,
+                register_title=register_title,
+                login_link=login_link,
+                login_title=login_title,
+                login_message=login_message,
                 self_checkin=self_checkin,
                 company_name=company_name,
                 has_organization=True if organization else False,
