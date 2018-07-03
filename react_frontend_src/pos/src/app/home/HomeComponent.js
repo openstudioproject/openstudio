@@ -22,10 +22,10 @@ class homeComponent extends Component {
     componentDidMount() {
         setTimeout(() => this.setLoaderMessage('phase 1'), 0)
         setTimeout(() => this.setLoaderMessage('phase 2'), 1000)
-        setTimeout(() => this.setLoaderMessage('phase 3'), 2500)
+        //setTimeout(() => this.setLoaderMessage('phase 3'), 2500)
         // ready...
-        setTimeout(() => this.setLoaderStatus('ready'), 3000)
-        setTimeout(() => this.setLoaderMessage('Loading done!'), 3500)
+        setTimeout(() => this.setLoaderStatus('ready'), 1000)
+        setTimeout(() => this.setLoaderMessage('Loading done!'), 1500)
         
     }
 
