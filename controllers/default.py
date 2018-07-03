@@ -115,7 +115,8 @@ def user():
         login_link = A(T("Click here to log in"),
                        _href=URL(args='login'))
         login_message = DIV(
-            T("In case you can't register because your email address already had an account, click"), ' ',
+            B("Can't register?"), BR(),
+            T("In case you can't register because your email address already has an account, click"), ' ',
             A(T("here"),
               _href=URL(args='request_reset_password')), ' ',
             T("to request a new password."), BR(), BR(),
@@ -283,7 +284,9 @@ def user():
         register_link = SPAN(
             T("After entering your email address and clicking the Reset password button"), ' ',
             T("you should receive an email with a link to reset your password within a few minutes."), ' ',
-            T("In case you don't receive an email, please check your spam folder.")
+            T("In case you don't receive an email, please check your spam folder."), BR(), BR(),
+            A(T("Click here to log in"),
+              _href=URL(args="login"))
         )
 
     if 'reset_password' in request.args:
@@ -304,8 +307,12 @@ def user():
         form_login = form
         login_title = T("Reset password")
         register_title = T("Info")
-        register_link = \
-            T("After setting a new password, you will be logged in automatically. Please use your new password for future logins.")
+        register_link = SPAN(
+            T("After setting a new password, you will be logged in automatically."), ' ',
+            T("Please use your new password for future logins."), BR(), BR(),
+            A(T("Click here to log in"),
+              _href=URL(args="login"))
+        )
 
 
     if 'change_password' in request.args:
