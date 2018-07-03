@@ -10,6 +10,8 @@ import Home from './home/HomeContainer'
 import Whoops404 from './whoops404/Whoops404'
 
 class App extends Component {
+  // perhaps a componentDidMount here to dispatch fetch data operations??
+
   render() {
     return (
       <Router>
