@@ -2,15 +2,15 @@ import T from './types'
 
 const appReducer = (state = {}, action={ type: null }) => {
     switch (action.type) {
-        case T.SET_LOADER_MESSAGE:
+        case T.SET_LOADING_MESSAGE:
             return {
                 ...state,
-                message: action.message
+                loading_message: action.message
             }
-        case T.SET_LOADER_STATUS:
+        case T.SET_LOADING:
             return {
                 ...state,
-                status: action.status
+                loading: action.loading
             }
         default :
             return state

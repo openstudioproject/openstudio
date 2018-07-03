@@ -10,11 +10,11 @@ const mapStateToProps = state =>
 
 const mapDispatchToProps = dispatch =>
     ({
-        setLoaderStatus(status) {
-            dispatch(homeOperations.setLoaderStatus(status))
+        setLoading(loading) {
+            dispatch(homeOperations.setLoading(loading))
         },
-        setLoaderMessage(message) {
-            dispatch(homeOperations.setLoaderMessage(message))
+        setLoadingMessage(message) {
+            dispatch(homeOperations.setLoadingMessage(message))
         }
     })
 

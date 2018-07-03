@@ -7,38 +7,31 @@ class homeComponent extends Component {
         console.log(props)
     }
 
-    setLoaderStatus(status) {
-        this.props.setLoaderStatus(status)
-    }
-
-    setLoaderMessage(message) {
-        this.props.setLoaderMessage(message)
-    }
-
-    componentWillMount() {
-        this.setLoaderStatus('loading')
-    }
+    // componentWillMount() {
+    //     this.props.setLoading(true)
+    // }
 
     componentDidMount() {
-        setTimeout(() => this.setLoaderMessage('phase 1'), 0)
-        setTimeout(() => this.setLoaderMessage('phase 2'), 1000)
-        //setTimeout(() => this.setLoaderMessage('phase 3'), 2500)
+        setTimeout(() => this.props.setLoadingMessage('phase 1'), 0)
+        setTimeout(() => this.props.setLoadingMessage('phase 2'), 1000)
+        setTimeout(() => this.props.setLoadingMessage('phase 3'), 2500)
         // ready...
-        setTimeout(() => this.setLoaderStatus('ready'), 1000)
-        setTimeout(() => this.setLoaderMessage('Loading done!'), 1500)
+        setTimeout(() => this.props.setLoading(false), 3000)
+        setTimeout(() => this.props.setLoadingMessage('Loading done!'), 3500)
         
     }
 
     render() {
-        return (this.props.app.status === 'loading') ?
-            <div>Loading... <br /> {this.props.app.message} </div> :
-            <PageTemplate>
+        return (
+            <PageTemplate loading={this.props.app.loading}
+                          loading_message={this.props.app.loading_message}>
             <section className="Welcome">
                 <div>Welcome page</div>
-                <div>{this.props.app.status}</div>
-                <div>{this.props.app.message}</div>
+                <div>{this.props.app.loading}</div>
+                <div>{this.props.app.loading_message}</div>
             </section>
             </PageTemplate>
+        )
     }
 }
 

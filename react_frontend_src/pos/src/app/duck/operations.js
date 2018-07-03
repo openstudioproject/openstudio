@@ -1,12 +1,12 @@
 import {
-    setLoaderMessage as set_message,
-    setLoaderStatus as set_status
+    setLoading as set_loading,
+    setLoadingMessage as set_loading_message
 } from './actions'
 
-const setLoaderMessage = set_message
-const setLoaderStatus = set_status
+const setLoadingMessage = set_loading_message
+const setLoading = set_loading
 
 export default {
-    setLoaderMessage,
-    setLoaderStatus
+    setLoading,
+    setLoadingMessage
 }
