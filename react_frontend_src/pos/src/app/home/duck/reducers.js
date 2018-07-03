@@ -1,13 +1,13 @@
-import C from '../../constants'
+import T from './types'
 
-export const loader = (state = {}, action={ type: null }) => {
+const homeReducer = (state = {}, action={ type: null }) => {
     switch (action.type) {
-        case C.SET_LOADER_MESSAGE:
+        case T.SET_LOADER_MESSAGE:
             return {
                 ...state,
                 message: action.message
             }
-        case C.SET_LOADER_STATUS:
+        case T.SET_LOADER_STATUS:
             return {
                 ...state,
                 status: action.status
@@ -16,3 +16,5 @@ export const loader = (state = {}, action={ type: null }) => {
             return state
     }
 }
+
+export default homeReducer

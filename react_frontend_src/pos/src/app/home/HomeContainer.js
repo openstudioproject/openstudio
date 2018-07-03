@@ -1,18 +1,18 @@
-import React from 'react'
 import { connect } from 'react-redux'
 
-import { Welcome } from "./Pages"
-import { setLoaderStatus, setLoaderMessage } from "../actions";
+import HomeComponent from "./HomeComponent"
+import { setLoaderStatus, setLoaderMessage } from "./duck/actions";
 
-console.log('app here')
+console.log('home container here')
 const mapStateToProps = state => 
     ({
-        loader: state.loader
+        home: state.rootReducer.home
     })
 
 const mapDispatchToProps = dispatch =>
     ({
         setLoaderStatus(status) {
+            // toDo: move to operations in duck
             dispatch(setLoaderStatus(status))
         },
         setLoaderMessage(message) {
@@ -20,7 +20,9 @@ const mapDispatchToProps = dispatch =>
         }
     })
 
-export const App = connect(
+const HomeContainer = connect(
     mapStateToProps,
     mapDispatchToProps
-)(Welcome)
+)(HomeComponent)
+
+export default HomeContainer

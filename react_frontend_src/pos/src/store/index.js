@@ -1,5 +1,5 @@
 import { createStore, combineReducers, applyMiddleware } from 'redux'
-import { loader } from './reducers/app'
+import rootReducer from './reducers'
 import stateData from '../../data/initialState'
 
 let console = window.console
@@ -21,12 +21,17 @@ const saver = store => next => action => {
     return result
 }
 
+// const storeFactory = (initialState=stateData) =>
+//     applyMiddleware(logger, saver)(createStore)(
+//         combineReducers({pos: loader}),
+//         (localStorage['redux-store']) ?
+//             JSON.parse(localStorage['redux-store']) :
+//             initialState
+//     )
 const storeFactory = (initialState=stateData) =>
-    applyMiddleware(logger, saver)(createStore)(
-        combineReducers({loader}),
-        (localStorage['redux-store']) ?
-            JSON.parse(localStorage['redux-store']) :
-            initialState
+    applyMiddleware(logger)(createStore)(
+        combineReducers({rootReducer}), 
+        initialState
     )
 
 export default storeFactory

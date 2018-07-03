@@ -1,6 +1,8 @@
 {
-    "loader": {
-        "status": "loading",
-        "message": "Please wait while things are starting up..."
+    "rootReducer": {
+        "home": {
+            "status": "loading",
+            "message": "Please wait while things are starting up..."
+        }
     }
 }
