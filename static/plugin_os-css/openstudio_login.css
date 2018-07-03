@@ -84,3 +84,9 @@ img.logo_os_clouds {
 #accept_ul {
     padding-left: 20px;
 }
+
+@media only screen and (min-width: 768px) {
+	.login-box {
+		width: 720px;
+	}
+Do you}

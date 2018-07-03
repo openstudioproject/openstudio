@@ -346,7 +346,8 @@ class OsMail:
                                          request.env.http_host,
                                          'static',
                             'plugin_os-branding/logos/branding_logo_invoices.png')
-            logo_img = IMG(_src=abs_url)
+            logo_img = IMG(_src=abs_url,
+                           **{'_style': "max-width: 220px;"})
 
         else:
             logo_img = ''
