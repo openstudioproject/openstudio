@@ -1,6 +1,6 @@
 {
-    "rootReducer": {
-        "home": {
+    "root": {
+        "app": {
             "status": "loading",
             "message": "Please wait while things are starting up..."
         }

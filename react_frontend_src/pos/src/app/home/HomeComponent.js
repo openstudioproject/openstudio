@@ -30,13 +30,13 @@ class homeComponent extends Component {
     }
 
     render() {
-        return (this.props.home.status === 'loading') ?
-            <div>Loading... <br /> {this.props.home.message} </div> :
+        return (this.props.app.status === 'loading') ?
+            <div>Loading... <br /> {this.props.app.message} </div> :
             <PageTemplate>
             <section className="Welcome">
                 <div>Welcome page</div>
-                <div>{this.props.home.status}</div>
-                <div>{this.props.home.message}</div>
+                <div>{this.props.app.status}</div>
+                <div>{this.props.app.message}</div>
             </section>
             </PageTemplate>
     }

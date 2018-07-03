@@ -30,7 +30,7 @@ const saver = store => next => action => {
 //     )
 const storeFactory = (initialState=stateData) =>
     applyMiddleware(logger)(createStore)(
-        combineReducers({rootReducer}), 
+        combineReducers({root: rootReducer}), 
         initialState
     )
 

@@ -1,6 +1,6 @@
-const constants = {
+const types = {
     SET_LOADER_STATUS: "SET_LOADER_STATUS",
     SET_LOADER_MESSAGE: "SET_LOADER_MESSAGE"
 }
 
-export default constants
+export default types

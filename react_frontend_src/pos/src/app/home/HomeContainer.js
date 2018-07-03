@@ -1,22 +1,20 @@
 import { connect } from 'react-redux'
 
 import HomeComponent from "./HomeComponent"
-import { setLoaderStatus, setLoaderMessage } from "./duck/actions";
+import { homeOperations } from '../duck'
 
-console.log('home container here')
 const mapStateToProps = state => 
     ({
-        home: state.rootReducer.home
+        app: state.root.app
     })
 
 const mapDispatchToProps = dispatch =>
     ({
         setLoaderStatus(status) {
-            // toDo: move to operations in duck
-            dispatch(setLoaderStatus(status))
+            dispatch(homeOperations.setLoaderStatus(status))
         },
         setLoaderMessage(message) {
-            dispatch(setLoaderMessage(message))
+            dispatch(homeOperations.setLoaderMessage(message))
         }
     })
 
