@@ -1,5 +1,5 @@
 import { createStore, combineReducers, applyMiddleware } from 'redux'
-import { loader } from './reducers'
+import { loader } from './reducers/app'
 import stateData from '../../data/initialState'
 
 let console = window.console

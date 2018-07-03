@@ -6,7 +6,7 @@ import storeFactory from "./store"
 import { setLoaderMessage, setLoaderStatus } from "./actions";
 
 import {
-  HashRouter,
+  BrowserRouter as Router,
   Route,
   Switch
 } from 'react-router-dom'
@@ -24,12 +24,12 @@ console.log(store.getState())
 
 ReactDOM.render(
   <Provider store={store}>
-    <HashRouter>
+    <Router>
         <Switch>
           <Route exact path="/" component={App} />
           <Route component={Whoops404} />
         </Switch>
-    </HashRouter>
+    </Router>
   </Provider>,
   document.getElementById("app")
 )

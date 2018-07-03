@@ -12,6 +12,7 @@
   "author": "",
   "license": "GPL-2.0",
   "dependencies": {
+    "axios": "^0.18.0",
     "isomorphic-fetch": "^2.2.1",
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
