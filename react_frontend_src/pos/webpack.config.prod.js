@@ -14,9 +14,6 @@ module.exports = {
     filename: "../../static/plugin_os_pos/main.js",
     sourceMapFilename: "../../static/plugin_os_pos/main.map",
   },
-  devServer: {
-    contentBase: path.join(__dirname, "../../static/plugin_os_pos")
-  },
   devtool: '#source-map',
   module: {
     rules: [

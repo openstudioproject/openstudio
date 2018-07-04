@@ -19,9 +19,8 @@ class App extends Component {
         <div>
           <Switch>
             <Route exact path='/' component={Home} />
-            <Route exact path='/pos' component={Home} />
-            <Route path='/pos/check-in' component={Home} />
-            <Route path='/pos/products' component={Home} />
+            <Route path='/check-in' component={Home} />
+            <Route path='/products' component={Home} />
             {/* Add all your remaining routes here, like /trending, /about, etc. */}
             <Route component={Whoops404} />
           </Switch>
