@@ -4,13 +4,22 @@ from general_helpers import set_form_id_and_get_submit_button
 
 @auth.requires_login()
 def index():
-    print auth.user
+    # print auth.user
 
     return dict()
 
 
-def return_json(var=None):
-    response.headers["Access-Control-Allow-Origin"] = "*"
+def set_pos_headers(var=None):
+    response.headers["Access-Control-Allow-Origin"] = request.env.HTTP_ORIGIN
+    response.headers["Access-Control-Allow-Credentials"] = "true"
+
+
+def return_json_error(var=None):
+    print 'return_json_error'
+    print 'cookies:'
+    print request.cookies
+
+    set_pos_headers()
 
     return dict(
         error=403,
@@ -19,13 +28,11 @@ def return_json(var=None):
     )
 
 
-@auth.requires_login(otherwise=return_json)
+@auth.requires_login(otherwise=return_json_error)
 def get_logged_in():
-    # response.headers["Access-Control-Allow-Origin"] = "http://localhost:8080"
-    response.headers["Access-Control-Allow-Origin"] = "*"
+    set_pos_headers()
 
-    if not auth.is_logged_in():
-        return True
-    else:
-        return False
+    print 'cookies:'
+    print request.cookies
 
+    return auth.is_logged_in()

@@ -18,19 +18,19 @@ class homeComponent extends Component {
     // }
 
     componentDidMount() {
-        axios.get('http://dev.openstudioproject.com:8000/pos/get_logged_in.json')
+        axios.get('http://dev.openstudioproject.com:8000/pos/get_logged_in.json', {
+            withCredentials: true
+        })
         .then(function (response) {
           // handle success
           console.log(response)
           console.log(typeof response.data)
           console.log(response.data)
+          // catch user not logged in
           if (response.data.error == 403) {
-              window.location.replace(response.data.location)
+              console.log('redirecting to login...')
+              // setTimeout(() => window.location.replace(response.data.location), 10000)
           }
-        //   if (response.data === 'False') {
-        //     console.log('redirecting')
-        //     window.location.replace("http://dev.openstudioproject.com:8000/user/login?_next=/pos")
-        //   }
         })
         .catch(function (error) {
           // handle error
