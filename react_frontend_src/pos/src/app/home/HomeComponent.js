@@ -29,7 +29,7 @@ class homeComponent extends Component {
           // catch user not logged in
           if (response.data.error == 403) {
               console.log('redirecting to login...')
-              // setTimeout(() => window.location.replace(response.data.location), 10000)
+              setTimeout(() => window.location.replace(response.data.location), 10000)
           }
         })
         .catch(function (error) {
