@@ -21,14 +21,17 @@ class WorkshopProduct:
 
         self._set_price()
 
+
     def _set_price(self):
         if self.workshop_product.Price:
             self.price = self.workshop_product.Price
         else:
             self.price = 0
 
+
     def get_price(self):
         return self.workshop_product.Price
+
 
     def get_tax_rate_percentage(self):
         """
@@ -43,6 +46,7 @@ class WorkshopProduct:
             tax_rate_percentage = None
 
         return tax_rate_percentage
+
 
     def get_activities(self):
         """
@@ -66,6 +70,7 @@ class WorkshopProduct:
 
         return rows
 
+
     def is_sold_to_customer(self, cuID):
         """
             :param cuID: db.auth_user.id
@@ -81,6 +86,7 @@ class WorkshopProduct:
             return True
         else:
             return False
+
 
     def is_sold_out(self):
         """
@@ -148,6 +154,7 @@ class WorkshopProduct:
 
         return check
 
+
     def add_to_shoppingcart(self, cuID):
         """
             Add a workshop product to the shopping cart of a customer
@@ -158,6 +165,7 @@ class WorkshopProduct:
             auth_customer_id=cuID,
             workshops_products_id=self.wspID
         )
+
 
     def sell_to_customer(self, cuID, waitinglist=False, invoice=True):
         """
@@ -196,27 +204,10 @@ class WorkshopProduct:
                 Status='sent'
             )
 
-            # link invoice to sold workshop product for customer
-            db.invoices_workshops_products_customers.insert(
-                invoices_id=iID,
-                workshops_products_customers_id=wspcID)
-
             # create object to set Invoice# and due date
             invoice = Invoice(iID)
-            next_sort_nr = invoice.get_item_next_sort_nr()
 
-            price = self.price
-
-            iiID = db.invoices_items.insert(
-                invoices_id=iID,
-                ProductName=T("Event"),
-                Description=description,
-                Quantity=1,
-                Price=price,
-                Sorting=next_sort_nr,
-                tax_rates_id=self.tax_rates_id,
-            )
-
+            invoice.item_add_workshop_product(wspcID)
             invoice.set_amounts()
             invoice.link_to_customer(cuID)
 
