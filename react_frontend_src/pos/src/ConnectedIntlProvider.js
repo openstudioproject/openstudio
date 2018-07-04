@@ -3,7 +3,6 @@ import { IntlProvider } from 'react-intl'
 
 
 function mapStateToProps(state) {
-    console.log(state)
     const {language, messages} = state.root.locale
     return {locale: language, key: language, messages}
 }

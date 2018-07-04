@@ -5,7 +5,6 @@ import HomeComponent from "./HomeComponent"
 import { homeOperations } from '../duck'
 
 
-
 const mapStateToProps = state => 
     ({
         app_state: state.root.app
@@ -20,7 +19,6 @@ const mapDispatchToProps = dispatch =>
             dispatch(homeOperations.setLoadingMessage(message))
         }
     })
-
 
 
 const HomeContainer = injectIntl(connect(

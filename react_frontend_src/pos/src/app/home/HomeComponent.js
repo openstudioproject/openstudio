@@ -7,8 +7,6 @@ import { intlShape } from "react-intl"
 class homeComponent extends Component {
     constructor(props) {
         super(props)
-        console.log('home component')
-        console.log(props)
     }
 
     PropTypes = {
