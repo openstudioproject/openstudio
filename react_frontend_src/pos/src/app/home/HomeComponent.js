@@ -18,7 +18,22 @@ class homeComponent extends Component {
     // }
 
     componentDidMount() {
-        axios.get('http://dev.openstudioproject.com:8000/pos/get_logged_in.json', {
+        const hostname = window && window.location && window.location.hostname
+        console.log(hostname)
+        console.log(typeof hostname)
+
+        let backendHost
+        (hostname === 'localhost') ?
+            backendHost = "http://dev.openstudioproject.com:8000" :
+            backendHost = ""
+
+        console.log(backendHost)
+
+        const api_url = backendHost + '/pos/get_logged_in.json'
+        console.log(api_url)
+
+
+        axios.get(api_url, {
             withCredentials: true
         })
         .then(function (response) {
