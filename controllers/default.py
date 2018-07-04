@@ -344,7 +344,8 @@ def user():
         login_title = T("Change password")
 
 
-    return dict(form_login=form_login,
+    return dict(form=form,
+                form_login=form_login,
                 form_register=form_register,
                 content=form,
                 error_msg=error_msg,
