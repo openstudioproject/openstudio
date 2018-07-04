@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 
 import {
-  BrowserRouter as Router,
+  HashRouter as Router,
   Route, 
   Switch
 } from 'react-router-dom';
 
 import Home from './home/HomeContainer'
 import Whoops404 from './whoops404/Whoops404'
+
 
 class App extends Component {
   // perhaps a componentDidMount here to dispatch fetch data operations??

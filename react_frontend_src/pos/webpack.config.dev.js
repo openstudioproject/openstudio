@@ -15,6 +15,9 @@ module.exports = {
     sourceMapFilename: "main.map",
   },
   devtool: '#source-map',
+  devServer: {
+    historyApiFallback: true,
+  },
   module: {
     rules: [
       {
