@@ -1,7 +1,7 @@
 import React, { Component } from "react"
 import PageTemplate from "../../components/PageTemplate"
 import { intlShape } from "react-intl"
-
+import axios from 'axios'
 // add proptypes
 
 class homeComponent extends Component {
@@ -18,6 +18,28 @@ class homeComponent extends Component {
     // }
 
     componentDidMount() {
+        axios.get('http://dev.openstudioproject.com:8000/pos/get_logged_in.json')
+        .then(function (response) {
+          // handle success
+          console.log(response)
+          console.log(typeof response.data)
+          console.log(response.data)
+          if (response.data.error == 403) {
+              window.location.replace(response.data.location)
+          }
+        //   if (response.data === 'False') {
+        //     console.log('redirecting')
+        //     window.location.replace("http://dev.openstudioproject.com:8000/user/login?_next=/pos")
+        //   }
+        })
+        .catch(function (error) {
+          // handle error
+          console.log(error)
+        })
+        .then(function () {
+          // always executed
+        });
+
         setTimeout(() => this.props.setLoadingMessage('phase 1'), 500)
         setTimeout(() => this.props.setLoadingMessage('phase 2'), 1500)
         setTimeout(() => this.props.setLoadingMessage('phase 3'), 2500)
