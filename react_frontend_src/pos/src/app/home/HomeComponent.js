@@ -1,11 +1,18 @@
 import React, { Component } from "react"
 import PageTemplate from "../../components/PageTemplate"
+import { intlShape } from "react-intl"
 
 // add proptypes
 
 class homeComponent extends Component {
     constructor(props) {
         super(props)
+        console.log('home component')
+        console.log(props)
+    }
+
+    PropTypes = {
+        intl: intlShape.isRequired
     }
 
     // componentWillMount() {
@@ -29,6 +36,7 @@ class homeComponent extends Component {
                 <div>Welcome page</div>
                 <div>{this.props.app_state.loading}</div>
                 <div>{this.props.app_state.loading_message}</div>
+                {this.props.intl.formatMessage({ id: 'app.pos.home.hello' })}
             </section>
             </PageTemplate>
         )

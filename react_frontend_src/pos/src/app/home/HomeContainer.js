@@ -1,7 +1,10 @@
 import { connect } from 'react-redux'
+import { injectIntl } from 'react-intl';
 
 import HomeComponent from "./HomeComponent"
 import { homeOperations } from '../duck'
+
+
 
 const mapStateToProps = state => 
     ({
@@ -18,9 +21,11 @@ const mapDispatchToProps = dispatch =>
         }
     })
 
-const HomeContainer = connect(
+
+
+const HomeContainer = injectIntl(connect(
     mapStateToProps,
     mapDispatchToProps
-)(HomeComponent)
+)(HomeComponent))
 
 export default HomeContainer

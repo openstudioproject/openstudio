@@ -1,36 +1,24 @@
-import React from "react"
-import ReactDOM from "react-dom"
-import { Provider } from "react-redux"
-import storeFactory from "./store"
-
-// import { setLoaderMessage, setLoaderStatus } from "./actions";
-
-// import {
-//   BrowserRouter as Router,
-//   Route,
-//   Switch
-// } from 'react-router-dom'
-
-// import {
-//   Welcome,
-//   POS,
-//   Whoops404 
-// } from './components/Pages'
-
-import App from "./app/App"
+import React from 'react'
+import ReactDOM from 'react-dom'
+import { Provider } from 'react-redux'
+import { addLocaleData } from 'react-intl'
+import storeFactory from './store'
+import en from 'react-intl/locale-data/en'
+import App from './app/App'
+import ConnectedIntlProvider from './ConnectedIntlProvider'
 
 const store = storeFactory()
 console.log(store.getState())
 
+// addLocaleData([...en, ...nl]) for example to add Dutch
+console.log(en)
+addLocaleData([...en])
+
 ReactDOM.render(
   <Provider store={store}>
-    <App />
-    {/* <Router>
-        <Switch>
-          <Route exact path="/" component={App} />
-          <Route component={Whoops404} />
-        </Switch>
-    </Router> */}
+      <ConnectedIntlProvider>
+        <App />
+      </ConnectedIntlProvider>
   </Provider>,
   document.getElementById("app")
 )

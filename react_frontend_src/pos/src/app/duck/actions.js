@@ -12,4 +12,10 @@ export const setLoadingMessage = (message) =>
         message
     })
 
+export const setLocale = (locale) => 
+    ({
+        type: T.SET_LOCALE,
+        locale
+    })
+
 
