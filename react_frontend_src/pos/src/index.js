@@ -26,6 +26,9 @@ const mapDispatchToProps = dispatch =>
         },
         setLoadingMessage(message) {
             dispatch(appOperations.setLoadingMessage(message))
+        },
+        setLoadingProgress(progress) {
+            dispatch(appOperations.setLoadingProgress(progress))
         }
     })
 

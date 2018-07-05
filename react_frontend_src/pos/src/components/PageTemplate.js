@@ -9,7 +9,8 @@ import LoadingScreen from "./ui/LoadingScreen";
 
 const PageTemplate = ({ app_state, children }) => 
     (!app_state.loaded) ?
-        <LoadingScreen message={app_state.loading_message}/> :
+        <LoadingScreen progress={app_state.loading_progress}
+                       message={app_state.loading_message}/> :
         // <div>Loading... <br />{app_state.loading_message}</div> :
         <div className="wrapper">
             <MainMenu />

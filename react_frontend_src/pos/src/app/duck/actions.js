@@ -18,6 +18,12 @@ export const setLoadingMessage = (message) =>
         message
     })
 
+export const setLoadingProgress = (progress) =>
+    ({
+        type: T.SET_LOADING_PROGRESS,
+        progress
+    })
+
 export const setLocale = (locale) => 
     ({
         type: T.SET_LOCALE,

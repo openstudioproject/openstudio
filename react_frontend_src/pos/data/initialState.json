@@ -3,7 +3,8 @@
         "app": {
             "loaded": false,
             "loading": true,
-            "loading_message": "Please wait while things are starting up...",
+            "loading_message": "Start loading...",
+            "loading_progress": 0,
             "current_page_title": "Welcome sfdsdfsw3jl"
         }
     }

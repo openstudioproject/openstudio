@@ -13,6 +13,11 @@ export const appReducer = (state = {}, action={ type: null }) => {
                 ...state,
                 loading_message: action.message
             }
+        case T.SET_LOADING_PROGRESS:
+            return {
+                ...state,
+                loading_progress: action.progress
+            }
         case T.SET_LOADED:
             return {
                 ...state,

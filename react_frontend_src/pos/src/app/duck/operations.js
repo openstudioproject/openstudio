@@ -2,10 +2,12 @@ import {
     setLoaded as set_loaded,
     setLoading as set_loading,
     setLoadingMessage as set_loading_message,
+    setLoadingProgress as set_loading_progress,
     setPageTitle as set_page_title
 } from './actions'
 
 const setLoadingMessage = set_loading_message
+const setLoadingProgress = set_loading_progress
 const setLoaded = set_loaded
 const setLoading = set_loading
 const setPageTitle = set_page_title
@@ -70,5 +72,6 @@ export default {
     setLoaded,
     setLoading,
     setLoadingMessage,
+    setLoadingProgress,
     setPageTitle,
 }
