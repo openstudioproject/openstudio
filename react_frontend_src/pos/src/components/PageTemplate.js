@@ -11,13 +11,11 @@ const PageTemplate = ({ app_state, children }) =>
     (!app_state.loaded) ?
         <LoadingScreen progress={app_state.loading_progress}
                        message={app_state.loading_message}/> :
-        // <div>Loading... <br />{app_state.loading_message}</div> :
-        <div className="wrapper">
+        <div>
             <MainMenu />
             <Content title={app_state.current_page_title}>
                 {children}
             </Content>
-            {/* <Footer /> */}
         </div>
         
 

@@ -38,15 +38,15 @@ class App extends Component {
 
     setTimeout(() => this.props.setLoadingMessage('phase 1'), 500)
     setTimeout(() => this.props.setLoadingProgress(33), 500)
-    setTimeout(() => this.props.setLoadingMessage('phase 2'), 1500)
-    setTimeout(() => this.props.setLoadingProgress(66), 1500)
-    setTimeout(() => this.props.setLoadingMessage('phase 3'), 2500)
-    setTimeout(() => this.props.setLoadingProgress(100), 2500)
+    // setTimeout(() => this.props.setLoadingMessage('phase 2'), 1500)
+    // setTimeout(() => this.props.setLoadingProgress(66), 1500)
+    // setTimeout(() => this.props.setLoadingMessage('phase 3'), 2500)
+    // setTimeout(() => this.props.setLoadingProgress(100), 2500)
 
     
     // ready...
-    setTimeout(() => this.props.setLoading(false), 3000)
-    setTimeout(() => this.props.setLoaded(false), 3000) // change this after styling loading screen
+    setTimeout(() => this.props.setLoading(false),700)
+    setTimeout(() => this.props.setLoaded(true), 700) 
     setTimeout(() => this.props.setLoadingMessage('Loading done!'), 3500)
     
 }
