@@ -205,15 +205,23 @@ def system_notifications():
                             db.sys_notifications.NotificationTitle,
                             orderby=db.sys_notifications.Notification)
     # print rows
-    add = ''
-    if auth.has_membership(group_id='Admins'):
-        add_url = URL('system_notifications_email_add', vars={'_ID': db.sys_notifications.id})
-        add = os_gui.get_button('add', add_url, T("Add an e-mail to notification"), btn_size='btn-sm',
-                                _class='pull-right')
+
+
+
+
 
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
+
         emails = system_notifications_get_email_list(row)
+
+        add = ''
+        if auth.has_membership(group_id='Admins'):
+            add_url = URL('system_notifications_email_add', vars={'NID': row.id})
+            add = os_gui.get_button('add', add_url, T("Add an e-mail to notification"), btn_size='btn-sm',
+                                    _class='pull-right')
+
+
         emails.append(DIV(add))
         tr = TR(
                 TD(repr_row.Notification),
@@ -243,9 +251,38 @@ def system_notifications_get_email_list(sys_notifications_id):
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
+        delete = ''
+        if auth.has_membership(group_id='Admins'):
+            confirm_msg = T("Delete this email from Notification?")
+            onclick_del = "return confirm('" + confirm_msg + "');"
+            delete = os_gui.get_button('delete_notext',
+                                       URL('system_notifications_email_delete', vars={'emailID': repr_row.id}),
+                                       onclick=onclick_del,
+                                       _class='pull-right')
+
         tr = DIV(repr_row.email)
+        tr.append(delete)
         table.append(tr)
     return table
+
+
+@auth.requires_login()
+def system_notifications_email_delete():
+    emailID = request.vars['emailID']
+
+    query = (db.sys_notifications_email.id == emailID)
+    response.title= T('Delete Email')
+
+    response.view = 'general/tabs_menu.html'
+
+
+    db(query).delete()
+
+    session.flash = T('Deleted email')
+    redirect(URL('system_notifications'))
+
+
+
 @auth.requires_login()
 def system_notifications_email_add():
 
@@ -253,15 +290,18 @@ def system_notifications_email_add():
             Add email to notification
         """
         from openstudio.os_forms import OsForms
-        response.title = T('Shop')
-        response.subtitle = T('Catalog')
+        response.title = T('System Notification')
+        response.subtitle = T('add Email to Notification')
         response.view = 'general/tabs_menu.html'
+
+        NID=request.vars['NID']
 
         return_url = URL('system_notifications')
 
+        db.sys_notifications_email.sys_notifications_id.default = NID
         os_forms = OsForms()
         result = os_forms.get_crud_form_create(
-            db.system_notifications,
+            db.sys_notifications_email,
             return_url,
         )
 
@@ -269,8 +309,11 @@ def system_notifications_email_add():
         back = os_gui.get_button('back', return_url)
         menu = system_get_menu(request.function)
 
+        row = db.sys_notifications(NID)
+
         content = DIV(
-            H4(T('Add Email')),
+            H4(T('Add Email to '),
+               row.Notification),
             form
         )
 

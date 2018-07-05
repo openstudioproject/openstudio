@@ -754,6 +754,8 @@ def define_sys_notifications_email():
     db.define_table('sys_notifications_email',
                     Field('sys_notifications_id',
                           db.sys_notifications,
+                          readable=False,
+                          writable=False,
                           requires=IS_NOT_EMPTY()
                           ),
                     Field('email',
