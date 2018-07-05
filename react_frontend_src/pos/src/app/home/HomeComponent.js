@@ -1,6 +1,8 @@
 import React, { Component } from "react"
-import PageTemplate from "../../components/PageTemplate"
 import { intlShape } from "react-intl"
+import PropTypes from "prop-types"
+
+import PageTemplate from "../../components/PageTemplate"
 
 
 class homeComponent extends Component {
@@ -9,7 +11,9 @@ class homeComponent extends Component {
     }
 
     PropTypes = {
-        intl: intlShape.isRequired
+        intl: intlShape.isRequired,
+        setPageTitle: PropTypes.function,
+        app_state: PropTypes.object,
     }
 
     componentWillMount() {
