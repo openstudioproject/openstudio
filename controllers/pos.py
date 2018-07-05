@@ -22,7 +22,7 @@ def return_json_error(var=None):
     set_pos_headers()
 
     return dict(
-        error=403,
+        error=401,
         error_message=T("User is not logged in and needs to provide credentials"),
         location='http://dev.openstudioproject.com:8000/user/login?_next=/pos'
     )

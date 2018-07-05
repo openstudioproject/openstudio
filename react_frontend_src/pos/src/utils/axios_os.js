@@ -14,14 +14,22 @@ const axios_os = axios.create({
 })
 
 // Intercept failed requests due to not logged in for all requests
-const notLoggedInInterceptor = axios_os.interceptors.response.use(function (response) {
-    // catch user not logged in
-    if (response.data.error == 403) {
-        console.log('redirecting to login...')
-        setTimeout(() => window.location.replace(response.data.location), 10000)
+const notLoggedInInterceptor = axios_os.interceptors.response.use(
+    function (response) {
+        console.log(response)
+        // catch user not logged in
+        if (response.data.error == 401) {
+            console.log('redirecting to login...')
+            setTimeout(() => window.location.replace(response.data.location), 10000)
+        }
+
+        return response;
+    },
+    function (error) {
+        alert('Error fetching data: ' + error)
+        console.log(error)
+        return Promise.reject(error);
     }
-    
-    return response;
-})
+)
 
 export default axios_os

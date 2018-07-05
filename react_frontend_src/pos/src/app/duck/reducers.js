@@ -13,6 +13,11 @@ export const appReducer = (state = {}, action={ type: null }) => {
                 ...state,
                 loading_message: action.message
             }
+        case T.SET_LOADED:
+            return {
+                ...state,
+                loaded: action.loaded
+            }
         case T.SET_LOADING:
             return {
                 ...state,

@@ -12,9 +12,6 @@ const mapStateToProps = state =>
 
 const mapDispatchToProps = dispatch =>
     ({
-        setLoading(loading) {
-            dispatch(homeOperations.setLoading(loading))
-        },
         setLoadingMessage(message) {
             dispatch(homeOperations.setLoadingMessage(message))
         }

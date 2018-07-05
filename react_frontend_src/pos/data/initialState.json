@@ -1,6 +1,7 @@
 {
     "root": {
         "app": {
+            "loaded": false,
             "loading": true,
             "loading_message": "Please wait while things are starting up..."
         }

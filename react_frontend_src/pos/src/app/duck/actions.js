@@ -1,5 +1,11 @@
 import T from './types'
 
+export const setLoaded = (loaded) =>
+    ({
+        type: T.SET_LOADED,
+        loaded
+    })
+
 export const setLoading = (loading) =>
     ({
         type: T.SET_LOADING,
