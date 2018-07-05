@@ -39,6 +39,9 @@ def system_get_menu(page):
              ['system_organizations',
               T('Organizations'),
               URL('system_organizations')],
+             ['system_notifications',
+              T ('Notification'),
+              URL('system_notifications')]
              ]
 
     return os_gui.get_submenu(pages, page, horizontal=True, htype='tabs')
@@ -173,6 +176,98 @@ def system_general():
     return dict(content=content,
                 menu=menu,
                 save=submit)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'settings'))
+def system_notifications():
+    """
+        Shows a page with the Notifications options
+    """
+    response.title = T('System Settings')
+    response.subtitle = T('Notifications')
+    response.view = 'general/tabs_menu.html'
+
+
+    header = THEAD(TR(
+                      TH(db.sys_notifications.id.label),
+                      TH(db.sys_notifications.Notification.label),
+                      TH(db.sys_notifications.NotificationTitle.label),
+                      TH('Email'),
+                      TH())  # buttons
+                   )
+
+    table = TABLE(header, _class='table table-hover table-striped')
+
+    query = (db.sys_notifications.id>0)
+
+    rows = db(query).select(db.sys_notifications.id,
+                            db.sys_notifications.Notification,
+                            db.sys_notifications.NotificationTitle,
+                            orderby=~db.sys_notifications.id)
+    print rows
+    add = ''
+    if auth.has_membership(group_id='Admins'):
+        add_url = URL('system_notification_email_add', vars={'_ID': db.sys_notifications.id})
+        add = os_gui.get_button('add', add_url, T("Add an e-mail to notification"), btn_size='btn-sm',
+                                _class='pull-right')
+
+    for i, row in enumerate(rows):
+        repr_row = list(rows[i:i + 1].render())[0]
+
+        delete_permission = auth.has_membership(group_id='Admins')
+        tr = TR(TD(row.id),
+                TD(repr_row.Notification),
+                TD(repr_row.NotificationTitle),
+                TD(add))
+
+        table.append(tr)
+
+
+
+    content = DIV(table)
+
+    menu = system_get_menu(request.function)
+
+    return dict(content=content, menu = menu)
+
+
+@auth.requires_login()
+def system_notifications_email_add():
+    """
+        This function shows an add page for an organization
+    """
+    response.title = T("Settings")
+    response.subtitle = T('New Email to Notification')
+    response.view = 'general/only_content.html'
+
+
+    return_url = URL('system_notifications')
+
+    crud.messages.submit_button = T("Save")
+    crud.messages.record_created = T("Saved")
+    crud.settings.create_next = return_url
+    # crud.settings.create_onaccept = cache_clear_sys_notifications
+    crud.settings.formstyle = 'bootstrap3_stacked'
+    form = crud.create(db.sys_organizations)
+
+    form_id = "MainForm"
+    form_element = form.element('form')
+    form['_id'] = form_id
+
+    elements = form.elements('input, select, textarea')
+    for element in elements:
+        element['_form'] = form_id
+
+    textareas = form.elements('textarea')
+    for textarea in textareas:
+        textarea['_class'] += ' tmced'
+
+    submit = form.element('input[type=submit]')
+
+    back = os_gui.get_button('back', return_url)
+
+    return dict(content=form, back=back, save=submit)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
