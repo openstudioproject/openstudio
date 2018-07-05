@@ -39,6 +39,7 @@ class App extends Component {
     setTimeout(() => this.props.setLoadingMessage('phase 3'), 2500)
     // ready...
     setTimeout(() => this.props.setLoading(false), 3000)
+    setTimeout(() => this.props.setLoaded(true), 3000)
     setTimeout(() => this.props.setLoadingMessage('Loading done!'), 3500)
     
 }

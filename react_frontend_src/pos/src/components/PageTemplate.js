@@ -7,7 +7,7 @@ import MainMenu from "./MainMenu"
 import Content from "./ui/Content";
 
 const PageTemplate = ({ app_state, children }) => 
-    (app_state.loading) ?
+    (!app_state.loaded) ?
         <div>Loading... <br />{app_state.loading_message}</div> :
         <div className="wrapper">
             <MainMenu />
