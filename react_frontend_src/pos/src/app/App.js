@@ -12,6 +12,8 @@ import OS_API from '../utils/os_api'
 import Home from './home/HomeContainer'
 import Whoops404 from './whoops404/Whoops404'
 
+import '../../stylesheets/app/App.scss'
+
 class App extends Component {
   constructor(props) {
     super(props)
@@ -39,7 +41,7 @@ class App extends Component {
     setTimeout(() => this.props.setLoadingMessage('phase 3'), 2500)
     // ready...
     setTimeout(() => this.props.setLoading(false), 3000)
-    setTimeout(() => this.props.setLoaded(true), 3000)
+    setTimeout(() => this.props.setLoaded(false), 3000) // change this after styling loading screen
     setTimeout(() => this.props.setLoadingMessage('Loading done!'), 3500)
     
 }
