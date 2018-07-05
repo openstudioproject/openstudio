@@ -1,11 +1,10 @@
 .os_loader {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     bottom: 0;
     right: 0;
     background-color: #222;
-    min-height: 100%;
 }
 
 .os_loader_content {

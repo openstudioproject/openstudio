@@ -37,17 +37,17 @@ class App extends Component {
     });
 
     setTimeout(() => this.props.setLoadingMessage('phase 1'), 500)
-    setTimeout(() => this.props.setLoadingProgress(33), 500)
+    setTimeout(() => this.props.setLoadingProgress(100), 500)
     // setTimeout(() => this.props.setLoadingMessage('phase 2'), 1500)
     // setTimeout(() => this.props.setLoadingProgress(66), 1500)
     // setTimeout(() => this.props.setLoadingMessage('phase 3'), 2500)
     // setTimeout(() => this.props.setLoadingProgress(100), 2500)
 
-    
     // ready...
-    setTimeout(() => this.props.setLoading(false),700)
-    setTimeout(() => this.props.setLoaded(true), 700) 
-    setTimeout(() => this.props.setLoadingMessage('Loading done!'), 3500)
+    const loaded_timeout = 1000
+    setTimeout(() => this.props.setLoading(false), loaded_timeout)
+    setTimeout(() => this.props.setLoaded(true), loaded_timeout) 
+    setTimeout(() => this.props.setLoadingMessage('Loading done!'), loaded_timeout)
     
 }
 
