@@ -11,7 +11,6 @@ const store = storeFactory()
 console.log(store.getState())
 
 // addLocaleData([...en, ...nl]) for example to add Dutch
-console.log(en)
 addLocaleData([...en])
 
 ReactDOM.render(

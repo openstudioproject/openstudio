@@ -1,8 +1,11 @@
 import React, { Component } from "react"
 import PageTemplate from "../../components/PageTemplate"
 import { intlShape } from "react-intl"
-import axios from 'axios'
+import axios_os from '../../utils/axios_os'
+import OS_API from '../../utils/os_api'
 // add proptypes
+
+
 
 class homeComponent extends Component {
     constructor(props) {
@@ -18,34 +21,17 @@ class homeComponent extends Component {
     // }
 
     componentDidMount() {
-        const hostname = window && window.location && window.location.hostname
-        console.log(hostname)
-        console.log(typeof hostname)
-
-        let backendHost
-        (hostname === 'localhost') ?
-            backendHost = "http://dev.openstudioproject.com:8000" :
-            backendHost = ""
-
-        console.log(backendHost)
-
-        const api_url = backendHost + '/pos/get_logged_in.json'
-        console.log(api_url)
-
-
-        axios.get(api_url, {
-            withCredentials: true
-        })
+        axios_os.get(OS_API.APP_USER_LOGGED_IN)
         .then(function (response) {
           // handle success
           console.log(response)
           console.log(typeof response.data)
           console.log(response.data)
-          // catch user not logged in
-          if (response.data.error == 403) {
-              console.log('redirecting to login...')
-              setTimeout(() => window.location.replace(response.data.location), 10000)
-          }
+        //   // catch user not logged in
+        //   if (response.data.error == 403) {
+        //       console.log('redirecting to login...')
+        //       setTimeout(() => window.location.replace(response.data.location), 10000)
+        //   }
         })
         .catch(function (error) {
           // handle error
