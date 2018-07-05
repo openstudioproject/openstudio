@@ -23,6 +23,11 @@ export const appReducer = (state = {}, action={ type: null }) => {
                 ...state,
                 loading: action.loading
             }
+        case T.SET_PAGE_TITLE:
+            return {
+                ...state,
+                current_page_title: action.title
+            }
         default:
             return {
                 ...state

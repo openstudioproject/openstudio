@@ -2,7 +2,7 @@ import { connect } from 'react-redux'
 import { injectIntl } from 'react-intl';
 
 import HomeComponent from "./HomeComponent"
-import { homeOperations } from '../duck'
+import { appOperations } from '../duck'
 
 
 const mapStateToProps = state => 
@@ -13,7 +13,10 @@ const mapStateToProps = state =>
 const mapDispatchToProps = dispatch =>
     ({
         setLoadingMessage(message) {
-            dispatch(homeOperations.setLoadingMessage(message))
+            dispatch(appOperations.setLoadingMessage(message))
+        },
+        setPageTitle(title) {
+            dispatch(appOperations.setPageTitle(title))
         }
     })
 

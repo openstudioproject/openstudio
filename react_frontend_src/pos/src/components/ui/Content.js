@@ -1,9 +1,12 @@
-import React, { Component } from "react"
+import React from "react"
+import ContentHeader from './ContentHeader'
 
-const Content = ({children}) =>
+const Content = ({title, children}) =>
     <div className="content-wrapper">
         <section className="content">
-            {children}
+            <ContentHeader title={title}>
+                {children} 
+            </ContentHeader>
         </section>
     </div>
 

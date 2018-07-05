@@ -11,7 +11,7 @@ const PageTemplate = ({ app_state, children }) =>
         <div>Loading... <br />{app_state.loading_message}</div> :
         <div className="wrapper">
             <MainMenu />
-            <Content>
+            <Content title={app_state.current_page_title}>
                 {children}
             </Content>
             {/* <Footer /> */}

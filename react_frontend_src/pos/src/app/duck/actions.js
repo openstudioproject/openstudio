@@ -24,4 +24,9 @@ export const setLocale = (locale) =>
         locale
     })
 
+export const setPageTitle = (title) =>
+    ({
+        type: T.SET_PAGE_TITLE,
+        title
+    })
 

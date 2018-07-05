@@ -1,12 +1,14 @@
 import {
     setLoaded as set_loaded,
     setLoading as set_loading,
-    setLoadingMessage as set_loading_message
+    setLoadingMessage as set_loading_message,
+    setPageTitle as set_page_title
 } from './actions'
 
 const setLoadingMessage = set_loading_message
 const setLoaded = set_loaded
 const setLoading = set_loading
+const setPageTitle = set_page_title
 
 // here data will be fetched
 
@@ -67,5 +69,6 @@ const setLoading = set_loading
 export default {
     setLoaded,
     setLoading,
-    setLoadingMessage
+    setLoadingMessage,
+    setPageTitle,
 }
