@@ -283,7 +283,7 @@ def checkout():
             redirect(URL('shop', 'order_received',
                          vars={'coID': form.vars.id}))
 
-    checkout_message = get_sys_property('shop_checkout_message')
+    checkout_message = get_sys_property('shop_checkout_message') or ''
 
 
     return dict(

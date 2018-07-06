@@ -68,7 +68,6 @@ class OsMail:
 
             return tr
 
-
         from os_order import Order
 
         T = current.T
@@ -95,73 +94,12 @@ class OsMail:
 
         # TODO: Add to manual & button on page available variables;
 
-        # return XML(order_items)
         return XML(template_content.format(order_id=order.order.id,
                                            order_date=order.order.DateCreated.strftime(DATETIME_FORMAT),
                                            order_status=order.order.Status,
                                            order_items=order_items,
                                            link_profile_orders=URL('profile', 'orders', scheme=True, host=True),
                                            link_profile_invoices=URL('profile', 'invoices', scheme=True, host=True)))
-
-    #
-    # def _render_email_template_invoice(self, template_content, invoices_id):
-    #     """
-    #         :param template_content: html template code from db.sys_properties
-    #         :param invoices_id: db.invoices.id
-    #         :return: mail body for invoice
-    #     """
-    #     T = current.T
-    #     DATETIME_FORMAT = current.DATETIME_FORMAT
-    #
-    #     invoice = Invoice(invoices_id)
-    #     item_rows = invoice.get_invoice_items_rows()
-    #     header = THEAD(TR(TH(T('Item'), _style='padding: 8px; font-size: 10px;'),
-    #                       TH(T('Description'), _style='padding: 8px; font-size: 10px;'),
-    #                       TH(T('Quantity'), _style='padding: 8px; font-size: 10px;'),
-    #                       TH(T('Price'), _style='padding: 8px; font-size: 10px;'),
-    #                       TH(T('Subtotal'), _style='padding: 8px; font-size: 10px;'),
-    #                       TH(T('VAT'), _style='padding: 8px; font-size: 10px;'),
-    #                       TH(T('Total'), _style='padding: 8px; font-size: 10px;')))
-    #     invoice_items = TABLE(header, _style='margin-left: auto; margin-right: auto; ')
-    #     for i, row in enumerate(item_rows):
-    #         repr_row = list(item_rows[i:i + 1].render())[0]
-    #         invoice_items.append(TR(
-    #             TD(row.ProductName, _style='padding: 8px; font-size: 10px;'),
-    #             TD(row.Description, _style='padding: 8px; font-size: 10px;'),
-    #             TD(row.Quantity, _style='padding: 8px; font-size: 10px;'),
-    #             TD(repr_row.Price, _style='padding: 8px; font-size: 10px;'),
-    #             TD(repr_row.TotalPrice, _style='padding: 8px; font-size: 10px;'),
-    #             TD(repr_row.VAT, _style='padding: 8px; font-size: 10px;'),
-    #             TD(repr_row.TotalPriceVAT, _style='padding: 8px; font-size: 10px;'),
-    #         ))
-    #
-    #     # TODO: Add to manual & button on page available variables;
-    #     return XML(template_content.format(invoice_id=invoice.invoice.InvoiceID,
-    #                                        invoice_date_created=invoice.invoice.DateCreated.strftime(DATETIME_FORMAT),
-    #                                        invoice_date_due=invoice.invoice.DateDue.strftime(DATETIME_FORMAT),
-    #                                        invoice_items=invoice_items,
-    #                                        link_profile_invoices=URL('profile', 'invoices', scheme=True, host=True)))
-
-
-    # def _render_email_template_payment(self, template_content, invoices_payments_id):
-    #     """
-    #         :param template_content: html template code from db.sys_properties
-    #         :param invoices_id: db.invoices_payments_id
-    #         :return: mail body for invoice
-    #     """
-    #     db = current.db
-    #     T = current.T
-    #     DATE_FORMAT = current.DATE_FORMAT
-    #     CURRSYM = current.globalenv['CURRSYM']
-    #
-    #     payment = db.invoices_payments(invoices_payments_id)
-    #     invoice = Invoice(payment.invoices_id)
-    #
-    #     # TODO: Add to manual & button on page available variables;
-    #     return XML(template_content.format(invoice_id=invoice.invoice.InvoiceID,
-    #                                        payment_amount=SPAN(CURRSYM, ' ', format(payment.Amount, '.2f')),
-    #                                        payment_date=payment.PaymentDate.strftime(DATE_FORMAT),
-    #                                        link_profile_invoices=URL('profile', 'invoices', scheme=True, host=True)))
 
 
     def _render_email_template_payment_recurring_failed(self, template_content):
@@ -248,19 +186,25 @@ class OsMail:
             # Get email template from settings
             template_content = get_sys_property(email_template)
 
-        if email_template == 'email_template_order_received' or email_template == 'email_template_order_delivered':
-            if email_template == 'email_template_order_received':
-                subject = T('Order received')
-            else:
-                subject = T('Order delivered')
+        if email_template == 'email_template_order_received':
+            subject = T('Order received')
             # do some pre-processing to show the correct order info
             content = self._render_email_template_order(template_content, customers_orders_id)
-        # elif email_template == 'email_template_invoice_created':
-        #     subject = T('Invoice')
-        #     content = self._render_email_template_invoice(template_content, invoices_id)
-        # elif email_template == 'email_template_payment_received':
-        #     subject = T('Payment received')
-        #     content = self._render_email_template_payment(template_content, invoices_payments_id)
+
+            # Check for order message
+            from os_order import Order
+            order = Order(customers_orders_id)
+            if order.order.CustomerNote:
+                comments = DIV(
+                    T("We received the following message with your order:"), BR(), BR(),
+                    XML(order.order.CustomerNote.replace('\n', '<br>'))
+                )
+
+        elif email_template == 'email_template_order_delivered':
+            subject = T('Order delivered')
+            # do some pre-processing to show the correct order info
+            content = self._render_email_template_order(template_content, customers_orders_id)
+
         elif email_template == 'email_template_payment_recurring_failed':
             subject = T('Recurring payment failed')
             content = self._render_email_template_payment_recurring_failed(template_content)
