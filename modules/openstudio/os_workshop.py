@@ -40,7 +40,7 @@ class Workshop:
         self.picture_3 = self.workshop.picture_3
         self.thumbsmall_3 = self.workshop.thumbsmall_3
         self.thumblarge_3 = self.workshop.thumblarge_3
-        self.picture_4 = self.workshop.picture_3
+        self.picture_4 = self.workshop.picture_4
         self.thumbsmall_4 = self.workshop.thumbsmall_4
         self.thumblarge_4 = self.workshop.thumblarge_4
         self.picture_5 = self.workshop.picture_5
