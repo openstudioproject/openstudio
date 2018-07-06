@@ -232,9 +232,9 @@ def message_send_to_customer():
 
 
 def test_osmail_render_template():
-    '''
+    """
         function to be used when testing rendering of OsMail messages
-    '''
+    """
     if not web2pytest.is_running_under_test(request, request.application) and not auth.has_membership(group_id='Admins'):
         redirect(URL('default', 'user', args=['not_authorized']))
 
@@ -245,19 +245,7 @@ def test_osmail_render_template():
 
     os_mail = OsMail()
     rendered_message = T('template not found...')
-    if email_template == 'email_template_invoice_created':
-        rendered_message = os_mail.render_email_template(
-            email_template,
-            invoices_id = invoices_id,
-            return_html = True
-        )
-    elif email_template == 'email_template_payment_received':
-        rendered_message = os_mail.render_email_template(
-            email_template,
-            invoices_payments_id = invoices_payments_id,
-            return_html = True
-        )
-    elif email_template == 'email_template_payment_recurring_failed':
+    if email_template == 'email_template_payment_recurring_failed':
         pass
     elif email_template == 'email_template_order_received' or email_template == 'email_template_order_delivered':
         rendered_message = os_mail.render_email_template(

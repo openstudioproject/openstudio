@@ -157,7 +157,10 @@ class OsMail:
 
     def render_email_template(self,
                               email_template,
+                              title='',
                               subject='',
+                              description='',
+                              comments='',
                               template_content=None,
                               customers_orders_id=None,
                               invoices_id=None,
@@ -174,10 +177,6 @@ class OsMail:
         get_sys_property = current.globalenv['get_sys_property']
         request = current.request
         response = current.globalenv['response']
-
-        title = ''
-        description = ''
-        comments = ''
 
         logo = self._render_email_template_get_logo()
 
@@ -217,8 +216,13 @@ class OsMail:
             result = self._render_email_workshops_info_mail(wspc, wsp, ws)
             content = result['content']
             description = result['description']
-        else:
+        elif (email_template == 'email_template_sys_verify_email' or
+              email_template == 'email_template_sys_reset_password'):
             template = os.path.join(request.folder, 'views', 'templates/email/default_simple.html')
+            content = XML(template_content)
+            subject = subject
+        else:
+            template = os.path.join(request.folder, 'views', 'templates/email/default.html')
             content = XML(template_content)
             subject = subject
 
