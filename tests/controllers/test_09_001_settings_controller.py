@@ -9,6 +9,7 @@ from gluon.contrib.populate import populate
 
 from populate_os_tables import populate_customers
 from populate_os_tables import populate_sys_organizations
+from populate_os_tables import populate_sys_notifications
 from populate_os_tables import populate_postcode_groups
 from populate_os_tables import populate_settings_shop_links
 from populate_os_tables import populate_settings_shop_customers_profile_announcements
@@ -79,6 +80,61 @@ def test_system_organization_edit(client, web2py):
     client.post(url, data=data)
     assert client.status == 200
     assert data['Name'] in client.text
+
+
+def test_sys_notifications(client, web2py):
+    """
+    Are sys_notification listed like they should?
+    """
+    populate_sys_notifications(web2py)
+
+    url = '/settings/system_notifications'
+    client.get(url)
+    assert client.status == 200
+
+    notification = web2py.db.sys_notifications(1)
+    assert notification.NotificationTitle in client.text
+
+    sys_notification_email = web2py.db.sys_notifications_email(1)
+    assert sys_notification_email.Email in client.text
+
+
+def test_sys_notifications_email_add(client, web2py):
+    """
+    Can sys_notification_emails be added?
+    """
+    populate_sys_notifications(web2py, with_email=False)
+
+    url = '/settings/system_notifications_email_add?snID=1'
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        'Email': 'admin@openstudioproject.com'
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+    print client.text
+
+    sne = web2py.db.sys_notifications_email(1)
+    assert sne.Email == data['Email']
+
+    assert data['Email'] in client.text
+
+
+def test_sys_notifications_email_delete(client, web2py):
+    """
+    Are sys_notification listed like they should?
+    """
+    populate_sys_notifications(web2py, with_email=True)
+
+    url = '/settings/system_notifications_email_delete?sneID=1'
+    client.get(url)
+    assert client.status == 200
+
+    query = web2py.db.sys_notifications_email
+    assert web2py.db(query).count() == 0
 
 
 def test_shop_settings_general(client, web2py):

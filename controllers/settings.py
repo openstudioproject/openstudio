@@ -40,7 +40,7 @@ def system_get_menu(page):
               T('Organizations'),
               URL('system_organizations')],
              ['system_notifications',
-              T ('Notification'),
+              T ('Notifications'),
               URL('system_notifications')]
              ]
 
@@ -192,9 +192,8 @@ def system_notifications():
     header = THEAD(TR(
                       TH(db.sys_notifications.Notification.label),
                       TH(db.sys_notifications.NotificationTitle.label),
-                      TH('Email'),
-                      TH())  # buttons
-                   )
+                      TH(T('Subscribers'))
+                   ))
 
     table = TABLE(header, _class='table table-hover table-striped')
 
@@ -204,33 +203,17 @@ def system_notifications():
                             db.sys_notifications.Notification,
                             db.sys_notifications.NotificationTitle,
                             orderby=db.sys_notifications.Notification)
-    # print rows
-
-
-
-
 
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
+        emails = system_notifications_get_email_list(row.id)
 
-        emails = system_notifications_get_email_list(row)
-
-        add = ''
-        if auth.has_membership(group_id='Admins'):
-            add_url = URL('system_notifications_email_add', vars={'NID': row.id})
-            add = os_gui.get_button('add', add_url, T("Add an e-mail to notification"), btn_size='btn-sm',
-                                    _class='pull-right')
-
-
-        emails.append(DIV(add))
         tr = TR(
                 TD(repr_row.Notification),
                 TD(repr_row.NotificationTitle),
                 TD(emails))
 
         table.append(tr)
-
-
 
     content = DIV(table)
 
@@ -240,87 +223,89 @@ def system_notifications():
 
 
 def system_notifications_get_email_list(sys_notifications_id):
-
+    """
+    :param sys_notifications_id: db.sys_notifications.id
+    :return: List of email addresses for a notification
+    """
     query = (db.sys_notifications_email.sys_notifications_id== sys_notifications_id)
-
     rows = db(query).select(db.sys_notifications_email.id,
                             db.sys_notifications_email.sys_notifications_id,
-                            db.sys_notifications_email.email,
+                            db.sys_notifications_email.Email,
                             orderby=~db.sys_notifications_email.id)
-    table=DIV()
+    addresses=DIV()
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
         delete = ''
         if auth.has_membership(group_id='Admins'):
-            confirm_msg = T("Delete this email from Notification?")
+            confirm_msg = T("Unsubscribe this email from this notification?")
             onclick_del = "return confirm('" + confirm_msg + "');"
-            delete = os_gui.get_button('delete_notext',
-                                       URL('system_notifications_email_delete', vars={'emailID': repr_row.id}),
-                                       onclick=onclick_del,
-                                       _class='pull-right')
+            delete = A(os_gui.get_fa_icon('fa-times'),
+                       _href=URL('system_notifications_email_delete', vars={'sneID': repr_row.id}),
+                       _onclick=onclick_del,
+                       _class='text-red')
 
-        tr = DIV(repr_row.email)
-        tr.append(delete)
-        table.append(tr)
-    return table
+        address = DIV(repr_row.Email, ' ', delete)
+        addresses.append(address)
+
+    if ( auth.has_membership(group_id='Admins') or
+         auth.has_permission('read', 'settings' )):
+        add_url = URL('system_notifications_email_add', vars={'snID': sys_notifications_id})
+        add = A(SPAN(os_gui.get_fa_icon('fa-plus')),
+                _href=add_url)
+        addresses.append(add)
+
+    return addresses
 
 
 @auth.requires_login()
 def system_notifications_email_delete():
-    emailID = request.vars['emailID']
-
-    query = (db.sys_notifications_email.id == emailID)
-    response.title= T('Delete Email')
-
-    response.view = 'general/tabs_menu.html'
-
-
+    sneID = request.vars['sneID']
+    
+    query = (db.sys_notifications_email.id == sneID)
     db(query).delete()
 
-    session.flash = T('Deleted email')
+    session.flash = T('Removed email from notification')
     redirect(URL('system_notifications'))
-
 
 
 @auth.requires_login()
 def system_notifications_email_add():
+    """
+    Subscribe email address to notification
+    """
+    from openstudio.os_forms import OsForms
+    response.title = T('System Notification')
+    response.subtitle = T('Subscribe email address')
+    response.view = 'general/tabs_menu.html'
 
-        """
-            Add email to notification
-        """
-        from openstudio.os_forms import OsForms
-        response.title = T('System Notification')
-        response.subtitle = T('add Email to Notification')
-        response.view = 'general/tabs_menu.html'
+    snID = request.vars['snID']
 
-        NID=request.vars['NID']
+    return_url = URL('system_notifications')
 
-        return_url = URL('system_notifications')
+    db.sys_notifications_email.sys_notifications_id.default = snID
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_create(
+        db.sys_notifications_email,
+        return_url,
+    )
 
-        db.sys_notifications_email.sys_notifications_id.default = NID
-        os_forms = OsForms()
-        result = os_forms.get_crud_form_create(
-            db.sys_notifications_email,
-            return_url,
-        )
+    form = result['form']
+    back = os_gui.get_button('back', return_url)
+    menu = system_get_menu(request.function)
 
-        form = result['form']
-        back = os_gui.get_button('back', return_url)
-        menu = system_get_menu(request.function)
+    row = db.sys_notifications(snID)
 
-        row = db.sys_notifications(NID)
+    content = DIV(
+        H4(T('Add Email to '),
+           row.Notification),
+        form
+    )
 
-        content = DIV(
-            H4(T('Add Email to '),
-               row.Notification),
-            form
-        )
-
-        return dict(content=content,
-                    save=result['submit'],
-                    back=back,
-                    menu=menu)
+    return dict(content=content,
+                save=result['submit'],
+                back=back,
+                menu=menu)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or

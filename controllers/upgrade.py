@@ -378,3 +378,20 @@ def upgrade_to_20187():
     ##
     cache.ram.clear(regex='.*')
 
+
+def upgrade_to_20187():
+    """
+        Upgrade operations to 2018.8
+    """
+    ##
+    # Insert notification for order created
+    ##
+    from openstudio.os_setup import OsSetup
+    setup = OsSetup()
+    OsSetup._setup_sys_notifications()
+
+    ##
+    # clear cache
+    ##
+    cache.ram.clear(regex='.*')
+

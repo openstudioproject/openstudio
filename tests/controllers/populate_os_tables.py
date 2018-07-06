@@ -21,6 +21,34 @@ def populate_sys_properties_school_info(web2py):
     web2py.db.commit()
 
 
+def populate_sys_notifications(web2py, with_email=True):
+    """
+    populate sys_notifications
+    """
+    web2py.db.sys_notifications.insert(
+        Notification="order_created",
+        NotificationTitle="Order created",
+        NotificationMessage="Orders message"
+    )
+
+    if with_email:
+        populate_sys_notifications_email(web2py)
+
+    web2py.db.commit()
+
+
+def populate_sys_notifications_email(web2py):
+    """
+    populate sys_notifications_email
+    """
+    web2py.db.sys_notifications_email.insert(
+        sys_notifications_id=1,
+        Email="admin@openstudioproject.com"
+    )
+
+    web2py.db.commit()
+
+
 def populate_school_classcards(
         web2py,
         nr=1,

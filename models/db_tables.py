@@ -740,27 +740,29 @@ def define_sys_properties():
 
 def define_sys_notifications():
     db.define_table("sys_notifications",
-                    Field("Notification",
-                          required=True,
-                          requires=IS_NOT_EMPTY(),
-                          label= T('Notification')),
-                    Field('NotificationTitle',
-                          required=True,
-                          requires=IS_NOT_EMPTY(),
-                          label= T("Notifications Title")))
+        Field("Notification",
+              requires=IS_NOT_EMPTY(),
+              label= T('Notification')),
+        Field('NotificationTitle',
+              requires=IS_NOT_EMPTY(),
+              label= T("Notifications Title")),
+        Field('NotificationMessage',
+              requires=IS_NOT_EMPTY(),
+              label= T("Notifications Title")),
+    )
 
 
 def define_sys_notifications_email():
     db.define_table('sys_notifications_email',
-                    Field('sys_notifications_id',
-                          db.sys_notifications,
-                          readable=False,
-                          writable=False,
-                          requires=IS_NOT_EMPTY()
-                          ),
-                    Field('email',
-                          requires= IS_EMAIL(),
-                          label= T ('Email')))
+        Field('sys_notifications_id',
+              db.sys_notifications,
+              readable=False,
+              writable=False,
+              requires=IS_NOT_EMPTY()
+              ),
+        Field('Email',
+              requires= IS_EMAIL(),
+              label= T('Email')))
 
 
 def define_sys_api_users():
