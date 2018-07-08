@@ -33,6 +33,50 @@ class WorkshopProduct:
         return self.workshop_product.Price
 
 
+    def get_price_for_customer(self, cuID=None):
+        """
+        :param cuID: db.auth_user.id
+        :return: product price for customer
+        """
+        from os_customer import Customer
+        TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
+
+        price = self.workshop_product.Price
+        if not cuID:
+            return price
+
+
+        customer = Customer(cuID)
+        # Check subscription
+        if customer.has_subscription_on_date(self.workshop.Startdate, from_cache=False):
+            if self.workshop_product.PriceSubscription:
+                price = self.workshop_product.PriceSubscription
+
+            # Check subscription earlybird
+            if ( self.workshop_product.PriceSubscriptionEarlybird
+                 and TODAY_LOCAL <= self.workshop_product.EarlybirdUntil ):
+                price = self.workshop_product.PriceSubscriptionEarlybird
+
+            return price
+
+        # Check earlybird
+        if ( self.workshop_product.PriceEarlybird and
+             TODAY_LOCAL <= self.workshop_product.EarlybirdUntil ):
+            price = self.workshop_product.PriceEarlybird
+
+        return price
+
+
+    def get_price_for_customer_formatted(self, cuID):
+        """
+        :param cuID: db.auth_user.id
+        :return: display for ticket price
+        """
+        CURRSYM = current.globalenv['CURRSYM']
+
+        return SPAN(CURRSYM, ' ', format(self.get_price_for_customer(cuID), '.2f'))
+
+      
     def get_tax_rate_percentage(self):
         """
             Returns the tax percentage for a workshop product, if any
@@ -206,7 +250,6 @@ class WorkshopProduct:
 
             # create object to set Invoice# and due date
             invoice = Invoice(iID)
-
             invoice.item_add_workshop_product(wspcID)
             invoice.set_amounts()
             invoice.link_to_customer(cuID)
