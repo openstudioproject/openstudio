@@ -33,7 +33,7 @@ class WorkshopProduct:
         return self.workshop_product.Price
 
 
-    def get_price_for_customer(self, cuID):
+    def get_price_for_customer(self, cuID=None):
         """
         :param cuID: db.auth_user.id
         :return: product price for customer
@@ -48,20 +48,20 @@ class WorkshopProduct:
 
         customer = Customer(cuID)
         # Check subscription
-        if customer.has_subscription_on_date(self.workshop.Startdate):
+        if customer.has_subscription_on_date(self.workshop.Startdate, from_cache=False):
             if self.workshop_product.PriceSubscription:
                 price = self.workshop_product.PriceSubscription
 
             # Check subscription earlybird
             if ( self.workshop_product.PriceSubscriptionEarlybird
-                 and self.workshop_product.EarlybirdUntil <= TODAY_LOCAL ):
+                 and TODAY_LOCAL <= self.workshop_product.EarlybirdUntil ):
                 price = self.workshop_product.PriceSubscriptionEarlybird
 
             return price
 
         # Check earlybird
         if ( self.workshop_product.PriceEarlybird and
-             row.EarlybirdUntil <= TODAY_LOCAL ):
+             TODAY_LOCAL <= self.workshop_product.EarlybirdUntil ):
             price = self.workshop_product.PriceEarlybird
 
         return price

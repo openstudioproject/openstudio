@@ -1002,6 +1002,10 @@ def populate_workshops(web2py, teachers=True):
          Deletable=False,
          Name='Full event',
          Price=100,
+         PriceSubscription=81,
+         PriceEarlybird=75,
+         PriceSubscriptionEarlybird=70,
+         EarlybirdUntil='2013-12-31',
          Description='Full event')
 
     web2py.db.commit()

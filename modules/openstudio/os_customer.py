@@ -137,12 +137,12 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         return ids
 
 
-    def has_subscription_on_date(self, date):
+    def has_subscription_on_date(self, date, from_cache=True):
         """
         :param date: datetime.date
         :return: Boolean
         """
-        if self.get_subscriptions_on_date(date):
+        if self.get_subscriptions_on_date(date, from_cache=from_cache):
             return True
         else:
             return False

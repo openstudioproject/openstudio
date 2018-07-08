@@ -1789,29 +1789,105 @@ def test_contact(client, web2py):
 def test_event_price(client, web2py):
     """
         Is the regular price applied?
+        No earlybird discount & no subscription discount
     """
-    assert 1 == 0
+    setup_profile_tests(web2py)
+
+    # populate workshops table
+    populate_workshops(web2py)
+
+    url = '/shop/event?wsID=1'
+    client.get(url)
+    assert client.status == 200
+
+    # Verify regular price
+    wsp = web2py.db.workshops_products(1)
+    assert format(wsp.Price, '.2f') + '</span>' in client.text.decode('utf-8')
 
 
 def test_event_price_earlybird(client, web2py):
     """
         Is the earlybird price applied?
     """
-    assert 1 == 0
+    setup_profile_tests(web2py)
+
+    # populate workshops table
+    populate_workshops(web2py)
+
+    wsp = web2py.db.workshops_products(1)
+    wsp.EarlybirdUntil = '2999-12-31'
+    wsp.update_record()
+
+    web2py.db.commit()
+
+    url = '/shop/event?wsID=1'
+    client.get(url)
+    assert client.status == 200
+
+    # Verify regular price
+    wsp = web2py.db.workshops_products(1)
+    assert format(wsp.PriceEarlybird, '.2f') + '</span>' in client.text.decode('utf-8')
+
 
 def test_event_price_subscription(client, web2py):
     """
         Is the subscription price applied?
     """
-    assert 1 == 0
+    setup_profile_tests(web2py)
 
+    client.get('/default/user/login')
+    assert client.status == 200
+
+    # populate workshops table
+    populate_workshops(web2py)
+    populate_customers_with_subscriptions(web2py)
+
+    cs = web2py.db.customers_subscriptions(1)
+    cs.auth_customer_id = 300
+    cs.update_record()
+
+    web2py.db.commit()
+
+    url = '/shop/event?wsID=1'
+    client.get(url)
+    assert client.status == 200
+
+    # Verify regular price
+    wsp = web2py.db.workshops_products(1)
+    assert format(wsp.PriceSubscription, '.2f') + '</span>' in client.text.decode('utf-8')
 
 
 def test_event_price_subscription_earlybird(client, web2py):
     """
         Is the earlybird price for customers with a subscription applied?
     """
-    assert 1 == 0
+    setup_profile_tests(web2py)
+
+    client.get('/default/user/login')
+    assert client.status == 200
+
+    # populate workshops table
+    populate_workshops(web2py)
+    populate_customers_with_subscriptions(web2py)
+
+    wsp = web2py.db.workshops_products(1)
+    wsp.EarlybirdUntil = '2999-12-31'
+    wsp.update_record()
+
+    cs = web2py.db.customers_subscriptions(1)
+    cs.auth_customer_id = 300
+    cs.update_record()
+
+    web2py.db.commit()
+
+    url = '/shop/event?wsID=1'
+    client.get(url)
+    assert client.status == 200
+
+    # Verify regular price
+    wsp = web2py.db.workshops_products(1)
+    assert format(wsp.PriceSubscriptionEarlybird, '.2f') + '</span>' in client.text.decode('utf-8')
+
 
 def test_event_add_to_cart(client, web2py):
     """
