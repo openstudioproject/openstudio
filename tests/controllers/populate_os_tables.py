@@ -1157,11 +1157,22 @@ def populate_workshop_activity_overlapping_class(web2py):
     web2py.db.commit()
 
 
-def populate_workshops_products(web2py, nr_products=1):
+def populate_workshops_products(web2py, workshops_id=1, nr_products=1):
     """
         Populate workshop products
     """
-    populate(web2py.db.workshops_products, nr_products)
+    for i in range(1, nr_products + 1):
+        web2py.db.workshops_products.insert(
+            workshops_id=workshops_id,
+            Name="Product_" + unicode(i),
+            PublicProduct=True,
+            Price=100,
+            PriceSubscription=90,
+            PriceEarlybird=80,
+            PriceSubscriptionEarlybird=70,
+            EarlybirdUntil='2014-01-01',
+            tax_rates_id=1
+        )
 
     web2py.db.commit()
 

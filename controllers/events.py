@@ -1194,7 +1194,7 @@ def stats_get_revenue(wsID):
         ),
         TR(
             TH(T("Revenue")),
-            TD(SPAN(CURRSYM, ' ', revenue_total))
+            TD(SPAN(CURRSYM, ' ', format(revenue_total, '.2f')))
         ),
         _class='table table-hover table-striped'
     )
