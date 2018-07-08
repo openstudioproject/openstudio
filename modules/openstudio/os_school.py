@@ -27,7 +27,7 @@ class School:
 
 
     def get_classcards_formatted(self,
-                                 auth_user_id,
+                                 auth_user_id=None,
                                  public_only=True,
                                  per_row=3,
                                  link_type=None):
@@ -61,8 +61,10 @@ class School:
         os_gui = current.globalenv['os_gui']
         T = current.T
 
-        customer = Customer(auth_user_id)
-        customer_has_membership = customer.has_membership_on_date(TODAY_LOCAL)
+        customer_has_membership = False
+        if auth_user_id:
+            customer = Customer(auth_user_id)
+            customer_has_membership = customer.has_membership_on_date(TODAY_LOCAL)
 
         if per_row == 3:
             card_class = 'col-md-4'
@@ -189,7 +191,7 @@ class School:
 
 
     def get_subscriptions_formatted(self,
-                                    auth_customer_id,
+                                    auth_customer_id=None,
                                     per_row=3,
                                     public_only=True,
                                     link_type='shop'):
@@ -205,9 +207,12 @@ class School:
         os_gui = current.globalenv['os_gui']
         T = current.T
 
-        customer = Customer(auth_customer_id)
-        customer_has_membership = customer.has_membership_on_date(TODAY_LOCAL)
-        customer_subscriptions_ids = customer.get_school_subscriptions_ids_on_date(TODAY_LOCAL)
+        customer_has_membership = False
+        customer_subscriptions_ids = []
+        if auth_customer_id:
+            customer = Customer(auth_customer_id)
+            customer_has_membership = customer.has_membership_on_date(TODAY_LOCAL)
+            customer_subscriptions_ids = customer.get_school_subscriptions_ids_on_date(TODAY_LOCAL)
 
         if per_row == 3:
             card_class = 'col-md-4'

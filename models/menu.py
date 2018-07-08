@@ -92,13 +92,14 @@ def profile_menu():
                             URL('profile', 'mail', extension='')))
 
     # Teacher payments
-    if features.StaffPayments and (auth.user.teacher == True or auth.user.employee == True):
-        menu.append(
-                (SPAN(SPAN(#I(_class='fa fa-folder-open-o'), ' ',
-                            T('Payments')),
-                            _class=featured_class),
-                            False,
-                            URL('profile', 'staff_payments', extension='')))
+    if auth.user:
+        if features.StaffPayments and (auth.user.teacher == True or auth.user.employee == True):
+            menu.append(
+                    (SPAN(SPAN(#I(_class='fa fa-folder-open-o'), ' ',
+                                T('Payments')),
+                                _class=featured_class),
+                                False,
+                                URL('profile', 'staff_payments', extension='')))
 
     return menu
 

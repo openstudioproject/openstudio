@@ -403,6 +403,7 @@ class Invoice:
             :param wspID: db.workshops_products_id
             :return: db.invoices_items.id
         """
+        DATE_FORMAT = current.DATE_FORMAT
         db = current.db
         T  = current.T
 
@@ -421,7 +422,7 @@ class Invoice:
         iiID = db.invoices_items.insert(
             invoices_id=self.invoices_id,
             ProductName=T('Event'),
-            Description=ws.Name.decode('utf-8') + u' - ' + wsp.Name.decode('utf-8'),
+            Description=ws.Name.decode('utf-8') + u' - ' + wsp.Name.decode('utf-8') + ' [' + ws.Startdate.strftime(DATE_FORMAT) + ']',
             Quantity=1,
             Price=wsp.Price,
             Sorting=next_sort_nr,

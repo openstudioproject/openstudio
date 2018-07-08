@@ -56,12 +56,12 @@ class OsMail:
                                                     _align="left", _style="font-family: Arial, sans-serif; color: #333333; font-size: 16px; " + font_weight)),
                                               _cellpadding="0", _cellspacing="0", _border="0", _width="100%"),
                                         _style="padding: 0 0 10px 0;")),
-                                  _cellpadding="0", _cellspacing="0", _border="0", _width="47%", _style="width:47%;", _align="left"),
+                                  _cellpadding="0", _cellspacing="0", _border="0", _width="47%", _style="width:67%;", _align="left"),
                             TABLE(TR(TD(TABLE(TR(TD(value_right, # right column
                                                     _align="right", _style="font-family: Arial, sans-serif; color: #333333; font-size: 16px;  " + font_weight)),
                                               _cellpadding="0", _cellspacing="0", _border="0", _width="100%"),
                                         _style="padding: 0 0 10px 0;")),
-                                  _cellpadding="0", _cellspacing="0", _border="0", _width="47%", _style="width:47%;", _align="right"),
+                                  _cellpadding="0", _cellspacing="0", _border="0", _width="47%", _style="width:33%;", _align="right"),
                             _valign="top", _class="mobile-wrapper")),
                       _cellspacing="0", _cellpadding="0", _border="0", _width="100%"),
                 _style="padding: 10px 0 0 0; " + border))
@@ -166,6 +166,8 @@ class OsMail:
 
     def _render_email_template_payment_recurring_failed(self, template_content):
         """
+            Be aware that this function has to be able to run from scheduler,
+             in that case no request, etc. are available
             :param template_content: html template code from db.sys_properties
             :param invoices_id: db.invoices_payments_id
             :return: mail body for invoice
@@ -174,8 +176,16 @@ class OsMail:
         T = current.T
         DATE_FORMAT = current.DATE_FORMAT
 
+        # get hostname
+        sys_hostname = None
+        row = db.sys_properties(Property='sys_hostname')
+        if row:
+            sys_hostname = row.PropertyValue
+
         # TODO: Add to manual & button on page available variables;
-        return XML(template_content.format(link_profile_invoices=URL('profile', 'invoices', scheme=True, host=True)))
+        return XML(template_content.format(
+            link_profile_invoices=URL('profile', 'invoices', scheme=True, host=sys_hostname))
+        )
 
 
     def _render_email_workshops_info_mail(self, wspc, wsp, ws):
@@ -212,7 +222,8 @@ class OsMail:
             content = ''
 
 
-        image = IMG(_src=URL('default', 'download', ws.picture, scheme=True, host=True))
+        image = IMG(_src=URL('default', 'download', ws.picture, scheme=True, host=True),
+                    _style="max-width:500px")
 
         return dict(content=DIV(image, BR(), BR(), XML(content)), description=description)
 
@@ -228,14 +239,19 @@ class OsMail:
                               return_html=False):
         """
             Renders default email template
+            uses the render function from gluon.template instead of response.render
+            response throws a RestrictedError when run from the scheduler or shell...
+            and we do want scheduled emails to be rendered :)
         """
+        # from gluon.template import parse_template
+        from gluon.template import render
+
         db = current.db
         T = current.T
         DATETIME_FORMAT = current.DATETIME_FORMAT
 
         get_sys_property = current.globalenv['get_sys_property']
         request = current.request
-        response = current.globalenv['response']
 
         title = ''
         description = ''
@@ -243,7 +259,8 @@ class OsMail:
 
         logo = self._render_email_template_get_logo()
 
-        template = os.path.join(request.folder, 'views', 'templates/email/default.html')
+        template_name = 'default.html'
+        template_path = os.path.join(request.folder, 'views', 'templates', 'email')
         if template_content is None:
             # Get email template from settings
             template_content = get_sys_property(email_template)
@@ -274,19 +291,33 @@ class OsMail:
             content = result['content']
             description = result['description']
         else:
-            template = os.path.join(request.folder, 'views', 'templates/email/default_simple.html')
+            template_name = 'default_simple.html'
             content = XML(template_content)
             subject = subject
 
         footer = XML(get_sys_property('email_template_sys_footer'))
 
-        message =  response.render(template,
-                                   dict(logo=logo,
-                                        title=title,
-                                        description=description,
-                                        content=content,
-                                        comments=comments,
-                                        footer=footer))
+
+        template = os.path.join(
+            template_path,
+            template_name
+        )
+
+        context = dict(
+            logo=logo,
+            title=title,
+            description=description,
+            content=content,
+            comments=comments,
+            footer=footer,
+            request=request
+        )
+
+        message = render(
+            filename = template,
+            path = template_path,
+            context=context
+        )
 
         if return_html:
             return message
@@ -315,7 +346,8 @@ class OsMail:
                                          request.env.http_host,
                                          'static',
                             'plugin_os-branding/logos/branding_logo_invoices.png')
-            logo_img = IMG(_src=abs_url)
+            logo_img = IMG(_src=abs_url,
+                           **{'_style': "max-width: 220px;"})
 
         else:
             logo_img = ''

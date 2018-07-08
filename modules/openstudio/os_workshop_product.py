@@ -76,7 +76,7 @@ class WorkshopProduct:
 
         return SPAN(CURRSYM, ' ', format(self.get_price_for_customer(cuID), '.2f'))
 
-
+      
     def get_tax_rate_percentage(self):
         """
             Returns the tax percentage for a workshop product, if any
@@ -114,6 +114,7 @@ class WorkshopProduct:
 
         return rows
 
+
     def is_sold_to_customer(self, cuID):
         """
             :param cuID: db.auth_user.id
@@ -129,6 +130,7 @@ class WorkshopProduct:
             return True
         else:
             return False
+
 
     def is_sold_out(self):
         """
@@ -246,27 +248,9 @@ class WorkshopProduct:
                 Status='sent'
             )
 
-            # link invoice to sold workshop product for customer
-            db.invoices_workshops_products_customers.insert(
-                invoices_id=iID,
-                workshops_products_customers_id=wspcID)
-
             # create object to set Invoice# and due date
             invoice = Invoice(iID)
-            next_sort_nr = invoice.get_item_next_sort_nr()
-
-            price = self.get_price_for_customer(cuID)
-
-            iiID = db.invoices_items.insert(
-                invoices_id=iID,
-                ProductName=T("Event"),
-                Description=description,
-                Quantity=1,
-                Price=price,
-                Sorting=next_sort_nr,
-                tax_rates_id=self.tax_rates_id,
-            )
-
+            invoice.item_add_workshop_product(wspcID)
             invoice.set_amounts()
             invoice.link_to_customer(cuID)
 

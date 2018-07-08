@@ -122,12 +122,16 @@ def classcards():
     response.subtitle = T('Class cards')
     response.view = 'shop/no_box.html'
 
+    auth_user_id = None
+    if auth.user:
+        auth_user_id = auth.user.id
+
     cards = T('No cards available at this time, please check back later.')
     features = db.customers_shop_features(1)
     if features.Classcards:
         school = School()
         cards = school.get_classcards_formatted(
-            auth.user.id,
+            auth_user_id,
             public_only=True,
             per_row=3,
             link_type='shop'
@@ -974,11 +978,15 @@ def subscriptions():
     response.subtitle = T('Subscriptions')
     response.view = 'shop/no_box.html'
 
+    auth_user_id = None
+    if auth.user:
+        auth_user_id = auth.user.id
+
     content = T('No subscriptions available at this time, please check back later.')
     features = db.customers_shop_features(1)
     if features.Subscriptions:
         school = School()
-        content = school.get_subscriptions_formatted(auth.user.id, public_only=True, link_type='shop')
+        content = school.get_subscriptions_formatted(auth_user_id, public_only=True, link_type='shop')
 
     return dict(content = content)
 
