@@ -1180,7 +1180,10 @@ def stats_get_revenue(wsID):
 
     revenue_total = 0
     for row in rows:
-        revenue_total += row.invoices_amounts.TotalPriceVAT
+        try:
+            revenue_total += row.invoices_amounts.TotalPriceVAT
+        except TypeError:
+            pass
 
 
     title = T("Revenue")

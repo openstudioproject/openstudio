@@ -1201,6 +1201,11 @@ def populate_workshops_products_customers(web2py, created_on=datetime.date.today
         invoices_id=iID
     )
 
+    web2py.db.invoices_amounts.insert(
+        invoices_id = iID,
+        TotalPriceVAT = web2py.db.workshops_products(2).Price
+    )
+
     iID2 = web2py.db.invoices.insert(
         invoices_groups_id=100,
         payment_methods_id=1,
@@ -1208,6 +1213,11 @@ def populate_workshops_products_customers(web2py, created_on=datetime.date.today
         InvoiceID='INV' + unicode(1002),
         DateCreated='2014-01-01',
         DateDue='2014-01-15'
+    )
+
+    web2py.db.invoices_amounts.insert(
+        invoices_id = iID2,
+        TotalPriceVAT = web2py.db.workshops_products(1).Price
     )
 
     ciID2 = web2py.db.invoices_customers.insert(

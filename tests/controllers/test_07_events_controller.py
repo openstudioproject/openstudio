@@ -815,12 +815,13 @@ def test_stats_revenue(client, web2py):
     client.get(url)
     assert client.status == 200
 
-    fws_price = web2py.db.workshops_products(id=1).Price
-    prod_price = web2py.db.workshops_products(id=2).Price
+    sum = web2py.db.invoices_amounts.TotalPriceVAT.sum()
+    rows = web2py.db().select(sum)
+    amount = rows.first()[sum]
 
-    total = format(fws_price + prod_price, '.2f')
-
+    total = format(amount, '.2f')
     assert total in client.text
+
 
 def test_stats_top10cities(client, web2py):
     """
