@@ -285,7 +285,6 @@ def checkout():
 
     checkout_message = get_sys_property('shop_checkout_message') or ''
 
-
     return dict(
         rows=rows,
         total=total,
@@ -322,6 +321,7 @@ def order_received():
         Page to thank customer for placing order
     """
     from openstudio.os_customer import Customer
+    from openstudio.os_mail import OsMail
     from openstudio.os_order import Order
 
     response.title = T('Thank you')
@@ -393,6 +393,13 @@ def order_received():
                   BR(), BR(),
                   pay_now,
                   _class='grey center')
+
+    # Send sys notification
+    os_mail = OsMail()
+    print os_mail.render_sys_notification(
+        'order_created',
+        customers_orders_id=coID
+    )
 
     #TODO: add code to go around mollie, just deliver and notify customer that they're expected to pay an invoice
 

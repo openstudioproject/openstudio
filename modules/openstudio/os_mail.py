@@ -268,16 +268,16 @@ class OsMail:
             return msgID
 
 
-    def _render_sys_notification(self,
-                                 sys_notification,
-                                 title='',
-                                 subject='',
-                                 description='',
-                                 comments='',
-                                 customers_orders_id=None,
-                                 invoices_id=None,
-                                 invoices_payments_id=None,
-                                 workshops_products_customers_id=None):
+    def render_sys_notification(self,
+                                sys_notification,
+                                title='',
+                                subject='',
+                                description='',
+                                comments='',
+                                customers_orders_id=None,
+                                invoices_id=None,
+                                invoices_payments_id=None,
+                                workshops_products_customers_id=None):
         """
         Render notification email
 
