@@ -5,6 +5,24 @@ import os
 from gluon import *
 
 class OsMail:
+    def send_html_to_addess(self, msg_html, msg_subject, email):
+        """
+        :param msg_html: html message
+        :param msg_subject: email subject
+        :param email: address
+        :return: boolean: True if send, False if error sending
+        """
+        MAIL = current.globalenv['MAIL']
+
+        status_report = mail.send(
+            to=email,
+            subject=msg_subject,
+            message=msg_html
+        )
+
+        return status_report
+
+
     def send(self, msgID, cuID): # Used to be 'mail_customer()'
         """
             Send a message to a customer
@@ -198,7 +216,7 @@ class OsMail:
                     T("We received the following message with your order:"), BR(), BR(),
                     XML(order.order.CustomerNote.replace('\n', '<br>'))
                 )
-
+                
         elif email_template == 'email_template_order_delivered':
             subject = T('Order delivered')
             # do some pre-processing to show the correct order info
@@ -207,6 +225,7 @@ class OsMail:
         elif email_template == 'email_template_payment_recurring_failed':
             subject = T('Recurring payment failed')
             content = self._render_email_template_payment_recurring_failed(template_content)
+
         elif email_template == 'workshops_info_mail':
             wspc = db.workshops_products_customers(workshops_products_customers_id)
             wsp = db.workshops_products(wspc.workshops_products_id)
@@ -216,11 +235,25 @@ class OsMail:
             result = self._render_email_workshops_info_mail(wspc, wsp, ws)
             content = result['content']
             description = result['description']
+
         elif (email_template == 'email_template_sys_verify_email' or
               email_template == 'email_template_sys_reset_password'):
             template = os.path.join(request.folder, 'views', 'templates/email/default_simple.html')
             content = XML(template_content)
             subject = subject
+
+        elif email_template == 'sys_notification_order_created':
+            return_html = True
+            content = self._render_email_template_order(template_content, customers_orders_id)
+
+            # Check for order message
+            from os_order import Order
+            order = Order(customers_orders_id)
+            if order.order.CustomerNote:
+                comments = DIV(
+                    T("We received the following message with your order:"), BR(), BR(),
+                    XML(order.order.CustomerNote.replace('\n', '<br>'))
+                )
         else:
             template = os.path.join(request.folder, 'views', 'templates/email/default.html')
             content = XML(template_content)
