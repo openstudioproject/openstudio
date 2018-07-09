@@ -1104,7 +1104,10 @@ def schedule_export_excel():
                     if not row.shifts_staff.auth_employee_id2 is None:
                         employee2 = repr_row.shifts_otc.auth_employee_id2
 
-                employee = employee.decode('utf-8')
+                try:
+                    employee = employee.decode('utf-8')
+                except AttributeError:
+                    employee = ''
                 try:
                     employee2 = employee2.decode('utf-8')
                 except AttributeError:
