@@ -320,7 +320,7 @@ class OsMail:
             description=description,
             content=content,
             comments=comments,
-            footer=footer,
+            footer='',
             request=request
         )
 
