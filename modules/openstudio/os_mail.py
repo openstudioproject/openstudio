@@ -5,20 +5,34 @@ import os
 from gluon import *
 
 class OsMail:
-    def send_html_to_addess(self, msg_html, msg_subject, email):
+    def send_notification(self,
+                          sys_notification,
+                          customers_orders_id=None):
         """
         :param msg_html: html message
         :param msg_subject: email subject
         :param email: address
         :return: boolean: True if send, False if error sending
         """
+        T = current.T
         MAIL = current.globalenv['MAIL']
 
-        status_report = mail.send(
-            to=email,
-            subject=msg_subject,
-            message=msg_html
+        emails = self._send_notification_get_email_addresses(sys_notification)
+        message = self.render_sys_notification(
+            sys_notification,
+            customers_orders_id = customers_orders_id,
         )
+
+        if sys_notification == 'order_created':
+            msg_subject = T("New order")
+
+        status_report = []
+        for email in emails:
+            status_report = MAIL.send(
+                to=email,
+                subject=msg_subject,
+                message=message
+            )
 
         return status_report
 
@@ -52,6 +66,24 @@ class OsMail:
                                      Status           = status)
 
         return rvalue
+
+
+    def _send_notification_get_email_addresses(self, sys_notification):
+        """
+        :param sys_notification: db.sys_notification.Notification
+        :return: list of email addresses
+        """
+        db = current.db
+
+        notification = db.sys_notifications(Notification=sys_notification)
+
+        emails = []
+        query = (db.sys_notifications_email.sys_notifications_id == notification.id)
+        rows = db(query).select(db.sys_notifications_email.ALL)
+        for row in rows:
+            emails.append(row.Email)
+
+        return emails
 
 
     def _render_email_template_order(self, template_content, customers_orders_id):
@@ -296,18 +328,51 @@ class OsMail:
 
         T = current.T
         db = current.db
+        request = current.request
         DATETIME_FORMAT = current.DATETIME_FORMAT
 
         logo = self._render_email_template_get_logo()
 
         if sys_notification == 'order_created':
-            template_content = db.sys_notifications(Notification='order_created').NotificationTemplate
+            from os_order import Order
+            order = Order(customers_orders_id)
 
+            # title
+            title = T('New order')
+
+            # description
+            au = db.auth_user()
+
+            description = TABLE(
+                TR(
+                    TD(T('Order number')),
+                    TD('#', order.order.id),
+                ),
+                TR(
+                    TD(T('Order date')),
+                    TD(order.order.DateCreated)
+                ),
+                TR(
+                    TD(T('Customer')),
+                    TD(A(order.get_customer_name(),
+                         _href=URL('customers', 'edit',
+                                   args=order.order.auth_customer_id,
+                                   scheme=True,
+                                   host=True)
+                         )
+                       ),
+                ),
+                TR(
+                    TD(T('CustomerID')),
+                    TD(order.order.auth_customer_id),
+                )
+            )
+
+            # content
+            template_content = db.sys_notifications(Notification='order_created').NotificationTemplate
             content = self._render_email_template_order(template_content, customers_orders_id)
 
             # Check for order message
-            from os_order import Order
-            order = Order(customers_orders_id)
             if order.order.CustomerNote:
                 comments = DIV(
                     T("We received the following message with your order:"), BR(), BR(),

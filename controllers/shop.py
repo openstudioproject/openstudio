@@ -378,7 +378,6 @@ def order_received():
         redirect(URL('complete', vars={'coID':coID}))
 
 
-
     # We have a payment provider, lets show a pay now page!
     pay_now = A(T("Pay now"), ' ',
                 os_gui.get_fa_icon('fa-angle-right'),
@@ -396,7 +395,7 @@ def order_received():
 
     # Send sys notification
     os_mail = OsMail()
-    print os_mail.render_sys_notification(
+    print os_mail.send_notification(
         'order_created',
         customers_orders_id=coID
     )
