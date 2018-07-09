@@ -292,8 +292,13 @@ class OsMail:
         :param workshops_products_customers_id: db.workshops_products_customers.id
         :return: html message for sys_notification
         """
+        from gluon.template import render
+
         T = current.T
         db = current.db
+        DATETIME_FORMAT = current.DATETIME_FORMAT
+
+        logo = self._render_email_template_get_logo()
 
         if sys_notification == 'order_created':
             template_content = db.sys_notifications(Notification='order_created').NotificationTemplate
@@ -309,15 +314,29 @@ class OsMail:
                     XML(order.order.CustomerNote.replace('\n', '<br>'))
                 )
 
-        #TODO: Change this to render that works in all situations
+        context = dict(
+            logo=logo,
+            title=title,
+            description=description,
+            content=content,
+            comments=comments,
+            footer=footer,
+            request=request
+        )
 
-        message =  response.render(template,
-                                   dict(logo=logo,
-                                        title=title,
-                                        description=description,
-                                        content=content,
-                                        comments=comments,
-                                        footer=footer))
+        template_name = 'default.html'
+        template_path = os.path.join(request.folder, 'views', 'templates', 'email')
+        template = os.path.join(
+            template_path,
+            template_name
+        )
+
+        message = render(
+            filename = template,
+            path = template_path,
+            context = context
+        )
+
 
         return message
 
