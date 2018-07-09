@@ -216,7 +216,7 @@ class OsMail:
                     T("We received the following message with your order:"), BR(), BR(),
                     XML(order.order.CustomerNote.replace('\n', '<br>'))
                 )
-                
+
         elif email_template == 'email_template_order_delivered':
             subject = T('Order delivered')
             # do some pre-processing to show the correct order info
@@ -242,18 +242,6 @@ class OsMail:
             content = XML(template_content)
             subject = subject
 
-        elif email_template == 'sys_notification_order_created':
-            return_html = True
-            content = self._render_email_template_order(template_content, customers_orders_id)
-
-            # Check for order message
-            from os_order import Order
-            order = Order(customers_orders_id)
-            if order.order.CustomerNote:
-                comments = DIV(
-                    T("We received the following message with your order:"), BR(), BR(),
-                    XML(order.order.CustomerNote.replace('\n', '<br>'))
-                )
         else:
             template = os.path.join(request.folder, 'views', 'templates/email/default.html')
             content = XML(template_content)
@@ -278,6 +266,60 @@ class OsMail:
             )
 
             return msgID
+
+
+    def _render_sys_notification(self,
+                                 sys_notification,
+                                 title='',
+                                 subject='',
+                                 description='',
+                                 comments='',
+                                 customers_orders_id=None,
+                                 invoices_id=None,
+                                 invoices_payments_id=None,
+                                 workshops_products_customers_id=None):
+        """
+        Render notification email
+
+        :param sys_notifications_id: db.sys_notifications.id
+        :param title: Email title
+        :param subject: Email subject
+        :param description: Email description
+        :param comments: Email comments
+        :param customers_orders_id: db.customers_orders.id
+        :param invoices_id: db.invoices.id
+        :param invoices_payments_id: db.invoices_payments.id
+        :param workshops_products_customers_id: db.workshops_products_customers.id
+        :return: html message for sys_notification
+        """
+        T = current.T
+        db = current.db
+
+        if sys_notification == 'order_created':
+            template_content = db.sys_notifications(Notification='order_created').NotificationTemplate
+
+            content = self._render_email_template_order(template_content, customers_orders_id)
+
+            # Check for order message
+            from os_order import Order
+            order = Order(customers_orders_id)
+            if order.order.CustomerNote:
+                comments = DIV(
+                    T("We received the following message with your order:"), BR(), BR(),
+                    XML(order.order.CustomerNote.replace('\n', '<br>'))
+                )
+
+        #TODO: Change this to render that works in all situations
+
+        message =  response.render(template,
+                                   dict(logo=logo,
+                                        title=title,
+                                        description=description,
+                                        content=content,
+                                        comments=comments,
+                                        footer=footer))
+
+        return message
 
 
     def _render_email_template_get_logo(self):

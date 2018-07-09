@@ -746,7 +746,7 @@ def define_sys_notifications():
         Field('NotificationTitle',
               requires=IS_NOT_EMPTY(),
               label= T("Notifications Title")),
-        Field('NotificationMessage',
+        Field('NotificationTemplate',
               requires=IS_NOT_EMPTY(),
               label= T("Notifications Title")),
     )
