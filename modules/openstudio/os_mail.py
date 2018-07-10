@@ -367,7 +367,7 @@ class OsMail:
         if sys_notification == 'order_created':
             from os_order import Order
             order = Order(customers_orders_id)
-            
+
             notification = db.sys_notifications(Notification='order_created')
 
             # title

@@ -238,8 +238,8 @@ def checkout_get_progress(function):
     """
     checkout_progress = DIV(_class='center')
 
-    spacer = ' - '
-    active_class = 'green bold'
+    spacer = SPAN(' ', os_gui.get_fa_icon('fa-chevron-right'), ' ', _class='grey small_font')
+    active_class = 'text-green bold'
     checkout_class = ''
     received_class = ''
     complete_class = ''
@@ -247,19 +247,19 @@ def checkout_get_progress(function):
     if function == 'checkout':
         checkout_class = active_class
 
-    checkout_progress.append(SPAN(T('1. Order'), _class=checkout_class))
+    checkout_progress.append(SPAN(T('Order'), _class=checkout_class))
     checkout_progress.append(spacer)
 
     if function == 'order_received':
         received_class = active_class
 
-    checkout_progress.append(SPAN(T('2. Payment'), _class=received_class))
+    checkout_progress.append(SPAN(T('Payment'), _class=received_class))
     checkout_progress.append(spacer)
 
     if function == 'complete':
         complete_class = active_class
 
-    checkout_progress.append(SPAN(T('3. Complete'), _class=complete_class))
+    checkout_progress.append(SPAN(T('Complete'), _class=complete_class))
     checkout_progress.append(BR())
     checkout_progress.append(BR())
 
