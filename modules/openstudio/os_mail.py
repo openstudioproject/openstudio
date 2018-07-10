@@ -343,28 +343,37 @@ class OsMail:
             # description
             au = db.auth_user()
 
-            description = TABLE(
-                TR(
-                    TD(T('Order number')),
-                    TD('#', order.order.id),
-                ),
-                TR(
-                    TD(T('Order date')),
-                    TD(order.order.DateCreated)
-                ),
-                TR(
-                    TD(T('Customer')),
-                    TD(A(order.get_customer_name(),
-                         _href=URL('customers', 'edit',
-                                   args=order.order.auth_customer_id,
-                                   scheme=True,
-                                   host=True)
-                         )
-                       ),
-                ),
-                TR(
-                    TD(T('CustomerID')),
-                    TD(order.order.auth_customer_id),
+            description = DIV(
+                T('A new order has been received:'), BR(),
+                TABLE(
+                    TR(
+                        TD(B(T('Order'))),
+                        TD(A('#', order.order.id,
+                             _href=URL('orders', 'edit',
+                                       vars={'coID':order.order.id},
+                                       scheme=True,
+                                       host=True),
+                             )
+                           )
+                    ),
+                    TR(
+                        TD(B(T('Order date'))),
+                        TD(order.order.DateCreated)
+                    ),
+                    TR(
+                        TD(B(T('Customer'))),
+                        TD(A(order.get_customer_name(),
+                             _href=URL('customers', 'edit',
+                                       args=order.order.auth_customer_id,
+                                       scheme=True,
+                                       host=True)
+                             )
+                           ),
+                    ),
+                    TR(
+                        TD(B(T('CustomerID'))),
+                        TD(order.order.auth_customer_id),
+                    )
                 )
             )
 
@@ -375,7 +384,7 @@ class OsMail:
             # Check for order message
             if order.order.CustomerNote:
                 comments = DIV(
-                    T("We received the following message with your order:"), BR(), BR(),
+                    T("The customer provided the following message with the order:"), BR(), BR(),
                     XML(order.order.CustomerNote.replace('\n', '<br>'))
                 )
 
