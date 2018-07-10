@@ -19,7 +19,7 @@ def set_version():
 
     # set release
     row = db.sys_properties(Property='VersionRelease')
-    release = '0'
+    release = '2'
     if not row:
         db.sys_properties.insert(Property='VersionRelease',
                                  PropertyValue=release)

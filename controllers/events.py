@@ -720,6 +720,10 @@ def event_duplicate():
             PublicProduct=row.PublicProduct,
             Name=row.Name,
             Price=row.Price,
+            PriceSubscription=row.PriceSubscription,
+            PriceEarlybird=row.PriceEarlybird,
+            PriceSubscriptionEarlybird=row.PriceSubscriptionEarlybird,
+            EarlybirdUntil=row.EarlybirdUntil,
             tax_rates_id=row.tax_rates_id,
             Description=row.Description,
             ExternalShopURL=row.ExternalShopURL,
@@ -1143,43 +1147,57 @@ def stats_get_revenue(wsID):
     """
         Returns revenue of a workshop, specified by product
     """
-    total_revenue = 0
-    table = TABLE(TR(TH(T("Ticket")),
-                     TH(T("Sold")),
-                     TH(SPAN(T('Price'), _class='pull-right')),
-                     TH(SPAN(T('Total'), _class='pull-right'))),
-                  _class='table')
-
     # first get all products
     query = (db.workshops_products.workshops_id == wsID)
     rows = db(query).select(db.workshops_products.ALL,
                             orderby=~db.workshops_products.FullWorkshop | \
                                     db.workshops_products.Name)
+
+    products_ids = []
     for row in rows:
-        # get nr of sold products
-        query = (db.workshops_products_customers.workshops_products_id == row.id)
-        count = db(query).count()
+        products_ids.append(row.id)
 
-        if count:
-            total = count * (row.Price or 0)
-            total_revenue += total
-        else:
-            total = 0
+    # Get all workshops_products_customers rows
+    query = (db.workshops_products_customers.workshops_products_id.belongs(products_ids))
+    rows = db(query).select(db.workshops_products_customers.ALL)
+    wspc_ids = []
 
-        table.append(TR(TD(row.Name),
-                        TD(count),
-                        TD(SPAN(CURRSYM, ' ',
-                                row.Price or '', _class='pull-right')),
-                        TD(SPAN(CURRSYM, ' ',
-                                total, _class='pull-right'))))
+    for row in rows:
+        wspc_ids.append(row.id)
 
-    table.append(TR(TD(T("Total")),
-                    TD(),
-                    TD(),
-                    TD(SPAN(CURRSYM, ' ',
-                            format(total_revenue, '.2f'), _class='pull-right')),
-                    _class='total'))
+
+    # Get invoices
+    left = [
+        db.invoices_amounts.on(
+            db.invoices_workshops_products_customers.invoices_id ==
+            db.invoices_amounts.invoices_id
+        )
+    ]
+    query = (db.invoices_workshops_products_customers.workshops_products_customers_id.belongs(wspc_ids))
+    rows = db(query).select(db.invoices_workshops_products_customers.ALL,
+                            db.invoices_amounts.ALL,
+                            left=left)
+
+    revenue_total = 0
+    for row in rows:
+        try:
+            revenue_total += row.invoices_amounts.TotalPriceVAT
+        except TypeError:
+            pass
+
+
     title = T("Revenue")
+    table = TABLE(
+        TR(
+            TH(T("Tickets sold")),
+            TD(len(rows))
+        ),
+        TR(
+            TH(T("Revenue")),
+            TD(SPAN(CURRSYM, ' ', format(revenue_total, '.2f')))
+        ),
+        _class='table table-hover table-striped'
+    )
 
     panel = os_gui.get_panel_table(title, table)
 
@@ -1488,6 +1506,10 @@ def ticket_duplicate():
         PublicProduct = False,
         Name = wsp.Name + ' (Copy)',
         Price = wsp.Price,
+        PriceSubscription = wsp.PriceSubscription,
+        PriceEarlybird = wsp.PriceEarlybird,
+        PriceSubscriptionEarlybird = wsp.PriceSubscriptionEarlybird,
+        EarlybirdUntil = wsp.EarlybirdUntil,
         tax_rates_id = wsp.tax_rates_id,
         Description = wsp.Description,
         ExternalShopURL = wsp.ExternalShopURL,
@@ -2292,6 +2314,7 @@ def ticket_add():
     crud.messages.record_created = T("Saved product")
     crud.settings.create_next = next_url
     crud.settings.create_onaccept = [cache_clear_workshops]
+    crud.settings.formstyle = 'bootstrap3_stacked'
     form = crud.create(db.workshops_products)
 
     form_id = "MainForm"
@@ -2333,6 +2356,7 @@ def ticket_edit():
     crud.settings.update_next = return_url
     crud.settings.update_onaccept = [cache_clear_workshops]
     crud.settings.update_deletable = False
+    crud.settings.formstyle = 'bootstrap3_stacked'
     form = crud.update(db.workshops_products, wspID)
 
     form_id = "MainForm"

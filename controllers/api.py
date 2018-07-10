@@ -7,6 +7,7 @@ from general_helpers import NRtoDay
 
 from openstudio.os_workshop_schedule import WorkshopSchedule
 from openstudio.os_workshop import Workshop
+from openstudio.os_workshop_product import WorkshopProduct
 from openstudio.os_class_schedule import ClassSchedule
 
 cache_15_min = 99
@@ -703,6 +704,7 @@ def workshop_get():
         repr_row = list(rows[i:i + 1].render())[0]
 
         activity = {
+            'id': row.id,
             'Name': row.Activity,
             'Date': row.Activitydate,
             'LocationID': row.school_locations_id,
@@ -742,6 +744,25 @@ def workshop_get():
 
 
 
+    tickets = []
+    p_rows = workshop.get_products()
+    for i, product in enumerate(p_rows):
+        if not product.PublicProduct:
+            continue
+
+        included_activities = []
+        workshop_product = WorkshopProduct(product.id)
+        for j, activity in enumerate(workshop_product.get_activities()):
+            included_activities.append(activity.id)
+        
+        ticket = {
+            'Name': product.Name,
+            'Price': product.Price,
+            'Donation': product.Donation,
+            'IncludedActivities': included_activities
+        }
+        tickets.append(ticket)
+
     workshop = {
         'id': workshop.wsID,
         'Name': workshop.Name,
@@ -759,6 +780,7 @@ def workshop_get():
         'Preview': workshop.Preview,
         'Description': workshop.Description,
         'Price': workshop.get_full_workshop_price(),
+        'Tickets': tickets,
         'LinkThumbLarge': thumblarge_url,
         'LinkThumbSmall': thumbsmall_url,
         'LinkImage': picture_url,

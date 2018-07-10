@@ -32,39 +32,10 @@ def get_shiftname(shID):
 
 
 def shifts_get_back(var=None):
-    '''
+    """
         General back button for shift edit pages
-    '''
+    """
     return os_gui.get_button('back', URL('schedule'))
-
-
-# def shift_get_status(shID, date):
-#     '''
-#         Returns the status and status marker for a shift, possible options:
-#         normal
-#         subteacher
-#         open
-#         cancelled
-#     '''
-#     sub = db.shifts_sub(shifts_id=shID, ShiftDate=date)
-#     cancelled = db.shifts_cancelled(shifts_id=shID, ShiftDate=date)
-#     open_shift = db.shifts_open(shifts_id=shID, ShiftDate=date)
-#
-#
-#     status = 'normal'
-#     status_marker = DIV(_class='status_marker bg_green')
-#     if cancelled:
-#         status = 'cancelled'
-#         status_marker = DIV(_class='status_marker bg_orange')
-#     elif open_shift:
-#         status = 'open'
-#         status_marker = DIV(_class='status_marker bg_red')
-#     elif sub:
-#         status = 'sub'
-#         status_marker = DIV(_class='status_marker bg_blue')
-#
-#     return dict(status=status,
-#                 status_marker=status_marker)
 
 
 @auth.requires_login()
@@ -95,9 +66,9 @@ def shift_add():
 
 
 def shift_add_get_menu(page):
-    '''
+    """
         Returns submenu for adding a workshop
-    '''
+    """
     pages = [ ['shift_add', T('1. Shift'), "#"],
               ['shift_employees_add', T('2. Assign employees'), "#"] ]
 
@@ -170,9 +141,9 @@ def shift_edit():
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('update', 'shifts_otc'))
 def shift_edit_on_date():
-    '''
+    """
         Edit class on a selected date without editing other classes in range
-    '''
+    """
     shID = request.vars['shID']
     date_formatted = request.vars['date']
     date = datestr_to_python(DATE_FORMAT, date_formatted)
@@ -215,9 +186,9 @@ def shift_edit_on_date():
 
 
 def shift_edit_on_date_get_form(shID, date_formatted):
-    '''
+    """
         Returns add or edit crud form for one time shift change
-    '''
+    """
     date = datestr_to_python(DATE_FORMAT, date_formatted)
 
     query = (db.shifts_otc.shifts_id == shID) & \
@@ -245,10 +216,10 @@ def shift_edit_on_date_get_form(shID, date_formatted):
 
 
 def shift_edit_on_date_get_link_remove(sotcID):
-    '''
+    """
         @param cotcID: db.shifts_otc.id
         @return: link with confirmation to remove a all changes made to a shift
-    '''
+    """
     if sotcID is None:
         return ''
 
@@ -268,9 +239,9 @@ def shift_edit_on_date_get_link_remove(sotcID):
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('delete', 'shifts_otc'))
 def shift_edit_on_date_remove_changes():
-    '''
+    """
         Remove all changes made to a shift
-    '''
+    """
     sotcID = request.vars['sotcID']
 
     query = (db.shifts_otc.id == sotcID)
@@ -284,9 +255,9 @@ def shift_edit_on_date_remove_changes():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'shifts_staff'))
 def shift_staff():
-    '''
+    """
         Overview with teachers for a class
-    '''
+    """
     shID = request.vars['shID']
     date_formatted = request.vars['date']
 
@@ -430,9 +401,9 @@ def shift_employees_edit():
 
 
 def shifts_staff_add_edit_get_return_url(shID, date_formatted):
-    '''
+    """
         Returns return url for adding or editing an employee
-    '''
+    """
     return URL('shift_staff', vars ={'shID':shID,
                                       'date' :date_formatted})
 
@@ -440,9 +411,9 @@ def shifts_staff_add_edit_get_return_url(shID, date_formatted):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('delete', 'shifts'))
 def shift_delete():
-    '''
+    """
         Removed the selected class and redirect to the manage page
-    '''
+    """
     shID = request.vars['shID']
 
     query = (db.shifts.id == shID)
@@ -490,9 +461,9 @@ def shift_duplicate():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'shifts'))
 def schedule():
-    '''
+    """
         Main list of shifts
-    '''
+    """
     session.schedule_staff_holidays_back = 'staff_schedule'
 
     ## sort form begin ##
@@ -644,16 +615,16 @@ def schedule():
 
 
 def schedule_get_subtitle(year, week):
-    '''
+    """
         Returns subtitle for schedule
-    '''
+    """
     return unicode(year) + " " + T("week") + " " + unicode(week)
 
 
 def schedule_get_form_week(year, week):
-    '''
+    """
         Returns week selection form for schedule
-    '''
+    """
     lastweek = get_lastweek_year(year)
 
     input_week = INPUT(_name='schedule_week',
@@ -679,9 +650,9 @@ def schedule_get_form_week(year, week):
 
 
 def schedule_get_form_year(year):
-    '''
+    """
         Returns week selection form for schedule
-    '''
+    """
     lastweek = get_lastweek_year(year)
 
     input_year = INPUT(_name='schedule_year',
@@ -707,9 +678,9 @@ def schedule_get_form_year(year):
 
 
 def schedule_get_form_jump(jump_date):
-    '''
+    """
         Returns a form to jump to a date
-    '''
+    """
     form_jump = SQLFORM.factory(
                 Field('schedule_jump_date', 'date',
                       requires=IS_DATE_IN_RANGE(
@@ -738,9 +709,9 @@ def schedule_get_form_jump(jump_date):
 
 
 def schedule_get_week_chooser(var=None):
-    '''
+    """
         Returns a week chooser for the schedule
-    '''
+    """
     year = session.staff_schedule_year
     week = session.staff_schedule_week
 
@@ -774,9 +745,9 @@ def schedule_get_week_chooser(var=None):
 
 
 def schedule_get_schedule_tools(var=None):
-    '''
+    """
         Returns tools for schedule
-    '''
+    """
     schedule_tools = []
 
     # teacher holidays
@@ -822,9 +793,9 @@ def schedule_get_schedule_tools(var=None):
 
 
 def schedule_get_export(var=None):
-    '''
+    """
         Returns export drop down for schedule
-    '''
+    """
     export_locations = A(os_gui.get_fa_icon('fa-calendar'), T("Schedule"),
                           _href=URL('schedule_export_excel',
                                     vars=dict(year=session.staff_schedule_year,
@@ -844,9 +815,9 @@ def schedule_get_export(var=None):
 
 
 def schedule_get_status(modals):
-    '''
+    """
         Returns status for schedule
-    '''
+    """
     if auth.has_membership(group_id='Admins') or \
        auth.has_permission('read', 'schedule_staff_status'):
 
@@ -895,9 +866,9 @@ def schedule_get_status(modals):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'shifts'))
 def schedule_set_week():
-    '''
+    """
         Set the session variables for schedule week and year
-    '''
+    """
     year  = request.vars['year']
     week  = request.vars['week']
 
@@ -910,9 +881,9 @@ def schedule_set_week():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'schedule_staff_status'))
 def schedule_set_week_status():
-    '''
+    """
         Function to set the weekly status of the schedule
-    '''
+    """
     status = request.vars['status']
     row = db.schedule_staff_status(ScheduleYear=session.staff_schedule_year,
                                    ScheduleWeek=session.staff_schedule_week)
@@ -936,9 +907,9 @@ def schedule_set_week_status():
 
 @auth.requires_login()
 def schedule_get_sort_options():
-    '''
+    """
         returns a list of sorting options for classes
-    '''
+    """
     sort_options = [ ['location', T('Location')],
                      ['starttime', T('Start time')] ]
 
@@ -948,9 +919,9 @@ def schedule_get_sort_options():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'staff_schedule_set_default_sort'))
 def schedule_set_sort_default():
-    '''
+    """
         Displays a page to edit the default sorting order for the schedule
-    '''
+    """
     response.title = T('Set default sort order for shifts')
     response.subtitle = ''
     response.view = 'general/only_content.html'
@@ -1088,12 +1059,16 @@ def schedule_export_excel():
     iso_week = request.vars['week']
     export = request.vars['export']
 
+
+    from openpyxl.utils import get_column_letter
+
     def get_cell_id(col, row):
-        '''
+        """
             Returns cell id for colums / row
-        '''
-        col_letter = openpyxl.cell.get_column_letter(col)
+        """
+        col_letter = get_column_letter(col)
         return col_letter + unicode(row)
+
 
     def writer_location(locID=None):
         """
@@ -1120,26 +1095,26 @@ def schedule_export_excel():
                 shift = repr_row.shifts.school_shifts_id
 
                 employee2 = ''
-                if row.shifts_sub.id: # it's a sub shift
+                if row.shifts_otc.Status == 'sub': # it's a sub shift
                     employee = repr_row.shifts_sub.auth_employee_id
                     if not row.shifts_sub.auth_employee_id2 is None:
-                        employee2 = repr_row.shifts_sub.auth_employee_id2
+                        employee2 = repr_row.shifts_otc.auth_employee_id2
                 else:
                     employee = repr_row.shifts_staff.auth_employee_id
                     if not row.shifts_staff.auth_employee_id2 is None:
-                        employee2 = repr_row.shifts_sub.auth_employee_id2
+                        employee2 = repr_row.shifts_otc.auth_employee_id2
 
-                employee = employee.decode('utf-8')
+                try:
+                    employee = employee.decode('utf-8')
+                except AttributeError:
+                    employee = ''
                 try:
                     employee2 = employee2.decode('utf-8')
                 except AttributeError:
                     employee2 = ''
 
-
-
-
                 shift_data = ''
-                if row.shifts_cancelled.id:
+                if row.shifts_otc.Status == 'cancelled':
                     shift_data += T("CANCELLED") + "\n"
 
                 time = row.shifts.Starttime.strftime('%H:%M') + "-" + \
@@ -1184,7 +1159,7 @@ def schedule_export_excel():
             title = location.decode('utf-8')[0:30]
             ws = wb.create_sheet(title=title)
             ws['A1'] = "Schedule" + " " + location + " " + \
-                       "week " + unicode(iso_week)
+                       "week " + str(iso_week)
             writer_location(row.id)
 
         # create filestream
@@ -1199,9 +1174,9 @@ def schedule_export_excel():
 
 
 def get_week_chooser(function, id, date):
-    '''
+    """
         Returns a week chooser for the schedule
-    '''
+    """
     delta = datetime.timedelta(days=7)
     date_prev = (date-delta).strftime(DATE_FORMAT)
     date_next = (date+delta).strftime(DATE_FORMAT)
@@ -1224,9 +1199,9 @@ def get_week_chooser(function, id, date):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'shifts_open'))
 def shifts_open():
-    '''
+    """
         List all open shits.
-    '''
+    """
     response.title = T('Open shifts')
     response.subtitle = ''
     response.view = 'general/only_content.html'
@@ -1286,9 +1261,9 @@ def shifts_open():
 
 
 def shifts_open_get_rows(from_date):
-    '''
+    """
         Return open shift rows
-    '''
+    """
     fields = [
         db.shifts_otc.id,
         db.shifts_otc.ShiftDate,
@@ -1300,7 +1275,7 @@ def shifts_open_get_rows(from_date):
         db.shifts.Endtime
     ]
 
-    query = '''
+    query = """
     SELECT sotc.id,
            sotc.ShiftDate,
            sotc.Status,
@@ -1325,7 +1300,7 @@ def shifts_open_get_rows(from_date):
     LEFT JOIN shifts sh ON sh.id = sotc.shifts_id
     WHERE sotc.ShiftDate >= '{date}' AND sotc.Status = 'open'
     ORDER BY sotc.ShiftDate, Starttime
-    '''.format(date=from_date)
+    """.format(date=from_date)
 
     rows = db.executesql(query, fields=fields)
 
@@ -1335,9 +1310,9 @@ def shifts_open_get_rows(from_date):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'classes_notes'))
 def notes():
-    '''
+    """
         Add notes to a class
-    '''
+    """
     clsID = request.vars['clsID']
     note_type = request.vars['note_type']
     date_formatted = request.vars['date']
@@ -1455,9 +1430,9 @@ def notes():
 
 
 def notes_get_filter_form(page, _class='right'):
-    '''
+    """
         Backoffice / Teachers view selection form
-    '''
+    """
     pages = [('backoffice', T('Back office')), ('teachers', T('Teachers'))]
 
     if page == 'backoffice':
@@ -1503,9 +1478,9 @@ def notes_get_filter_form(page, _class='right'):
 
 @auth.requires_login()
 def note_edit():
-    '''
+    """
         Provides an edit page for a note.
-    '''
+    """
     clsID = request.vars['clsID']
     date_formatted = request.vars['date']
     date = datestr_to_python(DATE_FORMAT, date_formatted)
@@ -1562,9 +1537,9 @@ def note_edit():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('delete', 'classes_notes'))
 def note_delete():
-    '''
+    """
         Used to remove a note
-    '''
+    """
     response.view = 'generic.json'
     cnID = request.vars['cnID']
     date_formatted = request.vars['date']
@@ -1578,12 +1553,12 @@ def note_delete():
     redirect(URL('notes', vars=request.vars))
 
 def notes_get_add(var=None):
-    '''
+    """
         Provides a page to add a note
         request.vars['note_type'] can be 2 values
             'backoffice' for a backoffice note
             'teachers' for a teachers note
-    '''
+    """
     note_type = request.vars['note_type']
     clsID = request.vars['clsID']
     date_formatted = request.vars['date']
@@ -1623,13 +1598,13 @@ def notes_get_add(var=None):
     return DIV(add, form)
 
 
-''' keep this function at the bottom, atom package symbols-tree-view get weird
-    from the XML tag and doesn't show any symbols after that '''
+""" keep this function at the bottom, atom package symbols-tree-view get weird
+    from the XML tag and doesn't show any symbols after that """
 @auth.requires_login()
 def schedule_get_form_sort(var=None):
-    '''
+    """
         Returns sort form for schedule
-    '''
+    """
     sort_options = schedule_get_sort_options()
     sort = session.staff_schedule_sort
 

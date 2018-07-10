@@ -90,6 +90,7 @@ def _task_mollie_subscription_invoices_and_payments():
         customer = Customer(row.auth_customer_id)
         mollie_customer_id = customer.row.mollie_customer_id
         mandates = customer.get_mollie_mandates()
+        valid_mandate = False
         # set default recurring type, change to recurring if a valid mandate is found.
         if mandates['count'] > 0:
             # background payment

@@ -122,12 +122,16 @@ def classcards():
     response.subtitle = T('Class cards')
     response.view = 'shop/no_box.html'
 
+    auth_user_id = None
+    if auth.user:
+        auth_user_id = auth.user.id
+
     cards = T('No cards available at this time, please check back later.')
     features = db.customers_shop_features(1)
     if features.Classcards:
         school = School()
         cards = school.get_classcards_formatted(
-            auth.user.id,
+            auth_user_id,
             public_only=True,
             per_row=3,
             link_type='shop'
@@ -165,13 +169,15 @@ def cart_get_price_total(rows):
         @return: total price for items in shopping cart
     """
     from openstudio.os_class import Class
+    from openstudio.os_workshop_product import WorkshopProduct
 
     cuID = auth.user.id
 
     total = 0
     for row in rows:
         if row.customers_shoppingcart.workshops_products_id:
-            total += row.workshops_products.Price or 0
+            wsp = WorkshopProduct(row.customers_shoppingcart.workshops_products_id)
+            total += wsp.get_price_for_customer(row.customers_shoppingcart.auth_customer_id) or 0
 
         if row.customers_shoppingcart.school_classcards_id:
             total += row.school_classcards.Price or 0
@@ -743,6 +749,11 @@ def event_get_products_filter_prices_add_to_cart_buttons(workshop):
         if sold_out:
             label_class += ' sold_out'
 
+        if auth.user:
+            price = wsp.get_price_for_customer(auth.user.id)
+        else:
+            price = product.Price
+
         if product.FullWorkshop:
             products_filter.append(
                 LABEL(INPUT(_type='radio',
@@ -750,13 +761,13 @@ def event_get_products_filter_prices_add_to_cart_buttons(workshop):
                             _checked='checked',
                             _id=product.id,
                             _class=label_class),
-                      product.Name, ' (', CURRSYM, ' ', format(product.Price, '.2f'), ')'))
+                      product.Name, ' (', CURRSYM, ' ', format(price, '.2f'), ')'))
         else:
             products_filter.append(
                 LABEL(XML('<input type="radio" name="products" id="{id}" class="{label_class}">'.format(
                           id=product.id,
                           label_class=label_class)),
-                      product.Name, ' (', CURRSYM, ' ', format(product.Price, '.2f'), ')'))
+                      product.Name, ' (', CURRSYM, ' ', format(price, '.2f'), ')'))
         products_filter.append(BR())
 
         # Products prices
@@ -769,8 +780,7 @@ def event_get_products_filter_prices_add_to_cart_buttons(workshop):
         else:
             # Set price
             if product.Price:
-                price = format(product.Price, '.2f')
-                display_price = SPAN(CURRSYM, ' ', price)
+                display_price = SPAN(CURRSYM, ' ', format(price, '.2f'))
             else:
                 display_price = T("No admission fee")
 
@@ -1002,11 +1012,15 @@ def subscriptions():
     response.subtitle = T('Subscriptions')
     response.view = 'shop/no_box.html'
 
+    auth_user_id = None
+    if auth.user:
+        auth_user_id = auth.user.id
+
     content = T('No subscriptions available at this time, please check back later.')
     features = db.customers_shop_features(1)
     if features.Subscriptions:
         school = School()
-        content = school.get_subscriptions_formatted(auth.user.id, public_only=True, link_type='shop')
+        content = school.get_subscriptions_formatted(auth_user_id, public_only=True, link_type='shop')
 
     return dict(content = content)
 

@@ -1030,6 +1030,10 @@ def populate_workshops(web2py, teachers=True):
          Deletable=False,
          Name='Full event',
          Price=100,
+         PriceSubscription=81,
+         PriceEarlybird=75,
+         PriceSubscriptionEarlybird=70,
+         EarlybirdUntil='2013-12-31',
          Description='Full event')
 
     web2py.db.commit()
@@ -1181,11 +1185,22 @@ def populate_workshop_activity_overlapping_class(web2py):
     web2py.db.commit()
 
 
-def populate_workshops_products(web2py, nr_products=1):
+def populate_workshops_products(web2py, workshops_id=1, nr_products=1):
     """
         Populate workshop products
     """
-    populate(web2py.db.workshops_products, nr_products)
+    for i in range(1, nr_products + 1):
+        web2py.db.workshops_products.insert(
+            workshops_id=workshops_id,
+            Name="Product_" + unicode(i),
+            PublicProduct=True,
+            Price=100,
+            PriceSubscription=90,
+            PriceEarlybird=80,
+            PriceSubscriptionEarlybird=70,
+            EarlybirdUntil='2014-01-01',
+            tax_rates_id=1
+        )
 
     web2py.db.commit()
 
@@ -1225,6 +1240,11 @@ def populate_workshops_products_customers(web2py, created_on=datetime.date.today
         invoices_id=iID
     )
 
+    web2py.db.invoices_amounts.insert(
+        invoices_id = iID,
+        TotalPriceVAT = web2py.db.workshops_products(2).Price
+    )
+
     iID2 = web2py.db.invoices.insert(
         invoices_groups_id=100,
         payment_methods_id=1,
@@ -1232,6 +1252,11 @@ def populate_workshops_products_customers(web2py, created_on=datetime.date.today
         InvoiceID='INV' + unicode(1002),
         DateCreated='2014-01-01',
         DateDue='2014-01-15'
+    )
+
+    web2py.db.invoices_amounts.insert(
+        invoices_id = iID2,
+        TotalPriceVAT = web2py.db.workshops_products(1).Price
     )
 
     ciID2 = web2py.db.invoices_customers.insert(
