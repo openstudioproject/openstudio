@@ -5029,6 +5029,10 @@ def setup():
         setup_set_customers_shop_features()
         set_permissions_for_admin_group()
 
+        from openstudio.os_setup import OsSetup
+        os_setup = OsSetup()
+        os_setup.setup()
+
         db.sys_properties.insert(Property="setup_complete",
                                  PropertyValue="T")
 

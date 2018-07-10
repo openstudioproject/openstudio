@@ -1615,8 +1615,9 @@ def populate_customers_orders(web2py):
         cuID = row.id
 
         coID = web2py.db.customers_orders.insert(
-            auth_customer_id        = cuID,
-            Status                  = 'awaiting_payment',
+            auth_customer_id = cuID,
+            Status = 'awaiting_payment',
+            CustomerNote = 'Order_note_for_' + unicode(cuID)
         )
 
         web2py.db.customers_orders_amounts.insert(customers_orders_id = coID)

@@ -69,7 +69,14 @@ def index():
 
         if version < 2018.7:
             print version
-            upgrade_to_20186()
+            upgrade_to_20187()
+            session.flash = T("Upgraded db to 2018.7")
+        else:
+            session.flash = T('Already up to date')
+
+        if version < 2018.8:
+            print version
+            upgrade_to_20188()
             session.flash = T("Upgraded db to 2018.7")
         else:
             session.flash = T('Already up to date')
@@ -379,10 +386,15 @@ def upgrade_to_20187():
     cache.ram.clear(regex='.*')
 
 
-def upgrade_to_20187():
+def upgrade_to_20188():
     """
         Upgrade operations to 2018.8
     """
+    ##
+    # Run this again
+    ##
+    upgrade_to_20187()
+
     ##
     # Insert notification for order created
     ##

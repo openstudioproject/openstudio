@@ -337,8 +337,11 @@ class OsMail:
             from os_order import Order
             order = Order(customers_orders_id)
 
+            notification = db.sys_notifications(Notification='order_created')
+            print notification
+
             # title
-            title = T('New order')
+            title = notification.NotificationTitle
 
             # description
             au = db.auth_user()
@@ -378,7 +381,7 @@ class OsMail:
             )
 
             # content
-            template_content = db.sys_notifications(Notification='order_created').NotificationTemplate
+            template_content = notification.NotificationTemplate
             content = self._render_email_template_order(template_content, customers_orders_id)
 
             # Check for order message

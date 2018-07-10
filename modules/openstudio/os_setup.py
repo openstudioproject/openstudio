@@ -15,13 +15,11 @@ class OsSetup:
         """
         Populate db.sys_notifications with default values
         """
+        T = current.T
         db = current.db
 
-        # TODO Add message
         db.sys_notifications.insert(
             Notification="order_created",
-            NotificationTitle=T("Order created"),
-            NotificationMessage="""
-            
-            """
+            NotificationTitle=T("New order"),
+            NotificationTemplate="{order_items}"
         )
