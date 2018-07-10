@@ -186,6 +186,16 @@ class Order:
         return amounts
 
 
+    def get_customer_name(self):
+        """
+        :return: customer name for order
+        """
+        db = current.db
+        row = db.auth_user(self.order.auth_customer_id)
+
+        return row.display_name
+
+
     def set_amounts(self):
         """
             Set subtotal, vat and total incl vat

@@ -378,6 +378,25 @@ img.workshop_image {
     margin-top: 20px;
 }
 
+#customers_orders_CustomerNote {
+	min-height: 80px;
+	height: 80px;
+	width: 100%;
+	min-width: 100%;
+	max-width: 100%;
+}
+
+.checkout_message p {
+	margin: 20px 30px 20px 0;
+}
+
+@media only screen and (max-width: 768px) {
+    .checkout_message p {
+        margin: 10px;
+        text-align: justify;
+    }
+}
+
 /* Ajax loader begin */
 
 .ajax_loader {

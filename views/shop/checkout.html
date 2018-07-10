@@ -4,7 +4,6 @@
 
 {{ from openstudio.os_school_classcard import SchoolClasscard }}
 {{ from openstudio.os_class import Class }}
-{{ from openstudio.os_workshop_product import WorkshopProduct }}
 
 
 {{block header}}
@@ -18,13 +17,10 @@
             <div class="box-body">
 
                 {{=progress}}
-                
-                {{=messages}}
 
                 {{header = THEAD(TR(TH(T('Product')),
                                     TH(T('Description')),
-                                    TH(DIV(T('Price incl. VAT'), _class='pull-right')),
-                                    TH()))}}
+                                    TH(DIV(T('Price incl. VAT'), _class='pull-right'))))}}
                 {{table = TABLE(header, _class='table table-hover')}}
 
 
@@ -35,10 +31,9 @@
                     {{ price = 0 }}
                     
                     {{if row.customers_shoppingcart.workshops_products_id:}}
-						{{ wsp = WorkshopProduct(row.customers_shoppingcart.workshops_products_id) }}
                         {{ product = T('Event') }}
                         {{ description = SPAN(repr_row.workshops.Name, ' ', SPAN(repr_row.workshops_products.Name, _class='grey')) }}
-                        {{ price = wsp.get_price_for_customer_formatted(auth.user.id) }}
+                        {{ price = repr_row.workshops_products.Price }}
                     {{pass}}
                     
                     {{if row.customers_shoppingcart.school_classcards_id:}}
@@ -61,29 +56,25 @@
 						{{ pass }}
                     {{pass}}
                     
-                    {{ remove = os_gui.get_button('delete_notext', 
-                                                  URL('cart_item_remove', vars={'cscID':row.customers_shoppingcart.id}), 
-                                                  _class='pull-right') }}
-                    
                     {{table.append(TR(TD(product),
                                       TD(description),
                                       TD(DIV(price, _class='pull-right')),
-                                      TD(remove),
-                                      )
-                                   )}}
+                                      ))}}
                 {{pass}}
 
-                {{table.append(
-                    TR(TD(),
-                       TD(),
-                       TD(DIV(T('Total incl. VAT'), ' ', total, _class='bold pull-right')),
-                       TD())
-                )}}
+                {{table.append(TR(
+                    TD(),
+                    TD(),
+                    TD(DIV(T("Total incl. VAT"), " ", total, _class="bold pull-right"))
+                ))}}
 
                 {{=table}}
 
-                <div id="cart_total" class="well pull-right col-md-12">
-                    {{=order}}
+				<div class="checkout_message grey col-md-8 grey">
+					{{=XML(checkout_message)}}
+				</div>
+                <div id="cart_total" class="well pull-right col-md-4">
+                    {{=form}}
                 </div>
 
             </div>

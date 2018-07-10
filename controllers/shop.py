@@ -226,7 +226,7 @@ def cart():
     if len(rows):
         order = A(B(T('Proceed to Checkout')),
                   _href=URL('checkout'),
-                  _class='btn btn-primary')
+                  _class='btn btn-primary pull-right')
 
     return dict(rows=rows, total=total, order=order, progress='', messages=alert)
 
@@ -275,20 +275,50 @@ def checkout():
 
     response.title = T('Check out')
     response.subtitle = ''
-    response.view  = 'shop/cart.html'
 
     customer = Customer(auth.user.id)
     rows = customer.get_shoppingcart_rows()
 
     total = SPAN(CURRSYM, ' ', format(cart_get_price_total(rows), '.2f'))
 
-    order = ''
+    form = ''
     if len(rows):
-        order = A(B(T('Place order')),
-                  _href=URL('order_received'),
-                  _class='btn btn-primary')
+        form = checkout_get_form_order()
+        if form.process().accepted:
+            # response.flash = T('Accepted order')
+            redirect(URL('shop', 'order_received',
+                         vars={'coID': form.vars.id}))
 
-    return dict(rows=rows, total=total, order=order, progress=checkout_get_progress(request.function), messages='')
+    checkout_message = get_sys_property('shop_checkout_message') or ''
+
+    return dict(
+        rows=rows,
+        total=total,
+        checkout_message=checkout_message,
+        progress=checkout_get_progress(request.function),
+        form=form
+    )
+
+
+def checkout_get_form_order(var=None):
+    """
+    :return: SQLForm to create an order
+    """
+    db.customers_orders.Status.readable = False
+    db.customers_orders.Status.writable = False
+    db.customers_orders.DateCreated.readable = False
+    db.customers_orders.DateCreated.writable = False
+
+    db.customers_orders.auth_customer_id.default = auth.user.id
+
+    form = SQLFORM(
+        db.customers_orders,
+        formstyle="bootstrap3_stacked",
+        submit_button=T("Place order")
+    )
+
+    return form
+
 
 
 @auth.requires_login()
@@ -297,9 +327,12 @@ def order_received():
         Page to thank customer for placing order
     """
     from openstudio.os_customer import Customer
+    from openstudio.os_mail import OsMail
     from openstudio.os_order import Order
 
     response.title = T('Thank you')
+    coID = request.vars['coID']
+    order = Order(coID)
 
     # get cart
     customer = Customer(auth.user.id)
@@ -308,11 +341,6 @@ def order_received():
     if not rows:
         redirect(URL('profile', 'orders'))
 
-    coID = db.customers_orders.insert(
-        auth_customer_id = auth.user.id,
-    )
-
-    order = Order(coID)
 
     # process cart, add products to customer and add items to invoice
     for row in rows:
@@ -356,7 +384,6 @@ def order_received():
         redirect(URL('complete', vars={'coID':coID}))
 
 
-
     # We have a payment provider, lets show a pay now page!
     pay_now = A(T("Pay now"), ' ',
                 os_gui.get_fa_icon('fa-angle-right'),
@@ -371,6 +398,13 @@ def order_received():
                   BR(), BR(),
                   pay_now,
                   _class='grey center')
+
+    # Send sys notification
+    os_mail = OsMail()
+    print os_mail.send_notification(
+        'order_created',
+        customers_orders_id=coID
+    )
 
     #TODO: add code to go around mollie, just deliver and notify customer that they're expected to pay an invoice
 

@@ -737,6 +737,34 @@ def define_sys_properties():
             label=T("Value")),
         format='%(Property)s')
 
+
+def define_sys_notifications():
+    db.define_table("sys_notifications",
+        Field("Notification",
+              requires=IS_NOT_EMPTY(),
+              label= T('Notification')),
+        Field('NotificationTitle',
+              requires=IS_NOT_EMPTY(),
+              label= T("Notifications Title")),
+        Field('NotificationTemplate',
+              requires=IS_NOT_EMPTY(),
+              label= T("Notifications Title")),
+    )
+
+
+def define_sys_notifications_email():
+    db.define_table('sys_notifications_email',
+        Field('sys_notifications_id',
+              db.sys_notifications,
+              readable=False,
+              writable=False,
+              requires=IS_NOT_EMPTY()
+              ),
+        Field('Email',
+              requires= IS_EMAIL(),
+              label= T('Email')))
+
+
 def define_sys_api_users():
     db.define_table('sys_api_users',
         Field('ActiveUser', 'boolean', required=True,
@@ -4247,6 +4275,8 @@ def define_customers_orders():
             represent=represent_customers_orders_status,
             default='received',
             label=T('Status')),
+        Field('CustomerNote', 'text',
+            label=T("Anything you'd like to tell us about this order?")),
         Field('DateCreated', 'datetime',
               #readable=False,
               writable=False,
@@ -5017,6 +5047,10 @@ def setup():
         setup_set_customers_shop_features()
         set_permissions_for_admin_group()
 
+        from openstudio.os_setup import OsSetup
+        os_setup = OsSetup()
+        os_setup.setup()
+
         db.sys_properties.insert(Property="setup_complete",
                                  PropertyValue="T")
 
@@ -5365,6 +5399,8 @@ define_sys_organizations()
 define_sys_api_users()
 define_sys_files()
 define_sys_accounting()
+define_sys_notifications()
+define_sys_notifications_email()
 set_show_location()
 set_dateformat()
 set_class_status()

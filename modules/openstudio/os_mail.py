@@ -5,6 +5,38 @@ import os
 from gluon import *
 
 class OsMail:
+    def send_notification(self,
+                          sys_notification,
+                          customers_orders_id=None):
+        """
+        :param msg_html: html message
+        :param msg_subject: email subject
+        :param email: address
+        :return: boolean: True if send, False if error sending
+        """
+        T = current.T
+        MAIL = current.globalenv['MAIL']
+
+        emails = self._send_notification_get_email_addresses(sys_notification)
+        message = self.render_sys_notification(
+            sys_notification,
+            customers_orders_id = customers_orders_id,
+        )
+
+        if sys_notification == 'order_created':
+            msg_subject = T("New order")
+
+        status_report = []
+        for email in emails:
+            status_report = MAIL.send(
+                to=email,
+                subject=msg_subject,
+                message=message
+            )
+
+        return status_report
+
+
     def send(self, msgID, cuID): # Used to be 'mail_customer()'
         """
             Send a message to a customer
@@ -34,6 +66,24 @@ class OsMail:
                                      Status           = status)
 
         return rvalue
+
+
+    def _send_notification_get_email_addresses(self, sys_notification):
+        """
+        :param sys_notification: db.sys_notification.Notification
+        :return: list of email addresses
+        """
+        db = current.db
+
+        notification = db.sys_notifications(Notification=sys_notification)
+
+        emails = []
+        query = (db.sys_notifications_email.sys_notifications_id == notification.id)
+        rows = db(query).select(db.sys_notifications_email.ALL)
+        for row in rows:
+            emails.append(row.Email)
+
+        return emails
 
 
     def _render_email_template_order(self, template_content, customers_orders_id):
@@ -68,7 +118,6 @@ class OsMail:
 
             return tr
 
-
         from os_order import Order
 
         T = current.T
@@ -95,73 +144,12 @@ class OsMail:
 
         # TODO: Add to manual & button on page available variables;
 
-        # return XML(order_items)
         return XML(template_content.format(order_id=order.order.id,
                                            order_date=order.order.DateCreated.strftime(DATETIME_FORMAT),
                                            order_status=order.order.Status,
                                            order_items=order_items,
                                            link_profile_orders=URL('profile', 'orders', scheme=True, host=True),
                                            link_profile_invoices=URL('profile', 'invoices', scheme=True, host=True)))
-
-    #
-    # def _render_email_template_invoice(self, template_content, invoices_id):
-    #     """
-    #         :param template_content: html template code from db.sys_properties
-    #         :param invoices_id: db.invoices.id
-    #         :return: mail body for invoice
-    #     """
-    #     T = current.T
-    #     DATETIME_FORMAT = current.DATETIME_FORMAT
-    #
-    #     invoice = Invoice(invoices_id)
-    #     item_rows = invoice.get_invoice_items_rows()
-    #     header = THEAD(TR(TH(T('Item'), _style='padding: 8px; font-size: 10px;'),
-    #                       TH(T('Description'), _style='padding: 8px; font-size: 10px;'),
-    #                       TH(T('Quantity'), _style='padding: 8px; font-size: 10px;'),
-    #                       TH(T('Price'), _style='padding: 8px; font-size: 10px;'),
-    #                       TH(T('Subtotal'), _style='padding: 8px; font-size: 10px;'),
-    #                       TH(T('VAT'), _style='padding: 8px; font-size: 10px;'),
-    #                       TH(T('Total'), _style='padding: 8px; font-size: 10px;')))
-    #     invoice_items = TABLE(header, _style='margin-left: auto; margin-right: auto; ')
-    #     for i, row in enumerate(item_rows):
-    #         repr_row = list(item_rows[i:i + 1].render())[0]
-    #         invoice_items.append(TR(
-    #             TD(row.ProductName, _style='padding: 8px; font-size: 10px;'),
-    #             TD(row.Description, _style='padding: 8px; font-size: 10px;'),
-    #             TD(row.Quantity, _style='padding: 8px; font-size: 10px;'),
-    #             TD(repr_row.Price, _style='padding: 8px; font-size: 10px;'),
-    #             TD(repr_row.TotalPrice, _style='padding: 8px; font-size: 10px;'),
-    #             TD(repr_row.VAT, _style='padding: 8px; font-size: 10px;'),
-    #             TD(repr_row.TotalPriceVAT, _style='padding: 8px; font-size: 10px;'),
-    #         ))
-    #
-    #     # TODO: Add to manual & button on page available variables;
-    #     return XML(template_content.format(invoice_id=invoice.invoice.InvoiceID,
-    #                                        invoice_date_created=invoice.invoice.DateCreated.strftime(DATETIME_FORMAT),
-    #                                        invoice_date_due=invoice.invoice.DateDue.strftime(DATETIME_FORMAT),
-    #                                        invoice_items=invoice_items,
-    #                                        link_profile_invoices=URL('profile', 'invoices', scheme=True, host=True)))
-
-
-    # def _render_email_template_payment(self, template_content, invoices_payments_id):
-    #     """
-    #         :param template_content: html template code from db.sys_properties
-    #         :param invoices_id: db.invoices_payments_id
-    #         :return: mail body for invoice
-    #     """
-    #     db = current.db
-    #     T = current.T
-    #     DATE_FORMAT = current.DATE_FORMAT
-    #     CURRSYM = current.globalenv['CURRSYM']
-    #
-    #     payment = db.invoices_payments(invoices_payments_id)
-    #     invoice = Invoice(payment.invoices_id)
-    #
-    #     # TODO: Add to manual & button on page available variables;
-    #     return XML(template_content.format(invoice_id=invoice.invoice.InvoiceID,
-    #                                        payment_amount=SPAN(CURRSYM, ' ', format(payment.Amount, '.2f')),
-    #                                        payment_date=payment.PaymentDate.strftime(DATE_FORMAT),
-    #                                        link_profile_invoices=URL('profile', 'invoices', scheme=True, host=True)))
 
 
     def _render_email_template_payment_recurring_failed(self, template_content):
@@ -230,7 +218,10 @@ class OsMail:
 
     def render_email_template(self,
                               email_template,
+                              title='',
                               subject='',
+                              description='',
+                              comments='',
                               template_content=None,
                               customers_orders_id=None,
                               invoices_id=None,
@@ -253,10 +244,6 @@ class OsMail:
         get_sys_property = current.globalenv['get_sys_property']
         request = current.request
 
-        title = ''
-        description = ''
-        comments = ''
-
         logo = self._render_email_template_get_logo()
 
         template_name = 'default.html'
@@ -265,22 +252,29 @@ class OsMail:
             # Get email template from settings
             template_content = get_sys_property(email_template)
 
-        if email_template == 'email_template_order_received' or email_template == 'email_template_order_delivered':
-            if email_template == 'email_template_order_received':
-                subject = T('Order received')
-            else:
-                subject = T('Order delivered')
+        if email_template == 'email_template_order_received':
+            subject = T('Order received')
             # do some pre-processing to show the correct order info
             content = self._render_email_template_order(template_content, customers_orders_id)
-        # elif email_template == 'email_template_invoice_created':
-        #     subject = T('Invoice')
-        #     content = self._render_email_template_invoice(template_content, invoices_id)
-        # elif email_template == 'email_template_payment_received':
-        #     subject = T('Payment received')
-        #     content = self._render_email_template_payment(template_content, invoices_payments_id)
+
+            # Check for order message
+            from os_order import Order
+            order = Order(customers_orders_id)
+            if order.order.CustomerNote:
+                comments = DIV(
+                    T("We received the following message with your order:"), BR(), BR(),
+                    XML(order.order.CustomerNote.replace('\n', '<br>'))
+                )
+
+        elif email_template == 'email_template_order_delivered':
+            subject = T('Order delivered')
+            # do some pre-processing to show the correct order info
+            content = self._render_email_template_order(template_content, customers_orders_id)
+
         elif email_template == 'email_template_payment_recurring_failed':
             subject = T('Recurring payment failed')
             content = self._render_email_template_payment_recurring_failed(template_content)
+
         elif email_template == 'workshops_info_mail':
             wspc = db.workshops_products_customers(workshops_products_customers_id)
             wsp = db.workshops_products(wspc.workshops_products_id)
@@ -290,8 +284,15 @@ class OsMail:
             result = self._render_email_workshops_info_mail(wspc, wsp, ws)
             content = result['content']
             description = result['description']
+            
+        elif (email_template == 'email_template_sys_verify_email' or
+              email_template == 'email_template_sys_reset_password'):
+            template = os.path.join(request.folder, 'views', 'templates/email/default_simple.html')
+            content = XML(template_content)
+            subject = subject
+
         else:
-            template_name = 'default_simple.html'
+            template = os.path.join(request.folder, 'views', 'templates/email/default.html')
             content = XML(template_content)
             subject = subject
 
@@ -328,6 +329,124 @@ class OsMail:
             )
 
             return msgID
+
+
+    def render_sys_notification(self,
+                                sys_notification,
+                                title='',
+                                subject='',
+                                description='',
+                                comments='',
+                                customers_orders_id=None,
+                                invoices_id=None,
+                                invoices_payments_id=None,
+                                workshops_products_customers_id=None):
+        """
+        Render notification email
+
+        :param sys_notifications_id: db.sys_notifications.id
+        :param title: Email title
+        :param subject: Email subject
+        :param description: Email description
+        :param comments: Email comments
+        :param customers_orders_id: db.customers_orders.id
+        :param invoices_id: db.invoices.id
+        :param invoices_payments_id: db.invoices_payments.id
+        :param workshops_products_customers_id: db.workshops_products_customers.id
+        :return: html message for sys_notification
+        """
+        from gluon.template import render
+
+        T = current.T
+        db = current.db
+        request = current.request
+        DATETIME_FORMAT = current.DATETIME_FORMAT
+
+        logo = self._render_email_template_get_logo()
+
+        if sys_notification == 'order_created':
+            from os_order import Order
+            order = Order(customers_orders_id)
+
+            notification = db.sys_notifications(Notification='order_created')
+            print notification
+
+            # title
+            title = notification.NotificationTitle
+
+            # description
+            au = db.auth_user()
+
+            description = DIV(
+                T('A new order has been received:'), BR(),
+                TABLE(
+                    TR(
+                        TD(B(T('Order'))),
+                        TD(A('#', order.order.id,
+                             _href=URL('orders', 'edit',
+                                       vars={'coID':order.order.id},
+                                       scheme=True,
+                                       host=True),
+                             )
+                           )
+                    ),
+                    TR(
+                        TD(B(T('Order date'))),
+                        TD(order.order.DateCreated)
+                    ),
+                    TR(
+                        TD(B(T('Customer'))),
+                        TD(A(order.get_customer_name(),
+                             _href=URL('customers', 'edit',
+                                       args=order.order.auth_customer_id,
+                                       scheme=True,
+                                       host=True)
+                             )
+                           ),
+                    ),
+                    TR(
+                        TD(B(T('CustomerID'))),
+                        TD(order.order.auth_customer_id),
+                    )
+                )
+            )
+
+            # content
+            template_content = notification.NotificationTemplate
+            content = self._render_email_template_order(template_content, customers_orders_id)
+
+            # Check for order message
+            if order.order.CustomerNote:
+                comments = DIV(
+                    T("The customer provided the following message with the order:"), BR(), BR(),
+                    XML(order.order.CustomerNote.replace('\n', '<br>'))
+                )
+
+        context = dict(
+            logo=logo,
+            title=title,
+            description=description,
+            content=content,
+            comments=comments,
+            footer='',
+            request=request
+        )
+
+        template_name = 'default.html'
+        template_path = os.path.join(request.folder, 'views', 'templates', 'email')
+        template = os.path.join(
+            template_path,
+            template_name
+        )
+
+        message = render(
+            filename = template,
+            path = template_path,
+            context = context
+        )
+
+
+        return message
 
 
     def _render_email_template_get_logo(self):

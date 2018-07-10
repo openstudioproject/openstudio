@@ -685,6 +685,9 @@ def workshop_get():
     wsID = request.vars['id']
     workshop = Workshop(wsID)
 
+    teacher = _workshop_get_teacher(workshop.auth_teacher_id)
+    teacher2 = _workshop_get_teacher(workshop.auth_teacher_id2)
+
     # Check if the workshop is allowed over the API / in the shop
     if not workshop.PublicWorkshop:
         return 'Not found'
@@ -716,8 +719,30 @@ def workshop_get():
 
         activities.append(activity)
 
-    teacher = _workshop_get_teacher(row.auth_teacher_id)
-    teacher2 = _workshop_get_teacher(row.auth_teacher_id2)
+    tickets = []
+    rows = workshop.get_products(filter_public=True)
+    for i, row in enumerate(rows):
+        link_shop = URL(
+            'shop',
+            'event_add_to_cart',
+            vars={'wspID': row.id},
+            host=True,
+            scheme=True,
+            extension=''
+        )
+
+        ticket = {
+            'Name': row.Name,
+            'Price': row.Price,
+            'Description': row.Description,
+            'LinkAddToCart': link_shop,
+            'ExternalShopURL': row.ExternalShopURL,
+            'AddToCartText': row.AddToCartText,
+            'DonationBased': row.Donation
+        }
+        tickets.append(ticket)
+
+
 
     tickets = []
     p_rows = workshop.get_products()
@@ -761,6 +786,7 @@ def workshop_get():
         'LinkImage': picture_url,
         'LinkShop': workshop_get_url_shop(workshop.wsID),
         'Activities': activities,
+        'Tickets': tickets,
     }
 
     return dict(data=workshop)
