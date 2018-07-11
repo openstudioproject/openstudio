@@ -4,7 +4,7 @@ import thunk from 'redux-thunk'
 import rootReducer from './reducers'
 import stateData from '../../data/initialState'
 
-let console = window.console
+// let console = window.console
 
 // const logger = store => next => action => {
 //     let result

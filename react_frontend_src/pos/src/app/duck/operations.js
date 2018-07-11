@@ -37,13 +37,14 @@ const fetchUser = () => {
     return dispatch => {
         dispatch(request_user)
 
-        dispatch(set_loading_message("User profile"))
+        dispatch(set_loading_message("user profile"))
         axios_os.get(OS_API.APP_USER)
         .then(function (response) {
           // handle success
-          console.log('received response')
-          console.log(response.data)
           dispatch(receive_user(response.data.user))
+          dispatch(setLoadingProgress(100))
+          dispatch(setLoaded(true))
+          dispatch(setLoading(false))
         })
         .catch(function (error) {
           // handle error
