@@ -15,6 +15,7 @@ import '../../stylesheets/app/App.scss'
 class App extends Component {
   constructor(props) {
     super(props)
+    console.log(this.props)
   }
 
   componentDidMount() {

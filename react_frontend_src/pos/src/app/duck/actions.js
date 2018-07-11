@@ -12,6 +12,24 @@ export const receiveUser = (data) =>
         data
     })
 
+export const setError = (error) =>
+    ({
+        type: T.SET_ERROR,
+        error
+    })
+
+export const setErrorData = (data) =>
+    ({
+        type: T.SET_ERROR_DATA,
+        data
+    })
+
+export const setErrorMessage = (message) =>
+    ({
+        type: T.SET_ERROR_MESSAGE,
+        message
+    })
+
 export const setLoaded = (loaded) =>
     ({
         type: T.SET_LOADED,

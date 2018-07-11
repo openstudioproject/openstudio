@@ -45,4 +45,13 @@ def get_user():
     print 'cookies:'
     print request.cookies
 
-    return dict(user=auth.user)
+    # get group membership
+    membership = db.auth_membership(user_id=auth.user.id)
+    group_id = membership.group_id
+
+    print group_id
+
+    # get group permissions
+
+    return dict(user=auth.user,
+                permissions=permissions)

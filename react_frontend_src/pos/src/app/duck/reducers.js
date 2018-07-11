@@ -8,6 +8,21 @@ const initialState = {
 
 export const appReducer = (state = {}, action={ type: null }) => {
     switch (action.type) {
+        case T.SET_ERROR:
+            return {
+                ...state,
+                error: action.error
+            }
+        case T.SET_ERROR_MESSAGE:
+            return {
+                ...state,
+                error_message: action.message
+            }
+        case T.SET_ERROR_DATA:
+            return {
+                ...state,
+                error_data: action.data
+            }
         case T.SET_LOADING_MESSAGE:
             return {
                 ...state,

@@ -20,15 +20,14 @@ const notLoggedInInterceptor = axios_os.interceptors.response.use(
         // catch user not logged in
         if (response.data.error == 401) {
             console.log('redirecting to login...')
-            setTimeout(() => window.location.replace(response.data.location), 10000)
+            window.location.replace(response.data.location)
         }
 
         return response;
     },
     function (error) {
-        alert('Error fetching data: ' + error)
-        console.log(error)
-        return Promise.reject(error);
+        console.log(error.status)
+        return Promise.reject(error)
     }
 )
 

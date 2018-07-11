@@ -1,5 +1,8 @@
 {
     "app": {
+        "error": false,
+        "error_message": "",
+        "error_data": "",
         "loaded": false,
         "loading": true,
         "loading_message": "Start loading...",

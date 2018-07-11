@@ -1,6 +1,9 @@
 import {
     requestUser as request_user,
     receiveUser as receive_user,
+    setError as set_error,
+    setErrorMessage as set_error_message,
+    setErrorData as set_error_data,
     setLoaded as set_loaded,
     setLoading as set_loading,
     setLoadingMessage as set_loading_message,
@@ -12,6 +15,9 @@ import axios_os from '../../utils/axios_os'
 import OS_API from '../../utils/os_api'
 
 // just pass these actions as there's nothing else they need to do
+const setError = set_error
+const setErrorMessage = set_error_message
+const setErrorData = set_error_data
 const setLoadingMessage = set_loading_message
 const setLoadingProgress = set_loading_progress
 const setLoaded = set_loaded
@@ -48,7 +54,9 @@ const fetchUser = () => {
         })
         .catch(function (error) {
           // handle error
-          console.log(error)
+          dispatch(setError(true))
+          dispatch(setErrorMessage("Error loading user data"))
+          dispatch(setErrorData(error.config.url))
         })
         .then(function () {
           // always executed
@@ -100,6 +108,9 @@ const fetchUser = () => {
 
 export default {
     fetchUser,
+    setError,
+    setErrorData,
+    setErrorMessage,
     setLoaded,
     setLoading,
     setLoadingMessage,
