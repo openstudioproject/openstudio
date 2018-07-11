@@ -22,19 +22,20 @@ class App extends Component {
   // perhaps a componentDidMount here to dispatch fetch data operations??
 
   componentDidMount() {
-    axios_os.get(OS_API.APP_USER_LOGGED_IN)
-    .then(function (response) {
-      // handle success
-      console.log('received response')
-      console.log(response)
-    })
-    .catch(function (error) {
-      // handle error
-      console.log(error)
-    })
-    .then(function () {
-      // always executed
-    });
+    this.props.fetchUser()
+    // axios_os.get(OS_API.APP_USER_LOGGED_IN)
+    // .then(function (response) {
+    //   // handle success
+    //   console.log('received response')
+    //   console.log(response)
+    // })
+    // .catch(function (error) {
+    //   // handle error
+    //   console.log(error)
+    // })
+    // .then(function () {
+    //   // always executed
+    // });
 
     setTimeout(() => this.props.setLoadingMessage('phase 1'), 500)
     setTimeout(() => this.props.setLoadingProgress(100), 500)

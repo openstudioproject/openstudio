@@ -1,4 +1,6 @@
 import {
+    requestUser as request_user,
+    receiveUser as receive_user,
     setLoaded as set_loaded,
     setLoading as set_loading,
     setLoadingMessage as set_loading_message,
@@ -6,13 +8,18 @@ import {
     setPageTitle as set_page_title
 } from './actions'
 
+import axios_os from '../../utils/axios_os'
+import OS_API from '../../utils/os_api'
+
+// just pass these actions as there's nothing else they need to do
 const setLoadingMessage = set_loading_message
 const setLoadingProgress = set_loading_progress
 const setLoaded = set_loaded
 const setLoading = set_loading
 const setPageTitle = set_page_title
 
-// here data will be fetched
+
+// data fetchers
 
 // Example:
 
@@ -25,6 +32,28 @@ const setPageTitle = set_page_title
 //     type: types.RECEIVE_SUBREDDIT_JSON,
 //     subredditData: json
 // }
+
+const fetchUser = () => {
+    return dispatch => {
+        dispatch(request_user)
+
+        dispatch(set_loading_message("User profile"))
+        axios_os.get(OS_API.APP_USER)
+        .then(function (response) {
+          // handle success
+          console.log('received response')
+          console.log(response.data)
+          dispatch(receive_user(response.data.user))
+        })
+        .catch(function (error) {
+          // handle error
+          console.log(error)
+        })
+        .then(function () {
+          // always executed
+        });
+    }
+}
 
 // operations:
 // // 'fetchSubredditJson()' will fetch the JSON data from the subreddit,
@@ -69,6 +98,7 @@ const setPageTitle = set_page_title
 //   }
 
 export default {
+    fetchUser,
     setLoaded,
     setLoading,
     setLoadingMessage,

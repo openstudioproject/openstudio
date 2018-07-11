@@ -1,5 +1,17 @@
 import T from './types'
 
+
+export const requestUser = () =>
+    ({
+        type: T.REQUEST_USER
+    })
+
+export const receiveUser = (data) =>
+    ({
+        type: T.RECEIVE_USER,
+        data
+    })
+
 export const setLoaded = (loaded) =>
     ({
         type: T.SET_LOADED,

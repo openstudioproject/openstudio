@@ -7,7 +7,7 @@ import { appOperations } from '../duck'
 
 const mapStateToProps = state => 
     ({
-        app_state: state.root.app
+        app_state: state.app
     })
 
 const mapDispatchToProps = dispatch =>

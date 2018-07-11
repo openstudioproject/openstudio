@@ -9,7 +9,7 @@ def index():
     return dict()
 
 
-def set_pos_headers(var=None):
+def set_headers(var=None):
     response.headers["Access-Control-Allow-Origin"] = request.env.HTTP_ORIGIN
     response.headers["Access-Control-Allow-Credentials"] = "true"
 
@@ -19,7 +19,7 @@ def return_json_error(var=None):
     print 'cookies:'
     print request.cookies
 
-    set_pos_headers()
+    set_headers()
 
     return dict(
         error=401,
@@ -30,9 +30,19 @@ def return_json_error(var=None):
 
 @auth.requires_login(otherwise=return_json_error)
 def get_logged_in():
-    set_pos_headers()
+    set_headers()
 
     print 'cookies:'
     print request.cookies
 
     return auth.is_logged_in()
+
+
+@auth.requires_login(otherwise=return_json_error)
+def get_user():
+    set_headers()
+
+    print 'cookies:'
+    print request.cookies
+
+    return dict(user=auth.user)

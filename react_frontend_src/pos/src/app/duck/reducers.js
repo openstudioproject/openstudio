@@ -41,7 +41,7 @@ export const appReducer = (state = {}, action={ type: null }) => {
 }
 
 
-export const localeReducer = (state = initialState, action) => {
+export const localeReducer = (state = initialState, action={ type: null }) => {
     switch (action.type) {
         case T.SET_LOCALE:
         switch (action.locale) {
@@ -60,5 +60,28 @@ export const localeReducer = (state = initialState, action) => {
         }
     default :
         return state
+    }
+}
+
+
+export const userReducer = (state = {}, action={ type: null }) => {
+    switch (action.type) {
+        case T.REQUEST_USER:
+            return {
+                ...state,
+                loading: true,
+                loaded: false
+            }
+        case T.RECEIVE_USER:
+            return {
+                ...state,
+                loading: false,
+                loaded: true,
+                data: action.data,
+            }
+        default:
+            return {
+                ...state
+            }
     }
 }
