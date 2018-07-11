@@ -1,5 +1,4 @@
-import React, { Component } from "react"
-import { render } from "react-dom"
+import React from "react"
 
 const Navbar = ({children}) =>
     <nav className="navbar navbar-static-top">
