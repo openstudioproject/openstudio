@@ -8,6 +8,7 @@ import {
 
 
 import Home from './home/HomeContainer'
+import PermissionsError from './permissions_error/PermissionsErrorContainer'
 import Whoops404 from './whoops404/Whoops404'
 
 import '../../stylesheets/app/App.scss'
@@ -19,24 +20,7 @@ class App extends Component {
   }
 
   componentDidMount() {
-    this.props.fetchUser()
-
-    // setTimeout(() => this.props.setLoadingMessage('phase 1'), 500)
-    // setTimeout(() => this.props.setLoadingProgress(100), 500)
-    // // setTimeout(() => this.props.setLoadingMessage('phase 2'), 1500)
-    // // setTimeout(() => this.props.setLoadingProgress(66), 1500)
-    // // setTimeout(() => this.props.setLoadingMessage('phase 3'), 2500)
-    // // setTimeout(() => this.props.setLoadingProgress(100), 2500)
-
-    // ready...
-    // const loaded_timeout = 1000
-    // setTimeout(() => this.props.setLoading(false), loaded_timeout)
-    // setTimeout(() => this.props.setLoaded(true), loaded_timeout) 
-    // setTimeout(() => this.props.setLoadingMessage('Loading done!'), loaded_timeout)
-    // this.props.setLoading(false)
-    // this.props.setLoaded(true)
-    // this.props.setLoadingMessage('Loading done!')
-    
+    this.props.fetchUser()    
 }
 
   render() {
@@ -46,6 +30,7 @@ class App extends Component {
             <Route exact path='/' component={Home} />
             <Route path='/check-in' component={Home} />
             <Route path='/products' component={Home} />
+            <Route path='/permissions_error' component={PermissionsError} />
             {/* Add all your remaining routes here, like /trending, /about, etc. */}
             <Route component={Whoops404} />
           </Switch>
