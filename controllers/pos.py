@@ -106,5 +106,5 @@ def get_user():
     print permissions
 
 
-    return dict(user=auth.user,
+    return dict(profile=auth.user,
                 permissions=permissions)

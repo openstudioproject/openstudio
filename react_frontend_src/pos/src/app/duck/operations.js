@@ -47,7 +47,7 @@ const fetchUser = () => {
         axios_os.get(OS_API.APP_USER)
         .then(function (response) {
           // handle success
-          dispatch(receive_user(response.data.user))
+          dispatch(receive_user(response.data))
           dispatch(setLoadingProgress(100))
           dispatch(setLoaded(true))
           dispatch(setLoading(false))

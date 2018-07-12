@@ -5,13 +5,13 @@ import { injectIntl } from 'react-intl';
 const NavbarUserMenu = ({user, intl}) =>
     <li className="dropdown user user-menu">
         <a href="#" className="dropdown-toggle" data-toggle="dropdown">
-            <span>{user.data.first_name}</span>
+            <span>{user.data.profile.first_name}</span>
         </a>
         <ul className="dropdown-menu">
             <li className="user-header">
                 <img src="/static/images/person.png" className="img-circle" alt="User Image"/>
                 <p>
-                    {user.data.full_name}
+                    {user.data.profile.full_name}
                     <small></small>
                 </p>
             </li>
