@@ -1753,7 +1753,8 @@ def export_invoices_get_export(from_date, until_date, invoices_groups_id, filety
     if not include_subscriptions:
         where_query += " AND cs.id IS NULL"
 
-    i, m = 0, 1000
+    i = 0
+    m = 1000
     while True:
         query = '''
         SELECT i.InvoiceID,
@@ -1793,11 +1794,11 @@ def export_invoices_get_export(from_date, until_date, invoices_groups_id, filety
         LEFT JOIN payment_methods pm ON i.payment_methods_id = pm.id 
         WHERE {where_query} 
         ORDER BY i.InvoiceID, ii.Sorting
-        LIMIT {m} OFFSET {i}
+        LIMIT {limit} OFFSET {offset}
         '''.format(
             where_query=where_query,
-            m=m,
-            i=i
+            limit=m,
+            offset=m * i
         )
 
         rows = db.executesql(query)
@@ -1806,11 +1807,11 @@ def export_invoices_get_export(from_date, until_date, invoices_groups_id, filety
         prev_iID = None
         for c, row in enumerate(rows):
             unicode_list = []
-            for i in row:
+            for item in row:
                 try:
-                    unicode_list.append(i.encode('utf-8'))
+                    unicode_list.append(item.encode('utf-8'))
                 except:
-                    unicode_list.append(i)
+                    unicode_list.append(item)
 
 
             if filetype == 'excel':
@@ -1818,7 +1819,8 @@ def export_invoices_get_export(from_date, until_date, invoices_groups_id, filety
             else:
                 csv_writer.writerow(unicode_list)
 
-        if len(rows) < m: break
+        if len(rows) < m:
+            break
         i += 1
 
 
