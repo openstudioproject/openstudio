@@ -303,6 +303,10 @@ def edit():
 
     return_url = edit_get_back(cuID, csID, cmID)
 
+    # Disable CustomerListName Field to prevent w2p expecting data (it's not in the form)
+    db.invoices.CustomerListName.readable=False
+    db.invoices.CustomerListName.writable=False
+
     crud.messages.submit_button = T("Save")
     crud.messages.record_updated = T("Saved")
     crud.settings.update_next = URL('invoices', 'edit', vars={'iID':iID})

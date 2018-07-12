@@ -499,7 +499,7 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         query = (db.invoices_customers.auth_customer_id == self.cuID) & \
                 (db.invoices.Status != 'draft')
         if public_group:
-                (db.invoices_groups.PublicGroup == True)
+                query &= (db.invoices_groups.PublicGroup == True)
 
         if payments_only:
             query &= (db.invoices.TeacherPayment == True)
