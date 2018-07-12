@@ -56,7 +56,9 @@ const fetchUser = () => {
           // handle error
           dispatch(setError(true))
           dispatch(setErrorMessage("Error loading user data"))
-          dispatch(setErrorData(error.config.url))
+          if (error.config) {
+            dispatch(setErrorData(error.config.url))
+          } 
         })
         .then(function () {
           // always executed

@@ -1,8 +1,11 @@
 import React from "react"
+import NavbarNav from "./NavbarNav"
 
 const NavbarCustomMenu = ({children}) =>
-    <nav className="navbar-custom-menu">
-        {children}
-    </nav>
+    <div className="navbar-custom-menu">
+        <NavbarNav>
+            {children}
+        </NavbarNav>
+    </div>
 
 export default NavbarCustomMenu

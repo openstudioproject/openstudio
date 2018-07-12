@@ -40,7 +40,7 @@ const ErrorScreen = ({message, data}) =>
             <h1>Un oh... an error has occurred </h1>
             <h2>{message}</h2>
             See the console for more information. <br /><br />
-            Additional information: <br/>
+            Additional information (if any) <br/>
             {data}
         </div>
     </div>

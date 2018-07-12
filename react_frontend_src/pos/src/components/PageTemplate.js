@@ -14,7 +14,7 @@ const PageTemplate = ({ app_state, children }) =>
                  data={app_state.error_data}/>:
         (!app_state.loaded) ?
             <LoadingScreen progress={app_state.loading_progress}
-                        message={app_state.loading_message}/> :
+                           message={app_state.loading_message}/> :
             <div>
                 <MainMenu />
                 <Content title={app_state.current_page_title}>

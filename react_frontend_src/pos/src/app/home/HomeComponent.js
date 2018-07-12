@@ -24,12 +24,12 @@ class homeComponent extends Component {
 
     render() {
         return (
-            <PageTemplate app_state={this.props.app_state}>
-            <section className="Welcome">
-                <div>{this.props.app_state.loading}</div>
-                <div>{this.props.app_state.loading_message}</div>
-                {this.props.intl.formatMessage({ id: 'app.pos.home.hello' })}
-            </section>
+            <PageTemplate app_state={this.props.app}>
+                <section className="Welcome">
+                    <div>{this.props.app.loading}</div>
+                    <div>{this.props.app.loading_message}</div>
+                    {this.props.intl.formatMessage({ id: 'app.pos.home.hello' })}
+                </section>
             </PageTemplate>
         )
     }

@@ -26,7 +26,6 @@ const notLoggedInInterceptor = axios_os.interceptors.response.use(
         return response;
     },
     function (error) {
-        console.log(error.status)
         return Promise.reject(error)
     }
 )
