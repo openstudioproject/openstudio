@@ -1859,7 +1859,8 @@ def activity_list_customers_get_list(wsID,
             # get attendance checkbox
             cuID = row.auth_user.id
             attendance = activity_list_customers_get_list_get_attendance(cuID,
-                                                                         wsaID)
+                                                                         wsaID,
+                                                                         wsID)
             table.append(TR(TD(row.auth_user.thumbsmall,
                                _class='os-customer_image_td'),
                             cust_name,
@@ -1867,8 +1868,7 @@ def activity_list_customers_get_list(wsID,
         return table
 
 
-    table = TABLE(TR(TH(''), TH(''), TH(T('Attending')), _class='header'),
-                  _class='table')
+    table = TABLE(_class='table')
 
     # Add full workshop customers
     rows = activity_list_customers_get_fullws_rows(wsID)
@@ -1946,35 +1946,81 @@ def activity_list_customers_get_list_activity_query(wsaID):
     return query
 
 
-def activity_list_customers_get_list_get_attendance(cuID, wsaID):
+def activity_list_customers_get_list_get_attendance(cuID, wsaID, wsID):
     """
         Checks whether a customer is attending a class
     """
     check = db.workshops_activities_customers(auth_customer_id=cuID,
                                               workshops_activities_id=wsaID)
 
-    name = 'attending'
-    value = 'on'
+    vars = {'wsaID':wsaID,
+            'wsID': wsID,
+            'cuID': cuID}
     if check:
-        checkbox = INPUT(_name=name,
-                         _value=value,
-                         _type='checkbox',
-                         _checked='checked')
+        vars['wsacID'] = check.id
+
+        onclick = "return confirm('" + \
+                  T('Do you really want to check out this customer?') + "');"
+
+        attending = DIV(
+            os_gui.get_label(
+                'success',
+                T("attending")
+            ), ' ',
+            os_gui.get_button(
+                'delete_notext',
+                URL('activity_check_out_customer', vars=vars),
+                onclick=onclick,
+            ),
+            _class='pull-right'
+
+        )
     else:
-        checkbox = INPUT(_name=name,
-                         _value=value,
-                         _type='checkbox')
+        attending = os_gui.get_button(
+            'noicon',
+            URL('activity_check_in_customer', vars=vars),
+            title=T('check-in'),
+            _class='pull-right'
+        )
 
-    hidden_field_cuID = INPUT(_type="hidden",
-                              _name="cuID",
-                              _value=cuID)
-    hidden_field_wsaID = INPUT(_type="hidden",
-                               _name="wsaID",
-                               _value=wsaID)
+    return attending
 
-    form = FORM(checkbox, hidden_field_cuID, hidden_field_wsaID)
 
-    return form
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'workshops_activities_customers'))
+def activity_check_in_customer():
+    """
+        Check in customer
+    """
+    cuID = request.vars['cuID']
+    wsID = request.vars['wsID']
+    wsaID = request.vars['wsaID']
+
+    db.workshops_activities_customers.insert(
+        auth_customer_id = cuID,
+        workshops_activities_id = wsaID
+    )
+
+    redirect(URL('activity_list_customers', vars={'wsID':wsID,
+                                                  'wsaID':wsaID}))
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'workshops_activities_customers'))
+def activity_check_out_customer():
+    """
+        Check in customer
+    """
+    cuID = request.vars['cuID']
+    wsID = request.vars['wsID']
+    wsaID = request.vars['wsaID']
+    wsacID = request.vars['wsacID']
+
+    query = (db.workshops_activities_customers.id == wsacID)
+    db(query).delete()
+
+    redirect(URL('activity_list_customers', vars={'wsID':wsID,
+                                                  'wsaID':wsaID}))
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
