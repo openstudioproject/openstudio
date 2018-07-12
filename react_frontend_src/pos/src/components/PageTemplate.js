@@ -20,6 +20,7 @@ const PageTemplate = ({ app_state, children }) =>
                 <Content title={app_state.current_page_title}>
                     {children}
                 </Content>
+                {/* <Footer /> - No footer for now, it looks cleaner and we have OpenStudio branding in the header anyway */}
             </div>
         
 
