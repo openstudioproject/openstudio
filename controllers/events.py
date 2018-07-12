@@ -1979,7 +1979,7 @@ def activity_list_customers_get_list_get_attendance(cuID, wsaID, wsID):
         attending = os_gui.get_button(
             'noicon',
             URL('activity_check_in_customer', vars=vars),
-            title=T('check-in'),
+            title=T('Check-in'),
             _class='pull-right'
         )
 
