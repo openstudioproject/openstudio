@@ -397,6 +397,9 @@ def edit():
                         DIV(LABEL(form.custom.label.payment_methods_id),
                             form.custom.widget.payment_methods_id,
                             _class='form-group'),
+                        DIV(LABEL(T("Last updated")), BR(),
+                            represent_datetime(invoice.invoice.Updated_at)
+                            ),
                         _class='box-body'),
                     _class='box box-primary'),
             _class='col-md-2 no-padding-left'),

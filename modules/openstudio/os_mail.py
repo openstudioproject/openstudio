@@ -287,12 +287,12 @@ class OsMail:
             
         elif (email_template == 'email_template_sys_verify_email' or
               email_template == 'email_template_sys_reset_password'):
-            template = os.path.join(request.folder, 'views', 'templates/email/default_simple.html')
+            template_name = 'default_simple.html'
             content = XML(template_content)
             subject = subject
 
         else:
-            template = os.path.join(request.folder, 'views', 'templates/email/default.html')
+            template_name = 'default.html'
             content = XML(template_content)
             subject = subject
 

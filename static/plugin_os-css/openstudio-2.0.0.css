@@ -145,12 +145,6 @@ a.red:visited {
     clear: both;
 }
 
-/* Fix bug on smaller screen */
-.pull-right {
-   position: relative;
-   z-index: 1;
-}
-
 .no-padding-left {
     padding-left: 0;
 }
