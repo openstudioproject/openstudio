@@ -457,6 +457,7 @@ def edit_set_amounts(form):
     iID = form.vars.id
     invoice = Invoice(iID)
     invoice.set_amounts()
+    invoice.on_update()
 
 
 def edit_get_amounts(invoice, formatted=True):
@@ -886,7 +887,7 @@ def item_delete():
     query = (db.invoices_items.id == iiID)
     db(query).delete()
 
-    # update invoice amounts
+    # update invoice amounts (this also calls invoice.on_update() through set_amounts())
     list_items_set_invoice_amounts(iID)
 
     session.flash = T('Deleted item')
@@ -926,7 +927,7 @@ def list_items_set_invoice_amounts(iID):
         iiID is expected to be db.invoices_items.id
     """
     invoice = Invoice(iID)
-    invoice.set_amounts()
+    invoice.set_amounts() # this also calls invoice.on_update
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -971,6 +972,9 @@ def items_update_sorting():
 
     changed_row.Sorting = new_index
     changed_row.update_record()
+
+    invoice = Invoice(iID)
+    invoice.on_update()
 
 
     return dict(status  = status,

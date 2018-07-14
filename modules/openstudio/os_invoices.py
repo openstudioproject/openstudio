@@ -228,7 +228,7 @@ class Invoices:
 
         if form.process().accepted:
             iID = form.vars.id
-            invoice = Invoice(iID) # This sets due date and Invoice#
+            invoice = Invoice(iID) # This sets due date and Invoice (calls invoice.on_create() #
             invoice.link_to_customer(cuID)
             self._add_reset_list_status_filter()
 
@@ -253,63 +253,6 @@ class Invoices:
         for field in db.invoices:
             field.readable=True
 
-
-        # crud = current.crud
-        # # request = current.request
-        #
-        # create_onaccept = [ self._add_set_invoice_nr_and_due_date,
-        #                     self._add_reset_list_status_filter]
-        #
-        # # set all fields as unreadable/writable
-        # for field in db.invoices:
-        #     field.readable=False
-        #     field.writable=False
-        #
-        # db.invoices.invoices_groups_id.readable = True
-        # db.invoices.invoices_groups_id.writable = True
-        # db.invoices.Description.readable = True
-        # db.invoices.Description.writable = True
-        #
-        # #TODO: Fill customer name, address and contact fields
-        # #TODO: Link new invoice to customer
-        # db.invoices.auth_customer_id.default = cuID
-        # if csID:
-        #     cs = CustomerSubscription(csID)
-        #     db.invoices.customers_subscriptions_id.default = csID
-        #     db.invoices.payment_methods_id.default = cs.payment_methods_id
-        #     db.invoices.SubscriptionYear.readable = True
-        #     db.invoices.SubscriptionYear.writable = True
-        #     db.invoices.SubscriptionMonth.readable = True
-        #     db.invoices.SubscriptionMonth.writable = True
-        #     # add invoice item after form accepts
-        #     create_onaccept.append(self._add_create_subscription_invoice_item)
-        #
-        # #TODO: Link invoice to db.invoices_customers_subscriptions
-        # db.invoices.customers_subscriptions_id.default = csID
-        #
-        # crud.messages.submit_button = T("Save")
-        # crud.messages.record_created = T("Added invoice")
-        # crud.settings.create_onaccept=create_onaccept
-        # crud.settings.create_next = '/invoices/edit/?iID=[id]'
-        # form = crud.create(db.invoices)
-        #
-        # elements = form.elements('input, select, textarea')
-        # for element in elements:
-        #     element['_form'] = "invoice_add"
-        #
-        # form_element = form.element('form')
-        # form['_id'] = 'invoice_add'
-        #
-        # # So the grids display the fields normally
-        # for field in db.invoices:
-        #     field.readable=True
-        #     #field.writable=False
-        #
-        # if full_width:
-        #     # make the inputs in the table full width
-        #     table = form.element('table')
-        #     table['_class'] = 'full-width'
-        #
         return form
 
 
