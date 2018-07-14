@@ -8,11 +8,11 @@ from gluon import *
 
 class Invoice:
     """
-        Class that contains functions for an invoice
+    Class that contains functions for an invoice
     """
     def __init__(self, iID):
         """
-            Init function for an invoice
+        Init function for an invoice
         """
         db = current.db
 
@@ -21,21 +21,60 @@ class Invoice:
         self.invoice_group = db.invoices_groups(self.invoice.invoices_groups_id)
 
         if not self.invoice.InvoiceID:
-            self._set_invoice_id_duedate_and_amounts()
-            self._set_terms_and_footer()
+            self.on_create()
 
 
-    def _set_invoice_id_duedate_and_amounts(self):
+    def on_create(self):
         """
-            Set invoice id and duedate for an invoice
+        functions to be called when creating an invoice
+        """
+        self._set_invoiceID() # We can call another function for this one when Moneybird is active and linked or get the data from moneybird in the function
+        self._set_duedate() # Perhaps also get this one from Moneybird?
+        self._insert_amounts() # We always need to call this one
+        self._set_terms_and_footer() # Terms and footer from Moneybird or simply make sure the texts match....?
+
+
+    def on_update(self):
+        """
+        functions to be called when updating an invoice or invoice items
+        """
+        self._set_updated_at()
+
+
+    def _set_updated_at(self):
+        """
+        Set db.invoices.Updated_at to current time (UTC)
+        """
+        self.invoice.Updated_at = datetime.datetime.now()
+        self.invoice.update_record()
+
+
+    def _set_invoiceID(self):
+        """
+        Set db.invoices.InvoiceID field for invoice
         """
         self.invoice.InvoiceID = self._get_next_invoice_id()
+        self.invoice.update_record()
 
+        return self.invoice.InvoiceID
+
+
+    def _set_duedate(self):
+        """
+        Set db.invoices.Duedate field
+        """
         delta = datetime.timedelta(days = self.invoice_group.DueDays)
         self.invoice.DateDue = self.invoice.DateDue + delta
 
         self.invoice.update_record()
 
+        return self.invoice.DateDue
+
+
+    def _insert_amounts(self):
+        """
+            Insert amounts row for invoice, without data
+        """
         db = current.db
         db.invoices_amounts.insert(invoices_id = self.invoices_id)
 
@@ -84,6 +123,8 @@ class Invoice:
         if actual_status:
             self.invoice.Status = status
             self.invoice.update_record()
+
+            self.on_update()
         else:
             return False
 
@@ -139,6 +180,9 @@ class Invoice:
                 TotalPriceVAT = total,
                 Paid          = paid,
                 Balance       = balance)
+
+
+        self.on_update()
 
 
     def get_amounts(self):
@@ -318,6 +362,8 @@ class Invoice:
         self.set_amounts()
         self.link_to_customer(cuID)
 
+        self.on_update()
+
 
     def item_add_class_from_order(self, order_item_row, caID):
         """
@@ -359,6 +405,8 @@ class Invoice:
 
         self.set_amounts()
 
+        self.on_update()
+
         return iiID
 
 
@@ -394,6 +442,8 @@ class Invoice:
         )
 
         self.set_amounts()
+
+        self.on_update()
 
         return iiID
 
@@ -431,6 +481,8 @@ class Invoice:
 
         self.set_amounts()
 
+        self.on_update()
+
         return iiID
 
 
@@ -462,6 +514,8 @@ class Invoice:
         )
 
         self.set_amounts()
+
+        self.on_update()
 
         return iiID
 
@@ -553,6 +607,8 @@ class Invoice:
 
         self.set_amounts()
 
+        self.on_update()
+
         return iiID
 
 
@@ -595,6 +651,8 @@ class Invoice:
 
         self.link_to_customer_membership(cmID)
         self.set_amounts()
+
+        self.on_update()
 
         return iiID
 
@@ -655,6 +713,8 @@ class Invoice:
 
         self.set_amounts()
 
+        self.on_update()
+
         return iiID
 
 
@@ -699,6 +759,8 @@ class Invoice:
 
             self.set_amounts()
 
+            self.on_update()
+
             return iiID
 
 
@@ -723,6 +785,7 @@ class Invoice:
         )
 
         self.is_paid()
+        self.on_update()
 
         return ipID
 
@@ -751,7 +814,7 @@ class Invoice:
                                                         rounding=ROUND_HALF_UP))
 
         if amount_paid >= invoice_total:
-            self.invoice.Status = 'paid'
+            self.set_status('paid')
             self.invoice.update_record()
             return True
         else:
@@ -787,6 +850,8 @@ class Invoice:
             CustomerAddress = address,
         )
 
+        self.on_update()
+
 
     def link_to_customer(self, cuID):
         """
@@ -801,6 +866,8 @@ class Invoice:
 
         # Set customer info
         self.set_customer_info(cuID)
+
+        self.on_update() # now we know which customer the invoice belongs to
 
 
     def link_to_customer_subscription(self, csID):

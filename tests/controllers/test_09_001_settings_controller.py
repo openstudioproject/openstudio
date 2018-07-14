@@ -115,7 +115,6 @@ def test_sys_notifications_email_add(client, web2py):
 
     client.post(url, data=data)
     assert client.status == 200
-    print client.text
 
     sne = web2py.db.sys_notifications_email(1)
     assert sne.Email == data['Email']

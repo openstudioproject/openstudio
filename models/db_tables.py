@@ -3657,6 +3657,11 @@ def define_invoices():
             writable=False,
             default=datetime.datetime.now(),
             represent=represent_datetime ),
+        Field('Updated_at', 'datetime',
+            readable=False,
+            writable=False,
+            default=datetime.datetime.now(),
+            represent=represent_datetime ),
         Field('credit_invoice_for', 'integer', # db.invoices.id this invoice is a credit invoice for
             readable=False,
             writable=False)
