@@ -113,3 +113,21 @@ def get_user():
 
     return dict(profile=auth.user,
                 permissions=permissions)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'classes'))
+def get_classes():
+    """
+    List upcoming classes for today
+    :return:
+    """
+    set_headers()
+
+    from openstudio.os_class_schedule import ClassSchedule
+
+    cs = ClassSchedule(
+        TODAY_LOCAL
+    )
+
+    return dict(classes=cs.get_day_list())

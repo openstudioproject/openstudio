@@ -13,5 +13,10 @@
         "loading": false,
         "loaded": false,
         "data": {}
+    },
+    "checkin_classes": {
+        "loading": false,
+        "loaded": false,
+        "data": {}
     }
 }

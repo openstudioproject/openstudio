@@ -12,9 +12,10 @@ const initialStyle = {
 const Content = ({title, children}) =>
     <div className="content-wrapper" style={initialStyle}>
         <section className="content">
-            <ContentHeader title={title}>
+            <ContentHeader title={title} />
+            <section className="content">
                 {children} 
-            </ContentHeader>
+            </section>
         </section>
     </div>
 

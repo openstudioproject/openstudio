@@ -7,7 +7,7 @@ import {
 } from 'react-router-dom';
 
 
-import Classes from './checkin/ClassesContainer'
+import Classes from './checkin/classes/ClassesContainer'
 import Home from './home/HomeContainer'
 import PermissionsError from './permissions_error/PermissionsErrorContainer'
 import Whoops404 from './whoops404/Whoops404'
