@@ -57,16 +57,18 @@ class classesComponent extends Component {
             this.props.intl.formatMessage({ id: 'app.pos.checkin.page_title' })
         )
         this.props.fetchClasses()
+        console.log(this.props)
     }
 
     render() {
         return (
             <PageTemplate app_state={this.props.app}>
-                { (this.props.classes.loading) ? 
-                    <div>Loading classes, please wait...</div> :
-                    <section className="ClassesList">
-                        <ClassesList classes={this.props.classes.data} />
-                    </section>
+                { 
+                    (!this.props.classes.loaded) ? 
+                        <div>Loading classes, please wait...</div> :
+                        <section className="ClassesList">
+                            <ClassesList classes={this.props.classes.data} />
+                        </section>
                 }
             </PageTemplate>
         )
