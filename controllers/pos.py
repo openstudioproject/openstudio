@@ -27,7 +27,12 @@ def return_json_login_error(var=None):
     return dict(
         error=401,
         error_message=T("User is not logged in and needs to provide credentials"),
-        location=URL('user', args='login', vars={'_next':"/pos"}, scheme=True, host=True)
+        location=URL('default', 'user',
+                     args='login',
+                     vars={'_next':"/pos"},
+                     scheme=True,
+                     host=True,
+                     extension='')
         # location='http://dev.openstudioproject.com:8000/user/login?_next=/pos'
     )
 

@@ -5,7 +5,7 @@ import PropTypes from "prop-types"
 import PageTemplate from "../../components/PageTemplate"
 
 
-class homeComponent extends Component {
+class classesComponent extends Component {
     constructor(props) {
         super(props)
     }
@@ -18,21 +18,19 @@ class homeComponent extends Component {
 
     componentWillMount() {
         this.props.setPageTitle(
-            this.props.intl.formatMessage({ id: 'app.pos.home.page_title' })
+            this.props.intl.formatMessage({ id: 'app.pos.checkin.page_title' })
         )
     }
 
     render() {
         return (
             <PageTemplate app_state={this.props.app}>
-                <section className="Welcome">
-                    <div>{this.props.app.loading}</div>
-                    <div>{this.props.app.loading_message}</div>
-                    {this.props.intl.formatMessage({ id: 'app.pos.home.hello' })}
+                <section className="ClassesList">
+                    Hello world from the classes component
                 </section>
             </PageTemplate>
         )
     }
 }
 
-export default homeComponent
+export default classesComponent

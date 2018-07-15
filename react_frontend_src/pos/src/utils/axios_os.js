@@ -20,7 +20,7 @@ const notLoggedInInterceptor = axios_os.interceptors.response.use(
         // catch user not logged in
         if (response.data.error == 401) {
             console.log('Redirecting to login...')
-            window.location.replace(response.data.location)
+            window.location.href = response.data.location
         } else if (response.data.error == 403) {
             console.log('Permissions error')
             console.log(response.data)

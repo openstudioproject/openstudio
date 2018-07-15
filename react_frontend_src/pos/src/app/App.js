@@ -7,6 +7,7 @@ import {
 } from 'react-router-dom';
 
 
+import Classes from './checkin/ClassesContainer'
 import Home from './home/HomeContainer'
 import PermissionsError from './permissions_error/PermissionsErrorContainer'
 import Whoops404 from './whoops404/Whoops404'
@@ -28,7 +29,7 @@ class App extends Component {
       <Router>
           <Switch>
             <Route exact path='/' component={Home} />
-            <Route path='/check-in' component={Home} />
+            <Route path='/check-in' component={Classes} />
             <Route path='/products' component={Home} />
             <Route path='/permissions_error' component={PermissionsError} />
             {/* Add all your remaining routes here, like /trending, /about, etc. */}

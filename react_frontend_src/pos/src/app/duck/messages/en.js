@@ -4,6 +4,7 @@ export const ENGLISH_TRANSLATION = {
         'app.user.change_password': 'Change password',
         'app.user.profile': 'Profile',
         'app.user.sign_out': 'Sign out',
+        'app.pos.checkin.page_title': 'Check-in',
         'app.pos.home.hello': 'Hello world from react-intl',
         'app.pos.home.page_title': 'Welcome',
         'app.pos.permissions_error.page_title': "Whoops... ",

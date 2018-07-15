@@ -24,6 +24,6 @@ const mapDispatchToProps = dispatch =>
 const ClassesContainer = injectIntl(connect(
     mapStateToProps,
     mapDispatchToProps
-)(ClassesComponent))
+)(Classes))
 
 export default ClassesContainer
