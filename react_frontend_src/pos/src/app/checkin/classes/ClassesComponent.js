@@ -22,6 +22,9 @@ const Class = ({data}) =>
         <div className="col-md-2">
             {data.Level}
         </div>
+        <div className="col-md-2">
+            ({data.MaxStudents - data.CountAttendance})
+        </div>
     </div>
 
 // const ClassesList = (classes) => classes.map((cls) => <div>{cls.Location}</div>)
