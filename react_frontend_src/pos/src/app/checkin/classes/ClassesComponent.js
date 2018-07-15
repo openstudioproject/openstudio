@@ -4,26 +4,36 @@ import PropTypes from "prop-types"
 
 import PageTemplate from "../../../components/PageTemplate"
 
-const Class = ({data}) => 
-    <div className="row">
-        <div className="col-md-1">
-            {data.Starttime} -
-            {data.Endtime}
+const ClassesListClass = ({data}) => 
+    <div>
+        <div className="row">
+            <div className="col-md-1">
+                {data.Starttime} -
+                {data.Endtime}
+            </div>
+            <div className="col-md-2">
+                {data.Location}
+            </div>
+            <div className="col-md-2">
+                {data.ClassType}
+            </div>
+            <div className="col-md-3">
+                {data.Teacher} { (data.Teacher2) ? ' & ' + data.Teacher2 : ''}
+            </div>
+            <div className="col-md-2">
+                {data.Level}
+            </div>
+            <div className="col-md-2">
+                ({data.MaxStudents - data.CountAttendance})
+            </div>
         </div>
-        <div className="col-md-2">
-            {data.Location}
-        </div>
-        <div className="col-md-2">
-            {data.ClassType}
-        </div>
-        <div className="col-md-3">
-            {data.Teacher} { (data.Teacher2) ? ' & ' + data.Teacher2 : ''}
-        </div>
-        <div className="col-md-2">
-            {data.Level}
-        </div>
-        <div className="col-md-2">
-            ({data.MaxStudents - data.CountAttendance})
+
+        {/* Move this to button? Don't show button when holiday/cancelled and show description on new line */}
+        <div className="row">
+            <div className="col-md-12">
+                { (data.Cancelled) ? "Cancelled " + data.CancelledDescription : ''}
+                { (data.Holiday) ? "Holiday " + data.holidayDescription : ''}
+            </div>
         </div>
     </div>
 
@@ -35,8 +45,8 @@ const ClassesList = ({classes}) =>
         </div> */}
         <div className="box-body">
             {classes.map((cls) => 
-                <Class key={"cls_" + cls.ClassesID}
-                       data={cls} />
+                <ClassesListClass key={"cls_" + cls.ClassesID}
+                                  data={cls} />
             )}
         </div>
     </div>
