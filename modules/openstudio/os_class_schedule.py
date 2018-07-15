@@ -817,8 +817,6 @@ class ClassSchedule:
                    one_month_ago = one_month_ago,
                    two_months_ago = two_months_ago)
 
-        print query
-
         rows = db.executesql(query, fields=fields)
 
         return rows

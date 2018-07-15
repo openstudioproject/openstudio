@@ -126,9 +126,12 @@ def get_classes():
 
     from openstudio.os_class_schedule import ClassSchedule
 
+    time_from = (NOW_LOCAL - datetime.timedelta(hours=3)).time().strftime(TIME_FORMAT)
+    print time_from
+
     cs = ClassSchedule(
         TODAY_LOCAL,
-        filter_starttime_from=NOW_LOCAL.time().strftime(TIME_FORMAT)
+        filter_starttime_from=time_from
     )
 
     return dict(classes=cs.get_day_list())
