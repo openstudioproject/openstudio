@@ -400,7 +400,7 @@ def upgrade_to_20188():
     ##
     from openstudio.os_setup import OsSetup
     setup = OsSetup()
-    OsSetup._setup_sys_notifications()
+    setup._setup_sys_notifications()
 
     ##
     # clear cache
