@@ -1,13 +1,13 @@
 import { connect } from 'react-redux'
 import { injectIntl } from 'react-intl';
 
-import PermissionsError from "./PermissionsErrorComponent"
+import Classes from "./ClassesComponent"
 import { appOperations } from '../duck'
 
 
 const mapStateToProps = state => 
     ({
-        app_state: state.app
+        app: state.app
     })
 
 const mapDispatchToProps = dispatch =>
@@ -21,9 +21,9 @@ const mapDispatchToProps = dispatch =>
     })
 
 
-const PermissionsErrorContainer = injectIntl(connect(
+const ClassesContainer = injectIntl(connect(
     mapStateToProps,
     mapDispatchToProps
-)(PermissionsError))
+)(ClassesComponent))
 
-export default PermissionsErrorContainer
+export default ClassesContainer
