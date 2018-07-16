@@ -4,16 +4,32 @@
   "description": "OpenStudio Point of Sale",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node_modules/jest/bin/jest.js",
     "start": "webpack-dev-server --config webpack.config.dev.js --mode development --open",
     "build": "webpack --mode production --config webpack.config.prod.js",
     "build_dev": "webpack --mode development --config webpack.config.dev.js"
   },
-  "author": "",
+  "jest": {
+    "bail": true,
+    "verbose": true,
+    "rootDir": "src",
+    "collectCoverageFrom": [
+      "**/*.{js,jsx}",
+      "!**/node_modules/**",
+      "!**/node_modules/admin_lte_dev/**",
+      "!**/vendor/**"
+    ],
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/src/admin_lte_dev"
+    ]
+  },
+  "author": "OpenStudio team",
   "license": "GPL-2.0",
   "dependencies": {
     "axios": "^0.18.0",
     "isomorphic-fetch": "^2.2.1",
+    "jest": "^23.4.1",
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
     "react-intl": "^2.4.0",
@@ -25,6 +41,7 @@
   },
   "devDependencies": {
     "babel-core": "^6.26.3",
+    "babel-jest": "^23.4.0",
     "babel-loader": "^7.1.4",
     "babel-preset-env": "^1.7.0",
     "babel-preset-react": "^6.24.1",
