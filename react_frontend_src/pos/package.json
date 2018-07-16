@@ -14,7 +14,7 @@
     "verbose": true,
     "rootDir": "src",
     "collectCoverageFrom": [
-      "**/*.{js,jsx}",
+      "**/src/*.{js,jsx}",
       "!**/node_modules/**",
       "!**/node_modules/admin_lte_dev/**",
       "!**/vendor/**"
@@ -23,6 +23,14 @@
     "testPathIgnorePatterns": [
       "/node_modules/",
       "/src/admin_lte_dev"
+    ],
+    "modulePathIgnorePatterns": [
+      "shim.js",
+      "global.js"
+    ],
+    "setupFiles": [
+      "./__tests__/shim.js",
+      "./__tests__/global.js"
     ]
   },
   "author": "OpenStudio team",
