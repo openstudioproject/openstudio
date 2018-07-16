@@ -5,7 +5,7 @@ import PropTypes from "prop-types"
 import PageTemplate from "../../../components/PageTemplate"
 
 const ClassesListClass = ({data}) => 
-    <div>
+    <div className={(data.Cancelled || data.Holiday) ? "checkin_class cancelled" : "checkin_class"}>
         <div className="row">
             <div className="col-md-1">
                 {data.Starttime} -
