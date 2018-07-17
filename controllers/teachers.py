@@ -59,7 +59,8 @@ def index():
     response.title = T("School")
     response.subtitle = T("Teachers")
 
-    response.view = 'general/only_content.html'
+    response.view = 'general/tabs_menu.html'
+    # response.view = 'general/only_content.html'
 
     session.customers_back = 'teachers'
     session.customers_add_back = 'teachers'
@@ -709,8 +710,9 @@ def payment_attendance_list():
     response.title = T("Teachers")
     response.subtitle = T("Payment Attendance List")
 
-    response.view = 'general/only_content.html'
+    # response.view = 'general/only_content.html'
 
+    response.view = 'general/tabs_menu.html'
 
     show = 'current'
     query = (db.teachers_payment_attendance_list.Archived == False)
@@ -769,6 +771,44 @@ def payment_attendance_list():
                 content=content)
 
 
+def payment_attendance_list_add():
+    """
+    page to add a new attendance list
+    :return:
+    """
+    response.title = T("New Payment Attendance List")
+    response.subtitle = T('')
+    response.view = 'general/only_content.html'
+
+    db.teachers_payment_attendance_list.Archived.readable = False
+    db.teachers_payment_attendance_list.Archived.writable = False
+
+    return_url = URL('payment_attendance_list')
+
+    crud.messages.submit_button = T("Save")
+    crud.messages.record_created = T("Added Attendance list")
+    crud.settings.create_next = return_url
+    #crud.settings.create_onaccept = [cache_clear_payment_attendance_list]
+    form = crud.create(db.teachers_payment_attendance_list)
+    # form += crud.create(db.teachers_payment_attendance_list_rates)
+
+    textareas = form.elements('textarea')
+    for textarea in textareas:
+        textarea['_class'] += ' tmced'
+
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
+    form = result['form']
+    submit = result['submit']
+
+
+
+    submit = form.element('input[type=submit]')
+
+    back = os_gui.get_button('back', return_url)
+
+    return dict(content=form, back=back, save=submit)
+
+
 def payment_attendance_list_get_link_archive(row):
     '''
         Called from the index function. Changes title of archive button
@@ -786,6 +826,29 @@ def payment_attendance_list_get_link_archive(row):
                              tooltip=tt)
 
 
+def payment_attendance_list_archive():
+    '''
+        This function archives an attendance list
+        request.vars[tpalID] is expected to be the payment attendance list ID
+    '''
+    tpalID = request.vars['tpalID']
+    if not tpalID:
+        session.flash = T('Unable to (un)archive attendance list')
+    else:
+        row = db.teachers_payment_attendance_list(tpalID)
+
+        if row.Archived:
+            session.flash = T('Moved to current')
+        else:
+            session.flash = T('Archived')
+
+        row.Archived = not row.Archived
+        row.update_record()
+
+        # cache_clear_payment_attendance_list()
+
+    redirect(URL('payment_attendance_list'))
+
 
 def index_get_menu(page=None):
     pages = []
@@ -795,7 +858,7 @@ def index_get_menu(page=None):
        auth.has_permission('read', 'teachers'):
         pages.append(['teachers',
                       T("Teachers"),
-                      URL("teachers",)])
+                      URL("index")])
     if auth.has_membership(group_id='Admins') or \
             auth.has_permission('read', 'payment_attendance_list'):
         pages.append(['Payment_attendance_list',
