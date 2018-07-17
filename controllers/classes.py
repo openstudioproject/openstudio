@@ -2823,6 +2823,8 @@ def reservation_add():
 
     return_url = reservation_get_return_url(clsID, date_formatted)
 
+    db.classes_reservation.Startdate.default = date
+
     crud.messages.submit_button = T("Save")
     crud.messages.record_updated = T("Saved reservation")
     crud.settings.create_onaccept = [cache_clear_classschedule]
