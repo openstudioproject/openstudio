@@ -15,7 +15,7 @@ class ClassesReservation:
         self.row = db.classes_reservation(clrID)
 
 
-    def get_classes(self, date_from, date_until, respect_booking_open=True):
+    def get_classes(self, date_from, date_until=None, respect_booking_open=True):
         """
         :param date_from: datetime.date
         :param date_until: datetime.date
@@ -25,9 +25,26 @@ class ClassesReservation:
         from os_class_schedule import ClassSchedule
         from os_classes_reservations import ClassesReservations
         db = current.db
+        TODAY_LOCAL = current.TODAY_LOCAL
 
         data = []
         date = date_from
+
+        if date_until is None:
+            next_month = TODAY_LOCAL.month + 1
+            if next_month == 13:
+                next_month = 1
+                next_year = TODAY_LOCAL.year + 1
+
+            date_until =  datetime.date(
+                next_year,
+                next_month,
+                calendar.monthrange(
+                    date_from.year,
+                    date_from.month
+                    )[1]
+                ) # Last day of next month from today (local time)
+
         while date <= date_until:
             print date
 
@@ -80,9 +97,9 @@ class ClassesReservation:
             print credits
 
             # Get list of classes for customer in a given month, based on reservations
-            classes_this_month = self.get_classes(date_from, date_until)
+            upcoming_classes = self.get_classes(date_from, date_until)
             ah = AttendanceHelper()
-            if classes_this_month:
+            if upcoming_classes:
                 # Book classess
                 while credits > 0:
                     # Sign in to a class
