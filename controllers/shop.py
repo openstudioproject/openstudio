@@ -1669,7 +1669,9 @@ def class_enroll():
 
     content.append(DIV(H3(XML(class_header), _class=''), BR(), H4(T('Enrollment information'), _class=''), _class='center'))
 
-    info = P(T("By enrolling in a class a space will be reserved for you every week. After enrolling you can manage your enrollments from your profile."))
+    info = P(T("By enrolling in a class a space will be reserved for you every week."), BR(),
+             T("After enrolling you can manage your enrollments from your profile."),
+             _class="center")
     content.append(DIV(info, _class='col-md-10 col-md-offset-1 col-xs-12'))
 
     ##
@@ -1695,7 +1697,7 @@ def class_enroll():
     elif form.errors:
         response.flash = T('Form has errors')
 
-    content.append(DIV(form, _class='col-md-10 col-md-offset-1 col-xs-12'))
+    content.append(DIV(form, _class='col-md-10 col-md-offset-1 col-xs-12 center'))
 
     return dict(content=content,
                 back=back)
