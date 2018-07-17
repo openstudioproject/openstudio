@@ -1468,8 +1468,8 @@ def define_teachers_payment_fixed_rate_travel():
     )
 
 
-def define_teachers_payments_attendance_list():
-    db.define_table('teachers_payments_attendance_list',
+def define_teachers_payment_attendance_list():
+    db.define_table('teachers_payment_attendance_list',
         Field('Archived', 'boolean',
               readable=False,
               writable=False,
@@ -1482,8 +1482,8 @@ def define_teachers_payments_attendance_list():
         format='%(Name)s')
 
 
-def define_teachers_payments_attendance_list_rates():
-    db.define_table('teachers_payments_attendance_list_rates',
+def define_teachers_payment_attendance_list_rates():
+    db.define_table('teachers_payment_attendance_list_rates',
         Field('teachers_payments_attendance_list_id',
               db.teachers_payments_attendance_list,
               readable=False,
@@ -1504,8 +1504,8 @@ def define_teachers_payments_attendance_list_rates():
         )
 
 
-def define_teachers_payments_attendance_list_school_classtypes():
-    db.define_table('teachers_payments_attendance_list_school_classtypes',
+def define_teachers_payment_attendance_list_school_classtypes():
+    db.define_table('teachers_payment_attendance_list_school_classtypes',
         Field('school_classtypes_id',
               db.school_classtypes,
               readable=False,
@@ -5542,9 +5542,9 @@ define_schedule_classes_status()
 define_teachers_payment_fixed_rate_default()
 define_teachers_payment_fixed_rate_class()
 define_teachers_payment_fixed_rate_travel()
-define_teachers_payments_attendance_list()
-define_teachers_payments_attendance_list_rates()
-define_teachers_payments_attendance_list_school_classtypes()
+define_teachers_payment_attendance_list()
+define_teachers_payment_attendance_list_rates()
+define_teachers_payment_attendance_list_school_classtypes()
 
 define_customers_subscriptions_credits()
 define_log_customers_accepted_documents()
