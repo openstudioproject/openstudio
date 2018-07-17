@@ -1485,7 +1485,7 @@ def define_teachers_payment_attendance_list():
 def define_teachers_payment_attendance_list_rates():
     db.define_table('teachers_payment_attendance_list_rates',
         Field('teachers_payments_attendance_list_id',
-              db.teachers_payments_attendance_list,
+              db.teachers_payment_attendance_list,
               readable=False,
               writable=False,
               requires=IS_NOT_EMPTY()
@@ -1511,7 +1511,7 @@ def define_teachers_payment_attendance_list_school_classtypes():
               readable=False,
               writable=False),
         Field('teachers_payment_attendance_list_id',
-              db.teachers_payments_attendance_list,
+              db.teachers_payment_attendance_list,
               readable=False,
               writable=False
               ))
