@@ -2811,19 +2811,9 @@ def reservation_add():
 
     db.classes_reservation.classes_id.default = clsID
     db.classes_reservation.auth_customer_id.default = cuID
-
-    # db.classes_reservation.auth_customer_id.readable = False
-    # db.classes_reservation.auth_customer_id.writable = False
-    # db.classes_reservation.classes_id.readable = False
-    # db.classes_reservation.classes_id.writable = False
-    # db.classes_reservation.SingleClass.readable = False
-    # db.classes_reservation.SingleClass.writable = False
-    # db.classes_reservation.TrialClass.readable = False
-    # db.classes_reservation.TrialClass.writable = False
+    db.classes_reservation.Startdate.default = date
 
     return_url = reservation_get_return_url(clsID, date_formatted)
-
-    db.classes_reservation.Startdate.default = date
 
     crud.messages.submit_button = T("Save")
     crud.messages.record_updated = T("Saved reservation")
