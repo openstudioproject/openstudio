@@ -2817,7 +2817,10 @@ def reservation_add():
 
     crud.messages.submit_button = T("Save")
     crud.messages.record_updated = T("Saved reservation")
-    crud.settings.create_onaccept = [cache_clear_classschedule]
+    crud.settings.create_onaccept = [
+        cache_clear_classschedule,
+        reservation_on_create
+    ]
     crud.settings.create_next = return_url
     crud.settings.formstyle='bootstrap3_stacked'
     form = crud.create(db.classes_reservation)
@@ -2838,6 +2841,27 @@ def reservation_add():
 
     return dict(content=content, back=back, save=submit)
 
+
+def reservation_on_create(form):
+    """
+        Book classes for new reservation
+    """
+    from openstudio.os_classes_reservation import ClassesReservation
+
+    clrID = form.vars.id
+    start_date = form.vars.Startdate
+
+    reservation = ClassesReservation(clrID)
+    classes_booked = reservation.book_classes(
+        date_from = form.vars.Startdate,
+        date_until = form.vars.Enddate
+    )
+
+    classes = T("classes")
+    if classes_booked == 1:
+        classes = T("class")
+
+    session.flash = T("Booked") + ' ' + unicode(classes_booked) + ' ' + classes + "."
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \

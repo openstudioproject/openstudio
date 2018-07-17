@@ -21,24 +21,31 @@ class ClassesReservation:
         :param date_until: datetime.date
         :return: [] Return list of upcoming classes
         """
+        import calendar
+
         from os_attendance_helper import AttendanceHelper
         from os_class_schedule import ClassSchedule
         from os_classes_reservations import ClassesReservations
+
+
         db = current.db
         TODAY_LOCAL = current.TODAY_LOCAL
+        ah = AttendanceHelper()
 
         data = []
         date = date_from
 
         if date_until is None:
-            next_month = TODAY_LOCAL.month + 1
-            if next_month == 13:
-                next_month = 1
-                next_year = TODAY_LOCAL.year + 1
+            year = TODAY_LOCAL.year
+            month = TODAY_LOCAL.month + 1
+
+            if month == 13:
+                month = 1
+                year = TODAY_LOCAL.year + 1
 
             date_until =  datetime.date(
-                next_year,
-                next_month,
+                year,
+                month,
                 calendar.monthrange(
                     date_from.year,
                     date_from.month
@@ -51,72 +58,81 @@ class ClassesReservation:
             cs = ClassSchedule(date)
             classes = cs.get_day_list()
 
-            if ( cls['Cancelled']
-                 or cls['Holiday']
-                 or not cls['ClassesID'] == self.row.classes_id
-                 or (respect_booking_open and cls['BookingOpen'] > date)
-                ):
-                # Class is cancelled, in a holiday, not the class we're looking for
-                # or not yet bookable -> nothing to do
-                continue
+            for cls in classes:
+                if ( cls['Cancelled']
+                     or cls['Holiday']
+                     or not cls['ClassesID'] == self.row.classes_id
+                     or (respect_booking_open and cls['BookingOpen'] > date)
+                    ):
+                    # Class is cancelled, in a holiday, not the class we're looking for
+                    # or not yet bookable -> nothing to do
+                    continue
 
-            attending = []
-            rows = ah.get_attendance_rows(cls['ClassesID'], date)
-            for row in rows:
-                # print row
-                if row.classes_attendance.BookingStatus == 'booked' or \
-                   row.classes_attendance.BookingStatus == 'attending':
-                    attending.append(row.auth_user.id)
+                attending = []
+                rows = ah.get_attendance_rows(cls['ClassesID'], date)
+                for row in rows:
+                    # print row
+                    if row.classes_attendance.BookingStatus == 'booked' or \
+                       row.classes_attendance.BookingStatus == 'attending':
+                        attending.append(row.auth_user.id)
 
-            # add customer to list in case not already attending
-            if not self.row.auth_customer_id in attending:
-                #print res.auth_customer_id
-                value = {'clsID':cls['ClassesID'],
-                         'date':date}
-                data.append(value)
+                # add customer to list in case not already attending
+                if not self.row.auth_customer_id in attending:
+                    #print res.auth_customer_id
+                    value = {'clsID':cls['ClassesID'],
+                             'date':date}
+                    data.append(value)
 
             date += datetime.timedelta(days=1)
 
         return data
 
 
-        def book_classes(self, csID, date_from, date_until):
-            """
-            :param csID: db.customers_subscriptions.id
-            :param date_from: datetime.date
-            :param date_until: datetime.date
-            :return: Integer - number of classes booked
-            """
-            from os_attendance_helper import AttendanceHelper
-            from os_customer_subscription import CustomerSubscription
+    def book_classes(self, date_from, date_until):
+        """
+        :param csID: db.customers_subscriptions.id
+        :param date_from: datetime.date
+        :param date_until: datetime.date
+        :return: Integer - number of classes booked
+        """
+        from os_attendance_helper import AttendanceHelper
+        from os_customer import Customer
+        from os_customer_subscription import CustomerSubscription
 
-            # Check subscription credits, if none, don't do anything
-            cs = CustomerSubscription(csID)
-            credits = cs.get_credits_balance()
 
-            print credits
+        # Check subscription credits, if none, don't do anything
+        credits = 0
+        customer = Customer(self.row.auth_customer_id)
 
-            # Get list of classes for customer in a given month, based on reservations
-            upcoming_classes = self.get_classes(date_from, date_until)
-            ah = AttendanceHelper()
-            if upcoming_classes:
-                # Book classess
-                while credits > 0:
-                    # Sign in to a class
-                    ##
-                    # remove this reservation from the list, as we have just booked it, so it won't be booked again using
-                    # another subscriptin
-                    ##
-                    cls = classes.pop(0) # always get the first in the list, we pop all classes already booked
-                    ah.attendance_sign_in_subscription(
-                        cuID,
-                        cls['clsID'],
-                        csID,
-                        cls['date']
-                    )
+        subscriptions = customer.get_subscriptions_on_date(date_from)
 
-                    # Subtract one credit from current balance in this object (self.add_credists_balance)
-                    self.acredits -= 1
+        for subscription in subscriptions:
+            cs = CustomerSubscription(subscription.customers_subscriptions.id)
+            credits += cs.get_credits_balance()
+
+        print credits
+
+        # Get list of classes for customer in a given month, based on reservations
+        upcoming_classes = self.get_classes(date_from, date_until)
+        ah = AttendanceHelper()
+        if upcoming_classes:
+            # Book classess
+            while credits > 0:
+                # Sign in to a class
+                ##
+                # remove this reservation from the list, as we have just booked it, so it won't be booked again using
+                # another subscriptin
+                ##
+                cls = upcoming_classes.pop(0) # always get the first in the list, we pop all classes already booked
+                ah.attendance_sign_in_subscription(
+                    self.row.auth_customer_id,
+                    cls['clsID'],
+                    cs.row.id,
+                    cls['date']
+                )
+
+                # Subtract one credit from current balance in this object (self.add_credists_balance)
+                self.acredits -= 1
 
 
     # Use the function below as template to get classes in a month for a specific reservation
