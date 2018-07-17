@@ -168,10 +168,13 @@ def index():
 
     content = grid
 
+    menu = index_get_menu(request.function)
+
     back = DIV(add, export, tools)
 
     return dict(back=back,
                 header_tools=header_tools,
+                menu=menu,
                 content=content)
 
 
@@ -694,6 +697,113 @@ def payment_fixed_rate_travel_delete():
 
     session.flash = T('Deleted travel allowance')
     redirect(payment_fixed_rate_return_url(teID))
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'teachers_payment_attendance_list'))
+def payment_attendance_list():
+    """
+    Display Payment Attendance List site
+    :return:
+    """
+    response.title = T("Teachers")
+    response.subtitle = T("Payment Attendance List")
+
+    response.view = 'general/only_content.html'
+
+
+    show = 'current'
+    query = (db.teachers_payment_attendance_list.Archived == False)
+
+    if 'show_archive' in request.vars:
+        show = request.vars['show_archive']
+        session.teachers_payment_attendance_list_show = show
+        if show == 'current':
+            query = (db.teachers_payment_attendance_list.Archived == False)
+        elif show == 'archive':
+            query = (db.teachers_payment_attendance_list.Archived == True)
+    elif session.teachers_payment_attendance_list == 'archive':
+        query = (db.teachers_payment_attendance_list.Archived == True)
+    else:
+        session.teachers_payment_attendance_list_show = show
+
+    db.teachers_payment_attendance_list.id.readable = False
+
+    fields = [db.teachers_payment_attendance_list.Name,
+              ]
+
+    links = [
+             lambda row: os_gui.get_button('edit',
+                                           URL('payment_attendance_list_edit',
+                                               vars={'tpalID': row.id}),
+                                           T("Edit this attendance list")),
+             payment_attendance_list_get_link_archive]
+    maxtextlengths = {'teachers_payment_attendance_list.Name': 40}
+    headers = {'payment_attendance_list': 'Sorting'}
+    grid = SQLFORM.grid(query, fields=fields, links=links,
+                        maxtextlengths=maxtextlengths,
+                        headers=headers,
+                        create=False,
+                        editable=False,
+                        deletable=False,
+                        details=False,
+                        searchable=False,
+                        csv=False,
+                        orderby=~db.teachers_payment_attendance_list.Name,
+                        ui=grid_ui)
+    grid.element('.web2py_counter', replace=None)  # remove the counter
+    grid.elements('span[title=Delete]', replace=None)  # remove text from delete button
+
+    add_url = URL('payment_attendance_list_add')
+    add = os_gui.get_button('add', add_url, T("Add a new attendance list"), _class='pull-right')
+    archive_buttons = os_gui.get_archived_radio_buttons(
+        session.teachers_payment_attendance_list_show)
+
+    back = DIV(add, archive_buttons)
+    menu = index_get_menu(request.function)
+
+    content = grid
+
+    return dict(back=back,
+                menu=menu,
+                content=content)
+
+
+def payment_attendance_list_get_link_archive(row):
+    '''
+        Called from the index function. Changes title of archive button
+        depending on whether an attendance list is archived or not
+    '''
+    row = db.teachers_payment_attendance_list(row.id)
+
+    if row.Archived:
+        tt = T("Move to current")
+    else:
+        tt = T("Archive")
+
+    return os_gui.get_button('archive',
+                             URL('payment_attendance_list_archive', vars={'tpalID':row.id}),
+                             tooltip=tt)
+
+
+
+def index_get_menu(page=None):
+    pages = []
+
+
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('read', 'teachers'):
+        pages.append(['teachers',
+                      T("Teachers"),
+                      URL("teachers",)])
+    if auth.has_membership(group_id='Admins') or \
+            auth.has_permission('read', 'payment_attendance_list'):
+        pages.append(['Payment_attendance_list',
+                      T("Payment Attendance Lists"),
+                      URL("teachers", "payment_attendance_list")])
+
+    return os_gui.get_submenu(pages, page, _id='os-customers_edit_menu', horizontal=True, htype='tabs')
+
 
 #
 # def teachers_get_menu(page=None):
