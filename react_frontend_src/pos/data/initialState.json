@@ -1,0 +1,22 @@
+{
+    "app": {
+        "error": false,
+        "error_message": "",
+        "error_data": "",
+        "loaded": false,
+        "loading": true,
+        "loading_message": "Start loading...",
+        "loading_progress": 0,
+        "current_page_title": "Welcome sfdsdfsw3jl"
+    },
+    "user": {
+        "loading": false,
+        "loaded": false,
+        "data": {}
+    },
+    "checkin_classes": {
+        "loading": false,
+        "loaded": false,
+        "data": {}
+    }
+}
