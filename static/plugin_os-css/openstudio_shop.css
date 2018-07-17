@@ -416,6 +416,6 @@ img.workshop_image {
 /* Ajax loader end */
 
 div.datepicker {
-z-index: 9999 !important;
+z-index: 1030 !important;
 }
 
