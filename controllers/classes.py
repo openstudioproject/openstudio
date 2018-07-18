@@ -2790,6 +2790,83 @@ def reservation_remove():
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('create', 'classes_reservation'))
+def reservation_add_choose():
+    """
+    List applicable subscriptions and cards for customer
+    """
+    from openstudio.os_customer import Customer
+    from openstudio.os_customer_subscription import CustomerSubscription
+
+    cuID  = request.vars['cuID']
+    clsID = request.vars['clsID']
+    date_formatted = request.vars['date']
+    date = datestr_to_python(DATE_FORMAT, date_formatted)
+    response.title = T("Class")
+    response.subtitle = get_classname(clsID) + ": " + date_formatted
+    response.view = 'general/only_content.html'
+
+    return_url = reservation_get_return_url(clsID, date_formatted)
+
+    customer = Customer(cuID)
+    customer_subscriptions = customer.get_subscriptions_on_date(date, from_cache=False)
+
+    options = DIV()
+    for s in customer_subscriptions:
+        cs = CustomerSubscription(s.customers_subscriptions.id)
+        if int(clsID) in cs.get_allowed_classes_enrollment(public_only=False):
+            btn_enroll = A(SPAN(T('Enroll'), ' ',
+                                os_gui.get_fa_icon('fa-chevron-right')),
+                           _href=URL('reservation_add',
+                                     vars={'cuID': cuID,
+                                           'clsID': clsID,
+                                           'csID': s.customers_subscriptions.id,
+                                           'date': date_formatted}),
+                           _class='btn btn-link pull-right'),
+
+        else:
+            btn_enroll = SPAN(T("Not allowed"), _class='grey')
+
+        # Check Credits display
+        if s.school_subscriptions.Unlimited:
+            credits_display = T('Unlimited')
+        else:
+            if credits_remaining < 0:
+                credits_display = SPAN(round(credits_remaining, 1), ' ', T('Credits'))
+            else:
+                credits_display = SPAN(round(credits_remaining, 1), ' ',
+                                       T('Credits remaining'))
+
+        ##
+        # Option to enroll on this subscription (or not, but list it for user clarity)
+        ##
+        option = DIV(DIV(T("Subscription"),
+                         _class='col-md-3 bold'),
+                     DIV(SPAN(s.school_subscriptions.Name, _class='bold'), ' ', XML('&bull;'), ' ',
+                         SPAN(credits_display, _class='grey'), BR(),
+                         SPAN(T("Start:"), ' ', s.customers_subscriptions.Startdate.strftime(DATE_FORMAT),
+                              _class='grey'),
+                         _class='col-md-6'),
+                     DIV(btn_enroll,
+                         _class='col-md-3'),
+                     _class='col-md-12 col-xs-12')
+        options.append(option)
+
+
+    content = DIV(
+        H4(T('Enrollment options for'), ' ', customer.row.display_name), BR(), BR(),
+        options,
+    )
+
+
+    back = os_gui.get_button("back", return_url)
+
+    return dict(content=content, back=back)
+
+
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+                auth.has_permission('create', 'classes_reservation'))
 def reservation_add():
     """
         Add reservation for a customer
@@ -2801,13 +2878,24 @@ def reservation_add():
     """
     cuID  = request.vars['cuID']
     clsID = request.vars['clsID']
+    csID = request.vars['csID']
+    ccdID = request.vars['ccsID']
     date_formatted = request.vars['date']
     date = datestr_to_python(DATE_FORMAT, date_formatted)
+
+
+    if not csID and not ccdID:
+        redirect(URL('reservation_add_subscr_card'))
+
     response.title = T("Class")
     response.subtitle = get_classname(clsID) + ": " + date_formatted
     response.view = 'general/only_content.html'
 
     customer = Customer(cuID)
+
+    if request.vars['csID']:
+        csID = request.vars['csID']
+        db.classes_reservation.customers_subscriptions_id.default = csID
 
     db.classes_reservation.classes_id.default = clsID
     db.classes_reservation.auth_customer_id.default = cuID
@@ -2837,7 +2925,12 @@ def reservation_add():
     content = DIV(H4(T('Enroll'), ' ', customer.row.display_name), form)
 
 
-    back = os_gui.get_button("back", return_url)
+    back = os_gui.get_button(
+        "back",
+        URL('reservation_add_choose',
+            vars={'cuID':cuID,
+                  'clsID':clsID,
+                  'date':date_formatted}))
 
     return dict(content=content, back=back, save=submit)
 
@@ -2851,8 +2944,11 @@ def reservation_on_create(form):
     clrID = form.vars.id
     start_date = form.vars.Startdate
 
+    clr = db.classes_reservation(clrID)
+
     reservation = ClassesReservation(clrID)
     classes_booked = reservation.book_classes(
+        csID = clr.customers_subscriptions_id,
         date_from = form.vars.Startdate,
         date_until = form.vars.Enddate
     )

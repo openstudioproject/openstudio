@@ -88,7 +88,7 @@ class ClassesReservation:
         return data
 
 
-    def book_classes(self, date_from, date_until):
+    def book_classes(self, csID, date_from, date_until):
         """
         :param csID: db.customers_subscriptions.id
         :param date_from: datetime.date
@@ -104,35 +104,35 @@ class ClassesReservation:
         credits = 0
         customer = Customer(self.row.auth_customer_id)
 
-        subscriptions = customer.get_subscriptions_on_date(date_from)
-
-        for subscription in subscriptions:
-            cs = CustomerSubscription(subscription.customers_subscriptions.id)
-            credits += cs.get_credits_balance()
+        cs = CustomerSubscription(csID)
+        credits += cs.get_credits_balance()
 
         print credits
 
         # Get list of classes for customer in a given month, based on reservations
         upcoming_classes = self.get_classes(date_from, date_until)
         ah = AttendanceHelper()
-        if upcoming_classes:
-            # Book classess
-            while credits > 0:
-                # Sign in to a class
-                ##
-                # remove this reservation from the list, as we have just booked it, so it won't be booked again using
-                # another subscriptin
-                ##
-                cls = upcoming_classes.pop(0) # always get the first in the list, we pop all classes already booked
-                ah.attendance_sign_in_subscription(
-                    self.row.auth_customer_id,
-                    cls['clsID'],
-                    cs.row.id,
-                    cls['date']
-                )
+        classes_booked = 0
+        while credits > 0 and len(upcoming_classes):
+            # Sign in to a class
+            ##
+            # remove this reservation from the list, as we have just booked it, so it won't be booked again using
+            # another subscriptin
+            ##
+            cls = upcoming_classes.pop(0) # always get the first in the list, we pop all classes already booked
+            ah.attendance_sign_in_subscription(
+                self.row.auth_customer_id,
+                cls['clsID'],
+                cs.cs.id,
+                cls['date']
+            )
 
-                # Subtract one credit from current balance in this object (self.add_credists_balance)
-                self.acredits -= 1
+            classes_booked += 1
+
+            # Subtract one credit from current balance in this object (self.add_credists_balance)
+            credits -= 1
+
+        return classes_booked
 
 
     # Use the function below as template to get classes in a month for a specific reservation

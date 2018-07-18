@@ -1703,8 +1703,6 @@ def class_enroll():
                 back=back)
 
 
-
-
 @auth.requires_login()
 def class_book():
     """
