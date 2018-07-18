@@ -771,42 +771,40 @@ def payment_attendance_list():
                 content=content)
 
 
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'teachers_payment_attendance_list'))
 def payment_attendance_list_add():
     """
     page to add a new attendance list
     :return:
     """
-    response.title = T("New Payment Attendance List")
-    response.subtitle = T('')
+    from openstudio.os_forms import OsForms
+    response.title = T("Payment Attendance List")
+    response.subtitle = T('New Payment Attendance List')
     response.view = 'general/only_content.html'
-
-    db.teachers_payment_attendance_list.Archived.readable = False
-    db.teachers_payment_attendance_list.Archived.writable = False
-
     return_url = URL('payment_attendance_list')
 
-    crud.messages.submit_button = T("Save")
-    crud.messages.record_created = T("Added Attendance list")
-    crud.settings.create_next = return_url
-    #crud.settings.create_onaccept = [cache_clear_payment_attendance_list]
-    form = crud.create(db.teachers_payment_attendance_list)
-    # form += crud.create(db.teachers_payment_attendance_list_rates)
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_create(
+        db.teachers_payment_attendance_list,
+        return_url,
+    )
 
-    textareas = form.elements('textarea')
-    for textarea in textareas:
-        textarea['_class'] += ' tmced'
-
-    result = set_form_id_and_get_submit_button(form, 'MainForm')
     form = result['form']
-    submit = result['submit']
-
-
-
-    submit = form.element('input[type=submit]')
-
     back = os_gui.get_button('back', return_url)
 
-    return dict(content=form, back=back, save=submit)
+
+    content = DIV(
+        H4(T('Add Attendance List')),
+        form
+    )
+
+    return dict(content=content,
+                save=result['submit'],
+                back=back)
+
+
+
 
 
 def payment_attendance_list_get_link_archive(row):
