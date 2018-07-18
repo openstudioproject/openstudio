@@ -107,8 +107,6 @@ class ClassesReservation:
         cs = CustomerSubscription(csID)
         credits += cs.get_credits_balance()
 
-        print credits
-
         # Get list of classes for customer in a given month, based on reservations
         upcoming_classes = self.get_classes(date_from, date_until)
         ah = AttendanceHelper()

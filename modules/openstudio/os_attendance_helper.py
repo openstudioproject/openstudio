@@ -1318,8 +1318,6 @@ class AttendanceHelper:
                                               clsID,
                                               date,
                                               customer,
-                                              trial=False,
-                                              complementary=False,
                                               list_type='shop',
                                               controller=''):
         """
@@ -1330,6 +1328,14 @@ class AttendanceHelper:
         :param: list_type: [shop, attendance]
         :return:
         """
+        from os_customer_subscription import CustomerSubscription
+        from os_gui import OsGui
+
+        T = current.T
+        os_gui = OsGui()
+        DATE_FORMAT = current.DATE_FORMAT
+
+        date_formatted = date.strftime(DATE_FORMAT)
         customer_subscriptions = customer.get_subscriptions_on_date(date)
 
 
@@ -1343,8 +1349,8 @@ class AttendanceHelper:
             if int(clsID) in cs.get_allowed_classes_enrollment(public_only=public_only):
                 btn_enroll = A(SPAN(T('Enroll'), ' ',
                                     os_gui.get_fa_icon('fa-chevron-right')),
-                               _href=URL('class_enroll',
-                                         vars={'cuID': cuID,
+                               _href=URL(controller, 'class_enroll',
+                                         vars={'cuID': customer.cuID,
                                                'clsID': clsID,
                                                'csID': s.customers_subscriptions.id,
                                                'date': date_formatted}),
