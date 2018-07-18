@@ -804,7 +804,40 @@ def payment_attendance_list_add():
                 back=back)
 
 
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'teachers_payment_attendance_list'))
+def payment_attendance_list_edit():
+    """
+        Edit an attendance list
+        request.vars['tpalID'] is expected to be db.teachers_payment_attendance_list.id
+    """
+    from openstudio.os_forms import OsForms
 
+    response.title = T("Payment Attendance List")
+    response.subtitle = T('Edit Name')
+    response.view = 'general/only_content.html'
+    tpalID = request.vars['tpalID']
+
+    return_url = URL('payment_attendance_list')
+
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_update(
+        db.teachers_payment_attendance_list,
+        return_url,
+        tpalID
+    )
+
+    form = result['form']
+    back = os_gui.get_button('back', return_url)
+
+    content = DIV(
+        H4(T('Edit name of attendance list')),
+        form
+    )
+
+    return dict(content=content,
+                save=result['submit'],
+                back=back)
 
 
 def payment_attendance_list_get_link_archive(row):
