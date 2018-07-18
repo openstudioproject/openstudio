@@ -1343,7 +1343,7 @@ class AttendanceHelper:
         if list_type == 'attendance':
             public_only = False
 
-        options = DIV()
+        options = DIV(_class="shop-classes-booking-options row")
         for s in customer_subscriptions:
             cs = CustomerSubscription(s.customers_subscriptions.id)
             if int(clsID) in cs.get_allowed_classes_enrollment(public_only=public_only):
@@ -1374,14 +1374,14 @@ class AttendanceHelper:
             ##
             option = DIV(DIV(T("Subscription"),
                              _class='col-md-3 bold'),
-                         DIV(SPAN(s.school_subscriptions.Name, _class='bold'), ' ', XML('&bull;'), ' ',
+                         DIV(SPAN(s.school_subscriptions.Name), ' ', XML('&bull;'), ' ',
                              SPAN(credits_display, _class='grey'), BR(),
-                             SPAN(T("Start:"), ' ', s.customers_subscriptions.Startdate.strftime(DATE_FORMAT),
-                                  _class='grey'),
+                             # SPAN(T("Start:"), ' ', s.customers_subscriptions.Startdate.strftime(DATE_FORMAT),
+                             #      _class='grey'),
                              _class='col-md-6'),
                          DIV(btn_enroll,
                              _class='col-md-3'),
-                         _class='col-md-12 col-xs-12')
+                         _class='col-md-10 col-md-offset-1 col-xs-12')
             options.append(option)
 
 

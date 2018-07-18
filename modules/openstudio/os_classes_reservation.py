@@ -88,7 +88,7 @@ class ClassesReservation:
         return data
 
 
-    def book_classes(self, csID, date_from, date_until):
+    def book_classes(self, csID, date_from, date_until=None):
         """
         :param csID: db.customers_subscriptions.id
         :param date_from: datetime.date

@@ -2823,7 +2823,6 @@ def reservation_add_choose():
         options,
     )
 
-
     back = os_gui.get_button("back", return_url)
 
     return dict(content=content, back=back)
