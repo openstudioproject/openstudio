@@ -1506,15 +1506,18 @@ def define_teachers_payment_attendance_list_rates():
 
 def define_teachers_payment_attendance_list_school_classtypes():
     db.define_table('teachers_payment_attendance_list_school_classtypes',
-        Field('school_classtypes_id',
-              db.school_classtypes,
-              readable=False,
-              writable=False),
         Field('teachers_payment_attendance_list_id',
               db.teachers_payment_attendance_list,
               readable=False,
-              writable=False
-              ))
+              writable=False,
+              requires=IS_NOT_EMPTY()),
+        Field('school_classtypes_id',
+              db.school_classtypes,
+              readable=False,
+              writable=False,
+              requires=IS_NOT_EMPTY())
+
+              )
 
 
 def define_customers_notes():
