@@ -324,7 +324,7 @@ WHERE (au.last_login < '{date}' OR au.last_login IS NULL) AND
         cuID = session.customers_classes_reservation_add_vars['cuID']
         customer = Customer(cuID)
 
-        add = os_gui.get_button('add', URL('classes', 'reservation_add',
+        add = os_gui.get_button('add', URL('classes', 'class_enroll',
                                            vars={'cuID': cuID, 'clsID': clsID, 'date': date_formatted}),
                                 btn_size='btn-sm',
                                 _class="pull-right")

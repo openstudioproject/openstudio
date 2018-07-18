@@ -1314,6 +1314,73 @@ class AttendanceHelper:
         return options
 
 
+    def get_customer_class_enrollment_options(self,
+                                              clsID,
+                                              date,
+                                              customer,
+                                              trial=False,
+                                              complementary=False,
+                                              list_type='shop',
+                                              controller=''):
+        """
+        :param clsID: db.classes.id
+        :param date: datetime.date
+        :param date_formatted: datetime.date object formatted with current.DATE_FORMAT
+        :param customer: Customer object
+        :param: list_type: [shop, attendance]
+        :return:
+        """
+        customer_subscriptions = customer.get_subscriptions_on_date(date)
+
+
+        public_only = True
+        if list_type == 'attendance':
+            public_only = False
+
+        options = DIV()
+        for s in customer_subscriptions:
+            cs = CustomerSubscription(s.customers_subscriptions.id)
+            if int(clsID) in cs.get_allowed_classes_enrollment(public_only=public_only):
+                btn_enroll = A(SPAN(T('Enroll'), ' ',
+                                    os_gui.get_fa_icon('fa-chevron-right')),
+                               _href=URL('class_enroll',
+                                         vars={'cuID': cuID,
+                                               'clsID': clsID,
+                                               'csID': s.customers_subscriptions.id,
+                                               'date': date_formatted}),
+                               _class='btn btn-link pull-right'),
+
+            else:
+                btn_enroll = SPAN(T("Not allowed"), _class='grey')
+
+            # Check Credits display
+            if s.school_subscriptions.Unlimited:
+                credits_display = T('Unlimited')
+            else:
+                if credits_remaining < 0:
+                    credits_display = SPAN(round(credits_remaining, 1), ' ', T('Credits'))
+                else:
+                    credits_display = SPAN(round(credits_remaining, 1), ' ',
+                                           T('Credits remaining'))
+
+            ##
+            # Option to enroll on this subscription (or not, but list it for user clarity)
+            ##
+            option = DIV(DIV(T("Subscription"),
+                             _class='col-md-3 bold'),
+                         DIV(SPAN(s.school_subscriptions.Name, _class='bold'), ' ', XML('&bull;'), ' ',
+                             SPAN(credits_display, _class='grey'), BR(),
+                             SPAN(T("Start:"), ' ', s.customers_subscriptions.Startdate.strftime(DATE_FORMAT),
+                                  _class='grey'),
+                             _class='col-md-6'),
+                         DIV(btn_enroll,
+                             _class='col-md-3'),
+                         _class='col-md-12 col-xs-12')
+            options.append(option)
+
+
+        return options
+
     def _get_teachers_note_modal(self,
                                  cuID,
                                  customers_name,

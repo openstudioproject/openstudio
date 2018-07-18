@@ -2816,7 +2816,7 @@ def reservation_add_choose():
         if int(clsID) in cs.get_allowed_classes_enrollment(public_only=False):
             btn_enroll = A(SPAN(T('Enroll'), ' ',
                                 os_gui.get_fa_icon('fa-chevron-right')),
-                           _href=URL('reservation_add',
+                           _href=URL('class_enroll',
                                      vars={'cuID': cuID,
                                            'clsID': clsID,
                                            'csID': s.customers_subscriptions.id,
@@ -2867,14 +2867,11 @@ def reservation_add_choose():
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('create', 'classes_reservation'))
-def reservation_add():
+def class_enroll():
     """
         Add reservation for a customer
 
         if startdate is not set, a one time reservation for 'date' is assumed
-    """
-    """
-        Edit page for recurring reservations
     """
     cuID  = request.vars['cuID']
     clsID = request.vars['clsID']
