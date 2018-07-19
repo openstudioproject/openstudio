@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "node_modules/jest/bin/jest.js",
+    "coverage": "node_modules/jest/bin/jest.js --coverage",
     "start": "webpack-dev-server --config webpack.config.dev.js --mode development --open",
     "build": "webpack --mode production --config webpack.config.prod.js",
     "build_dev": "webpack --mode development --config webpack.config.dev.js"
@@ -13,9 +14,9 @@
     "bail": true,
     "verbose": true,
     "collectCoverageFrom": [
-      "**/src/*.{js,jsx}",
+      "**/src/**.{js,jsx}",
       "!**/node_modules/**",
-      "!**/node_modules/admin_lte_dev/**",
+      "!**/src/admin_lte_dev/**",
       "!**/vendor/**"
     ],
     "notify": true,
