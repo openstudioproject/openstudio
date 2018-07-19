@@ -226,13 +226,14 @@ def invoice_pay():
 
     # Do a regular payment or first recurring payment
     try:
+        webhook_url = 'https://' + request.env.http_host + '/mollie/webhook'
         payment = mollie.payments.create({
             'amount':      invoice_amounts.TotalPriceVAT,
             'description': description,
             'recurringType': recurring_type,
             'customerId': mollie_customer_id,
             'redirectUrl': 'https://' + request.env.http_host + '/shop/complete?iID=' + unicode(iID),
-            'webhookUrl': 'https://' + request.env.http_host + '/mollie/webhook',
+            'webhookUrl': webhook_url,
             'metadata': {
                 'invoice_id': invoice.invoice.id,
                 'customers_orders_id': 'invoice' # This lets the webhook function know it's dealing with an invoice
@@ -243,7 +244,7 @@ def invoice_pay():
             invoices_id=iID,
             mollie_payment_id=payment['id'],
             RecurringType=payment['recurringType'],
-            WebhookURL=payment['webhookUrl']
+            WebhookURL=webhook_url
         )
 
         # Send the customer off to complete the payment.
