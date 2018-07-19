@@ -135,3 +135,20 @@ def get_classes():
     )
 
     return dict(classes=cs.get_day_list())
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'classes_attendance'))
+def get_class_attendance():
+    """
+    List attendance for a class
+    :return:
+    """
+    from openstudio.os_attendance_helper import Attendancehelper
+
+    set_headers()
+
+    ah = Attendancehelper()
+    attendance = ah.get_checkin_list_customers_booked(clsID, date)
+
+    return attendance

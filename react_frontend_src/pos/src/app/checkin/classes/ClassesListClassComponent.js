@@ -1,7 +1,9 @@
-import React, { Component } from "react"
+import React from "react"
+import { withRouter } from 'react-router-dom'
 
-const ClassesListClass = ({data}) => 
-    <div className={(data.Cancelled || data.Holiday) ? "checkin_class cancelled" : "checkin_class"}>
+const ClassesListClass = withRouter(({data, history}) => 
+    <div onClick={() => { history.push('/checkin/attendance/' + data.ClassesID) }}
+         className={(data.Cancelled || data.Holiday) ? "checkin_class cancelled" : "checkin_class"}>
         <div className="row">
             <div className="col-md-1">
                 {data.Starttime} -
@@ -32,6 +34,7 @@ const ClassesListClass = ({data}) =>
             </div>
         </div>
     </div>
+)
 
 
 export default ClassesListClass
