@@ -2847,7 +2847,7 @@ def class_enroll():
 
 
     if not csID and not ccdID:
-        redirect(URL('reservation_add_subscr_card'))
+        redirect(URL('reservation_add_choose'))
 
     response.title = T("Class")
     response.subtitle = get_classname(clsID) + ": " + date_formatted
