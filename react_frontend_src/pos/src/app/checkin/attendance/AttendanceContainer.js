@@ -1,20 +1,21 @@
 import { connect } from 'react-redux'
 import { injectIntl } from 'react-intl';
 
-import BookingOptions from "./BookingOptionsComponent"
+import Attendance from "./AttendanceComponent"
 import { appOperations } from '../../duck'
-import { checkinBookingOptionsOperations } from './duck'
+import { checkinAttendanceOperations } from './duck'
 
 
 const mapStateToProps = state => 
     ({
         app: state.app,
+        attendance: state.checkin_attendance
     })
 
 const mapDispatchToProps = dispatch =>
     ({
-        fetchClasses() {
-            dispatch(checkinBookingOptionsOperations.fetchClasses())
+        fetchClassAttendance(clsID) {
+            dispatch(checkinAttendanceOperations.fetchClassAttendance(clsID))
         },
         setPageTitle(title) {
             dispatch(appOperations.setPageTitle(title))
@@ -22,9 +23,9 @@ const mapDispatchToProps = dispatch =>
     })
 
 
-const BookingOptionsContainer = injectIntl(connect(
+const AttendanceContainer = injectIntl(connect(
     mapStateToProps,
     mapDispatchToProps
-)(BookingOptions))
+)(Attendance))
 
-export default BookingOptionsContainer
+export default AttendanceContainer

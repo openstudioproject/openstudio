@@ -1,5 +1,3 @@
-import { withRouter } from 'react-router-dom'
-
 import {
     requestCheckinClasses as request_classes,
     receiveCheckinClasses as receive_classes,

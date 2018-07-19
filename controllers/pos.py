@@ -86,14 +86,9 @@ def get_user():
     #     return return_json_permissions_error()
     # Permissions error
 
-    print 'cookies:'
-    print request.cookies
-
     # get group membership
     membership = db.auth_membership(user_id=auth.user.id)
     group_id = membership.group_id
-
-    print group_id
 
     # get group permissions
     query = (db.auth_permission.group_id == group_id) & \
@@ -102,13 +97,10 @@ def get_user():
                             db.auth_permission.table_name)
     permissions = {}
     for row in rows:
-        print row
         if row.table_name in permissions:
             permissions[row.table_name].append(row.name)
         else:
             permissions[row.table_name] = [row.name]
-
-    print permissions
 
 
     return dict(profile=auth.user,
@@ -144,11 +136,15 @@ def get_class_attendance():
     List attendance for a class
     :return:
     """
-    from openstudio.os_attendance_helper import Attendancehelper
+    from openstudio.os_attendance_helper import AttendanceHelper
+
+    clsID = request.vars['clsID']
+
+    print request.vars
 
     set_headers()
 
-    ah = Attendancehelper()
-    attendance = ah.get_checkin_list_customers_booked(clsID, date)
+    ah = AttendanceHelper()
+    attendance = ah.get_attendance_rows(clsID, TODAY_LOCAL).as_list()
 
-    return attendance
+    return dict(attendance=attendance)

@@ -33,7 +33,7 @@ class classesComponent extends Component {
                 { 
                     (!this.props.classes.loaded) ? 
                         <div>Loading classes, please wait...</div> :
-                        <section className="ClassesList">
+                        <section className="checkin_classes">
                             <ClassesList classes={this.props.classes.data} />
                         </section>
                 }
