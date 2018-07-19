@@ -2828,8 +2828,6 @@ def reservation_add_choose():
     return dict(content=content, back=back)
 
 
-
-
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('create', 'classes_reservation'))
 def class_enroll():
