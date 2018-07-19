@@ -119,7 +119,6 @@ def get_classes():
     from openstudio.os_class_schedule import ClassSchedule
 
     time_from = (NOW_LOCAL - datetime.timedelta(hours=3)).time().strftime(TIME_FORMAT)
-    print time_from
 
     cs = ClassSchedule(
         TODAY_LOCAL,
@@ -139,8 +138,6 @@ def get_class_attendance():
     from openstudio.os_attendance_helper import AttendanceHelper
 
     clsID = request.vars['clsID']
-
-    print request.vars
 
     set_headers()
 

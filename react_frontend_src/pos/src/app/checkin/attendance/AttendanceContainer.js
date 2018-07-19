@@ -1,7 +1,7 @@
 import { connect } from 'react-redux'
 import { injectIntl } from 'react-intl';
 
-import Attendance from "./AttendanceComponent"
+import Attendance from "./Attendance"
 import { appOperations } from '../../duck'
 import { checkinAttendanceOperations } from './duck'
 

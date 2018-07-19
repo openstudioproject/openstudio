@@ -8,7 +8,6 @@ import ClassesList from "./ClassesListComponent"
 class classesComponent extends Component {
     constructor(props) {
         super(props)
-        console.log(props)
     }
 
     PropTypes = {
@@ -24,7 +23,6 @@ class classesComponent extends Component {
             this.props.intl.formatMessage({ id: 'app.pos.checkin.page_title' })
         )
         this.props.fetchClasses()
-        console.log(this.props)
     }
 
     render() {

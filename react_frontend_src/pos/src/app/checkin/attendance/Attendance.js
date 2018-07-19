@@ -4,7 +4,7 @@ import PropTypes from "prop-types"
 
 import PageTemplate from "../../../components/PageTemplate"
 
-class AttendanceComponent extends Component {
+class Attendance extends Component {
     constructor(props) {
         super(props)
         console.log(props)
@@ -44,4 +44,4 @@ class AttendanceComponent extends Component {
     }
 }
 
-export default AttendanceComponent
+export default Attendance
