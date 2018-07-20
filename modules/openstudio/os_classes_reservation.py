@@ -53,8 +53,6 @@ class ClassesReservation:
                 ) # Last day of next month from today (local time)
 
         while date <= date_until:
-            print date
-
             cs = ClassSchedule(date)
             classes = cs.get_day_list()
 
@@ -62,7 +60,7 @@ class ClassesReservation:
                 if ( cls['Cancelled']
                      or cls['Holiday']
                      or not cls['ClassesID'] == self.row.classes_id
-                     or (respect_booking_open and cls['BookingOpen'] > date)
+                     or (respect_booking_open and cls['BookingOpen'] and cls['BookingOpen'] > date)
                     ):
                     # Class is cancelled, in a holiday, not the class we're looking for
                     # or not yet bookable -> nothing to do
