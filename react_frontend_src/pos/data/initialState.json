@@ -23,5 +23,10 @@
         "loading": false,
         "loaded": false,
         "data": {}
+    },
+    "checkin_book": {
+        "loading": false,
+        "loaded": false,
+        "data": {}
     }
 }
