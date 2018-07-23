@@ -30,7 +30,7 @@ const bookingStatusMessage = (status, intl) => {
 
 
 const AttendanceListItem = injectIntl(withRouter(({data, history, intl, match}) => 
-    <div onClick={() => { history.push('/checkin/book/' + match.params.clsID + '/' + data.auth_user.id) }}
+    <div onClick={() => { history.push('/checkin/booking_options/' + match.params.clsID + '/' + data.auth_user.id) }}
          className="checkin_attendance_list_item">
         {console.log(match)}
         <div className="row">
