@@ -1,7 +1,6 @@
 import {
-    requestCheckinClassAttendance as request_class_attendance,
-    receiveCheckinClassAttendance as receive_class_attendance,
-    setCheckinClassAttendanceLoading as set_loading
+    requestCheckinBookingOptions as request_booking_options,
+    receiveCheckinBookingOptions as receive_booking_options
 } from './actions'
 
 import axios_os from '../../../../utils/axios_os'
@@ -12,19 +11,21 @@ import OS_API from '../../../../utils/os_api'
 
 
 // data fetchers
-const fetchClassAttendance = (clsID) => {
+const fetchBookingOptions = (clsID, cuID) => {
       return dispatch => {
-          dispatch(request_class_attendance())
+          dispatch(request_booking_options())
 
-          console.log("fetch class attendance")
+          console.log("fetch booking options")
           console.log(clsID)
+          console.log(cuID)
           const params = new URLSearchParams()
           params.append('clsID', clsID)
+          params.append('cuID', cuID)
           console.log(params)
-          axios_os.post(OS_API.CHECKIN_ATTENDANCE, params)
+          axios_os.post(OS_API.CHECKIN_BOOKING_OPTIONS, params)
           .then(function (response) {
             // handle success
-            dispatch(receive_class_attendance(response.data))
+            dispatch(receive_booking_options(response.data))
             // dispatch(setLoadingProgress(100))
           })
           .catch(function (error) {
@@ -39,5 +40,5 @@ const fetchClassAttendance = (clsID) => {
 
 
 export default {
-    fetchClassAttendance
+    fetchBookingOptions
 }

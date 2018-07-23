@@ -32,7 +32,7 @@ class Book extends Component {
         return (
             <PageTemplate app_state={this.props.app}>
                 { 
-                    (!this.props.attendance.loaded) ? 
+                    (!this.props.book.loaded) ? 
                         <div>Loading booking options, please wait...</div> :
                         <section className="checkin_attendance">
                             Loaded... yay!! :)
@@ -44,4 +44,4 @@ class Book extends Component {
     }
 }
 
-export default Attendance
+export default Book

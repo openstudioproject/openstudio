@@ -9,7 +9,7 @@ import {
 
 import Classes from './checkin/classes/ClassesContainer'
 import Attendance from './checkin/attendance/AttendanceContainer'
-import Attendance from './checkin/book/BookContainer'
+import Book from './checkin/book/BookContainer'
 import Home from './home/HomeContainer'
 import PermissionsError from './permissions_error/PermissionsErrorContainer'
 import Whoops404 from './whoops404/Whoops404'

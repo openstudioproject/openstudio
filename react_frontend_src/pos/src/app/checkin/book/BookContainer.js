@@ -28,4 +28,4 @@ const BookContainer = injectIntl(connect(
     mapDispatchToProps
 )(Book))
 
-export default Book
+export default BookContainer
