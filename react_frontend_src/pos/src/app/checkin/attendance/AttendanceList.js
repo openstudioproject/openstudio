@@ -4,7 +4,7 @@ import { v4 } from "uuid"
 import AttendanceListItem from "./AttendanceListItem"
 
 const AttendanceList = ({attendance_items}) => 
-    <div className="box box-default">
+    <div className="box box-default"> 
         <div className="box-body">
             {attendance_items.map((ai, i) => 
                 <AttendanceListItem key={"ai_" + v4()}
