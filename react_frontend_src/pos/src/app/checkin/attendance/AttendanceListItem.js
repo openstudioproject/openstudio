@@ -1,28 +1,51 @@
 import React from "react"
 import { withRouter } from 'react-router-dom'
+import { injectIntl } from 'react-intl';
 
-const AttendanceListItem = withRouter(({data, history}) => 
+import Check from '../../../components/ui/Check'
+import Label from '../../../components/ui/Label'
+
+
+const bookingStatusLabelClass = (status) => {
+    switch (status) {
+        case "attending":
+            return "label-success"
+        case "booked":
+            return "label-primary"
+        case "cancelled":
+            return "label-cancelled"
+    }
+}
+
+
+const AttendanceListItem = injectIntl(withRouter(({data, history, intl}) => 
     <div onClick={() => { history.push('/checkin/booking_options/' + data.ClassesID + '/' + data.CustomersID) }}
-         className={(data.Cancelled || data.Holiday) ? "checkin_class cancelled" : "checkin_class"}>
+         className="checkin_attendance_list_item">
         <div className="row">
             <div className="col-md-1">
-                {data.Starttime} -
-                {data.Endtime}
+                <Check color={(data.classes_attendance.BookingStatus == "attending") ? "text-green" : "text-grey"} />
             </div>
             <div className="col-md-2">
-                {data.Location}
+                {data.auth_user.display_name}
             </div>
             <div className="col-md-2">
-                {data.ClassType}
+                <Label type={bookingStatusLabelClass(data.classes_attendance.BookingStatus)}>
+                    {data.classes_attendance.BookingStatus}
+                </Label> 
+                {' '}
+                {(data.classes_reservation.id) ? 
+                    <Label type="label-default">
+                        {intl.formatMessage({ id: 'app.pos.checkin.attendance.label_enrolled' })}
+                    </Label> : ''}
             </div>
             <div className="col-md-3">
-                {data.Teacher} { (data.Teacher2) ? ' & ' + data.Teacher2 : ''}
+                {(data.invoices.id) ? "invoice" : "no invoice"}
             </div>
             <div className="col-md-2">
-                {data.Level}
+
             </div>
             <div className="col-md-2">
-                ({data.MaxStudents - data.CountAttendance})
+
             </div>
         </div>
 
@@ -34,7 +57,7 @@ const AttendanceListItem = withRouter(({data, history}) =>
             </div>
         </div>
     </div>
-)
+))
 
 
 export default AttendanceListItem
