@@ -145,3 +145,6 @@ def get_class_attendance():
     attendance = ah.get_attendance_rows(clsID, TODAY_LOCAL).as_list()
 
     return dict(attendance=attendance)
+
+
+

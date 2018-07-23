@@ -1025,14 +1025,14 @@ class AttendanceHelper:
         return SPAN(btn_group, modals)
 
 
-    def get_customer_class_booking_options(self,
-                                           clsID,
-                                           date,
-                                           customer,
-                                           trial=False,
-                                           complementary=False,
-                                           list_type='shop',
-                                           controller=''):
+    def get_customer_class_booking_options_formatted(self,
+                                                     clsID,
+                                                     date,
+                                                     customer,
+                                                     trial=False,
+                                                     complementary=False,
+                                                     list_type='shop',
+                                                     controller=''):
         """
         :param clsID: db.classes.id
         :param date: datetime.date

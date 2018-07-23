@@ -227,12 +227,12 @@ def checkin_booking_options():
     cls = Class(clsID, date)
 
     ah = AttendanceHelper()
-    options = ah.get_customer_class_booking_options(clsID,
-                                                    date,
-                                                    customer,
-                                                    trial=True,
-                                                    list_type='selfcheckin',
-                                                    controller='classes')
+    options = ah.get_customer_class_booking_options_formatted(clsID,
+                                                              date,
+                                                              customer,
+                                                              trial=True,
+                                                              list_type='selfcheckin',
+                                                              controller='classes')
     cancel = os_gui.get_button('noicon',
                                return_url,
                                title=T('Cancel'),
