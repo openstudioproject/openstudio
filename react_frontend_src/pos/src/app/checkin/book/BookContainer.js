@@ -1,21 +1,21 @@
 import { connect } from 'react-redux'
 import { injectIntl } from 'react-intl';
 
-import Attendance from "./Attendance"
+import Book from "./Book"
 import { appOperations } from '../../duck'
-import { checkinAttendanceOperations } from './duck'
+import { checkinBookOperations } from './duck'
 
 
 const mapStateToProps = state => 
     ({
         app: state.app,
-        attendance: state.checkin_attendance
+        options: state.checkin_booking_options
     })
 
 const mapDispatchToProps = dispatch =>
     ({
         fetchClassAttendance(clsID) {
-            dispatch(checkinAttendanceOperations.fetchClassAttendance(clsID))
+            dispatch(checkinBookOperations.fetchBookingOptions(clsID))
         },
         setPageTitle(title) {
             dispatch(appOperations.setPageTitle(title))
@@ -23,9 +23,9 @@ const mapDispatchToProps = dispatch =>
     })
 
 
-const AttendanceContainer = injectIntl(connect(
+const BookContainer = injectIntl(connect(
     mapStateToProps,
     mapDispatchToProps
-)(Attendance))
+)(Book))
 
-export default AttendanceContainer
+export default Book

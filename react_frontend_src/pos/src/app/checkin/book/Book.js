@@ -4,7 +4,6 @@ import PropTypes from "prop-types"
 
 import PageTemplate from "../../../components/PageTemplate"
 
-import AttendanceList from "./AttendanceList"
 
 class Book extends Component {
     constructor(props) {
@@ -36,7 +35,8 @@ class Book extends Component {
                     (!this.props.attendance.loaded) ? 
                         <div>Loading booking options, please wait...</div> :
                         <section className="checkin_attendance">
-                            <AttendanceList attendance_items={this.props.attendance.data} />
+                            Loaded... yay!! :)
+                            {/* <AttendanceList attendance_items={this.props.attendance.data} /> */}
                         </section>
                 }
             </PageTemplate>
