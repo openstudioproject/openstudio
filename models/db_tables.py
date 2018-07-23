@@ -1513,11 +1513,8 @@ def define_teachers_payment_attendance_list_school_classtypes():
               requires=IS_NOT_EMPTY()),
         Field('school_classtypes_id',
               db.school_classtypes,
-              readable=False,
-              writable=False,
-              requires=IS_NOT_EMPTY())
 
-              )
+              ))
 
 
 def define_customers_notes():

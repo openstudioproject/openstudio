@@ -869,24 +869,65 @@ def payment_attendance_list_school_classtypes():
 
     return_url = URL('payment_attendance_list')
 
-    os_forms = OsForms()
-    result = os_forms.get_crud_form_update(
-        db.teachers_payment_attendance_list_school_classtypes,
-        return_url,
-        tpalID
-    )
+    table = TABLE(TR(TH(), TH(T('Class type')), _class='header'),
+                  _class='table table-hover')
+    query = (db.teachers_payment_attendance_list_school_classtypes.teachers_payment_attendance_list_id == tpalID)
+    rows = db(query).select(db.teachers_payment_attendance_list_school_classtypes.school_classtypes_id)
+    classtypeids = []
+    for row in rows:
+        classtypeids.append(unicode(row.school_classtypes_id))
 
-    form = result['form']
+    list_query = (db.school_classtypes.Archived == False)
+    rows = db(list_query).select(db.school_classtypes.id,
+                                 db.school_classtypes.Name,
+                                 orderby=db.school_classtypes.Name)
+    for row in rows:
+        if unicode(row.id) in classtypeids:
+            # check the row
+            table.append(TR(TD(INPUT(_type='checkbox',
+                                     _name=row.id,
+                                     _value="on",
+                                     value="on"),
+                               _class='td_status_marker'),
+                            TD(row.Name)))
+        else:
+            table.append(TR(TD(INPUT(_type='checkbox',
+                                     _name=row.id,
+                                     _value="on"),
+                               _class='td_status_marker'),
+                            TD(row.Name)))
+    form = FORM(table, _id='MainForm')
+
+    return_url = URL('payment_attendance_list')
+
+    # make a list of all classtypes
+    rows = db().select(db.school_classtypes.id)
+    classtypeids = list()
+    for row in rows:
+        classtypeids.append(unicode(row.id))
+
+    # After submitting, check which classtypes are 'on'
+    if form.accepts(request, session):
+        # remove all current records
+        db(db.teachers_payment_attendance_list_school_classtypes.teachers_payment_attendance_list_id == tpalID).delete()
+        # insert new records for teacher
+        for classtypeID in classtypeids:
+            if request.vars[classtypeID] == 'on':
+                db.teachers_payment_attendance_list_school_classtypes.insert(teachers_payment_attendance_list_id=tpalID,
+                                              school_classtypes_id=classtypeID)
+
+        # Clear teachers (API) cache
+        cache_clear_school_teachers()
+
+        session.flash = T('Saved classtypes')
+        redirect(return_url)
+
+    description = H4(T("Here you can specify for which kinds of classes a payment attendance list should be used."))
+    content = DIV(BR(), description, BR(), form)
+
     back = os_gui.get_button('back', return_url)
 
-    content = DIV(
-        H4(T('Edit Classtype/s of attendance list')),
-        form
-    )
-
-    return dict(content=content,
-                save=result['submit'],
-                back=back)
+    return dict(content=content, back=back, save=os_gui.get_submit_button('MainForm'))
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
