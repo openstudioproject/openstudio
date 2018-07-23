@@ -9,13 +9,13 @@ import { checkinBookOperations } from './duck'
 const mapStateToProps = state => 
     ({
         app: state.app,
-        options: state.checkin_booking_options
+        options: state.checkin_book
     })
 
 const mapDispatchToProps = dispatch =>
     ({
-        fetchClassAttendance(clsID) {
-            dispatch(checkinBookOperations.fetchBookingOptions(clsID))
+        fetchBookingOptions(clsID, cuID) {
+            dispatch(checkinBookOperations.fetchBookingOptions(clsID, cuID))
         },
         setPageTitle(title) {
             dispatch(appOperations.setPageTitle(title))

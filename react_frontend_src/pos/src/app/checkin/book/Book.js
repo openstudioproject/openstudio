@@ -25,14 +25,15 @@ class Book extends Component {
         )
 
         console.log(this.props.match.params.clsID)
-        this.props.fetchBookingOptions(this.props.match.params.clsID )
+        console.log(this.props.match.params.cuID)
+        this.props.fetchBookingOptions(this.props.match.params.clsID, this.props.match.params.cuID )
     }
 
     render() {
         return (
             <PageTemplate app_state={this.props.app}>
                 { 
-                    (!this.props.book.loaded) ? 
+                    (!this.props.options.loaded) ? 
                         <div>Loading booking options, please wait...</div> :
                         <section className="checkin_attendance">
                             Loaded... yay!! :)

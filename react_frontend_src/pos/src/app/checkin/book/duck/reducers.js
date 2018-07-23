@@ -17,7 +17,7 @@ export const checkinBookReducer = (state = {}, action={ type: null }) => {
             return {
                 loading: false,
                 loaded: true,
-                data: action.data.attendance,
+                data: action.data.options,
             }
         default:
             return {

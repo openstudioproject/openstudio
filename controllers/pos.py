@@ -159,6 +159,8 @@ def get_class_booking_options():
     from openstudio.os_attendance_helper import AttendanceHelper
     from openstudio.os_customer import Customer
 
+    print request.vars
+
     clsID = request.vars['clsID']
     cuID = request.vars['cuID']
 
