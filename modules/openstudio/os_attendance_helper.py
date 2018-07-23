@@ -1025,6 +1025,176 @@ class AttendanceHelper:
         return SPAN(btn_group, modals)
 
 
+    def get_customer_class_booking_options(self,
+                                           clsID,
+                                           date,
+                                           customer,
+                                           trial=False,
+                                           complementary=False,
+                                           list_type='shop',
+                                           controller=''):
+        """
+        :param clsID: db.classes.id
+        :param date: datetime.date
+        :param customer: os_customer.Customer object
+        :param trial: bool
+        :param complementary: bool
+        :param list_type: should be in ["shop", "attendance", "selfcheckin"]
+        :param controller: web2py controller
+        :return: list of booking options
+        """
+        from os_class import Class
+        from os_customer_classcard import CustomerClasscard
+        from os_customer_subscription import CustomerSubscription
+
+        options = []
+
+        # Subscriptions
+        subscriptions = customer.get_subscriptions_on_date(date)
+        if subscriptions:
+            for subscription in subscriptions:
+                csID = subscription.customers_subscriptions.id
+                # Check remaining credits
+                credits = subscription.customers_subscriptions.CreditsRemaining or 0
+                recon_classes = subscription.school_subscriptions.ReconciliationClasses
+                # Create subscription object
+                cs = CustomerSubscription(csID)
+
+                if list_type == 'shop':
+                    subscription_permission_check = not int(clsID) in cs.get_allowed_classes_booking(public_only=True)
+                else:
+                    subscription_permission_check = not int(clsID) in cs.get_allowed_classes_attend(public_only=False)
+
+                allowed = True
+                if subscription_permission_check:
+                    allowed = False
+
+                credits_remaining = credits > (recon_classes * -1)
+
+                options.append({
+                    'id': csID,
+                    'Name': subscription.school_subscriptions.Name,
+                    'Allowed': allowed,
+                    'Credits': credits,
+                    'CreditsRemaining': credits_remaining
+                })
+
+                options.append(option)
+
+        # class cards
+        classcards = customer.get_classcards(date)
+        if classcards:
+            for classcard in classcards:
+                ccdID = classcard.customers_classcards.id
+
+                ccd = CustomerClasscard(ccdID)
+                classes_remaining = ccd.get_classes_remaining_formatted()
+
+                if list_type == 'shop':
+                    allowed_classes = ccd.get_allowed_classes_booking()
+                else:
+                    allowed_classes = ccd.get_allowed_classes_attend(public_only=False)
+
+                allowed = True
+                if not int(clsID) in allowed_classes:
+                    allowed = False
+
+                options.append({
+                    'id': ccdID,
+                    'Name': classcard.school_classcards.Name,
+                    'Enddate': classcard.customers_classcards.Enddate,
+                    'ClassesRemaining': classes_remaining
+                })
+
+                options.append(option)
+
+        #TODO: modify stuff down here vvv 
+
+        # Get class prices
+        cls = Class(clsID, date)
+        prices = cls.get_prices()
+
+        # drop in
+        url = URL(controller, 'class_book', vars={'clsID': clsID,
+                                                  'dropin': 'true',
+                                                  'cuID': customer.row.id,
+                                                  'date': date_formatted})
+        button_book = classes_book_options_get_button_book(url)
+
+        price = prices['dropin']
+        membership_notification = ''
+        if customer.has_membership_on_date(date) and prices['dropin_membership']:
+            price = prices['dropin_membership']
+            membership_notification = SPAN(' ', XML('&bull;'), ' ', '(', T('Membership price'), ')',
+                                           _class='grey')
+
+        option = DIV(DIV(T('Drop in'),
+                         _class='col-md-3 bold'),
+                     DIV(T('Class price:'), ' ', CURRSYM, ' ', format(price, '.2f'), ' ',
+                         membership_notification,
+                         BR(),
+                         SPAN(get_sys_property('shop_classes_dropin_message') or '',
+                              _class='grey'),
+                         _class='col-md-6'),
+                     DIV(button_book,
+                         _class='col-md-3'),
+                     _class='col-md-10 col-md-offset-1 col-xs-12')
+
+        options.append(option)
+
+        # Trial
+        # get trial class price
+        if trial:
+            url = URL(controller, 'class_book', vars={'clsID': clsID,
+                                                      'trial': 'true',
+                                                      'cuID': customer.row.id,
+                                                      'date': date_formatted})
+            button_book = classes_book_options_get_button_book(url)
+
+            price = prices['trial']
+            membership_notification = ''
+            if customer.has_membership_on_date(date) and prices['trial_membership']:
+                price = prices['trial_membership']
+                membership_notification = SPAN(' ', XML('&bull;'), ' ', '(', T('Membership price'), ')',
+                                               _class='grey')
+
+            option = DIV(DIV(T('Trial'),
+                             _class='col-md-3 bold'),
+                         DIV(T('Class price:'), ' ', CURRSYM, ' ', format(price, '.2f'), ' ',
+                             membership_notification,
+                             BR(),
+                             SPAN(get_sys_property('shop_classes_trial_message') or '',
+                                  _class='grey'),
+                             _class='col-md-6'),
+                         DIV(button_book,
+                             _class='col-md-3'),
+                         _class='col-md-10 col-md-offset-1 col-xs-12')
+
+            options.append(option)
+
+        # Complementary
+        if complementary:
+            options.append(DIV(HR(), _class='col-md-10 col-md-offset-1'))
+            url = URL(controller, 'class_book', vars={'clsID': clsID,
+                                                      'complementary': 'true',
+                                                      'cuID': customer.row.id,
+                                                      'date': date_formatted})
+            button_book = classes_book_options_get_button_book(url)
+
+            option = DIV(DIV(T('Complementary'),
+                             _class='col-md-3 bold'),
+                         DIV(T('Give this class for free'),
+                             _class='col-md-6'),
+                         DIV(button_book,
+                             _class='col-md-3'),
+                         _class='col-md-10 col-md-offset-1 col-xs-12')
+
+            options.append(option)
+
+        return options
+
+
+
     def get_customer_class_booking_options_formatted(self,
                                                      clsID,
                                                      date,
