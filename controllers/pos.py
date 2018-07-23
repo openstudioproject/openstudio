@@ -148,3 +148,39 @@ def get_class_attendance():
 
 
 
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('create', 'classes_attendance'))
+def get_class_booking_options():
+    """
+    List booking options for a class for a given customer
+    :return:
+    """
+    from openstudio.os_attendance_helper import AttendanceHelper
+    from openstudio.os_customer import Customer
+
+    clsID = request.vars['clsID']
+    cuID = request.vars['cuID']
+
+    set_headers()
+
+    customer = Customer(cuID)
+    complementary_permission = (auth.has_membership(group_id='Admins') or
+                                auth.has_permission('complementary', 'classes_attendance'))
+
+    ah = AttendanceHelper()
+    options = ah.get_customer_class_booking_options(
+        clsID,
+        TODAY_LOCAL,
+        customer,
+        trial=True,
+        complementary=complementary_permission,
+        list_type='attendance'
+    )
+
+    return dict(options = options)
+
+
+
+
+

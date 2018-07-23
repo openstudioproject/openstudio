@@ -1479,9 +1479,6 @@ class AttendanceHelper:
             notes_text = T('Note ')
 
         notes_text = SPAN(unicode(count_notes), ' ', notes_text)
-
-
-        #button_text = XML(SPAN(os_gui.get_fa_icon('fa-sticky-note-o'), ' ', notes_text))
         button_text = XML(notes_text)
 
         result = os_gui.get_modal(button_text=button_text,
