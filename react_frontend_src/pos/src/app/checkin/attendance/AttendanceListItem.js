@@ -48,6 +48,8 @@ const AttendanceListItem = injectIntl(withRouter(({data, history, intl}) =>
                     <Label type="label-default">
                         {intl.formatMessage({ id: 'app.pos.checkin.attendance.label_enrolled' })}
                     </Label> : ''}
+                <br />
+                {(data.classes_attendance.CreatedOn)}
             </div>
             <div className="col-md-3">
                 {(data.invoices.id) ? "invoice" : "no invoice"}
