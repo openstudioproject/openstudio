@@ -1048,6 +1048,7 @@ class AttendanceHelper:
 
         T = current.T
         db = current.db
+        get_sys_property = current.globalenv['get_sys_property']
 
         options = {
             'subscriptions': [],
@@ -1086,7 +1087,8 @@ class AttendanceHelper:
                     'Name': subscription.school_subscriptions.Name,
                     'Allowed': allowed,
                     'Credits': credits,
-                    'CreditsRemaining': credits_remaining
+                    'CreditsRemaining': credits_remaining,
+                    'Unlimited': subscription.school_subscriptions.Unlimited
                 })
 
         # class cards
@@ -1114,7 +1116,8 @@ class AttendanceHelper:
                     'Name': classcard.school_classcards.Name,
                     'Allowed': allowed_classes,
                     'Enddate': classcard.customers_classcards.Enddate,
-                    'ClassesRemaining': classes_remaining
+                    'ClassesRemaining': classes_remaining,
+                    'Unlimited': classcard.school_classcards.Unlimited,
                 })
 
         # Get class prices
@@ -1133,6 +1136,7 @@ class AttendanceHelper:
                 "Name": T('Drop-in'),
                 "Price": price,
                 "MembershipPrice": membership_price,
+                "Message": get_sys_property('shop_classes_dropin_message') or ''
             }
 
         # Trial
@@ -1149,6 +1153,7 @@ class AttendanceHelper:
                     "Name": T('Trial'),
                     "Price": price,
                     "MembershipPrice": membership_price,
+                    "Message": get_sys_property('shop_classes_trial_message') or ''
                 }
 
         # Complementary
@@ -1158,7 +1163,6 @@ class AttendanceHelper:
                 "Name": T('Complementary'),
             }
 
-            options.append(option)
 
         return options
 
@@ -1218,7 +1222,7 @@ class AttendanceHelper:
 
         if options['subscriptions']:
             for subscription in options['subscriptions']:
-                csID = option['csID']
+                csID = subscription['id']
                 if not subscription['Allowed']:
                     button_book = os_gui.get_button('noicon',
                                                     URL('#'),
@@ -1240,7 +1244,7 @@ class AttendanceHelper:
                                                         _class='disabled pull-right grey')
 
                 # Check Credits display
-                if subscription.school_subscriptions.Unlimited:
+                if subscription['Unlimited']:
                     credits_display = T('Unlimited')
                 else:
                     if credits_remaining < 0:
@@ -1262,6 +1266,7 @@ class AttendanceHelper:
                              _class='col-md-10 col-md-offset-1 col-xs-12')
 
                 formatted_options.append(option)
+
         elif list_type =='shop':
             # show buy link if list type shop
             features = db.customers_shop_features(1)
@@ -1279,7 +1284,7 @@ class AttendanceHelper:
                                  _class='col-md-3'),
                              _class='col-md-10 col-md-offset-1 col-xs-12')
 
-                options.append(option)
+                formatted_append(option)
 
 
         # class cards
@@ -1304,6 +1309,8 @@ class AttendanceHelper:
                                                   'date': date_formatted})
                     button_book = classes_book_options_get_button_book(url)
 
+
+
                 option = DIV(DIV(T('Class card'),
                                  _class='col-md-3 bold'),
                              DIV(classcard['Name'], ' ',
@@ -1316,7 +1323,7 @@ class AttendanceHelper:
                                  _class='col-md-3'),
                              _class='col-md-10 col-md-offset-1 col-xs-12')
 
-                options.append(option)
+                formatted_options.append(option)
 
         elif list_type == 'attendance':
                 url = URL('customers', 'classcard_add',
@@ -1336,7 +1343,7 @@ class AttendanceHelper:
                                  _class='col-md-3'),
                              _class='col-md-10 col-md-offset-1 col-xs-12')
 
-                options.append(option)
+                formatted_options.append(option)
 
         elif list_type =='shop':
             # show buy link if list type shop
@@ -1355,7 +1362,7 @@ class AttendanceHelper:
                                  _class='col-md-3'),
                              _class='col-md-10 col-md-offset-1 col-xs-12')
 
-                options.append(option)
+                formatted_options.append(option)
 
         # Get class prices
         cls = Class(clsID, date)
@@ -1378,17 +1385,17 @@ class AttendanceHelper:
 
             option = DIV(DIV(T('Drop in'),
                              _class='col-md-3 bold'),
-                         DIV(T('Class price:'), ' ', CURRSYM, ' ', format(dropin['price'], '.2f'), ' ',
+                         DIV(T('Class price:'), ' ', CURRSYM, ' ', format(dropin['Price'], '.2f'), ' ',
                              membership_notification,
                              BR(),
-                             SPAN(get_sys_property('shop_classes_dropin_message') or '',
+                             SPAN(dropin.get('Message', ''),
                                   _class='grey'),
                              _class='col-md-6'),
                          DIV(button_book,
                              _class='col-md-3'),
                          _class='col-md-10 col-md-offset-1 col-xs-12')
 
-            options.append(option)
+            formatted_options.append(option)
 
         # Trial
         # get trial class price
@@ -1408,23 +1415,24 @@ class AttendanceHelper:
 
             option = DIV(DIV(T('Trial'),
                              _class='col-md-3 bold'),
-                         DIV(T('Class price:'), ' ', CURRSYM, ' ', format(trial['price'], '.2f'), ' ',
+                         DIV(T('Class price:'), ' ', CURRSYM, ' ', format(trial['Price'], '.2f'), ' ',
                              membership_notification,
                              BR(),
-                             SPAN(get_sys_property('shop_classes_trial_message') or '',
+                             SPAN(trial.get('Message', ''),
                                   _class='grey'),
                              _class='col-md-6'),
                          DIV(button_book,
                              _class='col-md-3'),
                          _class='col-md-10 col-md-offset-1 col-xs-12')
 
-            options.append(option)
+            formatted_options.append(option)
 
         # Complementary
         if complementary and options['complementary']:
             complementary = options['complementary']
 
-            options.append(DIV(HR(), _class='col-md-10 col-md-offset-1'))
+            formatted_options.append(DIV(HR(), _class='col-md-10 col-md-offset-1'))
+
             url = URL(controller, 'class_book', vars={'clsID': clsID,
                                                       'complementary': 'true',
                                                       'cuID': customer.row.id,
@@ -1439,9 +1447,9 @@ class AttendanceHelper:
                              _class='col-md-3'),
                          _class='col-md-10 col-md-offset-1 col-xs-12')
 
-            options.append(option)
+            formatted_options.append(option)
 
-        return options
+        return formatted_options
     #
     #
     # def get_customer_class_booking_options_formatted(self,
