@@ -17,6 +17,17 @@ const bookingStatusLabelClass = (status) => {
     }
 }
 
+const bookingStatusMessage = (status, intl) => {
+    switch (status) {
+        case "attending":
+            return intl.formatMessage({ id: 'app.pos.checkin.attendance.status.attending' })
+        case "booked":
+            return intl.formatMessage({ id: 'app.pos.checkin.attendance.status.booked' })
+        case "cancelled":
+            return intl.formatMessage({ id: 'app.pos.checkin.attendance.status.cancelled' })
+    }
+}
+
 
 const AttendanceListItem = injectIntl(withRouter(({data, history, intl}) => 
     <div onClick={() => { history.push('/checkin/booking_options/' + data.ClassesID + '/' + data.CustomersID) }}
@@ -30,7 +41,7 @@ const AttendanceListItem = injectIntl(withRouter(({data, history, intl}) =>
             </div>
             <div className="col-md-2">
                 <Label type={bookingStatusLabelClass(data.classes_attendance.BookingStatus)}>
-                    {data.classes_attendance.BookingStatus}
+                    {bookingStatusMessage(data.classes_attendance.BookingStatus, intl)}
                 </Label> 
                 {' '}
                 {(data.classes_reservation.id) ? 
