@@ -1047,6 +1047,7 @@ class AttendanceHelper:
         from os_customer_classcard import CustomerClasscard
         from os_customer_subscription import CustomerSubscription
 
+        T = current.T
         options = []
 
         # Subscriptions
@@ -1072,6 +1073,7 @@ class AttendanceHelper:
                 credits_remaining = credits > (recon_classes * -1)
 
                 options.append({
+                    'type': 'subscription',
                     'id': csID,
                     'Name': subscription.school_subscriptions.Name,
                     'Allowed': allowed,
@@ -1100,6 +1102,7 @@ class AttendanceHelper:
                     allowed = False
 
                 options.append({
+                    'type': 'classcard',
                     'id': ccdID,
                     'Name': classcard.school_classcards.Name,
                     'Enddate': classcard.customers_classcards.Enddate,
@@ -1108,86 +1111,46 @@ class AttendanceHelper:
 
                 options.append(option)
 
-        #TODO: modify stuff down here vvv 
+        #TODO: modify stuff down here vvv
 
         # Get class prices
         cls = Class(clsID, date)
         prices = cls.get_prices()
 
-        # drop in
-        url = URL(controller, 'class_book', vars={'clsID': clsID,
-                                                  'dropin': 'true',
-                                                  'cuID': customer.row.id,
-                                                  'date': date_formatted})
-        button_book = classes_book_options_get_button_book(url)
-
         price = prices['dropin']
-        membership_notification = ''
-        if customer.has_membership_on_date(date) and prices['dropin_membership']:
+        has_membership = customer.has_membership_on_date(date),
+        if has_membership:
             price = prices['dropin_membership']
-            membership_notification = SPAN(' ', XML('&bull;'), ' ', '(', T('Membership price'), ')',
-                                           _class='grey')
 
-        option = DIV(DIV(T('Drop in'),
-                         _class='col-md-3 bold'),
-                     DIV(T('Class price:'), ' ', CURRSYM, ' ', format(price, '.2f'), ' ',
-                         membership_notification,
-                         BR(),
-                         SPAN(get_sys_property('shop_classes_dropin_message') or '',
-                              _class='grey'),
-                         _class='col-md-6'),
-                     DIV(button_book,
-                         _class='col-md-3'),
-                     _class='col-md-10 col-md-offset-1 col-xs-12')
-
-        options.append(option)
+        options.append({
+            "type": "dropin",
+            "Name": T('Drop-in'),
+            "Price": price,
+            "MembershipPrice": has_membership,
+        })
 
         # Trial
         # get trial class price
         if trial:
-            url = URL(controller, 'class_book', vars={'clsID': clsID,
-                                                      'trial': 'true',
-                                                      'cuID': customer.row.id,
-                                                      'date': date_formatted})
-            button_book = classes_book_options_get_button_book(url)
 
             price = prices['trial']
-            membership_notification = ''
-            if customer.has_membership_on_date(date) and prices['trial_membership']:
+            if has_membership:
                 price = prices['trial_membership']
-                membership_notification = SPAN(' ', XML('&bull;'), ' ', '(', T('Membership price'), ')',
-                                               _class='grey')
 
-            option = DIV(DIV(T('Trial'),
-                             _class='col-md-3 bold'),
-                         DIV(T('Class price:'), ' ', CURRSYM, ' ', format(price, '.2f'), ' ',
-                             membership_notification,
-                             BR(),
-                             SPAN(get_sys_property('shop_classes_trial_message') or '',
-                                  _class='grey'),
-                             _class='col-md-6'),
-                         DIV(button_book,
-                             _class='col-md-3'),
-                         _class='col-md-10 col-md-offset-1 col-xs-12')
+            options.append({
+                "type": "trial",
+                "Name": T('Trial'),
+                "Price": price,
+                "MembershipPrice": has_membership,
+            })
 
-            options.append(option)
 
         # Complementary
         if complementary:
-            options.append(DIV(HR(), _class='col-md-10 col-md-offset-1'))
-            url = URL(controller, 'class_book', vars={'clsID': clsID,
-                                                      'complementary': 'true',
-                                                      'cuID': customer.row.id,
-                                                      'date': date_formatted})
-            button_book = classes_book_options_get_button_book(url)
-
-            option = DIV(DIV(T('Complementary'),
-                             _class='col-md-3 bold'),
-                         DIV(T('Give this class for free'),
-                             _class='col-md-6'),
-                         DIV(button_book,
-                             _class='col-md-3'),
-                         _class='col-md-10 col-md-offset-1 col-xs-12')
+            options.append({
+                "type": "complementary",
+                "Name": T('Complementary'),
+            })
 
             options.append(option)
 
