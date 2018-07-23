@@ -734,12 +734,12 @@ def payment_attendance_list():
     fields = [db.teachers_payment_attendance_list.Name,
               ]
 
-    links = [lambda row: A(SPAN(_class="buttontext button",
-                                    _title=T("Attendance List Rates")),
-                               SPAN(_class="glyphicon glyphicon-edit"),
-                               " " + T("Attendance List Rates"),
+    links = [
+
+            lambda row: A(SPAN(os_gui.get_fa_icon('fa-usd'),
+                               " " + T("Rates")),
                                _class="btn btn-default btn-sm",
-                               _href=URL('payment_attendance_list_rates',
+                               _href=URL('teachers', 'payment_attendance_list_rates',
                                          vars={'tpalID':row.id})),
             lambda row: A(SPAN(_class="buttontext button",
                                     _title=T("Class types")),
@@ -751,7 +751,7 @@ def payment_attendance_list():
              lambda row: os_gui.get_button('edit',
                                            URL('payment_attendance_list_edit',
                                                vars={'tpalID': row.id}),
-                                           T("Edit this attendance list")),
+                                           T("Edit Name of the Attendance List")),
              payment_attendance_list_get_link_archive]
     maxtextlengths = {'teachers_payment_attendance_list.Name': 40}
     headers = {'payment_attendance_list': 'Sorting'}
@@ -940,7 +940,7 @@ def payment_attendance_list_rates():
     from openstudio.os_forms import OsForms
 
     response.title = T("Payment Attendance List")
-    response.subtitle = T('Edit Classtype/s connected to this list')
+    response.subtitle = T('Classtype/s connected to this list')
     response.view = 'general/only_content.html'
     tpalID = request.vars['tpalID']
 
@@ -1005,6 +1005,66 @@ def payment_attendance_list_archive():
         # cache_clear_payment_attendance_list()
 
     redirect(URL('payment_attendance_list'))
+
+
+def payment_attendance_list_rates():
+    '''
+    This function creates a page to add list rates to a payment attendance list
+    '''
+    # from openstudio.os_forms import OsForms
+    response.title = T("Payment Attendance List Rates")
+    response.subtitle = T('Add/Edit list rates')
+    response.view = 'general/only_content.html'
+    tpalID = request.vars['tpalID']
+
+
+    return_url = URL('payment_attendance_list')
+
+    header = THEAD(TR(
+        TH(db.teachers_payment_attendance_list_rates.AttendanceNR.label),
+        TH(db.teachers_payment_attendance_list_rates.Rate.label)
+    ))
+
+    table = TABLE(header, _class='table table-hover table-striped')
+
+    query = (db.teachers_payment_attendance_list_rates.teachers_payment_attendance_list_id == tpalID)
+
+    rows = db(query).select(
+                            db.teachers_payment_attendance_list_rates.AttendanceNR,
+                            db.teachers_payment_attendance_list_rates.Rate,
+                            orderby=db.teachers_payment_attendance_list_rates.AttendanceNR)
+
+    for i, row in enumerate(rows):
+        repr_row = list(rows[i:i + 1].render())[0]
+
+
+        tr = TR(
+            TD(repr_row.AttendanceNR),
+            TD(repr_row.Rate))
+
+        table.append(tr)
+    add= os_gui.get_button('add', URL('payment_attendance_list_rates_add'), T("Add a new attendance list rate"), _class='pull-left')
+    content = DIV(table + add)
+    back = URL(return_url)
+
+    return dict(content=content,
+                back=back,
+                )
+
+
+# def payment_attendance_list_rates_add():
+
+
+
+# def payment_attendance_list_rates_count(tpalID):
+#     query= (db.teachers_payment_attendance_list_rates.teachers_payment_attendance_list_id == tpalID)
+#     count = db(query).count()
+#     if not count:
+#         count=0
+#
+#     return {'AttendanceNR':count+1, }
+
+
 
 
 def index_get_menu(page=None):

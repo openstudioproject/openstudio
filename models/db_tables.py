@@ -1479,12 +1479,14 @@ def define_teachers_payment_attendance_list():
               required=True,
               requires=IS_NOT_EMPTY(),
               label=T("Name")),
+        Field('tax_rates_id', db.tax_rates,
+              label=T('Tax rate')),
         format='%(Name)s')
 
 
 def define_teachers_payment_attendance_list_rates():
     db.define_table('teachers_payment_attendance_list_rates',
-        Field('teachers_payments_attendance_list_id',
+        Field('teachers_payment_attendance_list_id',
               db.teachers_payment_attendance_list,
               readable=False,
               writable=False,
@@ -1493,14 +1495,13 @@ def define_teachers_payment_attendance_list_rates():
         Field('AttendanceNR', 'integer',
               requires=IS_INT_IN_RANGE(0, 999999),
                label = T("Attendance Number"),
+              writable=False
             ),
         Field('Rate','double',
               requires=IS_FLOAT_IN_RANGE(0, 99999999, dot='.',
                                          error_message=T('Too small or too large')),
               label=T("Attendance List Rate excl. VAT"),
               ),
-        Field('tax_rates_id', db.tax_rates,
-              label=T('Tax rate'))
         )
 
 
@@ -1512,7 +1513,7 @@ def define_teachers_payment_attendance_list_school_classtypes():
               writable=False,
               requires=IS_NOT_EMPTY()),
         Field('school_classtypes_id',
-              db.school_classtypes,
+              db.school_classtypes
 
               ))
 
