@@ -1,26 +1,26 @@
 import T from './types'
 
 
-export const requestCheckinClassAttendance = () =>
+export const requestCheckinBookingOptions = () =>
     ({
-        type: T.CHECKIN_REQUEST_CLASS_ATTENDANCE
+        type: T.CHECKIN_REQUEST_BOOKING_OPTIONS
     })
 
-export const receiveCheckinClassAttendance = (data) =>
+export const receiveCheckinBookingOptions = (data) =>
     ({
-        type: T.CHECKIN_RECEIVE_CLASS_ATTENDANCE,
+        type: T.CHECKIN_RECEIVE_BOOKING_OPTIONS,
         data
     })
 
-export const setCheckinClassAttendanceLoaded = (loaded) =>
+export const setCheckinBookingOptionsLoaded = (loaded) =>
     ({
-        type: T.CHECKIN_SET_CLASS_ATTENDANCE_LOADED,
+        type: T.CHECKIN_SET_BOOKING_OPTIONS_LOADED,
         loaded
     })
 
-export const setCheckinClassAttendanceLoading = (loading) =>
+export const setCheckinBookingOptionsLoading = (loading) =>
     ({
-        type: T.CHECKIN_SET_CLASS_ATTENDANCE_LOADING,
+        type: T.CHECKIN_SET_BOOKING_OPTIONS_LOADING,
         loading
     })
 
