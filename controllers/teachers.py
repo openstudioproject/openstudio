@@ -1008,61 +1008,122 @@ def payment_attendance_list_archive():
 
 
 def payment_attendance_list_rates():
-    '''
-    This function creates a page to add list rates to a payment attendance list
-    '''
-    # from openstudio.os_forms import OsForms
+    """
+            Lists rates for the attendance list and shows an add form at the top of the
+            page, intended to be used as LOAD component
+            request.vars['tpalID'] is expected to be teachers payment attendance list Id
+        """
+    # call js for styling the form
+    response.js = 'set_form_classes();'
     response.title = T("Payment Attendance List Rates")
     response.subtitle = T('Add/Edit list rates')
     response.view = 'general/only_content.html'
+
     tpalID = request.vars['tpalID']
 
+    # Ugly hack to reload div that contains the reload after deleting an item
+    # otherwise after deleting, further submitting becomes impossible
+    if request.extension == 'load':
+        if 'reload_list' in request.vars:
+            response.js += "$('#" + request.cid + "').get(0).reload()"
 
-    return_url = URL('payment_attendance_list')
+    form = list_items_get_form_add(tpalID)
 
-    header = THEAD(TR(
-        TH(db.teachers_payment_attendance_list_rates.AttendanceNR.label),
-        TH(db.teachers_payment_attendance_list_rates.Rate.label)
-    ))
+    content = DIV(form.custom.begin)
 
-    table = TABLE(header, _class='table table-hover table-striped')
+    table = TABLE(THEAD(TR(
+        # TH(_class='Sorting'),
+        TH(T('AttendanceNR'), _class='AttendanceNR'),
+        TH(T('Rate'), _class='Rate'),
+        TH(),
+        _class='header')),
+        TR(
+           TD(),
+           # TD(form.custom.widget.AttendanceNR),
+           TD(form.custom.widget.Rate),
+
+           TD(),
+           TD(DIV(form.custom.submit, _class='pull-right'))),
+        _class='table table-hover table-striped invoice-items small_font',
+        _id=tpalID)  # set invoice id as table id, so we can pick it up from js when calling items_update_sorting() using ajaj
 
     query = (db.teachers_payment_attendance_list_rates.teachers_payment_attendance_list_id == tpalID)
-
-    rows = db(query).select(
-                            db.teachers_payment_attendance_list_rates.AttendanceNR,
-                            db.teachers_payment_attendance_list_rates.Rate,
+    rows = db(query).select(db.teachers_payment_attendance_list_rates.ALL,
                             orderby=db.teachers_payment_attendance_list_rates.AttendanceNR)
 
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
+        btn_vars = {'tpalID': tpalID, 'ttpalID': row.id}
+        btn_size = 'btn-xs'
+        buttons = DIV(_class='btn-group btn-group-sm pull-right')
+        permission = auth.has_membership(group_id='Admins') or \
+                     auth.has_permission('update', 'teachers_payment_attendance_list_rates')
+        if permission:
+            btn_edit = os_gui.get_button('edit_notext',
+                                         URL('payment_attendance_list_rate_edit',
+                                             vars=btn_vars),
+                                         cid=request.cid)
+            buttons.append(btn_edit)
+
+            # sort_handler = SPAN(_title=T("Click, hold and drag to change the order of items"),
+            #                     _class='glyphicon glyphicon-option-vertical grey')
+        # else:
+            # sort_handler = ''
+
+        permission = auth.has_membership(group_id='Admins') or \
+                     auth.has_permission('delete', 'teachers_payment_attendance_list_rates')
+        if permission:
+            btn_delete = os_gui.get_button('delete_notext',
+                                           URL('payment_attendance_list_rate_delete_confirm',
+                                               vars=btn_vars),
+                                           cid=request.cid)
+            buttons.append(btn_delete)
 
         tr = TR(
-            TD(repr_row.AttendanceNR),
-            TD(repr_row.Rate))
+            # TD(sort_handler, _class='sort-handler movable'),
+                TD(row.AttendanceNR),
+                TD(row.Rate, _class='Rate'),
+                TD(buttons))
 
         table.append(tr)
-    add= os_gui.get_button('add', URL('payment_attendance_list_rates_add'), T("Add a new attendance list rate"), _class='pull-left')
-    content = DIV(table + add)
-    back = URL(return_url)
-
-    return dict(content=content,
-                back=back,
-                )
-
-
-# def payment_attendance_list_rates_add():
 
 
 
-# def payment_attendance_list_rates_count(tpalID):
-#     query= (db.teachers_payment_attendance_list_rates.teachers_payment_attendance_list_id == tpalID)
-#     count = db(query).count()
-#     if not count:
-#         count=0
-#
-#     return {'AttendanceNR':count+1, }
+    content.append(table)
+    content.append(form.custom.end)
+    back = os_gui.get_button('back',URL('payment_attendance_list'))
+
+    return dict(content=content, back=back)
+
+
+
+
+
+def payment_attendance_list_rates_count(tpalID):
+    query= (db.teachers_payment_attendance_list_rates.teachers_payment_attendance_list_id == tpalID)
+    count = db(query).count()
+    if not count:
+        count=1
+    else:
+        count+=1
+    return count
+
+
+def list_items_get_form_add(tpalID):
+    """
+        Returns add form for invoice items
+    """
+    db.teachers_payment_attendance_list_rates.teachers_payment_attendance_list_id.default = tpalID
+
+    attendancenr = payment_attendance_list_rates_count(tpalID)
+    db.teachers_payment_attendance_list_rates.AttendanceNR.default = attendancenr
+
+    crud.messages.submit_button = T('Add')
+    crud.messages.record_created = T("Added item")
+    form = crud.create(db.teachers_payment_attendance_list_rates)
+
+    return form
 
 
 
