@@ -86,14 +86,9 @@ def get_user():
     #     return return_json_permissions_error()
     # Permissions error
 
-    print 'cookies:'
-    print request.cookies
-
     # get group membership
     membership = db.auth_membership(user_id=auth.user.id)
     group_id = membership.group_id
-
-    print group_id
 
     # get group permissions
     query = (db.auth_permission.group_id == group_id) & \
@@ -102,13 +97,10 @@ def get_user():
                             db.auth_permission.table_name)
     permissions = {}
     for row in rows:
-        print row
         if row.table_name in permissions:
             permissions[row.table_name].append(row.name)
         else:
             permissions[row.table_name] = [row.name]
-
-    print permissions
 
 
     return dict(profile=auth.user,
@@ -127,7 +119,6 @@ def get_classes():
     from openstudio.os_class_schedule import ClassSchedule
 
     time_from = (NOW_LOCAL - datetime.timedelta(hours=3)).time().strftime(TIME_FORMAT)
-    print time_from
 
     cs = ClassSchedule(
         TODAY_LOCAL,
@@ -135,3 +126,63 @@ def get_classes():
     )
 
     return dict(classes=cs.get_day_list())
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'classes_attendance'))
+def get_class_attendance():
+    """
+    List attendance for a class
+    :return:
+    """
+    from openstudio.os_attendance_helper import AttendanceHelper
+
+    clsID = request.vars['clsID']
+
+    set_headers()
+
+    ah = AttendanceHelper()
+    attendance = ah.get_attendance_rows(clsID, TODAY_LOCAL).as_list()
+
+    return dict(attendance=attendance)
+
+
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('create', 'classes_attendance'))
+def get_class_booking_options():
+    """
+    List booking options for a class for a given customer
+    :return:
+    """
+    from openstudio.os_attendance_helper import AttendanceHelper
+    from openstudio.os_customer import Customer
+
+    print request.vars
+
+    clsID = request.vars['clsID']
+    cuID = request.vars['cuID']
+
+    set_headers()
+
+    customer = Customer(cuID)
+    complementary_permission = (auth.has_membership(group_id='Admins') or
+                                auth.has_permission('complementary', 'classes_attendance'))
+
+    ah = AttendanceHelper()
+    options = ah.get_customer_class_booking_options(
+        clsID,
+        TODAY_LOCAL,
+        customer,
+        trial=True,
+        complementary=complementary_permission,
+        list_type='attendance'
+    )
+
+    return dict(options = options)
+
+
+
+
+
