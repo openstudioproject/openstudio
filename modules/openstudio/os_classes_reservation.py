@@ -69,14 +69,12 @@ class ClassesReservation:
                 attending = []
                 rows = ah.get_attendance_rows(cls['ClassesID'], date)
                 for row in rows:
-                    # print row
                     if row.classes_attendance.BookingStatus == 'booked' or \
                        row.classes_attendance.BookingStatus == 'attending':
                         attending.append(row.auth_user.id)
 
                 # add customer to list in case not already attending
                 if not self.row.auth_customer_id in attending:
-                    #print res.auth_customer_id
                     value = {'clsID':cls['ClassesID'],
                              'date':date}
                     data.append(value)
@@ -129,70 +127,3 @@ class ClassesReservation:
             credits -= 1
 
         return classes_booked
-
-
-    # Use the function below as template to get classes in a month for a specific reservation
-    #
-    # def _get_customers_list_classes_recurring_reservations(self, year, month):
-    #     """
-    #         Get list of classes a customer has a reservation for in a selected month
-    #     """
-    #     from os_attendance_helper import AttendanceHelper
-    #     from os_class_schedule import ClassSchedule
-    #     from os_classes_reservations import ClassesReservations
-    #     db = current.db
-    #
-    #     ah = AttendanceHelper()
-    #     crh = ClassesReservations()
-    #     first_day = datetime.date(year, month, 1)
-    #     last_day = get_last_day_month(first_day)
-    #
-    #     data = {}
-    #
-    #     date = first_day
-    #     while date <= last_day:
-    #         # get list of classes on date
-    #         #print date
-    #
-    #         cs = ClassSchedule(date)
-    #         #print 'getting classes'
-    #         classes = cs.get_day_list()
-    #         reservations = crh.get_recurring_reservations_on_date(date)
-    #         for cls in classes:
-    #             if cls['Cancelled'] or cls['Holiday']:
-    #                 # Class is cancelled or in a holiday, nothing to do
-    #                 continue
-    #
-    #             # Get list of bookings with status "attending" or "booked"
-    #             #print 'getting attendance for class'
-    #
-    #             attending = []
-    #             rows = ah.get_attendance_rows(cls['ClassesID'], date)
-    #             for row in rows:
-    #                 # print row
-    #                 if row.classes_attendance.BookingStatus == 'booked' or \
-    #                    row.classes_attendance.BookingStatus == 'attending':
-    #                     attending.append(row.auth_user.id)
-    #
-    #             # if classes_id found on both lists, add class to reservations list for that customer
-    #             for res in reservations:
-    #                 if res.classes_id == cls['ClassesID']:
-    #                     # add customer to list in case not already attending
-    #                     if not res.auth_customer_id in attending:
-    #                         #print res.auth_customer_id
-    #
-    #
-    #                         value = {'clsID':cls['ClassesID'],
-    #                                  'date':date}
-    #
-    #                         # print value
-    #                         # print '###############'
-    #
-    #                         try:
-    #                             data[res.auth_customer_id].append(value)
-    #                         except KeyError:
-    #                             data[res.auth_customer_id] = [value]
-    #
-    #         date += datetime.timedelta(days=1)
-    #
-    #     return data

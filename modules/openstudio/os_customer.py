@@ -616,8 +616,6 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
                                 left=left,
                                 orderby=~db.classes_reservation.Startdate)
 
-        print db._lastsql[0]
-
         return rows
 
 

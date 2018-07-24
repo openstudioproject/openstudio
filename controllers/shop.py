@@ -401,7 +401,7 @@ def order_received():
 
     # Send sys notification
     os_mail = OsMail()
-    print os_mail.send_notification(
+    os_mail.send_notification(
         'order_created',
         customers_orders_id=coID
     )
@@ -1623,7 +1623,8 @@ def class_book_options_get_enrollment_options(clsID, date, date_formatted, featu
     ah = AttendanceHelper()
     options = DIV(
         BR(),
-        T("In case you would like to join this class every week, you can enroll and we'll reserve a space for you!"),
+        T("In case you would like to join this class every week, you can enroll and we'll reserve a space for you!"), BR(),
+        T("You can enroll using the following subscription(s)"),
         BR(), BR(),
         ah.get_customer_class_enrollment_options(
             clsID,
@@ -1720,10 +1721,8 @@ def class_enroll():
         from openstudio.os_classes_reservation import ClassesReservation
 
         clrID = form.vars.id
-        start_date = form.vars.Startdate
 
         reservation = ClassesReservation(clrID)
-
         classes_booked = reservation.book_classes(
             csID=csID,
             date_from=date,
