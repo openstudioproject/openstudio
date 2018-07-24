@@ -1938,6 +1938,15 @@ def test_reservation_add(client, web2py):
     assert clr.Startdate == datetime.date(2014, 1, 1)
     assert clr.Enddate == datetime.date(2014, 1, 31)
 
+    print web2py.db().select(web2py.db.classes_attendance.ALL)
+
+    # Check classes booked
+    query = (web2py.db.classes_attendance.ClassDate == datetime.date(2014, 1, 6)) & \
+            (web2py.db.classes_attendance.auth_customer_id == 1001) & \
+            (web2py.db.classes_attendance.BookingStatus == 'booked') & \
+            (web2py.db.classes_attendance.classes_id == 1)
+    assert web2py.db(query).count() == 1
+
 
 def test_reservation_edit(client, web2py):
     """
