@@ -5131,7 +5131,7 @@ def load_list_get_reservation_list_buttons(row,
     customer = Customer(cuID)
     customer_name = customer.get_name()
 
-    recurring_url = URL('classes', 'reservation_add',
+    recurring_url = URL('classes', 'reservation_add_choose',
                         vars={'cuID'  : cuID,
                               'clsID' : clsID,
                               'date'  : date_formatted},

@@ -81,16 +81,22 @@ def index():
         else:
             session.flash = T('Already up to date')
 
+        if version < 2018.9:
+            print version
+            upgrade_to_20189()
+            session.flash = T("Upgraded db to 2018.9")
+        else:
+            session.flash = T('Already up to date')
+
         # always renew permissions for admin group after update
         set_permissions_for_admin_group()
 
     set_version()
 
-    # Clear system properties cache
-    cache_clear_sys_properties()
-
-    # Clear menu cache
-    cache_clear_menu_backend()
+    ##
+    # clear cache
+    ##
+    cache.ram.clear(regex='.*')
 
     # Back to square one
     to_login()
@@ -406,4 +412,28 @@ def upgrade_to_20188():
     # clear cache
     ##
     cache.ram.clear(regex='.*')
+
+
+def upgrade_to_20189():
+    """
+        Upgrade operations to 2018.9
+    """
+    from openstudio.os_customer import Customer
+
+    # Link enrollments to subscriptions, where possible.
+
+    # List all active enrollments
+    query = ((db.classes_reservation.Enddate >= TODAY_LOCAL) |
+             (db.classes_reservation.Enddate == None)) & \
+            (db.classes_reservation.ResType == 'recurring')
+    rows = db(query).select(db.classes_reservation.ALL)
+    for row in rows:
+        customer = Customer(row.auth_customer_id)
+        # Check if customer has subscriptions today
+        subscriptions = customer.get_subscriptions_on_date(TODAY_LOCAL)
+        # If 1: link
+        # Else pass; 0 - nothing to link & 2 - no way to be certain which one
+        if subscriptions and len(subscriptions) == 1:
+            row.customers_subscriptions_id = subscriptions.first().customers_subscriptions.id
+            row.update_record()
 

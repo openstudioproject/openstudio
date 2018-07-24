@@ -1866,27 +1866,6 @@ def test_reservations(client, web2py):
     assert client.text.count('Trial class on 2014-01-06') == 1
 
 
-# def test_resevations_maxstudents_reached(client, web2py):
-#     """
-#         Does a warning message show on the reservations page when the
-#         reservations count exceeds the Maxstudents for a class?
-#     """
-#     prepare_classes(web2py)
-#
-#     # lower number of available spaces to get a warning
-#     cls = web2py.db.classes(1)
-#     cls.Maxstudents = 1
-#     cls.update_record()
-#
-#     web2py.db.commit()
-#
-#     url = '/classes/reservations?clsID=1&date=2014-01-06'
-#     client.get(url)
-#     assert client.status == 200
-#
-#     assert 'Warning' in client.text
-
-
 def test_reservation_maxreservations_recurring_reached(client, web2py):
     """
         Does a warning message show on the reservations page when the
@@ -1915,32 +1894,87 @@ def test_reservation_maxreservations_recurring_reached(client, web2py):
     assert 'Warning' in client.text
 
 
-# def test_reservation_maxreservations_dropin_trial_reached(client, web2py):
-#     """
-#         Does a warning message show on the reservations page when the
-#         reservations count exceeds the Maxstudents for a class?
-#     """
-#     prepare_classes(web2py)
-#
-#     # lower number of available spaces to get a warning
-#     cls = web2py.db.classes(1)
-#     cls.MaxReservationsDT = 1
-#     cls.update_record()
-#
-#     # another dropin class reservation
-#     web2py.db.classes_reservation.insert(auth_customer_id=1002,
-#                                          classes_id='1',
-#                                          Startdate='2014-01-06',
-#                                          SingleClass=True,
-#                                          TrialClass=False)
-#
-#     web2py.db.commit()
-#
-#     url = '/classes/reservations?clsID=1&date=2014-01-06'
-#     client.get(url)
-#     assert client.status == 200
-#
-#     assert 'Warning' in client.text
+def test_reservation_choose(client, web2py):
+    """
+    Are allowed subscriptions listed?
+    """
+    url = '/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    prepare_classes(web2py)
+
+    url = '/classes/reservation_add_choose?clsID=1&cuID=1001&date=2014-01-01'
+    client.get(url)
+    assert client.status == 200
+
+    ssu = web2py.db.school_subscriptions(1)
+    assert ssu.Name in client.text
+
+
+def test_reservation_add(client, web2py):
+    """
+    Can we add a reservation?
+    """
+    url = '/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    prepare_classes(web2py, with_reservations=False)
+
+    url = '/classes/class_enroll?clsID=1&csID=1&cuID=1001&date=2014-01-06'
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        'Startdate': '2014-01-01',
+        'Enddate': '2014-01-31'
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+    clr = web2py.db.classes_reservation(1)
+    assert clr.Startdate == datetime.date(2014, 1, 1)
+    assert clr.Enddate == datetime.date(2014, 1, 31)
+
+    print web2py.db().select(web2py.db.classes_attendance.ALL)
+
+    # Check classes booked
+    query = (web2py.db.classes_attendance.ClassDate == datetime.date(2014, 1, 6)) & \
+            (web2py.db.classes_attendance.auth_customer_id == 1001) & \
+            (web2py.db.classes_attendance.BookingStatus == 'booked') & \
+            (web2py.db.classes_attendance.classes_id == 1)
+    assert web2py.db(query).count() == 1
+
+
+def test_reservation_edit(client, web2py):
+    """
+    Can we edit a reservation?
+    """
+    url = '/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    prepare_classes(web2py)
+
+    url = '/classes/reservation_edit?clsID=1&crID=1&date=2014-01-06'
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        'id': 1,
+        'Startdate': '2014-01-21',
+        'Enddate': '2014-01-31'
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+    clr = web2py.db.classes_reservation(1)
+    assert clr.Startdate == datetime.date(2014, 1, 21)
+    assert clr.Enddate == datetime.date(2014, 1, 31)
+
 
 def test_reservations_recurring(client, web2py):
     """

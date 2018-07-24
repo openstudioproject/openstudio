@@ -142,7 +142,10 @@ def index_get_upcoming_classes(customer):
 
 
     box_tools = ''
-    if len(customer.get_reservations_rows(TODAY_LOCAL, recurring_only=True)) > 0:
+
+    if len(customer.get_reservations_rows(
+            TODAY_LOCAL + datetime.timedelta(days=14),
+            recurring_only=True)) > 0:
         box_tools = A(T('Manage enrollments'),
                       _href=URL('profile', 'enrollments'),
                       _class='btn btn-box-tool')
@@ -1257,11 +1260,14 @@ def enrollment_end():
     db.classes_reservation.id.writable = False
     db.classes_reservation.Startdate.readable = False
     db.classes_reservation.Startdate.writable = False
+    db.classes_reservation.Enddate.comment = BR()
 
     form = SQLFORM(db.classes_reservation,
                    clrID,
-                   formstyle='bootstrap3_stacked',
+                   formstyle='divs',
                    submit_button=T("End enrollment"))
+
+    form.add_button(T("Cancel"), return_url)
 
     if form.process().accepted:
         session.flash = T('Saved')
