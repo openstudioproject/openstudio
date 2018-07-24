@@ -1097,7 +1097,40 @@ def payment_attendance_list_rates():
     return dict(content=content, back=back)
 
 
+@auth.requires_login()
+def payment_attendance_list_rate_edit():
+    """
+        Edit a supplier
+        request.vars['tpalID'] is expected to be teachers payment attendance list Id
+    """
+    from openstudio.os_forms import OsForms
 
+    response.title = T('Teachers Payment Attendance List')
+    response.subtitle = T('Edit')
+    response.view = 'general/only_content.html'
+    ttpalID = request.vars['ttpalID']
+    tpalID = request.vars['tpalID']
+
+    return_url = URL('payment_attendance_list_rates', vars = dict(tpalID=tpalID))
+
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_update(
+        db.teachers_payment_attendance_list_rates,
+        return_url,
+        ttpalID
+    )
+
+    form = result['form']
+    back = os_gui.get_button('back', return_url)
+
+    content = DIV(
+        H4(T('Edit List Rate')),
+        form
+    )
+
+    return dict(content=content,
+                save=result['submit'],
+                back=back)
 
 
 def payment_attendance_list_rates_count(tpalID):
