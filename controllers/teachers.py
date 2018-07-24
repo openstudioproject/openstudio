@@ -1074,7 +1074,8 @@ def payment_attendance_list_rates():
 
         permission = auth.has_membership(group_id='Admins') or \
                      auth.has_permission('delete', 'teachers_payment_attendance_list_rates')
-        if permission:
+        count = payment_attendance_list_rates_count(tpalID)
+        if permission and row.AttendanceNR==count:
             btn_delete = os_gui.get_button('delete_notext',
                                            URL('payment_attendance_list_rate_delete',
                                                vars=btn_vars),
@@ -1157,9 +1158,8 @@ def payment_attendance_list_rates_count(tpalID):
     query= (db.teachers_payment_attendance_list_rates.teachers_payment_attendance_list_id == tpalID)
     count = db(query).count()
     if not count:
-        count=1
-    else:
-        count+=1
+        count=0
+
     return count
 
 
@@ -1170,7 +1170,7 @@ def list_items_get_form_add(tpalID):
     db.teachers_payment_attendance_list_rates.teachers_payment_attendance_list_id.default = tpalID
 
     attendancenr = payment_attendance_list_rates_count(tpalID)
-    db.teachers_payment_attendance_list_rates.AttendanceNR.default = attendancenr
+    db.teachers_payment_attendance_list_rates.AttendanceNR.default = attendancenr +1
 
     crud.messages.submit_button = T('Add')
     crud.messages.record_created = T("Added item")
