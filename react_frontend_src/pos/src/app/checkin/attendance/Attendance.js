@@ -6,6 +6,20 @@ import PageTemplate from "../../../components/PageTemplate"
 
 import AttendanceList from "./AttendanceList"
 
+
+const InputGroupSearch = ({placeholder, onChange=f=>f}) => 
+        <div className="input-group">
+            <span className="input-group-addon">
+                <i className="fa fa-search"></i>
+            </span>
+            <input type="text"
+                className="form-control"
+                placeholder={placeholder} 
+                onChange={onChange} />
+                {/* placeholder="Search..." /> */}
+        </div>
+
+
 class Attendance extends Component {
     constructor(props) {
         super(props)
@@ -30,6 +44,10 @@ class Attendance extends Component {
 
     }
 
+    onChange(e) {
+        console.log(e.target.value)
+    }
+
     render() {
         return (
             <PageTemplate app_state={this.props.app}>
@@ -37,6 +55,8 @@ class Attendance extends Component {
                     (!this.props.attendance.loaded) ? 
                         <div>Loading attendance, please wait...</div> :
                         <section className="checkin_attendance">
+                            <InputGroupSearch placeholder={this.props.intl.formatMessage({ id: 'app.general.placeholders.search' })}
+                                              onChange={this.onChange.bind(this)} /> <br />
                             <AttendanceList attendance_items={this.props.attendance.data} />
                         </section>
                 }
