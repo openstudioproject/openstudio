@@ -24,4 +24,8 @@ export const setCheckinClassAttendanceLoading = (loading) =>
         loading
     })
 
-    
+export const setCheckinClassAttendanceSearchCustomerID = (search_id) =>
+    ({
+        type: T.CHECKIN_SET_CLASS_ATTENDANCE_SEARCH_CUSTOMER_ID,
+        search_id,
+    })

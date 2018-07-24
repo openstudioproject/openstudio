@@ -19,6 +19,11 @@ export const checkinAttendanceReducer = (state = {}, action={ type: null }) => {
                 loaded: true,
                 data: action.data.attendance,
             }
+        case T.CHECKIN_SET_CLASS_ATTENDANCE_SEARCH_CUSTOMER_ID:
+            return {
+                search_customer_id: action.search_customer_id,
+                ...state,
+            }
         default:
             return {
                 ...state
