@@ -1296,6 +1296,14 @@ def test_class_enroll(client, web2py):
     assert web2py.db(query).count() == 1
 
 
+    # Check classes booked
+    query = (web2py.db.classes_attendance.ClassDate == datetime.date(2014, 1, 6)) & \
+            (web2py.db.classes_attendance.auth_customer_id == 300) & \
+            (web2py.db.classes_attendance.BookingStatus == 'booked') & \
+            (web2py.db.classes_attendance.classes_id == 1)
+    assert web2py.db(query).count() == 1
+
+
 def test_class_add_to_cart(client, web2py):
     """
         Can we add a drop in class to the shopping cart? 
