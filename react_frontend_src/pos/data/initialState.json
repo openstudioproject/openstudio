@@ -22,7 +22,8 @@
     "checkin_attendance": {
         "loading": false,
         "loaded": false,
-        "data": {}
+        "data": {},
+        "searchTimeout": 0
     },
     "checkin_book": {
         "loading": false,

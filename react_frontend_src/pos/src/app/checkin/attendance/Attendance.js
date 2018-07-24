@@ -13,18 +13,29 @@ const InputGroupSearch = ({placeholder, onChange=f=>f}) =>
             <i className="fa fa-search"></i>
         </span>
         <input type="text"
-            className="form-control"
-            placeholder={placeholder} 
-            onChange={onChange} />
+               className="form-control"
+               placeholder={placeholder} 
+               onChange={onChange}
+               ref={input => input && input.focus()} />
             {/* placeholder="Search..." /> */}
     </div>
 
+
+function isInt(value) {
+    return !isNaN(value) && 
+           parseInt(Number(value)) == value && 
+           !isNaN(parseInt(value, 10));
+  }
 
 class Attendance extends Component {
     constructor(props) {
         super(props)
         console.log(props)
     }
+
+    // state = {
+    //     typingTimeout: 0
+    // }
 
     PropTypes = {
         intl: intlShape.isRequired,
@@ -44,10 +55,57 @@ class Attendance extends Component {
 
     }
 
-    onChange(e) {
-        console.log(e.target.value)
+    componentDidMount() {
+
     }
 
+    toBookingOptions(clsID, value, history) {
+        if (isInt(value)) {
+            history.push('/checkin/book/' + clsID + '/' + value)
+        }
+        console.log(value)
+        console.log(isInt(value))
+    }
+
+    onChange(e) {
+        const value = e.target.value
+        const state = this.props.attendance
+        console.log("timeout: " + state.searchTimeout)
+        if ( state.searchTimeout ) {
+            this.props.clearCheckinSearchTimeout()
+            console.log('reset timeout')
+        }
+
+        const history = this.props.history
+        const clsID = this.props.match.params.clsID
+        let timeout
+        this.props.setCheckinSearchTimeout(
+            setTimeout(() => this.toBookingOptions(clsID, value, history), 
+                (isInt(value)) ? timeout = 225 : timeout = 750)
+        )
+        // // this.props.setCheckinSearchTimeout(
+        // this.setState({
+        //     typingTimeout: setTimeout(() => this.toBookingOptions(clsID, value, history), 1000)
+        // })
+    }
+    // onChange(e) {
+    //     const value = e.target.value
+    //     const state = this.props.attendance
+    //     console.log(this.state.typingTimeout)
+    //     if ( this.state.typingTimeout ) {
+    //         clearTimeout(this.state.typingTimeout)
+    //     }
+
+    //     const history = this.props.history
+    //     const clsID = this.props.match.params.clsID
+    //     // this.props.setCheckinSearchTimeout(
+    //     this.setState({
+    //         typingTimeout: setTimeout(() => this.toBookingOptions(clsID, value, history), 1000)
+    //     })
+    // }
+
+
+    
     render() {
         return (
             <PageTemplate app_state={this.props.app}>
