@@ -1050,7 +1050,8 @@ def payment_attendance_list_rates():
     query = (db.teachers_payment_attendance_list_rates.teachers_payment_attendance_list_id == tpalID)
     rows = db(query).select(db.teachers_payment_attendance_list_rates.ALL,
                             orderby=db.teachers_payment_attendance_list_rates.AttendanceNR)
-
+    delete_onclick = "return confirm('" + \
+                     T('Remove List Rate? ') + "');"
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
@@ -1075,9 +1076,10 @@ def payment_attendance_list_rates():
                      auth.has_permission('delete', 'teachers_payment_attendance_list_rates')
         if permission:
             btn_delete = os_gui.get_button('delete_notext',
-                                           URL('payment_attendance_list_rate_delete_confirm',
+                                           URL('payment_attendance_list_rate_delete',
                                                vars=btn_vars),
-                                           cid=request.cid)
+                                            onclick=delete_onclick)
+
             buttons.append(btn_delete)
 
         tr = TR(
@@ -1131,6 +1133,24 @@ def payment_attendance_list_rate_edit():
     return dict(content=content,
                 save=result['submit'],
                 back=back)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('delete', 'invoices_items'))
+def payment_attendance_list_rate_delete():
+    """
+        Delete rate from attendance list
+    """
+    tpalID = request.vars['tpalID']
+    ttpalID = request.vars['ttpalID']
+
+    query = (db.teachers_payment_attendance_list_rates.id == ttpalID)
+    db(query).delete()
+
+
+    session.flash = T('Deleted item')
+
+    redirect(URL('payment_attendance_list_rates', vars=dict(tpalID=tpalID)))
 
 
 def payment_attendance_list_rates_count(tpalID):
