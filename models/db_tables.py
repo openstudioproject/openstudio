@@ -4775,7 +4775,7 @@ def define_customers_shop_features():
               label=T('Memberships')),
         Field('Subscriptions', 'boolean',
               default=True,
-              label=T('Subscriptions [BETA]')),
+              label=T('Subscriptions')),
         Field('Classes', 'boolean',
               default=True,
               label=T('Classes')),
