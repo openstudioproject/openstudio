@@ -1184,15 +1184,12 @@ def list_items_get_form_add(tpalID):
 def index_get_menu(page=None):
     pages = []
 
-
-    if auth.has_membership(group_id='Admins') or \
-       auth.has_permission('read', 'teachers'):
-        pages.append(['teachers',
-                      T("Teachers"),
-                      URL("index")])
+    pages.append(['index',
+                  T("Teachers"),
+                  URL("index")])
     if auth.has_membership(group_id='Admins') or \
             auth.has_permission('read', 'payment_attendance_list'):
-        pages.append(['Payment_attendance_list',
+        pages.append(['payment_attendance_list',
                       T("Payment Attendance Lists"),
                       URL("teachers", "payment_attendance_list")])
 
