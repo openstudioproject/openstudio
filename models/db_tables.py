@@ -1480,7 +1480,8 @@ def define_teachers_payment_attendance_list():
               requires=IS_NOT_EMPTY(),
               label=T("Name")),
         Field('tax_rates_id', db.tax_rates,
-              label=T('Tax rate')),
+              label=T('Tax rate'),
+              comment=T("Tax rate applied to items in this list")),
         format='%(Name)s')
 
 
