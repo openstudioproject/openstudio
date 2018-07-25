@@ -733,6 +733,7 @@ def payment_attendance_lists():
 
     fields = [
         db.teachers_payment_attendance_lists.Name,
+        db.teachers_payment_attendance_lists.tax_rates_id,
     ]
 
     links = [
@@ -774,7 +775,7 @@ def payment_attendance_lists():
     add_url = URL('payment_attendance_list_add')
     add = os_gui.get_button('add', add_url, T("Add a new attendance list"), _class='pull-right')
     archive_buttons = os_gui.get_archived_radio_buttons(
-        session.teachers_payment_attendance_list_show)
+        session.teachers_payment_attendance_lists_show)
 
     back = DIV(add, archive_buttons)
     menu = index_get_menu(request.function)
@@ -784,6 +785,13 @@ def payment_attendance_lists():
     return dict(back=back,
                 menu=menu,
                 content=content)
+
+
+def payment_attendance_list_add_edit_return_url(var=None):
+    """
+    URL to return back to list
+    """
+    return URL('payment_attendance_lists')
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -797,7 +805,7 @@ def payment_attendance_list_add():
     response.title = T("Payment Attendance List")
     response.subtitle = T('New Payment Attendance List')
     response.view = 'general/only_content.html'
-    return_url = URL('payment_attendance_lists')
+    return_url = payment_attendance_list_add_edit_return_url()
 
     os_forms = OsForms()
     result = os_forms.get_crud_form_create(
@@ -833,7 +841,7 @@ def payment_attendance_list_edit():
     response.view = 'general/only_content.html'
     tpalID = request.vars['tpalID']
 
-    return_url = URL('payment_attendance_lists')
+    return_url = payment_attendance_list_add_edit_return_url()
 
     os_forms = OsForms()
     result = os_forms.get_crud_form_update(
@@ -869,7 +877,7 @@ def payment_attendance_list_school_classtypes():
     response.view = 'general/only_content.html'
     tpalID = request.vars['tpalID']
 
-    return_url = URL('payment_attendance_list')
+    return_url = payment_attendance_list_add_edit_return_url()
 
     table = TABLE(TR(TH(), TH(T('Class type')), _class='header'),
                   _class='table table-hover')
@@ -1012,7 +1020,7 @@ def payment_attendance_list_archive():
 
         # cache_clear_payment_attendance_list()
 
-    redirect(URL('payment_attendance_list'))
+    redirect(payment_attendance_list_add_edit_return_url())
 
 
 def payment_attendance_list_rates():
@@ -1102,7 +1110,10 @@ def payment_attendance_list_rates():
 
     content.append(focus_script)
 
-    back = os_gui.get_button('back',URL('payment_attendance_lists'))
+    back = os_gui.get_button(
+        'back',
+        payment_attendance_list_add_edit_return_url()
+    )
 
     return dict(content=content, back=back)
 
@@ -1201,7 +1212,7 @@ def index_get_menu(page=None):
     if auth.has_membership(group_id='Admins') or \
             auth.has_permission('read', 'payment_attendance_list'):
         pages.append(['payment_attendance_lists',
-                      T("Payment Attendance Lists"),
+                      T("Payment Attendance Lists [BETA]"),
                       URL("teachers", "payment_attendance_lists")])
 
     return os_gui.get_submenu(pages, page, _id='os-customers_edit_menu', horizontal=True, htype='tabs')

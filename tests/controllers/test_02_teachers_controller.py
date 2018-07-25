@@ -6,12 +6,15 @@
 import datetime
 
 from gluon.contrib.populate import populate
+from populate_os_tables import populate_teachers_payment_attendance_lists
+from populate_os_tables import populate_teachers_payment_attendance_lists_rates
 from populate_os_tables import populate_auth_user_teachers
 from populate_os_tables import populate_auth_user_teachers_fixed_rate_default
 from populate_os_tables import populate_auth_user_teachers_fixed_rate_class_1
 from populate_os_tables import populate_auth_user_teachers_fixed_rate_travel
 from populate_os_tables import prepare_classes
 from populate_os_tables import populate_customers
+from populate_os_tables import populate_tax_rates
 
 
 def next_weekday(d, weekday):
@@ -22,6 +25,79 @@ def next_weekday(d, weekday):
     if days_ahead <= 0: # Target day already happened this week
         days_ahead += 7
     return d + datetime.timedelta(days_ahead)
+
+
+def test_payment_attendance_lists(client, web2py):
+    """
+    Is the list showing?
+    """
+    populate_teachers_payment_attendance_lists(web2py)
+
+    url = '/teachers/payment_attendance_lists'
+    client.get(url)
+    assert client.status == 200
+
+    tpal = web2py.db.teachers_payment_attendance_lists(1)
+    assert tpal.Name in client.text
+
+
+def test_payment_attendance_list_add(client, web2py):
+    """
+    Can we add a list?
+    """
+    populate_tax_rates(web2py)
+
+    url = '/teachers/payment_attendance_list_add'
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        "Name": "Big list",
+        "tax_rates_id": 1
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+    tpal = web2py.db.teachers_payment_attendance_lists(1)
+    assert data['Name'] == tpal.Name
+
+
+def test_payment_attendance_list_edit(client, web2py):
+    """
+    Can we edit a list?
+    """
+    populate_teachers_payment_attendance_lists(web2py)
+
+    url = '/teachers/payment_attendance_list_edit?tpalID=1'
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        "id": 1,
+        "Name": "Big list",
+        "tax_rates_id": 1
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+    tpal = web2py.db.teachers_payment_attendance_lists(1)
+    assert data['Name'] == tpal.Name
+
+
+def test_payment_attendance_list_archive(client, web2py):
+    """
+    Is the list showing?
+    """
+    populate_teachers_payment_attendance_lists(web2py)
+
+    url = '/teachers/payment_attendance_list_archive?tpalID=1'
+    client.get(url)
+    assert client.status == 200
+
+    tpal = web2py.db.teachers_payment_attendance_lists(1)
+    assert tpal.Archived == True
 
 
 def test_payment_fixed_rate_default_add(client, web2py):
