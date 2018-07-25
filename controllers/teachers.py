@@ -1026,8 +1026,8 @@ def payment_attendance_list_rates():
     content = DIV(form.custom.begin)
 
     table = TABLE(THEAD(TR(
-            TH(T('AttendanceNR'), _class='AttendanceNR'),
-            TH(T('Rate'), _class='Rate'),
+            TH(T('# Attendance')),
+            TH(T('Rate')),
             TH(),
             _class='header')
             ),
@@ -1067,7 +1067,7 @@ def payment_attendance_list_rates():
 
         tr = TR(
                 TD(row.AttendanceNR),
-                TD(row.Rate, _class='Rate'),
+                TD(represent_float_as_amount(row.Rate), _class='Rate'),
                 TD(buttons))
 
         table.append(tr)
