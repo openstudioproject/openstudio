@@ -701,10 +701,10 @@ def payment_fixed_rate_travel_delete():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'teachers_payment_attendance_list'))
-def payment_attendance_list():
+               auth.has_permission('read', 'teachers_payment_attendance_lists'))
+def payment_attendance_lists():
     """
-    Display Payment Attendance List site
+    Display Payment Attendance Lists page
     :return:
     """
     response.title = T("Teachers")
@@ -715,24 +715,25 @@ def payment_attendance_list():
     response.view = 'general/tabs_menu.html'
 
     show = 'current'
-    query = (db.teachers_payment_attendance_list.Archived == False)
+    query = (db.teachers_payment_attendance_lists.Archived == False)
 
     if 'show_archive' in request.vars:
         show = request.vars['show_archive']
-        session.teachers_payment_attendance_list_show = show
+        session.teachers_payment_attendance_lists_show = show
         if show == 'current':
-            query = (db.teachers_payment_attendance_list.Archived == False)
+            query = (db.teachers_payment_attendance_lists.Archived == False)
         elif show == 'archive':
-            query = (db.teachers_payment_attendance_list.Archived == True)
+            query = (db.teachers_payment_attendance_lists.Archived == True)
     elif session.teachers_payment_attendance_list == 'archive':
-        query = (db.teachers_payment_attendance_list.Archived == True)
+        query = (db.teachers_payment_attendance_lists.Archived == True)
     else:
-        session.teachers_payment_attendance_list_show = show
+        session.teachers_payment_attendance_lists_show = show
 
-    db.teachers_payment_attendance_list.id.readable = False
+    db.teachers_payment_attendance_lists.id.readable = False
 
-    fields = [db.teachers_payment_attendance_list.Name,
-              ]
+    fields = [
+        db.teachers_payment_attendance_lists.Name,
+    ]
 
     links = [
 
@@ -752,7 +753,8 @@ def payment_attendance_list():
                                            URL('payment_attendance_list_edit',
                                                vars={'tpalID': row.id}),
                                            T("Edit Name of the Attendance List")),
-             payment_attendance_list_get_link_archive]
+             payment_attendance_lists_get_link_archive
+    ]
     maxtextlengths = {'teachers_payment_attendance_list.Name': 40}
     headers = {'payment_attendance_list': 'Sorting'}
     grid = SQLFORM.grid(query, fields=fields, links=links,
@@ -764,7 +766,7 @@ def payment_attendance_list():
                         details=False,
                         searchable=False,
                         csv=False,
-                        orderby=~db.teachers_payment_attendance_list.Name,
+                        orderby=~db.teachers_payment_attendance_lists.Name,
                         ui=grid_ui)
     grid.element('.web2py_counter', replace=None)  # remove the counter
     grid.elements('span[title=Delete]', replace=None)  # remove text from delete button
@@ -795,11 +797,11 @@ def payment_attendance_list_add():
     response.title = T("Payment Attendance List")
     response.subtitle = T('New Payment Attendance List')
     response.view = 'general/only_content.html'
-    return_url = URL('payment_attendance_list')
+    return_url = URL('payment_attendance_lists')
 
     os_forms = OsForms()
     result = os_forms.get_crud_form_create(
-        db.teachers_payment_attendance_list,
+        db.teachers_payment_attendance_lists,
         return_url,
     )
 
@@ -822,7 +824,7 @@ def payment_attendance_list_add():
 def payment_attendance_list_edit():
     """
         Edit an attendance list
-        request.vars['tpalID'] is expected to be db.teachers_payment_attendance_list.id
+        request.vars['tpalID'] is expected to be db.teachers_payment_attendance_lists.id
     """
     from openstudio.os_forms import OsForms
 
@@ -831,11 +833,11 @@ def payment_attendance_list_edit():
     response.view = 'general/only_content.html'
     tpalID = request.vars['tpalID']
 
-    return_url = URL('payment_attendance_list')
+    return_url = URL('payment_attendance_lists')
 
     os_forms = OsForms()
     result = os_forms.get_crud_form_update(
-        db.teachers_payment_attendance_list,
+        db.teachers_payment_attendance_lists,
         return_url,
         tpalID
     )
@@ -858,7 +860,7 @@ def payment_attendance_list_edit():
 def payment_attendance_list_school_classtypes():
     """
         Edit an attendance list
-        request.vars['tpalID'] is expected to be db.teachers_payment_attendance_list.id
+        request.vars['tpalID'] is expected to be db.teachers_payment_attendance_lists.id
     """
     from openstudio.os_forms import OsForms
 
@@ -871,8 +873,8 @@ def payment_attendance_list_school_classtypes():
 
     table = TABLE(TR(TH(), TH(T('Class type')), _class='header'),
                   _class='table table-hover')
-    query = (db.teachers_payment_attendance_list_school_classtypes.teachers_payment_attendance_list_id == tpalID)
-    rows = db(query).select(db.teachers_payment_attendance_list_school_classtypes.school_classtypes_id)
+    query = (db.teachers_payment_attendance_lists_school_classtypes.teachers_payment_attendance_lists_id == tpalID)
+    rows = db(query).select(db.teachers_payment_attendance_lists_school_classtypes.school_classtypes_id)
     classtypeids = []
     for row in rows:
         classtypeids.append(unicode(row.school_classtypes_id))
@@ -898,7 +900,7 @@ def payment_attendance_list_school_classtypes():
                             TD(row.Name)))
     form = FORM(table, _id='MainForm')
 
-    return_url = URL('payment_attendance_list')
+    return_url = URL('payment_attendance_lists')
 
     # make a list of all classtypes
     rows = db().select(db.school_classtypes.id)
@@ -909,12 +911,16 @@ def payment_attendance_list_school_classtypes():
     # After submitting, check which classtypes are 'on'
     if form.accepts(request, session):
         # remove all current records
-        db(db.teachers_payment_attendance_list_school_classtypes.teachers_payment_attendance_list_id == tpalID).delete()
+        query = (db.teachers_payment_attendance_lists_school_classtypes.teachers_payment_attendance_lists_id ==
+                 tpalID)
+        db(query).delete()
         # insert new records for teacher
         for classtypeID in classtypeids:
             if request.vars[classtypeID] == 'on':
-                db.teachers_payment_attendance_list_school_classtypes.insert(teachers_payment_attendance_list_id=tpalID,
-                                              school_classtypes_id=classtypeID)
+                db.teachers_payment_attendance_lists_school_classtypes.insert(
+                    teachers_payment_attendance_lists_id=tpalID,
+                    school_classtypes_id=classtypeID
+                )
 
         # Clear teachers (API) cache
         cache_clear_school_teachers()
@@ -927,7 +933,9 @@ def payment_attendance_list_school_classtypes():
 
     back = os_gui.get_button('back', return_url)
 
-    return dict(content=content, back=back, save=os_gui.get_submit_button('MainForm'))
+    return dict(content=content,
+                back=back,
+                save=os_gui.get_submit_button('MainForm'))
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -935,7 +943,7 @@ def payment_attendance_list_school_classtypes():
 def payment_attendance_list_rates():
     """
         Edit an attendance list
-        request.vars['tpalID'] is expected to be db.teachers_payment_attendance_list.id
+        request.vars['tpalID'] is expected to be db.teachers_payment_attendance_lists.id
     """
     from openstudio.os_forms import OsForms
 
@@ -948,7 +956,7 @@ def payment_attendance_list_rates():
 
     os_forms = OsForms()
     result = os_forms.get_crud_form_update(
-        db.teachers_payment_attendance_list_school_classtypes,
+        db.teachers_payment_attendance_lists_school_classtypes,
         return_url,
         tpalID
     )
@@ -966,12 +974,12 @@ def payment_attendance_list_rates():
                 back=back)
 
 
-def payment_attendance_list_get_link_archive(row):
-    '''
+def payment_attendance_lists_get_link_archive(row):
+    """
         Called from the index function. Changes title of archive button
         depending on whether an attendance list is archived or not
-    '''
-    row = db.teachers_payment_attendance_list(row.id)
+    """
+    row = db.teachers_payment_attendance_lists(row.id)
 
     if row.Archived:
         tt = T("Move to current")
@@ -984,15 +992,15 @@ def payment_attendance_list_get_link_archive(row):
 
 
 def payment_attendance_list_archive():
-    '''
+    """
         This function archives an attendance list
         request.vars[tpalID] is expected to be the payment attendance list ID
-    '''
+    """
     tpalID = request.vars['tpalID']
     if not tpalID:
         session.flash = T('Unable to (un)archive attendance list')
     else:
-        row = db.teachers_payment_attendance_list(tpalID)
+        row = db.teachers_payment_attendance_lists(tpalID)
 
         if row.Archived:
             session.flash = T('Moved to current')
@@ -1021,9 +1029,9 @@ def payment_attendance_list_rates():
 
     tpalID = request.vars['tpalID']
 
-    form = list_items_get_form_add(tpalID)
+    form = list_rates_get_form_add(tpalID)
 
-    content = DIV(form.custom.begin)
+    content = DIV(XML('<form id="MainForm" action="#" enctype="multipart/form-data" method="post">'))
 
     table = TABLE(THEAD(TR(
             TH(T('# Attendance')),
@@ -1031,20 +1039,20 @@ def payment_attendance_list_rates():
             TH(),
             _class='header')
             ),
-        _class='table table-hover table-striped',
+        _class='table table-hover table-striped table-condensed',
         _id=tpalID)
 
-    query = (db.teachers_payment_attendance_list_rates.teachers_payment_attendance_list_id == tpalID)
-    rows = db(query).select(db.teachers_payment_attendance_list_rates.ALL,
-                            orderby=db.teachers_payment_attendance_list_rates.AttendanceNR)
+    query = (db.teachers_payment_attendance_lists_rates.teachers_payment_attendance_lists_id == tpalID)
+    rows = db(query).select(db.teachers_payment_attendance_lists_rates.ALL,
+                            orderby=db.teachers_payment_attendance_lists_rates.AttendanceNR)
     delete_onclick = "return confirm('" + \
                      T('Remove List Rate? ') + "');"
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
-        btn_vars = {'tpalID': tpalID, 'ttpalID': row.id}
+        btn_vars = {'tpalID': tpalID, 'tpalrID': row.id}
         btn_size = 'btn-xs'
-        buttons = DIV(_class='btn-group btn-group-sm pull-right')
+        buttons = DIV(_class='pull-right')
         permission = auth.has_membership(group_id='Admins') or \
                      auth.has_permission('update', 'teachers_payment_attendance_list_rates')
         if permission:
@@ -1056,7 +1064,7 @@ def payment_attendance_list_rates():
 
         permission = auth.has_membership(group_id='Admins') or \
                      auth.has_permission('delete', 'teachers_payment_attendance_list_rates')
-        count = payment_attendance_list_rates_count(tpalID)
+        count = payment_attendance_list_count_rates(tpalID)
         if permission and row.AttendanceNR==count:
             btn_delete = os_gui.get_button('delete_notext',
                                            URL('payment_attendance_list_rate_delete',
@@ -1086,7 +1094,7 @@ def payment_attendance_list_rates():
     focus_script = SCRIPT(
         """
         $(document).ready(function() {
-            $("#teachers_payment_attendance_list_rates_Rate").focus()
+            $("#teachers_payment_attendance_lists_rates_Rate").focus()
         });
         """,
         _type="text/javascript"
@@ -1094,7 +1102,7 @@ def payment_attendance_list_rates():
 
     content.append(focus_script)
 
-    back = os_gui.get_button('back',URL('payment_attendance_list'))
+    back = os_gui.get_button('back',URL('payment_attendance_lists'))
 
     return dict(content=content, back=back)
 
@@ -1110,16 +1118,16 @@ def payment_attendance_list_rate_edit():
     response.title = T('Teachers Payment Attendance List')
     response.subtitle = T('Edit')
     response.view = 'general/only_content.html'
-    ttpalID = request.vars['ttpalID']
+    tpalrID = request.vars['tpalrID']
     tpalID = request.vars['tpalID']
 
     return_url = URL('payment_attendance_list_rates', vars = dict(tpalID=tpalID))
 
     os_forms = OsForms()
     result = os_forms.get_crud_form_update(
-        db.teachers_payment_attendance_list_rates,
+        db.teachers_payment_attendance_lists_rates,
         return_url,
-        ttpalID
+        tpalrID
     )
 
     form = result['form']
@@ -1144,17 +1152,17 @@ def payment_attendance_list_rate_delete():
     tpalID = request.vars['tpalID']
     ttpalID = request.vars['ttpalID']
 
-    query = (db.teachers_payment_attendance_list_rates.id == ttpalID)
+    query = (db.teachers_payment_attendance_lists_rates.id == ttpalID)
     db(query).delete()
 
 
-    session.flash = T('Deleted item')
+    session.flash = T('Deleted rate')
 
     redirect(URL('payment_attendance_list_rates', vars=dict(tpalID=tpalID)))
 
 
-def payment_attendance_list_rates_count(tpalID):
-    query= (db.teachers_payment_attendance_list_rates.teachers_payment_attendance_list_id == tpalID)
+def payment_attendance_list_count_rates(tpalID):
+    query= (db.teachers_payment_attendance_lists_rates.teachers_payment_attendance_lists_id == tpalID)
     count = db(query).count()
     if not count:
         count=0
@@ -1162,22 +1170,26 @@ def payment_attendance_list_rates_count(tpalID):
     return count
 
 
-def list_items_get_form_add(tpalID):
+def list_rates_get_form_add(tpalID):
     """
         Returns add form for invoice items
     """
-    db.teachers_payment_attendance_list_rates.teachers_payment_attendance_list_id.default = tpalID
+    from openstudio.os_forms import OsForms
 
-    attendancenr = payment_attendance_list_rates_count(tpalID)
-    db.teachers_payment_attendance_list_rates.AttendanceNR.default = attendancenr +1
+    db.teachers_payment_attendance_lists_rates.teachers_payment_attendance_lists_id.default = tpalID
 
-    crud.messages.submit_button = T('Add')
-    crud.messages.record_created = T("Added item")
-    form = crud.create(db.teachers_payment_attendance_list_rates)
+    number_of_rates = payment_attendance_list_count_rates(tpalID)
+    db.teachers_payment_attendance_lists_rates.AttendanceNR.default = number_of_rates + 1
 
-    return form
+    return_url = URL(vars={'tpalID': tpalID})
 
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_create(
+        db.teachers_payment_attendance_lists_rates,
+        return_url,
+    )
 
+    return result['form']
 
 
 def index_get_menu(page=None):
@@ -1188,26 +1200,9 @@ def index_get_menu(page=None):
                   URL("index")])
     if auth.has_membership(group_id='Admins') or \
             auth.has_permission('read', 'payment_attendance_list'):
-        pages.append(['payment_attendance_list',
+        pages.append(['payment_attendance_lists',
                       T("Payment Attendance Lists"),
-                      URL("teachers", "payment_attendance_list")])
+                      URL("teachers", "payment_attendance_lists")])
 
     return os_gui.get_submenu(pages, page, _id='os-customers_edit_menu', horizontal=True, htype='tabs')
 
-
-#
-# def teachers_get_menu(page=None):
-#     pages = []
-#
-#     pages.append(['index',
-#                    T('Teachers'),
-#                   URL('teachers','index')])
-#
-#     if auth.has_membership(group_id='Admins') or \
-#        auth.has_permission('read', 'invoices'):
-#         pages.append(['payments',
-#                       T('Payments'),
-#                       URL('payments',)])
-#
-#
-#     return os_gui.get_submenu(pages, page, horizontal=True, htype='tabs')
