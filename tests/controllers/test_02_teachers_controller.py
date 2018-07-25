@@ -100,6 +100,20 @@ def test_payment_attendance_list_archive(client, web2py):
     assert tpal.Archived == True
 
 
+def test_payment_attendance_list_rates(client, web2py):
+    """
+    Is the list showing?
+    """
+    populate_teachers_payment_attendance_lists(web2py)
+
+    url = '/teachers/payment_attendance_list_rates?tpalID=1'
+    client.get(url)
+    assert client.status == 200
+
+    tpalr = web2py.db.teachers_payment_attendance_lists_rates(1)
+    assert format(tpalr.Rate, '.2f') in client.text
+
+
 def test_payment_fixed_rate_default_add(client, web2py):
     """
         Can we add a default rate

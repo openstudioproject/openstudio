@@ -557,11 +557,11 @@ def populate_teachers_payment_attendance_lists_rates(web2py):
     """
     Insert dummy date into list rates
     """
-    for i in range(0, 10):
+    for i in range(1, 11):
         web2py.db.teachers_payment_attendance_lists_rates.insert(
-            teacher_payment_attendance_lists_id = 1,
+            teachers_payment_attendance_lists_id = 1,
             AttendanceNR = i,
-            rate = i * 10
+            Rate = i * 1011
         )
 
     web2py.db.commit()
