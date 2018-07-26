@@ -411,7 +411,8 @@ def pinboard_get_cancelled_classes(days=3):
 
     return classes
 
-
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'pinboard'))
 def teacher_monthly_classes():
     '''
     creates page that displays the classes tought montlhy
@@ -485,7 +486,7 @@ def teacher_monthly_classes():
                     TD(repr_row.classes.school_locations_id),
                     TD(repr_row.classes.school_classtypes_id),
                     TD(os_gui.get_button('astronaut',
-                                         URL('classes', 'finding_substitute',
+                                         URL('classes', 'request_sub',
                                              vars={'clsID': row.classes.id,
                                                                             'date': date_formatted}),
                                          title='Find sub', _class='pull-right'))
@@ -593,6 +594,8 @@ def get_month_subtitle(month, year):
     return subtitle
 
 
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'pinboard'))
 def teacher_classes_set_month():
     """
         Sets the session variables for teacher_classes year and month
@@ -607,6 +610,8 @@ def teacher_classes_set_month():
     redirect(URL(back))
 
 
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'pinboard'))
 def teacher_classes_show_current():
     """
         Resets some session variables to show the current month for
@@ -660,3 +665,4 @@ def overview_get_month_chooser(page):
             _class='btn btn-default')
 
     return DIV(previous, nxt, _class='btn-group pull-right')
+
