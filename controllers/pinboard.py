@@ -439,13 +439,14 @@ def teacher_monthly_classes():
         table = TABLE(_class='table table-hover')
 
 
-        table.append(TR(TH(),
-                        TH(T('Date')),
-                        TH(T('Start')),
-                        TH(T('Location')),
-                        TH(T('Class Type')),
-                        TH(),  # actions
-                        _class='header'))
+        table.append(THEAD(TR(
+            TH(),
+            TH(T('Date')),
+            TH(T('Start')),
+            TH(T('Location')),
+            TH(T('Class Type')),
+            TH(),  # actions))
+        )))
 
         date = datetime.date(session.reports_te_classes_year,
                              session.reports_te_classes_month, 5)
