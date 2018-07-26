@@ -16,6 +16,7 @@ from general_helpers import get_last_day_month
 from general_helpers import User_helpers
 from general_helpers import class_get_teachers
 from general_helpers import max_string_length
+from general_helpers import set_form_id_and_get_submit_button
 
 from gluon.tools import prettydate
 
@@ -420,11 +421,6 @@ def teacher_monthly_classes():
     response.subtitle = T("")
     response.view = 'general/only_content.html'
 
-    session.classes_attendance_back = 'reports_teacher_classes'
-    # session.reports_teacher_classes_class_revenue_back = 'reports_teacher_classes'
-
-    if 'teachers_id' in request.vars:
-        session.reports_te_classes_teID = request.vars['teachers_id']
 
     if 'month' in request.vars:
         session.reports_te_classes_month = int(request.vars['month'])
@@ -435,9 +431,11 @@ def teacher_monthly_classes():
         session.reports_te_classes_year = today.year
         session.reports_te_classes_month = today.month
 
-    if not session.reports_te_classes_teID:
-        table = ''
-    else:
+    if auth.user.id and auth.user.teacher:
+        teachers_id = auth.user.id
+        cache_clear_classschedule()
+
+
         table = TABLE(_class='table table-hover')
 
 
@@ -463,7 +461,7 @@ def teacher_monthly_classes():
 
             class_schedule = ClassSchedule(
                 date=day,
-                filter_id_teacher=session.reports_te_classes_teID
+                filter_id_teacher=teachers_id
             )
 
             rows = class_schedule.get_day_rows()
@@ -486,147 +484,178 @@ def teacher_monthly_classes():
                     TD(repr_row.classes.school_locations_id),
                     TD(repr_row.classes.school_classtypes_id),
 
-                    TD(os_gui.get_button('next_no_text',
-                                         URL('classes', 'attendance', vars={'clsID': row.classes.id,
-                                                                            'date': date_formatted}),
-                                         _class='pull-right'))
+                    # TD(os_gui.get_button('next_no_text',
+                    #                      URL('classes', 'attendance', vars={'clsID': row.classes.id,
+                    #                                                         'date': date_formatted}),
+                    #                      _class='pull-right'))
                 )
 
                 table.append(tr)
 
-    #
-    # form_subtitle = get_form_subtitle(session.reports_te_classes_month,
-    #                                   session.reports_te_classes_year,
-    #                                   request.function,
-    #                                   _class='col-md-8')
-    # response.subtitle = form_subtitle['subtitle']
-    # form_month = form_subtitle['form']
-    # month_chooser = form_subtitle['month_chooser']
-    # current_month = form_subtitle['current_month']
-    # submit = form_subtitle['submit']
-    #
-    # response.subtitle = SPAN(T('Teacher classes'), ' ',
-    #                          form_subtitle['subtitle'])
-    #
-    # form = teacher_classes_get_form_teachers(session.reports_te_classes_teID)
+    else:
+        table = ''
+    form_subtitle = get_form_subtitle(session.reports_te_classes_month,
+                                      session.reports_te_classes_year,
+                                      request.function,
+                                      _class='col-md-8')
+    response.subtitle = form_subtitle['subtitle']
+    month_chooser = form_subtitle['month_chooser']
+    current_month = form_subtitle['current_month']
 
+    response.subtitle = SPAN(T('Teacher classes'), ' ',
+                             form_subtitle['subtitle'])
+
+    header_tools = month_chooser + current_month
     return dict(
-                # form=DIV(DIV(form_month, form, _class="col-md-6"),
-                #          ),
-                # menu='',
+                header_tools=header_tools,
                 content=table,
-                # month_chooser=month_chooser,
-                # current_month=current_month,
-                # submit=submit
                 )
 
 
-# def get_form_subtitle(month=None, year=None, function=None, _class='col-md-4'):
-#     months = get_months_list()
-#     subtitle = ''
-#     if year and month:
-#         for m in months:
-#             if m[0] == month:
-#                 month_title = m[1]
-#         subtitle = month_title + " " + unicode(year)
-#     else:
-#         year = TODAY_LOCAL.year
-#         month = TODAY_LOCAL.month
-#
-#     form = SQLFORM.factory(
-#         Field('month',
-#               requires=IS_IN_SET(months, zero=None),
-#               default=month,
-#               label=T("")),
-#         Field('year', 'integer',
-#               default=year,
-#               label=T("")),
-#         submit_button=T("Run report")
-#     )
-#     form.attributes['_name'] = 'form_select_date'
-#     form.attributes['_class'] = 'overview_form_select_date'
-#
-#     input_month = form.element('select[name=month]')
-#     # input_month.attributes['_onchange'] = "this.form.submit();"
-#
-#     input_year = form.element('input[name=year]')
-#     # input_year.attributes['_onchange'] = "this.form.submit();"
-#     input_year.attributes['_type'] = 'number'
-#     # input_year.attributes['_class']    = 'input_margins'
-#
-#     form.element('input[name=year]')
-#
-#     result = set_form_id_and_get_submit_button(form, 'MainForm')
-#     form = result['form']
-#     submit = result['submit']
-#
-#     ## Show current
-#
-#     show_current_month = A(T("Current month"),
-#                            _href=url_current_month,
-#                            _class='btn btn-default')
-#     month_chooser = ''
-#     if not function == 'attendance_classes':
-#         month_chooser = overview_get_month_chooser(function)
-#
-#     form = DIV(XML('<form id="MainForm" action="#" enctype="multipart/form-data" method="post">'),
-#                DIV(form.custom.widget.month,
-#                    form.custom.widget.year,
-#                    _class=_class),
-#                form.custom.end,
-#                _class='row')
-#
-#     return dict(
-#         form=form,
-#         subtitle=subtitle,
-#         month_chooser=month_chooser,
-#         current_month=show_current_month,
-#         submit=submit
-#     )
-#
-#
-# def get_month_subtitle(month, year):
-#     """
-#     :param month: int 1 - 12
-#     :return: subtitle
-#     """
-#     months = get_months_list()
-#     subtitle = ''
-#     if year and month:
-#         for m in months:
-#             if m[0] == month:
-#                 month_title = m[1]
-#         subtitle = month_title + " " + unicode(year)
-#
-#     return subtitle
+def get_form_subtitle(month=None, year=None, function=None, _class='col-md-4'):
+    months = get_months_list()
+    subtitle = ''
+    if year and month:
+        for m in months:
+            if m[0] == month:
+                month_title = m[1]
+        subtitle = month_title + " " + unicode(year)
+    else:
+        year = TODAY_LOCAL.year
+        month = TODAY_LOCAL.month
 
-
-def teacher_classes_get_form_teachers(teachers_id):
-    """
-        returns list teachers select form
-    """
-    au_query = (db.auth_user.trashed == False) &\
-               (db.auth_user.teacher == True)
     form = SQLFORM.factory(
-        Field('teachers_id', db.auth_user,
-                requires=IS_IN_DB(db(au_query),
-                                  'auth_user.id',
-                                  '%(full_name)s',
-                                  zero=(T('Select teacher...'))),
-                represent=lambda value, row: teachers_dict.get(value, None),
-                default = teachers_id,
-                label=T("Teacher")),
-        submit_button = T('Go'))
+        Field('month',
+              requires=IS_IN_SET(months, zero=None),
+              default=month,
+              label=T("")),
+        Field('year', 'integer',
+              default=year,
+              label=T("")),
+        submit_button=T("Run report")
+    )
+    form.attributes['_name'] = 'form_select_date'
+    form.attributes['_class'] = 'overview_form_select_date'
 
-    select = form.element('select[name=teachers_id]')
-    select['_onchange'] = "this.form.submit();"
+    input_month = form.element('select[name=month]')
+    # input_month.attributes['_onchange'] = "this.form.submit();"
 
-    form = DIV(DIV(HR(),
-                   form.custom.begin,
-                   LABEL(T('Teacher')),
-                   form.custom.widget.teachers_id,
-                   form.custom.end,
-                   _class='col-md-8'),
+    input_year = form.element('input[name=year]')
+    # input_year.attributes['_onchange'] = "this.form.submit();"
+    input_year.attributes['_type'] = 'number'
+    # input_year.attributes['_class']    = 'input_margins'
+
+    form.element('input[name=year]')
+
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
+    form = result['form']
+    submit = result['submit']
+
+    ## Show current
+    url_current_month = URL('teacher_classes_show_current')
+    show_current_month = A(T("Current month"),
+                           _href=url_current_month,
+                           _class='btn btn-default')
+    month_chooser = ''
+    if not function == 'attendance_classes':
+        month_chooser = overview_get_month_chooser(function)
+
+    form = DIV(XML('<form id="MainForm" action="#" enctype="multipart/form-data" method="post">'),
+               DIV(form.custom.widget.month,
+                   form.custom.widget.year,
+                   _class=_class),
+               form.custom.end,
                _class='row')
 
-    return form
+    return dict(
+        form=form,
+        subtitle=subtitle,
+        month_chooser=month_chooser,
+        current_month=show_current_month,
+        submit=submit
+    )
+
+
+def get_month_subtitle(month, year):
+    """
+    :param month: int 1 - 12
+    :return: subtitle
+    """
+    months = get_months_list()
+    subtitle = ''
+    if year and month:
+        for m in months:
+            if m[0] == month:
+                month_title = m[1]
+        subtitle = month_title + " " + unicode(year)
+
+    return subtitle
+
+
+def teacher_classes_set_month():
+    """
+        Sets the session variables for teacher_classes year and month
+    """
+    year  = request.vars['year']
+    month = request.vars['month']
+    back  = request.vars['back']
+
+    session.reports_te_classes_year = int(year)
+    session.reports_te_classes_month = int(month)
+
+    redirect(URL(back))
+
+
+def teacher_classes_show_current():
+    """
+        Resets some session variables to show the current month for
+        teacher_classes
+    """
+    session.reports_te_classes_year = None
+    session.reports_te_classes_month = None
+    back = request.vars['back']
+
+    redirect(URL('teacher_monthly_classes'))
+
+
+def overview_get_month_chooser(page):
+    """
+        Returns month chooser for overview
+    """
+
+    year  = session.reports_te_classes_year
+    month = session.reports_te_classes_month
+
+    link = 'teacher_classes_set_month'
+
+
+    if month == 1:
+        prev_month = 12
+        prev_year  = year - 1
+    else:
+        prev_month = month - 1
+        prev_year  = year
+
+    if month == 12:
+        next_month = 1
+        next_year  = year + 1
+    else:
+        next_month = month + 1
+        next_year  = year
+
+    url_prev = URL(link, vars={'month':prev_month,
+                               'year' :prev_year,
+                               'back' :page})
+
+    url_next = URL(link, vars={'month':next_month,
+                                  'year' :next_year,
+                                  'back' :page})
+
+    previous = A(I(_class='fa fa-angle-left'),
+                 _href=url_prev,
+                 _class='btn btn-default')
+    nxt = A(I(_class='fa fa-angle-right'),
+            _href=url_next,
+            _class='btn btn-default')
+
+    return DIV(previous, nxt, _class='btn-group pull-right')
