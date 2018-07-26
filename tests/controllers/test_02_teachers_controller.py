@@ -220,7 +220,7 @@ def test_payment_attendance_list_classtypes_save(client, web2py):
     """
     populate_teachers_payment_attendance_lists_school_classtypes(web2py)
 
-    url = "/teachers/payment_attendance_list_school_classtypes?tpalID=1"
+    url = "/teachers/payment_attendance_list_classtypes?tpalID=1"
     client.get(url)
     assert client.status == 200
 
