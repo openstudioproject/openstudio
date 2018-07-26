@@ -415,8 +415,9 @@ def test_classes_book_options_not_yet_open(client, web2py):
     web2py.db.commit()
 
     # get the url again
-    client.get('/shop/classes_book_options?clsID=1&date=2018-08-01')
+    client.get('/shop/classes_book_options?clsID=1&date=2999-08-01')
     assert client.status == 200
+
     assert 'Bookings for this class are accepted from' in client.text
 
     # Also check for shop/classes

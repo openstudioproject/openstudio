@@ -77,8 +77,6 @@ def test_teachers_payment_attendance_lists_rates_delete(client, web2py):
     client.get(url)
     assert client.status == 200
 
-    print client.text
-
     assert 'fa-times' in client.text
 
 
