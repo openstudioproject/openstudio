@@ -1284,7 +1284,7 @@ class AttendanceHelper:
                                  _class='col-md-3'),
                              _class='col-md-10 col-md-offset-1 col-xs-12')
 
-                formatted_append(option)
+                formatted_options.append(option)
 
 
         # class cards
