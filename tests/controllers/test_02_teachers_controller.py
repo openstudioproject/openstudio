@@ -114,6 +114,75 @@ def test_payment_attendance_list_rates(client, web2py):
     assert format(tpalr.Rate, '.2f') in client.text
 
 
+def test_payment_attendance_list_rates_add(client, web2py):
+    """
+    Can we add a rate to the list?
+    """
+    populate_teachers_payment_attendance_lists(web2py, with_rates=False)
+
+    url = "/teachers/payment_attendance_list_rates?tpalID=1"
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        'Rate': 20.5
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+    tpalr = web2py.db.teachers_payment_attendance_lists_rates(1)
+    assert tpalr.Rate == data['Rate']
+
+
+def test_payment_attendance_list_rates_add_increase_attendanceNR(client, web2py):
+    """
+    Can we add a rate to the list?
+    """
+    populate_teachers_payment_attendance_lists(web2py)
+
+    query = (web2py.db.teachers_payment_attendance_lists_rates.teachers_payment_attendance_lists_id == 1)
+    count = web2py.db(query).count()
+
+    url = "/teachers/payment_attendance_list_rates?tpalID=1"
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        'Rate': 20.5
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+    new_count = count_rates = web2py.db(query).count()
+    new_id = count + 1
+    tpalr = web2py.db.teachers_payment_attendance_lists_rates(new_id)
+    assert tpalr.AttendanceNR == new_count
+
+
+def test_payment_attendance_list_rates_edit(client, web2py):
+    """
+    Can we add a rate to the list?
+    """
+    populate_teachers_payment_attendance_lists(web2py)
+
+    url = "/teachers/payment_attendance_list_rate_edit?tpalID=1&tpalrID=1"
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        'id': 1,
+        'Rate': 20.5
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+    tpalr = web2py.db.teachers_payment_attendance_lists_rates(1)
+    assert tpalr.Rate == data['Rate']
+
+
 def test_payment_fixed_rate_default_add(client, web2py):
     """
         Can we add a default rate
