@@ -488,7 +488,7 @@ def teacher_monthly_classes():
                 else:
                     sub_requested= os_gui.get_label('primary', T("Sub requested"))
                     button= os_gui.get_button('astronaut',
-                                         URL('classes', 'cancel_request_sub',
+                                         URL('cancel_request_sub',
                                              vars={'clsID': row.classes.id,
                                                                             'date': date_formatted}),
                                          title='Cancel', _class='pull-right', btn_class='btn-warning')
@@ -684,7 +684,18 @@ def request_sub():
     clsID = request.vars['clsID']
     date = request.vars ['date']
     row = db.classes_otc(classes_id=clsID, ClassDate = date)
-    print row
     if not row:
         db.classes_otc.insert(classes_id = clsID, ClassDate=date, Status ='Open')
+        redirect(URL('teacher_monthly_classes'))\
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'pinboard'))
+def cancel_request_sub():
+    clsID = request.vars['clsID']
+    date = request.vars ['date']
+    row = db.classes_otc(classes_id=clsID, ClassDate = date)
+    print row.id
+    if row:
+        db(db.classes_otc.id==row.id).delete()
         redirect(URL('teacher_monthly_classes'))
