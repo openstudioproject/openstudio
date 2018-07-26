@@ -294,9 +294,6 @@ def pinboard_get_teacher_upcoming_classes(days=3):
             filter_id_teacher=teachers_id)
 
         rows = cs.get_day_rows()
-
-        print rows
-
         for i, row in enumerate(rows):
             if row.classes_otc.Status == 'cancelled' or row.school_holidays.id:
                 continue
