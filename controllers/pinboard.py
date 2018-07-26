@@ -695,7 +695,6 @@ def cancel_request_sub():
     clsID = request.vars['clsID']
     date = request.vars ['date']
     row = db.classes_otc(classes_id=clsID, ClassDate = date)
-    print row.id
     if row:
         db(db.classes_otc.id==row.id).delete()
         redirect(URL('teacher_monthly_classes'))
