@@ -231,10 +231,6 @@ def test_payment_attendance_list_classtypes_save(client, web2py):
     client.post(url, data=data)
     assert client.status == 200
 
-    print web2py.db(web2py.db.teachers_payment_attendance_lists_school_classtypes).select(
-        web2py.db.teachers_payment_attendance_lists_school_classtypes.ALL
-    )
-
     tpalsc = web2py.db.teachers_payment_attendance_lists_school_classtypes(4)
     assert tpalsc.school_classtypes_id == 1
     assert tpalsc.teachers_payment_attendance_lists_id == 1
