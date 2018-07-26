@@ -310,9 +310,6 @@ def pinboard_get_teacher_upcoming_classes(days=3):
 
             attendance = ''
             if attendance_permission:
-                # attendance = A(T('Attendance'),
-                #                _href=URL('classes', 'attendance', vars={'clsID':row.classes.id,
-                #                                                         'date':date.strftime(DATE_FORMAT)}))
                 attendance = os_gui.get_button('noicon', URL('classes', 'attendance',
                                                            vars={'clsID':row.classes.id,
                                                                  'date':date.strftime(DATE_FORMAT)}),
@@ -513,8 +510,6 @@ def teacher_classes_month():
                              session.reports_te_classes_month, 5)
         last_day = get_last_day_month(date)
 
-
-
         for each_day in range(1, last_day.day + 1):
             # list days
             day = datetime.date(session.reports_te_classes_year,
@@ -534,8 +529,6 @@ def teacher_classes_month():
                 result = class_schedule._get_day_row_status(row)
                 status_marker = result['marker']
 
-
-
                 date_formatted = day.strftime(DATE_FORMAT)
 
                 tr = TR(
@@ -544,12 +537,7 @@ def teacher_classes_month():
                     TD(date_formatted),
                     TD(repr_row.classes.Starttime),
                     TD(repr_row.classes.school_locations_id),
-                    TD(repr_row.classes.school_classtypes_id),
-
-                    # TD(os_gui.get_button('next_no_text',
-                    #                      URL('classes', 'attendance', vars={'clsID': row.classes.id,
-                    #                                                         'date': date_formatted}),
-                    #                      _class='pull-right'))
+                    TD(repr_row.classes.school_classtypes_id)
                 )
 
                 table.append(tr)
