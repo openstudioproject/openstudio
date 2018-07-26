@@ -748,7 +748,7 @@ def payment_attendance_lists():
                                SPAN(_class="glyphicon glyphicon-edit"),
                                " " + T("Class types"),
                                _class="btn btn-default btn-sm",
-                               _href=URL('payment_attendance_list_school_classtypes',
+                               _href=URL('payment_attendance_list_classtypes',
                                          vars={'tpalID':row.id})),
              lambda row: os_gui.get_button('edit',
                                            URL('payment_attendance_list_edit',
@@ -864,8 +864,8 @@ def payment_attendance_list_edit():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'teachers_payment_attendance_list'))
-def payment_attendance_list_school_classtypes():
+               auth.has_permission('update', 'teachers_payment_attendance_list_school_classtypes'))
+def payment_attendance_list_classtypes():
     """
         Edit an attendance list
         request.vars['tpalID'] is expected to be db.teachers_payment_attendance_lists.id
@@ -873,21 +873,65 @@ def payment_attendance_list_school_classtypes():
     from openstudio.os_forms import OsForms
 
     response.title = T("Payment Attendance List")
-    response.subtitle = T('Add/Edit Classtype/s connected to this list')
     response.view = 'general/only_content.html'
     tpalID = request.vars['tpalID']
+
+
+    tpal = db.teachers_payment_attendance_lists(tpalID)
+    response.subtitle = SPAN(
+        tpal.Name, ' ',
+        T('classtypes')
+
+    )
 
     return_url = payment_attendance_list_add_edit_return_url()
 
     table = TABLE(TR(TH(), TH(T('Class type')), _class='header'),
                   _class='table table-hover')
+
+
+    # Get unique list of classtype ids in db.teachers_payment_attendance_lists_school_classtypes
+    query = (db.teachers_payment_attendance_lists_school_classtypes.id > 0)
+    rows = db(query).select(
+        db.teachers_payment_attendance_lists_school_classtypes.school_classtypes_id,
+        distinct = True
+    )
+
+    tpalsc_clt_ids = set()
+    for row in rows:
+        tpalsc_clt_ids.add(row.school_classtypes_id)
+
+    # Get list of all not archived classtypes
+    query = (db.school_classtypes.Archived == False)
+    rows = db(query).select(
+        db.school_classtypes.id,
+        distinct = True
+    )
+
+    all_clt_ids = set()
+    for row in rows:
+        all_clt_ids.add(row.id)
+
+    print all_clt_ids
+    available_ids = (all_clt_ids - tpalsc_clt_ids)
+
     query = (db.teachers_payment_attendance_lists_school_classtypes.teachers_payment_attendance_lists_id == tpalID)
     rows = db(query).select(db.teachers_payment_attendance_lists_school_classtypes.school_classtypes_id)
     classtypeids = []
     for row in rows:
         classtypeids.append(unicode(row.school_classtypes_id))
+        available_ids.add(row.school_classtypes_id)
 
-    list_query = (db.school_classtypes.Archived == False)
+    print "updated available"
+    print available_ids
+
+
+    # Get difference between set, the difference will be available classtypes
+
+
+
+    list_query = (db.school_classtypes.Archived == False) & \
+                 (db.school_classtypes.id.belongs(available_ids))
     rows = db(list_query).select(db.school_classtypes.id,
                                  db.school_classtypes.Name,
                                  orderby=db.school_classtypes.Name)
@@ -936,7 +980,7 @@ def payment_attendance_list_school_classtypes():
         session.flash = T('Saved classtypes')
         redirect(return_url)
 
-    description = H4(T("Here you can specify for which kinds of classes this list should be used."))
+    description = H4(T("Here you can specify for which class types this list should be used."))
     content = DIV(BR(), description, BR(), form)
 
     back = os_gui.get_button('back', return_url)
