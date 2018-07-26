@@ -161,7 +161,7 @@ def test_payment_attendance_list_rates_add_increase_attendanceNR(client, web2py)
     assert tpalr.AttendanceNR == new_count
 
 
-def test_payment_attendance_list_rates_edit(client, web2py):
+def test_payment_attendance_list_rate_edit(client, web2py):
     """
     Can we add a rate to the list?
     """
@@ -181,6 +181,23 @@ def test_payment_attendance_list_rates_edit(client, web2py):
 
     tpalr = web2py.db.teachers_payment_attendance_lists_rates(1)
     assert tpalr.Rate == data['Rate']
+
+
+def test_payment_attendance_list_rate_delete(client, web2py):
+    """
+    Can we delete a rate from a list?
+    """
+    populate_teachers_payment_attendance_lists(web2py)
+
+    query = (web2py.db.teachers_payment_attendance_lists_rates.teachers_payment_attendance_lists_id == 1)
+    count = web2py.db(query).count()
+
+    url = "/teachers/payment_attendance_list_rate_delete?tpalID=1&tpalrID=1"
+    client.get(url)
+    assert client.status == 200
+
+    count_after = web2py.db(query).count()
+    assert count_after == count - 1
 
 
 def test_payment_fixed_rate_default_add(client, web2py):
