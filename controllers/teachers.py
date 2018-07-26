@@ -1161,9 +1161,9 @@ def payment_attendance_list_rate_delete():
         Delete rate from attendance list
     """
     tpalID = request.vars['tpalID']
-    ttpalID = request.vars['ttpalID']
+    tpalrID = request.vars['tpalrID']
 
-    query = (db.teachers_payment_attendance_lists_rates.id == ttpalID)
+    query = (db.teachers_payment_attendance_lists_rates.id == tpalrID)
     db(query).delete()
 
 
