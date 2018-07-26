@@ -38,6 +38,9 @@ class OsGui:
         elif button_type == 'archive':
             title = current.T('')
             icon = 'fa fa-archive'
+        elif button_type == 'astronaut':
+            title = title
+            icon = 'fa fa-grav'
         elif button_type == 'edit':
             title = title
             icon = "fa fa-pencil"
@@ -118,6 +121,7 @@ class OsGui:
         elif button_type == 'noicon':
             title = title
             icon = ''
+
         else:
             title = current.T("Invalid button type, please check...")
             icon = ''
