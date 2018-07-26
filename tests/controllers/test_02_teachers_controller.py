@@ -7,6 +7,7 @@ import datetime
 
 from gluon.contrib.populate import populate
 from populate_os_tables import populate_teachers_payment_attendance_lists
+from populate_os_tables import populate_teachers_payment_attendance_lists_school_classtypes
 from populate_os_tables import populate_teachers_payment_attendance_lists_rates
 from populate_os_tables import populate_auth_user_teachers
 from populate_os_tables import populate_auth_user_teachers_fixed_rate_default
@@ -198,6 +199,47 @@ def test_payment_attendance_list_rate_delete(client, web2py):
 
     count_after = web2py.db(query).count()
     assert count_after == count - 1
+
+
+def test_payment_attendance_list_classtypes(client, web2py):
+    """
+    List classtypes for attendance payment list?
+    """
+    populate_teachers_payment_attendance_lists_school_classtypes(web2py)
+
+    url = "/teachers/payment_attendance_list_school_classtypes?tpalID=1"
+    client.get(url)
+    assert client.status == 200
+
+    assert 'input checked="checked" name="1" type="checkbox" value="on"' in client.text
+
+
+def test_payment_attendance_list_classtypes_save(client, web2py):
+    """
+    List classtypes for attendance payment list?
+    """
+    populate_teachers_payment_attendance_lists_school_classtypes(web2py)
+
+    url = "/teachers/payment_attendance_list_school_classtypes?tpalID=1"
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        '1': 'on'
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+    print web2py.db(web2py.db.teachers_payment_attendance_lists_school_classtypes).select(
+        web2py.db.teachers_payment_attendance_lists_school_classtypes.ALL
+    )
+
+    tpalsc = web2py.db.teachers_payment_attendance_lists_school_classtypes(4)
+    assert tpalsc.school_classtypes_id == 1
+    assert tpalsc.teachers_payment_attendance_lists_id == 1
+
+    assert web2py.db(web2py.db.teachers_payment_attendance_lists_school_classtypes).count() == 1
 
 
 def test_payment_fixed_rate_default_add(client, web2py):

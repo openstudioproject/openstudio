@@ -567,6 +567,22 @@ def populate_teachers_payment_attendance_lists_rates(web2py):
     web2py.db.commit()
 
 
+def populate_teachers_payment_attendance_lists_school_classtypes(web2py):
+    """
+    Dummy data for teachers_payment_attendance_lists_classtypes
+    """
+    populate_teachers_payment_attendance_lists(web2py)
+    populate_school_classtypes(web2py, 3)
+
+    for i in range(1, 4):
+        web2py.db.teachers_payment_attendance_lists_school_classtypes.insert(
+            teachers_payment_attendance_lists_id = 1,
+            school_classtypes_id = i
+        )
+
+    web2py.db.commit()
+
+
 def populate_auth_user_teachers_fixed_rate_default(web2py):
     """
         Insert dummy data for teachers_payment_fixed_rate_default
