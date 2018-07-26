@@ -737,7 +737,6 @@ def payment_attendance_lists():
     ]
 
     links = [
-
             lambda row: A(SPAN(os_gui.get_fa_icon('fa-usd'),
                                " " + T("Rates")),
                                _class="btn btn-default btn-sm",
@@ -912,22 +911,15 @@ def payment_attendance_list_classtypes():
     for row in rows:
         all_clt_ids.add(row.id)
 
-    print all_clt_ids
     available_ids = (all_clt_ids - tpalsc_clt_ids)
 
+    # Add currently assigned ids to complete the set
     query = (db.teachers_payment_attendance_lists_school_classtypes.teachers_payment_attendance_lists_id == tpalID)
     rows = db(query).select(db.teachers_payment_attendance_lists_school_classtypes.school_classtypes_id)
     classtypeids = []
     for row in rows:
         classtypeids.append(unicode(row.school_classtypes_id))
         available_ids.add(row.school_classtypes_id)
-
-    print "updated available"
-    print available_ids
-
-
-    # Get difference between set, the difference will be available classtypes
-
 
 
     list_query = (db.school_classtypes.Archived == False) & \
@@ -990,40 +982,40 @@ def payment_attendance_list_classtypes():
                 save=os_gui.get_submit_button('MainForm'))
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'teachers_payment_attendance_list'))
-def payment_attendance_list_rates():
-    """
-        Edit an attendance list
-        request.vars['tpalID'] is expected to be db.teachers_payment_attendance_lists.id
-    """
-    from openstudio.os_forms import OsForms
-
-    response.title = T("Payment Attendance List")
-    response.subtitle = T('Classtype/s connected to this list')
-    response.view = 'general/only_content.html'
-    tpalID = request.vars['tpalID']
-
-    return_url = URL('payment_attendance_list')
-
-    os_forms = OsForms()
-    result = os_forms.get_crud_form_update(
-        db.teachers_payment_attendance_lists_school_classtypes,
-        return_url,
-        tpalID
-    )
-
-    form = result['form']
-    back = os_gui.get_button('back', return_url)
-
-    content = DIV(
-        H4(T('Edit Classtype/s of attendance list')),
-        form
-    )
-
-    return dict(content=content,
-                save=result['submit'],
-                back=back)
+# @auth.requires(auth.has_membership(group_id='Admins') or \
+#                auth.has_permission('read', 'teachers_payment_attendance_list'))
+# def payment_attendance_list_rates_get_fp():
+#     """
+#         Edit an attendance list
+#         request.vars['tpalID'] is expected to be db.teachers_payment_attendance_lists.id
+#     """
+#     from openstudio.os_forms import OsForms
+#
+#     response.title = T("Payment Attendance List")
+#     response.subtitle = T('Classtype/s connected to this list')
+#     response.view = 'general/only_content.html'
+#     tpalID = request.vars['tpalID']
+#
+#     return_url = URL('payment_attendance_list')
+#
+#     os_forms = OsForms()
+#     result = os_forms.get_crud_form_update(
+#         db.teachers_payment_attendance_lists_school_classtypes,
+#         return_url,
+#         tpalID
+#     )
+#
+#     form = result['form']
+#     back = os_gui.get_button('back', return_url)
+#
+#     content = DIV(
+#         H4(T('Edit Classtype/s of attendance list')),
+#         form
+#     )
+#
+#     return dict(content=content,
+#                 save=result['submit'],
+#                 back=back)
 
 
 def payment_attendance_lists_get_link_archive(row):
@@ -1043,6 +1035,8 @@ def payment_attendance_lists_get_link_archive(row):
                              tooltip=tt)
 
 
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'teachers_payment_attendance_lists'))
 def payment_attendance_list_archive():
     """
         This function archives an attendance list
@@ -1067,6 +1061,8 @@ def payment_attendance_list_archive():
     redirect(payment_attendance_list_add_edit_return_url())
 
 
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'teachers_payment_attendance_lists_rates'))
 def payment_attendance_list_rates():
     """
             Lists rates for the attendance list and shows an add form at the top of the
@@ -1109,15 +1105,15 @@ def payment_attendance_list_rates():
                      auth.has_permission('update', 'teachers_payment_attendance_list_rates')
         if permission:
             btn_edit = os_gui.get_button('edit_notext',
-                                         URL('payment_attendance_list_rate_edit',
+                                         URL('payment_attendance_lists_rate_edit',
                                              vars=btn_vars),
                                          cid=request.cid)
             buttons.append(btn_edit)
 
         permission = auth.has_membership(group_id='Admins') or \
-                     auth.has_permission('delete', 'teachers_payment_attendance_list_rates')
+                     auth.has_permission('delete', 'teachers_payment_attendance_lists_rates')
         count = payment_attendance_list_count_rates(tpalID)
-        if permission and row.AttendanceNR==count:
+        if permission and row.AttendanceNR == count:
             btn_delete = os_gui.get_button('delete_notext',
                                            URL('payment_attendance_list_rate_delete',
                                                vars=btn_vars),
