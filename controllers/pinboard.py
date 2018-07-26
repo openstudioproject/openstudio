@@ -477,7 +477,21 @@ def teacher_monthly_classes():
 
 
                 date_formatted = day.strftime(DATE_FORMAT)
-
+                open_class = db.classes_otc(classes_id=row.classes.id,  ClassDate=date_formatted, Status = 'Open')
+                if not open_class:
+                    sub_requested = ""
+                    button= os_gui.get_button('astronaut',
+                                         URL( 'request_sub',
+                                             vars={'clsID': row.classes.id,
+                                                                            'date': date_formatted}),
+                                         title='Find sub', _class='pull-right', btn_class='btn-success')
+                else:
+                    sub_requested= os_gui.get_label('primary', T("Sub requested"))
+                    button= os_gui.get_button('astronaut',
+                                         URL('classes', 'cancel_request_sub',
+                                             vars={'clsID': row.classes.id,
+                                                                            'date': date_formatted}),
+                                         title='Cancel', _class='pull-right', btn_class='btn-warning')
                 tr = TR(
                     TD(status_marker,
                        _class='td_status_marker'),
@@ -485,11 +499,8 @@ def teacher_monthly_classes():
                     TD(repr_row.classes.Starttime),
                     TD(repr_row.classes.school_locations_id),
                     TD(repr_row.classes.school_classtypes_id),
-                    TD(os_gui.get_button('astronaut',
-                                         URL('classes', 'request_sub',
-                                             vars={'clsID': row.classes.id,
-                                                                            'date': date_formatted}),
-                                         title='Find sub', _class='pull-right'))
+                    TD(sub_requested),
+                    TD(button)
                 )
 
                 table.append(tr)
@@ -666,3 +677,14 @@ def overview_get_month_chooser(page):
 
     return DIV(previous, nxt, _class='btn-group pull-right')
 
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'pinboard'))
+def request_sub():
+    clsID = request.vars['clsID']
+    date = request.vars ['date']
+    row = db.classes_otc(classes_id=clsID, ClassDate = date)
+    print row
+    if not row:
+        db.classes_otc.insert(classes_id = clsID, ClassDate=date, Status ='Open')
+        redirect(URL('teacher_monthly_classes'))
