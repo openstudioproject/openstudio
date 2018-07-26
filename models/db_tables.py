@@ -1468,6 +1468,56 @@ def define_teachers_payment_fixed_rate_travel():
     )
 
 
+def define_teachers_payment_attendance_lists():
+    db.define_table('teachers_payment_attendance_lists',
+        Field('Archived', 'boolean',
+              readable=False,
+              writable=False,
+              default=False,
+              label=T("Archived")),
+        Field('Name',
+              required=True,
+              requires=IS_NOT_EMPTY(),
+              label=T("Name")),
+        Field('tax_rates_id', db.tax_rates,
+              label=T('Tax rate'),
+              comment=T("Tax rate applied to items in this list")),
+        format='%(Name)s')
+
+
+def define_teachers_payment_attendance_lists_rates():
+    db.define_table('teachers_payment_attendance_lists_rates',
+        Field('teachers_payment_attendance_lists_id',
+              db.teachers_payment_attendance_lists,
+              readable=False,
+              writable=False,
+              requires=IS_NOT_EMPTY()
+              ),
+        Field('AttendanceNR', 'integer',
+              requires=IS_INT_IN_RANGE(0, 999999),
+               label = T("Attendance Number"),
+              writable=False
+            ),
+        Field('Rate','double',
+              requires=IS_FLOAT_IN_RANGE(0, 99999999, dot='.',
+                                         error_message=T('Too small or too large')),
+              label=T("Attendance List Rate excl. VAT"),
+              ),
+        )
+
+
+def define_teachers_payment_attendance_lists_school_classtypes():
+    db.define_table('teachers_payment_attendance_lists_school_classtypes',
+        Field('teachers_payment_attendance_lists_id',
+              db.teachers_payment_attendance_lists,
+              readable=False,
+              writable=False,
+              requires=IS_NOT_EMPTY()),
+        Field('school_classtypes_id',
+              db.school_classtypes)
+    )
+
+
 def define_customers_notes():
     db.define_table('customers_notes',
         Field('auth_customer_id', db.auth_user, # to link note to customer
@@ -5497,6 +5547,9 @@ define_schedule_classes_status()
 define_teachers_payment_fixed_rate_default()
 define_teachers_payment_fixed_rate_class()
 define_teachers_payment_fixed_rate_travel()
+define_teachers_payment_attendance_lists()
+define_teachers_payment_attendance_lists_rates()
+define_teachers_payment_attendance_lists_school_classtypes()
 
 define_customers_subscriptions_credits()
 define_log_customers_accepted_documents()

@@ -6,12 +6,16 @@
 import datetime
 
 from gluon.contrib.populate import populate
+from populate_os_tables import populate_teachers_payment_attendance_lists
+from populate_os_tables import populate_teachers_payment_attendance_lists_school_classtypes
+from populate_os_tables import populate_teachers_payment_attendance_lists_rates
 from populate_os_tables import populate_auth_user_teachers
 from populate_os_tables import populate_auth_user_teachers_fixed_rate_default
 from populate_os_tables import populate_auth_user_teachers_fixed_rate_class_1
 from populate_os_tables import populate_auth_user_teachers_fixed_rate_travel
 from populate_os_tables import prepare_classes
 from populate_os_tables import populate_customers
+from populate_os_tables import populate_tax_rates
 
 
 def next_weekday(d, weekday):
@@ -22,6 +26,216 @@ def next_weekday(d, weekday):
     if days_ahead <= 0: # Target day already happened this week
         days_ahead += 7
     return d + datetime.timedelta(days_ahead)
+
+
+def test_payment_attendance_lists(client, web2py):
+    """
+    Is the list showing?
+    """
+    populate_teachers_payment_attendance_lists(web2py)
+
+    url = '/teachers/payment_attendance_lists'
+    client.get(url)
+    assert client.status == 200
+
+    tpal = web2py.db.teachers_payment_attendance_lists(1)
+    assert tpal.Name in client.text
+
+
+def test_payment_attendance_list_add(client, web2py):
+    """
+    Can we add a list?
+    """
+    populate_tax_rates(web2py)
+
+    url = '/teachers/payment_attendance_list_add'
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        "Name": "Big list",
+        "tax_rates_id": 1
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+    tpal = web2py.db.teachers_payment_attendance_lists(1)
+    assert data['Name'] == tpal.Name
+
+
+def test_payment_attendance_list_edit(client, web2py):
+    """
+    Can we edit a list?
+    """
+    populate_teachers_payment_attendance_lists(web2py)
+
+    url = '/teachers/payment_attendance_list_edit?tpalID=1'
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        "id": 1,
+        "Name": "Big list",
+        "tax_rates_id": 1
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+    tpal = web2py.db.teachers_payment_attendance_lists(1)
+    assert data['Name'] == tpal.Name
+
+
+def test_payment_attendance_list_archive(client, web2py):
+    """
+    Is the list showing?
+    """
+    populate_teachers_payment_attendance_lists(web2py)
+
+    url = '/teachers/payment_attendance_list_archive?tpalID=1'
+    client.get(url)
+    assert client.status == 200
+
+    tpal = web2py.db.teachers_payment_attendance_lists(1)
+    assert tpal.Archived == True
+
+
+def test_payment_attendance_list_rates(client, web2py):
+    """
+    Is the list showing?
+    """
+    populate_teachers_payment_attendance_lists(web2py)
+
+    url = '/teachers/payment_attendance_list_rates?tpalID=1'
+    client.get(url)
+    assert client.status == 200
+
+    tpalr = web2py.db.teachers_payment_attendance_lists_rates(1)
+    assert format(tpalr.Rate, '.2f') in client.text
+
+
+def test_payment_attendance_list_rates_add(client, web2py):
+    """
+    Can we add a rate to the list?
+    """
+    populate_teachers_payment_attendance_lists(web2py, with_rates=False)
+
+    url = "/teachers/payment_attendance_list_rates?tpalID=1"
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        'Rate': 20.5
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+    tpalr = web2py.db.teachers_payment_attendance_lists_rates(1)
+    assert tpalr.Rate == data['Rate']
+
+
+def test_payment_attendance_list_rates_add_increase_attendanceNR(client, web2py):
+    """
+    Can we add a rate to the list?
+    """
+    populate_teachers_payment_attendance_lists(web2py)
+
+    query = (web2py.db.teachers_payment_attendance_lists_rates.teachers_payment_attendance_lists_id == 1)
+    count = web2py.db(query).count()
+
+    url = "/teachers/payment_attendance_list_rates?tpalID=1"
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        'Rate': 20.5
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+    new_count = count_rates = web2py.db(query).count()
+    new_id = count + 1
+    tpalr = web2py.db.teachers_payment_attendance_lists_rates(new_id)
+    assert tpalr.AttendanceNR == new_count
+
+
+def test_payment_attendance_list_rate_edit(client, web2py):
+    """
+    Can we add a rate to the list?
+    """
+    populate_teachers_payment_attendance_lists(web2py)
+
+    url = "/teachers/payment_attendance_list_rate_edit?tpalID=1&tpalrID=1"
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        'id': 1,
+        'Rate': 20.5
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+    tpalr = web2py.db.teachers_payment_attendance_lists_rates(1)
+    assert tpalr.Rate == data['Rate']
+
+
+def test_payment_attendance_list_rate_delete(client, web2py):
+    """
+    Can we delete a rate from a list?
+    """
+    populate_teachers_payment_attendance_lists(web2py)
+
+    query = (web2py.db.teachers_payment_attendance_lists_rates.teachers_payment_attendance_lists_id == 1)
+    count = web2py.db(query).count()
+
+    url = "/teachers/payment_attendance_list_rate_delete?tpalID=1&tpalrID=1"
+    client.get(url)
+    assert client.status == 200
+
+    count_after = web2py.db(query).count()
+    assert count_after == count - 1
+
+
+def test_payment_attendance_list_classtypes(client, web2py):
+    """
+    List classtypes for attendance payment list?
+    """
+    populate_teachers_payment_attendance_lists_school_classtypes(web2py)
+
+    url = "/teachers/payment_attendance_list_classtypes?tpalID=1"
+    client.get(url)
+    assert client.status == 200
+
+    assert 'input checked="checked" name="1" type="checkbox" value="on"' in client.text
+
+
+def test_payment_attendance_list_classtypes_save(client, web2py):
+    """
+    List classtypes for attendance payment list?
+    """
+    populate_teachers_payment_attendance_lists_school_classtypes(web2py)
+
+    url = "/teachers/payment_attendance_list_classtypes?tpalID=1"
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        '1': 'on'
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+    tpalsc = web2py.db.teachers_payment_attendance_lists_school_classtypes(4)
+    assert tpalsc.school_classtypes_id == 1
+    assert tpalsc.teachers_payment_attendance_lists_id == 1
+
+    assert web2py.db(web2py.db.teachers_payment_attendance_lists_school_classtypes).count() == 1
 
 
 def test_payment_fixed_rate_default_add(client, web2py):

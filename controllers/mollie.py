@@ -243,7 +243,7 @@ def invoice_pay():
         db.invoices_mollie_payment_ids.insert(
             invoices_id=iID,
             mollie_payment_id=payment['id'],
-            RecurringType=payment['recurringType'],
+            RecurringType=recurring_type,
             WebhookURL=webhook_url
         )
 
