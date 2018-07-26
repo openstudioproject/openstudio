@@ -301,7 +301,6 @@ def pinboard_get_teacher_upcoming_classes(days=3):
             repr_row = list(rows[i:i + 1].render())[0]
 
             result = cs._get_day_row_teacher_roles(row, repr_row)
-
             teacher = result['teacher_role']
             teacher2 = result['teacher_role2']
 
@@ -469,6 +468,8 @@ def pinboard_get_cancelled_classes(days=3):
     return classes
 
 
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'pinboard'))
 def teacher_classes_month():
     """
     creates page that displays the classes tought montlhy
@@ -479,70 +480,60 @@ def teacher_classes_month():
     response.view = 'general/only_content.html'
 
 
-    if 'month' in request.vars:
-        session.reports_te_classes_month = int(request.vars['month'])
-        session.reports_te_classes_year = int(request.vars['year'])
-    elif session.reports_te_classes_month is None or \
-            session.reports_te_classes_year is None:
-        today = datetime.date.today()
-        session.reports_te_classes_year = today.year
-        session.reports_te_classes_month = today.month
+    if session.pinboard_teacher_classes_month is None or session.pinboard_teacher_classes_year is None:
+        session.pinboard_teacher_classes_year = TODAY_LOCAL.year
+        session.pinboard_teacher_classes_month = TODAY_LOCAL.month
 
-    if auth.user.id and auth.user.teacher:
-        teachers_id = auth.user.id
-        cache_clear_classschedule()
+    table = TABLE(_class='table table-hover')
+    table.append(THEAD(TR(
+        TH(),
+        TH(T('Date')),
+        TH(T('Start')),
+        TH(T('Location')),
+        TH(T('Class Type')),
+        TH(),  # actions))
+    )))
 
+    date = datetime.date(
+        session.pinboard_teacher_classes_year,
+        session.pinboard_teacher_classes_month,
+        1
+    )
+    last_day = get_last_day_month(date)
 
-        table = TABLE(_class='table table-hover')
-        table.append(THEAD(TR(
-            TH(),
-            TH(T('Date')),
-            TH(T('Start')),
-            TH(T('Location')),
-            TH(T('Class Type')),
-            TH(),  # actions))
-        )))
+    for each_day in range(1, last_day.day + 1):
+        # list days
+        day = datetime.date(session.pinboard_teacher_classes_year,
+                            session.pinboard_teacher_classes_month,
+                            each_day)
 
-        date = datetime.date(session.reports_te_classes_year,
-                             session.reports_te_classes_month, 5)
-        last_day = get_last_day_month(date)
+        class_schedule = ClassSchedule(
+            date=day,
+            filter_id_teacher=auth.user.id
+        )
 
-        for each_day in range(1, last_day.day + 1):
-            # list days
-            day = datetime.date(session.reports_te_classes_year,
-                                session.reports_te_classes_month, each_day)
-            weekday = day.isoweekday()
+        rows = class_schedule.get_day_rows()
+        for i, row in enumerate(rows):
+            repr_row = list(rows[i:i + 1].render())[0]
 
-            class_schedule = ClassSchedule(
-                date=day,
-                filter_id_teacher=teachers_id
+            result = class_schedule._get_day_row_status(row)
+            status_marker = result['marker']
+
+            date_formatted = day.strftime(DATE_FORMAT)
+
+            tr = TR(
+                TD(status_marker,
+                   _class='td_status_marker'),
+                TD(date_formatted),
+                TD(repr_row.classes.Starttime),
+                TD(repr_row.classes.school_locations_id),
+                TD(repr_row.classes.school_classtypes_id)
             )
 
-            rows = class_schedule.get_day_rows()
+            table.append(tr)
 
-            for i, row in enumerate(rows):
-                repr_row = list(rows[i:i + 1].render())[0]
-
-                result = class_schedule._get_day_row_status(row)
-                status_marker = result['marker']
-
-                date_formatted = day.strftime(DATE_FORMAT)
-
-                tr = TR(
-                    TD(status_marker,
-                       _class='td_status_marker'),
-                    TD(date_formatted),
-                    TD(repr_row.classes.Starttime),
-                    TD(repr_row.classes.school_locations_id),
-                    TD(repr_row.classes.school_classtypes_id)
-                )
-
-                table.append(tr)
-
-    else:
-        table = ''
-    form_subtitle = get_form_subtitle(session.reports_te_classes_month,
-                                      session.reports_te_classes_year,
+    form_subtitle = get_form_subtitle(session.pinboard_teacher_classes_month,
+                                      session.pinboard_teacher_classes_year,
                                       request.function,
                                       _class='col-md-8')
     response.subtitle = form_subtitle['subtitle']
@@ -552,10 +543,8 @@ def teacher_classes_month():
     response.subtitle = form_subtitle['subtitle']
 
     header_tools = month_chooser + current_month
-    return dict(
-                header_tools=header_tools,
-                content=table,
-                )
+    return dict(header_tools=header_tools,
+                content=table)
 
 
 def get_form_subtitle(month=None, year=None, function=None, _class='col-md-4'):
@@ -648,8 +637,8 @@ def teacher_classes_set_month():
     month = request.vars['month']
     back  = request.vars['back']
 
-    session.reports_te_classes_year = int(year)
-    session.reports_te_classes_month = int(month)
+    session.pinboard_teacher_classes_year = int(year)
+    session.pinboard_teacher_classes_month = int(month)
 
     redirect(URL(back))
 
@@ -661,11 +650,11 @@ def teacher_classes_show_current():
         Resets some session variables to show the current month for
         teacher_classes
     """
-    session.reports_te_classes_year = None
-    session.reports_te_classes_month = None
+    session.pinboard_teacher_classes_year = None
+    session.pinboard_teacher_classes_month = None
     back = request.vars['back']
 
-    redirect(URL('teacher_monthly_classes'))
+    redirect(URL('teacher_classes_month'))
 
 
 def overview_get_month_chooser(page):
@@ -673,8 +662,8 @@ def overview_get_month_chooser(page):
         Returns month chooser for overview
     """
 
-    year  = session.reports_te_classes_year
-    month = session.reports_te_classes_month
+    year  = session.pinboard_teacher_classes_year
+    month = session.pinboard_teacher_classes_month
 
     link = 'teacher_classes_set_month'
 
