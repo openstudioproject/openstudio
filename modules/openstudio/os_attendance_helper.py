@@ -1247,10 +1247,10 @@ class AttendanceHelper:
                 if subscription['Unlimited']:
                     credits_display = T('Unlimited')
                 else:
-                    if credits_remaining < 0:
-                        credits_display = SPAN(round(credits_remaining, 1), ' ', T('Credits'))
+                    if subscription['CreditsRemaining'] < 0:
+                        credits_display = SPAN(round(subscription['CreditsRemaining'], 1), ' ', T('Credits'))
                     else:
-                        credits_display = SPAN(round(credits_remaining, 1), ' ',
+                        credits_display = SPAN(round(subscription['CreditsRemaining'], 1), ' ',
                                                T('Credits remaining'))
 
                 # let's put everything together
@@ -1284,7 +1284,7 @@ class AttendanceHelper:
                                  _class='col-md-3'),
                              _class='col-md-10 col-md-offset-1 col-xs-12')
 
-                formatted_append(option)
+                formatted_options.append(option)
 
 
         # class cards
