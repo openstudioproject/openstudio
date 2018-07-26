@@ -1230,6 +1230,17 @@ def access_group_permissions():
                         ['teachers_payment_fixed_rate_travel-update', T('Edit travel allowance (fixed rate)')],
                         ['teachers_payment_fixed_rate_travel-delete', T('Delete travel allowance (fixed rate)')],
                     ]],
+                ]],
+                ['teachers_payment_attendance_lists-read', T("View payment rate lists (attendance based)"), [
+                    ['teachers_payment_attendance_lists-create', T('Add payment rate lists (attendance based)')],
+                    ['teachers_payment_attendance_lists-update', T('Edit payment rate lists (attendance based)')],
+                    ['teachers_payment_attendance_lists-delete', T('Delete payment rate lists (attendance based)')],
+                    ['teachers_payment_attendance_lists_rates-read', T('View list rates'), [
+                        ['teachers_payment_attendance_lists_rates-create', T('Add rates to lists')],
+                        ['teachers_payment_attendance_lists_rates-update', T('Edit rates in lists')],
+                        ['teachers_payment_attendance_lists_rates-delete', T('Delete rates from lists')],
+                    ]],
+                    ['teachers_payment_attendance_lists_school_classtypes-update', T("Assign list to classtypes")]
                 ]]
             ]],
             ['employees-read', T("Employees"), [
