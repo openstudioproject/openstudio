@@ -1,0 +1,28 @@
+.os_loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background-color: #222;
+}
+
+.os_loader_content {
+    padding-top: 40vh;
+    margin: 0px auto;
+    width: 320px;
+    text-align: center;
+    color: #555;
+    font-size: 24px;
+}
+
+.os_loader_content .progress {
+    background: rgba(0,0,0,0.2);
+    margin: 5px -10px 5px -10px;
+    height: 2px;
+    color: #FFF;
+}
+
+.os_loader_content .progress-bar {
+    background: rgba(255, 255, 255, 0.3);
+}

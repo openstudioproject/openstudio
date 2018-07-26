@@ -182,8 +182,6 @@ class CustomersSubscriptionsCredits:
                     self.add_credits_balance[cuID] -= 1
 
 
-
-
         # Clear cache
         cache_clear_customers_subscriptions(cuID)
 

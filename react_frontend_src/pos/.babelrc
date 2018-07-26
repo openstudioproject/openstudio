@@ -1,0 +1,5 @@
+// This file is required for testing using jest
+
+{
+  "presets": ["env","stage-0","react"]
+}

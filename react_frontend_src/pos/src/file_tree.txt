@@ -1,0 +1,29 @@
+.
++-- /src
+|   +-- /app
+|   |   +-- /home
+|   |   |   +-- /duck
+|   |   |   |   +-- types.js
+|   |   |   |   +-- actions.js
+|   |   |   |   +-- operations.js
+|   |   |   |   +-- reducers.js
+|   |   |   |   +-- tests.js
+|   |   |   |   +-- index.js
+|   |   |   +-- HomeComponent.jsx
+|   |   |   +-- HomeContainer.js
+|   |   |   +-- RedditComponent.jsx
+|   |   |   +-- RedditContainer.js
+|   |   +-- /trending
+|   |   +-- /about
+|   |   +-- /common
+|   |   +-- App.jsx
+|   +-- /utils
+|   +-- index.js
+|   +-- reducers.js
+|   +-- registerServiceWorker.js
++-- /public
++-- /assets
++-- package.json
+
+
+bases on https://levelup.gitconnected.com/structure-your-react-redux-project-for-scalability-and-maintainability-618ad82e32b7

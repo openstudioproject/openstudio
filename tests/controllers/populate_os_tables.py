@@ -722,6 +722,7 @@ def prepare_classes(web2py,
                     attendance=True,
                     with_subscriptions=True,
                     with_classcards=True,
+                    with_reservations=True,
                     invoices=False,
                     credits=False,
                     created_on=datetime.date.today()):
@@ -809,24 +810,25 @@ def prepare_classes(web2py,
     )
 
     ## Add stuff to Monday's class
-    # recurring class reservation
-    web2py.db.classes_reservation.insert(auth_customer_id=cuID,
-                                         classes_id='1',
-                                         Startdate='2014-01-01',
-                                         SingleClass=False,
-                                         TrialClass=False)
-    # dropin class reservation
-    web2py.db.classes_reservation.insert(auth_customer_id=cuID,
-                                         classes_id='1',
-                                         Startdate='2014-01-06',
-                                         SingleClass=True,
-                                         TrialClass=False)
-    # trial class reservation
-    web2py.db.classes_reservation.insert(auth_customer_id=cuID,
-                                         classes_id='1',
-                                         Startdate='2014-01-06',
-                                         SingleClass=True,
-                                         TrialClass=True)
+    if with_reservations:
+        # recurring class reservation
+        web2py.db.classes_reservation.insert(auth_customer_id=cuID,
+                                             classes_id='1',
+                                             Startdate='2014-01-01',
+                                             SingleClass=False,
+                                             TrialClass=False)
+        # dropin class reservation
+        web2py.db.classes_reservation.insert(auth_customer_id=cuID,
+                                             classes_id='1',
+                                             Startdate='2014-01-06',
+                                             SingleClass=True,
+                                             TrialClass=False)
+        # trial class reservation
+        web2py.db.classes_reservation.insert(auth_customer_id=cuID,
+                                             classes_id='1',
+                                             Startdate='2014-01-06',
+                                             SingleClass=True,
+                                             TrialClass=True)
 
     web2py.db.classes_waitinglist.insert(auth_customer_id=cuID,
                                          classes_id='1')

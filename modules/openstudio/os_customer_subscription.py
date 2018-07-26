@@ -411,10 +411,10 @@ class CustomerSubscription:
         return table
 
 
-
     def get_class_permissions(self, public_only=True, formatted=False):
         """
-            :return: return list of class permissons (clsID: enroll, book in shop, attend)
+        In general, for back-end usage set public_only to False
+        :return: return list of class permissons (clsID: enroll, book in shop, attend)
         """
         db = current.db
 

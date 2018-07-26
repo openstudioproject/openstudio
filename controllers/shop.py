@@ -401,7 +401,7 @@ def order_received():
 
     # Send sys notification
     os_mail = OsMail()
-    print os_mail.send_notification(
+    os_mail.send_notification(
         'order_created',
         customers_orders_id=coID
     )
@@ -1482,7 +1482,7 @@ def classes_book_options():
     ##
     trial = cls.get_trialclass_allowed_in_shop()
     ah = AttendanceHelper()
-    options =  ah.get_customer_class_booking_options(clsID, date, customer, trial=trial, controller='shop')
+    options =  ah.get_customer_class_booking_options_formatted(clsID, date, customer, trial=trial, controller='shop')
 
     content.append(options)
 
@@ -1545,6 +1545,7 @@ def class_book_options_get_enrollment_options(clsID, date, date_formatted, featu
     """
         List enrollment options
     """
+    from openstudio.os_attendance_helper import AttendanceHelper
     from openstudio.os_class import Class
 
     options = DIV(_class='shop-classes-booking-options row')
@@ -1617,19 +1618,42 @@ def class_book_options_get_enrollment_options(clsID, date, date_formatted, featu
             return options
 
     ##
-    # Option to enroll
+    # Options to enroll
     ##
-    option = DIV(DIV(T('Enroll'),
-                     _class='col-md-3 bold'),
-                 DIV(T("In case you would like to join this class every week, you can enroll and we'll reserve a space for you!"),
-                     _class='col-md-6'),
-                 DIV(A(SPAN(T('Enroll'), ' ',
-                       os_gui.get_fa_icon('fa-chevron-right')),
-                       _href=URL('class_enroll', vars={'clsID':clsID, 'date':date_formatted}),
-                       _class='btn btn-link pull-right'),
-                     _class='col-md-3'),
-                 _class='col-md-10 col-md-offset-1 col-xs-12')
-    options.append(option)
+    ah = AttendanceHelper()
+    options = DIV(
+        BR(),
+        T("In case you would like to join this class every week, you can enroll and we'll reserve a space for you!"), BR(),
+        T("You can enroll using the following subscription(s)"),
+        BR(), BR(),
+        ah.get_customer_class_enrollment_options(
+            clsID,
+            date,
+            customer,
+            list_type='shop',
+            controller='shop'
+        )
+    )
+
+    # options = ah.get_customer_class_enrollment_options(
+    #         clsID,
+    #         date,
+    #         customer,
+    #         list_type='shop',
+    #         controller='shop'
+    #     )
+
+    # option = DIV(DIV(T('Enroll'),
+    #                  _class='col-md-3 bold'),
+    #              DIV(T("In case you would like to join this class every week, you can enroll and we'll reserve a space for you!"),
+    #                  _class='col-md-6'),
+    #              DIV(A(SPAN(T('Enroll'), ' ',
+    #                    os_gui.get_fa_icon('fa-chevron-right')),
+    #                    _href=URL('class_enroll', vars={'clsID':clsID, 'date':date_formatted}),
+    #                    _class='btn btn-link pull-right'),
+    #                  _class='col-md-3'),
+    #              _class='col-md-10 col-md-offset-1 col-xs-12')
+    # options.append(option)
 
 
     return options
@@ -1646,6 +1670,7 @@ def class_enroll():
     response.subtitle = T('Enroll in class')
     response.view = 'shop/index.html'
 
+    csID = request.vars['csID']
     clsID = request.vars['clsID']
     date_formatted = request.vars['date']
     date = datestr_to_python(DATE_FORMAT, date_formatted)
@@ -1669,13 +1694,16 @@ def class_enroll():
 
     content.append(DIV(H3(XML(class_header), _class=''), BR(), H4(T('Enrollment information'), _class=''), _class='center'))
 
-    info = P(T("By enrolling in a class a space will be reserved for you every week. After enrolling you can manage your enrollments from your profile."))
+    info = P(T("By enrolling in a class a space will be reserved for you every week."), BR(),
+             T("After enrolling you can manage your enrollments from your profile."),
+             _class="center")
     content.append(DIV(info, _class='col-md-10 col-md-offset-1 col-xs-12'))
 
     ##
     # Enrollment form (It actually shows just 2 buttons, everything else is a hidden field)
     ##
     db.classes_reservation.auth_customer_id.default = auth.user.id
+    db.classes_reservation.customers_subscriptions_id.default = csID
     db.classes_reservation.classes_id.default = clsID
     db.classes_reservation.Startdate.readable = False
     db.classes_reservation.Enddate.readable = False
@@ -1690,17 +1718,29 @@ def class_enroll():
     form.add_button(T('Cancel'), return_url)
 
     if form.process().accepted:
-        session.flash = T('Enrollment added')
+        from openstudio.os_classes_reservation import ClassesReservation
+
+        clrID = form.vars.id
+
+        reservation = ClassesReservation(clrID)
+        classes_booked = reservation.book_classes(
+            csID=csID,
+            date_from=date,
+        )
+
+        classes = T("classes")
+        if classes_booked == 1:
+            classes = T("class")
+
+        session.flash = T('Enrollment added, booked' + ' ' + unicode(classes_booked) + ' ' + classes)
         redirect(URL('profile', 'enrollments'))
     elif form.errors:
         response.flash = T('Form has errors')
 
-    content.append(DIV(form, _class='col-md-10 col-md-offset-1 col-xs-12'))
+    content.append(DIV(form, _class='col-md-10 col-md-offset-1 col-xs-12 center'))
 
     return dict(content=content,
                 back=back)
-
-
 
 
 @auth.requires_login()

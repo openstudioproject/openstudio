@@ -40,8 +40,6 @@ def next_weekday(d, weekday):
     return d + datetime.timedelta(days_ahead)
 
 
-
-
 def test_customers_shop_features(client, web2py):
     """
         Are the settings to control of which pages to show in the shop working?
@@ -582,6 +580,9 @@ def test_classes_book_options_enroll_show(client, web2py):
     client.get(url)
     assert client.status == 200
 
+
+    ssu = web2py.db.school_subscriptions(1)
+    assert "Enroll" in client.text
     assert 'In case you would like to join this class every week' in client.text
 
 
@@ -1279,7 +1280,7 @@ def test_class_enroll(client, web2py):
 
     web2py.db.commit()
 
-    url = '/shop/class_enroll?clsID=1&date=2014-01-06'
+    url = '/shop/class_enroll?csID=1&clsID=1&date=2014-01-06'
     client.get(url)
     assert client.status == 200
 
@@ -1293,6 +1294,14 @@ def test_class_enroll(client, web2py):
     assert 'Enrollment added' in client.text # check user message
 
     query = (web2py.db.classes_reservation.ResType == 'recurring')
+    assert web2py.db(query).count() == 1
+
+
+    # Check classes booked
+    query = (web2py.db.classes_attendance.ClassDate == datetime.date(2014, 1, 6)) & \
+            (web2py.db.classes_attendance.auth_customer_id == 300) & \
+            (web2py.db.classes_attendance.BookingStatus == 'booked') & \
+            (web2py.db.classes_attendance.classes_id == 1)
     assert web2py.db(query).count() == 1
 
 

@@ -17,6 +17,7 @@ class ClassSchedule:
                        filter_id_teacher = None,
                        filter_id_status = None,
                        filter_public = False,
+                       filter_starttime_from = None,
                        sorting = 'starttime',
                        trend_medium = None,
                        trend_high = None):
@@ -30,6 +31,7 @@ class ClassSchedule:
         self.filter_id_school_level = filter_id_school_level
         self.filter_id_status = filter_id_status
         self.filter_public = filter_public
+        self.filter_starttime_from = filter_starttime_from
         self.sorting = sorting
         self.trend_medium = trend_medium
         self.trend_high = trend_high
@@ -87,6 +89,11 @@ class ClassSchedule:
             where += "AND cla.AllowAPI = 'T' "
             where += "AND sl.AllowAPI = 'T' "
             where += "AND sct.AllowAPI = 'T' "
+        if self.filter_starttime_from:
+            where += 'AND ((CASE WHEN cotc.Starttime IS NULL \
+                            THEN cla.Starttime  \
+                            ELSE cotc.Starttime END) >= '
+            where += "'" + unicode(self.filter_starttime_from) + "') "
 
         return where
 

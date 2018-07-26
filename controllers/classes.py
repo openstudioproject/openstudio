@@ -2733,13 +2733,13 @@ def attendance_booking_options():
                                 auth.has_permission('complementary', 'classes_attendance'))
 
     ah = AttendanceHelper()
-    content = ah.get_customer_class_booking_options(clsID,
-                                                    date,
-                                                    customer,
-                                                    trial=True,
-                                                    complementary=complementary_permission,
-                                                    list_type='attendance',
-                                                    controller='classes')
+    content = ah.get_customer_class_booking_options_formatted(clsID,
+                                                              date,
+                                                              customer,
+                                                              trial=True,
+                                                              complementary=complementary_permission,
+                                                              list_type='attendance',
+                                                              controller='classes')
     cancel = os_gui.get_button('noicon',
                                URL('attendance', vars={'clsID': clsID, 'date': date_formatted}),
                                title=T('Cancel'),
@@ -2790,15 +2790,13 @@ def reservation_remove():
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('create', 'classes_reservation'))
-def reservation_add():
+def reservation_add_choose():
     """
-        Add reservation for a customer
+    List applicable subscriptions and cards for customer
+    """
+    from openstudio.os_customer import Customer
+    from openstudio.os_customer_subscription import CustomerSubscription
 
-        if startdate is not set, a one time reservation for 'date' is assumed
-    """
-    """
-        Edit page for recurring reservations
-    """
     cuID  = request.vars['cuID']
     clsID = request.vars['clsID']
     date_formatted = request.vars['date']
@@ -2807,25 +2805,70 @@ def reservation_add():
     response.subtitle = get_classname(clsID) + ": " + date_formatted
     response.view = 'general/only_content.html'
 
+    return_url = reservation_get_return_url(clsID, date_formatted)
+
     customer = Customer(cuID)
+
+    ah = AttendanceHelper()
+    options = ah.get_customer_class_enrollment_options(
+        clsID,
+        date,
+        customer,
+        list_type='attendance',
+        controller='classes'
+    )
+
+    content = DIV(
+        H4(T('Enrollment options for'), ' ', customer.row.display_name), BR(), BR(),
+        options,
+    )
+
+    back = os_gui.get_button("back", return_url)
+
+    return dict(content=content, back=back)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+                auth.has_permission('create', 'classes_reservation'))
+def class_enroll():
+    """
+        Add reservation for a customer
+
+        if startdate is not set, a one time reservation for 'date' is assumed
+    """
+    cuID  = request.vars['cuID']
+    clsID = request.vars['clsID']
+    csID = request.vars['csID']
+    ccdID = request.vars['ccsID']
+    date_formatted = request.vars['date']
+    date = datestr_to_python(DATE_FORMAT, date_formatted)
+
+
+    if not csID and not ccdID:
+        redirect(URL('reservation_add_choose'))
+
+    response.title = T("Class")
+    response.subtitle = get_classname(clsID) + ": " + date_formatted
+    response.view = 'general/only_content.html'
+
+    customer = Customer(cuID)
+
+    if request.vars['csID']:
+        csID = request.vars['csID']
+        db.classes_reservation.customers_subscriptions_id.default = csID
 
     db.classes_reservation.classes_id.default = clsID
     db.classes_reservation.auth_customer_id.default = cuID
-
-    # db.classes_reservation.auth_customer_id.readable = False
-    # db.classes_reservation.auth_customer_id.writable = False
-    # db.classes_reservation.classes_id.readable = False
-    # db.classes_reservation.classes_id.writable = False
-    # db.classes_reservation.SingleClass.readable = False
-    # db.classes_reservation.SingleClass.writable = False
-    # db.classes_reservation.TrialClass.readable = False
-    # db.classes_reservation.TrialClass.writable = False
+    db.classes_reservation.Startdate.default = date
 
     return_url = reservation_get_return_url(clsID, date_formatted)
 
     crud.messages.submit_button = T("Save")
     crud.messages.record_updated = T("Saved reservation")
-    crud.settings.create_onaccept = [cache_clear_classschedule]
+    crud.settings.create_onaccept = [
+        cache_clear_classschedule,
+        reservation_on_create
+    ]
     crud.settings.create_next = return_url
     crud.settings.formstyle='bootstrap3_stacked'
     form = crud.create(db.classes_reservation)
@@ -2842,10 +2885,39 @@ def reservation_add():
     content = DIV(H4(T('Enroll'), ' ', customer.row.display_name), form)
 
 
-    back = os_gui.get_button("back", return_url)
+    back = os_gui.get_button(
+        "back",
+        URL('reservation_add_choose',
+            vars={'cuID':cuID,
+                  'clsID':clsID,
+                  'date':date_formatted}))
 
     return dict(content=content, back=back, save=submit)
 
+
+def reservation_on_create(form):
+    """
+        Book classes for new reservation
+    """
+    from openstudio.os_classes_reservation import ClassesReservation
+
+    clrID = form.vars.id
+    start_date = form.vars.Startdate
+
+    clr = db.classes_reservation(clrID)
+
+    reservation = ClassesReservation(clrID)
+    classes_booked = reservation.book_classes(
+        csID = clr.customers_subscriptions_id,
+        date_from = form.vars.Startdate,
+        date_until = form.vars.Enddate
+    )
+
+    classes = T("classes")
+    if classes_booked == 1:
+        classes = T("class")
+
+    session.flash = T("Booked") + ' ' + unicode(classes_booked) + ' ' + classes + "."
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
