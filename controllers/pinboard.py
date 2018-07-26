@@ -484,11 +484,11 @@ def teacher_monthly_classes():
                     TD(repr_row.classes.Starttime),
                     TD(repr_row.classes.school_locations_id),
                     TD(repr_row.classes.school_classtypes_id),
-
-                    # TD(os_gui.get_button('next_no_text',
-                    #                      URL('classes', 'attendance', vars={'clsID': row.classes.id,
-                    #                                                         'date': date_formatted}),
-                    #                      _class='pull-right'))
+                    TD(os_gui.get_button('astronaut',
+                                         URL('classes', 'finding_substitute',
+                                             vars={'clsID': row.classes.id,
+                                                                            'date': date_formatted}),
+                                         title='Find sub', _class='pull-right'))
                 )
 
                 table.append(tr)
