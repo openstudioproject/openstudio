@@ -64,12 +64,12 @@ def hide_welcome():
     redirect(URL('index'))
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
+@auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'pinboard'))
 def index():
-    '''
+    """
         Pinboard page, a quick overview of today
-    '''
+    """
     response.title = T("Pinboard")
     response.subtitle = T("")
 
@@ -120,9 +120,9 @@ def index():
 
 
 def pinboard_get_tasks(var=None):
-    '''
+    """
         Add todays and tomorrow's tasks to the pinboard
-    '''
+    """
     tasks = ''
     permission = (auth.has_membership(group_id='Admins') or
                   auth.has_permission('read', 'tasks'))
@@ -138,9 +138,9 @@ def pinboard_get_tasks(var=None):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'pinboard'))
 def pinboard_get_announcements(var=None):
-    '''
+    """
         Announcements for pinboard in a nice list
-    '''
+    """
     today = datetime.date.today()
     query = (db.announcements.Visible == True) & \
             (db.announcements.Startdate <= today) & \
@@ -261,16 +261,16 @@ def get_birthdays(var=None):
 
 
 def pinboard_get_teacher_upcoming_classes(days=3):
-    '''
+    """
         @return: List upcoming classes for a teacher
-    '''
+    """
     if auth.user.id and auth.user.teacher:
         teachers_id = auth.user.id
         cache_clear_classschedule()
     else:
         return ''
 
-    attendance_permission = (auth.has_membership(group_id='Admins') or \
+    attendance_permission = (auth.has_membership(group_id='Admins') or
                              auth.has_permission('update', 'classes_attendance'))
 
     date = datetime.date.today()
@@ -294,6 +294,9 @@ def pinboard_get_teacher_upcoming_classes(days=3):
             filter_id_teacher=teachers_id)
 
         rows = cs.get_day_rows()
+
+        print rows
+
         for i, row in enumerate(rows):
             if row.classes_otc.Status == 'cancelled' or row.school_holidays.id:
                 continue
@@ -339,15 +342,75 @@ def pinboard_get_teacher_upcoming_classes(days=3):
                                    _class='box-tools pull-right'),
                                _class='box-header with-border'),
                                DIV(table, _class='box-body'),
+                               pinboard_get_teacher_upcoming_classes_footer(),
                           _class='box box-info')
 
     return upcoming_classes
 
 
+
+def pinboard_get_teacher_upcoming_classes_footer(var=None):
+    """
+    Footer for upcoming classes page 
+    :return: div.box-footer
+    """
+    # Last month
+    if TODAY_LOCAL.month == 1:
+        month_last = 12
+        year_last = TODAY_LOCAL.year - 1 
+    else:
+        month_last = TODAY_LOCAL.month - 1
+        year_last = TODAY_LOCAL.year
+        
+    # Next month
+    if TODAY_LOCAL.month == 12:
+        month_next = 1
+        year_next = TODAY_LOCAL.year + 1 
+    else:
+        month_next = TODAY_LOCAL.month + 1
+        year_next = TODAY_LOCAL.year
+    
+    link_last_month = A(
+        T("Last month"),
+        _href=URL('teacher_classes_set_month',
+                  vars={'month': month_last,
+                        'year': year_last,
+                        'back': 'teacher_classes_month'})
+    )
+
+    link_this_month = A(
+        T("This month"),
+        _href=URL('teacher_classes_set_month',
+                  vars={'month': TODAY_LOCAL.month,
+                        'year': TODAY_LOCAL.year,
+                        'back': 'teacher_classes_month'})
+    )
+
+    link_next_month = A(
+        T("Next month"),
+        _href=URL('teacher_classes_set_month',
+                  vars={'month': month_next,
+                        'year': year_next,
+                        'back': 'teacher_classes_month'})
+    )
+    
+
+    return DIV(
+        DIV(
+            DIV(link_last_month, _class='pull-left'),
+            DIV(link_next_month, _class='pull-right'),
+            DIV(link_this_month, _class='center'),
+            _class='col-md-12'),
+        _class='box-footer'
+    )
+
+
+
+
 def pinboard_get_cancelled_classes(days=3):
-    '''
+    """
     :return: list of cancelled classes
-    '''
+    """
     today = TODAY_LOCAL
 
     delta =  datetime.timedelta(days=days)
@@ -412,12 +475,12 @@ def pinboard_get_cancelled_classes(days=3):
     return classes
 
 
-def teacher_monthly_classes():
-    '''
+def teacher_classes_month():
+    """
     creates page that displays the classes tought montlhy
     :return:
-    '''
-    response.title = T("Monthly Classes")
+    """
+    response.title = T("My classes")
     response.subtitle = T("")
     response.view = 'general/only_content.html'
 
@@ -437,8 +500,6 @@ def teacher_monthly_classes():
 
 
         table = TABLE(_class='table table-hover')
-
-
         table.append(THEAD(TR(
             TH(),
             TH(T('Date')),
@@ -503,8 +564,7 @@ def teacher_monthly_classes():
     month_chooser = form_subtitle['month_chooser']
     current_month = form_subtitle['current_month']
 
-    response.subtitle = SPAN(T('Teacher classes'), ' ',
-                             form_subtitle['subtitle'])
+    response.subtitle = form_subtitle['subtitle']
 
     header_tools = month_chooser + current_month
     return dict(
@@ -593,6 +653,8 @@ def get_month_subtitle(month, year):
     return subtitle
 
 
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'pinboard'))
 def teacher_classes_set_month():
     """
         Sets the session variables for teacher_classes year and month
@@ -607,6 +669,8 @@ def teacher_classes_set_month():
     redirect(URL(back))
 
 
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'pinboard'))
 def teacher_classes_show_current():
     """
         Resets some session variables to show the current month for
