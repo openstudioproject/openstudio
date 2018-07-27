@@ -14,7 +14,8 @@ def index():
 
 
 def set_headers(var=None):
-    response.headers["Access-Control-Allow-Origin"] = request.env.HTTP_ORIGIN
+    if request.env.HTTP_ORIGIN == 'http://localhost:8080':
+        response.headers["Access-Control-Allow-Origin"] = request.env.HTTP_ORIGIN
     response.headers["Access-Control-Allow-Credentials"] = "true"
 
 
@@ -120,8 +121,6 @@ def get_classes():
 
     set_headers()
 
-    print request.vars
-
     from openstudio.os_class_schedule import ClassSchedule
 
 
@@ -164,6 +163,8 @@ def get_class_teacher_payment():
     """
     from openstudio.os_reports import Reports
 
+    set_headers()
+
     clsID = request.vars['clsID']
     date_received = request.vars['date']
     date = datestr_to_python("%Y-%m-%d", date_received)
@@ -173,8 +174,6 @@ def get_class_teacher_payment():
     reports = Reports()
 
     return dict(data=reports.get_class_revenue_summary(clsID, date))
-
-
 
 
 
