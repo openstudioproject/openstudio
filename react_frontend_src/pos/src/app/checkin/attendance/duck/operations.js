@@ -8,6 +8,7 @@ import {
 
 import axios_os from '../../../../utils/axios_os'
 import OS_API from '../../../../utils/os_api'
+import { toISODate } from '../../../../utils/date_tools'
 
 // just pass these actions as there's nothing else they need to do
 // Put pass-through actions here
@@ -20,10 +21,11 @@ const fetchClassAttendance = (clsID) => {
       return dispatch => {
           dispatch(request_class_attendance())
 
-          console.log("fetch class attendance")
-          console.log(clsID)
+          const date = new Date()
+          const iso_date = toISODate(date)
           const params = new URLSearchParams()
           params.append('clsID', clsID)
+          params.append('date', iso_date)
           console.log(params)
           axios_os.post(OS_API.CHECKIN_ATTENDANCE, params)
           .then(function (response) {

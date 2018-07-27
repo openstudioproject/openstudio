@@ -115,14 +115,18 @@ def get_classes():
     List upcoming classes for today
     :return:
     """
+    date_received = request.vars['date']
+    date = datestr_to_python("%Y-%m-%d", date_received)
+
     set_headers()
+
+    print request.vars
 
     from openstudio.os_class_schedule import ClassSchedule
 
-    time_from = (NOW_LOCAL - datetime.timedelta(hours=3)).time().strftime(TIME_FORMAT)
 
     cs = ClassSchedule(
-        TODAY_LOCAL,
+        date,
         # filter_starttime_from=time_from
     )
 
@@ -139,11 +143,13 @@ def get_class_attendance():
     from openstudio.os_attendance_helper import AttendanceHelper
 
     clsID = request.vars['clsID']
+    date_received = request.vars['date']
+    date = datestr_to_python("%Y-%m-%d", date_received)
 
     set_headers()
 
     ah = AttendanceHelper()
-    attendance = ah.get_attendance_rows(clsID, TODAY_LOCAL).as_list()
+    attendance = ah.get_attendance_rows(clsID, date).as_list()
 
     return dict(attendance=attendance)
 
