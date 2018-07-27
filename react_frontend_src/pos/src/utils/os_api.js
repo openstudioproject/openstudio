@@ -4,6 +4,7 @@ const api_urls = {
     'CHECKIN_CLASSES': '/pos/get_classes.json',
     'CHECKIN_ATTENDANCE': '/pos/get_class_attendance.json',
     'CHECKIN_BOOKING_OPTIONS': '/pos/get_class_booking_options.json',
+    'CHECKIN_REVENUE': '/pos/get_class_revenue.json',
 }
 
 export default api_urls

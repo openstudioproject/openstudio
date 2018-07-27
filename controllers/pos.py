@@ -156,7 +156,7 @@ def get_class_attendance():
 #TODO: Change for right permission
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'classes_attendance'))
-def get_class_teacher_payment():
+def get_class_revenue():
     """
     Teacher payment (if any)
     :return:
@@ -173,7 +173,7 @@ def get_class_teacher_payment():
 
     reports = Reports()
 
-    return dict(data=reports.get_class_revenue_summary(clsID, date))
+    return dict(revenue=reports.get_class_revenue_summary(clsID, date))
 
 
 

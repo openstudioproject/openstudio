@@ -10,6 +10,7 @@ import {
 import Classes from './checkin/classes/ClassesContainer'
 import Attendance from './checkin/attendance/AttendanceContainer'
 import Book from './checkin/book/BookContainer'
+import Revenue from './checkin/revenue/RevenueContainer'
 import Home from './home/HomeContainer'
 import PermissionsError from './permissions_error/PermissionsErrorContainer'
 import Whoops404 from './whoops404/Whoops404'
@@ -34,6 +35,7 @@ class App extends Component {
             <Route exact path='/checkin' component={Classes} />
             <Route path='/checkin/attendance/:clsID' component={Attendance} />
             <Route path='/checkin/book/:clsID/:cuID' component={Book} />
+            <Route path='/checkin/revenue/:clsID' component={Revenue} />
             <Route path='/products' component={Home} />
             <Route path='/permissions_error' component={PermissionsError} />
             {/* Add all your remaining routes here, like /trending, /about, etc. */}

@@ -14,11 +14,6 @@
         "loaded": false,
         "data": {}
     },
-    "checkin_classes": {
-        "loading": false,
-        "loaded": false,
-        "data": {}
-    },
     "checkin_attendance": {
         "loading": false,
         "loaded": false,
@@ -28,6 +23,16 @@
     "checkin_book": {
         "loading": false,
         "loaded": false,
+        "data": {}
+    },
+    "checkin_classes": {
+        "loading": false,
+        "loaded": false,
+        "data": {}
+    },
+    "checkin_revenue": {
+        "loaded": false,
+        "loading": false,
         "data": {}
     }
 }
