@@ -1535,14 +1535,20 @@ def define_teachers_payment_attendance():
     ]
 
     db.define_table('teachers_payment_attendance',
-        Field('classes_id', db.classes.id),
+        Field('classes_id', db.classes),
         Field('ClassDate', 'date'),
         Field('Status',
               requires=IS_IN_SET(statuses)),
         Field('AttendanceCount', 'integer'),
         Field('VerifiedBy', db.auth_user),
         Field('VerifiedOn', 'datetime',
+              readable=False,
+              writable=False,
               default=datetime.datetime.now()),
+        Field('UpdatedOn', 'datetime',
+              readable=False,
+              writable=False,
+              compute=datetime.datetime.now())
     )
 
 
@@ -2155,6 +2161,10 @@ def define_classes_attendance():
     db.define_table('classes_attendance',
         Field('auth_customer_id', db.auth_user, required=True,
             label=T('CustomerID')),
+        Field('CustomerMembership', 'boolean', # Set to true if customer has membership when checking in
+            readable=False,
+            writable=False,
+            default=False),
         Field('classes_id', db.classes, required=True,
             #represent=lambda value, row: classes_dict.get(value, None),
             represent=lambda value, row: value or '',
@@ -5578,6 +5588,7 @@ define_teachers_payment_fixed_rate_travel()
 define_teachers_payment_attendance_lists()
 define_teachers_payment_attendance_lists_rates()
 define_teachers_payment_attendance_lists_school_classtypes()
+define_teachers_payment_attendance()
 
 define_customers_subscriptions_credits()
 define_log_customers_accepted_documents()

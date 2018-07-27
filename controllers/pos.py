@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from general_helpers import set_form_id_and_get_submit_button
+from general_helpers import datestr_to_python
 
 # auth.settings.on_failed_authorization = URL('return_json_permissions_error')
 
@@ -155,6 +156,19 @@ def get_class_teacher_payment():
     Teacher payment (if any)
     :return:
     """
+    from openstudio.os_reports import Reports
+
+    clsID = request.vars['clsID']
+    date_received = request.vars['date']
+    date = datestr_to_python("%Y-%m-%d", date_received)
+    print date
+    print request.vars
+
+    reports = Reports()
+
+    return dict(data=reports.get_class_revenue_summary(clsID, date))
+
+
 
 
 

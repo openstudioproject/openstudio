@@ -46,6 +46,5 @@ export default {
     fetchClassAttendance,
     setCheckinClassAttendanceSearchCustomerID,
     setCheckinSearchTimeout,
-    clearCheckinSearchTimeout,
-    
+    clearCheckinSearchTimeout
 }

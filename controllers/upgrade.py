@@ -437,3 +437,7 @@ def upgrade_to_20189():
             row.customers_subscriptions_id = subscriptions.first().customers_subscriptions.id
             row.update_record()
 
+
+    # set CustomerMembership field for db.classes_attendance
+    query = (db.classes_attendance.CustomerMembership == None)
+    db(query).update(CustomerMembership = False)
