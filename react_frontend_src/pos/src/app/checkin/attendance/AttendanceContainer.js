@@ -1,5 +1,6 @@
 import { connect } from 'react-redux'
 import { injectIntl } from 'react-intl';
+import { withRouter } from 'react-router'
 
 import Attendance from "./Attendance"
 import { appOperations } from '../../duck'
@@ -20,12 +21,18 @@ const mapDispatchToProps = dispatch =>
         setPageTitle(title) {
             dispatch(appOperations.setPageTitle(title))
         },
+        clearCheckinSearchTimeout() {
+            dispatch(checkinAttendanceOperations.clearCheckinSearchTimeout())
+        },
+        setCheckinSearchTimeout(timeout) {
+            dispatch(checkinAttendanceOperations.setCheckinSearchTimeout(timeout))
+        }
     })
 
 
-const AttendanceContainer = injectIntl(connect(
+const AttendanceContainer = withRouter(injectIntl(connect(
     mapStateToProps,
     mapDispatchToProps
-)(Attendance))
+)(Attendance)))
 
 export default AttendanceContainer
