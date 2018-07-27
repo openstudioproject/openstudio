@@ -1092,7 +1092,7 @@ def payment_attendance_list_rates():
 
     query = (db.teachers_payment_attendance_lists_rates.teachers_payment_attendance_lists_id == tpalID)
     rows = db(query).select(db.teachers_payment_attendance_lists_rates.ALL,
-                            orderby=db.teachers_payment_attendance_lists_rates.AttendanceNR)
+                            orderby=db.teachers_payment_attendance_lists_rates.AttendanceCount)
     delete_onclick = "return confirm('" + \
                      T('Remove List Rate? ') + "');"
     for i, row in enumerate(rows):
@@ -1113,7 +1113,7 @@ def payment_attendance_list_rates():
         permission = auth.has_membership(group_id='Admins') or \
                      auth.has_permission('delete', 'teachers_payment_attendance_lists_rates')
         count = payment_attendance_list_count_rates(tpalID)
-        if permission and row.AttendanceNR == count:
+        if permission and row.AttendanceCount == count:
             btn_delete = os_gui.get_button('delete_notext',
                                            URL('payment_attendance_list_rate_delete',
                                                vars=btn_vars),
@@ -1122,7 +1122,7 @@ def payment_attendance_list_rates():
             buttons.append(btn_delete)
 
         tr = TR(
-                TD(row.AttendanceNR),
+                TD(row.AttendanceCount),
                 TD(represent_float_as_amount(row.Rate), _class='Rate'),
                 TD(buttons))
 
@@ -1230,7 +1230,7 @@ def list_rates_get_form_add(tpalID):
     db.teachers_payment_attendance_lists_rates.teachers_payment_attendance_lists_id.default = tpalID
 
     number_of_rates = payment_attendance_list_count_rates(tpalID)
-    db.teachers_payment_attendance_lists_rates.AttendanceNR.default = number_of_rates + 1
+    db.teachers_payment_attendance_lists_rates.AttendanceCount.default = number_of_rates + 1
 
     return_url = URL(vars={'tpalID': tpalID})
 

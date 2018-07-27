@@ -560,7 +560,7 @@ def populate_teachers_payment_attendance_lists_rates(web2py):
     for i in range(1, 11):
         web2py.db.teachers_payment_attendance_lists_rates.insert(
             teachers_payment_attendance_lists_id = 1,
-            AttendanceNR = i,
+            AttendanceCount = i,
             Rate = i * 1011
         )
 

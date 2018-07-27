@@ -122,7 +122,7 @@ def get_classes():
 
     cs = ClassSchedule(
         TODAY_LOCAL,
-        filter_starttime_from=time_from
+        # filter_starttime_from=time_from
     )
 
     return dict(classes=cs.get_day_list())
@@ -146,6 +146,15 @@ def get_class_attendance():
 
     return dict(attendance=attendance)
 
+
+#TODO: Change for right permission
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'classes_attendance'))
+def get_class_teacher_payment():
+    """
+    Teacher payment (if any)
+    :return:
+    """
 
 
 

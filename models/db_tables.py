@@ -1493,7 +1493,7 @@ def define_teachers_payment_attendance_lists_rates():
               writable=False,
               requires=IS_NOT_EMPTY()
               ),
-        Field('AttendanceNR', 'integer',
+        Field('AttendanceCount', 'integer',
               requires=IS_INT_IN_RANGE(0, 999999),
                label = T("Attendance Number"),
               writable=False
@@ -1515,6 +1515,28 @@ def define_teachers_payment_attendance_lists_school_classtypes():
               requires=IS_NOT_EMPTY()),
         Field('school_classtypes_id',
               db.school_classtypes)
+    )
+
+
+def define_teachers_payment_attendance():
+    """
+
+    """
+    statuses = [
+        ['not_verified', T('Not verified')],
+        ['verified', T('Verified')],
+        ['processed', T('Processed')]
+    ]
+
+    db.define_table('teachers_payment_attendance',
+        Field('classes_id', db.classes.id),
+        Field('ClassDate', 'date'),
+        Field('Status',
+              requires=IS_IN_SET(statuses)),
+        Field('AttendanceCount', 'integer'),
+        Field('VerifiedBy', db.auth_user),
+        Field('VerifiedOn', 'datetime',
+              default=datetime.datetime.now()),
     )
 
 

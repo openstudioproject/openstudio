@@ -159,7 +159,7 @@ def test_payment_attendance_list_rates_add_increase_attendanceNR(client, web2py)
     new_count = count_rates = web2py.db(query).count()
     new_id = count + 1
     tpalr = web2py.db.teachers_payment_attendance_lists_rates(new_id)
-    assert tpalr.AttendanceNR == new_count
+    assert tpalr.AttendanceCount == new_count
 
 
 def test_payment_attendance_list_rate_edit(client, web2py):
