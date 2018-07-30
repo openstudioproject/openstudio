@@ -62,9 +62,9 @@ const RevenueList = ({data, currency_symbol}) =>
                 <tfoot>
                     <tr>
                         <th>Total</th>
+                        <th>{data.total.count}</th>
                         <th></th>
-                        <th></th>
-                        <th>{currency_symbol} { ' ' } {data.total.toFixed(2)}</th>
+                        <th>{currency_symbol} { ' ' } {data.total.amount.toFixed(2)}</th>
                     </tr>
                 </tfoot>
             </table>

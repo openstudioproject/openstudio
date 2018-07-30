@@ -87,7 +87,10 @@ class Reports:
                 'count': 0,
                 'amount': 0
             },
-            'total': 0
+            'total': {
+                'count': 0,
+                'amount': 0
+            }
         }
 
         rows = self.get_class_revenue_rows(clsID, date)
@@ -116,25 +119,25 @@ class Reports:
                         'amount': amount
                     }
 
-                data['total'] += amount
+                data['total']['amount'] += amount
 
             elif row.classes_attendance.AttendanceType == 1:
                 # Trial
                 if row.classes_attendance.CustomerMembership:
                     data['trial']['membership']['count'] += 1
-                    data['total'] += data['trial']['membership']['amount']
+                    data['total']['amount'] += data['trial']['membership']['amount']
                 else:
                     data['trial']['no_membership']['count'] += 1
-                    data['total'] += data['trial']['no_membership']['amount']
+                    data['total']['amount'] += data['trial']['no_membership']['amount']
 
             elif row.classes_attendance.AttendanceType == 2:
                 # Dropin
                 if row.classes_attendance.CustomerMembership:
                     data['dropin']['membership']['count'] += 1
-                    data['total'] += data['dropin']['membership']['amount']
+                    data['total']['amount'] += data['dropin']['membership']['amount']
                 else:
                     data['dropin']['no_membership']['count'] += 1
-                    data['total'] += data['dropin']['no_membership']['amount']
+                    data['total']['amount'] += data['dropin']['no_membership']['amount']
 
             elif row.classes_attendance.AttendanceType == 3:
                 # Class card
@@ -155,11 +158,13 @@ class Reports:
                         'amount': amount
                     }
 
-                data['total'] += amount
+                data['total']['amount'] += amount
 
             elif row.classes_attendance.AttendanceType == 4:
                 # Complementary
                 data['complementary']['count'] += 1
+
+            data['total']['count'] += 1
 
 
         return data
