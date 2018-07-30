@@ -31,6 +31,7 @@ const setPageTitle = set_page_title
 const fetchUser = () => {
     return dispatch => {
         dispatch(request_user)
+        dispatch(setLoading())
 
         dispatch(set_loading_message("User profile"))
         axios_os.get(OS_API.APP_USER)
@@ -38,8 +39,8 @@ const fetchUser = () => {
           // handle success
           console.log('receive user here')
           dispatch(receive_user(response.data))
-          
-          
+          dispatch(setLoaded())  
+          dispatch(setLoading())        
           // dispatch(setLoadingProgress(50))
           // dispatch(setLoaded(true))
           // dispatch(setLoading(false))
@@ -59,18 +60,18 @@ const fetchUser = () => {
     }
 }
 
-const fetchSettings = (state) => {
+const fetchSettings = () => {
     return dispatch => {
         dispatch(request_settings)
+        dispatch(setLoading())
 
         dispatch(set_loading_message("Settings"))
         axios_os.get(OS_API.APP_SETTINGS)
         .then(function (response) {
           // handle success
           dispatch(receive_settings(response.data))
-          // dispatch(setLoadingProgress())
-          // dispatch(setLoaded(true))
-          // dispatch(setLoading(false))
+          dispatch(setLoaded())
+          dispatch(setLoading())
         })
         .catch(function (error) {
           // handle error

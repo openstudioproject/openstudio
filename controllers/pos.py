@@ -182,8 +182,6 @@ def get_class_revenue():
     clsID = request.vars['clsID']
     date_received = request.vars['date']
     date = datestr_to_python("%Y-%m-%d", date_received)
-    print date
-    print request.vars
 
     reports = Reports()
 

@@ -14,6 +14,7 @@ import Revenue from './checkin/revenue/RevenueContainer'
 import Home from './home/HomeContainer'
 import PermissionsError from './permissions_error/PermissionsErrorContainer'
 import Whoops404 from './whoops404/Whoops404'
+import LoadingScreen from '../components/ui/LoadingScreen'
 
 import '../../stylesheets/app/App.scss'
 
@@ -23,13 +24,17 @@ class App extends Component {
     console.log(this.props)
   }
 
-  componentDidMount() {
-    this.props.fetchUser(this.props.app_state)    
-    this.props.fetchSettings()    
-}
+  componentWillMount() {
+    this.props.fetchUser()    
+    this.props.fetchSettings()  
+  }
+
 
   render() {
     return (
+      (this.props.app_state.loading) ? 
+        <LoadingScreen progress={this.props.app_state.loading_progress}
+        message={this.props.app_state.loading_message}/> :
       <Router>
           <Switch>
             <Route exact path='/' component={Home} />
@@ -43,7 +48,7 @@ class App extends Component {
             <Route component={Whoops404} />
           </Switch>
       </Router>
-    );
+    )
   }
 }
 

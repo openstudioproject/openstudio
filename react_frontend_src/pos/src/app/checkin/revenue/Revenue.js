@@ -34,7 +34,8 @@ class Revenue extends Component {
                 { 
                     (!this.props.revenue.loaded) ? 
                         <div>Loading revenue, please wait...</div> :
-                        <RevenueList data={this.props.revenue.data} />
+                        <RevenueList data={this.props.revenue.data}
+                                     currency_symbol={this.props.settings.currency_symbol} />
                 }
             </PageTemplate>
         )

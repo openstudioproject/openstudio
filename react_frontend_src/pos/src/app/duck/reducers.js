@@ -60,12 +60,12 @@ export const appReducer = (state = {}, action={ type: null }) => {
         case T.SET_LOADED:
             return {
                 ...state,
-                loaded: action.loaded
+                loaded: (state.loading_progress == 100) ? true : false
             }
         case T.SET_LOADING:
             return {
                 ...state,
-                loading: action.loading
+                loading:  (state.loading_progress == 100) ? false : true
             }
         case T.SET_PAGE_TITLE:
             return {
