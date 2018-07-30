@@ -108,6 +108,20 @@ def get_user():
     return dict(profile=auth.user,
                 permissions=permissions)
 
+@auth.requires_login(otherwise=return_json_login_error)
+def get_settings():
+    """
+    Pos Relevant settings
+    """
+    set_headers()
+
+    settings = {
+        'currency_symbol': CURRSYM,
+        'currency': get_sys_property('Currency'),
+    }
+
+    return dict(settings = settings)
+
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'classes'))

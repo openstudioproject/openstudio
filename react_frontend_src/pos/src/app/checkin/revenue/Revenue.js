@@ -4,6 +4,7 @@ import PropTypes from "prop-types"
 
 import PageTemplate from "../../../components/PageTemplate"
 
+import RevenueList from "./RevenueList"
 
 class Revenue extends Component {
     constructor(props) {
@@ -25,7 +26,6 @@ class Revenue extends Component {
         )
 
         this.props.fetchRevenue(this.props.match.params.clsID)
-
     }
     
     render() {
@@ -34,7 +34,7 @@ class Revenue extends Component {
                 { 
                     (!this.props.revenue.loaded) ? 
                         <div>Loading revenue, please wait...</div> :
-                        <div>Loaded.... yeay!</div>
+                        <RevenueList data={this.props.revenue.data} />
                 }
             </PageTemplate>
         )
