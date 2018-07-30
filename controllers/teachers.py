@@ -1051,7 +1051,11 @@ def payment_attendance_list_archive():
         if row.Archived:
             session.flash = T('Moved to current')
         else:
-            session.flash = T('Archived')
+            # Unlink all classtypes
+            query = (db.teachers_payment_attendance_lists_school_classtypes.teachers_payment_attendance_lists_id == tpalID)
+            db(query).delete()
+
+            session.flash = T('Archived and unlinked all classtypes')
 
         row.Archived = not row.Archived
         row.update_record()
