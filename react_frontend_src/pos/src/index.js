@@ -21,6 +21,9 @@ const mapDispatchToProps = dispatch =>
         fetchUser() {
             dispatch(appOperations.fetchUser())
         },
+        fetchSettings() {
+            dispatch(appOperations.fetchSettings())
+        },
         setLoaded(loaded) {
             dispatch(appOperations.setLoaded(loaded))
         },

@@ -6,7 +6,7 @@ import NavbarNavUserMenu from "./NavbarNavUserMenu"
 
 const mapStateToProps = state => 
     ({
-        user: state.user
+        user: state.app.user
     })
 
 

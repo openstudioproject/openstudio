@@ -12,7 +12,7 @@ const PageTemplate = ({ app_state, children }) =>
     (app_state.error) ?
     <ErrorScreen message={app_state.error_message}
                  data={app_state.error_data}/>:
-        (!app_state.loaded) ?
+        (app_state.loading_progress != 100) ?
             <LoadingScreen progress={app_state.loading_progress}
                            message={app_state.loading_message}/> :
             <div>

@@ -1,6 +1,8 @@
 import {
     requestUser as request_user,
     receiveUser as receive_user,
+    requestSettings as request_settings,
+    receiveSettings as receive_settings,
     setError as set_error,
     setErrorMessage as set_error_message,
     setErrorData as set_error_data,
@@ -30,17 +32,21 @@ const fetchUser = () => {
     return dispatch => {
         dispatch(request_user)
 
-        dispatch(set_loading_message("user profile"))
+        dispatch(set_loading_message("User profile"))
         axios_os.get(OS_API.APP_USER)
         .then(function (response) {
           // handle success
+          console.log('receive user here')
           dispatch(receive_user(response.data))
-          dispatch(setLoadingProgress(100))
-          dispatch(setLoaded(true))
-          dispatch(setLoading(false))
+          
+          
+          // dispatch(setLoadingProgress(50))
+          // dispatch(setLoaded(true))
+          // dispatch(setLoading(false))
         })
         .catch(function (error) {
           // handle error
+          console.log(error)
           dispatch(setError(true))
           dispatch(setErrorMessage("Error loading user data"))
           if (error.config) {
@@ -53,8 +59,36 @@ const fetchUser = () => {
     }
 }
 
+const fetchSettings = (state) => {
+    return dispatch => {
+        dispatch(request_settings)
+
+        dispatch(set_loading_message("Settings"))
+        axios_os.get(OS_API.APP_SETTINGS)
+        .then(function (response) {
+          // handle success
+          dispatch(receive_settings(response.data))
+          // dispatch(setLoadingProgress())
+          // dispatch(setLoaded(true))
+          // dispatch(setLoading(false))
+        })
+        .catch(function (error) {
+          // handle error
+          dispatch(setError(true))
+          dispatch(setErrorMessage("Error loading settings data"))
+          if (error.config) {
+            dispatch(setErrorData(error.config.url))
+          } 
+        })
+        .then(function () {
+          // always executed
+        });
+    }
+}
+
 export default {
     fetchUser,
+    fetchSettings,
     setError,
     setErrorData,
     setErrorMessage,

@@ -8,6 +8,30 @@ const initialState = {
 
 export const appReducer = (state = {}, action={ type: null }) => {
     switch (action.type) {
+        case T.REQUEST_USER:
+            return {
+                ...state,
+            }
+        case T.RECEIVE_USER:
+            let u_progress = state.loading_progress + 50
+
+            return {
+                ...state,
+                loading_progress: u_progress,
+                user: action.data
+            }
+        case T.REQUEST_SETTINGS:
+            return {
+                ...state,
+            }
+        case T.RECEIVE_SETTINGS:
+            let s_progress = state.loading_progress + 50
+
+            return {
+                ...state,
+                loading_progress: s_progress,
+                settings: action.data
+            }
         case T.SET_ERROR:
             return {
                 ...state,
@@ -75,28 +99,5 @@ export const localeReducer = (state = initialState, action={ type: null }) => {
         }
     default :
         return state
-    }
-}
-
-
-export const userReducer = (state = {}, action={ type: null }) => {
-    switch (action.type) {
-        case T.REQUEST_USER:
-            return {
-                ...state,
-                loading: true,
-                loaded: false
-            }
-        case T.RECEIVE_USER:
-            return {
-                ...state,
-                loading: false,
-                loaded: true,
-                data: action.data,
-            }
-        default:
-            return {
-                ...state
-            }
     }
 }

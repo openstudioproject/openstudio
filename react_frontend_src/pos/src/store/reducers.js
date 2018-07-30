@@ -2,7 +2,6 @@ import { combineReducers } from 'redux';
 import { 
   appReducer,
   localeReducer,
-  userReducer 
  } from '../app/duck/reducers'
  import  checkinAttendanceReducer from '../app/checkin/attendance/duck'
  import  checkinBookReducer from '../app/checkin/book/duck'
@@ -12,7 +11,6 @@ import {
 const rootReducer = combineReducers({
   app: appReducer,
   locale: localeReducer,
-  user: userReducer,
   checkin_attendance: checkinAttendanceReducer,
   checkin_book: checkinBookReducer,
   checkin_classes: checkinClassesReducer,

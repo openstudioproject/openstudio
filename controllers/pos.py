@@ -120,7 +120,7 @@ def get_settings():
         'currency': get_sys_property('Currency'),
     }
 
-    return dict(settings = settings)
+    return dict(data = settings)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
