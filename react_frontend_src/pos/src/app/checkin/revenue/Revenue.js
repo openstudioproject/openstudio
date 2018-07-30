@@ -5,6 +5,7 @@ import PropTypes from "prop-types"
 import PageTemplate from "../../../components/PageTemplate"
 
 import RevenueList from "./RevenueList"
+import RevenueTotal from "./RevenueTotal"
 
 class Revenue extends Component {
     constructor(props) {
@@ -34,8 +35,16 @@ class Revenue extends Component {
                 { 
                     (!this.props.revenue.loaded) ? 
                         <div>Loading revenue, please wait...</div> :
-                        <RevenueList data={this.props.revenue.data}
-                                     currency_symbol={this.props.settings.currency_symbol} />
+                        <div className="row">
+                            <div class="col-md-6">
+                                <RevenueList data={this.props.revenue.data}
+                                            currency_symbol={this.props.settings.currency_symbol} />
+                            </div>
+                            <div class="col-md-6">
+                                <RevenueTotal data={this.props.revenue.data}
+                                            currency_symbol={this.props.settings.currency_symbol} />
+                            </div>
+                        </div>
                 }
             </PageTemplate>
         )
