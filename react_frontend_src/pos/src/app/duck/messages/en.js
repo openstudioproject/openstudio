@@ -10,6 +10,7 @@ export const ENGLISH_TRANSLATION = {
         "app.pos.checkin.attendance.status.attending": "Attending",
         "app.pos.checkin.attendance.status.booked": "Booked",
         "app.pos.checkin.attendance.status.cancelled": "Cancelled",
+        "app.pos.checkin.attendane.verify_teacher_payment": "Verifiy teacher payment", 
         "app.pos.home.hello": "Hell! A nice start-up screen will go here...",
         "app.pos.home.page_title": "Welcome",
         "app.pos.permissions_error.page_title": "Whoops... ",

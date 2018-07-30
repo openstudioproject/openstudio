@@ -1,6 +1,8 @@
 import React, { Component } from "react"
 import { intlShape } from "react-intl"
 import PropTypes from "prop-types"
+import { NavLink } from 'react-router-dom'
+
 
 import PageTemplate from "../../../components/PageTemplate"
 
@@ -32,10 +34,6 @@ class Attendance extends Component {
         super(props)
         console.log(props)
     }
-
-    // state = {
-    //     typingTimeout: 0
-    // }
 
     PropTypes = {
         intl: intlShape.isRequired,
@@ -83,28 +81,7 @@ class Attendance extends Component {
             setTimeout(() => this.toBookingOptions(clsID, value, history), 
                 (isInt(value)) ? timeout = 225 : timeout = 750)
         )
-        // // this.props.setCheckinSearchTimeout(
-        // this.setState({
-        //     typingTimeout: setTimeout(() => this.toBookingOptions(clsID, value, history), 1000)
-        // })
     }
-    // onChange(e) {
-    //     const value = e.target.value
-    //     const state = this.props.attendance
-    //     console.log(this.state.typingTimeout)
-    //     if ( this.state.typingTimeout ) {
-    //         clearTimeout(this.state.typingTimeout)
-    //     }
-
-    //     const history = this.props.history
-    //     const clsID = this.props.match.params.clsID
-    //     // this.props.setCheckinSearchTimeout(
-    //     this.setState({
-    //         typingTimeout: setTimeout(() => this.toBookingOptions(clsID, value, history), 1000)
-    //     })
-    // }
-
-
     
     render() {
         return (
@@ -113,6 +90,11 @@ class Attendance extends Component {
                     (!this.props.attendance.loaded) ? 
                         <div>Loading attendance, please wait...</div> :
                         <section className="checkin_attendance">
+                            <div className="pull-right">
+                                <NavLink to={"/checkin/revenue/" + this.props.match.params.clsID}>
+                                    {this.props.intl.formatMessage({ id: "app.pos.checkin.attendane.verify_teacher_payment"})}
+                                </NavLink>
+                            </div>
                             <InputGroupSearch placeholder={this.props.intl.formatMessage({ id: 'app.general.placeholders.search' })}
                                               onChange={this.onChange.bind(this)} /> <br />
                             <AttendanceList attendance_items={this.props.attendance.data} />
