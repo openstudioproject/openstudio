@@ -2,7 +2,7 @@ import React from "react"
 import { v4 } from "uuid"
 
 const RevenueList = ({data, currency_symbol}) => 
-    <div className="box box-default"> 
+    <div className="box box-solid"> 
         <div className="box-header with-border">
             <h3 className="box-title">Revenue</h3>
         </div>

@@ -42,7 +42,7 @@ class Revenue extends Component {
                             </div>
                             <div class="col-md-6">
                                 <RevenueTotal data={this.props.revenue.data}
-                                            currency_symbol={this.props.settings.currency_symbol} />
+                                              currency_symbol={this.props.settings.currency_symbol} />
                             </div>
                         </div>
                 }
