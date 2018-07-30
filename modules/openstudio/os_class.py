@@ -442,4 +442,43 @@ class Class:
             return True
         else:
             return False
-        
+
+
+    def get_teacher_payment(self):
+        """
+        Returns amount excl. VAT
+        :return: { amount: float, tax_rates_id: db.tax_rates.id }
+        """
+        db = current.db
+
+        #TODO: check which payment method is used here. fixed rate or attendance based
+
+        # Get list for class type
+        cltID = self.cls.school_classtypes_id
+
+        tpal = db.teachers_payment_attendance_lists_school_classtypes(
+            school_classtypes_id = cltID
+        )
+
+        list_id = tpal.teachers_payment_attendance_lists_id
+
+        list = db.teachers_payment_attendance_lists(1)
+
+        query = (db.classes_attendance.classes_id == self.clsID) & \
+                (db.classes_attendance.ClassDate == self.date) & \
+                (db.classes_attendance.BookingStatus != 'cancelled')
+        attending = db(query).count()
+
+        query = (db.teachers_payment_attendance_lists_rates.teachers_payment_attendance_lists_id == list_id) & \
+                (db.teachers_payment_attendance_lists_rates.AttendanceCount == attending)
+        row = db(query).select(db.teachers_payment_attendance_lists_rates.Rate)
+
+        try:
+            rate = row.first().Rate
+        except AttributeError:
+            rate = 0
+
+        return dict(
+            amount = rate,
+            tax_rates_id = list.tax_rates_id
+        )
