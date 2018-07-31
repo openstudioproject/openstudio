@@ -1,5 +1,6 @@
 import React from "react"
-import { v4 } from "uuid"
+
+import ButtonVerify from './ButtonVerify'
 
 const RevenueTotal = ({data, intl, currency_symbol}) => 
     <div className="box box-solid"> 
@@ -51,9 +52,8 @@ const RevenueTotal = ({data, intl, currency_symbol}) =>
             </table>
         </div>
         <div className="box-footer">
-            <button className="btn bg-olive btn-flat btn-block">
-                <b>{intl.formatMessage({ id:"app.general.strings.verify" })}</b>
-            </button>
+            <ButtonVerify intl={intl}
+                          teacher_payment={data.teacher_payment} />
         </div>
     </div>
 
