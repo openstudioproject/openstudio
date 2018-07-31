@@ -53,7 +53,8 @@ const RevenueTotal = ({data, intl, currency_symbol}) =>
         </div>
         <div className="box-footer">
             <ButtonVerify intl={intl}
-                          teacher_payment={data.teacher_payment} />
+                          teacher_payment={data.teacher_payment}
+                          onClick={() => console.log('clicked')} />
         </div>
     </div>
 

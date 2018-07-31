@@ -1,76 +1,36 @@
 import React, { Component } from "react"
+import { intlShape } from "react-intl"
+import PropTypes from "prop-types"
+
 
 class ButtonVerify extends Component {
     constructor(props) {
         super(props)
         console.log(props)
+        this.onClick = this.onClick.bind(this);
     }
 
     PropTypes = {
         intl: intlShape.isRequired,
-        fetchRevenue: PropTypes.function,
-        setPageTitle: PropTypes.function,
-        app: PropTypes.object,
-        attendance: PropTypes.object,
+        teacher_payment: PropTypes.object,
+        onClick: PropTypes.function
     }
 
-    componentWillMount() {
-        this.props.setPageTitle(
-            this.props.intl.formatMessage({ id: 'app.pos.checkin.page_title' })
-        )
-
-        this.props.fetchRevenue(this.props.match.params.clsID)
+    onClick() {
+        this.props.onClick()
     }
     
     render() {
         return (
-class Revenue extends Component {
-    constructor(props) {
-        super(props)
-        console.log(props)
-    }
-
-    PropTypes = {
-        intl: intlShape.isRequired,
-        fetchRevenue: PropTypes.function,
-        setPageTitle: PropTypes.function,
-        app: PropTypes.object,
-        attendance: PropTypes.object,
-    }
-
-    componentWillMount() {
-        this.props.setPageTitle(
-            this.props.intl.formatMessage({ id: 'app.pos.checkin.page_title' })
-        )
-
-        this.props.fetchRevenue(this.props.match.params.clsID)
-    }
-    
-    render() {
-        let disabled
-        (teacher_payment.status === 'error') ?
-            disabled = "disabled" : disabled = ''
-
-        return (
-            
-    
-            <button  className="btn bg-olive btn-flat btn-block">
-                <b>{intl.formatMessage({ id:"app.general.strings.verify" })}</b>
+            <button disabled={(this.props.teacher_payment.status === 'error')} 
+                    onClick={this.onClick}
+                    className="btn bg-olive btn-flat btn-block">
+                <b>{this.props.intl.formatMessage({ id:"app.general.strings.verify" })}</b>
             </button>
         )
     }
 }
 
-export default Revenue
-
-        )
-    }
-}
-
-export default Revenue
-
-
-const ButtonVerify = ({intl, teacher_payment}) => 
 
 
 
