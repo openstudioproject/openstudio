@@ -1,10 +1,17 @@
 import React from "react"
 import { v4 } from "uuid"
 
-const RevenueTotal = ({data, currency_symbol}) => 
+const RevenueTotal = ({data, intl, currency_symbol}) => 
     <div className="box box-solid"> 
         <div className="box-header with-border">
-            <h3 className="box-title">Revenue Totals <small><i className="text-red fa fa-ban"></i> Not verified</small></h3>
+            <h3 className="box-title">
+                {intl.formatMessage({ id:"app.pos.checkin.revenue.total.title" })}
+                <small>
+                    { ' ' }
+                    <i className="text-red fa fa-ban"></i> 
+                    { ' ' } {intl.formatMessage({ id:"app.pos.checkin.revenue.total.not_verified" })}
+                </small>
+            </h3>
             {/* <div className="box-tools pull-right">
                 <button className='btn btn-success btn-sm'>
                     Verify
@@ -15,17 +22,17 @@ const RevenueTotal = ({data, currency_symbol}) =>
             <table className="table">
                 <thead>
                     <tr>
-                        <th>Description</th>
-                        <th>Amount</th>
+                        <th>{intl.formatMessage({ id:"app.general.strings.description" })}</th>
+                        <th>{intl.formatMessage({ id:"app.general.strings.amount" })}</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>Attendance</td>
+                        <td>{intl.formatMessage({ id:"app.general.strings.attendance" })}</td>
                         <td>{currency_symbol} { ' ' } {data.total.amount.toFixed(2)}</td>
                     </tr>
                     <tr>
-                        <td>Teacher payment</td>
+                        <td>{intl.formatMessage({ id:"app.general.strings.teacher_payment" })}</td>
                         <td>{ (data.teacher_payment.status === 'error') ? 
                                 <span className="text-red"> { data.teacher_payment.data } </span> : 
                                 currency_symbol +  ' ' + data.teacher_payment.data.Amount.toFixed(2) }
@@ -34,7 +41,7 @@ const RevenueTotal = ({data, currency_symbol}) =>
                 </tbody>
                 <tfoot>
                     <tr>
-                        <th>Studio revenue</th>
+                        <th>{intl.formatMessage({ id:"app.pos.checkin.revenue.total.studio_revenue" })}</th>
                         <th>{currency_symbol} { ' ' } { 
                             (data.total.amount - (data.teacher_payment.status === 'error') ?
                                 0 : data.teacher_payment.data.Amount).toFixed(2)}
@@ -45,7 +52,7 @@ const RevenueTotal = ({data, currency_symbol}) =>
         </div>
         <div className="box-footer">
             <button className="btn bg-olive btn-flat btn-block">
-                <b>Verify</b>
+                <b>{intl.formatMessage({ id:"app.general.strings.verify" })}</b>
             </button>
         </div>
     </div>

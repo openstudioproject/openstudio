@@ -34,14 +34,16 @@ class Revenue extends Component {
             <PageTemplate app_state={this.props.app}>
                 { 
                     (!this.props.revenue.loaded) ? 
-                        <div>Loading revenue, please wait...</div> :
+        <div>{this.props.intl.formatMessage({ id:"app.pos.checkin.revenue.loading" })}</div> :
                         <div className="row">
                             <div className="col-md-6">
                                 <RevenueList data={this.props.revenue.data}
-                                            currency_symbol={this.props.settings.currency_symbol} />
+                                             intl={this.props.intl}
+                                             currency_symbol={this.props.settings.currency_symbol} />
                             </div>
                             <div className="col-md-6">
                                 <RevenueTotal data={this.props.revenue.data}
+                                              intl={this.props.intl}
                                               currency_symbol={this.props.settings.currency_symbol} />
                             </div>
                         </div>
