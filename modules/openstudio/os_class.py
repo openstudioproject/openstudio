@@ -473,8 +473,6 @@ class Class:
             school_classtypes_id = cltID
         )
 
-        print tpalst
-
         # Check if we have a payment, if not insert it with Status 'not_verified"
         tpa = db.teachers_payment_attendance(
             classes_id = self.clsID,
