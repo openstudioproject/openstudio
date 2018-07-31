@@ -92,9 +92,7 @@ class Reports:
                 'count': 0,
                 'amount': 0
             },
-            'teacher_payment': {
-                'amount': teacher_payment['amount']
-            }
+            'teacher_payment': teacher_payment
         }
 
         rows = self.get_class_revenue_rows(clsID, date)

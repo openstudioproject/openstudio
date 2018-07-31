@@ -4,8 +4,6 @@ import { injectIntl } from 'react-intl';
 
 const NavbarUserMenu = ({user, intl}) =>
     <li className="dropdown user user-menu">
-        {console.log("user menu below:")}
-        {console.log(user)}
         <a href="#" className="dropdown-toggle" data-toggle="dropdown">
             <span>{user.profile.first_name}</span>
         </a>

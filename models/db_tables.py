@@ -1540,7 +1540,17 @@ def define_teachers_payment_attendance():
         Field('Status',
               requires=IS_IN_SET(statuses)),
         Field('AttendanceCount', 'integer'),
-        Field('VerifiedBy', db.auth_user),
+        Field('Amount', 'double',
+              represent=represent_float_as_amount),
+        Field('teachers_payment_attendance_list_id', db.teachers_payment_attendance_lists,
+              readable=False,
+              writable=False),
+        Field('tax_rates_id', db.tax_rates,
+              readable=False,
+              writable=False),
+        Field('VerifiedBy', db.auth_user,
+              readable=False,
+              writable=False),
         Field('VerifiedOn', 'datetime',
               readable=False,
               writable=False,
@@ -1548,8 +1558,11 @@ def define_teachers_payment_attendance():
         Field('UpdatedOn', 'datetime',
               readable=False,
               writable=False,
-              compute=datetime.datetime.now())
+              compute=lambda row: datetime.datetime.now())
     )
+
+    if auth.user:
+        db.teachers_payment_attendance.VerifiedBy.default = auth.user.id
 
 
 def define_customers_notes():

@@ -444,41 +444,88 @@ class Class:
             return False
 
 
+    def get_attendance_count(self):
+        """
+        :return: integer ; count of customers attending this class
+        """
+        db = current.db
+
+        query = (db.classes_attendance.classes_id == self.clsID) & \
+                (db.classes_attendance.ClassDate == self.date) & \
+                (db.classes_attendance.BookingStatus != 'cancelled')
+
+        return db(query).count()
+
+
     def get_teacher_payment(self):
         """
         Returns amount excl. VAT
         :return: { amount: float, tax_rates_id: db.tax_rates.id }
         """
+        T = current.T
         db = current.db
 
         #TODO: check which payment method is used here. fixed rate or attendance based
 
         # Get list for class type
         cltID = self.cls.school_classtypes_id
-
-        tpal = db.teachers_payment_attendance_lists_school_classtypes(
+        tpalst = db.teachers_payment_attendance_lists_school_classtypes(
             school_classtypes_id = cltID
         )
 
-        list_id = tpal.teachers_payment_attendance_lists_id
+        print tpalst
 
-        list = db.teachers_payment_attendance_lists(1)
-
-        query = (db.classes_attendance.classes_id == self.clsID) & \
-                (db.classes_attendance.ClassDate == self.date) & \
-                (db.classes_attendance.BookingStatus != 'cancelled')
-        attending = db(query).count()
-
-        query = (db.teachers_payment_attendance_lists_rates.teachers_payment_attendance_lists_id == list_id) & \
-                (db.teachers_payment_attendance_lists_rates.AttendanceCount == attending)
-        row = db(query).select(db.teachers_payment_attendance_lists_rates.Rate)
-
-        try:
-            rate = row.first().Rate
-        except AttributeError:
-            rate = 0
-
-        return dict(
-            amount = rate,
-            tax_rates_id = list.tax_rates_id
+        # Check if we have a payment, if not insert it with Status 'not_verified"
+        tpa = db.teachers_payment_attendance(
+            classes_id = self.clsID,
+            ClassDate = self.date
         )
+
+        if tpalst:
+            list_id = tpalst.teachers_payment_attendance_lists_id
+
+            list = db.teachers_payment_attendance_lists(1)
+            tax_rates_id = list.tax_rates_id
+
+            attendance_count = self.get_attendance_count()
+
+            query = (db.teachers_payment_attendance_lists_rates.teachers_payment_attendance_lists_id == list_id) & \
+                    (db.teachers_payment_attendance_lists_rates.AttendanceCount == attendance_count)
+            row = db(query).select(db.teachers_payment_attendance_lists_rates.Rate)
+
+            try:
+                rate = row.first().Rate
+            except AttributeError:
+                rate = 0
+
+            if not tpa and tpalst:
+                tpaID = db.teachers_payment_attendance.insert(
+                    classes_id = self.clsID,
+                    ClassDate = self.date,
+                    Status = 'not_verified',
+                    AttendanceCount = attendance_count,
+                    Amount = rate,
+                    teachers_payment_attendance_list_id = list.id,
+                    tax_rates_id = tax_rates_id,
+                )
+                tpa = db.teachers_payment_attendance(tpaID)
+
+            elif tpa and tpalst:
+                tpa.AttendanceCount = attendance_count
+                tpa.Amount = rate
+                tpa.teachers_payment_attendance_list_id = list.id
+                tpa.tax_rates_id = tax_rates_id
+                tpa.update_record()
+
+
+            data = tpa
+            status = 'success'
+        else:
+            data = T('No payment list defined for this class type')
+            status = 'error'
+
+
+        return {
+            'data':data,
+            'status': status
+        }

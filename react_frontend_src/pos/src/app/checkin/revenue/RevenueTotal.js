@@ -26,13 +26,19 @@ const RevenueTotal = ({data, currency_symbol}) =>
                     </tr>
                     <tr>
                         <td>Teacher payment</td>
-                        <td>{currency_symbol} { ' ' } {data.teacher_payment.amount.toFixed(2)}</td>
+                        <td>{ (data.teacher_payment.status === 'error') ? 
+                                <span className="text-red"> { data.teacher_payment.data } </span> : 
+                                currency_symbol +  ' ' + data.teacher_payment.data.Amount.toFixed(2) }
+                        </td>
                     </tr>
                 </tbody>
                 <tfoot>
                     <tr>
                         <th>Studio revenue</th>
-                        <th>{currency_symbol} { ' ' } {(data.total.amount - data.teacher_payment.amount).toFixed(2)}</th>
+                        <th>{currency_symbol} { ' ' } { 
+                            (data.total.amount - (data.teacher_payment.status === 'error') ?
+                                0 : data.teacher_payment.data.Amount).toFixed(2)}
+                        </th> 
                     </tr>
                 </tfoot>
             </table>
