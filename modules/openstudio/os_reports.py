@@ -59,7 +59,6 @@ class Reports:
 
         cls = Class(clsID, date)
         class_prices = cls.get_prices()
-        teacher_payment = cls.get_teacher_payment()
 
         data = {
             'subscriptions': {},
@@ -91,8 +90,7 @@ class Reports:
             'total': {
                 'count': 0,
                 'amount': 0
-            },
-            'teacher_payment': teacher_payment
+            }
         }
 
         rows = self.get_class_revenue_rows(clsID, date)
