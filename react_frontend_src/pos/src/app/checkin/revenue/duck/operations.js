@@ -1,6 +1,8 @@
 import {
     requestCheckinRevenue as request_revenue,
     receiveCheckinRevenue as receive_revenue,
+    requestCheckinVerifyTeacherPayment as request_verify_payment,
+    receiveCheckinVerifyTeacherPayment as receive_verify_payment,
 } from './actions'
 
 import axios_os from '../../../../utils/axios_os'
@@ -36,6 +38,30 @@ const fetchRevenue = (clsID) => {
           });
       }
   }
+
+const verifyTeacherPayment = (tpaID) => {
+  return dispatch => {
+    dispatch(request_verify_payment())
+
+    const params = new URLSearchParams()
+    params.append('tpaIDID', tpaID)
+    console.log(params)
+    axios_os.post(OS_API.CHECKIN_VERIFY_TEACHER_PAYMENT, params)
+    .then(function (response) {
+      // handle success
+      dispatch(receive_verify_payment(response.data))
+      // dispatch(setLoadingProgress(100))
+    })
+    .catch(function (error) {
+      // handle error
+      console.log(error)
+    })
+    .then(function () {
+      // always executed
+    });
+
+  }
+}
 
 
 export default {

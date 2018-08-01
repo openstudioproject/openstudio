@@ -19,6 +19,14 @@ export const checkinRevenueReducer = (state = {}, action={ type: null }) => {
                 loaded: true,
                 data: action.data.revenue,
             }
+        case T.CHECKIN_REQUEST_VERIFY_TEACHER_PAYMENT:
+            return {
+                ...state
+            }
+        case T.CHECKIN_RECEIVE_VERIFY_TEACHER_PAYMENT:
+            return {
+                ...state
+            }
         default:
             return {
                 ...state

@@ -172,7 +172,6 @@ def get_class_attendance():
                auth.has_permission('read', 'classes_attendance'))
 def get_class_revenue():
     """
-    Teacher payment (if any)
     :return:
     """
     from openstudio.os_reports import Reports
@@ -186,6 +185,26 @@ def get_class_revenue():
     reports = Reports()
 
     return dict(revenue=reports.get_class_revenue_summary(clsID, date))
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'teachers_payment_attendance'))
+def get_class_teacher_payment():
+    """
+
+    :return:
+    """
+    from openstudio.os_class import Class
+
+    set_headers()
+
+    clsID = request.vars['clsID']
+    date_received = request.vars['date']
+    date = datestr_to_python("%Y-%m-%d", date_received)
+
+    cls = Class(clsID, date)
+
+    return dict(payment = cls.get_teacher_payment())
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
