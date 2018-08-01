@@ -26,23 +26,24 @@ class Revenue extends Component {
             this.props.intl.formatMessage({ id: 'app.pos.checkin.page_title' })
         )
 
-        this.props.fetchRevenue(this.props.match.params.clsID)
+        this.props.fetchRevenueAndTeacherPayment(this.props.match.params.clsID)
     }
     
     render() {
         return (
             <PageTemplate app_state={this.props.app}>
                 { 
-                    (!this.props.revenue.loaded) ? 
-        <div>{this.props.intl.formatMessage({ id:"app.pos.checkin.revenue.loading" })}</div> :
+                    (!this.props.data.revenue_loaded || !this.props.data.teacher_payment_loaded) ? 
+                        <div>{this.props.intl.formatMessage({ id:"app.pos.checkin.revenue.loading" })}</div> :
                         <div className="row">
                             <div className="col-md-6">
-                                <RevenueList data={this.props.revenue.data}
+                                <RevenueList revenue={this.props.data.revenue}
                                              intl={this.props.intl}
                                              currency_symbol={this.props.settings.currency_symbol} />
                             </div>
                             <div className="col-md-6">
-                                <RevenueTotal data={this.props.revenue.data}
+                                <RevenueTotal revenue={this.props.data.revenue}
+                                              teacher_payment={this.props.data.teacher_payment}
                                               intl={this.props.intl}
                                               currency_symbol={this.props.settings.currency_symbol} />
                             </div>

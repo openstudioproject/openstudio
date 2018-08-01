@@ -5,25 +5,40 @@ export const checkinRevenueReducer = (state = {}, action={ type: null }) => {
         case T.CHECKIN_SET_REVENUE_LOADING:
             return {
                 ...state,
-                loading: action.loading,
+                revenue_loading: action.loading,
             }
         case T.CHECKIN_REQUEST_REVENUE:
             return {
-                loading: true,
-                loaded: false,
-                data: {}
+                ...state,
+                revenue_loading: true,
+                revenue_loaded: false,
+                revenue: {}
             }
         case T.CHECKIN_RECEIVE_REVENUE:
             return {
-                loading: false,
-                loaded: true,
-                data: action.data.revenue,
+                ...state,
+                revenue_loading: false,
+                revenue_loaded: true,
+                revenue: action.data.revenue,
+            }
+        case T.CHECKIN_REQUEST_TEACHER_PAYMENT:
+            return {
+                ...state,
+                teacher_payment_loading: true,
+                teacher_payment_loaded: false,
+                teacher_payment: {}                
+            }
+        case T.CHECKIN_RECEIVE_TEACHER_PAYMENT:
+            console.log('reducer here')
+            console.log(action.data)
+
+            return {
+                ...state,
+                teacher_payment_loading: false,
+                teacher_payment_loaded: true,
+                teacher_payment: action.data.payment   
             }
         case T.CHECKIN_REQUEST_VERIFY_TEACHER_PAYMENT:
-            return {
-                ...state
-            }
-        case T.CHECKIN_RECEIVE_VERIFY_TEACHER_PAYMENT:
             return {
                 ...state
             }

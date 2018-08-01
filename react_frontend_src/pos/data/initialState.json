@@ -28,8 +28,11 @@
         "data": {}
     },
     "checkin_revenue": {
-        "loaded": false,
-        "loading": false,
-        "data": {}
+        "revenue_loaded": false,
+        "revenue_loading": false,
+        "revenue": {},
+        "teacher_payment_loaded": false,
+        "teacher_payment_loading": false,
+        "teacher_payment": {}
     }
 }

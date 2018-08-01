@@ -10,14 +10,14 @@ import { checkinRevenueOperations } from './duck'
 const mapStateToProps = state => 
     ({
         app: state.app,
-        revenue: state.checkin_revenue,
+        data: state.checkin_revenue,
         settings: state.app.settings.data
     })
 
 const mapDispatchToProps = dispatch =>
     ({
-        fetchRevenue(clsID) {
-            dispatch(checkinRevenueOperations.fetchRevenue(clsID))
+        fetchRevenueAndTeacherPayment(clsID) {
+            dispatch(checkinRevenueOperations.fetchRevenueAndTeacherPayment(clsID))
         },
         setPageTitle(title) {
             dispatch(appOperations.setPageTitle(title))

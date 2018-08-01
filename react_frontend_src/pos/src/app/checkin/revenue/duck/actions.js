@@ -12,6 +12,17 @@ export const receiveCheckinRevenue = (data) =>
         data
     })
 
+export const requestCheckinTeacherPayment = () =>
+    ({ 
+        type: T.CHECKIN_REQUEST_TEACHER_PAYMENT
+    })
+
+export const receiveCheckinTeacherPayment = (data) =>
+    ({
+        type: T.CHECKIN_RECEIVE_TEACHER_PAYMENT,
+        data
+    })
+
 export const requestCheckinVerifyTeacherPayment = () =>
     ({ 
         type: T.CHECKIN_REQUEST_VERIFY_TEACHER_PAYMENT
