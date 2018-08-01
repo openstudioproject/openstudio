@@ -9,8 +9,15 @@ const RevenueTotal = ({data, intl, currency_symbol}) =>
                 {intl.formatMessage({ id:"app.pos.checkin.revenue.total.title" })}
                 <small>
                     { ' ' }
-                    <i className="text-red fa fa-ban"></i> 
-                    { ' ' } {intl.formatMessage({ id:"app.pos.checkin.revenue.total.not_verified" })}
+                    { (data.teacher_payment.data.Status === 'verified') ?
+                        <span>
+                            <i className="text-green fa fa-check"></i> { ' ' }
+                            {intl.formatMessage({ id:"app.pos.checkin.revenue.total.verified"})}
+                        </span> :
+                        <span>
+                            <i className="text-red fa fa-ban"></i> { ' ' }
+                            {intl.formatMessage({ id:"app.pos.checkin.revenue.total.not_verified" })}
+                        </span>}
                 </small>
             </h3>
             {/* <div className="box-tools pull-right">

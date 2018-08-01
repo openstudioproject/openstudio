@@ -1553,16 +1553,13 @@ def define_teachers_payment_attendance():
               writable=False),
         Field('VerifiedOn', 'datetime',
               readable=False,
-              writable=False,
-              default=datetime.datetime.now()),
+              writable=False),
         Field('UpdatedOn', 'datetime',
               readable=False,
               writable=False,
               compute=lambda row: datetime.datetime.now())
     )
 
-    if auth.user:
-        db.teachers_payment_attendance.VerifiedBy.default = auth.user.id
 
 
 def define_customers_notes():

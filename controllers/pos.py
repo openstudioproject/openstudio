@@ -188,6 +188,28 @@ def get_class_revenue():
     return dict(revenue=reports.get_class_revenue_summary(clsID, date))
 
 
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'teachers_payment_attendance'))
+def verify_teacher_payment_attendance():
+    """
+    Set teacher payment attendance
+    """
+    tpaID = request.vars['tpaID']
+
+    tpa = db.teachers_payment_attendance(tpaID)
+    tpa.VerifiedBy = auth.user.id
+    tpa.Status = 'verified'
+    tpa.VerifiedOn = NOW_LOCAL
+
+    result = tpa.update_record()
+
+    if result:
+        status = 'success'
+    else:
+        status = 'fail'
+
+    return dict(result=status)
+
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('create', 'classes_attendance'))

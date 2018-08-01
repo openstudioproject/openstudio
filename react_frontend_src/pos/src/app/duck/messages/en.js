@@ -26,6 +26,7 @@ export const ENGLISH_TRANSLATION = {
         "app.pos.checkin.revenue.list.twom": "Trial without membership",
         "app.pos.checkin.revenue.loading": "Loading revenue, please wait...",
         "app.pos.checkin.revenue.total.title": "Revenue Totals",
+        "app.pos.checkin.revenue.total.verified": "Verified",
         "app.pos.checkin.revenue.total.not_verified": "Not verified",
         "app.pos.checkin.revenue.total.studio_revenue": "Studio revenue",
         "app.pos.home.hello": "Hello! A nice start-up screen will go here...",
