@@ -1532,17 +1532,12 @@ def define_teachers_payment_attendance_classes():
                (db.auth_user.teacher == True) & \
                (db.auth_user.teaches_classes == True)
 
-    statuses = [
-        ['not_verified', T('Not verified')],
-        ['verified', T('Verified')],
-        ['processed', T('Processed')]
-    ]
-
     db.define_table('teachers_payment_attendance_classes',
         Field('classes_id', db.classes),
         Field('ClassDate', 'date'),
         Field('Status',
-              requires=IS_IN_SET(statuses)),
+              represent=represent_teachers_payment_attendance_classes_status,
+              requires=IS_IN_SET(teacher_payment_attendance_classes_statuses)),
         Field('AttendanceCount', 'integer'),
         Field('auth_teacher_id', db.auth_user,
             requires=IS_IN_DB(db(au_query),
@@ -1578,7 +1573,6 @@ def define_teachers_payment_attendance_classes():
               writable=False,
               compute=lambda row: datetime.datetime.now())
     )
-
 
 
 def define_customers_notes():

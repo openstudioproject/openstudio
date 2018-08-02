@@ -482,6 +482,31 @@ def represent_payment_batchtypes(value, row):
     return return_value
 
 
+def set_teachers_payment_attendance_classes_statuses():
+    return [
+        ['not_verified', T('Not verified')],
+        ['verified', T('Verified')],
+        ['processed', T('Processed')]
+    ]
+
+
+def represent_teachers_payment_attendance_classes_status(value, row):
+    return_value = ''
+    for s in teacher_payment_attendance_classes_statuses:
+        if value == s[0]:
+            return_value = s[1]
+            break
+
+    label_class = 'default'
+    if value == 'verified':
+        label_class = 'success'
+    elif value == 'processed':
+        label_class = 'primary'
+
+
+    return os_gui.get_label(label_class, return_value)
+
+
 def represent_gender(value, row):
     """
         Helper to represent genders
@@ -541,6 +566,7 @@ invoice_statuses = set_invoice_statuses()
 order_statuses = set_order_statuses()
 booking_statuses = set_booking_statuses()
 payment_batchtypes = set_payment_batchtypes()
+teacher_payment_attendance_classes_statuses = set_teachers_payment_attendance_classes_statuses()
 
 
 os_gui = OsGui()

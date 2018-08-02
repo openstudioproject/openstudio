@@ -38,10 +38,37 @@ class TeachersPaymentAttendanceClasses:
 
         :return:
         """
-        rows = self.get_not_processed()
+        T = current.T
 
         header = THEAD(TR(
-            TH(),
+            TH(T("Date")),
+            TH(T("Time")),
+            TH(T("Location")),
+            TH(T("Class type")),
+            TH(T("Teacher")),
+            TH(T("Status")),
+            TH() # Actions
         ))
 
-        table = TABLE()
+        table = TABLE(header, _class="table table-striped table-hover")
+
+        rows = self.get_not_processed()
+        print rows
+
+        for i, row in enumerate(rows):
+            repr_row = list(rows[i:i + 1].render())[0]
+
+            tr = TR(
+                TD(repr_row.teachers_payment_attendance_classes.ClassDate),
+                TD(repr_row.classes.Starttime),
+                TD(repr_row.classes.school_locations_id),
+                TD(repr_row.classes.school_classtypes_id),
+                TD(repr_row.teachers_payment_attendance_classes.auth_teacher_id, BR(),
+                   repr_row.teachers_payment_attendance_classes.auth_teacher_id2),
+                TD(repr_row.teachers_payment_attendance_classes.Status),
+                TD()
+            )
+
+            table.append(tr)
+
+        return table

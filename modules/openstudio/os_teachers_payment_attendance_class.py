@@ -23,8 +23,6 @@ class TeachersPaymentAttendanceClass:
         """
         from os_class import Class
 
-
-
         auth = current.auth
         NOW_LOCAL = current.NOW_LOCAL
 
@@ -34,7 +32,6 @@ class TeachersPaymentAttendanceClass:
         )
 
         teachers = cls.get_teachers()
-
 
         self.row.auth_teacher_id = teachers['teacher']['id']
         try:

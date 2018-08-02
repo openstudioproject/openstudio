@@ -1132,9 +1132,9 @@ def teacher_payments_get_menu(page):
 
     if auth.has_membership(group_id='Admins') or \
        auth.has_permission('read', 'teachers_payment_classes_attendance'):
-        pages.append([ 'teacher_payments_verified_classes',
-                       T('Verified classes'),
-                       URL('teacher_payments_verified_classes') ])
+        pages.append([ 'teacher_payments_unprocessed_classes',
+                       T('Unprocessed classes'),
+                       URL('teacher_payments_unprocessed_classes') ])
 
 
     return os_gui.get_submenu(pages, page, horizontal=True, htype='tabs')
@@ -1243,7 +1243,7 @@ def teacher_payments_generate_invoices(year, month):
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'teachers_payment_attendance'))
-def teacher_payments_verified_classes():
+def teacher_payments_unprocessed_classes():
     """
 
     :return:
@@ -1255,11 +1255,11 @@ def teacher_payments_verified_classes():
     response.view = 'general/only_content_no_box.html'
 
     tpac = TeachersPaymentAttendanceClasses()
-    rows = tpac.get_not_processed()
+    table = tpac.get_not_processed_formatted()
 
     content = DIV(
         teacher_payments_get_menu(request.function),
-         DIV(DIV("hello world",
+         DIV(DIV(table,
                   _class='tab-pane active'),
              _class='tab-content'),
          _class='nav-tabs-custom')
