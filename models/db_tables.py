@@ -1528,6 +1528,10 @@ def define_teachers_payment_attendance_classes():
     """
 
     """
+    au_query = (db.auth_user.trashed == False) & \
+               (db.auth_user.teacher == True) & \
+               (db.auth_user.teaches_classes == True)
+
     statuses = [
         ['not_verified', T('Not verified')],
         ['verified', T('Verified')],
@@ -1540,6 +1544,21 @@ def define_teachers_payment_attendance_classes():
         Field('Status',
               requires=IS_IN_SET(statuses)),
         Field('AttendanceCount', 'integer'),
+        Field('auth_teacher_id', db.auth_user,
+            requires=IS_IN_DB(db(au_query),
+                              'auth_user.id',
+                              '%(first_name)s %(last_name)s',
+                              zero=(T('Select teacher...'))),
+            represent=lambda value, row: teachers_dict.get(value, None),
+            #represent=lambda value, row: value or '', # when this is enabled it the schedule returns id's instead of names
+            label=T("Teacher")),
+        Field('auth_teacher_id2', db.auth_user,
+            requires=IS_EMPTY_OR(IS_IN_DB(db(au_query),
+                                          'auth_user.id',
+                                          '%(first_name)s %(last_name)s')),
+            represent=lambda value, row: teachers_dict.get(value, None),
+            #represent=lambda value, row: value or '',
+            label=T("Teacher 2")),
         Field('Amount', 'double',
               represent=represent_float_as_amount),
         Field('teachers_payment_attendance_list_id', db.teachers_payment_attendance_lists,

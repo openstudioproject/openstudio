@@ -85,9 +85,6 @@ const fetchRevenueAndTeacherPayment = (clsID) => {
     axios.all([getRevenue(clsID), getTeacherPayment(clsID)])
       .then(axios.spread(function (revenue, teacher_payment) {
         // Both requests are now complete
-        console.log('both received')
-        console.log(revenue)
-        console.log(teacher_payment)
         dispatch(receive_revenue(revenue.data))
         dispatch(receive_teacher_payment(teacher_payment.data))
         
@@ -106,9 +103,6 @@ const verifyTeacherPayment = (tpacID) => {
     axios_os.post(OS_API.CHECKIN_VERIFY_TEACHER_PAYMENT, params)
     .then(function (response) {
       // handle success
-      console.log("response from verify payment")
-      console.log(response)
-
       dispatch(receive_verify_payment(response.data))
       // dispatch(setLoadingProgress(100))
     })

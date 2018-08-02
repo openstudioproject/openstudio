@@ -1248,9 +1248,14 @@ def teacher_payments_verified_classes():
 
     :return:
     """
+    from openstudio.os_teachers_payment_attendance_classes import TeachersPaymentAttendanceClasses
+
     response.title = T('Teacher payments')
     response.subtitle = T('')
     response.view = 'general/only_content_no_box.html'
+
+    tpac = TeachersPaymentAttendanceClasses()
+    rows = tpac.get_not_processed()
 
     content = DIV(
         teacher_payments_get_menu(request.function),
