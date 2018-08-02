@@ -11,22 +11,18 @@ const RevenueTotal = ({revenue, teacher_payment, teacher_payment_verifying, intl
                 {intl.formatMessage({ id:"app.pos.checkin.revenue.total.title" })}
                 <small>
                     { ' ' }
-                    { (teacher_payment.Status === 'verified') ?
-                        <span>
-                            <i className="text-green fa fa-check"></i> { ' ' }
-                            {intl.formatMessage({ id:"app.pos.checkin.revenue.total.verified"})}
-                        </span> :
+                    { (teacher_payment.data.Status === 'verified') ?
+                        // <span>
+                        //     <i className="text-green fa fa-check"></i> { ' ' }
+                        //     {intl.formatMessage({ id:"app.pos.checkin.revenue.total.verified"})}
+                        // </span> 
+                        '' :
                         <span>
                             <i className="text-red fa fa-ban"></i> { ' ' }
                             {intl.formatMessage({ id:"app.pos.checkin.revenue.total.not_verified" })}
                         </span>}
                 </small>
             </h3>
-            {/* <div className="box-tools pull-right">
-                <button className='btn btn-success btn-sm'>
-                    Verify
-                </button>
-            </div> */}
         </div>
         <div className="box-body">
             <table className="table">

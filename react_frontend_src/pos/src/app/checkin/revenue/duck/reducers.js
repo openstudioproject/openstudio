@@ -45,8 +45,12 @@ export const checkinRevenueReducer = (state = {}, action={ type: null }) => {
                 ...state,
                 teacher_payment_verifying: false,
                 teacher_payment: {
-                    ...data,
-                    Status: 'verified'
+                    ...state.teacher_payment,
+                    data: {
+                        ...state.teacher_payment.data,
+                        Status: 'verified'
+                    }
+                    
                 }
             }
         default:

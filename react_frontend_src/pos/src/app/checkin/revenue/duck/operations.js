@@ -109,7 +109,7 @@ const verifyTeacherPayment = (tpaID) => {
       console.log("response from verify payment")
       console.log(response)
 
-      // dispatch(receive_verify_payment(response.data))
+      dispatch(receive_verify_payment(response.data))
       // dispatch(setLoadingProgress(100))
     })
     .catch(function (error) {
