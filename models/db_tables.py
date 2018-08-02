@@ -1524,7 +1524,7 @@ def define_teachers_payment_attendance_lists_school_classtypes():
     )
 
 
-def define_teachers_payment_attendance():
+def define_teachers_payment_attendance_classes():
     """
 
     """
@@ -1534,7 +1534,7 @@ def define_teachers_payment_attendance():
         ['processed', T('Processed')]
     ]
 
-    db.define_table('teachers_payment_attendance',
+    db.define_table('teachers_payment_attendance_classes',
         Field('classes_id', db.classes),
         Field('ClassDate', 'date'),
         Field('Status',
@@ -5598,7 +5598,7 @@ define_teachers_payment_fixed_rate_travel()
 define_teachers_payment_attendance_lists()
 define_teachers_payment_attendance_lists_rates()
 define_teachers_payment_attendance_lists_school_classtypes()
-define_teachers_payment_attendance()
+define_teachers_payment_attendance_classes()
 
 define_customers_subscriptions_credits()
 define_log_customers_accepted_documents()

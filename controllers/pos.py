@@ -215,14 +215,14 @@ def verify_teacher_payment_attendance():
     """
     set_headers()
 
-    tpaID = request.vars['tpaID']
+    tpacID = request.vars['tpacID']
 
-    tpa = db.teachers_payment_attendance(tpaID)
-    tpa.VerifiedBy = auth.user.id
-    tpa.Status = 'verified'
-    tpa.VerifiedOn = NOW_LOCAL
+    row = db.teachers_payment_attendance_classes(tpacID)
+    row.VerifiedBy = auth.user.id
+    row.Status = 'verified'
+    row.VerifiedOn = NOW_LOCAL
 
-    result = tpa.update_record()
+    result = row.update_record()
 
     if result:
         status = 'success'
