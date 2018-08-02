@@ -1121,6 +1121,33 @@ def invoices():
                 header_tools=DIV(export, tools))
 
 
+def teacher_payments_get_menu(page):
+    pages = [
+        [
+            'teacher_payments',
+            T('Teacher payments'),
+            URL('teacher_payments')
+        ]
+    ]
+
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('read', 'teachers_payment_classes_attendance'):
+        pages.append([ 'teacher_payments_verified_classes',
+                       T('Verified classes'),
+                       URL('teacher_payments_verified_classes') ])
+
+
+    return os_gui.get_submenu(pages, page, horizontal=True, htype='tabs')
+
+
+#         content = DIV(
+#         index_get_menu(session.customers_show),
+#         DIV(DIV(search_results,
+#                 _class='tab-pane active'),
+#             _class='tab-content'),
+#         _class='nav-tabs-custom')
+
+
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'invoices'))
 def teacher_payments():
@@ -1130,7 +1157,7 @@ def teacher_payments():
     """
     response.title = T('Teacher payments')
     response.subtitle = T('')
-    response.view = 'general/only_content.html'
+    response.view = 'general/only_content_no_box.html'
 
     add = teacher_payments_get_create_invoices()
 
@@ -1138,7 +1165,13 @@ def teacher_payments():
     status_filter = invoices.list_get_status_filter()
     list = invoices.list_invoices(only_teacher_credit_invoices=True)
 
-    content = DIV(status_filter, list)
+    content = DIV(
+        teacher_payments_get_menu(request.function),
+         DIV(DIV(status_filter,
+                 list,
+                  _class='tab-pane active'),
+             _class='tab-content'),
+         _class='nav-tabs-custom')
 
     return dict(content=content,
                 header_tools=add)
