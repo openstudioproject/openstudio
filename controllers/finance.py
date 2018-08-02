@@ -1140,14 +1140,6 @@ def teacher_payments_get_menu(page):
     return os_gui.get_submenu(pages, page, horizontal=True, htype='tabs')
 
 
-#         content = DIV(
-#         index_get_menu(session.customers_show),
-#         DIV(DIV(search_results,
-#                 _class='tab-pane active'),
-#             _class='tab-content'),
-#         _class='nav-tabs-custom')
-
-
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'invoices'))
 def teacher_payments():
@@ -1248,62 +1240,23 @@ def teacher_payments_generate_invoices(year, month):
     if nr_created > 1:
         session.flash.append('s')
 
-#
-# def orders_get_menu_actions(row):
-#     '''
-#         Returns drop down link for orders
-#     '''
-#     coID = row.customers_orders.id
-#     cuID = row.customers_orders.auth_customer_id
-#
-#     vars = {'coID': coID,
-#             'cuID': cuID}
-#
-#     links = []
-#
-#     permission = (auth.has_membership(group_id='Admins') or
-#                   auth.has_permission('update', 'customers_subscriptions'))
-#     if permission:
-#         link_edit = A((os_gui.get_fa_icon('fa-pencil'), T('Edit')),
-#                       _href=URL('finance', 'order', vars={'coID':coID}))
-#         links.append(link_edit)
-#         link_cancel = A((os_gui.get_fa_icon('fa-pencil'), T('Cancel')),
-#                       _href=URL('orders', 'cancel_order', vars={'coID':coID}))
-#         links.append(link_cancel)
-#
-#     permission = (auth.has_membership(group_id='Admins') or
-#                   auth.has_permission('read', 'auth_user'))
-#     if permission:
-#         link_cancel = A((os_gui.get_fa_icon('fa-pencil'), T('Customer')),
-#                       _href=URL('customers', 'edit', args=cuID))
-#         links.append(link_cancel)
-#
-#
-#     menu = os_gui.get_dropdown_menu(
-#         links=links,
-#         btn_text='',
-#         btn_size='btn-sm',
-#         btn_icon='pencil',
-#         menu_class='btn-group')
-#
-#     return menu
 
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'teachers_payment_attendance'))
+def teacher_payments_verified_classes():
+    """
 
-# @auth.requires(auth.has_membership(group_id='Admins') or \
-#                auth.has_permission('update', 'customers_orders'))
-# def order():
-#     '''
-#         Display order content
-#     '''
-#     coID = request.vars['coID']
-#
-#     response.title = T("Order #") + coID
-#     response.view = 'general/only_content.html'
-#
-#     content =  LOAD('orders', 'display_order.load', ajax=False,
-#                            vars=request.vars)
-#
-#     back = os_gui.get_button('back', URL('orders'))
-#
-#     return dict(content=content,
-#                 back=back)
+    :return:
+    """
+    response.title = T('Teacher payments')
+    response.subtitle = T('')
+    response.view = 'general/only_content_no_box.html'
+
+    content = DIV(
+        teacher_payments_get_menu(request.function),
+         DIV(DIV("hello world",
+                  _class='tab-pane active'),
+             _class='tab-content'),
+         _class='nav-tabs-custom')
+
+    return dict(content=content)
