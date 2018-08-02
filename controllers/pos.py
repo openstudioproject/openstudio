@@ -216,7 +216,6 @@ def verify_teacher_payment_attendance():
     set_headers()
 
     tpacID = request.vars['tpacID']
-    print request.vars
 
     row = db.teachers_payment_attendance_classes(tpacID)
     row.VerifiedBy = auth.user.id
@@ -242,8 +241,6 @@ def get_class_booking_options():
     """
     from openstudio.os_attendance_helper import AttendanceHelper
     from openstudio.os_customer import Customer
-
-    print request.vars
 
     clsID = request.vars['clsID']
     cuID = request.vars['cuID']
