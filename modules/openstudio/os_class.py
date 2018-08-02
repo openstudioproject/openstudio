@@ -474,7 +474,7 @@ class Class:
         )
 
         # Check if we have a payment, if not insert it with Status 'not_verified"
-        tpa = db.teachers_payment_attendance(
+        tpac = db.teachers_payment_attendance_classes(
             classes_id = self.clsID,
             ClassDate = self.date
         )
@@ -496,27 +496,27 @@ class Class:
             except AttributeError:
                 rate = 0
 
-            if not tpa and tpalst:
-                tpaID = db.teachers_payment_attendance.insert(
+            if not tpac and tpalst:
+                tpaID = db.teachers_payment_attendance_classes.insert(
                     classes_id = self.clsID,
                     ClassDate = self.date,
                     Status = 'not_verified',
                     AttendanceCount = attendance_count,
                     Amount = rate,
-                    teachers_payment_attendance_list_id = list.id,
+                    teachers_payment_attendance_classes_list_id = list.id,
                     tax_rates_id = tax_rates_id,
                 )
-                tpa = db.teachers_payment_attendance(tpaID)
+                tpac = db.teachers_payment_attendance_classes(tpaID)
 
-            elif tpa and tpalst:
-                tpa.AttendanceCount = attendance_count
-                tpa.Amount = rate
-                tpa.teachers_payment_attendance_list_id = list.id
-                tpa.tax_rates_id = tax_rates_id
-                tpa.update_record()
+            elif tpac and tpalst:
+                tpac.AttendanceCount = attendance_count
+                tpac.Amount = rate
+                tpac.teachers_payment_attendance_classes_list_id = list.id
+                tpac.tax_rates_id = tax_rates_id
+                tpac.update_record()
 
 
-            data = tpa
+            data = tpac
             status = 'success'
         else:
             data = T('No payment list defined for this class type')

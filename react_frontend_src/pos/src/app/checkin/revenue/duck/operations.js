@@ -96,12 +96,12 @@ const fetchRevenueAndTeacherPayment = (clsID) => {
   }
 }
 
-const verifyTeacherPayment = (tpaID) => {
+const verifyTeacherPayment = (tpacID) => {
   return dispatch => {
     dispatch(request_verify_payment())
 
     const params = new URLSearchParams()
-    params.append('tpaID', tpaID)
+    params.append('tpacID', tpacID)
     console.log(params)
     axios_os.post(OS_API.CHECKIN_VERIFY_TEACHER_PAYMENT, params)
     .then(function (response) {

@@ -216,6 +216,7 @@ def verify_teacher_payment_attendance():
     set_headers()
 
     tpacID = request.vars['tpacID']
+    print request.vars
 
     row = db.teachers_payment_attendance_classes(tpacID)
     row.VerifiedBy = auth.user.id
