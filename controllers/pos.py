@@ -213,6 +213,8 @@ def verify_teacher_payment_attendance():
     """
     Set teacher payment attendance
     """
+    set_headers()
+
     tpaID = request.vars['tpaID']
 
     tpa = db.teachers_payment_attendance(tpaID)

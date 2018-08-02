@@ -29,9 +29,6 @@ export const checkinRevenueReducer = (state = {}, action={ type: null }) => {
                 teacher_payment: {}                
             }
         case T.CHECKIN_RECEIVE_TEACHER_PAYMENT:
-            console.log('reducer here')
-            console.log(action.data)
-
             return {
                 ...state,
                 teacher_payment_loading: false,
@@ -40,7 +37,17 @@ export const checkinRevenueReducer = (state = {}, action={ type: null }) => {
             }
         case T.CHECKIN_REQUEST_VERIFY_TEACHER_PAYMENT:
             return {
-                ...state
+                ...state,
+                teacher_payment_verifying: true
+            }
+        case T.CHECKIN_RECEIVE_VERIFY_TEACHER_PAYMENT:
+            return {
+                ...state,
+                teacher_payment_verifying: false,
+                teacher_payment: {
+                    ...data,
+                    Status: 'verified'
+                }
             }
         default:
             return {

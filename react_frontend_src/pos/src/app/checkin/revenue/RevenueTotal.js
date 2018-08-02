@@ -2,7 +2,7 @@ import React from "react"
 
 import ButtonVerify from './ButtonVerify'
 
-const RevenueTotal = ({revenue, teacher_payment, intl, currency_symbol}) => 
+const RevenueTotal = ({revenue, teacher_payment, teacher_payment_verifying, intl, currency_symbol,onVerify=f=>f}) => 
     <div className="box box-solid"> 
         {console.log(revenue)}
         {console.log(teacher_payment)}
@@ -62,7 +62,8 @@ const RevenueTotal = ({revenue, teacher_payment, intl, currency_symbol}) =>
         <div className="box-footer">
             <ButtonVerify intl={intl}
                           teacher_payment={teacher_payment}
-                          onClick={() => console.log('clicked')} />
+                          teacher_payment_verifying={teacher_payment_verifying}
+                          onClick={onVerify} />
         </div>
     </div>
 

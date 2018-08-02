@@ -18,7 +18,7 @@ class Revenue extends Component {
         fetchRevenue: PropTypes.function,
         setPageTitle: PropTypes.function,
         app: PropTypes.object,
-        attendance: PropTypes.object,
+        data: PropTypes.object
     }
 
     componentWillMount() {
@@ -44,8 +44,10 @@ class Revenue extends Component {
                             <div className="col-md-6">
                                 <RevenueTotal revenue={this.props.data.revenue}
                                               teacher_payment={this.props.data.teacher_payment}
+                                              teacher_payment_verifying={this.props.data.teacher_payment_verifying}
                                               intl={this.props.intl}
-                                              currency_symbol={this.props.settings.currency_symbol} />
+                                              currency_symbol={this.props.settings.currency_symbol}
+                                              onVerify={() => this.props.verifyTeacherPayment(this.props.data.teacher_payment.data.id)} />
                             </div>
                         </div>
                 }

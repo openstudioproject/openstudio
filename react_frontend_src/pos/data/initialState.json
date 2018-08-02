@@ -33,6 +33,7 @@
         "revenue": {},
         "teacher_payment_loaded": false,
         "teacher_payment_loading": false,
+        "teacher_payment_verifying": false,
         "teacher_payment": {}
     }
 }
