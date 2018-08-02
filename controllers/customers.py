@@ -2838,7 +2838,6 @@ def subscription_add():
 
     submit = form.element('input[type=submit]')
 
-
     subscr_back = os_gui.get_button('back_bs', URL('subscriptions', vars={'cuID':customers_id}))
     content = DIV(subscr_back, form)
 

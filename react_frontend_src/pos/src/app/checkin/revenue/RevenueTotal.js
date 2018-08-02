@@ -53,8 +53,7 @@ const RevenueTotal = ({revenue, teacher_payment, intl, currency_symbol}) =>
                     <tr>
                         <th>{intl.formatMessage({ id:"app.pos.checkin.revenue.total.studio_revenue" })}</th>
                         <th>{currency_symbol} { ' ' } { 
-                            (revenue.total.amount - (teacher_payment.status === 'error') ?
-                                0 : teacher_payment.data.Amount).toFixed(2)}
+                            (revenue.total.amount - teacher_payment.data.Amount).toFixed(2) }
                         </th> 
                     </tr>
                 </tfoot>
