@@ -457,6 +457,44 @@ class Class:
         return db(query).count()
 
 
+    def get_teachers(self):
+        """
+        Teachers for class
+        :return:
+        """
+        db = current.db
+
+        query = (db.classes_teachers.classes_id == self.clsID) & \
+                ((db.classes_teachers.Startdate <= self.date) &
+                 ((db.classes_teachers.Enddate >= self.date) |
+                  (db.classes_teachers.Enddate == None)))
+        rows = db(query).select(db.classes_teachers.ALL)
+
+        teachers = rows.first()
+
+        cotc = db.classes_otc(
+            classes_id = self.clsID,
+            ClassDate = self.date
+        )
+
+        teacher = db.auth_user(teachers.auth_teacher_id)
+        if cotc:
+            if cotc.auth_teacher_id:
+                teacher = db.auth_user(cotc.auth_teacher_id)
+
+
+
+        teacher2 = teacher2 = db.auth_user(teachers.auth_teacher_id2)
+        if cotc:
+            if cotc.auth_teacher_id2:
+                teacher2 = db.auth_user(cotc.auth_teacher_id2)
+
+        return dict(
+            teacher = teacher,
+            teacher2 = teacher2
+        )
+
+
     def get_teacher_payment(self):
         """
         Returns amount excl. VAT

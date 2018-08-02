@@ -213,16 +213,14 @@ def verify_teacher_payment_attendance():
     """
     Set teacher payment attendance
     """
+    from openstudio.os_teachers_payment_attendance_class import TeachersPaymentAttendanceClass
+
     set_headers()
 
     tpacID = request.vars['tpacID']
 
-    row = db.teachers_payment_attendance_classes(tpacID)
-    row.VerifiedBy = auth.user.id
-    row.Status = 'verified'
-    row.VerifiedOn = NOW_LOCAL
-
-    result = row.update_record()
+    tpac = TeachersPaymentAttendanceClass(tpacID)
+    result = tpac.verify()
 
     if result:
         status = 'success'
