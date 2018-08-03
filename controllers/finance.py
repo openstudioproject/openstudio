@@ -1266,11 +1266,23 @@ def teacher_payment_classes():
 
     tpac = TeachersPaymentAttendanceClasses()
 
+    tools = ''
     if status == 'not_verified':
         table = tpac.get_not_verified(
             formatted=True
         )
     elif status == 'verified':
+        permission = auth.has_membership(group_id='Admins') or \
+                     auth.has_permission('create', 'invoices')
+
+        if permission:
+            tools = os_gui.get_button(
+                'noicon',
+                URL('#'),
+                title=T('Process'),
+                tooltip=T("Create credit invoices"),
+                btn_class='btn-primary'
+            )
         table = tpac.get_verified(
             formatted=True
         )
@@ -1287,7 +1299,10 @@ def teacher_payment_classes():
         _class='nav-tabs-custom'
     )
 
-    return dict(content=content)
+    return dict(
+        content=content,
+        header_tools=tools
+    )
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -1309,5 +1324,17 @@ def teachers_payment_attendance_class_verify():
     else:
         session.flash = T("Error verifying class")
 
-
     redirect(URL('teacher_payment_classes', vars={'status': 'not_verified'}))
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('create', 'invoices'))
+def teachers_payment_attendance_classes_process_verified():
+    """
+    Process verified classes; create credit invoices based on verified classes
+    :return:
+    """
+    from openstudio.os_teachers_payment_attendance_class import TeachersPaymentAttendanceClasses
+
+    tpac = TeachersPaymentAttendanceClasses()
+
