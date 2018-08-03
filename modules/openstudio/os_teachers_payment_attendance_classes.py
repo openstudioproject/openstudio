@@ -243,8 +243,9 @@ class TeachersPaymentAttendanceClasses:
         # For each teacher, create credit invoice and add all verified classes
         for i, row in enumerate(rows):
             print i
-            if i == 0 or not previous_teacher == row.teachers_payment_attendance_classes.auth_teacher_id:
-                current_teacher = row.teachers_payment_attendance_classes.auth_teacher_id
+            teID = row.teachers_payment_attendance_classes.auth_teacher_id
+            if i == 0 or not previous_teacher == teID:
+                current_teacher = teID
 
                 igpt = db.invoices_groups_product_types(ProductType='teacher_payments')
                 iID = db.invoices.insert(
@@ -255,19 +256,17 @@ class TeachersPaymentAttendanceClasses:
                 )
 
                 invoice = Invoice(iID)
-                invoice.item_add_teacher_class_attendance_credit_payment(
-                    row.teachers_payment_attendance_classes.id
-                )
+                invoice.link_to_customer(teID)
 
                 invoices_created += 1
 
-
-            print current_teacher
-
+            invoice.item_add_teacher_class_attendance_credit_payment(
+                row.teachers_payment_attendance_classes.id
+            )
 
             previous_teacher = current_teacher
-
             processed += 1
+
 
 
         # Calculate total
