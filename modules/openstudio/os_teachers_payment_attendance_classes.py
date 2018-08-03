@@ -9,7 +9,7 @@ class TeachersPaymentAttendanceClasses:
     """
         Class that gathers useful functions for db.teachers_payments_attendance
     """
-    def get_rows(self, status='not_verified', formatted=False):
+    def get_rows(self, status='not_verified', sorting='time', formatted=False):
         db = current.db
 
         left = [
@@ -19,11 +19,18 @@ class TeachersPaymentAttendanceClasses:
             )
         ]
 
+        if sorting == 'time':
+            orderby = db.teachers_payment_attendance_classes.ClassDate | \
+                      db.classes.Starttime
+        elif sorting == 'teacher':
+            orderby = db.teachers_payment_attendance_classes.auth_teacher_id
+
         query = (db.teachers_payment_attendance_classes.Status == status)
         rows = db(query).select(
             db.teachers_payment_attendance_classes.ALL,
             db.classes.ALL,
-            left=left
+            left=left,
+            orderby=orderby
         )
 
         if not formatted:
@@ -51,6 +58,8 @@ class TeachersPaymentAttendanceClasses:
             TH(T("Location")),
             TH(T("Class type")),
             TH(T("Teacher")),
+            TH(T("Attendance")),
+            TH(T("Amount")),
             TH(T("Status")),
             TH() # Actions
         ))
@@ -77,6 +86,8 @@ class TeachersPaymentAttendanceClasses:
                 TD(repr_row.classes.school_classtypes_id),
                 TD(repr_row.teachers_payment_attendance_classes.auth_teacher_id, BR(),
                    repr_row.teachers_payment_attendance_classes.auth_teacher_id2),
+                TD(repr_row.teachers_payment_attendance_classes.AttendanceCount),
+                TD(repr_row.teachers_payment_attendance_classes.Amount),
                 TD(repr_row.teachers_payment_attendance_classes.Status),
                 TD(buttons)
             )
@@ -206,3 +217,27 @@ class TeachersPaymentAttendanceClasses:
             status='processed',
             formatted=formatted
         )
+
+
+    def process_verified(self):
+        """
+        Create credit invoices for verified classes
+        :return:
+        """
+        from os_invoice import Invoice
+
+        # Sort verified classes by teacher
+        rows = self.get_rows(
+            status='verified',
+            sorting='teacher',
+            formatted=False
+        )
+
+        current_teacher = None
+        # For each teacher, create credit invoice and add all verified classes
+        for i, row in enumerate(rows):
+            pass
+
+
+        # Calculate total
+

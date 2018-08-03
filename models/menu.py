@@ -460,7 +460,7 @@ def get_backend_menu():
                 submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Invoices'))),
                                 False,
                                 URL('finance', 'invoices', extension='')))
-                submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Teacher payments'))),
+                submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Teacher payments [BETA]'))),
                                 False,
                                 URL('finance', 'teacher_payments_invoices', extension='')))
                 #submenu.append(( SPAN(os_gui.get_fa_icon('fa-file-o'), ' ', T('Invoices')), False, URL('finance', 'invoices') ))

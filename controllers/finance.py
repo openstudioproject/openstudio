@@ -1337,4 +1337,5 @@ def teachers_payment_attendance_classes_process_verified():
     from openstudio.os_teachers_payment_attendance_class import TeachersPaymentAttendanceClasses
 
     tpac = TeachersPaymentAttendanceClasses()
+    tpac.process_verified()
 
