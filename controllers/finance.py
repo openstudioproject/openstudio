@@ -1121,7 +1121,7 @@ def invoices():
                 header_tools=DIV(export, tools))
 
 
-def teacher_payments_get_menu(page):
+def teacher_payments_get_menu(page, status='not_verified'):
     pages = [
         [
             'teacher_payments_invoices',
@@ -1130,11 +1130,19 @@ def teacher_payments_get_menu(page):
         ]
     ]
 
-    if auth.has_membership(group_id='Admins') or \
-       auth.has_permission('read', 'teachers_payment_classes_attendance'):
-        pages.append([ 'teacher_payments_unprocessed_classes',
-                       T('Unprocessed classes'),
-                       URL('teacher_payments_unprocessed_classes') ])
+    print status
+
+    if ( auth.has_membership(group_id='Admins') or
+         auth.has_permission('read', 'teachers_payment_classes_attendance') ):
+        pages.append([ 'teacher_payments_classes_processed',
+                       T('Processed'),
+                       URL('teacher_payments_classes', vars={'status': 'processed'}) ])
+        pages.append([ 'teacher_payments_classes_verified',
+                       T('Verified'),
+                       URL('teacher_payments_classes', vars={'status': 'verified'}) ])
+        pages.append([ 'teacher_payments_classes_not_verified',
+                       T('Not verified'),
+                       URL('teacher_payments_classes', vars={'status': 'not_verified'}) ])
 
 
     return os_gui.get_submenu(pages, page, horizontal=True, htype='tabs')
@@ -1243,7 +1251,7 @@ def teacher_payments_generate_invoices(year, month):
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'teachers_payment_attendance'))
-def teacher_payments_unprocessed_classes():
+def teacher_payments_classes():
     """
 
     :return:
@@ -1254,14 +1262,29 @@ def teacher_payments_unprocessed_classes():
     response.subtitle = T('')
     response.view = 'general/only_content_no_box.html'
 
+    status = request.vars['status']
+
     tpac = TeachersPaymentAttendanceClasses()
-    table = tpac.get_not_processed_formatted()
+
+    if status == 'not_verified':
+        table = tpac.get_not_verified(
+            formatted=True
+        )
+    elif status == 'verified':
+        table = tpac.get_verified(
+            formatted=True
+        )
+    elif status == 'processed':
+        table = tpac.get_processed(
+            formatted=True
+        )
 
     content = DIV(
-        teacher_payments_get_menu(request.function),
-         DIV(DIV(table,
-                  _class='tab-pane active'),
-             _class='tab-content'),
-         _class='nav-tabs-custom')
+        teacher_payments_get_menu(request.function + '_' + status, status),
+        DIV(DIV(table,
+                 _class='tab-pane active'),
+            _class='tab-content'),
+        _class='nav-tabs-custom'
+    )
 
     return dict(content=content)

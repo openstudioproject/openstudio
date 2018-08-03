@@ -9,11 +9,7 @@ class TeachersPaymentAttendanceClasses:
     """
         Class that gathers useful functions for db.teachers_payments_attendance
     """
-    def get_not_processed(self):
-        """
-        All classes not
-        :return: gluon.dal.rows
-        """
+    def get_rows(self, status='not_verified', formatted=False):
         db = current.db
 
         left = [
@@ -23,20 +19,25 @@ class TeachersPaymentAttendanceClasses:
             )
         ]
 
-        query = (db.teachers_payment_attendance_classes.Status != 'processed')
+        query = (db.teachers_payment_attendance_classes.Status == status)
         rows = db(query).select(
             db.teachers_payment_attendance_classes.ALL,
             db.classes.ALL,
             left=left
         )
 
-        return rows
+        if not formatted:
+            return rows
+        else:
+            return self.rows_to_table(rows)
 
 
-    def get_not_processed_formatted(self):
+    def rows_to_table(self, rows):
         """
-
-        :return:
+        turn rows object into an html table
+        :param rows: gluon.dal.rows with all fields of db.teachers_payment_attendance_classes
+        and db.classes
+        :return: html table
         """
         T = current.T
 
@@ -51,9 +52,6 @@ class TeachersPaymentAttendanceClasses:
         ))
 
         table = TABLE(header, _class="table table-striped table-hover")
-
-        rows = self.get_not_processed()
-        print rows
 
         for i, row in enumerate(rows):
             repr_row = list(rows[i:i + 1].render())[0]
@@ -72,3 +70,39 @@ class TeachersPaymentAttendanceClasses:
             table.append(tr)
 
         return table
+
+
+    def get_not_verified(self, formatted=False):
+        """
+        All classes not
+        :return: gluon.dal.rows or html table
+        """
+        return self.get_rows(
+            status='not_verified',
+            formatted=formatted
+        )
+
+
+    def get_verified(self, formatted=False):
+        """
+        All classes verified
+        :return: gluon.dal.rows or html table
+        """
+        return self.get_rows(
+            status='verified',
+            formatted=formatted
+        )
+
+
+    def get_processed(self, formatted=False):
+        """
+        All processed classes
+        :param formatted: Bool
+        :return: gluon.dal.rows or html table
+        """
+        return self.get_rows(
+            status='processed',
+            formatted=formatted
+        )
+
+
