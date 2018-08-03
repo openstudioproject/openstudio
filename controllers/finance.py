@@ -1278,7 +1278,7 @@ def teacher_payment_classes():
         if permission:
             tools = os_gui.get_button(
                 'noicon',
-                URL('#'),
+                URL('teachers_payment_attendance_classes_process_verified'),
                 title=T('Process'),
                 tooltip=T("Create credit invoices"),
                 btn_class='btn-primary'
@@ -1334,8 +1334,19 @@ def teachers_payment_attendance_classes_process_verified():
     Process verified classes; create credit invoices based on verified classes
     :return:
     """
-    from openstudio.os_teachers_payment_attendance_class import TeachersPaymentAttendanceClasses
+    from openstudio.os_teachers_payment_attendance_classes import TeachersPaymentAttendanceClasses
 
     tpac = TeachersPaymentAttendanceClasses()
-    tpac.process_verified()
+    count_processed = tpac.process_verified()
 
+    classes = T('classes')
+    if count_processed == 1:
+        classes = T("class")
+
+    session.flash = SPAN(
+        T("Processed"), ' ',
+        count_processed, ' ',
+        classes
+    )
+
+    redirect(URL('teacher_payment_classes', vars={'status': 'processed'}))

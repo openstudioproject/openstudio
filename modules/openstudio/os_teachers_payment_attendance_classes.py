@@ -234,10 +234,14 @@ class TeachersPaymentAttendanceClasses:
         )
 
         current_teacher = None
+        processed = 0
         # For each teacher, create credit invoice and add all verified classes
         for i, row in enumerate(rows):
-            pass
+            print i
+            processed += 1
 
 
         # Calculate total
+
+        return processed
 
