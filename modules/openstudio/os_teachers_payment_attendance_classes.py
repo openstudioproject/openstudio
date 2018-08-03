@@ -42,6 +42,7 @@ class TeachersPaymentAttendanceClasses:
         from os_gui import OsGui
 
         T = current.T
+        auth = current.auth
         os_gui = OsGui()
 
         header = THEAD(TR(
@@ -56,12 +57,16 @@ class TeachersPaymentAttendanceClasses:
 
         table = TABLE(header, _class="table table-striped table-hover")
 
+        permissions = self._rows_to_table_button_permissions()
+
         for i, row in enumerate(rows):
             repr_row = list(rows[i:i + 1].render())[0]
 
 
             if status == 'not_verified':
-                buttons = self._rows_to_table_get_not_verified_buttons(row, os_gui)
+                buttons = self._rows_to_table_get_not_verified_buttons(row, os_gui, permissions)
+            elif status == 'verified':
+                buttons = self._rows_to_table_get_verified_buttons(row, os_gui, permissions)
             else:
                 buttons = ''
 
@@ -81,22 +86,92 @@ class TeachersPaymentAttendanceClasses:
         return table
 
 
-    def _rows_to_table_get_not_verified_buttons(self, row, os_gui):
+    def _rows_to_table_button_permissions(self):
         """
+            :return: dict containing button permissions for a user
+        """
+        auth = current.auth
+        permissions = {}
 
-        :param row:
-        :return:
+        if auth.has_membership(group_id='Admins') or \
+                auth.has_permission('read', 'classes_attendance'):
+            permissions['classes_attendance'] = True
+        if auth.has_membership(group_id='Admins') or \
+                auth.has_permission('update', 'teachers_payment_attendance_classes'):
+            permissions['teachers_payment_attendance_classes'] = True
+
+        return permissions
+
+
+    def _rows_to_table_get_not_verified_buttons(self, row, os_gui, permissions):
+        """
+            Returns buttons for schedule
+            - one button group for edit & attendance buttons
+            - separate button for delete
         """
         T = current.T
+        DATE_FORMAT = current.DATE_FORMAT
+        buttons = DIV(_class='pull-right')
 
-        verify = os_gui.get_button(
-            "noicon",
-            URL('finance', 'teachers_payment_attendance_class_verify',
-                vars={'tpacID': row.teachers_payment_attendance_classes.id}),
-            title=T('Verify')
-        )
 
-        return DIV(verify, _class='pull-right')
+        links = []
+        links.append(['header', T('Actions')])
+        # Check Update teachers payment attendance classes
+        if permissions.get('teachers_payment_attendance_classes', False):
+            links.append(A(os_gui.get_fa_icon('fa-check'), T('Verify'),
+                           _href=URL('finance', 'teachers_payment_attendance_class_verify',
+                                     vars={'tpacID': row.teachers_payment_attendance_classes.id}),
+                           _class='text-green'))
+            links.append('divider')
+
+        # Check Attendance permission
+        if permissions.get('classes_attendance', False):
+            links.append(['header', T('Go to')])
+            links.append(A(os_gui.get_fa_icon('fa-chevron-right'), T('Attendance'),
+                           _href=URL('classes', 'attendance',
+                                     vars={'clsID': row.classes.id,
+                                           'date':row.teachers_payment_attendance_classes.ClassDate.strftime(DATE_FORMAT)})))
+
+
+        tpac_menu = os_gui.get_dropdown_menu(
+            links=links,
+            btn_text=T('Actions'),
+            btn_size='btn-sm',
+            btn_icon='actions',
+            menu_class='btn-group pull-right')
+
+        return DIV(tpac_menu, _class='pull-right')
+
+
+    def _rows_to_table_get_verified_buttons(self, row, os_gui, permissions):
+        """
+            Returns buttons for schedule
+            - one button group for edit & attendance buttons
+            - separate button for delete
+        """
+        T = current.T
+        DATE_FORMAT = current.DATE_FORMAT
+        buttons = DIV(_class='pull-right')
+
+
+        links = []
+        # Check Attendance permission
+        if permissions.get('classes_attendance', False):
+            links.append(['header', T('Go to')])
+            links.append(A(os_gui.get_fa_icon('fa-chevron-right'), T('Attendance'),
+                           _href=URL('classes', 'attendance',
+                                     vars={'clsID': row.classes.id,
+                                           'date':row.teachers_payment_attendance_classes.ClassDate.strftime(DATE_FORMAT)})))
+
+
+        tpac_menu = os_gui.get_dropdown_menu(
+            links=links,
+            btn_text=T('Actions'),
+            btn_size='btn-sm',
+            btn_icon='actions',
+            menu_class='btn-group pull-right')
+
+        return DIV(tpac_menu, _class='pull-right')
 
 
     def get_not_verified(self, formatted=False):
@@ -131,5 +206,3 @@ class TeachersPaymentAttendanceClasses:
             status='processed',
             formatted=formatted
         )
-
-
