@@ -46,3 +46,17 @@ class TeachersPaymentAttendanceClass:
         result = self.row.update_record()
 
         return result
+
+
+    def set_status(self, status):
+        """
+
+        :param status:
+        :return:
+        """
+        self.row.Status = status
+        self.row.update_record()
+
+
+    def set_status_processed(self):
+        self.set_status('processed')

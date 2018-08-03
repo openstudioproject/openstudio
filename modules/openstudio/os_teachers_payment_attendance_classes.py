@@ -225,6 +225,7 @@ class TeachersPaymentAttendanceClasses:
         :return:
         """
         from os_invoice import Invoice
+        from os_teachers_payment_attendance_class import TeachersPaymentAttendanceClass
 
         T = current.T
         db = current.db
@@ -260,9 +261,10 @@ class TeachersPaymentAttendanceClasses:
 
                 invoices_created += 1
 
-            invoice.item_add_teacher_class_attendance_credit_payment(
-                row.teachers_payment_attendance_classes.id
-            )
+            tpacID = row.teachers_payment_attendance_classes.id
+            invoice.item_add_teacher_class_attendance_credit_payment(tpacID)
+            tpac = TeachersPaymentAttendanceClass(tpacID)
+            tpac.set_status_processed()
 
             previous_teacher = current_teacher
             processed += 1
