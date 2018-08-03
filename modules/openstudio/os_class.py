@@ -504,6 +504,7 @@ class Class:
         db = current.db
 
         #TODO: check which payment method is used here. fixed rate or attendance based
+        # It now defaults to attendance based
 
         # Get list for class type
         cltID = self.cls.school_classtypes_id

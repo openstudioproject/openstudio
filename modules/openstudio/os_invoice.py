@@ -718,6 +718,54 @@ class Invoice:
         return iiID
 
 
+    def item_add_teacher_class_attendance_credit_payment(self,
+                                                         tpacID,
+                                                         payment_type='attendance_count'):
+        """
+        :param clsID: db.classes.id
+        :param date: datetime.date class date
+        :return:
+        """
+        from os_class import Class
+        from os_teacher import Teacher
+        from os_teachers_payment_attendance_class import TeachersPaymentAttendanceClass
+
+        DATE_FORMAT = current.DATE_FORMAT
+        TIME_FORMAT = current.TIME_FORMAT
+        db = current.db
+        T = current.T
+
+        tpac = TeachersPaymentAttendanceClass(tpacID)
+        cls = Class(
+            tpac.row.classes_id,
+            tpac.row.ClassDate
+        )
+
+        # Get amount & tax rate
+        price = tpac.row.Amount
+        tax_rates_id = tpac.row.tax_rates_id
+
+        # add item to invoice
+        if price > 0:
+            next_sort_nr = self.get_item_next_sort_nr()
+
+            iiID = db.invoices_items.insert(
+                invoices_id=self.invoices_id,
+                ProductName=T('Class'),
+                Description=cls.get_name(),
+                Quantity=1,
+                Price=price * -1,
+                Sorting=next_sort_nr,
+                tax_rates_id=tax_rates_id,
+            )
+
+            self.set_amounts()
+
+            self.on_update()
+
+            return iiID
+
+
     def item_add_teacher_class_credit_travel_allowance(self,
                                                 clsID,
                                                 date,

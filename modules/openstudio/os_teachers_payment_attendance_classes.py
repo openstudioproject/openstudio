@@ -226,6 +226,7 @@ class TeachersPaymentAttendanceClasses:
         """
         from os_invoice import Invoice
 
+        T = current.T
         db = current.db
 
         # Sort verified classes by teacher
@@ -251,6 +252,11 @@ class TeachersPaymentAttendanceClasses:
                     TeacherPayment=True,
                     Description=T('Classes'),
                     Status='sent'
+                )
+
+                invoice = Invoice(iID)
+                invoice.item_add_teacher_class_attendance_credit_payment(
+                    row.teachers_payment_attendance_classes.id
                 )
 
                 invoices_created += 1
