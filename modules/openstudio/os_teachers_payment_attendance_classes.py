@@ -226,6 +226,8 @@ class TeachersPaymentAttendanceClasses:
         """
         from os_invoice import Invoice
 
+        db = current.db
+
         # Sort verified classes by teacher
         rows = self.get_rows(
             status='verified',
@@ -233,11 +235,32 @@ class TeachersPaymentAttendanceClasses:
             formatted=False
         )
 
+        previous_teacher = None
         current_teacher = None
         processed = 0
+        invoices_created = 0
         # For each teacher, create credit invoice and add all verified classes
         for i, row in enumerate(rows):
             print i
+            if i == 0 or not previous_teacher == row.teachers_payment_attendance_classes.auth_teacher_id:
+                current_teacher = row.teachers_payment_attendance_classes.auth_teacher_id
+
+                igpt = db.invoices_groups_product_types(ProductType='teacher_payments')
+                iID = db.invoices.insert(
+                    invoices_groups_id=igpt.invoices_groups_id,
+                    TeacherPayment=True,
+                    Description=T('Classes'),
+                    Status='sent'
+                )
+
+                invoices_created += 1
+
+
+            print current_teacher
+
+
+            previous_teacher = current_teacher
+
             processed += 1
 
 
