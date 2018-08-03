@@ -1134,15 +1134,15 @@ def teacher_payments_get_menu(page, status='not_verified'):
 
     if ( auth.has_membership(group_id='Admins') or
          auth.has_permission('read', 'teachers_payment_classes_attendance') ):
-        pages.append([ 'teacher_payments_classes_processed',
+        pages.append([ 'teacher_payment_classes_processed',
                        T('Processed'),
-                       URL('teacher_payments_classes', vars={'status': 'processed'}) ])
-        pages.append([ 'teacher_payments_classes_verified',
+                       URL('teacher_payment_classes', vars={'status': 'processed'}) ])
+        pages.append([ 'teacher_payment_classes_verified',
                        T('Verified'),
-                       URL('teacher_payments_classes', vars={'status': 'verified'}) ])
-        pages.append([ 'teacher_payments_classes_not_verified',
+                       URL('teacher_payment_classes', vars={'status': 'verified'}) ])
+        pages.append([ 'teacher_payment_classes_not_verified',
                        T('Not verified'),
-                       URL('teacher_payments_classes', vars={'status': 'not_verified'}) ])
+                       URL('teacher_payment_classes', vars={'status': 'not_verified'}) ])
 
 
     return os_gui.get_submenu(pages, page, horizontal=True, htype='tabs')
@@ -1251,7 +1251,7 @@ def teacher_payments_generate_invoices(year, month):
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'teachers_payment_attendance'))
-def teacher_payments_classes():
+def teacher_payment_classes():
     """
 
     :return:
@@ -1288,3 +1288,26 @@ def teacher_payments_classes():
     )
 
     return dict(content=content)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'teachers_payment_attendance'))
+def teachers_payment_attendance_class_verify():
+    """
+    Verify attendance / payment
+    :return:
+    """
+    from openstudio.os_teachers_payment_attendance_class import TeachersPaymentAttendanceClass
+
+    tpacID = request.vars['tpacID']
+
+    tpac = TeachersPaymentAttendanceClass(tpacID)
+    success = tpac.verify()
+
+    if success:
+        session.flash = T("Class verified")
+    else:
+        session.flash = T("Error verifying class")
+
+
+    redirect(URL('teacher_payment_classes', vars={'status': 'not_verified'}))
