@@ -1124,9 +1124,9 @@ def invoices():
 def teacher_payments_get_menu(page):
     pages = [
         [
-            'teacher_payments',
-            T('Teacher payments'),
-            URL('teacher_payments')
+            'teacher_payments_invoices',
+            T('Credit invoices'),
+            URL('teacher_payments_invoices')
         ]
     ]
 
@@ -1142,7 +1142,7 @@ def teacher_payments_get_menu(page):
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'invoices'))
-def teacher_payments():
+def teacher_payments_invoices():
     """
         List teacher payments invoices by month and add button to add invoices for a
         selected month
