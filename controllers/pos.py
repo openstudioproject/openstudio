@@ -217,8 +217,6 @@ def verify_teacher_payment():
 
     set_headers()
 
-    print request.vars
-
     tpcID = request.vars['tpcID']
 
     tpc = TeachersPaymentClass(tpcID)
