@@ -243,7 +243,6 @@ class TeachersPaymentAttendanceClasses:
         invoices_created = 0
         # For each teacher, create credit invoice and add all verified classes
         for i, row in enumerate(rows):
-            print i
             teID = row.teachers_payment_attendance_classes.auth_teacher_id
             if i == 0 or not previous_teacher == teID:
                 current_teacher = teID

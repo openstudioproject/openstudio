@@ -521,7 +521,7 @@ def payment_fixed_rate_class_add():
 
     db.classes.id.readable = False
     # list of classes
-    grid = customers.classes_add_get_list(date, 'tp_fixed_rate', teID)
+    grid = customers.classes_add_get_list(date, 'tp_fixed_rate')
 
     back = os_gui.get_button('back',
                              URL('payment_fixed_rate',
