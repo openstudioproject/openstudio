@@ -5,7 +5,7 @@ import datetime
 from gluon import *
 
 
-class TeachersPaymentAttendanceClasses:
+class TeachersPaymentClasses:
     """
         Class that gathers useful functions for db.teachers_payments_attendance
     """
@@ -225,7 +225,7 @@ class TeachersPaymentAttendanceClasses:
         :return:
         """
         from os_invoice import Invoice
-        from os_teachers_payment_attendance_class import TeachersPaymentAttendanceClass
+        from os_teachers_payment_class import TeachersPaymentClass
 
         T = current.T
         db = current.db
@@ -262,7 +262,7 @@ class TeachersPaymentAttendanceClasses:
 
             tpacID = row.teachers_payment_classes.id
             invoice.item_add_teacher_class_attendance_credit_payment(tpacID)
-            tpac = TeachersPaymentAttendanceClass(tpacID)
+            tpac = TeachersPaymentClass(tpacID)
             tpac.set_status_processed()
 
             previous_teacher = current_teacher

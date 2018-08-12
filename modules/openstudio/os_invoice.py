@@ -728,14 +728,14 @@ class Invoice:
         """
         from os_class import Class
         from os_teacher import Teacher
-        from os_teachers_payment_attendance_class import TeachersPaymentAttendanceClass
+        from os_teachers_payment_class import TeachersPaymentClass
 
         DATE_FORMAT = current.DATE_FORMAT
         TIME_FORMAT = current.TIME_FORMAT
         db = current.db
         T = current.T
 
-        tpac = TeachersPaymentAttendanceClass(tpacID)
+        tpac = TeachersPaymentClass(tpacID)
         cls = Class(
             tpac.row.classes_id,
             tpac.row.ClassDate

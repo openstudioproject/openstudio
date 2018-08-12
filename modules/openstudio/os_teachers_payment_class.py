@@ -5,7 +5,7 @@ import datetime
 from gluon import *
 
 
-class TeachersPaymentAttendanceClass:
+class TeachersPaymentClass:
     """
         Class that gathers useful functions for db.teachers_payments_attendance
     """

@@ -213,13 +213,13 @@ def verify_teacher_payment_attendance():
     """
     Set teacher payment attendance
     """
-    from openstudio.os_teachers_payment_attendance_class import TeachersPaymentAttendanceClass
+    from openstudio.os_teachers_payment_attendance_class import TeachersPaymentClass
 
     set_headers()
 
     tpacID = request.vars['tpacID']
 
-    tpac = TeachersPaymentAttendanceClass(tpacID)
+    tpac = TeachersPaymentClass(tpacID)
     result = tpac.verify()
 
     if result:
