@@ -513,7 +513,7 @@ class Class:
         )
 
         # Check if we have a payment, if not insert it with Status 'not_verified"
-        tpac = db.teachers_payment_attendance_classes(
+        tpac = db.teachers_payment_classes(
             classes_id = self.clsID,
             ClassDate = self.date
         )
@@ -536,21 +536,21 @@ class Class:
                 rate = 0
 
             if not tpac and tpalst:
-                tpaID = db.teachers_payment_attendance_classes.insert(
+                tpaID = db.teachers_payment_classes.insert(
                     classes_id = self.clsID,
                     ClassDate = self.date,
                     Status = 'not_verified',
                     AttendanceCount = attendance_count,
                     Amount = rate,
-                    teachers_payment_attendance_classes_list_id = list.id,
+                    teachers_payment_classes_list_id = list.id,
                     tax_rates_id = tax_rates_id,
                 )
-                tpac = db.teachers_payment_attendance_classes(tpaID)
+                tpac = db.teachers_payment_classes(tpaID)
 
             elif tpac and tpalst:
                 tpac.AttendanceCount = attendance_count
                 tpac.Amount = rate
-                tpac.teachers_payment_attendance_classes_list_id = list.id
+                tpac.teachers_payment_classes_list_id = list.id
                 tpac.tax_rates_id = tax_rates_id
                 tpac.update_record()
 

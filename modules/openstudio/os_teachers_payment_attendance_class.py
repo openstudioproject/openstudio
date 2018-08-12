@@ -13,7 +13,7 @@ class TeachersPaymentAttendanceClass:
         db = current.db
 
         self.tpacID = tpacID
-        self.row = db.teachers_payment_attendance_classes(tpacID)
+        self.row = db.teachers_payment_classes(tpacID)
 
 
     def verify(self):

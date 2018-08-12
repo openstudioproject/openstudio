@@ -482,7 +482,7 @@ def represent_payment_batchtypes(value, row):
     return return_value
 
 
-def set_teachers_payment_attendance_classes_statuses():
+def set_teachers_payment_classes_statuses():
     return [
         ['not_verified', T('Not verified')],
         ['verified', T('Verified')],
@@ -490,7 +490,7 @@ def set_teachers_payment_attendance_classes_statuses():
     ]
 
 
-def represent_teachers_payment_attendance_classes_status(value, row):
+def represent_teachers_payment_classes_status(value, row):
     return_value = ''
     for s in teacher_payment_attendance_classes_statuses:
         if value == s[0]:
@@ -566,7 +566,7 @@ invoice_statuses = set_invoice_statuses()
 order_statuses = set_order_statuses()
 booking_statuses = set_booking_statuses()
 payment_batchtypes = set_payment_batchtypes()
-teacher_payment_attendance_classes_statuses = set_teachers_payment_attendance_classes_statuses()
+teacher_payment_attendance_classes_statuses = set_teachers_payment_classes_statuses()
 
 
 os_gui = OsGui()

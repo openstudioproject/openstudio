@@ -14,20 +14,20 @@ class TeachersPaymentAttendanceClasses:
 
         left = [
             db.classes.on(
-                db.teachers_payment_attendance_classes.classes_id ==
+                db.teachers_payment_classes.classes_id ==
                 db.classes.id
             )
         ]
 
         if sorting == 'time':
-            orderby = db.teachers_payment_attendance_classes.ClassDate | \
+            orderby = db.teachers_payment_classes.ClassDate | \
                       db.classes.Starttime
         elif sorting == 'teacher':
-            orderby = db.teachers_payment_attendance_classes.auth_teacher_id
+            orderby = db.teachers_payment_classes.auth_teacher_id
 
-        query = (db.teachers_payment_attendance_classes.Status == status)
+        query = (db.teachers_payment_classes.Status == status)
         rows = db(query).select(
-            db.teachers_payment_attendance_classes.ALL,
+            db.teachers_payment_classes.ALL,
             db.classes.ALL,
             left=left,
             orderby=orderby
@@ -42,7 +42,7 @@ class TeachersPaymentAttendanceClasses:
     def rows_to_table(self, rows, status):
         """
         turn rows object into an html table
-        :param rows: gluon.dal.rows with all fields of db.teachers_payment_attendance_classes
+        :param rows: gluon.dal.rows with all fields of db.teachers_payment_classes
         and db.classes
         :return: html table
         """
@@ -80,15 +80,15 @@ class TeachersPaymentAttendanceClasses:
                 buttons = ''
 
             tr = TR(
-                TD(repr_row.teachers_payment_attendance_classes.ClassDate),
+                TD(repr_row.teachers_payment_classes.ClassDate),
                 TD(repr_row.classes.Starttime),
                 TD(repr_row.classes.school_locations_id),
                 TD(repr_row.classes.school_classtypes_id),
-                TD(repr_row.teachers_payment_attendance_classes.auth_teacher_id, BR(),
-                   repr_row.teachers_payment_attendance_classes.auth_teacher_id2),
-                TD(repr_row.teachers_payment_attendance_classes.AttendanceCount),
-                TD(repr_row.teachers_payment_attendance_classes.Amount),
-                TD(repr_row.teachers_payment_attendance_classes.Status),
+                TD(repr_row.teachers_payment_classes.auth_teacher_id, BR(),
+                   repr_row.teachers_payment_classes.auth_teacher_id2),
+                TD(repr_row.teachers_payment_classes.AttendanceCount),
+                TD(repr_row.teachers_payment_classes.Amount),
+                TD(repr_row.teachers_payment_classes.Status),
                 TD(buttons)
             )
 
@@ -108,8 +108,8 @@ class TeachersPaymentAttendanceClasses:
                 auth.has_permission('read', 'classes_attendance'):
             permissions['classes_attendance'] = True
         if auth.has_membership(group_id='Admins') or \
-                auth.has_permission('update', 'teachers_payment_attendance_classes'):
-            permissions['teachers_payment_attendance_classes'] = True
+                auth.has_permission('update', 'teachers_payment_classes'):
+            permissions['teachers_payment_classes'] = True
 
         return permissions
 
@@ -128,10 +128,10 @@ class TeachersPaymentAttendanceClasses:
         links = []
         links.append(['header', T('Actions')])
         # Check Update teachers payment attendance classes
-        if permissions.get('teachers_payment_attendance_classes', False):
+        if permissions.get('teachers_payment_classes', False):
             links.append(A(os_gui.get_fa_icon('fa-check'), T('Verify'),
                            _href=URL('finance', 'teachers_payment_attendance_class_verify',
-                                     vars={'tpacID': row.teachers_payment_attendance_classes.id}),
+                                     vars={'tpacID': row.teachers_payment_classes.id}),
                            _class='text-green'))
             links.append('divider')
 
@@ -141,7 +141,7 @@ class TeachersPaymentAttendanceClasses:
             links.append(A(os_gui.get_fa_icon('fa-chevron-right'), T('Attendance'),
                            _href=URL('classes', 'attendance',
                                      vars={'clsID': row.classes.id,
-                                           'date':row.teachers_payment_attendance_classes.ClassDate.strftime(DATE_FORMAT)})))
+                                           'date':row.teachers_payment_classes.ClassDate.strftime(DATE_FORMAT)})))
 
 
         tpac_menu = os_gui.get_dropdown_menu(
@@ -172,7 +172,7 @@ class TeachersPaymentAttendanceClasses:
             links.append(A(os_gui.get_fa_icon('fa-chevron-right'), T('Attendance'),
                            _href=URL('classes', 'attendance',
                                      vars={'clsID': row.classes.id,
-                                           'date':row.teachers_payment_attendance_classes.ClassDate.strftime(DATE_FORMAT)})))
+                                           'date':row.teachers_payment_classes.ClassDate.strftime(DATE_FORMAT)})))
 
 
         tpac_menu = os_gui.get_dropdown_menu(
@@ -243,7 +243,7 @@ class TeachersPaymentAttendanceClasses:
         invoices_created = 0
         # For each teacher, create credit invoice and add all verified classes
         for i, row in enumerate(rows):
-            teID = row.teachers_payment_attendance_classes.auth_teacher_id
+            teID = row.teachers_payment_classes.auth_teacher_id
             if i == 0 or not previous_teacher == teID:
                 current_teacher = teID
 
@@ -260,7 +260,7 @@ class TeachersPaymentAttendanceClasses:
 
                 invoices_created += 1
 
-            tpacID = row.teachers_payment_attendance_classes.id
+            tpacID = row.teachers_payment_classes.id
             invoice.item_add_teacher_class_attendance_credit_payment(tpacID)
             tpac = TeachersPaymentAttendanceClass(tpacID)
             tpac.set_status_processed()

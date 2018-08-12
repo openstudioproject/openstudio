@@ -1256,7 +1256,7 @@ def teacher_payment_classes():
 
     :return:
     """
-    from openstudio.os_teachers_payment_attendance_classes import TeachersPaymentAttendanceClasses
+    from openstudio.os_teachers_payment_classes import TeachersPaymentAttendanceClasses
 
     response.title = T('Teacher payments')
     response.subtitle = T('')
@@ -1268,9 +1268,16 @@ def teacher_payment_classes():
 
     tools = ''
     if status == 'not_verified':
+        permission = auth.has_membership(group_id='Admins') or \
+                     auth.has_permission('update', '')
+
         table = tpac.get_not_verified(
             formatted=True
         )
+
+
+
+
     elif status == 'verified':
         permission = auth.has_membership(group_id='Admins') or \
                      auth.has_permission('create', 'invoices')
@@ -1278,7 +1285,7 @@ def teacher_payment_classes():
         if permission:
             tools = os_gui.get_button(
                 'noicon',
-                URL('teachers_payment_attendance_classes_process_verified'),
+                URL('teachers_payment_classes_process_verified'),
                 title=T('Process'),
                 tooltip=T("Create credit invoices"),
                 btn_class='btn-primary'
@@ -1329,12 +1336,12 @@ def teachers_payment_attendance_class_verify():
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('create', 'invoices'))
-def teachers_payment_attendance_classes_process_verified():
+def teachers_payment_classes_process_verified():
     """
     Process verified classes; create credit invoices based on verified classes
     :return:
     """
-    from openstudio.os_teachers_payment_attendance_classes import TeachersPaymentAttendanceClasses
+    from openstudio.os_teachers_payment_classes import TeachersPaymentAttendanceClasses
 
     tpac = TeachersPaymentAttendanceClasses()
     count_processed = tpac.process_verified()

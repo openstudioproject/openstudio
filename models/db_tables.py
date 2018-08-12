@@ -1524,7 +1524,7 @@ def define_teachers_payment_attendance_lists_school_classtypes():
     )
 
 
-def define_teachers_payment_attendance_classes():
+def define_teachers_payment_classes():
     """
 
     """
@@ -1532,11 +1532,11 @@ def define_teachers_payment_attendance_classes():
                (db.auth_user.teacher == True) & \
                (db.auth_user.teaches_classes == True)
 
-    db.define_table('teachers_payment_attendance_classes',
+    db.define_table('teachers_payment_classes',
         Field('classes_id', db.classes),
         Field('ClassDate', 'date'),
         Field('Status',
-              represent=represent_teachers_payment_attendance_classes_status,
+              represent=represent_teachers_payment_classes_status,
               requires=IS_IN_SET(teacher_payment_attendance_classes_statuses)),
         Field('AttendanceCount', 'integer'),
         Field('auth_teacher_id', db.auth_user,
@@ -5611,7 +5611,7 @@ define_teachers_payment_fixed_rate_travel()
 define_teachers_payment_attendance_lists()
 define_teachers_payment_attendance_lists_rates()
 define_teachers_payment_attendance_lists_school_classtypes()
-define_teachers_payment_attendance_classes()
+define_teachers_payment_classes()
 
 define_customers_subscriptions_credits()
 define_log_customers_accepted_documents()
