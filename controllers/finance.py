@@ -1271,12 +1271,18 @@ def teacher_payment_classes():
         permission = auth.has_membership(group_id='Admins') or \
                      auth.has_permission('update', '')
 
+        if permission:
+            tools = os_gui.get_button(
+                'noicon',
+                URL('teachers_payment_classes_verify_all'),
+                title=T("Verify all"),
+                tooltip="Verify all listed classes",
+                btn_class='btn-primary'
+            )
+
         table = tpac.get_not_verified(
             formatted=True
         )
-
-
-
 
     elif status == 'verified':
         permission = auth.has_membership(group_id='Admins') or \
@@ -1290,6 +1296,7 @@ def teacher_payment_classes():
                 tooltip=T("Create credit invoices"),
                 btn_class='btn-primary'
             )
+
         table = tpac.get_verified(
             formatted=True
         )
