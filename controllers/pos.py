@@ -209,18 +209,20 @@ def get_class_teacher_payment():
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'teachers_payment_attendance'))
-def verify_teacher_payment_attendance():
+def verify_teacher_payment():
     """
     Set teacher payment attendance
     """
-    from openstudio.os_teachers_payment_attendance_class import TeachersPaymentClass
+    from openstudio.os_teachers_payment_class import TeachersPaymentClass
 
     set_headers()
 
-    tpacID = request.vars['tpacID']
+    print request.vars
 
-    tpac = TeachersPaymentClass(tpacID)
-    result = tpac.verify()
+    tpcID = request.vars['tpcID']
+
+    tpc = TeachersPaymentClass(tpcID)
+    result = tpc.verify()
 
     if result:
         status = 'success'

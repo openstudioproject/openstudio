@@ -22,8 +22,8 @@ const mapDispatchToProps = dispatch =>
         setPageTitle(title) {
             dispatch(appOperations.setPageTitle(title))
         },
-        verifyTeacherPayment(tpaID) {
-            dispatch(checkinRevenueOperations.verifyTeacherPayment(tpaID))
+        verifyTeacherPayment(tpcID) {
+            dispatch(checkinRevenueOperations.verifyTeacherPayment(tpcID))
         }
     })
 

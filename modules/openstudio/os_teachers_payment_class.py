@@ -9,11 +9,11 @@ class TeachersPaymentClass:
     """
         Class that gathers useful functions for db.teachers_payments_attendance
     """
-    def __init__(self, tpacID):
+    def __init__(self, tpcID):
         db = current.db
 
-        self.tpacID = tpacID
-        self.row = db.teachers_payment_classes(tpacID)
+        self.tpcID = tpcID
+        self.row = db.teachers_payment_classes(tpcID)
 
 
     def verify(self):

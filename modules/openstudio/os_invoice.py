@@ -719,7 +719,7 @@ class Invoice:
 
 
     def item_add_teacher_class_attendance_credit_payment(self,
-                                                         tpacID,
+                                                         tpcID,
                                                          payment_type='attendance_count'):
         """
         :param clsID: db.classes.id
@@ -735,15 +735,15 @@ class Invoice:
         db = current.db
         T = current.T
 
-        tpac = TeachersPaymentClass(tpacID)
+        tpc = TeachersPaymentClass(tpcID)
         cls = Class(
-            tpac.row.classes_id,
-            tpac.row.ClassDate
+            tpc.row.classes_id,
+            tpc.row.ClassDate
         )
 
         # Get amount & tax rate
-        price = tpac.row.Amount
-        tax_rates_id = tpac.row.tax_rates_id
+        price = tpc.row.Amount
+        tax_rates_id = tpc.row.tax_rates_id
 
         # add item to invoice
         if price > 0:

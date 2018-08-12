@@ -1264,12 +1264,12 @@ def teacher_payment_classes():
 
     status = request.vars['status']
 
-    tpac = TeachersPaymentClasses()
+    tpc = TeachersPaymentClasses()
 
     tools = ''
     if status == 'not_verified':
         permission = auth.has_membership(group_id='Admins') or \
-                     auth.has_permission('update', '')
+                     auth.has_permission('update', 'teachers_payment_classes')
 
         if permission:
             tools = os_gui.get_button(
@@ -1280,7 +1280,7 @@ def teacher_payment_classes():
                 btn_class='btn-primary'
             )
 
-        table = tpac.get_not_verified(
+        table = tpc.get_not_verified(
             formatted=True
         )
 
@@ -1297,11 +1297,11 @@ def teacher_payment_classes():
                 btn_class='btn-primary'
             )
 
-        table = tpac.get_verified(
+        table = tpc.get_verified(
             formatted=True
         )
     elif status == 'processed':
-        table = tpac.get_processed(
+        table = tpc.get_processed(
             formatted=True
         )
 
@@ -1320,18 +1320,38 @@ def teacher_payment_classes():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('update', 'teachers_payment_attendance'))
+               auth.has_permission('update', 'teachers_payment_classes'))
+def teachers_payment_classes_verify_all():
+    """
+    Verify all not-verified classes
+    :return: None
+    """
+    from openstudio.os_teachers_payment_classes import TeachersPaymentClasses
+
+    tpcs = TeachersPaymentClasses()
+    number_verified = tpcs.verify_all()
+
+    if number_verified:
+        session.flash = T("All not verified classes have been verified")
+    else:
+        session.flash = T("No classes were verified")
+
+    redirect(URL('teacher_payment_classes', vars={'status': 'verified'}))
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'teachers_payment_classes'))
 def teachers_payment_attendance_class_verify():
     """
     Verify attendance / payment
-    :return:
+    :return: None
     """
     from openstudio.os_teachers_payment_class import TeachersPaymentClass
 
-    tpacID = request.vars['tpacID']
+    tpcID = request.vars['tpcID']
 
-    tpac = TeachersPaymentClass(tpacID)
-    success = tpac.verify()
+    tpc = TeachersPaymentClass(tpcID)
+    success = tpc.verify()
 
     if success:
         session.flash = T("Class verified")
@@ -1350,8 +1370,8 @@ def teachers_payment_classes_process_verified():
     """
     from openstudio.os_teachers_payment_classes import TeachersPaymentClasses
 
-    tpac = TeachersPaymentClasses()
-    count_processed = tpac.process_verified()
+    tpc = TeachersPaymentClasses()
+    count_processed = tpc.process_verified()
 
     classes = T('classes')
     if count_processed == 1:

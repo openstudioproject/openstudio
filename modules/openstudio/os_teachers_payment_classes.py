@@ -131,7 +131,7 @@ class TeachersPaymentClasses:
         if permissions.get('teachers_payment_classes', False):
             links.append(A(os_gui.get_fa_icon('fa-check'), T('Verify'),
                            _href=URL('finance', 'teachers_payment_attendance_class_verify',
-                                     vars={'tpacID': row.teachers_payment_classes.id}),
+                                     vars={'tpcID': row.teachers_payment_classes.id}),
                            _class='text-green'))
             links.append('divider')
 
@@ -144,14 +144,14 @@ class TeachersPaymentClasses:
                                            'date':row.teachers_payment_classes.ClassDate.strftime(DATE_FORMAT)})))
 
 
-        tpac_menu = os_gui.get_dropdown_menu(
+        tpc_menu = os_gui.get_dropdown_menu(
             links=links,
             btn_text=T('Actions'),
             btn_size='btn-sm',
             btn_icon='actions',
             menu_class='btn-group pull-right')
 
-        return DIV(tpac_menu, _class='pull-right')
+        return DIV(tpc_menu, _class='pull-right')
 
 
     def _rows_to_table_get_verified_buttons(self, row, os_gui, permissions):
@@ -175,14 +175,14 @@ class TeachersPaymentClasses:
                                            'date':row.teachers_payment_classes.ClassDate.strftime(DATE_FORMAT)})))
 
 
-        tpac_menu = os_gui.get_dropdown_menu(
+        tpc_menu = os_gui.get_dropdown_menu(
             links=links,
             btn_text=T('Actions'),
             btn_size='btn-sm',
             btn_icon='actions',
             menu_class='btn-group pull-right')
 
-        return DIV(tpac_menu, _class='pull-right')
+        return DIV(tpc_menu, _class='pull-right')
 
 
     def get_not_verified(self, formatted=False):
@@ -217,6 +217,20 @@ class TeachersPaymentClasses:
             status='processed',
             formatted=formatted
         )
+
+
+    def verify_all(self):
+        """
+        Change status of all not_verified classes to verified
+        :return: Int - number of classes where status has been changed to verified
+        """
+        db = current.db
+
+        query = (db.teachers_payment_classes.Status == 'not_verified')
+        updated = db(query).update(Status = 'verified')
+
+        print updated
+        return updated
 
 
     def process_verified(self):
@@ -260,10 +274,10 @@ class TeachersPaymentClasses:
 
                 invoices_created += 1
 
-            tpacID = row.teachers_payment_classes.id
-            invoice.item_add_teacher_class_attendance_credit_payment(tpacID)
-            tpac = TeachersPaymentClass(tpacID)
-            tpac.set_status_processed()
+            tpcID = row.teachers_payment_classes.id
+            invoice.item_add_teacher_class_attendance_credit_payment(tpcID)
+            tpc = TeachersPaymentClass(tpcID)
+            tpc.set_status_processed()
 
             previous_teacher = current_teacher
             processed += 1
