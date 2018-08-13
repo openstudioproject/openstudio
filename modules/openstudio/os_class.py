@@ -542,6 +542,7 @@ class Class:
                     Status = 'not_verified',
                     AttendanceCount = attendance_count,
                     Amount = rate,
+                    RateType = 'attendance',
                     teachers_payment_classes_list_id = list.id,
                     tax_rates_id = tax_rates_id,
                 )

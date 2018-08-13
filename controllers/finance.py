@@ -1159,8 +1159,6 @@ def teacher_payments_invoices():
     response.subtitle = T('')
     response.view = 'general/only_content_no_box.html'
 
-    add = teacher_payments_get_create_invoices()
-
     invoices = Invoices()
     status_filter = invoices.list_get_status_filter()
     list = invoices.list_invoices(only_teacher_credit_invoices=True)
@@ -1173,69 +1171,48 @@ def teacher_payments_invoices():
              _class='tab-content'),
          _class='nav-tabs-custom')
 
-    return dict(content=content,
-                header_tools=add)
+    return dict(content=content)
 
 
-def teacher_payments_get_create_invoices(var=None):
-    """
-        :return: html button linking to create teacher credit invoices page
-    """
-    permission = auth.has_membership(group_id='Admins') or \
-                 auth.has_permission('create', 'invoices')
-
-    if permission:
-        add = os_gui.get_button(
-            'noicon',
-            URL('teacher_payments_generate_invoices_choose_month'),
-            title=T('Create invoices'),
-            btn_class='btn-primary',
-            _class='pull-right'
-        )
-    else:
-        add = ''
-
-    return add
-
-
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('create', 'invoices'))
-def teacher_payments_generate_invoices_choose_month():
-    """
-        Choose year and month to create invoices
-    """
-    from openstudio.os_forms import OsForms
-
-    response.title = T('Teacher payments')
-    response.subtitle = T('')
-    response.view = 'general/only_content.html'
-
-    if 'year' in request.vars and 'month' in request.vars:
-        year = int(request.vars['year'])
-        month = int(request.vars['month'])
-        teacher_payments_generate_invoices(year, month)
-        redirect(URL('teacher_payments'))
-
-    os_forms = OsForms()
-    form = os_forms.get_month_year_form(
-        request.vars['year'],
-        request.vars['month'],
-        submit_button = T('Create invoices')
-    )
-
-    content = DIV(
-        H4(T('Create teacher credit invoices for month')),
-        DIV(form['form']),
-        _class='col-md-6'
-    )
-
-    back = os_gui.get_button('back', URL('teacher_payments'))
-
-    return dict(content=content,
-                save=form['submit'],
-                back=back)
+# @auth.requires(auth.has_membership(group_id='Admins') or \
+#                auth.has_permission('create', 'invoices'))
+# def teacher_payments_generate_invoices_choose_month():
+#     """
+#         Choose year and month to create invoices
+#     """
+#     from openstudio.os_forms import OsForms
+#
+#     response.title = T('Teacher payments')
+#     response.subtitle = T('')
+#     response.view = 'general/only_content.html'
+#
+#     if 'year' in request.vars and 'month' in request.vars:
+#         year = int(request.vars['year'])
+#         month = int(request.vars['month'])
+#         teacher_payments_generate_invoices(year, month)
+#         redirect(URL('teacher_payments'))
+#
+#     os_forms = OsForms()
+#     form = os_forms.get_month_year_form(
+#         request.vars['year'],
+#         request.vars['month'],
+#         submit_button = T('Create invoices')
+#     )
+#
+#     content = DIV(
+#         H4(T('Create teacher credit invoices for month')),
+#         DIV(form['form']),
+#         _class='col-md-6'
+#     )
+#
+#     back = os_gui.get_button('back', URL('teacher_payments'))
+#
+#     return dict(content=content,
+#                 save=form['submit'],
+#                 back=back)
 
 
+#TODO move code from this function to integrate with attendance based payments
 def teacher_payments_generate_invoices(year, month):
     """
         Actually generate teacher payment credit invoices
