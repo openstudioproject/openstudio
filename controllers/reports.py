@@ -4594,6 +4594,7 @@ def revenue_get_data():
 
         return return_value
 
+
     def get_month_classcards(date):
         # helper function to get monthly class card revenue
         year = date.year
