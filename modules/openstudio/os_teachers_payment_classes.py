@@ -9,6 +9,17 @@ class TeachersPaymentClasses:
     """
         Class that gathers useful functions for db.teachers_payments_attendance
     """
+    def check_missing(self, date_from, date_until):
+        """
+
+        :param date_from:
+        :param date_until:
+        :return:
+        """
+        db = current.db
+
+
+
     def get_rows(self, status='not_verified', sorting='time', formatted=False):
         db = current.db
 

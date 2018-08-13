@@ -1319,6 +1319,7 @@ def teacher_payment_find_classes():
     """
     :return: None
     """
+    from openstudio.os_teachers_payment_classes import TeachersPaymentClasses
     from general_helpers import set_form_id_and_get_submit_button
 
     response.title = T('Teacher payments')
@@ -1358,7 +1359,14 @@ def teacher_payment_find_classes():
         start = form.vars.Startdate
         end = form.vars.Enddate
 
-        #TODO call function to actually check
+        tpc = TeachersPaymentClasses()
+        nr_missing = tcp.check_missing(
+            start,
+            end
+        )
+
+        print nr_missing
+
 
     content.append(form)
 
