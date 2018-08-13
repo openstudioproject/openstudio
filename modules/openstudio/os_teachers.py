@@ -250,7 +250,7 @@ class Teachers:
 
         delete_onclick = "return confirm('" + \
                          T('Remove from teachers list? - This person will still be a customer.') + "');"
-        
+
         delete = os_gui.get_button(
               'delete_notext',
               URL('teachers',
@@ -263,14 +263,13 @@ class Teachers:
 
         links = []
         # Check Update teachers payment attendance classes
-        links.append(A(os_gui.get_fa_icon('fa-check-square-o'), T('Classtypes'),
-                       _href=URL('teachers', 'edit_classtypes',
-                                 vars={'uID': row.id})))
-        links.append('divider')
         links.append(A(os_gui.get_fa_icon('fa-usd'), T('Fixed rate payments'),
                        _href=URL('teachers', 'payment_fixed_rate',
                                  vars={'teID': row.id})))
         links.append('divider')
+        links.append(A(os_gui.get_fa_icon('fa-check-square-o'), T('Assign classtypes'),
+                       _href=URL('teachers', 'edit_classtypes',
+                                 vars={'uID': row.id})))
         links.append(A(os_gui.get_fa_icon('fa-pencil'), T('Edit'),
                        _href=URL('customers', 'edit',
                                  args=row.id)))
