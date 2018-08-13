@@ -48,6 +48,24 @@ class TeachersPaymentClass:
         return result
 
 
+    def unverify(self):
+        """
+        Unverify class attendance
+        :return:
+        """
+        from os_class import Class
+
+        auth = current.auth
+
+        self.row.VerifiedBy = None
+        self.row.Status = 'not_verified'
+        self.row.VerifiedOn = None
+
+        result = self.row.update_record()
+
+        return result
+
+
     def set_status(self, status):
         """
 

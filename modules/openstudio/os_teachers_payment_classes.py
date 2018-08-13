@@ -166,6 +166,14 @@ class TeachersPaymentClasses:
 
 
         links = []
+        links.append(['header', T('Actions')])
+        # Check Update teachers payment attendance classes
+        if permissions.get('teachers_payment_classes', False):
+            links.append(A(os_gui.get_fa_icon('fa-ban'), T("Move to 'Not verified'"),
+                           _href=URL('finance', 'teachers_payment_attendance_class_unverify',
+                                     vars={'tpcID': row.teachers_payment_classes.id}),
+                           _class='text-red'))
+            links.append('divider')
         # Check Attendance permission
         if permissions.get('classes_attendance', False):
             links.append(['header', T('Go to')])

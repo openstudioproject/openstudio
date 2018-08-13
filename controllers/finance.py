@@ -1335,6 +1335,28 @@ def teachers_payment_attendance_class_verify():
     else:
         session.flash = T("Error verifying class")
 
+    redirect(URL('teacher_payment_classes', vars={'status': 'verified'}))
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'teachers_payment_classes'))
+def teachers_payment_attendance_class_unverify():
+    """
+    Verify attendance / payment
+    :return: None
+    """
+    from openstudio.os_teachers_payment_class import TeachersPaymentClass
+
+    tpcID = request.vars['tpcID']
+
+    tpc = TeachersPaymentClass(tpcID)
+    success = tpc.unverify()
+
+    if success:
+        session.flash = T("Class moved to Not verified")
+    else:
+        session.flash = T("Error moving class to Not verified")
+
     redirect(URL('teacher_payment_classes', vars={'status': 'not_verified'}))
 
 
