@@ -172,7 +172,7 @@ class TeachersPaymentClasses:
             links.append(A(os_gui.get_fa_icon('fa-ban'), T("Move to 'Not verified'"),
                            _href=URL('finance', 'teachers_payment_attendance_class_unverify',
                                      vars={'tpcID': row.teachers_payment_classes.id}),
-                           _class='text-red'))
+                           _class=''))
             links.append('divider')
         # Check Attendance permission
         if permissions.get('classes_attendance', False):
