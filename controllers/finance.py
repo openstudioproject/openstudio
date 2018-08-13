@@ -448,15 +448,15 @@ def batch_content():
 
 
 def batch_content_get_export(pbID):
-    '''
+    """
     :return: export button for batch content page
-    '''
+    """
     export = os_gui.get_button('download',
                                URL('export_csv', vars={'pbID':pbID}),
                                title=T('Export'))
 
-    dd_button = XML('''<button type="button" class="btn btn-default dropdown-toggle btn-sm" data-toggle="dropdown">
-                       <span class="caret"></span></button>''')
+    dd_button = XML("""<button type="button" class="btn btn-default dropdown-toggle btn-sm" data-toggle="dropdown">
+                       <span class="caret"></span></button>""")
     dd_ul = UL(_class='dropdown-menu dropdown-menu-right', _role='menu')
 
     links = [
@@ -473,10 +473,10 @@ def batch_content_get_export(pbID):
 
 
 def content_items_get_invoices_link(invoices, item):
-    '''
+    """
         Returns add invoice link if none is found,
         otherwise returns link to invoice
-    '''
+    """
     pbiID = item[0]
     cuID  = item[2]
     csID  = item[3]
@@ -494,9 +494,9 @@ def content_items_get_invoices_link(invoices, item):
 
 
 def content_get_status_buttons(pbID):
-    '''
+    """
         Retuns the status buttons for batch content
-    '''
+    """
     pb = db.payment_batches(pbID)
     status = pb.Status
 
@@ -560,9 +560,9 @@ def content_get_status_buttons(pbID):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'payment_batches'))
 def batch_content_set_status():
-    '''
+    """
         Sets the status for a batch
-    '''
+    """
     pbID = request.vars['pbID']
     status = request.vars['status']
 
@@ -631,10 +631,10 @@ def content_add_payments(pb):
 
 @auth.requires_login()
 def batch_edit():
-    '''
+    """
         Shows edit page for a batch
         request.vars['pbID'] is expected to be payment_batches_id
-    '''
+    """
     response.title = T("Edit batch")
     pbID = request.vars['pbID']
     pb = db.payment_batches(pbID)
@@ -813,9 +813,9 @@ def generate_batch_items_category(pbID,
                                   firstdaythismonth,
                                   lastdaythismonth,
                                   currency):
-    '''
+    """
         Generates batch items for a category
-    '''
+    """
     category_id = pb.payment_categories_id
     query = (db.alternativepayments.payment_categories_id == category_id) & \
             (db.alternativepayments.PaymentYear == pb.ColYear) & \
@@ -887,10 +887,10 @@ def generate_batch_items_category(pbID,
 
 
 def get_batch_items_recurring_set(pbID):
-    '''
+    """
     :param pbID: db.paymentbatches.id
     :return: list of auth_user_ids that have been in previous batches
-    '''
+    """
     pb = db.payment_batches(pbID)
 
     query = (db.payment_batches.id < pbID) & \
@@ -911,11 +911,11 @@ def get_batch_items_recurring_set(pbID):
 
 
 def  get_batch_items(pbID, display=False, first=False, recurring=False):
-    '''
+    """
         Returns a list of batch items for a payment batch ( pbID )
         Set display to true, when the result will be displayed on a web page
         The description will get a maximum length in that case
-    '''
+    """
     pb = db.payment_batches(pbID)
 
     if pb.school_locations_id:
@@ -988,9 +988,9 @@ def  get_batch_items(pbID, display=False, first=False, recurring=False):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'payment_batches'))
 def export_csv():
-    '''
+    """
         Exports batch to CSV format
-    '''
+    """
     first = False
     recurring= False
     if request.vars['first']:
@@ -1245,17 +1245,35 @@ def teacher_payment_classes():
 
     tools = ''
     if status == 'not_verified':
-        permission = auth.has_membership(group_id='Admins') or \
-                     auth.has_permission('update', 'teachers_payment_classes')
+        create_permission = auth.has_membership(group_id='Admins') or \
+                            auth.has_permission('create', 'teachers_payment_classes')
+        update_permission = auth.has_membership(group_id='Admins') or \
+                            auth.has_permission('update', 'teachers_payment_classes')
 
-        if permission:
-            tools = os_gui.get_button(
+        verify_all = ''
+        check_classes = ''
+
+        if create_permission:
+            verify_all = os_gui.get_button(
                 'noicon',
                 URL('teachers_payment_classes_verify_all'),
                 title=T("Verify all"),
                 tooltip="Verify all listed classes",
                 btn_class='btn-primary'
             )
+
+        if update_permission:
+            check_classes = os_gui.get_button(
+                'noicon',
+                URL('teacher_payment_find_classes'),
+                title=T("Find classes"),
+                tooltip=T("Find classes in range of dates that are not yet registered for teacher payment")
+            )
+
+        tools = DIV(
+            check_classes,
+            verify_all,
+        )
 
         table = tpc.get_not_verified(
             formatted=True
@@ -1294,6 +1312,58 @@ def teacher_payment_classes():
         content=content,
         header_tools=tools
     )
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('create', 'teachers_payment_classes'))
+def teacher_payment_find_classes():
+    """
+    :return: None
+    """
+    from general_helpers import set_form_id_and_get_submit_button
+
+    response.title = T('Teacher payments')
+    response.subtitle = T('Find classes')
+    response.view = 'general/only_content.html'
+
+    # Add some explanation
+    content = DIV(
+        B(T("Choose a period to check for classes not yet in Not verfied, verified or processed.")), BR(), BR(),
+    )
+
+    # choose period and then do something
+    form = SQLFORM.factory(
+        Field('Startdate', 'date', required=True,
+            requires=IS_DATE_IN_RANGE(format=DATE_FORMAT,
+                                      minimum=datetime.date(1900,1,1),
+                                      maximum=datetime.date(2999,1,1)),
+            represent=represent_date,
+            label=T("Start date"),
+            widget=os_datepicker_widget),
+        Field('Enddate', 'date', required=False,
+            requires=IS_EMPTY_OR(IS_DATE_IN_RANGE(format=DATE_FORMAT,
+                                  minimum=datetime.date(1900,1,1),
+                                  maximum=datetime.date(2999,1,1))),
+            represent=represent_date,
+            label=T("End date"),
+            widget=os_datepicker_widget),
+        formstyle='bootstrap3_stacked',
+        submit_button=T("Find")
+    )
+
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
+    form = result['form']
+    submit = result['submit']
+
+    if form.process().accepted:
+        start = form.vars.Startdate
+        end = form.vars.Enddate
+
+        #TODO call function to actually check
+
+    content.append(form)
+
+    return dict(content=content,
+                save=submit)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
