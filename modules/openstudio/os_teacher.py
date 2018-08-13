@@ -234,16 +234,16 @@ class Teacher:
         return display
 
 
-    def get_payment_fixed_rate_travel_allowance_location(self, slID):
+    def get_payment_travel_allowance_location(self, slID):
         """
-        :return: gluon.dal.row object of db.teachers_payment_fixed_rate_travel
+        :return: gluon.dal.row object of db.teachers_payment_travel
         """
         db = current.db
 
-        query = (db.teachers_payment_fixed_rate_travel.auth_teacher_id ==
+        query = (db.teachers_payment_travel.auth_teacher_id ==
                  self.id) & \
-                (db.teachers_payment_fixed_rate_travel.school_locations_id == slID)
-        rows = db(query).select(db.teachers_payment_fixed_rate_travel.ALL)
+                (db.teachers_payment_travel.school_locations_id == slID)
+        rows = db(query).select(db.teachers_payment_travel.ALL)
 
         if rows:
             return rows.first()
@@ -251,20 +251,20 @@ class Teacher:
             return False
 
 
-    def get_payment_fixed_rate_travel_allowances(self, render=False):
+    def get_payment_travel_allowances(self, render=False):
         """
-        :return: gluon.dal.row object of db.teachers_payment_fixed_rate_travel
+        :return: gluon.dal.row object of db.teachers_payment_travel
         """
         db = current.db
 
         left = [
-            db.school_locations.on(db.teachers_payment_fixed_rate_travel.school_locations_id ==
+            db.school_locations.on(db.teachers_payment_travel.school_locations_id ==
                                    db.school_locations.id)
         ]
 
-        query = (db.teachers_payment_fixed_rate_travel.auth_teacher_id ==
+        query = (db.teachers_payment_travel.auth_teacher_id ==
                  self.id)
-        rows = db(query).select(db.teachers_payment_fixed_rate_travel.ALL,
+        rows = db(query).select(db.teachers_payment_travel.ALL,
                                 db.school_locations.ALL,
                                 left=left,
                                 orderby=db.school_locations.Name)
@@ -278,7 +278,7 @@ class Teacher:
             return False
 
 
-    def _get_payment_fixed_rate_travel_display_get_table_header(self):
+    def _get_payment_travel_display_get_table_header(self):
         """
         :return: table header for display
         """
@@ -296,39 +296,32 @@ class Teacher:
         return header
 
 
-    def get_payment_fixed_rate_travel_display(self):
+    def get_payment_travel_display(self):
         """
-        :return: gluon.dal.row object of db.teachers_payment_fixed_rate_travel
+        :return: gluon.dal.row object of db.teachers_payment_travel
         """
         from openstudio.os_gui import OsGui
 
         T = current.T
         auth = current.auth
         os_gui = OsGui()
-        rows = self.get_payment_fixed_rate_travel_allowances()
+        rows = self.get_payment_travel_allowances()
 
-        display = DIV(
-            os_gui.get_button('add',
-                              URL('teachers',
-                                  'payment_fixed_rate_travel_add',
-                                  vars={'teID': self.id}),
-                              _class='pull-right'),
-            H3(T("Travel allowance")),
-        )
+        display = DIV()
 
         if not rows:
             return display
 
         edit_permission = auth.has_membership(group_id='Admins') or \
-                          auth.has_permission('update', 'teachers_payment_fixed_rate_travel')
+                          auth.has_permission('update', 'teachers_payment_travel')
         delete_permission = auth.has_membership(group_id='Admins') or \
-                          auth.has_permission('delete', 'teachers_payment_fixed_rate_travel')
+                          auth.has_permission('delete', 'teachers_payment_travel')
         delete_onclick = "return confirm('" + \
             T('Do you really want to delete the travel allowance for this location?') \
             + "');"
 
         table = TABLE(
-            self._get_payment_fixed_rate_travel_display_get_table_header(),
+            self._get_payment_travel_display_get_table_header(),
             _class='table table-hover table-striped'
         )
 
@@ -337,14 +330,14 @@ class Teacher:
 
             buttons = DIV(_class='pull-right')
             if edit_permission:
-                edit_url = URL('payment_fixed_rate_travel_edit',
+                edit_url = URL('payment_travel_edit',
                                vars={'teID':self.id,
-                                     'tpfrtID':row.teachers_payment_fixed_rate_travel.id})
+                                     'tpfrtID':row.teachers_payment_travel.id})
                 buttons.append(os_gui.get_button('edit', edit_url))
 
             if delete_permission:
-                delete_url = URL('payment_fixed_rate_travel_delete',
-                                 vars={'tpfrtID': row.teachers_payment_fixed_rate_travel.id,
+                delete_url = URL('payment_travel_delete',
+                                 vars={'tpfrtID': row.teachers_payment_travel.id,
                                        'teID':self.id})
                 buttons.append(os_gui.get_button(
                     'delete_notext',
@@ -356,8 +349,8 @@ class Teacher:
             table.append(
                 TR(
                     TD(row.school_locations.Name),
-                    TD(repr_row.teachers_payment_fixed_rate_travel.TravelAllowance),
-                    TD(repr_row.teachers_payment_fixed_rate_travel.tax_rates_id),
+                    TD(repr_row.teachers_payment_travel.TravelAllowance),
+                    TD(repr_row.teachers_payment_travel.tax_rates_id),
                     TD(buttons)
                 )
             )

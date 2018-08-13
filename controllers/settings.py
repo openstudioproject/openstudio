@@ -1225,11 +1225,6 @@ def access_group_permissions():
                         ['teachers_payment_fixed_rate_class-update', T('Edit class specific rates (fixed rate)')],
                         ['teachers_payment_fixed_rate_class-delete', T('Delete class specific rates (fixed rate)')],
                     ]],
-                    ['teachers_payment_fixed_rate_travel-read', T('View travel allowances (fixed rate)'), [
-                        ['teachers_payment_fixed_rate_travel-create', T('Add travel allowance (fixed rate)')],
-                        ['teachers_payment_fixed_rate_travel-update', T('Edit travel allowance (fixed rate)')],
-                        ['teachers_payment_fixed_rate_travel-delete', T('Delete travel allowance (fixed rate)')],
-                    ]],
                 ]],
                 ['teachers_payment_attendance_lists-read', T("View payment rate lists (attendance based)"), [
                     ['teachers_payment_attendance_lists-create', T('Add payment rate lists (attendance based)')],
@@ -1242,6 +1237,11 @@ def access_group_permissions():
                     ]],
                     ['teachers_payment_attendance_lists_school_classtypes-update', T("Assign list to classtypes")]
                 ]]
+                ['teachers_payment_travel-read', T('View travel allowances'), [
+                    ['teachers_payment_travel-create', T('Add travel allowance')],
+                    ['teachers_payment_travel-update', T('Edit travel allowance')],
+                    ['teachers_payment_travel-delete', T('Delete travel allowance')],
+                ]],
             ]],
             ['employees-read', T("Employees"), [
                 ['employees-create', T("Add employees")],

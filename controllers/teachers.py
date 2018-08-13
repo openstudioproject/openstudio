@@ -319,6 +319,38 @@ def back_index(var=None):
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'teachers_payment_travel'))
+def payment_travel():
+    """
+        Configure travel allowance for teachers
+    """
+    from openstudio.os_customer import Customer
+    from openstudio.os_teacher import Teacher
+
+    teID = request.vars['teID']
+    response.view = 'general/only_content.html'
+
+    customer = Customer(teID)
+    response.title = customer.get_name()
+    response.subtitle = T("Travel allowance")
+
+    teacher = Teacher(teID)
+    content = teacher.get_payment_travel_display()
+
+    add = os_gui.get_button('add',
+                            URL('teachers',
+                                'payment_travel_add',
+                                vars={'teID': teID}),
+                            _class='pull-right')
+
+    back = back_index()
+
+    return dict(content=content,
+                header_tools=add,
+                back=back)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('read', 'teachers_payment_fixed_rate_default'))
 def payment_fixed_rate():
     """
@@ -337,8 +369,7 @@ def payment_fixed_rate():
     teacher = Teacher(teID)
     content = DIV(
         teacher.get_payment_fixed_rate_default_display(),
-        teacher.get_payment_fixed_rate_classes_display(),
-        teacher.get_payment_fixed_rate_travel_display()
+        teacher.get_payment_fixed_rate_classes_display()
     )
 
     back = back_index()
@@ -533,8 +564,12 @@ def payment_fixed_rate_return_url(teID):
     return URL('payment_fixed_rate', vars={'teID':teID})
 
 
+def payment_travel_return_url(teID):
+    return URL('payment_travel', vars={'teID':teID})
+
+
 @auth.requires_login()
-def payment_fixed_rate_travel_add():
+def payment_travel_add():
     """
         Add travel allowance for a teacher
     """
@@ -549,12 +584,12 @@ def payment_fixed_rate_travel_add():
     response.view = 'general/only_content.html'
 
 
-    db.teachers_payment_fixed_rate_travel.auth_teacher_id.default = teID
-    return_url = payment_fixed_rate_return_url(teID)
+    db.teachers_payment_travel.auth_teacher_id.default = teID
+    return_url = payment_travel_return_url(teID)
 
     os_forms = OsForms()
     result = os_forms.get_crud_form_create(
-        db.teachers_payment_fixed_rate_travel,
+        db.teachers_payment_travel,
         return_url,
     )
 
@@ -567,7 +602,7 @@ def payment_fixed_rate_travel_add():
 
 
 @auth.requires_login()
-def payment_fixed_rate_travel_edit():
+def payment_travel_edit():
     """
         Add travel allowance for a teacher
     """
@@ -582,11 +617,11 @@ def payment_fixed_rate_travel_edit():
     response.subtitle = T("Edit travel allowance")
     response.view = 'general/only_content.html'
 
-    return_url = payment_fixed_rate_return_url(teID)
+    return_url = payment_travel_return_url(teID)
 
     os_forms = OsForms()
     result = os_forms.get_crud_form_update(
-        db.teachers_payment_fixed_rate_travel,
+        db.teachers_payment_travel,
         return_url,
         tpfrtID
     )
@@ -600,8 +635,8 @@ def payment_fixed_rate_travel_edit():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('delete', 'teachers_payment_fixed_rate_travel'))
-def payment_fixed_rate_travel_delete():
+               auth.has_permission('delete', 'teachers_payment_travel'))
+def payment_travel_delete():
     """
     Delete teacher fixed rate travel allowance
     :return: None
@@ -609,11 +644,11 @@ def payment_fixed_rate_travel_delete():
     teID = request.vars['teID']
     tpfrtID = request.vars['tpfrtID']
 
-    query = (db.teachers_payment_fixed_rate_travel.id == tpfrtID)
+    query = (db.teachers_payment_travel.id == tpfrtID)
     db(query).delete()
 
     session.flash = T('Deleted travel allowance')
-    redirect(payment_fixed_rate_return_url(teID))
+    redirect(payment_travel_return_url(teID))
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \

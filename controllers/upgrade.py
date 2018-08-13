@@ -460,4 +460,3 @@ def upgrade_to_20189():
             tax_rates_id = row.tax_rates_id
         )
 
-    

@@ -234,6 +234,9 @@ class Teachers:
         links.append(A(os_gui.get_fa_icon('fa-usd'), T('Fixed rate payments'),
                        _href=URL('teachers', 'payment_fixed_rate',
                                  vars={'teID': row.id})))
+        links.append(A(os_gui.get_fa_icon('fa-usd'), T('Travel allowance'),
+                       _href=URL('teachers', 'payment_travel',
+                                 vars={'teID': row.id})))
         links.append('divider')
         links.append(A(os_gui.get_fa_icon('fa-check-square-o'), T('Assign classtypes'),
                        _href=URL('teachers', 'edit_classtypes',
