@@ -1474,6 +1474,30 @@ def define_teachers_payment_fixed_rate_travel():
     )
 
 
+def define_teachers_payment_travel():
+    loc_query = (db.school_locations.Archived == False)
+
+    db.define_table('teachers_payment_travel',
+        Field('auth_teacher_id', db.auth_user,
+              readable=False,
+              writable=False),
+        Field('school_locations_id', db.school_locations, required=True,
+              requires=IS_IN_DB(db(loc_query),
+                                'school_locations.id',
+                                '%(Name)s',
+                                zero=T("Please select...")),
+              represent=lambda value, row: locations_dict.get(value, T("No location")),
+              label=T("Location")),
+        Field('TravelAllowance', 'double',
+              requires=IS_FLOAT_IN_RANGE(0, 99999999, dot='.',
+                                         error_message=T('Too small or too large')),
+              represent=represent_float_as_amount,
+              label=T("Travel Allowance excl. VAT")),
+        Field('tax_rates_id', db.tax_rates,
+            label=T('Tax rate')),
+    )
+
+
 def define_teachers_payment_attendance_lists():
     db.define_table('teachers_payment_attendance_lists',
         Field('Archived', 'boolean',
@@ -5613,7 +5637,7 @@ define_schedule_classes_status()
 # teacher payment definitions (depend on classes and auth_user)
 define_teachers_payment_fixed_rate_default()
 define_teachers_payment_fixed_rate_class()
-define_teachers_payment_fixed_rate_travel()
+define_teachers_payment_travel()
 define_teachers_payment_attendance_lists()
 define_teachers_payment_attendance_lists_rates()
 define_teachers_payment_attendance_lists_school_classtypes()

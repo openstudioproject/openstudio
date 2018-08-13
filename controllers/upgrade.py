@@ -441,3 +441,23 @@ def upgrade_to_20189():
     # set CustomerMembership field for db.classes_attendance
     query = (db.classes_attendance.CustomerMembership == None)
     db(query).update(CustomerMembership = False)
+
+    ##
+    # Migrate teachers_payment_fixed_rate_travel to
+    # teachers_payment_travel
+    ##
+    define_teachers_payment_fixed_rate_travel()
+
+    rows = db(db.teachers_payment_fixed_rate_travel).select(
+        db.teachers_payment_fixed_rate_travel.ALL
+    )
+
+    for row in rows:
+        db.teachers_payment_travel.insert(
+            auth_teacher_id = row.auth_teacher_id,
+            school_locations_id = row.school_locations_id,
+            TravelAllowance = row.TravelAllowance,
+            tax_rates_id = row.tax_rates_id
+        )
+
+    

@@ -93,39 +93,6 @@ class Teachers:
                      auth.has_permission('update', 'teachers')
 
 
-        #     links = [{'header': T('Classes'),
-        #               'body': index_get_link_classes},
-        #              {'header': T('Events'),
-        #               'body': teachers_get_link_workshops},
-        #              {'header': T('Group (Permissions)'),
-        #               'body': account_get_link_group},
-        #              lambda row: A(SPAN(_class="buttontext button",
-        #                                 _title=T("Class types")),
-        #                            SPAN(_class="glyphicon glyphicon-edit"),
-        #                            " " + T("Class types"),
-        #                            _class="btn btn-default btn-sm",
-        #                            _href=URL('edit_classtypes',
-        #                                      vars={'uID': row.id})),
-        #              lambda row: A(os_gui.get_fa_icon('fa-usd'),
-        #                            " " + T("Payments"),
-        #                            _class="btn btn-default btn-sm",
-        #                            _href=URL('payment_fixed_rate',
-        #                                      vars={'teID': row.id})),
-        #              lambda row: os_gui.get_button('edit',
-        #                                            URL('customers', 'edit',
-        #                                                args=[row.id]),
-        #                                            T("Edit this teacher")),
-        #              lambda row: os_gui.get_button(
-        #                  'delete_notext',
-        #                  URL('teachers',
-        #                      'delete',
-        #                      vars={'uID': row.id}),
-        #                  onclick=delete_onclick
-        #              )
-        #              ]
-        # else:
-        #     links = []
-
         header = THEAD(TR(
             TH(''), # Image
             TH(T('Teacher')),
@@ -233,6 +200,7 @@ class Teachers:
                 ret_val = no_group
 
         return ret_val
+
 
     def _rows_to_table_buttons(self, row, permission):
         """
