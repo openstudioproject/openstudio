@@ -678,7 +678,8 @@ def financial_teacher_payments():
 
     form = SQLFORM.factory(
         Field('tprt',
-              requires=IS_IN_SET(teacher_payment_classes_rate_types),
+              requires=IS_IN_SET(teacher_payment_classes_rate_types,
+                                 zero=None),
               default=tprt,
               label=T('Teacher Payments Rate type')),
         submit_button=T("Save"),

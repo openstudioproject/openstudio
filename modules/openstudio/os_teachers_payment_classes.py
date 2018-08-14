@@ -48,6 +48,7 @@ class TeachersPaymentClasses:
                         query = (db.teachers_payment_classes.classes_id == cls['ClassesID']) & \
                                 (db.teachers_payment_classes.ClassDate == date)
                         if db(query).count() == 0:
+
                             # Add
                             classes_added += 1
 
