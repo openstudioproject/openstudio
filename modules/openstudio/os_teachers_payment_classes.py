@@ -133,7 +133,6 @@ class TeachersPaymentClasses:
         for i, row in enumerate(rows):
             repr_row = list(rows[i:i + 1].render())[0]
 
-
             if status == 'not_verified':
                 buttons = self._rows_to_table_get_not_verified_buttons(row, os_gui, permissions)
             elif status == 'verified':
@@ -149,7 +148,9 @@ class TeachersPaymentClasses:
                 TD(repr_row.classes.school_classtypes_id),
                 TD(repr_row.teachers_payment_classes.auth_teacher_id, BR(),
                    repr_row.teachers_payment_classes.auth_teacher_id2),
-                TD(repr_row.teachers_payment_classes.RateType),
+                TD(repr_row.teachers_payment_classes.RateType, BR(),
+                   SPAN(repr_row.teachers_payment_classes.teachers_payment_attendance_list_id or '',
+                        _class='grey')),
                 TD(repr_row.teachers_payment_classes.AttendanceCount),
                 TD(repr_row.teachers_payment_classes.Amount),
                 TD(buttons)
@@ -296,9 +297,12 @@ class TeachersPaymentClasses:
         :return: Int - number of classes where status has been changed to verified
         """
         db = current.db
+        auth = current.auth
 
         query = (db.teachers_payment_classes.Status == 'not_verified')
-        updated = db(query).update(Status = 'verified')
+        updated = db(query).update(Status = 'verified',
+                                   VerifiedBy = auth.user.id,
+                                   VerifiedOn = datetime.datetime.now())
 
         print updated
         return updated

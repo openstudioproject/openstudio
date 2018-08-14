@@ -534,6 +534,9 @@ class Class:
         if teachers['error']:
             error = True
             data = teachers['message']
+        elif not attendance_count:
+            error = True
+            data = T("No customers attending this class")
         else:
             teacher = Teacher(teachers['teacher'])
             teacher_id = teachers['teacher']
@@ -580,7 +583,7 @@ class Class:
                         )
                         tpc = db.teachers_payment_classes(tpcID)
 
-                    elif tpc and tpalst:
+                    elif tpc and tpalst and rate:
                         tpc.AttendanceCount = attendance_count
                         tpc.Amount = rate
                         tpc.auth_teacher_id = teacher_id,
@@ -601,6 +604,8 @@ class Class:
 
                 if tpalst:
                     list_id = tpalst.teachers_payment_attendance_lists_id
+                    print '### list_id ####'
+                    print list_id
 
                     list = db.teachers_payment_attendance_lists(1)
                     tax_rates_id = list.tax_rates_id
@@ -614,7 +619,7 @@ class Class:
                     except AttributeError:
                         rate = 0
 
-                    if not tpc and tpalst:
+                    if not tpc and tpalst and rate:
                         tpcID = db.teachers_payment_classes.insert(
                             classes_id = self.clsID,
                             ClassDate = self.date,
@@ -623,17 +628,17 @@ class Class:
                             AttendanceCount = attendance_count,
                             Amount = rate,
                             RateType = 'attendance',
-                            teachers_payment_classes_list_id = list.id,
+                            teachers_payment_attendance_list_id = list.id,
                             tax_rates_id = tax_rates_id,
                         )
                         tpc = db.teachers_payment_classes(tpcID)
 
-                    elif tpc and tpalst:
+                    elif tpc and tpalst and rate:
                         tpc.AttendanceCount = attendance_count
                         tpc.Amount = rate
                         tpc.auth_teacher_id = teacher_id,
                         tpc.RateType = 'attendance'
-                        tpc.teachers_payment_classes_list_id = list.id
+                        tpc.teachers_payment_attendance_list_id = list.id
                         tpc.tax_rates_id = tax_rates_id
                         tpc.update_record()
 
