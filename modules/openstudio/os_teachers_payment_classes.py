@@ -81,8 +81,8 @@ class TeachersPaymentClasses:
         ]
 
         if sorting == 'time':
-            orderby = db.teachers_payment_classes.ClassDate | \
-                      db.classes.Starttime
+            orderby = ~db.teachers_payment_classes.ClassDate | \
+                      ~db.classes.Starttime
         elif sorting == 'teacher':
             orderby = db.teachers_payment_classes.auth_teacher_id
 
@@ -114,18 +114,19 @@ class TeachersPaymentClasses:
         os_gui = OsGui()
 
         header = THEAD(TR(
+            TH(),
             TH(T("Date")),
             TH(T("Time")),
             TH(T("Location")),
             TH(T("Class type")),
             TH(T("Teacher")),
+            TH(T("Type")),
             TH(T("Attendance")),
             TH(T("Amount")),
-            TH(T("Status")),
             TH() # Actions
         ))
 
-        table = TABLE(header, _class="table table-striped table-hover")
+        table = TABLE(header, _class="table table-striped table-hover small_font")
 
         permissions = self._rows_to_table_button_permissions()
 
@@ -141,15 +142,16 @@ class TeachersPaymentClasses:
                 buttons = ''
 
             tr = TR(
+                TD(repr_row.teachers_payment_classes.Status),
                 TD(repr_row.teachers_payment_classes.ClassDate),
                 TD(repr_row.classes.Starttime),
                 TD(repr_row.classes.school_locations_id),
                 TD(repr_row.classes.school_classtypes_id),
                 TD(repr_row.teachers_payment_classes.auth_teacher_id, BR(),
                    repr_row.teachers_payment_classes.auth_teacher_id2),
+                TD(repr_row.teachers_payment_classes.RateType),
                 TD(repr_row.teachers_payment_classes.AttendanceCount),
                 TD(repr_row.teachers_payment_classes.Amount),
-                TD(repr_row.teachers_payment_classes.Status),
                 TD(buttons)
             )
 
