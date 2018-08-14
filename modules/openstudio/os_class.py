@@ -462,7 +462,13 @@ class Class:
         Teachers for class
         :return:
         """
+        T = current.T
         db = current.db
+
+        error = False
+        message = ''
+        teacher = ''
+        teacher2 = ''
 
         query = (db.classes_teachers.classes_id == self.clsID) & \
                 ((db.classes_teachers.Startdate <= self.date) &
@@ -470,26 +476,31 @@ class Class:
                   (db.classes_teachers.Enddate == None)))
         rows = db(query).select(db.classes_teachers.ALL)
 
-        teachers = rows.first()
+        try:
+            teachers = rows.first()
 
-        cotc = db.classes_otc(
-            classes_id = self.clsID,
-            ClassDate = self.date
-        )
+            cotc = db.classes_otc(
+                classes_id = self.clsID,
+                ClassDate = self.date
+            )
 
-        teacher = db.auth_user(teachers.auth_teacher_id)
-        if cotc:
-            if cotc.auth_teacher_id:
-                teacher = db.auth_user(cotc.auth_teacher_id)
+            teacher = db.auth_user(teachers.auth_teacher_id)
+            if cotc:
+                if cotc.auth_teacher_id:
+                    teacher = db.auth_user(cotc.auth_teacher_id)
 
-
-
-        teacher2 = teacher2 = db.auth_user(teachers.auth_teacher_id2)
-        if cotc:
-            if cotc.auth_teacher_id2:
-                teacher2 = db.auth_user(cotc.auth_teacher_id2)
+            teacher2 = teacher2 = db.auth_user(teachers.auth_teacher_id2)
+            if cotc:
+                if cotc.auth_teacher_id2:
+                    teacher2 = db.auth_user(cotc.auth_teacher_id2)
+        except AttributeError:
+            # No teacher(s) found for this date
+            error = True
+            message = T("No teachers found for this date (") + unicode(self.date) + ")"
 
         return dict(
+            error = error,
+            message = message,
             teacher = teacher,
             teacher2 = teacher2
         )
@@ -505,6 +516,8 @@ class Class:
         T = current.T
         db = current.db
 
+        get_sys_property = current.globalenv['get_sys_property']
+
         tprt = get_sys_property('TeacherPaymentRateType')
         attendance_count = self.get_attendance_count()
 
@@ -515,108 +528,120 @@ class Class:
         )
 
         error = False
-        if tprt == 'fixed':
-            # Get rate for this teacher
-            teachers = self.get_teachers()
+        data = ''
 
-            teacher = Teacher(teachers.teacher)
-            default_rate = teacher.get_payment_fixed_rate_default()
+        teachers = self.get_teachers()
+        if teachers['error']:
+            error = True
+            data = teachers['message']
+        else:
+            teacher = Teacher(teachers['teacher'])
+            teacher_id = teachers['teacher']
 
-            if not default_rate:
-                error = True
-                data = T("No default rate defined for this teacher")
-                # No default rate, not enough data to process
+            if tprt == 'fixed':
+                # Get rate for this teacher
+                default_rate = teacher.get_payment_fixed_rate_default()
 
-            else:
-                default_rates = teacher.get_payment_fixed_rate_default()
-                class_rates = teacher.get_payment_fixed_rate_classes_dict()
+                if not default_rate:
+                    error = True
+                    data = T("No default rate defined for this teacher")
+                    # No default rate, not enough data to process
 
-                if not default_rates and not class_rates:
-                    return None  # No rates set, not enough data to create invoice item
+                else:
+                    default_rates = teacher.get_payment_fixed_rate_default()
+                    class_rates = teacher.get_payment_fixed_rate_classes_dict()
 
-                default_rate = default_rates.first()
-                price = default_rate.ClassRate
-                tax_rates_id = default_rate.tax_rates_id
+                    if not default_rates and not class_rates:
+                        return None  # No rates set, not enough data to create invoice item
 
-                # Set price and tax rate
-                try:
-                    class_prices = class_rates.get(int(clsID), False)
-                    if class_prices:
-                        rate = class_prices.ClassRate
-                        tax_rates_id = class_prices.tax_rates_id
-                except (AttributeError, KeyError):
-                    pass
+                    default_rate = default_rates.first()
+                    rate = default_rate.ClassRate
+                    tax_rates_id = default_rate.tax_rates_id
 
-                if not tpc:
-                    tpcID = db.teachers_payment_classes.insert(
-                        classes_id = self.clsID,
-                        ClassDate = self.date,
-                        Status = 'not_verified',
-                        AttendanceCount = attendance_count,
-                        Amount = rate,
-                        RateType = 'fixed',
-                        tax_rates_id = tax_rates_id,
-                    )
-                    tpc = db.teachers_payment_classes(tpcID)
+                    # Set price and tax rate
+                    try:
+                        class_prices = class_rates.get(int(self.clsID), False)
+                        if class_prices:
+                            rate = class_prices.ClassRate
+                            tax_rates_id = class_prices.tax_rates_id
+                    except (AttributeError, KeyError):
+                        pass
 
-                elif tpc and tpalst:
-                    tpc.AttendanceCount = attendance_count
-                    tpc.Amount = rate
-                    tpc.teachers_payment_classes_list_id = None
-                    tpc.RateType = 'fixed'
-                    tpc.tax_rates_id = tax_rates_id
-                    tpc.update_record()
+                    if not tpc and rate:
+                        tpcID = db.teachers_payment_classes.insert(
+                            classes_id = self.clsID,
+                            ClassDate = self.date,
+                            auth_teacher_id = teacher_id,
+                            Status = 'not_verified',
+                            AttendanceCount = attendance_count,
+                            Amount = rate,
+                            RateType = 'fixed',
+                            tax_rates_id = tax_rates_id,
+                        )
+                        tpc = db.teachers_payment_classes(tpcID)
 
+                    elif tpc and tpalst:
+                        tpc.AttendanceCount = attendance_count
+                        tpc.Amount = rate
+                        tpc.auth_teacher_id = teacher_id,
+                        tpc.teachers_payment_classes_list_id = None
+                        tpc.RateType = 'fixed'
+                        tpc.tax_rates_id = tax_rates_id
+                        tpc.update_record()
 
-        elif tprt == 'attendance':
-            # Get list for class type
-            cltID = self.cls.school_classtypes_id
-            tpalst = db.teachers_payment_attendance_lists_school_classtypes(
-                school_classtypes_id=cltID
-            )
-
-            if tpalst:
-                list_id = tpalst.teachers_payment_attendance_lists_id
-
-                list = db.teachers_payment_attendance_lists(1)
-                tax_rates_id = list.tax_rates_id
-
-                query = (db.teachers_payment_attendance_lists_rates.teachers_payment_attendance_lists_id == list_id) & \
-                        (db.teachers_payment_attendance_lists_rates.AttendanceCount == attendance_count)
-                row = db(query).select(db.teachers_payment_attendance_lists_rates.Rate)
-
-                try:
-                    rate = row.first().Rate
-                except AttributeError:
-                    rate = 0
-
-                if not tpc and tpalst:
-                    tpcID = db.teachers_payment_classes.insert(
-                        classes_id = self.clsID,
-                        ClassDate = self.date,
-                        Status = 'not_verified',
-                        AttendanceCount = attendance_count,
-                        Amount = rate,
-                        RateType = 'attendance',
-                        teachers_payment_classes_list_id = list.id,
-                        tax_rates_id = tax_rates_id,
-                    )
-                    tpc = db.teachers_payment_classes(tpcID)
-
-                elif tpc and tpalst:
-                    tpc.AttendanceCount = attendance_count
-                    tpc.Amount = rate
-                    tpc.RateType = 'attendance'
-                    tpc.teachers_payment_classes_list_id = list.id
-                    tpc.tax_rates_id = tax_rates_id
-                    tpc.update_record()
+                    data = tpc
 
 
-                data = tpc
-            else:
-                data = T('No payment list defined for this class type')
-                error = True
+            elif tprt == 'attendance':
+                # Get list for class type
+                cltID = self.cls.school_classtypes_id
+                tpalst = db.teachers_payment_attendance_lists_school_classtypes(
+                    school_classtypes_id=cltID
+                )
 
+                if tpalst:
+                    list_id = tpalst.teachers_payment_attendance_lists_id
+
+                    list = db.teachers_payment_attendance_lists(1)
+                    tax_rates_id = list.tax_rates_id
+
+                    query = (db.teachers_payment_attendance_lists_rates.teachers_payment_attendance_lists_id == list_id) & \
+                            (db.teachers_payment_attendance_lists_rates.AttendanceCount == attendance_count)
+                    row = db(query).select(db.teachers_payment_attendance_lists_rates.Rate)
+
+                    try:
+                        rate = row.first().Rate
+                    except AttributeError:
+                        rate = 0
+
+                    if not tpc and tpalst:
+                        tpcID = db.teachers_payment_classes.insert(
+                            classes_id = self.clsID,
+                            ClassDate = self.date,
+                            auth_teacher_id = teacher_id,
+                            Status = 'not_verified',
+                            AttendanceCount = attendance_count,
+                            Amount = rate,
+                            RateType = 'attendance',
+                            teachers_payment_classes_list_id = list.id,
+                            tax_rates_id = tax_rates_id,
+                        )
+                        tpc = db.teachers_payment_classes(tpcID)
+
+                    elif tpc and tpalst:
+                        tpc.AttendanceCount = attendance_count
+                        tpc.Amount = rate
+                        tpc.auth_teacher_id = teacher_id,
+                        tpc.RateType = 'attendance'
+                        tpc.teachers_payment_classes_list_id = list.id
+                        tpc.tax_rates_id = tax_rates_id
+                        tpc.update_record()
+
+
+                    data = tpc
+                else:
+                    data = T('No payment list defined for this class type')
+                    error = True
 
         return {
             'data': data,

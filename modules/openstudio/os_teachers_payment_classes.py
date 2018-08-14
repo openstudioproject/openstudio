@@ -17,6 +17,7 @@ class TeachersPaymentClasses:
         :return:
         """
         from date_tools import DateTools
+        from os_class import Class
         from os_class_schedule import ClassSchedule
 
         T = current.T
@@ -48,9 +49,16 @@ class TeachersPaymentClasses:
                         query = (db.teachers_payment_classes.classes_id == cls['ClassesID']) & \
                                 (db.teachers_payment_classes.ClassDate == date)
                         if db(query).count() == 0:
+                            os_cls = Class(
+                                cls['ClassesID'],
+                                date
+                            )
+                            result = os_cls.get_teacher_payment()
 
-                            # Add
-                            classes_added += 1
+                            print '#####'
+                            print result
+                            if not result['error']:
+                                classes_added += 1
 
                 date += datetime.timedelta(days=1)
 

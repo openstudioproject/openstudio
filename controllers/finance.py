@@ -1331,6 +1331,8 @@ def teacher_payment_find_classes():
         B(T("Choose a period to check for classes not yet in Not verfied, verified or processed.")), BR(), BR(),
     )
 
+    return_url = URL('teacher_payment_classes', vars={'status': 'not_verified'})
+
     # choose period and then do something
     form = SQLFORM.factory(
         Field('Startdate', 'date', required=True,
@@ -1371,14 +1373,16 @@ def teacher_payment_find_classes():
 
         if result['error']:
             response.flash = result['message']
-
         else:
             session.flash = SPAN(result['message'], ' ', T("Class(es) added to Not verified"))
-
+            redirect(return_url)
 
     content.append(form)
 
+    back = os_gui.get_button('back', return_url)
+
     return dict(content=content,
+                back=back,
                 save=submit)
 
 
