@@ -4576,7 +4576,7 @@ def revenue_get_data():
                     db.invoices.id)
                 ]
 
-        query = (db.invoices_customers_subscriptions.customers_subscriptions_id != None) & \
+        query = (db.invoices_customers_subscriptions.id != None) & \
                 (db.invoices.SubscriptionMonth == date.month) & \
                 (db.invoices.SubscriptionYear == date.year)
         rows = db(query).select(db.invoices_amounts.ALL,

@@ -16,8 +16,34 @@ class TeachersPaymentClasses:
         :param date_until:
         :return:
         """
-        db = current.db
+        from date_tools import DateTools
 
+        T = current.T
+        db = current.db
+        dt = DateTools()
+
+        error = False
+        message = ''
+
+        days_between = dt.days_between_dates(date_from, date_until)
+        if days_between == False:
+            error = True
+            message = T("From date has to be smaller then until date.")
+
+        if days_between > 92:
+            error = True
+            message = T("Gap between dates can not be more then 3 months")
+
+        if not error:
+            pass
+
+
+
+            # Get schedule for days and see if there's an entry in db.teachers_payment_classes... of not add with status "not_verified"
+        return dict(
+            error=error,
+            message=message
+        )
 
 
     def get_rows(self, status='not_verified', sorting='time', formatted=False):

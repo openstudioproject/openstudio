@@ -1338,6 +1338,9 @@ def teacher_payment_find_classes():
                                       minimum=datetime.date(1900,1,1),
                                       maximum=datetime.date(2999,1,1)),
             represent=represent_date,
+            default=datetime.date(TODAY_LOCAL.year,
+                                  TODAY_LOCAL.month,
+                                  1),
             label=T("Start date"),
             widget=os_datepicker_widget),
         Field('Enddate', 'date', required=False,
@@ -1345,6 +1348,7 @@ def teacher_payment_find_classes():
                                   minimum=datetime.date(1900,1,1),
                                   maximum=datetime.date(2999,1,1))),
             represent=represent_date,
+            default=get_last_day_month(TODAY_LOCAL),
             label=T("End date"),
             widget=os_datepicker_widget),
         formstyle='bootstrap3_stacked',
@@ -1360,12 +1364,16 @@ def teacher_payment_find_classes():
         end = form.vars.Enddate
 
         tpc = TeachersPaymentClasses()
-        nr_missing = tcp.check_missing(
+        result = tpc.check_missing(
             start,
             end
         )
 
-        print nr_missing
+        if result['error']:
+            response.flash = result['message']
+
+        else:
+            session.flash = SPAN(result['message'], ' ', T("Class(es) added to Not verified"))
 
 
     content.append(form)
