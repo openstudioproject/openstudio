@@ -460,3 +460,9 @@ def upgrade_to_20189():
             tax_rates_id = row.tax_rates_id
         )
 
+    ##
+    # Set fixed rate as default payment system
+    ##
+    from openstudio.os_setup import OsSetup
+    setup = OsSetup()
+    setup._setup_teachers_payment_rate_type()

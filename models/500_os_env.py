@@ -484,7 +484,7 @@ def represent_payment_batchtypes(value, row):
 
 def set_teacher_payment_classes_rate_types():
     return [
-        ['fixed', T('Fixed')],
+        ['fixed', T('Fixed rate')],
         ['attendance', T('Attendance based')]
     ]
 
