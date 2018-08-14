@@ -17,6 +17,7 @@ class TeachersPaymentClasses:
         :return:
         """
         from date_tools import DateTools
+        from os_class_schedule import ClassSchedule
 
         T = current.T
         db = current.db
@@ -24,6 +25,7 @@ class TeachersPaymentClasses:
 
         error = False
         message = ''
+        classes_added = 0
 
         days_between = dt.days_between_dates(date_from, date_until)
         if days_between == False:
@@ -35,11 +37,24 @@ class TeachersPaymentClasses:
             message = T("Gap between dates can not be more then 3 months")
 
         if not error:
-            pass
+            date = date_from
 
+            while date <= date_until:
+                cs = ClassSchedule(date)
+                classes = cs.get_day_list()
+                for cls in classes:
+                    if not cls['Cancelled'] or cls['Holiday']:
+                        # Check if item in db.teachers_payment_classes
+                        query = (db.teachers_payment_classes.classes_id == cls['ClassesID']) & \
+                                (db.teachers_payment_classes.ClassDate == date)
+                        if db(query).count() == 0:
+                            # Add
+                            classes_added += 1
 
+                date += datetime.timedelta(days=1)
 
-            # Get schedule for days and see if there's an entry in db.teachers_payment_classes... of not add with status "not_verified"
+            message = classes_added
+
         return dict(
             error=error,
             message=message
