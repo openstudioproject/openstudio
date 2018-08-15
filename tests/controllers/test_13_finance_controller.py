@@ -154,6 +154,37 @@ def test_teacher_payment_classes_not_verified(client, web2py):
     assert format(tpc.ClassRate, '.2f') in client.text
 
 
+def test_teacher_payment_classes_verify(client, web2py):
+    """
+
+    """
+    populate_teachers_payment_classes(web2py)
+
+    url = '/finance/teachers_payment_attendance_class_verify?tpcID=1'
+    client.get(url)
+    assert client.status == 200
+
+    query = (web2py.db.teachers_payment_classes.Status == 'verified')
+    assert web2py.db(query).count() == 1
+
+
+def test_teacher_payment_classes_verify_all(client, web2py):
+    """
+
+    """
+    populate_teachers_payment_classes(web2py)
+
+    query = (web2py.db.teachers_payment_classes.Status == 'not_verified')
+    count_not_verified = web2py.db(query).count()
+
+    url = '/finance/teachers_payment_classes_verify_all'
+    client.get(url)
+    assert client.status == 200
+
+    query = (web2py.db.teachers_payment_classes.Status == 'verified')
+    assert web2py.db(query).count() == count_not_verified
+
+
 def test_teacher_payment_classes_verified(client, web2py):
     """
 
