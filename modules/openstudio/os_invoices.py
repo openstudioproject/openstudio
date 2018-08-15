@@ -9,6 +9,7 @@ class Invoices:
     """
         This class holds functions related to multiple invoices
     """
+    #TODO: Remove this function, it's no longer used
     def batch_generate_teachers_invoices(self, year, month):
         """
         :return: Int - number of generated invoices

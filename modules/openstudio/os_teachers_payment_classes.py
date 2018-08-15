@@ -209,7 +209,7 @@ class TeachersPaymentClasses:
             links.append(A(os_gui.get_fa_icon('fa-chevron-right'), T('Attendance'),
                            _href=URL('classes', 'attendance',
                                      vars={'clsID': row.classes.id,
-                                           'date':row.teachers_payment_classes.ClassDate.strftime(DATE_FORMAT)})))
+                                           'date': row.teachers_payment_classes.ClassDate.strftime(DATE_FORMAT)})))
 
 
         tpc_menu = os_gui.get_dropdown_menu(
