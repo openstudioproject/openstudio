@@ -534,13 +534,9 @@ class Class:
 
         teachers = self.get_teachers()
         if teachers['error']:
-            print 'no teachers'
-
             error = True
             data = teachers['message']
         elif not attendance_count:
-            print 'no attendance count'
-
             error = True
             data = T("No customers attending this class")
         else:
@@ -550,8 +546,6 @@ class Class:
             if tprt == 'fixed':
                 # Get rate for this teacher
                 default_rate = teacher.get_payment_fixed_rate_default()
-
-                print 'no default rate'
 
                 if not default_rate:
                     error = True
