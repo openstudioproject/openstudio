@@ -594,7 +594,7 @@ class Class:
                         tpc.tax_rates_id = tax_rates_id
                         tpc.update_record()
 
-                    _get_teacher_payment_set_travel_allowance(tpc)
+                    self._get_teacher_payment_set_travel_allowance(tpc)
                     data = tpc
 
 
@@ -642,7 +642,7 @@ class Class:
                         tpc.tax_rates_id = tax_rates_id
                         tpc.update_record()
 
-                    _get_teacher_payment_set_travel_allowance(tpc)
+                    self._get_teacher_payment_set_travel_allowance(tpc)
                     data = tpc
                 else:
                     data = T('No payment list defined for this class type')
@@ -663,44 +663,57 @@ class Class:
 
         db = current.db
 
-        cs = ClassSchedule(self.date,
-                           filter_id_teacher=tpc_row.auth_teacher_id,
-                           filter_id_school_location=self.cls.school_locations_id)
+        if tpc_row and not tpc_row.Status == 'processed':
+            cs = ClassSchedule(self.date,
+                               filter_id_teacher=tpc_row.auth_teacher_id,
+                               filter_id_school_location=self.cls.school_locations_id)
 
-        class_start = datetime.datetime(
-            self.date.year,
-            self.date.month,
-            self.date.day,
-            self.cls.Starttime.hour,
-            self.cls.Starttime.minute
-        )
-
-        # Add travel allowance if no class is found that ended 30 minutes before start of this class
-        class_found = False
-        rows = cs.get_day_rows()
-        for row in rows:
-            if not row.classes.id == self.clsID:
-                checked_class_end = datetime.datetime(
-                    self.date.year,
-                    self.date.month,
-                    self.date.day,
-                    row.classes.Starttime,
-                    row.classes.Endtime
-                )
-
-                consecutive = class_start <= (checked_class_end + datetime.timedelta(minutes=30))
-
-                if consecutive:
-                    class_found = True
-
-        if not class_found:
-            # Add travel allowance
-            teacher = Teacher(tpc_row.auth_teacher_id)
-
-            travel_allowance = teacher.get_payment_fixed_rate_travel_allowance_location(
-                cls.cls.school_locations_id
+            class_start = datetime.datetime(
+                self.date.year,
+                self.date.month,
+                self.date.day,
+                self.cls.Starttime.hour,
+                self.cls.Starttime.minute
             )
-            if travel_allowance:
-                tpc_row.TravelAllowance = travel_allowance.TravelAllowance
-                tpc_row.tax_rates_id_travel_allowance = travel_allowance.tax_rates_id
-                tpc_row.update_record()
+
+            # Add travel allowance if no class is found that ended 30 minutes before start of this class
+            class_found = False
+            rows = cs.get_day_rows()
+            for row in rows:
+                if not int(row.classes.id) == int(self.clsID):
+                    checked_class_start = datetime.datetime(
+                        self.date.year,
+                        self.date.month,
+                        self.date.day,
+                        row.classes.Endtime.hour,
+                        row.classes.Endtime.minute
+                    )
+
+                    checked_class_end = datetime.datetime(
+                        self.date.year,
+                        self.date.month,
+                        self.date.day,
+                        row.classes.Endtime.hour,
+                        row.classes.Endtime.minute
+                    )
+
+                    consecutive = (
+                            (checked_class_end + datetime.timedelta(minutes=30)) >= class_start and
+                            checked_class_end <= class_start
+
+                    )
+
+                    if consecutive:
+                        class_found = True
+
+            if not class_found:
+                # Add travel allowance, there is no class which ends within 30 min in same location
+                teacher = Teacher(tpc_row.auth_teacher_id)
+
+                travel_allowance = teacher.get_payment_travel_allowance_location(
+                    self.cls.school_locations_id
+                )
+                if travel_allowance:
+                    tpc_row.TravelAllowance = travel_allowance.TravelAllowance
+                    tpc_row.tax_rates_id_travel_allowance = travel_allowance.tax_rates_id
+                    tpc_row.update_record()

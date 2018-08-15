@@ -43,8 +43,6 @@ class TeachersPaymentClasses:
             while date <= date_until:
                 cs = ClassSchedule(date)
                 classes = cs.get_day_list()
-                print date
-                print classes
                 for cls in classes:
                     if not cls['Cancelled'] or cls['Holiday']:
                         # Check if item in db.teachers_payment_classes
@@ -57,8 +55,6 @@ class TeachersPaymentClasses:
                             )
                             result = os_cls.get_teacher_payment()
 
-                            print '#####'
-                            print result
                             if not result['error']:
                                 classes_added += 1
 
@@ -84,7 +80,7 @@ class TeachersPaymentClasses:
 
         if sorting == 'time':
             orderby = ~db.teachers_payment_classes.ClassDate | \
-                      ~db.classes.Starttime
+                      db.classes.Starttime
         elif sorting == 'teacher':
             orderby = db.teachers_payment_classes.auth_teacher_id
 
@@ -125,6 +121,7 @@ class TeachersPaymentClasses:
             TH(T("Type")),
             TH(T("Attendance")),
             TH(T("Payment")),
+            TH(os_gui.get_fa_icon('fa-subway')),
             TH() # Actions
         ))
 
@@ -156,6 +153,9 @@ class TeachersPaymentClasses:
                 TD(repr_row.teachers_payment_classes.AttendanceCount),
                 TD(repr_row.teachers_payment_classes.ClassRate, BR(),
                    SPAN(repr_row.teachers_payment_classes.tax_rates_id,
+                        _class='grey')),
+                TD(repr_row.teachers_payment_classes.TravelAllowance, BR(),
+                   SPAN(repr_row.teachers_payment_classes.tax_rates_id_travel_allowance or '',
                         _class='grey')),
                 TD(buttons)
             )
@@ -308,7 +308,6 @@ class TeachersPaymentClasses:
                                    VerifiedBy = auth.user.id,
                                    VerifiedOn = datetime.datetime.now())
 
-        print updated
         return updated
 
 
