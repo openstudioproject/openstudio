@@ -158,15 +158,31 @@ def test_teacher_payment_classes_verified(client, web2py):
     """
 
     """
-    assert 0 == 1
+    populate_teachers_payment_classes(web2py, status='verified')
+
+    url = '/finance/teacher_payment_classes?status=verified'
+    client.get(url)
+    assert client.status == 200
+
+    tpc = web2py.db.teachers_payment_classes(1)
+    assert str(tpc.ClassDate) in client.text
+    assert format(tpc.ClassRate, '.2f') in client.text
 
 
 
-def test_teacher_payment_classes_processed(client, web2py):
+def test_teacher_payment_classes_verified(client, web2py):
     """
 
     """
-    assert 0 == 1
+    populate_teachers_payment_classes(web2py, status='processed')
+
+    url = '/finance/teacher_payment_classes?status=processed'
+    client.get(url)
+    assert client.status == 200
+
+    tpc = web2py.db.teachers_payment_classes(1)
+    assert str(tpc.ClassDate) in client.text
+    assert format(tpc.ClassRate, '.2f') in client.text
 
 
 
