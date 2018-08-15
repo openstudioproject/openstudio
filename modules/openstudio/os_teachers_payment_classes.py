@@ -124,7 +124,7 @@ class TeachersPaymentClasses:
             TH(T("Teacher")),
             TH(T("Type")),
             TH(T("Attendance")),
-            TH(T("Amount")),
+            TH(T("Payment")),
             TH() # Actions
         ))
 
@@ -154,7 +154,9 @@ class TeachersPaymentClasses:
                    SPAN(repr_row.teachers_payment_classes.teachers_payment_attendance_list_id or '',
                         _class='grey')),
                 TD(repr_row.teachers_payment_classes.AttendanceCount),
-                TD(repr_row.teachers_payment_classes.ClassRate),
+                TD(repr_row.teachers_payment_classes.ClassRate, BR(),
+                   SPAN(repr_row.teachers_payment_classes.tax_rates_id,
+                        _class='grey')),
                 TD(buttons)
             )
 
