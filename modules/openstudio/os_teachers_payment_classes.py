@@ -43,6 +43,8 @@ class TeachersPaymentClasses:
             while date <= date_until:
                 cs = ClassSchedule(date)
                 classes = cs.get_day_list()
+                print date
+                print classes
                 for cls in classes:
                     if not cls['Cancelled'] or cls['Holiday']:
                         # Check if item in db.teachers_payment_classes
@@ -152,7 +154,7 @@ class TeachersPaymentClasses:
                    SPAN(repr_row.teachers_payment_classes.teachers_payment_attendance_list_id or '',
                         _class='grey')),
                 TD(repr_row.teachers_payment_classes.AttendanceCount),
-                TD(repr_row.teachers_payment_classes.Amount),
+                TD(repr_row.teachers_payment_classes.ClassRate),
                 TD(buttons)
             )
 

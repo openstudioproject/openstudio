@@ -34,6 +34,6 @@ class OsSetup:
         Set teacher payment rate type to 'fixed rate' by default
         """
         self.set_sys_property(
-            TeacherPaymentRateType,
+            'TeacherPaymentRateType',
             'fixed'
         )

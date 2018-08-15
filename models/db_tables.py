@@ -1578,7 +1578,7 @@ def define_teachers_payment_classes():
             represent=lambda value, row: teachers_dict.get(value, None),
             #represent=lambda value, row: value or '',
             label=T("Teacher 2")),
-        Field('Amount', 'double',
+        Field('ClassRate', 'double',
               represent=represent_float_as_amount),
         Field('RateType',
               readable=False,

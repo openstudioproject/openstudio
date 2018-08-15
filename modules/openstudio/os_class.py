@@ -530,11 +530,17 @@ class Class:
         error = False
         data = ''
 
+        print self.clsID
+
         teachers = self.get_teachers()
         if teachers['error']:
+            print 'no teachers'
+
             error = True
             data = teachers['message']
         elif not attendance_count:
+            print 'no attendance count'
+
             error = True
             data = T("No customers attending this class")
         else:
@@ -544,6 +550,8 @@ class Class:
             if tprt == 'fixed':
                 # Get rate for this teacher
                 default_rate = teacher.get_payment_fixed_rate_default()
+
+                print 'no default rate'
 
                 if not default_rate:
                     error = True
@@ -577,7 +585,7 @@ class Class:
                             auth_teacher_id = teacher_id,
                             Status = 'not_verified',
                             AttendanceCount = attendance_count,
-                            Amount = rate,
+                            ClassRate = rate,
                             RateType = 'fixed',
                             tax_rates_id = tax_rates_id,
                         )
@@ -585,7 +593,7 @@ class Class:
 
                     elif tpc and tpalst and rate:
                         tpc.AttendanceCount = attendance_count
-                        tpc.Amount = rate
+                        tpc.ClassRate = rate
                         tpc.auth_teacher_id = teacher_id,
                         tpc.teachers_payment_classes_list_id = None
                         tpc.RateType = 'fixed'
@@ -623,7 +631,7 @@ class Class:
                             auth_teacher_id = teacher_id,
                             Status = 'not_verified',
                             AttendanceCount = attendance_count,
-                            Amount = rate,
+                            ClassRate = rate,
                             RateType = 'attendance',
                             teachers_payment_attendance_list_id = list.id,
                             tax_rates_id = tax_rates_id,
@@ -632,7 +640,7 @@ class Class:
 
                     elif tpc and tpalst and rate:
                         tpc.AttendanceCount = attendance_count
-                        tpc.Amount = rate
+                        tpc.ClassRate = rate
                         tpc.auth_teacher_id = teacher_id,
                         tpc.RateType = 'attendance'
                         tpc.teachers_payment_attendance_list_id = list.id
