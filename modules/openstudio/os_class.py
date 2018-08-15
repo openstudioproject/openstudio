@@ -604,9 +604,6 @@ class Class:
 
                 if tpalst:
                     list_id = tpalst.teachers_payment_attendance_lists_id
-                    print '### list_id ####'
-                    print list_id
-
                     list = db.teachers_payment_attendance_lists(1)
                     tax_rates_id = list.tax_rates_id
 
