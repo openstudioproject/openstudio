@@ -16,6 +16,7 @@ from populate_os_tables import populate_auth_user_teachers_fixed_rate_default
 from populate_os_tables import populate_auth_user_teachers_fixed_rate_class_1
 from populate_os_tables import populate_auth_user_teachers_fixed_rate_travel
 from populate_os_tables import populate_teachers_payment_attendance_lists_school_classtypes
+from populate_os_tables import populate_teachers_payment_classes
 
 from populate_os_tables import populate_workshops_messages
 from populate_os_tables import populate_customers_with_subscriptions
@@ -142,8 +143,15 @@ def test_teacher_payment_classes_not_verified(client, web2py):
     """
 
     """
-    assert 0 == 1
+    populate_teachers_payment_classes(web2py)
 
+    url = '/finance/teacher_payment_classes?status=not_verified'
+    client.get(url)
+    assert client.status == 200
+
+    tpc = web2py.db.teachers_payment_classes(1)
+    assert str(tpc.ClassDate) in client.text
+    assert format(tpc.ClassRate, '.2f') in client.text
 
 
 def test_teacher_payment_classes_verified(client, web2py):

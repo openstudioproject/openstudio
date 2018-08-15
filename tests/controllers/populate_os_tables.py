@@ -536,6 +536,39 @@ def populate_auth_user_teachers(web2py,
         print "Tried inserting teachers, but id 2 or 3 already exists in auth_user"
 
 
+def populate_teachers_payment_classes(web2py, status='not_verified'):
+    """
+
+    """
+    populate_tax_rates(web2py)
+    prepare_classes(web2py)
+    populate_auth_user_teachers_fixed_rate_default(web2py)
+
+    web2py.db.commit()
+
+    rate = web2py.db.teachers_payment_fixed_rate_default(1).ClassRate
+
+    dates = [
+        '2014-01-06',
+        '2014-01-13',
+        '2014-01-20',
+        '2014-01-27',
+    ]
+
+    for date in dates:
+        web2py.db.teachers_payment_classes.insert(
+            classes_id = 1,
+            ClassDate = date,
+            AttendanceCount = 1,
+            auth_teacher_id = 2,
+            ClassRate = 25,
+            tax_rates_id = 1,
+            Status = status
+        )
+
+    web2py.db.commit()
+
+
 def populate_teachers_payment_attendance_lists(web2py, with_rates=True):
     """
         Insert dummy list
