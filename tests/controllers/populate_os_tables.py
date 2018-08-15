@@ -646,11 +646,11 @@ def populate_auth_user_teachers_fixed_rate_class_1(web2py):
     web2py.db.commit()
 
 
-def populate_auth_user_teachers_fixed_rate_travel(web2py):
+def populate_auth_user_teachers_travel(web2py):
     """
         Insert dummy data for teachers_payment_fixed_rate_travel
     """
-    web2py.db.teachers_payment_fixed_rate_travel.insert(
+    web2py.db.teachers_payment_travel.insert(
         auth_teacher_id = 2,
         school_locations_id = 1,
         TravelAllowance = 304753,

@@ -14,7 +14,7 @@ from populate_os_tables import populate_invoices_items
 
 from populate_os_tables import populate_auth_user_teachers_fixed_rate_default
 from populate_os_tables import populate_auth_user_teachers_fixed_rate_class_1
-from populate_os_tables import populate_auth_user_teachers_fixed_rate_travel
+from populate_os_tables import populate_auth_user_teachers_travel
 from populate_os_tables import populate_teachers_payment_attendance_lists_school_classtypes
 from populate_os_tables import populate_teachers_payment_classes
 
@@ -71,6 +71,33 @@ def test_teacher_payment_find_classes_fixed_rate_default(client, web2py):
     assert tpc.classes_id == 1
     assert tpc.ClassRate == default_rate.ClassRate
     assert tpc.tax_rates_id == default_rate.tax_rates_id
+
+
+
+def test_teacher_payment_find_classes_travel_allowance(client, web2py):
+    """
+    Is the fixed rate applied when finding classes?
+    """
+    prepare_classes(web2py)
+    populate_auth_user_teachers_fixed_rate_default(web2py)
+    populate_auth_user_teachers_travel(web2py)
+
+    url = '/finance/teacher_payment_find_classes'
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        'Startdate': '2014-01-01',
+        'Enddate': '2014-01-31'
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+    assert web2py.db(web2py.db.teachers_payment_classes).count() == 3
+
+    tpc = web2py.db.teachers_payment_classes(1)
+    ta = web2py.db.teachers_payment_travel(1)
+    assert tpc.TravelAllowance == ta.TravelAllowance
 
 
 def test_teacher_payment_find_classes_fixed_rate_class_specific(client, web2py):
