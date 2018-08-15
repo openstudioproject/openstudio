@@ -15,6 +15,7 @@ from populate_os_tables import populate_invoices_items
 from populate_os_tables import populate_auth_user_teachers_fixed_rate_default
 from populate_os_tables import populate_auth_user_teachers_fixed_rate_class_1
 from populate_os_tables import populate_auth_user_teachers_fixed_rate_travel
+from populate_os_tables import populate_teachers_payment_attendance_lists_school_classtypes
 
 from populate_os_tables import populate_workshops_messages
 from populate_os_tables import populate_customers_with_subscriptions
@@ -73,7 +74,7 @@ def test_teacher_payment_find_classes_fixed_rate_default(client, web2py):
 
 def test_teacher_payment_find_classes_fixed_rate_class_specific(client, web2py):
     """
-    Is the fixed rate applied when finding classes?
+    Is the fixed rate class specific rate applied when finding classes?
     """
     prepare_classes(web2py)
     populate_auth_user_teachers_fixed_rate_default(web2py)
@@ -100,6 +101,41 @@ def test_teacher_payment_find_classes_fixed_rate_class_specific(client, web2py):
     assert tpc.classes_id == 1
     assert tpc.ClassRate == class_rate.ClassRate
     assert tpc.tax_rates_id == class_rate.tax_rates_id
+
+
+def test_teacher_payment_find_classes_attendance(client, web2py):
+    """
+    Is the fixed rate applied when finding classes?
+    """
+    prepare_classes(web2py)
+    populate_auth_user_teachers_fixed_rate_default(web2py)
+    populate_teachers_payment_attendance_lists_school_classtypes(web2py)
+
+    url = '/finance/teacher_payment_find_classes'
+    client.get(url)
+    assert client.status == 200
+
+    sprop = web2py.db.sys_properties(Property='TeacherPaymentRateType')
+    sprop.PropertyValue = 'attendance'
+    sprop.update_record()
+    web2py.db.commit()
+
+    data = {
+        'Startdate': '2014-01-01',
+        'Enddate': '2014-01-31'
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+    list = web2py.db.teachers_payment_attendance_lists(1)
+    rate = web2py.db.teachers_payment_attendance_lists_rates(1)
+
+    tpc = web2py.db.teachers_payment_classes(1)
+    assert tpc.ClassDate == datetime.date(2014, 1, 6)
+    assert tpc.classes_id == 1
+    assert tpc.ClassRate == rate.Rate
+    assert tpc.tax_rates_id == list.tax_rates_id
 
 
 def test_teacher_payment_classes_not_verified(client, web2py):
