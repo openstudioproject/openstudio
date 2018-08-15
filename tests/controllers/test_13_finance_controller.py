@@ -168,6 +168,20 @@ def test_teacher_payment_classes_verify(client, web2py):
     assert web2py.db(query).count() == 1
 
 
+def test_teacher_payment_classes_unverify(client, web2py):
+    """
+
+    """
+    populate_teachers_payment_classes(web2py, status='verified')
+
+    url = '/finance/teachers_payment_attendance_class_unverify?tpcID=1'
+    client.get(url)
+    assert client.status == 200
+
+    query = (web2py.db.teachers_payment_classes.Status == 'not_verified')
+    assert web2py.db(query).count() == 1
+
+
 def test_teacher_payment_classes_verify_all(client, web2py):
     """
 
