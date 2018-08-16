@@ -1805,6 +1805,20 @@ def define_classes_otc():
                   btn_icon='info')),
     )
 
+def define_classes_otc_sub_avail():
+    '''
+        Table to store the available requests for a class open to substitution
+    '''
+    db.define_table('classes_otc_sub_avail',
+        Field('classes_otc_id', db.classes_otc,
+              label=T('Classes_OTC')),
+        Field('auth_user_id', db.auth_user,
+              label=T('Teacher')),
+        Field('Accepted', 'boolean',
+              default=False,
+              label=T('Accepted'))
+                    )
+
 
 def define_classes_school_subscriptions_groups():
     """
@@ -5471,6 +5485,7 @@ define_classes()
 define_customers_shoppingcart()
 #classes_dict = create_classes_dict()
 define_classes_otc()
+define_classes_otc_sub_avail()
 define_classes_price()
 define_classes_teachers()
 define_classes_open()

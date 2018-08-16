@@ -376,7 +376,8 @@ def pinboard_get_teacher_substitution_classes(days=90):
     #         date,
     #         filter_id_teacher=teachers_id)
     query = (db.classes_otc.Status=='Open')
-    rows=db(query).select(db.classes_otc.classes_id,
+    rows=db(query).select(db.classes_otc.id,
+                          db.classes_otc.classes_id,
                           db.classes_otc.ClassDate,
                           db.classes_otc.Starttime,
                           db.classes_otc.Endtime,
@@ -388,14 +389,13 @@ def pinboard_get_teacher_substitution_classes(days=90):
 
 
         vis = db.teachers_classtypes(school_classtypes_id=row.school_classtypes_id, auth_user_id=teachers_id)
-        print vis
 
 
 
         if vis :
             button = os_gui.get_button('astronaut',
                                       URL('available_for_sub',
-                                          vars={'clsID': row.classes_id}),
+                                          vars={'clsID': row.id, 'teachers_id':teachers_id}),
                                       title='Available', _class='pull-right', btn_class='btn-success')
             tr = TR(TD(repr_row.ClassDate),
                     TD(repr_row.Starttime, ' - ', repr_row.Endtime),
@@ -438,6 +438,21 @@ def pinboard_get_teacher_substitution_classes(days=90):
 
     return upcoming_classes
 
+
+def available_for_sub():
+    '''
+    adds class and teacher to classes_oct_sub_avail table
+    :return:
+    '''
+    clsID = request.vars['clsID']
+    teachers_id = request.vars['teachers_id']
+
+    row = db.classes_otc_sub_avail(id=clsID, auth_user_id=teachers_id )
+    if not row:
+        db.classes_otc_sub_avail.insert(classes_otc_id=clsID,
+                              auth_user_id=teachers_id)
+        redirect(URL('index'))
+    redirect(URL('index'))
 
 def pinboard_get_cancelled_classes(days=3):
     '''
@@ -783,7 +798,7 @@ def request_sub():
     date = request.vars ['date']
     teachers_id = request.vars['teachers_id']
     row_classes= db.classes(id=clsID)
-    print row_classes
+
     row = db.classes_otc(classes_id=clsID,
                          ClassDate = date
                          )
