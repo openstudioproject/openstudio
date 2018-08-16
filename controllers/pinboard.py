@@ -391,20 +391,16 @@ def pinboard_get_teacher_substitution_classes(days=90):
         print vis
 
 
-        # result = cs._get_day_row_teacher_roles(row, repr_row)
-
-        # teacher = result['teacher_role']
-        # teacher2 = result['teacher_role2']
 
         if vis :
             button = os_gui.get_button('astronaut',
                                       URL('available_for_sub',
                                           vars={'clsID': row.classes_id}),
                                       title='Available', _class='pull-right', btn_class='btn-success')
-            tr = TR(TD(row.ClassDate),
-                    TD(row.Starttime, ' - ', row.Endtime),
-                    TD(row.school_locations_id),
-                    TD(row.school_classtypes_id),
+            tr = TR(TD(repr_row.ClassDate),
+                    TD(repr_row.Starttime, ' - ', repr_row.Endtime),
+                    TD(repr_row.school_locations_id),
+                    TD(repr_row.school_classtypes_id),
                     TD(button)
                     # TD(teacher),
                     # TD(teacher2),
