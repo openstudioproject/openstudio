@@ -75,6 +75,11 @@ def classes_get_menu(page, clsID, date_formatted):
                         T('Notes'),
                        URL('notes', vars=vars) ])
     if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('read', 'classes_revenue'):
+        pages.append([ 'revenue',
+                        T('Revenue'),
+                       URL('revenue', vars=vars) ])
+    if auth.has_membership(group_id='Admins') or \
        auth.has_permission('create', 'classes_otc'):
         pages.append([ 'class_edit_on_date',
                         T('Edit'),

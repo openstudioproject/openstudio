@@ -1200,6 +1200,7 @@ def access_group_permissions():
                 ['classes_notes-delete', T("Delete notes")],
                 ['classes_notes_backoffice-read', T("View back office notes")],
                 ['classes_notes_teachers-read', T("View teachers' notes")]]],
+            ['classes_revenue-read', T("View revenue")],
             ['classes_school_subscriptions_groups-read', T("View allowed subscriptions groups"), [
                 ['classes_school_subscriptions_groups-create', T("Add allowed subscriptions groups")],
                 ['classes_school_subscriptions_groups-update', T("Edit allowed subscriptions groups")],
@@ -1287,7 +1288,7 @@ def access_group_permissions():
                         ['teachers_payment_attendance_lists_rates-delete', T('Delete rates from lists')],
                     ]],
                     ['teachers_payment_attendance_lists_school_classtypes-update', T("Assign list to classtypes")]
-                ]]
+                ]],
                 ['teachers_payment_travel-read', T('View travel allowances'), [
                     ['teachers_payment_travel-create', T('Add travel allowance')],
                     ['teachers_payment_travel-update', T('Edit travel allowance')],
