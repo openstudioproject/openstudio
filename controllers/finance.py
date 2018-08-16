@@ -1241,6 +1241,11 @@ def teacher_payment_classes():
 
     status = request.vars['status']
 
+    try:
+        page = int(request.args[0])
+    except IndexError:
+        page = 0
+
     tpc = TeachersPaymentClasses()
 
     tools = ''
@@ -1276,7 +1281,8 @@ def teacher_payment_classes():
         )
 
         table = tpc.get_not_verified(
-            formatted=True
+            formatted=True,
+
         )
 
     elif status == 'verified':
@@ -1309,7 +1315,8 @@ def teacher_payment_classes():
 
     elif status == 'processed':
         table = tpc.get_processed(
-            formatted=True
+            formatted=True,
+            page = page
         )
 
     content = DIV(

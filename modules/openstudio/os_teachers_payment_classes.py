@@ -73,8 +73,16 @@ class TeachersPaymentClasses:
                  sorting='time',
                  date_from=None,
                  date_until=None,
-                 formatted=False):
+                 formatted=False,
+                 all=False,
+                 items_per_page = 100,
+                 page = 0):
+
         db = current.db
+
+        limitby = None
+        if not all:
+            limitby = (page * items_per_page, (page + 1) * items_per_page + 1)
 
         left = [
             db.classes.on(
@@ -103,16 +111,17 @@ class TeachersPaymentClasses:
             db.teachers_payment_classes.ALL,
             db.classes.ALL,
             left=left,
+            limitby=limitby,
             orderby=orderby
         )
 
         if not formatted:
             return rows
         else:
-            return self.rows_to_table(rows, status)
+            return self.rows_to_table(rows, status, items_per_page, page)
 
 
-    def rows_to_table(self, rows, status):
+    def rows_to_table(self, rows, status, items_per_page, page):
         """
         turn rows object into an html table
         :param rows: gluon.dal.rows with all fields of db.teachers_payment_classes
@@ -176,7 +185,40 @@ class TeachersPaymentClasses:
 
             table.append(tr)
 
-        return table
+        pager = self._rows_to_table_get_navigation(rows, items_per_page, page)
+
+        return DIV(table, pager)
+
+
+    def _rows_to_table_get_navigation(self, rows, items_per_page, page):
+        from os_gui import OsGui
+
+        os_gui = OsGui()
+        request = current.request
+
+        # Navigation
+        previous = ''
+        url_previous = None
+        if page:
+            url_previous = URL(args=[page - 1], vars=request.vars)
+            previous = A(SPAN(_class='glyphicon glyphicon-chevron-left'),
+                         _href=url_previous)
+
+        nxt = ''
+        url_next = None
+        if len(rows) > items_per_page:
+            url_next = URL(args=[page + 1], vars=request.vars)
+            nxt = A(SPAN(_class='glyphicon glyphicon-chevron-right'),
+                    _href=url_next)
+
+        navigation = os_gui.get_page_navigation_simple(url_previous, url_next, page + 1)
+
+        if previous or nxt:
+            pass
+        else:
+            navigation = ''
+
+        return DIV(navigation)
 
 
     def _rows_to_table_button_permissions(self):
@@ -275,29 +317,31 @@ class TeachersPaymentClasses:
         return DIV(tpc_menu, _class='pull-right')
 
 
-    def get_not_verified(self, formatted=False):
+    def get_not_verified(self, page=0, formatted=False):
         """
         All classes not
         :return: gluon.dal.rows or html table
         """
         return self.get_rows(
             status='not_verified',
-            formatted=formatted
+            formatted=formatted,
+            page=page
         )
 
 
-    def get_verified(self, formatted=False):
+    def get_verified(self, page=0, formatted=False):
         """
         All classes verified
         :return: gluon.dal.rows or html table
         """
         return self.get_rows(
             status='verified',
-            formatted=formatted
+            formatted=formatted,
+            page=page
         )
 
 
-    def get_processed(self, formatted=False):
+    def get_processed(self, page=0, formatted=False):
         """
         All processed classes
         :param formatted: Bool
@@ -305,7 +349,8 @@ class TeachersPaymentClasses:
         """
         return self.get_rows(
             status='processed',
-            formatted=formatted
+            formatted=formatted,
+            page=page
         )
 
 
@@ -342,7 +387,8 @@ class TeachersPaymentClasses:
             sorting='teacher',
             formatted=False,
             date_from=date_from,
-            date_until=date_until
+            date_until=date_until,
+            all=True
         )
 
         previous_teacher = None
