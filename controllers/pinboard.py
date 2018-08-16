@@ -107,12 +107,15 @@ def index():
     # upcoming classes (for teachers)
     upcoming_classes = pinboard_get_teacher_upcoming_classes()
 
+    # Classes that are open to substitute
+    substitution_classes = pinboard_get_teacher_substitution_classes()
+
 
     # birthdays
     birthdays = get_birthdays()
 
     content = DIV(DIV(welcome_message, _class='row'),
-                  DIV(DIV(announcements, upcoming_classes, tasks, cancelled_classes, _class='col-md-9'),
+                  DIV(DIV(announcements, upcoming_classes,substitution_classes, tasks, cancelled_classes, _class='col-md-9'),
                       DIV(birthdays, _class='col-md-3'),
                       _class='row'))
 
@@ -344,88 +347,100 @@ def pinboard_get_teacher_upcoming_classes(days=3):
     return upcoming_classes
 
 
-# def pinboard_get_teacher_substitution_classes(days=90):
-#     '''
-#         @return: List classes that need to get subbed
-#     '''
-#     if auth.user.id and auth.user.teacher:
-#         teachers_id = auth.user.id
-#         cache_clear_classschedule()
-#     else:
-#         return ''
-#
-#     attendance_permission = (auth.has_membership(group_id='Admins') or \
-#                              auth.has_permission('update', 'classes_attendance'))
-#
-#     date = datetime.date.today()
-#     delta = datetime.timedelta(days=1)
-#
-#     header = THEAD(TR(TH(T('Class date')),
-#                       TH(T('Time')),
-#                       TH(T('Location')),
-#                       TH(T('Class type')),
-#                       TH(T('Teacher')),
-#                       TH(T('Teacher2')),
-#                       TH(),
-#                       ))
-#
-#     table = TABLE(header, _class='table table-hover dataTable')
-#
-#
-#     for day in range(0, days):
-#         cs = ClassSchedule(
-#             date,
-#             filter_id_teacher=teachers_id)
-#
-#         rows = cs.get_day_rows()
-#         for i, row in enumerate(rows):
-#             if row.classes_otc.Status == 'cancelled' or row.school_holidays.id:
-#                 continue
-#
-#             repr_row = list(rows[i:i + 1].render())[0]
-#
-#             result = cs._get_day_row_teacher_roles(row, repr_row)
-#
-#             teacher = result['teacher_role']
-#             teacher2 = result['teacher_role2']
-#
-#             attendance = ''
-#             if attendance_permission:
-#                 # attendance = A(T('Attendance'),
-#                 #                _href=URL('classes', 'attendance', vars={'clsID':row.classes.id,
-#                 #                                                         'date':date.strftime(DATE_FORMAT)}))
-#                 attendance = os_gui.get_button('noicon', URL('classes', 'attendance',
-#                                                            vars={'clsID':row.classes.id,
-#                                                                  'date':date.strftime(DATE_FORMAT)}),
-#                                                title=T('Attendance'),
-#                                                _class=T('pull-right'))
-#
-#             tr = TR(TD(date.strftime(DATE_FORMAT), _class='bold green' if day == 0 else ''),
-#                     TD(repr_row.classes.Starttime, ' - ', repr_row.classes.Endtime),
-#                     TD(repr_row.classes.school_locations_id),
-#                     TD(repr_row.classes.school_classtypes_id),
-#                     TD(teacher),
-#                     TD(teacher2),
-#                     TD(attendance)
-#                     )
-#
-#             table.append(tr)
-#
-#
-#         date += delta
-#
-#     upcoming_classes = DIV(DIV(H3(T('My upcoming classes'), _class="box-title"),
-#                                DIV(A(I(_class='fa fa-minus'),
-#                                      _href='#',
-#                                      _class='btn btn-box-tool',
-#                                      _title=T("Collapse"),
-#                                      **{'_data-widget': 'collapse'}),
-#                                    _class='box-tools pull-right'),
-#                                _class='box-header with-border'),
-#                                DIV(table, _class='box-body'),
-#                           _class='box box-info')
-#
-#     return upcoming_classes
+def pinboard_get_teacher_substitution_classes(days=90):
+    '''
+        @return: List classes that need to get subbed
+    '''
+    if auth.user.id and auth.user.teacher:
+        teachers_id = auth.user.id
+        cache_clear_classschedule()
+    else:
+        return ''
+
+
+    # date = datetime.date.today()
+    # delta = datetime.timedelta(days=1)
+
+    header = THEAD(TR(TH(T('Class date')),
+                      TH(T('Time')),
+                      TH(T('Location')),
+                      TH(T('Class type')),
+                      TH(),
+                      ))
+
+    table = TABLE(header, _class='table table-hover dataTable')
+
+
+    # for day in range(0, days):
+    #     cs = ClassSchedule(
+    #         date,
+    #         filter_id_teacher=teachers_id)
+    query = (db.classes_otc.Status=='Open')
+    rows=db(query).select(db.classes_otc.classes_id,
+                          db.classes_otc.ClassDate,
+                          db.classes_otc.Starttime,
+                          db.classes_otc.Endtime,
+                          db.classes_otc.school_locations_id,
+                          db.classes_otc.school_classtypes_id)
+
+    for i, row in enumerate(rows):
+        repr_row = list(rows[i:i + 1].render())[0]
+
+
+        vis = db.teachers_classtypes(school_classtypes_id=row.school_classtypes_id, auth_user_id=teachers_id)
+        print vis
+
+
+        # result = cs._get_day_row_teacher_roles(row, repr_row)
+
+        # teacher = result['teacher_role']
+        # teacher2 = result['teacher_role2']
+
+        if vis :
+            button = os_gui.get_button('astronaut',
+                                      URL('available_for_sub',
+                                          vars={'clsID': row.classes_id}),
+                                      title='Available', _class='pull-right', btn_class='btn-success')
+            tr = TR(TD(row.ClassDate),
+                    TD(row.Starttime, ' - ', row.Endtime),
+                    TD(row.school_locations_id),
+                    TD(row.school_classtypes_id),
+                    TD(button)
+                    # TD(teacher),
+                    # TD(teacher2),
+                    # TD(attendance)
+                    )
+            table.append(tr)
+        # attendance = ''
+        # if attendance_permission:
+        #     # attendance = A(T('Attendance'),
+        #     #                _href=URL('classes', 'attendance', vars={'clsID':row.classes.id,
+        #     #                                                         'date':date.strftime(DATE_FORMAT)}))
+        #     attendance = os_gui.get_button('noicon', URL('classes', 'attendance',
+        #                                                vars={'clsID':row.classes.id,
+        #                                                      'date':date.strftime(DATE_FORMAT)}),
+        #                                    title=T('Attendance'),
+        #                                    _class=T('pull-right'))
+
+
+
+
+
+
+        # date += delta
+
+    upcoming_classes = DIV(DIV(H3(T('Classes open to Substitution'), _class="box-title"),
+                               DIV(A(I(_class='fa fa-minus'),
+                                     _href='#',
+                                     _class='btn btn-box-tool',
+                                     _title=T("Collapse"),
+                                     **{'_data-widget': 'collapse'}),
+                                   _class='box-tools pull-right'),
+                               _class='box-header with-border'),
+                               DIV(table, _class='box-body'),
+                          _class='box box-info')
+
+    return upcoming_classes
 
 
 def pinboard_get_cancelled_classes(days=3):
@@ -528,6 +543,7 @@ def teacher_monthly_classes():
             TH(),
             TH(T('Date')),
             TH(T('Start')),
+            TH(T('End')),
             TH(T('Location')),
             TH(T('Class Type')),
             TH(),  # actions))
@@ -582,6 +598,7 @@ def teacher_monthly_classes():
                        _class='td_status_marker'),
                     TD(date_formatted),
                     TD(repr_row.classes.Starttime),
+                    TD(repr_row.classes.Endtime),
                     TD(repr_row.classes.school_locations_id),
                     TD(repr_row.classes.school_classtypes_id),
                     TD(sub_requested),
@@ -769,7 +786,8 @@ def request_sub():
     clsID = request.vars['clsID']
     date = request.vars ['date']
     teachers_id = request.vars['teachers_id']
-    row_classes= db.classes[clsID]
+    row_classes= db.classes(id=clsID)
+    print row_classes
     row = db.classes_otc(classes_id=clsID,
                          ClassDate = date
                          )
@@ -778,7 +796,9 @@ def request_sub():
                               ClassDate=date,
                               Status ='Open',
                               Starttime= row_classes.Starttime,
+                              Endtime= row_classes.Endtime,
                               school_locations_id=row_classes.school_locations_id,
+                              school_classtypes_id= row_classes.school_classtypes_id,
                               auth_teacher_id=teachers_id)
         redirect(URL('teacher_monthly_classes'))\
 
