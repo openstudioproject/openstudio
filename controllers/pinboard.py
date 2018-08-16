@@ -393,10 +393,18 @@ def pinboard_get_teacher_substitution_classes(days=90):
 
 
         if vis :
-            button = os_gui.get_button('astronaut',
-                                      URL('available_for_sub',
-                                          vars={'clsID': row.id, 'teachers_id':teachers_id}),
-                                      title='Available', _class='pull-right', btn_class='btn-success')
+            row_avail=db.classes_otc_sub_avail(classes_otc_id=row.id, auth_user_id = teachers_id)
+
+            if not row_avail:
+                button = os_gui.get_button('astronaut',
+                                          URL('available_for_sub',
+                                              vars={'clsID': row.id, 'teachers_id':teachers_id}),
+                                          title='Available', _class='pull-right', btn_class='btn-success')
+            else:
+                button = os_gui.get_button('astronaut',
+                                          URL('cancel_available_for_sub',
+                                              vars={'clsID': row.id, 'teachers_id':teachers_id}),
+                                          title='Cancel', _class='pull-right', btn_class='btn-warning')
             tr = TR(TD(repr_row.ClassDate),
                     TD(repr_row.Starttime, ' - ', repr_row.Endtime),
                     TD(repr_row.school_locations_id),
@@ -453,6 +461,18 @@ def available_for_sub():
                               auth_user_id=teachers_id)
         redirect(URL('index'))
     redirect(URL('index'))
+
+
+def cancel_available_for_sub():
+    clsID = request.vars['clsID']
+    teachers_id = request.vars['teachers_id']
+    row = db.classes_otc_sub_avail(classes_otc_id=clsID, auth_user_id=teachers_id)
+    print row
+    if row:
+        db(db.classes_otc_sub_avail.id==row.id).delete()
+        redirect(URL('index'))
+    redirect(URL('index'))
+
 
 def pinboard_get_cancelled_classes(days=3):
     '''
