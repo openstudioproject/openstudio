@@ -87,7 +87,9 @@ class TeachersPaymentClasses:
             orderby = ~db.teachers_payment_classes.ClassDate | \
                       db.classes.Starttime
         elif sorting == 'teacher':
-            orderby = db.teachers_payment_classes.auth_teacher_id
+            orderby = db.teachers_payment_classes.auth_teacher_id | \
+                      db.teachers_payment_classes.ClassDate | \
+                      db.teachers_payment_classes.Starttime
 
         query = (db.teachers_payment_classes.Status == status)
 
@@ -368,6 +370,17 @@ class TeachersPaymentClasses:
 
             tpcID = row.teachers_payment_classes.id
             invoice.item_add_teacher_class_attendance_credit_payment(tpcID)
+
+            # Add travel allowance
+            if row.TravelAllowance:
+                invoice.item_add_teacher_class_credit_travel_allowance(
+                    self.row.classes_id,
+                    self.row.ClassDate,
+                    self.row.TravelAllowance,
+                    self.row.tax_rates_id_travel_allowance
+                )
+
+            # Set status processed
             tpc = TeachersPaymentClass(tpcID)
             tpc.set_status_processed()
 

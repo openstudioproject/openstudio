@@ -767,9 +767,10 @@ class Invoice:
 
 
     def item_add_teacher_class_credit_travel_allowance(self,
-                                                clsID,
-                                                date,
-                                                payment_type='fixed_rate'):
+                                                       clsID,
+                                                       date,
+                                                       amount,
+                                                       tax_rates_id):
         """
         :param clsID: db.classes.id
         :param date: datetime.date class date
@@ -784,32 +785,25 @@ class Invoice:
         T = current.T
 
         cls = Class(clsID, date)
-        teID = self.get_linked_customer_id()
-        teacher = Teacher(teID)
 
-        travel_allowance = teacher.get_payment_fixed_rate_travel_allowance_location(cls.cls.school_locations_id)
-        if travel_allowance:
-            price = travel_allowance.TravelAllowance
-            tax_rates_id = travel_allowance.tax_rates_id
+        # add item to invoice
+        next_sort_nr = self.get_item_next_sort_nr()
 
-            # add item to invoice
-            next_sort_nr = self.get_item_next_sort_nr()
+        iiID = db.invoices_items.insert(
+            invoices_id=self.invoices_id,
+            ProductName=T('Travel allowance'),
+            Description=cls.get_name(),
+            Quantity=1,
+            Price=amount * -1,
+            Sorting=next_sort_nr,
+            tax_rates_id=tax_rates_id,
+        )
 
-            iiID = db.invoices_items.insert(
-                invoices_id=self.invoices_id,
-                ProductName=T('Travel allowance'),
-                Description=cls.get_name(),
-                Quantity=1,
-                Price=price * -1,
-                Sorting=next_sort_nr,
-                tax_rates_id=tax_rates_id,
-            )
+        self.set_amounts()
 
-            self.set_amounts()
+        self.on_update()
 
-            self.on_update()
-
-            return iiID
+        return iiID
 
 
     def payment_add(self,
