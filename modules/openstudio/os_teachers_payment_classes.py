@@ -89,7 +89,7 @@ class TeachersPaymentClasses:
         elif sorting == 'teacher':
             orderby = db.teachers_payment_classes.auth_teacher_id | \
                       db.teachers_payment_classes.ClassDate | \
-                      db.teachers_payment_classes.Starttime
+                      db.classes.Starttime
 
         query = (db.teachers_payment_classes.Status == status)
 
@@ -325,7 +325,7 @@ class TeachersPaymentClasses:
         return updated
 
 
-    def process_verified(self, date_from, date_until):
+    def process_verified(self, date_from=None, date_until=None):
         """
         Create credit invoices for verified classes
         :return:
@@ -372,12 +372,12 @@ class TeachersPaymentClasses:
             invoice.item_add_teacher_class_attendance_credit_payment(tpcID)
 
             # Add travel allowance
-            if row.TravelAllowance:
+            if row.teachers_payment_classes.TravelAllowance:
                 invoice.item_add_teacher_class_credit_travel_allowance(
-                    self.row.classes_id,
-                    self.row.ClassDate,
-                    self.row.TravelAllowance,
-                    self.row.tax_rates_id_travel_allowance
+                    row.teachers_payment_classes.classes_id,
+                    row.teachers_payment_classes.ClassDate,
+                    row.teachers_payment_classes.TravelAllowance,
+                    row.teachers_payment_classes.tax_rates_id_travel_allowance
                 )
 
             # Set status processed

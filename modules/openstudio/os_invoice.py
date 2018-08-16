@@ -742,7 +742,7 @@ class Invoice:
         )
 
         # Get amount & tax rate
-        price = tpc.row.Amount
+        price = tpc.row.ClassRate
         tax_rates_id = tpc.row.tax_rates_id
 
         # add item to invoice
