@@ -4890,3 +4890,33 @@ def class_classcard_group_add_get_already_added(clsID):
         ids.append(row.school_classcards_groups_id)
 
     return ids
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'classes_revenue'))
+def revenue():
+    """
+    Quick revenue for a class
+    """
+    from openstudio.os_reports import Reports
+
+    clsID = request.vars['clsID']
+    date_formatted = request.vars['date']
+    date = datestr_to_python(DATE_FORMAT, date_formatted)
+    response.title = T("Class")
+    response.subtitle = get_classname(clsID) + ": " + date_formatted
+
+    response.view = 'general/tabs_menu.html'
+
+    reports = Reports()
+    revenue=reports.get_class_revenue_summary_formatted(clsID, date)
+
+    content = revenue
+
+    back = DIV(class_get_back(), classes_get_week_chooser(request.function, clsID, date))
+    menu = classes_get_menu(request.function, clsID, date_formatted)
+
+    return dict(content=content,
+                back=back,
+                menu=menu)
+
