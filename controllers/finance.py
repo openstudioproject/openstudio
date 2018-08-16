@@ -1284,17 +1284,29 @@ def teacher_payment_classes():
                      auth.has_permission('create', 'invoices')
 
         if permission:
-            tools = os_gui.get_button(
-                'noicon',
-                URL('teachers_payment_classes_process_verified'),
-                title=T('Process'),
-                tooltip=T("Create credit invoices"),
-                btn_class='btn-primary'
-            )
+            links = []
+            # Process all
+            links.append(A(os_gui.get_fa_icon('fa-check'), T("All verified classes"),
+                           _href=URL('teachers_payment_classes_process_verified'),
+                           _title=T("Create credit invoices")))
+            links.append('divider')
+            # Process between dates
+            links.append(A(os_gui.get_fa_icon('fa-calendar-o'), T('Verified classes between dates'),
+                           _href='teacher_payment_classes_process_choose_dates',
+                           _title=T("Choose which verified classes to process")))
+
+            tools = os_gui.get_dropdown_menu(
+                links=links,
+                btn_text=T('Process'),
+                btn_size='btn-sm',
+                btn_class='btn-primary',
+                btn_icon='actions',
+                menu_class='btn-group pull-right')
 
         table = tpc.get_verified(
             formatted=True
         )
+
     elif status == 'processed':
         table = tpc.get_processed(
             formatted=True
@@ -1312,6 +1324,7 @@ def teacher_payment_classes():
         content=content,
         header_tools=tools
     )
+
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('create', 'teachers_payment_classes'))
@@ -1473,3 +1486,77 @@ def teachers_payment_classes_process_verified():
     )
 
     redirect(URL('teacher_payment_classes', vars={'status': 'processed'}))
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('create', 'invoices'))
+def teacher_payment_classes_process_choose_dates():
+    """
+    :return: None
+    """
+    from openstudio.os_teachers_payment_classes import TeachersPaymentClasses
+    from general_helpers import set_form_id_and_get_submit_button
+
+    response.title = T('Teacher payments')
+    response.subtitle = T('Process verified')
+    response.view = 'general/only_content.html'
+
+    # Add some explanation
+    content = DIV(
+        B(T("Choose a period within which to process verified classes.")), BR(), BR(),
+    )
+
+    return_url = URL('teacher_payment_classes', vars={'status': 'not_verified'})
+
+    # choose period and then do something
+    form = SQLFORM.factory(
+        Field('Startdate', 'date', required=True,
+            requires=IS_DATE_IN_RANGE(format=DATE_FORMAT,
+                                      minimum=datetime.date(1900,1,1),
+                                      maximum=datetime.date(2999,1,1)),
+            represent=represent_date,
+            default=datetime.date(TODAY_LOCAL.year,
+                                  TODAY_LOCAL.month,
+                                  1),
+            label=T("Start date"),
+            widget=os_datepicker_widget),
+        Field('Enddate', 'date', required=False,
+            requires=IS_EMPTY_OR(IS_DATE_IN_RANGE(format=DATE_FORMAT,
+                                  minimum=datetime.date(1900,1,1),
+                                  maximum=datetime.date(2999,1,1))),
+            represent=represent_date,
+            default=get_last_day_month(TODAY_LOCAL),
+            label=T("End date"),
+            widget=os_datepicker_widget),
+        formstyle='bootstrap3_stacked',
+        submit_button=T("Find")
+    )
+
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
+    form = result['form']
+    submit = result['submit']
+
+    if form.process().accepted:
+        start = form.vars.Startdate
+        end = form.vars.Enddate
+
+        tpc = TeachersPaymentClasses()
+        result = tpc.check_missing(
+            start,
+            end
+        )
+
+        if result['error']:
+            response.flash = result['message']
+        else:
+            session.flash = SPAN(result['message'], ' ', T("Class(es) added to Not verified"))
+            redirect(return_url)
+
+    content.append(form)
+
+    back = os_gui.get_button('back', return_url)
+
+    return dict(content=content,
+                back=back,
+                save=submit)
+
