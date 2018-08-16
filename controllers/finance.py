@@ -1541,7 +1541,7 @@ def teacher_payment_classes_process_choose_dates():
         end = form.vars.Enddate
 
         tpc = TeachersPaymentClasses()
-        result = tpc.check_missing(
+        result = tpc.process_verified(
             start,
             end
         )
@@ -1549,7 +1549,7 @@ def teacher_payment_classes_process_choose_dates():
         if result['error']:
             response.flash = result['message']
         else:
-            session.flash = SPAN(result['message'], ' ', T("Class(es) added to Not verified"))
+            session.flash = SPAN(result['message'], ' ', T("Class(es) processed"))
             redirect(return_url)
 
     content.append(form)

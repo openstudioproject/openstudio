@@ -68,7 +68,12 @@ class TeachersPaymentClasses:
         )
 
 
-    def get_rows(self, status='not_verified', sorting='time', formatted=False):
+    def get_rows(self,
+                 status='not_verified',
+                 sorting='time',
+                 date_from=None,
+                 date_until=None,
+                 formatted=False):
         db = current.db
 
         left = [
@@ -85,6 +90,13 @@ class TeachersPaymentClasses:
             orderby = db.teachers_payment_classes.auth_teacher_id
 
         query = (db.teachers_payment_classes.Status == status)
+
+        if date_from:
+            query &= (db.teachers_payment_classes.ClassDate >= date_from)
+
+        if date_until:
+            query &= (db.teachers_payment_classes.ClassDate <= date_from)
+
         rows = db(query).select(
             db.teachers_payment_classes.ALL,
             db.classes.ALL,
@@ -311,7 +323,7 @@ class TeachersPaymentClasses:
         return updated
 
 
-    def process_verified(self):
+    def process_verified(self, date_from, date_until):
         """
         Create credit invoices for verified classes
         :return:
@@ -326,7 +338,9 @@ class TeachersPaymentClasses:
         rows = self.get_rows(
             status='verified',
             sorting='teacher',
-            formatted=False
+            formatted=False,
+            date_from=date_from,
+            date_until=date_until
         )
 
         previous_teacher = None
@@ -359,8 +373,6 @@ class TeachersPaymentClasses:
 
             previous_teacher = current_teacher
             processed += 1
-
-
 
         # Calculate total
 
