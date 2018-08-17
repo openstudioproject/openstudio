@@ -4885,3 +4885,67 @@ def class_classcard_group_add_get_already_added(clsID):
         ids.append(row.school_classcards_groups_id)
 
     return ids
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'substitution_requests'))
+def substitution_requests():
+    '''
+    Page to accept and decline substitution requests
+    :return:
+    '''
+    response.title = T("Substitution requests")
+    response.subtitle = T("")
+    response.view = 'general/only_content.html'
+
+
+    table = TABLE(_class='table table-hover')
+
+    table.append(THEAD(TR(
+        # TH(),
+        TH(T('Date')),
+        TH(T('Start')),
+        TH(T('Location')),
+        TH(T('Class Type')),
+        TH(T('Teacher Sub')),
+        TH(),  # actions))
+    )))
+    query = (db.classes_otc_sub_avail.classes_otc_id>0)
+    rows = db(query).select(db.classes_otc_sub_avail.classes_otc_id,
+                                                        db.classes_otc_sub_avail.auth_user_id)
+
+    for i, row in enumerate(rows):
+
+
+        row_otc = db.classes_otc(id=row.classes_otc_id)
+
+
+        button = os_gui.get_button('astronaut',
+                                   URL('accept_sub_req',
+                                       vars={'clsID': row.classes_otc_id,
+                                             'teachers_id': row.auth_user_id}),
+                                   title='Accept', _class='pull-right', btn_class='btn-success')
+
+        button += os_gui.get_button('astronaut',
+                                   URL('decline_sub_req',
+                                       vars={'clsID': row.classes_otc_id,
+                                             'teachers_id': row.auth_user_id}),
+                                   title='Decline', _class='pull-right', btn_class='btn-warning')
+
+        teachers_id= db.auth_user(id=row.auth_user_id)
+        tr = TR(
+            # TD(status_marker,
+            #    _class='td_status_marker'),
+            TD(row_otc.ClassDate),
+            TD(row_otc.Starttime),
+            TD(row_otc.school_locations_id),
+            TD(row_otc.school_classtypes_id),
+            TD(teachers_id.display_name),
+            # TD(sub_requested),
+            TD(button)
+        )
+
+        table.append(tr)
+    return dict(content=table)
+
+
