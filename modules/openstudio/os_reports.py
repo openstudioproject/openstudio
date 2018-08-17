@@ -175,6 +175,8 @@ class Reports:
         :param quickstats: boolean
         :return: html table
         """
+        from os_class import Class
+
         T = current.T
         represent_float_as_amount = current.globalenv['represent_float_as_amount']
 
@@ -183,19 +185,6 @@ class Reports:
             date=date,
             quick_stats=quick_stats
         )
-
-        print revenue
-
-        # {'dropin': {'membership': {'count': 0, 'amount': 0}, 'no_membership': {'count': 0, 'amount': 15.0}},
-        #  'complementary': {'count': 0, 'amount': 0},
-        #  'subscriptions': {'2 classes a week for a year': {'count': 1, 'amount': 7.0, 'total': 7.0},
-        #                    '1 class a week ': {'count': 4, 'amount': 7.0, 'total': 28.0},
-        #                    '1 class a week ODS member ': {'count': 2, 'amount': 7.0, 'total': 14.0},
-        #                    '2 classes a week ': {'count': 1, 'amount': 7.0, 'total': 7.0}},
-        #  'classcards': {},
-        #  'trial': {'membership': {'count': 0, 'amount': 0}, 'no_membership': {'count': 0, 'amount': 15.0}},
-        #  'total': {'count': 8, 'amount': 56.0}}
-
 
         header = THEAD(TR(
             TH(T('Type')),
@@ -240,7 +229,7 @@ class Reports:
             )),
         )
 
-        table = TABLE(
+        table_revenue = TABLE(
             header,
             trial_without_membership,
             trial_with_membership,
@@ -254,7 +243,7 @@ class Reports:
             amount = revenue['subscriptions'][s]['amount']
             count = revenue['subscriptions'][s]['count']
 
-            table.append(TR(
+            table_revenue.append(TR(
                 TD(s),
                 TD(represent_float_as_amount(amount)),
                 TD(count),
@@ -266,7 +255,7 @@ class Reports:
             amount = revenue['classcards'][c]['amount']
             count = revenue['classcards'][c]['count']
 
-            table.append(TR(
+            table_revenue.append(TR(
                 TD(c),
                 TD(represent_float_as_amount(amount)),
                 TD(count),
@@ -274,7 +263,7 @@ class Reports:
             ))
 
         # Complementary
-        table.append(TR(
+        table_revenue.append(TR(
             TD(T('Complementary')),
             TD(),
             TD(revenue['complementary']['count']),
@@ -282,64 +271,64 @@ class Reports:
         ))
 
         # Total
-        table.append(TFOOT(TR(
-            TH(),
+        footer = TFOOT(TR(
+            TH(T('Total')),
             TH(),
             TH(revenue['total']['count']),
             TH(represent_float_as_amount(revenue['total']['amount'])),
-        )))
+        ))
+
+        table_revenue.append(footer)
+
+        ##
+        # table total
+        ##
+        cls = Class(clsID, date)
+        teacher_payment = cls.get_teacher_payment()
+        if not teacher_payment['error']:
+            tp_amount = teacher_payment['data']['ClassRate']
+            tp_display = represent_float_as_amount(tp_amount)
+        else:
+            tp_amount = 0
+            tp_display = teacher_payment['data']
+
+        header = THEAD(TR(
+            TH(T('Description')),
+            TH(T('Amount')),
+        ))
+
+        attendance = TR(
+            TD(T('Attendance')),
+            TD(represent_float_as_amount(revenue['total']['amount']))
+        )
+
+        teacher_payment = TR(
+            TD(T('Teacher payment')),
+            TD(tp_display)
+        )
+
+        total = represent_float_as_amount(revenue['total']['amount'] - tp_amount)
+        footer = TR(
+            TH(T('Total')),
+            TH(total)
+        )
+
+        table_total = TABLE(
+            header,
+            attendance,
+            teacher_payment,
+            footer,
+            _class='table table-striped table-hover'
+        )
 
 
-        return table
-
-
-# {Object.keys(revenue.classcards).sort().map((key, index) = >
-# < tr
-# key = {v4()} >
-#       < td > {key} < / td >
-#                        < td > {currency_symbol}
-# {' '}
-# {revenue.classcards[key].amount.toFixed(2)} < / td >
-#                                                 < td > {revenue.classcards[key].count} < / td >
-#                                                                                            < td > {currency_symbol}
-# {' '}
-# {revenue.classcards[key].total.toFixed(2)} < / td >
-#                                                < / tr >
-# )}
-# {Object.keys(revenue.subscriptions).sort().map((key, index) = >
-# < tr
-# key = {v4()} >
-#       < td > {key} < / td >
-#                        < td > {currency_symbol}
-# {' '}
-# {revenue.subscriptions[key].amount.toFixed(2)} < / td >
-#                                                    < td > {revenue.subscriptions[key].count} < / td >
-#                                                                                                  < td > {
-#                                                                                                  currency_symbol}
-# {' '}
-# {revenue.subscriptions[key].total.toFixed(2)} < / td >
-#                                                   < / tr >
-# )}
-#
-# < / tbody >
-# < tfoot >
-# < tr >
-# < th > {intl.formatMessage({id: "app.general.strings.total"})} < / th >
-# < th > < / th >
-# < th > {revenue.total.count} < / th >
-# < th > {currency_symbol}
-# {' '}
-# {revenue.total.amount.toFixed(2)} < / th >
-# < / tr >
-# < / tfoot >
-# < / table >
-# < / div >
-# < / div >
-#
-# export
-# default
-# RevenueList
-
+        return DIV(
+            DIV(H4(T('Revenue')),
+                table_revenue, _class='col-md-6'),
+            DIV(H4(T('Total')),
+                table_total, _class='col-md-6'),
+            _class='row'
+        )
 
 
     def get_class_revenue_rows(self, clsID, date):
