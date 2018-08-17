@@ -186,6 +186,16 @@ class Reports:
 
         print revenue
 
+        # {'dropin': {'membership': {'count': 0, 'amount': 0}, 'no_membership': {'count': 0, 'amount': 15.0}},
+        #  'complementary': {'count': 0, 'amount': 0},
+        #  'subscriptions': {'2 classes a week for a year': {'count': 1, 'amount': 7.0, 'total': 7.0},
+        #                    '1 class a week ': {'count': 4, 'amount': 7.0, 'total': 28.0},
+        #                    '1 class a week ODS member ': {'count': 2, 'amount': 7.0, 'total': 14.0},
+        #                    '2 classes a week ': {'count': 1, 'amount': 7.0, 'total': 7.0}}, 'classcards': {},
+        #  'trial': {'membership': {'count': 0, 'amount': 0}, 'no_membership': {'count': 0, 'amount': 15.0}},
+        #  'total': {'count': 8, 'amount': 56.0}}
+
+
         header = THEAD(TR(
             TH(T('Type')),
             TH(T('Amount')),
@@ -202,9 +212,41 @@ class Reports:
             )),
         )
 
+        trial_with_membership =  TR(
+            TD(T('Trial with membership')),
+            TD(represent_float_as_amount(revenue['trial']['membership']['amount'])),
+            TD(revenue['trial']['membership']['count']),
+            TD(represent_float_as_amount(
+                revenue['trial']['membership']['amount'] * revenue['trial']['membership']['count']
+            )),
+        )
+
+        dropin_without_membership = TR(
+            TD(T('Drop-in without membership')),
+            TD(represent_float_as_amount(revenue['dropin']['no_membership']['amount'])),
+            TD(revenue['dropin']['no_membership']['count']),
+            TD(represent_float_as_amount(
+                revenue['dropin']['no_membership']['amount'] * revenue['dropin']['no_membership']['count']
+            )),
+        )
+
+        dropin_with_membership =  TR(
+            TD(T('Drop-in with membership')),
+            TD(represent_float_as_amount(revenue['dropin']['membership']['amount'])),
+            TD(revenue['dropin']['membership']['count']),
+            TD(represent_float_as_amount(
+                revenue['dropin']['membership']['amount'] * revenue['dropin']['membership']['count']
+            )),
+        )
+        
+        
+
         table = TABLE(
             header,
             trial_without_membership,
+            trial_with_membership,
+            dropin_without_membership,
+            dropin_with_membership,
             _class='table table-striped table-hover'
         )
 
