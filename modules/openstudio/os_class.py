@@ -540,8 +540,10 @@ class Class:
             error = True
             data = T("No customers attending this class")
         else:
-            teacher = Teacher(teachers['teacher'])
-            teacher_id = teachers['teacher']
+            teacher_id = teachers['teacher'].id
+            teacher = Teacher(teacher_id)
+
+            #print teacher_id
 
             if tprt == 'fixed':
                 # Get rate for this teacher
@@ -636,7 +638,7 @@ class Class:
                     elif tpc and tpalst and rate:
                         tpc.AttendanceCount = attendance_count
                         tpc.ClassRate = rate
-                        tpc.auth_teacher_id = teacher_id,
+                        tpc.auth_teacher_id = teacher_id
                         tpc.RateType = 'attendance'
                         tpc.teachers_payment_attendance_list_id = list.id
                         tpc.tax_rates_id = tax_rates_id

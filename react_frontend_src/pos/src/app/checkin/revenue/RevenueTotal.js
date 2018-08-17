@@ -41,7 +41,7 @@ const RevenueTotal = ({revenue, teacher_payment, teacher_payment_verifying, intl
                         <td>{intl.formatMessage({ id:"app.general.strings.teacher_payment" })}</td>
                         <td>{ (teacher_payment.status === 'error') ? 
                                 <span className="text-red"> { teacher_payment.data } </span> : 
-                                currency_symbol +  ' ' + teacher_payment.data.Amount.toFixed(2) }
+                                currency_symbol +  ' ' + teacher_payment.data.ClassRate.toFixed(2) }
                         </td>
                     </tr>
                 </tbody>
@@ -49,7 +49,7 @@ const RevenueTotal = ({revenue, teacher_payment, teacher_payment_verifying, intl
                     <tr>
                         <th>{intl.formatMessage({ id:"app.pos.checkin.revenue.total.studio_revenue" })}</th>
                         <th>{currency_symbol} { ' ' } { 
-                            (revenue.total.amount - teacher_payment.data.Amount).toFixed(2) }
+                            (revenue.total.amount - teacher_payment.data.ClassRate).toFixed(2) }
                         </th> 
                     </tr>
                 </tfoot>
