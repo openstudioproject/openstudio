@@ -191,7 +191,8 @@ class Reports:
         #  'subscriptions': {'2 classes a week for a year': {'count': 1, 'amount': 7.0, 'total': 7.0},
         #                    '1 class a week ': {'count': 4, 'amount': 7.0, 'total': 28.0},
         #                    '1 class a week ODS member ': {'count': 2, 'amount': 7.0, 'total': 14.0},
-        #                    '2 classes a week ': {'count': 1, 'amount': 7.0, 'total': 7.0}}, 'classcards': {},
+        #                    '2 classes a week ': {'count': 1, 'amount': 7.0, 'total': 7.0}},
+        #  'classcards': {},
         #  'trial': {'membership': {'count': 0, 'amount': 0}, 'no_membership': {'count': 0, 'amount': 15.0}},
         #  'total': {'count': 8, 'amount': 56.0}}
 
@@ -238,8 +239,6 @@ class Reports:
                 revenue['dropin']['membership']['amount'] * revenue['dropin']['membership']['count']
             )),
         )
-        
-        
 
         table = TABLE(
             header,
@@ -250,62 +249,50 @@ class Reports:
             _class='table table-striped table-hover'
         )
 
+        # subscriptions
+        for s in sorted(revenue['subscriptions']):
+            amount = revenue['subscriptions'][s]['amount']
+            count = revenue['subscriptions'][s]['count']
+
+            table.append(TR(
+                TD(s),
+                TD(represent_float_as_amount(amount)),
+                TD(count),
+                TD(represent_float_as_amount(amount * count))
+            ))
+
+        # class cards
+        for c in sorted(revenue['classcards']):
+            amount = revenue['classcards'][c]['amount']
+            count = revenue['classcards'][c]['count']
+
+            table.append(TR(
+                TD(c),
+                TD(represent_float_as_amount(amount)),
+                TD(count),
+                TD(represent_float_as_amount(amount * count))
+            ))
+
+        # Complementary
+        table.append(TR(
+            TD(T('Complementary')),
+            TD(),
+            TD(revenue['complementary']['count']),
+            TD(),
+        ))
+
+        # Total
+        table.append(TFOOT(TR(
+            TH(),
+            TH(),
+            TH(revenue['total']['count']),
+            TH(represent_float_as_amount(revenue['total']['amount'])),
+        )))
+
+
         return table
 
 
-
-
-#     className = "table" >
-#     < thead >
-#     < tr >
-#     < th > {intl.formatMessage({id: "app.pos.checkin.revenue.list.attendance_type"})} < / th >
-#     < th > {intl.formatMessage({id: "app.general.strings.amount"})} < / th >
-#     < th > {intl.formatMessage({id: "app.general.strings.count"})} < / th >
-#     < th > {intl.formatMessage({id: "app.general.strings.total"})} < / th >
-#
-# < / tr >
-# < / thead >
-# < tbody >
-# < tr >
-# < td > {intl.formatMessage({id: "app.pos.checkin.revenue.list.twom"})} < / td >
-# < td > {currency_symbol}
-# {' '}
-# {revenue.trial.no_membership.amount.toFixed(2)} < / td >
-# < td > {revenue.trial.no_membership.count} < / td >
-# < td > {currency_symbol}
-# {' '}
-# {(revenue.trial.no_membership.amount * revenue.trial.no_membership.count).toFixed(2)} < / td >
-# < / tr >
-# < tr >
-# < td > {intl.formatMessage({id: "app.pos.checkin.revenue.list.twm"})} < / td >
-# < td > {currency_symbol}
-# {' '}
-# {revenue.trial.membership.amount.toFixed(2)} < / td >
-# < td > {revenue.trial.membership.count} < / td >
-# < td > {currency_symbol}
-# {' '}
-# {(revenue.trial.membership.amount * revenue.trial.membership.count).toFixed(2)} < / td >
-# < / tr >
-# < tr >
-# < td > {intl.formatMessage({id: "app.pos.checkin.revenue.list.diwm"})} < / td >
-# < td > {currency_symbol}
-# {' '}
-# {revenue.dropin.no_membership.amount.toFixed(2)} < / td >
-# < td > {revenue.dropin.no_membership.count} < / td >
-# < td > {currency_symbol}
-# {' '}
-# {(revenue.dropin.no_membership.amount * revenue.dropin.no_membership.count).toFixed(2)} < / td >
-# < / tr >
-# < tr >
-# < td > {intl.formatMessage({id: "app.pos.checkin.revenue.list.diwom"})} < / td >
-# < td > {currency_symbol}
-# {' '}
-# {revenue.dropin.membership.amount.toFixed(2)} < / td >
-# < td > {revenue.dropin.membership.count} < / td >
-# < td > {currency_symbol}
-# {' '}
-# {(revenue.dropin.membership.amount * revenue.dropin.membership.count).toFixed(2)} < / td >
-# < / tr >
 # {Object.keys(revenue.classcards).sort().map((key, index) = >
 # < tr
 # key = {v4()} >
