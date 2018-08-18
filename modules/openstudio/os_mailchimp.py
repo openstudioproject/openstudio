@@ -98,7 +98,7 @@ class OsMailChimp():
         """
 
         import hashlib
-        from openstudio import Customer
+        from os_customer import Customer
 
         customer = Customer(cuID)
         subscriber_hash = customer.get_email_hash('md5')
