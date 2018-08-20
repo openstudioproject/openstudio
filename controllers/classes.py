@@ -4909,14 +4909,65 @@ def revenue():
     response.view = 'general/tabs_menu.html'
 
     reports = Reports()
-    revenue=reports.get_class_revenue_summary_formatted(clsID, date)
+    result = reports.get_class_revenue_summary_formatted(clsID, date)
 
-    content = revenue
+    content =  DIV(
+        DIV(H4(T('Revenue')),
+            result['table_revenue'], _class='col-md-6'),
+        DIV(H4(T('Total')),
+            result['table_total'], _class='col-md-6'),
+        _class='row'
+    )
 
-    back = DIV(class_get_back(), classes_get_week_chooser(request.function, clsID, date))
+    export = os_gui.get_button(
+        'download',
+        URL('revenue_export', vars={'clsID':clsID, 'date':date_formatted}),
+        btn_size='',
+        _class='pull-right'
+    )
+
+    back = SPAN(class_get_back(), classes_get_week_chooser(request.function, clsID, date))
     menu = classes_get_menu(request.function, clsID, date_formatted)
 
     return dict(content=content,
                 back=back,
+                tools=export,
                 menu=menu)
 
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'classes_revenue'))
+def revenue_export_preview():
+    from openstudio.os_reports import Reports
+
+
+    clsID = request.vars['clsID']
+    date_formatted = request.vars['date']
+    date = datestr_to_python(DATE_FORMAT, date_formatted)
+
+    reports = Reports()
+
+    return reports._get_class_revenue_summary_pdf_template(clsID, date, quick_stats=True)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'classes_revenue'))
+def revenue_export():
+    """
+
+    :return:
+    """
+    from openstudio.os_reports import Reports
+
+    clsID = request.vars['clsID']
+    date_formatted = request.vars['date']
+    date = datestr_to_python(DATE_FORMAT, date_formatted)
+
+    fname = 'class_revenue.pdf'
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-disposition'] = 'attachment; filename=' + fname
+
+    reports = Reports()
+    stream = reports.get_class_revenue_summary_pdf(clsID, date)
+
+    return stream.getvalue()

@@ -104,7 +104,7 @@ class Reports:
             if row.classes_attendance.AttendanceType is None:
                 # Subscription
                 name = row.school_subscriptions.Name
-                amount = row.school_subscriptions.QuickStatsAmount
+                amount = row.school_subscriptions.QuickStatsAmount or 0
                 if data['subscriptions'].get(name, False):
                     data['subscriptions'][name]['count'] += 1
                     data['subscriptions'][name]['total'] = \
@@ -322,13 +322,81 @@ class Reports:
         )
 
 
-        return DIV(
-            DIV(H4(T('Revenue')),
-                table_revenue, _class='col-md-6'),
-            DIV(H4(T('Total')),
-                table_total, _class='col-md-6'),
-            _class='row'
+        return dict(
+            table_revenue=table_revenue,
+            table_total=table_total
         )
+
+
+    def get_class_revenue_summary_pdf(self, clsID, date, quick_stats=True):
+        """
+        :param clsID: db.classes.id
+        :param date: datetime.date
+        :param quick_stats: bool
+        :return: cStringIO object containing PDF file for summary export
+        """
+        import cStringIO
+        import weasyprint
+
+        html = self.get_class_revenue_summary_pdf_template(clsID, date, quick_stats)
+
+        stream = cStringIO.StringIO()
+        workshop = weasyprint.HTML(string=html).write_pdf(stream)
+
+        return stream
+
+
+    def _get_class_revenue_summary_pdf_template(self, clsID, date, quick_stats=True):
+        """
+            Print friendly display of a Workshop
+        """
+        #TODO: import Class and get name
+
+        get_sys_property = current.globalenv['get_sys_property']
+        response = current.response
+
+        template = get_sys_property('branding_default_template_class_revenue') or 'class_revenue/default.html'
+        template_file = 'templates/' + template
+
+        tables = self.get_class_revenue_summary_formatted(clsID, date)
+
+        html = response.render(template_file,
+                               dict(title=cls.get_name()
+                                    table_revenue=tables['table_revenue'],
+                                    table_total=tables['table_total'],
+                                    logo=self._get_class_revenue_summary_pdf_template_get_logo()))
+
+        return html
+
+
+    def _get_class_revenue_summary_pdf_template_get_logo(self):
+        """
+            Returns logo for pdf template
+        """
+        import os
+
+        request = current.request
+
+        branding_logo = os.path.join(request.folder,
+                                     'static',
+                                     'plugin_os-branding',
+                                     'logos',
+                                     'branding_logo_invoices.png')
+        if os.path.isfile(branding_logo):
+            abs_url = URL('static', 'plugin_os-branding/logos/branding_logo_invoices.png',
+                          scheme=True,
+                          host=True)
+
+            # abs_url = '%s://%s/%s/%s' % (request.env.wsgi_url_scheme,
+            #                              request.env.http_host,
+            #                              'static',
+            #                              'plugin_os-branding/logos/branding_logo_invoices.png')
+            logo_img = IMG(_src=abs_url)
+
+        else:
+            logo_img = ''
+
+        return logo_img
 
 
     def get_class_revenue_rows(self, clsID, date):
