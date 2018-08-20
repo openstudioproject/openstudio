@@ -1,8 +1,95 @@
 <html>
-<body>
-    {{=H3(T("Class report"))}}
-    {{=logo}}
-    {{=table_revenue}} <br>
-    {{=table_total}}
-</body>
+    <head>
+        <style>
+            @page {
+                size: landscape;
+            }
+                
+            body {
+                font-family: sans-serif;
+            }
+
+            #logo {
+                position: fixed;
+                top: 0;
+                right: 0;
+            }
+            
+            #logo img {
+                max-width: 200px;
+                max-height: 146px;
+            }
+            
+            #info {
+                max-width: 70mm;
+                font-size: 13px;
+            }
+            
+            table td,
+            table th {
+                padding: 3px;
+            }
+            
+            table th {
+                text-align: left;
+            }
+            
+            .table {
+                float: left;
+                width: 45%;
+                margin: 0 10mm 0 auto;
+                border-collapse: collapse;
+                font-size: 10px;
+            }
+            
+            .table thead tr th {
+                border-bottom: 2px solid #EAEAEA;
+                color: #777;
+            }
+            
+            .table tbody tr td {
+                border-bottom: 1px solid #EAEAEA;
+            }
+            
+            .table tfoot tr th {
+                border-top: 2px solid #EAEAEA;
+            }
+            
+            .table tbody tr:nth-child(odd) {
+                background-color: #EAEAEA;
+            }
+            
+            .clear {
+                clear: both;
+            }
+            
+            .summary {
+                margin-top: 30px;
+            }
+            
+            
+        </style>
+    </head>    
+    <body>
+        <div id="logo">{{=logo}}</div>
+        {{=H2(T("Class report"))}}
+        <table id="info">
+            <tr>
+                <th>{{=T('Date')}}</th>
+                <td>{{=class_info['date']}}</td>
+            </tr>
+            <tr>
+                <th>{{=T('Teacher')}}</th>
+                <td>{{=class_info['teachers']['teacher']['display_name']}}</td>
+            </tr>
+            <tr>
+                <th>{{=T('Studio')}}</th>
+                <td>{{=class_info['location']}}</td>
+            </tr>
+        </table>
+        <div class='summary clear'>
+            {{=table_revenue}}
+            {{=table_total}}
+        </div>
+    </body>
 </html>

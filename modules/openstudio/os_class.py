@@ -62,6 +62,24 @@ class Class:
         return class_name
 
 
+    def get_info(self):
+        """
+        :return: dict containing class name values
+        """
+        db = current.db
+        T = current.T
+        TIME_FORMAT = current.TIME_FORMAT
+
+        return dict(
+            location = db.school_locations[self.cls.school_locations_id].Name,
+            classtype = db.school_classtypes[self.cls.school_classtypes_id].Name,
+            date = self.date.strftime('%d %B %Y'),
+            start = self.cls.Starttime.strftime(TIME_FORMAT),
+            end = self.cls.Endtime.strftime(TIME_FORMAT),
+            teachers = self.get_teachers()
+        )
+
+
     def get_prices(self):
         """
             Returns the price for a class

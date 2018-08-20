@@ -338,7 +338,7 @@ class Reports:
         import cStringIO
         import weasyprint
 
-        html = self.get_class_revenue_summary_pdf_template(clsID, date, quick_stats)
+        html = self._get_class_revenue_summary_pdf_template(clsID, date, quick_stats)
 
         stream = cStringIO.StringIO()
         workshop = weasyprint.HTML(string=html).write_pdf(stream)
@@ -350,7 +350,7 @@ class Reports:
         """
             Print friendly display of a Workshop
         """
-        #TODO: import Class and get name
+        from os_class import Class
 
         get_sys_property = current.globalenv['get_sys_property']
         response = current.response
@@ -359,9 +359,10 @@ class Reports:
         template_file = 'templates/' + template
 
         tables = self.get_class_revenue_summary_formatted(clsID, date)
+        cls = Class(clsID, date)
 
         html = response.render(template_file,
-                               dict(title=cls.get_name()
+                               dict(class_info = cls.get_info(),
                                     table_revenue=tables['table_revenue'],
                                     table_total=tables['table_total'],
                                     logo=self._get_class_revenue_summary_pdf_template_get_logo()))
