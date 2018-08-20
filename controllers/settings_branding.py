@@ -175,12 +175,18 @@ def default_templates():
     response.subtitle = T("Branding")
     response.view = 'general/tabs_menu.html'
 
+    sprop_t_class_revenue = 'banding_default_template_class_revenue'
     sprop_t_email = 'branding_default_template_email'
     sprop_t_events = 'branding_default_template_events'
+    t_class_revenue = get_sys_property(sprop_t_class_revenue)
     t_email = get_sys_property(sprop_t_email)
     t_events = get_sys_property(sprop_t_events)
 
     form = SQLFORM.factory(
+        Field('t_class_revenue',
+              default=t_class_revenue,
+              requires=IS_IN_SET(default_templates_list_templates('class_revenue')),
+              label=T('Class revenue pdf template')),
         Field('t_email',
               default=t_email,
               requires=IS_IN_SET(default_templates_list_templates('email')),
@@ -205,26 +211,17 @@ def default_templates():
     submit = form.element('input[type=submit]')
 
     if form.accepts(request.vars, session):
-        print 'process template storage'
+        # Check class revenue
+        t_class_revenue = request.vars['t_class_revenue']
+        set_sys_property(sprop_t_class_revenue, t_class_revenue)
+
         # Check email template
         t_email = request.vars['t_email']
-        row = db.sys_properties(Property=sprop_t_email)
-        if not row:
-            db.sys_properties.insert(Property=sprop_t_email,
-                                     PropertyValue=t_email)
-        else:
-            row.PropertyValue = t_email
-            row.update_record()
+        set_sys_property(sprop_t_email, t_email)
 
         # Check events template
         t_events = request.vars['t_events']
-        row = db.sys_properties(Property=sprop_t_events)
-        if not row:
-            db.sys_properties.insert(Property=sprop_t_events,
-                                     PropertyValue=t_events)
-        else:
-            row.PropertyValue = t_events
-            row.update_record()
+        set_sys_property(sprop_t_events, t_events)
 
         session.flash = T('Saved')
         # Clear cache
@@ -247,7 +244,7 @@ def default_templates_list_templates(template_type):
         :param template_type: can be 'email' or 'workshops' for now
         :return: list of files in view/templates/<template_type> folder
     """
-    template_types = ['email', 'invoices', 'events']
+    template_types = ['class_revenue', 'email', 'invoices', 'events']
     if template_type not in template_types:
         return ''
 
