@@ -309,10 +309,10 @@ class Reports:
         )
 
         total = represent_float_as_amount(revenue['total']['amount'] - tp_amount)
-        footer = TR(
+        footer = TFOOT(TR(
             TH(T('Total')),
             TH(total)
-        )
+        ))
 
         table_total = TABLE(
             header,
