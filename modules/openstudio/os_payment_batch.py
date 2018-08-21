@@ -26,10 +26,10 @@ class PaymentBatch:
         :return: None
         """
         if self.row.BatchTypeDescription == 'teacher_payments':
-            self.generate_batch_items_teacher_payments()
+            self._generate_batch_items_teacher_payments()
 
 
-    def generate_batch_items_teacher_payments(self):
+    def _generate_batch_items_teacher_payments(self):
         """
         :return: None
         """
@@ -66,6 +66,9 @@ class PaymentBatch:
                                 db.customers_payment_info.ALL,
                                 left=left,
                                 orderby=db.auth_user.id)
+
+        print rows
+
 
         for row in rows:
             cuID = row.auth_user.id

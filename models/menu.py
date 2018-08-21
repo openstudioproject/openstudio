@@ -460,10 +460,13 @@ def get_backend_menu():
                 submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Invoices'))),
                                 False,
                                 URL('finance', 'invoices', extension='')))
-                submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Teacher payments [BETA]'))),
+
+            if user_helpers.check_read_permission('teachers_payment_classes', user_id):
+                submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Teacher payments'))),
                                 False,
-                                URL('finance', 'teacher_payments_invoices', extension='')))
-                #submenu.append(( SPAN(os_gui.get_fa_icon('fa-file-o'), ' ', T('Invoices')), False, URL('finance', 'invoices') ))
+                                URL('finance', 'teacher_payment_classes',
+                                    vars={'status': 'not_verified'},
+                                    extension='')))
 
             if user_helpers.check_read_permission('payment_batches', user_id):
                 submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Batch collections'))),
@@ -473,19 +476,10 @@ def get_backend_menu():
                                 False,
                                 URL('finance', 'batches_index', vars={'export':'payment'}, extension='')))
 
-                #submenu.append(( SPAN(os_gui.get_fa_icon('fa-th-list'), ' ', T('Batch collections')), False,
-                #      URL('finance', 'batches_index', vars={'export':'collection'}) ))
-                #submenu.append(( SPAN(os_gui.get_fa_icon('fa-th-list'), ' ', T('Batch payments')), False,
-                #          URL('finance', 'batches_index', vars={'export':'payment'}) ))
-
-
             if user_helpers.check_read_permission('reports_direct_debit_extra', user_id):
                 submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Direct debit extra'))),
                                 False,
                                 URL('reports', 'direct_debit_extra', extension='')))
-                # submenu.append((SPAN(os_gui.get_fa_icon('fa-table'), ' ', T('Direct debit extra')),
-                #                 False,
-                #                 URL('reports', 'direct_debit_extra')))
 
             menu += [ ((I(_class=finance_class + ' fa fa-bank', _title=T('Finance')),
                                  SPAN(T('Finance')),

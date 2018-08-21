@@ -1421,10 +1421,10 @@ def test_teachers_payment_travel_delete(client, web2py):
     str_check = 'fa-times'
 
     gid = 2
-    web2py.auth.add_permission(200, 'read', 'teachers_payment_fixed_rate_default', 0)
+    web2py.auth.add_permission(200, 'read', 'teachers_payment_travel', 0)
     web2py.db.commit()
 
-    url = '/teachers/payment_fixed_rate?teID=2'
+    url = '/teachers/payment_travel?teID=2'
     client.get(url)
     assert client.status == 200
     assert str_check not in client.text
