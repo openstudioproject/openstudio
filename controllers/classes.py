@@ -4894,7 +4894,7 @@ def substitution_requests():
     Page to accept and decline substitution requests
     :return:
     '''
-    response.title = T("Substitution requests")
+    response.title = T("Substitution Offers")
     response.subtitle = T("")
     response.view = 'general/only_content.html'
 
@@ -4926,7 +4926,8 @@ def substitution_requests():
         db.classes_otc_sub_avail.ALL,
         db.classes_otc.ALL,
         db.classes.ALL,
-        left=left
+        left=left,
+        orderby=db.classes_otc.ClassDate | db.classes_otc.Starttime
     )
 
     for i, row in enumerate(rows):
@@ -4934,11 +4935,11 @@ def substitution_requests():
 
 
         if row.classes_otc_sub_avail.Accepted == True:
-            Status = 'Accepted'
+            Status = os_gui.get_label('primary', T("Accepted"))
         elif row.classes_otc_sub_avail.Accepted ==False:
-            Status = 'Declined'
+            Status = os_gui.get_label('primary', T("Declined"))
         else:
-            Status = 'Pending'
+            Status = os_gui.get_label('primary', T("Pending"))
         button = os_gui.get_button('astronaut',
                                    URL('accept_sub_req',
                                        vars={
@@ -4974,7 +4975,7 @@ def substitution_requests():
                auth.has_permission('read', 'accept_sub_req'))
 def accept_sub_req():
     saID = request.vars['saID']
-    print saID
+
     # db.classes_otc_sub_avail[saID] = dict(Accepted = true)
     row = db.classes_otc_sub_avail(saID)
     row.Accepted = True
@@ -4984,24 +4985,7 @@ def accept_sub_req():
             (db.classes_otc_sub_avail.id != saID)
     db(query).update(Accepted = False)
 
-
-    # query = (db.classes_otc_sub_avail.classes_otc_id==clsID)
-    # rows = db(query).select(db.classes_otc_sub_avail.id,
-    #                         db.classes_otc_sub_avail.auth_user_id,
-    #                         db.classes_otc_sub_avail.Accepted)
-
-    # for i, row in enumerate(rows):
-    #     # print row
-    #
-    #     if row.auth_user_id == teachers_id:
-    #         print 1
-    #         #
-    #         # db(db.mytable.id == id).update(myfield='somevalue')
-    #         db.classes_otc_sub_avail[row.id] = dict(Accepted='True')
-    #         print row
-    #     elif row.auth_user_id is not teachers_id:
-    #         print 2
-    #         db.classes_otc_sub_avail[row.id] = dict(Accepted = 'False')
+    db.classes_otc[row.classes_otc_id] = dict(Status = None)
 
     redirect(URL('substitution_requests'))
 
