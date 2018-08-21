@@ -1815,7 +1815,6 @@ def define_classes_otc_sub_avail():
         Field('auth_user_id', db.auth_user,
               label=T('Teacher')),
         Field('Accepted', 'boolean',
-              default=False,
               label=T('Accepted'))
                     )
 
