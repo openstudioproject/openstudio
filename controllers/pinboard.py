@@ -347,6 +347,8 @@ def pinboard_get_teacher_upcoming_classes(days=3):
     return upcoming_classes
 
 
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'pinboard'))
 def pinboard_get_teacher_substitution_classes():
     '''
         @return: List classes that need to get subbed
@@ -443,6 +445,8 @@ def pinboard_get_teacher_substitution_classes():
     return upcoming_classes
 
 
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'pinboard'))
 def available_for_sub():
     '''
     adds class and teacher to classes_oct_sub_avail table
@@ -459,6 +463,8 @@ def available_for_sub():
     redirect(URL('index'))
 
 
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'pinboard'))
 def cancel_available_for_sub():
     clsID = request.vars['clsID']
     teachers_id = request.vars['teachers_id']

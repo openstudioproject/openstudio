@@ -4990,6 +4990,8 @@ def accept_sub_req():
     redirect(URL('substitution_requests'))
 
 
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'decline_sub_req'))
 def decline_sub_req():
     saID = request.vars['saID']
 
