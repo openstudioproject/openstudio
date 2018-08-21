@@ -175,7 +175,7 @@ def default_templates():
     response.subtitle = T("Branding")
     response.view = 'general/tabs_menu.html'
 
-    sprop_t_class_revenue = 'banding_default_template_class_revenue'
+    sprop_t_class_revenue = 'branding_default_template_class_revenue'
     sprop_t_email = 'branding_default_template_email'
     sprop_t_events = 'branding_default_template_events'
     t_class_revenue = get_sys_property(sprop_t_class_revenue)
