@@ -19,6 +19,7 @@ from populate_os_tables import populate_school_classcards_groups
 from populate_os_tables import populate_workshop_activity_overlapping_class
 from populate_os_tables import populate_school_subscriptions_groups
 from populate_os_tables import populate_customers_notes
+from populate_os_tables import populate_auth_user_teachers_fixed_rate_default
 
 
 def next_weekday(d, weekday):
@@ -92,6 +93,24 @@ def test_class_edit(client, web2py):
 
     assert data['Maxstudents'] in client.text
     assert web2py.db(web2py.db.classes.Maxstudents == data['Maxstudents']).count() == 1
+
+
+def test_revenue(client, web2py):
+    """
+    Check core data on /classes/revenue
+    """
+    prepare_classes(web2py)
+    populate_auth_user_teachers_fixed_rate_default(web2py)
+
+    url = '/classes/revenue?clsID=1&date=2014-01-06'
+    client.get(url)
+    assert client.status == 200
+
+    prices = web2py.db.classes_price(1)
+    assert format(prices.Trial, '.2f') in client.text
+
+    tp = web2py.db.teachers_payment_fixed_rate_default(1)
+    assert format(tp.ClassRate, '.2f') in client.text
 
 
 def test_schedule(client, web2py):

@@ -1486,7 +1486,9 @@ def populate_school_subscriptions(web2py, membership_required=False):
         SubscriptionUnit = 'week',
         CreditValidity=28, # 4 weeks
         Terms = 'Subscription terms go here and I want to eat a watermelon',
-        SortOrder=0)
+        SortOrder=0,
+        QuickStatsAmount=10
+    )
 
     # 2
     web2py.db.school_subscriptions.insert(
@@ -1496,7 +1498,9 @@ def populate_school_subscriptions(web2py, membership_required=False):
         Classes     = 0,
         CreditValidity=28,  # 4 weeks
         Unlimited   = True,
-        SortOrder=0)
+        SortOrder=0,
+        QuickStatsAmount=15
+    )
 
     # 3
     web2py.db.school_subscriptions.insert(
@@ -1506,7 +1510,8 @@ def populate_school_subscriptions(web2py, membership_required=False):
         Classes            = 1,
         CreditValidity=28,  # 4 weeks
         SubscriptionUnit   = 'month',
-        SortOrder=0
+        SortOrder=0,
+        QuickStatsAmount=17.5
     )
 
     # 4
@@ -1517,7 +1522,8 @@ def populate_school_subscriptions(web2py, membership_required=False):
         Classes=1,
         CreditValidity=28,  # 4 weeks
         SubscriptionUnit=None,
-        SortOrder=0
+        SortOrder=0,
+        QuickStatsAmount=12.5
     )
 
     # 5
@@ -1528,7 +1534,8 @@ def populate_school_subscriptions(web2py, membership_required=False):
         Classes = None,
         CreditValidity=28,  # 4 weeks
         SubscriptionUnit = 'month',
-        SortOrder=0
+        SortOrder=0,
+        QuickStatsAmount=5
     )
 
     ss_one_price = 40
