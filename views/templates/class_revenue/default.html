@@ -8,6 +8,10 @@
             body {
                 font-family: sans-serif;
             }
+            
+            small {
+                color: #777;
+            }
 
             #logo {
                 position: fixed;
@@ -23,6 +27,11 @@
             #info {
                 max-width: 70mm;
                 font-size: 13px;
+            }
+            
+            #info table td,
+            #info table th {
+                padding: 3px 6px 4px 6px;
             }
             
             table td,
@@ -73,7 +82,7 @@
             }
             
             .summary {
-                margin-top: 30px;
+                margin-top: 12px;
             }
             
             
@@ -81,12 +90,8 @@
     </head>    
     <body>
         <div id="logo">{{=logo}}</div>
-        {{=H2(T("Class report"))}}
+        <h2>{{=T("Class report")}} <small>{{=class_info['date'] + ' ' + class_info['start'] + ' ' + class_info['classtype']}}</small></h2>
         <table id="info">
-            <tr>
-                <th>{{=T('Date')}}</th>
-                <td>{{=class_info['date']}}</td>
-            </tr>
             <tr>
                 <th>{{=T('Teacher')}}</th>
                 <td>{{=class_info['teachers']['teacher']['display_name']}}</td>
@@ -94,6 +99,14 @@
             <tr>
                 <th>{{=T('Studio')}}</th>
                 <td>{{=class_info['location']}}</td>
+            </tr>
+            <tr>
+                <th>{{=T('Attendance total')}}</th>
+                <td>{{=revenue['total']['count']}}</td>
+            </tr>
+            <tr>
+                <th>{{=T('Guests')}}</th>
+                <td>{{=revenue['dropin']['no_membership']['count'] + revenue['trial']['no_membership']['count']}}</td>
             </tr>
         </table>
         <div class='summary clear'>
