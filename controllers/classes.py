@@ -4943,7 +4943,7 @@ def revenue_export_preview():
 
     clsID = request.vars['clsID']
     date_formatted = request.vars['date']
-    date = datestr_to_python(DATE_FORMAT, date_formatted)
+    date = datestr_to_python(DATE_FORMAT_ISO8601, date_formatted)
 
     reports = Reports()
 

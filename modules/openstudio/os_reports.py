@@ -351,9 +351,11 @@ class Reports:
         """
             Print friendly display of a Workshop
         """
+        from general_helpers import max_string_length
         from os_class import Class
 
         get_sys_property = current.globalenv['get_sys_property']
+        represent_float_as_amount = current.globalenv['represent_float_as_amount']
         response = current.response
 
         template = get_sys_property('branding_default_template_class_revenue') or 'class_revenue/default.html'
@@ -362,11 +364,16 @@ class Reports:
         tables = self.get_class_revenue_summary_formatted(clsID, date)
         cls = Class(clsID, date)
 
+        teacher_payment = cls.get_teacher_payment()
+
         html = response.render(template_file,
                                dict(class_info = cls.get_info(),
-                                    table_revenue=tables['table_revenue'],
-                                    table_total=tables['table_total'],
-                                    logo=self._get_class_revenue_summary_pdf_template_get_logo()))
+                                    revenue=self.get_class_revenue_summary(clsID, date, quick_stats),
+                                    teacher_payment=teacher_payment,
+                                    logo=self._get_class_revenue_summary_pdf_template_get_logo(),
+                                    max_string_length=max_string_length,
+                                    represent_float_as_amount=represent_float_as_amount,
+                                ))
 
         return html
 
