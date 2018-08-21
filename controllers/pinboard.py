@@ -347,7 +347,7 @@ def pinboard_get_teacher_upcoming_classes(days=3):
     return upcoming_classes
 
 
-def pinboard_get_teacher_substitution_classes(days=90):
+def pinboard_get_teacher_substitution_classes():
     '''
         @return: List classes that need to get subbed
     '''
@@ -358,8 +358,6 @@ def pinboard_get_teacher_substitution_classes(days=90):
         return ''
 
 
-    # date = datetime.date.today()
-    # delta = datetime.timedelta(days=1)
 
     header = THEAD(TR(TH(T('Class date')),
                       TH(T('Time')),
@@ -370,70 +368,68 @@ def pinboard_get_teacher_substitution_classes(days=90):
 
     table = TABLE(header, _class='table table-hover dataTable')
 
+    query = (db.teachers_classtypes.auth_user_id==teachers_id)
+    rows = db(query).select(db.teachers_classtypes.school_classtypes_id)
+    ctIDs= [ row.school_classtypes_id for row in rows]
 
-    # for day in range(0, days):
-    #     cs = ClassSchedule(
-    #         date,
-    #         filter_id_teacher=teachers_id)
-    query = (db.classes_otc.Status=='Open')
-    rows=db(query).select(db.classes_otc.id,
-                          db.classes_otc.classes_id,
-                          db.classes_otc.ClassDate,
-                          db.classes_otc.Starttime,
-                          db.classes_otc.Endtime,
-                          db.classes_otc.school_locations_id,
-                          db.classes_otc.school_classtypes_id)
+
+
+    left = [
+        db.classes.on(
+            db.classes_otc.classes_id == db.classes.id,
+
+        ),
+        db.classes_teachers.on(
+            db.classes_teachers.classes_id == db.classes.id
+        )
+
+    ]
+
+
+    query = ((db.classes_otc.Status=='Open') &\
+             (db.classes_otc.school_classtypes_id.belongs(ctIDs)) &\
+             (db.classes_otc.auth_teacher_id != teachers_id) & \
+             (db.classes_otc.ClassDate >= db.classes_teachers.Startdate) & \
+             (db.classes_otc.ClassDate <= db.classes_teachers.Enddate) & \
+             (db.classes_otc.classes_id == db.classes_teachers.classes_id) & \
+             (db.classes_teachers.auth_teacher_id != teachers_id))
+
+
+
+    rows=db(query).select(
+        db.classes_otc.ALL,
+        left=left,
+        orderby= db.classes.id
+    )
+
 
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
 
-        vis = db.teachers_classtypes(school_classtypes_id=row.school_classtypes_id, auth_user_id=teachers_id)
+        row_avail=db.classes_otc_sub_avail(classes_otc_id=row.id, auth_user_id = teachers_id)
 
+        if not row_avail:
+            button = os_gui.get_button('astronaut',
+                                      URL('available_for_sub',
+                                          vars={'clsID': row.id, 'teachers_id':teachers_id}),
+                                      title='Available', _class='pull-right', btn_class='btn-success')
+        else:
+            button = os_gui.get_button('astronaut',
+                                      URL('cancel_available_for_sub',
+                                          vars={'clsID': row.id, 'teachers_id':teachers_id}),
+                                      title='Cancel', _class='pull-right', btn_class='btn-warning')
+        tr = TR(TD(repr_row.ClassDate),
+                TD(repr_row.Starttime, ' - ', repr_row.Endtime),
+                TD(repr_row.school_locations_id),
+                TD(repr_row.school_classtypes_id),
+                TD(button)
+                )
+        table.append(tr)
+    if not len(rows):
+        table = TABLE(TD("At the moment no substitution required!"),_class='table table-hover dataTable')
 
-
-        if vis :
-            row_avail=db.classes_otc_sub_avail(classes_otc_id=row.id, auth_user_id = teachers_id)
-
-            if not row_avail:
-                button = os_gui.get_button('astronaut',
-                                          URL('available_for_sub',
-                                              vars={'clsID': row.id, 'teachers_id':teachers_id}),
-                                          title='Available', _class='pull-right', btn_class='btn-success')
-            else:
-                button = os_gui.get_button('astronaut',
-                                          URL('cancel_available_for_sub',
-                                              vars={'clsID': row.id, 'teachers_id':teachers_id}),
-                                          title='Cancel', _class='pull-right', btn_class='btn-warning')
-            tr = TR(TD(repr_row.ClassDate),
-                    TD(repr_row.Starttime, ' - ', repr_row.Endtime),
-                    TD(repr_row.school_locations_id),
-                    TD(repr_row.school_classtypes_id),
-                    TD(button)
-                    # TD(teacher),
-                    # TD(teacher2),
-                    # TD(attendance)
-                    )
-            table.append(tr)
-        # attendance = ''
-        # if attendance_permission:
-        #     # attendance = A(T('Attendance'),
-        #     #                _href=URL('classes', 'attendance', vars={'clsID':row.classes.id,
-        #     #                                                         'date':date.strftime(DATE_FORMAT)}))
-        #     attendance = os_gui.get_button('noicon', URL('classes', 'attendance',
-        #                                                vars={'clsID':row.classes.id,
-        #                                                      'date':date.strftime(DATE_FORMAT)}),
-        #                                    title=T('Attendance'),
-        #                                    _class=T('pull-right'))
-
-
-
-
-
-
-        # date += delta
-
-    upcoming_classes = DIV(DIV(H3(T('Classes open to Substitution'), _class="box-title"),
+    upcoming_classes = DIV(DIV(H3(T('Substitute Teacher Requested'), _class="box-title"),
                                DIV(A(I(_class='fa fa-minus'),
                                      _href='#',
                                      _class='btn btn-box-tool',
