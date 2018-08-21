@@ -1270,6 +1270,12 @@ def define_school_subscriptions():
             label=T('Unlimited classes')),
         Field('Terms', 'text',
             label=T('Terms & conditions')),
+        Field('QuickStatsAmount', 'double',
+              label=T('Quick Stats Amount'),
+              default=0,
+              comment=os_gui.get_info_icon(
+                  title=T("As for subscription it's impossible to know the exact revenue for each class until the of the month. This amount will be used to create rough estimates of class revenue."),
+                  btn_icon='info')),
         format=format)
 
 
@@ -1468,6 +1474,30 @@ def define_teachers_payment_fixed_rate_travel():
     )
 
 
+def define_teachers_payment_travel():
+    loc_query = (db.school_locations.Archived == False)
+
+    db.define_table('teachers_payment_travel',
+        Field('auth_teacher_id', db.auth_user,
+              readable=False,
+              writable=False),
+        Field('school_locations_id', db.school_locations, required=True,
+              requires=IS_IN_DB(db(loc_query),
+                                'school_locations.id',
+                                '%(Name)s',
+                                zero=T("Please select...")),
+              represent=lambda value, row: locations_dict.get(value, T("No location")),
+              label=T("Location")),
+        Field('TravelAllowance', 'double',
+              requires=IS_FLOAT_IN_RANGE(0, 99999999, dot='.',
+                                         error_message=T('Too small or too large')),
+              represent=represent_float_as_amount,
+              label=T("Travel Allowance excl. VAT")),
+        Field('tax_rates_id', db.tax_rates,
+            label=T('Tax rate')),
+    )
+
+
 def define_teachers_payment_attendance_lists():
     db.define_table('teachers_payment_attendance_lists',
         Field('Archived', 'boolean',
@@ -1493,7 +1523,7 @@ def define_teachers_payment_attendance_lists_rates():
               writable=False,
               requires=IS_NOT_EMPTY()
               ),
-        Field('AttendanceNR', 'integer',
+        Field('AttendanceCount', 'integer',
               requires=IS_INT_IN_RANGE(0, 999999),
                label = T("Attendance Number"),
               writable=False
@@ -1515,6 +1545,66 @@ def define_teachers_payment_attendance_lists_school_classtypes():
               requires=IS_NOT_EMPTY()),
         Field('school_classtypes_id',
               db.school_classtypes)
+    )
+
+
+def define_teachers_payment_classes():
+    """
+
+    """
+    au_query = (db.auth_user.trashed == False) & \
+               (db.auth_user.teacher == True) & \
+               (db.auth_user.teaches_classes == True)
+
+    db.define_table('teachers_payment_classes',
+        Field('classes_id', db.classes),
+        Field('ClassDate', 'date'),
+        Field('Status',
+              represent=represent_teachers_payment_classes_status,
+              requires=IS_IN_SET(teacher_payment_classes_statuses)),
+        Field('AttendanceCount', 'integer'),
+        Field('auth_teacher_id', db.auth_user,
+            requires=IS_IN_DB(db(au_query),
+                              'auth_user.id',
+                              '%(first_name)s %(last_name)s',
+                              zero=(T('Select teacher...'))),
+            represent=lambda value, row: teachers_dict.get(value, None),
+            #represent=lambda value, row: value or '', # when this is enabled it the schedule returns id's instead of names
+            label=T("Teacher")),
+        Field('auth_teacher_id2', db.auth_user,
+            requires=IS_EMPTY_OR(IS_IN_DB(db(au_query),
+                                          'auth_user.id',
+                                          '%(first_name)s %(last_name)s')),
+            represent=lambda value, row: teachers_dict.get(value, None),
+            #represent=lambda value, row: value or '',
+            label=T("Teacher 2")),
+        Field('ClassRate', 'double',
+              represent=represent_float_as_amount),
+        Field('RateType',
+              readable=False,
+              writable=False,
+              requires=IS_IN_SET(teacher_payment_classes_rate_types),
+              represent=represent_teachers_payment_classes_rate_type,
+              label=T("RateType")),
+        Field('teachers_payment_attendance_list_id', db.teachers_payment_attendance_lists,
+              readable=False,
+              writable=False),
+        Field('tax_rates_id', db.tax_rates,
+              readable=False,
+              writable=False),
+        Field('TravelAllowance', 'double',
+              represent=represent_float_as_amount),
+        Field('tax_rates_id_travel_allowance', db.tax_rates),
+        Field('VerifiedBy', db.auth_user,
+              readable=False,
+              writable=False),
+        Field('VerifiedOn', 'datetime',
+              readable=False,
+              writable=False),
+        Field('UpdatedOn', 'datetime',
+              readable=False,
+              writable=False,
+              compute=lambda row: datetime.datetime.now())
     )
 
 
@@ -2127,6 +2217,10 @@ def define_classes_attendance():
     db.define_table('classes_attendance',
         Field('auth_customer_id', db.auth_user, required=True,
             label=T('CustomerID')),
+        Field('CustomerMembership', 'boolean', # Set to true if customer has membership when checking in
+            readable=False,
+            writable=False,
+            default=False),
         Field('classes_id', db.classes, required=True,
             #represent=lambda value, row: classes_dict.get(value, None),
             represent=lambda value, row: value or '',
@@ -5166,6 +5260,7 @@ def set_datetimeformat():
 
 DATE_FORMATS = set_dateformats()
 DATE_FORMAT = set_dateformat()
+DATE_FORMAT_ISO8601 = '%Y-%m-%d'
 DATE_MASK = set_datemask(DATE_FORMAT)
 TIME_FORMAT = set_timeformat()
 DATETIME_FORMAT = set_datetimeformat()
@@ -5182,6 +5277,7 @@ TODAY_LOCAL = datetime.date(NOW_LOCAL.year, NOW_LOCAL.month, NOW_LOCAL.day)
 
 current.DATE_FORMATS = DATE_FORMATS
 current.DATE_FORMAT = DATE_FORMAT
+current.DATE_FORMAT_ISO8601 = DATE_FORMAT_ISO8601
 current.TIME_FORMAT = TIME_FORMAT
 current.DATETIME_FORMAT = DATETIME_FORMAT
 current.TIMEZONE = TIMEZONE
@@ -5546,10 +5642,11 @@ define_schedule_classes_status()
 # teacher payment definitions (depend on classes and auth_user)
 define_teachers_payment_fixed_rate_default()
 define_teachers_payment_fixed_rate_class()
-define_teachers_payment_fixed_rate_travel()
+define_teachers_payment_travel()
 define_teachers_payment_attendance_lists()
 define_teachers_payment_attendance_lists_rates()
 define_teachers_payment_attendance_lists_school_classtypes()
+define_teachers_payment_classes()
 
 define_customers_subscriptions_credits()
 define_log_customers_accepted_documents()

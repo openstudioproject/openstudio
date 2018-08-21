@@ -6,6 +6,7 @@ import {
 
 import axios_os from '../../../../utils/axios_os'
 import OS_API from '../../../../utils/os_api'
+import { toISODate } from '../../../../utils/date_tools'
 
 // just pass these actions as there's nothing else they need to do
 // Put pass-through actions here
@@ -16,7 +17,12 @@ import OS_API from '../../../../utils/os_api'
 const fetchClasses = () => {
       return dispatch => {
           dispatch(request_classes())
-          axios_os.get(OS_API.CHECKIN_CLASSES)
+
+          const params = new URLSearchParams()
+          const date = new Date()
+          const iso_date = toISODate(date)
+          params.append('date', iso_date)
+          axios_os.post(OS_API.CHECKIN_CLASSES, params)
           .then(function (response) {
             // handle success
             dispatch(receive_classes(response.data))

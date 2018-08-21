@@ -12,6 +12,17 @@ export const receiveUser = (data) =>
         data
     })
 
+export const requestSettings = () =>
+    ({
+        type: T.REQUEST_SETTINGS
+    })
+
+export const receiveSettings = (data) =>
+    ({
+        type: T.RECEIVE_SETTINGS,
+        data
+    })
+
 export const setError = (error) =>
     ({
         type: T.SET_ERROR,

@@ -615,13 +615,15 @@ class OsGui:
                           btn_text,
                           btn_size='',
                           btn_icon='',
+                          btn_class='btn-default',
                           menu_class=''):
         """
             Returns drop down menu with configurable text.
             Links is expected to be a list links
         """
 
-        button = '<button class="btn btn-default '
+        button = '<button class="btn '
+        button += btn_class + ' '
         button += btn_size + ' dropdown-toggle" '
         button += 'type="button" data-toggle="dropdown" '
         button += 'aria-haspopup="true" aria-expanded="true"> '

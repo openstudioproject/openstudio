@@ -386,6 +386,9 @@ class ClassSchedule:
            auth.has_permission('read', 'classes_notes'):
             permissions['classes_notes'] = True
         if auth.has_membership(group_id='Admins') or \
+           auth.has_permission('read', 'classes_revenue'):
+            permissions['classes_revenue'] = True
+        if auth.has_membership(group_id='Admins') or \
            auth.has_permission('create', 'classes_otc'):
             permissions['classes_otc'] = True
         if auth.has_membership(group_id='Admins') or \
@@ -432,6 +435,11 @@ class ClassSchedule:
             links.append(
                 A(os_gui.get_fa_icon('fa-sticky-note-o'), T('Notes'),
                   _href=URL('notes', vars=vars)))
+        # check Revenue permission
+        if permissions.get('classes_revenue', False):
+            links.append(
+                A(os_gui.get_fa_icon('fa-usd'), T('Revenue'),
+                  _href=URL('revenue', vars=vars)))
         # check permissions to change this class
         if permissions.get('classes_otc', False):
             links.append(A(os_gui.get_fa_icon('fa-pencil'),

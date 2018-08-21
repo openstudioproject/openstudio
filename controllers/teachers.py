@@ -17,40 +17,7 @@ def account_get_tools_link_groups(var=None):
     """
     return A(SPAN(os_gui.get_fa_icon('fa-users'), ' ', T('Groups')),
              _href=URL('settings', 'access_groups'),
-             _title=T('Define groups and permission for employees'))
-
-
-def account_get_link_group(row):
-    """
-        This function returns the group a user belongs to and shows it as a link
-        to a page which allows users to change it.
-    """
-    no_group = A(os_gui.get_label('default', T('No group')),
-                 _href=URL('school_properties', 'account_group_add', args=[row.id]))
-
-    if row.id == 1:
-        ret_val = os_gui.get_label('info', "Admins")
-    else:  # check if the user had a group
-        if db(db.auth_membership.user_id == row.id).count() > 0:  # change group
-            query = (db.auth_membership.user_id == row.id)
-            left = [db.auth_group.on(db.auth_group.id ==
-                                     db.auth_membership.group_id)]
-            rows = db(query).select(db.auth_group.ALL,
-                                    db.auth_membership.ALL,
-                                    left=left)
-            for query_row in rows:
-                role = query_row.auth_group.role
-                if 'user' not in role:
-                    ret_val = A(os_gui.get_label('info', role),
-                                _href=URL('school_properties',
-                                          "account_group_edit",
-                                          args=[query_row.auth_membership.id]))
-                else:  # no group added yet
-                    ret_val = no_group
-        else:  # no group added yet
-            ret_val = no_group
-
-    return ret_val
+             _title=T('Define groups and permission for teachers'))
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -66,84 +33,45 @@ def index():
     session.customers_add_back = 'teachers'
     session.settings_groups_back = 'teachers'
 
-    query = (db.auth_user.trashed == False) & \
-            (db.auth_user.teacher == True) & \
-            (db.auth_user.id > 1)
 
-    db.auth_user.id.readable = False
-    db.auth_user.education.readable = False
-    db.auth_user.gender.readable = False
-    db.auth_user.address.readable = False
-    db.auth_user.postcode.readable = False
-    db.auth_user.country.readable = False
-    db.auth_user.country.readable = False
-
-    delete_onclick = "return confirm('" + \
-        T('Remove from teachers list? - This person will still be a customer.') + "');"
-
-    permission = auth.has_membership(group_id='Admins') or \
-                 auth.has_permission('update', 'teachers')
-    if permission:
-        links = [{'header':T('Classes'),
-                  'body':index_get_link_classes},
-                 {'header':T('Events'),
-                  'body':teachers_get_link_workshops},
-                 {'header':T('Group (Permissions)'),
-                  'body':account_get_link_group},
-                 lambda row: A(SPAN(_class="buttontext button",
-                                    _title=T("Class types")),
-                               SPAN(_class="glyphicon glyphicon-edit"),
-                               " " + T("Class types"),
-                               _class="btn btn-default btn-sm",
-                               _href=URL('edit_classtypes',
-                                         vars={'uID':row.id})),
-                 lambda row: A(os_gui.get_fa_icon('fa-usd'),
-                               " " + T("Payments"),
-                               _class="btn btn-default btn-sm",
-                               _href=URL('payment_fixed_rate',
-                                         vars={'teID':row.id})),
-                 lambda row: os_gui.get_button('edit',
-                                    URL('customers', 'edit',
-                                        args=[row.id]),
-                                    T("Edit this teacher")),
-                 lambda row: os_gui.get_button(
-                     'delete_notext',
-                     URL('teachers',
-                         'delete',
-                         vars={'uID':row.id}),
-                     onclick=delete_onclick
-                    )
-                 ]
-    else:
-        links = []
-
-    maxtextlengths = {'auth_user.email' : 40}
-    headers = {'auth_user.display_name' : T('Teacher'),
-               'auth_user.thumbsmall' : ''}
-
-    fields = [ db.auth_user.enabled,
-               db.auth_user.thumbsmall,
-               db.auth_user.trashed,
-               db.auth_user.birthday,
-               db.auth_user.display_name,
-               db.auth_user.teaches_classes,
-               db.auth_user.teaches_workshops ]
-
-    grid = SQLFORM.grid(query,
-                        fields=fields,
-                        links=links,
-                        headers=headers,
-                        create=False,
-                        editable=False,
-                        details=False,
-                        csv=False,
-                        searchable=False,
-                        deletable=False,
-                        maxtextlengths=maxtextlengths,
-                        orderby=db.auth_user.display_name,
-                        ui = grid_ui)
-    grid.element('.web2py_counter', replace=None) # remove the counter
-    grid.elements('span[title=Delete]', replace=None) # remove text from delete button
+    #
+    # db.auth_user.id.readable = False
+    # db.auth_user.education.readable = False
+    # db.auth_user.gender.readable = False
+    # db.auth_user.address.readable = False
+    # db.auth_user.postcode.readable = False
+    # db.auth_user.country.readable = False
+    # db.auth_user.country.readable = False
+    #
+    #
+    #
+    # maxtextlengths = {'auth_user.email' : 40}
+    # headers = {'auth_user.display_name' : T('Teacher'),
+    #            'auth_user.thumbsmall' : ''}
+    #
+    # fields = [ db.auth_user.enabled,
+    #            db.auth_user.thumbsmall,
+    #            db.auth_user.trashed,
+    #            db.auth_user.birthday,
+    #            db.auth_user.display_name,
+    #            db.auth_user.teaches_classes,
+    #            db.auth_user.teaches_workshops ]
+    #
+    # grid = SQLFORM.grid(query,
+    #                     fields=fields,
+    #                     links=links,
+    #                     headers=headers,
+    #                     create=False,
+    #                     editable=False,
+    #                     details=False,
+    #                     csv=False,
+    #                     searchable=False,
+    #                     deletable=False,
+    #                     maxtextlengths=maxtextlengths,
+    #                     orderby=db.auth_user.display_name,
+    #                     ui = grid_ui)
+    # grid.element('.web2py_counter', replace=None) # remove the counter
+    # grid.elements('span[title=Delete]', replace=None) # remove text from delete button
 
     # show back, add and export buttons above teachers list
     back = os_gui.get_button('back', URL('school_properties', 'index'))
@@ -167,7 +95,7 @@ def index():
     tools = index_get_tools()
     header_tools = ''
 
-    content = grid
+    content = index_get_content()
 
     menu = index_get_menu(request.function)
 
@@ -177,6 +105,18 @@ def index():
                 header_tools=header_tools,
                 menu=menu,
                 content=content)
+
+
+def index_get_content(var=None):
+    """
+    :param var: dummy to prevent this being a public function
+    :return: HTML table containing teachers
+    """
+    from openstudio.os_teachers import Teachers
+
+    teachers = Teachers()
+
+    return teachers.list(formatted=True)
 
 
 def index_get_tools(var=None):
@@ -203,30 +143,6 @@ def index_get_tools(var=None):
     return tools
 
 
-def index_get_link_classes(row):
-    """
-        Returns 'yes' if a teacher teaches classes and no if otherwise
-    """
-    if row.teaches_classes:
-        label = os_gui.get_label('success', T('Yes'))
-    else:
-        label = os_gui.get_label('default', T('No'))
-
-    return A(label, _href=URL('teaches_classes', vars={'uID':row.id}))
-
-
-def teachers_get_link_workshops(row):
-    """
-        Returns 'yes' if a teacher teaches workshops and no if otherwise
-    """
-    if row.teaches_workshops:
-        label = os_gui.get_label('success', T('Yes'))
-    else:
-        label = os_gui.get_label('default', T('No'))
-
-    return A(label, _href=URL('teaches_workshops', vars={'uID':row.id}))
-
-
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'teachers'))
 def teaches_classes():
@@ -244,7 +160,7 @@ def teaches_classes():
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'teachers'))
-def teaches_workshops():
+def teaches_events():
     """
         Changes the value of auth_user.teaches_workshops boolean
     """
@@ -403,6 +319,38 @@ def back_index(var=None):
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'teachers_payment_travel'))
+def payment_travel():
+    """
+        Configure travel allowance for teachers
+    """
+    from openstudio.os_customer import Customer
+    from openstudio.os_teacher import Teacher
+
+    teID = request.vars['teID']
+    response.view = 'general/only_content.html'
+
+    customer = Customer(teID)
+    response.title = customer.get_name()
+    response.subtitle = T("Travel allowance")
+
+    teacher = Teacher(teID)
+    content = teacher.get_payment_travel_display()
+
+    add = os_gui.get_button('add',
+                            URL('teachers',
+                                'payment_travel_add',
+                                vars={'teID': teID}),
+                            _class='pull-right')
+
+    back = back_index()
+
+    return dict(content=content,
+                header_tools=add,
+                back=back)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('read', 'teachers_payment_fixed_rate_default'))
 def payment_fixed_rate():
     """
@@ -421,8 +369,7 @@ def payment_fixed_rate():
     teacher = Teacher(teID)
     content = DIV(
         teacher.get_payment_fixed_rate_default_display(),
-        teacher.get_payment_fixed_rate_classes_display(),
-        teacher.get_payment_fixed_rate_travel_display()
+        teacher.get_payment_fixed_rate_classes_display()
     )
 
     back = back_index()
@@ -521,7 +468,7 @@ def payment_fixed_rate_class_add():
 
     db.classes.id.readable = False
     # list of classes
-    grid = customers.classes_add_get_list(date, 'tp_fixed_rate', teID)
+    grid = customers.classes_add_get_list(date, 'tp_fixed_rate')
 
     back = os_gui.get_button('back',
                              URL('payment_fixed_rate',
@@ -617,8 +564,12 @@ def payment_fixed_rate_return_url(teID):
     return URL('payment_fixed_rate', vars={'teID':teID})
 
 
+def payment_travel_return_url(teID):
+    return URL('payment_travel', vars={'teID':teID})
+
+
 @auth.requires_login()
-def payment_fixed_rate_travel_add():
+def payment_travel_add():
     """
         Add travel allowance for a teacher
     """
@@ -633,12 +584,12 @@ def payment_fixed_rate_travel_add():
     response.view = 'general/only_content.html'
 
 
-    db.teachers_payment_fixed_rate_travel.auth_teacher_id.default = teID
-    return_url = payment_fixed_rate_return_url(teID)
+    db.teachers_payment_travel.auth_teacher_id.default = teID
+    return_url = payment_travel_return_url(teID)
 
     os_forms = OsForms()
     result = os_forms.get_crud_form_create(
-        db.teachers_payment_fixed_rate_travel,
+        db.teachers_payment_travel,
         return_url,
     )
 
@@ -651,7 +602,7 @@ def payment_fixed_rate_travel_add():
 
 
 @auth.requires_login()
-def payment_fixed_rate_travel_edit():
+def payment_travel_edit():
     """
         Add travel allowance for a teacher
     """
@@ -666,11 +617,11 @@ def payment_fixed_rate_travel_edit():
     response.subtitle = T("Edit travel allowance")
     response.view = 'general/only_content.html'
 
-    return_url = payment_fixed_rate_return_url(teID)
+    return_url = payment_travel_return_url(teID)
 
     os_forms = OsForms()
     result = os_forms.get_crud_form_update(
-        db.teachers_payment_fixed_rate_travel,
+        db.teachers_payment_travel,
         return_url,
         tpfrtID
     )
@@ -684,8 +635,8 @@ def payment_fixed_rate_travel_edit():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('delete', 'teachers_payment_fixed_rate_travel'))
-def payment_fixed_rate_travel_delete():
+               auth.has_permission('delete', 'teachers_payment_travel'))
+def payment_travel_delete():
     """
     Delete teacher fixed rate travel allowance
     :return: None
@@ -693,11 +644,11 @@ def payment_fixed_rate_travel_delete():
     teID = request.vars['teID']
     tpfrtID = request.vars['tpfrtID']
 
-    query = (db.teachers_payment_fixed_rate_travel.id == tpfrtID)
+    query = (db.teachers_payment_travel.id == tpfrtID)
     db(query).delete()
 
     session.flash = T('Deleted travel allowance')
-    redirect(payment_fixed_rate_return_url(teID))
+    redirect(payment_travel_return_url(teID))
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -1051,7 +1002,11 @@ def payment_attendance_list_archive():
         if row.Archived:
             session.flash = T('Moved to current')
         else:
-            session.flash = T('Archived')
+            # Unlink all classtypes
+            query = (db.teachers_payment_attendance_lists_school_classtypes.teachers_payment_attendance_lists_id == tpalID)
+            db(query).delete()
+
+            session.flash = T('Archived and unlinked all classtypes')
 
         row.Archived = not row.Archived
         row.update_record()
@@ -1092,7 +1047,7 @@ def payment_attendance_list_rates():
 
     query = (db.teachers_payment_attendance_lists_rates.teachers_payment_attendance_lists_id == tpalID)
     rows = db(query).select(db.teachers_payment_attendance_lists_rates.ALL,
-                            orderby=db.teachers_payment_attendance_lists_rates.AttendanceNR)
+                            orderby=db.teachers_payment_attendance_lists_rates.AttendanceCount)
     delete_onclick = "return confirm('" + \
                      T('Remove List Rate? ') + "');"
     for i, row in enumerate(rows):
@@ -1113,7 +1068,7 @@ def payment_attendance_list_rates():
         permission = auth.has_membership(group_id='Admins') or \
                      auth.has_permission('delete', 'teachers_payment_attendance_lists_rates')
         count = payment_attendance_list_count_rates(tpalID)
-        if permission and row.AttendanceNR == count:
+        if permission and row.AttendanceCount == count:
             btn_delete = os_gui.get_button('delete_notext',
                                            URL('payment_attendance_list_rate_delete',
                                                vars=btn_vars),
@@ -1122,7 +1077,7 @@ def payment_attendance_list_rates():
             buttons.append(btn_delete)
 
         tr = TR(
-                TD(row.AttendanceNR),
+                TD(row.AttendanceCount),
                 TD(represent_float_as_amount(row.Rate), _class='Rate'),
                 TD(buttons))
 
@@ -1230,7 +1185,7 @@ def list_rates_get_form_add(tpalID):
     db.teachers_payment_attendance_lists_rates.teachers_payment_attendance_lists_id.default = tpalID
 
     number_of_rates = payment_attendance_list_count_rates(tpalID)
-    db.teachers_payment_attendance_lists_rates.AttendanceNR.default = number_of_rates + 1
+    db.teachers_payment_attendance_lists_rates.AttendanceCount.default = number_of_rates + 1
 
     return_url = URL(vars={'tpalID': tpalID})
 

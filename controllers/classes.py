@@ -75,6 +75,11 @@ def classes_get_menu(page, clsID, date_formatted):
                         T('Notes'),
                        URL('notes', vars=vars) ])
     if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('read', 'classes_revenue'):
+        pages.append([ 'revenue',
+                        T('Revenue'),
+                       URL('revenue', vars=vars) ])
+    if auth.has_membership(group_id='Admins') or \
        auth.has_permission('create', 'classes_otc'):
         pages.append([ 'class_edit_on_date',
                         T('Edit'),
@@ -4885,3 +4890,84 @@ def class_classcard_group_add_get_already_added(clsID):
         ids.append(row.school_classcards_groups_id)
 
     return ids
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'classes_revenue'))
+def revenue():
+    """
+    Quick revenue for a class
+    """
+    from openstudio.os_reports import Reports
+
+    clsID = request.vars['clsID']
+    date_formatted = request.vars['date']
+    date = datestr_to_python(DATE_FORMAT, date_formatted)
+    response.title = T("Class")
+    response.subtitle = get_classname(clsID) + ": " + date_formatted
+
+    response.view = 'general/tabs_menu.html'
+
+    reports = Reports()
+    result = reports.get_class_revenue_summary_formatted(clsID, date)
+
+    content =  DIV(
+        DIV(H4(T('Revenue')),
+            result['table_revenue'], _class='col-md-6'),
+        DIV(H4(T('Total')),
+            result['table_total'], _class='col-md-6'),
+        _class='row'
+    )
+
+    export = os_gui.get_button(
+        'download',
+        URL('revenue_export', vars={'clsID':clsID, 'date':date.strftime(DATE_FORMAT_ISO8601)}),
+        btn_size='',
+        _class='pull-right'
+    )
+
+    back = SPAN(class_get_back(), classes_get_week_chooser(request.function, clsID, date))
+    menu = classes_get_menu(request.function, clsID, date_formatted)
+
+    return dict(content=content,
+                back=back,
+                tools=export,
+                menu=menu)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'classes_revenue'))
+def revenue_export_preview():
+    from openstudio.os_reports import Reports
+
+
+    clsID = request.vars['clsID']
+    date_formatted = request.vars['date']
+    date = datestr_to_python(DATE_FORMAT_ISO8601, date_formatted)
+
+    reports = Reports()
+
+    return reports._get_class_revenue_summary_pdf_template(clsID, date, quick_stats=True)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'classes_revenue'))
+def revenue_export():
+    """
+
+    :return: Date should be supplied as string in ISO 8601 (YYYY-mm-dd)
+    """
+    from openstudio.os_reports import Reports
+
+    clsID = request.vars['clsID']
+    date_formatted = request.vars['date']
+    date = datestr_to_python(DATE_FORMAT_ISO8601, date_formatted)
+
+    fname = 'class_revenue.pdf'
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-disposition'] = 'attachment; filename=' + fname
+
+    reports = Reports()
+    stream = reports.get_class_revenue_summary_pdf(clsID, date)
+
+    return stream.getvalue()

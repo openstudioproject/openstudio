@@ -7,17 +7,9 @@
         "loading": true,
         "loading_message": "Start loading...",
         "loading_progress": 0,
-        "current_page_title": "Welcome sfdsdfsw3jl"
-    },
-    "user": {
-        "loading": false,
-        "loaded": false,
-        "data": {}
-    },
-    "checkin_classes": {
-        "loading": false,
-        "loaded": false,
-        "data": {}
+        "current_page_title": "Welcome",
+        "settings": {},
+        "user": {}
     },
     "checkin_attendance": {
         "loading": false,
@@ -29,5 +21,19 @@
         "loading": false,
         "loaded": false,
         "data": {}
+    },
+    "checkin_classes": {
+        "loading": false,
+        "loaded": false,
+        "data": {}
+    },
+    "checkin_revenue": {
+        "revenue_loaded": false,
+        "revenue_loading": false,
+        "revenue": {},
+        "teacher_payment_loaded": false,
+        "teacher_payment_loading": false,
+        "teacher_payment_verifying": false,
+        "teacher_payment": {}
     }
 }

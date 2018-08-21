@@ -654,10 +654,67 @@ def financial_get_menu(page=None):
               URL('financial_dd_categories')],
              ['financial_payment_methods',
               T('Payment methods'),
-              URL('financial_payment_methods')]
+              URL('financial_payment_methods')],
+             ['financial_teacher_payments',
+              T('Teacher payments'),
+              URL('financial_teacher_payments')]
              ]
 
     return os_gui.get_submenu(pages, page, horizontal=True, htype='tabs')
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'settings'))
+def financial_teacher_payments():
+    """
+        Settings for teacher payments
+    """
+    response.title = T('Financial Settings')
+    response.subtitle = T('Teacher payments')
+    response.view = 'general/tabs_menu.html'
+
+    tprt_property = 'TeacherPaymentRateType'
+    tprt = get_sys_property(tprt_property)
+
+    form = SQLFORM.factory(
+        Field('tprt',
+              requires=IS_IN_SET(teacher_payment_classes_rate_types,
+                                 zero=None),
+              default=tprt,
+              label=T('Teacher Payments Rate type')),
+        submit_button=T("Save"),
+        separator=' ',
+        formstyle='bootstrap3_stacked')
+
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
+    form = result['form']
+    submit = result['submit']
+
+    if form.accepts(request.vars, session):
+        # check rate type
+        set_sys_property(
+            tprt_property,
+            request.vars['tprt']
+        )
+
+        # Clear cache
+        cache_clear_sys_properties()
+        # User feedback
+        session.flash = T('Saved')
+
+        # Clear cache
+        cache_clear_sys_properties()
+        # User feedback
+        session.flash = T('Saved')
+        # reload so the user sees how the values are stored in the db now
+        redirect(URL('financial_teacher_payments'))
+
+    menu = financial_get_menu(request.function)
+
+    return dict(content=DIV(DIV(form, _class="col-md-12"),
+                            _class='row'),
+                menu=menu,
+                save=submit)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
@@ -689,15 +746,9 @@ def financial_currency():
         separator=' ',
         formstyle='bootstrap3_stacked')
 
-    form_id = "MainForm"
-    form_element = form.element('form')
-    form['_id'] = form_id
-
-    elements = form.elements('input, select, textarea')
-    for element in elements:
-        element['_form'] = form_id
-
-    submit = form.element('input[type=submit]')
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
+    form = result['form']
+    submit = result['submit']
 
     if form.accepts(request.vars, session):
         # check currency
@@ -1149,6 +1200,7 @@ def access_group_permissions():
                 ['classes_notes-delete', T("Delete notes")],
                 ['classes_notes_backoffice-read', T("View back office notes")],
                 ['classes_notes_teachers-read', T("View teachers' notes")]]],
+            ['classes_revenue-read', T("View revenue")],
             ['classes_school_subscriptions_groups-read', T("View allowed subscriptions groups"), [
                 ['classes_school_subscriptions_groups-create', T("Add allowed subscriptions groups")],
                 ['classes_school_subscriptions_groups-update', T("Edit allowed subscriptions groups")],
@@ -1225,11 +1277,6 @@ def access_group_permissions():
                         ['teachers_payment_fixed_rate_class-update', T('Edit class specific rates (fixed rate)')],
                         ['teachers_payment_fixed_rate_class-delete', T('Delete class specific rates (fixed rate)')],
                     ]],
-                    ['teachers_payment_fixed_rate_travel-read', T('View travel allowances (fixed rate)'), [
-                        ['teachers_payment_fixed_rate_travel-create', T('Add travel allowance (fixed rate)')],
-                        ['teachers_payment_fixed_rate_travel-update', T('Edit travel allowance (fixed rate)')],
-                        ['teachers_payment_fixed_rate_travel-delete', T('Delete travel allowance (fixed rate)')],
-                    ]],
                 ]],
                 ['teachers_payment_attendance_lists-read', T("View payment rate lists (attendance based)"), [
                     ['teachers_payment_attendance_lists-create', T('Add payment rate lists (attendance based)')],
@@ -1241,7 +1288,12 @@ def access_group_permissions():
                         ['teachers_payment_attendance_lists_rates-delete', T('Delete rates from lists')],
                     ]],
                     ['teachers_payment_attendance_lists_school_classtypes-update', T("Assign list to classtypes")]
-                ]]
+                ]],
+                ['teachers_payment_travel-read', T('View travel allowances'), [
+                    ['teachers_payment_travel-create', T('Add travel allowance')],
+                    ['teachers_payment_travel-update', T('Edit travel allowance')],
+                    ['teachers_payment_travel-delete', T('Delete travel allowance')],
+                ]],
             ]],
             ['employees-read', T("Employees"), [
                 ['employees-create', T("Add employees")],

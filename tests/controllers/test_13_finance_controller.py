@@ -14,13 +14,94 @@ from populate_os_tables import populate_invoices_items
 
 from populate_os_tables import populate_auth_user_teachers_fixed_rate_default
 from populate_os_tables import populate_auth_user_teachers_fixed_rate_class_1
-from populate_os_tables import populate_auth_user_teachers_fixed_rate_travel
+from populate_os_tables import populate_auth_user_teachers_travel
+from populate_os_tables import populate_teachers_payment_attendance_lists_school_classtypes
+from populate_os_tables import populate_teachers_payment_classes
 
 from populate_os_tables import populate_workshops_messages
 from populate_os_tables import populate_customers_with_subscriptions
 
 
 import datetime
+
+
+
+
+def test_teacher_payments_batch_set_status_sent_to_bank_add_payments(client, web2py):
+    """
+        Check if payments are added to invoices when the status of a batch
+        becomes 'sent to bank'
+    """
+    url = '/finance/batch_add?export=payment&what=teacher_invoices'
+    client.get(url)
+    assert client.status == 200
+
+    prepare_classes(web2py)
+    populate_auth_user_teachers_fixed_rate_default(web2py)
+    populate_auth_user_teachers_fixed_rate_class_1(web2py)
+    populate_auth_user_teachers_travel(web2py)
+
+    ##
+    # Create invoices
+    ##
+
+    # Find classes
+    url = '/finance/teacher_payment_find_classes'
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        'Startdate': '2014-01-01',
+        'Enddate': '2014-01-31'
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+    # Verify
+    url = '/finance/teachers_payment_classes_verify_all'
+    client.get(url)
+    assert client.status == 200
+
+    # Process (create invoices)
+    url = '/finance/teachers_payment_classes_process_verified'
+    client.get(url)
+
+
+    # Create batch
+    url = '/finance/batch_add?export=payment&what=teacher_payments'
+    client.get(url)
+    assert client.status == 200
+
+    today = datetime.date.today()
+    data = {
+        'Name': 'Batch3435435',
+        'ColMonth': today.month,
+        'ColYear': today.year,
+        'Exdate': '2099-01-01',
+    }
+    client.post(url, data=data)
+    assert client.status == 200
+
+    # check setting of status 'sent_to_bank'
+    url = '/finance/batch_content_set_status?pbID=1&status=sent_to_bank'
+    client.get(url)
+    assert client.status == 200
+
+    # check if 2 payments have been added
+    assert web2py.db(web2py.db.invoices_payments.id > 0).count() == 1
+
+    ip = web2py.db.invoices_payments(1)
+    assert ip.payment_methods_id == 2
+
+    # check payment amounts
+    sum = web2py.db.invoices_amounts.TotalPriceVAT.sum()
+    invoices_amount = web2py.db().select(sum).first()[sum]
+
+    sum = web2py.db.invoices_payments.Amount.sum()
+    payments_amount = web2py.db().select(sum).first()[sum]
+
+    assert invoices_amount == payments_amount
 
 
 def test_teacher_payments(client, web2py):
@@ -34,151 +115,367 @@ def test_teacher_payments(client, web2py):
     populate_customers(web2py)
     populate_invoices(web2py, teacher_fixed_price_invoices=True)
 
-    url = '/finance/teacher_payments'
+    url = '/finance/teacher_payments_invoices'
     client.get(url)
     assert client.status == 200
 
     assert 'INV1001' in client.text
 
 
-def test_teacher_payments_generate_invoices_choose_month(client, web2py):
+def test_teacher_payment_find_classes_fixed_rate_default(client, web2py):
     """
-        Is the month chooser working like it should?
+    Is the fixed rate applied when finding classes?
     """
-    url = '/finance/teacher_payments_generate_invoices_choose_month'
+    prepare_classes(web2py)
+    populate_auth_user_teachers_fixed_rate_default(web2py)
+
+    url = '/finance/teacher_payment_find_classes'
     client.get(url)
-    assert client.status  == 200
+    assert client.status == 200
 
-    assert 'Create teacher credit invoices for month' in client.text
+    data = {
+        'Startdate': '2014-01-01',
+        'Enddate': '2014-01-31'
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+    assert web2py.db(web2py.db.teachers_payment_classes).count() == 3
+
+    default_rate = web2py.db.teachers_payment_fixed_rate_default(1)
+
+    tpc = web2py.db.teachers_payment_classes(1)
+    assert tpc.ClassDate == datetime.date(2014, 1, 6)
+    assert tpc.classes_id == 1
+    assert tpc.ClassRate == default_rate.ClassRate
+    assert tpc.tax_rates_id == default_rate.tax_rates_id
 
 
-def test_teacher_payments_generate_invoices(client, web2py):
+
+def test_teacher_payment_find_classes_travel_allowance(client, web2py):
     """
-        Are the credit invoices created like they should?
-        Check default rate
-        Check class specific rate
-        Check travel allowance
+    Is the fixed rate applied when finding classes?
+    """
+    prepare_classes(web2py)
+    populate_auth_user_teachers_fixed_rate_default(web2py)
+    populate_auth_user_teachers_travel(web2py)
+
+    url = '/finance/teacher_payment_find_classes'
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        'Startdate': '2014-01-01',
+        'Enddate': '2014-01-31'
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+    assert web2py.db(web2py.db.teachers_payment_classes).count() == 3
+
+    tpc = web2py.db.teachers_payment_classes(1)
+    ta = web2py.db.teachers_payment_travel(1)
+    assert tpc.TravelAllowance == ta.TravelAllowance
+
+
+def test_teacher_payment_find_classes_fixed_rate_class_specific(client, web2py):
+    """
+    Is the fixed rate class specific rate applied when finding classes?
     """
     prepare_classes(web2py)
     populate_auth_user_teachers_fixed_rate_default(web2py)
     populate_auth_user_teachers_fixed_rate_class_1(web2py)
-    populate_auth_user_teachers_fixed_rate_travel(web2py)
 
-    url = '/finance/teacher_payments_generate_invoices_choose_month'
+    url = '/finance/teacher_payment_find_classes'
     client.get(url)
     assert client.status == 200
 
-    today = datetime.date.today()
-
     data = {
-        'month': today.month,
-        'year': today.year
+        'Startdate': '2014-01-01',
+        'Enddate': '2014-01-31'
     }
+
     client.post(url, data=data)
     assert client.status == 200
 
-    # Teacher 2 should have an item with the class specific rate
-    query = (web2py.db.invoices_customers.auth_customer_id == 2)
-    ic = web2py.db(query).select(web2py.db.invoices_customers.ALL).first()
-    invoice = web2py.db.invoices(ic.invoices_id)
+    assert web2py.db(web2py.db.teachers_payment_classes).count() == 3
 
-    assert invoice.TeacherPayment == True
-    assert invoice.TeacherPaymentMonth == data['month']
-    assert invoice.TeacherPaymentYear == data['year']
+    class_rate = web2py.db.teachers_payment_fixed_rate_class(1)
 
-    query = (web2py.db.invoices_items.invoices_id == ic.invoices_id)
-    rows = web2py.db(query).select(web2py.db.invoices_items.ALL)
-    item = rows[0]
-
-    # Check travel allowance
-    tpfrt = web2py.db.teachers_payment_fixed_rate_travel(1)
-    assert item.ProductName == 'Travel allowance'
-    assert item.Price == tpfrt.TravelAllowance * -1
-
-    # Check no travel allowance for consecutive classes
-    item_2 = rows[1]
-    item_3 = rows[2]
-    assert not item_2.ProductName == 'Travel allowance'
-    assert not item_3.ProductName == 'Travel allowance'
-
-    # Check class_specific_rate
-    item_2 = rows[1]
-    tpfrc = web2py.db.teachers_payment_fixed_rate_class(1)
-    assert item_2.Price == tpfrc.ClassRate * -1
+    tpc = web2py.db.teachers_payment_classes(1)
+    assert tpc.ClassDate == datetime.date(2014, 1, 6)
+    assert tpc.classes_id == 1
+    assert tpc.ClassRate == class_rate.ClassRate
+    assert tpc.tax_rates_id == class_rate.tax_rates_id
 
 
-
-    # Check invoice terms & footer
-    ig_1 = web2py.db.invoices_groups(100)
-    assert ig_1.Terms == invoice.Terms
-    assert ig_1.Footer == invoice.Footer
-
-    # Teacher 3 should have an item with the default rate
-    query = (web2py.db.invoices_customers.auth_customer_id == 3)
-    ic = web2py.db(query).select(web2py.db.invoices_customers.ALL).first()
-
-    query = (web2py.db.invoices_items.invoices_id == ic.invoices_id)
-    rows = web2py.db(query).select(web2py.db.invoices_items.ALL)
-    item = rows.first()
-
-    # check default_specific_rate
-    tpfrd = web2py.db.teachers_payment_fixed_rate_default(auth_teacher_id=3)
-    assert item.Price == tpfrd.ClassRate * -1
-
-    # Don't create invoices when they already exist
-    client.post(url, data=data)
-    assert client.status == 200
-
-    query = (web2py.db.invoices.TeacherPayment == True)
-    assert web2py.db(query).count() == 2
-
-
-def test_add_batch_teacher_payment(client, web2py):
+def test_teacher_payment_find_classes_attendance(client, web2py):
     """
-        Can we add a batch for teacher payments?
+    Is the fixed rate applied when finding classes?
     """
     prepare_classes(web2py)
     populate_auth_user_teachers_fixed_rate_default(web2py)
-    populate_auth_user_teachers_fixed_rate_class_1(web2py)
-    populate_auth_user_teachers_fixed_rate_travel(web2py)
+    populate_teachers_payment_attendance_lists_school_classtypes(web2py)
 
-    # Create invoices
-    url = '/finance/teacher_payments_generate_invoices_choose_month'
+    url = '/finance/teacher_payment_find_classes'
     client.get(url)
     assert client.status == 200
 
-    today = datetime.date.today()
+    sprop = web2py.db.sys_properties(Property='TeacherPaymentRateType')
+    sprop.PropertyValue = 'attendance'
+    sprop.update_record()
+    web2py.db.commit()
 
     data = {
-        'month': today.month,
-        'year': today.year
+        'Startdate': '2014-01-01',
+        'Enddate': '2014-01-31'
     }
+
     client.post(url, data=data)
     assert client.status == 200
 
-    url = '/finance/batch_add?export=payment&what=teacher_payments'
+    list = web2py.db.teachers_payment_attendance_lists(1)
+    rate = web2py.db.teachers_payment_attendance_lists_rates(1)
+
+    tpc = web2py.db.teachers_payment_classes(1)
+    assert tpc.ClassDate == datetime.date(2014, 1, 6)
+    assert tpc.classes_id == 1
+    assert tpc.ClassRate == rate.Rate
+    assert tpc.tax_rates_id == list.tax_rates_id
+
+
+def test_teacher_payment_classes_not_verified(client, web2py):
+    """
+
+    """
+    populate_teachers_payment_classes(web2py)
+
+    url = '/finance/teacher_payment_classes?status=not_verified'
     client.get(url)
     assert client.status == 200
 
-    data = {
-        'Name': 'Batch3435435',
-        'ColMonth': today.month,
-        'ColYear': today.year,
-        'Exdate': '2099-01-01',
-    }
-    client.post(url, data=data)
+    tpc = web2py.db.teachers_payment_classes(1)
+    assert str(tpc.ClassDate) in client.text
+    assert format(tpc.ClassRate, '.2f') in client.text
+
+
+def test_teacher_payment_classes_verify(client, web2py):
+    """
+
+    """
+    populate_teachers_payment_classes(web2py)
+
+    url = '/finance/teachers_payment_attendance_class_verify?tpcID=1'
+    client.get(url)
     assert client.status == 200
 
-    invoice_1 = web2py.db.invoices(1)
-    amounts_1 = web2py.db.invoices_amounts(1)
-    pb_item_1 = web2py.db.payment_batches_items(1)
+    query = (web2py.db.teachers_payment_classes.Status == 'verified')
+    assert web2py.db(query).count() == 1
 
-    assert invoice_1.Description == pb_item_1.Description
-    assert amounts_1.TotalPriceVAT == pb_item_1.Amount
 
-    amounts_2 = web2py.db.invoices_amounts(2)
-    pb_item_2 = web2py.db.payment_batches_items(2)
-    assert amounts_2.TotalPriceVAT == pb_item_2.Amount
+def test_teacher_payment_classes_unverify(client, web2py):
+    """
+
+    """
+    populate_teachers_payment_classes(web2py, status='verified')
+
+    url = '/finance/teachers_payment_attendance_class_unverify?tpcID=1'
+    client.get(url)
+    assert client.status == 200
+
+    query = (web2py.db.teachers_payment_classes.Status == 'not_verified')
+    assert web2py.db(query).count() == 1
+
+
+def test_teacher_payment_classes_verify_all(client, web2py):
+    """
+
+    """
+    populate_teachers_payment_classes(web2py)
+
+    query = (web2py.db.teachers_payment_classes.Status == 'not_verified')
+    count_not_verified = web2py.db(query).count()
+
+    url = '/finance/teachers_payment_classes_verify_all'
+    client.get(url)
+    assert client.status == 200
+
+    query = (web2py.db.teachers_payment_classes.Status == 'verified')
+    assert web2py.db(query).count() == count_not_verified
+
+
+def test_teacher_payment_classes_verified(client, web2py):
+    """
+
+    """
+    populate_teachers_payment_classes(web2py, status='verified')
+
+    url = '/finance/teacher_payment_classes?status=verified'
+    client.get(url)
+    assert client.status == 200
+
+    tpc = web2py.db.teachers_payment_classes(1)
+    assert str(tpc.ClassDate) in client.text
+    assert format(tpc.ClassRate, '.2f') in client.text
+
+
+
+def test_teacher_payment_classes_verified(client, web2py):
+    """
+
+    """
+    populate_teachers_payment_classes(web2py, status='processed')
+
+    url = '/finance/teacher_payment_classes?status=processed'
+    client.get(url)
+    assert client.status == 200
+
+    tpc = web2py.db.teachers_payment_classes(1)
+    assert str(tpc.ClassDate) in client.text
+    assert format(tpc.ClassRate, '.2f') in client.text
+
+
+
+
+# def test_teacher_payments_generate_invoices_choose_month(client, web2py):
+#     """
+#         Is the month chooser working like it should?
+#     """
+#     url = '/finance/teacher_payments_generate_invoices_choose_month'
+#     client.get(url)
+#     assert client.status  == 200
+#
+#     assert 'Create teacher credit invoices for month' in client.text
+
+#
+# def test_teacher_payments_generate_invoices(client, web2py):
+#     """
+#         Are the credit invoices created like they should?
+#         Check default rate
+#         Check class specific rate
+#         Check travel allowance
+#     """
+#     prepare_classes(web2py)
+#     populate_auth_user_teachers_fixed_rate_default(web2py)
+#     populate_auth_user_teachers_fixed_rate_class_1(web2py)
+#     populate_auth_user_teachers_travel(web2py)
+#
+#     url = '/finance/teacher_payments_generate_invoices_choose_month'
+#     client.get(url)
+#     assert client.status == 200
+#
+#     today = datetime.date.today()
+#
+#     data = {
+#         'month': today.month,
+#         'year': today.year
+#     }
+#     client.post(url, data=data)
+#     assert client.status == 200
+#
+#     # Teacher 2 should have an item with the class specific rate
+#     query = (web2py.db.invoices_customers.auth_customer_id == 2)
+#     ic = web2py.db(query).select(web2py.db.invoices_customers.ALL).first()
+#     invoice = web2py.db.invoices(ic.invoices_id)
+#
+#     assert invoice.TeacherPayment == True
+#     assert invoice.TeacherPaymentMonth == data['month']
+#     assert invoice.TeacherPaymentYear == data['year']
+#
+#     query = (web2py.db.invoices_items.invoices_id == ic.invoices_id)
+#     rows = web2py.db(query).select(web2py.db.invoices_items.ALL)
+#     item = rows[0]
+#
+#     # Check travel allowance
+#     tpfrt = web2py.db.teachers_payment_travel(1)
+#     assert item.ProductName == 'Travel allowance'
+#     assert item.Price == tpfrt.TravelAllowance * -1
+#
+#     # Check no travel allowance for consecutive classes
+#     item_2 = rows[1]
+#     item_3 = rows[2]
+#     assert not item_2.ProductName == 'Travel allowance'
+#     assert not item_3.ProductName == 'Travel allowance'
+#
+#     # Check class_specific_rate
+#     item_2 = rows[1]
+#     tpfrc = web2py.db.teachers_payment_fixed_rate_class(1)
+#     assert item_2.Price == tpfrc.ClassRate * -1
+#
+#
+#
+#     # Check invoice terms & footer
+#     ig_1 = web2py.db.invoices_groups(100)
+#     assert ig_1.Terms == invoice.Terms
+#     assert ig_1.Footer == invoice.Footer
+#
+#     # Teacher 3 should have an item with the default rate
+#     query = (web2py.db.invoices_customers.auth_customer_id == 3)
+#     ic = web2py.db(query).select(web2py.db.invoices_customers.ALL).first()
+#
+#     query = (web2py.db.invoices_items.invoices_id == ic.invoices_id)
+#     rows = web2py.db(query).select(web2py.db.invoices_items.ALL)
+#     item = rows.first()
+#
+#     # check default_specific_rate
+#     tpfrd = web2py.db.teachers_payment_fixed_rate_default(auth_teacher_id=3)
+#     assert item.Price == tpfrd.ClassRate * -1
+#
+#     # Don't create invoices when they already exist
+#     client.post(url, data=data)
+#     assert client.status == 200
+#
+#     query = (web2py.db.invoices.TeacherPayment == True)
+#     assert web2py.db(query).count() == 2
+
+#TODO Replace by process test
+# def test_add_batch_teacher_payment(client, web2py):
+#     """
+#         Can we add a batch for teacher payments?
+#     """
+#     prepare_classes(web2py)
+#     populate_auth_user_teachers_fixed_rate_default(web2py)
+#     populate_auth_user_teachers_fixed_rate_class_1(web2py)
+#     populate_auth_user_teachers_travel(web2py)
+#
+#     # Create invoices
+#     url = '/finance/teacher_payments_generate_invoices_choose_month'
+#     client.get(url)
+#     assert client.status == 200
+#
+#     today = datetime.date.today()
+#
+#     data = {
+#         'month': today.month,
+#         'year': today.year
+#     }
+#     client.post(url, data=data)
+#     assert client.status == 200
+#
+#     url = '/finance/batch_add?export=payment&what=teacher_payments'
+#     client.get(url)
+#     assert client.status == 200
+#
+#     data = {
+#         'Name': 'Batch3435435',
+#         'ColMonth': today.month,
+#         'ColYear': today.year,
+#         'Exdate': '2099-01-01',
+#     }
+#     client.post(url, data=data)
+#     assert client.status == 200
+#
+#     invoice_1 = web2py.db.invoices(1)
+#     amounts_1 = web2py.db.invoices_amounts(1)
+#     pb_item_1 = web2py.db.payment_batches_items(1)
+#
+#     assert invoice_1.Description == pb_item_1.Description
+#     assert amounts_1.TotalPriceVAT == pb_item_1.Amount
+#
+#     amounts_2 = web2py.db.invoices_amounts(2)
+#     pb_item_2 = web2py.db.payment_batches_items(2)
+#     assert amounts_2.TotalPriceVAT == pb_item_2.Amount
 
 
 def test_batches_index_collection(client, web2py):
@@ -520,68 +817,6 @@ def test_invoices_batch_set_status_sent_to_bank_add_payments(client, web2py):
 
     ip = web2py.db.invoices_payments(1)
     assert ip.payment_methods_id == 3
-
-    # check payment amounts
-    sum = web2py.db.invoices_amounts.TotalPriceVAT.sum()
-    invoices_amount = web2py.db().select(sum).first()[sum]
-
-    sum = web2py.db.invoices_payments.Amount.sum()
-    payments_amount = web2py.db().select(sum).first()[sum]
-
-    assert invoices_amount == payments_amount
-
-
-def test_teacher_payments_batch_set_status_sent_to_bank_add_payments(client, web2py):
-    """
-        Check if payments are added to invoices when the status of a batch
-        becomes 'sent to bank'
-    """
-    url = '/finance/batch_add?export=payment&what=teacher_invoices'
-    client.get(url)
-    assert client.status == 200
-
-    prepare_classes(web2py)
-    populate_auth_user_teachers_fixed_rate_default(web2py)
-    populate_auth_user_teachers_fixed_rate_class_1(web2py)
-    populate_auth_user_teachers_fixed_rate_travel(web2py)
-
-    # Create invoices
-    url = '/finance/teacher_payments_generate_invoices_choose_month'
-    client.get(url)
-    assert client.status == 200
-
-    today = datetime.date.today()
-
-    data = {
-        'month': today.month,
-        'year': today.year
-    }
-    client.post(url, data=data)
-    assert client.status == 200
-
-    url = '/finance/batch_add?export=payment&what=teacher_payments'
-    client.get(url)
-    assert client.status == 200
-
-    data = {
-        'Name': 'Batch3435435',
-        'ColMonth': today.month,
-        'ColYear': today.year,
-        'Exdate': '2099-01-01',
-    }
-    client.post(url, data=data)
-    assert client.status == 200
-
-    # check setting of status 'sent_to_bank'
-    url = '/finance/batch_content_set_status?pbID=1&status=sent_to_bank'
-    client.get(url)
-    assert client.status == 200
-
-    # check if 8 payments have been added
-    assert web2py.db(web2py.db.invoices_payments.id > 0).count() == 2
-
-    ip = web2py.db.invoices_payments(1)
-    assert ip.payment_methods_id == 2
 
     # check payment amounts
     sum = web2py.db.invoices_amounts.TotalPriceVAT.sum()

@@ -448,15 +448,15 @@ def batch_content():
 
 
 def batch_content_get_export(pbID):
-    '''
+    """
     :return: export button for batch content page
-    '''
+    """
     export = os_gui.get_button('download',
                                URL('export_csv', vars={'pbID':pbID}),
                                title=T('Export'))
 
-    dd_button = XML('''<button type="button" class="btn btn-default dropdown-toggle btn-sm" data-toggle="dropdown">
-                       <span class="caret"></span></button>''')
+    dd_button = XML("""<button type="button" class="btn btn-default dropdown-toggle btn-sm" data-toggle="dropdown">
+                       <span class="caret"></span></button>""")
     dd_ul = UL(_class='dropdown-menu dropdown-menu-right', _role='menu')
 
     links = [
@@ -473,10 +473,10 @@ def batch_content_get_export(pbID):
 
 
 def content_items_get_invoices_link(invoices, item):
-    '''
+    """
         Returns add invoice link if none is found,
         otherwise returns link to invoice
-    '''
+    """
     pbiID = item[0]
     cuID  = item[2]
     csID  = item[3]
@@ -494,9 +494,9 @@ def content_items_get_invoices_link(invoices, item):
 
 
 def content_get_status_buttons(pbID):
-    '''
+    """
         Retuns the status buttons for batch content
-    '''
+    """
     pb = db.payment_batches(pbID)
     status = pb.Status
 
@@ -560,9 +560,9 @@ def content_get_status_buttons(pbID):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'payment_batches'))
 def batch_content_set_status():
-    '''
+    """
         Sets the status for a batch
-    '''
+    """
     pbID = request.vars['pbID']
     status = request.vars['status']
 
@@ -631,10 +631,10 @@ def content_add_payments(pb):
 
 @auth.requires_login()
 def batch_edit():
-    '''
+    """
         Shows edit page for a batch
         request.vars['pbID'] is expected to be payment_batches_id
-    '''
+    """
     response.title = T("Edit batch")
     pbID = request.vars['pbID']
     pb = db.payment_batches(pbID)
@@ -813,9 +813,9 @@ def generate_batch_items_category(pbID,
                                   firstdaythismonth,
                                   lastdaythismonth,
                                   currency):
-    '''
+    """
         Generates batch items for a category
-    '''
+    """
     category_id = pb.payment_categories_id
     query = (db.alternativepayments.payment_categories_id == category_id) & \
             (db.alternativepayments.PaymentYear == pb.ColYear) & \
@@ -887,10 +887,10 @@ def generate_batch_items_category(pbID,
 
 
 def get_batch_items_recurring_set(pbID):
-    '''
+    """
     :param pbID: db.paymentbatches.id
     :return: list of auth_user_ids that have been in previous batches
-    '''
+    """
     pb = db.payment_batches(pbID)
 
     query = (db.payment_batches.id < pbID) & \
@@ -911,11 +911,11 @@ def get_batch_items_recurring_set(pbID):
 
 
 def  get_batch_items(pbID, display=False, first=False, recurring=False):
-    '''
+    """
         Returns a list of batch items for a payment batch ( pbID )
         Set display to true, when the result will be displayed on a web page
         The description will get a maximum length in that case
-    '''
+    """
     pb = db.payment_batches(pbID)
 
     if pb.school_locations_id:
@@ -988,9 +988,9 @@ def  get_batch_items(pbID, display=False, first=False, recurring=False):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'payment_batches'))
 def export_csv():
-    '''
+    """
         Exports batch to CSV format
-    '''
+    """
     first = False
     recurring= False
     if request.vars['first']:
@@ -1121,88 +1121,98 @@ def invoices():
                 header_tools=DIV(export, tools))
 
 
+def teacher_payments_get_menu(page, status='not_verified'):
+    pages = [
+        [
+            'teacher_payments_invoices',
+            T('Credit invoices'),
+            URL('teacher_payments_invoices')
+        ]
+    ]
+
+    print status
+
+    if ( auth.has_membership(group_id='Admins') or
+         auth.has_permission('read', 'teachers_payment_classes_attendance') ):
+        pages.append([ 'teacher_payment_classes_processed',
+                       T('Processed'),
+                       URL('teacher_payment_classes', vars={'status': 'processed'}) ])
+        pages.append([ 'teacher_payment_classes_verified',
+                       T('Verified'),
+                       URL('teacher_payment_classes', vars={'status': 'verified'}) ])
+        pages.append([ 'teacher_payment_classes_not_verified',
+                       T('Not verified'),
+                       URL('teacher_payment_classes', vars={'status': 'not_verified'}) ])
+
+
+    return os_gui.get_submenu(pages, page, horizontal=True, htype='tabs')
+
+
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'invoices'))
-def teacher_payments():
+def teacher_payments_invoices():
     """
         List teacher payments invoices by month and add button to add invoices for a
         selected month
     """
     response.title = T('Teacher payments')
     response.subtitle = T('')
-    response.view = 'general/only_content.html'
-
-    add = teacher_payments_get_create_invoices()
+    response.view = 'general/only_content_no_box.html'
 
     invoices = Invoices()
     status_filter = invoices.list_get_status_filter()
     list = invoices.list_invoices(only_teacher_credit_invoices=True)
 
-    content = DIV(status_filter, list)
-
-    return dict(content=content,
-                header_tools=add)
-
-
-def teacher_payments_get_create_invoices(var=None):
-    """
-        :return: html button linking to create teacher credit invoices page
-    """
-    permission = auth.has_membership(group_id='Admins') or \
-                 auth.has_permission('create', 'invoices')
-
-    if permission:
-        add = os_gui.get_button(
-            'noicon',
-            URL('teacher_payments_generate_invoices_choose_month'),
-            title=T('Create invoices'),
-            btn_class='btn-primary',
-            _class='pull-right'
-        )
-    else:
-        add = ''
-
-    return add
-
-
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('create', 'invoices'))
-def teacher_payments_generate_invoices_choose_month():
-    """
-        Choose year and month to create invoices
-    """
-    from openstudio.os_forms import OsForms
-
-    response.title = T('Teacher payments')
-    response.subtitle = T('')
-    response.view = 'general/only_content.html'
-
-    if 'year' in request.vars and 'month' in request.vars:
-        year = int(request.vars['year'])
-        month = int(request.vars['month'])
-        teacher_payments_generate_invoices(year, month)
-        redirect(URL('teacher_payments'))
-
-    os_forms = OsForms()
-    form = os_forms.get_month_year_form(
-        request.vars['year'],
-        request.vars['month'],
-        submit_button = T('Create invoices')
-    )
-
     content = DIV(
-        H4(T('Create teacher credit invoices for month')),
-        DIV(form['form']),
-        _class='col-md-6'
-    )
+        teacher_payments_get_menu(request.function),
+         DIV(DIV(status_filter,
+                 list,
+                  _class='tab-pane active'),
+             _class='tab-content'),
+         _class='nav-tabs-custom')
 
-    back = os_gui.get_button('back', URL('teacher_payments'))
-
-    return dict(content=content,
-                save=form['submit'],
-                back=back)
+    return dict(content=content)
 
 
+# @auth.requires(auth.has_membership(group_id='Admins') or \
+#                auth.has_permission('create', 'invoices'))
+# def teacher_payments_generate_invoices_choose_month():
+#     """
+#         Choose year and month to create invoices
+#     """
+#     from openstudio.os_forms import OsForms
+#
+#     response.title = T('Teacher payments')
+#     response.subtitle = T('')
+#     response.view = 'general/only_content.html'
+#
+#     if 'year' in request.vars and 'month' in request.vars:
+#         year = int(request.vars['year'])
+#         month = int(request.vars['month'])
+#         teacher_payments_generate_invoices(year, month)
+#         redirect(URL('teacher_payments'))
+#
+#     os_forms = OsForms()
+#     form = os_forms.get_month_year_form(
+#         request.vars['year'],
+#         request.vars['month'],
+#         submit_button = T('Create invoices')
+#     )
+#
+#     content = DIV(
+#         H4(T('Create teacher credit invoices for month')),
+#         DIV(form['form']),
+#         _class='col-md-6'
+#     )
+#
+#     back = os_gui.get_button('back', URL('teacher_payments'))
+#
+#     return dict(content=content,
+#                 save=form['submit'],
+#                 back=back)
+
+
+#TODO move code from this function to integrate with attendance based payments
 def teacher_payments_generate_invoices(year, month):
     """
         Actually generate teacher payment credit invoices
@@ -1215,62 +1225,345 @@ def teacher_payments_generate_invoices(year, month):
     if nr_created > 1:
         session.flash.append('s')
 
-#
-# def orders_get_menu_actions(row):
-#     '''
-#         Returns drop down link for orders
-#     '''
-#     coID = row.customers_orders.id
-#     cuID = row.customers_orders.auth_customer_id
-#
-#     vars = {'coID': coID,
-#             'cuID': cuID}
-#
-#     links = []
-#
-#     permission = (auth.has_membership(group_id='Admins') or
-#                   auth.has_permission('update', 'customers_subscriptions'))
-#     if permission:
-#         link_edit = A((os_gui.get_fa_icon('fa-pencil'), T('Edit')),
-#                       _href=URL('finance', 'order', vars={'coID':coID}))
-#         links.append(link_edit)
-#         link_cancel = A((os_gui.get_fa_icon('fa-pencil'), T('Cancel')),
-#                       _href=URL('orders', 'cancel_order', vars={'coID':coID}))
-#         links.append(link_cancel)
-#
-#     permission = (auth.has_membership(group_id='Admins') or
-#                   auth.has_permission('read', 'auth_user'))
-#     if permission:
-#         link_cancel = A((os_gui.get_fa_icon('fa-pencil'), T('Customer')),
-#                       _href=URL('customers', 'edit', args=cuID))
-#         links.append(link_cancel)
-#
-#
-#     menu = os_gui.get_dropdown_menu(
-#         links=links,
-#         btn_text='',
-#         btn_size='btn-sm',
-#         btn_icon='pencil',
-#         menu_class='btn-group')
-#
-#     return menu
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'teachers_payment_attendance'))
+def teacher_payment_classes():
+    """
+
+    :return:
+    """
+    from openstudio.os_teachers_payment_classes import TeachersPaymentClasses
+
+    response.title = T('Teacher payments')
+    response.subtitle = T('')
+    response.view = 'general/only_content_no_box.html'
+
+    status = request.vars['status']
+
+    try:
+        page = int(request.args[0])
+    except IndexError:
+        page = 0
+
+    tpc = TeachersPaymentClasses()
+
+    tools = ''
+    if status == 'not_verified':
+        create_permission = auth.has_membership(group_id='Admins') or \
+                            auth.has_permission('create', 'teachers_payment_classes')
+        update_permission = auth.has_membership(group_id='Admins') or \
+                            auth.has_permission('update', 'teachers_payment_classes')
+
+        verify_all = ''
+        check_classes = ''
+
+        if create_permission:
+            verify_all = os_gui.get_button(
+                'noicon',
+                URL('teachers_payment_classes_verify_all'),
+                title=T("Verify all"),
+                tooltip="Verify all listed classes",
+                btn_class='btn-primary'
+            )
+
+        if update_permission:
+            check_classes = os_gui.get_button(
+                'noicon',
+                URL('teacher_payment_find_classes'),
+                title=T("Find classes"),
+                tooltip=T("Find classes in range of dates that are not yet registered for teacher payment")
+            )
+
+        tools = DIV(
+            check_classes,
+            verify_all,
+        )
+
+        table = tpc.get_not_verified(
+            formatted=True,
+
+        )
+
+    elif status == 'verified':
+        permission = auth.has_membership(group_id='Admins') or \
+                     auth.has_permission('create', 'invoices')
+
+        if permission:
+            links = []
+            # Process all
+            links.append(A(os_gui.get_fa_icon('fa-check'), T("All verified classes"),
+                           _href=URL('teachers_payment_classes_process_verified'),
+                           _title=T("Create credit invoices")))
+            links.append('divider')
+            # Process between dates
+            links.append(A(os_gui.get_fa_icon('fa-calendar-o'), T('Verified classes between dates'),
+                           _href='teacher_payment_classes_process_choose_dates',
+                           _title=T("Choose which verified classes to process")))
+
+            tools = os_gui.get_dropdown_menu(
+                links=links,
+                btn_text=T('Process'),
+                btn_size='btn-sm',
+                btn_class='btn-primary',
+                btn_icon='actions',
+                menu_class='btn-group pull-right')
+
+        table = tpc.get_verified(
+            formatted=True
+        )
+
+    elif status == 'processed':
+        table = tpc.get_processed(
+            formatted=True,
+            page = page
+        )
+
+    content = DIV(
+        teacher_payments_get_menu(request.function + '_' + status, status),
+        DIV(DIV(table,
+                 _class='tab-pane active'),
+            _class='tab-content'),
+        _class='nav-tabs-custom'
+    )
+
+    return dict(
+        content=content,
+        header_tools=tools
+    )
 
 
-# @auth.requires(auth.has_membership(group_id='Admins') or \
-#                auth.has_permission('update', 'customers_orders'))
-# def order():
-#     '''
-#         Display order content
-#     '''
-#     coID = request.vars['coID']
-#
-#     response.title = T("Order #") + coID
-#     response.view = 'general/only_content.html'
-#
-#     content =  LOAD('orders', 'display_order.load', ajax=False,
-#                            vars=request.vars)
-#
-#     back = os_gui.get_button('back', URL('orders'))
-#
-#     return dict(content=content,
-#                 back=back)
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('create', 'teachers_payment_classes'))
+def teacher_payment_find_classes():
+    """
+    :return: None
+    """
+    from openstudio.os_teachers_payment_classes import TeachersPaymentClasses
+    from general_helpers import set_form_id_and_get_submit_button
+
+    response.title = T('Teacher payments')
+    response.subtitle = T('Find classes')
+    response.view = 'general/only_content.html'
+
+    # Add some explanation
+    content = DIV(
+        B(T("Choose a period to check for classes not yet in Not verfied, verified or processed.")), BR(), BR(),
+    )
+
+    return_url = URL('teacher_payment_classes', vars={'status': 'not_verified'})
+
+    # choose period and then do something
+    form = SQLFORM.factory(
+        Field('Startdate', 'date', required=True,
+            requires=IS_DATE_IN_RANGE(format=DATE_FORMAT,
+                                      minimum=datetime.date(1900,1,1),
+                                      maximum=datetime.date(2999,1,1)),
+            represent=represent_date,
+            default=datetime.date(TODAY_LOCAL.year,
+                                  TODAY_LOCAL.month,
+                                  1),
+            label=T("Start date"),
+            widget=os_datepicker_widget),
+        Field('Enddate', 'date', required=False,
+            requires=IS_EMPTY_OR(IS_DATE_IN_RANGE(format=DATE_FORMAT,
+                                  minimum=datetime.date(1900,1,1),
+                                  maximum=datetime.date(2999,1,1))),
+            represent=represent_date,
+            default=get_last_day_month(TODAY_LOCAL),
+            label=T("End date"),
+            widget=os_datepicker_widget),
+        formstyle='bootstrap3_stacked',
+        submit_button=T("Find")
+    )
+
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
+    form = result['form']
+    submit = result['submit']
+
+    if form.process().accepted:
+        start = form.vars.Startdate
+        end = form.vars.Enddate
+
+        tpc = TeachersPaymentClasses()
+        result = tpc.check_missing(
+            start,
+            end
+        )
+
+        if result['error']:
+            response.flash = result['message']
+        else:
+            session.flash = SPAN(result['message'], ' ', T("Class(es) added to Not verified"))
+            redirect(return_url)
+
+    content.append(form)
+
+    back = os_gui.get_button('back', return_url)
+
+    return dict(content=content,
+                back=back,
+                save=submit)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'teachers_payment_classes'))
+def teachers_payment_classes_verify_all():
+    """
+    Verify all not-verified classes
+    :return: None
+    """
+    from openstudio.os_teachers_payment_classes import TeachersPaymentClasses
+
+    tpcs = TeachersPaymentClasses()
+    number_verified = tpcs.verify_all()
+
+    if number_verified:
+        session.flash = T("All not verified classes have been verified")
+    else:
+        session.flash = T("No classes were verified")
+
+    redirect(URL('teacher_payment_classes', vars={'status': 'verified'}))
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'teachers_payment_classes'))
+def teachers_payment_attendance_class_verify():
+    """
+    Verify attendance / payment
+    :return: None
+    """
+    from openstudio.os_teachers_payment_class import TeachersPaymentClass
+
+    tpcID = request.vars['tpcID']
+
+    tpc = TeachersPaymentClass(tpcID)
+    success = tpc.verify()
+
+    if success:
+        session.flash = T("Class verified")
+    else:
+        session.flash = T("Error verifying class")
+
+    redirect(URL('teacher_payment_classes', vars={'status': 'verified'}))
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'teachers_payment_classes'))
+def teachers_payment_attendance_class_unverify():
+    """
+    Verify attendance / payment
+    :return: None
+    """
+    from openstudio.os_teachers_payment_class import TeachersPaymentClass
+
+    tpcID = request.vars['tpcID']
+
+    tpc = TeachersPaymentClass(tpcID)
+    success = tpc.unverify()
+
+    if success:
+        session.flash = T("Class moved to Not verified")
+    else:
+        session.flash = T("Error moving class to Not verified")
+
+    redirect(URL('teacher_payment_classes', vars={'status': 'not_verified'}))
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('create', 'invoices'))
+def teachers_payment_classes_process_verified():
+    """
+    Process verified classes; create credit invoices based on verified classes
+    :return:
+    """
+    from openstudio.os_teachers_payment_classes import TeachersPaymentClasses
+
+    tpc = TeachersPaymentClasses()
+    count_processed = tpc.process_verified()
+
+    classes = T('classes')
+    if count_processed == 1:
+        classes = T("class")
+
+    session.flash = SPAN(
+        T("Processed"), ' ',
+        count_processed, ' ',
+        classes
+    )
+
+    redirect(URL('teacher_payment_classes', vars={'status': 'processed'}))
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('create', 'invoices'))
+def teacher_payment_classes_process_choose_dates():
+    """
+    :return: None
+    """
+    from openstudio.os_teachers_payment_classes import TeachersPaymentClasses
+    from general_helpers import set_form_id_and_get_submit_button
+
+    response.title = T('Teacher payments')
+    response.subtitle = T('Process verified')
+    response.view = 'general/only_content.html'
+
+    # Add some explanation
+    content = DIV(
+        B(T("Choose a period within which to process verified classes.")), BR(), BR(),
+    )
+
+    return_url = URL('teacher_payment_classes', vars={'status': 'not_verified'})
+
+    # choose period and then do something
+    form = SQLFORM.factory(
+        Field('Startdate', 'date', required=True,
+            requires=IS_DATE_IN_RANGE(format=DATE_FORMAT,
+                                      minimum=datetime.date(1900,1,1),
+                                      maximum=datetime.date(2999,1,1)),
+            represent=represent_date,
+            default=datetime.date(TODAY_LOCAL.year,
+                                  TODAY_LOCAL.month,
+                                  1),
+            label=T("Start date"),
+            widget=os_datepicker_widget),
+        Field('Enddate', 'date', required=False,
+            requires=IS_EMPTY_OR(IS_DATE_IN_RANGE(format=DATE_FORMAT,
+                                  minimum=datetime.date(1900,1,1),
+                                  maximum=datetime.date(2999,1,1))),
+            represent=represent_date,
+            default=get_last_day_month(TODAY_LOCAL),
+            label=T("End date"),
+            widget=os_datepicker_widget),
+        formstyle='bootstrap3_stacked',
+        submit_button=T("Find")
+    )
+
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
+    form = result['form']
+    submit = result['submit']
+
+    if form.process().accepted:
+        start = form.vars.Startdate
+        end = form.vars.Enddate
+
+        tpc = TeachersPaymentClasses()
+        result = tpc.process_verified(
+            start,
+            end
+        )
+
+        if result['error']:
+            response.flash = result['message']
+        else:
+            session.flash = SPAN(result['message'], ' ', T("Class(es) processed"))
+            redirect(return_url)
+
+    content.append(form)
+
+    back = os_gui.get_button('back', return_url)
+
+    return dict(content=content,
+                back=back,
+                save=submit)
+
