@@ -548,8 +548,6 @@ class Class:
         error = False
         data = ''
 
-        print self.clsID
-
         teachers = self.get_teachers()
         if teachers['error']:
             error = True
