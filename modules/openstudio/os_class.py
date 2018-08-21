@@ -603,10 +603,10 @@ class Class:
                         )
                         tpc = db.teachers_payment_classes(tpcID)
 
-                    elif tpc and tpalst and rate:
+                    elif tpc and rate:
                         tpc.AttendanceCount = attendance_count
                         tpc.ClassRate = rate
-                        tpc.auth_teacher_id = teacher_id,
+                        tpc.auth_teacher_id = teacher_id
                         tpc.teachers_payment_classes_list_id = None
                         tpc.RateType = 'fixed'
                         tpc.tax_rates_id = tax_rates_id

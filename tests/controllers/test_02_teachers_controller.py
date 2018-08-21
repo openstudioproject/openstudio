@@ -12,7 +12,7 @@ from populate_os_tables import populate_teachers_payment_attendance_lists_rates
 from populate_os_tables import populate_auth_user_teachers
 from populate_os_tables import populate_auth_user_teachers_fixed_rate_default
 from populate_os_tables import populate_auth_user_teachers_fixed_rate_class_1
-from populate_os_tables import populate_auth_user_teachers_fixed_rate_travel
+from populate_os_tables import populate_auth_user_teachers_travel
 from populate_os_tables import prepare_classes
 from populate_os_tables import populate_customers
 from populate_os_tables import populate_tax_rates
@@ -383,7 +383,7 @@ def test_payment_fixed_rate(client, web2py):
     prepare_classes(web2py)
     populate_auth_user_teachers_fixed_rate_default(web2py)
     populate_auth_user_teachers_fixed_rate_class_1(web2py)
-    populate_auth_user_teachers_fixed_rate_travel(web2py)
+    populate_auth_user_teachers_travel(web2py)
 
     next_monday = next_weekday(datetime.date.today(), 0)
 
@@ -397,17 +397,17 @@ def test_payment_fixed_rate(client, web2py):
     class_rate = web2py.db.teachers_payment_fixed_rate_class(1)
     assert unicode(class_rate.ClassRate) in client.text.decode('utf-8')
 
-    travel_allowance = web2py.db.teachers_payment_fixed_rate_travel(1)
+    travel_allowance = web2py.db.teachers_payment_travel(1)
     assert unicode(travel_allowance.TravelAllowance) in client.text.decode('utf-8')
 
 
-def test_payment_fixed_rate_travel_add(client, web2py):
+def test_payment_travel_add(client, web2py):
     """
         Can we add travel allowance for a location?
     """
     prepare_classes(web2py)
 
-    url = '/teachers/payment_fixed_rate_travel_add?teID=2'
+    url = '/teachers/payment_travel_add?teID=2'
     client.get(url)
     assert client.status == 200
 
@@ -420,20 +420,20 @@ def test_payment_fixed_rate_travel_add(client, web2py):
     client.post(url, data=data)
     assert client.status == 200
 
-    row = web2py.db.teachers_payment_fixed_rate_travel(1)
+    row = web2py.db.teachers_payment_travel(1)
     assert row.TravelAllowance == float(data['TravelAllowance'])
     assert row.tax_rates_id == data['tax_rates_id']
     assert row.school_locations_id == 1
 
 
-def test_payment_fixed_rate_travel_edit(client, web2py):
+def test_payment_travel_edit(client, web2py):
     """
         Can we add travel allowance for a location?
     """
     prepare_classes(web2py)
-    populate_auth_user_teachers_fixed_rate_travel(web2py)
+    populate_auth_user_teachers_travel(web2py)
 
-    url = '/teachers/payment_fixed_rate_travel_edit?teID=2&tpfrtID=1'
+    url = '/teachers/payment_travel_edit?teID=2&tpfrtID=1'
     client.get(url)
     assert client.status == 200
 
@@ -447,24 +447,24 @@ def test_payment_fixed_rate_travel_edit(client, web2py):
     client.post(url, data=data)
     assert client.status == 200
 
-    row = web2py.db.teachers_payment_fixed_rate_travel(1)
+    row = web2py.db.teachers_payment_travel(1)
     assert row.TravelAllowance == float(data['TravelAllowance'])
     assert row.tax_rates_id == data['tax_rates_id']
     assert row.school_locations_id == 1
 
 
-def test_payment_fixed_rate_travel_delete(client, web2py):
+def test_payment_travel_delete(client, web2py):
     """
         Can we delete a travel allowance for a location?
     """
     prepare_classes(web2py)
-    populate_auth_user_teachers_fixed_rate_travel(web2py)
+    populate_auth_user_teachers_travel(web2py)
 
-    url = '/teachers/payment_fixed_rate_travel_delete?teID=2&tpfrtID=1'
+    url = '/teachers/payment_travel_delete?teID=2&tpfrtID=1'
     client.get(url)
     assert client.status == 200
 
-    query = (web2py.db.teachers_payment_fixed_rate_travel.id > 0)
+    query = (web2py.db.teachers_payment_travel.id > 0)
     assert web2py.db(query).count() == 0
 
 

@@ -113,6 +113,36 @@ def test_revenue(client, web2py):
     assert format(tp.ClassRate, '.2f') in client.text
 
 
+def test_revenue_export_preview(client, web2py):
+    """
+    Check core data on /classes/revenue_export_preview
+    """
+    prepare_classes(web2py)
+    populate_auth_user_teachers_fixed_rate_default(web2py)
+
+    url = '/classes/revenue_export_preview?clsID=1&date=2014-01-06'
+    client.get(url)
+    assert client.status == 200
+
+    prices = web2py.db.classes_price(1)
+    assert format(prices.Trial, '.2f') in client.text
+
+    tp = web2py.db.teachers_payment_fixed_rate_default(1)
+    assert format(tp.ClassRate, '.2f') in client.text
+
+
+def test_revenue_export(client, web2py):
+    """
+    Check core data on /classes/revenue
+    """
+    prepare_classes(web2py)
+    populate_auth_user_teachers_fixed_rate_default(web2py)
+
+    url = '/classes/revenue_export?clsID=1&date=2014-01-06'
+    client.get(url)
+    assert client.status == 200
+
+
 def test_schedule(client, web2py):
     """
         Is the schedule showing all things as it should?
