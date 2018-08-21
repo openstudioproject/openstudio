@@ -2,7 +2,7 @@ import React from "react"
 
 import ButtonVerify from './ButtonVerify'
 
-const RevenueTotal = ({revenue, teacher_payment, teacher_payment_verifying, intl, currency_symbol,onVerify=f=>f}) => 
+const RevenueTotal = ({revenue, teacher_payment, teacher_payment_verifying, intl, currency_symbol, onVerify=f=>f}) => 
     <div className="box box-solid"> 
         {console.log(revenue)}
         {console.log(teacher_payment)}
@@ -12,11 +12,10 @@ const RevenueTotal = ({revenue, teacher_payment, teacher_payment_verifying, intl
                 <small>
                     { ' ' }
                     { (teacher_payment.data.Status === 'verified') ?
-                        // <span>
-                        //     <i className="text-green fa fa-check"></i> { ' ' }
-                        //     {intl.formatMessage({ id:"app.pos.checkin.revenue.total.verified"})}
-                        // </span> 
-                        '' :
+                        <span>
+                            <i className="text-green fa fa-check"></i> { ' ' }
+                            {intl.formatMessage({ id:"app.pos.checkin.revenue.total.verified"})}
+                        </span> :
                         <span>
                             <i className="text-red fa fa-ban"></i> { ' ' }
                             {intl.formatMessage({ id:"app.pos.checkin.revenue.total.not_verified" })}
@@ -39,7 +38,7 @@ const RevenueTotal = ({revenue, teacher_payment, teacher_payment_verifying, intl
                     </tr>
                     <tr>
                         <td>{intl.formatMessage({ id:"app.general.strings.teacher_payment" })}</td>
-                        <td>{ (teacher_payment.status === 'error') ? 
+                        <td>{ (teacher_payment.error) ? 
                                 <span className="text-red"> { teacher_payment.data } </span> : 
                                 currency_symbol +  ' ' + teacher_payment.data.ClassRate.toFixed(2) }
                         </td>

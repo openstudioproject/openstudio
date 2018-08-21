@@ -176,6 +176,7 @@ class Reports:
         :return: html table
         """
         from os_class import Class
+        from general_helpers import max_string_length
 
         T = current.T
         represent_float_as_amount = current.globalenv['represent_float_as_amount']
@@ -244,7 +245,7 @@ class Reports:
             count = revenue['subscriptions'][s]['count']
 
             table_revenue.append(TR(
-                TD(s),
+                TD(max_string_length(s, 42)),
                 TD(represent_float_as_amount(amount)),
                 TD(count),
                 TD(represent_float_as_amount(amount * count))
@@ -256,7 +257,7 @@ class Reports:
             count = revenue['classcards'][c]['count']
 
             table_revenue.append(TR(
-                TD(c),
+                TD(max_string_length(c, 42)),
                 TD(represent_float_as_amount(amount)),
                 TD(count),
                 TD(represent_float_as_amount(amount * count))

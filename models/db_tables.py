@@ -5260,6 +5260,7 @@ def set_datetimeformat():
 
 DATE_FORMATS = set_dateformats()
 DATE_FORMAT = set_dateformat()
+DATE_FORMAT_ISO8601 = '%Y-%m-%d'
 DATE_MASK = set_datemask(DATE_FORMAT)
 TIME_FORMAT = set_timeformat()
 DATETIME_FORMAT = set_datetimeformat()
@@ -5276,6 +5277,7 @@ TODAY_LOCAL = datetime.date(NOW_LOCAL.year, NOW_LOCAL.month, NOW_LOCAL.day)
 
 current.DATE_FORMATS = DATE_FORMATS
 current.DATE_FORMAT = DATE_FORMAT
+current.DATE_FORMAT_ISO8601 = DATE_FORMAT_ISO8601
 current.TIME_FORMAT = TIME_FORMAT
 current.DATETIME_FORMAT = DATETIME_FORMAT
 current.TIMEZONE = TIMEZONE

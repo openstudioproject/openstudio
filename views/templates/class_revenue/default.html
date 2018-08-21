@@ -57,10 +57,15 @@
                 background-color: #EAEAEA;
             }
             
-            .half-width {
+            .seventy-percent {
                 margin: 0 10mm 0 auto;
                 float: left;
-                width: 45%;
+                width: 65%;
+            }
+            
+            .thirty-percent {
+                float:left;
+                width: 31%;
             }
             
             .clear {
@@ -92,11 +97,11 @@
             </tr>
         </table>
         <div class='summary clear'>
-            <div class="half-width">
+            <div class="seventy-percent">
                 <h4>{{=T("Attendance")}}</h4>
                 {{=table_revenue}}
             </div>
-            <div class="half-width">
+            <div class="thirty-percent">
                 <h4>{{=T("Total")}}</h4>
                 {{=table_total}}
             </div>

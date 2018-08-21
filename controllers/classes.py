@@ -4921,7 +4921,7 @@ def revenue():
 
     export = os_gui.get_button(
         'download',
-        URL('revenue_export', vars={'clsID':clsID, 'date':date_formatted}),
+        URL('revenue_export', vars={'clsID':clsID, 'date':date.strftime(DATE_FORMAT_ISO8601)}),
         btn_size='',
         _class='pull-right'
     )
@@ -4955,13 +4955,13 @@ def revenue_export_preview():
 def revenue_export():
     """
 
-    :return:
+    :return: Date should be supplied as string in ISO 8601 (YYYY-mm-dd)
     """
     from openstudio.os_reports import Reports
 
     clsID = request.vars['clsID']
     date_formatted = request.vars['date']
-    date = datestr_to_python(DATE_FORMAT, date_formatted)
+    date = datestr_to_python(DATE_FORMAT_ISO8601, date_formatted)
 
     fname = 'class_revenue.pdf'
     response.headers['Content-Type'] = 'application/pdf'

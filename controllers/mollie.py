@@ -334,12 +334,8 @@ def create_mollie_customer(auth_user_id, mollie):
             'email': os_customer.row.email
         })
 
-        #print mollie_customer
-
         os_customer.row.mollie_customer_id = mollie_customer['id']
         os_customer.row.update_record()
-
-        #print 'created mollie customer'
 
 
 @auth.requires_login()
