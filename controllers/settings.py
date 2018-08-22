@@ -1294,6 +1294,11 @@ def access_group_permissions():
                     ['teachers_payment_travel-update', T('Edit travel allowance')],
                     ['teachers_payment_travel-delete', T('Delete travel allowance')],
                 ]],
+                ['teachers_payment_classes-read', T('View payment for classes'), [
+                    ['teachers_payment_travel-create', T('Add payment for a class')],
+                    ['teachers_payment_travel-update', T('Edit payment for a class')],
+                    ['teachers_payment_travel-delete', T('Delete payment for a class')],
+                ]],
             ]],
             ['employees-read', T("Employees"), [
                 ['employees-create', T("Add employees")],
