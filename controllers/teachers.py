@@ -1207,7 +1207,7 @@ def index_get_menu(page=None):
     if auth.has_membership(group_id='Admins') or \
             auth.has_permission('read', 'payment_attendance_list'):
         pages.append(['payment_attendance_lists',
-                      T("Payment Attendance Lists [BETA]"),
+                      T("Payment Attendance Lists"),
                       URL("teachers", "payment_attendance_lists")])
 
     return os_gui.get_submenu(pages, page, _id='os-customers_edit_menu', horizontal=True, htype='tabs')
