@@ -1276,6 +1276,10 @@ def define_school_subscriptions():
               comment=os_gui.get_info_icon(
                   title=T("As for subscription it's impossible to know the exact revenue for each class until the of the month. This amount will be used to create rough estimates of class revenue."),
                   btn_icon='info')),
+        Field('RegistrationFee', 'double',
+              label=T('Registration Fee'),
+              default=0,
+              required=False),
         format=format)
 
 
