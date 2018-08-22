@@ -930,7 +930,7 @@ class ClassSchedule:
 
                 row_class = TR(
                     TD(status_marker),
-                    TD(max_string_length(repr_row.classes.school_locations_id, 15)),
+                    TD(max_string_length(repr_row.classes.school_locations_id, 16)),
                     TD(max_string_length(repr_row.classes.school_classtypes_id, 24)),
                     TD(SPAN(repr_row.classes.Starttime, ' - ', repr_row.classes.Endtime)),
                     TD(teacher if (not status == 'open' and
