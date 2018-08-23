@@ -656,7 +656,7 @@ if request.controller == 'shop' or request.controller == 'profile':
         response.logo_url = shop_header_logo_url
 
 elif request.controller == 'ep':
-    request.menu_ep = ep_menu()
+    response.menu = ep_menu()
 
 else:
     if auth.user:
