@@ -81,10 +81,10 @@ def index():
         else:
             session.flash = T('Already up to date')
 
-        if version < 2018.10:
+        if version < 2018.11:
             print version
-            upgrade_to_201810()
-            session.flash = T("Upgraded db to 2018.10")
+            upgrade_to_201811()
+            session.flash = T("Upgraded db to 2018.11")
         else:
             session.flash = T('Already up to date')
 
@@ -414,9 +414,9 @@ def upgrade_to_20188():
     cache.ram.clear(regex='.*')
 
 
-def upgrade_to_201810():
+def upgrade_to_201811():
     """
-        Upgrade operations to 2018.9
+        Upgrade operations to 2018.11
     """
     from openstudio.os_customer import Customer
 
