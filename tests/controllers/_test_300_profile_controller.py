@@ -30,33 +30,34 @@ def next_weekday(d, weekday):
 
 
 
-def test_logout_for_profile(client, web2py):
-    """
-        This is not an actual test, but just logs out the user
-    """
-    url = '/default/user/logout'
-    client.get(url)
-    assert client.status == 200
-
-
-def test_login_profile_user(client, web2py):
-    """
-        Logs in with a user without any permissions by default
-    """
-    setup_profile_tests(web2py)
-
-    data = dict(email='profile@openstudioproject.com',
-                password='password',
-                _formname='login')
-    client.post('/default/user/login', data=data)
-    assert client.status == 200
-    assert '<li class="header">Account</li>' in client.text
+# def test_logout_for_profile(client, web2py):
+#     """
+#         This is not an actual test, but just logs out the user
+#     """
+#     url = '/default/user/logout'
+#     client.get(url)
+#     assert client.status == 200
+#
+#
+# def test_login_profile_user(client, web2py):
+#     """
+#         Logs in with a user without any permissions by default
+#     """
+#     setup_profile_tests(web2py)
+#
+#     data = dict(email='profile@openstudioproject.com',
+#                 password='password',
+#                 _formname='login')
+#     client.post('/default/user/login', data=data)
+#     assert client.status == 200
+#     assert '<li class="header">Account</li>' in client.text
 
 
 def test_index_announcements(client, web2py):
     """
         Are the announcements shown correctly?
     """
+    setup_profile_tests(web2py)
     populate_settings_shop_customers_profile_announcements(web2py)
 
     url = '/profile/index'
@@ -72,11 +73,12 @@ def test_index_memberships(client, web2py):
     """
         Are current memberships on the index page?
     """
+    setup_profile_tests(web2py)
+
     url = '/profile/index'
     client.get(url)
     assert client.status == 200
 
-    setup_profile_tests(web2py)
     populate_customers_with_memberships(web2py)
 
     cm = web2py.db.customers_memberships(1)
@@ -702,12 +704,12 @@ def test_subscription_credits_profile_home(client, web2py):
     """
         Check if subscription credits are displayed on the home page of a profile
     """
+    setup_profile_tests(web2py)
+
     # get the url, for some reason the customers_subscriptions table is empty if not when asserting
     url = '/profile/index'
     client.get(url)
     assert client.status == 200
-
-    setup_profile_tests(web2py)
 
     populate_customers_with_subscriptions(web2py, credits=True)
 
@@ -727,12 +729,12 @@ def test_subscription_unlimited_credits_profile_home(client, web2py):
     """
         Check if subscription credits are displayed on the home page of a profile
     """
+    setup_profile_tests(web2py)
+
     # get the url, for some reason the customers_subscriptions table is empty if not when asserting
     url = '/profile/index'
     client.get(url)
     assert client.status == 200
-
-    setup_profile_tests(web2py)
 
     populate_customers_with_subscriptions(web2py, credits=True)
 
@@ -756,11 +758,12 @@ def test_subscription_info(client, web2py):
     """
         Is the subscription info page showing correctly?
     """
+    setup_profile_tests(web2py)
+
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
 
-    setup_profile_tests(web2py)
     prepare_classes(web2py)
 
     csID = web2py.db.customers_subscriptions.insert(
@@ -792,11 +795,12 @@ def test_events(client, web2py):
     """
         Is the list of workshops showing?
     """
+    setup_profile_tests(web2py)
+
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
 
-    setup_profile_tests(web2py)
     populate_workshops_products_customers(web2py)
 
     wspc = web2py.db.workshops_products_customers(1)
@@ -823,11 +827,12 @@ def test_orders(client, web2py):
     """
         Is the list of orders showing?
     """
+    setup_profile_tests(web2py)
+
     url = '/profile/orders'
     client.get(url)
     assert client.status == 200
 
-    setup_profile_tests(web2py)
     populate_customers_orders(web2py)
     populate_customers_orders_items(web2py)
 
@@ -877,11 +882,12 @@ def test_order_cancel(client, web2py):
     """
         Can we actually cancel an order?
     """
+    setup_profile_tests(web2py)
+
     url = '/profile/orders'
     client.get(url)
     assert client.status == 200
 
-    setup_profile_tests(web2py)
     populate_customers_orders(web2py)
     populate_customers_orders_items(web2py)
 
@@ -899,11 +905,12 @@ def test_invoices(client, web2py):
     """
         Is the list of invoices showing?
     """
+    setup_profile_tests(web2py)
+
     url = '/profile/invoices'
     client.get(url)
     assert client.status == 200
 
-    setup_profile_tests(web2py)
     populate_invoices(web2py)
 
     client.get(url)
@@ -928,12 +935,13 @@ def test_enrollments(client, web2py):
     """
         Are class enrollments listed correctly?
     """
+    setup_profile_tests(web2py)
+
     # get the url, for some reason the customers_subscriptions table is empty if we don't get this first
     url = '/profile/index'
     client.get(url)
     assert client.status == 200
 
-    setup_profile_tests(web2py)
     populate_classes(web2py)
 
     web2py.db.classes_reservation.insert(
@@ -956,12 +964,13 @@ def test_enrollment_end(client, web2py):
     """
         Are class enrollments listed correctly?
     """
+    setup_profile_tests(web2py)
+
     # get the url, for some reason the customers_subscriptions table is empty if we don't get this first
     url = '/profile/index'
     client.get(url)
     assert client.status == 200
 
-    setup_profile_tests(web2py)
     populate_classes(web2py)
 
     clrID = web2py.db.classes_reservation.insert(

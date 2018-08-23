@@ -16,7 +16,12 @@ class Customer:
         db = current.db
 
         self.cuID = cuID
+
+        print "in Customer __init__:"
+        print cuID
         self.row = db.auth_user(cuID)
+
+        print self.row
 
         if not self.row.barcode:
             self.set_barcode()
