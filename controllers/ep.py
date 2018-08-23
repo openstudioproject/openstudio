@@ -38,10 +38,8 @@ def index():
     '''
     response.title = T("Employee Portal")
     response.subtitle = T('Welcome ') +auth.user.display_name
-    # response.view = 'ep/only_content.html'
 
-    # session.customers_back = 'ep'
-    # session.workshops_manage_back = 'ep'
+    print response.menu
 
     # welcome_message = ''
     # if ( db.sys_properties(Property='ShowWelcomeMessage') is None or
@@ -366,12 +364,12 @@ def ep_get_cancelled_classes(days=3):
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'pinboard'))
-def teacher_monthly_classes():
+def my_classes():
     '''
     creates page that displays the classes tought montlhy
     :return:
     '''
-    response.title = T("Monthly Classes")
+    response.title = T("My Monthly Classes")
     response.subtitle = T("")
     response.view = 'ep/only_content.html'
 
@@ -471,7 +469,7 @@ def teacher_monthly_classes():
     month_chooser = form_subtitle['month_chooser']
     current_month = form_subtitle['current_month']
 
-    response.subtitle = SPAN(T('Teacher classes'), ' ',
+    response.subtitle = SPAN(T('Classes'), ' ',
                              form_subtitle['subtitle'])
 
     header_tools = month_chooser + current_month
@@ -654,7 +652,7 @@ def request_sub():
                               school_locations_id=row_classes.school_locations_id,
                               school_classtypes_id= row_classes.school_classtypes_id,
                               auth_teacher_id=teachers_id)
-        redirect(URL('teacher_monthly_classes'))\
+        redirect(URL('my_classes'))\
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -665,4 +663,4 @@ def cancel_request_sub():
     row = db.classes_otc(classes_id=clsID, ClassDate = date)
     if row:
         db(db.classes_otc.id==row.id).delete()
-        redirect(URL('teacher_monthly_classes'))
+        redirect(URL('my_classes'))
