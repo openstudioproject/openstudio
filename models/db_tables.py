@@ -2466,6 +2466,11 @@ def define_customers_subscriptions():
               readable=False,
               writable=False,
               default=datetime.datetime.now()),
+        Field('RegistrationFeePaid','boolean',
+              readable=False,
+              writable=False,
+              default=False
+              ),
         singular=T("Subscription"), plural=T("Subscriptions"))
 
 
