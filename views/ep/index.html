@@ -1,0 +1,7 @@
+{{extend 'layout_ep.html'}}
+{{=content}}
+
+
+{{block header}}
+{{try:}}{{=header_tools}}{{except:}}{{pass}}{{pass}}
+{{end}}
