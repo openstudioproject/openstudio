@@ -50,6 +50,24 @@ def shoppingcart_menu_item():
                 _title=T('Shopping cart'))
 
 
+def ep_menu():
+    user_helpers = User_helpers()
+    menu= []
+
+    # Home
+    menu.append([(  # I(_class='fa fa-home'),
+        SPAN(T('Home'))),
+        False,
+        URL('ep', 'index', extension='')])
+
+
+    menu.append([(  # I(_class='fa fa-graduation-cap'),
+        SPAN(T('My Classes'))),
+        False,
+        URL('ep', 'my_classes', extension='')])
+
+    return menu
+
 
 def profile_menu():
     featured_class = ''
@@ -615,8 +633,9 @@ if request.controller == 'shop' or request.controller == 'profile':
     response.menu_shop = shop_menu()
     response.menu_shop_about = shop_menu_about()
     response.menu_shopping_cart = shoppingcart_menu_item()
-    response.menu_profile = profile_menu()
     response.menu_links = shop_links()
+    response.menu_profile = profile_menu()
+
 
     response.logo = SPAN(B('Open'), 'Studio', _class='logo-lg')
 
@@ -635,6 +654,9 @@ if request.controller == 'shop' or request.controller == 'profile':
     shop_header_logo_url = get_sys_property('shop_header_logo_url')
     if shop_header_logo_url:
         response.logo_url = shop_header_logo_url
+
+elif request.controller == 'ep':
+    request.menu_ep = ep_menu()
 
 else:
     if auth.user:
