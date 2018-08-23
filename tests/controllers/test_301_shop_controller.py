@@ -44,6 +44,8 @@ def test_customers_shop_features(client, web2py):
     """
         Are the settings to control of which pages to show in the shop working?
     """
+    setup_profile_tests(web2py)
+
     # get random url to setup OpenStudio environment
     url = '/default/user/login'
     client.get(url)
@@ -1265,11 +1267,11 @@ def test_class_enroll(client, web2py):
     """
     from populate_os_tables import populate_classes
 
+    setup_profile_tests(web2py)
+
     url = '/profile/index'
     client.get(url)
     assert client.status == 200
-
-    setup_profile_tests(web2py)
 
     populate_classes(web2py)
     populate_customers_with_subscriptions(web2py, credits=True)
@@ -1359,6 +1361,8 @@ def test_classcards(client, web2py):
     """
         Is the page that lists class cards working?
     """
+    setup_profile_tests(web2py)
+
     # populate a regular card and a trial card
     populate_school_classcards(web2py, 1)
 
@@ -1977,6 +1981,8 @@ def test_event_sold_out(client, web2py):
     """
         Is the 'sold out' text showing correctly for sold out workshops
     """
+    setup_profile_tests(web2py)
+    
     populate_workshops_for_api_tests(web2py)
 
     url = '/shop/event?wsID=1'

@@ -16,7 +16,15 @@ class Customer:
         db = current.db
 
         self.cuID = cuID
+
+        print "in Customer __init__:"
+        print cuID
         self.row = db.auth_user(cuID)
+
+        print self.row
+
+        if not self.row.barcode:
+            self.set_barcode()
 
 
     def get_name(self):
@@ -924,4 +932,33 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
             OpenStudioVersion = '.'.join([version, release])
         )
 
+
+    def set_barcode(self):
+        """
+            Create barcode file for this customer
+        """
+        import barcode
+        from barcode.writer import ImageWriter
+        from cStringIO import StringIO
+
+        db = current.db
+        stream = StringIO()
+
+        CODE39 = barcode.get_barcode_class('code39')
+        code39_barcode = CODE39(
+            unicode(self.cuID),
+            writer=ImageWriter(),
+            add_checksum=False
+        )
+
+        code39_barcode.write(stream)
+        # print stream.getvalue()
+        stream.seek(0)
+
+        self.row.update_record(
+            barcode = db.auth_user.barcode.store(
+                stream,
+                filename=unicode(self.cuID) + u'_barcode.png'
+            )
+        )
 

@@ -731,6 +731,7 @@ def add():
 
     crud.messages.submit_button = T("Save")
     crud.messages.record_created = T("Saved")
+    crud.settings.create_onaccept = [add_set_barcode]
     crud.settings.create_next = next_url
     form = crud.create(db.auth_user)
 
@@ -749,6 +750,17 @@ def add():
     table['_class'] = 'full-width'
 
     return dict(content=form)
+
+
+def add_set_barcode(form):
+    """
+    :param form: crud from for auth_user
+    :return: None
+    """
+    from openstudio.os_customer import Customer
+
+    cuID = form.vars.id
+    customer = Customer(cuID)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
