@@ -18,9 +18,6 @@ class Customer:
         self.cuID = cuID
         self.row = db.auth_user(cuID)
 
-        if not self.row.barcode:
-            self.set_barcode()
-
 
     def get_name(self):
         """
