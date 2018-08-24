@@ -1,0 +1,105 @@
+<html>
+    <head>
+        <style> 
+            @page {
+                size: 100mm 52mm landscape;
+                margin: 0;
+            }
+            
+            @media print {
+                html, body {
+                    width: 100mm;
+                    height: 52mm;
+                    margin: 0;
+                    margin-right: 20mm;
+                }
+                
+                body {
+                    visibility: hidden;
+                }
+                
+                .label {
+                    visibility: visible;
+                    padding-right: 20mm;
+                }
+                
+                .logo {
+                    top: 4mm;
+                }
+                
+                .tools, button {
+                    display: none;
+                }
+                
+            }
+                
+            body {
+                font-family: sans-serif;
+                
+                background-color: #EAEAEA;
+            }
+            
+            .label {
+                position: relative;
+                background-color: #FFF;
+				margin-left: auto;
+                margin-right: auto;
+                width: 96mm;
+                height: 48mm;
+                padding: 4mm;
+			}
+            
+            .label > .barcode {
+                position: absolute;
+                bottom: 0;
+                max-height: 36mm;
+                max-width: 86mm;
+                display: block;
+                margin-right: 24mm; 
+                margin-left: -4mm;
+                
+            }
+            
+            .logo {
+                position: absolute;
+                top: 4mm;
+                right: 20mm;
+            }
+            
+            .logo img {
+                max-height: 24mm;
+                max-width: 40mm;
+            }
+            
+            .tools {
+                display: flex;
+                justify-content: center;
+                margin: 20px auto 0px auto;
+            }
+            
+            button {
+                padding: 3px 6px;
+                margin-right: 4px;
+            }
+            
+            
+        </style>
+    </head>    
+    <body>
+        <div class="label">
+            <div class="logo">{{=logo}}</div>
+            <h3>Membership card</h3>
+            {{=T("Purchase date: ")}}{{=membership.Startdate.strftime(DATE_FORMAT)}} <br>
+            {{=customer.display_name}}
+            <img class="barcode" src="{{=barcode_image_url}}">  
+        </div>
+        <div class="tools">
+            <button onclick="window.print(); return false;">
+                {{=T('Print')}}
+            </button>   
+            <button onclick="window.close(); ">
+                {{=T('Close')}}
+            </button>        
+        </div>
+    </body>
+</html>

@@ -5955,6 +5955,13 @@ def memberships():
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
+        barcode = os_gui.get_button(
+            'barcode',
+            URL('barcode_label_membership', vars={'cmID':row.id}),
+            _target="_blank",
+            _class='pull-right'
+        )
+
         delete = ''
         if delete_permission:
             confirm_msg = T("Really delete this membership?")
@@ -5973,7 +5980,7 @@ def memberships():
                 TD(repr_row.Startdate),
                 TD(repr_row.Enddate),
                 TD(repr_row.Note),
-                TD(delete, edit))
+                TD(delete, edit, barcode))
 
         table.append(tr)
 
@@ -6316,3 +6323,17 @@ def barcode_label():
     customer = Customer(cuID)
 
     return customer.get_barcode_label()
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'customers_memberships'))
+def barcode_label_membership():
+    """
+        Preview barcode label
+    """
+    from openstudio.os_customer_membership import CustomerMembership
+
+    cmID = request.vars['cmID']
+    cm = CustomerMembership(cmID)
+
+    return cm.get_barcode_label()
