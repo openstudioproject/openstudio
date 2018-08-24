@@ -1156,7 +1156,8 @@ def customers_get_menu(customers_id, page=None):
         more.append([
             'barcode_label',
             (os_gui.get_fa_icon('fa-barcode'), ' ', T('Barcode label')),
-            URL('customers', 'barcode_label', vars={'cuID':customers_id})
+            URL('customers', 'barcode_label', vars={'cuID':customers_id}),
+            'blank'
         ])
 
     pages.append([

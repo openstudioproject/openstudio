@@ -704,11 +704,17 @@ class OsGui:
                 else:
                     dropdown = UL(_class="dropdown-menu")
                     for link in p[2]:
+                        try:
+                            target = link[3]
+                        except IndexError:
+                             target = ''
+
                         dropdown.append(
                             LI(
                                 A(
                                     link[1],
-                                    _href=link[2]
+                                    _href=link[2],
+                                    _target=target
                                   )
                             )
                         )

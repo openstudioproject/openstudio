@@ -27,6 +27,10 @@
                     top: 4mm;
                 }
                 
+                .tools {
+                    display: none;
+                }
+                
             }
                 
             body {
@@ -66,14 +70,22 @@
                 max-width: 40mm;
             }
             
+            .tools {
+                margin: 20px auto 0px auto;
+            }
+            
         </style>
     </head>    
     <body>
         <div class="label">
             <div class="logo">{{=logo}}</div>
             {{=customer.display_name}}
-            
             <img class="barcode" src="{{=barcode_image_url}}">  
+        </div>
+        <div class="tools">
+            <button onclick="window.print(); return false;">
+                {{=T('Print')}}
+            </button>        
         </div>
     </body>
 </html>
