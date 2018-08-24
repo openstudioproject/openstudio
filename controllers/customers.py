@@ -5955,13 +5955,6 @@ def memberships():
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
-        barcode = os_gui.get_button(
-            'barcode',
-            URL('barcode_label_membership', vars={'cmID':row.id}),
-            _target="_blank",
-            _class='pull-right'
-        )
-
         delete = ''
         if delete_permission:
             confirm_msg = T("Really delete this membership?")
@@ -5980,7 +5973,7 @@ def memberships():
                 TD(repr_row.Startdate),
                 TD(repr_row.Enddate),
                 TD(repr_row.Note),
-                TD(delete, edit, barcode))
+                TD(delete, edit))
 
         table.append(tr)
 
@@ -6013,7 +6006,11 @@ def memberships_get_link_edit(row):
 
     cmID = row.id
 
-    links = []
+    links = [
+        A((os_gui.get_fa_icon('fa-barcode'), ' ', T('Barcode label')),
+          _href=URL('barcode_label_membership', vars={'cmID': row.id}),
+          _target="_blank")
+    ]
 
     permission = ( auth.has_membership(group_id='Admins') or
                    auth.has_permission('update', 'customers_memberships') )
