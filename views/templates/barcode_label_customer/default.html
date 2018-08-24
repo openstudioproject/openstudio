@@ -27,7 +27,7 @@
                     top: 4mm;
                 }
                 
-                .tools {
+                .tools, button {
                     display: none;
                 }
                 
@@ -35,6 +35,7 @@
                 
             body {
                 font-family: sans-serif;
+                
                 background-color: #EAEAEA;
             }
             
@@ -71,8 +72,16 @@
             }
             
             .tools {
+                display: flex;
+                justify-content: center;
                 margin: 20px auto 0px auto;
             }
+            
+            button {
+                padding: 3px 6px;
+                margin-right: 4px;
+            }
+            
             
         </style>
     </head>    
@@ -85,6 +94,9 @@
         <div class="tools">
             <button onclick="window.print(); return false;">
                 {{=T('Print')}}
+            </button>   
+            <button onclick="window.close(); ">
+                {{=T('Close')}}
             </button>        
         </div>
     </body>
