@@ -60,12 +60,17 @@ def ep_menu():
         False,
         URL('ep', 'index', extension='')])
 
-
+    # Monthly Classes
     menu.append([(  # I(_class='fa fa-graduation-cap'),
         SPAN(T('My Classes'))),
         False,
         URL('ep', 'my_classes', extension='')])
 
+    # My Payments / Staffpayments
+    menu.append([(  # I(_class='fa fa-home'),
+        SPAN(T('My Payments'))),
+        False,
+        URL('ep', 'my_payments', extension='')])
     return menu
 
 

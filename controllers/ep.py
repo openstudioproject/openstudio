@@ -664,3 +664,70 @@ def cancel_request_sub():
     if row:
         db(db.classes_otc.id==row.id).delete()
         redirect(URL('my_classes'))
+
+@auth.requires_login()
+def my_payments():
+    """
+        List staff payments
+    """
+    response.title = T('My Payments')
+    response.view = 'ep/index.html'
+
+    if auth.user.teacher == False and auth.user.employee == False:
+        redirect(URL('ep', 'index'))
+
+    # # Check whether the privacy feature is enabled
+    # features = db.customers_profile_features(1)
+    # if not features.StaffPayments:
+    #     redirect(URL('profile', 'index'))
+
+    content = my_payments_get_content()
+
+    return dict(content=content)
+
+def my_payments_get_content(var=None):
+    """
+
+    :param var:
+    :return:
+    """
+    from openstudio.os_customer import Customer
+
+    customer = Customer(auth.user.id)
+    rows = customer.get_invoices_rows(
+        public_group=False,
+        payments_only=True
+    )
+
+    header = THEAD(TR(
+        TH(T('Invoice #')),
+        TH(T('Date')),
+        TH(T('Due')),
+        TH(T('Amount')),
+        TH(T('Status')),
+        TH(),
+    ))
+
+    table = TABLE(header, _class='table table-striped table-hover')
+
+    for i, row in enumerate(rows):
+        repr_row = list(rows[i:i + 1].render())[0]
+
+        pdf = os_gui.get_button(
+            'print',
+            URL('invoices', 'pdf',
+                vars={'iID': row.invoices.id}),
+            btn_size='',
+            _class='pull-right'
+        )
+
+        table.append(TR(
+            TD(row.invoices.InvoiceID),
+            TD(repr_row.invoices.DateCreated),
+            TD(repr_row.invoices.DateDue),
+            TD(repr_row.invoices_amounts.TotalPriceVAT),
+            TD(repr_row.invoices.Status),
+            TD(pdf)
+        ))
+
+    return table
