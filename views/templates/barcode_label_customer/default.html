@@ -1,0 +1,79 @@
+<html>
+    <head>
+        <style> 
+            @page {
+                size: 100mm 52mm landscape;
+                margin: 0;
+            }
+            
+            @media print {
+                html, body {
+                    width: 100mm;
+                    height: 52mm;
+                    margin: 0;
+                    margin-right: 20mm;
+                }
+                
+                body {
+                    visibility: hidden;
+                }
+                
+                .label {
+                    visibility: visible;
+                    padding-right: 20mm;
+                }
+                
+                .logo {
+                    top: 4mm;
+                }
+                
+            }
+                
+            body {
+                font-family: sans-serif;
+                background-color: #EAEAEA;
+            }
+            
+            .label {
+                position: relative;
+                background-color: #FFF;
+				margin-left: auto;
+                margin-right: auto;
+                width: 96mm;
+                height: 48mm;
+                padding: 4mm;
+			}
+            
+            .label > .barcode {
+                position: absolute;
+                bottom: 0;
+                max-height: 36mm;
+                max-width: 82mm;
+                display: block;
+                margin-left: auto;
+                margin-right: 24mm; 
+                
+            }
+            
+            .logo {
+                position: absolute;
+                top: 4mm;
+                right: 20mm;
+            }
+            
+            .logo img {
+                max-height: 24mm;
+                max-width: 40mm;
+            }
+            
+        </style>
+    </head>    
+    <body>
+        <div class="label">
+            <div class="logo">{{=logo}}</div>
+            {{=customer.display_name}}
+            
+            <img class="barcode" src="{{=barcode_image_url}}">  
+        </div>
+    </body>
+</html>

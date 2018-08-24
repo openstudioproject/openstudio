@@ -1151,6 +1151,14 @@ def customers_get_menu(customers_id, page=None):
             URL('customers', 'account', vars={'cuID':customers_id})
         ])
 
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('read', 'auth_user'):
+        more.append([
+            'barcode_label',
+            (os_gui.get_fa_icon('fa-barcode'), ' ', T('Barcode label')),
+            URL('customers', 'barcode_label', vars={'cuID':customers_id})
+        ])
+
     pages.append([
         'more',
         T('More'),
@@ -6295,5 +6303,15 @@ def memberships_get_return_url(customers_id):
     return URL('memberships', vars={'cuID':customers_id})
 
 
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'auth_user'))
+def barcode_label():
+    """
+        Preview barcode label
+    """
+    from openstudio.os_customer import Customer
 
+    cuID = request.vars['cuID']
+    customer = Customer(cuID)
 
+    return customer.get_barcode_label()
