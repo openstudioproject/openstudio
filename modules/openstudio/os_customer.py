@@ -943,8 +943,27 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
             add_checksum=False
         )
 
+        '''
+        Default options (here for future reference);
+        
+        default_writer_options = {
+            'module_width': 0.2,
+            'module_height': 15.0,
+            'quiet_zone': 6.5,
+            'font_size': 10,
+            'text_distance': 5.0,
+            'background': 'white',
+            'foreground': 'black',
+            'write_text': True,
+            'text': '',
+        }
+        '''
+
+        code39_barcode.default_writer_options['module_height'] = 5
+        code39_barcode.default_writer_options['font_size'] = 7
+        code39_barcode.default_writer_options['text_distance'] = 0.5
+
         code39_barcode.write(stream)
-        # print stream.getvalue()
         stream.seek(0)
 
         self.row.update_record(
@@ -953,4 +972,51 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
                 filename=unicode(self.cuID) + u'_barcode.png'
             )
         )
+
+
+    def get_barcode_label(self):
+        """
+            Print friendly display of a barcode label
+        """
+        get_sys_property = current.globalenv['get_sys_property']
+        response = current.response
+
+        template = get_sys_property('branding_default_template_barcode_label_customer') or 'barcode_label_customer/default.html'
+        template_file = 'templates/' + template
+
+        if not self.row.barcode:
+            self.set_barcode()
+        barcode_image_url = URL('default', 'download', args=self.row.barcode, host=True, scheme=True)
+
+        html = response.render(template_file,
+                               dict(customer=self.row,
+                                    barcode_image_url=barcode_image_url,
+                                    logo=self._get_barcode_label_get_logo()))
+
+        return html
+
+
+    def _get_barcode_label_get_logo(var=None):
+        """
+            Returns logo for template
+        """
+        import os
+
+        request = current.request
+
+        branding_logo = os.path.join(request.folder,
+                                     'static',
+                                     'plugin_os-branding',
+                                     'logos',
+                                     'branding_logo_invoices.png')
+        if os.path.isfile(branding_logo):
+            abs_url = URL('static', 'plugin_os-branding/logos/branding_logo_invoices.png',
+                          scheme=True,
+                          host=True)
+            logo_img = IMG(_src=abs_url)
+        else:
+            logo_img = ''
+
+        return logo_img
+
 

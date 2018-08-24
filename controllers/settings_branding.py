@@ -176,13 +176,25 @@ def default_templates():
     response.view = 'general/tabs_menu.html'
 
     sprop_t_class_revenue = 'branding_default_template_class_revenue'
+    sprop_t_barcode_label_customer = 'branding_default_template_barcode_label_customer'
+    sprop_t_barcode_label_membership = 'branding_default_template_barcode_label_membership'
     sprop_t_email = 'branding_default_template_email'
     sprop_t_events = 'branding_default_template_events'
+    t_barcode_label_customer = get_sys_property(sprop_t_barcode_label_customer)
+    t_barcode_label_membership = get_sys_property(sprop_t_barcode_label_membership)
     t_class_revenue = get_sys_property(sprop_t_class_revenue)
     t_email = get_sys_property(sprop_t_email)
     t_events = get_sys_property(sprop_t_events)
 
     form = SQLFORM.factory(
+        Field('t_barcode_label_customer',
+              default=t_barcode_label_customer,
+              requires=IS_IN_SET(default_templates_list_templates('barcode_label_customer')),
+              label=T('Barcode label template for customers')),
+        Field('t_barcode_label_membership',
+              default=t_barcode_label_membership,
+              requires=IS_IN_SET(default_templates_list_templates('barcode_label_membership')),
+              label=T('Barcode label template for memberships')),
         Field('t_class_revenue',
               default=t_class_revenue,
               requires=IS_IN_SET(default_templates_list_templates('class_revenue')),
@@ -211,6 +223,14 @@ def default_templates():
     submit = form.element('input[type=submit]')
 
     if form.accepts(request.vars, session):
+        # Check barcode label customer
+        t_barcode_label_customer = request.vars['t_barcode_label_customer']
+        set_sys_property(sprop_t_barcode_label_customer, t_barcode_label_customer)
+
+        # Check barcode label membership
+        t_barcode_label_membership = request.vars['t_barcode_label_membership']
+        set_sys_property(sprop_t_barcode_label_membership, t_barcode_label_membership)
+
         # Check class revenue
         t_class_revenue = request.vars['t_class_revenue']
         set_sys_property(sprop_t_class_revenue, t_class_revenue)
@@ -244,7 +264,14 @@ def default_templates_list_templates(template_type):
         :param template_type: can be 'email' or 'workshops' for now
         :return: list of files in view/templates/<template_type> folder
     """
-    template_types = ['class_revenue', 'email', 'invoices', 'events']
+    template_types = [
+        'barcode_label_customer',
+        'barcode_label_membership',
+        'class_revenue',
+        'email',
+        'invoices',
+        'events'
+    ]
     if template_type not in template_types:
         return ''
 
