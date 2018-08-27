@@ -10,6 +10,37 @@ from populate_os_tables import populate_auth_user_teachers
 from setup_ep_tests import setup_ep_tests
 
 
+def test_my_classes(client, web2py):
+    from populate_os_tables import populate_classes
+
+    populate_classes(web2py)
+
+
+    au = web2py.db.auth_user(2)
+    au.password = 'password'
+    au.login_start = 'ep'
+    au.update_record()
+
+    web2py.db.commit()
+
+    # log out and log back in again to make the profile user a teacher
+    url = '/default/user/logout'
+    client.get(url)
+    assert client.status == 200
+
+    data = dict(email='teacher@openstudioproject.com',
+                password='password',
+                _formname='login')
+    client.post('/default/user/login', data=data)
+    assert client.status == 200
+
+    # Check classes display
+    url = '/ep/my_classes'
+    client.get(url)
+    assert client.status == 200
+
+    assert 'Find sub' in client.txt
+
 
 def test_my_payments(client, web2py):
     """

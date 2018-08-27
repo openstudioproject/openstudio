@@ -16,10 +16,10 @@ def setup_ep_tests(web2py):
                                last_name='profile test',
                                email='profile@openstudioproject.com',
                                password=password,
-                               login_start='profile')
+                               login_start='ep')
     web2py.db.auth_group.insert(id=gid,
-                                role='profile test',
-                                description='profile test')
+                                role='ep test',
+                                description='ep test')
     # add user to group
     web2py.auth.add_membership(gid, uid)
 
