@@ -652,7 +652,7 @@ def request_sub():
                               school_locations_id=row_classes.school_locations_id,
                               school_classtypes_id= row_classes.school_classtypes_id,
                               auth_teacher_id=teachers_id)
-        redirect(URL('my_classes'))\
+        redirect(URL('my_classes'))
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
