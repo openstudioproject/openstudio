@@ -7,7 +7,7 @@
 from gluon.contrib.populate import populate
 
 from populate_os_tables import populate_auth_user_teachers
-from setup_profile_tests import setup_profile_tests
+from setup_ep_tests import setup_ep_tests
 
 
 
@@ -17,7 +17,7 @@ def test_my_payments(client, web2py):
     """
     from populate_os_tables import populate_auth_user_teachers_payment_invoices
 
-    setup_profile_tests(web2py)
+    setup_ep_tests(web2py)
 
     au = web2py.db.auth_user(300)
     au.teacher = True
@@ -54,7 +54,7 @@ def test_my_payments_link_not_shown(client, web2py):
     """
 
     populate_auth_user_teachers(web2py)
-
+    setup_ep_tests(web2py)
     url = '/ep/index'
     client.get(url)
     assert client.status == 200
