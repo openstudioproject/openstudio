@@ -205,8 +205,10 @@ def invoice_pay():
                 # print 'customer id invalid, create new customer'
                 if 'The customer id is invalid' in str(e):
                     create_mollie_customer(auth.user.id, mollie)
+                    os_customer = Customer(auth.user.id) # refresh
         else:
             create_mollie_customer(auth.user.id, mollie)
+            os_customer = Customer(auth.user.id) # refresh
 
         mandates = os_customer.get_mollie_mandates()
         # set default recurring type, change to recurring if a valid mandate is found.

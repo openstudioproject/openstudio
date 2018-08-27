@@ -838,6 +838,16 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
             #print mollie_customer_id
         else:
             # create one
+            self.register_mollie_customer()
+
+        return mollie.customer_mandates.withParentId(mollie_customer_id).all()
+
+
+    def register_mollie_customer(self):
+        """
+            Registers this customer with mollie
+        """
+        if not self.row.mollie_customer_id:
             mollie_customer = mollie.customers.create({
                 'name': self.row.display_name,
                 'email': self.row.email
@@ -845,8 +855,6 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
             mollie_customer_id = mollie_customer['id']
             self.row.mollie_customer_id = mollie_customer_id
             self.row.update_record()
-
-        return mollie.customer_mandates.withParentId(mollie_customer_id).all()
 
 
     def get_mollie_mandates_formatted(self):
