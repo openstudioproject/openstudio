@@ -2744,7 +2744,7 @@ def attendance_classes_get_content(date_start, date_end, slID, soID):
     while current_date <= date_end:
         # get list of today's classes.
         class_schedule = ClassSchedule(
-            date=current_month_date,
+            date=current_date,
             filter_id_school_location=slID,
             filter_id_sys_organization=soID,
         )
