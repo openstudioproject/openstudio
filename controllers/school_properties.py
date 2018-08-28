@@ -1185,6 +1185,7 @@ def subscription_add():
     crud.messages.record_created = T("Added subscription")
     crud.settings.create_next = return_url
     crud.settings.create_onaccept = [cache_clear_school_subscriptions]
+    crud.settings.formstyle = 'bootstrap3_stacked'
     form = crud.create(db.school_subscriptions)
 
     textareas = form.elements('textarea')
@@ -1224,6 +1225,7 @@ def subscription_edit():
     crud.settings.update_next = return_url
     crud.settings.update_deletable = False
     crud.settings.update_onaccept = [cache_clear_school_subscriptions]
+    crud.settings.formstyle = 'bootstrap3_stacked'
     form = crud.update(db.school_subscriptions, ssuID)
 
     textareas = form.elements('textarea')

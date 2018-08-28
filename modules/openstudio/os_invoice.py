@@ -605,38 +605,39 @@ class Invoice:
             tax_rates_id = tax_rates_id,
         )
 
-        self.set_amounts()
-
-        self.on_update()
-
-        # self.item_add_subscription_check_regfee(tax_rates_id)
-        query = (((db.customers_subscriptions.auth_customer_id == cs.auth_customer_id) & \
-                 (db.customers_subscriptions.id != cs.csID) &\
-                 (db.customers_subscriptions.school_subscriptions_id == cs.ssuID)) |\
+        ##
+        # Check if a registration fee should be added
+        ##
+        query = (((db.customers_subscriptions.auth_customer_id == cs.auth_customer_id) &
+                 (db.customers_subscriptions.id != cs.csID) &
+                 (db.customers_subscriptions.school_subscriptions_id == cs.ssuID)) |
                  (db.customers_subscriptions.RegistrationFeePaid==True))
 
         rowsfee = db(query).select(db.customers_subscriptions.ALL)
         query = (db.school_subscriptions.id == ssuID)
         regfee = db(query).select(db.school_subscriptions.RegistrationFee)
-        if not rowsfee:
+        if not rowsfee: # Registration fee already paid?
             row = regfee.first()
             price = row.RegistrationFee
-            if price != 0:
-
+            if not price == 0:
                 db.invoices_items.insert(
                     invoices_id=self.invoices_id,
                     ProductName=current.T("Registration Fee"),
-                    Description='One time Fee for registration',
+                    Description='One time fee for registration',
                     Quantity=1,
                     Price=price,
                     Sorting=next_sort_nr,
                     tax_rates_id=tax_rates_id,
                 )
 
-                self.set_amounts()
-
-                self.on_update()
             db.customers_subscriptions[cs.csID] = dict(RegistrationFeePaid=True)
+              
+        ##
+        # Always call these
+        ##
+        self.set_amounts()
+        self.on_update()
+
         return iiID
 
 

@@ -1219,9 +1219,8 @@ def define_school_subscriptions():
             requires=IS_INT_IN_RANGE(0, 5001, error_message=T('Enter a number between 0 and 5000')),
             default=0,
             label=T('Sort order'),
-            comment=os_gui.get_info_icon(
-                title=T("Order in which subscriptions are shown in the OpenStudio shop. Higher is shown first. Subscriptions with the same sort order number are sorted by name."),
-                btn_icon='info')),
+            comment=T("Order in which subscriptions are shown in the OpenStudio shop. Higher is shown first. Subscriptions with the same sort order number are sorted by name."),
+            ),
         Field('sys_organizations_id', db.sys_organizations,
               readable=True if len(ORGANIZATIONS) > 2 else False,
               writable=True if len(ORGANIZATIONS) > 2 else False,
@@ -1255,15 +1254,11 @@ def define_school_subscriptions():
             label=T('Reconciliation Classes'),
             default=0,
             requires=IS_INT_IN_RANGE(0, 101),
-            comment=os_gui.get_info_icon(
-                title=T("Number of classes a customer can take without credits on this subscription."),
-                btn_icon='info')),
+            comment=T("Number of classes a customer can take without credits on this subscription.")),
         Field('CreditValidity', 'integer',
             label=T('Credit validity (days)'),
             requires=IS_EMPTY_OR(IS_INT_IN_RANGE(0, 735)),
-            comment=os_gui.get_info_icon(
-                title=T("Subscription credit expiration, in days. Leave empty for unlimited validity."),
-                btn_icon='info')),
+            comment=T("Subscription credit expiration, in days. Leave empty for unlimited validity.")),
         Field('Unlimited', 'boolean',
             default=False,
             readable=False,
@@ -1273,17 +1268,13 @@ def define_school_subscriptions():
         Field('QuickStatsAmount', 'double',
               label=T('Quick Stats Amount'),
               default=0,
-              comment=os_gui.get_info_icon(
-                  title=T("As for subscription it's impossible to know the exact revenue for each class until the end of the month. This amount will be used to create rough estimates of class revenue."),
-                  btn_icon='info')),
+              comment=T("As for subscription it's impossible to know the exact revenue for each class until the end of the month. This amount will be used to create rough estimates of class revenue.")
+              ),
         Field('RegistrationFee', 'double',
               label=T('Registration Fee'),
               default=0,
-              comment=os_gui.get_info_icon(
-                  title=T(
-                      "This Amount will be added to the first invoice for this subscription. Set to 0 for no registration fee."),
-                  btn_icon='info')),
-
+              comment=T("This Amount will be added to the first invoice for this subscription. Set to 0 for no registration fee."),
+              ),
         format=format)
 
 
