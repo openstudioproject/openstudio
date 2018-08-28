@@ -1281,7 +1281,7 @@ def define_school_subscriptions():
               default=0,
               comment=os_gui.get_info_icon(
                   title=T(
-                      "This Amount will be substracted from the first subscription made for this customer, if there should be no RegistrationFee, just leave this field empty "),
+                      "This Amount will be added to the first invoice for this subscription. Set to 0 for no registration fee."),
                   btn_icon='info')),
 
         format=format)
