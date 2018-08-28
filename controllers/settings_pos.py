@@ -29,18 +29,18 @@ def index():
     response.subtitle = T("Point of Sale")
     response.view = 'general/tabs_menu.html'
 
-    pos_barcode_scans = get_sys_property('pos_barcode_scans')
+    pos_barcodes_checkin = get_sys_property('pos_barcodes_checkin')
 
     form = SQLFORM.factory(
-        Field('pos_barcode_scans',
+        Field('pos_barcodes_checkin',
               requires=IS_IN_SET([
                   ['customer_id', T("Customer ID")],
                   ['membership_id', T("Customer membership ID")],
                 ],
                 zero=None),
-              default=pos_barcode_scans,
-              label=T('Pos Barcode scanner'),
-              comment=T("Does the barcode scanner read customer ids or customer membership ids?")),
+              default=pos_barcodes_checkin,
+              label=T('Checkin barcodes'),
+              comment=T("Does the barcode scanner read customer ids or customer membership ids when checking in customers?")),
         submit_button=T("Save"),
         formstyle='bootstrap3_stacked',
         separator=' ')
@@ -50,8 +50,8 @@ def index():
     submit = result['submit']
 
     if form.accepts(request.vars, session):
-        pos_barcode_scans = request.vars['pos_barcode_scans']
-        set_sys_property('pos_barcode_scans', pos_barcode_scans)
+        pos_barcodes_checkin = request.vars['pos_barcodes_checkin']
+        set_sys_property('pos_barcodes_checkin', pos_barcodes_checkin)
 
         # User feedback
         session.flash = T('Saved')
