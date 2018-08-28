@@ -26,7 +26,7 @@ def index():
     from general_helpers import set_form_id_and_get_submit_button
 
     response.title = T("Settings")
-    response.subtitle = T("Point os Sale")
+    response.subtitle = T("Point of Sale")
     response.view = 'general/tabs_menu.html'
 
     pos_barcode_scans = get_sys_property('pos_barcode_scans')
