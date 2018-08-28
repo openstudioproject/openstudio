@@ -74,10 +74,10 @@ def classtypes():
 
 
 def classtypes_get_link_archive(row):
-    '''
+    """
         Called from the index function. Changes title of archive button
         depending on whether a classtype is archived or not
-    '''
+    """
     row = db.school_classtypes(row.id)
 
     if row.Archived:
@@ -93,10 +93,10 @@ def classtypes_get_link_archive(row):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'school_classtypes'))
 def classtypes_archive():
-    '''
+    """
         This function archives a subscription
         request.vars[ctID] is expected to be the school_classtypes ID
-    '''
+    """
     ctID = request.vars['ctID']
     if not ctID:
         session.flash = T('Unable to (un)archive class type')
@@ -243,10 +243,10 @@ def discovery():
 
 
 def discovery_get_link_archive(row):
-    '''
+    """
         Called from the index function. Changes title of archive button
         depending on whether a level is archived or not
-    '''
+    """
     row = db.school_discovery(row.id)
 
     if row.Archived:
@@ -262,10 +262,10 @@ def discovery_get_link_archive(row):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'school_discovery'))
 def discovery_archive():
-    '''
+    """
         This function archives a subscription
         request.vars[sdID] is expected to be the school_discovery ID
-    '''
+    """
     sdID = request.vars['sdID']
     if not sdID:
         session.flash = T('Unable to (un)archive discovery')
@@ -402,10 +402,10 @@ def locations():
 
 
 def locations_get_link_archive(row):
-    '''
+    """
         Called from the index function. Changes title of archive button
         depending on whether a location is archived or not
-    '''
+    """
     row = db.school_locations(row.id)
 
     if row.Archived:
@@ -421,10 +421,10 @@ def locations_get_link_archive(row):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'school_locations'))
 def locations_archive():
-    '''
+    """
         This function archives a subscription
         request.vars[locID] is expected to be the school_locations ID
-    '''
+    """
     locID = request.vars['locID']
     if not locID:
         session.flash = T('Unable to (un)archive location')
@@ -563,10 +563,10 @@ def levels():
 
 
 def levels_get_link_archive(row):
-    '''
+    """
         Called from the index function. Changes title of archive button
         depending on whether a level is archived or not
-    '''
+    """
     row = db.school_levels(row.id)
 
     if row.Archived:
@@ -582,10 +582,10 @@ def levels_get_link_archive(row):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'school_levels'))
 def levels_archive():
-    '''
+    """
         This function archives a subscription
         request.vars[slID] is expected to be the school_levels ID
-    '''
+    """
     slID = request.vars['slID']
     if not slID:
         session.flash = T('Unable to (un)archive level')
@@ -1108,9 +1108,9 @@ def subscriptions():
 
 
 def subscriptions_get_link_current_price(row):
-    '''
+    """
         Returns the current price for a subscription
-    '''
+    """
     ssuID = row.id
     today = datetime.date.today()
 
@@ -1125,10 +1125,10 @@ def subscriptions_get_link_current_price(row):
 
 
 def subscriptions_get_link_archive(row):
-    '''
+    """
         Called from the index function. Changes title of archive button
         depending on whether a workshop is archived or not
-    '''
+    """
     row = db.school_subscriptions(row.id)
 
     if row.Archived:
@@ -1144,10 +1144,10 @@ def subscriptions_get_link_archive(row):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'school_subscriptions'))
 def subscriptions_archive():
-    '''
+    """
         This function archives a subscription
         request.vars[ssuID] is expected to be the school_subscriptions ID
-    '''
+    """
     ssuID = request.vars['ssuID']
     if not ssuID:
         session.flash = T('Unable to (un)archive subscription')
@@ -1251,9 +1251,9 @@ def subscription_edit():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'school_subscriptions_price'))
 def subscriptions_prices():
-    '''
+    """
         Shows list of prices for a subscription
-    '''
+    """
     ssuID = request.vars['ssuID']
     response.title = T("Edit subscription")
     response.subtitle = T('')
@@ -1309,9 +1309,9 @@ def subscriptions_prices():
 
 @auth.requires_login()
 def subscription_price_add():
-    '''
+    """
         Add a new price for a subscription
-    '''
+    """
     response.title = T("New subscription price")
     response.subtitle = T('')
     response.view = 'general/only_content.html'
@@ -1344,9 +1344,9 @@ def subscription_price_add():
 
 @auth.requires_login()
 def subscription_price_edit():
-    '''
+    """
         Edit price for a subscription
-    '''
+    """
     response.title = T("Edit subscription price")
     response.subtitle = T('')
     response.view = 'general/only_content.html'
@@ -1378,23 +1378,23 @@ def subscription_price_edit():
 
 
 def subscription_edit_get_back(return_url):
-    '''
+    """
         Returns back button for subscription edit pages
-    '''
+    """
     return os_gui.get_button('back', return_url)
 
 
 def subscription_price_get_return_url(ssuID):
-    '''
+    """
         Returns returl url for subscriptions
-    '''
+    """
     return URL('subscriptions_prices', vars={'ssuID':ssuID})
 
 
 def subscriptions_get_submenu(page, ssuID):
-    '''
+    """
         Returns submenu for subscriptions
-    '''
+    """
     vars = {'ssuID':ssuID}
     pages = [ ['subscription_edit',
                T('Edit'),
@@ -1409,9 +1409,9 @@ def subscriptions_get_submenu(page, ssuID):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'school_subscriptions_groups'))
 def subscriptions_groups():
-    '''
+    """
         This function shows a page to list subscriptions.
-    '''
+    """
     response.title = T("School")
     response.subtitle = T("Subscriptions")
     response.view = 'general/tabs_menu.html'
@@ -1447,9 +1447,9 @@ def subscriptions_groups():
 
 
 def subscriptions_groups_get_link_subscriptions(row):
-    '''
+    """
         Return list of subscriptions in this group as list of labels
-    '''
+    """
     ssgID = row.id
 
     left = [ db.school_subscriptions.on(db.school_subscriptions_groups_subscriptions.school_subscriptions_id ==
@@ -1468,9 +1468,9 @@ def subscriptions_groups_get_link_subscriptions(row):
 
 
 def subscriptions_groups_get_link_delete(row):
-    '''
+    """
         Returns delete button for subscription group
-    '''
+    """
     delete_onclick = "return confirm('" + \
                      T('Are you sure you want to delete this group?') + "');"
 
@@ -1487,9 +1487,9 @@ def subscriptions_groups_get_link_delete(row):
 
 
 def subscriptions_groups_get_link_edit(row):
-    '''
+    """
         Returns drop down link for index edit
-    '''
+    """
     vars = {'ssgID': row.id}
 
     links = []
@@ -1521,9 +1521,9 @@ def subscriptions_groups_get_link_edit(row):
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('delete', 'school_subscriptions_groups'))
 def subscriptions_groups_delete():
-    '''
+    """
         Delete a workshop
-    '''
+    """
     ssgID = request.vars['ssgID']
 
     query = (db.school_subscriptions_groups.id == ssgID)
@@ -1605,9 +1605,9 @@ def subscriptions_group_edit():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'school_subscriptions_groups_subscriptions'))
 def subscriptions_group_subscriptions():
-    '''
+    """
         Page to list subscriptions for a group
-    '''
+    """
     ssgID = request.vars['ssgID']
     response.title = T("School")
     response.subtitle = T("Subscriptions")
@@ -1703,10 +1703,10 @@ def subscriptions_group_subscription_add():
 
 
 def subscriptions_group_subscription_add_get_already_added(ssgID):
-    '''
+    """
         :param ssgID: db.school_subscriptions_groups.id
         :return: list of ids in this group
-    '''
+    """
     query = (db.school_subscriptions_groups_subscriptions.school_subscriptions_groups_id == ssgID)
     rows = db(query).select(db.school_subscriptions_groups_subscriptions.school_subscriptions_id)
 
@@ -1737,9 +1737,9 @@ def classcards_get_menu(page=None):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'school_classcards'))
 def classcards():
-    '''
+    """
         This function shows a page to list class cards.
-    '''
+    """
     response.title = T("School")
     response.subtitle = T("Class cards")
     response.view = 'general/tabs_menu.html'
@@ -1809,10 +1809,10 @@ def classcards():
 
 
 def classcards_get_link_archive(row):
-    '''
+    """
         Called from the index function. Changes title of archive button
         depending on whether a class card is archived or not
-    '''
+    """
     row = db.school_classcards(row.id)
 
     if row.Archived:
@@ -1828,10 +1828,10 @@ def classcards_get_link_archive(row):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'school_classcards'))
 def classcards_archive():
-    '''
+    """
         This function archives a class card
         request.vars[clcID] is expected to be the school_classcards ID
-    '''
+    """
     clcID = request.vars['clcID']
     if not clcID:
         session.flash = T('Unable to (un)archive class cards')
@@ -1930,9 +1930,9 @@ def classcard_edit():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'school_classcards_groups'))
 def classcards_groups():
-    '''
+    """
         This function shows a page to list subscriptions.
-    '''
+    """
     response.title = T("School")
     response.subtitle = T("Class cards")
     response.view = 'general/tabs_menu.html'
@@ -1966,9 +1966,9 @@ def classcards_groups():
 
 
 def classcards_groups_get_link_classcards(row):
-    '''
+    """
         Return list of subscriptions in this group as list of labels
-    '''
+    """
     scgID = row.id
 
     left = [ db.school_classcards.on(db.school_classcards_groups_classcards.school_classcards_id ==
@@ -1987,9 +1987,9 @@ def classcards_groups_get_link_classcards(row):
 
 
 def classcards_groups_get_link_delete(row):
-    '''
+    """
         Returns delete button for subscription group
-    '''
+    """
     delete_onclick = "return confirm('" + \
                      T('Are you sure you want to delete this group?') + "');"
 
@@ -2006,9 +2006,9 @@ def classcards_groups_get_link_delete(row):
 
 
 def classcards_groups_get_link_edit(row):
-    '''
+    """
         Returns drop down link for index edit
-    '''
+    """
     vars = {'scgID': row.id}
 
     links = []
@@ -2040,9 +2040,9 @@ def classcards_groups_get_link_edit(row):
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('delete', 'school_classcards_groups'))
 def classcards_groups_delete():
-    '''
+    """
         Delete a workshop
-    '''
+    """
     scgID = request.vars['scgID']
 
     query = (db.school_classcards_groups.id == scgID)
@@ -2124,9 +2124,9 @@ def classcards_group_edit():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'school_classcards_groups_classcards'))
 def classcards_group_classcards():
-    '''
+    """
         Page to list classcards for a group
-    '''
+    """
     scgID = request.vars['scgID']
     response.title = T("School")
     response.subtitle = T("Class cards")
@@ -2222,10 +2222,10 @@ def classcards_group_classcard_add():
 
 
 def classcards_group_classcard_add_get_already_added(ssgID):
-    '''
+    """
         :param ssgID: db.school_classcards_groups.id
         :return: list of ids in this group
-    '''
+    """
     query = (db.school_classcards_groups_classcards.school_classcards_groups_id == ssgID)
     rows = db(query).select(db.school_classcards_groups_classcards.school_classcards_id)
 
@@ -2348,10 +2348,10 @@ def languages():
 
 
 def languages_get_link_archive(row):
-    '''
+    """
         Called from the index function. Changes title of archive button
         depending on whether a language is archived or not
-    '''
+    """
     row = db.school_languages(row.id)
 
     if row.Archived:
@@ -2367,10 +2367,10 @@ def languages_get_link_archive(row):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'school_languages'))
 def languages_archive():
-    '''
+    """
         This function archives a subscription
         request.vars[laID] is expected to be the school_languages ID
-    '''
+    """
     laID = request.vars['laID']
     if not laID:
         session.flash = T('Unable to (un)archive language')
@@ -2508,10 +2508,10 @@ def shifts():
 
 
 def shifts_get_link_archive(row):
-    '''
+    """
         Called from the index function. Changes title of archive button
         depending on whether a level is archived or not
-    '''
+    """
     row = db.school_shifts(row.id)
 
     if row.Archived:
@@ -2527,10 +2527,10 @@ def shifts_get_link_archive(row):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'school_shifts'))
 def shifts_archive():
-    '''
+    """
         This function archives a shift
         request.vars[sdID] is expected to be the school_shifts ID
-    '''
+    """
     ssID = request.vars['ssID']
     if not ssID:
         session.flash = T('Unable to (un)archive shifts')
@@ -2615,18 +2615,18 @@ def shifts_edit():
 
 
 def account_get_tools_link_groups(var=None):
-    '''
+    """
         @return: link to settings/groups
-    '''
+    """
     return A(SPAN(os_gui.get_fa_icon('fa-users'), ' ', T('Groups')),
              _href=URL('settings', 'access_groups'),
              _title=T('Define groups and permission for employees'))
 
 
 def employees_get_tools(var=None):
-    '''
+    """
         @return: tools dropdown for employees
-    '''
+    """
     tools = ''
     links = []
     # Groups
@@ -2793,10 +2793,10 @@ def account_get_link_group(row):
 
 
 def account_get_user_group_form(selected=None):
-    '''
+    """
         This function returns the roles of the auth_group table as a list
         of radio buttons.
-    '''
+    """
     form = FORM()
 
     # show a no group option only when editing
@@ -2826,10 +2826,10 @@ def account_get_user_group_form(selected=None):
                auth.has_permission('update', 'employees') or
                auth.has_permission('update', 'teachers'))
 def account_group_add():
-    '''
+    """
         This function shows a page that allows setting of a group for a user
         request.args[0] is expected to be the user id
-    '''
+    """
     response.title = T("Assign group")
     user_id = request.args[0]
     row = db.auth_user(user_id)
@@ -2863,10 +2863,10 @@ def account_group_add():
                auth.has_permission('update', 'employees') or
                auth.has_permission('update', 'teachers'))
 def account_group_edit():
-    '''
+    """
         This function shows a page that allows setting of a group for a user
         request.args[0] is expected to be the auth_membership id (am_id)
-    '''
+    """
     response.title = T("Assign group")
     am_id = request.args[0]
     am_row = db.auth_membership(am_id)
@@ -2894,6 +2894,10 @@ def account_group_edit():
         else:
             message = T("Removed") + " " + row.display_name + " " + \
                       T('from all groups with permissions')
+
+        # Clear cache to regenerate all menus
+        cache_clear_menu_backend()
+
         session.flash = message
         redirect(return_url)
 
@@ -2919,10 +2923,10 @@ def account_change_get_redirect_url():
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('update', 'auth_user'))
 def account_change_status():
-    '''
+    """
         Changes status of an account from enabled to disabled or the
         other way around
-    '''
+    """
     auID = request.vars['auID']
 
     user = db.auth_user(auID)
@@ -2933,9 +2937,9 @@ def account_change_status():
 
 
 def account_get_link_archive(row):
-    '''
+    """
         This function returns the archive link for a user
-    '''
+    """
     row = db.auth_user(row.id)
 
     if row.archived:
@@ -2953,10 +2957,10 @@ def account_get_link_archive(row):
                auth.has_permission('update', 'employees') or
                auth.has_permission('update', 'teachers'))
 def account_archive():
-    '''
+    """
         This function archives a subscription
         request.vars[auID] is expected to be auth_user.id
-    '''
+    """
     auID = request.vars['auID']
     if not auID:
         session.flash = T('Unable to (un)archive account')
@@ -2975,10 +2979,10 @@ def account_archive():
 
 
 def school_get_menu(page):
-    '''
+    """
     @param page: current page
     @return: sidebar menu for school
-    '''
+    """
     pages = []
 
     if auth.has_membership(group_id='Admins') or \
