@@ -402,7 +402,7 @@ def get_form_subtitle(month=None, year=None, function=None, _class='col-md-4'):
     submit = result['submit']
 
     ## Show current
-    url_current_month = URL('teacher_classes_show_current')
+    url_current_month = URL('my_classes_show_current')
     show_current_month = A(T("Current month"),
                            _href=url_current_month,
                            _class='btn btn-default')
@@ -444,7 +444,7 @@ def get_month_subtitle(month, year):
 
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'employee_portal'))
-def teacher_classes_set_month():
+def my_classes_set_month():
     """
         Sets the session variables for teacher_classes year and month
     """
@@ -452,24 +452,24 @@ def teacher_classes_set_month():
     month = request.vars['month']
     back  = request.vars['back']
 
-    session.reports_te_classes_year = int(year)
-    session.reports_te_classes_month = int(month)
+    session.ep_my_classes_year = int(year)
+    session.ep_my_classes_month = int(month)
 
     redirect(URL(back))
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'employee_portal'))
-def teacher_classes_show_current():
+def my_classes_show_current():
     """
         Resets some session variables to show the current month for
         teacher_classes
     """
-    session.reports_te_classes_year = None
-    session.reports_te_classes_month = None
+    session.ep_my_classes_year = None
+    session.ep_my_classes_month = None
     back = request.vars['back']
 
-    redirect(URL('teacher_monthly_classes'))
+    redirect(URL('my_classes'))
 
 
 def overview_get_month_chooser(page):
@@ -477,10 +477,10 @@ def overview_get_month_chooser(page):
         Returns month chooser for overview
     """
 
-    year  = session.reports_te_classes_year
-    month = session.reports_te_classes_month
+    year  = session.ep_my_classes_year
+    month = session.ep_my_classes_month
 
-    link = 'teacher_classes_set_month'
+    link = 'my_classes_set_month'
 
 
     if month == 1:
