@@ -267,115 +267,95 @@ def my_classes():
     creates page that displays the classes tought montlhy
     :return:
     """
-    response.title = T("My Monthly Classes")
+    response.title = T("My classes")
     response.subtitle = T("")
     response.view = 'ep/only_content.html'
 
+    if session.ep_my_classes_month is None or session.ep_my_classes_year is None:
+        session.ep_my_classes_year = TODAY_LOCAL.year
+        session.ep_my_classes_month = TODAY_LOCAL.month
 
-    if 'month' in request.vars:
-        session.reports_te_classes_month = int(request.vars['month'])
-        session.reports_te_classes_year = int(request.vars['year'])
-    elif session.reports_te_classes_month is None or \
-            session.reports_te_classes_year is None:
-        today = datetime.date.today()
-        session.reports_te_classes_year = today.year
-        session.reports_te_classes_month = today.month
+    table = TABLE(_class='table table-hover')
+    table.append(THEAD(TR(
+        TH(),
+        TH(T('Date')),
+        TH(T('Start')),
+        TH(T('Location')),
+        TH(T('Class Type')),
+        TH(),  # actions))
+    )))
 
-    if auth.user.id and auth.user.teacher:
-        teachers_id = auth.user.id
-        cache_clear_classschedule()
+    date = datetime.date(
+        session.ep_my_classes_year,
+        session.ep_my_classes_month,
+        1
+    )
+    last_day = get_last_day_month(date)
 
+    for each_day in range(1, last_day.day + 1):
+        # list days
+        day = datetime.date(session.ep_my_classes_year,
+                            session.ep_my_classes_month,
+                            each_day)
 
-        table = TABLE(_class='table table-hover')
+        class_schedule = ClassSchedule(
+            date=day,
+            filter_id_teacher=auth.user.id
+        )
 
+        rows = class_schedule.get_day_rows()
+        for i, row in enumerate(rows):
+            repr_row = list(rows[i:i + 1].render())[0]
 
-        table.append(THEAD(TR(
-            TH(),
-            TH(T('Date')),
-            TH(T('Start')),
-            TH(T('End')),
-            TH(T('Location')),
-            TH(T('Class Type')),
-            TH(),  # actions))
-        )))
+            result = class_schedule._get_day_row_status(row)
+            status_marker = result['marker']
 
-        date = datetime.date(session.reports_te_classes_year,
-                             session.reports_te_classes_month, 5)
-        last_day = get_last_day_month(date)
+            open_class = db.classes_otc(classes_id=row.classes.id, ClassDate=date, Status='Open')
 
-
-        for each_day in range(1, last_day.day + 1):
-            # list days
-            day = datetime.date(session.reports_te_classes_year,
-                                session.reports_te_classes_month, each_day)
-            weekday = day.isoweekday()
-
-            class_schedule = ClassSchedule(
-                date=day,
-                filter_id_teacher=teachers_id
+            if not open_class:
+                sub_requested = ""
+                button = os_gui.get_button('noicon',
+                                           URL('request_sub',
+                                               vars={'clsID': row.classes.id,
+                                                     'date': date,
+                                                     'teachers_id': auth.user.id}),
+                                           title='Find sub', _class='pull-right', btn_class='btn-success')
+            else:
+                sub_requested = os_gui.get_label('primary', T("Sub requested"))
+                button = os_gui.get_button('noicon',
+                                           URL('cancel_request_sub',
+                                               vars={'clsID': row.classes.id,
+                                                     'date': date}),
+                                           title='Cancel', _class='pull-right', btn_class='btn-warning')
+            tr = TR(
+                TD(status_marker,
+                   _class='td_status_marker'),
+                TD(date.strftime(DATE_FORMAT)),
+                TD(repr_row.classes.Starttime),
+                TD(repr_row.classes.Endtime),
+                TD(repr_row.classes.school_locations_id),
+                TD(repr_row.classes.school_classtypes_id),
+                TD(sub_requested),
+                TD(button)
             )
 
-            rows = class_schedule.get_day_rows()
+            table.append(tr)
 
-            for i, row in enumerate(rows):
-                repr_row = list(rows[i:i + 1].render())[0]
-
-                result = class_schedule._get_day_row_status(row)
-                status_marker = result['marker']
-
-
-
-                date_formatted = day.strftime(DATE_FORMAT)
-                open_class = db.classes_otc(classes_id=row.classes.id,  ClassDate=date_formatted, Status = 'Open')
-                print open_class
-
-                if not open_class:
-                    sub_requested = ""
-                    button= os_gui.get_button('noicon',
-                                         URL( 'request_sub',
-                                             vars={'clsID': row.classes.id,
-                                                   'date': date,
-                                                   'teachers_id':teachers_id}),
-                                         title='Find sub', _class='pull-right', btn_class='btn-success')
-                else:
-                    sub_requested= os_gui.get_label('primary', T("Sub requested"))
-                    button= os_gui.get_button('noicon',
-                                         URL('cancel_request_sub',
-                                             vars={'clsID': row.classes.id,
-                                                   'date': date}),
-                                         title='Cancel', _class='pull-right', btn_class='btn-warning')
-                tr = TR(
-                    TD(status_marker,
-                       _class='td_status_marker'),
-                    TD(date_formatted),
-                    TD(repr_row.classes.Starttime),
-                    TD(repr_row.classes.Endtime),
-                    TD(repr_row.classes.school_locations_id),
-                    TD(repr_row.classes.school_classtypes_id),
-                    TD(sub_requested),
-                    TD(button)
-                )
-
-                table.append(tr)
-
-    else:
-        table = ''
-    form_subtitle = get_form_subtitle(session.reports_te_classes_month,
-                                      session.reports_te_classes_year,
+    form_subtitle = get_form_subtitle(session.ep_my_classes_month,
+                                      session.ep_my_classes_year,
                                       request.function,
                                       _class='col-md-8')
     response.subtitle = form_subtitle['subtitle']
     month_chooser = form_subtitle['month_chooser']
     current_month = form_subtitle['current_month']
 
-    response.subtitle = SPAN(T('Classes'), ' ',
-                             form_subtitle['subtitle'])
+    response.subtitle = form_subtitle['subtitle']
 
     header_tools = month_chooser + current_month
     return dict(
-                header_tools=header_tools,
-                content=table,
-                )
+        header_tools=header_tools,
+        content=table
+    )
 
 
 def get_form_subtitle(month=None, year=None, function=None, _class='col-md-4'):
