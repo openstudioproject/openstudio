@@ -310,27 +310,31 @@ def my_classes():
             result = class_schedule._get_day_row_status(row)
             status_marker = result['marker']
 
-            open_class = db.classes_otc(classes_id=row.classes.id, ClassDate=date, Status='Open')
+            open_class = db.classes_otc(
+                classes_id=row.classes.id,
+                ClassDate=day,
+                Status='open'
+            )
+            print open_class
 
             if not open_class:
                 sub_requested = ""
                 button = os_gui.get_button('noicon',
                                            URL('request_sub',
                                                vars={'clsID': row.classes.id,
-                                                     'date': date,
+                                                     'date': day,
                                                      'teachers_id': auth.user.id}),
                                            title='Find sub', _class='pull-right', btn_class='btn-success')
             else:
                 sub_requested = os_gui.get_label('primary', T("Sub requested"))
                 button = os_gui.get_button('noicon',
                                            URL('cancel_request_sub',
-                                               vars={'clsID': row.classes.id,
-                                                     'date': date}),
+                                               vars={'cotcID': open_class.id}),
                                            title='Cancel', _class='pull-right', btn_class='btn-warning')
             tr = TR(
                 TD(status_marker,
                    _class='td_status_marker'),
-                TD(date.strftime(DATE_FORMAT)),
+                TD(day.strftime(DATE_FORMAT)),
                 TD(repr_row.classes.Starttime),
                 TD(repr_row.classes.Endtime),
                 TD(repr_row.classes.school_locations_id),
@@ -522,14 +526,14 @@ def request_sub():
     row = db.classes_otc(classes_id=clsID,
                          ClassDate = date)
     if not row:
-        db.classes_otc.insert(classes_id = clsID,
-                              ClassDate=date,
-                              Status ='Open',
-                              Starttime= row_classes.Starttime,
-                              Endtime= row_classes.Endtime,
-                              school_locations_id=row_classes.school_locations_id,
-                              school_classtypes_id= row_classes.school_classtypes_id,
-                              auth_teacher_id=teachers_id)
+        db.classes_otc.insert(
+            classes_id = clsID,
+            ClassDate = date,
+            Status = 'open',
+        )
+    else:
+        row.Status='open'
+        row.update_record()
 
     redirect(URL('my_classes'))
 
@@ -537,12 +541,31 @@ def request_sub():
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'employee_portal'))
 def cancel_request_sub():
-    clsID = request.vars['clsID']
-    date = request.vars ['date']
-    row = db.classes_otc(classes_id=clsID, ClassDate = date)
-    if row:
-        db(db.classes_otc.id==row.id).delete()
-        redirect(URL('my_classes'))
+    """
+    Cancel request for sub teacher
+    """
+    cotcID = request.vars['cotcID']
+    row = db.classes_otc(cotcID)
+
+    if (row.school_classtypes_id or
+        row.school_classtypes_id or
+        row.Starttime or
+        row.Endtime or
+        row.auth_teacher_id or
+        row.teacher_role or
+        row.auth_teacher_id2 or
+        row.teacher_role2 or
+        row.MaxOnlineBooking or
+        row.Maxstudents
+    ):
+        row.Status = None
+        row.update_record()
+    else:
+        query = (db.classes_otc.id==row.id)
+        db(query).delete()
+
+    session.flash = T("Cancelled request for sub teacher.")
+    redirect(URL('my_classes'))
 
 
 @auth.requires_login()
