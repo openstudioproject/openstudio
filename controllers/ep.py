@@ -157,9 +157,10 @@ def ep_index_teacher_sub_classes():
 
     table = TABLE(header, _class='table table-hover')
 
-    query = (db.teachers_classtypes.auth_user_id==teachers_id)
+    # Get classtypes for currently logged on teacher
+    query = (db.teachers_classtypes.auth_user_id == teachers_id)
     rows = db(query).select(db.teachers_classtypes.school_classtypes_id)
-    ctIDs= [ row.school_classtypes_id for row in rows]
+    ctIDs = [ row.school_classtypes_id for row in rows ]
 
     left = [
         db.classes.on(
@@ -173,8 +174,9 @@ def ep_index_teacher_sub_classes():
     query = ((db.classes_otc.Status=='open') &
              ((db.classes.school_classtypes_id.belongs(ctIDs)) |
               (db.classes_otc.school_classtypes_id.belongs(ctIDs))) &
-             (db.classes_otc.ClassDate >= db.classes_teachers.Startdate) &
-             (db.classes_otc.ClassDate <= db.classes_teachers.Enddate) &
+             (db.classes_teachers.Startdate <= db.classes_otc.ClassDate) &
+             ((db.classes_teachers.Enddate >= db.classes_otc.ClassDate) |
+              (db.classes_teachers.Enddate == None)) &
              (db.classes_otc.ClassDate >= TODAY_LOCAL)
              )
 

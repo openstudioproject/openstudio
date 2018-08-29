@@ -41,7 +41,7 @@ def test_request_sub(client, web2py):
 
     query = (web2py.db.classes_otc.Status == 'open')
     # print row
-    assert db(query).count() == 1
+    assert web2py.db(query).count() == 1
 
 
 def test_list_sub_classes(client, web2py):
@@ -51,42 +51,52 @@ def test_list_sub_classes(client, web2py):
     :param web2py:
     :return:
     """
-    # url = '/default/user/login'
-    # client.get(url)
-    # assert client.status == 200
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+
+    setup_ep_tests(web2py)
     prepare_classes(web2py)
-    web2py.db.classes_otc.insert(classes_id= 1,
-                                 auth_teacher_id = 2,
-                                 Status='open',
-                                 ClassDate='2014-04-01')
+    web2py.db.classes_otc.insert(classes_id = 3,
+                                 Status ='open',
+                                 ClassDate ='2088-04-01')
+    # web2py.db.teachers_classtypes.insert(
+    #     auth_user_id = 400,
+    #     school_classtypes_id = 1
+    # )
+    web2py.db.teachers_classtypes.insert(
+        auth_user_id = 400,
+        school_classtypes_id = 2
+    )
+
     web2py.db.commit()
 
     url = '/ep'
     client.get(url)
     assert client.status == 200
 
-    text = 'available_for_sub'
-    assert text not in client.text
+    assert 'available_for_sub' in client.text
 
 
-    url = '/ep/available_for_sub?clsID=1&teachers_id=3'
-    client.get(url)
-    assert client.status == 200
-    query = ((web2py.db.classes_otc_sub_avail.auth_user_id == 3) &\
-              (web2py.db.classes_otc_sub_avail.classes_otc_id == 1))
-    row = web2py.db(query).select(web2py.db.classes_otc_sub_avail.ALL)
-
-    assert not row == None
-
-    url = '/ep/cancel_available_for_sub?clsID=1&teachers_id=3'
-    client.get(url)
-    assert client.status == 200
-    query = ((web2py.db.classes_otc_sub_avail.auth_user_id == 3)&\
-              (web2py.db.classes_otc_sub_avail.classes_otc_id == 1) )
-    row = web2py.db(query).select(web2py.db.classes_otc_sub_avail.ALL)
-
-    assert row == None
-    # assert 'available_for_sub' in client.text
+    # url = '/ep/available_for_sub?cotcID=1&teachers_id=3'
+    # client.get(url)
+    # assert client.status == 200
+    # query = ((web2py.db.classes_otc_sub_avail.auth_user_id == 3) &\
+    #           (web2py.db.classes_otc_sub_avail.classes_otc_id == 1))
+    # row = web2py.db(query).select(web2py.db.classes_otc_sub_avail.ALL)
+    #
+    # assert not row == None
+    #
+    # url = '/ep/cancel_available_for_sub?clsID=1&teachers_id=3'
+    # client.get(url)
+    # assert client.status == 200
+    # query = ((web2py.db.classes_otc_sub_avail.auth_user_id == 3)&\
+    #           (web2py.db.classes_otc_sub_avail.classes_otc_id == 1) )
+    # row = web2py.db(query).select(web2py.db.classes_otc_sub_avail.ALL)
+    #
+    # assert row == None
+    # # assert 'available_for_sub' in client.text
 
 
 
