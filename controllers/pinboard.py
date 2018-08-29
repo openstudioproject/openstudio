@@ -138,6 +138,13 @@ def pinboard_get_tasks(var=None):
     return tasks
 
 
+def pinboard_get_teacher_sub_classes(var=None):
+    """
+    Returns list of classes available for subbing
+    """
+    return "TODO!"
+
+
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'pinboard'))
 def pinboard_get_announcements(var=None):
@@ -368,28 +375,27 @@ def pinboard_get_teacher_upcoming_classes_footer(var=None):
     
     link_last_month = A(
         T("Last month"),
-        _href=URL('teacher_classes_set_month',
+        _href=URL('ep', 'my_classes_set_month',
                   vars={'month': month_last,
                         'year': year_last,
-                        'back': 'teacher_classes_month'})
+                        'back': 'my_classes'})
     )
 
     link_this_month = A(
         T("This month"),
-        _href=URL('teacher_classes_set_month',
+        _href=URL('ep', 'my_classes_set_month',
                   vars={'month': TODAY_LOCAL.month,
                         'year': TODAY_LOCAL.year,
-                        'back': 'teacher_classes_month'})
+                        'back': 'my_classes'})
     )
 
     link_next_month = A(
         T("Next month"),
-        _href=URL('teacher_classes_set_month',
+        _href=URL('ep', 'my_classes_set_month',
                   vars={'month': month_next,
                         'year': year_next,
-                        'back': 'teacher_classes_month'})
+                        'back': 'my_classes'})
     )
-    
 
     return DIV(
         DIV(

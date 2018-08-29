@@ -323,7 +323,6 @@ def my_classes():
                 ClassDate=day,
                 Status='open'
             )
-            print open_class
 
             if not open_class:
                 sub_requested = ""
