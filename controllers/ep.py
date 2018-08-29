@@ -187,20 +187,23 @@ def ep_index_teacher_sub_classes():
 
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
-        row_avail=db.classes_otc_sub_avail(classes_otc_id=row.classes_otc.id, auth_user_id = auth.user.id)
+        row_avail=db.classes_otc_sub_avail(
+            classes_otc_id = row.classes_otc.id,
+            auth_teacher_id = auth.user.id
+        )
 
         if not row_avail:
-            button = os_gui.get_button('astronaut',
+            button = os_gui.get_button('noicon',
                                       URL('available_for_sub',
-                                          vars={'clsID': row.classes.id,
-                                                'teachers_id':auth.user.id}),
-                                      title='Available', _class='pull-right', btn_class='btn-success')
+                                          vars={'cotcID': row.classes_otc.id}),
+                                      title=T("I'm available to sub"), _class='pull-right', btn_class='btn-success')
         else:
-            button = os_gui.get_button('astronaut',
+            button = os_gui.get_button('noicon',
                                       URL('cancel_available_for_sub',
-                                          vars={'clsID': row.classes.id,
-                                                'teachers_id': auth.user.id}),
-                                      title='Cancel', _class='pull-right', btn_class='btn-warning')
+                                          vars={'cotcsaID': row_avail.id}),
+                                      title=T("I'm no longer available"),
+                                      _class='pull-right',
+                                       btn_class='btn-warning')
         tr = TR(TD(repr_row.classes_otc.ClassDate),
                 TD(repr_row.classes.Starttime, ' - ', repr_row.classes.Endtime),
                 TD(repr_row.classes.school_locations_id),
@@ -230,29 +233,36 @@ def ep_index_teacher_sub_classes():
                auth.has_permission('read', 'employee_portal'))
 def available_for_sub():
     """
-    adds class and teacher to classes_oct_sub_avail table
-    :return:
+    Add class and teacher to classes_oct_sub_avail table
     """
-    clsID = request.vars['clsID']
-    teachers_id = request.vars['teachers_id']
+    cotcID = request.vars['cotcID']
+    teachers_id = auth.user.id
 
-    row = db.classes_otc_sub_avail(id=clsID, auth_user_id=teachers_id )
+    row = db.classes_otc_sub_avail(
+        classes_otc_id=cotcID,
+        auth_teacher_id=teachers_id
+    )
     if not row:
-        db.classes_otc_sub_avail.insert(classes_otc_id=clsID,
-                              auth_user_id=teachers_id)
-        redirect(URL('index'))
+        db.classes_otc_sub_avail.insert(
+            classes_otc_id=cotcID,
+            auth_teacher_id=teachers_id
+        )
+
+
     redirect(URL('index'))
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'employee_portal'))
 def cancel_available_for_sub():
-    clsID = request.vars['clsID']
-    teachers_id = request.vars['teachers_id']
-    row = db.classes_otc_sub_avail(classes_otc_id=clsID, auth_user_id=teachers_id)
-    if row:
-        db(db.classes_otc_sub_avail.id==row.id).delete()
-        redirect(URL('index'))
+    """
+    Remove entry from classes_otc_sub_avail
+    """
+    cotcsaID = request.vars['cotcsaID']
+
+    query = (db.classes_otc_sub_avail.id == cotcsaID)
+    db(query).delete()
+
     redirect(URL('index'))
 
 

@@ -1812,11 +1812,11 @@ def define_classes_otc_sub_avail():
     db.define_table('classes_otc_sub_avail',
         Field('classes_otc_id', db.classes_otc,
               label=T('Classes_OTC')),
-        Field('auth_user_id', db.auth_user,
+        Field('auth_teacher_id', db.auth_user,
               label=T('Teacher')),
         Field('Accepted', 'boolean',
               label=T('Accepted'))
-                    )
+    )
 
 
 def define_classes_school_subscriptions_groups():
