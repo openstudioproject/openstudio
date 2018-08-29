@@ -59,80 +59,18 @@ def ep_index_teacher_upcoming_classes(days=3):
     """
         @return: List upcoming classes for a teacher
     """
+    from openstudio.os_teacher import Teacher
+
     if auth.user.id and auth.user.teacher:
         teachers_id = auth.user.id
         cache_clear_classschedule()
     else:
         return ''
 
-    attendance_permission = (auth.has_membership(group_id='Admins') or \
-                             auth.has_permission('update', 'classes_attendance'))
-
-    date = datetime.date.today()
-    delta = datetime.timedelta(days=1)
-
-    header = THEAD(TR(TH(T('Class date')),
-                      TH(T('Time')),
-                      TH(T('Location')),
-                      TH(T('Class type')),
-                      TH(T('Teacher')),
-                      TH(T('Teacher2')),
-                      TH(),
-                      ))
-
-    table = TABLE(header, _class='table table-hover')
+    teacher = Teacher(auth.user.id)
 
 
-    for day in range(0, days):
-        cs = ClassSchedule(
-            date,
-            filter_id_teacher=teachers_id)
-
-        rows = cs.get_day_rows()
-        for i, row in enumerate(rows):
-            if row.classes_otc.Status == 'cancelled' or row.school_holidays.id:
-                continue
-
-            repr_row = list(rows[i:i + 1].render())[0]
-
-            result = cs._get_day_row_teacher_roles(row, repr_row)
-
-            teacher = result['teacher_role']
-            teacher2 = result['teacher_role2']
-
-            attendance = ''
-            if attendance_permission:
-                attendance = os_gui.get_button('noicon', URL('classes', 'attendance',
-                                                           vars={'clsID':row.classes.id,
-                                                                 'date':date.strftime(DATE_FORMAT)}),
-                                               title=T('Attendance'),
-                                               _class=T('pull-right'))
-
-            tr = TR(TD(date.strftime(DATE_FORMAT), _class='bold green' if day == 0 else ''),
-                    TD(repr_row.classes.Starttime, ' - ', repr_row.classes.Endtime),
-                    TD(repr_row.classes.school_locations_id),
-                    TD(repr_row.classes.school_classtypes_id),
-                    TD(teacher),
-                    TD(teacher2),
-                    TD(attendance)
-                    )
-
-            table.append(tr)
-
-        date += delta
-
-    upcoming_classes = DIV(DIV(H3(T('My upcoming classes'), _class="box-title"),
-                               DIV(A(I(_class='fa fa-minus'),
-                                     _href='#',
-                                     _class='btn btn-box-tool',
-                                     _title=T("Collapse"),
-                                     **{'_data-widget': 'collapse'}),
-                                   _class='box-tools pull-right'),
-                               _class='box-header with-border'),
-                               DIV(table, _class='box-body'),
-                          _class='box box-success')
-
-    return upcoming_classes
+    return teacher.get_upcoming_classes_formatted(days)
 
 
 #TODO: move to os_teacher for use in pinboard and here.

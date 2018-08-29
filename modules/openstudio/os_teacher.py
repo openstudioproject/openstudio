@@ -3,6 +3,8 @@
     This file holds OpenStudio Teacher class
 """
 
+import datetime
+
 from gluon import *
 from mailchimp3 import MailChimp
 from mailchimp3.mailchimpclient import MailChimpError
@@ -19,6 +21,89 @@ class Teacher:
 
         self.id = auID
         self.row = db.auth_user(auID)
+
+
+    def get_upcoming_classes_formatted(self, days=3):
+        """
+            Returns upcoming classes for teacher
+        """
+        from os_class_schedule import ClassSchedule
+
+        T = current.T
+        db = current.db
+        auth = current.auth
+        TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
+
+        attendance_permission = (auth.has_membership(group_id='Admins') or
+                                 auth.has_permission('update', 'classes_attendance'))
+
+        date = TODAY_LOCAL
+        delta = datetime.timedelta(days=1)
+
+        header = THEAD(TR(TH(T('Class date')),
+                          TH(T('Time')),
+                          TH(T('Location')),
+                          TH(T('Class type')),
+                          TH(T('Teacher')),
+                          TH(T('Teacher2')),
+                          TH(),
+                          ))
+
+        table = TABLE(header, _class='table table-hover')
+
+        for day in range(0, days):
+            cs = ClassSchedule(
+                date,
+                filter_id_teacher=self.id)
+
+            rows = cs.get_day_rows()
+            if not len(rows):
+                table = T("No upcoming classes found...")
+            else:
+                for i, row in enumerate(rows):
+                    if row.classes_otc.Status == 'cancelled' or row.school_holidays.id:
+                        continue
+
+                    repr_row = list(rows[i:i + 1].render())[0]
+
+                    result = cs._get_day_row_teacher_roles(row, repr_row)
+
+                    teacher = result['teacher_role']
+                    teacher2 = result['teacher_role2']
+
+                    attendance = ''
+                    if attendance_permission:
+                        attendance = os_gui.get_button('noicon', URL('classes', 'attendance',
+                                                                     vars={'clsID': row.classes.id,
+                                                                           'date': date.strftime(DATE_FORMAT)}),
+                                                       title=T('Attendance'),
+                                                       _class=T('pull-right'))
+
+                    tr = TR(TD(date.strftime(DATE_FORMAT), _class='bold green' if day == 0 else ''),
+                            TD(repr_row.classes.Starttime, ' - ', repr_row.classes.Endtime),
+                            TD(repr_row.classes.school_locations_id),
+                            TD(repr_row.classes.school_classtypes_id),
+                            TD(teacher),
+                            TD(teacher2),
+                            TD(attendance)
+                            )
+
+                    table.append(tr)
+
+            date += delta
+
+        upcoming_classes = DIV(DIV(H3(T('My upcoming classes'), _class="box-title"),
+                                   DIV(A(I(_class='fa fa-minus'),
+                                         _href='#',
+                                         _class='btn btn-box-tool',
+                                         _title=T("Collapse"),
+                                         **{'_data-widget': 'collapse'}),
+                                       _class='box-tools pull-right'),
+                                   _class='box-header with-border'),
+                               DIV(table, _class='box-body'),
+                               _class='box box-success')
+
+        return upcoming_classes
 
 
     def get_payment_fixed_rate_default(self, render=False):
