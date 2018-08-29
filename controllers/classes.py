@@ -4893,6 +4893,119 @@ def class_classcard_group_add_get_already_added(clsID):
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'substitution_requests'))
+def substitution_requests():
+    '''
+    Page to accept and decline substitution requests
+    :return:
+    '''
+    response.title = T("Substitution Offers")
+    response.subtitle = T("")
+    response.view = 'general/only_content.html'
+
+
+    table = TABLE(_class='table table-hover')
+
+    table.append(THEAD(TR(
+        # TH(),
+        TH(T('Date')),
+        TH(T('Start')),
+        TH(T('Location')),
+        TH(T('Class Type')),
+        TH(T('Teacher Sub')),
+        TH(),  # actions))
+    )))
+
+
+    left = [
+        db.classes_otc.on(
+            db.classes_otc_sub_avail.classes_otc_id == db.classes_otc.id
+        ),
+        db.classes.on(
+            db.classes_otc.classes_id == db.classes.id
+        )
+    ]
+
+    query = (db.classes_otc_sub_avail.classes_otc_id>0)
+    rows = db(query).select(
+        db.classes_otc_sub_avail.ALL,
+        db.classes_otc.ALL,
+        db.classes.ALL,
+        left=left,
+        orderby=db.classes_otc.ClassDate | db.classes_otc.Starttime
+    )
+
+    for i, row in enumerate(rows):
+        repr_row = list(rows[i:i + 1].render())[0]
+
+
+        if row.classes_otc_sub_avail.Accepted == True:
+            Status = os_gui.get_label('primary', T("Accepted"))
+        elif row.classes_otc_sub_avail.Accepted ==False:
+            Status = os_gui.get_label('primary', T("Declined"))
+        else:
+            Status = os_gui.get_label('primary', T("Pending"))
+        button = os_gui.get_button('astronaut',
+                                   URL('accept_sub_req',
+                                       vars={
+                                             'saID': row.classes_otc_sub_avail.id
+                                             }),
+                                   title='Accept', _class='pull-right', btn_class='btn-success')
+
+        button += os_gui.get_button('astronaut',
+                                   URL('decline_sub_req',
+                                       vars={
+                                             'saID': row.classes_otc_sub_avail.id}),
+                                   title='Decline', _class='pull-right', btn_class='btn-danger')
+
+        # teachers_id= db.auth_user(id=row.auth_user_id)
+        tr = TR(
+            # TD(status_marker,
+            #    _class='td_status_marker'),
+            TD(repr_row.classes_otc.ClassDate),
+            TD(repr_row.classes_otc.Starttime),
+            TD(repr_row.classes_otc.school_locations_id),
+            TD(repr_row.classes_otc.school_classtypes_id),
+            TD(repr_row.classes_otc_sub_avail.auth_user_id),
+            TD(Status),
+            # TD(sub_requested),
+            TD(button)
+        )
+
+        table.append(tr)
+    return dict(content=table)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'accept_sub_req'))
+def accept_sub_req():
+    saID = request.vars['saID']
+
+    # db.classes_otc_sub_avail[saID] = dict(Accepted = true)
+    row = db.classes_otc_sub_avail(saID)
+    row.Accepted = True
+    row.update_record()
+
+    query = (db.classes_otc_sub_avail.classes_otc_id == row.classes_otc_id) & \
+            (db.classes_otc_sub_avail.id != saID)
+    db(query).update(Accepted = False)
+
+    db.classes_otc[row.classes_otc_id] = dict(Status = None)
+
+    redirect(URL('substitution_requests'))
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'decline_sub_req'))
+def decline_sub_req():
+    saID = request.vars['saID']
+
+    db.classes_otc_sub_avail[saID] = dict(Accepted = False)
+
+    redirect(URL('substitution_requests'))
+
+    
+@auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'classes_revenue'))
 def revenue():
     """

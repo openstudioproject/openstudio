@@ -750,6 +750,7 @@ def populate_classes(web2py, with_otc=False):
 
 
 def prepare_classes(web2py,
+                    auth_teacher_id = 2,
                     nr_of_customers = 10,
                     cuID = 1001,
                     attendance=True,
@@ -866,10 +867,10 @@ def prepare_classes(web2py,
     web2py.db.classes_waitinglist.insert(auth_customer_id=cuID,
                                          classes_id='1')
     web2py.db.classes_teachers.insert(classes_id=1,
-                                      auth_teacher_id=2,
+                                      auth_teacher_id=auth_teacher_id,
                                       Startdate='2014-01-01')
     web2py.db.classes_teachers.insert(classes_id=2,
-                                      auth_teacher_id=2,
+                                      auth_teacher_id=auth_teacher_id,
                                       Startdate='2014-01-01')
     web2py.db.classes_teachers.insert(classes_id=3,
                                       auth_teacher_id=3,

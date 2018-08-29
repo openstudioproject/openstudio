@@ -50,6 +50,29 @@ def shoppingcart_menu_item():
                 _title=T('Shopping cart'))
 
 
+def ep_menu():
+    user_helpers = User_helpers()
+    menu= []
+
+    # Home
+    menu.append([(  # I(_class='fa fa-home'),
+        SPAN(T('Home'))),
+        False,
+        URL('ep', 'index', extension='')])
+
+    # Monthly Classes
+    menu.append([(  # I(_class='fa fa-graduation-cap'),
+        SPAN(T('My Classes'))),
+        False,
+        URL('ep', 'my_classes', extension='')])
+
+    # My Payments / Staffpayments
+    menu.append([(  # I(_class='fa fa-home'),
+        SPAN(T('My Payments'))),
+        False,
+        URL('ep', 'my_payments', extension='')])
+    return menu
+
 
 def profile_menu():
     featured_class = ''
@@ -289,6 +312,10 @@ def get_backend_menu():
                 submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Studio staff'))),
                                 False,
                                 URL('staff', 'schedule', extension='')))
+            if user_helpers.check_read_permission('substitution_requests', user_id):
+                submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Substitution Offers'))),
+                                False,
+                                URL('classes', 'substitution_requests', extension='')))
 
             menu += [ ((I(_class='fa fa-calendar'),
                                  SPAN(T('Schedule')),
@@ -563,7 +590,7 @@ def get_backend_menu():
                                 URL('#', extension=''), submenu)
                              ]
 
-        # Flash to
+        # Go to
         submenu = [
             ( '', False, A((os_gui.get_fa_icon('fa-caret-right'),
                             SPAN(T('Shop'))),
@@ -575,7 +602,13 @@ def get_backend_menu():
             submenu.insert(0, ( '', False, A((os_gui.get_fa_icon('fa-caret-right'),
                                               SPAN(T('Self check-in'))),
                                               _href=URL('selfcheckin', 'index', extension=''),
-                                              _target='_blank')))
+                                              _target="_blank"
+                                             )))
+
+        if user_helpers.check_read_permission('employee_portal', user_id):
+            submenu.insert(0, ( '', False, A((os_gui.get_fa_icon('fa-caret-right'),
+                                              SPAN(T('Employee portal'))),
+                                              _href=URL('ep', 'index', extension=''))))
 
         menu += [ ((I(_class=jumpto_class + ' fa fa-flash', _title=T('Go to')),
                             SPAN(T('Go to')),
@@ -605,8 +638,9 @@ if request.controller == 'shop' or request.controller == 'profile':
     response.menu_shop = shop_menu()
     response.menu_shop_about = shop_menu_about()
     response.menu_shopping_cart = shoppingcart_menu_item()
-    response.menu_profile = profile_menu()
     response.menu_links = shop_links()
+    response.menu_profile = profile_menu()
+
 
     response.logo = SPAN(B('Open'), 'Studio', _class='logo-lg')
 
@@ -625,6 +659,9 @@ if request.controller == 'shop' or request.controller == 'profile':
     shop_header_logo_url = get_sys_property('shop_header_logo_url')
     if shop_header_logo_url:
         response.logo_url = shop_header_logo_url
+
+elif request.controller == 'ep':
+    response.menu = ep_menu()
 
 else:
     if auth.user:

@@ -1896,12 +1896,12 @@ def define_classes_otc():
             label=T("Type")),
         Field('Starttime', 'time',
             requires=IS_EMPTY_OR(IS_TIME(error_message='please insert as HH:MM')),
-            represent=lambda value, row: value.strftime('%H:%M'),
+            represent=lambda value, row: value.strftime('%H:%M') if value else '',
             widget=os_time_widget,
             label=T("Start")),
         Field('Endtime', 'time',
             requires=IS_EMPTY_OR(IS_TIME(error_message='please insert as HH:MM')),
-            represent=lambda value, row: value.strftime('%H:%M'),
+            represent=lambda value, row: value.strftime('%H:%M') if value else '',
             widget=os_time_widget,
             label=T("End")),
         Field('auth_teacher_id', db.auth_user,
@@ -1942,6 +1942,20 @@ def define_classes_otc():
               comment=os_gui.get_info_icon(
                   title=T("Maximum number of online bookings accepted for this class"),
                   btn_icon='info')),
+    )
+
+def define_classes_otc_sub_avail():
+    '''
+        Table to store the available requests for a class open to substitution
+    '''
+    db.define_table('classes_otc_sub_avail',
+        Field('classes_otc_id', db.classes_otc,
+              label=T('Classes_OTC')),
+        Field('auth_teacher_id', db.auth_user,
+              label=T('Teacher')),
+        Field('Accepted', 'boolean',
+              default=False,
+              label=T('Accepted'))
     )
 
 
@@ -5627,6 +5641,7 @@ define_classes()
 define_customers_shoppingcart()
 #classes_dict = create_classes_dict()
 define_classes_otc()
+define_classes_otc_sub_avail()
 define_classes_price()
 define_classes_teachers()
 define_classes_open()

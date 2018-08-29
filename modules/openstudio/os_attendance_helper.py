@@ -1244,6 +1244,8 @@ class AttendanceHelper:
                                                         _class='disabled pull-right grey')
 
                 # Check Credits display
+                credits_remaining = subscription['CreditsRemaining']
+
                 if subscription['Unlimited']:
                     credits_display = T('Unlimited')
                 else:
