@@ -631,7 +631,7 @@ class Invoice:
                 )
 
             db.customers_subscriptions[cs.csID] = dict(RegistrationFeePaid=True)
-              
+
         ##
         # Always call these
         ##
