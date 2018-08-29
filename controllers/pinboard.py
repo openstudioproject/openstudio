@@ -64,12 +64,12 @@ def hide_welcome():
     redirect(URL('index'))
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
+@auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'pinboard'))
 def index():
-    '''
+    """
         Pinboard page, a quick overview of today
-    '''
+    """
     response.title = T("Pinboard")
     response.subtitle = T("")
 
@@ -123,9 +123,9 @@ def index():
 
 
 def pinboard_get_tasks(var=None):
-    '''
+    """
         Add todays and tomorrow's tasks to the pinboard
-    '''
+    """
     tasks = ''
     permission = (auth.has_membership(group_id='Admins') or
                   auth.has_permission('read', 'tasks'))
@@ -141,9 +141,9 @@ def pinboard_get_tasks(var=None):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'pinboard'))
 def pinboard_get_announcements(var=None):
-    '''
+    """
         Announcements for pinboard in a nice list
-    '''
+    """
     today = datetime.date.today()
     query = (db.announcements.Visible == True) & \
             (db.announcements.Startdate <= today) & \
@@ -264,16 +264,16 @@ def get_birthdays(var=None):
 
 
 def pinboard_get_teacher_upcoming_classes(days=3):
-    '''
+    """
         @return: List upcoming classes for a teacher
-    '''
+    """
     if auth.user.id and auth.user.teacher:
         teachers_id = auth.user.id
         cache_clear_classschedule()
     else:
         return ''
 
-    attendance_permission = (auth.has_membership(group_id='Admins') or \
+    attendance_permission = (auth.has_membership(group_id='Admins') or
                              auth.has_permission('update', 'classes_attendance'))
 
     date = datetime.date.today()
@@ -304,15 +304,11 @@ def pinboard_get_teacher_upcoming_classes(days=3):
             repr_row = list(rows[i:i + 1].render())[0]
 
             result = cs._get_day_row_teacher_roles(row, repr_row)
-
             teacher = result['teacher_role']
             teacher2 = result['teacher_role2']
 
             attendance = ''
             if attendance_permission:
-                # attendance = A(T('Attendance'),
-                #                _href=URL('classes', 'attendance', vars={'clsID':row.classes.id,
-                #                                                         'date':date.strftime(DATE_FORMAT)}))
                 attendance = os_gui.get_button('noicon', URL('classes', 'attendance',
                                                            vars={'clsID':row.classes.id,
                                                                  'date':date.strftime(DATE_FORMAT)}),
@@ -342,144 +338,73 @@ def pinboard_get_teacher_upcoming_classes(days=3):
                                    _class='box-tools pull-right'),
                                _class='box-header with-border'),
                                DIV(table, _class='box-body'),
+                               pinboard_get_teacher_upcoming_classes_footer(),
                           _class='box box-info')
 
     return upcoming_classes
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'pinboard'))
-def pinboard_get_teacher_sub_classes():
-    '''
-        @return: List classes that need to get subbed
-    '''
-    if auth.user.id and auth.user.teacher:
-        teachers_id = auth.user.id
-        cache_clear_classschedule()
+
+def pinboard_get_teacher_upcoming_classes_footer(var=None):
+    """
+    Footer for upcoming classes page 
+    :return: div.box-footer
+    """
+    # Last month
+    if TODAY_LOCAL.month == 1:
+        month_last = 12
+        year_last = TODAY_LOCAL.year - 1 
     else:
-        return ''
-
-
-
-    header = THEAD(TR(TH(T('Class date')),
-                      TH(T('Time')),
-                      TH(T('Location')),
-                      TH(T('Class type')),
-                      TH(),
-                      ))
-
-    table = TABLE(header, _class='table table-hover dataTable')
-
-    query = (db.teachers_classtypes.auth_user_id==teachers_id)
-    rows = db(query).select(db.teachers_classtypes.school_classtypes_id)
-    ctIDs= [ row.school_classtypes_id for row in rows]
-
-
-
-    left = [
-        db.classes.on(
-            db.classes_otc.classes_id == db.classes.id,
-
-        ),
-        db.classes_teachers.on(
-            db.classes_teachers.classes_id == db.classes.id
-        )
-
-    ]
-
-
-    query = ((db.classes_otc.Status=='open') &\
-             (db.classes_otc.school_classtypes_id.belongs(ctIDs)) &\
-             (db.classes_otc.auth_teacher_id != teachers_id) & \
-             (db.classes_otc.ClassDate >= db.classes_teachers.Startdate) & \
-             (db.classes_otc.ClassDate <= db.classes_teachers.Enddate) & \
-             (db.classes_otc.classes_id == db.classes_teachers.classes_id) & \
-             (db.classes_teachers.auth_teacher_id != teachers_id))
-
-
-
-    rows=db(query).select(
-        db.classes_otc.ALL,
-        left=left,
-        orderby= db.classes.id
+        month_last = TODAY_LOCAL.month - 1
+        year_last = TODAY_LOCAL.year
+        
+    # Next month
+    if TODAY_LOCAL.month == 12:
+        month_next = 1
+        year_next = TODAY_LOCAL.year + 1 
+    else:
+        month_next = TODAY_LOCAL.month + 1
+        year_next = TODAY_LOCAL.year
+    
+    link_last_month = A(
+        T("Last month"),
+        _href=URL('teacher_classes_set_month',
+                  vars={'month': month_last,
+                        'year': year_last,
+                        'back': 'teacher_classes_month'})
     )
 
+    link_this_month = A(
+        T("This month"),
+        _href=URL('teacher_classes_set_month',
+                  vars={'month': TODAY_LOCAL.month,
+                        'year': TODAY_LOCAL.year,
+                        'back': 'teacher_classes_month'})
+    )
 
-    for i, row in enumerate(rows):
-        repr_row = list(rows[i:i + 1].render())[0]
+    link_next_month = A(
+        T("Next month"),
+        _href=URL('teacher_classes_set_month',
+                  vars={'month': month_next,
+                        'year': year_next,
+                        'back': 'teacher_classes_month'})
+    )
+    
 
+    return DIV(
+        DIV(
+            DIV(link_last_month, _class='pull-left'),
+            DIV(link_next_month, _class='pull-right'),
+            DIV(link_this_month, _class='center'),
+            _class='col-md-12'),
+        _class='box-footer'
+    )
 
-        row_avail=db.classes_otc_sub_avail(classes_otc_id=row.id, auth_user_id = teachers_id)
-
-        if not row_avail:
-            button = os_gui.get_button('astronaut',
-                                      URL('available_for_sub',
-                                          vars={'clsID': row.id, 'teachers_id':teachers_id}),
-                                      title='Available', _class='pull-right', btn_class='btn-success')
-        else:
-            button = os_gui.get_button('astronaut',
-                                      URL('cancel_available_for_sub',
-                                          vars={'clsID': row.id, 'teachers_id':teachers_id}),
-                                      title='Cancel', _class='pull-right', btn_class='btn-warning')
-        tr = TR(TD(repr_row.ClassDate),
-                TD(repr_row.Starttime, ' - ', repr_row.Endtime),
-                TD(repr_row.school_locations_id),
-                TD(repr_row.school_classtypes_id),
-                TD(button)
-                )
-        table.append(tr)
-    if not len(rows):
-        table = TABLE(TD("At the moment no substitution required!"),_class='table table-hover dataTable')
-
-    upcoming_classes = DIV(DIV(H3(T('Substitute Teacher Requested'), _class="box-title"),
-                               DIV(A(I(_class='fa fa-minus'),
-                                     _href='#',
-                                     _class='btn btn-box-tool',
-                                     _title=T("Collapse"),
-                                     **{'_data-widget': 'collapse'}),
-                                   _class='box-tools pull-right'),
-                               _class='box-header with-border'),
-                               DIV(table, _class='box-body'),
-                          _class='box box-info')
-
-    return upcoming_classes
-
-
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'pinboard'))
-def available_for_sub():
-    '''
-    adds class and teacher to classes_oct_sub_avail table
-    :return:
-    '''
-    clsID = request.vars['clsID']
-    teachers_id = request.vars['teachers_id']
-
-    row = db.classes_otc_sub_avail(id=clsID, auth_user_id=teachers_id )
-    if not row:
-        db.classes_otc_sub_avail.insert(classes_otc_id=clsID,
-                              auth_user_id=teachers_id)
-        redirect(URL('index'))
-    redirect(URL('index'))
-
-
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'pinboard'))
-def cancel_available_for_sub():
-    clsID = request.vars['clsID']
-    teachers_id = request.vars['teachers_id']
-    row = db.classes_otc_sub_avail(classes_otc_id=clsID, auth_user_id=teachers_id)
-    print row
-    if row:
-        db(db.classes_otc_sub_avail.id==row.id).delete()
-        redirect(URL('index'))
-    redirect(URL('index'))
-
-
+  
 def pinboard_get_cancelled_classes(days=3):
-    '''
+    """
     :return: list of cancelled classes
-    '''
+    """
     today = TODAY_LOCAL
 
     delta =  datetime.timedelta(days=days)
@@ -542,122 +467,6 @@ def pinboard_get_cancelled_classes(days=3):
                           _class='box box-warning')
 
     return classes
-
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'pinboard'))
-def teacher_monthly_classes():
-    '''
-    creates page that displays the classes tought montlhy
-    :return:
-    '''
-    response.title = T("Monthly Classes")
-    response.subtitle = T("")
-    response.view = 'general/only_content.html'
-
-
-    if 'month' in request.vars:
-        session.reports_te_classes_month = int(request.vars['month'])
-        session.reports_te_classes_year = int(request.vars['year'])
-    elif session.reports_te_classes_month is None or \
-            session.reports_te_classes_year is None:
-        today = datetime.date.today()
-        session.reports_te_classes_year = today.year
-        session.reports_te_classes_month = today.month
-
-    if auth.user.id and auth.user.teacher:
-        teachers_id = auth.user.id
-        cache_clear_classschedule()
-
-
-        table = TABLE(_class='table table-hover')
-
-
-        table.append(THEAD(TR(
-            TH(),
-            TH(T('Date')),
-            TH(T('Start')),
-            TH(T('End')),
-            TH(T('Location')),
-            TH(T('Class Type')),
-            TH(),  # actions))
-        )))
-
-        date = datetime.date(session.reports_te_classes_year,
-                             session.reports_te_classes_month, 5)
-        last_day = get_last_day_month(date)
-
-
-
-        for each_day in range(1, last_day.day + 1):
-            # list days
-            day = datetime.date(session.reports_te_classes_year,
-                                session.reports_te_classes_month, each_day)
-            weekday = day.isoweekday()
-
-            class_schedule = ClassSchedule(
-                date=day,
-                filter_id_teacher=teachers_id
-            )
-
-            rows = class_schedule.get_day_rows()
-
-            for i, row in enumerate(rows):
-                repr_row = list(rows[i:i + 1].render())[0]
-
-                result = class_schedule._get_day_row_status(row)
-                status_marker = result['marker']
-
-
-
-                date_formatted = day.strftime(DATE_FORMAT)
-                open_class = db.classes_otc(classes_id=row.classes.id,  ClassDate=date_formatted, Status = 'open')
-                if not open_class:
-                    sub_requested = ""
-                    button= os_gui.get_button('astronaut',
-                                         URL( 'request_sub',
-                                             vars={'clsID': row.classes.id,
-                                                   'date': date_formatted,
-                                                   'teachers_id':teachers_id}),
-                                         title='Find sub', _class='pull-right', btn_class='btn-success')
-                else:
-                    sub_requested= os_gui.get_label('primary', T("Sub requested"))
-                    button= os_gui.get_button('astronaut',
-                                         URL('cancel_request_sub',
-                                             vars={'clsID': row.classes.id,
-                                                                            'date': date_formatted}),
-                                         title='Cancel', _class='pull-right', btn_class='btn-warning')
-                tr = TR(
-                    TD(status_marker,
-                       _class='td_status_marker'),
-                    TD(date_formatted),
-                    TD(repr_row.classes.Starttime),
-                    TD(repr_row.classes.Endtime),
-                    TD(repr_row.classes.school_locations_id),
-                    TD(repr_row.classes.school_classtypes_id),
-                    TD(sub_requested),
-                    TD(button)
-                )
-
-                table.append(tr)
-
-    else:
-        table = ''
-    form_subtitle = get_form_subtitle(session.reports_te_classes_month,
-                                      session.reports_te_classes_year,
-                                      request.function,
-                                      _class='col-md-8')
-    response.subtitle = form_subtitle['subtitle']
-    month_chooser = form_subtitle['month_chooser']
-    current_month = form_subtitle['current_month']
-
-    response.subtitle = SPAN(T('Teacher classes'), ' ',
-                             form_subtitle['subtitle'])
-
-    header_tools = month_chooser + current_month
-    return dict(
-                header_tools=header_tools,
-                content=table,
-                )
 
 
 def get_form_subtitle(month=None, year=None, function=None, _class='col-md-4'):
@@ -723,61 +532,4 @@ def get_form_subtitle(month=None, year=None, function=None, _class='col-md-4'):
         submit=submit
     )
 
-
-def get_month_subtitle(month, year):
-    """
-    :param month: int 1 - 12
-    :return: subtitle
-    """
-    months = get_months_list()
-    subtitle = ''
-    if year and month:
-        for m in months:
-            if m[0] == month:
-                month_title = m[1]
-        subtitle = month_title + " " + unicode(year)
-
-    return subtitle
-
-
-def overview_get_month_chooser(page):
-    """
-        Returns month chooser for overview
-    """
-
-    year  = session.reports_te_classes_year
-    month = session.reports_te_classes_month
-
-    link = 'teacher_classes_set_month'
-
-
-    if month == 1:
-        prev_month = 12
-        prev_year  = year - 1
-    else:
-        prev_month = month - 1
-        prev_year  = year
-
-    if month == 12:
-        next_month = 1
-        next_year  = year + 1
-    else:
-        next_month = month + 1
-        next_year  = year
-
-    url_prev = URL(link, vars={'month':prev_month,
-                               'year' :prev_year,
-                               'back' :page})
-
-    url_next = URL(link, vars={'month':next_month,
-                                  'year' :next_year,
-                                  'back' :page})
-
-    previous = A(I(_class='fa fa-angle-left'),
-                 _href=url_prev,
-                 _class='btn btn-default')
-    nxt = A(I(_class='fa fa-angle-right'),
-            _href=url_next,
-            _class='btn btn-default')
-
-    return DIV(previous, nxt, _class='btn-group pull-right')
+  

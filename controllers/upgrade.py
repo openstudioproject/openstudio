@@ -81,10 +81,10 @@ def index():
         else:
             session.flash = T('Already up to date')
 
-        if version < 2018.9:
+        if version < 2018.81:
             print version
-            upgrade_to_20189()
-            session.flash = T("Upgraded db to 2018.9")
+            upgrade_to_201881()
+            session.flash = T("Upgraded db to 2018.81")
         else:
             session.flash = T('Already up to date')
 
@@ -414,13 +414,15 @@ def upgrade_to_20188():
     cache.ram.clear(regex='.*')
 
 
-def upgrade_to_20189():
+def upgrade_to_201881():
     """
-        Upgrade operations to 2018.9
+        Upgrade operations to 2018.81
     """
     from openstudio.os_customer import Customer
 
+    ##
     # Link enrollments to subscriptions, where possible.
+    ##
 
     # List all active enrollments
     query = ((db.classes_reservation.Enddate >= TODAY_LOCAL) |
@@ -437,3 +439,32 @@ def upgrade_to_20189():
             row.customers_subscriptions_id = subscriptions.first().customers_subscriptions.id
             row.update_record()
 
+
+    # set CustomerMembership field for db.classes_attendance
+    query = (db.classes_attendance.CustomerMembership == None)
+    db(query).update(CustomerMembership = False)
+
+    ##
+    # Migrate teachers_payment_fixed_rate_travel to
+    # teachers_payment_travel
+    ##
+    define_teachers_payment_fixed_rate_travel()
+
+    rows = db(db.teachers_payment_fixed_rate_travel).select(
+        db.teachers_payment_fixed_rate_travel.ALL
+    )
+
+    for row in rows:
+        db.teachers_payment_travel.insert(
+            auth_teacher_id = row.auth_teacher_id,
+            school_locations_id = row.school_locations_id,
+            TravelAllowance = row.TravelAllowance,
+            tax_rates_id = row.tax_rates_id
+        )
+
+    ##
+    # Set fixed rate as default payment system
+    ##
+    from openstudio.os_setup import OsSetup
+    setup = OsSetup()
+    setup._setup_teachers_payment_rate_type()

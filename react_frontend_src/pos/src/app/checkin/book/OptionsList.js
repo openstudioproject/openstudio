@@ -1,9 +1,9 @@
 import React from "react"
 import { v4 } from "uuid"
 
-import AttendanceListItem from "./AttendanceListItem"
+// import AttendanceListItem from "./AttendanceListItem"
 
-const AttendanceList = ({attendance_items}) => 
+const AttendanceList = ({options}) => 
     <div className="box box-default"> 
         <div className="box-body">
             {attendance_items.map((ai, i) => 

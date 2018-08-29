@@ -148,7 +148,8 @@ auth.settings.reset_password_next = URL('profile', 'index')
 auth.settings.password_min_length = 8
 auth.settings.logged_url = URL('profile', 'index')
 auth.messages.email_sent = T("Verification email sent. Please check your inbox or your spam folder in case you don't receive a message within 15 minutes")
-auth.messages.email_verified = 'Email verified, you can now log in'
+auth.messages.email_verified = T('Email verified, you can now log in.')
+auth.messages.registration_verifying = T('Please verify your email address by clicking on the link in the verification email before logging in.')
 # auth.settings.actions_disabled.append('register')
 # auth.settings.actions_disabled.append('profile')
 

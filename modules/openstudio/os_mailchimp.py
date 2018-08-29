@@ -98,13 +98,10 @@ class OsMailChimp():
         """
 
         import hashlib
-        from openstudio import Customer
+        from os_customer import Customer
 
         customer = Customer(cuID)
         subscriber_hash = customer.get_email_hash('md5')
-        print subscriber_hash
-        # print mailchimp.lists.members.get(list_id=list_id,
-        #                                   subscriber_hash=subscriber_hash)
         try:
             member =  mailchimp.lists.members.get(list_id=list_id,
                                                   subscriber_hash=subscriber_hash)

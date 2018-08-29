@@ -104,6 +104,53 @@ def test_invoice_add_from_customer_subscription(client, web2py):
     assert invoice.invoices_groups_id == igptID
 
 
+def test_invoice_add_from_customer_subscription_with_registration_fee(client, web2py):
+    """
+        Can we add a subscription from an invoice and does it set the
+        cusotmers_subscriptions_id, year and month correctly
+    """
+    # get random URL to initialize OpenStudio environment
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    populate_customers_with_subscriptions(web2py, 2)
+    web2py.db.school_subscriptions[1]=dict(RegistrationFee=25.00)
+    web2py.db.commit()
+    url = '/customers/subscription_invoices?cuID=1001&csID=1'
+    client.get(url)
+    assert client.status == 200
+
+    data = {'invoices_groups_id' : 100,
+            'SubscriptionMonth'  : 1,
+            'SubscriptionYear'   : 2014,
+            'Description'        : 'Cherry blossom',
+            }
+
+    client.post(url, data=data)
+    assert client.status ==200
+
+    url = '/customers/subscription_invoices?cuID=1001&csID=1'
+    client.get(url)
+    assert client.status == 200
+    data = {'invoices_groups_id': 100,
+            'SubscriptionMonth': 2,
+            'SubscriptionYear': 2014,
+            'Description': 'Cherry blossom',
+            }
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+
+    # verify if registration fee is added
+    assert web2py.db(web2py.db.invoices_items.ProductName =='Registration Fee').count() == 1
+    assert web2py.db(web2py.db.invoices.id >0).count()        == 2
+
+
+
+
+
 def test_invoice_edit(client, web2py):
     """
         Can we edit an invoice?

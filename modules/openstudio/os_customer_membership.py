@@ -95,6 +95,11 @@ class CustomerMembership:
             add_checksum=False
         )
 
+        code39_barcode.default_writer_options['module_width'] = 0.2
+        code39_barcode.default_writer_options['module_height'] = 12
+        code39_barcode.default_writer_options['font_size'] = 10
+        code39_barcode.default_writer_options['text_distance'] = 0.5
+
         code39_barcode.write(stream)
         # print stream.getvalue()
         stream.seek(0)
@@ -112,3 +117,55 @@ class CustomerMembership:
             Set date_id and barcode
         """
         self.set_barcode(self.set_date_id())
+
+
+    def get_barcode_label(self):
+        """
+            Print friendly display of a barcode label
+        """
+        from os_customer import Customer
+
+        get_sys_property = current.globalenv['get_sys_property']
+        response = current.response
+
+        customer = Customer(self.row.auth_customer_id)
+
+        template = get_sys_property('branding_default_template_barcode_label_membership') or 'barcode_label_membership/default.html'
+        template_file = 'templates/' + template
+
+        if not self.row.Barcode:
+            self.set_date_id_and_barcode()
+        barcode_image_url = URL('default', 'download', args=self.row.Barcode, host=True, scheme=True)
+
+        html = response.render(template_file,
+                               dict(customer=customer.row,
+                                    membership=self.row,
+                                    DATE_FORMAT=current.DATE_FORMAT,
+                                    barcode_image_url=barcode_image_url,
+                                    logo=self._get_barcode_label_get_logo()))
+
+        return html
+
+
+    def _get_barcode_label_get_logo(var=None):
+        """
+            Returns logo for template
+        """
+        import os
+
+        request = current.request
+
+        branding_logo = os.path.join(request.folder,
+                                     'static',
+                                     'plugin_os-branding',
+                                     'logos',
+                                     'branding_logo_invoices.png')
+        if os.path.isfile(branding_logo):
+            abs_url = URL('static', 'plugin_os-branding/logos/branding_logo_invoices.png',
+                          scheme=True,
+                          host=True)
+            logo_img = IMG(_src=abs_url)
+        else:
+            logo_img = ''
+
+        return logo_img

@@ -3356,7 +3356,7 @@ def tasks():
 # No decorator here, permissions are checked inside the function
 def pdf():
     """
-        Converts a invoice to PDF
+        Export event to PDF
     """
     import weasyprint
 

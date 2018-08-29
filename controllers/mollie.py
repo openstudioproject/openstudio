@@ -204,9 +204,11 @@ def invoice_pay():
                 # print str(e)
                 # print 'customer id invalid, create new customer'
                 if 'The customer id is invalid' in str(e):
-                    create_mollie_customer(os_customer)
+                    create_mollie_customer(auth.user.id, mollie)
+                    os_customer = Customer(auth.user.id) # refresh
         else:
-            create_mollie_customer(os_customer, mollie)
+            create_mollie_customer(auth.user.id, mollie)
+            os_customer = Customer(auth.user.id) # refresh
 
         mandates = os_customer.get_mollie_mandates()
         # set default recurring type, change to recurring if a valid mandate is found.
@@ -243,7 +245,7 @@ def invoice_pay():
         db.invoices_mollie_payment_ids.insert(
             invoices_id=iID,
             mollie_payment_id=payment['id'],
-            RecurringType=payment['recurringType'],
+            RecurringType=recurring_type,
             WebhookURL=webhook_url
         )
 
@@ -321,7 +323,8 @@ def mollie_customer_check_valid(os_customer):
 
 def create_mollie_customer(auth_user_id, mollie):
     """
-    :param os_customer: Customer object
+    :param auth_user_id: db.auth_user.id
+    :param mollie: mollie api client object
     :return:
     """
     from openstudio.os_customer import Customer
@@ -333,12 +336,8 @@ def create_mollie_customer(auth_user_id, mollie):
             'email': os_customer.row.email
         })
 
-        #print mollie_customer
-
         os_customer.row.mollie_customer_id = mollie_customer['id']
         os_customer.row.update_record()
-
-        #print 'created mollie customer'
 
 
 @auth.requires_login()

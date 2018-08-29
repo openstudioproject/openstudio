@@ -605,8 +605,37 @@ class Invoice:
             tax_rates_id = tax_rates_id,
         )
 
-        self.set_amounts()
+        ##
+        # Check if a registration fee should be added
+        ##
+        query = (((db.customers_subscriptions.auth_customer_id == cs.auth_customer_id) &
+                 (db.customers_subscriptions.id != cs.csID) &
+                 (db.customers_subscriptions.school_subscriptions_id == cs.ssuID)) |
+                 (db.customers_subscriptions.RegistrationFeePaid==True))
 
+        rowsfee = db(query).select(db.customers_subscriptions.ALL)
+        query = (db.school_subscriptions.id == ssuID)
+        regfee = db(query).select(db.school_subscriptions.RegistrationFee)
+        if not rowsfee: # Registration fee already paid?
+            row = regfee.first()
+            price = row.RegistrationFee
+            if not price == 0:
+                db.invoices_items.insert(
+                    invoices_id=self.invoices_id,
+                    ProductName=current.T("Registration Fee"),
+                    Description='One time fee for registration',
+                    Quantity=1,
+                    Price=price,
+                    Sorting=next_sort_nr,
+                    tax_rates_id=tax_rates_id,
+                )
+
+            db.customers_subscriptions[cs.csID] = dict(RegistrationFeePaid=True)
+
+        ##
+        # Always call these
+        ##
+        self.set_amounts()
         self.on_update()
 
         return iiID
@@ -718,10 +747,59 @@ class Invoice:
         return iiID
 
 
+    def item_add_teacher_class_attendance_credit_payment(self,
+                                                         tpcID,
+                                                         payment_type='attendance_count'):
+        """
+        :param clsID: db.classes.id
+        :param date: datetime.date class date
+        :return:
+        """
+        from os_class import Class
+        from os_teacher import Teacher
+        from os_teachers_payment_class import TeachersPaymentClass
+
+        DATE_FORMAT = current.DATE_FORMAT
+        TIME_FORMAT = current.TIME_FORMAT
+        db = current.db
+        T = current.T
+
+        tpc = TeachersPaymentClass(tpcID)
+        cls = Class(
+            tpc.row.classes_id,
+            tpc.row.ClassDate
+        )
+
+        # Get amount & tax rate
+        price = tpc.row.ClassRate
+        tax_rates_id = tpc.row.tax_rates_id
+
+        # add item to invoice
+        if price > 0:
+            next_sort_nr = self.get_item_next_sort_nr()
+
+            iiID = db.invoices_items.insert(
+                invoices_id=self.invoices_id,
+                ProductName=T('Class'),
+                Description=cls.get_name(),
+                Quantity=1,
+                Price=price * -1,
+                Sorting=next_sort_nr,
+                tax_rates_id=tax_rates_id,
+            )
+
+            self.set_amounts()
+
+            self.on_update()
+
+            return iiID
+
+
     def item_add_teacher_class_credit_travel_allowance(self,
-                                                clsID,
-                                                date,
-                                                payment_type='fixed_rate'):
+                                                       clsID,
+                                                       date,
+                                                       amount,
+                                                       tax_rates_id):
         """
         :param clsID: db.classes.id
         :param date: datetime.date class date
@@ -736,32 +814,25 @@ class Invoice:
         T = current.T
 
         cls = Class(clsID, date)
-        teID = self.get_linked_customer_id()
-        teacher = Teacher(teID)
 
-        travel_allowance = teacher.get_payment_fixed_rate_travel_allowance_location(cls.cls.school_locations_id)
-        if travel_allowance:
-            price = travel_allowance.TravelAllowance
-            tax_rates_id = travel_allowance.tax_rates_id
+        # add item to invoice
+        next_sort_nr = self.get_item_next_sort_nr()
 
-            # add item to invoice
-            next_sort_nr = self.get_item_next_sort_nr()
+        iiID = db.invoices_items.insert(
+            invoices_id=self.invoices_id,
+            ProductName=T('Travel allowance'),
+            Description=cls.get_name(),
+            Quantity=1,
+            Price=amount * -1,
+            Sorting=next_sort_nr,
+            tax_rates_id=tax_rates_id,
+        )
 
-            iiID = db.invoices_items.insert(
-                invoices_id=self.invoices_id,
-                ProductName=T('Travel allowance'),
-                Description=cls.get_name(),
-                Quantity=1,
-                Price=price * -1,
-                Sorting=next_sort_nr,
-                tax_rates_id=tax_rates_id,
-            )
+        self.set_amounts()
 
-            self.set_amounts()
+        self.on_update()
 
-            self.on_update()
-
-            return iiID
+        return iiID
 
 
     def payment_add(self,

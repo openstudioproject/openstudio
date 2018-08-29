@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from general_helpers import set_form_id_and_get_submit_button
+from general_helpers import datestr_to_python
 
 # auth.settings.on_failed_authorization = URL('return_json_permissions_error')
 
@@ -13,7 +14,8 @@ def index():
 
 
 def set_headers(var=None):
-    response.headers["Access-Control-Allow-Origin"] = request.env.HTTP_ORIGIN
+    if request.env.HTTP_ORIGIN == 'http://localhost:8080':
+        response.headers["Access-Control-Allow-Origin"] = request.env.HTTP_ORIGIN
     response.headers["Access-Control-Allow-Credentials"] = "true"
 
 
@@ -106,6 +108,20 @@ def get_user():
     return dict(profile=auth.user,
                 permissions=permissions)
 
+@auth.requires_login(otherwise=return_json_login_error)
+def get_settings():
+    """
+    Pos Relevant settings
+    """
+    set_headers()
+
+    settings = {
+        'currency_symbol': CURRSYM,
+        'currency': get_sys_property('Currency'),
+    }
+
+    return dict(data = settings)
+
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'classes'))
@@ -114,15 +130,17 @@ def get_classes():
     List upcoming classes for today
     :return:
     """
+    date_received = request.vars['date']
+    date = datestr_to_python("%Y-%m-%d", date_received)
+
     set_headers()
 
     from openstudio.os_class_schedule import ClassSchedule
 
-    time_from = (NOW_LOCAL - datetime.timedelta(hours=3)).time().strftime(TIME_FORMAT)
 
     cs = ClassSchedule(
-        TODAY_LOCAL,
-        filter_starttime_from=time_from
+        date,
+        # filter_starttime_from=time_from
     )
 
     return dict(classes=cs.get_day_list())
@@ -138,15 +156,78 @@ def get_class_attendance():
     from openstudio.os_attendance_helper import AttendanceHelper
 
     clsID = request.vars['clsID']
+    date_received = request.vars['date']
+    date = datestr_to_python("%Y-%m-%d", date_received)
 
     set_headers()
 
     ah = AttendanceHelper()
-    attendance = ah.get_attendance_rows(clsID, TODAY_LOCAL).as_list()
+    attendance = ah.get_attendance_rows(clsID, date).as_list()
 
     return dict(attendance=attendance)
 
 
+#TODO: Change for right permission
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'classes_attendance'))
+def get_class_revenue():
+    """
+    :return:
+    """
+    from openstudio.os_reports import Reports
+
+    set_headers()
+
+    clsID = request.vars['clsID']
+    date_received = request.vars['date']
+    date = datestr_to_python("%Y-%m-%d", date_received)
+
+    reports = Reports()
+
+    return dict(revenue=reports.get_class_revenue_summary(clsID, date))
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'teachers_payment_attendance'))
+def get_class_teacher_payment():
+    """
+
+    :return:
+    """
+    from openstudio.os_class import Class
+
+    set_headers()
+
+    clsID = request.vars['clsID']
+    date_received = request.vars['date']
+    date = datestr_to_python("%Y-%m-%d", date_received)
+
+    cls = Class(clsID, date)
+
+    return dict(payment = cls.get_teacher_payment())
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'teachers_payment_attendance'))
+def verify_teacher_payment():
+    """
+    Set teacher payment attendance
+    """
+    from openstudio.os_teachers_payment_class import TeachersPaymentClass
+
+    set_headers()
+
+    tpcID = request.vars['tpcID']
+
+    tpc = TeachersPaymentClass(tpcID)
+    result = tpc.verify()
+
+    if result:
+        status = 'success'
+    else:
+        status = 'fail'
+
+    return dict(result=status)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -158,8 +239,6 @@ def get_class_booking_options():
     """
     from openstudio.os_attendance_helper import AttendanceHelper
     from openstudio.os_customer import Customer
-
-    print request.vars
 
     clsID = request.vars['clsID']
     cuID = request.vars['cuID']

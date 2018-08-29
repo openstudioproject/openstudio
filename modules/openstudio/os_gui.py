@@ -41,6 +41,8 @@ class OsGui:
         elif button_type == 'astronaut':
             title = title
             icon = 'fa fa-grav'
+        elif button_type == 'barcode':
+            icon = 'fa fa-barcode'
         elif button_type == 'edit':
             title = title
             icon = "fa fa-pencil"
@@ -619,13 +621,15 @@ class OsGui:
                           btn_text,
                           btn_size='',
                           btn_icon='',
+                          btn_class='btn-default',
                           menu_class=''):
         """
             Returns drop down menu with configurable text.
             Links is expected to be a list links
         """
 
-        button = '<button class="btn btn-default '
+        button = '<button class="btn '
+        button += btn_class + ' '
         button += btn_size + ' dropdown-toggle" '
         button += 'type="button" data-toggle="dropdown" '
         button += 'aria-haspopup="true" aria-expanded="true"> '
@@ -706,11 +710,17 @@ class OsGui:
                 else:
                     dropdown = UL(_class="dropdown-menu")
                     for link in p[2]:
+                        try:
+                            target = link[3]
+                        except IndexError:
+                             target = ''
+
                         dropdown.append(
                             LI(
                                 A(
                                     link[1],
-                                    _href=link[2]
+                                    _href=link[2],
+                                    _target=target
                                   )
                             )
                         )

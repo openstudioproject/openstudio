@@ -751,6 +751,7 @@ def add():
     return dict(content=form)
 
 
+
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('create', 'auth_user'))
 def add_redirect_on_create():
@@ -1148,6 +1149,15 @@ def customers_get_menu(customers_id, page=None):
             'account',
             (os_gui.get_fa_icon('fa-user-circle'), ' ', T('Account')),
             URL('customers', 'account', vars={'cuID':customers_id})
+        ])
+
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('read', 'auth_user'):
+        more.append([
+            'barcode_label',
+            (os_gui.get_fa_icon('fa-barcode'), ' ', T('Barcode label')),
+            URL('customers', 'barcode_label', vars={'cuID':customers_id}),
+            'blank'
         ])
 
     pages.append([
@@ -2837,7 +2847,6 @@ def subscription_add():
         element['_form'] = "MainForm"
 
     submit = form.element('input[type=submit]')
-
 
     subscr_back = os_gui.get_button('back_bs', URL('subscriptions', vars={'cuID':customers_id}))
     content = DIV(subscr_back, form)
@@ -5997,7 +6006,11 @@ def memberships_get_link_edit(row):
 
     cmID = row.id
 
-    links = []
+    links = [
+        A((os_gui.get_fa_icon('fa-barcode'), ' ', T('Barcode label')),
+          _href=URL('barcode_label_membership', vars={'cmID': row.id}),
+          _target="_blank")
+    ]
 
     permission = ( auth.has_membership(group_id='Admins') or
                    auth.has_permission('update', 'customers_memberships') )
@@ -6294,3 +6307,30 @@ def memberships_get_return_url(customers_id):
     """
     return URL('memberships', vars={'cuID':customers_id})
 
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'auth_user'))
+def barcode_label():
+    """
+        Preview barcode label
+    """
+    from openstudio.os_customer import Customer
+
+    cuID = request.vars['cuID']
+    customer = Customer(cuID)
+
+    return customer.get_barcode_label()
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'customers_memberships'))
+def barcode_label_membership():
+    """
+        Preview barcode label
+    """
+    from openstudio.os_customer_membership import CustomerMembership
+
+    cmID = request.vars['cmID']
+    cm = CustomerMembership(cmID)
+
+    return cm.get_barcode_label()

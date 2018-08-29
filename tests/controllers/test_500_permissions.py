@@ -20,7 +20,11 @@ from populate_os_tables import populate_customers_orders
 from populate_os_tables import populate_customers_orders_items
 from populate_os_tables import populate_auth_user_teachers_fixed_rate_default
 from populate_os_tables import populate_auth_user_teachers_fixed_rate_class_1
-from populate_os_tables import populate_auth_user_teachers_fixed_rate_travel
+from populate_os_tables import populate_auth_user_teachers_travel
+from populate_os_tables import populate_teachers_payment_attendance_lists
+from populate_os_tables import populate_teachers_payment_attendance_lists_school_classtypes
+from populate_os_tables import populate_teachers_payment_attendance_lists_rates
+
 
 from setup_permisison_tests import setup_permission_tests
 
@@ -48,6 +52,32 @@ def test_login_nopriv_user(client, web2py):
     client.post('/default/user/login', data=data)
     assert client.status == 200
     assert 'Home' in client.text
+
+
+def test_teachers_payment_attendance_lists_rates_delete(client, web2py):
+    """
+    Check if the teachers_payment_attendance_lists delete permission works
+    """
+    setup_permission_tests(web2py)
+    populate_teachers_payment_attendance_lists(web2py)
+
+    web2py.auth.add_permission(200, 'read', 'teachers_payment_attendance_lists_rates', 0)
+    web2py.auth.add_permission(200, 'create', 'teachers_payment_attendance_lists_rates', 0)
+    web2py.db.commit()
+
+    url = '/teachers/payment_attendance_list_rates?tpalID=1'
+    client.get(url)
+    assert client.status == 200
+    assert not 'fa-times' in client.text
+
+    # grant permission and check again
+    web2py.auth.add_permission(200, 'delete', 'teachers_payment_attendance_lists_rates', 0)
+    web2py.db.commit()
+
+    client.get(url)
+    assert client.status == 200
+
+    assert 'fa-times' in client.text
 
 
 def test_customers_contact_info(client, web2py):
@@ -1356,7 +1386,7 @@ def test_teachers_payment_fixed_rate_class_delete(client, web2py):
     prepare_classes(web2py)
     populate_auth_user_teachers_fixed_rate_default(web2py)
     populate_auth_user_teachers_fixed_rate_class_1(web2py)
-    populate_auth_user_teachers_fixed_rate_travel(web2py)
+    populate_auth_user_teachers_travel(web2py)
 
     str_check = 'fa-times'
 
@@ -1378,7 +1408,7 @@ def test_teachers_payment_fixed_rate_class_delete(client, web2py):
     assert str_check in client.text
 
 
-def test_teachers_payment_fixed_rate_travel_delete(client, web2py):
+def test_teachers_payment_travel_delete(client, web2py):
     """
         Is the delete permission working for teacher travel allowance
     """
@@ -1386,21 +1416,21 @@ def test_teachers_payment_fixed_rate_travel_delete(client, web2py):
     prepare_classes(web2py)
     populate_auth_user_teachers_fixed_rate_default(web2py)
     populate_auth_user_teachers_fixed_rate_class_1(web2py)
-    populate_auth_user_teachers_fixed_rate_travel(web2py)
+    populate_auth_user_teachers_travel(web2py)
 
     str_check = 'fa-times'
 
     gid = 2
-    web2py.auth.add_permission(200, 'read', 'teachers_payment_fixed_rate_default', 0)
+    web2py.auth.add_permission(200, 'read', 'teachers_payment_travel', 0)
     web2py.db.commit()
 
-    url = '/teachers/payment_fixed_rate?teID=2'
+    url = '/teachers/payment_travel?teID=2'
     client.get(url)
     assert client.status == 200
     assert str_check not in client.text
 
     gid = 2
-    web2py.auth.add_permission(200, 'delete', 'teachers_payment_fixed_rate_travel', 0)
+    web2py.auth.add_permission(200, 'delete', 'teachers_payment_travel', 0)
     web2py.db.commit()
 
     client.get(url)

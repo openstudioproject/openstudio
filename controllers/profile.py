@@ -30,6 +30,7 @@ def index():
     cc_left = DIV(_class='col-md-6')
     cc_right = DIV(_class='col-md-6')
     features = db.customers_profile_features(1)
+
     customer = Customer(auth.user.id)
 
     if features.Classes:

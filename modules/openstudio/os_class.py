@@ -62,6 +62,24 @@ class Class:
         return class_name
 
 
+    def get_info(self):
+        """
+        :return: dict containing class name values
+        """
+        db = current.db
+        T = current.T
+        TIME_FORMAT = current.TIME_FORMAT
+
+        return dict(
+            location = db.school_locations[self.cls.school_locations_id].Name,
+            classtype = db.school_classtypes[self.cls.school_classtypes_id].Name,
+            date = self.date.strftime('%d %B %Y'),
+            start = self.cls.Starttime.strftime(TIME_FORMAT),
+            end = self.cls.Endtime.strftime(TIME_FORMAT),
+            teachers = self.get_teachers()
+        )
+
+
     def get_prices(self):
         """
             Returns the price for a class
@@ -442,4 +460,278 @@ class Class:
             return True
         else:
             return False
-        
+
+
+    def get_attendance_count(self):
+        """
+        :return: integer ; count of customers attending this class
+        """
+        db = current.db
+
+        query = (db.classes_attendance.classes_id == self.clsID) & \
+                (db.classes_attendance.ClassDate == self.date) & \
+                (db.classes_attendance.BookingStatus != 'cancelled')
+
+        return db(query).count()
+
+
+    def get_teachers(self):
+        """
+        Teachers for class
+        :return:
+        """
+        T = current.T
+        db = current.db
+
+        error = False
+        message = ''
+        teacher = ''
+        teacher2 = ''
+
+        query = (db.classes_teachers.classes_id == self.clsID) & \
+                ((db.classes_teachers.Startdate <= self.date) &
+                 ((db.classes_teachers.Enddate >= self.date) |
+                  (db.classes_teachers.Enddate == None)))
+        rows = db(query).select(db.classes_teachers.ALL)
+
+        try:
+            teachers = rows.first()
+
+            cotc = db.classes_otc(
+                classes_id = self.clsID,
+                ClassDate = self.date
+            )
+
+            teacher = db.auth_user(teachers.auth_teacher_id)
+            if cotc:
+                if cotc.auth_teacher_id:
+                    teacher = db.auth_user(cotc.auth_teacher_id)
+
+            teacher2 = teacher2 = db.auth_user(teachers.auth_teacher_id2)
+            if cotc:
+                if cotc.auth_teacher_id2:
+                    teacher2 = db.auth_user(cotc.auth_teacher_id2)
+        except AttributeError:
+            # No teacher(s) found for this date
+            error = True
+            message = T("No teachers found for this date (") + unicode(self.date) + ")"
+
+        return dict(
+            error = error,
+            message = message,
+            teacher = teacher,
+            teacher2 = teacher2
+        )
+
+
+    def get_teacher_payment(self):
+        """
+        Returns amount excl. VAT
+        :return: { amount: float, tax_rates_id: db.tax_rates.id }
+        """
+        from os_teacher import Teacher
+
+        T = current.T
+        db = current.db
+
+        get_sys_property = current.globalenv['get_sys_property']
+
+        tprt = get_sys_property('TeacherPaymentRateType')
+        attendance_count = self.get_attendance_count()
+
+        # Check if we have a payment, if not insert it with Status 'not_verified"
+        tpc = db.teachers_payment_classes(
+            classes_id = self.clsID,
+            ClassDate = self.date
+        )
+
+        error = False
+        data = ''
+
+        teachers = self.get_teachers()
+        if teachers['error']:
+            error = True
+            data = teachers['message']
+        elif not attendance_count:
+            error = True
+            data = T("No customers attending this class")
+        else:
+            teacher_id = teachers['teacher'].id
+            teacher = Teacher(teacher_id)
+
+            #print teacher_id
+
+            if tprt == 'fixed':
+                # Get rate for this teacher
+                default_rate = teacher.get_payment_fixed_rate_default()
+
+                if not default_rate:
+                    error = True
+                    data = T("No default rate defined for this teacher")
+                    # No default rate, not enough data to process
+
+                else:
+                    default_rates = teacher.get_payment_fixed_rate_default()
+                    class_rates = teacher.get_payment_fixed_rate_classes_dict()
+
+                    if not default_rates and not class_rates:
+                        return None  # No rates set, not enough data to create invoice item
+
+                    default_rate = default_rates.first()
+                    rate = default_rate.ClassRate
+                    tax_rates_id = default_rate.tax_rates_id
+
+                    # Set price and tax rate
+                    try:
+                        class_prices = class_rates.get(int(self.clsID), False)
+                        if class_prices:
+                            rate = class_prices.ClassRate
+                            tax_rates_id = class_prices.tax_rates_id
+                    except (AttributeError, KeyError):
+                        pass
+
+                    if not tpc and rate:
+                        tpcID = db.teachers_payment_classes.insert(
+                            classes_id = self.clsID,
+                            ClassDate = self.date,
+                            auth_teacher_id = teacher_id,
+                            Status = 'not_verified',
+                            AttendanceCount = attendance_count,
+                            ClassRate = rate,
+                            RateType = 'fixed',
+                            tax_rates_id = tax_rates_id,
+                        )
+                        tpc = db.teachers_payment_classes(tpcID)
+
+                    elif tpc and rate:
+                        tpc.AttendanceCount = attendance_count
+                        tpc.ClassRate = rate
+                        tpc.auth_teacher_id = teacher_id
+                        tpc.teachers_payment_classes_list_id = None
+                        tpc.RateType = 'fixed'
+                        tpc.tax_rates_id = tax_rates_id
+                        tpc.update_record()
+
+                    self._get_teacher_payment_set_travel_allowance(tpc)
+                    data = tpc
+
+
+            elif tprt == 'attendance':
+                # Get list for class type
+                cltID = self.cls.school_classtypes_id
+                tpalst = db.teachers_payment_attendance_lists_school_classtypes(
+                    school_classtypes_id=cltID
+                )
+
+                if tpalst:
+                    list_id = tpalst.teachers_payment_attendance_lists_id
+                    list = db.teachers_payment_attendance_lists(1)
+                    tax_rates_id = list.tax_rates_id
+
+                    query = (db.teachers_payment_attendance_lists_rates.teachers_payment_attendance_lists_id == list_id) & \
+                            (db.teachers_payment_attendance_lists_rates.AttendanceCount == attendance_count)
+                    row = db(query).select(db.teachers_payment_attendance_lists_rates.Rate)
+
+                    try:
+                        rate = row.first().Rate
+                    except AttributeError:
+                        rate = 0
+
+                    if not tpc and tpalst and rate:
+                        tpcID = db.teachers_payment_classes.insert(
+                            classes_id = self.clsID,
+                            ClassDate = self.date,
+                            auth_teacher_id = teacher_id,
+                            Status = 'not_verified',
+                            AttendanceCount = attendance_count,
+                            ClassRate = rate,
+                            RateType = 'attendance',
+                            teachers_payment_attendance_list_id = list.id,
+                            tax_rates_id = tax_rates_id,
+                        )
+                        tpc = db.teachers_payment_classes(tpcID)
+
+                    elif tpc and tpalst and rate:
+                        tpc.AttendanceCount = attendance_count
+                        tpc.ClassRate = rate
+                        tpc.auth_teacher_id = teacher_id
+                        tpc.RateType = 'attendance'
+                        tpc.teachers_payment_attendance_list_id = list.id
+                        tpc.tax_rates_id = tax_rates_id
+                        tpc.update_record()
+
+                    self._get_teacher_payment_set_travel_allowance(tpc)
+                    data = tpc
+                else:
+                    data = T('No payment list defined for this class type')
+                    error = True
+
+        return {
+            'data': data,
+            'error': error
+        }
+
+
+    def _get_teacher_payment_set_travel_allowance(self, tpc_row):
+        """
+        set db.teachers_payment_classes travel allowance
+        """
+        from os_class_schedule import ClassSchedule
+        from os_teacher import Teacher
+
+        db = current.db
+
+        if tpc_row and not tpc_row.Status == 'processed':
+            cs = ClassSchedule(self.date,
+                               filter_id_teacher=tpc_row.auth_teacher_id,
+                               filter_id_school_location=self.cls.school_locations_id)
+
+            class_start = datetime.datetime(
+                self.date.year,
+                self.date.month,
+                self.date.day,
+                self.cls.Starttime.hour,
+                self.cls.Starttime.minute
+            )
+
+            # Add travel allowance if no class is found that ended 30 minutes before start of this class
+            class_found = False
+            rows = cs.get_day_rows()
+            for row in rows:
+                if not int(row.classes.id) == int(self.clsID):
+                    checked_class_start = datetime.datetime(
+                        self.date.year,
+                        self.date.month,
+                        self.date.day,
+                        row.classes.Endtime.hour,
+                        row.classes.Endtime.minute
+                    )
+
+                    checked_class_end = datetime.datetime(
+                        self.date.year,
+                        self.date.month,
+                        self.date.day,
+                        row.classes.Endtime.hour,
+                        row.classes.Endtime.minute
+                    )
+
+                    consecutive = (
+                            (checked_class_end + datetime.timedelta(minutes=30)) >= class_start and
+                            checked_class_end <= class_start
+
+                    )
+
+                    if consecutive:
+                        class_found = True
+
+            if not class_found:
+                # Add travel allowance, there is no class which ends within 30 min in same location
+                teacher = Teacher(tpc_row.auth_teacher_id)
+
+                travel_allowance = teacher.get_payment_travel_allowance_location(
+                    self.cls.school_locations_id
+                )
+                if travel_allowance:
+                    tpc_row.TravelAllowance = travel_allowance.TravelAllowance
+                    tpc_row.tax_rates_id_travel_allowance = travel_allowance.tax_rates_id
+                    tpc_row.update_record()

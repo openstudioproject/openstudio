@@ -536,6 +536,86 @@ def populate_auth_user_teachers(web2py,
         print "Tried inserting teachers, but id 2 or 3 already exists in auth_user"
 
 
+def populate_teachers_payment_classes(web2py, status='not_verified'):
+    """
+
+    """
+    populate_tax_rates(web2py)
+    prepare_classes(web2py)
+    populate_auth_user_teachers_fixed_rate_default(web2py)
+
+    web2py.db.commit()
+
+    rate = web2py.db.teachers_payment_fixed_rate_default(1).ClassRate
+
+    dates = [
+        '2014-01-06',
+        '2014-01-13',
+        '2014-01-20',
+        '2014-01-27',
+    ]
+
+    for date in dates:
+        web2py.db.teachers_payment_classes.insert(
+            classes_id = 1,
+            ClassDate = date,
+            AttendanceCount = 1,
+            auth_teacher_id = 2,
+            ClassRate = 25,
+            tax_rates_id = 1,
+            Status = status
+        )
+
+    web2py.db.commit()
+
+
+def populate_teachers_payment_attendance_lists(web2py, with_rates=True):
+    """
+        Insert dummy list
+    """
+    populate_tax_rates(web2py)
+
+    web2py.db.teachers_payment_attendance_lists.insert(
+        Name = "Test list",
+        tax_rates_id = 1,
+    )
+
+    web2py.db.commit()
+
+    if with_rates:
+        populate_teachers_payment_attendance_lists_rates(web2py)
+
+
+def populate_teachers_payment_attendance_lists_rates(web2py):
+    """
+    Insert dummy date into list rates
+    """
+    for i in range(1, 11):
+        web2py.db.teachers_payment_attendance_lists_rates.insert(
+            teachers_payment_attendance_lists_id = 1,
+            AttendanceCount = i,
+            Rate = i * 1011
+        )
+
+    web2py.db.commit()
+
+
+def populate_teachers_payment_attendance_lists_school_classtypes(web2py):
+    """
+    Dummy data for teachers_payment_attendance_lists_classtypes
+    """
+    populate_teachers_payment_attendance_lists(web2py)
+    populate_school_classtypes(web2py, 3)
+
+    for i in range(1, 4):
+        web2py.db.teachers_payment_attendance_lists_school_classtypes.insert(
+            teachers_payment_attendance_lists_id = 1,
+            school_classtypes_id = i
+        )
+
+    web2py.db.commit()
+
+
 def populate_auth_user_teachers_fixed_rate_default(web2py):
     """
         Insert dummy data for teachers_payment_fixed_rate_default
@@ -566,11 +646,11 @@ def populate_auth_user_teachers_fixed_rate_class_1(web2py):
     web2py.db.commit()
 
 
-def populate_auth_user_teachers_fixed_rate_travel(web2py):
+def populate_auth_user_teachers_travel(web2py):
     """
         Insert dummy data for teachers_payment_fixed_rate_travel
     """
-    web2py.db.teachers_payment_fixed_rate_travel.insert(
+    web2py.db.teachers_payment_travel.insert(
         auth_teacher_id = 2,
         school_locations_id = 1,
         TravelAllowance = 304753,
@@ -1407,7 +1487,9 @@ def populate_school_subscriptions(web2py, membership_required=False):
         SubscriptionUnit = 'week',
         CreditValidity=28, # 4 weeks
         Terms = 'Subscription terms go here and I want to eat a watermelon',
-        SortOrder=0)
+        SortOrder=0,
+        QuickStatsAmount=10
+    )
 
     # 2
     web2py.db.school_subscriptions.insert(
@@ -1417,7 +1499,9 @@ def populate_school_subscriptions(web2py, membership_required=False):
         Classes     = 0,
         CreditValidity=28,  # 4 weeks
         Unlimited   = True,
-        SortOrder=0)
+        SortOrder=0,
+        QuickStatsAmount=15
+    )
 
     # 3
     web2py.db.school_subscriptions.insert(
@@ -1427,7 +1511,8 @@ def populate_school_subscriptions(web2py, membership_required=False):
         Classes            = 1,
         CreditValidity=28,  # 4 weeks
         SubscriptionUnit   = 'month',
-        SortOrder=0
+        SortOrder=0,
+        QuickStatsAmount=17.5
     )
 
     # 4
@@ -1438,7 +1523,8 @@ def populate_school_subscriptions(web2py, membership_required=False):
         Classes=1,
         CreditValidity=28,  # 4 weeks
         SubscriptionUnit=None,
-        SortOrder=0
+        SortOrder=0,
+        QuickStatsAmount=12.5
     )
 
     # 5
@@ -1449,7 +1535,8 @@ def populate_school_subscriptions(web2py, membership_required=False):
         Classes = None,
         CreditValidity=28,  # 4 weeks
         SubscriptionUnit = 'month',
-        SortOrder=0
+        SortOrder=0,
+        QuickStatsAmount=5
     )
 
     ss_one_price = 40

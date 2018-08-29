@@ -1,6 +1,8 @@
 import {
     requestUser as request_user,
     receiveUser as receive_user,
+    requestSettings as request_settings,
+    receiveSettings as receive_settings,
     setError as set_error,
     setErrorMessage as set_error_message,
     setErrorData as set_error_data,
@@ -26,34 +28,26 @@ const setPageTitle = set_page_title
 
 
 // data fetchers
-
-// Example:
-
-// actions:
-// const requestSubredditJson = (subreddit) => {
-//     type: types.REQUEST_SUBREDDIT_JSON,
-//     subreddit: subreddit
-// };
-// const receiveSubredditJson = (json) => {
-//     type: types.RECEIVE_SUBREDDIT_JSON,
-//     subredditData: json
-// }
-
 const fetchUser = () => {
     return dispatch => {
         dispatch(request_user)
+        dispatch(setLoading())
 
-        dispatch(set_loading_message("user profile"))
+        dispatch(set_loading_message("User profile"))
         axios_os.get(OS_API.APP_USER)
         .then(function (response) {
           // handle success
+          console.log('receive user here')
           dispatch(receive_user(response.data))
-          dispatch(setLoadingProgress(100))
-          dispatch(setLoaded(true))
-          dispatch(setLoading(false))
+          dispatch(setLoaded())  
+          dispatch(setLoading())        
+          // dispatch(setLoadingProgress(50))
+          // dispatch(setLoaded(true))
+          // dispatch(setLoading(false))
         })
         .catch(function (error) {
           // handle error
+          console.log(error)
           dispatch(setError(true))
           dispatch(setErrorMessage("Error loading user data"))
           if (error.config) {
@@ -66,50 +60,36 @@ const fetchUser = () => {
     }
 }
 
-// operations:
-// // 'fetchSubredditJson()' will fetch the JSON data from the subreddit,
-// // extract the required information and update the Redux store with it.
-// const fetchSubredditJson = (subreddit) => {
-//     return dispatch => {
-      
-//       // Dispatching this action will toggle the 'showRedditSpinner'
-//       // flag in the store, so that the UI can show a loading icon.
-//       dispatch(requestSubredditJsonAction(subreddit));
-//       return fetch(`https://www.reddit.com/r/${subreddit}.json`)
-//         .then(response => response.json())
-//         .then(json => {
-//           const responseData = json;
-//           let data = [];
-        
-//           responseData.data.children.map(child => {
-//             const childData = {
-//               title: child.data.title,
-//               url: child.data.permalink
-//             };
-            
-//             data.push(childData);
-//             return null;
-//           });
-  
-//         // Dispatching this action while passing the 'data' array 
-//         // we created above will update the store with this data.
-//         // It is good practice to send only the required information
-//         // rather than trimming the data when and where it is used.
-//         // This is why we aren't sending the entire JSON response to 
-//         // the Redux store.
-//         dispatch(receiveSubredditJsonAction(data))
-//         });
-//     }
-//   };
-  
-//   export default {
-//     incrementCount,
-//     decrementCount,
-//     fetchSubredditPosts
-//   }
+const fetchSettings = () => {
+    return dispatch => {
+        dispatch(request_settings)
+        dispatch(setLoading())
+
+        dispatch(set_loading_message("Settings"))
+        axios_os.get(OS_API.APP_SETTINGS)
+        .then(function (response) {
+          // handle success
+          dispatch(receive_settings(response.data))
+          dispatch(setLoaded())
+          dispatch(setLoading())
+        })
+        .catch(function (error) {
+          // handle error
+          dispatch(setError(true))
+          dispatch(setErrorMessage("Error loading settings data"))
+          if (error.config) {
+            dispatch(setErrorData(error.config.url))
+          } 
+        })
+        .then(function () {
+          // always executed
+        });
+    }
+}
 
 export default {
     fetchUser,
+    fetchSettings,
     setError,
     setErrorData,
     setErrorMessage,

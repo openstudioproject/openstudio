@@ -1249,10 +1249,10 @@ class AttendanceHelper:
                 if subscription['Unlimited']:
                     credits_display = T('Unlimited')
                 else:
-                    if credits_remaining < 0:
-                        credits_display = SPAN(round(credits_remaining, 1), ' ', T('Credits'))
+                    if subscription['CreditsRemaining'] < 0:
+                        credits_display = SPAN(round(subscription['CreditsRemaining'], 1), ' ', T('Credits'))
                     else:
-                        credits_display = SPAN(round(credits_remaining, 1), ' ',
+                        credits_display = SPAN(round(subscription['CreditsRemaining'], 1), ' ',
                                                T('Credits remaining'))
 
                 # let's put everything together
@@ -1609,14 +1609,13 @@ class AttendanceHelper:
             # return message, don't sign in
             message = message_no_credits
         else:
-            #print 'signing in customer'
-
             status = 'ok'
             clattID = db.classes_attendance.insert(
-                auth_customer_id           = cuID,
-                classes_id                 = clsID,
-                ClassDate                  = date,
-                AttendanceType             = None, # None = subscription
+                auth_customer_id = cuID,
+                CustomerMembership = self._attendance_sign_in_has_membership(cuID, date),
+                classes_id = clsID,
+                ClassDate = date,
+                AttendanceType = None, # None = subscription
                 customers_subscriptions_id = csID,
                 online_booking=online_booking,
                 BookingStatus=booking_status
@@ -1632,21 +1631,11 @@ class AttendanceHelper:
                 Description = cls.get_name(pretty_date=True)
             )
 
-            #print cscID
-
             cache_clear_customers_subscriptions(cuID)
-
-            # check subscription classes exceeded
-            #result = self._attendance_sign_in_subscription_check_classes_exceeded(csID, clattID, date)
-            #if result:
-            #    message = result
 
             # # check credits remaining
             if not credits_remaining:
                 message = message_no_credits
-            # result = self._attendance_sign_in_subscription_credits_remaining(csID)
-            # if result:
-            #     message = result
 
             # check for paused subscription
             result = self._attedance_sign_in_subscription_check_paused(csID, date)
@@ -1695,6 +1684,17 @@ class AttendanceHelper:
             message = T("Subscription is paused on this date")
 
         return message
+
+
+    def _attendance_sign_in_has_membership(self, cuID, date):
+        """
+        :param cuID: db.auth_user.id
+        :return: Bool - true if customer has membership, else false
+        """
+        from os_customer import Customer
+
+        customer = Customer(cuID)
+        return customer.has_membership_on_date(date)
 
 
     def _attendance_sign_in_create_invoice(self,
@@ -1885,6 +1885,7 @@ class AttendanceHelper:
 
                 db.classes_attendance.insert(
                     auth_customer_id=cuID,
+                    CustomerMembership = self._attendance_sign_in_has_membership(cuID, date),
                     classes_id=clsID,
                     ClassDate=date,
                     AttendanceType=3,  # 3 = classcard
@@ -1930,6 +1931,7 @@ class AttendanceHelper:
             status = 'ok'
             caID = db.classes_attendance.insert(
                 auth_customer_id=cuID,
+                CustomerMembership = self._attendance_sign_in_has_membership(cuID, date),
                 classes_id=clsID,
                 ClassDate=date,
                 AttendanceType=2,  # 2 = drop in class
@@ -1975,6 +1977,7 @@ class AttendanceHelper:
             status = 'ok'
             caID = db.classes_attendance.insert(
                 auth_customer_id=cuID,
+                CustomerMembership = self._attendance_sign_in_has_membership(cuID, date),
                 classes_id=clsID,
                 ClassDate=date,
                 AttendanceType=1,  # 1 = trial class
@@ -2018,6 +2021,7 @@ class AttendanceHelper:
             status = 'ok'
             caID = db.classes_attendance.insert(
                 auth_customer_id=cuID,
+                CustomerMembership = self._attendance_sign_in_has_membership(cuID, date),
                 classes_id=clsID,
                 ClassDate=date,
                 AttendanceType=4,  # 4 = Complementary class
