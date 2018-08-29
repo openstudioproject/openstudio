@@ -29,17 +29,17 @@ import datetime
 # helpers start
 
 
-
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'ep'))
+               auth.has_permission('read', 'employee_portal'))
+@auth.requires_login()
 def index():
-    '''
+    """
         Employee Portal page, a quick overview of today
-    '''
+    """
     response.title = T("Employee Portal")
     response.subtitle = T('Welcome ') +auth.user.display_name
 
-    print response.menu
+    # print response.menu
 
     # welcome_message = ''
     # if ( db.sys_properties(Property='ShowWelcomeMessage') is None or
@@ -83,9 +83,9 @@ def index():
 
 
 def ep_get_teacher_upcoming_classes(days=3):
-    '''
+    """
         @return: List upcoming classes for a teacher
-    '''
+    """
     if auth.user.id and auth.user.teacher:
         teachers_id = auth.user.id
         cache_clear_classschedule()
@@ -167,11 +167,11 @@ def ep_get_teacher_upcoming_classes(days=3):
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'pinboard'))
+               auth.has_permission('read', 'employee_portal'))
 def ep_get_teacher_substitution_classes():
-    '''
+    """
         @return: List classes that need to get subbed
-    '''
+    """
     if auth.user.id and auth.user.teacher:
         teachers_id = auth.user.id
         cache_clear_classschedule()
@@ -264,13 +264,13 @@ def ep_get_teacher_substitution_classes():
     return upcoming_classes
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'pinboard'))
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'employee_portal'))
 def available_for_sub():
-    '''
+    """
     adds class and teacher to classes_oct_sub_avail table
     :return:
-    '''
+    """
     clsID = request.vars['clsID']
     teachers_id = request.vars['teachers_id']
 
@@ -282,8 +282,8 @@ def available_for_sub():
     redirect(URL('index'))
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'pinboard'))
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'employee_portal'))
 def cancel_available_for_sub():
     clsID = request.vars['clsID']
     teachers_id = request.vars['teachers_id']
@@ -296,9 +296,9 @@ def cancel_available_for_sub():
 
 
 def ep_get_cancelled_classes(days=3):
-    '''
+    """
     :return: list of cancelled classes
-    '''
+    """
     today = TODAY_LOCAL
 
     delta =  datetime.timedelta(days=days)
@@ -362,13 +362,14 @@ def ep_get_cancelled_classes(days=3):
 
     return classes
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'pinboard'))
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'employee_portal'))
 def my_classes():
-    '''
+    """
     creates page that displays the classes tought montlhy
     :return:
-    '''
+    """
     response.title = T("My Monthly Classes")
     response.subtitle = T("")
     response.view = 'ep/only_content.html'
@@ -559,8 +560,8 @@ def get_month_subtitle(month, year):
     return subtitle
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'pinboard'))
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'employee_portal'))
 def teacher_classes_set_month():
     """
         Sets the session variables for teacher_classes year and month
@@ -575,8 +576,8 @@ def teacher_classes_set_month():
     redirect(URL(back))
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'pinboard'))
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'employee_portal'))
 def teacher_classes_show_current():
     """
         Resets some session variables to show the current month for
@@ -632,8 +633,8 @@ def overview_get_month_chooser(page):
     return DIV(previous, nxt, _class='btn-group pull-right')
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'pinboard'))
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'employee_portal'))
 def request_sub():
     clsID = request.vars['clsID']
     date = request.vars ['date']
@@ -655,8 +656,8 @@ def request_sub():
         redirect(URL('my_classes'))
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'pinboard'))
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'employee_portal'))
 def cancel_request_sub():
     clsID = request.vars['clsID']
     date = request.vars ['date']

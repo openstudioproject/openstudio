@@ -1298,6 +1298,7 @@ def access_group_permissions():
 
     other_permissions = [
         ['selfcheckin-read', T("Use self check-in")],
+        ['employee_portal-read', T("Use employee portal")],
         ['settings-read', T("Settings"), [
             ['auth_user-create', T("Add users")],
             ['auth_user-update', T("Edit users")],

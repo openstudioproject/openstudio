@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 """
     py.test test cases to test the ep controller (ep.py)
@@ -7,38 +7,17 @@
 from gluon.contrib.populate import populate
 
 from populate_os_tables import populate_auth_user_teachers
+from populate_os_tables import prepare_classes
 from setup_ep_tests import setup_ep_tests
 
 
 def test_my_classes(client, web2py):
-    from populate_os_tables import populate_classes
-    url = '/default/user/login'
-    client.get(url)
-    assert client.status == 200
+    # url = '/default/user/login'
+    # client.get(url)
+    # assert client.status == 200
 
-    populate_classes(web2py)
-
-
-    au = web2py.db.auth_user(2)
-    au.password = 'password'
-    au.login_start = 'ep'
-    au.update_record()
-
-
-
-    web2py.db.commit()
-
-    # log out and log back in again to make the profile user a teacher
-    url = '/default/user/logout'
-    client.get(url)
-    assert client.status == 200
-
-    data = dict(email='teacher@openstudioproject.com',
-                password='password',
-                _formname='login',
-                )
-    client.post('/default/user/login', data=data)
-    assert client.status == 200
+    setup_ep_tests(web2py)
+    prepare_classes(web2py, auth_teacher_id=400)
 
     # Check classes display
     url = '/ep/my_classes'
@@ -46,17 +25,19 @@ def test_my_classes(client, web2py):
     assert client.status == 200
 
 
+    print web2py.db().select(web2py.db.classes_teachers.ALL)
+
+    print client.text
+
     # print client.text
     assert 'request_sub' in client.text
 
-    url = '/ep/request_sub?clsID=1&date=2014-04-01&teachers_id=2'
+    url = '/ep/request_sub?clsID=1&date=2014-04-01&teachers_id=400'
     client.get(url)
     assert client.status == 200
     row = web2py.db.classes_otc(Status= 'Open')
     # print row
     assert row != None
-
-
 
 
 def test_get_substitution_classes(client, web2py):

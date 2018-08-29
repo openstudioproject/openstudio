@@ -4665,7 +4665,7 @@ def event_add_list_products_get_list_get_link_add(row):
         otherwise returns ''
     """
     cuID  = request.vars['cuID']
-    wspID = row.workshops_products.id
+    wspID = row.id
     row  = db.workshops_products(wspID)
     wsID = row.workshops_id
 
