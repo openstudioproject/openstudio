@@ -44,12 +44,9 @@ def test_request_sub(client, web2py):
     assert web2py.db(query).count() == 1
 
 
-def test_list_sub_classes(client, web2py):
+def test_list_sub_requested_classes(client, web2py):
     """
-
-    :param client:
-    :param web2py:
-    :return:
+    Are sub requested classes listed like they should?
     """
     url = '/default/user/login'
     client.get(url)
@@ -79,25 +76,71 @@ def test_list_sub_classes(client, web2py):
     assert 'available_for_sub' in client.text
 
 
-    # url = '/ep/available_for_sub?cotcID=1&teachers_id=3'
-    # client.get(url)
-    # assert client.status == 200
-    # query = ((web2py.db.classes_otc_sub_avail.auth_user_id == 3) &\
-    #           (web2py.db.classes_otc_sub_avail.classes_otc_id == 1))
-    # row = web2py.db(query).select(web2py.db.classes_otc_sub_avail.ALL)
-    #
-    # assert not row == None
-    #
-    # url = '/ep/cancel_available_for_sub?clsID=1&teachers_id=3'
-    # client.get(url)
-    # assert client.status == 200
-    # query = ((web2py.db.classes_otc_sub_avail.auth_user_id == 3)&\
-    #           (web2py.db.classes_otc_sub_avail.classes_otc_id == 1) )
-    # row = web2py.db(query).select(web2py.db.classes_otc_sub_avail.ALL)
-    #
-    # assert row == None
-    # # assert 'available_for_sub' in client.text
+def test_available_for_sub(client, web2py):
+    """
 
+    :param client:
+    :param web2py:
+    :return:
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    setup_ep_tests(web2py)
+    prepare_classes(web2py)
+    cotcID = web2py.db.classes_otc.insert(classes_id = 3,
+                                 Status ='open',
+                                 ClassDate ='2088-04-01')
+    web2py.db.teachers_classtypes.insert(
+        auth_user_id = 400,
+        school_classtypes_id = 2
+    )
+
+    web2py.db.commit()
+
+    url = '/ep/available_for_sub?cotcID=' + str(cotcID)
+    client.get(url)
+    assert client.status == 200
+
+    query = (web2py.db.classes_otc_sub_avail.id > 0)
+    assert web2py.db(query).count() == 1
+
+
+def test_cancel_available_for_sub(client, web2py):
+    """
+
+    :param client:
+    :param web2py:
+    :return:
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    setup_ep_tests(web2py)
+    prepare_classes(web2py)
+    cotcID = web2py.db.classes_otc.insert(classes_id = 3,
+                                 Status ='open',
+                                 ClassDate ='2088-04-01')
+    web2py.db.teachers_classtypes.insert(
+        auth_user_id = 400,
+        school_classtypes_id = 2
+    )
+
+    cotcsaID = web2py.db.classes_otc_sub_avail.insert(
+        cotcID = cotcID,
+        auth_teacher_id = 400
+    )
+
+    web2py.db.commit()
+
+    url = '/ep/cancel_available_for_sub?cotcsaID=' + str(cotcsaID)
+    client.get(url)
+    assert client.status == 200
+
+    query = (web2py.db.classes_otc_sub_avail.id > 0)
+    assert web2py.db(query).count() == 0
 
 
 def test_my_payments(client, web2py):
