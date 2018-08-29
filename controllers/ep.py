@@ -39,50 +39,23 @@ def index():
     response.title = T("Employee Portal")
     response.subtitle = T('Welcome ') +auth.user.display_name
 
-    # print response.menu
-
-    # welcome_message = ''
-    # if ( db.sys_properties(Property='ShowWelcomeMessage') is None or
-    #      db.sys_properties(Property='ShowWelcomeMessage').PropertyValue == 'on'):
-    #     welcome_message = DIV(DIV(DIV(H3(T('Welcome to OpenStudio'), _class="box-title"),
-    #                                DIV(A(I(_class='fa fa-times'),
-    #                                      _href=URL('hide_welcome'),
-    #                                      _class='btn btn-box-tool',
-    #                                      _title=T("Hide this message")),
-    #                                    _class='box-tools pull-right'),
-    #                                _class='box-header with-border'),
-    #                            DIV(_generate_welcome_message(),
-    #                                _class='box-body'),
-    #                            _class='box box-info'),
-    #                         _class='col-md-12')
-
-    # cancelled classes
-    cancelled_classes = ep_get_cancelled_classes()
-
-
     # upcoming classes (for teachers)
-    upcoming_classes = ep_get_teacher_upcoming_classes()
+    upcoming_classes = ep_index_teacher_upcoming_classes()
 
     # Classes that are open to substitute
-    substitution_classes = ep_get_teacher_substitution_classes()
-
-
-
+    sub_classes = ep_index_teacher_sub_classes()
 
     content = DIV(
-        # DIV(welcome_message, _class='row'),
-                  DIV(DIV( upcoming_classes,_class='col-md-9'),
-                      DIV(substitution_classes,_class='col-md-9'),
-                      DIV(cancelled_classes,_class='col-md-9') ,
-
-                      _class='row'))
+        DIV(upcoming_classes,_class='col-md-12'),
+        DIV(sub_classes,_class='col-md-12'),
+        _class='row'
+    )
 
     return dict(content=content)
 
 
-
-
-def ep_get_teacher_upcoming_classes(days=3):
+#TODO: Move to os_teacher (after merge)
+def ep_index_teacher_upcoming_classes(days=3):
     """
         @return: List upcoming classes for a teacher
     """
@@ -129,9 +102,6 @@ def ep_get_teacher_upcoming_classes(days=3):
 
             attendance = ''
             if attendance_permission:
-                # attendance = A(T('Attendance'),
-                #                _href=URL('classes', 'attendance', vars={'clsID':row.classes.id,
-                #                                                         'date':date.strftime(DATE_FORMAT)}))
                 attendance = os_gui.get_button('noicon', URL('classes', 'attendance',
                                                            vars={'clsID':row.classes.id,
                                                                  'date':date.strftime(DATE_FORMAT)}),
@@ -148,7 +118,6 @@ def ep_get_teacher_upcoming_classes(days=3):
                     )
 
             table.append(tr)
-
 
         date += delta
 
@@ -168,7 +137,7 @@ def ep_get_teacher_upcoming_classes(days=3):
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'employee_portal'))
-def ep_get_teacher_substitution_classes():
+def ep_index_teacher_sub_classes():
     """
         @return: List classes that need to get subbed
     """
@@ -177,8 +146,6 @@ def ep_get_teacher_substitution_classes():
         cache_clear_classschedule()
     else:
         return ''
-
-
 
     header = THEAD(TR(TH(T('Class date')),
                       TH(T('Time')),
@@ -192,8 +159,6 @@ def ep_get_teacher_substitution_classes():
     query = (db.teachers_classtypes.auth_user_id==teachers_id)
     rows = db(query).select(db.teachers_classtypes.school_classtypes_id)
     ctIDs= [ row.school_classtypes_id for row in rows]
-
-
 
     left = [
         db.classes.on(
@@ -248,20 +213,20 @@ def ep_get_teacher_substitution_classes():
                 )
         table.append(tr)
     if not len(rows):
-        table = TABLE(TD("At the moment no substitution required!"),_class='table table-hover dataTable')
+        table = T("No substitution requests...")
 
-    upcoming_classes = DIV(DIV(H3(T('Substitute Teacher Requested'), _class="box-title"),
-                               DIV(A(I(_class='fa fa-minus'),
-                                     _href='#',
-                                     _class='btn btn-box-tool',
-                                     _title=T("Collapse"),
-                                     **{'_data-widget': 'collapse'}),
-                                   _class='box-tools pull-right'),
-                               _class='box-header with-border'),
-                               DIV(table, _class='box-body'),
-                          _class='box box-success')
+    sub_requests = DIV(DIV(H3(T('Substitution requests'), _class="box-title"),
+                       DIV(A(I(_class='fa fa-minus'),
+                             _href='#',
+                             _class='btn btn-box-tool',
+                             _title=T("Collapse"),
+                             **{'_data-widget': 'collapse'}),
+                           _class='box-tools pull-right'),
+                       _class='box-header with-border'),
+                       DIV(table, _class='box-body'),
+                  _class='box box-success')
 
-    return upcoming_classes
+    return sub_requests
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
@@ -293,74 +258,6 @@ def cancel_available_for_sub():
         db(db.classes_otc_sub_avail.id==row.id).delete()
         redirect(URL('index'))
     redirect(URL('index'))
-
-
-def ep_get_cancelled_classes(days=3):
-    """
-    :return: list of cancelled classes
-    """
-    today = TODAY_LOCAL
-
-    delta =  datetime.timedelta(days=days)
-    query = ((db.classes_otc.ClassDate >= today) &
-             (db.classes_otc.ClassDate <= (today + delta)) &
-             (db.classes_otc.Status == 'cancelled'))
-    rows = db(query).select(db.classes_otc.classes_id,
-                            db.classes_otc.ClassDate,
-                            db.school_locations.Name,
-                            db.school_classtypes.Name,
-                            db.classes.Starttime,
-                            orderby=db.classes_otc.ClassDate|\
-                                    ~db.classes.school_locations_id|\
-                                    db.classes.Starttime,
-        left = [db.classes.on(db.classes_otc.classes_id==db.classes.id),
-                db.school_locations.on(db.classes.school_locations_id==\
-                                       db.school_locations.id),
-                db.school_classtypes.on(db.classes.school_classtypes_id==\
-                                        db.school_classtypes.id)],
-        cache = (cache.ram, 30)
-        )
-
-    # don't do anything of there are no cancelled classes
-    if rows.first() is None:
-        return ''
-
-
-    cancelled_classes = DIV(H3(T("Cancelled classes")))
-    goto = []
-    thead = THEAD(TR(TH(T('Date')),
-                     TH(T('Time')),
-                     TH(T('Location')),
-                     TH(T('Class type'))))
-    tbody = TBODY()
-    for row in rows:
-        class_date = row.classes_otc.ClassDate
-        date_formatted = class_date.strftime(DATE_FORMAT)
-        clsID = row.classes_otc.classes_id
-
-        tr = TR(
-            TD(date_formatted),
-            TD(row.classes.Starttime.strftime('%H:%M')),
-            TD(row.school_locations.Name),
-            TD(row.school_classtypes.Name)
-        )
-
-        tbody.append(tr)
-
-    table = TABLE(thead, tbody, _class='table table-hover')
-
-    classes = DIV(DIV(H3(T('Cancelled classes'), _class="box-title"),
-                               DIV(A(I(_class='fa fa-minus'),
-                                     _href='#',
-                                     _class='btn btn-box-tool',
-                                     _title=T("Collapse"),
-                                     **{'_data-widget': 'collapse'}),
-                                   _class='box-tools pull-right'),
-                               _class='box-header with-border'),
-                               DIV(table, _class='box-body'),
-                          _class='box box-warning')
-
-    return classes
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
@@ -407,7 +304,6 @@ def my_classes():
         last_day = get_last_day_month(date)
 
 
-
         for each_day in range(1, last_day.day + 1):
             # list days
             day = datetime.date(session.reports_te_classes_year,
@@ -431,20 +327,22 @@ def my_classes():
 
                 date_formatted = day.strftime(DATE_FORMAT)
                 open_class = db.classes_otc(classes_id=row.classes.id,  ClassDate=date_formatted, Status = 'Open')
+                print open_class
+
                 if not open_class:
                     sub_requested = ""
-                    button= os_gui.get_button('astronaut',
+                    button= os_gui.get_button('noicon',
                                          URL( 'request_sub',
                                              vars={'clsID': row.classes.id,
-                                                   'date': date_formatted,
+                                                   'date': date,
                                                    'teachers_id':teachers_id}),
                                          title='Find sub', _class='pull-right', btn_class='btn-success')
                 else:
                     sub_requested= os_gui.get_label('primary', T("Sub requested"))
-                    button= os_gui.get_button('astronaut',
+                    button= os_gui.get_button('noicon',
                                          URL('cancel_request_sub',
                                              vars={'clsID': row.classes.id,
-                                                                            'date': date_formatted}),
+                                                   'date': date}),
                                          title='Cancel', _class='pull-right', btn_class='btn-warning')
                 tr = TR(
                     TD(status_marker,
@@ -642,8 +540,7 @@ def request_sub():
     row_classes= db.classes(id=clsID)
 
     row = db.classes_otc(classes_id=clsID,
-                         ClassDate = date
-                         )
+                         ClassDate = date)
     if not row:
         db.classes_otc.insert(classes_id = clsID,
                               ClassDate=date,
@@ -653,7 +550,8 @@ def request_sub():
                               school_locations_id=row_classes.school_locations_id,
                               school_classtypes_id= row_classes.school_classtypes_id,
                               auth_teacher_id=teachers_id)
-        redirect(URL('my_classes'))
+
+    redirect(URL('my_classes'))
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
@@ -666,25 +564,22 @@ def cancel_request_sub():
         db(db.classes_otc.id==row.id).delete()
         redirect(URL('my_classes'))
 
+
 @auth.requires_login()
 def my_payments():
     """
         List staff payments
     """
     response.title = T('My Payments')
-    response.view = 'ep/index.html'
+    response.view = 'ep/only_content.html'
 
     if auth.user.teacher == False and auth.user.employee == False:
         redirect(URL('ep', 'index'))
 
-    # # Check whether the privacy feature is enabled
-    # features = db.customers_profile_features(1)
-    # if not features.StaffPayments:
-    #     redirect(URL('profile', 'index'))
-
     content = my_payments_get_content()
 
     return dict(content=content)
+
 
 def my_payments_get_content(var=None):
     """

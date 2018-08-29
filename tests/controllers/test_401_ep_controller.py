@@ -24,48 +24,36 @@ def test_my_classes(client, web2py):
     client.get(url)
     assert client.status == 200
 
+    # If Find sub is in client.text, a class is listed and the Find sub button is showing.
+    assert 'Find sub' in client.text
 
-    print web2py.db().select(web2py.db.classes_teachers.ALL)
 
-    print client.text
-
-    # print client.text
-    assert 'request_sub' in client.text
+def test_request_sub(client, web2py):
+    """
+    Can we request a subsitute teacher?
+    """
+    setup_ep_tests(web2py)
+    prepare_classes(web2py, auth_teacher_id=400)
 
     url = '/ep/request_sub?clsID=1&date=2014-04-01&teachers_id=400'
     client.get(url)
     assert client.status == 200
     row = web2py.db.classes_otc(Status= 'Open')
     # print row
-    assert row != None
+    assert not row == None
 
 
-def test_get_substitution_classes(client, web2py):
-    from populate_os_tables import populate_classes
-    url = '/default/user/login'
-    client.get(url)
-    assert client.status == 200
+def test_get_sub_classes(client, web2py):
+    """
 
-    populate_classes(web2py)
-
-    au = web2py.db.auth_user(2)
-    au.password = 'password'
-    au.login_start = 'ep'
-    au.update_record()
-
-    web2py.db.commit()
-
-    # log out and log back in again to make the profile user a teacher
-    url = '/default/user/logout'
-    client.get(url)
-    assert client.status == 200
-
-    data = dict(email='teacher@openstudioproject.com',
-                password='password',
-                _formname='login',
-                )
-    client.post('/default/user/login', data=data)
-    assert client.status == 200
+    :param client:
+    :param web2py:
+    :return:
+    """
+    # url = '/default/user/login'
+    # client.get(url)
+    # assert client.status == 200
+    prepare_classes(web2py)
 
     web2py.db.classes_otc.insert(classes_id= 1,
                                  auth_teacher_id = 2,
@@ -81,24 +69,6 @@ def test_get_substitution_classes(client, web2py):
     assert text not in client.text
 
 
-    au = web2py.db.auth_user(3)
-    au.password = 'password'
-    au.login_start = 'ep'
-    au.update_record()
-
-    web2py.db.commit()
-    # log out and log back in again to make the profile user a teacher
-    url = '/default/user/logout'
-    client.get(url)
-    assert client.status == 200
-
-    data = dict(email='teacher2@openstudioproject.com',
-                password='password',
-                _formname='login',
-                )
-    client.post('/default/user/login', data=data)
-    assert client.status == 200
-
     url = '/ep/available_for_sub?clsID=1&teachers_id=3'
     client.get(url)
     assert client.status == 200
@@ -106,7 +76,7 @@ def test_get_substitution_classes(client, web2py):
               (web2py.db.classes_otc_sub_avail.classes_otc_id == 1))
     row = web2py.db(query).select(web2py.db.classes_otc_sub_avail.ALL)
 
-    assert row != None
+    assert not row == None
 
     url = '/ep/cancel_available_for_sub?clsID=1&teachers_id=3'
     client.get(url)
@@ -117,6 +87,8 @@ def test_get_substitution_classes(client, web2py):
 
     assert row == None
     # assert 'available_for_sub' in client.text
+
+
 
 def test_my_payments(client, web2py):
     """

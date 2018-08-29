@@ -596,7 +596,7 @@ def get_backend_menu():
                                 URL('#', extension=''), submenu)
                              ]
 
-        # Flash to
+        # Go to
         submenu = [
             ( '', False, A((os_gui.get_fa_icon('fa-caret-right'),
                             SPAN(T('Shop'))),
@@ -608,7 +608,13 @@ def get_backend_menu():
             submenu.insert(0, ( '', False, A((os_gui.get_fa_icon('fa-caret-right'),
                                               SPAN(T('Self check-in'))),
                                               _href=URL('selfcheckin', 'index', extension=''),
-                                              _target='_blank')))
+                                              _target="_blank"
+                                             )))
+
+        if user_helpers.check_read_permission('employee_portal', user_id):
+            submenu.insert(0, ( '', False, A((os_gui.get_fa_icon('fa-caret-right'),
+                                              SPAN(T('Employee portal'))),
+                                              _href=URL('ep', 'index', extension=''))))
 
         menu += [ ((I(_class=jumpto_class + ' fa fa-flash', _title=T('Go to')),
                             SPAN(T('Go to')),

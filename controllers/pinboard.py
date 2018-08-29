@@ -108,14 +108,14 @@ def index():
     upcoming_classes = pinboard_get_teacher_upcoming_classes()
 
     # Classes that are open to substitute
-    substitution_classes = pinboard_get_teacher_substitution_classes()
+    sub_classes = pinboard_get_teacher_sub_classes()
 
 
     # birthdays
     birthdays = get_birthdays()
 
     content = DIV(DIV(welcome_message, _class='row'),
-                  DIV(DIV(announcements, upcoming_classes,substitution_classes, tasks, cancelled_classes, _class='col-md-9'),
+                  DIV(DIV(announcements, upcoming_classes,sub_classes, tasks, cancelled_classes, _class='col-md-9'),
                       DIV(birthdays, _class='col-md-3'),
                       _class='row'))
 
@@ -349,7 +349,7 @@ def pinboard_get_teacher_upcoming_classes(days=3):
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'pinboard'))
-def pinboard_get_teacher_substitution_classes():
+def pinboard_get_teacher_sub_classes():
     '''
         @return: List classes that need to get subbed
     '''
