@@ -13,8 +13,8 @@ def setup_ep_tests(web2py):
 
     web2py.db.auth_user.insert(id=uid,
                                first_name='openstudio',
-                               last_name='profile test',
-                               email='profile@openstudioproject.com',
+                               last_name='ep test',
+                               email='ep@openstudioproject.com',
                                password=password,
                                login_start='ep')
     web2py.db.auth_group.insert(id=gid,

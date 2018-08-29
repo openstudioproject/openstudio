@@ -21,6 +21,8 @@ def test_my_classes(client, web2py):
     au.login_start = 'ep'
     au.update_record()
 
+
+
     web2py.db.commit()
 
     # log out and log back in again to make the profile user a teacher
@@ -30,7 +32,8 @@ def test_my_classes(client, web2py):
 
     data = dict(email='teacher@openstudioproject.com',
                 password='password',
-                _formname='login')
+                _formname='login',
+                )
     client.post('/default/user/login', data=data)
     assert client.status == 200
 
@@ -38,10 +41,17 @@ def test_my_classes(client, web2py):
     url = '/ep/my_classes'
     client.get(url)
     assert client.status == 200
+    # print client
 
-    # url = 'ep/request_sub?clsID=1&date=2018-08-01&teachers_id=2'
-    # client.get(url)
-    # assert client.status == 200
+    url = '/ep/request_sub?clsID=1&date=2014-04-01&teachers_id=2'
+    client.get(url)
+    assert client.status == 200
+    query = ((web2py.db.classes_otc.Status=='Open') &\
+             (web2py.db.classes_otc.classes_id== 1) &\
+             (web2py.db.classes_otc.auth_teacher_id == 2))
+    row = web2py.db(query).select(web2py.db.classes_otc.ALL)
+    print row
+    assert row != None
 
 
 
@@ -69,7 +79,7 @@ def test_my_payments(client, web2py):
     client.get(url)
     assert client.status == 200
 
-    data = dict(email='profile@openstudioproject.com',
+    data = dict(email='ep@openstudioproject.com',
                 password='password',
                 _formname='login')
     client.post('/default/user/login', data=data)
