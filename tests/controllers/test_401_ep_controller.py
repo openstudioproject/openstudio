@@ -38,12 +38,13 @@ def test_request_sub(client, web2py):
     url = '/ep/request_sub?clsID=1&date=2014-04-01&teachers_id=400'
     client.get(url)
     assert client.status == 200
-    row = web2py.db.classes_otc(Status= 'Open')
+
+    query = (web2py.db.classes_otc.Status == 'open')
     # print row
-    assert not row == None
+    assert db(query).count() == 1
 
 
-def test_get_sub_classes(client, web2py):
+def test_list_sub_classes(client, web2py):
     """
 
     :param client:
@@ -54,10 +55,9 @@ def test_get_sub_classes(client, web2py):
     # client.get(url)
     # assert client.status == 200
     prepare_classes(web2py)
-
     web2py.db.classes_otc.insert(classes_id= 1,
                                  auth_teacher_id = 2,
-                                 Status='Open',
+                                 Status='open',
                                  ClassDate='2014-04-01')
     web2py.db.commit()
 

@@ -80,7 +80,7 @@ def ep_index_teacher_upcoming_classes(days=3):
                       TH(),
                       ))
 
-    table = TABLE(header, _class='table table-hover dataTable')
+    table = TABLE(header, _class='table table-hover')
 
 
     for day in range(0, days):
@@ -135,6 +135,7 @@ def ep_index_teacher_upcoming_classes(days=3):
     return upcoming_classes
 
 
+#TODO: move to os_teacher for use in pinboard and here.
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'employee_portal'))
 def ep_index_teacher_sub_classes():
@@ -154,7 +155,7 @@ def ep_index_teacher_sub_classes():
                       TH(),
                       ))
 
-    table = TABLE(header, _class='table table-hover dataTable')
+    table = TABLE(header, _class='table table-hover')
 
     query = (db.teachers_classtypes.auth_user_id==teachers_id)
     rows = db(query).select(db.teachers_classtypes.school_classtypes_id)
@@ -163,55 +164,52 @@ def ep_index_teacher_sub_classes():
     left = [
         db.classes.on(
             db.classes_otc.classes_id == db.classes.id,
-
         ),
         db.classes_teachers.on(
             db.classes_teachers.classes_id == db.classes.id
         )
-
     ]
 
+    query = ((db.classes_otc.Status=='open') &
+             ((db.classes.school_classtypes_id.belongs(ctIDs)) |
+              (db.classes_otc.school_classtypes_id.belongs(ctIDs))) &
+             (db.classes_otc.ClassDate >= db.classes_teachers.Startdate) &
+             (db.classes_otc.ClassDate <= db.classes_teachers.Enddate) &
+             (db.classes_otc.ClassDate >= TODAY_LOCAL)
+             #(db.classes_teachers.auth_teacher_id != teachers_id))
+             )
 
-    query = ((db.classes_otc.Status=='Open') &\
-             (db.classes_otc.school_classtypes_id.belongs(ctIDs)) &\
-             (db.classes_otc.auth_teacher_id != teachers_id) & \
-             (db.classes_otc.ClassDate >= db.classes_teachers.Startdate) & \
-             (db.classes_otc.ClassDate <= db.classes_teachers.Enddate) & \
-             (db.classes_otc.classes_id == db.classes_teachers.classes_id) & \
-             (db.classes_teachers.auth_teacher_id != teachers_id))
-
-
-
-    rows=db(query).select(
+    rows = db(query).select(
         db.classes_otc.ALL,
+        db.classes.ALL,
         left=left,
         orderby= db.classes.id
     )
 
-
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
-
-
-        row_avail=db.classes_otc_sub_avail(classes_otc_id=row.id, auth_user_id = teachers_id)
+        row_avail=db.classes_otc_sub_avail(classes_otc_id=row.classes_otc.id, auth_user_id = auth.user.id)
 
         if not row_avail:
             button = os_gui.get_button('astronaut',
                                       URL('available_for_sub',
-                                          vars={'clsID': row.id, 'teachers_id':teachers_id}),
+                                          vars={'clsID': row.classes.id,
+                                                'teachers_id':auth.user.id}),
                                       title='Available', _class='pull-right', btn_class='btn-success')
         else:
             button = os_gui.get_button('astronaut',
                                       URL('cancel_available_for_sub',
-                                          vars={'clsID': row.id, 'teachers_id':teachers_id}),
+                                          vars={'clsID': row.classes.id,
+                                                'teachers_id': auth.user.id}),
                                       title='Cancel', _class='pull-right', btn_class='btn-warning')
-        tr = TR(TD(repr_row.ClassDate),
-                TD(repr_row.Starttime, ' - ', repr_row.Endtime),
-                TD(repr_row.school_locations_id),
-                TD(repr_row.school_classtypes_id),
+        tr = TR(TD(repr_row.classes_otc.ClassDate),
+                TD(repr_row.classes.Starttime, ' - ', repr_row.classes.Endtime),
+                TD(repr_row.classes.school_locations_id),
+                TD(repr_row.classes.school_classtypes_id),
                 TD(button)
                 )
         table.append(tr)
+
     if not len(rows):
         table = T("No substitution requests...")
 
@@ -253,7 +251,6 @@ def cancel_available_for_sub():
     clsID = request.vars['clsID']
     teachers_id = request.vars['teachers_id']
     row = db.classes_otc_sub_avail(classes_otc_id=clsID, auth_user_id=teachers_id)
-    print row
     if row:
         db(db.classes_otc_sub_avail.id==row.id).delete()
         redirect(URL('index'))

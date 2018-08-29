@@ -388,7 +388,7 @@ def pinboard_get_teacher_sub_classes():
     ]
 
 
-    query = ((db.classes_otc.Status=='Open') &\
+    query = ((db.classes_otc.Status=='open') &\
              (db.classes_otc.school_classtypes_id.belongs(ctIDs)) &\
              (db.classes_otc.auth_teacher_id != teachers_id) & \
              (db.classes_otc.ClassDate >= db.classes_teachers.Startdate) & \
@@ -610,7 +610,7 @@ def teacher_monthly_classes():
 
 
                 date_formatted = day.strftime(DATE_FORMAT)
-                open_class = db.classes_otc(classes_id=row.classes.id,  ClassDate=date_formatted, Status = 'Open')
+                open_class = db.classes_otc(classes_id=row.classes.id,  ClassDate=date_formatted, Status = 'open')
                 if not open_class:
                     sub_requested = ""
                     button= os_gui.get_button('astronaut',
@@ -781,37 +781,3 @@ def overview_get_month_chooser(page):
             _class='btn btn-default')
 
     return DIV(previous, nxt, _class='btn-group pull-right')
-
-
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'pinboard'))
-def request_sub():
-    clsID = request.vars['clsID']
-    date = request.vars ['date']
-    teachers_id = request.vars['teachers_id']
-    row_classes= db.classes(id=clsID)
-
-    row = db.classes_otc(classes_id=clsID,
-                         ClassDate = date
-                         )
-    if not row:
-        db.classes_otc.insert(classes_id = clsID,
-                              ClassDate=date,
-                              Status ='Open',
-                              Starttime= row_classes.Starttime,
-                              Endtime= row_classes.Endtime,
-                              school_locations_id=row_classes.school_locations_id,
-                              school_classtypes_id= row_classes.school_classtypes_id,
-                              auth_teacher_id=teachers_id)
-        redirect(URL('teacher_monthly_classes'))\
-
-
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'pinboard'))
-def cancel_request_sub():
-    clsID = request.vars['clsID']
-    date = request.vars ['date']
-    row = db.classes_otc(classes_id=clsID, ClassDate = date)
-    if row:
-        db(db.classes_otc.id==row.id).delete()
-        redirect(URL('teacher_monthly_classes'))
