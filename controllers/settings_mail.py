@@ -154,6 +154,26 @@ def templates():
 
     table = TABLE(header, _class='table table-hover table-striped')
 
+    #three templates saved in sys_properties
+    query = ((db.sys_properties.Property=='email_template_sys_footer') | \
+             (db.sys_properties.Property == 'email_template_sys_reset_password') | \
+             (db.sys_properties.Property == 'email_template_sys_verify_email') )
+    rows = db(query).select(db.sys_properties.Property,
+                            orderby= db.sys_properties.Property)
+    for i, row in enumerate(rows):
+        repr_row = list(rows[i:i + 1].render())[0]
+
+
+        tr = TR(
+                TD(repr_row.Property),
+                os_gui.get_button('edit_custom',
+                              URL('edit_template', vars={'template':row.Property}),
+                              T("Edit the content of this template",),
+                              title='Edit template')
+                )
+
+        table.append(tr)
+    #the templates saved in sys_email_templates
     query = (db.sys_email_templates.id >0)
     rows = db(query).select(db.sys_email_templates.id,
                             db.sys_email_templates.Title,
@@ -164,9 +184,10 @@ def templates():
 
         tr = TR(
                 TD(repr_row.Title),
-                os_gui.get_button('edit',
-                              URL('template_edit', args=[row.id]),
-                              T("Edit the content of this template"))
+                os_gui.get_button('edit_custom',
+                              URL('edit_template', vars={'template':row.Title}),
+                              T("Edit the content of this template",),
+                              title='Edit template')
                 )
 
         table.append(tr)
@@ -178,36 +199,36 @@ def templates():
                 left_sidebar_enabled=True)
 
 
-def email_templates_get_menu(page):
-    """
-        Return menu for invoice templates
-    """
-    pages = [ ['templates', T('Info'),
-               URL('templates')],
-              # ['email_template_invoice_created', T('Invoice created'),
-              #  URL('email_template', vars={'template':'email_template_invoice_created'})],
-              ['email_template_order_received', T('Order received'),
-               URL('template', vars={'template': 'email_template_order_received'})],
-              ['email_template_order_delivered', T('Order delivered'),
-               URL('template', vars={'template': 'email_template_order_delivered'})],
-              # ['email_template_payment_received', T('Payment received'),
-              #  URL('email_template', vars={'template':'email_template_payment_received'})],
-              ['email_template_payment_recurring_failed', T('Payment recurring failed'),
-               URL('template', vars={'template':'email_template_payment_recurring_failed'})],
-              ['email_template_sys_footer', T('Email footer'),
-               URL('template', vars={'template':'email_template_sys_footer'})],
-              ['email_template_sys_reset_password', T('System reset password'),
-               URL('template', vars={'template':'email_template_sys_reset_password'})],
-              ['email_template_sys_verify_email', T('System verify email'),
-               URL('template', vars={'template':'email_template_sys_verify_email'})]
-              ]
-
-    return os_gui.get_submenu(pages, page, horizontal=True, htype='tabs')
+# def email_templates_get_menu(page):
+#     """
+#         Return menu for invoice templates
+#     """
+#     pages = [ ['templates', T('Info'),
+#                URL('templates')],
+#               # ['email_template_invoice_created', T('Invoice created'),
+#               #  URL('email_template', vars={'template':'email_template_invoice_created'})],
+#               ['email_template_order_received', T('Order received'),
+#                URL('template', vars={'template': 'email_template_order_received'})],
+#               ['email_template_order_delivered', T('Order delivered'),
+#                URL('template', vars={'template': 'email_template_order_delivered'})],
+#               # ['email_template_payment_received', T('Payment received'),
+#               #  URL('email_template', vars={'template':'email_template_payment_received'})],
+#               ['email_template_payment_recurring_failed', T('Payment recurring failed'),
+#                URL('template', vars={'template':'email_template_payment_recurring_failed'})],
+#               ['email_template_sys_footer', T('Email footer'),
+#                URL('template', vars={'template':'email_template_sys_footer'})],
+#               ['email_template_sys_reset_password', T('System reset password'),
+#                URL('template', vars={'template':'email_template_sys_reset_password'})],
+#               ['email_template_sys_verify_email', T('System verify email'),
+#                URL('template', vars={'template':'email_template_sys_verify_email'})]
+#               ]
+#
+#     return os_gui.get_submenu(pages, page, horizontal=True, htype='tabs')
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
-def template():
+def edit_template():
     """
         Page to edit an email_template
     """
@@ -218,38 +239,64 @@ def template():
     response.view = 'settings/email_templates.html'
 
     template = request.vars['template']
+    if db.sys_properties(Property=template):
+        template_content = get_sys_property(template)
+        form = SQLFORM.factory(
+            Field("email_template", 'text',
+                  default=template_content,
+                  label=T("Edit template")),
+            submit_button=T("Save"),
+            separator=' ',
+            formstyle='bootstrap3_stacked')
 
-    template_content = get_sys_property(template)
+        form_element = form.element('#no_table_email_template')
+        form_element['_class'] += ' tmced'
 
-    form = SQLFORM.factory(
-        Field("email_template", 'text',
-              default=template_content,
-              label=T("Edit template")),
-        submit_button=T("Save"),
-        separator=' ',
-        formstyle='bootstrap3_stacked')
+        os_forms = OsForms()
+        result = os_forms.set_form_id_and_get_submit_button(form, 'MainForm')
+        form = result['form']
+        submit = result['submit']
 
-    form_element = form.element('#no_table_email_template')
-    form_element['_class'] += ' tmced'
+        if form.accepts(request.vars, session):
+            # check smtp_signature
+            email_template = request.vars['email_template']
+            set_sys_property(template, email_template)
 
-    os_forms = OsForms()
-    result = os_forms.set_form_id_and_get_submit_button(form, 'MainForm')
-    form = result['form']
-    submit = result['submit']
+            # User feedback
+            session.flash = T('Saved')
 
-    if form.accepts(request.vars, session):
-        # check smtp_signature
-        email_template = request.vars['email_template']
-        set_sys_property(template, email_template)
+            # reload so the user sees how the values are stored in the db now
+            redirect(URL(vars={'template': template}))
 
-        # User feedback
-        session.flash = T('Saved')
+    elif db.sys_email_templates(Title=template):
+        row=db.sys_email_templates(Title=template)
+        template_content = row.Body
+        form = SQLFORM.factory(
+            Field("email_template", 'text',
+                  default=template_content,
+                  label=T("Edit template")),
+            submit_button=T("Save"),
+            separator=' ',
+            formstyle='bootstrap3_stacked')
 
-        # reload so the user sees how the values are stored in the db now
-        redirect(URL(vars={'template':template}))
+        form_element = form.element('#no_table_email_template')
+        form_element['_class'] += ' tmced'
 
-    submenu = email_templates_get_menu(template)
-    content = DIV(submenu, BR(), form)
+        os_forms = OsForms()
+        result = os_forms.set_form_id_and_get_submit_button(form, 'MainForm')
+        form = result['form']
+        submit = result['submit']
+        if form.accepts(request.vars, session):
+            # User feedback
+            session.flash = T('Saved')
+
+            # reload so the user sees how the values are stored in the db now
+            redirect(URL('templates'))
+    print get_sys_property(template)
+
+
+    # submenu = email_templates_get_menu(template)
+    content = DIV(form)
 
     return dict(content=content,
                 menu=mail_get_menu('templates'),
