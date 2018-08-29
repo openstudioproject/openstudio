@@ -176,7 +176,6 @@ def ep_index_teacher_sub_classes():
              (db.classes_otc.ClassDate >= db.classes_teachers.Startdate) &
              (db.classes_otc.ClassDate <= db.classes_teachers.Enddate) &
              (db.classes_otc.ClassDate >= TODAY_LOCAL)
-             #(db.classes_teachers.auth_teacher_id != teachers_id))
              )
 
     rows = db(query).select(
