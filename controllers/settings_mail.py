@@ -141,17 +141,39 @@ def templates():
     """
         Templates main
     """
-    response.title = T('Settings')
-    response.subtitle = T('Email')
+    response.title = T('System Settings')
+    response.subtitle = T('Email templates')
     response.view = 'settings/email_templates.html'
 
     #NOTE: in the end, the drop down select will go here to select a default template
-    content = T('Using the tabs to the right you can configure the text in the templates.')
+    header = THEAD(TR(
+        TH('Templates'),
 
-    submenu = email_templates_get_menu(request.function)
+        TH(T(''))
+    ))
+
+    table = TABLE(header, _class='table table-hover table-striped')
+
+    query = (db.sys_email_templates.id >0)
+    rows = db(query).select(db.sys_email_templates.id,
+                            db.sys_email_templates.Title,
+                            orderby= db.sys_email_templates.Title)
+    for i, row in enumerate(rows):
+        repr_row = list(rows[i:i + 1].render())[0]
 
 
-    return dict(content=DIV(submenu, BR(), P(content)),
+        tr = TR(
+                TD(repr_row.Title),
+                os_gui.get_button('edit',
+                              URL('template_edit', args=[row.id]),
+                              T("Edit the content of this template"))
+                )
+
+        table.append(tr)
+    # submenu = email_templates_get_menu(request.function)
+
+    content = DIV(table)
+    return dict(content=content,
                 menu=mail_get_menu(request.function),
                 left_sidebar_enabled=True)
 
@@ -191,8 +213,8 @@ def template():
     """
     from openstudio.os_forms import OsForms
 
-    response.title = T('Email Settings')
-    response.subtitle = T('Templates')
+    response.title = T('System Settings')
+    response.subtitle = T('Email Templates')
     response.view = 'settings/email_templates.html'
 
     template = request.vars['template']
