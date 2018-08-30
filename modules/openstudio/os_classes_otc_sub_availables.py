@@ -5,7 +5,32 @@ import datetime
 from gluon import *
 
 class ClassesOTCSubAvailables:
-    def list_formatted(self, limitby):
+
+    def get_form_filter_status(self, status):
+        """
+
+        :return:
+        """
+        T = current.T
+
+        form = SQLFORM.factory(
+            Field('Status',
+                  default=status,
+                  requires=IS_IN_SET(
+                      [ ['pending', T("Pending")],
+                        ['processed', T("Processed")] ],
+                      zero=None,
+                  )),
+            formstyle="bootstrap3_stacked"
+        )
+
+        select_status = form.element('#no_table_Status')
+        select_status['_onchange'] = "this.form.submit();"
+
+        return DIV(form, _class='col-md-3 no-padding-left')
+
+
+    def list_formatted(self, status, limitby):
         """
 
         :return: HTML table of available sub teachers
@@ -37,7 +62,12 @@ class ClassesOTCSubAvailables:
             )
         ]
 
-        query = (db.classes_otc_sub_avail.id > 0)
+        if status == 'pending':
+            query = (db.classes_otc_sub_avail.Accepted == None)
+        else:
+            query = ((db.classes_otc_sub_avail.Accepted == True) |
+                     (db.classes_otc_sub_avail.Accepted == False))
+
         rows = db(query).select(
             db.classes_otc_sub_avail.ALL,
             db.classes_otc.ALL,

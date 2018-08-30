@@ -4901,10 +4901,9 @@ def subs_manage():
     """
     from openstudio.os_classes_otc_sub_availables import ClassesOTCSubAvailables
 
-    response.title = T("Sub teachers")
+    response.title = T("Available sub teachers")
     response.subtitle = T("")
     response.view = 'general/only_content.html'
-
 
     ## Pagination begin
     if 'page' in request.vars:
@@ -4918,10 +4917,22 @@ def subs_manage():
     limitby=(page*items_per_page,(page+1)*items_per_page+1)
     ## Pagination end
 
+    if 'Status' in request.vars:
+        session.classes_subs_manage_status = request.vars['Status']
+    elif not session.classes_subs_manage_status:
+        session.classes_subs_manage_status = 'pending'
+
     subs_avail = ClassesOTCSubAvailables()
-    result = subs_avail.list_formatted(limitby)
+    result = subs_avail.list_formatted(
+        session.classes_subs_manage_status,
+        limitby
+    )
     table = result['table']
     rows = result['rows']
+
+    form = subs_avail.get_form_filter_status(
+        session.classes_subs_manage_status
+    )
 
     ## Pager begin
     navigation = ''
@@ -4940,11 +4951,10 @@ def subs_manage():
             nxt = A(SPAN(_class='fa fa-chevron-right'),
                     _href=url_next)
 
-
         navigation = os_gui.get_page_navigation_simple(url_previous, url_next, page + 1, request.cid)
 
 
-    return dict(content=DIV(table, navigation))
+    return dict(content=DIV(form, table, navigation))
 
 
 def sub_request_get_return_url(var=None):
