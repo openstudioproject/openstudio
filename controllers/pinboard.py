@@ -1,12 +1,5 @@
 # -*- coding: utf-8 -*-
-# this file is released under the gplv2 (or later at your choice) license
 
-#########################################################################
-## - index is the default action of any application
-## - user is required for authentication and authorization
-## - download is for downloading files uploaded in the db (does streaming)
-## - call exposes all registered services (none by default)
-#########################################################################
 
 from general_helpers import datestr_to_python
 from general_helpers import get_label
