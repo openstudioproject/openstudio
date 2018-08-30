@@ -11,6 +11,62 @@ from populate_os_tables import prepare_classes
 from setup_ep_tests import setup_ep_tests
 
 
+def test_my_classes_month(client, web2py):
+    """
+        Can we add a default rate
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    prepare_classes(web2py, auth_teacher_id=400)
+
+    url = '/ep/my_classes_month'
+    client.get(url)
+    assert client.status == 200
+
+    today = datetime.date.today()
+    date = datetime.date(today.year, today.month, 1)
+    first_monday = date + datetime.timedelta(7 - date.weekday() or 7)
+
+    assert str(first_monday) in client.text
+
+
+def test_my_classes_set_month(client, web2py):
+    """
+        Does setting a month work?
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    prepare_classes(web2py, auth_teacher_id=400)
+
+    url = '/ep/my_classes_set_month?year=2014&month=1&back=my_classes_month'
+    client.get(url)
+    assert client.status == 200
+
+    assert '2014' in client.text
+
+
+def test_my_classes_show_current(client, web2py):
+    """
+        Does setting a month work?
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    prepare_classes(web2py, auth_teacher_id=400)
+
+    url = '/ep/my_classes_show_current'
+    client.get(url)
+    assert client.status == 200
+
+    assert '2018' in client.text
+
+
+
 def test_my_classes(client, web2py):
     # url = '/default/user/login'
     # client.get(url)
