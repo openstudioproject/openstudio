@@ -77,6 +77,8 @@ class ClassesOTCSubAvailables:
             orderby=db.classes_otc.ClassDate | db.classes_otc.Starttime
         )
 
+        print rows
+
         for i, row in enumerate(rows):
             repr_row = list(rows[i:i + 1].render())[0]
 

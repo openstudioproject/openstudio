@@ -1015,6 +1015,28 @@ def prepare_classes(web2py,
     web2py.db.commit()
 
 
+
+def prepare_classes_otc_subs_avail(web2py, accepted=None):
+    """
+    Add item to subs available table
+    """
+    prepare_classes(web2py)
+
+    cotcID = web2py.db.classes_otc.insert(
+        classes_id = 1,
+        ClassDate = '2099-01-01',
+        Status = 'open'
+    )
+
+    web2py.db.classes_otc_sub_avail.insert(
+        classes_otc_id = cotcID,
+        auth_teacher_id = 3,
+        Accepted=accepted
+    )
+
+    web2py.db.commit()
+
+
 def prepare_shifts(web2py, nr_of_customers = 10, cuID = 1001, with_otc = False):
     populate_customers(web2py, nr_of_customers, employee=True)
     populate(web2py.db.school_shifts, 3)
