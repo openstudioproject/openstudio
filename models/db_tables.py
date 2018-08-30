@@ -1857,7 +1857,7 @@ def define_classes_otc():
                (db.auth_user.teaches_classes == True)
 
     statuses = [['normal', T('Normal')],
-                ['open', T('Open')],
+                ['open', T('Sub teacher wanted')],
                 ['cancelled', T('Cancelled')]]
 
     db.define_table('classes_otc',

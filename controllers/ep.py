@@ -88,9 +88,23 @@ def ep_index_teacher_sub_classes():
     else:
         return ''
 
+    session.ep_available_for_sub_back = 'ep_index'
+
     teacher = Teacher(auth.user.id)
 
     return teacher.get_subrequests_formatted()
+
+
+def available_for_sub_get_return_url(var=None):
+    """
+    See if we're coming from pinboard, if so, go back there, otherwise back to ep
+    """
+    if session.ep_available_for_sub_back == 'pinboard_index':
+        url = URL('pinboard', 'index')
+    else:
+        url = URL('ep', 'index')
+
+    return url
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
@@ -113,7 +127,7 @@ def available_for_sub():
         )
 
 
-    redirect(URL('index'))
+    redirect(available_for_sub_get_return_url())
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
@@ -127,7 +141,7 @@ def cancel_available_for_sub():
     query = (db.classes_otc_sub_avail.id == cotcsaID)
     db(query).delete()
 
-    redirect(URL('index'))
+    redirect(available_for_sub_get_return_url())
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or

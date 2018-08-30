@@ -4904,6 +4904,19 @@ def subs_manage():
     response.view = 'general/only_content.html'
 
 
+    ## Pagination begin
+    if 'page' in request.vars:
+        try:
+            page = int(request.vars['page'])
+        except ValueError:
+            page = 0
+    else:
+        page = 0
+    items_per_page = 11
+    limitby=(page*items_per_page,(page+1)*items_per_page+1)
+    ## Pagination end
+
+
     table = TABLE(_class='table table-hover')
 
     table.append(THEAD(TR(
@@ -4932,6 +4945,7 @@ def subs_manage():
         db.classes_otc.ALL,
         db.classes.ALL,
         left=left,
+        limitby=limitby,
         orderby=db.classes_otc.ClassDate | db.classes_otc.Starttime
     )
 
@@ -4972,7 +4986,28 @@ def subs_manage():
         table.append(tr)
 
 
-    return dict(content=table)
+    ## Pager begin
+    navigation = ''
+    url_previous = ''
+    url_next = ''
+    if len(rows) > items_per_page or page:
+        previous = SPAN(_class='fa fa-chevron-left grey')
+        if page:
+            url_previous = URL(request.function, vars={'page':page-1})
+            previous = A(SPAN(_class='fa fa-chevron-left'),
+                         _href=url_previous)
+
+        nxt = SPAN(_class='fa fa-chevron-right grey')
+        if len(rows) > items_per_page:
+            url_next = URL(request.function, vars={'page':page+1})
+            nxt = A(SPAN(_class='fa fa-chevron-right'),
+                    _href=url_next)
+
+
+        navigation = os_gui.get_page_navigation_simple(url_previous, url_next, page + 1, request.cid)
+
+
+    return dict(content=DIV(table, navigation))
 
 
 def sub_request_get_return_url(var=None):

@@ -75,6 +75,7 @@ def index():
 
     session.customers_back = 'pinboard'
     session.workshops_manage_back = 'pinboard'
+    session.ep_available_for_sub_back = 'pinboard_index'
 
     welcome_message = ''
     if ( db.sys_properties(Property='ShowWelcomeMessage') is None or

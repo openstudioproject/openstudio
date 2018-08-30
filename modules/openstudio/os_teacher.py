@@ -116,6 +116,7 @@ class Teacher:
 
         T = current.T
         db = current.db
+        auth = current.auth
         TODAY_LOCAL = current.TODAY_LOCAL
 
         header = THEAD(TR(
@@ -167,13 +168,13 @@ class Teacher:
 
             if not row_avail:
                 button = os_gui.get_button('noicon',
-                                           URL('available_for_sub',
+                                           URL('ep', 'available_for_sub',
                                                vars={'cotcID': row.classes_otc.id}),
                                            title=T("I'm available to sub"), _class='pull-right',
                                            btn_class='btn-success')
             else:
                 button = os_gui.get_button('noicon',
-                                           URL('cancel_available_for_sub',
+                                           URL('ep', 'cancel_available_for_sub',
                                                vars={'cotcsaID': row_avail.id}),
                                            title=T("I'm no longer available"),
                                            _class='pull-right',
