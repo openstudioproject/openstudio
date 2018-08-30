@@ -4,6 +4,8 @@
     py.test test cases to test the ep controller (ep.py)
 """
 
+import datetime
+
 from gluon.contrib.populate import populate
 
 from populate_os_tables import populate_auth_user_teachers
@@ -11,7 +13,7 @@ from populate_os_tables import prepare_classes
 from setup_ep_tests import setup_ep_tests
 
 
-def test_my_classes_month(client, web2py):
+def test_my_classes(client, web2py):
     """
         Can we add a default rate
     """
@@ -19,9 +21,10 @@ def test_my_classes_month(client, web2py):
     client.get(url)
     assert client.status == 200
 
+    setup_ep_tests(web2py)
     prepare_classes(web2py, auth_teacher_id=400)
 
-    url = '/ep/my_classes_month'
+    url = '/ep/my_classes'
     client.get(url)
     assert client.status == 200
 
@@ -30,6 +33,9 @@ def test_my_classes_month(client, web2py):
     first_monday = date + datetime.timedelta(7 - date.weekday() or 7)
 
     assert str(first_monday) in client.text
+
+    # If Find sub is in client.text, a class is listed and the Find sub button is showing.
+    assert 'Find sub' in client.text
 
 
 def test_my_classes_set_month(client, web2py):
@@ -40,9 +46,10 @@ def test_my_classes_set_month(client, web2py):
     client.get(url)
     assert client.status == 200
 
+    setup_ep_tests(web2py)
     prepare_classes(web2py, auth_teacher_id=400)
 
-    url = '/ep/my_classes_set_month?year=2014&month=1&back=my_classes_month'
+    url = '/ep/my_classes_set_month?year=2014&month=1&back=my_classes'
     client.get(url)
     assert client.status == 200
 
@@ -57,6 +64,7 @@ def test_my_classes_show_current(client, web2py):
     client.get(url)
     assert client.status == 200
 
+    setup_ep_tests(web2py)
     prepare_classes(web2py, auth_teacher_id=400)
 
     url = '/ep/my_classes_show_current'
@@ -66,22 +74,21 @@ def test_my_classes_show_current(client, web2py):
     assert '2018' in client.text
 
 
+#
+# def test_my_classes(client, web2py):
+#     # url = '/default/user/login'
+#     # client.get(url)
+#     # assert client.status == 200
+#
+#     setup_ep_tests(web2py)
+#     prepare_classes(web2py, auth_teacher_id=400)
+#
+#     # Check classes display
+#     url = '/ep/my_classes'
+#     client.get(url)
+#     assert client.status == 200
 
-def test_my_classes(client, web2py):
-    # url = '/default/user/login'
-    # client.get(url)
-    # assert client.status == 200
 
-    setup_ep_tests(web2py)
-    prepare_classes(web2py, auth_teacher_id=400)
-
-    # Check classes display
-    url = '/ep/my_classes'
-    client.get(url)
-    assert client.status == 200
-
-    # If Find sub is in client.text, a class is listed and the Find sub button is showing.
-    assert 'Find sub' in client.text
 
 
 def test_request_sub(client, web2py):
