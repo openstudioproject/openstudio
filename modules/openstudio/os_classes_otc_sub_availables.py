@@ -77,8 +77,6 @@ class ClassesOTCSubAvailables:
             orderby=db.classes_otc.ClassDate | db.classes_otc.Starttime
         )
 
-        print rows
-
         for i, row in enumerate(rows):
             repr_row = list(rows[i:i + 1].render())[0]
 
@@ -91,14 +89,14 @@ class ClassesOTCSubAvailables:
             button = os_gui.get_button('ok_notext',
                                        URL('sub_avail_accept',
                                            vars={
-                                               'saID': row.classes_otc_sub_avail.id
+                                               'cotcsaID': row.classes_otc_sub_avail.id
                                            }),
                                        title='Accept', _class='pull-right', btn_class='btn-success')
 
             button += os_gui.get_button('cancel_notext',
                                         URL('sub_avail_decline',
                                             vars={
-                                                'saID': row.classes_otc_sub_avail.id}),
+                                                'cotcsaID': row.classes_otc_sub_avail.id}),
                                         title='Decline', _class='pull-right', btn_class='btn-danger')
 
             tr = TR(

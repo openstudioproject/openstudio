@@ -4964,10 +4964,10 @@ def sub_request_get_return_url(var=None):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'classes_otc_sub_avail'))
 def sub_avail_accept():
-    saID = request.vars['saID']
+    cotcsaID = request.vars['cotcsaID']
 
     # Accept this offer
-    row = db.classes_otc_sub_avail(saID)
+    row = db.classes_otc_sub_avail(cotcsaID)
     row.Accepted = True
     row.update_record()
 
@@ -4978,7 +4978,7 @@ def sub_avail_accept():
 
     # Reject all others
     query = (db.classes_otc_sub_avail.classes_otc_id == row.classes_otc_id) & \
-            (db.classes_otc_sub_avail.id != saID)
+            (db.classes_otc_sub_avail.id != cotcsaID)
     db(query).update(Accepted = False)
 
     db.classes_otc[row.classes_otc_id] = dict(Status = None)
@@ -4989,9 +4989,9 @@ def sub_avail_accept():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'classes_otc_sub_avail'))
 def sub_avail_decline():
-    saID = request.vars['saID']
+    cotcsaID = request.vars['cotcsaID']
 
-    db.classes_otc_sub_avail[saID] = dict(Accepted = False)
+    db.classes_otc_sub_avail[cotcsaID] = dict(Accepted = False)
 
     redirect(sub_request_get_return_url())
 
