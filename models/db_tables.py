@@ -1945,16 +1945,15 @@ def define_classes_otc():
     )
 
 def define_classes_otc_sub_avail():
-    '''
+    """
         Table to store the available requests for a class open to substitution
-    '''
+    """
     db.define_table('classes_otc_sub_avail',
         Field('classes_otc_id', db.classes_otc,
               label=T('Classes_OTC')),
         Field('auth_teacher_id', db.auth_user,
               label=T('Teacher')),
         Field('Accepted', 'boolean',
-              default=False,
               label=T('Accepted'))
     )
 

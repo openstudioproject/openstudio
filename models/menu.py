@@ -308,14 +308,15 @@ def get_backend_menu():
                 submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Classes'))),
                                 False,
                                 URL('classes', 'schedule', extension='')))
+            if user_helpers.check_read_permission('classes_otc_sub_avail', user_id):
+                submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Available subs'))),
+                                False,
+                                URL('classes', 'subs_manage', extension='')))
+
             if user_helpers.check_read_permission('shifts', user_id):
                 submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Studio staff'))),
                                 False,
                                 URL('staff', 'schedule', extension='')))
-            if user_helpers.check_read_permission('substitution_requests', user_id):
-                submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Substitution Offers'))),
-                                False,
-                                URL('classes', 'substitution_requests', extension='')))
 
             menu += [ ((I(_class='fa fa-calendar'),
                                  SPAN(T('Schedule')),
