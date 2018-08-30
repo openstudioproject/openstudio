@@ -71,6 +71,13 @@ def ep_menu():
         SPAN(T('My Payments'))),
         False,
         URL('ep', 'my_payments', extension='')])
+
+    menu.append([(  # I(_class='fa fa-home'),
+        SPAN(T('Back end'))),
+        False,
+        URL('pinboard', 'index', extension='')])
+
+
     return menu
 
 
