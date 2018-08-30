@@ -142,7 +142,17 @@ def pinboard_get_teacher_sub_classes(var=None):
     """
     Returns list of classes available for subbing
     """
-    return "TODO!"
+    from openstudio.os_teacher import Teacher
+
+    if auth.user.id and auth.user.teacher:
+        teachers_id = auth.user.id
+        cache_clear_classschedule()
+    else:
+        return ''
+
+    teacher = Teacher(auth.user.id)
+
+    return teacher.get_subrequests_formatted()
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \

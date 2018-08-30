@@ -106,6 +106,104 @@ class Teacher:
         return upcoming_classes
 
 
+    def get_subrequests_formatted(self):
+        """
+        :return: HTML table holding subrequests this teacher can apply for
+        """
+        from os_gui import OsGui
+
+        os_gui = OsGui()
+
+        T = current.T
+        db = current.db
+        TODAY_LOCAL = current.TODAY_LOCAL
+
+        header = THEAD(TR(
+            TH(T('Class date')),
+            TH(T('Time')),
+            TH(T('Location')),
+            TH(T('Class type')),
+            TH()
+        ))
+
+        table = TABLE(header, _class='table table-hover')
+
+        # Get classtypes for currently logged on teacher
+        query = (db.teachers_classtypes.auth_user_id == self.id)
+        rows = db(query).select(db.teachers_classtypes.school_classtypes_id)
+        ctIDs = [row.school_classtypes_id for row in rows]
+
+        left = [
+            db.classes.on(
+                db.classes_otc.classes_id == db.classes.id,
+            ),
+            db.classes_teachers.on(
+                db.classes_teachers.classes_id == db.classes.id
+            )
+        ]
+
+        query = ((db.classes_otc.Status == 'open') &
+                 ((db.classes.school_classtypes_id.belongs(ctIDs)) |
+                  (db.classes_otc.school_classtypes_id.belongs(ctIDs))) &
+                 (db.classes_teachers.Startdate <= db.classes_otc.ClassDate) &
+                 ((db.classes_teachers.Enddate >= db.classes_otc.ClassDate) |
+                  (db.classes_teachers.Enddate == None)) &
+                 (db.classes_otc.ClassDate >= TODAY_LOCAL)
+                 )
+
+        rows = db(query).select(
+            db.classes_otc.ALL,
+            db.classes.ALL,
+            left=left,
+            orderby=db.classes.id
+        )
+
+        for i, row in enumerate(rows):
+            repr_row = list(rows[i:i + 1].render())[0]
+            row_avail = db.classes_otc_sub_avail(
+                classes_otc_id=row.classes_otc.id,
+                auth_teacher_id=auth.user.id
+            )
+
+            if not row_avail:
+                button = os_gui.get_button('noicon',
+                                           URL('available_for_sub',
+                                               vars={'cotcID': row.classes_otc.id}),
+                                           title=T("I'm available to sub"), _class='pull-right',
+                                           btn_class='btn-success')
+            else:
+                button = os_gui.get_button('noicon',
+                                           URL('cancel_available_for_sub',
+                                               vars={'cotcsaID': row_avail.id}),
+                                           title=T("I'm no longer available"),
+                                           _class='pull-right',
+                                           btn_class='btn-warning')
+            tr = TR(TD(repr_row.classes_otc.ClassDate),
+                    TD(repr_row.classes.Starttime, ' - ', repr_row.classes.Endtime),
+                    TD(repr_row.classes.school_locations_id),
+                    TD(repr_row.classes.school_classtypes_id),
+                    TD(button)
+                    )
+            table.append(tr)
+
+        if not len(rows):
+            table = T("No one is looking for a sub at the moment...")
+
+        sub_requests = DIV(DIV(H3(T('Can you sub a class?'), _class="box-title"),
+                               DIV(A(I(_class='fa fa-minus'),
+                                     _href='#',
+                                     _class='btn btn-box-tool',
+                                     _title=T("Collapse"),
+                                     **{'_data-widget': 'collapse'}),
+                                   _class='box-tools pull-right'),
+                               _class='box-header with-border'),
+                           DIV(table, _class='box-body'),
+                           _class='box box-success')
+
+        return sub_requests
+
+
+
     def get_payment_fixed_rate_default(self, render=False):
         """
         :return: gluon.dal.row object of db.teachers_payment_fixed_rate_default
