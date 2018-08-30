@@ -1209,6 +1209,8 @@ def access_group_permissions():
                 ['classes_school_classcards_groups-create', T("Add allowed class cards groups")],
                 ['classes_school_classcards_groups-update', T("Edit allowed class cards groups")],
                 ['classes_school_classcards_groups-delete', T("Delete allowed class cards groups")]]],
+            ['classes_otc_sub_avail-read', T("Manage sub teachers request list"), [
+                ['classes_otc_sub_avail-update', T("Accept/Decline sub teacher requests")]]],
             ['teacher_classes-read', T('Teacher classes by month')],
             ['classes_open-read', T('View all open classes')],
             ['schedule_set_default_sort-update', T('Set default sorting of classes')],
