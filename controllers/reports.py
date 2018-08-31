@@ -5034,6 +5034,7 @@ def teacher_classes():
     else:
         table = TABLE(_class='table table-hover')
 
+        revenue_header = ''
         if revenue_permission:
             revenue_header = T('Revenue')
 
