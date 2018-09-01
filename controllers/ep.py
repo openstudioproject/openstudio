@@ -163,10 +163,11 @@ def my_classes():
     table.append(THEAD(TR(
         TH(),
         TH(T('Date')),
-        TH(T('Start')),
+        TH(T('Time')),
         TH(T('Location')),
         TH(T('Class Type')),
-        TH(),  # actions))
+        TH(), #sub requested
+        #TH(),  # actions
     )))
 
     date = datetime.date(
@@ -218,12 +219,11 @@ def my_classes():
                 TD(status_marker,
                    _class='td_status_marker'),
                 TD(day.strftime(DATE_FORMAT)),
-                TD(repr_row.classes.Starttime),
-                TD(repr_row.classes.Endtime),
+                TD(repr_row.classes.Starttime, '- ', repr_row.classes.Endtime),
                 TD(repr_row.classes.school_locations_id),
                 TD(repr_row.classes.school_classtypes_id),
                 TD(sub_requested),
-                TD(button)
+                #TD(button)
             )
 
             table.append(tr)

@@ -28,7 +28,7 @@ def subscribe():
     result = osmc.list_member_add(list_id, auth.user.id)
     session.flash = result
 
-    redirect(URL('profile', 'mail'))
+    redirect(URL('profile', 'mail', extension=''))
 
 
 def unsubscribe():
@@ -44,4 +44,4 @@ def unsubscribe():
 
     session.flash = T('Successfully unsubscribed from list')
 
-    redirect(URL('profile', 'mail'))
+    redirect(URL('profile', 'mail', extension=''))

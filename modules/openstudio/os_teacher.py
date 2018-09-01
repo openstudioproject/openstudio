@@ -27,11 +27,14 @@ class Teacher:
         """
             Returns upcoming classes for teacher
         """
+        from os_gui import OsGui
         from os_class_schedule import ClassSchedule
 
         T = current.T
         db = current.db
         auth = current.auth
+        os_gui = OsGui()
+        DATE_FORMAT = current.DATE_FORMAT
         TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
 
         attendance_permission = (auth.has_membership(group_id='Admins') or
@@ -57,38 +60,35 @@ class Teacher:
                 filter_id_teacher=self.id)
 
             rows = cs.get_day_rows()
-            if not len(rows):
-                table = T("No upcoming classes found...")
-            else:
-                for i, row in enumerate(rows):
-                    if row.classes_otc.Status == 'cancelled' or row.school_holidays.id:
-                        continue
+            for i, row in enumerate(rows):
+                if row.classes_otc.Status == 'cancelled' or row.school_holidays.id:
+                    continue
 
-                    repr_row = list(rows[i:i + 1].render())[0]
+                repr_row = list(rows[i:i + 1].render())[0]
 
-                    result = cs._get_day_row_teacher_roles(row, repr_row)
+                result = cs._get_day_row_teacher_roles(row, repr_row)
 
-                    teacher = result['teacher_role']
-                    teacher2 = result['teacher_role2']
+                teacher = result['teacher_role']
+                teacher2 = result['teacher_role2']
 
-                    attendance = ''
-                    if attendance_permission:
-                        attendance = os_gui.get_button('noicon', URL('classes', 'attendance',
-                                                                     vars={'clsID': row.classes.id,
-                                                                           'date': date.strftime(DATE_FORMAT)}),
-                                                       title=T('Attendance'),
-                                                       _class=T('pull-right'))
+                attendance = ''
+                if attendance_permission:
+                    attendance = os_gui.get_button('noicon', URL('classes', 'attendance',
+                                                                 vars={'clsID': row.classes.id,
+                                                                       'date': date.strftime(DATE_FORMAT)}),
+                                                   title=T('Attendance'),
+                                                   _class=T('pull-right'))
 
-                    tr = TR(TD(date.strftime(DATE_FORMAT), _class='bold green' if day == 0 else ''),
-                            TD(repr_row.classes.Starttime, ' - ', repr_row.classes.Endtime),
-                            TD(repr_row.classes.school_locations_id),
-                            TD(repr_row.classes.school_classtypes_id),
-                            TD(teacher),
-                            TD(teacher2),
-                            TD(attendance)
-                            )
+                tr = TR(TD(date.strftime(DATE_FORMAT), _class='bold green' if day == 0 else ''),
+                        TD(repr_row.classes.Starttime, ' - ', repr_row.classes.Endtime),
+                        TD(repr_row.classes.school_locations_id),
+                        TD(repr_row.classes.school_classtypes_id),
+                        TD(teacher),
+                        TD(teacher2),
+                        TD(attendance)
+                        )
 
-                    table.append(tr)
+                table.append(tr)
 
             date += delta
 
@@ -101,9 +101,68 @@ class Teacher:
                                        _class='box-tools pull-right'),
                                    _class='box-header with-border'),
                                DIV(table, _class='box-body'),
-                               _class='box box-success')
+                               self._get_teacher_upcoming_classes_formatted_footer(),
+                               _class='box box-primary')
 
         return upcoming_classes
+
+    def _get_teacher_upcoming_classes_formatted_footer(self):
+        """
+        Footer for upcoming classes page
+        :return: div.box-footer
+        """
+        T = current.T
+        TODAY_LOCAL = current.TODAY_LOCAL
+
+
+        # Last month
+        if TODAY_LOCAL.month == 1:
+            month_last = 12
+            year_last = TODAY_LOCAL.year - 1
+        else:
+            month_last = TODAY_LOCAL.month - 1
+            year_last = TODAY_LOCAL.year
+
+        # Next month
+        if TODAY_LOCAL.month == 12:
+            month_next = 1
+            year_next = TODAY_LOCAL.year + 1
+        else:
+            month_next = TODAY_LOCAL.month + 1
+            year_next = TODAY_LOCAL.year
+
+        link_last_month = A(
+            T("Last month"),
+            _href=URL('ep', 'my_classes_set_month',
+                      vars={'month': month_last,
+                            'year': year_last,
+                            'back': 'my_classes'})
+        )
+
+        link_this_month = A(
+            T("This month"),
+            _href=URL('ep', 'my_classes_set_month',
+                      vars={'month': TODAY_LOCAL.month,
+                            'year': TODAY_LOCAL.year,
+                            'back': 'my_classes'})
+        )
+
+        link_next_month = A(
+            T("Next month"),
+            _href=URL('ep', 'my_classes_set_month',
+                      vars={'month': month_next,
+                            'year': year_next,
+                            'back': 'my_classes'})
+        )
+
+        return DIV(
+            DIV(
+                DIV(link_last_month, _class='pull-left'),
+                DIV(link_next_month, _class='pull-right'),
+                DIV(link_this_month, _class='center'),
+                _class='col-md-12'),
+            _class='box-footer'
+        )
 
 
     def get_subrequests_formatted(self):
@@ -201,7 +260,10 @@ class Teacher:
                            DIV(table, _class='box-body'),
                            _class='box box-success')
 
-        return sub_requests
+        ## disable for now
+        return ''
+
+        #return sub_requests
 
 
 

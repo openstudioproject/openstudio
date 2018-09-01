@@ -291,61 +291,6 @@ def pinboard_get_teacher_upcoming_classes(days=3):
 
     return teacher.get_upcoming_classes_formatted(days)
 
-
-def pinboard_get_teacher_upcoming_classes_footer(var=None):
-    """
-    Footer for upcoming classes page 
-    :return: div.box-footer
-    """
-    # Last month
-    if TODAY_LOCAL.month == 1:
-        month_last = 12
-        year_last = TODAY_LOCAL.year - 1 
-    else:
-        month_last = TODAY_LOCAL.month - 1
-        year_last = TODAY_LOCAL.year
-        
-    # Next month
-    if TODAY_LOCAL.month == 12:
-        month_next = 1
-        year_next = TODAY_LOCAL.year + 1 
-    else:
-        month_next = TODAY_LOCAL.month + 1
-        year_next = TODAY_LOCAL.year
-    
-    link_last_month = A(
-        T("Last month"),
-        _href=URL('ep', 'my_classes_set_month',
-                  vars={'month': month_last,
-                        'year': year_last,
-                        'back': 'my_classes'})
-    )
-
-    link_this_month = A(
-        T("This month"),
-        _href=URL('ep', 'my_classes_set_month',
-                  vars={'month': TODAY_LOCAL.month,
-                        'year': TODAY_LOCAL.year,
-                        'back': 'my_classes'})
-    )
-
-    link_next_month = A(
-        T("Next month"),
-        _href=URL('ep', 'my_classes_set_month',
-                  vars={'month': month_next,
-                        'year': year_next,
-                        'back': 'my_classes'})
-    )
-
-    return DIV(
-        DIV(
-            DIV(link_last_month, _class='pull-left'),
-            DIV(link_next_month, _class='pull-right'),
-            DIV(link_this_month, _class='center'),
-            _class='col-md-12'),
-        _class='box-footer'
-    )
-
   
 def pinboard_get_cancelled_classes(days=3):
     """
