@@ -41,22 +41,37 @@ def exact_online():
     server_rest_url = eos._get_value('server', 'rest_url')
     server_token_url = eos._get_value('server', 'token_url')
 
-    print locals()
+    client_base_url = eos._get_value('application', 'base_url')
+    client_id = eos._get_value('application', 'client_id')
+    client_secret = eos._get_value('application', 'client_secret')
 
 
     form = SQLFORM.factory(
         Field('auth_url',
-              requires=IS_NOT_EMPTY(),
+              requires=IS_URL(),
               default=server_auth_url,
               label=T("Server auth URL")),
         Field('rest_url',
-              requires=IS_NOT_EMPTY(),
+              requires=IS_URL(),
               default=server_rest_url,
               label=T('Server rest URL')),
         Field('token_url',
-              requires=IS_NOT_EMPTY(),
+              requires=IS_URL(),
               default=server_token_url,
               label=T('Server token URL')),
+        Field('base_url',
+              requires=IS_URL(),
+              default=client_base_url,
+              label=T('Client base URL'),
+              comment=T('The base URL for this OpenStudio installation eg. "https://demo.openstudioproject.com"')),
+        Field('client_id',
+              requires=IS_NOT_EMPTY(),
+              default=client_id,
+              label=T('Client ID')),
+        Field('client_secret',
+              requires=IS_NOT_EMPTY(),
+              default=client_secret,
+              label=T('Client Secret')),
         submit_button=T("Save"),
         formstyle='bootstrap3_stacked',
         separator=' ')
@@ -66,7 +81,7 @@ def exact_online():
     submit = result['submit']
 
     if form.accepts(request.vars, session):
-        # check payment provider and profile id
+        # check server vars
         server_vars = [
             'auth_url',
             'rest_url',
@@ -75,6 +90,16 @@ def exact_online():
         for var in server_vars:
             value = request.vars[var]
             eos.set('server', var, value)
+
+        # check application vars
+        application_vars = [
+            'base_url',
+            'client_id',
+            'client_secret'
+        ]
+        for var in application_vars:
+            value = request.vars[var]
+            eos.set('application', var, value)
 
 
         # User feedback
