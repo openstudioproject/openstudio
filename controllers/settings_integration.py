@@ -7,15 +7,87 @@ def integration_get_menu(page):
     """
         Menu for system settings pages
     """
-    pages = [['mollie',
-              T('Mollie'),
-              URL('mollie')],
-             ['mailchimp',
-              T('MailChimp'),
-              URL('mailchimp')],
-             ]
+    pages = [
+        [ 'exact_online',
+          T('Exact online'),
+          URL('exact_online')],
+        [ 'mollie',
+          T('Mollie'),
+          URL('mollie') ],
+        [ 'mailchimp',
+          T('MailChimp'),
+          URL('mailchimp') ],
+    ]
 
     return os_gui.get_submenu(pages, page, horizontal=True, htype='tabs')
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'settings'))
+def exact_online():
+    """
+        Page to set Mollie website profile
+    """
+    from general_helpers import set_form_id_and_get_submit_button
+    from openstudio.os_exact_online import ExactOnlineStorage
+
+    response.title = T("Settings")
+    response.subtitle = T("Integration")
+    response.view = 'general/tabs_menu.html'
+
+    eos = ExactOnlineStorage()
+
+    server_auth_url = eos._get_value('server', 'auth_url')
+    server_rest_url = eos._get_value('server', 'rest_url')
+    server_token_url = eos._get_value('server', 'token_url')
+
+    print locals()
+
+
+    form = SQLFORM.factory(
+        Field('auth_url',
+              requires=IS_NOT_EMPTY(),
+              default=server_auth_url,
+              label=T("Server auth URL")),
+        Field('rest_url',
+              requires=IS_NOT_EMPTY(),
+              default=server_rest_url,
+              label=T('Server rest URL')),
+        Field('token_url',
+              requires=IS_NOT_EMPTY(),
+              default=server_token_url,
+              label=T('Server token URL')),
+        submit_button=T("Save"),
+        formstyle='bootstrap3_stacked',
+        separator=' ')
+
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
+    form = result['form']
+    submit = result['submit']
+
+    if form.accepts(request.vars, session):
+        # check payment provider and profile id
+        server_vars = [
+            'auth_url',
+            'rest_url',
+            'token_url'
+        ]
+        for var in server_vars:
+            value = request.vars[var]
+            eos.set('server', var, value)
+
+
+        # User feedback
+        session.flash = T('Saved')
+        # reload so the user sees how the values are stored in the db now
+        redirect(URL('exact_online'))
+
+    menu = integration_get_menu(request.function)
+
+    return dict(content=form,
+                menu=menu,
+                save=submit)
+
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or

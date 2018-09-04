@@ -4986,6 +4986,17 @@ def define_mailing_lists():
     )
 
 
+def define_integration_exact_online_storage():
+    """
+    Settings for exact online
+    """
+    db.define_table('integration_exact_online_storage',
+        Field('ConfigSection'),
+        Field('ConfigOption'),
+        Field('ConfigValue'),
+    )
+
+
 def set_static_payment_methods():
     """
         This function adds the following to the paymentmethods table
@@ -5588,6 +5599,7 @@ define_payment_methods()
 payment_methods_dict = create_payment_methods_dict()
 
 define_mailing_lists()
+define_integration_exact_online_storage()
 define_postcode_groups()
 define_tax_rates()
 
