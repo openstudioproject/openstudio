@@ -29,7 +29,6 @@ def exact_online():
         Page to set Mollie website profile
     """
     from general_helpers import set_form_id_and_get_submit_button
-    from openstudio.os_exact_online import ExactOnlineStorage
 
     response.title = T("Settings")
     response.subtitle = T("Integration")
@@ -63,7 +62,7 @@ def exact_online():
               requires=IS_URL(),
               default=client_base_url,
               label=T('Client base URL'),
-              comment=T('The base URL for this OpenStudio installation eg. "https://demo.openstudioproject.com"')),
+              comment=T('The base URL for oauth2 authentication eg. "https://demo.openstudioproject.com/exact_online/oauth2redirect"')),
         Field('client_id',
               requires=IS_NOT_EMPTY(),
               default=client_id,
@@ -81,25 +80,27 @@ def exact_online():
     submit = result['submit']
 
     if form.accepts(request.vars, session):
-        # check server vars
-        server_vars = [
-            'auth_url',
-            'rest_url',
-            'token_url'
-        ]
-        for var in server_vars:
-            value = request.vars[var]
-            eos.set('server', var, value)
+        #TODO: set using ini storage
 
-        # check application vars
-        application_vars = [
-            'base_url',
-            'client_id',
-            'client_secret'
-        ]
-        for var in application_vars:
-            value = request.vars[var]
-            eos.set('application', var, value)
+        # check server vars
+        # server_vars = [
+        #     'auth_url',
+        #     'rest_url',
+        #     'token_url'
+        # ]
+        # for var in server_vars:
+        #     value = request.vars[var]
+        #     eos.set('server', var, value)
+        #
+        # # check application vars
+        # application_vars = [
+        #     'base_url',
+        #     'client_id',
+        #     'client_secret'
+        # ]
+        # for var in application_vars:
+        #     value = request.vars[var]
+        #     eos.set('application', var, value)
 
 
         # User feedback
