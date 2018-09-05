@@ -28,21 +28,30 @@ def exact_online():
     """
         Page to set Mollie website profile
     """
+    import os
     from general_helpers import set_form_id_and_get_submit_button
+    from exactonline.storage import IniStorage
+
+    config_file = os.path.join(
+        request.folder,
+        'private',
+        'eo_config.ini'
+    )
+
+    storage = IniStorage(config_file)
+
 
     response.title = T("Settings")
     response.subtitle = T("Integration")
     response.view = 'general/tabs_menu.html'
 
-    eos = ExactOnlineStorage()
+    server_auth_url = storage.get('server', 'auth_url')
+    server_rest_url = storage.get('server', 'rest_url')
+    server_token_url = storage.get('server', 'token_url')
 
-    server_auth_url = eos._get_value('server', 'auth_url')
-    server_rest_url = eos._get_value('server', 'rest_url')
-    server_token_url = eos._get_value('server', 'token_url')
-
-    client_base_url = eos._get_value('application', 'base_url')
-    client_id = eos._get_value('application', 'client_id')
-    client_secret = eos._get_value('application', 'client_secret')
+    client_base_url = storage.get('application', 'base_url')
+    client_id = storage.get('application', 'client_id')
+    client_secret = storage.get('application', 'client_secret')
 
 
     form = SQLFORM.factory(
@@ -83,25 +92,24 @@ def exact_online():
         #TODO: set using ini storage
 
         # check server vars
-        # server_vars = [
-        #     'auth_url',
-        #     'rest_url',
-        #     'token_url'
-        # ]
-        # for var in server_vars:
-        #     value = request.vars[var]
-        #     eos.set('server', var, value)
-        #
-        # # check application vars
-        # application_vars = [
-        #     'base_url',
-        #     'client_id',
-        #     'client_secret'
-        # ]
-        # for var in application_vars:
-        #     value = request.vars[var]
-        #     eos.set('application', var, value)
+        server_vars = [
+            'auth_url',
+            'rest_url',
+            'token_url'
+        ]
+        for var in server_vars:
+            value = request.vars[var]
+            storage.set('server', var, value)
 
+        # # check application vars
+        application_vars = [
+            'base_url',
+            'client_id',
+            'client_secret'
+        ]
+        for var in application_vars:
+            value = request.vars[var]
+            storage.set('application', var, value)
 
         # User feedback
         session.flash = T('Saved')
