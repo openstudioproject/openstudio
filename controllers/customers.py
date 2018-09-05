@@ -5166,7 +5166,7 @@ def load_list_get_customer_index_buttons(row):
     if contact_permission:
         btn_mail = A(I(_class="fa fa-envelope"), " ",
                      _class="btn btn-default btn-sm",
-                     _href='mailto:' + row.email,
+                     _href='mailto:' + row.email or '',
                      _title=T("Mail customer"))
 
     buttons.append(btn_mail)
