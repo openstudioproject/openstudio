@@ -163,16 +163,33 @@ def templates():
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
-
-        tr = TR(
-                TD(repr_row.Property),
+        if repr_row.Property == 'email_template_sys_footer':
+            tr = TR(
+                    TD('Email footer'),
+                    os_gui.get_button('edit_custom',
+                                  URL('edit_template', vars={'template':row.Property}),
+                                  T("Edit the content of this template",),
+                                  title='Edit template')
+                    )
+            table.append(tr)
+        if repr_row.Property == 'email_template_sys_reset_password':
+            tr = TR(
+                TD('Email reset password'),
                 os_gui.get_button('edit_custom',
-                              URL('edit_template', vars={'template':row.Property}),
-                              T("Edit the content of this template",),
-                              title='Edit template')
-                )
-
-        table.append(tr)
+                                  URL('edit_template', vars={'template': row.Property}),
+                                  T("Edit the content of this template", ),
+                                  title='Edit template')
+            )
+            table.append(tr)
+        if repr_row.Property == 'email_template_sys_verify_email':
+            tr = TR(
+                    TD('Email verify email'),
+                    os_gui.get_button('edit_custom',
+                                  URL('edit_template', vars={'template':row.Property}),
+                                  T("Edit the content of this template",),
+                                  title='Edit template')
+                    )
+            table.append(tr)
     #the templates saved in sys_email_templates
     query = (db.sys_email_templates.id >0)
     rows = db(query).select(db.sys_email_templates.id,
@@ -292,7 +309,6 @@ def edit_template():
 
             # reload so the user sees how the values are stored in the db now
             redirect(URL('templates'))
-    print get_sys_property(template)
 
 
     back = os_gui.get_button('back', URL('templates'))

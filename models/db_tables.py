@@ -5166,13 +5166,13 @@ def setup_set_email_templates():
 
     cache_clear_sys_properties()
     templates = [
-                [ 'email_template_order_received',
+                [ 'Order received',
                   """<h3>We have received your order with number #{order_id} on {order_date}</h3>
         <p>&nbsp;</p>
         <p>{order_items}</p>
         <p>&nbsp;</p>
         <p>To view your orders, please click <a href="{link_profile_orders}">here</a>.</p>""" ],
-                [ 'email_template_order_delivered',
+                [ 'Order delivered',
                    """<h3>Your order&nbsp;with number #{order_id} has been delivered</h3>
         <p>All items listed below have been added to your account</p>
         <p>&nbsp;</p>
@@ -5180,7 +5180,7 @@ def setup_set_email_templates():
         <p>&nbsp;</p>
         <p>To view your orders, please click <a href="{link_profile_orders}">here</a>.</p>
         <p>To view your invoices, please click <a href="{link_profile_invoices}">here</a>.</p>"""],
-                ['email_template_payment_recurring_failed',
+                ['Payment recurring failed',
                  """<h3>Recurring payment failed</h3>
         <p>&nbsp;</p>
         <p>One or more recurring payments failed, please log in to your account and pay any open invoices before the due date.</p>
