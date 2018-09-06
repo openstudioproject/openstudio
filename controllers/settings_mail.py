@@ -295,10 +295,12 @@ def edit_template():
     print get_sys_property(template)
 
 
+    back = os_gui.get_button('back', URL('templates'))
     # submenu = email_templates_get_menu(template)
     content = DIV(form)
 
     return dict(content=content,
+                back=back,
                 menu=mail_get_menu('templates'),
                 save=submit)
 
