@@ -65,12 +65,15 @@ def divisions():
     """
     Set default division
     """
+    # response.view = ''
+
     api = get_api()
 
     division_choices, current_division = api.get_divisions()
 
-    return locals()
 
+
+    # api.set_division(division_choices[0][0])  # select ID of first division
 
     #api.relations.all()
 
@@ -78,3 +81,17 @@ def divisions():
     #
     # print division_choices
     # print current_division
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'settings'))
+def relations():
+    """
+
+    :return:
+    """
+    api = get_api()
+
+    api.relations.all()
+
+    return locals()

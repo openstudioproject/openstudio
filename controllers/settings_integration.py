@@ -29,8 +29,10 @@ def exact_online():
         Page to set Mollie website profile
     """
     import os
+    from ConfigParser import NoOptionError
     from general_helpers import set_form_id_and_get_submit_button
     from exactonline.storage import IniStorage
+
 
     config_file = os.path.join(
         request.folder,
@@ -45,13 +47,31 @@ def exact_online():
     response.subtitle = T("Integration")
     response.view = 'general/tabs_menu.html'
 
-    server_auth_url = storage.get('server', 'auth_url')
-    server_rest_url = storage.get('server', 'rest_url')
-    server_token_url = storage.get('server', 'token_url')
+    try:
+        server_auth_url = storage.get('server', 'auth_url')
+    except NoOptionError:
+        server_auth_url = None
+    try:
+        server_rest_url = storage.get('server', 'rest_url')
+    except NoOptionError:
+        server_rest_url = None
+    try:
+        server_token_url = storage.get('server', 'token_url')
+    except NoOptionError:
+        server_token_url = None
 
-    client_base_url = storage.get('application', 'base_url')
-    client_id = storage.get('application', 'client_id')
-    client_secret = storage.get('application', 'client_secret')
+    try:
+        client_base_url = storage.get('application', 'base_url')
+    except NoOptionError:
+        client_base_url = None
+    try:
+        client_id = storage.get('application', 'client_id')
+    except NoOptionError:
+        client_id = None
+    try:
+        client_secret = storage.get('application', 'client_secret')
+    except NoOptionError:
+        client_secret = None
 
 
     form = SQLFORM.factory(
@@ -71,7 +91,7 @@ def exact_online():
               requires=IS_URL(),
               default=client_base_url,
               label=T('Client base URL'),
-              comment=T('The base URL for oauth2 authentication eg. "https://demo.openstudioproject.com/exact_online/oauth2redirect"')),
+              comment=T('The base URL this OpenStudio installation eg. "https://demo.openstudioproject.com"')),
         Field('client_id',
               requires=IS_NOT_EMPTY(),
               default=client_id,
