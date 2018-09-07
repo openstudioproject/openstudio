@@ -56,7 +56,8 @@ def oauth2_success():
     api.request_token(code)
 
     session.flash = T("Authentication success!")
-    redirect(URL('divisions'))
+    redirect(URL('settings_integration', 'divisions'))
+
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
@@ -65,22 +66,42 @@ def divisions():
     """
     Set default division
     """
-    # response.view = ''
+    response.title = T("Exact online")
+    response.subtitle = T("Divisions")
+    response.view = 'general/only_content.html'
 
     api = get_api()
-
     division_choices, current_division = api.get_divisions()
 
+    print current_division
+    print division_choices
 
+    header = THEAD(TR(
+        TH('Name'),
+        TH('Exact ID'),
+        TH()
+    ))
 
-    # api.set_division(division_choices[0][0])  # select ID of first division
+    table = TABLE(header, _class="table table-striped table-hover")
 
-    #api.relations.all()
+    for choice in division_choices:
+        tr = TR(
+            TD(division_choices[choice]),
+            TD(choice),
+            TD() # buttons
+        )
 
-    # division_choices, current_division = api.get_divisions()
-    #
-    # print division_choices
-    # print current_division
+        table.append(tr)
+
+    content = table
+
+    back = os_gui.get_button(
+        'back',
+        URL('settings_integration', 'exact_online')
+    )
+
+    return dict(content=content,
+                back=back)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
