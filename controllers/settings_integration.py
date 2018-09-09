@@ -22,6 +22,23 @@ def integration_get_menu(page):
     return os_gui.get_submenu(pages, page, horizontal=True, htype='tabs')
 
 
+def exact_online_tools():
+    """
+    Get tools for exact online integration
+    """
+    links = [ A(SPAN(_class="fa fa-bank"), " ", T("Divisions"),
+                _href=URL('exact_online', 'divisions'),
+                _title=T("Divisions")) ]
+
+    tools = os_gui.get_dropdown_menu(links,
+                                     '',
+                                     btn_size='',
+                                     btn_icon='wrench',
+                                     menu_class='pull-right' )
+
+    return tools
+
+
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
 def exact_online():
@@ -112,7 +129,7 @@ def exact_online():
 
     result = set_form_id_and_get_submit_button(form, 'MainForm')
     form = result['form']
-    submit = result['submit']
+    submit = DIV(result['submit'], _class='pull-right')
 
     if form.accepts(request.vars, session):
         #TODO: set using ini storage
@@ -143,9 +160,11 @@ def exact_online():
         redirect(URL('exact_online'))
 
     menu = integration_get_menu(request.function)
+    tools = exact_online_tools()
 
     return dict(content=form,
                 menu=menu,
+                tools=tools,
                 save=submit)
 
 
