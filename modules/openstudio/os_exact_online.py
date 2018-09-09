@@ -1,9 +1,35 @@
 # -*- coding: utf-8 -*-
 
-from exactonline.storage import ExactOnlineConfig
-
 from gluon import *
 
+
+class OSExactOnline:
+    def get_api(self):
+        """
+        Return ExactAPI linked to config and token storage
+        """
+        import os
+        from exactonline.api import ExactApi
+        from exactonline.exceptions import ObjectDoesNotExist
+        from exactonline.storage import IniStorage
+
+        request = current.request
+
+
+        class MyIniStorage(IniStorage):
+            def get_response_url(self):
+                "Configure your custom response URL."
+                return self.get_base_url() + '/exact_online/oauth2_success/'
+
+        config_file = os.path.join(
+            request.folder,
+            'private',
+            'eo_config.ini'
+        )
+
+        storage = MyIniStorage(config_file)
+
+        return ExactApi(storage=storage)
 
 # class ExactOnlineStorage(ExactOnlineConfig):
 #     def get_response_url(self):
