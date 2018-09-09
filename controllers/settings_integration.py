@@ -26,9 +26,14 @@ def exact_online_tools():
     """
     Get tools for exact online integration
     """
-    links = [ A(SPAN(_class="fa fa-bank"), " ", T("Divisions"),
-                _href=URL('exact_online', 'divisions'),
-                _title=T("Divisions")) ]
+    links = [
+        A(SPAN(_class="fa fa-lock"), " ", T("Authorize"),
+          _href=URL('exact_online', 'authorize'),
+          _title=T("Authorize")),
+        A(SPAN(_class="fa fa-bank"), " ", T("Divisions"),
+          _href=URL('exact_online', 'divisions'),
+          _title=T("Divisions")),
+    ]
 
     tools = os_gui.get_dropdown_menu(links,
                                      '',

@@ -30,9 +30,8 @@ def oauth2_success():
     # Set transient api client access data like access code, token and expiry
     api.request_token(code)
 
-    session.flash = T("Authentication success!")
-    redirect(URL('settings_integration', 'divisions'))
-
+    session.flash = T("Authorization success! You can now select a default division.")
+    redirect(URL('divisions'))
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
