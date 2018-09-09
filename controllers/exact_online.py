@@ -39,21 +39,41 @@ def oauth2_success():
                auth.has_permission('read', 'settings'))
 def divisions():
     """
-    Set default division
+    List divisions
     """
+    def get_button_set_default(division_id):
+        if division_id == selected_division:
+            return DIV(
+                os_gui.get_label(
+                    'success',
+                    T('Selected'),
+                ),
+                _class='pull-right'
+            )
+
+        else:
+            return os_gui.get_button(
+                'noicon',
+                URL('division_set_default', vars={'division_id': division_id}),
+                _class='pull-right',
+                btn_class='btn-link',
+                title=T("Select this division")
+            )
+
     from openstudio.os_exact_online import OSExactOnline
+    from openstudio.os_gui import OsGui
 
     response.title = T("Exact online")
     response.subtitle = T("Divisions")
     response.view = 'general/only_content.html'
 
+    os_gui = OsGui()
     os_eo = OSExactOnline()
     api = os_eo.get_api()
+    storage = os_eo.get_storage()
+    selected_division = int(storage.get('transient', 'division'))
 
     division_choices, current_division = api.get_divisions()
-
-    print current_division
-    print division_choices
 
     header = THEAD(TR(
         TH('Name'),
@@ -63,11 +83,11 @@ def divisions():
 
     table = TABLE(header, _class="table table-striped table-hover")
 
-    for choice in division_choices:
+    for division_id in division_choices:
         tr = TR(
-            TD(division_choices[choice]),
-            TD(choice),
-            TD() # buttons
+            TD(division_choices[division_id]),
+            TD(division_id),
+            TD(get_button_set_default(division_id)) # buttons
         )
 
         table.append(tr)
@@ -85,6 +105,25 @@ def divisions():
 
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
+def division_set_default():
+    """
+    Set default division
+    """
+    from openstudio.os_exact_online import OSExactOnline
+
+    division_id = request.vars['division_id']
+
+    os_eo = OSExactOnline()
+    api = os_eo.get_api()
+
+    api.set_division(division_id)  # select ID of given division
+
+    session.flash = T("Changed selected division")
+    redirect(URL('divisions'))
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'settings'))
 def relations():
     """
 
@@ -95,6 +134,6 @@ def relations():
     os_eo = OSExactOnline()
     api = os_eo.get_api()
 
-    api.relations.all()
+    relations = api.relations.all()
 
     return locals()

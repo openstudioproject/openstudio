@@ -13,13 +13,25 @@ class OSExactOnline:
         from exactonline.exceptions import ObjectDoesNotExist
         from exactonline.storage import IniStorage
 
-        request = current.request
+        storage = self.get_storage()
 
+        return ExactApi(storage=storage)
+
+
+    def get_storage(self):
+        """
+        Get ini storage
+        """
+        import os
+        from ConfigParser import NoOptionError
+        from exactonline.storage import IniStorage
 
         class MyIniStorage(IniStorage):
             def get_response_url(self):
                 "Configure your custom response URL."
                 return self.get_base_url() + '/exact_online/oauth2_success/'
+
+        request = current.request
 
         config_file = os.path.join(
             request.folder,
@@ -27,9 +39,8 @@ class OSExactOnline:
             'eo_config.ini'
         )
 
-        storage = MyIniStorage(config_file)
+        return MyIniStorage(config_file)
 
-        return ExactApi(storage=storage)
 
 # class ExactOnlineStorage(ExactOnlineConfig):
 #     def get_response_url(self):

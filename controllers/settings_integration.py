@@ -28,24 +28,30 @@ def exact_online():
     """
         Page to set Mollie website profile
     """
-    import os
-    from ConfigParser import NoOptionError
     from general_helpers import set_form_id_and_get_submit_button
-    from exactonline.storage import IniStorage
-
-
-    config_file = os.path.join(
-        request.folder,
-        'private',
-        'eo_config.ini'
-    )
-
-    storage = IniStorage(config_file)
+    from openstudio.os_exact_online import OSExactOnline
+    # import os
+    # from ConfigParser import NoOptionError
+    # from general_helpers import set_form_id_and_get_submit_button
+    # from exactonline.storage import IniStorage
+    #
+    #
+    # config_file = os.path.join(
+    #     request.folder,
+    #     'private',
+    #     'eo_config.ini'
+    # )
+    #
+    # storage = IniStorage(config_file)
 
 
     response.title = T("Settings")
     response.subtitle = T("Integration")
     response.view = 'general/tabs_menu.html'
+
+
+    os_eo = OSExactOnline()
+    storage = os_eo.get_storage()
 
     try:
         server_auth_url = storage.get('server', 'auth_url')
