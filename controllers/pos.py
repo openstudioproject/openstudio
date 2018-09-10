@@ -263,6 +263,25 @@ def get_class_booking_options():
     return dict(options = options)
 
 
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'school_classcards'))
+def get_school_classcards():
+    """
+    List of school not archived classcards
+    Sorted by name
+    :return:
+    """
+    query = (db.school_classcards.Archived == False)
+    rows = db(query).select(db.school_classcards.Name,
+                            db.school_classcards.Description,
+                            db.school_classcards.Price,
+                            db.school_classcards.Validity,
+                            db.school_classcards.ValidityUnit,
+                            db.school_classcards.Classes,
+                            db.school_classcards.Unlimited,
+                            db.school_classcards.Trialcard,
+                            orderby=db.school_classcards.Name)
 
+    return rows.as_list()
 
 
