@@ -2,37 +2,25 @@ import { connect } from 'react-redux'
 import { injectIntl } from 'react-intl';
 import { withRouter } from 'react-router'
 
-import Attendance from "./Attendance"
-import { appOperations } from '../../duck'
-import { checkinAttendanceOperations } from './duck'
+import { appOperations } from '../../../duck'
+import Classcards from './Classcards';
 
 
 const mapStateToProps = state => 
     ({
-        app: state.app,
-        attendance: state.checkin_attendance
+        app: state.app
     })
 
 const mapDispatchToProps = dispatch =>
     ({
-        fetchClassAttendance(clsID) {
-            dispatch(checkinAttendanceOperations.fetchClassAttendance(clsID))
-        },
         setPageTitle(title) {
             dispatch(appOperations.setPageTitle(title))
-        },
-        clearCheckinSearchTimeout() {
-            dispatch(checkinAttendanceOperations.clearCheckinSearchTimeout())
-        },
-        setCheckinSearchTimeout(timeout) {
-            dispatch(checkinAttendanceOperations.setCheckinSearchTimeout(timeout))
         }
     })
 
-
-const AttendanceContainer = withRouter(injectIntl(connect(
+const ClasscardsContainer = withRouter(injectIntl(connect(
     mapStateToProps,
     mapDispatchToProps
-)(Attendance)))
+)(Classcards)))
 
-export default AttendanceContainer
+export default ClasscardsContainer

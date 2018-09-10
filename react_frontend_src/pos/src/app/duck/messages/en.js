@@ -34,5 +34,6 @@ export const ENGLISH_TRANSLATION = {
         "app.pos.home.page_title": "Welcome",
         "app.pos.permissions_error.page_title": "Whoops... ",
         "app.pos.permissions_error.content": "Looks like you don't have sufficient permissions to do that.",
+        "app.pos.products": "Products",
     }
 }
