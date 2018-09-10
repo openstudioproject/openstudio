@@ -27,6 +27,7 @@ class App extends Component {
   componentWillMount() {
     this.props.fetchUser()    
     this.props.fetchSettings()  
+    this.props.fetchShopSchoolClasscards()
   }
 
 

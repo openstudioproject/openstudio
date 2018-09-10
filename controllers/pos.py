@@ -271,6 +271,8 @@ def get_school_classcards():
     Sorted by name
     :return:
     """
+    set_headers()
+
     query = (db.school_classcards.Archived == False)
     rows = db(query).select(db.school_classcards.Name,
                             db.school_classcards.Description,

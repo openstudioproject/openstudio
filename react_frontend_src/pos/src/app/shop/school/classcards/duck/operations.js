@@ -12,7 +12,7 @@ import OS_API from '../../../../../utils/os_api'
 // data fetchers
 const fetchShopClasscards = () => {
       return dispatch => {
-          dispatch(request_classclasscards())
+          dispatch(request_classcards())
 
           axios_os.get(OS_API.SHOP_SCHOOL_CLASSCARDS)
           .then(function (response) {
