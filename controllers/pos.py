@@ -282,6 +282,6 @@ def get_school_classcards():
                             db.school_classcards.Trialcard,
                             orderby=db.school_classcards.Name)
 
-    return rows.as_list()
+    return dict(data=rows.as_list())
 
 
