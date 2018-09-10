@@ -1,5 +1,5 @@
 // index.js
-import { checkinAttendanceReducer } from './reducers'
-export { default as checkinAttendanceOperations } from './operations'
-export { default as checkinAttendanceTypes } from './types'
-export default checkinAttendanceReducer
+import { shopSchoolClasscardsReducer } from './reducers'
+export { default as shopSchoolClasscardsOperations } from './operations'
+export { default as shopSchoolClasscardsTypes } from './types'
+export default shopSchoolClasscardsReducer
