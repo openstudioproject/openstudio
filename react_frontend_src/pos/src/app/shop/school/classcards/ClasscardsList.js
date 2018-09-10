@@ -1,16 +1,20 @@
 import React from "react"
 import { v4 } from "uuid"
 
-import AttendanceListItem from "./ClasscardsListItem"
+// import AttendanceListItem from "./ClasscardsListItem"
+import Box from '../../../../components/ui/Box'
+import BoxBody from '../../../../components/ui/BoxBody'
+import ClasscardsListItem from "./ClasscardsListItem";
 
-const AttendanceList = ({attendance_items}) => 
-    <div className="box box-default"> 
-        <div className="box-body">
-            {attendance_items.map((ai, i) => 
-                <AttendanceListItem key={"ai_" + v4()}
-                                    data={ai} />
+const ClasscardsList = ({classcards}) => 
+    <Box>
+        <BoxBody>
+            {console.log(classcards)}
+            {classcards.map((card) => 
+                <ClasscardsListItem key={"card_" + v4()}
+                                    data={card} />
             )}
-        </div>
-    </div>
+        </BoxBody>
+    </Box>
 
-export default AttendanceList
+export default ClasscardsList

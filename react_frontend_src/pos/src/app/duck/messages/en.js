@@ -6,6 +6,7 @@ export const ENGLISH_TRANSLATION = {
         "app.general.strings.attendance": "Attendance",
         "app.general.strings.count": "Count",
         "app.general.strings.description": "Description",
+        "app.general.strings.loading": "Loading...",
         "app.general.strings.pdf": "PDF",
         "app.general.strings.revenue": "Revenue",
         "app.general.strings.teacher_payment": "Teacher payment",

@@ -4,6 +4,7 @@ import PropTypes from "prop-types"
 
 import ShopTemplate from '../../components/ShopTemplate'
 
+import ClasscardsList from './ClasscardsList'
 
 class Classcards extends Component {
     constructor(props) {
@@ -16,6 +17,7 @@ class Classcards extends Component {
         setPageTitle: PropTypes.function,
         app: PropTypes.object,
         classcards: PropTypes.object,
+        loaded: PropTypes.boolean,
     }
 
     componentWillMount() {
@@ -27,7 +29,10 @@ class Classcards extends Component {
     render() {
         return (
             <ShopTemplate app_state={this.props.app}>
-            Child content
+                { this.props.loaded ? 
+                     <ClasscardsList classcards={this.props.classcards} /> :
+                     "Loading..."
+                }
             </ShopTemplate>
         )
     }

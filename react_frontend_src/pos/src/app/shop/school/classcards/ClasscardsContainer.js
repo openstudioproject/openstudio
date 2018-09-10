@@ -8,7 +8,9 @@ import Classcards from './Classcards';
 
 const mapStateToProps = state => 
     ({
-        app: state.app
+        app: state.app,
+        loaded: state.shop.school.classcards.loaded,
+        classcards: state.shop.school.classcards.data
     })
 
 const mapDispatchToProps = dispatch =>
