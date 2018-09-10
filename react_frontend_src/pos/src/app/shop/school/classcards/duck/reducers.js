@@ -17,7 +17,7 @@ export const shopSchoolClasscardsReducer = (state = {}, action={ type: null }) =
             return {
                 loading: false,
                 loaded: true,
-                data: action.data,
+                data: action.data.data,
             }
         default:
             return {
