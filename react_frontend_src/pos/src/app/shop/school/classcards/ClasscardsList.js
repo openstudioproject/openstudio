@@ -13,5 +13,4 @@ const AttendanceList = ({attendance_items}) =>
         </div>
     </div>
 
-
 export default AttendanceList

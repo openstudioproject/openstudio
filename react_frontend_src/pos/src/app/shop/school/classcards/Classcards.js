@@ -4,32 +4,12 @@ import PropTypes from "prop-types"
 import { NavLink } from 'react-router-dom'
 
 
-import PageTemplate from "../../../components/PageTemplate"
+import PageTemplate from "../../../../components/PageTemplate"
 
-import AttendanceList from "./AttendanceList"
-
-
-const InputGroupSearch = ({placeholder, onChange=f=>f}) => 
-    <div className="input-group">
-        <span className="input-group-addon">
-            <i className="fa fa-search"></i>
-        </span>
-        <input type="text"
-               className="form-control"
-               placeholder={placeholder} 
-               onChange={onChange}
-               ref={input => input && input.focus()} />
-            {/* placeholder="Search..." /> */}
-    </div>
+import ClasscardsList from "./ClasscardsList"
 
 
-function isInt(value) {
-    return !isNaN(value) && 
-           parseInt(Number(value)) == value && 
-           !isNaN(parseInt(value, 10));
-  }
-
-class Attendance extends Component {
+class ClasscardsList extends Component {
     constructor(props) {
         super(props)
         console.log(props)
@@ -37,10 +17,10 @@ class Attendance extends Component {
 
     PropTypes = {
         intl: intlShape.isRequired,
-        fetchClassAttendance: PropTypes.function,
+        fetchClassCards: PropTypes.function,
         setPageTitle: PropTypes.function,
         app: PropTypes.object,
-        attendance: PropTypes.object,
+        classcards: PropTypes.object,
     }
 
     componentWillMount() {
