@@ -1,7 +1,7 @@
 import React from "react"
 import { v4 } from "uuid"
 
-import AttendanceListItem from "./AttendanceListItem"
+import AttendanceListItem from "./ClasscardsListItem"
 
 const AttendanceList = ({attendance_items}) => 
     <div className="box box-default"> 
