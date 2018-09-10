@@ -27,6 +27,7 @@ class Classcards extends Component {
     render() {
         return (
             <ShopTemplate app_state={this.props.app}>
+            Child content
             </ShopTemplate>
         )
     }

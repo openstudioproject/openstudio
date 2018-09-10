@@ -8,14 +8,14 @@ import React from "react"
 
 import PageTemplate from '../../../components/PageTemplate'
 
-const ShopTemplate = ({app_state}) =>
+const ShopTemplate = ({ app_state, children }) =>
     <PageTemplate app_state={app_state}>
         <div className="row">
             <div className="col-md-4">
-            left sidebar
+            Shopping cart, select customer & cart tools
             </div>
             <div className="col-md-8">
-            right sidebar
+            {children}
             </div>
         </div>
     </PageTemplate>
