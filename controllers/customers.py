@@ -3859,8 +3859,7 @@ def mollie_mandates():
 
     return dict(content=content,
                 menu=menu,
-                back=back,
-                tools=add)
+                back=back)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
