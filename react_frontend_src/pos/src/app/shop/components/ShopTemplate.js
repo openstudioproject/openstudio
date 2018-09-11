@@ -7,6 +7,7 @@ import React from "react"
 // import ErrorScreen from "./ui/ErrorScreen";
 
 import PageTemplate from '../../../components/PageTemplate'
+import ShopMainMenu from "./MainMenu";
 
 const ShopTemplate = ({ app_state, children }) =>
     <PageTemplate app_state={app_state}>
@@ -15,7 +16,9 @@ const ShopTemplate = ({ app_state, children }) =>
             Shopping cart, select customer & cart tools
             </div>
             <div className="col-md-8">
-            {children}
+            <ShopMainMenu>
+                {children}
+            </ShopMainMenu>
             </div>
         </div>
     </PageTemplate>

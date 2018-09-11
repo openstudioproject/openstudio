@@ -7,14 +7,11 @@ import BoxBody from '../../../../components/ui/BoxBody'
 import ClasscardsListItem from "./ClasscardsListItem";
 
 const ClasscardsList = ({classcards}) => 
-    <Box>
-        <BoxBody>
-            {console.log(classcards)}
-            {classcards.map((card) => 
-                <ClasscardsListItem key={"card_" + v4()}
-                                    data={card} />
-            )}
-        </BoxBody>
-    </Box>
+    <div>
+        {classcards.map((card) => 
+            <ClasscardsListItem key={"card_" + v4()}
+                                data={card} />
+        )}
+    </div>
 
 export default ClasscardsList
