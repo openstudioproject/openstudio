@@ -271,8 +271,21 @@ def get_school_classcards():
     Sorted by name
     :return:
     """
+    def get_validity(row):
+        """
+            takes a db.school_classcards() row as argument
+        """
+        validity = unicode(row.Validity) + ' '
+
+        validity_in = represent_validity_units(row.ValidityUnit, row)
+        if row.Validity == 1:  # Cut the last 's"
+            validity_in = validity_in[:-1]
+
+        return validity + validity_in
+
     set_headers()
 
+    #TODO order by Trial card and then name
     query = (db.school_classcards.Archived == False)
     rows = db(query).select(db.school_classcards.Name,
                             db.school_classcards.Description,
@@ -284,6 +297,24 @@ def get_school_classcards():
                             db.school_classcards.Trialcard,
                             orderby=db.school_classcards.Name)
 
-    return dict(data=rows.as_list())
+    data_rows = []
+    for row in rows:
+        item = {
+            'Name': row.Name,
+            'Description': row.Description,
+            'Price': row.Price,
+            'Validity': row.Validity,
+            'ValidityUnit': row.ValidityUnit,
+            'ValidityDisplay': get_validity(row),
+            'Classes': row.Classes,
+            'Unlimited': row.Unlimited,
+            'Trialcard': row.Trialcard
+        }
+
+        data_rows.append(item)
+
+    print data_rows
+
+    return dict(data=data_rows)
 
 

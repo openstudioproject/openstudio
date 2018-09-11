@@ -32,6 +32,7 @@ class Classcards extends Component {
             <ShopTemplate app_state={this.props.app}>
                 { this.props.loaded ? 
                      <SchoolMenu>
+                         <br /><br />
                          <ClasscardsList classcards={this.props.classcards} />
                      </SchoolMenu> :
                      "Loading..."
