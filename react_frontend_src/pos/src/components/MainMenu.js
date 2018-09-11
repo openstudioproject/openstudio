@@ -19,7 +19,7 @@ const MainMenu = () =>
                 <NavbarNav>
                     <li><NavLink to="/" activeClassName={activeClassName}>Home</NavLink></li>
                     <li><NavLink to="/checkin" activeClassName={activeClassName}>Check-in</NavLink></li>
-                    <li><NavLink to="/products" activeClassName={activeClassName}>Point of Sale</NavLink></li>
+                    <li><NavLink to="/products/school/classcards" activeClassName={activeClassName}>Point of Sale</NavLink></li>
                 </NavbarNav>                
             </NavbarCollapse>
             <NavbarCustomMenu>

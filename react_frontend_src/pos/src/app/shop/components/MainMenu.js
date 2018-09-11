@@ -5,8 +5,11 @@ import { NavLink, withRouter } from 'react-router-dom'
 
 class NavTabs extends Component {
     getNavLinkClass = (path) => {
-      return this.props.location.pathname === path ? 'active' : '';
+        console.log(path)
+        console.log(this.props.location.pathname)
+        return (this.props.location.pathname.search(path)) ? 'active' : '';
     }
+
     render() {
      return (
          <ul className="nav nav-tabs success">

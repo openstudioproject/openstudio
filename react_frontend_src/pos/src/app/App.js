@@ -44,7 +44,7 @@ class App extends Component {
             <Route path='/checkin/attendance/:clsID' component={Attendance} />
             <Route path='/checkin/book/:clsID/:cuID' component={Book} />
             <Route path='/checkin/revenue/:clsID' component={Revenue} />
-            <Route path='/products' component={Classcards} />
+            <Route path='/products/school/classcards' component={Classcards} />
             <Route path='/permissions_error' component={PermissionsError} />
             {/* Add all your remaining routes here, like /trending, /about, etc. */}
             <Route component={Whoops404} />
