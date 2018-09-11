@@ -2533,15 +2533,6 @@ def attendance():
 
 
     ah = AttendanceHelper()
-
-    # attendance = ah.get_checkin_list_customers(clsID,
-    #                                            date,
-    #                                            pictures=True,
-    #                                            manual_enabled=True,
-    #                                            reservations_cancel=True,
-    #                                            invoices=True,
-    #                                            show_notes=True)
-
     attendance = ah.get_checkin_list_customers_booked(clsID, date)
 
     customers = Customers()
@@ -3128,14 +3119,15 @@ def attendance_set_status():
     clsID = clatt.classes_id
     date_formatted = clatt.ClassDate.strftime(DATE_FORMAT)
 
-    ##
-    # Change invoice status to cancelled
-    ##
-    query = (db.invoices_classes_attendance.classes_attendance_id == clattID)
-    rows = db(query).select(db.invoices_classes_attendance.ALL)
-    for row in rows:
-        invoice = Invoice(row.invoices_id)
-        invoice.set_status('cancelled')
+    if status == 'cancelled':
+        ##
+        # Change invoice status to cancelled
+        ##
+        query = (db.invoices_classes_attendance.classes_attendance_id == clattID)
+        rows = db(query).select(db.invoices_classes_attendance.ALL)
+        for row in rows:
+            invoice = Invoice(row.invoices_id)
+            invoice.set_status('cancelled')
 
     # Clear api cache to refresh available spaces
     cache_clear_classschedule_api()

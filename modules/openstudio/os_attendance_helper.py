@@ -299,14 +299,11 @@ class AttendanceHelper:
         def add_table_row(row,
                           repr_row,
                           pictures=pictures,
-                          #manual_enabled=False,
-                          #this_class=False,
                           reservations=reservations,
                           show_subscriptions=show_subscriptions,
                           invoices=invoices,
                           show_notes=show_notes,
                           show_booking_time=show_booking_time,
-                          #class_full=False
                           ):
             """'
                 Adds a row to the table
@@ -417,15 +414,6 @@ class AttendanceHelper:
                 else:
                     btn = DIV(checkin, dropdown, _class='btn-group pull-right')
 
-
-                # if not class_full:
-                # btn = self.get_signin_buttons(clsID,
-                #                               date,
-                #                               cuID,
-                #                               manual_enabled=manual_enabled)
-                # else:
-                #     btn = ''
-
             # Customer picture
             td_pic = ''
             if pictures:
@@ -451,18 +439,20 @@ class AttendanceHelper:
                 except AttributeError:
                     pass
 
+            # Add a small label for online bookings
+            try:
+                if row.classes_attendance.online_booking:
+                    td_labels.append(' ')
+                    td_labels.append(os_gui.get_label('info', T('Online')))
+            except AttributeError:
+                pass
 
             if show_booking_time:
                 td_labels.append(BR())
                 td_labels.append(SPAN(T('Booked on'), ' ', repr_row.classes_attendance.CreatedOn,
                                       _class='vsmall_font grey'))
 
-            # Add a small label for online bookings
-            try:
-                if row.classes_attendance.online_booking:
-                    td_labels.append(TD(os_gui.get_label('info', T('Online'))))
-            except AttributeError:
-                pass
+
 
 
             ##
