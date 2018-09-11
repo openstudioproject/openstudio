@@ -170,6 +170,13 @@ class Class:
         customer = Customer(cuID)
         has_membership = customer.has_membership_on_date(self.date)
 
+        dropin = 0
+        trial = 0
+        trial_tax_rates_id = None
+        dropin_tax_rates_id = None
+        trial_tax_percentage = None
+        dropin_tax_percentage = None
+
 
         query = (db.classes_price.classes_id == self.clsID) & \
                 (db.classes_price.Startdate <= self.date) & \
@@ -181,48 +188,31 @@ class Class:
         if prices:
             prices = prices.first()
 
-            if not has_membership:
-                dropin = prices.Dropin or 0
-                trial = prices.Trial or 0
+            dropin = prices.Dropin or 0
+            trial = prices.Trial or 0
 
-                trial_tax = db.tax_rates(prices.tax_rates_id_trial)
-                dropin_tax = db.tax_rates(prices.tax_rates_id_dropin)
+            dropin_tax = db.tax_rates(prices.tax_rates_id_dropin)
+            trial_tax = db.tax_rates(prices.tax_rates_id_trial)
 
-                try:
-                    trial_tax_rates_id = trial_tax.id
-                    dropin_tax_rates_id = dropin_tax.id
-                    trial_tax_percentage = trial_tax.Percentage
-                    dropin_tax_percentage = dropin_tax.Percentage
-                except AttributeError:
-                    trial_tax_rates_id = None
-                    dropin_tax_rates_id = None
-                    trial_tax_percentage = None
-                    dropin_tax_percentage = None
-            else: # has membership
-                dropin = prices.DropinMembership or 0
-                trial = prices.TrialMembership or 0
-
-                trial_tax = db.tax_rates(prices.tax_rates_id_trial_membership)
+            if has_membership and prices.DropinMembership:
+                dropin = prices.DropinMembership
                 dropin_tax = db.tax_rates(prices.tax_rates_id_dropin_membership)
 
-                try:
-                    trial_tax_rates_id = trial_tax.id
-                    dropin_tax_rates_id = dropin_tax.id
-                    trial_tax_percentage = trial_tax.Percentage
-                    dropin_tax_percentage = dropin_tax.Percentage
-                except AttributeError:
-                    trial_tax_rates_id = None
-                    dropin_tax_rates_id = None
-                    trial_tax_percentage = None
-                    dropin_tax_percentage = None
+            if has_membership and prices.TrialMembership:
+                trial = prices.TrialMembership
+                trial_tax = db.tax_rates(prices.tax_rates_id_trial_membership)
 
-        else:
-            dropin = 0
-            trial  = 0
-            trial_tax_rates_id    = None
-            dropin_tax_rates_id   = None
-            trial_tax_percentage  = None
-            dropin_tax_percentage = None
+            try:
+                dropin_tax_rates_id = dropin_tax.id
+                dropin_tax_percentage = dropin_tax.Percentage
+            except AttributeError:
+                pass
+
+            try:
+                trial_tax_rates_id = trial_tax.id
+                trial_tax_percentage = trial_tax.Percentage
+            except AttributeError:
+                pass
 
 
         return dict(
