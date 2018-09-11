@@ -12,7 +12,7 @@ class NavTabs extends Component {
 
     render() {
      return (
-         <ul className="nav nav-tabs success">
+         <ul className="nav nav-tabs">
          <li className={this.getNavLinkClass("/products")} role="presetation">
                 <NavLink to="/products" activeClassName={activeClassName}>Products</NavLink>
             </li>

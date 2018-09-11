@@ -3,6 +3,7 @@ import { intlShape } from "react-intl"
 import PropTypes from "prop-types"
 
 import ShopTemplate from '../../components/ShopTemplate'
+import SchoolMenu from '../components/SchoolMenu'
 
 import ClasscardsList from './ClasscardsList'
 
@@ -30,7 +31,9 @@ class Classcards extends Component {
         return (
             <ShopTemplate app_state={this.props.app}>
                 { this.props.loaded ? 
-                     <ClasscardsList classcards={this.props.classcards} /> :
+                     <SchoolMenu>
+                         <ClasscardsList classcards={this.props.classcards} />
+                     </SchoolMenu> :
                      "Loading..."
                 }
             </ShopTemplate>
