@@ -318,11 +318,13 @@ def get_school_classcards():
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'school_subscriptions'))
-def get_school_classcards():
+def get_school_subscriptions():
     """
     List of not archived school classcards
     Sorted by Name
     """
+    set_headers()
+
     query = """
         SELECT sc.Name,
                sc.SortOrder,
