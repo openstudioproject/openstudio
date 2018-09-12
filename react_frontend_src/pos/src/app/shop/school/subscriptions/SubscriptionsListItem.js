@@ -2,10 +2,7 @@ import React from "react"
 import { withRouter } from 'react-router-dom'
 import { injectIntl } from 'react-intl';
 
-// import Check from '../../../components/ui/Check'
-// import Label from '../../../components/ui/Label'
-
-const ClasscardsListItem = injectIntl(withRouter(({data, intl}) => 
+const SubscriptionsListItem = injectIntl(withRouter(({data, intl}) => 
     <div className="col-md-4">
         <div className="panel panel-default">
             <div className="panel-heading">
@@ -36,4 +33,4 @@ const ClasscardsListItem = injectIntl(withRouter(({data, intl}) =>
 ))
 
 
-export default ClasscardsListItem
+export default SubscriptionsListItem

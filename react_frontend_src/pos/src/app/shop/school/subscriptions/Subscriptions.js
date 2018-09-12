@@ -5,9 +5,9 @@ import PropTypes from "prop-types"
 import ShopTemplate from '../../components/ShopTemplate'
 import SchoolMenu from '../components/SchoolMenu'
 
-import ClasscardsList from './SubscriptionsList'
+import SubscriptionsList from './SubscriptionsList'
 
-class Classcards extends Component {
+class Subscriptions extends Component {
     constructor(props) {
         super(props)
         console.log(props)
@@ -17,7 +17,7 @@ class Classcards extends Component {
         intl: intlShape.isRequired,
         setPageTitle: PropTypes.function,
         app: PropTypes.object,
-        classcards: PropTypes.object,
+        subscriptions: PropTypes.object,
         loaded: PropTypes.boolean,
     }
 
@@ -33,7 +33,7 @@ class Classcards extends Component {
                 { this.props.loaded ? 
                      <SchoolMenu>
                          <br /><br />
-                         <ClasscardsList classcards={this.props.classcards} />
+                         <SubscriptionsList subscriptions={this.props.subscriptions} />
                      </SchoolMenu> :
                      "Loading..."
                 }
@@ -42,4 +42,4 @@ class Classcards extends Component {
     }
 }
 
-export default Classcards
+export default Subscriptions

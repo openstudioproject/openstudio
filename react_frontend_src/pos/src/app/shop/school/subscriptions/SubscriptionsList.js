@@ -1,26 +1,23 @@
 import React, {Component} from "react"
 import { v4 } from "uuid"
 
-// import AttendanceListItem from "./ClasscardsListItem"
-import Box from '../../../../components/ui/Box'
-import BoxBody from '../../../../components/ui/BoxBody'
-import ClasscardsListItem from "./SubscriptionsListItem";
+import SubscriptionsListItem from "./SubscriptionsListItem";
 
 
-class ClasscardsList extends Component {
+class SubscriptionsList extends Component {
     constructor(props) {
         super(props)
     }
 
-    populateRows = (classcards) => {
+    populateRows = (subscriptions) => {
         let container = []
         let children = []
-        classcards.map((card, i) => {
+        subscriptions.map((card, i) => {
             console.log(i)
             console.log(card)
-            children.push(<ClasscardsListItem key={"card_" + v4()}
+            children.push(<SubscriptionsListItem key={"card_" + v4()}
                                               data={card} />)
-            if (( (i+1) % 3 ) === 0 || i+1 == classcards.length)  {
+            if (( (i+1) % 3 ) === 0 || i+1 == subscriptions.length)  {
                 console.log('pushing')
                 console.log(children)
                 container.push(<div className="row" key={"row_" + v4()}>{children}</div>)
@@ -32,13 +29,13 @@ class ClasscardsList extends Component {
     }
     
     render() {
-        const classcards = this.props.classcards
+        const subscriptions = this.props.subscriptions
 
-        console.log(classcards.length)
+        console.log(subscriptions.length)
         return (
-            this.populateRows(classcards)
+            this.populateRows(subscriptions)
         )
     }
 }
 
-export default ClasscardsList
+export default SubscriptionsList

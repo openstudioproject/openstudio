@@ -3,14 +3,14 @@ import { injectIntl } from 'react-intl';
 import { withRouter } from 'react-router'
 
 import { appOperations } from '../../../duck'
-import Classcards from './Classcards';
+import Subscriptions from './Subscriptions';
 
 
 const mapStateToProps = state => 
     ({
         app: state.app,
-        loaded: state.shop.school.classcards.loaded,
-        classcards: state.shop.school.classcards.data
+        loaded: state.shop.school.subscriptions.loaded,
+        subscriptions: state.shop.school.subscriptions.data
     })
 
 const mapDispatchToProps = dispatch =>
@@ -20,9 +20,9 @@ const mapDispatchToProps = dispatch =>
         }
     })
 
-const ClasscardsContainer = withRouter(injectIntl(connect(
+const SubscriptionsContainer = withRouter(injectIntl(connect(
     mapStateToProps,
     mapDispatchToProps
-)(Classcards)))
+)(Subscriptions)))
 
-export default ClasscardsContainer
+export default SubscriptionsContainer
