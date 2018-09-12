@@ -155,40 +155,39 @@ def templates():
     table = TABLE(header, _class='table table-hover table-striped')
 
     #three templates saved in sys_properties
-    query = ((db.sys_properties.Property=='email_template_sys_footer') | \
-             (db.sys_properties.Property == 'email_template_sys_reset_password') | \
+    query = ((db.sys_properties.Property=='email_template_sys_footer') |
+             (db.sys_properties.Property == 'email_template_sys_reset_password') |
              (db.sys_properties.Property == 'email_template_sys_verify_email') )
     rows = db(query).select(db.sys_properties.Property,
                             orderby= db.sys_properties.Property)
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
+        button = os_gui.get_button(
+            'edit_custom',
+            URL('edit_template', vars={'template':row.Property}),
+            T("Edit the content of this template",),
+            title='Edit template',
+            _class='pull-right'
+        )
+
         if repr_row.Property == 'email_template_sys_footer':
             tr = TR(
                     TD('Email footer'),
-                    os_gui.get_button('edit_custom',
-                                  URL('edit_template', vars={'template':row.Property}),
-                                  T("Edit the content of this template",),
-                                  title='Edit template')
+                    TD(button)
                     )
             table.append(tr)
         if repr_row.Property == 'email_template_sys_reset_password':
             tr = TR(
                 TD('Email reset password'),
-                os_gui.get_button('edit_custom',
-                                  URL('edit_template', vars={'template': row.Property}),
-                                  T("Edit the content of this template", ),
-                                  title='Edit template')
+                TD(button)
             )
             table.append(tr)
         if repr_row.Property == 'email_template_sys_verify_email':
             tr = TR(
                     TD('Email verify email'),
-                    os_gui.get_button('edit_custom',
-                                  URL('edit_template', vars={'template':row.Property}),
-                                  T("Edit the content of this template",),
-                                  title='Edit template')
-                    )
+                    TD(button)
+                )
             table.append(tr)
     #the templates saved in sys_email_templates
     query = (db.sys_email_templates.id >0)
@@ -198,13 +197,14 @@ def templates():
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
-
         tr = TR(
                 TD(repr_row.Title),
-                os_gui.get_button('edit_custom',
-                              URL('edit_template', vars={'template':row.Title}),
-                              T("Edit the content of this template",),
-                              title='Edit template')
+                os_gui.get_button(
+                    'edit_custom',
+                    URL('edit_template', vars={'template':row.Title}),
+                    T("Edit the content of this template",),
+                    title='Edit template',
+                    _class='pull-right')
                 )
 
         table.append(tr)
