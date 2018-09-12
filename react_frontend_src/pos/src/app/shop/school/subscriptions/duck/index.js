@@ -1,5 +1,5 @@
 // index.js
-import { shopSchoolClasscardsReducer } from './reducers'
-export { default as shopSchoolClasscardsOperations } from './operations'
-export { default as shopSchoolClasscardsTypes } from './types'
-export default shopSchoolClasscardsReducer
+import { shopSchoolSubscriptionsReducer } from './reducers'
+export { default as shopSchoolSubscriptionsOperations } from './operations'
+export { default as shopSchoolSubscriptionsTypes } from './types'
+export default shopSchoolSubscriptionsReducer
