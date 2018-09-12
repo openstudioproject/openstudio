@@ -313,8 +313,57 @@ def get_school_classcards():
 
         data_rows.append(item)
 
-    print data_rows
-
     return dict(data=data_rows)
 
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'school_subscriptions'))
+def get_school_classcards():
+    """
+    List of not archived school classcards
+    Sorted by Name
+    """
+    query = """
+        SELECT sc.Name,
+               sc.SortOrder,
+               sc.Description,
+               sc.Classes,
+               sc.SubscriptionUnit,
+               sc.Unlimited,
+               scp.Price
+        FROM school_subscriptions sc
+        LEFT JOIN
+        ( SELECT school_subscriptions_id, 
+                 Price
+          FROM school_subscriptions_price
+          WHERE Startdate <= '{today}' AND
+                (Enddate >= '{today}' OR Enddate IS NULL) 
+        ) scp ON sc.id = scp.school_subscriptions_id
+        WHERE sc.PublicSubscription = 'T' AND sc.Archived = 'F'
+        ORDER BY sc.SortOrder DESC, sc.Name
+    """.format(today=TODAY_LOCAL)
+
+    fields = [ db.school_subscriptions.Name,
+               db.school_subscriptions.SortOrder,
+               db.school_subscriptions.Description,
+               db.school_subscriptions.Classes,
+               db.school_subscriptions.SubscriptionUnit,
+               db.school_subscriptions.Unlimited,
+               db.school_subscriptions_price.Price ]
+
+    rows = db.executesql(query, fields=fields)
+
+    data = []
+    for row in rows:
+        data.append({
+            'Name': row.school_subscriptions.Name,
+            'SortOrder': row.school_subscriptions.SortOrder,
+            'Description': row.school_subscriptions.Description or '',
+            'Classes': row.school_subscriptions.Classes,
+            'SubscriptionUnit': row.school_subscriptions.SubscriptionUnit,
+            'Unlimited': row.school_subscriptions.Unlimited,
+            'Price': row.school_subscriptions_price.Price
+        })
+
+    return dict(data=data)
 
