@@ -1666,12 +1666,13 @@ def export_invoices():
     if form.process().accepted:
         response.flash = T("Form accepted")
 
-        stream = export_invoices_get_export(form.vars.from_date,
-                                            form.vars.until_date,
-                                            form.vars.invoices_groups_id,
-                                            form.vars.filetype,
-                                            form.vars.include_subscriptions
-                                            )
+        stream = export_invoices_get_export(
+            form.vars.from_date,
+            form.vars.until_date,
+            form.vars.invoices_groups_id,
+            form.vars.filetype,
+            form.vars.include_subscriptions
+        )
 
         if form.vars.filetype == 'excel':
             fname = "Invoices.xlsx"
