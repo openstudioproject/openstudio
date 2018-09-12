@@ -4,8 +4,26 @@ import { injectIntl } from 'react-intl';
 
 import Currency from '../../../../components/ui/Currency'
 
-const representClasses = (data) =>
-    data.Classes
+
+const representSubscriptionUnit = ( SubscriptionUnit, intl ) => {
+    switch (SubscriptionUnit) {
+        case 'week':
+            return intl.formatMessage({ id:"app.general.strings.week" })
+        case 'month':
+            return intl.formatMessage({ id:"app.general.strings.month" })
+        default:
+            return intl.formatMessage({ id:"app.general.strings.unknown" })
+    }
+}
+
+const representClasses = (data, intl) => {
+    if (data.Unlimited) {
+        return intl.formatMessage({ id:"app.general.strings.unlimited" })
+    } else {
+        return <span>{data.Classes} / {representSubscriptionUnit(data.SubscriptionUnit, intl)}</span>
+    }
+}
+    
 
 
 const SubscriptionsListItem = injectIntl(withRouter(({data, intl, currency_symbol}) => 
@@ -18,7 +36,7 @@ const SubscriptionsListItem = injectIntl(withRouter(({data, intl, currency_symbo
                     <tbody>
                         <tr>
                             <td>{intl.formatMessage({ id:"app.general.strings.classes" })}</td>
-                            <td>{representClasses(data)}</td>
+                            <td>{representClasses(data, intl)}</td>
                         </tr>
                         <tr>
                             <td>{intl.formatMessage({ id:"app.general.strings.monthly" })}</td>
