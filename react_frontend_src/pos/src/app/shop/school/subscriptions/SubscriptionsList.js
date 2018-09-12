@@ -4,7 +4,7 @@ import { v4 } from "uuid"
 // import AttendanceListItem from "./ClasscardsListItem"
 import Box from '../../../../components/ui/Box'
 import BoxBody from '../../../../components/ui/BoxBody'
-import ClasscardsListItem from "./ClasscardsListItem";
+import ClasscardsListItem from "./SubscriptionsListItem";
 
 
 class ClasscardsList extends Component {

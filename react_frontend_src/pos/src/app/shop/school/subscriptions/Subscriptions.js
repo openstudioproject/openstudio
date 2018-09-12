@@ -5,7 +5,7 @@ import PropTypes from "prop-types"
 import ShopTemplate from '../../components/ShopTemplate'
 import SchoolMenu from '../components/SchoolMenu'
 
-import ClasscardsList from './ClasscardsList'
+import ClasscardsList from './SubscriptionsList'
 
 class Classcards extends Component {
     constructor(props) {
