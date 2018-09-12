@@ -5,7 +5,7 @@ import { injectIntl } from 'react-intl';
 // import Check from '../../../components/ui/Check'
 // import Label from '../../../components/ui/Label'
 
-const ClasscardsListItem = injectIntl(withRouter(({data, index}) => 
+const ClasscardsListItem = injectIntl(withRouter(({data, intl}) => 
     <div className="col-md-4">
         <div className="panel panel-default">
             <div className="panel-heading">
@@ -14,19 +14,19 @@ const ClasscardsListItem = injectIntl(withRouter(({data, index}) =>
                 <table className="table table-condensed">
                     <tbody>
                         <tr>
-                            <td>Validity</td>
+                            <td>{intl.formatMessage({ id:"app.general.strings.validity" })}</td>
                             <td>{data.ValidityDisplay}</td>
                         </tr>
                         <tr>
-                            <td>Classes</td>
+                        <td>{intl.formatMessage({ id:"app.general.strings.classes" })}</td>
                             <td>{data.Classes}</td>
                         </tr>
                         <tr>
-                            <td>Price</td>
+                        <td>{intl.formatMessage({ id:"app.general.strings.price" })}</td>
                             <td>{data.Price}</td>
                         </tr>
                         <tr>
-                            <td>Description</td>
+                            <td>{intl.formatMessage({ id:"app.general.strings.description" })}</td>
                             <td>{data.Description}</td>
                         </tr>
                     </tbody>
