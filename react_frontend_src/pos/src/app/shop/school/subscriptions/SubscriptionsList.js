@@ -16,7 +16,8 @@ class SubscriptionsList extends Component {
             console.log(i)
             console.log(card)
             children.push(<SubscriptionsListItem key={"card_" + v4()}
-                                              data={card} />)
+                                                 data={card}
+                                                 currency_symbol={this.props.currency_symbol} />)
             if (( (i+1) % 3 ) === 0 || i+1 == subscriptions.length)  {
                 console.log('pushing')
                 console.log(children)

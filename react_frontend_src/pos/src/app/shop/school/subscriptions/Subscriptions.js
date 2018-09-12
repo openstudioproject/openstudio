@@ -33,7 +33,9 @@ class Subscriptions extends Component {
                 { this.props.loaded ? 
                      <SchoolMenu>
                          <br /><br />
-                         <SubscriptionsList subscriptions={this.props.subscriptions} />
+                         <SubscriptionsList subscriptions={this.props.subscriptions} 
+                                            currency_symbol={this.props.settings.currency_symbol} 
+                                            />
                      </SchoolMenu> :
                      "Loading..."
                 }

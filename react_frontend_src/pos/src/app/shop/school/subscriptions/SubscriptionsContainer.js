@@ -10,7 +10,8 @@ const mapStateToProps = state =>
     ({
         app: state.app,
         loaded: state.shop.school.subscriptions.loaded,
-        subscriptions: state.shop.school.subscriptions.data
+        subscriptions: state.shop.school.subscriptions.data,
+        settings: state.app.settings.data
     })
 
 const mapDispatchToProps = dispatch =>
