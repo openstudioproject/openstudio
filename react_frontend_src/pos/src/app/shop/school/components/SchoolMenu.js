@@ -1,6 +1,6 @@
 import React, { Component } from "react"
 import { NavLink, withRouter } from 'react-router-dom'
-
+import { injectIntl } from 'react-intl';
 
 class NavTabs extends Component {
     getNavLinkClass = (path) => {
@@ -10,18 +10,24 @@ class NavTabs extends Component {
     }
 
     render() {
-     return (
-         <ul className="nav nav-tabs nav-justified">
-            <li className={this.getNavLinkClass("/products/school/classcards")} role="presetation">
-                <NavLink to="/products/school/classcards" activeClassName={activeClassName}>Classcards</NavLink>
-            </li>
-            <li className={this.getNavLinkClass("/products/school/subscriptions")} role="presetation">
-                <NavLink to="/products/school/subscriptions" activeClassName={activeClassName}>Subscriptions</NavLink>
-            </li>
-         </ul>
-     )};
+        const intl = this.props.intl
+
+        return (
+            <ul className="nav nav-tabs nav-justified">
+                <li className={this.getNavLinkClass("/products/school/classcards")} role="presetation">
+                    <NavLink to="/products/school/classcards" activeClassName={activeClassName}>
+                        {intl.formatMessage({ id:"app.general.strings.classcards" })}
+                    </NavLink>
+                </li>
+                <li className={this.getNavLinkClass("/products/school/subscriptions")} role="presetation">
+                    <NavLink to="/products/school/subscriptions" activeClassName={activeClassName}>
+                        {intl.formatMessage({ id:"app.general.strings.subscriptions" })}
+                    </NavLink>
+                </li>
+            </ul>
+         )};
    }
-NavTabs = withRouter(NavTabs);
+NavTabs = injectIntl(withRouter(NavTabs));
 
 
 const activeClassName= "active"
