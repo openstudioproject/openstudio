@@ -7,7 +7,8 @@ const api_urls = {
     'CHECKIN_BOOKING_OPTIONS': '/pos/get_class_booking_options.json',
     'CHECKIN_REVENUE': '/pos/get_class_revenue.json',
     'CHECKIN_TEACHER_PAYMENT': '/pos/get_class_teacher_payment.json',
-    'CHECKIN_VERIFY_TEACHER_PAYMENT': '/pos/verify_teacher_payment.json'
+    'CHECKIN_VERIFY_TEACHER_PAYMENT': '/pos/verify_teacher_payment.json',
+    'SHOP_SCHOOL_CLASSCARDS': '/pos/get_school_classcards.json'
 }
 
 export default api_urls

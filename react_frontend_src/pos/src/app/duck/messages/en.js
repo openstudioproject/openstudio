@@ -4,12 +4,16 @@ export const ENGLISH_TRANSLATION = {
         "app.general.placeholders.search": "Search...",
         "app.general.strings.amount": "Amount",
         "app.general.strings.attendance": "Attendance",
+        "app.general.strings.classes": "Classes",
         "app.general.strings.count": "Count",
         "app.general.strings.description": "Description",
+        "app.general.strings.loading": "Loading...",
         "app.general.strings.pdf": "PDF",
+        "app.general.strings.price": "Price",
         "app.general.strings.revenue": "Revenue",
         "app.general.strings.teacher_payment": "Teacher payment",
         "app.general.strings.total": "Total",
+        "app.general.strings.validity": "Validity",
         "app.general.strings.verify": "Verify",
         "app.user.change_password": "Change password",
         "app.user.profile": "Profile",
@@ -34,5 +38,6 @@ export const ENGLISH_TRANSLATION = {
         "app.pos.home.page_title": "Welcome",
         "app.pos.permissions_error.page_title": "Whoops... ",
         "app.pos.permissions_error.content": "Looks like you don't have sufficient permissions to do that.",
+        "app.pos.products": "Products",
     }
 }
