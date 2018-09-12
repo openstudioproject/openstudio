@@ -612,8 +612,8 @@ class Invoice:
                  (db.customers_subscriptions.id != cs.csID) &
                  (db.customers_subscriptions.school_subscriptions_id == cs.ssuID)) |
                  (db.customers_subscriptions.RegistrationFeePaid == True))
-
         rowsfee = db(query).select(db.customers_subscriptions.ALL)
+        
         if not rowsfee: # Registration fee already paid
             query = (db.school_subscriptions.id == ssuID)
             regfee = db(query).select(db.school_subscriptions.RegistrationFee)
