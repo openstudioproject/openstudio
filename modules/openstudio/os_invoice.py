@@ -596,12 +596,12 @@ class Invoice:
                 description = cs.name.decode('utf-8') + u' ' + period_start.strftime(DATE_FORMAT) + u' - ' + period_end.strftime(DATE_FORMAT)
 
         iiID = db.invoices_items.insert(
-            invoices_id  = self.invoices_id,
-            ProductName  = current.T("Subscription") + ' ' + unicode(csID),
-            Description  = description,
-            Quantity     = 1,
-            Price        = price,
-            Sorting      = next_sort_nr,
+            invoices_id = self.invoices_id,
+            ProductName = current.T("Subscription") + ' ' + unicode(csID),
+            Description = description,
+            Quantity = 1,
+            Price = price,
+            Sorting = next_sort_nr,
             tax_rates_id = tax_rates_id,
         )
 
@@ -611,26 +611,27 @@ class Invoice:
         query = (((db.customers_subscriptions.auth_customer_id == cs.auth_customer_id) &
                  (db.customers_subscriptions.id != cs.csID) &
                  (db.customers_subscriptions.school_subscriptions_id == cs.ssuID)) |
-                 (db.customers_subscriptions.RegistrationFeePaid==True))
+                 (db.customers_subscriptions.RegistrationFeePaid == True))
 
         rowsfee = db(query).select(db.customers_subscriptions.ALL)
-        query = (db.school_subscriptions.id == ssuID)
-        regfee = db(query).select(db.school_subscriptions.RegistrationFee)
-        if not rowsfee: # Registration fee already paid?
+        if not rowsfee: # Registration fee already paid
+            query = (db.school_subscriptions.id == ssuID)
+            regfee = db(query).select(db.school_subscriptions.RegistrationFee)
             row = regfee.first()
-            price = row.RegistrationFee
-            if not price == 0:
+            registration_fee = row.RegistrationFee
+            if registration_fee:
                 db.invoices_items.insert(
-                    invoices_id=self.invoices_id,
-                    ProductName=current.T("Registration Fee"),
-                    Description='One time fee for registration',
-                    Quantity=1,
-                    Price=price,
-                    Sorting=next_sort_nr,
-                    tax_rates_id=tax_rates_id,
+                    invoices_id = self.invoices_id,
+                    ProductName = current.T("Registration fee"),
+                    Description = curren.T('One time registration fee'),
+                    Quantity = 1,
+                    Price = registration_fee,
+                    Sorting = next_sort_nr,
+                    tax_rates_id = tax_rates_id,
                 )
 
-            db.customers_subscriptions[cs.csID] = dict(RegistrationFeePaid=True)
+                # Mark registration fee as paid for subscription
+                db.customers_subscriptions[cs.csID] = dict(RegistrationFeePaid=True)
 
         ##
         # Always call these
