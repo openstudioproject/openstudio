@@ -342,7 +342,7 @@ def get_school_subscriptions():
                 (Enddate >= '{today}' OR Enddate IS NULL) 
         ) scp ON sc.id = scp.school_subscriptions_id
         WHERE sc.PublicSubscription = 'T' AND sc.Archived = 'F'
-        ORDER BY sc.SortOrder DESC, sc.Name
+        ORDER BY sc.Name
     """.format(today=TODAY_LOCAL)
 
     fields = [ db.school_subscriptions.Name,

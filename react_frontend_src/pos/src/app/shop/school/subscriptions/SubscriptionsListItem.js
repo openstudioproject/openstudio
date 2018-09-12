@@ -10,16 +10,16 @@ const SubscriptionsListItem = injectIntl(withRouter(({data, intl}) =>
             </div>
                 <table className="table table-condensed">
                     <tbody>
-                        {/* <tr>
-                            <td>{intl.formatMessage({ id:"app.general.strings.validity" })}</td>
-                            <td>{data.ValidityDisplay}</td>
-                        </tr>
                         <tr>
-                        <td>{intl.formatMessage({ id:"app.general.strings.classes" })}</td>
+                            <td>{intl.formatMessage({ id:"app.general.strings.classes" })}</td>
+                            <td>{data.Classes}</td>
+                        </tr>
+                        {/* <tr>
+                            <td>{intl.formatMessage({ id:"app.general.strings.classes" })}</td>
                             <td>{data.Classes}</td>
                         </tr>
                         <tr>
-                        <td>{intl.formatMessage({ id:"app.general.strings.price" })}</td>
+                            <td>{intl.formatMessage({ id:"app.general.strings.price" })}</td>
                             <td>{data.Price}</td>
                         </tr>
                         <tr>

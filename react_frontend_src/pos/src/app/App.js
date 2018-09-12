@@ -30,6 +30,7 @@ class App extends Component {
     this.props.fetchUser()    
     this.props.fetchSettings()  
     this.props.fetchShopSchoolClasscards()
+    this.props.fetchShopSchoolSubscriptions()
   }
 
 
