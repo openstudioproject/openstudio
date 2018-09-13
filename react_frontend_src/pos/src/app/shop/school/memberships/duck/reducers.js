@@ -1,19 +1,19 @@
 import T from './types'
 
-export const shopSchoolSubscriptionsReducer = (state = {}, action={ type: null }) => {
+export const shopSchoolMembershipsReducer = (state = {}, action={ type: null }) => {
     switch (action.type) {
-        case T.SHOP_SCHOOL_SET_SUBSCRIPTIONS_LOADING:
+        case T.SHOP_SCHOOL_SET_MEMBERSHIPS_LOADING:
             return {
                 ...state,
                 loading: action.loading,
             }
-        case T.SHOP_SCHOOL_REQUEST_SUBSCRIPTIONS:
+        case T.SHOP_SCHOOL_REQUEST_MEMBERSHIPS:
             return {
                 loading: true,
                 loaded: false,
                 data: {}
             }
-        case T.SHOP_SCHOOL_RECEIVE_SUBSCRIPTIONS:
+        case T.SHOP_SCHOOL_RECEIVE_MEMBERSHIPS:
             return {
                 loading: false,
                 loaded: true,
