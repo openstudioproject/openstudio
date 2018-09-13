@@ -341,7 +341,7 @@ def get_school_subscriptions():
           WHERE Startdate <= '{today}' AND
                 (Enddate >= '{today}' OR Enddate IS NULL) 
         ) scp ON sc.id = scp.school_subscriptions_id
-        WHERE sc.PublicSubscription = 'T' AND sc.Archived = 'F'
+        WHERE sc.Archived = 'F'
         ORDER BY sc.Name
     """.format(today=TODAY_LOCAL)
 
@@ -372,7 +372,7 @@ def get_school_subscriptions():
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'school_memberships'))
-def get_school_subscriptions():
+def get_school_memberships():
     """
     List of not archived school classcards
     Sorted by Name
@@ -381,21 +381,19 @@ def get_school_subscriptions():
 
     query = """
         SELECT sm.Name,
-               sm.SortOrder,
                sm.Description,
-               sm.Classes,
-               sm.SubscriptionUnit,
-               sm.Unlimited,
+               sm.Validity,
+               sm.ValidityUnit,
                smp.Price
         FROM school_memberships sm
         LEFT JOIN
         ( SELECT school_memberships_id, 
                  Price
-          FROM school_shool_memberships_price
+          FROM school_memberships_price
           WHERE Startdate <= '{today}' AND
                 (Enddate >= '{today}' OR Enddate IS NULL) 
         ) smp ON sm.id = smp.school_memberships_id
-        WHERE sm.PublicMembership = 'T' AND sm.Archived = 'F'
+        WHERE sm.Archived = 'F'
         ORDER BY sm.Name
     """.format(today=TODAY_LOCAL)
 
