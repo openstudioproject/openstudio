@@ -9,6 +9,7 @@ export const ENGLISH_TRANSLATION = {
         "app.general.strings.count": "Count",
         "app.general.strings.description": "Description",
         "app.general.strings.loading": "Loading...",
+        "app.general.strings.memberships": "Memberships",
         "app.general.strings.month": "Month",
         "app.general.strings.monthly": "Monthly",
         "app.general.strings.not_found": "Not found",
