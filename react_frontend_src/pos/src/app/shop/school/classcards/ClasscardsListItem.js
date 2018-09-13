@@ -29,7 +29,7 @@ const ClasscardsListItem = injectIntl(withRouter(({data, intl}) =>
                             <td>
                                 {(data.Price) ? 
                                      <Currency amount={data.Price} /> : 
-                                     intl.formatMessage({ id:"app.general.strings.not_found"}) }
+                                     intl.formatMessage({ id:"app.general.strings.not_set"}) }
                             </td>
                         </tr>
                         <tr>

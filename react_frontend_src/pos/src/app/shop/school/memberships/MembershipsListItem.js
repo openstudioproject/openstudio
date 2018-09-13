@@ -5,19 +5,28 @@ import { injectIntl } from 'react-intl';
 import Currency from '../../../../components/ui/Currency'
 
 
-const representMembershipUnit = ( MembershipUnit, intl ) => {
-    switch (MembershipUnit) {
+const representValidityUnit = ( Validity, ValidityUnit, intl ) => {
+    let unit
+    switch (ValidityUnit) {
+        case 'day':
+            unit = intl.formatMessage({ id:"app.general.strings.day" })
         case 'week':
-            return intl.formatMessage({ id:"app.general.strings.week" })
+            unit = intl.formatMessage({ id:"app.general.strings.week" })
         case 'month':
-            return intl.formatMessage({ id:"app.general.strings.month" })
+            unit = intl.formatMessage({ id:"app.general.strings.month" })
         default:
-            return intl.formatMessage({ id:"app.general.strings.unknown" })
+            unit = intl.formatMessage({ id:"app.general.strings.unknown" })
     }
+
+    if (Validity != 1) {
+        unit = unit + 's'
+    }
+
+    return <span>{Validity} {unit}</span>
 }
 
 
-const MembershipsListItem = injectIntl(withRouter(({data, intl, currency_symbol}) => 
+const MembershipsListItem = injectIntl(withRouter(({data, intl}) => 
     <div className="col-md-4">
         <div className="panel panel-default">
             <div className="panel-heading">
@@ -25,20 +34,20 @@ const MembershipsListItem = injectIntl(withRouter(({data, intl, currency_symbol}
             </div>
                 <table className="table table-condensed">
                     <tbody>
-                        {/* <tr>
-                            <td>{intl.formatMessage({ id:"app.general.strings.classes" })}</td>
-                            <td>{representClasses(data, intl)}</td>
+                        <tr>
+                            <td>{intl.formatMessage({ id:"app.general.strings.validity" })}</td>
+                            <td>{representValidityUnit(data.Validity, data.ValidityUnit, intl)}</td>
                         </tr>
                         <tr>
-                            <td>{intl.formatMessage({ id:"app.general.strings.monthly" })}</td>
+                            <td>{intl.formatMessage({ id:"app.general.strings.price" })}</td>
                             <td>{(data.Price) ? 
                                     <Currency amount={data.Price} /> : 
-                                    intl.formatMessage({ id:"app.general.strings.not_found"}) }</td>
+                                    intl.formatMessage({ id:"app.general.strings.not_set"}) }</td>
                         </tr>
                         <tr>
                             <td>{intl.formatMessage({ id:"app.general.strings.description" })}</td>
                             <td>{data.Description}</td>
-                        </tr> */}
+                        </tr>
                     </tbody>
                 </table>
         </div>

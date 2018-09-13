@@ -42,7 +42,7 @@ const SubscriptionsListItem = injectIntl(withRouter(({data, intl, currency_symbo
                             <td>{intl.formatMessage({ id:"app.general.strings.monthly" })}</td>
                             <td>{(data.Price) ? 
                                     <Currency amount={data.Price} /> : 
-                                    intl.formatMessage({ id:"app.general.strings.not_found"}) }</td>
+                                    intl.formatMessage({ id:"app.general.strings.not_set"}) }</td>
                         </tr>
                         <tr>
                             <td>{intl.formatMessage({ id:"app.general.strings.description" })}</td>

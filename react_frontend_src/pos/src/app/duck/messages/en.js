@@ -13,6 +13,7 @@ export const ENGLISH_TRANSLATION = {
         "app.general.strings.month": "Month",
         "app.general.strings.monthly": "Monthly",
         "app.general.strings.not_found": "Not found",
+        "app.general.strings.not_set": "Not set",
         "app.general.strings.pdf": "PDF",
         "app.general.strings.price": "Price",
         "app.general.strings.revenue": "Revenue",

@@ -1,18 +1,6 @@
+import React from "react"
 import { connect } from 'react-redux'
 
-const mapStateToProps = state => 
-    ({
-        settings: state.app.settings.data
-    })
-
-// const mapDispatchToProps = dispatch =>
-//     ({
-//        setPageTitle(title) {
-//            dispatch(appOperations.setPageTitle(title))
-//        }
-//     })
-
-import React from "react"
 
 const Currency = ({settings, amount}) =>
     <span>
@@ -20,13 +8,11 @@ const Currency = ({settings, amount}) =>
         {amount.toFixed(2)}
     </span>
 
-// const SubscriptionsContainer = withRouter(injectIntl(connect(
-//     mapStateToProps,
-//     mapDispatchToProps
-// )(Subscriptions)))
 
-// export default SubscriptionsContainer
-
+const mapStateToProps = state => 
+    ({
+        settings: state.app.settings.data
+    })
 
 const ConnectedCurrency = connect(
     mapStateToProps
