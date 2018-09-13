@@ -1,6 +1,6 @@
 import {
-    requestShopSchoolSubscriptions as request_subscriptions,
-    receiveShopSchoolSubscriptions as receive_subscriptions,
+    requestShopSchoolMemberships as request_memberships,
+    receiveShopSchoolMemberships as receive_memberships,
 } from './actions'
 
 import axios_os from '../../../../../utils/axios_os'
@@ -10,14 +10,14 @@ import OS_API from '../../../../../utils/os_api'
 // Put pass-through actions here
 
 // data fetchers
-const fetchShopSubscriptions = () => {
+const fetchShopMemberships = () => {
       return dispatch => {
-          dispatch(request_subscriptions())
+          dispatch(request_memberships())
 
-          axios_os.get(OS_API.SHOP_SCHOOL_SUBSCRIPTIONS)
+          axios_os.get(OS_API.SHOP_SCHOOL_MEMBERSHIPS)
           .then(function (response) {
             // handle success
-            dispatch(receive_subscriptions(response.data))
+            dispatch(receive_memberships(response.data))
             // dispatch(setLoadingProgress(100))
           })
           .catch(function (error) {
@@ -32,5 +32,5 @@ const fetchShopSubscriptions = () => {
 
 
 export default {
-    fetchShopSubscriptions
+    fetchShopMemberships
 }
