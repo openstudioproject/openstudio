@@ -5,9 +5,9 @@ import PropTypes from "prop-types"
 import ShopTemplate from '../../components/ShopTemplate'
 import SchoolMenu from '../components/SchoolMenu'
 
-import SubscriptionsList from './MembershipsList'
+import MembershipsList from './MembershipsList'
 
-class Subscriptions extends Component {
+class Memberships extends Component {
     constructor(props) {
         super(props)
         console.log(props)
@@ -33,8 +33,8 @@ class Subscriptions extends Component {
                 { this.props.loaded ? 
                      <SchoolMenu>
                          <br /><br />
-                         <SubscriptionsList subscriptions={this.props.subscriptions} 
-                                            currency_symbol={this.props.settings.currency_symbol} 
+                         <MembershipsList memberships={this.props.memberships} 
+                                          currency_symbol={this.props.settings.currency_symbol} 
                                             />
                      </SchoolMenu> :
                      "Loading..."
@@ -44,4 +44,4 @@ class Subscriptions extends Component {
     }
 }
 
-export default Subscriptions
+export default Memberships

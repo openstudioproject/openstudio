@@ -1,24 +1,24 @@
 import React, {Component} from "react"
 import { v4 } from "uuid"
 
-import SubscriptionsListItem from "./MembershipsListItem";
+import MembershipsListItem from "./MembershipsListItem";
 
 
-class SubscriptionsList extends Component {
+class MembershipsList extends Component {
     constructor(props) {
         super(props)
     }
 
-    populateRows = (subscriptions) => {
+    populateRows = (memberships) => {
         let container = []
         let children = []
-        subscriptions.map((card, i) => {
+        memberships.map((membership, i) => {
             console.log(i)
-            console.log(card)
-            children.push(<SubscriptionsListItem key={"card_" + v4()}
-                                                 data={card}
-                                                 currency_symbol={this.props.currency_symbol} />)
-            if (( (i+1) % 3 ) === 0 || i+1 == subscriptions.length)  {
+            console.log(membership)
+            children.push(<MembershipsListItem key={"membership_" + v4()}
+                                               data={membership}
+                                               currency_symbol={this.props.currency_symbol} />)
+            if (( (i+1) % 3 ) === 0 || i+1 == memberships.length)  {
                 console.log('pushing')
                 console.log(children)
                 container.push(<div className="row" key={"row_" + v4()}>{children}</div>)
@@ -30,13 +30,13 @@ class SubscriptionsList extends Component {
     }
     
     render() {
-        const subscriptions = this.props.subscriptions
+        const memberships = this.props.memberships
 
-        console.log(subscriptions.length)
+        console.log(memberships.length)
         return (
-            this.populateRows(subscriptions)
+            this.populateRows(memberships)
         )
     }
 }
 
-export default SubscriptionsList
+export default MembershipsList

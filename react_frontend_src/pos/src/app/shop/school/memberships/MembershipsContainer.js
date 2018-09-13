@@ -3,14 +3,14 @@ import { injectIntl } from 'react-intl';
 import { withRouter } from 'react-router'
 
 import { appOperations } from '../../../duck'
-import Subscriptions from './Memberships';
+import Memberships from './Memberships';
 
 
 const mapStateToProps = state => 
     ({
         app: state.app,
-        loaded: state.shop.school.subscriptions.loaded,
-        subscriptions: state.shop.school.subscriptions.data,
+        loaded: state.shop.school.memberships.loaded,
+        memberships: state.shop.school.memberships.data,
         settings: state.app.settings.data
     })
 
@@ -21,9 +21,9 @@ const mapDispatchToProps = dispatch =>
         }
     })
 
-const SubscriptionsContainer = withRouter(injectIntl(connect(
+const MembershipsContainer = withRouter(injectIntl(connect(
     mapStateToProps,
     mapDispatchToProps
-)(Subscriptions)))
+)(Memberships)))
 
-export default SubscriptionsContainer
+export default MembershipsContainer
