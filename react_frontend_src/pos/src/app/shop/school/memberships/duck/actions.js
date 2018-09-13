@@ -1,25 +1,25 @@
 import T from './types'
 
 
-export const requestShopSchoolSubscriptions = () =>
+export const requestShopSchoolMemberships = () =>
     ({
-        type: T.SHOP_SCHOOL_REQUEST_SUBSCRIPTIONS
+        type: T.SHOP_SCHOOL_REQUEST_MEMBERSHIPS
     })
 
-export const receiveShopSchoolSubscriptions = (data) =>
+export const receiveShopSchoolMemberships = (data) =>
     ({
-        type: T.SHOP_SCHOOL_RECEIVE_SUBSCRIPTIONS,
+        type: T.SHOP_SCHOOL_RECEIVE_MEMBERSHIPS,
         data
     })
 
-export const setShopSchoolSubscriptionsLoaded = (loaded) =>
+export const setShopSchoolMembershipsLoaded = (loaded) =>
     ({
-        type: T.SHOP_SCHOOL_SET_SUBSCRIPTIONS_LOADED,
+        type: T.SHOP_SCHOOL_SET_MEMBERSHIPS_LOADED,
         loaded
     })
 
-export const setShopSchoolSubscriptionsLoading = (loading) =>
+export const setShopSchoolMembershipsLoading = (loading) =>
     ({
-        type: T.SHOP_SCHOOL_SET_SUBSCRIPTIONS_LOADING,
+        type: T.SHOP_SCHOOL_SET_MEMBERSHIPS_LOADING,
         loading
     })
