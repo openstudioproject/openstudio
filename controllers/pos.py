@@ -369,3 +369,53 @@ def get_school_subscriptions():
 
     return dict(data=data)
 
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'school_memberships'))
+def get_school_subscriptions():
+    """
+    List of not archived school classcards
+    Sorted by Name
+    """
+    set_headers()
+
+    query = """
+        SELECT sm.Name,
+               sm.SortOrder,
+               sm.Description,
+               sm.Classes,
+               sm.SubscriptionUnit,
+               sm.Unlimited,
+               smp.Price
+        FROM school_memberships sm
+        LEFT JOIN
+        ( SELECT school_memberships_id, 
+                 Price
+          FROM school_shool_memberships_price
+          WHERE Startdate <= '{today}' AND
+                (Enddate >= '{today}' OR Enddate IS NULL) 
+        ) smp ON sm.id = smp.school_memberships_id
+        WHERE sm.PublicMembership = 'T' AND sm.Archived = 'F'
+        ORDER BY sm.Name
+    """.format(today=TODAY_LOCAL)
+
+    fields = [ db.school_memberships.Name,
+               db.school_memberships.Description,
+               db.school_memberships.Validity,
+               db.school_memberships.ValidityUnit,
+               db.school_memberships_price.Price ]
+
+    rows = db.executesql(query, fields=fields)
+
+    data = []
+    for row in rows:
+        data.append({
+            'Name': row.school_memberships.Name,
+            'Description': row.school_memberships.Description or '',
+            'Validity': row.school_memberships.Validity,
+            'ValidityUnit': row.school_memberships.ValidityUnit,
+            'Price': row.school_memberships_price.Price
+        })
+
+    return dict(data=data)
+
