@@ -24,6 +24,11 @@ class NavTabs extends Component {
                         {intl.formatMessage({ id:"app.general.strings.subscriptions" })}
                     </NavLink>
                 </li>
+                <li className={this.getNavLinkClass("/products/school/memberships")} role="presetation">
+                    <NavLink to="/products/school/memberships" activeClassName={activeClassName}>
+                        {intl.formatMessage({ id:"app.general.strings.memberships" })}
+                    </NavLink>
+                </li>
             </ul>
          )};
    }

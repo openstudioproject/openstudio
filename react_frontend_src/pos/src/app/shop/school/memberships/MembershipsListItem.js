@@ -2,13 +2,31 @@ import React from "react"
 import { withRouter } from 'react-router-dom'
 import { injectIntl } from 'react-intl';
 
-// import Check from '../../../components/ui/Check'
-// import Label from '../../../components/ui/Label'
-
 import Currency from '../../../../components/ui/Currency'
 
 
-const ClasscardsListItem = injectIntl(withRouter(({data, intl}) => 
+const representValidityUnit = ( Validity, ValidityUnit, intl ) => {
+    let unit
+    switch (ValidityUnit) {
+        case 'day':
+            unit = intl.formatMessage({ id:"app.general.strings.day" })
+        case 'week':
+            unit = intl.formatMessage({ id:"app.general.strings.week" })
+        case 'month':
+            unit = intl.formatMessage({ id:"app.general.strings.month" })
+        default:
+            unit = intl.formatMessage({ id:"app.general.strings.unknown" })
+    }
+
+    if (Validity != 1) {
+        unit = unit + 's'
+    }
+
+    return <span>{Validity} {unit}</span>
+}
+
+
+const MembershipsListItem = injectIntl(withRouter(({data, intl}) => 
     <div className="col-md-4">
         <div className="panel panel-default">
             <div className="panel-heading">
@@ -18,19 +36,13 @@ const ClasscardsListItem = injectIntl(withRouter(({data, intl}) =>
                     <tbody>
                         <tr>
                             <td>{intl.formatMessage({ id:"app.general.strings.validity" })}</td>
-                            <td>{data.ValidityDisplay}</td>
-                        </tr>
-                        <tr>
-                            <td>{intl.formatMessage({ id:"app.general.strings.classes" })}</td>
-                            <td>{data.Classes}</td>
+                            <td>{representValidityUnit(data.Validity, data.ValidityUnit, intl)}</td>
                         </tr>
                         <tr>
                             <td>{intl.formatMessage({ id:"app.general.strings.price" })}</td>
-                            <td>
-                                {(data.Price) ? 
-                                     <Currency amount={data.Price} /> : 
-                                     intl.formatMessage({ id:"app.general.strings.not_set"}) }
-                            </td>
+                            <td>{(data.Price) ? 
+                                    <Currency amount={data.Price} /> : 
+                                    intl.formatMessage({ id:"app.general.strings.not_set"}) }</td>
                         </tr>
                         <tr>
                             <td>{intl.formatMessage({ id:"app.general.strings.description" })}</td>
@@ -43,4 +55,4 @@ const ClasscardsListItem = injectIntl(withRouter(({data, intl}) =>
 ))
 
 
-export default ClasscardsListItem
+export default MembershipsListItem

@@ -43,6 +43,11 @@
                 "loaded": false,
                 "loading": false
             },
+            "memberships": {
+                "data": {},
+                "loaded": false,
+                "loading": false
+            },
             "subscriptions": {
                 "data": {},
                 "loaded": false,
