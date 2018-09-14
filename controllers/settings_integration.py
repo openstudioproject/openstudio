@@ -52,20 +52,7 @@ def exact_online():
     """
     from general_helpers import set_form_id_and_get_submit_button
     from openstudio.os_exact_online import OSExactOnline
-    # import os
-    # from ConfigParser import NoOptionError
-    # from general_helpers import set_form_id_and_get_submit_button
-    # from exactonline.storage import IniStorage
-    #
-    #
-    # config_file = os.path.join(
-    #     request.folder,
-    #     'private',
-    #     'eo_config.ini'
-    # )
-    #
-    # storage = IniStorage(config_file)
-
+    from ConfigParser import NoOptionError
 
     response.title = T("Settings")
     response.subtitle = T("Integration")
