@@ -2201,7 +2201,7 @@ def tickets_list_customers_get_list(table,
             cust_name.append(get_cancelled_label())
 
         if row.workshops_products_customers.Waitinglist:
-            wai_url = URL('product_remove_customer_from_waitinglist',
+            wai_url = URL('ticket_remove_customer_from_waitinglist',
                           vars={'wsp_cuID': wsp_cuID,
                                 'wsID': wsID})
             if fullWS:
