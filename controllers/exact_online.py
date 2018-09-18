@@ -136,13 +136,7 @@ def logistics_items():
     except NoOptionError:
         selected_division = None
 
-    # items = api.rest(GET('v1/%s/logistics/Items' % selected_division))
     items = api.logisticsitems.all()
-
-    # import pprint
-    # pp = pprint.PrettyPrinter(depth=6)
-    # pp.pprint(items)
-
 
     header = THEAD(TR(
         TH('Exact Item Code'),
