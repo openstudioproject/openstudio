@@ -111,6 +111,66 @@ def divisions():
 
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
+def logistics_items():
+    """
+    List items
+    """
+    from ConfigParser import NoOptionError
+    from openstudio.os_exact_online import OSExactOnline
+
+    from exactonline.exceptions import ObjectDoesNotExist
+    from exactonline.resource import GET, POST, PUT, DELETE
+
+    from openstudio.os_gui import OsGui
+
+    response.title = T("Exact online")
+    response.subtitle = T("Items")
+    response.view = 'general/only_content.html'
+
+    os_gui = OsGui()
+    os_eo = OSExactOnline()
+    api = os_eo.get_api()
+    storage = os_eo.get_storage()
+    try:
+        selected_division = int(storage.get('transient', 'division'))
+    except NoOptionError:
+        selected_division = None
+
+    items = api.rest(GET('v1/%s/logistics/Items' % selected_division))
+
+    # import pprint
+    # pp = pprint.PrettyPrinter(depth=6)
+    # pp.pprint(items)
+
+
+    header = THEAD(TR(
+        TH('Exact Item Code'),
+        TH('Exact Item ID'),
+    ))
+
+    table = TABLE(header, _class="table table-striped table-hover")
+
+    for item in items:
+        tr = TR(
+            TD(item['Code']),
+            TD(item['ID'])
+        )
+
+        table.append(tr)
+
+    content = table
+
+    back = os_gui.get_button(
+        'back',
+        URL('settings_integration', 'exact_online')
+    )
+
+    return dict(content=content,
+                back=back)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'settings'))
 def division_set_default():
     """
     Set default division

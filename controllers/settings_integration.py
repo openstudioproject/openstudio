@@ -51,6 +51,11 @@ def exact_online_tools():
               _href=URL('exact_online', 'authorize'),
               _title=T("Authorize")),
         )
+        links.append(
+            A(SPAN(_class="fa fa-list"), " ", T("Logistics / Items"),
+              _href=URL('exact_online', 'logistics_items'),
+              _title=T("Logistics / Items")),
+        )
 
     tools = os_gui.get_dropdown_menu(links,
                                      '',
