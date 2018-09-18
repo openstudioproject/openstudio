@@ -12,9 +12,6 @@ class BankAccounts(Manager):
     resource = 'crm/BankAccounts'
     
     def filter(self, account=None, **kwargs):
-		# $select=Account
-        # if 'select' not in kwargs:
-            # kwargs['select'] = 'Account'
 		
         if account is not None:
             remote_id = self._remote_account(account)
