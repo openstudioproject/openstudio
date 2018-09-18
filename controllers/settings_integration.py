@@ -26,10 +26,13 @@ def exact_online_tools():
     """
     Get tools for exact online integration
     """
+    #TODO: Add authorize button that sets sys_property when authorized.
+
+    # A(SPAN(_class="fa fa-lock"), " ", T("Authorize"),
+    #   _href=URL('exact_online', 'authorize'),
+    #   _title=T("Authorize")),
+
     links = [
-        A(SPAN(_class="fa fa-lock"), " ", T("Authorize"),
-          _href=URL('exact_online', 'authorize'),
-          _title=T("Authorize")),
         A(SPAN(_class="fa fa-bank"), " ", T("Divisions"),
           _href=URL('exact_online', 'divisions'),
           _title=T("Divisions")),
