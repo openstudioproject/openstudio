@@ -30,6 +30,9 @@ def oauth2_success():
     # Set transient api client access data like access code, token and expiry
     api.request_token(code)
 
+    # Set authorized to true in database
+    set_sys_property('exact_online_authorized', 'True')
+
     session.flash = T("Authorization success! You can now select a default division.")
     redirect(URL('divisions'))
 

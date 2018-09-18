@@ -28,9 +28,16 @@ def exact_online_tools():
     """
     #TODO: Add authorize button that sets sys_property when authorized.
 
-    # A(SPAN(_class="fa fa-lock"), " ", T("Authorize"),
-    #   _href=URL('exact_online', 'authorize'),
-    #   _title=T("Authorize")),
+    eo_authorized = get_sys_property('exact_online_authorized')
+
+    authorize = os_gui.get_button(
+        'noicon',
+        URL('exact_online', 'authorize'),
+        title=T('Authorize'),
+        btn_class='btn-success',
+        btn_size='',
+        _class='pull-right'
+    )
 
     links = [
         A(SPAN(_class="fa fa-bank"), " ", T("Divisions"),
@@ -38,13 +45,22 @@ def exact_online_tools():
           _title=T("Divisions")),
     ]
 
+    if eo_authorized == 'True':
+        authorize = ''
+
+        links.append(
+            A(SPAN(_class="fa fa-repeat"), " ", T("Re-authorize"),
+              _href=URL('exact_online', 'authorize'),
+              _title=T("Authorize")),
+        )
+
     tools = os_gui.get_dropdown_menu(links,
                                      '',
                                      btn_size='',
                                      btn_icon='wrench',
                                      menu_class='pull-right' )
 
-    return tools
+    return SPAN(authorize, tools)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
