@@ -124,7 +124,7 @@ def logistics_items():
     from openstudio.os_gui import OsGui
 
     response.title = T("Exact online")
-    response.subtitle = T("Items")
+    response.subtitle = T("Logistics Items")
     response.view = 'general/only_content.html'
 
     os_gui = OsGui()
@@ -140,6 +140,7 @@ def logistics_items():
 
     header = THEAD(TR(
         TH('Exact Item Code'),
+        TH('Exact Item Description'),
         TH('Exact Item ID'),
     ))
 
@@ -148,6 +149,7 @@ def logistics_items():
     for item in items:
         tr = TR(
             TD(item['Code']),
+            TD(item['Description']),
             TD(item['ID'])
         )
 
