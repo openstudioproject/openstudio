@@ -11,12 +11,12 @@ def integration_get_menu(page):
         [ 'exact_online',
           T('Exact online'),
           URL('exact_online')],
-        [ 'mollie',
-          T('Mollie'),
-          URL('mollie') ],
         [ 'mailchimp',
           T('MailChimp'),
           URL('mailchimp') ],
+        ['mollie',
+         T('Mollie'),
+         URL('mollie')],
     ]
 
     return os_gui.get_submenu(pages, page, horizontal=True, htype='tabs')
@@ -26,8 +26,6 @@ def exact_online_tools():
     """
     Get tools for exact online integration
     """
-    #TODO: Add authorize button that sets sys_property when authorized.
-
     eo_authorized = get_sys_property('exact_online_authorized')
 
     authorize = os_gui.get_button(
