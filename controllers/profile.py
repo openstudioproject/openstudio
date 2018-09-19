@@ -109,7 +109,11 @@ def index_get_upcoming_classes(customer):
     rows = customer.get_classes_attendance_rows(upcoming=True)
 
     if not rows:
-        table = T('No upcoming classes')
+        table = SPAN(T('No upcoming classes.'), BR(), BR(),
+                     T("Click "),
+                     A(T("here"),
+                       _href=URL('shop', 'classes')), ' ',
+                     T("to book a class."))
     else:
         header = THEAD(TR(TH(T('Date')),
                           TH(T('Time')),
@@ -173,7 +177,11 @@ def index_get_upcoming_events(customer):
     rows = customer.get_workshops_rows(upcoming=True)
 
     if not rows:
-        table = T('No upcoming events')
+        table = SPAN(T('No upcoming events.'), BR(), BR(),
+                     T("Click "),
+                     A(T("here"),
+                       _href=URL('shop', 'events')), ' ',
+                     T("to book an events."))
     else:
         header = THEAD(TR(TH(T('Date')),
                           TH(T('Event')),
@@ -214,7 +222,11 @@ def index_get_classcards(customer):
     rows = customer.get_classcards(TODAY_LOCAL, from_cache=False)
 
     if not rows:
-        table = T("No current class cards")
+        table = SPAN(T("No current class cards."), BR(), BR(),
+                     T("Click "),
+                     A(T("here"),
+                       _href=URL('shop', 'classcards')), ' ',
+                     T("to buy a class card."))
     else:
         header = THEAD(TR(TH(T('Card')),
                           TH(T('Expires')),
@@ -254,7 +266,11 @@ def index_get_subscriptions(customer):
     rows = customer.get_subscriptions_on_date(TODAY_LOCAL, from_cache=False)
 
     if not rows:
-        table = T('No current subscriptions')
+        table = SPAN(T('No current subscriptions.'), BR(), BR(),
+                     T("Click "),
+                     A(T("here"),
+                       _href=URL('shop', 'subscriptions')), ' ',
+                     T("to get a subscription."))
     else:
         header = THEAD(TR(TH(T('#')),
                           TH(T('Subscription')),
@@ -297,7 +313,11 @@ def index_get_memberships(customer):
     rows = customer.get_memberships_on_date(TODAY_LOCAL, from_cache=False)
 
     if not rows:
-        table = T('No current memberships')
+        table = SPAN(T('No current memberships.'), BR(), BR(),
+                     T("Click "),
+                     A(T("here"),
+                       _href=URL('shop', 'memberships')), ' ',
+                     T("to get a membership."))
     else:
         header = THEAD(TR(TH(T('#')),
                           TH(T('Membership')),
