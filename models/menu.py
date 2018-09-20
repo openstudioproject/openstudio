@@ -76,7 +76,7 @@ def ep_menu():
     menu.append([(  # I(_class='fa fa-home'),
         SPAN(T('My Claims'))),
         False,
-        URL('ep', 'my_claims_classes', extension='')])
+        URL('ep', 'my_claims', extension='')])
 
     menu.append([(  # I(_class='fa fa-home'),
         SPAN(T('Back end'))),

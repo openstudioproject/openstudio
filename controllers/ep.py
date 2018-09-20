@@ -621,7 +621,7 @@ def my_claims_generate_invoices(year, month):
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'teachers_payment_attendance'))
-def my_claims_classes():
+def my_claims():
     """
 
     :return:
@@ -654,18 +654,18 @@ def my_claims_classes():
     if create_permission:
         verify_all = os_gui.get_button(
             'noicon',
-            URL('my_claims_classes_verify_all'),
+            URL('my_claims_verify_all'),
             title=T("Verify all"),
-            tooltip="Verify all listed classes",
+            tooltip="Verify all listed claims",
             btn_class='btn-primary'
         )
 
     if update_permission:
         check_classes = os_gui.get_button(
             'noicon',
-            URL('my_claims_find_classes'),
-            title=T("Find classes"),
-            tooltip=T("Find classes in range of dates that are not yet registered for teacher payment")
+            URL('my_claims_find_caims'),
+            title=T("Find claims"),
+            tooltip=T("Find claims in range of dates that are not yet registered for teacher payment")
         )
 
     tools = DIV(
@@ -728,7 +728,7 @@ def my_claims_classes():
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('create', 'teachers_payment_classes'))
-def my_claims_find_classes():
+def my_claims_find_claims():
     """
     :return: None
     """
@@ -736,15 +736,15 @@ def my_claims_find_classes():
     from general_helpers import set_form_id_and_get_submit_button
 
     response.title = T('Teacher payments')
-    response.subtitle = T('Find classes')
-    response.view = 'general/only_content.html'
+    response.subtitle = T('Find claims')
+    response.view = 'ep/only_content.html'
 
     # Add some explanation
     content = DIV(
-        B(T("Choose a period to check for classes not yet in Not verfied, verified or processed.")), BR(), BR(),
+        B(T("Choose a period to check for claims not yet in Not verfied, verified or processed.")), BR(), BR(),
     )
 
-    return_url = URL('teacher_payment_classes', vars={'status': 'not_verified'})
+    return_url = URL('my_claims', vars={'status': 'not_verified'})
 
     # choose period and then do something
     form = SQLFORM.factory(
@@ -801,7 +801,7 @@ def my_claims_find_classes():
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'teachers_payment_classes'))
-def my_claims_classes_verify_all():
+def my_claims_verify_all():
     """
     Verify all not-verified classes
     :return: None
@@ -863,34 +863,34 @@ def my_claims_attendance_class_unverify():
     redirect(URL('teacher_payment_classes', vars={'status': 'not_verified'}))
 
 
-# @auth.requires(auth.has_membership(group_id='Admins') or \
-#                auth.has_permission('create', 'invoices'))
-# def my_claims_classes_process_verified():
-#     """
-#     Process verified classes; create credit invoices based on verified classes
-#     :return:
-#     """
-#     from openstudio.os_teachers_payment_classes import TeachersPaymentClasses
-#
-#     tpc = TeachersPaymentClasses()
-#     count_processed = tpc.process_verified()
-#
-#     classes = T('classes')
-#     if count_processed == 1:
-#         classes = T("class")
-#
-#     session.flash = SPAN(
-#         T("Processed"), ' ',
-#         count_processed, ' ',
-#         classes
-#     )
-#
-#     redirect(URL('teacher_payment_classes', vars={'status': 'processed'}))
-#
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('create', 'invoices'))
+def my_claims_classes_process_verified():
+    """
+    Process verified classes; create credit invoices based on verified classes
+    :return:
+    """
+    from openstudio.os_teachers_payment_classes import TeachersPaymentClasses
+
+    tpc = TeachersPaymentClasses()
+    count_processed = tpc.process_verified()
+
+    classes = T('classes')
+    if count_processed == 1:
+        classes = T("class")
+
+    session.flash = SPAN(
+        T("Processed"), ' ',
+        count_processed, ' ',
+        classes
+    )
+
+    redirect(URL('teacher_payment_classes', vars={'status': 'processed'}))
+
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('create', 'invoices'))
-def my_claims_classes_process_choose_dates():
+def my_claims_process_choose_dates():
     """
     :return: None
     """
@@ -906,7 +906,7 @@ def my_claims_classes_process_choose_dates():
         B(T("Choose a period within which to process verified classes.")), BR(), BR(),
     )
 
-    return_url = URL('my_claims_classes', vars={'status': 'not_verified'})
+    return_url = URL('my_claims', vars={'status': 'not_verified'})
 
     # choose period and then do something
     form = SQLFORM.factory(
