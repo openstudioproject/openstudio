@@ -42,15 +42,15 @@ class OSExactOnline:
         return MyIniStorage(config_file)
 
 
-    def create_relation(self, os_customer_obj):
+    def create_relation(self, os_customer):
         """
-        :param os_customer_obj: OsCustomer object
+        :param os_customer: OsCustomer object
         :return:
         """
         from tools import OsTools
 
         os_tools = OsTools()
-        authorized = get_sys_property('exact_online_authorized')
+        authorized = os_tools.get_sys_property('exact_online_authorized')
 
         if not authorized:
             return
@@ -73,10 +73,10 @@ class OSExactOnline:
             print selected_division
 
             relation_dict = {
-                "Name": os_customer_obj.row.display_name,
-                "Code": os_customer_obj.row.id,
+                "Name": os_customer.row.display_name,
+                "Code": os_customer.row.id,
                 "Division": selected_division,
-                "Email": os_customer_obj.row.email,
+                "Email": os_customer.row.email,
                 "Status": "C" # Customer
             }
 

@@ -20,6 +20,8 @@ class Customer:
 
 
     def refresh_row(self):
+        db = current.db
+
         self.row = db.auth_user(self.cuID)
 
 

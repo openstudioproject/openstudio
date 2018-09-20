@@ -69,7 +69,7 @@ class OsTools:
         return validity
 
 
-    def set_sys_property(property, value):
+    def set_sys_property(self, property, value):
         """
         :param property: string - name of sys property
         :return: None
@@ -91,7 +91,7 @@ class OsTools:
         ocm.clear_sys_properties()
 
 
-    def _get_sys_property(value=None, value_type=None):
+    def _get_sys_property(self, value=None, value_type=None):
         """
             Returns the value of a property in db.sys_properties
         """
@@ -111,22 +111,25 @@ class OsTools:
         return property_value
 
 
-    def get_sys_property(value=None, value_type=None):
+    def get_sys_property(self, value=None, value_type=None):
         """
         :param value: db.sys_properties.Property
         :param value_type: Python data type eg. int
         :return: db.sys_properties.PropertyValue
         """
         cache = current.cache
+        web2pytest = current.web2pytest
+        request = current.request
+        CACHE_LONG = current.CACHE_LONG
 
         cache_key = 'openstudio_system_property_' + value
 
         # Don't cache when running tests
         if web2pytest.is_running_under_test(request, request.application):
-            sprop = _get_sys_property(value, value_type)
+            sprop = self._get_sys_property(value, value_type)
         else:
             sprop = cache.ram(cache_key,
-                              lambda: _get_sys_property(value, value_type),
+                              lambda: self._get_sys_property(value, value_type),
                               time_expire=CACHE_LONG)
 
         return sprop

@@ -4896,7 +4896,7 @@ def define_mollie_log_webhook():
 
 def define_integration_exact_online_log():
     db.define_table('integration_exact_online_log',
-        Field('Action'),
+        Field('ActionName'),
         Field('Status',
             requires=IS_IN_SET(
                 ['success', T("Success")],

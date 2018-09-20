@@ -202,42 +202,6 @@ def relations():
     return locals()
 
 
-#TODO: Remove for production
-def create_relation():
-    import pprint
-
-    from ConfigParser import NoOptionError
-    from openstudio.os_exact_online import OSExactOnline
-
-    os_eo = OSExactOnline()
-    storage = os_eo.get_storage()
-    api = os_eo.get_api()
-
-    try:
-        selected_division = int(storage.get('transient', 'division'))
-    except NoOptionError:
-        selected_division = None
-
-    print "division:"
-    print selected_division
-
-    relation_dict = {
-        "Name": "API Test - Code",
-        "Code": str(2343243241),
-        "Division": selected_division,
-        "Email": "edwinvandeven@home.nl",
-        "Status": "C"
-    }
-
-    result = api.relations.create(relation_dict)
-    rel_id = result['ID']
-    print rel_id
-
-    pp = pprint.PrettyPrinter(depth=6)
-    pp.pprint(result)
-    return result
-
-
 #TODO: remove for production
 def update_relation():
     # eoID = "e984cfcb-80c9-46d7-b6b2-b2b6e60d09fb"

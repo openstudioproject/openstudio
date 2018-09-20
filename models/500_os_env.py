@@ -572,7 +572,6 @@ def LTE_MENU(menu, _class, li_class, ul_class):
 
     return lte_menu
 
-
 CACHE_LONG = myconf.get('cache.max_cache_time') # 3 days
 GENDERS = set_genders()
 VALIDITY_UNITS = set_validity_units()
