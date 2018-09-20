@@ -618,6 +618,10 @@ def edit_get_customer_info(invoice, form):
     info = DIV(
         LABEL(form.custom.label.CustomerCompany),
         form.custom.widget.CustomerCompany,
+        LABEL(form.custom.label.CustomerCompanyRegistration),
+        form.custom.widget.CustomerCompanyRegistration,
+        LABEL(form.custom.label.CustomerCompanyTaxRegistration),
+        form.custom.widget.CustomerCompanyTaxRegistration,
         LABEL(form.custom.label.CustomerName),
         form.custom.widget.CustomerName,
         LABEL(form.custom.label.CustomerAddress),
