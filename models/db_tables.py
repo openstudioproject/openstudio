@@ -2382,6 +2382,9 @@ def define_customers_payment_info():
         Field('BankLocation',
             represent=lambda value, row: value or "",
             label=T("Bank location")),
+        Field('exact_online_bankaccount_id',
+            readable=False,
+            writable=False),
         singular=T("Bank details"), plural=T("Bank details")
         )
 

@@ -201,68 +201,68 @@ def relations():
 
     return locals()
 
-
-def bankaccount_get():
-    eoID = "e984cfcb-80c9-46d7-b6b2-b2b6e60d09fb"
-
-    import pprint
-
-    from ConfigParser import NoOptionError
-    from openstudio.os_exact_online import OSExactOnline
-    from exactonline.http import HTTPError
-
-    os_eo = OSExactOnline()
-    storage = os_eo.get_storage()
-    api = os_eo.get_api()
-
-    # result = api.bankaccounts.all()
-    result = api.bankaccounts.filter(account=eoID)
-
-    pp = pprint.PrettyPrinter(depth=6)
-    pp.pprint(result)
-
-    return 'success'
-
-
-def bankaccount_create():
-    eoID = "e984cfcb-80c9-46d7-b6b2-b2b6e60d09fb"
-
-    from ConfigParser import NoOptionError
-    from openstudio.os_exact_online import OSExactOnline
-    from exactonline.http import HTTPError
-
-    os_eo = OSExactOnline()
-    storage = os_eo.get_storage()
-    api = os_eo.get_api()
-
-    bank_account_dict = {
-        'Account': eoID,
-        'BankAccount': 'NL21INGB0009355195'
-    }
-
-    result = api.bankaccounts.create(bank_account_dict)
-
-    pp = pprint.PrettyPrinter(depth=6)
-    pp.pprint(result)
-    return result
+#
+# def bankaccount_get():
+#     eoID = "e984cfcb-80c9-46d7-b6b2-b2b6e60d09fb"
+#
+#     import pprint
+#
+#     from ConfigParser import NoOptionError
+#     from openstudio.os_exact_online import OSExactOnline
+#     from exactonline.http import HTTPError
+#
+#     os_eo = OSExactOnline()
+#     storage = os_eo.get_storage()
+#     api = os_eo.get_api()
+#
+#     # result = api.bankaccounts.all()
+#     result = api.bankaccounts.filter(account=eoID)
+#
+#     pp = pprint.PrettyPrinter(depth=6)
+#     pp.pprint(result)
+#
+#     return 'success'
 
 
-def bankaccount_update():
-    eoID = "e984cfcb-80c9-46d7-b6b2-b2b6e60d09fb"
+# def bankaccount_create():
+#     eoID = "e984cfcb-80c9-46d7-b6b2-b2b6e60d09fb"
+#
+#     from ConfigParser import NoOptionError
+#     from openstudio.os_exact_online import OSExactOnline
+#     from exactonline.http import HTTPError
+#
+#     os_eo = OSExactOnline()
+#     storage = os_eo.get_storage()
+#     api = os_eo.get_api()
+#
+#     bank_account_dict = {
+#         'Account': eoID,
+#         'BankAccount': 'NL21INGB0009355195'
+#     }
+#
+#     result = api.bankaccounts.create(bank_account_dict)
+#
+#     pp = pprint.PrettyPrinter(depth=6)
+#     pp.pprint(result)
+#     return result
 
-    from ConfigParser import NoOptionError
-    from openstudio.os_exact_online import OSExactOnline
-    from exactonline.http import HTTPError
 
-    os_eo = OSExactOnline()
-    storage = os_eo.get_storage()
-    api = os_eo.get_api()
-
-    bank_account_dict = {
-        'Account': eoID,
-        'BankAccount': 'NL21INGB0009355195'
-    }
-
-    print api.bankaccounts.update(bank_account_dict)
+# def bankaccount_update():
+#     eoID = "e984cfcb-80c9-46d7-b6b2-b2b6e60d09fb"
+#
+#     from ConfigParser import NoOptionError
+#     from openstudio.os_exact_online import OSExactOnline
+#     from exactonline.http import HTTPError
+#
+#     os_eo = OSExactOnline()
+#     storage = os_eo.get_storage()
+#     api = os_eo.get_api()
+#
+#     bank_account_dict = {
+#         'Account': eoID,
+#         'BankAccount': 'NL21INGB0009355195'
+#     }
+#
+#     print api.bankaccounts.update(bank_account_dict)
 
 #    api.restv1(POST('crm/BankAccounts', bank_account_dict))

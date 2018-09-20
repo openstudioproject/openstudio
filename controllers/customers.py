@@ -4278,6 +4278,7 @@ def payment_info_add():
         crud.messages.submit_button = T("Save")
         crud.messages.record_created = T("Added payment info")
         crud.settings.create_next = return_url
+        crud.settings.create_onaccept = [payment_info_add_edit_onaccept]
         form = crud.create(db.customers_payment_info)
 
         result = set_form_id_and_get_submit_button(form, 'MainForm')
@@ -4313,6 +4314,7 @@ def payment_info_edit():
     crud.messages.record_updated = T("Updated payment info")
     crud.settings.update_next = return_url
     crud.settings.update_deletable = False
+    crud.settings.update_onaccept = [payment_info_add_edit_onaccept]
     form = crud.update(db.customers_payment_info, piID)
 
     result = set_form_id_and_get_submit_button(form, 'MainForm')
@@ -4322,6 +4324,18 @@ def payment_info_edit():
     back = os_gui.get_button('back', return_url)
 
     return dict(content=form, save=submit, back=back)
+
+
+def payment_info_add_edit_onaccept(form):
+    """
+    :param form: crud form for db.customers_payment_info
+    :return:
+    """
+    from openstudio.os_customers_payment_info import OsCustomersPaymentInfo
+
+    cpiID = form.vars.id
+    cpi = OsCustomersPaymentInfo(cpiID)
+    cpi.on_update()
 
 
 def alternativepayment_get_return_url(customers_id):

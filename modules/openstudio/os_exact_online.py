@@ -66,7 +66,6 @@ class OSExactOnline:
             import pprint
 
             from ConfigParser import NoOptionError
-            from openstudio.os_exact_online import OSExactOnline
             from exactonline.http import HTTPError
 
             storage = self.get_storage()
@@ -145,12 +144,10 @@ class OSExactOnline:
         import pprint
 
         from ConfigParser import NoOptionError
-        from openstudio.os_exact_online import OSExactOnline
         from exactonline.http import HTTPError
 
-        os_eo = OSExactOnline()
-        storage = os_eo.get_storage()
-        api = os_eo.get_api()
+        storage = self.get_storage()
+        api = self.get_api()
 
         try:
             selected_division = int(storage.get('transient', 'division'))
@@ -189,6 +186,136 @@ class OSExactOnline:
 
 
         return dict(error=error, message=message)
+
+
+    def get_bankaccount(self, os_customer):
+        """
+        :param os_customer: OsCustomer object
+        :return: ExactOnline bankaccount for os_customer
+        """
+        eoID = os_customer.row.exact_online_relation_id
+
+        import pprint
+
+        from ConfigParser import NoOptionError
+        from exactonline.http import HTTPError
+
+        storage = self.get_storage()
+        api = self.get_api()
+
+        try:
+            return api.bankaccounts.filter(account=eoID)
+        except HTTPError as e:
+            error = True
+            self._log_error(
+                'get',
+                'bankaccount',
+                os_customer.row.id,
+                e
+            )
+            return False
+
+
+    def create_bankaccount(self, os_customer, os_customer_payment_info):
+        """
+        :param os_customer: OsCustomer object
+        :return: None
+        """
+        from exactonline.http import HTTPError
+        from tools import OsTools
+
+        os_tools = OsTools()
+        authorized = os_tools.get_sys_property('exact_online_authorized')
+
+        if not authorized:
+            self._log_error(
+                'create',
+                'bankaccount',
+                os_customer.row.id,
+                "Exact online integration not authorized"
+            )
+
+            return
+
+        api = self.get_api()
+        eoID = os_customer.row.exact_online_relation_id
+
+        bank_account_dict = {
+            'Account': eoID,
+            'BankAccount': os_customer_payment_info.row.AccountNumber,
+            'BankAccountHolderName': os_customer_payment_info.row.AccountHolder,
+            'BICCode': os_customer_payment_info.row.BIC
+        }
+
+        try:
+            result = api.bankaccounts.create(bank_account_dict)
+            os_customer_payment_info.row.exact_online_bankaccount_id = result['ID']
+            os_customer_payment_info.row.update_record()
+
+        except HTTPError as e:
+            error = True
+            self._log_error(
+                'create',
+                'bankaccount',
+                os_customer_payment_info.row.id,
+                e
+            )
+
+
+    def update_bankaccount(self, os_customer, os_customer_payment_info):
+        """
+        :param os_customer: OsCustomer object
+        :return: None
+        """
+        from exactonline.http import HTTPError
+        from tools import OsTools
+
+        os_tools = OsTools()
+        authorized = os_tools.get_sys_property('exact_online_authorized')
+
+        if not authorized:
+            self._log_error(
+                'update',
+                'bankaccount',
+                os_customer.row.id,
+                "Exact online integration not authorized"
+            )
+
+            return
+
+        api = self.get_api()
+        eoID = os_customer.row.exact_online_relation_id
+
+        exact_account = self.get_bankaccount(os_customer)
+        if not len(exact_account):
+            self.create_bankaccount(os_customer, os_customer_payment_info)
+
+        print exact_account
+
+        bank_account_dict = {
+            'Account': eoID,
+            'BankAccount': os_customer_payment_info.row.AccountNumber,
+            'BankAccountHolderName': os_customer_payment_info.row.AccountHolder,
+            'BICCode': os_customer_payment_info.row.BIC
+        }
+
+        try:
+            print 'updating bank details'
+            print bank_account_dict
+
+            api.bankaccounts.update(
+                os_customer_payment_info.row.exact_online_bankaccount_id,
+                bank_account_dict
+            )
+
+        except HTTPError as e:
+            error = True
+            self._log_error(
+                'update',
+                'bankaccount',
+                os_customer.row.id,
+                e
+            )
 
 
     def _log_error(self, action, object, object_id, result):
