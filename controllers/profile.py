@@ -499,12 +499,110 @@ def me():
 
     content = form
     privacy = me_get_link_privacy()
-
+    menu = me_get_menu(request.function)
     return dict(content = content,
+                menu=menu,
                 header_tools = SPAN(T('Your CustomerID is ') + auth.user.id,
                                     BR(), privacy)
 
                 )
+
+@auth.requires_login()
+def me_payment_info():
+    """
+            Allows users to edit payment information of their profile
+        """
+    from general_helpers import set_form_id_and_get_submit_button
+    response.title = T('Profile')
+    response.subtitle = 'Payment Informaiton'
+    response.view = 'profile/me.html'
+
+
+
+
+    query = (db.customers_payment_info.auth_customer_id == auth.user_id)
+    if db(query).count() < 1:
+        db.customers_payment_info.auth_customer_id.default = auth.user_id
+
+
+        crud.messages.submit_button = T("Save")
+        crud.messages.record_created = T("Added payment info")
+        crud.settings.formstyle = 'divs'
+        crud.settings.create_next = URL('me_payment_info')
+        form = crud.create(db.customers_payment_info)
+
+        result = set_form_id_and_get_submit_button(form, 'MainForm')
+        form = result['form']
+        submit = result['submit']
+    else:
+        db.customers_payment_info.auth_customer_id.default = auth.user_id
+
+
+        crud.messages.submit_button = T("Save")
+        crud.messages.record_created = T("Updated payment info")
+        crud.settings.formstyle = 'divs'
+        crud.settings.create_next = URL('me_payment_info')
+        piID = db.customers_payment_info(customers_id=auth.user_id)
+        form = crud.update(db.customers_payment_info, piID.id)
+
+        result = set_form_id_and_get_submit_button(form, 'MainForm')
+        form = result['form']
+        submit = result['submit']
+
+    form = DIV(
+        form.custom.begin,
+        DIV(DIV(os_gui.get_form_group(form.custom.label.AccountNumber,
+                                      form.custom.widget.AccountNumber),
+                _class='col-md-4'),
+            DIV(os_gui.get_form_group(form.custom.label.AccountHolder,
+                                      form.custom.widget.AccountHolder),
+                _class='col-md-4'),
+            DIV(os_gui.get_form_group(form.custom.label.BIC,
+                                      form.custom.widget.BIC),
+                _class='col-md-4'),
+            _class='row'),
+        DIV(DIV(os_gui.get_form_group(form.custom.label.BankName,
+                                      form.custom.widget.BankName),
+                _class='col-md-4'),
+            DIV(os_gui.get_form_group(form.custom.label.BankLocation,
+                                      form.custom.widget.BankLocation),
+                _class='col-md-4'),
+            _class='row'),
+
+        DIV(INPUT(_type="checkbox",
+                  _id='data_true_and_complete',
+                  _class="iCheck-line-aero"), ' ',
+            LABEL(T("I confirm that the data above is true and complete"),
+                  _for="data_true_and_complete"),
+            _class="form-group"),
+        DIV(DIV(form.custom.submit, _class='col-md-12'),
+            _class='row'),
+        form.custom.end,
+        _class='grid')
+
+    content = form
+    privacy = me_get_link_privacy()
+    menu = me_get_menu(request.function)
+    return dict(content=content,
+                menu=menu,
+                save=submit,
+                header_tools=SPAN(T('Your CustomerID is ') + auth.user.id,
+                                  BR(), privacy)
+
+                )
+
+
+def me_get_menu(page=None):
+    pages = []
+
+    pages.append(['me',
+                  T("General Information"),
+                  URL("me")])
+    pages.append(['me_payment_info',
+                T("Payment Information"),
+                      URL("me_payment_info")])
+
+    return os_gui.get_submenu(pages, page, _id='os-customers_edit_menu', horizontal=True, htype='tabs')
 
 
 def me_get_link_privacy(var=None):
