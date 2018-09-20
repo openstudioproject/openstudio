@@ -16,6 +16,7 @@ def workflow():
     shop_classes_advance_booking_limit = get_sys_property('shop_classes_advance_booking_limit')
     shop_classes_cancellation_limit = get_sys_property('shop_classes_cancellation_limit')
     shop_subscriptions_start = get_sys_property('shop_subscriptions_start')
+
     shop_subscriptions_payment_method = get_sys_property('shop_subscriptions_payment_method')
 
     form = SQLFORM.factory(
@@ -44,7 +45,7 @@ def workflow():
         Field('shop_subscriptions_payment_method',
               default=shop_subscriptions_payment_method,
               requires=IS_IN_SET([
-                  ['direct_debit', T('Direct Debit')],
+                  ['directdebit', T('Direct Debit')],
                   ['mollie', T('Mollie')]],
                   zero=None),
               label=T('Subscriptions Payment Method'),
@@ -98,6 +99,11 @@ def workflow():
         else:
             row.PropertyValue = shop_subscriptions_start
             row.update_record()
+
+        # check shop_subscriptions_payment_method
+        shop_subscriptions_payment_method = request.vars['shop_subscriptions_payment_method']
+        set_sys_property('shop_subscriptions_payment_method',
+                         shop_subscriptions_payment_method)
 
         # Clear cache
         cache_clear_sys_properties()
