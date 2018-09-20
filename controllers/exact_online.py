@@ -202,50 +202,6 @@ def relations():
     return locals()
 
 
-#TODO: remove for production
-def update_relation():
-    # eoID = "e984cfcb-80c9-46d7-b6b2-b2b6e60d09fb"
-    eoID = "e984cfcb-80c9-46d7-b6b2-b2b6e60d09fb"
-
-    import pprint
-
-    from ConfigParser import NoOptionError
-    from openstudio.os_exact_online import OSExactOnline
-    from exactonline.http import HTTPError
-
-    os_eo = OSExactOnline()
-    storage = os_eo.get_storage()
-    api = os_eo.get_api()
-
-    try:
-        selected_division = int(storage.get('transient', 'division'))
-    except NoOptionError:
-        selected_division = None
-
-    print "division:"
-    print selected_division
-
-    relation_dict = {
-        "Name": "API Update two",
-        "Code": str(997543),
-        "Division": selected_division,
-        "Email": "edwin@openstudioproject.com",
-        "Status": "C"
-    }
-
-    try:
-        result = api.relations.update(eoID, relation_dict)
-    except HTTPError:
-        return "Error while executing request"
-
-    # rel_id = result['ID']
-    # print rel_id
-
-    pp = pprint.PrettyPrinter(depth=6)
-    pp.pprint(result)
-    return result
-
-
 def bankaccount_get():
     eoID = "e984cfcb-80c9-46d7-b6b2-b2b6e60d09fb"
 

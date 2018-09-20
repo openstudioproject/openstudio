@@ -45,7 +45,7 @@ class OSExactOnline:
     def create_relation(self, os_customer):
         """
         :param os_customer: OsCustomer object
-        :return:
+        :return: exact online relation id
         """
         from tools import OsTools
 
@@ -60,6 +60,7 @@ class OSExactOnline:
 
             from ConfigParser import NoOptionError
             from openstudio.os_exact_online import OSExactOnline
+            from exactonline.http import HTTPError
 
             storage = self.get_storage()
             api = self.get_api()
@@ -80,13 +81,101 @@ class OSExactOnline:
                 "Status": "C" # Customer
             }
 
-            result = api.relations.create(relation_dict)
-            rel_id = result['ID']
-            print rel_id
+            error = False
 
-            os_customer.row.exact_online_relation_id = rel_id
+            try:
+                result = api.relations.create(relation_dict)
+                rel_id = result['ID']
+                os_customer.row.exact_online_relation_id = rel_id
+
+            except HTTPError as e:
+                error = True
+                self._log_error(
+                    'create',
+                    'relation',
+                    os_customer.row.id,
+                    e
+                )
+
+            if error:
+                return False
 
             return rel_id
+
+
+    def update_relation(self, os_customer):
+        """
+        :param os_customer: OsCustomer object
+        :return: dict(error=True|False, message='')
+        """
+        eoID = os_customer.row.exact_online_relation_id
+        if not eoID:
+            self.create_relation(os_customer)
+            return
+
+        import pprint
+
+        from ConfigParser import NoOptionError
+        from openstudio.os_exact_online import OSExactOnline
+        from exactonline.http import HTTPError
+
+        os_eo = OSExactOnline()
+        storage = os_eo.get_storage()
+        api = os_eo.get_api()
+
+        try:
+            selected_division = int(storage.get('transient', 'division'))
+        except NoOptionError:
+            selected_division = None
+
+        print "division:"
+        print selected_division
+
+        relation_dict = {
+            "Name": os_customer.row.display_name,
+            "Code": os_customer.row.id,
+            "Division": selected_division,
+            "Email": os_customer.row.email,
+            "Status": "C"  # Customer
+        }
+
+        error = False
+        message = ''
+
+        try:
+            result = api.relations.update(eoID, relation_dict)
+        except HTTPError as e:
+            error = True
+            message = e
+
+            self._log_error(
+                'update',
+                'relation',
+                os_customer.row.id,
+                e
+            )
+
+
+        return dict(error=error, message=message)
+
+
+    def _log_error(self, action, object, object_id, message):
+        """
+        :param action: should be in ['create', 'read', 'update', 'delete']
+        :param object: object name
+        :param object_id: object id
+        :param message: string
+        :return: None
+        """
+        db = current.db
+
+        db.integration_exact_online_log.insert(
+            ActionName = action,
+            Object = object,
+            ObjectID = object_id,
+            Message = message,
+            Status = 'fail'
+        )
 
 
 
