@@ -2354,7 +2354,7 @@ def define_customers_payment_info():
             readable=False,
             writable=False,
             label=T('CustomerID')),
-        Field('payment_methods_id', db.payment_methods, required=True,
+        Field('payment_methods_id', db.payment_methods,
             requires=IS_EMPTY_OR(IS_IN_DB(db,'payment_methods.id','%(Name)s',
                                           zero=T("Please select..."))),
             represent=lambda value, row: payment_methods_dict.get(value),

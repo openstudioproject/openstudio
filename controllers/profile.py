@@ -518,11 +518,13 @@ def me_payment_info():
     response.view = 'profile/me.html'
 
 
-
+    db.customers_payment_info.payment_methods_id.default = 3
+    db.customers_payment_info.payment_methods_id.readable = False
+    db.customers_payment_info.payment_methods_id.writable = False
 
     query = (db.customers_payment_info.auth_customer_id == auth.user_id)
     if db(query).count() < 1:
-        db.customers_payment_info.auth_customer_id.default = auth.user_id
+        db.customers_payment_info.auth_customer_id.default = auth.user.id
 
 
         crud.messages.submit_button = T("Save")
@@ -531,18 +533,20 @@ def me_payment_info():
         crud.settings.create_next = URL('me_payment_info')
         form = crud.create(db.customers_payment_info)
 
+        print form.errors
+
         result = set_form_id_and_get_submit_button(form, 'MainForm')
         form = result['form']
         submit = result['submit']
     else:
-        db.customers_payment_info.auth_customer_id.default = auth.user_id
+        db.customers_payment_info.auth_customer_id.default = auth.user.id
 
 
         crud.messages.submit_button = T("Save")
         crud.messages.record_created = T("Updated payment info")
         crud.settings.formstyle = 'divs'
         crud.settings.create_next = URL('me_payment_info')
-        piID = db.customers_payment_info(customers_id=auth.user_id)
+        piID = db.customers_payment_info(auth_customer_id=auth.user.id)
         form = crud.update(db.customers_payment_info, piID.id)
 
         result = set_form_id_and_get_submit_button(form, 'MainForm')
@@ -550,7 +554,7 @@ def me_payment_info():
         submit = result['submit']
 
     form = DIV(
-        form.custom.begin,
+        XML('<form id="MainForm" action="#" enctype="multipart/form-data" method="post">'),
         DIV(DIV(os_gui.get_form_group(form.custom.label.AccountNumber,
                                       form.custom.widget.AccountNumber),
                 _class='col-md-4'),
@@ -575,12 +579,23 @@ def me_payment_info():
             LABEL(T("I confirm that the data above is true and complete"),
                   _for="data_true_and_complete"),
             _class="form-group"),
-        DIV(DIV(form.custom.submit, _class='col-md-12'),
+        DIV(DIV(submit, _class='col-md-12'),
             _class='row'),
         form.custom.end,
         _class='grid')
 
     content = form
+
+    #
+    # checkbox = DIV(
+    #     INPUT(_type="checkbox",
+    #                         _id='data_true_and_complete',
+    #                         _class="iCheck-line-aero"), ' ',
+    #                   LABEL(T("I confirm that the data above is true and complete"),
+    #                         _for="data_true_and_complete"),
+    # )
+    #
+    # content = DIV(form, checkbox)
     privacy = me_get_link_privacy()
     menu = me_get_menu(request.function)
     return dict(content=content,
