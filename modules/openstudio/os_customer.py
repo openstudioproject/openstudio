@@ -16,14 +16,21 @@ class Customer:
         db = current.db
 
         self.cuID = cuID
-        self.row = db.auth_user(cuID)
+        self.refresh_row()
+
+
+    def refresh_row(self):
+        self.row = db.auth_user(self.cuID)
 
 
     def on_create(self):
         """
         Functions to be called when creating a customer
         """
+        from os_exact_online import OSExactOnline
 
+        os_eo = OSExactOnline()
+        os_eo.create_relation(self)
 
 
     def on_update(self):

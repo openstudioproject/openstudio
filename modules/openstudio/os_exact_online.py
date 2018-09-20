@@ -42,6 +42,54 @@ class OSExactOnline:
         return MyIniStorage(config_file)
 
 
+    def create_relation(self, os_customer_obj):
+        """
+        :param os_customer_obj: OsCustomer object
+        :return:
+        """
+        from tools import OsTools
+
+        os_tools = OsTools()
+        authorized = get_sys_property('exact_online_authorized')
+
+        if not authorized:
+            return
+
+        else:
+            import pprint
+
+            from ConfigParser import NoOptionError
+            from openstudio.os_exact_online import OSExactOnline
+
+            storage = self.get_storage()
+            api = self.get_api()
+
+            try:
+                selected_division = int(storage.get('transient', 'division'))
+            except NoOptionError:
+                selected_division = None
+
+            print "division:"
+            print selected_division
+
+            relation_dict = {
+                "Name": os_customer_obj.row.display_name,
+                "Code": os_customer_obj.row.id,
+                "Division": selected_division,
+                "Email": os_customer_obj.row.email,
+                "Status": "C" # Customer
+            }
+
+            result = api.relations.create(relation_dict)
+            rel_id = result['ID']
+            print rel_id
+
+            os_customer.row.exact_online_relation_id = rel_id
+
+            return rel_id
+
+
+
 # class ExactOnlineStorage(ExactOnlineConfig):
 #     def get_response_url(self):
 #         """Configure your custom response URL."""
