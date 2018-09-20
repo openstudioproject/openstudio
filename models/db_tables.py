@@ -1087,6 +1087,12 @@ def define_school_classcards():
             default=False,
             required=True,
             label=T('Trial card')),
+        Field('GLAccount',
+              label=T('G/L Account'),
+              comment=T('General ledger account id in your accounting software')),
+        Field('ArticleID',
+              label=T('Article ID'),
+              comment=T('Article ID of your accounting software')),
         format=format)
 
 
@@ -1157,6 +1163,12 @@ def define_school_memberships():
               label=T('Validity In')),
         Field('Terms', 'text',
               label=T('Terms & conditions')),
+        Field('GLAccount',
+              label= T('G/L Account'),
+              comment= T('General ledger account id in your accounting software')),
+        Field('ArticleID',
+              label= T('Article ID'),
+              comment= T('Article ID of your accounting software')),
         format='%(Name)s'
         )
 
@@ -1348,6 +1360,13 @@ def define_school_subscriptions_price():
             label=T("Monthly Fee incl VAT")),
         Field('tax_rates_id', db.tax_rates,
             label=T('Tax rate')),
+        Field('GLAccount',
+            label=T('G/L Account'),
+            comment=T('General ledger account id in your accounting software')),
+        Field('ArticleID',
+            label=T('Article ID'),
+            comment=T('Article ID of your accounting software'))
+
         )
 
 
@@ -2079,6 +2098,18 @@ def define_classes_price():
             label=T("Membership trial incl. VAT")),
         Field('tax_rates_id_trial_membership', db.tax_rates,
             label=T('Membership trial tax rate')),
+        Field('GLAccountDropIn',
+              label=T('G/L Account Drop-in'),
+              comment=T('General ledger account id in your accounting software')),
+        Field('ArticleIDDropIn',
+              label=T('Article ID Drop-in'),
+              comment=T('Article ID of your accounting software')),
+        Field('GLAccountTrial',
+              label=T('G/L Account Trial Class'),
+              comment=T('General ledger account id in your accounting software')),
+        Field('ArticleIDTrial',
+              label=T('Article ID Trial'),
+              comment=T('Article ID of your accounting software')),
         )
 
 
@@ -3205,6 +3236,12 @@ def define_workshops_products():
             label=T("Donation based"),
             default=False,
             comment=T("Shows 'Donation based' instead of the price in the shop.")),
+        Field('GLAccount',
+              label=T('G/L Account'),
+              comment=T('General ledger account id in your accounting software')),
+        Field('ArticleID',
+              label=T('Article ID'),
+              comment=T('Article ID of your accounting software')),
         format='%(Name)s')
 
 
@@ -4607,7 +4644,13 @@ def define_shop_products_variants():
               label=T('Default variant for a product')),
         Field('VariantCode',
               readable=False,
-              writable=False)
+              writable=False),
+        Field('GLAccount',
+              label=T('G/L Account'),
+              comment=T('General ledger account id in your accounting software')),
+        Field('ArticleID',
+              label=T('Article ID'),
+              comment=T('Article ID of your accounting software'))
     )
 
 
