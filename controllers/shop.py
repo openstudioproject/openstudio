@@ -1115,6 +1115,7 @@ def subscription_redirect():
     content += A(B(T('Continue')),
                 _href=URL('profile', 'me_payment_info'),
                 _class='btn btn-primary')
+    session.payment_information_redirect = URL('shop', 'subscriptions')
     return dict(content = content)
 
 def classes():

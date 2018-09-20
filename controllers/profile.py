@@ -367,6 +367,8 @@ def me():
          title=T("If you change your email address, you'll have to use the new address to login."),
          btn_icon='info')
 
+    session.payment_information_redirect = URL('me')
+
     customer_fields = [
         db.auth_user.first_name,
         db.auth_user.last_name,
@@ -530,10 +532,11 @@ def me_payment_info():
         crud.messages.submit_button = T("Save")
         crud.messages.record_created = T("Added payment info")
         crud.settings.formstyle = 'divs'
-        crud.settings.create_next = URL('me_payment_info')
+        crud.settings.create_next = session.payment_information_redirect
+        # print session.payment_information_redirect
         form = crud.create(db.customers_payment_info)
 
-        print form.errors
+        # print form.errors
 
         result = set_form_id_and_get_submit_button(form, 'MainForm')
         form = result['form']
@@ -545,7 +548,8 @@ def me_payment_info():
         crud.messages.submit_button = T("Save")
         crud.messages.record_created = T("Updated payment info")
         crud.settings.formstyle = 'divs'
-        crud.settings.create_next = URL('me_payment_info')
+        crud.settings.create_next = session.payment_information_redirect
+        # print session.payment_information_redirect
         piID = db.customers_payment_info(auth_customer_id=auth.user.id)
         form = crud.update(db.customers_payment_info, piID.id)
 
@@ -586,16 +590,7 @@ def me_payment_info():
 
     content = form
 
-    #
-    # checkbox = DIV(
-    #     INPUT(_type="checkbox",
-    #                         _id='data_true_and_complete',
-    #                         _class="iCheck-line-aero"), ' ',
-    #                   LABEL(T("I confirm that the data above is true and complete"),
-    #                         _for="data_true_and_complete"),
-    # )
-    #
-    # content = DIV(form, checkbox)
+
     privacy = me_get_link_privacy()
     menu = me_get_menu(request.function)
     return dict(content=content,
@@ -615,7 +610,8 @@ def me_get_menu(page=None):
                   URL("me")])
     pages.append(['me_payment_info',
                 T("Payment Information"),
-                      URL("me_payment_info")])
+                      URL("me_payment_info"),
+                  ])
 
     return os_gui.get_submenu(pages, page, _id='os-customers_edit_menu', horizontal=True, htype='tabs')
 
