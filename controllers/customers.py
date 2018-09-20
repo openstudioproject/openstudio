@@ -180,17 +180,19 @@ def edit_remodel_form(form,
         form.custom.label.country = ''
         form.custom.widget.country = ''
 
-    div_picture = DIV(LABEL(form.custom.label.newsletter),
-                      form.custom.widget.newsletter,
-                      BR(),
-                      picture,
-                      change_picture, ' ',
-                      SPAN(label_id, ' ', customers_id,
-                           _id='customers_id'),
-                      _class='col-md-6')
+    div_picture = DIV(
+        H3(T("Picture")),
+        picture,
+        change_picture, ' ',
+        SPAN(label_id, ' ', customers_id,
+           _id='customers_id'),
+        _class='col-md-6'
+    )
 
     # basic info
-    div_basic_info = DIV( TABLE(
+    div_basic_info = DIV(
+        H3(T("Contact")),
+        TABLE(
             TR( TD(LABEL(form.custom.label.first_name)),
                 TD(form.custom.widget.first_name),
                 ),
@@ -215,9 +217,8 @@ def edit_remodel_form(form,
             TR( TD(LABEL(form.custom.label.mobile)),
                 TD(form.custom.widget.mobile),
                 ),
-            TR( TD(LABEL(form.custom.label.company)),
-                TD(form.custom.widget.company),
-                ),
+            TR( TD(LABEL(form.custom.label.school_languages_id)),
+                TD(form.custom.widget.school_languages_id)),
             TR( TD(LABEL(form.custom.label.emergency)),
                 TD(form.custom.widget.emergency),
                 ),
@@ -242,7 +243,7 @@ def edit_remodel_form(form,
     if not customers_id is None and not customers_id == '':
         if auth.has_membership(group_id='Admins') or \
            auth.has_permission('read', 'customers_notes_backoffice'):
-            bo_label = LABEL(T("Notes"), BR(), T("Back office"))
+            bo_label = LABEL(T("Back office"))
             bo_note = DIV(LOAD('customers', 'notes.load', ajax=True,
                                         target='os-bonote_latest',
                                         vars={'cuID':customers_id,
@@ -253,7 +254,7 @@ def edit_remodel_form(form,
 
         if auth.has_membership(group_id='Admins') or \
            auth.has_permission('read', 'customers_notes_teachers'):
-            te_label = LABEL(T("Notes"), BR(), T("Teachers"))
+            te_label = LABEL(T("Teachers"))
             te_note = DIV(LOAD('customers', 'notes.load', ajax=True,
                                      target='os-tenote_latest',
                                    vars={'cuID':customers_id,
@@ -264,39 +265,64 @@ def edit_remodel_form(form,
 
     # address info
     div_address = DIV(
-        H3(T("Address and studio info")),
-        DIV(
-            TABLE(
-                TR( TD(LABEL(form.custom.label.address)),
-                    TD(form.custom.widget.address),
-                    ),
-                TR( TD(LABEL(form.custom.label.city)),
-                    TD(form.custom.widget.city),
-                    ),
-                TR( TD(LABEL(form.custom.label.school_levels_id)),
-                    TD(form.custom.widget.school_levels_id),
-                    ),
-                TR( TD(LABEL(form.custom.label.keynr)),
-                    TD(form.custom.widget.keynr),
-                    ),
-                TR( TD(location_label),
-                    TD(location_widget)),
-                _class='full-width'),
-        _class='col-md-6'),
-        DIV(TABLE(
-            TR( TD(LABEL(form.custom.label.postcode)),
-                TD(form.custom.widget.postcode)),
-            TR( TD(LABEL(form.custom.label.country)),
-                TD(form.custom.widget.country)),
-            TR( TD(LABEL(form.custom.label.school_discovery_id)),
-                TD(form.custom.widget.school_discovery_id)),
-            TR( TD(LABEL(form.custom.label.school_languages_id)),
-                TD(form.custom.widget.school_languages_id)),
-            _class='full-width'),
+            DIV(H3(T('Address')), _class='col-md-12'),
+            DIV(TABLE(
+                    TR( TD(LABEL(form.custom.label.address)),
+                        TD(form.custom.widget.address),
+                        ),
+                    TR( TD(LABEL(form.custom.label.city)),
+                        TD(form.custom.widget.city),
+                        ),
+                    _class='full-width'),
             _class='col-md-6'),
+            DIV(TABLE(
+                TR( TD(LABEL(form.custom.label.postcode)),
+                    TD(form.custom.widget.postcode)),
+                TR( TD(LABEL(form.custom.label.country)),
+                    TD(form.custom.widget.country)),
+                _class='full-width'),
+                _class='col-md-6'),
         _class='col-md-12 customers_edit_address_info')
 
+    # business info
+    div_business = DIV(
+        DIV(
+            H3(T("Studio")),
+            TABLE(
+                TR(TD(LABEL(form.custom.label.school_levels_id)),
+                   TD(form.custom.widget.school_levels_id)),
+                TR(TD(LABEL(form.custom.label.school_discovery_id)),
+                   TD(form.custom.widget.school_discovery_id)),
+                TR(TD(LABEL(form.custom.label.keynr)),
+                   TD(form.custom.widget.keynr)),
+                TR(TD(location_label),
+                   TD(location_widget)),
+
+                _class='full-width'),
+            _class='col-md-6'),
+        DIV(
+
+
+                H3(T("Business")),
+                TABLE(
+                    TR(TD(LABEL(form.custom.label.business)),
+                       TD(form.custom.widget.business),
+                       ),
+                    TR(TD(LABEL(form.custom.label.company)),
+                       TD(form.custom.widget.company),
+                       ),
+                    TR(TD(LABEL(form.custom.label.company_registration)),
+                       TD(form.custom.widget.company_registration)),
+                    TR(TD(LABEL(form.custom.label.company_tax_registration)),
+                       TD(form.custom.widget.company_tax_registration)),
+            _class='full-width'),
+            _class='col-md-6'),
+        _class='col-md-12 customers_edit_address_info'
+    )
+
+
     notes = DIV(
+        DIV(H3(T('Notes')), _class='col-md-12'),
         DIV(
             TABLE( TR( TD(bo_label),
                        TD(bo_note, bo_button)),
@@ -314,6 +340,7 @@ def edit_remodel_form(form,
                    div_basic_info,
                    _class='col-md-12'),
                div_address,
+               div_business,
                notes,
                form.custom.end,
                _class='customers_edit_container row')
@@ -810,6 +837,11 @@ def edit():
     # we're not entering password, so don't include it in the form
     db.auth_user.password.readable=False
     db.auth_user.password.writable=False
+
+    # enable business checkbox
+    db.auth_user.business.readable=True
+    db.auth_user.business.writable=True
+    # db.auth_user.business.widget=SQLFORM.widgets.checkboxes.widget
 
 
     picture_class = 'customer_image_edit'
