@@ -4894,6 +4894,19 @@ def define_mollie_log_webhook():
         Field('mollie_payment', 'text'))
 
 
+def define_integration_exact_online_log():
+    db.define_table('integration_exact_online_log',
+        Field('Action'),
+        Field('Status',
+            requires=IS_IN_SET(
+                ['success', T("Success")],
+                ['fail', T("Fail")],
+            )),
+        Field('CreatedOn', 'datetime',
+            default=datetime.datetime.now())
+    )
+
+
 def define_customers_profile_features():
     """
         Define table to hold which features are enabled for customer logins
@@ -5029,16 +5042,16 @@ def define_mailing_lists():
     )
 
 
-def define_integration_exact_online_storage():
-    """
-    Settings for exact online
-    """
-    db.define_table('integration_exact_online_storage',
-        Field('ConfigSection'),
-        Field('ConfigOption'),
-        Field('ConfigValue'),
-    )
-
+# def define_integration_exact_online_storage():
+#     """
+#     Settings for exact online
+#     """
+#     db.define_table('integration_exact_online_storage',
+#         Field('ConfigSection'),
+#         Field('ConfigOption'),
+#         Field('ConfigValue'),
+#     )
+#
 
 def set_static_payment_methods():
     """
@@ -5646,7 +5659,7 @@ define_payment_methods()
 payment_methods_dict = create_payment_methods_dict()
 
 define_mailing_lists()
-define_integration_exact_online_storage()
+define_integration_exact_online_log()
 define_postcode_groups()
 define_tax_rates()
 

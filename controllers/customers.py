@@ -45,6 +45,7 @@ def _edit_check_picture(form):
         row.thumblarge = None
         row.update_record()
 
+
 def classes_check_reservation(row):
     """
         Check if a customer is already reserved for a class.
@@ -60,6 +61,7 @@ def classes_check_reservation(row):
                                            #'back'="customers_classes")
     else:
         return ""
+
 
 #TODO: Rename & reuse for subscriptions_alt_prices repeat
 @auth.requires(auth.has_membership(group_id='Admins') or \

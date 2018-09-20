@@ -909,7 +909,9 @@ def list_items_get_form_add(iID):
 
     crud.messages.submit_button = T('Add')
     crud.messages.record_created = T("Added item")
-    crud.settings.create_onaccept = [list_items_create_update_onaccept]
+    crud.settings.create_onaccept = [
+        list_items_create_update_onaccept
+    ]
     form = crud.create(db.invoices_items)
 
     return form
