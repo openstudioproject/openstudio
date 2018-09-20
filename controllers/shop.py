@@ -1036,6 +1036,7 @@ def subscription_terms():
     response.view = 'shop/index.html'
 
     ssuID = request.vars['ssuID']
+    Uid= auth.user.id
 
     features = db.customers_shop_features(1)
     if not features.Subscriptions:
@@ -1049,6 +1050,21 @@ def subscription_terms():
     # buy now
     # part terms
     # automatic payment
+
+    payment_method = db(db.sys_properties.Property == 'shop_subscriptions_payment_method').select().first()
+
+    if payment_method.PropertyValue != 'mollie' :
+        query = (((db.customers_payment_info.AccountNumber == None)&\
+                 (db.customers_payment_info.auth_customer_id == Uid) &\
+                 (db.customers_payment_info.AccountHolder == None)&\
+                 (db.customers_payment_info.BankName == None)&\
+                 (db.customers_payment_info.BankLocation == None))
+                 )
+        row= db.customers_payment_info(auth_customer_id = Uid)
+        if db(query).select().first() or not row:
+             redirect(URL('subscription_redirect'))
+
+
 
     ssu = SchoolSubscription(ssuID)
     price = ssu.get_price_on_date(TODAY_LOCAL)
@@ -1088,6 +1104,18 @@ def subscription_terms():
 
     return dict(content=content)
 
+
+def subscription_redirect():
+
+    response.title = T('Shop')
+    response.subtitle = T('Subscription')
+    response.view = 'shop/index.html'
+
+    content = DIV(H3(T('Your Payment information is not filled out yet. Please click on the Button to get redirected to your profile page to fill out your Payment data.')))
+    content += A(B(T('Continue')),
+                _href=URL('profile', 'me_payment_info'),
+                _class='btn btn-primary')
+    return dict(content = content)
 
 def classes():
     """
