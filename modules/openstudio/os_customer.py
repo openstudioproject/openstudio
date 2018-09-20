@@ -23,7 +23,7 @@ class Customer:
         """
         Functions to be called when creating a customer
         """
-        pass
+
 
 
     def on_update(self):

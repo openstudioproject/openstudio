@@ -69,6 +69,66 @@ class OsTools:
         return validity
 
 
+    def set_sys_property(property, value):
+        """
+        :param property: string - name of sys property
+        :return: None
+        """
+        db = current.db
+
+        row = db.sys_properties(Property=property)
+        if not row:
+            db.sys_properties.insert(Property=property,
+                                     PropertyValue=value)
+        else:
+            row.PropertyValue = value
+            row.update_record()
+
+        # Clear cache
+        cache_clear_sys_properties()
+
+
+    def _get_sys_property(value=None, value_type=None):
+        """
+            Returns the value of a property in db.sys_properties
+        """
+        db = current.db
+
+        property_value = None
+        row = db.sys_properties(Property=value)
+        if row:
+            property_value = row.PropertyValue
+
+        if value_type:
+            try:
+                return value_type(property_value)
+            except:
+                pass
+
+        return property_value
+
+
+    def get_sys_property(value=None, value_type=None):
+        """
+        :param value: db.sys_properties.Property
+        :param value_type: Python data type eg. int
+        :return: db.sys_properties.PropertyValue
+        """
+        cache = current.cache
+
+        cache_key = 'openstudio_system_property_' + value
+
+        # Don't cache when running tests
+        if web2pytest.is_running_under_test(request, request.application):
+            sprop = _get_sys_property(value, value_type)
+        else:
+            sprop = cache.ram(cache_key,
+                              lambda: _get_sys_property(value, value_type),
+                              time_expire=CACHE_LONG)
+
+        return sprop
+
+
 class OsArchiver:
     def parse_request_vars(self, rvars, sesssion_var):
         """
