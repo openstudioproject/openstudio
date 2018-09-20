@@ -19,6 +19,20 @@ class Customer:
         self.row = db.auth_user(cuID)
 
 
+    def on_create(self):
+        """
+        Functions to be called when creating a customer
+        """
+        pass
+
+
+    def on_update(self):
+        """
+        Functions to be called when updating a customer
+        """
+        pass
+
+
     def get_name(self):
         """
             Returns the name for a customer
