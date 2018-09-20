@@ -916,6 +916,8 @@ class Invoice:
 
         self.invoice.update_record(
             CustomerCompany = customer.row.company,
+            CustomerCompanyRegistrations = customer.row.company_registration,
+            CustomerCompanyTaxRegistrations = customer.row.company_tax_registration,
             CustomerName = customer.row.full_name,
             CustomerListName = list_name,
             CustomerAddress = address,
