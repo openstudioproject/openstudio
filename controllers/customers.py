@@ -731,6 +731,7 @@ def add():
 
     crud.messages.submit_button = T("Save")
     crud.messages.record_created = T("Saved")
+    crud.settings.create_onaccept = [add_oncreate]
     crud.settings.create_next = next_url
     form = crud.create(db.auth_user)
 
@@ -749,6 +750,14 @@ def add():
     table['_class'] = 'full-width'
 
     return dict(content=form)
+
+
+
+def add_oncreate(form):
+    from openstudio.os_customer import Customer
+
+    customer = Customer(form.vars.id)
+    customer.on_create()
 
 
 
@@ -834,7 +843,7 @@ def edit():
     change_picture = A(change_picture_title,
                        _href=URL('edit_picture', args=[customers_id]))
 
-    #crud.settings.update_onaccept.auth_user.append(_check_active)
+    crud.settings.update_onaccept.auth_user.append(edit_onaccept)
     crud.messages.submit_button = T('Save')
     crud.messages.record_updated = T('Saved')
 
@@ -939,6 +948,17 @@ def edit():
                 save=submit)
 
 
+def edit_onaccept(form):
+    """
+    :param form: crud form for db.auth_user
+    :return: None
+    """
+    from openstudio.os_customer import Customer
+
+    customer = Customer(form.vars.id)
+    customer.on_update()
+
+
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'auth_user'))
 def edit_picture():
@@ -968,7 +988,11 @@ def edit_picture():
         crud.settings.label_separator = ''
         crud.settings.update_deletable = False
         crud.settings.update_onvalidation.customers.append(_edit_clear_old_thumbs)
-        crud.settings.update_onaccept.customers.extend([_edit_check_picture, cache_clear_school_teachers])
+        crud.settings.update_onaccept.customers.extend(
+            [ _edit_check_picture,
+              cache_clear_school_teachers,
+              edit_onaccept ]
+        )
 
         crud.messages.submit_button = T('Save')
         crud.messages.record_updated = T('Saved')
@@ -5371,6 +5395,7 @@ def account():
 
     crud.messages.submit_button = T("Save")
     crud.messages.record_updated = T("Saved")
+    crud.settings.update_onaccept.auth_user.append(edit_onaccept)
     crud.settings.update_deletable = False
     form = crud.update(db.auth_user, cuID)
 
@@ -5586,6 +5611,7 @@ def account_set_password():
     db.auth_user.password.readable = True
     db.auth_user.password.writable = True
 
+    crud.settings.update_onaccept.auth_user.append(edit_onaccept)
     form = crud.update(db.auth_user, cuID)
 
     form_id = "MainForm"
@@ -5872,7 +5898,11 @@ def edit_teacher():
 
     crud.messages.submit_button = T('Save')
     crud.messages.record_updated = T('Saved')
-    crud.settings.update_onaccept = [cache_clear_school_teachers, cache_clear_classschedule]
+    crud.settings.update_onaccept = [
+        cache_clear_school_teachers,
+        cache_clear_classschedule,
+        edit_onaccept()
+    ]
     form = crud.update(db.auth_user, cuID)
 
     result = set_form_id_and_get_submit_button(form, 'MainForm')
