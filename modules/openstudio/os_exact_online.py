@@ -81,10 +81,12 @@ class OSExactOnline:
 
             relation_dict = {
                 "Name": os_customer.row.display_name,
+                "ChamberOfCommerce": os_customer.row.company_registration,
                 "Code": os_customer.row.id,
                 "Division": selected_division,
                 "Email": os_customer.row.email,
-                "Status": "C" # Customer
+                "Status": "C", # Customer
+                "VATNumber": os_customer.row.company_tax_registration
             }
 
             error = False
@@ -159,9 +161,11 @@ class OSExactOnline:
 
         relation_dict = {
             "Name": os_customer.row.display_name,
+            "ChamberOfCommerce": os_customer.row.company_registration,
             "Code": os_customer.row.id,
             "Email": os_customer.row.email,
-            "Status": "C"
+            "Status": "C", # Customer
+            "VATNumber": os_customer.row.company_tax_registration
         }
 
         error = False
