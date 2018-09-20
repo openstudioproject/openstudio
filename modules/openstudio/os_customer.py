@@ -39,7 +39,10 @@ class Customer:
         """
         Functions to be called when updating a customer
         """
-        pass
+        from os_exact_online import OSExactOnline
+
+        os_eo = OSExactOnline()
+        os_eo.update_relation(self)
 
 
     def get_name(self):

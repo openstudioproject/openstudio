@@ -53,6 +53,13 @@ class OSExactOnline:
         authorized = os_tools.get_sys_property('exact_online_authorized')
 
         if not authorized:
+            self._log_error(
+                'create',
+                'relation',
+                os_customer.row.id,
+                "Exact online integration not authorized"
+            )
+
             return
 
         else:
@@ -86,7 +93,9 @@ class OSExactOnline:
             try:
                 result = api.relations.create(relation_dict)
                 rel_id = result['ID']
+                print rel_id
                 os_customer.row.exact_online_relation_id = rel_id
+                os_customer.row.update_record()
 
             except HTTPError as e:
                 error = True
@@ -108,8 +117,28 @@ class OSExactOnline:
         :param os_customer: OsCustomer object
         :return: dict(error=True|False, message='')
         """
+        from tools import OsTools
+
+        os_tools = OsTools()
+        authorized = os_tools.get_sys_property('exact_online_authorized')
+
+        if not authorized:
+            self._log_error(
+                'create',
+                'relation',
+                os_customer.row.id,
+                "Exact online integration not authorized"
+            )
+
+            return
+
+        print 'update'
+
         eoID = os_customer.row.exact_online_relation_id
+
+        print eoID
         if not eoID:
+            print 'creating relation'
             self.create_relation(os_customer)
             return
 
@@ -134,16 +163,19 @@ class OSExactOnline:
         relation_dict = {
             "Name": os_customer.row.display_name,
             "Code": os_customer.row.id,
-            "Division": selected_division,
             "Email": os_customer.row.email,
-            "Status": "C"  # Customer
+            "Status": "C"
         }
 
         error = False
         message = ''
 
+        print 'update'
+        print eoID
+
+        # api.relations.update(eoID, relation_dict)
         try:
-            result = api.relations.update(eoID, relation_dict)
+            api.relations.update(eoID, relation_dict)
         except HTTPError as e:
             error = True
             message = e
