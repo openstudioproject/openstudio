@@ -175,6 +175,12 @@
         {{ if invoice.CustomerCompany: }}
             {{ =invoice.CustomerCompany }}<br>
         {{ pass }}
+        {{ if invoice.CustomerCompanyRegistration: }}
+            {{ =invoice.CustomerCompanyRegistration }}<br>
+        {{ pass }}
+        {{ if invoice.CustomerCompanyTaxRegistration: }}
+            {{ =invoice.CustomerCompanyTaxRegistration }}<br>
+        {{ pass }}
         {{ if invoice.CustomerName: }}
             {{ =invoice.CustomerName }}<br>
         {{ pass }}
