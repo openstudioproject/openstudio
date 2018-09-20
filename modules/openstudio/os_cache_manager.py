@@ -2,7 +2,7 @@
 
 from gluon import *
 
-class OsCache:
+class OsCacheManager:
     def clear(var_one=None, var_two=None):
         """
             Clears all cache entries on disk & in ram

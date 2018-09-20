@@ -85,7 +85,10 @@ class OsTools:
             row.update_record()
 
         # Clear cache
-        cache_clear_sys_properties()
+        from os_cache_manager import OsCacheManager
+
+        ocm = OsCacheManager()
+        ocm.clear_sys_properties()
 
 
     def _get_sys_property(value=None, value_type=None):
