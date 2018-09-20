@@ -16,6 +16,7 @@ def workflow():
     shop_classes_advance_booking_limit = get_sys_property('shop_classes_advance_booking_limit')
     shop_classes_cancellation_limit = get_sys_property('shop_classes_cancellation_limit')
     shop_subscriptions_start = get_sys_property('shop_subscriptions_start')
+    shop_subscriptions_payment_method = get_sys_property('shop_subscriptions_payment_method')
 
     form = SQLFORM.factory(
         Field('shop_requires_complete_profile', 'boolean',
@@ -40,6 +41,14 @@ def workflow():
                   zero=None),
               label=T('Subscriptions start date'),
               comment=T("Set the default start date for subscriptions in the shop")),
+        Field('shop_subscriptions_payment_method',
+              default=shop_subscriptions_payment_method,
+              requires=IS_IN_SET([
+                  ['direct_debit', T('Direct Debit')],
+                  ['mollie', T('Mollie')]],
+                  zero=None),
+              label=T('Subscriptions Payment Method'),
+              comment=T("Set the default payment method for subscriptions in the shop")),
         submit_button=T("Save"),
         separator=' ',
         formstyle='bootstrap3_stacked'
