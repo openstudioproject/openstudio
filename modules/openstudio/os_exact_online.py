@@ -159,7 +159,7 @@ class OSExactOnline:
         return dict(error=error, message=message)
 
 
-    def _log_error(self, action, object, object_id, message):
+    def _log_error(self, action, object, object_id, result):
         """
         :param action: should be in ['create', 'read', 'update', 'delete']
         :param object: object name
@@ -171,9 +171,9 @@ class OSExactOnline:
 
         db.integration_exact_online_log.insert(
             ActionName = action,
-            Object = object,
+            ObjectName = object,
             ObjectID = object_id,
-            Message = message,
+            ActionResult = result,
             Status = 'fail'
         )
 
