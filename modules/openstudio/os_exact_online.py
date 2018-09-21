@@ -227,6 +227,16 @@ class OSExactOnline:
         return api.financialglaccounts.filter(Code=code)
 
 
+    def get_journal(self, code):
+        """
+        :param code: Exact G/L Account code. eg. 0150
+        :return: glaccount dict
+        """
+        api = self.get_api()
+
+        return api.financialjournals.filter(Code=code)
+
+
     def get_sales_entry(self, os_invoice):
         """
         :param os_invoice: Invoice object
