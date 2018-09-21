@@ -100,7 +100,7 @@ class OSExactOnline:
             'Journal': remote_journal,  # 70 "Verkoopboek"
             'ReportingPeriod': invoice_date.month,
             'ReportingYear': invoice_date.year,
-            'SalesEntryLines': [],
+            'SalesEntryLines': self.get_sales_entry_lines(os_invoice),
             'VATAmountDC': str(amounts.VAT),
             'VATAmountFC': str(amounts.VAT),
             'YourRef': local_invoice_number,
@@ -135,6 +135,19 @@ class OSExactOnline:
         return eoseID
 
 
+    def get_glaccount(self, code):
+        """
+        :param code: Exact G/L Account code. eg. 0150
+        :return: glaccount dict
+        """
+        from ConfigParser import NoOptionError
+        from exactonline.http import HTTPError
+
+        api = self.get_api()
+
+        return api.financialglaccounts.filter(Code=code)
+
+
     def get_sales_entry_lines(self, os_invoice):
         """
         :param os_invoice: Invoice object
@@ -143,14 +156,18 @@ class OSExactOnline:
         items = os_invoice.get_invoice_items_rows()
 
         lines = []
-
         for item in items:
+            glaccount = self.get_glaccount(item.GLAccount)
+            print glaccount
+
             lines.append({
                 'AmountDC': item.TotalPrice,
                 'AmountFC': item.TotalPrice,
                 'Description': item.Description,
-                'GLAccount': item.GLAccount
+                'GLAccount': glaccount['ID'],
             })
+
+        return lines
 
 
     def update_sales_entry(self, os_invoice):
@@ -218,7 +235,7 @@ class OSExactOnline:
             'Journal': remote_journal,  # 70 "Verkoopboek"
             'ReportingPeriod': invoice_date.month,
             'ReportingYear': invoice_date.year,
-            'SalesEntryLines': [],
+            'SalesEntryLines': self.get_sales_entry_lines(os_invoice),
             'VATAmountDC': str(amounts.VAT),
             'VATAmountFC': str(amounts.vAT),
             'YourRef': local_invoice_number,

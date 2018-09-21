@@ -21,7 +21,7 @@ class FinancialGLAccounts(Manager):
         if Code is not None:
             remote_id = self._remote_id(Code)
             # Filter by our account number.
-            self._filter_append(kwargs, u"Code eq guid%s" % (remote_id,))
+            self._filter_append(kwargs, u"Code eq %s" % (remote_id,))
             
 
         return super(FinancialGLAccounts, self).filter(**kwargs)
