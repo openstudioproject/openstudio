@@ -47,14 +47,19 @@ def exact_online_tools():
         authorize = ''
 
         links.append(
-            A(SPAN(_class="fa fa-repeat"), " ", T("Re-authorize"),
-              _href=URL('exact_online', 'authorize'),
-              _title=T("Authorize")),
-        )
-        links.append(
             A(SPAN(_class="fa fa-list"), " ", T("Logistics / Items"),
               _href=URL('exact_online', 'logistics_items'),
               _title=T("Logistics / Items")),
+        )
+        links.append(
+            A(SPAN(_class="fa fa-list"), " ", T("Financial / GLAccounts"),
+              _href=URL('exact_online', 'financial_glaccounts'),
+              _title=T("Financial / GLAccounts")),
+        )
+        links.append(
+            A(SPAN(_class="fa fa-repeat"), " ", T("Re-authorize"),
+              _href=URL('exact_online', 'authorize'),
+              _title=T("Authorize")),
         )
 
     tools = os_gui.get_dropdown_menu(links,
