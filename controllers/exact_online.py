@@ -115,7 +115,58 @@ def financial_glaccounts():
     """
     List G/L accounts
     """
-    pass
+    from ConfigParser import NoOptionError
+    from openstudio.os_exact_online import OSExactOnline
+
+    from exactonline.exceptions import ObjectDoesNotExist
+    from exactonline.resource import GET, POST, PUT, DELETE
+
+    from openstudio.os_gui import OsGui
+
+    response.title = T("Exact online")
+    response.subtitle = T("G/L Accounts")
+    response.view = 'general/only_content.html'
+
+    os_gui = OsGui()
+    os_eo = OSExactOnline()
+    api = os_eo.get_api()
+    storage = os_eo.get_storage()
+    try:
+        selected_division = int(storage.get('transient', 'division'))
+    except NoOptionError:
+        selected_division = None
+
+    items = api.financialglaccounts.all()
+    sorted_items = sorted(items, key=lambda k: k['Code'])
+
+    print items
+
+    header = THEAD(TR(
+        TH('Exact G/L Account code'),
+        TH('Exact G/L Account Description'),
+        TH('Exact G/L Account ID'),
+    ))
+
+    table = TABLE(header, _class="table table-striped table-hover")
+
+    for item in sorted_items:
+        tr = TR(
+            TD(item['Code']),
+            TD(item['Description']),
+            TD(item['ID'])
+        )
+
+        table.append(tr)
+
+    content = table
+
+    back = os_gui.get_button(
+        'back',
+        URL('settings_integration', 'exact_online')
+    )
+
+    return dict(content=content,
+                back=back)
 
 
 
