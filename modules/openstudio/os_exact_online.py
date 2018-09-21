@@ -166,6 +166,26 @@ class OSExactOnline:
         return api.salesentrylines.create(line)
 
 
+    def update_sales_entry_line(self, ID, line):
+        """
+        :param line: dict
+        :return:
+        """
+        api = self.get_api()
+
+        return api.salesentrylines.update(ID, line)
+
+
+    def delete_sales_entry_line(self, ID):
+        """
+        :param ID: Exact Online SalesEntryLine ID
+        :return:
+        """
+        api = self.get_api()
+
+        return api.salesentrylines.delete(ID)
+
+
     def update_sales_entry_lines(self, os_invoice):
         """
         :param os_invoice: Invoice object
@@ -181,7 +201,9 @@ class OSExactOnline:
                 'GLAccount': glaccount[0][u'ID'],
             }
 
-            if not item.ExactOnlineSalesEntryLineID:
+            ID = item.ExactOnlineSalesEntryLineID
+
+            if not ID: # Create
                 line['AmountDC'] = item.TotalPrice
                 line['EntryID'] = os_invoice.invoice.ExactOnlineSalesEntryID
 
@@ -191,8 +213,8 @@ class OSExactOnline:
                 item.ExactOnlineSalesEntryLineID = result['ID']
                 item.update_record()
 
-            else:
-                pass # update
+            else: # Update
+                result = self.update_sales_entry_line(ID, line)
 
 
     def get_glaccount(self, code):
