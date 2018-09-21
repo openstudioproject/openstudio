@@ -65,6 +65,11 @@ class OSExactOnline:
             return
 
 
+        items = os_invoice.get_invoice_items_rows()
+        if not len(items):
+            return # Don't do anything for invoices without items
+
+
         import pprint
 
         from ConfigParser import NoOptionError
@@ -145,12 +150,21 @@ class OSExactOnline:
         :param code: Exact G/L Account code. eg. 0150
         :return: glaccount dict
         """
-        from ConfigParser import NoOptionError
-        from exactonline.http import HTTPError
-
         api = self.get_api()
 
         return api.financialglaccounts.filter(Code=code)
+
+
+    def get_sales_entry(self, os_invoice):
+        """
+        :param os_invoice: Invoice object
+        :return: SalesEntry dict
+        """
+        api = self.get_api()
+
+        return api.invoices.filter(
+            invoice_number=unicode(os_invoice.invoice.id)
+        )
 
 
     def get_sales_entry_lines(self, os_invoice):
@@ -159,12 +173,11 @@ class OSExactOnline:
         :return: SalesEntryLines dict
         """
         items = os_invoice.get_invoice_items_rows()
+        print items
 
         lines = []
         for item in items:
             glaccount = self.get_glaccount(item.GLAccount)
-            print glaccount[0]
-
             lines.append({
                 'AmountDC': item.TotalPrice,
                 'AmountFC': item.TotalPrice,
@@ -180,6 +193,8 @@ class OSExactOnline:
         :param os_customer: OsCustomer object
         :return: None
         """
+        from exactonline.resource import GET
+
         from os_customer import Customer
         from tools import OsTools
 
@@ -196,6 +211,10 @@ class OSExactOnline:
 
             return
 
+        items = os_invoice.get_invoice_items_rows()
+        if not len(items):
+            return # Don't do anything for invoices without items
+
         eoseID = os_invoice.invoice.ExactOnlineSalesEntryID
 
         print eoseID
@@ -203,6 +222,8 @@ class OSExactOnline:
             print 'creating sales entry'
             self.create_sales_entry(os_invoice)
             return
+
+        print "updating sales entry"
 
 
         import pprint
@@ -240,23 +261,30 @@ class OSExactOnline:
             'Journal': remote_journal,  # 70 "Verkoopboek"
             'ReportingPeriod': invoice_date.month,
             'ReportingYear': invoice_date.year,
-            'SalesEntryLines': self.get_sales_entry_lines(os_invoice),
             'VATAmountDC': str(amounts.VAT),
-            'VATAmountFC': str(amounts.vAT),
+            'VATAmountFC': str(amounts.VAT),
             'YourRef': local_invoice_number,
             # must start uniquely at the start of a year, defaults to:
             # YYJJ0001 where YY=invoice_date.year, and JJ=remote_journal
-            'InvoiceNumber': '%d%d%04d' % (invoice_date.year, remote_journal,
-                                           int(local_invoice_number)),
+            # 'InvoiceNumber': '%d%d%04d' % (invoice_date.year, remote_journal,
+            #                                int(local_invoice_number)),
         }
 
         error = False
 
         try:
-            result = api.invoices.create(invoice_data)
-            print "Create invoice result:"
+            result = api.invoices.update(eoseID, invoice_data)
+            print "Update invoice result:"
             pp = pprint.PrettyPrinter(depth=6)
-            pp.pprint(result)
+            # pp.pprint(result)
+
+            print "Entry:"
+            entry = self.get_sales_entry(os_invoice)
+            pp.pprint(entry)
+            print "Entry lines"
+            uri = entry[0][u'SalesEntryLines'][u'__deferred']['uri']
+            entry_lines = api.restv1(GET(str(uri)))
+            pp.pprint(entry_lines)
 
         except HTTPError as e:
             error = True

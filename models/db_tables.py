@@ -4072,6 +4072,7 @@ def define_invoices_items():
             compute=compute_invoice_item_total_price,
             represent=represent_float_as_amount),
         Field('GLAccount',
+            represent=lambda value, row: value or '',
             label=T("G/L Account")),
         Field('ExactOnlineSalesEntryLineID',
             readable=False,

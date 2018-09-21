@@ -729,7 +729,7 @@ def list_items():
 
 
         tr = TR(TD(sort_handler, _class='sort-handler movable'),
-                TD(row.GLAccount),
+                TD(repr_row.GLAccount),
                 TD(row.ProductName),
                 TD(row.Description, _class='Description'),
                 TD(row.Quantity),

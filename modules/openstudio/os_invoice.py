@@ -293,7 +293,8 @@ class Invoice:
         db = current.db
 
         query = (db.invoices_items.invoices_id == self.invoices_id)
-        rows = db(query).select(db.invoices_items.ALL)
+        rows = db(query).select(db.invoices_items.ALL,
+                                orderby=db.invoices_items.Sorting)
 
         return rows
 
