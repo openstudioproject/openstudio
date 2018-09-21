@@ -296,14 +296,19 @@ class OSExactOnline:
         :param os_invoice: Invoice object
         :return:
         """
+        db = current.db
+
         items = os_invoice.get_invoice_items_rows()
 
         for item in items:
             glaccount = self.get_glaccount(item.GLAccount)
+            tax_rate = db.tax_rates(item.tax_rates_id)
             line = {
                 'AmountFC': item.TotalPrice,
                 'Description': item.Description,
                 'GLAccount': glaccount[0][u'ID'],
+                'Quantity': item.Quantity,
+                'VATCode': tax_rate.VATCodeID
             }
 
             ID = item.ExactOnlineSalesEntryLineID
@@ -359,17 +364,23 @@ class OSExactOnline:
         :param os_invoice: Invoice object
         :return: SalesEntryLines dict
         """
+        db = current.db
+
         items = os_invoice.get_invoice_items_rows()
         print items
 
         lines = []
         for item in items:
             glaccount = self.get_glaccount(item.GLAccount)
+
+            tax_rate = db.tax_rates(item.tax_rates_id)
             lines.append({
                 'AmountDC': item.TotalPrice,
                 'AmountFC': item.TotalPrice,
                 'Description': item.Description,
                 'GLAccount': glaccount[0][u'ID'],
+                'Quantity': item.Quantity,
+                'VATCode': tax_rate.VATCodeID,
             })
 
         return lines
