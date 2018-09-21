@@ -38,7 +38,14 @@ class Invoice:
         """
         functions to be called when updating an invoice or invoice items
         """
+        from os_exact_online import OSExactOnline
+
+        # Set last updated datetime
         self._set_updated_at()
+
+        # Exact online integration
+        os_eo = OSExactOnline()
+        os_eo.update_sales_entry(self)
 
 
     def _set_updated_at(self):

@@ -201,6 +201,27 @@ def relations():
 
     return locals()
 
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'settings'))
+def invoices():
+    """
+
+    :return:
+    """
+    import pprint
+    from openstudio.os_exact_online import OSExactOnline
+
+    os_eo = OSExactOnline()
+    api = os_eo.get_api()
+
+    invoices = api.invoices.all()
+
+    pp = pprint.PrettyPrinter(depth=6)
+    pp.pprint(invoices)
+
+    return 'got it!'
+
 #
 # def bankaccount_get():
 #     eoID = "e984cfcb-80c9-46d7-b6b2-b2b6e60d09fb"

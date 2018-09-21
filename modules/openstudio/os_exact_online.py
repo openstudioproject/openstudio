@@ -42,6 +42,213 @@ class OSExactOnline:
         return MyIniStorage(config_file)
 
 
+    def create_sales_entry(self, os_invoice):
+        """
+        :param os_customer: OsCustomer object
+        :param os_invoice: OsInvoice Object
+        :return:
+        """
+        from os_customer import Customer
+        from tools import OsTools
+
+        os_tools = OsTools()
+        authorized = os_tools.get_sys_property('exact_online_authorized')
+
+        if not authorized:
+            self._log_error(
+                'create',
+                'sales_entry',
+                os_invoice.invoice.id,
+                "Exact online integration not authorized"
+            )
+
+            return
+
+
+        import pprint
+
+        from ConfigParser import NoOptionError
+        from exactonline.http import HTTPError
+
+        storage = self.get_storage()
+        api = self.get_api()
+        cuID = os_invoice.get_linked_customer_id()
+        print "Customer:"
+        print cuID
+        os_customer = Customer(os_invoice.get_linked_customer_id())
+
+        try:
+            selected_division = int(storage.get('transient', 'division'))
+        except NoOptionError:
+            selected_division = None
+
+        print "division:"
+        print selected_division
+
+        amounts = os_invoice.get_amounts()
+
+        remote_journal = 70
+        invoice_date = os_invoice.invoice.DateCreated
+        local_invoice_number = os_invoice.invoice.id
+
+        invoice_data = {
+            'AmountDC': str(amounts.TotalPriceVAT),  # DC = default currency
+            'AmountFC': str(amounts.TotalPriceVAT),  # FC = foreign currency
+            'EntryDate': invoice_date.strftime('%Y-%m-%dT%H:%M:%SZ'),  # pretend we're in UTC
+            'Customer': os_customer.row.exact_online_relation_id,
+            'Description': os_invoice.invoice.Description,
+            'Journal': remote_journal,  # 70 "Verkoopboek"
+            'ReportingPeriod': invoice_date.month,
+            'ReportingYear': invoice_date.year,
+            'SalesEntryLines': [],
+            'VATAmountDC': str(amounts.VAT),
+            'VATAmountFC': str(amounts.VAT),
+            'YourRef': local_invoice_number,
+            # must start uniquely at the start of a year, defaults to:
+            # YYJJ0001 where YY=invoice_date.year, and JJ=remote_journal
+            # 'InvoiceNumber': '%d%d%04d' % (invoice_date.year, remote_journal,
+            #                                int(local_invoice_number)),
+            'InvoiceNumber': local_invoice_number
+        }
+
+        error = False
+
+        try:
+            result = api.invoices.create(invoice_data)
+            eoseID = result['ID']
+            print "Create invoice result:"
+            pp = pprint.PrettyPrinter(depth=6)
+            pp.pprint(result)
+
+        except HTTPError as e:
+            error = True
+            self._log_error(
+                'create',
+                'sales_entry',
+                os_invoice.invoice.id,
+                e
+            )
+
+        if error:
+            return False
+
+        return eoseID
+
+
+    def get_sales_entry_lines(self, os_invoice):
+        """
+        :param os_invoice: Invoice object
+        :return: SalesEntryLines dict
+        """
+        items = os_invoice.get_invoice_items_rows()
+
+        lines = []
+
+        for item in items:
+            lines.append({
+                'AmountDC': item.TotalPrice,
+                'AmountFC': item.TotalPrice,
+                'Description': item.Description,
+                'GLAccount': item.GLAccount
+            })
+
+
+    def update_sales_entry(self, os_invoice):
+        """
+        :param os_customer: OsCustomer object
+        :return: None
+        """
+        from os_customer import Customer
+        from tools import OsTools
+
+        os_tools = OsTools()
+        authorized = os_tools.get_sys_property('exact_online_authorized')
+
+        if not authorized:
+            self._log_error(
+                'update',
+                'sales_entry',
+                os_invoice.invoice.id,
+                "Exact online integration not authorized"
+            )
+
+            return
+
+        eoseID = os_invoice.invoice.ExactOnlineSalesEntryID
+
+        print eoseID
+        if not eoseID:
+            print 'creating sales entry'
+            self.create_sales_entry(os_invoice)
+            return
+
+
+        import pprint
+
+        from ConfigParser import NoOptionError
+        from exactonline.http import HTTPError
+
+        storage = self.get_storage()
+        api = self.get_api()
+        cuID = os_invoice.get_linked_customer_id()
+        print "Customer:"
+        print cuID
+        os_customer = Customer(os_invoice.get_linked_customer_id())
+
+        try:
+            selected_division = int(storage.get('transient', 'division'))
+        except NoOptionError:
+            selected_division = None
+
+        print "division:"
+        print selected_division
+
+        amounts = os_invoice.get_amounts()
+
+        remote_journal = 70
+        invoice_date = os_invoice.invoice.DateCreated
+        local_invoice_number = os_invoice.invoice.id
+
+        invoice_data = {
+            'AmountDC': str(amounts.TotalPriceVAT),  # DC = default currency
+            'AmountFC': str(amounts.TotalPriceVAT),  # FC = foreign currency
+            'EntryDate': invoice_date.strftime('%Y-%m-%dT%H:%M:%SZ'),  # pretend we're in UTC
+            'Customer': os_customer.row.exact_online_relation_id,
+            'Description': os_invoice.invoice.Description,
+            'Journal': remote_journal,  # 70 "Verkoopboek"
+            'ReportingPeriod': invoice_date.month,
+            'ReportingYear': invoice_date.year,
+            'SalesEntryLines': [],
+            'VATAmountDC': str(amounts.VAT),
+            'VATAmountFC': str(amounts.vAT),
+            'YourRef': local_invoice_number,
+            # must start uniquely at the start of a year, defaults to:
+            # YYJJ0001 where YY=invoice_date.year, and JJ=remote_journal
+            'InvoiceNumber': '%d%d%04d' % (invoice_date.year, remote_journal,
+                                           int(local_invoice_number)),
+        }
+
+        error = False
+
+        try:
+            result = api.invoices.create(invoice_data)
+            print "Create invoice result:"
+            pp = pprint.PrettyPrinter(depth=6)
+            pp.pprint(result)
+
+        except HTTPError as e:
+            error = True
+            self._log_error(
+                'create',
+                'sales_entry',
+                os_invoice.invoice.id,
+                e
+            )
+
+        if error:
+            return False
+
+
     def create_relation(self, os_customer):
         """
         :param os_customer: OsCustomer object
