@@ -111,6 +111,17 @@ def divisions():
 
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
+def financial_glaccounts():
+    """
+    List G/L accounts
+    """
+    pass
+
+
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'settings'))
 def logistics_items():
     """
     List items
