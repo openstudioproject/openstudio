@@ -669,7 +669,7 @@ def list_items():
 
     table = TABLE(THEAD(TR(
                      TH(_class='Sorting'),
-                    #  TH(T('Product #'), _class='ProductID'),
+                     TH(T('GLAccount'), _class='GLAccount'),
                      TH(T('Product Name'), _class='ProductName'),
                      TH(T('Description'), _class='Description'),
                      TH(T('Qty'), _class='Quantity'),
@@ -681,7 +681,7 @@ def list_items():
                      TH(),
                      _class='header')),
                   TR(TD(),
-                    #  TD(form.custom.widget.ProductID),
+                     TD(form.custom.widget.GLAccount),
                      TD(form.custom.widget.ProductName),
                      TD(form.custom.widget.Description),
                      TD(form.custom.widget.Quantity),
@@ -729,7 +729,7 @@ def list_items():
 
 
         tr = TR(TD(sort_handler, _class='sort-handler movable'),
-                # TD(row.ProductID),
+                TD(row.GLAccount),
                 TD(row.ProductName),
                 TD(row.Description, _class='Description'),
                 TD(row.Quantity),
@@ -761,6 +761,7 @@ def list_items():
 
     for amount in amounts:
         tfoot.append(TR(TD(),
+                        TD(),
                         TD(),
                         TD(),
                         TD(),
@@ -814,7 +815,7 @@ def item_edit():
 
     table = TABLE(THEAD(TR(
                      TH(),
-                    #  TH(T('Product #'), _class='ProductID'),
+                     TH(T('GLAccount'), _class='GLAccount'),
                      TH(T('Product Name'), _class='ProductName'),
                      TH(T('Description'), _class='Description'),
                      TH(T('Quantity'), _class='Quantity'),
@@ -823,7 +824,7 @@ def item_edit():
                      TH(),
                      _class='header')),
                   TR(TD(),
-                    #  TD(form.custom.widget.ProductID),
+                     TD(form.custom.widget.GLAccount),
                      TD(form.custom.widget.ProductName),
                      TD(form.custom.widget.Description),
                      TD(form.custom.widget.Quantity),

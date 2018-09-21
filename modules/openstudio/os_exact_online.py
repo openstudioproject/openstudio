@@ -115,10 +115,15 @@ class OSExactOnline:
 
         try:
             result = api.invoices.create(invoice_data)
-            eoseID = result['ID']
+
             print "Create invoice result:"
             pp = pprint.PrettyPrinter(depth=6)
             pp.pprint(result)
+
+            eoseID = result['EntryID']
+            os_invoice.invoice.ExactOnlineSalesEntryID = eoseID
+            os_invoice.invoice.update_record()
+
 
         except HTTPError as e:
             error = True
@@ -158,13 +163,13 @@ class OSExactOnline:
         lines = []
         for item in items:
             glaccount = self.get_glaccount(item.GLAccount)
-            print glaccount
+            print glaccount[0]
 
             lines.append({
                 'AmountDC': item.TotalPrice,
                 'AmountFC': item.TotalPrice,
                 'Description': item.Description,
-                'GLAccount': glaccount['ID'],
+                'GLAccount': glaccount[0][u'ID'],
             })
 
         return lines
