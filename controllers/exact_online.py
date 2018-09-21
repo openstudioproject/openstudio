@@ -142,9 +142,9 @@ def financial_glaccounts():
     print items
 
     header = THEAD(TR(
-        TH('Exact G/L Account code'),
-        TH('Exact G/L Account Description'),
-        TH('Exact G/L Account ID'),
+        TH('G/L Account code'),
+        TH('G/L Account Description'),
+        TH('G/L Account ID'),
     ))
 
     table = TABLE(header, _class="table table-striped table-hover")
@@ -201,9 +201,9 @@ def logistics_items():
     items = api.logisticsitems.all()
 
     header = THEAD(TR(
-        TH('Exact Item Code'),
-        TH('Exact Item Description'),
-        TH('Exact Item ID'),
+        TH('Item Code'),
+        TH('Item Description'),
+        TH('Item ID'),
     ))
 
     table = TABLE(header, _class="table table-striped table-hover")
