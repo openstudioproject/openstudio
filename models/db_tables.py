@@ -3696,6 +3696,11 @@ def define_invoices_groups():
               label=T("Terms")),
         Field('Footer', 'text',
               label=T("Footer")),
+        Field('JournalID',
+              represent=lambda value, row: value or '',
+              label=T("Journal ID"),
+              comment=T(
+                  "Journal ID / Code in your accounting software. All invoices in this group will be mapped to this journal.")),
         format='%(Name)s')
 
 
