@@ -4174,8 +4174,12 @@ def define_tax_rates():
         Field('Percentage', 'float',
             requires=IS_FLOAT_IN_RANGE(0,100, dot='.',
                                        error_message=float_error),
-            comment='%',
+            comment='A percentage as numbers only is expected (without %). Use " . " for decimals.',
             label=T('Percentage')),
+        Field('VATCodeID',
+            represent=lambda value, row: value or '',
+            label=T("VAT Code ID"),
+            comment=T("VAT Code in your accounting software.")),
         format='%(Name)s'
     )
 

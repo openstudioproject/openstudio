@@ -1874,8 +1874,11 @@ def financial_tax_rates():
         session.settings_tax_rates_show = show
 
     db.tax_rates.id.readable = False
-    fields = [db.tax_rates.Name,
-              db.tax_rates.Percentage]
+    fields = [
+        db.tax_rates.Name,
+        db.tax_rates.Percentage,
+        db.tax_rates.VATCodeID
+    ]
 
     links = [lambda row: os_gui.get_button('edit',
                                            URL('financial_tax_rate_edit', vars={'tID': row.id})),
@@ -1944,6 +1947,7 @@ def financial_tax_rate_add():
 
     crud.messages.submit_button = T("Save")
     crud.messages.record_created = T("Saved")
+    crud.settings.formstyle = 'bootstrap3_stacked'
     crud.settings.create_next = return_url
     form = crud.create(db.tax_rates)
 
@@ -1978,6 +1982,7 @@ def financial_tax_rate_edit():
 
     crud.messages.submit_button = T("Save")
     crud.messages.record_updated = T("Saved")
+    crud.settings.formstyle = 'bootstrap3_stacked'
     crud.settings.update_next = return_url
     crud.settings.update_deletable = False
     form = crud.update(db.tax_rates, tID)
