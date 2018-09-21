@@ -797,7 +797,6 @@ class Invoice:
             )
 
             self.set_amounts()
-
             self.on_update()
 
             return iiID
@@ -837,7 +836,6 @@ class Invoice:
         )
 
         self.set_amounts()
-
         self.on_update()
 
         return iiID

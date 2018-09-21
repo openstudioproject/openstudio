@@ -48,9 +48,11 @@ class OSExactOnline:
         :param os_invoice: OsInvoice Object
         :return:
         """
+        from exactonline.resource import GET
         from os_customer import Customer
         from tools import OsTools
 
+        db = current.db
         os_tools = OsTools()
         authorized = os_tools.get_sys_property('exact_online_authorized')
 
@@ -63,7 +65,6 @@ class OSExactOnline:
             )
 
             return
-
 
         items = os_invoice.get_invoice_items_rows()
         if not len(items):
@@ -105,7 +106,7 @@ class OSExactOnline:
             'Journal': remote_journal,  # 70 "Verkoopboek"
             'ReportingPeriod': invoice_date.month,
             'ReportingYear': invoice_date.year,
-            'SalesEntryLines': self.get_sales_entry_lines(os_invoice),
+            'SalesEntryLines': self.format_os_sales_entry_lines(os_invoice),
             'VATAmountDC': str(amounts.VAT),
             'VATAmountFC': str(amounts.VAT),
             'YourRef': local_invoice_number,
@@ -129,6 +130,16 @@ class OSExactOnline:
             os_invoice.invoice.ExactOnlineSalesEntryID = eoseID
             os_invoice.invoice.update_record()
 
+            print "Entry lines"
+            uri = result[u'SalesEntryLines'][u'__deferred']['uri']
+            entry_lines = api.restv1(GET(str(uri)))
+            pp.pprint(entry_lines)
+
+            for i, line in enumerate(entry_lines):
+                print i
+                query = (db.invoices_items.invoices_id == os_invoice.invoice.id) & \
+                        (db.invoices_items.Sorting == i + 1)
+                db(query).update(ExactOnlineSalesEntryLineID = line['ID'])
 
         except HTTPError as e:
             error = True
@@ -143,6 +154,20 @@ class OSExactOnline:
             return False
 
         return eoseID
+
+
+    def update_sales_entry_lines(self, os_invoice):
+        """
+        :param os_invoice: Invoice object
+        :return:
+        """
+        items = os_invoice.get_invoice_items_rows()
+
+        for item in items:
+            if not item.ExactOnlineSalesEntryLineID:
+                pass # add
+            else:
+                pass # update
 
 
     def get_glaccount(self, code):
@@ -167,7 +192,7 @@ class OSExactOnline:
         )
 
 
-    def get_sales_entry_lines(self, os_invoice):
+    def format_os_sales_entry_lines(self, os_invoice):
         """
         :param os_invoice: Invoice object
         :return: SalesEntryLines dict
