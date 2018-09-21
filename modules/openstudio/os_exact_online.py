@@ -82,6 +82,10 @@ class OSExactOnline:
         print "Customer:"
         print cuID
         os_customer = Customer(os_invoice.get_linked_customer_id())
+        eoID = os_customer.row.exact_online_relation_id
+
+        if not eoID:
+            return
 
         try:
             selected_division = int(storage.get('transient', 'division'))
@@ -101,7 +105,7 @@ class OSExactOnline:
             'AmountDC': str(amounts.TotalPriceVAT),  # DC = default currency
             'AmountFC': str(amounts.TotalPriceVAT),  # FC = foreign currency
             'EntryDate': invoice_date.strftime('%Y-%m-%dT%H:%M:%SZ'),  # pretend we're in UTC
-            'Customer': os_customer.row.exact_online_relation_id,
+            'Customer': eoID,
             'Description': os_invoice.invoice.Description,
             'Journal': remote_journal,  # 70 "Verkoopboek"
             'ReportingPeriod': invoice_date.month,
