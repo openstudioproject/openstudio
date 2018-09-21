@@ -156,6 +156,16 @@ class OSExactOnline:
         return eoseID
 
 
+    def create_sales_entry_line(self, line):
+        """
+        :param line: dict
+        :return:
+        """
+        api = self.get_api()
+
+        return api.salesentrylines.create(line)
+
+
     def update_sales_entry_lines(self, os_invoice):
         """
         :param os_invoice: Invoice object
@@ -164,8 +174,23 @@ class OSExactOnline:
         items = os_invoice.get_invoice_items_rows()
 
         for item in items:
+            glaccount = self.get_glaccount(item.GLAccount)
+            line = {
+                'AmountFC': item.TotalPrice,
+                'Description': item.Description,
+                'GLAccount': glaccount[0][u'ID'],
+            }
+
             if not item.ExactOnlineSalesEntryLineID:
-                pass # add
+                line['AmountDC'] = item.TotalPrice
+                line['EntryID'] = os_invoice.invoice.ExactOnlineSalesEntryID
+
+                result = self.create_sales_entry_line(line)
+                print result
+
+                item.ExactOnlineSalesEntryLineID = result['ID']
+                item.update_record()
+
             else:
                 pass # update
 
@@ -300,16 +325,10 @@ class OSExactOnline:
         try:
             result = api.invoices.update(eoseID, invoice_data)
             print "Update invoice result:"
-            pp = pprint.PrettyPrinter(depth=6)
+            # pp = pprint.PrettyPrinter(depth=6)
             # pp.pprint(result)
 
-            print "Entry:"
-            entry = self.get_sales_entry(os_invoice)
-            pp.pprint(entry)
-            print "Entry lines"
-            uri = entry[0][u'SalesEntryLines'][u'__deferred']['uri']
-            entry_lines = api.restv1(GET(str(uri)))
-            pp.pprint(entry_lines)
+            self.update_sales_entry_lines(os_invoice)
 
         except HTTPError as e:
             error = True
