@@ -41,10 +41,6 @@ class CustomerSubscription:
         TODAY_LOCAL = current.TODAY_LOCAL
         DATE_FORMAT = current.DATE_FORMAT
 
-        # create invoice linked to subscription for first subscription term to know the right amount.
-        SubscriptionYear = TODAY_LOCAL.year
-        SubscriptionMonth = TODAY_LOCAL.month
-
         firstdaythismonth = datetime.date(SubscriptionYear, SubscriptionMonth, 1)
         lastdaythismonth = get_last_day_month(firstdaythismonth)
 
