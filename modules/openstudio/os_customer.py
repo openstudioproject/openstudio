@@ -507,7 +507,7 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         rows = db(query).select(db.invoices.ALL,
                                 db.invoices_amounts.ALL,
                                 left=left,
-                                orderby=~db.invoices.DateCreated)
+                                orderby=~db.invoices.DateCreated|~db.invoices.InvoiceID)
 
         return rows
 
