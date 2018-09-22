@@ -773,6 +773,17 @@ def invoice():
     invoice_terms = XML(invoice.invoice.Terms.replace('\n', '<br>'))
     invoice_footer = XML(invoice.invoice.Footer.replace('\n', '<br>'))
 
+    header_tools = ''
+    if invoice.invoice.Status == 'sent':
+        header_tools = os_gui.get_button(
+            'noicon',
+            URL('mollie', 'invoice_pay', vars={'iID':iID}),
+            title=T("Pay now"),
+            _class='pull-right',
+            btn_class="btn-success",
+            btn_size=''
+        )
+
     back = os_gui.get_button(
         'back',
         URL('profile', 'invoices')
@@ -784,6 +795,7 @@ def invoice():
                 invoice_items = items,
                 invoice_terms = invoice_terms,
                 invoice_footer = invoice_footer,
+                header_tools = header_tools,
                 back=back)
 
 
