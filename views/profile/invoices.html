@@ -27,7 +27,7 @@
                         {{pay_now = A(T('Pay now'), _href=URL('mollie', 'invoice_pay', vars={'iID':row.invoices.id}), _class='btn btn-success') if row.invoices.Status == 'sent' else ''}}
                     {{ pass }}
                  
-                    {{table.append(TR(TD(repr_row.invoices.InvoiceID),
+                    {{table.append(TR(TD(A(repr_row.invoices.InvoiceID, _href=URL('invoice', vars={'iID':row.invoices.id}))),
                                       TD(repr_row.invoices.DateCreated),
                                       TD(repr_row.invoices.DateDue),
                                       TD(repr_row.invoices_amounts.TotalPriceVAT),

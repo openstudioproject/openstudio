@@ -663,6 +663,131 @@ def classcard_info():
 
 
 @auth.requires_login()
+def invoice():
+    """
+    Display invoice for a customer
+    """
+    from openstudio.os_invoice import Invoice
+
+    response.title = T('Invoice')
+
+    iID = request.vars['iID']
+
+    invoice = Invoice(iID)
+
+    if not invoice.get_linked_customer_id() == auth.user.id:
+        session.flash = T("That invoice isn't yours...")
+        redirect(URL('profile', 'invoices'))
+
+    response.subtitle = invoice.invoice.InvoiceID
+
+    si = invoice.get_studio_info()
+    studio_info = DIV(
+        DIV(H3(T('From'), _class='box-title'),
+            _class='box-header'),
+        DIV(B(si['name']),
+            XML(si['address']), BR(),
+            si['email'], BR(),
+            si['phone'], BR(),
+            si['registration'], BR(),
+            si['tax_registration'], BR(),
+            _class="box-body"),
+        _class='box box-solid'
+    )
+
+    ci = invoice.get_customer_info()
+    customer_info = DIV(
+        DIV(H3(T('Bill to'), _class='box-title'),
+            _class='box-header'),
+        DIV(B(ci['company']),
+            ci['name'], BR(),
+            XML(ci['address'].replace('\n', '<br>')), BR(),
+            # ci['registration'], BR(),
+            # ci['tax_registration'], BR(),
+            _class="box-body"),
+        _class='box box-solid'
+    )
+
+    invoice_info = DIV(
+        DIV(H3(T('About'), _class='box-title'),
+            _class='box-header'),
+        DIV(LABEL(T("Issued")), BR(),
+            invoice.invoice.DateCreated.strftime(DATE_FORMAT), BR(),
+            LABEL(T("Due date")), BR(),
+            invoice.invoice.DateDue.strftime(DATE_FORMAT), BR(),
+            LABEL(T("Status")), BR(),
+            represent_invoice_status(invoice.invoice.Status, invoice.invoice),
+            _class="box-body"),
+        _class='box box-solid'
+    )
+
+    items_header = THEAD(TR(
+        TH('Product Name'),
+        TH('Description'),
+        TH('Quantity'),
+        TH('Price incl. VAT'),
+        TH(SPAN('Subtotal', _class='pull-right')),
+        TH(SPAN('Tax rate', _class='pull-right')),
+    ))
+    items = TABLE(items_header, _class="table table-striped")
+    rows = invoice.get_invoice_items_rows()
+    for i, row in enumerate(rows):
+        repr_row = repr_row = list(rows[i:i + 1].render())[0]
+
+        items.append(TR(
+            TD(row.ProductName),
+            TD(row.Description),
+            TD(row.Quantity),
+            TD(repr_row.Price),
+            TD(SPAN(repr_row.TotalPrice, _class='pull-right')),
+            TD(SPAN(repr_row.tax_rates_id, _class='pull-right')),
+        ))
+
+    # add totals
+    amounts_total = invoice.get_amounts()
+    amounts_vat   = invoice.get_amounts_tax_rates(formatted=False)
+
+    # try:
+    tfoot = TFOOT()
+    amounts = [ [ T('Sub total'), amounts_total.TotalPrice ] ]
+
+    for tax_rate in amounts_vat:
+        amounts.append( [ tax_rate['Name'], tax_rate['Amount']])
+
+    amounts.append([T('Total')    , amounts_total.TotalPriceVAT ])
+
+    for amount in amounts:
+        tfoot.append(TR(TD(),
+                        TD(),
+                        TD(),
+                        TD(amount[0], _class='bold'),
+                        TD(SPAN(CURRSYM, ' ',
+                                format(amount[1], '.2f'),
+                                _class='bold pull-right')),
+                        # TD(),
+                        # TD(),
+                        TD(),
+                        ))
+    items.append(tfoot)
+
+    invoice_terms = XML(invoice.invoice.Terms.replace('\n', '<br>'))
+    invoice_footer = XML(invoice.invoice.Footer.replace('\n', '<br>'))
+
+    back = os_gui.get_button(
+        'back',
+        URL('profile', 'invoices')
+    )
+
+    return dict(studio_info = studio_info,
+                customer_info = customer_info,
+                invoice_info = invoice_info,
+                invoice_items = items,
+                invoice_terms = invoice_terms,
+                invoice_footer = invoice_footer,
+                back=back)
+
+
+@auth.requires_login()
 def invoices():
     """
         Shows all invoices for a customer

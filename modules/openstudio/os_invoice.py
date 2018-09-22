@@ -268,6 +268,53 @@ class Invoice:
         return return_value
 
 
+    def get_studio_info(self):
+        """
+        :return: dict with studio info
+        """
+        ORGANIZATIONS = current.globalenv['ORGANIZATIONS']
+
+        try:
+            organization = ORGANIZATIONS[ORGANIZATIONS['default']]
+
+            company_name = organization['Name']
+            company_address = organization['Address']
+            company_email = organization['Email'] or ''
+            company_phone = organization['Phone'] or ''
+            company_registration = organization['Registration'] or ''
+            company_tax_registration = organization['TaxRegistration'] or ''
+        except KeyError:
+            company_name = ''
+            company_address = ''
+            company_email = ''
+            company_phone = ''
+            company_registration = ''
+            company_tax_registration = ''
+
+        return dict(
+            name = company_name,
+            address = company_address,
+            email = company_email,
+            phone = company_phone,
+            registration = company_registration,
+            tax_registration = company_tax_registration,
+        )
+
+
+    def get_customer_info(self):
+        """
+        :return: dict with customer info
+        """
+
+        #TODO: Add registration and tax registration fields after merging exact online branch
+        return dict(
+            company = self.invoice.CustomerCompany or '',
+            name = self.invoice.CustomerName or '',
+            list_name = self.invoice.CustomerListName or '',
+            address = self.invoice.CustomerAddress or ''
+        )
+
+
     def get_item_next_sort_nr(self):
         """
             Returns the next item number for an invoice

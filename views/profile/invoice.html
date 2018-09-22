@@ -1,0 +1,51 @@
+{{extend 'layout_shop.html'}}
+
+{{block header}}
+{{try:}}{{=header_tools}}{{except:}}{{pass}}{{pass}}
+{{try:}}{{=back}}{{except:}}{{pass}}{{pass}}
+{{end}}
+
+<div class="row">
+	<div class="col-md-4">{{=studio_info}}</div>
+	<div class="col-md-4">{{=customer_info}}</div>
+	<div class="col-md-4">{{=invoice_info}}</div>
+</div>
+
+<div class="row">
+	<div class="col-md-12">
+		<div class="box box-solid">
+			<div class="box-body">
+				{{=invoice_items}}
+			</div>
+		</div>
+	</div>
+</div>
+
+{{ if invoice_terms: }}
+	<div class="row">
+		<div class="col-md-12">
+			<div class="box box-solid">
+				<div class="box-header">
+					<h3 class="box-title">{{=T("Terms")}}</h3>
+				</div>
+				<div class="box-body">
+					{{=invoice_terms}}
+				</div>
+			</div>
+		</div>
+	</div>
+{{ pass }}
+
+<div class="row">
+	<div class="col-md-12">
+		<div class="box box-solid">
+			<div class="box-header">
+				<h3 class="box-title">{{=T("Footer")}}</h3>
+			</div>
+			<div class="box-body">
+				{{=invoice_footer}}
+			</div>
+		</div>
+	</div>
+</div>
+
