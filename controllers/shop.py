@@ -1062,8 +1062,6 @@ def subscription_terms():
     customer_has_membership = customer.has_membership_on_date(startdate)
     customer_subscriptions_ids = customer.get_school_subscriptions_ids_on_date(startdate)
 
-    print customer_subscriptions_ids
-
     if int(ssuID) in customer_subscriptions_ids:
         content =  SPAN(
             H3(ssu.Name),
