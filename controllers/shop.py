@@ -1086,15 +1086,23 @@ def subscription_terms():
 
     subscription_conditions = DIV(terms, _class='well')
 
-    confirm = A(B(T('I agree')),
-                _href=URL('mollie', 'subscription_buy_now', vars={'ssuID':ssuID}),
-                _class='btn btn-primary')
+    if payment_method.PropertyValue == 'mollie':
+        confirm_message = DIV(B('Hereby I confirm all terms and conditions'))
+        confirm = A(B(T('I agree')),
+                    _href=URL('mollie', 'subscription_buy_now', vars={'ssuID':ssuID}),
+                    _class='btn btn-primary')
+    else:
+        confirm_message = DIV(B('Hereby I confirm the Mandate and all terms and conditions'))
+        confirm =  A(B(T('I agree')),
+                    _href=URL('subscription_invoice', vars={'ssuID': ssuID}),
+                    _class='btn btn-primary')
     cancel = A(B(T('Cancel')),
                _href=URL('subscriptions'),
                _class='btn btn-default')
 
     content = DIV(H4(T('Terms & conditions')),
                   subscription_conditions,
+                  confirm_message,
                   confirm,
                   cancel)
 
