@@ -20,8 +20,7 @@ const fetchCustomers = () => {
       return dispatch => {
           dispatch(requestCustomers())
 
-          console.log(params)
-          axios_os.post(OS_API.CUSTOMERS, params)
+          axios_os.post(OS_API.CUSTOMERS)
           .then(function (response) {
             // handle success
             dispatch(receiveCustomers(response.data))

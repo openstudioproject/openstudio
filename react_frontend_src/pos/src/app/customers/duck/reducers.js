@@ -4,14 +4,15 @@ export const customersReducer = (state = {}, action={ type: null }) => {
     switch (action.type) {
         case T.REQUEST_CUSTOMERS:
             return {
-                ...state,
+                loading: true,
+                loaded: false,
                 loading: action.loading,
             }
         case T.RECEIVE_CUSTOMERS:
             return {
-                loading: true,
-                loaded: false,
-                data: {}
+                loading: false,
+                loaded: true,
+                data: action.data
             }
         // case T.CHECKIN_RECEIVE_CLASS_ATTENDANCE:
         //     return {

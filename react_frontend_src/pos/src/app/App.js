@@ -30,6 +30,7 @@ class App extends Component {
   componentWillMount() {
     this.props.fetchUser()    
     this.props.fetchSettings()  
+    this.props.fetchCustomers()
     this.props.fetchShopSchoolClasscards()
     this.props.fetchShopSchoolMemberships()
     this.props.fetchShopSchoolSubscriptions()
