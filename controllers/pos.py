@@ -430,7 +430,19 @@ def get_customers():
             (db.auth_user.trashed == False)
 
     rows = db(query).select(
-        db.auth_user.ALL
+        db.auth_user.first_name,
+        db.auth_user.last_name,
+        db.auth_user.display_name,
+        db.auth_user.gender,
+        db.auth_user.date_of_birth,
+        db.auth_user.address,
+        db.auth_user.postcode,
+        db.auth_user.city,
+        db.auth_user.country,
+        db.auth_user.phone,
+        db.auth_user.mobile,
+        db.auth_user.emergency,
+        db.auth_user.company,
     )
 
     return dict(data=rows.as_list())
