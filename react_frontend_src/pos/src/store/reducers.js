@@ -7,6 +7,7 @@ import {
  import  checkinBookReducer from '../app/checkin/book/duck'
  import  checkinClassesReducer from '../app/checkin/classes/duck'
  import  checkinRevenueReducer from '../app/checkin/revenue/duck'
+ import customersReducer from '../app/customers/duck'
  import shopReducer from '../app/shop/reducers'
 
 const rootReducer = combineReducers({
@@ -16,6 +17,7 @@ const rootReducer = combineReducers({
   checkin_book: checkinBookReducer,
   checkin_classes: checkinClassesReducer,
   checkin_revenue: checkinRevenueReducer,
+  customers: customersReducer,
   shop: shopReducer
   // home: homeReducer
 });

@@ -6,8 +6,8 @@ import {
     // clearCheckinSearchTimeout as clear_search_timeout
 } from './actions'
 
-import axios_os from '../../../../utils/axios_os'
-import OS_API from '../../../../utils/os_api'
+import axios_os from '../../../utils/axios_os'
+import OS_API from '../../../utils/os_api'
 
 // just pass these actions as there's nothing else they need to do
 // Put pass-through actions here
