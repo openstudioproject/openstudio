@@ -34,8 +34,9 @@ class Customers extends Component {
 
     }
 
-    doSomething() {
+    setSearchValue(value) {
         console.log('done something :)!')
+        console.log(value)
     }
 
     onChange(e) {
@@ -47,10 +48,9 @@ class Customers extends Component {
             console.log('reset timeout')
         }
 
-        const history = this.props.history
         let timeout
         this.props.setSearchTimeout(
-            setTimeout(() => this.doSomething(), 
+            setTimeout(() => this.setSearchValue(value), 
                 (validator.isInt(value)) ? timeout = 225 : timeout = 750)
         )
     }
