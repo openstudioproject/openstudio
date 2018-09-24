@@ -39,7 +39,8 @@
     "customers": {
         "loading": false,
         "loaded": false,
-        "data": {}
+        "data": {},
+        "searchTimeout": 0
     },
     "shop": {
         "school": {

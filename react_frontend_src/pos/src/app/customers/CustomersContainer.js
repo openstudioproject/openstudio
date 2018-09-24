@@ -4,6 +4,7 @@ import { withRouter } from 'react-router'
 
 import Customers from './Customers'
 import { appOperations } from '../duck'
+import { customersOperations } from './duck'
 
 
 const mapStateToProps = state => 
@@ -17,12 +18,12 @@ const mapDispatchToProps = dispatch =>
         setPageTitle(title) {
             dispatch(appOperations.setPageTitle(title))
         },
-        // clearCheckinSearchTimeout() {
-        //     dispatch(checkinAttendanceOperations.clearCheckinSearchTimeout())
-        // },
-        // setCheckinSearchTimeout(timeout) {
-        //     dispatch(checkinAttendanceOperations.setCheckinSearchTimeout(timeout))
-        // }
+        clearSearchTimeout() {
+            dispatch(customersOperations.clearSearchTimeout())
+        },
+        setSearchTimeout(timeout) {
+            dispatch(customersOperations.setSearchTimeout(timeout))
+        }
     })
 
 

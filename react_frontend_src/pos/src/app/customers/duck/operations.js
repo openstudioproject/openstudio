@@ -1,9 +1,9 @@
 import {
     requestCustomers,
-    receiveCustomers
+    receiveCustomers,
     // setCheckinClassAttendanceSearchCustomerID as set_customer_id,
-    // setCheckinSearchTimeout as set_search_timeout,
-    // clearCheckinSearchTimeout as clear_search_timeout
+    setSearchTimeout,
+    clearSearchTimeout
 } from './actions'
 
 import axios_os from '../../../utils/axios_os'
@@ -12,8 +12,6 @@ import OS_API from '../../../utils/os_api'
 // just pass these actions as there's nothing else they need to do
 // Put pass-through actions here
 // const setCheckinClassAttendanceSearchCustomerID = set_customer_id
-// const clearCheckinSearchTimeout = clear_search_timeout
-// const setCheckinSearchTimeout = set_search_timeout
 
 // data fetchers
 const fetchCustomers = () => {
@@ -38,8 +36,8 @@ const fetchCustomers = () => {
 
 
 export default {
-    fetchCustomers
+    fetchCustomers,
     // setCheckinClassAttendanceSearchCustomerID,
-    // setCheckinSearchTimeout,
-    // clearCheckinSearchTimeout
+    setSearchTimeout,
+    clearSearchTimeout
 }

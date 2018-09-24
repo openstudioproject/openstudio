@@ -25,17 +25,16 @@ export const customersReducer = (state = {}, action={ type: null }) => {
         //         ...state,
         //         search_customer_id: action.search_customer_id,
         //     }
-        // case T.CHECKIN_CLEAR_SEARCH_TIMEOUT:
-        //     return {
-        //         ...state,
-        //         searchTimeout: clearTimeout(state.searchTimeout),
-                
-        //     }
-        // case T.CHECKIN_SET_SEARCH_TIMEOUT:
-        //     return {
-        //         ...state,
-        //         searchTimeout: action.timeout,
-        //     }
+        case T.CLEAR_SEARCH_TIMEOUT:
+            return {
+                ...state,
+                searchTimeout: clearTimeout(state.searchTimeout), 
+            }
+        case T.SET_SEARCH_TIMEOUT:
+            return {
+                ...state,
+                searchTimeout: action.timeout,
+            }
         default:
             return {
                 ...state

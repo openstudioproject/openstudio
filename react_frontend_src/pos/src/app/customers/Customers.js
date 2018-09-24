@@ -2,6 +2,7 @@ import React, { Component } from "react"
 import { intlShape } from "react-intl"
 import PropTypes from "prop-types"
 import { NavLink } from 'react-router-dom'
+import validator from 'validator'
 
 
 import PageTemplate from "../../components/PageTemplate"
@@ -12,6 +13,7 @@ import ButtonBack from "../../components/ui/ButtonBack"
 class Customers extends Component {
     constructor(props) {
         super(props)
+        console.log("Customers props:")
         console.log(props)
     }
 
@@ -19,7 +21,7 @@ class Customers extends Component {
         intl: intlShape.isRequired,
         setPageTitle: PropTypes.function,
         app: PropTypes.object,
-        customers: PropTypes.object,
+        state: PropTypes.object,
     }
 
     componentWillMount() {
@@ -32,24 +34,25 @@ class Customers extends Component {
 
     }
 
+    doSomething() {
+        console.log('done something :)!')
+    }
+
     onChange(e) {
         const value = e.target.value
-        const state = this.props.attendance
-        console.log("timeout: " + state.searchTimeout)
-        if ( state.searchTimeout ) {
+        const customers = this.props.customers
+        console.log("timeout: " + customers.searchTimeout)
+        if ( customers.searchTimeout ) {
             this.props.clearSearchTimeout()
             console.log('reset timeout')
         }
 
         const history = this.props.history
-        const clsID = this.props.match.params.clsID
         let timeout
         this.props.setSearchTimeout(
-            setTimeout(() => this.toBookingOptions(clsID, value, history), 
-                (isInt(value)) ? timeout = 225 : timeout = 750)
+            setTimeout(() => this.doSomething(), 
+                (validator.isInt(value)) ? timeout = 225 : timeout = 750)
         )
-
-
     }
 
 

@@ -30,13 +30,13 @@ export const receiveCustomers = (data) =>
 //         search_id,
 //     })
 
-// export const clearCheckinSearchTimeout = () =>
-//     ({
-//         type: T.CHECKIN_CLEAR_SEARCH_TIMEOUT
-//     })
+export const clearSearchTimeout = () =>
+    ({
+        type: T.CLEAR_SEARCH_TIMEOUT
+    })
 
-// export const setCheckinSearchTimeout = (timeout) =>
-//     ({
-//         type: T.CHECKIN_SET_SEARCH_TIMEOUT,
-//         timeout,
-//     })
+export const setSearchTimeout = (timeout) =>
+    ({
+        type: T.SET_SEARCH_TIMEOUT,
+        timeout,
+    })
