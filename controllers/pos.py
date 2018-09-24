@@ -417,3 +417,20 @@ def get_school_memberships():
 
     return dict(data=data)
 
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'auth_user'))
+def get_customers():
+    """
+    List not trashed customers
+    """
+    set_headers()
+
+    query = (db.auth_user.customer == True) & \
+            (db.auth_user.trashed == False)
+
+    rows = db(query).select(
+        db.auth_user.ALL
+    )
+
+    return dict(data=rows.as_list())
