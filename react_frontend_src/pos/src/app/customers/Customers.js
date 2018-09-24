@@ -22,9 +22,9 @@ class Customers extends Component {
     }
 
     componentWillMount() {
-        // this.props.setPageTitle(
-        //     this.props.intl.formatMessage({ id: 'app.pos.checkin.page_title' })
-        // )
+        this.props.setPageTitle(
+            this.props.intl.formatMessage({ id: 'app.pos.customers.page_title' })
+        )
     }
 
     componentDidMount() {
@@ -37,12 +37,13 @@ class Customers extends Component {
    
     render() {
         const customers = this.props.customers
+        const intl = this.props.intl
 
         return (
             <PageTemplate app_state={this.props.app}>
                 { 
                     (!customers.loaded) ? 
-                        <div>Loading customers, please wait...</div> :
+                        <div>{intl.formatMessage({ id: 'app.pos.customers.loading_message' })}</div> :
                         <section className="customers_main">
                             {/* <div className="pull-right">
                                 <NavLink to={"/checkin/revenue/" + this.props.match.params.clsID}>
@@ -59,4 +60,4 @@ class Customers extends Component {
     }
 }
 
-export default Attendance
+export default Customers

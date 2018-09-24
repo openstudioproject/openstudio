@@ -44,6 +44,8 @@ export const ENGLISH_TRANSLATION = {
         "app.pos.checkin.revenue.total.verified": "Verified",
         "app.pos.checkin.revenue.total.not_verified": "Not verified",
         "app.pos.checkin.revenue.total.studio_revenue": "Studio revenue",
+        "app.pos.customers.page_title": "Customers",
+        "app.pos.customers.loading_message": "Loading customers... please wait",
         "app.pos.home.hello": "Hello! A nice start-up screen will go here...",
         "app.pos.home.page_title": "Welcome",
         "app.pos.permissions_error.page_title": "Whoops... ",
