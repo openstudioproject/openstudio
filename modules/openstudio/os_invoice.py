@@ -734,70 +734,8 @@ class Invoice:
         return iiID
 
 
-    def item_add_teacher_class_credit_payment(self,
-                                              clsID,
-                                              date,
-                                              payment_type='fixed_rate'):
-        """
-        :param clsID: db.classes.id
-        :param date: datetime.date class date
-        :return:
-        """
-        from os_class import Class
-        from os_teacher import Teacher
-
-        DATE_FORMAT = current.DATE_FORMAT
-        TIME_FORMAT = current.TIME_FORMAT
-        db = current.db
-        T = current.T
-
-        cls = Class(clsID, date)
-        teID = self.get_linked_customer_id()
-        teacher = Teacher(teID)
-
-        default_rates = teacher.get_payment_fixed_rate_default()
-        class_rates = teacher.get_payment_fixed_rate_classes_dict()
-
-        if not default_rates and not class_rates:
-            return None  # No rates set, not enough data to create invoice item
-
-        default_rate = default_rates.first()
-        price = default_rate.ClassRate
-        tax_rates_id = default_rate.tax_rates_id
-
-        # Set price and tax rate
-        try:
-            class_prices = class_rates.get(int(clsID), False)
-            if class_prices:
-                price = class_prices.ClassRate
-                tax_rates_id = class_prices.tax_rates_id
-        except (AttributeError, KeyError):
-            pass
-
-
-        # add item to invoice
-        next_sort_nr = self.get_item_next_sort_nr()
-
-        iiID = db.invoices_items.insert(
-            invoices_id=self.invoices_id,
-            ProductName=T('Class'),
-            Description=cls.get_name(),
-            Quantity=1,
-            Price=price * -1,
-            Sorting=next_sort_nr,
-            tax_rates_id=tax_rates_id,
-        )
-
-        self.set_amounts()
-
-        self.on_update()
-
-        return iiID
-
-
     def item_add_teacher_class_attendance_credit_payment(self,
-                                                         tpcID,
-                                                         payment_type='attendance_count'):
+                                                         tpcID):
         """
         :param clsID: db.classes.id
         :param date: datetime.date class date
@@ -819,8 +757,12 @@ class Invoice:
         )
 
         # Get amount & tax rate
-        price = tpc.row.ClassRate
+        rate = tpc.row.ClassRate
         tax_rates_id = tpc.row.tax_rates_id
+
+        tax_rate = db.tax_rates(tax_rates_id)
+        percentage = float(tax_rate.Percentage / 100)
+        price = rate * (1 + percentage)
 
         # add item to invoice
         if price > 0:
@@ -863,6 +805,10 @@ class Invoice:
 
         cls = Class(clsID, date)
 
+        tax_rate = db.tax_rates(tax_rates_id)
+        percentage = float(tax_rate.Percentage / 100)
+        price = amount * (1 + percentage)
+
         # add item to invoice
         next_sort_nr = self.get_item_next_sort_nr()
 
@@ -871,7 +817,7 @@ class Invoice:
             ProductName=T('Travel allowance'),
             Description=cls.get_name(),
             Quantity=1,
-            Price=amount * -1,
+            Price=price * -1,
             Sorting=next_sort_nr,
             tax_rates_id=tax_rates_id,
         )

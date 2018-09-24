@@ -501,6 +501,7 @@ class Class:
             if cotc:
                 if cotc.auth_teacher_id2:
                     teacher2 = db.auth_user(cotc.auth_teacher_id2)
+
         except AttributeError:
             # No teacher(s) found for this date
             error = True
