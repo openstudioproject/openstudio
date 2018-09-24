@@ -1,9 +1,9 @@
 import React from "react"
 
-const ButtonBack = ({children}) =>
-    <button className="btn btn-default">
+const ButtonBack = ({onClick=f=>f, children}) =>
+    <button onClick={onClick} className="btn btn-default">
         <i className="fa fa-chevron-left"></i>
         {children}
     </button>
 
-export default Box
+export default ButtonBack

@@ -6,6 +6,7 @@ import { NavLink } from 'react-router-dom'
 
 import PageTemplate from "../../components/PageTemplate"
 import InputGroupSearch from "../../components/ui/InputGroupSearch"
+import ButtonBack from "../../components/ui/ButtonBack"
 
 
 class Customers extends Component {
@@ -34,7 +35,13 @@ class Customers extends Component {
     onChange(e) {
         console.log(e)
     }
-   
+
+
+    onClickButtonBack(e) {
+        console.log("clicked")
+        this.props.history.push('/products/school/classcards')
+    }
+
     render() {
         const customers = this.props.customers
         const intl = this.props.intl
@@ -50,6 +57,9 @@ class Customers extends Component {
                                     {this.props.intl.formatMessage({ id: "app.pos.checkin.attendane.verify_teacher_payment"})}
                                 </NavLink>
                             </div> */}
+                            <ButtonBack onClick={this.onClickButtonBack.bind(this)}>
+                                Cancel
+                            </ButtonBack>
                             <InputGroupSearch placeholder={this.props.intl.formatMessage({ id: 'app.general.placeholders.search' })}
                                               onChange={this.onChange.bind(this)} /> <br />
                             {/* <AttendanceList attendance_items={this.props.attendance.data} /> */}
