@@ -36,6 +36,11 @@
         "teacher_payment_verifying": false,
         "teacher_payment": {}
     },
+    "customers": {
+        "loading": false,
+        "loaded": false,
+        "data": {}
+    },
     "shop": {
         "school": {
             "classcards": {
