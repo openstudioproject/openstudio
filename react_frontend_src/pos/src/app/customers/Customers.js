@@ -33,7 +33,23 @@ class Customers extends Component {
     }
 
     onChange(e) {
-        console.log(e)
+        const value = e.target.value
+        const state = this.props.attendance
+        console.log("timeout: " + state.searchTimeout)
+        if ( state.searchTimeout ) {
+            this.props.clearSearchTimeout()
+            console.log('reset timeout')
+        }
+
+        const history = this.props.history
+        const clsID = this.props.match.params.clsID
+        let timeout
+        this.props.setSearchTimeout(
+            setTimeout(() => this.toBookingOptions(clsID, value, history), 
+                (isInt(value)) ? timeout = 225 : timeout = 750)
+        )
+
+
     }
 
 
