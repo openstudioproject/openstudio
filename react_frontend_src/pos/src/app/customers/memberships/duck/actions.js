@@ -1,4 +1,4 @@
-import T from './Types'
+import T from './types'
 
 export const requestMemberships = () =>
     ({
