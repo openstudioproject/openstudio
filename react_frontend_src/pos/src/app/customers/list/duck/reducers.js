@@ -38,6 +38,11 @@ export const listReducer = (state = {}, action={ type: null }) => {
                 ...state,
                 searchTimeout: action.timeout,
             }
+        case T.SET_SEARCH_CUSTOMER_ID:
+            return {
+                ...state,
+                searchID: action.id,
+            }
         default:
             return {
                 ...state

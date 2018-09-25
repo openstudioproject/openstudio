@@ -41,7 +41,8 @@
             "loading": false,
             "loaded": false,
             "data": {},
-            "searchTimeout": 0
+            "searchTimeout": 0,
+            "searchID": null
         }
     },
     "shop": {
