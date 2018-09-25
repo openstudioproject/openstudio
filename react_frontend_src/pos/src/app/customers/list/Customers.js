@@ -36,18 +36,43 @@ class Customers extends Component {
     }
 
     setSearchValue(value) {
-        const barcode_scans = this.props.customers_barcodes
+        console.log('done something :)!')
+        console.log(this.props)
+
+        const barcode_scans = this.props.barcode_scans
+        const memberships = this.props.memberships.data
+
+
+        console.log(barcode_scans)
+        let cuID
 
         if (validator.isInt(value)) {
-            if (barcode_scans === 'membership_id') {
+            console.log('This is an int!')
+            if (barcode_scans == 'membership_id') {
                 // find customer ID
-            }
-            
-            const cuID = value
+                console.log('looking for cuID in memberships')
+                for (const key of Object.keys(memberships)) {
+                    let m = memberships[key]
+                    console.log(m)
+                    if ( m['date_id'] == value) {
+                        cuID = m['auth_customer_id']
+                    }
 
+                }
+            } else {
+                cuID = value
+            }
+
+            console.log('customerID')
+            console.log(cuID)
+            
+            
+
+        } else {
+            console.log('not an int value')
         }
 
-        console.log('done something :)!')
+        
         console.log(value)
     }
 
@@ -76,11 +101,12 @@ class Customers extends Component {
     render() {
         const customers = this.props.customers
         const intl = this.props.intl
+        const memberships = this.props.memberships
 
         return (
             <PageTemplate app_state={this.props.app}>
                 { 
-                    (!customers.loaded) ? 
+                    (!customers.loaded || !memberships.loaded) ? 
                         <div>{intl.formatMessage({ id: 'app.pos.customers.loading_message' })}</div> :
                         <section className="customers_main">
                             {/* <div className="pull-right">

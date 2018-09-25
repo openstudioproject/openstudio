@@ -11,7 +11,8 @@ const mapStateToProps = state =>
     ({
         app: state.app,
         barcode_scans: state.app.settings.data.customers_barcodes,
-        customers: state.customers.list
+        customers: state.customers.list,
+        memberships: state.customers.memberships
     })
 
 const mapDispatchToProps = dispatch =>
