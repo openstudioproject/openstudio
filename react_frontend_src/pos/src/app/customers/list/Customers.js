@@ -10,6 +10,8 @@ import InputGroupSearch from "../../../components/ui/InputGroupSearch"
 import ButtonBack from "../../../components/ui/ButtonBack"
 
 
+import CustomersList from "./CustomersList"
+
 class Customers extends Component {
     constructor(props) {
         super(props)
@@ -67,14 +69,11 @@ class Customers extends Component {
 
             console.log('customerID')
             console.log(cuID)
-            
-            
 
         } else {
             console.log('not an int value')
         }
 
-        
         console.log(value)
     }
 
@@ -111,16 +110,14 @@ class Customers extends Component {
                     (!customers.loaded || !memberships.loaded) ? 
                         <div>{intl.formatMessage({ id: 'app.pos.customers.loading_message' })}</div> :
                         <section className="customers_main">
-                            {/* <div className="pull-right">
-                                <NavLink to={"/checkin/revenue/" + this.props.match.params.clsID}>
-                                    {this.props.intl.formatMessage({ id: "app.pos.checkin.attendane.verify_teacher_payment"})}
-                                </NavLink>
-                            </div> */}
                             <ButtonBack onClick={this.onClickButtonBack.bind(this)}>
                                 Cancel
                             </ButtonBack>
                             <InputGroupSearch placeholder={this.props.intl.formatMessage({ id: 'app.general.placeholders.search' })}
                                               onChange={this.onChange.bind(this)} /> <br />
+
+                            <CustomersList customers={customers}
+                                           intl={intl} />
                             {/* <AttendanceList attendance_items={this.props.attendance.data} /> */}
                         </section>
                 }
