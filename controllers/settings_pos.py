@@ -29,10 +29,10 @@ def index():
     response.subtitle = T("Point of Sale")
     response.view = 'general/tabs_menu.html'
 
-    pos_barcodes_checkin = get_sys_property('pos_barcodes_checkin')
+    pos_barcodes_checkin = get_sys_property('pos_customers_barcodes')
 
     form = SQLFORM.factory(
-        Field('pos_barcodes_checkin',
+        Field('pos_customers_barcodes',
               requires=IS_IN_SET([
                   ['customer_id', T("Customer ID")],
                   ['membership_id', T("Customer membership ID")],
@@ -50,8 +50,8 @@ def index():
     submit = result['submit']
 
     if form.accepts(request.vars, session):
-        pos_barcodes_checkin = request.vars['pos_barcodes_checkin']
-        set_sys_property('pos_barcodes_checkin', pos_barcodes_checkin)
+        pos_barcodes_checkin = request.vars['pos_customers_barcodes']
+        set_sys_property('pos_customers_barcodes', pos_barcodes_checkin)
 
         # User feedback
         session.flash = T('Saved')
