@@ -4,7 +4,7 @@ import { withRouter } from 'react-router'
 
 import Customers from './Customers'
 import { appOperations } from '../../duck'
-import { customersOperations } from './duck'
+import { customersListOperations } from './duck'
 
 
 const mapStateToProps = state => 
@@ -19,10 +19,10 @@ const mapDispatchToProps = dispatch =>
             dispatch(appOperations.setPageTitle(title))
         },
         clearSearchTimeout() {
-            dispatch(customersOperations.clearSearchTimeout())
+            dispatch(customersListOperations.clearSearchTimeout())
         },
         setSearchTimeout(timeout) {
-            dispatch(customersOperations.setSearchTimeout(timeout))
+            dispatch(customersListOperations.setSearchTimeout(timeout))
         }
     })
 
