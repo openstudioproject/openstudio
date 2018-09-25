@@ -670,7 +670,7 @@ class Invoice:
                 db.invoices_items.insert(
                     invoices_id = self.invoices_id,
                     ProductName = current.T("Registration fee"),
-                    Description = curren.T('One time registration fee'),
+                    Description = current.T('One time registration fee'),
                     Quantity = 1,
                     Price = registration_fee,
                     Sorting = next_sort_nr,

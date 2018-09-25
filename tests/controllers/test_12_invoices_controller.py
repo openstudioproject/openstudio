@@ -115,7 +115,9 @@ def test_invoice_add_from_customer_subscription_with_registration_fee(client, we
     assert client.status == 200
 
     populate_customers_with_subscriptions(web2py, 2)
-    web2py.db.school_subscriptions[1]=dict(RegistrationFee=25.00)
+
+    # Update first school subscription to have a registration fee
+    web2py.db.school_subscriptions[1] = dict(RegistrationFee=25.00)
     web2py.db.commit()
     url = '/customers/subscription_invoices?cuID=1001&csID=1'
     client.get(url)
@@ -144,7 +146,7 @@ def test_invoice_add_from_customer_subscription_with_registration_fee(client, we
 
 
     # verify if registration fee is added
-    assert web2py.db(web2py.db.invoices_items.ProductName =='Registration Fee').count() == 1
+    assert web2py.db(web2py.db.invoices_items.ProductName =='Registration fee').count() == 1
     assert web2py.db(web2py.db.invoices.id >0).count()        == 2
 
 
