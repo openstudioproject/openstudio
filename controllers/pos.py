@@ -447,6 +447,8 @@ def get_customers():
     )
 
     customers = {}
+    memberships = get_customers_memberships()
+
     for row in rows:
         customers[row.id] = {
             'first_name': row.first_name,
@@ -461,8 +463,46 @@ def get_customers():
             'phone': row.phone,
             'mobile': row.mobile,
             'emergency': row.emergency,
-            'company': row.company
+            'company': row.company,
+            'memberships': memberships.get(row.id, {})
         }
 
-
     return customers
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'customers_memberships'))
+def get_customers_memberships():
+    """
+    List not trashed customers
+    """
+    set_headers()
+
+    query = (db.customers_memberships.Startdate <= TODAY_LOCAL) & \
+            ((db.customers_memberships.Enddate >= TODAY_LOCAL) |\
+             (db.customers_memberships.Enddate == None))
+
+    rows = db(query).select(
+        db.customers_memberships.id,
+        db.customers_memberships.auth_customer_id,
+        db.customers_memberships.school_memberships_id,
+        db.customers_memberships.Startdate,
+        db.customers_memberships.Enddate,
+        db.customers_memberships.DateID
+    )
+
+    memberships = {}
+    for i, row in enumerate(rows):
+        repr_row = list(rows[i:i + 1].render())[0]
+
+        if not row.auth_customer_id in memberships:
+            memberships[row.auth_customer_id] = {}
+
+        memberships[row.auth_customer_id][row.id] = {
+            'name': repr_row.school_memberships_id,
+            'start': row.Startdate,
+            'end': row.Enddate,
+            'date_id': row.DateID
+        }
+
+    return memberships

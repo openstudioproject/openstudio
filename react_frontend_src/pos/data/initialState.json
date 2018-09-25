@@ -42,11 +42,6 @@
             "loaded": false,
             "data": {},
             "searchTimeout": 0
-        },
-        "memberships": {
-            "loading": false,
-            "loaded": false,
-            "data": {}
         }
     },
     "shop": {

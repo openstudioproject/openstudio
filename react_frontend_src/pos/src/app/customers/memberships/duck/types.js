@@ -1,6 +1,0 @@
-const types = {
-    REQUEST_MEMBERSHIPS: "REQUEST_MEMBERSHIPS",
-    RECEIVE_MEMBERSHIPS: "RECEIVE_MEMBERSHIPS",
-}
-
-export default types

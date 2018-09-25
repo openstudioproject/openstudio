@@ -21,7 +21,7 @@ class Customers extends Component {
         intl: intlShape.isRequired,
         setPageTitle: PropTypes.function,
         app: PropTypes.object,
-        state: PropTypes.object,
+        customers: PropTypes.object,
     }
 
     componentWillMount() {
