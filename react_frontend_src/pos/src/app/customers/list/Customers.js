@@ -22,6 +22,7 @@ class Customers extends Component {
         setPageTitle: PropTypes.function,
         app: PropTypes.object,
         customers: PropTypes.object,
+        customers_barcodes: PropTypes.string
     }
 
     componentWillMount() {
@@ -35,6 +36,17 @@ class Customers extends Component {
     }
 
     setSearchValue(value) {
+        const barcode_scans = this.props.customers_barcodes
+
+        if (validator.isInt(value)) {
+            if (barcode_scans === 'membership_id') {
+                // find customer ID
+            }
+            
+            const cuID = value
+
+        }
+
         console.log('done something :)!')
         console.log(value)
     }

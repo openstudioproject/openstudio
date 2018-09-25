@@ -118,7 +118,7 @@ def get_settings():
     settings = {
         'currency_symbol': CURRSYM,
         'currency': get_sys_property('Currency'),
-        'checkin_barcodes': get_sys_property('pos_barcodes_checkin')
+        'customers_barcodes': get_sys_property('pos_customers_barcodes')
     }
 
     return dict(data = settings)
@@ -447,7 +447,6 @@ def get_customers():
     )
 
     customers = {}
-    memberships = get_customers_memberships()
 
     for row in rows:
         customers[row.id] = {
@@ -464,7 +463,6 @@ def get_customers():
             'mobile': row.mobile,
             'emergency': row.emergency,
             'company': row.company,
-            'memberships': memberships.get(row.id, {})
         }
 
     return customers
@@ -495,10 +493,8 @@ def get_customers_memberships():
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
-        if not row.auth_customer_id in memberships:
-            memberships[row.auth_customer_id] = {}
-
-        memberships[row.auth_customer_id][row.id] = {
+        memberships[row.id] = {
+            'auth_customer_id': row.auth_customer_id,
             'name': repr_row.school_memberships_id,
             'start': row.Startdate,
             'end': row.Enddate,
