@@ -1036,12 +1036,12 @@ def subscription_terms():
     response.subtitle = T('Subscription')
     response.view = 'shop/index.html'
 
-    ssuID = request.vars['ssuID']
-    ssu = SchoolSubscription(ssuID, set_db_info=True)
-
     features = db.customers_shop_features(1)
     if not features.Subscriptions:
         return T('This feature is disabled')
+
+    ssuID = request.vars['ssuID']
+    ssu = SchoolSubscription(ssuID, set_db_info=True)
 
     # check if we require a complete profile
     shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile')
