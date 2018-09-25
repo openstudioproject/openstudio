@@ -1,6 +1,6 @@
 import T from './types'
 
-export const customersReducer = (state = {}, action={ type: null }) => {
+export const listReducer = (state = {}, action={ type: null }) => {
     switch (action.type) {
         case T.REQUEST_CUSTOMERS:
             return {
@@ -14,6 +14,9 @@ export const customersReducer = (state = {}, action={ type: null }) => {
                 loaded: true,
                 data: action.data
             }
+
+        
+
         // case T.CHECKIN_RECEIVE_CLASS_ATTENDANCE:
         //     return {
         //         loading: false,
@@ -41,3 +44,5 @@ export const customersReducer = (state = {}, action={ type: null }) => {
             }
     }
 }
+
+

@@ -430,6 +430,7 @@ def get_customers():
             (db.auth_user.trashed == False)
 
     rows = db(query).select(
+        db.auth_user.id,
         db.auth_user.first_name,
         db.auth_user.last_name,
         db.auth_user.display_name,
@@ -445,4 +446,23 @@ def get_customers():
         db.auth_user.company,
     )
 
-    return dict(data=rows.as_list())
+    customers = {}
+    for row in rows:
+        customers[row.id] = {
+            'first_name': row.first_name,
+            'last_name': row.last_name,
+            'display_name': row.display_name,
+            'gender': row.gender,
+            'date_of_birth': row.date_of_birth,
+            'address': row.address,
+            'postcode': row.postcode,
+            'city': row.city,
+            'country': row.country,
+            'phone': row.phone,
+            'mobile': row.mobile,
+            'emergency': row.emergency,
+            'company': row.company
+        }
+
+
+    return customers

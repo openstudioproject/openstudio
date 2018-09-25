@@ -7,7 +7,7 @@ import {
 } from 'react-router-dom';
 
 
-import Customers from './customers/CustomersContainer'
+import Customers from './customers/list/CustomersContainer'
 import Classes from './checkin/classes/ClassesContainer'
 import Attendance from './checkin/attendance/AttendanceContainer'
 import Book from './checkin/book/BookContainer'

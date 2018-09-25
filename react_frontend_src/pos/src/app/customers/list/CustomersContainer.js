@@ -3,14 +3,14 @@ import { injectIntl } from 'react-intl';
 import { withRouter } from 'react-router'
 
 import Customers from './Customers'
-import { appOperations } from '../duck'
+import { appOperations } from '../../duck'
 import { customersOperations } from './duck'
 
 
 const mapStateToProps = state => 
     ({
         app: state.app,
-        customers: state.customers
+        customers: state.customers.list
     })
 
 const mapDispatchToProps = dispatch =>

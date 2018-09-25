@@ -5,9 +5,9 @@ import { NavLink } from 'react-router-dom'
 import validator from 'validator'
 
 
-import PageTemplate from "../../components/PageTemplate"
-import InputGroupSearch from "../../components/ui/InputGroupSearch"
-import ButtonBack from "../../components/ui/ButtonBack"
+import PageTemplate from "../../../components/PageTemplate"
+import InputGroupSearch from "../../../components/ui/InputGroupSearch"
+import ButtonBack from "../../../components/ui/ButtonBack"
 
 
 class Customers extends Component {
