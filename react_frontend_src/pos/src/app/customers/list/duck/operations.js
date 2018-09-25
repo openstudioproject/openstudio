@@ -3,7 +3,9 @@ import {
     receiveCustomers,
     // setCheckinClassAttendanceSearchCustomerID as set_customer_id,
     setSearchTimeout,
-    clearSearchTimeout
+    clearSearchTimeout,
+    setSearchCustomerID,
+    clearSearchCustomerID
 } from './actions'
 
 import axios_os from '../../../../utils/axios_os'
@@ -37,7 +39,8 @@ const fetchCustomers = () => {
 
 export default {
     fetchCustomers,
-    // setCheckinClassAttendanceSearchCustomerID,
     setSearchTimeout,
-    clearSearchTimeout
+    clearSearchTimeout,
+    setSearchCustomerID,
+    clearSearchCustomerID
 }

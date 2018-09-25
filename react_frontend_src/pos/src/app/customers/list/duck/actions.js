@@ -41,6 +41,11 @@ export const setSearchTimeout = (timeout) =>
         timeout,
     })
 
+export const clearSearchCustomerID = () =>
+    ({
+        type: T.CLEAR_SEARCH_CUSTOMER_ID
+    })
+
 export const setSearchCustomerID = (id) =>
     ({
         type: T.SET_SEARCH_CUSTOMER_ID,

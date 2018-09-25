@@ -38,10 +38,10 @@ class Customers extends Component {
     setSearchValue(value) {
         console.log('done something :)!')
         console.log(this.props)
+        this.props.clearSearchCustomerID()
 
         const barcode_scans = this.props.barcode_scans
         const memberships = this.props.memberships.data
-
 
         console.log(barcode_scans)
         let cuID
@@ -62,6 +62,8 @@ class Customers extends Component {
             } else {
                 cuID = value
             }
+
+            this.props.setSearchCustomerID(cuID)
 
             console.log('customerID')
             console.log(cuID)
