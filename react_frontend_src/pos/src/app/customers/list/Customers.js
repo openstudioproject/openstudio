@@ -106,6 +106,14 @@ class Customers extends Component {
         const intl = this.props.intl
         const memberships = this.props.memberships
 
+        let customers_display = []
+        if ( customers.searchID ) {
+            customers_display = [
+                customers.data[customers.searchID]
+            ]
+        }
+        console.log(customers_display)
+
         return (
             <PageTemplate app_state={this.props.app}>
                 { 
@@ -118,7 +126,7 @@ class Customers extends Component {
                             <InputGroupSearch placeholder={this.props.intl.formatMessage({ id: 'app.general.placeholders.search' })}
                                               onChange={this.onChange.bind(this)} /> <br />
 
-                            <CustomersList customers={customers}
+                            <CustomersList customers={customers_display}
                                            intl={intl} />
                             {/* <AttendanceList attendance_items={this.props.attendance.data} /> */}
                         </section>
