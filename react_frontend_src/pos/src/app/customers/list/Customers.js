@@ -41,6 +41,7 @@ class Customers extends Component {
     setSearchValue(value) {
         console.log('done something :)!')
         console.log(this.props)
+        this.props.clearDisplayCustomerID()
         this.props.clearSearchCustomerID()
         this.props.clearSelectedCustomerID()
 
@@ -67,6 +68,7 @@ class Customers extends Component {
                 cuID = value
             }
 
+            this.props.setDisplayCustomerID(cuID)
             this.props.setSearchCustomerID(cuID)
             this.props.setSelectedCustomerID(cuID)
 
@@ -127,7 +129,9 @@ class Customers extends Component {
                             <InputGroupSearch placeholder={this.props.intl.formatMessage({ id: 'app.general.placeholders.search' })}
                                               onChange={this.onChange.bind(this)} /> <br />
 
-                            <CustomerDisplay customerID={customers.selectedID}/>
+                            <CustomerDisplay customerID={customers.displayID}
+                                             customers={customers.data}
+                            />
 
                             <CustomersList customers={customers_display}
                                            intl={intl} />

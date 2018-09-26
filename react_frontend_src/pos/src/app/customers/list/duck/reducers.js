@@ -14,6 +14,16 @@ export const listReducer = (state = {}, action={ type: null }) => {
                 loaded: true,
                 data: action.data
             }
+        case T.CLEAR_DISPLAY_CUSTOMER_ID:
+            return {
+                ...state,
+                displayID: null,
+            }
+        case T.SET_DISPLAY_CUSTOMER_ID:
+            return {
+                ...state,
+                displayID: action.id,
+            }
         case T.CLEAR_SEARCH_TIMEOUT:
             return {
                 ...state,

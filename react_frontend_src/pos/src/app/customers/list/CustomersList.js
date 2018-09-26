@@ -7,6 +7,9 @@ import { v4 } from "uuid"
 
 const CustomersList = ({customers}) => 
     <div className="box box-solid"> 
+        <div className="box-header">
+            <h3 className="box-title">Search results</h3>
+        </div>
         <div className="box-body">
             { !(customers.length) ? "Search to list customers" :
                 <table className="table table-striped table-hover">

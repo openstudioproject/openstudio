@@ -5,13 +5,16 @@ import validator from 'validator'
 import { v4 } from "uuid"
 
 
-const CustomerDisplay = ({customerID}) => 
+const CustomerDisplay = ({customerID, customers}) => 
     <div>
         { !(customerID) ? null :
         <div className="box box-solid"> 
+            <div className="box-header">
+                <h3 className="box-title">Customer</h3>
+            </div>
             <div className="box-body">
-                
-                    hello world!            
+                {customers[customerID].display_name}
+                {customers[customerID].address}
             </div>
         </div>
         }
