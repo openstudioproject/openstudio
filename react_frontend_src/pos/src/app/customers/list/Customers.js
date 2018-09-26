@@ -11,6 +11,7 @@ import ButtonBack from "../../../components/ui/ButtonBack"
 
 
 import CustomersList from "./CustomersList"
+import CustomerDisplay from "./CustomerDisplay"
 
 class Customers extends Component {
     constructor(props) {
@@ -125,6 +126,8 @@ class Customers extends Component {
                             </ButtonBack>
                             <InputGroupSearch placeholder={this.props.intl.formatMessage({ id: 'app.general.placeholders.search' })}
                                               onChange={this.onChange.bind(this)} /> <br />
+
+                            <CustomerDisplay customerID={customers.selectedID}/>
 
                             <CustomersList customers={customers_display}
                                            intl={intl} />
