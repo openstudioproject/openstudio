@@ -41,6 +41,7 @@
             "loading": false,
             "loaded": false,
             "data": {},
+            "displayID": null,
             "searchTimeout": 0,
             "searchID": null,
             "selectedID": null
