@@ -445,6 +445,7 @@ def get_customers():
         db.auth_user.mobile,
         db.auth_user.emergency,
         db.auth_user.company,
+        db.auth_user.thumbsmall
     )
 
     customers = {}
@@ -465,6 +466,12 @@ def get_customers():
             'mobile': row.mobile,
             'emergency': row.emergency,
             'company': row.company,
+            'thumbsmall': URL(
+                'default', 'download', args=[row.thumbsmall],
+                extension='',
+                host=True,
+                scheme=True
+            )
         }
 
     return customers
