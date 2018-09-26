@@ -1094,7 +1094,7 @@ def subscription_terms():
     else:
         confirm_message = DIV(B('Hereby I confirm the Mandate and all terms and conditions'))
         confirm =  A(B(T('I agree')),
-                    _href=URL('subscription_invoice', vars={'ssuID': ssuID}),
+                    _href=URL('subscription_debit', vars={'ssuID': ssuID, 'Uid': Uid}),
                     _class='btn btn-primary')
     cancel = A(B(T('Cancel')),
                _href=URL('subscriptions'),
@@ -1111,6 +1111,47 @@ def subscription_terms():
         content = T('This feature is disabled')
 
     return dict(content=content)
+
+
+def subscription_debit():
+    """
+           Get a subscription
+       """
+    ssuID = request.vars['ssuID']
+    Uid   = request.vars['Uid']
+
+    row = db.customers_payment_info(auth_customer_id= Uid)
+    query= (db.customers_orders_direct_debit.auth_customer_id == Uid)
+    if not db(query).select().first():
+        db.customers_orders_direct_debit[0]= dict(auth_customer_id= Uid,
+                                                  customers_payment_info_id= row)
+    # add subscription to customer﻿​_
+    startdate = TODAY_LOCAL
+    shop_subscriptions_start = get_sys_property('shop_subscriptions_start')
+    if not shop_subscriptions_start == None:
+        if shop_subscriptions_start == 'next_month':
+            startdate = get_last_day_month(TODAY_LOCAL) + datetime.timedelta(days=1)
+
+    csID = db.customers_subscriptions.insert(
+        auth_customer_id=Uid,
+        school_subscriptions_id=ssuID,
+        Startdate=startdate,
+        payment_methods_id=3,  # important, 3 is the payment_methods_id for Direct Debit
+    )
+
+    # Add credits for the first month
+    cs = CustomerSubscription(csID)
+    cs.add_credits_month(startdate.year, startdate.month)
+
+    # clear cache to make sure it shows in the back end
+    cache_clear_customers_subscriptions(auth.user.id)
+
+    # Create invoice
+    cs = CustomerSubscription(csID)
+    iID = cs.create_invoice_for_month(TODAY_LOCAL.year, TODAY_LOCAL.month)
+    # iID.payment_method_id = 3
+    # Come back to the shop
+    redirect(URL('shop'))
 
 
 def subscription_redirect():
