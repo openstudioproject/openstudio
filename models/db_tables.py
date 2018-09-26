@@ -1284,7 +1284,7 @@ def define_school_subscriptions():
               ),
         Field('RegistrationFee', 'double',
               label=T('Registration Fee'),
-              default=0,
+              default = 0,
               comment=T("This Amount will be added to the first invoice for this subscription. Set to 0 for no registration fee."),
               ),
         format=format)
@@ -4493,6 +4493,29 @@ def define_customers_orders():
     )
 
 
+def define_customers_orders_direct_debit():
+    """
+        Table to hold approval of direct debit and financial data connection needed for direct debit
+    """
+    db.define_table('customers_orders_direct_debit',
+        Field('auth_customer_id', db.auth_user, required= True,
+              label= T('Customer')),
+        Field('customers_payment_info_id', db.customers_payment_info,
+              required = True,
+              label= T('Payment Info')
+              ),
+        Field('MandateSignatureDate', 'date',
+              requires=IS_EMPTY_OR(IS_DATE_IN_RANGE(format=DATE_FORMAT,
+                                                    minimum=datetime.date(1900, 1, 1),
+                                                    maximum=datetime.date(2999, 1, 1))),
+              default=TODAY_LOCAL ,
+              represent=represent_date,
+              label=T("Mandate signature date"),
+              widget=os_datepicker_widget),
+
+    )
+
+
 def define_shop_categories():
     """
         Define shop categories
@@ -5739,6 +5762,7 @@ define_customers_orders()
 define_customers_orders_items()
 define_customers_orders_amounts()
 define_customers_orders_mollie_payment_ids()
+define_customers_orders_direct_debit()
 
 
 # invoice definitions
