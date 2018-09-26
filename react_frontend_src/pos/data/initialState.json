@@ -43,6 +43,11 @@
             "data": {},
             "searchTimeout": 0,
             "searchID": null
+        },
+        "memberships": {
+            "loading": false,
+            "loaded": false,
+            "data": {}
         }
     },
     "shop": {

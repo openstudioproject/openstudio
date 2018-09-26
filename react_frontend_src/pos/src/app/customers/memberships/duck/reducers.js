@@ -14,6 +14,10 @@ export const customersMembershipsReducer = (state = {}, action={ type: null }) =
                 loaded: true,
                 data: action.data
             }
+        default:
+            return {
+                ...state
+            }
     }
 }
 

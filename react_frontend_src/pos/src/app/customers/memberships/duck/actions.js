@@ -2,7 +2,7 @@ import T from './types'
 
 export const requestMemberships = () =>
     ({
-        type: T.REQUEST_CUSTOMER_MEMBERSHIPS
+        type: T.REQUEST_CUSTOMERS_MEMBERSHIPS
     })
 
 export const receiveMemberships = (data) =>
