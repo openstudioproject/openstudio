@@ -51,3 +51,14 @@ export const setSearchCustomerID = (id) =>
         type: T.SET_SEARCH_CUSTOMER_ID,
         id
     })
+
+export const clearSelectedCustomerID = () =>
+    ({
+        type: T.CLEAR_SELECTED_CUSTOMER_ID
+    })
+
+export const setSelectedCustomerID = (id) =>
+    ({
+        type: T.SET_SELECTED_CUSTOMER_ID,
+        id
+    })

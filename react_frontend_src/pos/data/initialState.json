@@ -42,7 +42,8 @@
             "loaded": false,
             "data": {},
             "searchTimeout": 0,
-            "searchID": null
+            "searchID": null,
+            "selectedID": null
         },
         "memberships": {
             "loading": false,

@@ -41,6 +41,7 @@ class Customers extends Component {
         console.log('done something :)!')
         console.log(this.props)
         this.props.clearSearchCustomerID()
+        this.props.clearSelectedCustomerID()
 
         const barcode_scans = this.props.barcode_scans
         const memberships = this.props.memberships.data
@@ -66,6 +67,7 @@ class Customers extends Component {
             }
 
             this.props.setSearchCustomerID(cuID)
+            this.props.setSelectedCustomerID(cuID)
 
             console.log('customerID')
             console.log(cuID)

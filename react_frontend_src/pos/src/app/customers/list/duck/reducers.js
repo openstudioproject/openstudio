@@ -14,20 +14,6 @@ export const listReducer = (state = {}, action={ type: null }) => {
                 loaded: true,
                 data: action.data
             }
-
-        
-
-        // case T.CHECKIN_RECEIVE_CLASS_ATTENDANCE:
-        //     return {
-        //         loading: false,
-        //         loaded: true,
-        //         data: action.data.attendance,
-        //     }
-        // case T.CHECKIN_SET_CLASS_ATTENDANCE_SEARCH_CUSTOMER_ID:
-        //     return {
-        //         ...state,
-        //         search_customer_id: action.search_customer_id,
-        //     }
         case T.CLEAR_SEARCH_TIMEOUT:
             return {
                 ...state,
@@ -47,6 +33,16 @@ export const listReducer = (state = {}, action={ type: null }) => {
             return {
                 ...state,
                 searchID: action.id,
+            }
+        case T.CLEAR_SELECTED_CUSTOMER_ID:
+            return {
+                ...state,
+                selectedID: null,
+            }
+        case T.SET_SELECTED_CUSTOMER_ID:
+            return {
+                ...state,
+                selectedID: action.id,
             }
         default:
             return {

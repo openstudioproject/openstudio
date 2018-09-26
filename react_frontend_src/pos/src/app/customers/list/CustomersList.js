@@ -48,11 +48,24 @@ class CustomersList extends Component {
         const customers = this.props.customers
         const intl = this.props.intl
 
+        let customers_display
+        if ( customers.searchID ) {
+            customers_display = [
+                customers.data[customers.searchID]
+            ]
+        }
+        console.log(customers_display)
+
         return (
             <section>
                 List here<br/>
                 SearchID: {' '}
                 {customers.searchID}
+                <br />
+                SelectedID: {' '}
+                {customers.selectedID}
+                <br />
+
             </section>
         )
     }

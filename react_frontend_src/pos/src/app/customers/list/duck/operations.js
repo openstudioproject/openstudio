@@ -5,7 +5,9 @@ import {
     setSearchTimeout,
     clearSearchTimeout,
     setSearchCustomerID,
-    clearSearchCustomerID
+    clearSearchCustomerID,
+    setSelectedCustomerID,
+    clearSelectedCustomerID
 } from './actions'
 
 import axios_os from '../../../../utils/axios_os'
@@ -42,5 +44,7 @@ export default {
     setSearchTimeout,
     clearSearchTimeout,
     setSearchCustomerID,
-    clearSearchCustomerID
+    clearSearchCustomerID,
+    setSelectedCustomerID,
+    clearSelectedCustomerID
 }
