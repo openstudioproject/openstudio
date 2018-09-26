@@ -7,6 +7,6 @@ export const requestMemberships = () =>
 
 export const receiveMemberships = (data) =>
     ({
-        type: T.RECEIVE_CUSTOMER_MEMBERSHIPS,
+        type: T.RECEIVE_CUSTOMERS_MEMBERSHIPS,
         data
     })
