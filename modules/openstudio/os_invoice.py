@@ -619,7 +619,7 @@ class Invoice:
         if not rowsfee: # Registration fee already paid?
             row = regfee.first()
             price = row.RegistrationFee
-            if not price == 0:
+            if not price == 0 and price:
                 db.invoices_items.insert(
                     invoices_id=self.invoices_id,
                     ProductName=current.T("Registration Fee"),
