@@ -138,11 +138,15 @@ class Customers extends Component {
                             <InputGroupSearch placeholder={this.props.intl.formatMessage({ id: 'app.general.placeholders.search' })}
                                               onChange={this.onChange.bind(this)} /> <br />
                             
-                            { (customers.displayID) ? 
+                            { (customers.displayID) && !(customers.selectedID) ? 
                                 <ButtonPrimary onClick={this.onClickSetCustomer.bind(this)}>
                                     Select customer
-                                </ButtonPrimary>
-                                : "Dont show button"
+                                </ButtonPrimary> : ''
+                            }
+                            { (customers.displayID) && (customers.selectedID) ?
+                                <ButtonPrimary onClick={this.onClickDeselectCustomer.bind(this)}>
+                                    Deselect customer
+                                </ButtonPrimary> : ''   
                             }
                             <CustomerDisplay customerID={customers.displayID}
                                              customers={customers.data}
