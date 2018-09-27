@@ -1055,12 +1055,10 @@ def subscription_terms():
     payment_method = db(db.sys_properties.Property == 'shop_subscriptions_payment_method').select().first()
 
     if payment_method.PropertyValue != 'mollie' :
-        query = (((db.customers_payment_info.AccountNumber == None)&\
+        query = ((db.customers_payment_info.AccountNumber == None)&\
                  (db.customers_payment_info.auth_customer_id == Uid) &\
-                 (db.customers_payment_info.AccountHolder == None)&\
-                 (db.customers_payment_info.BankName == None)&\
-                 (db.customers_payment_info.BankLocation == None))
-                 )
+                 (db.customers_payment_info.AccountHolder == None))
+
         row= db.customers_payment_info(auth_customer_id = Uid)
         if db(query).select().first() or not row:
              redirect(URL('subscription_redirect'))
