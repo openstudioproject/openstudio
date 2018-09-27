@@ -8,6 +8,8 @@ import {
     clearDisplayCustomerID,
     setSearchCustomerID,
     clearSearchCustomerID,
+    setSearchValue,
+    clearSearchValue,
     setSelectedCustomerID,
     clearSelectedCustomerID
 } from './actions'
@@ -49,6 +51,8 @@ export default {
     clearDisplayCustomerID,
     setSearchCustomerID,
     clearSearchCustomerID,
+    setSearchValue,
+    clearSearchValue,
     setSelectedCustomerID,
     clearSelectedCustomerID
 }

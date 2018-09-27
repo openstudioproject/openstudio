@@ -26,7 +26,7 @@ export const receiveCustomers = (data) =>
 
 // export const setCheckinClassAttendanceSearchCustomerID = (search_id) =>
 //     ({
-//         type: T.CHECKIN_SET_CLASS_ATTENDANCE_SEARCH_CUSTOMER_ID,
+//         type: T.CHECKIN_SET_CLASS_ATTENDANCE_SEARCH_VALUE,
 //         search_id,
 //     })
 
@@ -43,33 +43,44 @@ export const setSearchTimeout = (timeout) =>
 
 export const clearDisplayCustomerID = () =>
     ({
-        type: T.CLEAR_DISPLAY_CUSTOMER_ID
+        type: T.CLEAR_DISPLAY_VALUE
     })
 
 export const setDisplayCustomerID = (id) =>
     ({
-        type: T.SET_DISPLAY_CUSTOMER_ID,
+        type: T.SET_DISPLAY_VALUE,
         id
     })
 
 export const clearSearchCustomerID = () =>
     ({
-        type: T.CLEAR_SEARCH_CUSTOMER_ID
+        type: T.CLEAR_SEARCH_VALUE
     })
 
 export const setSearchCustomerID = (id) =>
     ({
-        type: T.SET_SEARCH_CUSTOMER_ID,
+        type: T.SET_SEARCH_VALUE,
+        id
+    })
+
+export const clearSearchValue = () =>
+    ({
+        type: T.CLEAR_SEARCH_VALUE
+    })
+
+export const setSearchValue = (value) =>
+    ({
+        type: T.SET_SEARCH_VALUE,
         id
     })
 
 export const clearSelectedCustomerID = () =>
     ({
-        type: T.CLEAR_SELECTED_CUSTOMER_ID
+        type: T.CLEAR_SELECTED_VALUE
     })
 
 export const setSelectedCustomerID = (id) =>
     ({
-        type: T.SET_SELECTED_CUSTOMER_ID,
+        type: T.SET_SELECTED_VALUE,
         id
     })
