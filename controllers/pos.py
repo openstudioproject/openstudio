@@ -531,3 +531,14 @@ def create_customer():
     print request.vars
 
 
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'auth_user'))
+def update_customer():
+    """
+    :return: dict containing data of new auth_user
+    """
+    set_headers()
+
+    print request.vars
+
+

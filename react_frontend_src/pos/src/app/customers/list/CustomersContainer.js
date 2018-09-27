@@ -23,6 +23,9 @@ const mapDispatchToProps = dispatch =>
         createCustomer(data) {
             dispatch(customersListOperations.createCustomer(data))
         },
+        updateCustomer(data) {
+            dispatch(customersListOperations.updateCustomer(data))
+        },
         setCreateCustomerStatus(status) {
             dispatch(customersListOperations.setCreateCustomerStatus(status))
         },

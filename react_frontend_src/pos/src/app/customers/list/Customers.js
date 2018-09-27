@@ -108,6 +108,7 @@ class Customers extends Component {
     }
 
     onClickAdd(e) {
+        this.props.setUpdateCustomerStatus(false)
         this.props.setCreateCustomerStatus(!this.props.customers.create_customer)
     }
 
@@ -130,7 +131,7 @@ class Customers extends Component {
         this.props.history.push('/products/school/classcards')
     }
 
-    onCreateUser(e) {
+    onCreateCustomer(e) {
         console.log('submit user')
         e.preventDefault()
         console.log(e.target)
@@ -138,6 +139,17 @@ class Customers extends Component {
 
         console.log(data.values())
         this.props.createCustomer(data)
+    }
+
+    onUpdateCustomer(e) {
+        console.log('submit user')
+        e.preventDefault()
+        console.log(e.target)
+        const data = new FormData(e.target)
+
+        data.set('id', this.props.customers.displayID)
+        console.log(data.values())
+        this.props.updateCustomer(data)
     }
 
     render() {
@@ -183,14 +195,14 @@ class Customers extends Component {
                                              edit_in_progress={customers.update_customer}
                                              onClickEdit={this.onClickEdit.bind(this)} />
                             { (customers.create_customer) ?
-                                <CustomerFormCreate onSubmit={this.onCreateUser.bind(this)}
+                                <CustomerFormCreate onSubmit={this.onCreateCustomer.bind(this)}
                                                     onCancel={this.onClickAdd.bind(this)} /> : ''
                             }
                             <CustomerFormUpdate display={customers.update_customer}
                                                 customerID={customers.displayID}
                                                 customers={customers.data}
                                                 onCancel={this.onClickEdit.bind(this)}
-                                                // onSubmit={} 
+                                                onSubmit={this.onUpdateCustomer.bind(this)} 
                                                 />
 
                             <CustomersList customers={customers_display}

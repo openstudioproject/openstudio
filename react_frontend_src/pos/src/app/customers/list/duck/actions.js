@@ -24,6 +24,18 @@ export const receiveCreateCustomer = (data) =>
         data
     })
 
+export const requestUpdateCustomer = (data) =>
+    ({
+        type: T.REQUEST_UPDATE_CUSTOMER,
+        data
+    })
+
+export const receiveUpdateCustomer = (data) =>
+    ({
+        type: T.RECEIVE_UPDATE_CUSTOMER,
+        data
+    })
+
 export const clearSearchTimeout = () =>
     ({
         type: T.CLEAR_SEARCH_TIMEOUT

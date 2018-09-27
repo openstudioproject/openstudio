@@ -3,6 +3,8 @@ import {
     receiveCustomers,
     requestCreateCustomer,
     receiveCreateCustomer,
+    requestUpdateCustomer,
+    receiveUpdateCustomer,
     setCreateCustomerStatus,
     setUpdateCustomerStatus,
     setSearchTimeout,
@@ -50,11 +52,6 @@ const createCustomer = (data) => {
     return dispatch => {
         dispatch(requestCreateCustomer())
 
-        // const params = new URLSearchParams()
-        // params.append('clsID', clsID)
-        // params.append('date', iso_date)
-        // console.log(params)
-        // axios_os.post(OS_API.CHECKIN_ATTENDANCE, params)
         axios_os.post(OS_API.CUSTOMER_CREATE, data)
         .then(function(response) {
             dispatch(receiveCreateCustomer(response.data))
@@ -68,9 +65,28 @@ const createCustomer = (data) => {
     }
 }
 
+// updaters
+const updateCustomer = (data) => {
+    return dispatch => {
+        dispatch(requestUpdateCustomer())
+
+        axios_os.post(OS_API.CUSTOMER_UPDATE, data)
+        .then(function(response) {
+            dispatch(receiveUpdateCustomer(response.data))
+        })
+        .catch(function (error) {
+            console.log(error)
+        })
+        .then(function() {
+            //always executed
+        })
+    }
+}
+
 
 export default {
     createCustomer,
+    updateCustomer,
     fetchCustomers,
     setSearchTimeout,
     clearSearchTimeout,
