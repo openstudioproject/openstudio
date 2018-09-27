@@ -170,8 +170,9 @@ class Customers extends Component {
                             }
                             <CustomerDisplay customerID={customers.displayID}
                                              customers={customers.data} />
-                            <CustomerFormCreate onSubmit={this.onCreateUser.bind(this)} />
-
+                            { (customers.show_create) ?
+                                <CustomerFormCreate onSubmit={this.onCreateUser.bind(this)} /> : ''
+                            }
 
                             <CustomersList customers={customers_display}
                                            intl={intl} />
