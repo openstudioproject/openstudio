@@ -566,8 +566,12 @@ def my_claims():
             status= os_gui.get_label('primary', T('Pending'))
         if row.Status is 'Accepted':
             status= os_gui.get_label('success', T('Accepted'))
+            delete= ''
+            edit = ''
         if row.Status is 'Rejected':
-            status= os_gui.get_label('danger', T('Accepted'))
+            status= os_gui.get_label('danger', T('Declined'))
+            delete = ''
+            edit = ''
 
         table.append(TR(
             TD(repr_row.Description),
