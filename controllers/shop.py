@@ -1088,12 +1088,20 @@ def subscription_terms():
     subscription_conditions = DIV(terms, _class='well')
 
     if payment_method.PropertyValue == 'mollie':
-        confirm_message = DIV(B('Hereby I confirm all terms and conditions'))
+        debit_mandate= DIV()
         confirm = A(B(T('I agree')),
                     _href=URL('mollie', 'subscription_buy_now', vars={'ssuID':ssuID}),
                     _class='btn btn-primary')
     else:
-        confirm_message = DIV(B('Hereby I confirm the Mandate and all terms and conditions'))
+        mandate_text = get_sys_property('shop_direct_debit_mandate_text')
+        mandate= DIV()
+        if mandate_text:
+            # mandate.append(B(T('Direct Debit Mandate')))
+            mandate.append(XML(mandate_text))
+            debit_mandate = DIV(H4(T('Direct Debit Mandate')),
+                            DIV(mandate, _class='well'))
+        else:
+            debit_mandate = mandate
         confirm =  A(B(T('I agree')),
                     _href=URL('subscription_debit', vars={'ssuID': ssuID, 'Uid': Uid}),
                     _class='btn btn-primary')
@@ -1103,7 +1111,7 @@ def subscription_terms():
 
     content = DIV(H4(T('Terms & conditions')),
                   subscription_conditions,
-                  confirm_message,
+                  debit_mandate,
                   confirm,
                   cancel)
 
