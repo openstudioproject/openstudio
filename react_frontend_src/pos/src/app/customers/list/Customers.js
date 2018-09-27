@@ -85,6 +85,9 @@ class Customers extends Component {
     onChange(e) {
         const value = e.target.value
         const customers = this.props.customers
+
+        this.props.setSearchValue(value)
+
         console.log("timeout: " + customers.searchTimeout)
         if ( customers.searchTimeout ) {
             this.props.clearSearchTimeout()
