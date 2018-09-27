@@ -1717,6 +1717,40 @@ def define_classes_notes():
         )
 
 
+def define_employee_claims():
+    db.define_table('employee_claims',
+        Field('auth_user_id', db.auth_user,  # Employee that does the claims
+              required= True,
+              readable=False,
+              writable=False,
+              label=T('Employee/Teacher')),
+        Field('Amount', 'double',
+              default=0,
+              represent=represent_float_as_amount,
+              label=T("Amount")),
+        Field('ClaimDate', 'datetime',
+              default=NOW_LOCAL,
+              label=T('Date')),
+        Field('Description',
+              label=T('Description')),
+        Field('Attachment', 'upload', autodelete=True,
+              requires=IS_EMPTY_OR([IS_IMAGE(extensions=('jpeg', 'jpg', 'png')),
+                                    IS_LENGTH(maxsize=665600,
+                                              error_message=T('650KB or less'))]),  # 650KB
+              label=T("Image Attachment (Max 650KB)")),
+        Field('Name',
+              label=T('Name')),
+        Field('Quantity', 'double',
+              default=0,
+              represent=represent_float_as_amount,
+              label=T("Quantity")),
+        Field('Status',
+              readable=False,
+              writable=False,
+              label=T("Status")),
+         )
+
+
 def define_classes():
     weekdays = [('1',T('Monday')),
                 ('2',T('Tuesday')),
@@ -5680,6 +5714,9 @@ define_customers_orders()
 define_customers_orders_items()
 define_customers_orders_amounts()
 define_customers_orders_mollie_payment_ids()
+
+#employee claims definitions
+define_employee_claims()
 
 
 # invoice definitions
