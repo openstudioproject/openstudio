@@ -84,3 +84,9 @@ export const setCreateCustomerStatus = (status) =>
         type: T.SET_CREATE_CUSTOMER_STATUS,
         status
     })
+
+export const setUpdateCustomerStatus = (status) =>
+    ({
+        type: T.SET_UPDATE_CUSTOMER_STATUS,
+        status
+    })

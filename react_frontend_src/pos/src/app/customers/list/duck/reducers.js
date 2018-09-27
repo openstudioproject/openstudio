@@ -22,6 +22,11 @@ export const listReducer = (state = {}, action={ type: null }) => {
                 ...state,
                 create_customer: action.status
             }
+        case T.SET_UPDATE_CUSTOMER_STATUS:
+            return {
+                ...state,
+                update_customer: action.status
+            }
         case T.REQUEST_CREATE_CUSTOMER:
             return {
                 ...state,

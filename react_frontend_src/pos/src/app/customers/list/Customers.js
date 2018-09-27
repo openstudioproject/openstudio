@@ -14,6 +14,7 @@ import ButtonCustomerAdd from "../../../components/ui/ButtonCustomerAdd"
 import CustomersList from "./CustomersList"
 import CustomerDisplay from "./CustomerDisplay"
 import CustomerFormCreate from "./CustomerFormCreate"
+import CustomerFormUpdate from "./CustomerFormUpdate"
 
 class Customers extends Component {
     constructor(props) {
@@ -110,6 +111,10 @@ class Customers extends Component {
         this.props.setCreateCustomerStatus(!this.props.customers.create_customer)
     }
 
+    onClickEdit(e) {
+        this.props.setUpdateCustomerStatus(!this.props.customers.update_customer)
+    }
+
     onClickSetCustomer(e) {
         console.log('set customer clicked')
         this.props.setSelectedCustomerID(this.props.customers.displayID)
@@ -174,10 +179,17 @@ class Customers extends Component {
                                 </ButtonPrimary> : ''   
                             }
                             <CustomerDisplay customerID={customers.displayID}
-                                             customers={customers.data} />
+                                             customers={customers.data} 
+                                             edit_in_progress={customers.update_customer}
+                                             onClickEdit={this.onClickEdit.bind(this)} />
                             { (customers.create_customer) ?
                                 <CustomerFormCreate onSubmit={this.onCreateUser.bind(this)} /> : ''
                             }
+                            <CustomerFormUpdate display={customers.update_customer}
+                                                customerID={customers.displayID}
+                                                customers={customers.data}
+                                                // onSubmit={} 
+                                                />
 
                             <CustomersList customers={customers_display}
                                            intl={intl} />

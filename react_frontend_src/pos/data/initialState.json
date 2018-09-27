@@ -46,7 +46,8 @@
             "searchID": null,
             "search_value": "",
             "selectedID": null,
-            "create_customer": false
+            "create_customer": false,
+            "update_customer": false
         },
         "memberships": {
             "loading": false,
