@@ -2840,7 +2840,63 @@ def shop_subscription_terms():
         else:
             row.PropertyValue = subscription_terms
             row.update_record()
+        # Clear cache
+        cache_clear_sys_properties()
+        # User feedback
+        session.flash = T('Saved')
 
+        # reload so the user sees how the values are stored in the db now
+        redirect(URL())
+
+    content = form
+    menu = shop_get_menu(request.function)
+
+    return dict(content=content,
+                menu=menu,
+                save=submit)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'settings'))
+def shop_direct_debit_mandate():
+    """
+        Set default terms for all subscriptions
+    """
+    response.title = T("Settings")
+    response.subtitle = T('Shop Direct Debit Mandate ')
+    response.view = 'general/tabs_menu.html'
+
+    sys_property = 'shop_direct_debit_mandate_text'
+    mandate = get_sys_property(sys_property)
+
+    form = SQLFORM.factory(
+        Field("direct_debit_mandate_text", 'text',
+              default=mandate,
+              label=T("Mandate terms for direct debit"),
+              comment= T('This has to be filled with a text to make clear to your customer, that he is agreeing to a direct debit Mandate, by accepting these terms. '
+                         'This text will be added under the terms and conditions box when buying a subscription over the shop ')),
+        submit_button=T("Save"),
+        separator=' ',
+        formstyle='bootstrap3_stacked')
+
+    form_element = form.element('#no_table_direct_debit_mandate_text')
+    form_element['_class'] += ' tmced'
+
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
+    form = result['form']
+    submit = result['submit']
+
+    if form.accepts(request.vars, session):
+        # check terms
+        direct_debit_mandate_text = request.vars['direct_debit_mandate_text']
+        row= db.sys_properties(Property=sys_property)
+        if not row:
+            db.sys_properties.insert(
+                Property=sys_property,
+                PropertyValue= direct_debit_mandate_text)
+        else:
+            row.PropertyValue = direct_debit_mandate_text
+            row.update_record()
         # Clear cache
         cache_clear_sys_properties()
         # User feedback
@@ -3212,6 +3268,9 @@ def shop_get_menu(page):
              ['shop_customers_profile_announcements',
               T('Profile announcements'),
               URL('shop_customers_profile_announcements')],
+             ['shop_direct_debit_mandate',
+              T('Direct Debit Mandate'),
+              URL('shop_direct_debit_mandate')],
              ['shop_subscription_terms',
               T('Subscription terms'),
               URL('shop_subscription_terms')],
