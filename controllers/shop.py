@@ -1024,7 +1024,7 @@ def subscriptions():
 
     return dict(content = content)
 
-
+@auth.requires_login()
 def subscription_terms():
     """
         Buy subscription confirmation page
@@ -1036,6 +1036,7 @@ def subscription_terms():
     response.view = 'shop/index.html'
 
     ssuID = request.vars['ssuID']
+
     Uid= auth.user.id
 
     features = db.customers_shop_features(1)
@@ -1151,7 +1152,8 @@ def subscription_debit():
     iID = cs.create_invoice_for_month(TODAY_LOCAL.year, TODAY_LOCAL.month)
     # iID.payment_method_id = 3
     # Come back to the shop
-    redirect(URL('shop'))
+    session.flash=T('Subscription has been added to your Account!')
+    redirect(URL('profile','index'))
 
 
 def subscription_redirect():
