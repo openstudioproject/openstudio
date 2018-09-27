@@ -4,12 +4,14 @@ export const listReducer = (state = {}, action={ type: null }) => {
     switch (action.type) {
         case T.REQUEST_CUSTOMERS:
             return {
+                ...state,
                 loading: true,
                 loaded: false,
                 loading: action.loading,
             }
         case T.RECEIVE_CUSTOMERS:
             return {
+                ...state,
                 loading: false,
                 loaded: true,
                 data: action.data

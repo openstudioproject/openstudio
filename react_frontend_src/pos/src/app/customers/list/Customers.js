@@ -139,7 +139,8 @@ class Customers extends Component {
                                 Cancel
                             </ButtonBack>
                             <InputGroupSearch placeholder={this.props.intl.formatMessage({ id: 'app.general.placeholders.search' })}
-                                              onChange={this.onChange.bind(this)} /> <br />
+                                              onChange={this.onChange.bind(this)}
+                                              value={customers.search_value} /> <br />
                             
                             { (customers.displayID) && !(customers.selectedID) ? 
                                 <ButtonPrimary onClick={this.onClickSetCustomer.bind(this)}>

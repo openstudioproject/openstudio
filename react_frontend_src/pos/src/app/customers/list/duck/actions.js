@@ -12,24 +12,6 @@ export const receiveCustomers = (data) =>
         data
     })
 
-// export const setCheckinClassAttendanceLoaded = (loaded) =>
-//     ({
-//         type: T.CHECKIN_SET_CLASS_ATTENDANCE_LOADED,
-//         loaded
-//     })
-
-// export const setCheckinClassAttendanceLoading = (loading) =>
-//     ({
-//         type: T.CHECKIN_SET_CLASS_ATTENDANCE_LOADING,
-//         loading
-//     })
-
-// export const setCheckinClassAttendanceSearchCustomerID = (search_id) =>
-//     ({
-//         type: T.CHECKIN_SET_CLASS_ATTENDANCE_SEARCH_CUSTOMER_ID,
-//         search_id,
-//     })
-
 export const clearSearchTimeout = () =>
     ({
         type: T.CLEAR_SEARCH_TIMEOUT

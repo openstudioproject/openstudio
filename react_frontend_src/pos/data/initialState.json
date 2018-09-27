@@ -44,6 +44,7 @@
             "displayID": null,
             "searchTimeout": 0,
             "searchID": null,
+            "search_value": "",
             "selectedID": null
         },
         "memberships": {
