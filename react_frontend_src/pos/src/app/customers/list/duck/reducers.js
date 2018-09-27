@@ -1,5 +1,6 @@
 import T from './types'
 
+
 export const listReducer = (state = {}, action={ type: null }) => {
     switch (action.type) {
         case T.REQUEST_CUSTOMERS:
@@ -15,6 +16,11 @@ export const listReducer = (state = {}, action={ type: null }) => {
                 loading: false,
                 loaded: true,
                 data: action.data
+            }
+        case T.SET_CREATE_CUSTOMER_STATUS:
+            return {
+                ...state,
+                create_customer: action.status
             }
         case T.REQUEST_CREATE_CUSTOMER:
             return {

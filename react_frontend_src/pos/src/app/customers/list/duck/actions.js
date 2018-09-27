@@ -79,8 +79,8 @@ export const setSelectedCustomerID = (id) =>
         id
     })
 
-export const setCreateCustomerStatus = (bool_status) =>
+export const setCreateCustomerStatus = (status) =>
     ({
         type: T.SET_CREATE_CUSTOMER_STATUS,
-        bool_status
+        status
     })

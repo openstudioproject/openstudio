@@ -9,7 +9,7 @@ import PageTemplate from "../../../components/PageTemplate"
 import InputGroupSearch from "../../../components/ui/InputGroupSearch"
 import ButtonBack from "../../../components/ui/ButtonBack"
 import ButtonPrimary from "../../../components/ui/ButtonPrimary"
-
+import ButtonCustomerAdd from "../../../components/ui/ButtonCustomerAdd"
 
 import CustomersList from "./CustomersList"
 import CustomerDisplay from "./CustomerDisplay"
@@ -106,6 +106,10 @@ class Customers extends Component {
         this.props.clearSearchValue()
     }
 
+    onClickAdd(e) {
+        this.props.setCreateCustomerStatus(!this.props.customers.create_customer)
+    }
+
     onClickSetCustomer(e) {
         console.log('set customer clicked')
         this.props.setSelectedCustomerID(this.props.customers.displayID)
@@ -157,6 +161,7 @@ class Customers extends Component {
                                               onChange={this.onChange.bind(this)}
                                               onClear={this.onClear.bind(this)}
                                               value={customers.search_value} /> <br />
+                            <ButtonCustomerAdd onClick={this.onClickAdd.bind(this)}/>
                             
                             { (customers.displayID) && !(customers.selectedID) ? 
                                 <ButtonPrimary onClick={this.onClickSetCustomer.bind(this)}>
@@ -170,7 +175,7 @@ class Customers extends Component {
                             }
                             <CustomerDisplay customerID={customers.displayID}
                                              customers={customers.data} />
-                            { (customers.show_create) ?
+                            { (customers.create_customer) ?
                                 <CustomerFormCreate onSubmit={this.onCreateUser.bind(this)} /> : ''
                             }
 
