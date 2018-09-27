@@ -510,13 +510,13 @@ def me():
                 )
 
 @auth.requires_login()
-def me_payment_info():
+def me_bank_account():
     """
             Allows users to edit payment information of their profile
         """
     from general_helpers import set_form_id_and_get_submit_button
     response.title = T('Profile')
-    response.subtitle = 'Payment Informaiton'
+    response.subtitle = 'Bank Account'
     response.view = 'profile/me.html'
 
 
@@ -608,9 +608,9 @@ def me_get_menu(page=None):
     pages.append(['me',
                   T("General Information"),
                   URL("me")])
-    pages.append(['me_payment_info',
-                T("Payment Information"),
-                      URL("me_payment_info"),
+    pages.append(['me_bank_account',
+                T("Bank Account"),
+                      URL("me_bank_account"),
                   ])
 
     return os_gui.get_submenu(pages, page, _id='os-customers_edit_menu', horizontal=True, htype='tabs')
