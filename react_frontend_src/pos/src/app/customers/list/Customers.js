@@ -108,6 +108,9 @@ class Customers extends Component {
     }
 
     onClickAdd(e) {
+        this.props.clearDisplayCustomerID()
+        this.props.clearSelectedCustomerID()
+        this.props.clearSearchValue()
         this.props.setUpdateCustomerStatus(false)
         this.props.setCreateCustomerStatus(!this.props.customers.create_customer)
     }
