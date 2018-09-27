@@ -8,6 +8,7 @@ import validator from 'validator'
 import PageTemplate from "../../../components/PageTemplate"
 import InputGroupSearch from "../../../components/ui/InputGroupSearch"
 import ButtonBack from "../../../components/ui/ButtonBack"
+import ButtonPrimary from "../../../components/ui/ButtonPrimary"
 
 
 import CustomersList from "./CustomersList"
@@ -70,7 +71,6 @@ class Customers extends Component {
 
             this.props.setDisplayCustomerID(cuID)
             this.props.setSearchCustomerID(cuID)
-            this.props.setSelectedCustomerID(cuID)
 
             console.log('customerID')
             console.log(cuID)
@@ -98,6 +98,15 @@ class Customers extends Component {
         )
     }
 
+    onClickSetCustomer(e) {
+        console.log('set customer clicked')
+        this.props.setSelectedCustomerID(this.props.customers.displayID)
+    }
+
+    onClickDeselectCustomer(e) {
+        console.log('Deselect customer clicked')
+        this.props.clearSelectedCustomerID()
+    }
 
     onClickButtonBack(e) {
         console.log("clicked")
@@ -128,7 +137,13 @@ class Customers extends Component {
                             </ButtonBack>
                             <InputGroupSearch placeholder={this.props.intl.formatMessage({ id: 'app.general.placeholders.search' })}
                                               onChange={this.onChange.bind(this)} /> <br />
-
+                            
+                            { (customers.displayID) ? 
+                                <ButtonPrimary onClick={this.onClickSetCustomer.bind(this)}>
+                                    Select customer
+                                </ButtonPrimary>
+                                : "Dont show button"
+                            }
                             <CustomerDisplay customerID={customers.displayID}
                                              customers={customers.data}
                             />
