@@ -518,3 +518,12 @@ def get_customers_memberships():
         }
 
     return memberships
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('create', 'auth_user'))
+def create_customer():
+    """
+    :return: dict containing data of new auth_user
+    """
+    print request.vars

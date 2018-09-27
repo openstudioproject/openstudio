@@ -13,6 +13,7 @@ import ButtonPrimary from "../../../components/ui/ButtonPrimary"
 
 import CustomersList from "./CustomersList"
 import CustomerDisplay from "./CustomerDisplay"
+import CustomerFormCreate from "./CustomerFormCreate"
 
 class Customers extends Component {
     constructor(props) {
@@ -120,6 +121,15 @@ class Customers extends Component {
         this.props.history.push('/products/school/classcards')
     }
 
+    onCreateUser(e) {
+        console.log('submit user')
+        e.preventDefault()
+        console.log(e.target)
+        const data = new FormData(e.target)
+
+        console.log(data.values())
+    }
+
     render() {
         const customers = this.props.customers
         const intl = this.props.intl
@@ -158,8 +168,9 @@ class Customers extends Component {
                                 </ButtonPrimary> : ''   
                             }
                             <CustomerDisplay customerID={customers.displayID}
-                                             customers={customers.data}
-                            />
+                                             customers={customers.data} />
+                            <CustomerFormCreate onSubmit={this.onCreateUser.bind(this)} />
+
 
                             <CustomersList customers={customers_display}
                                            intl={intl} />
