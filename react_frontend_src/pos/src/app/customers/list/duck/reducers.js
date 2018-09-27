@@ -49,7 +49,7 @@ export const listReducer = (state = {}, action={ type: null }) => {
         case T.CLEAR_SEARCH_VALUE:
             return {
                 ...state,
-                search_value: null,
+                search_value: "",
             }
         case T.SET_SEARCH_VALUE:
             return {

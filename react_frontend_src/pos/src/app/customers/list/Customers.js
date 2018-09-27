@@ -101,6 +101,10 @@ class Customers extends Component {
         )
     }
 
+    onClear(e) {
+        this.props.clearSearchValue()
+    }
+
     onClickSetCustomer(e) {
         console.log('set customer clicked')
         this.props.setSelectedCustomerID(this.props.customers.displayID)
@@ -140,6 +144,7 @@ class Customers extends Component {
                             </ButtonBack>
                             <InputGroupSearch placeholder={this.props.intl.formatMessage({ id: 'app.general.placeholders.search' })}
                                               onChange={this.onChange.bind(this)}
+                                              onClear={this.onClear.bind(this)}
                                               value={customers.search_value} /> <br />
                             
                             { (customers.displayID) && !(customers.selectedID) ? 
