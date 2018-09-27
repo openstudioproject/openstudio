@@ -20,6 +20,9 @@ const mapDispatchToProps = dispatch =>
         setPageTitle(title) {
             dispatch(appOperations.setPageTitle(title))
         },
+        createCustomer(data) {
+            dispatch(customersListOperations.createCustomer(data))
+        },
         clearSearchTimeout() {
             dispatch(customersListOperations.clearSearchTimeout())
         },

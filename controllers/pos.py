@@ -526,4 +526,8 @@ def create_customer():
     """
     :return: dict containing data of new auth_user
     """
+    set_headers()
+
     print request.vars
+
+

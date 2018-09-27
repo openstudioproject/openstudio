@@ -128,6 +128,7 @@ class Customers extends Component {
         const data = new FormData(e.target)
 
         console.log(data.values())
+        this.props.createCustomer(data)
     }
 
     render() {

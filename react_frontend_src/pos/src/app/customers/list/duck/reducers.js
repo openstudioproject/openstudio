@@ -16,6 +16,23 @@ export const listReducer = (state = {}, action={ type: null }) => {
                 loaded: true,
                 data: action.data
             }
+        case T.REQUEST_CREATE_CUSTOMER:
+            return {
+                ...state,
+                creating_customer: true
+            }
+
+        case T.RECEIVE_CREATE_CUSTOMERS:
+            let new_customer = action.data
+
+            return {
+                ...state,
+                creating_customer: false,
+                data: {
+                    ...state.data,
+                    new_customer
+                }
+            }
         case T.CLEAR_DISPLAY_CUSTOMER_ID:
             return {
                 ...state,

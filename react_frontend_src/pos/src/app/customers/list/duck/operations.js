@@ -1,7 +1,8 @@
 import {
     requestCustomers,
     receiveCustomers,
-    // setCheckinClassAttendanceSearchCustomerID as set_customer_id,
+    requestCreateCustomer,
+    receiveCreateCustomer,
     setSearchTimeout,
     clearSearchTimeout,
     setDisplayCustomerID,
@@ -26,7 +27,7 @@ const fetchCustomers = () => {
       return dispatch => {
           dispatch(requestCustomers())
 
-          axios_os.post(OS_API.CUSTOMERS)
+          axios_os.get(OS_API.CUSTOMERS)
           .then(function (response) {
             // handle success
             dispatch(receiveCustomers(response.data))
@@ -42,8 +43,32 @@ const fetchCustomers = () => {
       }
   }
 
+// creators
+const createCustomer = (data) => {
+    return dispatch => {
+        dispatch(requestCreateCustomer())
+
+        // const params = new URLSearchParams()
+        // params.append('clsID', clsID)
+        // params.append('date', iso_date)
+        // console.log(params)
+        // axios_os.post(OS_API.CHECKIN_ATTENDANCE, params)
+        axios_os.post(OS_API.CUSTOMER_CREATE, data)
+        .then(function(response) {
+            dispatch(receiveCreateCustomer(response.data))
+        })
+        .catch(function (error) {
+            console.log(error)
+        })
+        .then(function() {
+            //always executed
+        })
+    }
+}
+
 
 export default {
+    createCustomer,
     fetchCustomers,
     setSearchTimeout,
     clearSearchTimeout,
