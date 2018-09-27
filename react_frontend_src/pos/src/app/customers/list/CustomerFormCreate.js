@@ -5,10 +5,11 @@ import validator from 'validator'
 import { v4 } from "uuid"
 
 
-const CustomerFormCreate = ({onSubmit=f=>f}) => 
+const CustomerFormCreate = ({onSubmit=f=>f, onCancel=f=>f}) => 
     <div className="box box-solid"> 
         <div className="box-header">
             <h3 className="box-title">Add customer</h3>
+            <button onClick={onCancel}>Cancel</button>
         </div>
         <div className="box-body">
             <form onSubmit={onSubmit}>

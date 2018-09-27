@@ -183,11 +183,13 @@ class Customers extends Component {
                                              edit_in_progress={customers.update_customer}
                                              onClickEdit={this.onClickEdit.bind(this)} />
                             { (customers.create_customer) ?
-                                <CustomerFormCreate onSubmit={this.onCreateUser.bind(this)} /> : ''
+                                <CustomerFormCreate onSubmit={this.onCreateUser.bind(this)}
+                                                    onCancel={this.onClickAdd.bind(this)} /> : ''
                             }
                             <CustomerFormUpdate display={customers.update_customer}
                                                 customerID={customers.displayID}
                                                 customers={customers.data}
+                                                onCancel={this.onClickEdit.bind(this)}
                                                 // onSubmit={} 
                                                 />
 
