@@ -530,8 +530,8 @@ def my_claims():
     header = THEAD(TR(
         TH(T('Description')),
         TH(T('Received On')),
-        TH(T('Quantity')),
         TH(T('Amount')),
+        TH(T('Quantity')),
         TH(T('Status')),
         TH()
     ))
@@ -541,12 +541,20 @@ def my_claims():
     query= (db.employee_claims.auth_user_id== auth.user.id)
     rows= db(query).select(orderby=db.employee_claims.ClaimDate)
 
+    onclick_del = "return confirm('Want to delete this Claim?');"
+
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
+        delete = os_gui.get_button('delete_notext',
+                                   URL('my_claims_claim_delete', vars={'ECID': row.id}),
+                                   onclick=onclick_del,
+                                   _class='pull-right')
         edit=os_gui.get_button('edit',
                           URL('my_claims_claim_edit',
                               vars={'ECID': row.id}),_class='pull-right')
+
+
         # pdf = os_gui.get_button(
         #     'print',
         #     URL('invoices', 'pdf',
@@ -554,14 +562,20 @@ def my_claims():
         #     btn_size='',
         #     _class='pull-right'
         # )
+        if row.Status is None:
+            status= os_gui.get_label('primary', T('Pending'))
+        if row.Status is 'Accepted':
+            status= os_gui.get_label('success', T('Accepted'))
+        if row.Status is 'Rejected':
+            status= os_gui.get_label('danger', T('Accepted'))
 
         table.append(TR(
             TD(repr_row.Description),
             TD(repr_row.ClaimDate),
             TD(repr_row.Amount),
             TD(repr_row.Quantity),
-            TD(repr_row.Status),
-            TD(edit)
+            TD(status),
+            TD(delete, edit)
         ))
 
     add_url = URL('my_claims_claim_add')
@@ -640,3 +654,18 @@ def my_claims_claim_edit():
     return dict(content=content,
                 save=result['submit'],
                 back=back)
+
+
+@auth.requires_login()
+def my_claims_claim_delete():
+    """
+    Delete Claim
+    :return:
+    """
+    ECID = request.vars['ECID']
+
+    query = (db.employee_claims.id == ECID)
+    db(query).delete()
+
+    session.flash = T('Deleted claim')
+    redirect('my_claims')
