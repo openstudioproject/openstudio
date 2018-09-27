@@ -508,6 +508,11 @@ def get_backend_menu():
                                 URL('finance', 'teacher_payment_classes',
                                     vars={'status': 'not_verified'},
                                     extension='')))
+            if user_helpers.check_read_permission('employee_claims', user_id):
+                submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Employee Claims'))),
+                                False,
+                                URL('finance', 'employee_claims',
+                                    extension='')))
 
             if user_helpers.check_read_permission('payment_batches', user_id):
                 submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Batch collections'))),
