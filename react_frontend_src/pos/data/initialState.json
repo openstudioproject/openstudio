@@ -47,6 +47,11 @@
             "search_value": "",
             "selectedID": null,
             "create_customer": false,
+            "create_customer_error_data": {
+                "first_name": "",
+                "last_name": "",
+                "email": ""
+            },
             "update_customer": false
         },
         "memberships": {

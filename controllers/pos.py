@@ -535,7 +535,7 @@ def create_customer():
     result = db.auth_user.validate_and_insert(**request.vars)
     print result
 
-    return dict(data=result)
+    return dict(result=result)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
