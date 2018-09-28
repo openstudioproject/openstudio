@@ -2181,7 +2181,7 @@ def tickets_list_customers_get_list(table,
         if row.workshops_products_customers.WorkshopInfo:
             link_text = T('Resend')
         resend_link = A(link_text, ' ', T('info mail'),
-                        _href=URL('product_resend_info_mail', vars={'wspcID':wsp_cuID}))
+                        _href=URL('ticket_resend_info_mail', vars={'wspcID':wsp_cuID}))
         event_info = wh.get_customer_info(wsp_cuID,
                                           wsID,
                                           row.workshops_products_customers.WorkshopInfo,
