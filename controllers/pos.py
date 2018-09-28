@@ -528,7 +528,14 @@ def create_customer():
     """
     set_headers()
 
+
+    db.auth_user.password.requires = None
     print request.vars
+
+    result = db.auth_user.validate_and_insert(**request.vars)
+    print result
+
+    return dict(data=result)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
