@@ -4402,7 +4402,7 @@ def events():
     session.invoices_edit_back = 'customers_events'
     session.invoices_payment_add_back = 'customers_events'
     # To redirect back here after sending info mail
-    session.workshops_product_resend_info_mail = 'customers_events'
+    session.workshops_ticket_resend_info_mail = 'customers_events'
 
 
     session.workshops_payment_back = 'customer'

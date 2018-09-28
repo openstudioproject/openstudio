@@ -2046,7 +2046,7 @@ def tickets_list_customers():
 
     session.invoices_edit_back = 'events_tickets_list_customers'
     session.invoices_payment_add_back = 'events_tickets_list_customers'
-    session.workshops_product_resend_info_mail = 'events_tickets_list_customers'
+    session.workshops_ticket_resend_info_mail = 'events_tickets_list_customers'
 
     wsp = WorkshopProduct(wspID)
 
@@ -2784,7 +2784,7 @@ def ticket_resend_info_mail():
     wsp = db.workshops_products(wspc.workshops_products_id)
 
 
-    if session.workshops_product_resend_info_mail == 'customers_events':
+    if session.workshops_ticket_resend_info_mail == 'customers_events':
         redirect(URL('customers', 'events', vars={'cuID':cuID}))
     else:
         redirect(URL('events', 'tickets_list_customers', vars={'wsID':wsp.workshops_id,
