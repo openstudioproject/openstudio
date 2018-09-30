@@ -546,6 +546,43 @@ def update_customer():
     """
     set_headers()
 
+    db.auth_user.password.requires = None
     print request.vars
+
+    cuID = request.vars.pop('id', None)
+
+    print cuID
+    print request.vars
+
+    print db.auth_user.email.requires
+
+    ##
+    # The default validator returns an error in this case
+    # It says an account already exists for this email
+    # when trying to update the users' own/current email.
+    # This validator works around that.
+    ##
+    query = (db.auth_user.id != cuID)
+
+    db.auth_user.email.requires = [
+        IS_EMAIL(),
+        IS_LOWER(),
+        IS_NOT_IN_DB(
+            db(query),
+            'auth_user.email',
+            error_message=T("This email already has an account")
+        )
+    ]
+
+
+    if cuID:
+        query = (db.auth_user.id == cuID)
+
+
+        result = db(query).validate_and_update(**request.vars)
+        print result
+
+        return dict(result=result,
+                    id=cuID)
 
 

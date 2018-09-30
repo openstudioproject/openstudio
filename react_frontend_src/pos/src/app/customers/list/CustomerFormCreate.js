@@ -4,8 +4,8 @@ import PropTypes from "prop-types"
 import validator from 'validator'
 import { v4 } from "uuid"
 
-
 import CustomerFormError from "./CustomerFormError"
+
 
 const CustomerFormCreate = ({error_data={}, onSubmit=f=>f, onCancel=f=>f}) => 
     <div className="box box-solid"> 

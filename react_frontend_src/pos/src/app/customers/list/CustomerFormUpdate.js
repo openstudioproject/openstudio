@@ -4,6 +4,8 @@ import PropTypes from "prop-types"
 import validator from 'validator'
 import { v4 } from "uuid"
 
+import CustomerFormError from "./CustomerFormError"
+
 
 const CustomerFormUpdate = ({display, customerID, customers, error_data={}, onSubmit=f=>f, onCancel=f=>f}) => 
     <div>
@@ -36,7 +38,7 @@ const CustomerFormUpdate = ({display, customerID, customers, error_data={}, onSu
                         id="email" 
                         name="email" 
                         type="text"
-                        defaultValue={ customers[customerID].last_name} 
+                        defaultValue={ customers[customerID].email} 
                     />
                     <CustomerFormError message={ (error_data.email) ? error_data.email : "" } />
                     <button>Save</button>

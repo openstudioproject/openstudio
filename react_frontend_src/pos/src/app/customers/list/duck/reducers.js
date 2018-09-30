@@ -1,6 +1,15 @@
 import T from './types'
 
 
+function isEmpty(obj) {
+    for(var key in obj) {
+        if(obj.hasOwnProperty(key))
+            return false;
+    }
+    return true;
+}
+
+
 export const listReducer = (state = {}, action={ type: null }) => {
     switch (action.type) {
         case T.REQUEST_CUSTOMERS:
@@ -52,15 +61,24 @@ export const listReducer = (state = {}, action={ type: null }) => {
                 update_customer_temp_data: action.data
             }
         case T.RECEIVE_UPDATE_CUSTOMER:
-            return {
-                ...state,
-                updating_customer: false,
-                data: {
-                    ...state.data,
-                    [action.data.result.id] : {
-                        ...state.data[action.data.result.id],
-                        ...state.update_customer_temp_data
-                    }
+            if (!(isEmpty(action.data.result.errors))) {
+                return {
+                    ...state,
+                    updating_customer: false,
+                    update_customer_error_data: action.data.result.errors
+                }
+            } else {
+                return {
+                    ...state,
+                    updating_customer: false,
+                    data: {
+                        ...state.data,
+                        [action.data.id] : {
+                            ...state.data[action.data.id],
+                            ...state.update_customer_temp_data
+                        }
+                    },
+                    update_customer_error_data: action.data.result.errors
                 }
             }
         case T.CLEAR_DISPLAY_CUSTOMER_ID:
