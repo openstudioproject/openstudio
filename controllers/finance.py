@@ -1682,7 +1682,7 @@ def employee_claims():
     """
     from openstudio.os_employee_claims import EmployeeClaims
 
-    response.title = T('Teacher payments')
+    response.title = T('Employee Claims')
     response.subtitle = T('')
     response.view = 'general/only_content_no_box.html'
 
@@ -1709,7 +1709,7 @@ def employee_claims():
         verify_all = os_gui.get_button(
             'noicon',
             URL('employee_claims_accept_all'),
-            title=T("accept all"),
+            title=T("Accept all"),
             tooltip="Accept all listed claims",
             btn_class='btn-primary'
         )
@@ -1855,22 +1855,22 @@ def employee_claims_find_claims():
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'teachers_payment_classes'))
-def employee_claims_verify_all():
+def employee_claims_accept_all():
     """
     Verify all not-verified classes
     :return: None
     """
-    from openstudio.os_teachers_payment_classes import TeachersPaymentClasses
+    from openstudio.os_employee_claims import EmployeeClaims
 
-    tpcs = TeachersPaymentClasses()
-    number_verified = tpcs.verify_all()
+    ec = EmployeeClaims()
+    number_accepted = ec.accept_all()
 
-    if number_verified:
-        session.flash = T("All not verified classes have been verified")
+    if number_accepted:
+        session.flash = T("All not accepted claims have been accepted")
     else:
-        session.flash = T("No classes were verified")
+        session.flash = T("No classes were accepted")
 
-    redirect(URL('teacher_payment_classes', vars={'status': 'verified'}))
+    redirect(URL('employee_claims'))
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \

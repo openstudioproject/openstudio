@@ -352,20 +352,21 @@ class EmployeeClaims:
     #     )
     #
     #
-    # def verify_all(self):
-    #     """
-    #     Change status of all not_verified classes to verified
-    #     :return: Int - number of classes where status has been changed to verified
-    #     """
-    #     db = current.db
-    #     auth = current.auth
-    #
-    #     query = (db.teachers_payment_classes.Status == 'not_verified')
-    #     updated = db(query).update(Status = 'verified',
-    #                                VerifiedBy = auth.user.id,
-    #                                VerifiedOn = datetime.datetime.now())
-    #
-    #     return updated
+    def accept_all(self):
+        """
+        Change status of all not_verified classes to verified
+        :return: Int - number of classes where status has been changed to verified
+        """
+        db = current.db
+        # auth = current.auth
+
+        query = (db.employee_claims.Status == 'Pending')
+        updated = db(query).update(Status = 'Accepted',
+                                   # VerifiedBy = auth.user.id,
+                                   # VerifiedOn = datetime.datetime.now()
+                                   )
+
+        return updated
 
     #
     # def process_verified(self, date_from=None, date_until=None):
