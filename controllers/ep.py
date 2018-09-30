@@ -562,13 +562,14 @@ def my_claims():
         #     btn_size='',
         #     _class='pull-right'
         # )
-        if row.Status is None:
+
+        if row.Status == 'Pending':
             status= os_gui.get_label('primary', T('Pending'))
-        if row.Status is 'Accepted':
+        if row.Status == 'Accepted':
             status= os_gui.get_label('success', T('Accepted'))
             delete= ''
             edit = ''
-        if row.Status is 'Rejected':
+        if row.Status == 'Rejected':
             status= os_gui.get_label('danger', T('Declined'))
             delete = ''
             edit = ''
@@ -605,6 +606,7 @@ def my_claims_claim_add():
 
     return_url = ('my_claims')
     db.employee_claims.auth_user_id.default = auth.user.id
+    db.employee_claims.Status.default = 'Pending'
     os_forms = OsForms()
     result = os_forms.get_crud_form_create(
         db.employee_claims,
