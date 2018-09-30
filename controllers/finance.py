@@ -1568,7 +1568,7 @@ def teacher_payment_classes_process_choose_dates():
                 save=submit)
 
 
-def employee_claims_get_menu(page, status='not_verified'):
+def employee_claims_get_menu(page):
     pages = [
         [
             'employee_claims_invoices',
@@ -1577,22 +1577,22 @@ def employee_claims_get_menu(page, status='not_verified'):
         ]
     ]
 
-    print status
+    # print status
 
     if ( auth.has_membership(group_id='Admins') or
          auth.has_permission('read', 'teachers_payment_classes_attendance') ):
-        pages.append([ 'employee_claims_classes_processed',
-                       T('Processed'),
-                       URL('employee_claims_classes', vars={'status': 'processed'}) ])
-        pages.append([ 'teacher_payment_classes_verified',
-                       T('Verified'),
-                       URL('employee_claims_classes', vars={'status': 'verified'}) ])
-        pages.append([ 'teacher_payment_classes_not_verified',
-                       T('Not verified'),
-                       URL('employee_claims_classes', vars={'status': 'not_verified'}) ])
+        pages.append([ 'employee_claims_accepted',
+                       T('Accepted'),
+                       URL('employee_claims_accepted') ])
+        pages.append([ 'teacher_payment_classes_rejected',
+                       T('Rejected'),
+                       URL('employee_claims_rejected') ])
+        pages.append([ 'employee_claims',
+                       T('Pending'),
+                       URL('employee_claims') ])
 
 
-    return os_gui.get_submenu(pages, page, horizontal=True, htype='tabs')
+    return os_gui.get_submenu(pages,page, horizontal=True, htype='tabs')
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -1680,11 +1680,11 @@ def employee_claims():
 
     :return:
     """
-    from openstudio.os_teachers_payment_classes import TeachersPaymentClasses
+    from openstudio.os_employee_claims import EmployeeClaims
 
     response.title = T('Teacher payments')
     response.subtitle = T('')
-    response.view = 'ep/only_content_no_box.html'
+    response.view = 'general/only_content_no_box.html'
 
     status = request.vars['status']
 
@@ -1693,7 +1693,7 @@ def employee_claims():
     except IndexError:
         page = 0
 
-    tpc = TeachersPaymentClasses()
+    ec = EmployeeClaims()
 
     tools = ''
     # if status == 'not_verified':
@@ -1708,9 +1708,9 @@ def employee_claims():
     if create_permission:
         verify_all = os_gui.get_button(
             'noicon',
-            URL('employee_claims_verify_all'),
-            title=T("Verify all"),
-            tooltip="Verify all listed claims",
+            URL('employee_claims_accept_all'),
+            title=T("accept all"),
+            tooltip="Accept all listed claims",
             btn_class='btn-primary'
         )
 
@@ -1727,7 +1727,7 @@ def employee_claims():
         verify_all,
     )
 
-    table = tpc.get_not_verified(
+    table = ec.get_pending(
         formatted=True,
 
     )
@@ -1767,7 +1767,7 @@ def employee_claims():
     #     )
 
     content = DIV(
-        # employee_claims_get_menu(request.function + '_' + status, status),
+        employee_claims_get_menu(request.function),
         DIV(DIV(table,
                  _class='tab-pane active'),
             _class='tab-content'),
