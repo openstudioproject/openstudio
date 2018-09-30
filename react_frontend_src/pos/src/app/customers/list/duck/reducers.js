@@ -34,16 +34,14 @@ export const listReducer = (state = {}, action={ type: null }) => {
                 create_customer_temp_data: action.data
             }
 
-        case T.RECEIVE_CREATE_CUSTOMER:
-            let new_customer = action.data
-
+        case T.RECEIVE_CREATE_CUSTOMER:           
             return {
                 ...state,
                 creating_customer: false,
-                // data: {
-                //     ...state.data,
-                //     new_customer
-                // },
+                 data: {
+                     ...state.data,
+                     [action.data.result.id]: state.create_customer_temp_data
+                },
                 create_customer_error_data: action.data.result.errors
             }
         case T.REQUEST_UPDATE_CUSTOMER:
