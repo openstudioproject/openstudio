@@ -30,7 +30,8 @@ export const listReducer = (state = {}, action={ type: null }) => {
         case T.REQUEST_CREATE_CUSTOMER:
             return {
                 ...state,
-                creating_customer: true
+                creating_customer: true,
+                create_customer_temp_data: action.data
             }
 
         case T.RECEIVE_CREATE_CUSTOMER:

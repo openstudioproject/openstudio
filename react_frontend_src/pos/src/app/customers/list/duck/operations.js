@@ -50,7 +50,18 @@ const fetchCustomers = () => {
 // creators
 const createCustomer = (data) => {
     return dispatch => {
-        dispatch(requestCreateCustomer())
+        const data_object = {}
+        console.log('logging form data object stuff')
+
+        for (var p of data) {
+            console.log(p)
+            data_object[p[0]] = p[1]
+        }
+
+        console.log(data_object)
+
+
+        dispatch(requestCreateCustomer(data_object))
 
         axios_os.post(OS_API.CUSTOMER_CREATE, data)
         .then(function(response) {
