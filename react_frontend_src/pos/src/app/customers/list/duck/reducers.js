@@ -48,7 +48,8 @@ export const listReducer = (state = {}, action={ type: null }) => {
         case T.REQUEST_UPDATE_CUSTOMER:
             return {
                 ...state,
-                updating_customer: true
+                updating_customer: true,
+                update_customer_temp_data: action.data
             }
 
         case T.RECEIVE_UPDATE_CUSTOMER:

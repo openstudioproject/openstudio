@@ -47,21 +47,23 @@ const fetchCustomers = () => {
       }
   }
 
+// helpers
+const formDataToObject = (fd_obj) => {
+    const data_object = {}
+
+    for (var p of fd_obj) {
+        console.log(p)
+        data_object[p[0]] = p[1]
+    }
+
+    return data_object
+}
+
+
 // creators
 const createCustomer = (data) => {
     return dispatch => {
-        const data_object = {}
-        console.log('logging form data object stuff')
-
-        for (var p of data) {
-            console.log(p)
-            data_object[p[0]] = p[1]
-        }
-
-        console.log(data_object)
-
-
-        dispatch(requestCreateCustomer(data_object))
+        dispatch(requestCreateCustomer(formDataToObject(data)))
 
         axios_os.post(OS_API.CUSTOMER_CREATE, data)
         .then(function(response) {
@@ -79,7 +81,7 @@ const createCustomer = (data) => {
 // updaters
 const updateCustomer = (data) => {
     return dispatch => {
-        dispatch(requestUpdateCustomer())
+        dispatch(requestUpdateCustomer(formDataToObject(data)))
 
         axios_os.post(OS_API.CUSTOMER_UPDATE, data)
         .then(function(response) {
