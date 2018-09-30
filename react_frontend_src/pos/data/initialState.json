@@ -47,12 +47,19 @@
             "search_value": "",
             "selectedID": null,
             "create_customer": false,
+            "create_customer_temp_data": {},
             "create_customer_error_data": {
                 "first_name": "",
                 "last_name": "",
                 "email": ""
             },
-            "update_customer": false
+            "update_customer": false,
+            "update_customer_temp_data": {},
+            "update_customer_error_data": {
+                "first_name": "",
+                "last_name": "",
+                "email": ""
+            }
         },
         "memberships": {
             "loading": false,
