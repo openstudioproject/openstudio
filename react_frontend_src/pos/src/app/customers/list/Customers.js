@@ -203,6 +203,7 @@ class Customers extends Component {
                                                     onCancel={this.onClickAdd.bind(this)} /> : ''
                             }
                             <CustomerFormUpdate display={customers.update_customer}
+                                                error_data={customers.update_customer_error_data}
                                                 customerID={customers.displayID}
                                                 customers={customers.data}
                                                 onCancel={this.onClickEdit.bind(this)}

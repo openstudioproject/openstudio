@@ -5,7 +5,7 @@ import validator from 'validator'
 import { v4 } from "uuid"
 
 
-const CustomerFormUpdate = ({display, customerID, customers, onSubmit=f=>f, onCancel=f=>f}) => 
+const CustomerFormUpdate = ({display, customerID, customers, error_data={}, onSubmit=f=>f, onCancel=f=>f}) => 
     <div>
         { !(display) ? null :
         <div className="box box-solid"> 
@@ -22,6 +22,7 @@ const CustomerFormUpdate = ({display, customerID, customers, onSubmit=f=>f, onCa
                         type="text" 
                         defaultValue={ customers[customerID].first_name }
                     />
+                    <CustomerFormError message={ (error_data.first_name) ? error_data.first_name : "" } />
                     <label htmlFor="last_name">Last Name</label>
                     <input 
                         id="last_name" 
@@ -29,6 +30,7 @@ const CustomerFormUpdate = ({display, customerID, customers, onSubmit=f=>f, onCa
                         type="text" 
                         defaultValue={ customers[customerID].last_name }
                     />
+                    <CustomerFormError message={ (error_data.last_name) ? error_data.last_name : "" } />
                     <label htmlFor="email">Email</label>
                     <input 
                         id="email" 
@@ -36,6 +38,7 @@ const CustomerFormUpdate = ({display, customerID, customers, onSubmit=f=>f, onCa
                         type="text"
                         defaultValue={ customers[customerID].last_name} 
                     />
+                    <CustomerFormError message={ (error_data.email) ? error_data.email : "" } />
                     <button>Save</button>
                 </form>
             </div>
