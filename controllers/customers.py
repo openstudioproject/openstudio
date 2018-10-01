@@ -5599,10 +5599,25 @@ def account_set_password():
 
     submenu = account_get_submenu(request.function, cuID)
     description = DIV(B(T("Enter a new password for this account")))
+    description_send_link = DIV(B(
+        T("Send a set password link to this customers' email address")
+    ))
 
-    content = DIV(submenu, BR(),
-                  description,
-                  form)
+    content = DIV(
+        submenu,
+        BR(),
+        DIV(
+            description,
+            form,
+            _class="col-md-6"
+        ),
+        DIV(
+            #description_send_link,
+            _class="col-md-6"
+        ),
+        _class='row'
+    )
+
 
     back = edit_get_back()
     menu = customers_get_menu(cuID, request.function)
