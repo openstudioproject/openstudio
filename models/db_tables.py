@@ -2090,7 +2090,7 @@ def define_classes_price():
             label=T("Membership trial incl. VAT")),
         Field('tax_rates_id_trial_membership', db.tax_rates,
             label=T('Membership trial tax rate')),
-        Field('GLAccountDropIn',
+        Field('GLAccountDropin',
               label=T('G/L Account Drop-in'),
               comment=T('General ledger account ID in your accounting software')),
         Field('GLAccountTrial',
