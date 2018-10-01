@@ -447,6 +447,7 @@ class Invoice:
             Price=price,
             Sorting=next_sort_nr,
             tax_rates_id=classcard.school_classcard.tax_rates_id,
+            GLAccount=classcard.glaccount
         )
 
         self.set_amounts()

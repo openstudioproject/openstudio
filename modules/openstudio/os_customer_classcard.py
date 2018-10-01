@@ -24,6 +24,8 @@ class CustomerClasscard:
         self.classes = self.school_classcard.Classes
         self.unlimited = self.school_classcard.Unlimited
         self.cuID = self.classcard.auth_customer_id
+        self.glaccount = self.classcard.GLAccount
+
 
     def get_name(self):
         """
@@ -31,11 +33,13 @@ class CustomerClasscard:
         """
         return self.school_classcard.Name
 
+
     def get_auth_customer_id(self):
         """
             Returns auth_customer_id
         """
         return self.classcard.auth_customer_id
+
 
     def get_tax_rate_percentage(self):
         """
