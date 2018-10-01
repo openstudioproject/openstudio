@@ -1088,6 +1088,7 @@ def define_school_classcards():
             required=True,
             label=T('Trial card')),
         Field('GLAccount',
+              represent=lambda value, row: value or '',
               label=T('G/L Account'),
               comment=T('General ledger account ID in your accounting software')),
         format=format)

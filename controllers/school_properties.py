@@ -1771,6 +1771,7 @@ def classcards():
               db.school_classcards.sys_organizations_id,
               db.school_classcards.Description,
               db.school_classcards.Price,
+              db.school_classcards.GLAccount,
               db.school_classcards.Validity,
               db.school_classcards.ValidityUnit,
               db.school_classcards.Classes,
