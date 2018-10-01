@@ -553,7 +553,6 @@ class Invoice:
         cs = CustomerSubscription(csID)
         ssuID = cs.ssuID
         ssu = SchoolSubscription(ssuID)
-        ssu_price = ssu.get_price_on_date(date, False)
         row = ssu.get_tax_rates_on_date(date)
 
         if row:
@@ -563,7 +562,7 @@ class Invoice:
 
         period_start = date
         period_end = get_last_day_month(date)
-        GLAccount = ssu_price.GLAccount
+        glaccount = ssu.get_glaccount_on_date(date)
         price = 0
 
         # check for alt price
@@ -577,7 +576,7 @@ class Invoice:
             price    = csap_row.Amount
             description = csap_row.Description
         else:
-            price = ssu_price
+            price = ssu.get_price_on_date(date, False)
 
             broken_period = False
             if cs.startdate > date and cs.startdate <= period_end:
@@ -613,7 +612,7 @@ class Invoice:
             Price = price,
             Sorting = next_sort_nr,
             tax_rates_id = tax_rates_id,
-            GLAccount = GLAccount
+            GLAccount = glaccount
         )
 
         ##
