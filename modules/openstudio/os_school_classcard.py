@@ -106,29 +106,14 @@ class SchoolClasscard:
             Status='sent'
         )
 
-        # link invoice to classcard
-        db.invoices_customers_classcards.insert(
-            invoices_id=iID,
-            customers_classcards_id=ccdID)
-
         # create object to set Invoice# and due date
         invoice = Invoice(iID)
-        next_sort_nr = invoice.get_item_next_sort_nr()
 
-        price = classcard.price
-
-        iiID = db.invoices_items.insert(
-            invoices_id=iID,
-            ProductName=T("Class card"),
-            Description=T("Class card") + ' ' + unicode(ccdID),
-            Quantity=1,
-            Price=price,
-            Sorting=next_sort_nr,
-            tax_rates_id=classcard.school_classcard.tax_rates_id,
-        )
-
-        invoice.set_amounts()
+        # link invoice to customer
         invoice.link_to_customer(classcard.get_auth_customer_id())
+
+        # add classcard item
+        invoice.item_add_classcard(ccdID)
 
 
     def sell_to_customer_get_enddate(self, date_start):

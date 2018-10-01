@@ -1432,6 +1432,7 @@ def classcards():
     response.subtitle = T("Class cards")
 
     session.invoices_payment_add_back = 'customers_classcards'
+    session.invoices_edit_back = 'customers_classcards'
 
     query = (db.customers_classcards.auth_customer_id == customers_id)
     db.customers_classcards.id.label = T("Pass number")

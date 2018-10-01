@@ -513,6 +513,8 @@ def edit_get_back(cuID, csID=None, cmID=None):
         url = URL('customers', 'invoices', vars={'cuID':cuID})
     if session.invoices_edit_back == 'customers_orders':
         url = URL('customers', 'orders', vars={'cuID':cuID})
+    elif session.invoices_edit_back == 'customers_classcards':
+        url = URL('customers', 'classcards', vars={'cuID':cuID})
     elif session.invoices_edit_back == 'customers_membership_invoices':
         url = URL('customers', 'membership_invoices', vars={'cuID':cuID,
                                                             'cmID':cmID})
