@@ -1090,9 +1090,6 @@ def define_school_classcards():
         Field('GLAccount',
               label=T('G/L Account'),
               comment=T('General ledger account ID in your accounting software')),
-        Field('ArticleID',
-              label=T('Article ID'),
-              comment=T('Article ID of your accounting software')),
         format=format)
 
 
@@ -1166,9 +1163,6 @@ def define_school_memberships():
         Field('GLAccount',
               label= T('G/L Account'),
               comment= T('General ledger account ID in your accounting software')),
-        Field('ArticleID',
-              label= T('Article ID'),
-              comment= T('Article ID of your accounting software')),
         format='%(Name)s'
         )
 
@@ -1363,10 +1357,6 @@ def define_school_subscriptions_price():
         Field('GLAccount',
             label=T('G/L Account'),
             comment=T('General ledger account ID in your accounting software')),
-        Field('ArticleID',
-            label=T('Article ID'),
-            comment=T('Article ID of your accounting software'))
-
         )
 
 
@@ -2101,15 +2091,9 @@ def define_classes_price():
         Field('GLAccountDropIn',
               label=T('G/L Account Drop-in'),
               comment=T('General ledger account ID in your accounting software')),
-        Field('ArticleIDDropIn',
-              label=T('Article ID Drop-in'),
-              comment=T('Article ID of your accounting software')),
         Field('GLAccountTrial',
               label=T('G/L Account Trial Class'),
               comment=T('General ledger account ID in your accounting software')),
-        Field('ArticleIDTrial',
-              label=T('Article ID Trial'),
-              comment=T('Article ID of your accounting software')),
         )
 
 
@@ -3242,9 +3226,6 @@ def define_workshops_products():
         Field('GLAccount',
               label=T('G/L Account'),
               comment=T('General ledger account id in your accounting software')),
-        Field('ArticleID',
-              label=T('Article ID'),
-              comment=T('Article ID of your accounting software')),
         format='%(Name)s')
 
 
@@ -4670,9 +4651,6 @@ def define_shop_products_variants():
         Field('GLAccount',
               label=T('G/L Account'),
               comment=T('General ledger account ID in your accounting software')),
-        Field('ArticleID',
-              label=T('Article ID'),
-              comment=T('Article ID of your accounting software'))
     )
 
 
