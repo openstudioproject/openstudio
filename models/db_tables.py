@@ -2091,11 +2091,13 @@ def define_classes_price():
         Field('tax_rates_id_trial_membership', db.tax_rates,
             label=T('Membership trial tax rate')),
         Field('GLAccountDropin',
-              label=T('G/L Account Drop-in'),
-              comment=T('General ledger account ID in your accounting software')),
+            represent=lambda value, row: value or '',
+            label=T('G/L Account Drop-in'),
+            comment=T('General ledger account ID in your accounting software')),
         Field('GLAccountTrial',
-              label=T('G/L Account Trial Class'),
-              comment=T('General ledger account ID in your accounting software')),
+            represent=lambda value, row: value or '',
+            label=T('G/L Account Trial'),
+            comment=T('General ledger account ID in your accounting software')),
         )
 
 

@@ -336,6 +336,7 @@ class Invoice:
         if product_type == 'dropin':
             price = prices['dropin']
             tax_rates_id = prices['dropin_tax_rates_id']
+            glaccount = prices['dropin_glaccount']
 
             if has_membership and prices['dropin_membership']:
                 price = prices['dropin_membership']
@@ -346,6 +347,7 @@ class Invoice:
         elif product_type == 'trial':
             price = prices['trial']
             tax_rates_id = prices['trial_tax_rates_id']
+            glaccount = prices['trial_glaccount']
 
             if has_membership and prices['trial_membership']:
                 price = prices['trial_membership']
@@ -365,6 +367,7 @@ class Invoice:
             Price=price,
             Sorting=next_sort_nr,
             tax_rates_id=tax_rates_id,
+            GLAccount=glaccount
         )
 
         self.set_amounts()
@@ -391,6 +394,16 @@ class Invoice:
 
         cls = Class(order_item_row.classes_id, order_item_row.ClassDate)
 
+        # Get GLAccount info
+        prices = cla.get_prices()
+        glaccount = None
+        if order_item_row.AttendanceType == 1:
+            # Trial
+            glaccount = prices['trial_glaccount']
+        else:
+            # Drop in
+            glaccount = prices['dropin_glaccount']
+
         # link invoice to attendance
         db.invoices_classes_attendance.insert(
             invoices_id=self.invoices_id,
@@ -400,7 +413,6 @@ class Invoice:
         # add item to invoice
         next_sort_nr = self.get_item_next_sort_nr()
 
-
         iiID = db.invoices_items.insert(
             invoices_id=self.invoices_id,
             ProductName=order_item_row.ProductName,
@@ -409,6 +421,7 @@ class Invoice:
             Price=order_item_row.Price,
             Sorting=next_sort_nr,
             tax_rates_id=order_item_row.tax_rates_id,
+            GLAccount=glaccount
         )
 
         self.set_amounts()
