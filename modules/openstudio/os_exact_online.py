@@ -85,6 +85,12 @@ class OSExactOnline:
         eoID = os_customer.row.exact_online_relation_id
 
         if not eoID:
+            self._log_error(
+                'create',
+                'sales_entry',
+                os_invoice.invoice.id,
+                "This customer is not linked to Exact Online - " + unicode(os_customer.row.id)
+            )
             return
 
         try:
@@ -122,8 +128,8 @@ class OSExactOnline:
             # 'InvoiceNumber': local_invoice_number
         }
 
-        if payment_method:
-            invoice_data['PaymentCondition'] = payment_method
+        if payment_method and payment_method.AccountingCode:
+            invoice_data['PaymentCondition'] = payment_method.AccountingCode
 
         error = False
 
@@ -250,8 +256,8 @@ class OSExactOnline:
             #                                int(local_invoice_number)),
         }
 
-        if payment_method:
-            invoice_data['PaymentCondition'] = payment_method
+        if payment_method and payment_method.AccountingCode:
+            invoice_data['PaymentCondition'] = payment_method.AccountingCode
 
         error = False
 

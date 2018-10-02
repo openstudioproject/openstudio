@@ -877,13 +877,13 @@ def edit():
     change_picture = A(change_picture_title,
                        _href=URL('edit_picture', args=[customers_id]))
 
-    crud.settings.update_onaccept.auth_user.append(edit_onaccept)
+    crud.settings.update_onaccept = [edit_onaccept]
     crud.messages.submit_button = T('Save')
     crud.messages.record_updated = T('Saved')
 
     # Clear teachers cache if we're updating a teacher
     if row.teacher:
-        crud.settings.update_onaccept = [cache_clear_school_teachers]
+        crud.settings.update_onaccept.append(cache_clear_school_teachers)
 
     form = crud.update(db.auth_user, customers_id)
     # Tie the elements together using the form html5 attribute.
@@ -988,6 +988,8 @@ def edit_onaccept(form):
     :return: None
     """
     from openstudio.os_customer import Customer
+
+    print 'running edit_onaccept'
 
     customer = Customer(form.vars.id)
     customer.on_update()
