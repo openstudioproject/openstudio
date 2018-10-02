@@ -358,12 +358,12 @@ class EmployeeClaims:
         :return: Int - number of classes where status has been changed to verified
         """
         db = current.db
-        # auth = current.auth
+        auth = current.auth
 
         query = (db.employee_claims.Status == 'Pending')
         updated = db(query).update(Status = 'Accepted',
-                                   # VerifiedBy = auth.user.id,
-                                   # VerifiedOn = datetime.datetime.now()
+                                   VerifiedBy = auth.user.id,
+                                   VerifiedOn = datetime.datetime.now()
                                    )
 
         return updated

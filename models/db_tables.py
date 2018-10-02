@@ -1749,6 +1749,12 @@ def define_employee_claims():
               readable=False,
               writable=False,
               label=T("Status")),
+        Field('VerifiedBy', db.auth_user,
+              readable=False,
+              writable=False),
+        Field('VerifiedOn', 'datetime',
+              readable=False,
+              writable=False),
          )
 
 
