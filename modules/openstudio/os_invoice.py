@@ -300,6 +300,18 @@ class Invoice:
         return rows
 
 
+    def get_payment_method(self):
+        """
+        :return: db.payment_methods_row for invoice
+        """
+        db = current.db
+
+        if self.invoice.payment_methods_id:
+            return db.payment_methods(self.invoice.payment_methods_id)
+        else:
+            return None
+
+
     def item_add_class(self,
                        cuID,
                        caID,

@@ -100,6 +100,7 @@ class OSExactOnline:
         remote_journal = os_invoice.invoice_group.JournalID
         invoice_date = os_invoice.invoice.DateCreated
         local_invoice_number = os_invoice.invoice.id
+        payment_method = os_invoice.get_payment_method()
 
         invoice_data = {
             'AmountDC': str(amounts.TotalPriceVAT),  # DC = default currency
@@ -121,10 +122,8 @@ class OSExactOnline:
             # 'InvoiceNumber': local_invoice_number
         }
 
-        # # Check for direct debit
-        # if os_invoice.invoice.payment_methods_id == 3:
-        #     invoice_data['PaymentCondition'] = "IN" # Notify Exact Online that this is a direct debit invoice
-
+        if payment_method:
+            invoice_data['PaymentCondition'] = payment_method
 
         error = False
 
@@ -231,6 +230,7 @@ class OSExactOnline:
         remote_journal = os_invoice.invoice_group.JournalID
         invoice_date = os_invoice.invoice.DateCreated
         local_invoice_number = os_invoice.invoice.id
+        payment_method = os_invoice.get_payment_method()
 
         invoice_data = {
             'AmountDC': str(amounts.TotalPriceVAT),  # DC = default currency
@@ -249,6 +249,9 @@ class OSExactOnline:
             # 'InvoiceNumber': '%d%d%04d' % (invoice_date.year, remote_journal,
             #                                int(local_invoice_number)),
         }
+
+        if payment_method:
+            invoice_data['PaymentCondition'] = payment_method
 
         error = False
 
