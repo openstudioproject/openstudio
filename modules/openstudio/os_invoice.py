@@ -498,7 +498,8 @@ class Invoice:
             Quantity=1,
             Price=wsp.Price,
             Sorting=next_sort_nr,
-            tax_rates_id=wsp.tax_rates_id
+            tax_rates_id=wsp.tax_rates_id,
+            GLAccount=wsp.GLAccount
         )
 
         self.set_amounts()

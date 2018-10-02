@@ -3228,8 +3228,9 @@ def define_workshops_products():
             default=False,
             comment=T("Shows 'Donation based' instead of the price in the shop.")),
         Field('GLAccount',
-              label=T('G/L Account'),
-              comment=T('General ledger account id in your accounting software')),
+            represent=lambda value, row: value or '',
+            label=T('G/L Account'),
+            comment=T('General ledger account id in your accounting software')),
         format='%(Name)s')
 
 
