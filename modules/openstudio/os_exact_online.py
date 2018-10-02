@@ -142,9 +142,7 @@ class OSExactOnline:
 
             eoseID = result['EntryID']
             os_invoice.invoice.ExactOnlineSalesEntryID = eoseID
-
-            # TODO: SET invoice code from Exact here
-
+            os_invoice.invoice.InvoiceID = result['EntryNumber']
             os_invoice.invoice.update_record()
 
             print "Entry lines"
@@ -264,8 +262,8 @@ class OSExactOnline:
         try:
             result = api.invoices.update(eoseID, invoice_data)
             print "Update invoice result:"
-            # pp = pprint.PrettyPrinter(depth=6)
-            # pp.pprint(result)
+            pp = pprint.PrettyPrinter(depth=6)
+            pp.pprint(result)
 
             self.update_sales_entry_lines(os_invoice)
 
