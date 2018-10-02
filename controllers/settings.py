@@ -1678,12 +1678,17 @@ def financial_payment_methods():
         session.settings_payment_methods_show = show
 
     db.payment_methods.id.readable = False
-    fields = [db.payment_methods.Name,
-              db.payment_methods.SystemMethod]
-    links = [financial_payment_methods_get_link_edit,
-             financial_payment_methods_get_link_archive]
+    fields = [
+        db.payment_methods.Name,
+        db.payment_methods.SystemMethod,
+        db.payment_methods.AccountingCode
+    ]
+    links = [
+        financial_payment_methods_get_link_edit,
+        financial_payment_methods_get_link_archive
+    ]
 
-    maxtextlengths = {'payment_methods.Name': 50}
+    maxtextlengths = {'payment_methods.Name': 40}
     grid = SQLFORM.grid(query,
                         fields=fields,
                         links=links,
@@ -1728,6 +1733,7 @@ def financial_payment_method_add():
 
     crud.messages.submit_button = T("Save")
     crud.messages.record_created = T("Added payment method")
+    crud.settings.formstyle = 'bootstrap3_stacked'
     crud.settings.create_next = return_url
     form = crud.create(db.payment_methods)
 
@@ -1760,8 +1766,13 @@ def financial_payment_method_edit():
 
     return_url = URL('financial_payment_methods')
 
+    pm = db.payment_methods(pmID)
+    if pm.SystemMethod:
+        db.payment_methods.Name.writable = False
+
     crud.messages.submit_button = T("Save")
     crud.messages.record_updated = T("Updated payment method")
+    crud.settings.formstyle = 'bootstrap3_stacked'
     crud.settings.update_next = return_url
     crud.settings.update_deletable = False
     form = crud.update(db.payment_methods, pmID)
@@ -1813,12 +1824,10 @@ def financial_payment_methods_get_link_edit(row):
         if the id is > 3. The first 3 are reserved for OpenStudio defined
         methods.
     """
-    edit = ''
-    if not row.SystemMethod:
-        edit = os_gui.get_button('edit',
-                                 URL('financial_payment_method_edit',
-                                     args=[row.id]),
-                                 T("Edit this payment method"))
+    edit = os_gui.get_button('edit',
+                              URL('financial_payment_method_edit',
+                                  args=[row.id]),
+                              T("Edit this payment method"))
 
     return edit
 

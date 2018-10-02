@@ -28,7 +28,7 @@ class OSExactOnline:
 
         class MyIniStorage(IniStorage):
             def get_response_url(self):
-                "Configure your custom response URL."
+                # Configure your custom response URL.
                 return self.get_base_url() + '/exact_online/oauth2_success/'
 
         request = current.request
@@ -118,8 +118,13 @@ class OSExactOnline:
             # YYJJ0001 where YY=invoice_date.year, and JJ=remote_journal
             # 'InvoiceNumber': '%d%d%04d' % (invoice_date.year, remote_journal,
             #                                int(local_invoice_number)),
-            'InvoiceNumber': local_invoice_number
+            # 'InvoiceNumber': local_invoice_number
         }
+
+        # # Check for direct debit
+        # if os_invoice.invoice.payment_methods_id == 3:
+        #     invoice_data['PaymentCondition'] = "IN" # Notify Exact Online that this is a direct debit invoice
+
 
         error = False
 
@@ -132,6 +137,9 @@ class OSExactOnline:
 
             eoseID = result['EntryID']
             os_invoice.invoice.ExactOnlineSalesEntryID = eoseID
+
+            # TODO: SET invoice code from Exact here
+
             os_invoice.invoice.update_record()
 
             print "Entry lines"
@@ -365,6 +373,7 @@ class OSExactOnline:
 
     def format_os_sales_entry_lines(self, os_invoice):
         """
+        GLAccount is gotten from API for each call
         :param os_invoice: Invoice object
         :return: SalesEntryLines dict
         """

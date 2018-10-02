@@ -797,9 +797,13 @@ def define_payment_methods():
             writable=False,
             default=False,
             label=T('System method (OpenStudio defined)')),
-        Field('Name', required=True,
+        Field('Name',
             requires=IS_NOT_EMPTY(),
             label=T("Name")),
+        Field('AccountingCode',
+            represent=lambda value, row: value or '',
+            label=T("Accounting code"),
+            comment=T("Payment method/condition code in your accounting software.")),
         format='%(Name)s')
 
 
