@@ -678,26 +678,31 @@ class Invoice:
 
         cm = CustomerMembership(cmID)
         sm = SchoolMembership(cm.row.school_memberships_id)
-        row = sm.get_tax_rates_on_date(period_start)
+        price_rows = sm.get_price_rows_on_date(period_start)
 
-        if row:
-            tax_rates_id = row.school_memberships_price.tax_rates_id
-        else:
-            tax_rates_id = None
+        if not price_rows:
+            return # Don't do anything if we don't have a price
 
-        price = sm.get_price_on_date(cm.row.Startdate, False)
+        price_row = price_rows.first()
+        tax_rates_id = price_row.tax_rates_id
+        price = price_row.Price
+
+        if price == 0:
+            return # Don't do anything if the price is 0
+
         description = cm.get_name() + ' ' + \
                       period_start.strftime(DATE_FORMAT) + ' - ' + \
                       period_end.strftime(DATE_FORMAT)
 
         iiID = db.invoices_items.insert(
-            invoices_id  = self.invoices_id,
-            ProductName  = current.T("Membership") + ' ' + unicode(cmID),
-            Description  = description,
-            Quantity     = 1,
-            Price        = price,
-            Sorting      = next_sort_nr,
+            invoices_id = self.invoices_id,
+            ProductName = current.T("Membership") + ' ' + unicode(cmID),
+            Description = description,
+            Quantity = 1,
+            Price = price,
+            Sorting = next_sort_nr,
             tax_rates_id = tax_rates_id,
+            GLAccount = sm.row.GLAccount
         )
 
         self.link_to_customer_membership(cmID)
