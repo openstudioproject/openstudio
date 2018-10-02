@@ -1748,6 +1748,7 @@ def export_invoices_get_export(from_date, until_date, invoices_groups_id, filety
         'Date Due',
         'Status',
         'Description',
+        'G/L Account',
         'Item #',
         'Item Name',
         'Item Description',
@@ -1797,6 +1798,7 @@ def export_invoices_get_export(from_date, until_date, invoices_groups_id, filety
                i.DateDue,
                i.Status,
                i.Description,
+               ii.GLAccount,
                ii.Sorting,
                ii.ProductName,
                ii.Description,
@@ -1835,9 +1837,7 @@ def export_invoices_get_export(from_date, until_date, invoices_groups_id, filety
 
         rows = db.executesql(query)
 
-        item_nr = 1
-        prev_iID = None
-        for c, row in enumerate(rows):
+        for row in rows:
             unicode_list = []
             for item in row:
                 try:
@@ -1851,6 +1851,8 @@ def export_invoices_get_export(from_date, until_date, invoices_groups_id, filety
             else:
                 csv_writer.writerow(unicode_list)
 
+
+        # While loop control
         if len(rows) < m:
             break
         i += 1
