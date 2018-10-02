@@ -44,8 +44,9 @@ class Invoice:
         self._set_updated_at()
 
         # Exact online integration
-        os_eo = OSExactOnline()
-        os_eo.update_sales_entry(self)
+        if invoice_group.JournalID:
+            os_eo = OSExactOnline()
+            os_eo.update_sales_entry(self)
 
 
     def _set_updated_at(self):
