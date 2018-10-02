@@ -327,31 +327,31 @@ class EmployeeClaims:
         )
 
 
-    # def get_verified(self, page=0, formatted=False):
-    #     """
-    #     All classes verified
-    #     :return: gluon.dal.rows or html table
-    #     """
-    #     return self.get_rows(
-    #         status='verified',
-    #         formatted=formatted,
-    #         page=page
-    #     )
-    #
-    #
-    # def get_processed(self, page=0, formatted=False):
-    #     """
-    #     All processed classes
-    #     :param formatted: Bool
-    #     :return: gluon.dal.rows or html table
-    #     """
-    #     return self.get_rows(
-    #         status='processed',
-    #         formatted=formatted,
-    #         page=page
-    #     )
-    #
-    #
+    def get_accepted(self, page=0, formatted=False):
+        """
+        All classes verified
+        :return: gluon.dal.rows or html table
+        """
+        return self.get_rows(
+            status='Accepted',
+            formatted=formatted,
+            page=page
+        )
+
+
+    def get_rejected(self, page=0, formatted=False):
+        """
+        All processed classes
+        :param formatted: Bool
+        :return: gluon.dal.rows or html table
+        """
+        return self.get_rows(
+            status='Rejected',
+            formatted=formatted,
+            page=page
+        )
+
+
     def accept_all(self):
         """
         Change status of all not_verified classes to verified

@@ -1674,7 +1674,7 @@ def employee_claims_generate_invoices(year, month):
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'teachers_payment_attendance'))
+               auth.has_permission('read', 'employee_claims'))
 def employee_claims():
     """
 
@@ -1781,7 +1781,91 @@ def employee_claims():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('create', 'teachers_payment_classes'))
+               auth.has_permission('read', 'employee_claims'))
+def employee_claims_accepted():
+    """
+
+    :return:
+    """
+    from openstudio.os_employee_claims import EmployeeClaims
+
+    response.title = T('Employee Claims')
+    response.subtitle = T('')
+    response.view = 'general/only_content_no_box.html'
+
+    status = request.vars['status']
+
+    try:
+        page = int(request.args[0])
+    except IndexError:
+        page = 0
+
+    ec = EmployeeClaims()
+
+
+
+    table = ec.get_accepted(
+        formatted=True,
+
+    )
+
+    content = DIV(
+        employee_claims_get_menu(request.function),
+        DIV(DIV(table,
+                 _class='tab-pane active'),
+            _class='tab-content'),
+        _class='nav-tabs-custom'
+    )
+
+    return dict(
+        content=content
+    )
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'employee_claims'))
+def employee_claims_rejected():
+    """
+
+    :return:
+    """
+    from openstudio.os_employee_claims import EmployeeClaims
+
+    response.title = T('Employee Claims')
+    response.subtitle = T('')
+    response.view = 'general/only_content_no_box.html'
+
+    status = request.vars['status']
+
+    try:
+        page = int(request.args[0])
+    except IndexError:
+        page = 0
+
+    ec = EmployeeClaims()
+
+
+
+    table = ec.get_rejected(
+        formatted=True,
+
+    )
+
+    content = DIV(
+        employee_claims_get_menu(request.function),
+        DIV(DIV(table,
+                 _class='tab-pane active'),
+            _class='tab-content'),
+        _class='nav-tabs-custom'
+    )
+
+    return dict(
+        content=content
+    )
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('create', 'employee_claims'))
 def employee_claims_find_claims():
     """
     :return: None
@@ -1854,7 +1938,7 @@ def employee_claims_find_claims():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('update', 'teachers_payment_classes'))
+               auth.has_permission('update', 'employee_claims'))
 def employee_claims_accept_all():
     """
     Verify all not-verified classes
@@ -1874,8 +1958,8 @@ def employee_claims_accept_all():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('update', 'teachers_payment_classes'))
-def employee_claims_attendance_class_verify():
+               auth.has_permission('update', 'employee_claims'))
+def employee_claims_accept():
     """
     Verify attendance / payment
     :return: None
@@ -1896,8 +1980,8 @@ def employee_claims_attendance_class_verify():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('update', 'teachers_payment_classes'))
-def employee_claims_attendance_class_unverify():
+               auth.has_permission('update', 'employee_claims'))
+def employee_claims_reject():
     """
     Verify attendance / payment
     :return: None
