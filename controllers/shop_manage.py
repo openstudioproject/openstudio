@@ -102,8 +102,10 @@ def workflow():
 
         # check shop_subscriptions_payment_method
         shop_subscriptions_payment_method = request.vars['shop_subscriptions_payment_method']
-        set_sys_property('shop_subscriptions_payment_method',
-                         shop_subscriptions_payment_method)
+        set_sys_property(
+            'shop_subscriptions_payment_method',
+            shop_subscriptions_payment_method
+        )
 
         # Clear cache
         cache_clear_sys_properties()

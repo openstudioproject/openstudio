@@ -468,3 +468,14 @@ def upgrade_to_201881():
     from openstudio.os_setup import OsSetup
     setup = OsSetup()
     setup._setup_teachers_payment_rate_type()
+
+
+def upgrade_to_201882():
+    """
+        Upgrade operations to 2018.82
+    """
+    from openstudio.os_setup import OsSetup
+    setup = OsSetup()
+    setup._setup_shop_subscriptions_payment_method()
+
+
