@@ -444,13 +444,19 @@ class OSExactOnline:
             print selected_division
 
             relation_dict = {
-                "Name": os_customer.row.display_name,
+                "AddressLine1": os_customer.row.address,
                 "ChamberOfCommerce": os_customer.row.company_registration,
+                "City": os_customer.row.city,
                 "Code": os_customer.row.id,
+                "Country": os_customer.row.country,
                 "Division": selected_division,
                 "Email": os_customer.row.email,
+                "Name": os_customer.row.display_name,
+                "Phone": os_customer.row.phone,
+                "Postcode": os_customer.row.postcode,
                 "Status": "C", # Customer
-                "VATNumber": os_customer.row.company_tax_registration
+                "VATNumber": os_customer.row.company_tax_registration,
+                "Website": os_customer.row.teacher_website
             }
 
             error = False
@@ -459,6 +465,10 @@ class OSExactOnline:
                 result = api.relations.create(relation_dict)
                 rel_id = result['ID']
                 print rel_id
+
+                # pp = pprint.PrettyPrinter(depth=6)
+                # pp.pprint(result)
+
                 os_customer.row.exact_online_relation_id = rel_id
                 os_customer.row.update_record()
 
@@ -524,12 +534,18 @@ class OSExactOnline:
         print selected_division
 
         relation_dict = {
+            "AddressLine1": os_customer.row.address,
             "Name": os_customer.row.display_name,
             "ChamberOfCommerce": os_customer.row.company_registration,
+            "City": os_customer.row.city,
             "Code": os_customer.row.id,
+            "Country": os_customer.row.country,
             "Email": os_customer.row.email,
+            "Phone": os_customer.row.phone,
+            "Postcode": os_customer.row.postcode,
             "Status": "C", # Customer
-            "VATNumber": os_customer.row.company_tax_registration
+            "VATNumber": os_customer.row.company_tax_registration,
+            "Website": os_customer.row.teacher_website
         }
 
         error = False
@@ -540,7 +556,9 @@ class OSExactOnline:
 
         # api.relations.update(eoID, relation_dict)
         try:
-            api.relations.update(eoID, relation_dict)
+            result = api.relations.update(eoID, relation_dict)
+            # pp = pprint.PrettyPrinter(depth=6)
+            # pp.pprint(result)
         except HTTPError as e:
             error = True
             message = e
