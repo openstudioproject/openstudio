@@ -16,13 +16,16 @@ class OsCustomersPaymentInfoMandate:
 
         :return:
         """
-        from os_customer import Customer
+        from os_customers_payment_info import OsCustomersPaymentInfo
         from os_exact_online import OSExactOnline
 
-        os_customer = Customer(self.row.auth_customer_id)
+        os_customer_payment_info = OsCustomersPaymentInfo(self.row.customers_payment_info_id)
 
         os_eo = OSExactOnline()
-        #os_eo.create_dd_mandate(os_customer, self)
+        os_eo.create_dd_mandate(
+            os_customer_payment_info,
+            self
+        )
 
 
     def on_update(self):

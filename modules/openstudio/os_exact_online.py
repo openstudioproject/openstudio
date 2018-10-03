@@ -733,6 +733,7 @@ class OSExactOnline:
         """
         from exactonline.http import HTTPError
         from tools import OsTools
+        from os_customer import Customer
 
         os_tools = OsTools()
         authorized = os_tools.get_sys_property('exact_online_authorized')
@@ -748,26 +749,33 @@ class OSExactOnline:
             return
 
         api = self.get_api()
+
+        customer = Customer(os_customer_payment_info.row.auth_customer_id)
+        eoID = customer.row.exact_online_relation_id
         eo_bankaccount_id = os_customer_payment_info.row.exact_online_bankaccount_id
 
         mandate_dict = {
             'Account': eoID,
-            'BankAccount': os_customer_payment_info.row.AccountNumber,
-            'BankAccountHolderName': os_customer_payment_info.row.AccountHolder,
-            'BICCode': os_customer_payment_info.row.BIC
+            'BankAccount': eo_bankaccount_id,
+            'Reference': 487543587458
         }
 
         try:
-            result = api.bankaccounts.create(bank_account_dict)
-            os_customer_payment_info.row.exact_online_bankaccount_id = result['ID']
-            os_customer_payment_info.row.update_record()
+            result = api.directdebitmandates.create(mandate_dict)
+
+            import pp
+            pp = pprint.PrettyPrinter(depth=6)
+            pp.pprint(result)
+
+            os_cpim.row.exact_online_directdebitmandates_id = result['ID']
+            os_cpim.row.update_record()
 
         except HTTPError as e:
             error = True
             self._log_error(
                 'create',
-                'bankaccount',
-                os_customer_payment_info.row.id,
+                'mandate',
+                os_customer_payment_info.cpiID,
                 e
             )
 
