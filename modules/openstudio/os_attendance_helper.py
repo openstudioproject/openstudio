@@ -1132,19 +1132,18 @@ class AttendanceHelper:
         # Trial
         # get trial class price
         if trial:
-            price = prices['trial']
+            price = prices['trial'] or 0
             membership_price = has_membership and prices['trial_membership']
             if membership_price:
                 price = prices['trial_membership']
 
-            if price:
-                options['trial'] = {
-                    "Type": "trial",
-                    "Name": T('Trial'),
-                    "Price": price,
-                    "MembershipPrice": membership_price,
-                    "Message": get_sys_property('shop_classes_trial_message') or ''
-                }
+            options['trial'] = {
+                "Type": "trial",
+                "Name": T('Trial'),
+                "Price": price,
+                "MembershipPrice": membership_price,
+                "Message": get_sys_property('shop_classes_trial_message') or ''
+            }
 
         # Complementary
         if complementary:
