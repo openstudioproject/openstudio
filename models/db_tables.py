@@ -2352,10 +2352,16 @@ def define_customers_payment_info():
             represent=lambda value, row: payment_methods_dict.get(value),
             label=T("Default payment method")),
         Field('AccountNumber',
-            requires=IS_EMPTY_OR(IS_IBAN()),
+            requires=[
+                IS_NOT_EMPTY(error_message=T("Account number is required")),
+                IS_IBAN()
+            ],
             represent=lambda value, row: value or "",
             label=T("Account number")),
         Field('AccountHolder',
+            requires=IS_NOT_EMPTY(
+                error_message=T("Account holder is required")
+            ),
             represent=lambda value, row: value or "",
             label=T("Account holder")),
         Field('BIC',

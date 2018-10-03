@@ -477,5 +477,3 @@ def upgrade_to_201882():
     from openstudio.os_setup import OsSetup
     setup = OsSetup()
     setup._setup_shop_subscriptions_payment_method()
-
-

@@ -510,7 +510,7 @@ def me():
                 )
 
 @auth.requires_login()
-def me_bank_account():
+def me_bankaccount():
     """
             Allows users to edit payment information of their profile
         """
@@ -608,9 +608,9 @@ def me_get_menu(page=None):
     pages.append(['me',
                   T("General Information"),
                   URL("me")])
-    pages.append(['me_bank_account',
+    pages.append(['me_bankaccount',
                 T("Bank Account"),
-                      URL("me_bank_account"),
+                      URL("me_bankaccount"),
                   ])
 
     return os_gui.get_submenu(pages, page, _id='os-customers_edit_menu', horizontal=True, htype='tabs')
