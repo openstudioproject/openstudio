@@ -2406,8 +2406,8 @@ def define_customers_payment_info_mandates():
     db.define_table('customers_payment_info_mandates',
         Field('customers_payment_info_id', db.customers_payment_info,
               readable=False,
-              writable=False
-              label=T('Payment Info'),
+              writable=False,
+              label=T('Payment Info')),
         Field('MandateText', 'text',
               writable =False),
         Field('MandateSignatureDate', 'date',
