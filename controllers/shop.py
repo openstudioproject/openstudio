@@ -1076,9 +1076,6 @@ def subscription_terms():
     subscription_terms_check_valid_bankdetails(payment_method)
 
 
-
-
-
     ssu = SchoolSubscription(ssuID)
     price = ssu.get_price_on_date(TODAY_LOCAL)
     classes = ssu.get_classes_formatted()
@@ -1141,11 +1138,22 @@ def subscription_debit():
     """
     ssuID = request.vars['ssuID']
 
+    #TODO: redo this bit to make to more readable
+
     row = db.customers_payment_info(auth_customer_id = auth.user.id)
-    query= (db.customers_orders_direct_debit.auth_customer_id == auth.user.id)
-    if not db(query).select().first():
-        db.customers_orders_direct_debit[0]= dict(auth_customer_id = auth.user.id,
-                                                  customers_payment_info_id= row)
+    query = (customers_payment_info_mandates.customers_payment_info_id == row.id)
+    if not db(query).count():
+        mandate_text = get_sys_property('shop_direct_debit_mandate_text')
+
+        db.customers_payment_info_mandates.insert(
+            customers_payment_info_id = row.id,
+            MandateText = mandate_text
+        )
+
+        #TODO: Sync to exact
+
+         # db.customers_orders_direct_debit[0]= dict(auth_customer_id = auth.user.id,
+         #                                           customers_payment_info_id= row)
     # add subscription to customer﻿​
     startdate = TODAY_LOCAL
     shop_subscriptions_start = get_sys_property('shop_subscriptions_start')

@@ -2399,6 +2399,36 @@ def define_customers_payment_info():
     #         value=v)
 
 
+def define_customers_payment_info_mandates():
+    """
+        Table to hold mandates for bank accounts
+    """
+    db.define_table('customers_payment_info_mandates',
+        Field('customers_payment_info_id', db.customers_payment_info,
+              required=True,
+              label=T('Payment Info')
+              ),
+        Field('MandateText', 'text',
+              writable =False),
+        Field('MandateSignatureDate', 'date',
+              requires=IS_EMPTY_OR(
+                  IS_DATE_IN_RANGE(format=DATE_FORMAT,
+                                   minimum=datetime.date(1900, 1, 1),
+                                   maximum=datetime.date(2999, 1, 1))
+              ),
+              default=TODAY_LOCAL ,
+              represent=represent_date,
+              label=T("Mandate signature date"),
+              widget=os_datepicker_widget),
+        Field("CreatedOn", 'datetime',
+              represent=represent_datetime,
+              default=datetime.datetime.now()),
+        Field('exact_online_directdebitmandates_id',
+              readable=False,
+              writable=False)
+    )
+
+
 def define_customers_memberships():
     ms_query = (db.school_memberships.Archived == False)
     pm_query = (db.payment_methods.Archived == False)
@@ -4511,29 +4541,6 @@ def define_customers_orders():
     )
 
 
-def define_customers_orders_direct_debit():
-    """
-        Table to hold approval of direct debit and financial data connection needed for direct debit
-    """
-    db.define_table('customers_orders_direct_debit',
-        Field('auth_customer_id', db.auth_user, required= True,
-              label= T('Customer')),
-        Field('customers_payment_info_id', db.customers_payment_info,
-              required = True,
-              label= T('Payment Info')
-              ),
-        Field('MandateSignatureDate', 'date',
-              requires=IS_EMPTY_OR(IS_DATE_IN_RANGE(format=DATE_FORMAT,
-                                                    minimum=datetime.date(1900, 1, 1),
-                                                    maximum=datetime.date(2999, 1, 1))),
-              default=TODAY_LOCAL ,
-              represent=represent_date,
-              label=T("Mandate signature date"),
-              widget=os_datepicker_widget),
-
-    )
-
-
 def define_shop_categories():
     """
         Define shop categories
@@ -5739,6 +5746,7 @@ define_workshops_mail()
 define_customers_documents()
 define_customers_notes()
 define_customers_payment_info()
+define_customers_payment_info_mandates()
 define_customers_messages()
 define_customers_memberships()
 define_customers_subscriptions()
@@ -5797,7 +5805,6 @@ define_customers_orders()
 define_customers_orders_items()
 define_customers_orders_amounts()
 define_customers_orders_mollie_payment_ids()
-define_customers_orders_direct_debit()
 
 
 # invoice definitions
