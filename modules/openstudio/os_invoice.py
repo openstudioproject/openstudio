@@ -655,7 +655,7 @@ class Invoice:
         ssu = db.school_subscriptions(ssuID)
         if not rowsfee and ssu.RegistrationFee: # Registration fee not already paid and RegistrationFee defined?
             price = row.RegistrationFee
-            if not price == 0:
+            if not price == 0 and price:
                 db.invoices_items.insert(
                     invoices_id=self.invoices_id,
                     ProductName=current.T("Registration Fee"),

@@ -1024,7 +1024,7 @@ def subscriptions():
 
     return dict(content = content)
 
-
+@auth.requires_login()
 def subscription_terms():
     """
         Buy subscription confirmation page
@@ -1036,6 +1036,8 @@ def subscription_terms():
     response.view = 'shop/index.html'
 
     ssuID = request.vars['ssuID']
+
+    Uid= auth.user.id
 
     features = db.customers_shop_features(1)
     if not features.Subscriptions:
@@ -1049,6 +1051,19 @@ def subscription_terms():
     # buy now
     # part terms
     # automatic payment
+
+    payment_method = db(db.sys_properties.Property == 'shop_subscriptions_payment_method').select().first()
+
+    if payment_method.PropertyValue != 'mollie' :
+        query = ((db.customers_payment_info.AccountNumber == None)&\
+                 (db.customers_payment_info.auth_customer_id == Uid) &\
+                 (db.customers_payment_info.AccountHolder == None))
+
+        row= db.customers_payment_info(auth_customer_id = Uid)
+        if db(query).select().first() or not row:
+             redirect(URL('subscription_redirect'))
+
+
 
     ssu = SchoolSubscription(ssuID)
     price = ssu.get_price_on_date(TODAY_LOCAL)
@@ -1070,15 +1085,31 @@ def subscription_terms():
 
     subscription_conditions = DIV(terms, _class='well')
 
-    confirm = A(B(T('I agree')),
-                _href=URL('mollie', 'subscription_buy_now', vars={'ssuID':ssuID}),
-                _class='btn btn-primary')
+    if payment_method.PropertyValue == 'mollie':
+        debit_mandate= DIV()
+        confirm = A(B(T('I agree')),
+                    _href=URL('mollie', 'subscription_buy_now', vars={'ssuID':ssuID}),
+                    _class='btn btn-primary')
+    else:
+        mandate_text = get_sys_property('shop_direct_debit_mandate_text')
+        mandate= DIV()
+        if mandate_text:
+            # mandate.append(B(T('Direct Debit Mandate')))
+            mandate.append(XML(mandate_text))
+            debit_mandate = DIV(H4(T('Direct Debit Mandate')),
+                            DIV(mandate, _class='well'))
+        else:
+            debit_mandate = mandate
+        confirm =  A(B(T('I agree')),
+                    _href=URL('subscription_debit', vars={'ssuID': ssuID, 'Uid': Uid}),
+                    _class='btn btn-primary')
     cancel = A(B(T('Cancel')),
                _href=URL('subscriptions'),
                _class='btn btn-default')
 
     content = DIV(H4(T('Terms & conditions')),
                   subscription_conditions,
+                  debit_mandate,
                   confirm,
                   cancel)
 
@@ -1088,6 +1119,61 @@ def subscription_terms():
 
     return dict(content=content)
 
+
+def subscription_debit():
+    """
+           Get a subscription
+       """
+    ssuID = request.vars['ssuID']
+    Uid   = request.vars['Uid']
+
+    row = db.customers_payment_info(auth_customer_id= Uid)
+    query= (db.customers_orders_direct_debit.auth_customer_id == Uid)
+    if not db(query).select().first():
+        db.customers_orders_direct_debit[0]= dict(auth_customer_id= Uid,
+                                                  customers_payment_info_id= row)
+    # add subscription to customer﻿​_
+    startdate = TODAY_LOCAL
+    shop_subscriptions_start = get_sys_property('shop_subscriptions_start')
+    if not shop_subscriptions_start == None:
+        if shop_subscriptions_start == 'next_month':
+            startdate = get_last_day_month(TODAY_LOCAL) + datetime.timedelta(days=1)
+
+    csID = db.customers_subscriptions.insert(
+        auth_customer_id=Uid,
+        school_subscriptions_id=ssuID,
+        Startdate=startdate,
+        payment_methods_id=3,  # important, 3 is the payment_methods_id for Direct Debit
+    )
+
+    # Add credits for the first month
+    cs = CustomerSubscription(csID)
+    cs.add_credits_month(startdate.year, startdate.month)
+
+    # clear cache to make sure it shows in the back end
+    cache_clear_customers_subscriptions(auth.user.id)
+
+    # Create invoice
+    cs = CustomerSubscription(csID)
+    iID = cs.create_invoice_for_month(TODAY_LOCAL.year, TODAY_LOCAL.month)
+    # iID.payment_method_id = 3
+    # Come back to the shop
+    session.flash=T('Subscription has been added to your Account!')
+    redirect(URL('profile','index'))
+
+
+def subscription_redirect():
+
+    response.title = T('Shop')
+    response.subtitle = T('Subscription')
+    response.view = 'shop/index.html'
+
+    content = DIV(H3(T('Your Payment information is not filled out yet. Please click on the Button to get redirected to your profile page to fill out your Payment data.')))
+    content += A(B(T('Continue')),
+                _href=URL('profile', 'me_payment_info'),
+                _class='btn btn-primary')
+    session.payment_information_redirect = URL('shop', 'subscriptions')
+    return dict(content = content)
 
 def classes():
     """
