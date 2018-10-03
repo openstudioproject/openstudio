@@ -105,6 +105,7 @@ class OSExactOnline:
 
         remote_journal = os_invoice.invoice_group.JournalID
         invoice_date = os_invoice.invoice.DateCreated
+        is_credit_invoice = os_invoice.is_credit_invoice()
         local_invoice_number = os_invoice.invoice.id
         payment_method = os_invoice.get_payment_method()
 
@@ -130,6 +131,10 @@ class OSExactOnline:
 
         if payment_method and payment_method.AccountingCode:
             invoice_data['PaymentCondition'] = payment_method.AccountingCode
+
+        if is_credit_invoice:
+            invoice_data['Type'] = 21
+
 
         error = False
 
@@ -233,6 +238,7 @@ class OSExactOnline:
 
         remote_journal = os_invoice.invoice_group.JournalID
         invoice_date = os_invoice.invoice.DateCreated
+        is_credit_invoice = os_invoice.is_credit_invoice()
         local_invoice_number = os_invoice.invoice.id
         payment_method = os_invoice.get_payment_method()
 
@@ -256,6 +262,9 @@ class OSExactOnline:
 
         if payment_method and payment_method.AccountingCode:
             invoice_data['PaymentCondition'] = payment_method.AccountingCode
+            
+        if is_credit_invoice:
+            invoice_data['Type'] = 21
 
         error = False
 
@@ -317,6 +326,8 @@ class OSExactOnline:
         """
         db = current.db
 
+        is_credit_invoice = os_invoice.is_credit_invoice()
+
         items = os_invoice.get_invoice_items_rows()
 
         for item in items:
@@ -329,6 +340,9 @@ class OSExactOnline:
                 'Quantity': item.Quantity,
                 'VATCode': tax_rate.VATCodeID
             }
+
+            if is_credit_invoice:
+                line['Type'] = 21
 
             ID = item.ExactOnlineSalesEntryLineID
 
@@ -386,6 +400,7 @@ class OSExactOnline:
         """
         db = current.db
 
+        is_credit_invoice = os_invoice.is_credit_invoice()
         items = os_invoice.get_invoice_items_rows()
         print items
 
@@ -394,14 +409,20 @@ class OSExactOnline:
             glaccount = self.get_glaccount(item.GLAccount)
 
             tax_rate = db.tax_rates(item.tax_rates_id)
-            lines.append({
+            line = {
                 'AmountDC': item.TotalPrice,
                 'AmountFC': item.TotalPrice,
                 'Description': item.Description,
                 'GLAccount': glaccount[0][u'ID'],
                 'Quantity': item.Quantity,
                 'VATCode': tax_rate.VATCodeID,
-            })
+            }
+
+            if is_credit_invoice:
+                line['Type'] = 21
+
+            lines.append(line)
+
 
         return lines
 

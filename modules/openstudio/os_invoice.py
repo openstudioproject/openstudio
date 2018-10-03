@@ -931,6 +931,18 @@ class Invoice:
             return False
 
 
+    def is_credit_invoice(self):
+        """
+        True if credit invoice, False otherwise
+        :return: Boolean
+        """
+        credit_invoice = False
+        if self.invoice.credit_invoice_for:
+            credit_invoice = True
+
+        return credit_invoice
+
+
     def set_customer_info(self, cuID):
         """
             Set customer information for an invoice
