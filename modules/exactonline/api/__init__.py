@@ -23,6 +23,7 @@ from .financialglaccounts import FinancialGLAccounts
 from .financialjournals import FinancialJournals
 from .relations import Relations
 from .bankaccounts import BankAccounts
+from .directdebitmandates import DirectDebitMandates
 from .vatcodes import VatCodes
 
 
@@ -49,4 +50,5 @@ class ExactApi(
     financialjournals = FinancialJournals.as_property()
     relations = Relations.as_property()
     bankaccounts = BankAccounts.as_property()
+    directdebitmandates = DirectDebitMandates.as_property()
     vatcodes = VatCodes.as_property()

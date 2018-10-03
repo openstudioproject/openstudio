@@ -725,6 +725,61 @@ class OSExactOnline:
             )
 
 
+    def create_dd_mandate(self, os_customer_payment_info, os_cpim):
+        """
+        :param os_customer_payment_info: payment info object
+        :param os_cpim: payment info mandates object
+        :return:
+        """
+        from exactonline.http import HTTPError
+        from tools import OsTools
+
+        os_tools = OsTools()
+        authorized = os_tools.get_sys_property('exact_online_authorized')
+
+        if not authorized:
+            self._log_error(
+                'create',
+                'directdebitmandate',
+                os_cpim.cpimID,
+                "Exact online integration not authorized"
+            )
+
+            return
+
+        api = self.get_api()
+        eo_bankaccount_id = os_customer_payment_info.row.exact_online_bankaccount_id
+
+        mandate_dict = {
+            'Account': eoID,
+            'BankAccount': os_customer_payment_info.row.AccountNumber,
+            'BankAccountHolderName': os_customer_payment_info.row.AccountHolder,
+            'BICCode': os_customer_payment_info.row.BIC
+        }
+
+        try:
+            result = api.bankaccounts.create(bank_account_dict)
+            os_customer_payment_info.row.exact_online_bankaccount_id = result['ID']
+            os_customer_payment_info.row.update_record()
+
+        except HTTPError as e:
+            error = True
+            self._log_error(
+                'create',
+                'bankaccount',
+                os_customer_payment_info.row.id,
+                e
+            )
+
+
+    def upgrate_dd_mandate(self):
+        """
+
+        :return:
+        """
+        pass
+
+
     def _log_error(self, action, object, object_id, result):
         """
         :param action: should be in ['create', 'read', 'update', 'delete']
