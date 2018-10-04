@@ -3930,8 +3930,8 @@ def bankaccount():
     """
         Lists bank account info
     """
-    customers_id = request.vars['cuID']
-    customer = Customer(customers_id)
+    cuID = request.vars['cuID']
+    customer = Customer(cuID)
     response.title = customer.get_name()
     response.subtitle = T("Payment info")
     response.view = 'general/tabs_menu.html'
@@ -3943,52 +3943,61 @@ def bankaccount():
     db.customers_payment_info.id.readable=False
     db.customers_payment_info.auth_customer_id.readable=False
 
-    query = (db.customers_payment_info.auth_customer_id == customers_id)
+    query = (db.customers_payment_info.auth_customer_id == cuID)
+    count = db(query).count()
 
-    db.customers_payment_info.auth_customer_id.default = customers_id
+    if not count:
+        db.customers_payment_info.insert(
+            auth_customer_id = cuID
+        )
 
-    fields = [ db.customers_payment_info.payment_methods_id,
-               db.customers_payment_info.AccountNumber,
-               db.customers_payment_info.AccountHolder,
-               db.customers_payment_info.BIC,
-               db.customers_payment_info.BankName,
-               db.customers_payment_info.BankLocation ]
+    rows = db(query).select(db.customers_payment_info.ALL)
+    row = rows.first()
 
-    links = [lambda row: os_gui.get_button('edit',
-                                    URL('payment_info_edit',
-                                        args=[customers_id, row.id])) ]
+    return_url = bankaccount_get_returl_url(cuID)
 
-    delete_permission = auth.has_membership(group_id='Admins') or \
-                        auth.has_permission('delete', 'customers_payment_info')
+    crud.messages.submit_button = T("Save")
+    crud.messages.record_updated = T("Saved")
+    crud.settings.formstyle = "bootstrap3_stacked"
+    crud.settings.update_next = return_url
+    crud.settings.update_deletable = False
+    crud.settings.update_onaccept = [bankaccount_onaccept]
+    form = crud.update(db.customers_payment_info, row.id)
 
-    bd_grid = SQLFORM.grid(query,
-                           fields=fields,
-                           links=links,
-                           create=False,
-                           details=False,
-                           editable=False,
-                           csv=False,
-                           searchable=False,
-                           deletable=delete_permission,
-                           field_id=db.customers_payment_info.id,
-                           ui=grid_ui)
-    if db(query).count() == 0:
-        add = os_gui.get_button('add', URL('payment_info_add', args=[customers_id]))
-    else:
-        add = ''
-    bd_grid.element('.web2py_counter', replace=None) # remove the counter
-    bd_grid.elements('span[title=Delete]', replace=None) # remove text from delete button
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
+    form = result['form']
+    submit = result['submit']
 
-    menu = customers_get_menu(customers_id, request.function)
-    submenu = payments_get_submenu(request.function, customers_id)
+    menu = customers_get_menu(cuID, request.function)
+    submenu = payments_get_submenu(request.function, cuID)
 
-    content = DIV(submenu, BR(), bd_grid)
+    content = DIV(submenu, BR(), form)
 
 
     return dict(content=content,
                 menu=menu,
                 back=back,
-                tools=add)
+                tools=submit)
+
+
+def bankaccount_onaccept(form):
+    """
+    :param form: crud form for db.customers_payment_info
+    :return:
+    """
+    from openstudio.os_customers_payment_info import OsCustomersPaymentInfo
+
+    cpiID = form.vars.id
+    cpi = OsCustomersPaymentInfo(cpiID)
+    cpi.on_update()
+
+
+
+def bankaccount_get_returl_url(customers_id):
+    """
+        Returns the return url for payment_info_add and payment_info_edit
+    """
+    return URL('bankaccount', vars={'cuID':customers_id})
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -4280,97 +4289,6 @@ def notes_get_add(var=None):
                _class='os-customers_notes_edit')
 
     return form
-
-
-def payment_info_get_returl_url(customers_id):
-    """
-        Returns the return url for payment_info_add and payment_info_edit
-    """
-    return URL('bankaccount', vars={'cuID':customers_id})
-
-
-@auth.requires_login()
-def payment_info_add():
-    """
-        This function shows an add page for payment_info
-        request.args[0] is expected to be the customers_id
-    """
-    customers_id = request.args[0]
-    customer = Customer(customers_id)
-    response.title = customer.get_name()
-    response.subtitle = T("Payment info")
-    response.view = 'general/only_content.html'
-
-    session.customers_payments_tab = '#bd'
-
-    return_url = payment_info_get_returl_url(customers_id)
-
-    submit = ''
-    query = (db.customers_payment_info.auth_customer_id == customers_id)
-    if db(query).count() < 1:
-        db.customers_payment_info.auth_customer_id.default = customers_id
-
-        crud.messages.submit_button = T("Save")
-        crud.messages.record_created = T("Added payment info")
-        crud.settings.create_next = return_url
-        crud.settings.create_onaccept = [payment_info_add_edit_onaccept]
-        form = crud.create(db.customers_payment_info)
-
-        result = set_form_id_and_get_submit_button(form, 'MainForm')
-        form = result['form']
-        submit = result['submit']
-    else:
-        form = T("Payment info already entered for this customer.")
-
-    back = os_gui.get_button('back', return_url)
-
-    return dict(content=form, save=submit, back=back)
-
-
-@auth.requires_login()
-def payment_info_edit():
-    """
-        This function shows an edit page for the payment_info of a customer
-        request.args[0] is expected to be the customers_id
-        request.args[1] is expected to be the payment_infoID (piID)
-    """
-    customers_id = request.args[0]
-    piID = request.args[1]
-    customer = Customer(customers_id)
-    response.title = customer.get_name()
-    response.subtitle = T("Payment info")
-    response.view = 'general/only_content.html'
-
-    session.customers_payments_tab = '#bd'
-
-    return_url = payment_info_get_returl_url(customers_id)
-
-    crud.messages.submit_button = T("Save")
-    crud.messages.record_updated = T("Updated payment info")
-    crud.settings.update_next = return_url
-    crud.settings.update_deletable = False
-    crud.settings.update_onaccept = [payment_info_add_edit_onaccept]
-    form = crud.update(db.customers_payment_info, piID)
-
-    result = set_form_id_and_get_submit_button(form, 'MainForm')
-    form = result['form']
-    submit = result['submit']
-
-    back = os_gui.get_button('back', return_url)
-
-    return dict(content=form, save=submit, back=back)
-
-
-def payment_info_add_edit_onaccept(form):
-    """
-    :param form: crud form for db.customers_payment_info
-    :return:
-    """
-    from openstudio.os_customers_payment_info import OsCustomersPaymentInfo
-
-    cpiID = form.vars.id
-    cpi = OsCustomersPaymentInfo(cpiID)
-    cpi.on_update()
 
 
 def alternativepayment_get_return_url(customers_id):

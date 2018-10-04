@@ -2368,6 +2368,8 @@ def define_customers_payment_info():
             represent=lambda value, row: value or "",
             label=T("BIC")),
         Field('MandateSignatureDate', 'date',
+            readable=False,
+            writable=False,
             requires=IS_EMPTY_OR(IS_DATE_IN_RANGE(format=DATE_FORMAT,
                                       minimum=datetime.date(1900,1,1),
                                       maximum=datetime.date(2999,1,1))),
