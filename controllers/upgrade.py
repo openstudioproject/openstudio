@@ -499,5 +499,6 @@ def upgrade_to_201882():
     for row in rows:
         db.customers_payment_info_mandates.insert(
             customers_payment_info_id = row.id,
+            MandateReference = unicode(row.auth_customer_id),
             MandateSignatureDate = row.MandateSignatureDate
         )
