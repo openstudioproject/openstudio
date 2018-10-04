@@ -3980,7 +3980,7 @@ def bankaccount():
 
     add_mandate = os_gui.get_button(
         'noicon',
-        URL('bankaccount_add_mandate', vars={'cuID':cuID, 'cpiID':row.id}),
+        URL('bankaccount_mandate_add', vars={'cuID':cuID, 'cpiID':row.id}),
         title=T("Add mandate"),
         btn_size='',
     )
@@ -4093,7 +4093,7 @@ def bankaccount_mandate_delete():
     query = (db.customers_payment_info_mandates.id == cpimID)
     db(query).delete()
 
-    redirect(URL(bankaccount_get_returl_url(cuID)))
+    redirect(bankaccount_get_returl_url(cuID))
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \

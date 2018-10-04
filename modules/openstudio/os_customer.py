@@ -853,12 +853,38 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         :param rows: gluon.dal.rows object of db.customers_payment_info_mandates
         :return:
         """
+        from os_gui import OsGui
+
         T = current.T
+        auth = current.auth
+        os_gui = OsGui()
+        request = current.request
+
+        delete_permission = (
+            auth.has_membership(group_id='Admins') or
+            auth.has_permission('delete', 'customers_payments_info_mandates')
+        )
+
+        onclick = "return confirm('" + \
+                     T('Do you really want to remove this mandate?') + "');"
 
         mandates = DIV()
         for row in rows.render():
+            btn_delete = ''
+            if delete_permission and request.controller == 'customers':
+                btn_delete = DIV(
+                    A(os_gui.get_fa_icon('fa-times'),
+                      _href=URL('customers', 'bankaccount_mandate_delete',
+                                vars={'cuID':self.cuID,
+                                      'cpimID': row.id}),
+                      _onclick=onclick,
+                      _class='text-red'),
+                    _class='box-tools'
+                )
+
             mandates.append(DIV(
                 DIV(H3(T("Direct debit mandate"), _class="box-title"),
+                    btn_delete,
                     _class="box-header"
                 ),
                 DIV(DIV(B(T("Signed on")), ' ', row.MandateSignatureDate),
