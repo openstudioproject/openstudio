@@ -899,6 +899,17 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
             return rows
 
 
+    def has_payment_info_mandate(self):
+        """
+
+        :return:
+        """
+        if self.get_payment_info_mandates():
+            return True
+        else:
+            return False
+
+
     def get_mollie_mandates(self):
         """
             Returns mollie mandates

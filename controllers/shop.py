@@ -1048,6 +1048,7 @@ def subscription_terms():
     """
         Buy subscription confirmation page
     """
+    from openstudio.os_customer import Customer
     from openstudio.os_school_subscription import SchoolSubscription
 
     response.title= T('Shop')
@@ -1075,7 +1076,7 @@ def subscription_terms():
     payment_method = get_sys_property('shop_subscriptions_payment_method')
     subscription_terms_check_valid_bankdetails(payment_method)
 
-
+    customer = Customer(auth.user.id)
     ssu = SchoolSubscription(ssuID)
     price = ssu.get_price_on_date(TODAY_LOCAL)
     classes = ssu.get_classes_formatted()
@@ -1096,13 +1097,14 @@ def subscription_terms():
 
     subscription_conditions = DIV(terms, _class='well')
 
+    debit_mandate = ''
+    confirm = ''
     if payment_method == 'mollie':
         debit_mandate= DIV()
         confirm = A(B(T('I agree')),
                     _href=URL('mollie', 'subscription_buy_now', vars={'ssuID':ssuID}),
                     _class='btn btn-primary')
-    else:
-        direct_debit_mandate = ''
+    elif not customer.has_payment_info_mandate():
         mandate_text = get_sys_property('shop_direct_debit_mandate_text')
         if mandate_text:
             debit_mandate = DIV(
