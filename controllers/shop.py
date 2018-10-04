@@ -1113,7 +1113,7 @@ def subscription_terms():
             )
 
         confirm =  A(B(T('I agree')),
-                    _href=URL('subscription_debit', vars={'ssuID': ssuID}),
+                    _href=URL('subscription_direct_debit', vars={'ssuID': ssuID}),
                     _class='btn btn-primary')
 
     cancel = A(B(T('Cancel')),
@@ -1134,7 +1134,7 @@ def subscription_terms():
 
 
 @auth.requires_login()
-def subscription_debit():
+def subscription_direct_debit():
     """
        Get a subscription
     """
