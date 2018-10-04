@@ -560,7 +560,7 @@ def my_claims():
         edit = ''
 
         if row.Status == 'Pending':
-            status= os_gui.get_label('danger', T('Pending'))
+            status= os_gui.get_label('warning', T('Pending'))
             delete = os_gui.get_button('delete_notext',
                                        URL('my_claims_claim_delete', vars={'ECID': row.id}),
                                        onclick=onclick_del,
