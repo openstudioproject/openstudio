@@ -474,6 +474,23 @@ def upgrade_to_201882():
     """
         Upgrade operations to 2018.82
     """
+    ##
+    # Set default payment method for subscriptions in shop
+    # This is a new setting in this release
+    ##
     from openstudio.os_setup import OsSetup
     setup = OsSetup()
     setup._setup_shop_subscriptions_payment_method()
+
+    ##
+    # Migrate MandateSignatureDate field from customers_payment_info
+    # to customers_payment_info_mandates table
+    ##
+    query = (db.customers_payment_info.MandateSignatureDate != None)
+    rows = db(query).select(db.customers_payment_info.ALL)
+
+    for row in rows:
+        db.customers_payment_info_mandates.insert(
+            customers_payment_info_id = row.id,
+            MandateSignatureDate = row.MandateSignatureDate
+        )
