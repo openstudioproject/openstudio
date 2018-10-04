@@ -19,6 +19,8 @@ class OsCustomersPaymentInfoMandate:
         from os_customers_payment_info import OsCustomersPaymentInfo
         from os_exact_online import OSExactOnline
 
+        print 'Syncing mandate to Exact!'
+
         os_customer_payment_info = OsCustomersPaymentInfo(self.row.customers_payment_info_id)
 
         os_eo = OSExactOnline()

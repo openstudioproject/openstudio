@@ -631,6 +631,9 @@ class OSExactOnline:
         from exactonline.http import HTTPError
         from tools import OsTools
 
+        print "Creating bank account"
+        print os_customer_payment_info.row
+
         os_tools = OsTools()
         authorized = os_tools.get_sys_property('exact_online_authorized')
 
@@ -654,19 +657,44 @@ class OSExactOnline:
             'BICCode': os_customer_payment_info.row.BIC
         }
 
-        try:
-            result = api.bankaccounts.create(bank_account_dict)
-            os_customer_payment_info.row.exact_online_bankaccount_id = result['ID']
-            os_customer_payment_info.row.update_record()
+        eo_bankaccount_id = None
 
-        except HTTPError as e:
-            error = True
-            self._log_error(
-                'create',
-                'bankaccount',
-                os_customer_payment_info.row.id,
-                e
-            )
+        print "bank account creation result:"
+        result = api.bankaccounts.create(bank_account_dict)
+
+        import pprint
+        pp = pprint.PrettyPrinter(depth=6)
+        pp.pprint(result)
+
+        eo_bankaccount_id = result['ID']
+        os_customer_payment_info.row.exact_online_bankaccount_id = eo_bankaccount_id
+        os_customer_payment_info.row.update_record()
+
+        # try:
+        #     result = api.bankaccounts.create(bank_account_dict)
+        #
+        #     print "bank account creation result:"
+        #     import pprint
+        #     pp = pprint.PrettyPrinter(depth=6)
+        #     pp.pprint(result)
+        #
+        #     eo_bankaccount_id = result['ID']
+        #     os_customer_payment_info.row.exact_online_bankaccount_id = eo_bankaccount_id
+        #     os_customer_payment_info.row.update_record()
+        #
+        # except HTTPError as e:
+        #     print 'bank account creation error...'
+        #
+        #
+        #     error = True
+        #     self._log_error(
+        #         'create',
+        #         'bankaccount',
+        #         os_customer_payment_info.row.id,
+        #         e
+        #     )
+
+        return eo_bankaccount_id
 
 
     def update_bankaccount(self, os_customer, os_customer_payment_info):
@@ -735,8 +763,10 @@ class OSExactOnline:
         from tools import OsTools
         from os_customer import Customer
 
+        TODAY_LOCAL = current.TODAY_LOCAL
         os_tools = OsTools()
         authorized = os_tools.get_sys_property('exact_online_authorized')
+
 
         if not authorized:
             self._log_error(
@@ -752,32 +782,54 @@ class OSExactOnline:
 
         customer = Customer(os_customer_payment_info.row.auth_customer_id)
         eoID = customer.row.exact_online_relation_id
+        if not eoID:
+            eoID = self.create_relation(customer)
+
         eo_bankaccount_id = os_customer_payment_info.row.exact_online_bankaccount_id
+
+        print os_customer_payment_info.row
+
+        if not eo_bankaccount_id:
+            eo_bankaccount_id = self.create_bankaccount(customer, os_customer_payment_info)
+
 
         mandate_dict = {
             'Account': eoID,
             'BankAccount': eo_bankaccount_id,
-            'Reference': 487543587458
+            'Reference': 487543587458,
+            'SignatureDate': TODAY_LOCAL.strftime("%Y-%m-%d")
         }
 
-        try:
-            result = api.directdebitmandates.create(mandate_dict)
 
-            import pp
-            pp = pprint.PrettyPrinter(depth=6)
-            pp.pprint(result)
+        print mandate_dict
 
-            os_cpim.row.exact_online_directdebitmandates_id = result['ID']
-            os_cpim.row.update_record()
+        result = api.directdebitmandates.create(mandate_dict)
 
-        except HTTPError as e:
-            error = True
-            self._log_error(
-                'create',
-                'mandate',
-                os_customer_payment_info.cpiID,
-                e
-            )
+        import pprint
+        pp = pprint.PrettyPrinter(depth=6)
+        pp.pprint(result)
+
+        os_cpim.row.exact_online_directdebitmandates_id = result['ID']
+        os_cpim.row.update_record()
+
+        # try:
+        #     result = api.directdebitmandates.create(mandate_dict)
+        #
+        #     import pp
+        #     pp = pprint.PrettyPrinter(depth=6)
+        #     pp.pprint(result)
+        #
+        #     os_cpim.row.exact_online_directdebitmandates_id = result['ID']
+        #     os_cpim.row.update_record()
+        #
+        # except HTTPError as e:
+        #     error = True
+        #     self._log_error(
+        #         'create',
+        #         'mandate',
+        #         os_customer_payment_info.cpiID,
+        #         e
+        #     )
 
 
     def upgrate_dd_mandate(self):
