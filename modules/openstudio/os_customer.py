@@ -883,7 +883,9 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
                 )
 
             mandates.append(DIV(
-                DIV(H3(T("Direct debit mandate"), _class="box-title"),
+                DIV(H3(T("Direct debit mandate"), ' ',
+                       row.MandateReference,
+                       _class="box-title"),
                     btn_delete,
                     _class="box-header"
                 ),

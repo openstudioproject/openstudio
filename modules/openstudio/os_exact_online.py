@@ -805,12 +805,17 @@ class OSExactOnline:
 
         result = api.directdebitmandates.create(mandate_dict)
 
+        print 'Mandate from Exact::'
         import pprint
         pp = pprint.PrettyPrinter(depth=6)
         pp.pprint(result)
 
         os_cpim.row.exact_online_directdebitmandates_id = result['ID']
         os_cpim.row.update_record()
+
+
+        pp.pprint(api.directdebitmandates.filter(result['ID']))
+
 
         # try:
         #     result = api.directdebitmandates.create(mandate_dict)
