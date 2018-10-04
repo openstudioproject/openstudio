@@ -2424,6 +2424,8 @@ def define_customers_payment_info_mandates():
               label=T("Mandate signature date"),
               widget=os_datepicker_widget),
         Field("CreatedOn", 'datetime',
+              readable=False,
+              writable=False,
               represent=represent_datetime,
               default=datetime.datetime.now()),
         Field('exact_online_directdebitmandates_id',

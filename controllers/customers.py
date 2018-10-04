@@ -4012,6 +4012,21 @@ def bankaccount_get_returl_url(customers_id):
     return URL('bankaccount', vars={'cuID':customers_id})
 
 
+def bankaccount_mandate_on_create(form):
+    """
+    :param form: crud form for db.customers_payment_info_mandates
+    :return:
+    """
+    from openstudio.os_customers_payment_info_mandate import OsCustomersPaymentInfoMandate
+
+    cpimID = form.vars.id
+
+    print cpimID
+
+    cpim = OsCustomersPaymentInfoMandate(cpimID)
+    cpim.on_create()
+
+
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('create', 'customers_payments_info_mandates'))
 def bankaccount_add_mandate():
@@ -4019,7 +4034,49 @@ def bankaccount_add_mandate():
     Page to add a mandate
     :return:
     """
-    return 'hello world'
+    cuID = request.vars['cuID']
+    cpiID = request.vars['cpiID']
+
+    customer = Customer(cuID)
+    response.title = customer.get_name()
+    response.subtitle = T("Payment info")
+    response.view = 'general/tabs_menu.html'
+
+    db.customers_payment_info_mandates.customers_payment_info_id.default = cpiID
+
+    return_url = bankaccount_get_returl_url(cuID)
+
+    crud.messages.submit_button = T("Save")
+    crud.messages.record_updated = T("Saved")
+    crud.settings.formstyle = "bootstrap3_stacked"
+    crud.settings.create_next = return_url
+    crud.settings.create_onaccept = [bankaccount_mandate_on_create]
+    form = crud.create(db.customers_payment_info_mandates)
+
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
+    form = result['form']
+    submit = result['submit']
+
+    menu = customers_get_menu(cuID, request.function)
+    submenu = payments_get_submenu(request.function, cuID)
+
+    content = DIV(
+        submenu, BR(),
+        H3(T("New mandate")),
+        form
+    )
+
+    back = os_gui.get_button(
+        'back',
+        return_url
+    )
+
+    return dict(
+        content=content,
+        menu=menu,
+        back=back,
+        save=submit
+    )
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \

@@ -858,7 +858,7 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         mandates = DIV()
         for row in rows.render():
             mandates.append(DIV(
-                DIV(H3(T("Mandate"), _class="box-title"),
+                DIV(H3(T("Direct debit mandate"), _class="box-title"),
                     _class="box-header"
                 ),
                 DIV(DIV(B(T("Signed on")), ' ', row.MandateSignatureDate),
