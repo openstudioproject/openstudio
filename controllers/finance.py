@@ -1580,14 +1580,14 @@ def employee_claims_get_menu(page):
     # print status
 
     if ( auth.has_membership(group_id='Admins') or
-         auth.has_permission('read', 'teachers_payment_classes_attendance') ):
+         auth.has_permission('read', 'employee_claims') ):
         pages.append([ 'employee_claims_processed',
                        T('Processed'),
                        URL('employee_claims_processed') ]),\
         pages.append([ 'employee_claims_accepted',
                        T('Accepted'),
                        URL('employee_claims_accepted') ])
-        pages.append([ 'teacher_payment_classes_rejected',
+        pages.append([ 'employee_claims_rejected',
                        T('Rejected'),
                        URL('employee_claims_rejected') ])
         pages.append([ 'employee_claims',
