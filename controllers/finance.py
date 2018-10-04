@@ -729,25 +729,42 @@ def generate_batch_items_invoices(pbID,
     if not pb.school_locations_id is None and pb.school_locations_id != '':
         query &= (db.auth_user.school_locations_id==pb.school_locations_id)
 
-    left = [ db.invoices_amounts.on(db.invoices_amounts.invoices_id ==
-                db.invoices.id),
-             db.invoices_customers.on(db.invoices_customers.invoices_id ==
-                                      db.invoices.id),
-             db.invoices_customers_subscriptions.on(
-                 db.invoices_customers_subscriptions.invoices_id ==
-                 db.invoices.id),
-             db.auth_user.on(db.invoices_customers.auth_customer_id ==
-                             db.auth_user.id),
-             db.customers_payment_info.on(
-                     db.customers_payment_info.auth_customer_id ==
-                     db.invoices_customers.auth_customer_id),
-             db.school_locations.on(db.auth_user.school_locations_id ==
-                                    db.school_locations.id) ]
+    left = [
+        db.invoices_amounts.on(
+            db.invoices_amounts.invoices_id ==
+            db.invoices.id
+        ),
+        db.invoices_customers.on(
+            db.invoices_customers.invoices_id ==
+            db.invoices.id
+        ),
+        db.invoices_customers_subscriptions.on(
+            db.invoices_customers_subscriptions.invoices_id ==
+            db.invoices.id
+        ),
+        db.auth_user.on(
+            db.invoices_customers.auth_customer_id ==
+            db.auth_user.id
+        ),
+        db.customers_payment_info.on(
+            db.customers_payment_info.auth_customer_id ==
+            db.invoices_customers.auth_customer_id
+        ),
+        db.customers_payment_info_mandates.on(
+            db.customers_payment_info_mandates.customers_payment_info_id ==
+            db.customers_payment_info.id
+        ),
+        db.school_locations.on(
+            db.auth_user.school_locations_id ==
+            db.school_locations.id
+        )
+    ]
 
     rows = db(query).select(db.invoices.ALL,
                             db.invoices_amounts.ALL,
                             db.invoices_customers_subscriptions.ALL,
                             db.customers_payment_info.ALL,
+                            db.customers_payment_info_mandates.ALL,
                             db.school_locations.Name,
                             db.auth_user.id,
                             left=left,
@@ -785,8 +802,7 @@ def generate_batch_items_invoices(pbID,
         except AttributeError:
             bic = ''
 
-        #TODO Update
-        msdate = row.customers_payment_info.MandateSignatureDate
+        msdate = row.customers_payment_info_mandates.MandateSignatureDate
 
         # set bank name
         if row.customers_payment_info.BankName == '':
