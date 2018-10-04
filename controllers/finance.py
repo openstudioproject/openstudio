@@ -1581,6 +1581,9 @@ def employee_claims_get_menu(page):
 
     if ( auth.has_membership(group_id='Admins') or
          auth.has_permission('read', 'teachers_payment_classes_attendance') ):
+        pages.append([ 'employee_claims_processed',
+                       T('Processed'),
+                       URL('employee_claims_processed') ]),\
         pages.append([ 'employee_claims_accepted',
                        T('Accepted'),
                        URL('employee_claims_accepted') ])
@@ -1698,12 +1701,9 @@ def employee_claims():
     tools = ''
     # if status == 'not_verified':
     create_permission = auth.has_membership(group_id='Admins') or \
-                        auth.has_permission('create', 'employee_claims_classes')
-    # update_permission = auth.has_membership(group_id='Admins') or \
-    #                     auth.has_permission('update', 'employee_claims_classes')
+                        auth.has_permission('update', 'employee_claims')
 
     verify_all = ''
-    check_classes = ''
 
     if create_permission:
         verify_all = os_gui.get_button(
@@ -1714,16 +1714,8 @@ def employee_claims():
             btn_class='btn-primary'
         )
 
-    # if update_permission:
-    #     check_classes = os_gui.get_button(
-    #         'noicon',
-    #         URL('employee_claims_find_claims'),
-    #         title=T("Find claims"),
-    #         tooltip=T("Find claims in range of dates that are not yet registered for teacher payment")
-    #     )
 
     tools = DIV(
-        check_classes,
         verify_all,
     )
 
@@ -1732,39 +1724,6 @@ def employee_claims():
 
     )
 
-    # elif status == 'verified':
-    #     permission = auth.has_membership(group_id='Admins') or \
-    #                  auth.has_permission('create', 'invoices')
-    #
-    #     if permission:
-    #         links = []
-    #         # Process all
-    #         links.append(A(os_gui.get_fa_icon('fa-check'), T("All verified classes"),
-    #                        _href=URL('employee_claims_classes_process_verified'),
-    #                        _title=T("Create credit invoices")))
-    #         links.append('divider')
-    #         # Process between dates
-    #         links.append(A(os_gui.get_fa_icon('fa-calendar-o'), T('Verified classes between dates'),
-    #                        _href='employee_claims_classes_process_choose_dates',
-    #                        _title=T("Choose which verified classes to process")))
-    #
-    #         tools = os_gui.get_dropdown_menu(
-    #             links=links,
-    #             btn_text=T('Process'),
-    #             btn_size='btn-sm',
-    #             btn_class='btn-primary',
-    #             btn_icon='actions',
-    #             menu_class='btn-group pull-right')
-    #
-    #     table = tpc.get_verified(
-    #         formatted=True
-    #     )
-    #
-    # elif status == 'processed':
-    #     table = tpc.get_processed(
-    #         formatted=True,
-    #         page = page
-    #     )
 
     content = DIV(
         employee_claims_get_menu(request.function),
@@ -1800,6 +1759,22 @@ def employee_claims_accepted():
     except IndexError:
         page = 0
 
+    tools = ''
+    # if status == 'not_verified':
+    create_permission = auth.has_membership(group_id='Admins') or \
+                        auth.has_permission('create', 'invoices')
+
+    verify_all = ''
+
+    if create_permission:
+        verify_all = os_gui.get_button(
+            'noicon',
+            URL('employee_claims_process_all'),
+            title=T("Process all"),
+            tooltip="Process all accepted Claims into invoices",
+            btn_class='btn-primary'
+        )
+    tools = verify_all
     ec = EmployeeClaims()
 
 
@@ -1818,7 +1793,8 @@ def employee_claims_accepted():
     )
 
     return dict(
-        content=content
+        content=content,
+        header_tools= tools
     )
 
 
