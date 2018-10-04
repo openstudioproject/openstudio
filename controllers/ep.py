@@ -539,7 +539,7 @@ def my_claims():
     table = TABLE(header, _class='table table-striped table-hover')
 
     query= (db.employee_claims.auth_user_id== auth.user.id)
-    rows= db(query).select(orderby=db.employee_claims.ClaimDate)
+    rows= db(query).select(orderby=~db.employee_claims.ClaimDate)
 
     onclick_del = "return confirm('Want to delete this Claim?');"
 
