@@ -154,10 +154,9 @@ class EmployeeClaims:
             if status == 'Pending':
                 buttons = self._rows_to_table_get_pending_buttons(row, os_gui, permissions)
             elif status == 'Accepted':
-                # buttons = self._rows_to_table_get_verified_buttons(row, os_gui, permissions)
-                buttons = ''
-            else:
-                buttons = ''
+                buttons = self._rows_to_table_get_accepted_buttons(row, os_gui)
+            elif status == 'Rejected':
+                buttons = self._rows_to_table_get_rejected_buttons(row, os_gui)
 
             tr = TR(
                 TD(repr_row.auth_user_id),
@@ -248,74 +247,101 @@ class EmployeeClaims:
         # buttons = DIV(_class='pull-right')
 
 
-        buttons= os_gui.get_button('ok_notext',
-                                   URL('employee_claims_accept',
-                                       vars={
-                                           'ecID': row.id
-                                       }),
-                                   title='Accept', _class='pull-right', btn_class='btn-success')
-        buttons+=os_gui.get_button('cancel_notext',
-                                    URL('employee_claims_reject',
-                                        vars={
-                                            'ecID': row.id}),
-                                    title='Decline', _class='pull-right', btn_class='btn-danger')
+        links = []
+        links.append(['header', T('Actions')])
 
-        # # Check Attendance permission
-        # if permissions.get('classes_attendance', False):
-        #     links.append(['header', T('Go to')])
-        #     links.append(A(os_gui.get_fa_icon('fa-chevron-right'), T('Attendance'),
-        #                    _href=URL('classes', 'attendance',
-        #                              vars={'clsID': row.classes.id,
-        #                                    'date': row.teachers_payment_classes.ClassDate.strftime(DATE_FORMAT)})))
+        links.append(A(os_gui.get_fa_icon('fa-check'), T("Move to 'Accepted'"),
+                       _href=URL( 'employee_claims_accept',
+                                 vars={'ecID': row.id}),
+                       _class=''))
+        links.append('divider')
+
+        links.append(A(os_gui.get_fa_icon('fa-ban'), T("Move to 'Rejected'"),
+                       _href=URL('employee_claims_reject',
+                                 vars={'ecID': row.id}),
+                       _class=''))
 
 
-        # ec_menu = os_gui.get_dropdown_menu(
-        #     links=links,
-        #     btn_text=T('Actions'),
-        #     btn_size='btn-sm',
-        #     btn_icon='actions',
-        #     menu_class='btn-group pull-right')
+        ec_menu = os_gui.get_dropdown_menu(
+            links=links,
+            btn_text=T('Actions'),
+            btn_size='btn-sm',
+            btn_icon='actions',
+            menu_class='btn-group pull-right')
 
-        return DIV(buttons, _class='pull-right')
+        return DIV(ec_menu, _class='pull-right')
 
 
-    # def _rows_to_table_get_verified_buttons(self, row, os_gui, permissions):
-    #     """
-    #         Returns buttons for schedule
-    #         - one button group for edit & attendance buttons
-    #         - separate button for delete
-    #     """
-    #     T = current.T
-    #     DATE_FORMAT = current.DATE_FORMAT
-    #     buttons = DIV(_class='pull-right')
-    #
-    #
-    #     links = []
-    #     links.append(['header', T('Actions')])
-    #     # Check Update teachers payment attendance classes
-    #     if permissions.get('teachers_payment_classes', False):
-    #         links.append(A(os_gui.get_fa_icon('fa-ban'), T("Move to 'Not verified'"),
-    #                        _href=URL('ep', 'teachers_payment_attendance_class_unverify',
-    #                                  vars={'tpcID': row.teachers_payment_classes.id}),
-    #                        _class=''))
-    #         links.append('divider')
-    #     # Check Attendance permission
-    #     if permissions.get('classes_attendance', False):
-    #         links.append(['header', T('Go to')])
-    #         links.append(A(os_gui.get_fa_icon('fa-chevron-right'), T('Attendance'),
-    #                        _href=URL('classes', 'attendance',
-    #                                  vars={'clsID': row.classes.id,
-    #                                        'date':row.teachers_payment_classes.ClassDate.strftime(DATE_FORMAT)})))
-    #
-    #
-    #     tpc_menu = os_gui.get_dropdown_menu(
-    #         links=links,
-    #         btn_text=T('Actions'),
-    #         btn_size='btn-sm',
-    #         btn_icon='actions',
-    #         menu_class='btn-group pull-right')
-    #
-    #     return DIV(tpc_menu, _class='pull-right')
+    def _rows_to_table_get_accepted_buttons(self, row, os_gui):
+        """
+            Returns buttons for schedule
+            - one button group for edit & attendance buttons
+            - separate button for delete
+        """
+        T = current.T
+        DATE_FORMAT = current.DATE_FORMAT
+        buttons = DIV(_class='pull-right')
+
+
+        links = []
+        links.append(['header', T('Actions')])
+
+        links.append(A(os_gui.get_fa_icon('fa-ban'), T("Move to 'Rejected'"),
+                       _href=URL( 'employee_claims_reject',
+                                 vars={'ecID': row.id}),
+                       _class=''))
+        links.append('divider')
+
+        links.append(A(os_gui.get_fa_icon('fa-hourglass-2'), T("Move to 'Pending'"),
+                       _href=URL('employee_claims_pending',
+                                 vars={'ecID': row.id}),
+                       _class=''))
+
+
+        ec_menu = os_gui.get_dropdown_menu(
+            links=links,
+            btn_text=T('Actions'),
+            btn_size='btn-sm',
+            btn_icon='actions',
+            menu_class='btn-group pull-right')
+
+        return DIV(ec_menu, _class='pull-right')
+
+
+    def _rows_to_table_get_rejected_buttons(self, row, os_gui):
+        """
+            Returns buttons for schedule
+            - one button group for edit & attendance buttons
+            - separate button for delete
+        """
+        T = current.T
+        DATE_FORMAT = current.DATE_FORMAT
+        buttons = DIV(_class='pull-right')
+
+
+        links = []
+        links.append(['header', T('Actions')])
+
+        links.append(A(os_gui.get_fa_icon('fa-ban'), T("Move to 'Accepted'"),
+                       _href=URL( 'employee_claims_accept',
+                                 vars={'ecID': row.id}),
+                       _class=''))
+        links.append('divider')
+
+        links.append(A(os_gui.get_fa_icon('fa-hourglass-2'), T("Move to 'Pending'"),
+                       _href=URL('employee_claims_pending',
+                                 vars={'ecID': row.id}),
+                       _class=''))
+
+
+        ec_menu = os_gui.get_dropdown_menu(
+            links=links,
+            btn_text=T('Actions'),
+            btn_size='btn-sm',
+            btn_icon='actions',
+            menu_class='btn-group pull-right')
+
+        return DIV(ec_menu, _class='pull-right')
 
 
     def get_pending(self, page=0, formatted=False):

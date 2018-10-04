@@ -1998,6 +1998,28 @@ def employee_claims_reject():
     else:
         session.flash = T("Error rejecting Claim")
 
+    redirect(URL('employee_claims'))\
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'employee_claims'))
+def employee_claims_pending():
+    """
+    Verify attendance / payment
+    :return: None
+    """
+    from openstudio.os_employee_claim import EmployeeClaim
+
+    ecID = request.vars['ecID']
+
+    ec = EmployeeClaim(ecID)
+    success = ec.pending()
+
+    if success:
+        session.flash = T("Claim moved to rejected")
+    else:
+        session.flash = T("Error rejecting Claim")
+
     redirect(URL('employee_claims'))
 
 

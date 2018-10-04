@@ -51,6 +51,22 @@ class EmployeeClaim:
         return result
 
 
+    def pending(self):
+        """
+        Unverify class attendance
+        :return:
+        """
+        auth= current.auth
+
+        self.row.VerifiedBy = auth.user.id
+        self.row.Status = 'Pending'
+        self.row.VerifiedOn = current.NOW_LOCAL
+
+        result = self.row.update_record()
+
+        return result
+
+
     def set_status(self, status):
         """
 
