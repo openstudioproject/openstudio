@@ -895,8 +895,7 @@ def generate_batch_items_category(pbID,
         except AttributeError:
             bic = ''
 
-        #TODO Update
-        msdate = row.customers_payment_info.MandateSignatureDate
+        msdate = row.customers_payment_info_mandates.MandateSignatureDate
 
         if row.customers_payment_info.BankName == '':
             row.customers_payment_info.BankName = None
