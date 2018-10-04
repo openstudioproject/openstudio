@@ -3978,12 +3978,15 @@ def bankaccount():
     content = DIV(submenu, BR(), form)
 
 
-    add_mandate = os_gui.get_button(
-        'noicon',
-        URL('bankaccount_mandate_add', vars={'cuID':cuID, 'cpiID':row.id}),
-        title=T("Add mandate"),
-        btn_size='',
-    )
+    add_mandate = ''
+    query = (db.customers_payment_info_mandates.customers_payment_info_id == row.id)
+    if not db(query).count():
+        add_mandate = os_gui.get_button(
+            'noicon',
+            URL('bankaccount_mandate_add', vars={'cuID':cuID, 'cpiID':row.id}),
+            title=T("Add mandate"),
+            btn_size='',
+        )
 
 
     return dict(content=content,

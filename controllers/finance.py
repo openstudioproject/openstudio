@@ -841,13 +841,24 @@ def generate_batch_items_category(pbID,
     if not pb.school_locations_id is None and pb.school_locations_id != '':
         query &= (db.auth_user.school_locations_id==pb.school_locations_id)
 
-    left = [ db.auth_user.on(db.auth_user.id == \
-                             db.alternativepayments.auth_customer_id),
-             db.school_locations.on(db.school_locations.id == \
-                                    db.auth_user.school_locations_id),
-             db.customers_payment_info.on(
-                               db.customers_payment_info.auth_customer_id == \
-                               db.alternativepayments.auth_customer_id) ]
+    left = [
+        db.auth_user.on(
+            db.auth_user.id ==
+            db.alternativepayments.auth_customer_id
+        ),
+        db.school_locations.on(
+            db.school_locations.id ==
+            db.auth_user.school_locations_id
+        ),
+        db.customers_payment_info.on(
+            db.customers_payment_info.auth_customer_id ==
+            db.alternativepayments.auth_customer_id
+        ),
+        db.customers_payment_info_mandates.on(
+            db.customers_payment_info_mandates.customers_payment_info_id ==
+            db.customers_payment_info.id
+        )
+    ]
 
     rows = db(query).select(db.alternativepayments.Amount,
                             db.alternativepayments.Description,
@@ -857,6 +868,7 @@ def generate_batch_items_category(pbID,
                             db.auth_user.last_name,
                             db.school_locations.Name,
                             db.customers_payment_info.ALL,
+                            db.customers_payment_info_mandates.ALL,
                             left=left,
                             orderby=db.auth_user.id)
     for row in rows:
