@@ -2411,6 +2411,7 @@ def define_customers_payment_info_mandates():
               writable=False,
               label=T('Payment Info')),
         Field('MandateText', 'text',
+              represent=lambda value, row: value or '',
               writable =False),
         Field('MandateSignatureDate', 'date',
               requires=IS_EMPTY_OR(

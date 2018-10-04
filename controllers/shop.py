@@ -1141,7 +1141,7 @@ def subscription_debit():
     #TODO: redo this bit to make to more readable
 
     row = db.customers_payment_info(auth_customer_id = auth.user.id)
-    query = (customers_payment_info_mandates.customers_payment_info_id == row.id)
+    query = (db.customers_payment_info_mandates.customers_payment_info_id == row.id)
     if not db(query).count():
         mandate_text = get_sys_property('shop_direct_debit_mandate_text')
 

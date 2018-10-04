@@ -16,6 +16,12 @@
     </div>
 </div>
 
+<div class='row'>
+	<div class='col-md-12'>
+		{{try:}}{{=content_extra}}{{except:}}{{pass}}{{pass}}
+	</div>
+</div>
+
 {{try:}}
     {{ import os }}
     {{ include os.path.join(request.folder,'static','plugin_os-js/general/show_add_modal_if_form_contains_errors.html')}}

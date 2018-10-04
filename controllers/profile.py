@@ -509,16 +509,19 @@ def me():
 
                 )
 
+
 @auth.requires_login()
 def me_bankaccount():
     """
             Allows users to edit payment information of their profile
-        """
+    """
+    from openstudio.os_customer import Customer
     from general_helpers import set_form_id_and_get_submit_button
     response.title = T('Profile')
     response.subtitle = 'Bank Account'
     response.view = 'profile/me.html'
 
+    customer = Customer(auth.user.id)
 
     db.customers_payment_info.payment_methods_id.default = 3
     db.customers_payment_info.payment_methods_id.readable = False
@@ -591,11 +594,14 @@ def me_bankaccount():
     content = form
 
 
+    mandates = customer.get_payment_info_mandates(formatted=True)
+
     privacy = me_get_link_privacy()
     menu = me_get_menu(request.function)
     return dict(content=content,
                 menu=menu,
                 save=submit,
+                content_extra=mandates,
                 header_tools=SPAN(T('Your CustomerID is ') + auth.user.id,
                                   BR(), privacy)
 

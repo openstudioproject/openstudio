@@ -848,6 +848,57 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         return message
 
 
+    def _get_payment_info_mandates_format(self, rows):
+        """
+        :param rows: gluon.dal.rows object of db.customers_payment_info_mandates
+        :return:
+        """
+        T = current.T
+
+        mandates = DIV()
+        for row in rows.render():
+            mandates.append(DIV(
+                DIV(H3(T("Mandate"), _class="box-title"),
+                    _class="box-header"
+                ),
+                DIV(DIV(B(T("Signed on")), ' ', row.MandateSignatureDate),
+                    DIV(XML(row.MandateText)),
+                    _class="box-body"
+                ),
+                _class="box box-solid"
+            ))
+
+        return mandates
+
+
+    def get_payment_info_mandates(self, formatted=False):
+        """
+        :param formatted: Boolean
+        :return: gluon.dal.rows object if not formatted, else
+        html
+        """
+        db = current.db
+
+        payment_info = db.customers_payment_info(auth_customer_id = self.cuID)
+
+        if not payment_info:
+            if formatted:
+                return ''
+            else:
+                return None
+
+        query = (db.customers_payment_info_mandates.customers_payment_info_id == payment_info.id)
+        rows = db(query).select(
+            db.customers_payment_info_mandates.ALL,
+            orderby=db.customers_payment_info_mandates.MandateSignatureDate
+        )
+
+        if formatted:
+            return self._get_payment_info_mandates_format(rows)
+        else:
+            return rows
+
+
     def get_mollie_mandates(self):
         """
             Returns mollie mandates

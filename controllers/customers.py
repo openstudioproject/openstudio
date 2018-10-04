@@ -3971,10 +3971,15 @@ def bankaccount():
     menu = customers_get_menu(cuID, request.function)
     submenu = payments_get_submenu(request.function, cuID)
 
+    mandates = DIV(
+        customer.get_payment_info_mandates(formatted=True),
+        _class="col-md-12"
+    )
     content = DIV(submenu, BR(), form)
 
 
     return dict(content=content,
+                content_extra=mandates,
                 menu=menu,
                 back=back,
                 tools=submit)
