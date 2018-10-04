@@ -546,13 +546,7 @@ def my_claims():
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
-        delete = os_gui.get_button('delete_notext',
-                                   URL('my_claims_claim_delete', vars={'ECID': row.id}),
-                                   onclick=onclick_del,
-                                   _class='pull-right')
-        edit=os_gui.get_button('edit',
-                          URL('my_claims_claim_edit',
-                              vars={'ECID': row.id}),_class='pull-right')
+
 
 
         # pdf = os_gui.get_button(
@@ -562,17 +556,26 @@ def my_claims():
         #     btn_size='',
         #     _class='pull-right'
         # )
+        delete = ''
+        edit = ''
 
         if row.Status == 'Pending':
-            status= os_gui.get_label('primary', T('Pending'))
+            status= os_gui.get_label('danger', T('Pending'))
+            delete = os_gui.get_button('delete_notext',
+                                       URL('my_claims_claim_delete', vars={'ECID': row.id}),
+                                       onclick=onclick_del,
+                                       _class='pull-right')
+            edit = os_gui.get_button('edit',
+                                     URL('my_claims_claim_edit',
+                                         vars={'ECID': row.id}), _class='pull-right')
         if row.Status == 'Accepted':
-            status= os_gui.get_label('success', T('Accepted'))
-            delete= ''
-            edit = ''
+            status = os_gui.get_label('success', T('Accepted'))
+
         if row.Status == 'Rejected':
-            status= os_gui.get_label('danger', T('Declined'))
-            delete = ''
-            edit = ''
+            status = os_gui.get_label('danger', T('Declined'))
+        if row.Status == 'Processed':
+            status = os_gui.get_label('primary', T('Processed'))
+
 
         table.append(TR(
             TD(repr_row.Description),
