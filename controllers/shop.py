@@ -1143,12 +1143,18 @@ def subscription_debit():
     row = db.customers_payment_info(auth_customer_id = auth.user.id)
     query = (db.customers_payment_info_mandates.customers_payment_info_id == row.id)
     if not db(query).count():
+        from openstudio.os_customers_payment_info_mandate import OsCustomersPaymentInfoMandate
+
         mandate_text = get_sys_property('shop_direct_debit_mandate_text')
 
-        db.customers_payment_info_mandates.insert(
+
+        cpimID = db.customers_payment_info_mandates.insert(
             customers_payment_info_id = row.id,
             MandateText = mandate_text
         )
+
+        cpim = OsCustomersPaymentInfoMandate(cpimID)
+        cpim.on_create()
 
         #TODO: Sync to exact
 

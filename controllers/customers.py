@@ -3997,7 +3997,6 @@ def bankaccount_onaccept(form):
     cpi.on_update()
 
 
-
 def bankaccount_get_returl_url(customers_id):
     """
         Returns the return url for payment_info_add and payment_info_edit

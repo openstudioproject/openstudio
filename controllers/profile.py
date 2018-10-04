@@ -593,9 +593,7 @@ def me_bankaccount():
 
     content = form
 
-
     mandates = customer.get_payment_info_mandates(formatted=True)
-
     privacy = me_get_link_privacy()
     menu = me_get_menu(request.function)
     return dict(content=content,
