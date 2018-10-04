@@ -1611,7 +1611,7 @@ def employee_claims_invoices():
 
     invoices = Invoices()
     status_filter = invoices.list_get_status_filter()
-    list = invoices.list_invoices(only_teacher_credit_invoices=True)
+    list = invoices.list_invoices(only_employee_claim_credit_invoices=True)
 
     content = DIV(
         employee_claims_get_menu(request.function),
