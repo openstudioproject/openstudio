@@ -1769,7 +1769,7 @@ def employee_claims_accepted():
     if create_permission:
         verify_all = os_gui.get_button(
             'noicon',
-            URL('employee_claims_process_all'),
+            URL('employee_claims_process_accepted'),
             title=T("Process all"),
             tooltip="Process all accepted Claims into invoices",
             btn_class='btn-primary'
@@ -1840,77 +1840,46 @@ def employee_claims_rejected():
     )
 
 
-# @auth.requires(auth.has_membership(group_id='Admins') or \
-#                auth.has_permission('create', 'employee_claims'))
-# def employee_claims_find_claims():
-#     """
-#     :return: None
-#     """
-#     from openstudio.os_employee_claims import EmployeeClaims
-#     from general_helpers import set_form_id_and_get_submit_button
-#
-#     response.title = T('Teacher payments')
-#     response.subtitle = T('Find claims')
-#     response.view = 'ep/only_content.html'
-#
-#     # Add some explanation
-#     content = DIV(
-#         B(T("Choose a period to check for claims not yet in Not verfied, verified or processed.")), BR(), BR(),
-#     )
-#
-#     return_url = URL('employee_claims', vars={'status': 'not_verified'})
-#
-#     # choose period and then do something
-#     form = SQLFORM.factory(
-#         Field('Startdate', 'date', required=True,
-#             requires=IS_DATE_IN_RANGE(format=DATE_FORMAT,
-#                                       minimum=datetime.date(1900,1,1),
-#                                       maximum=datetime.date(2999,1,1)),
-#             represent=represent_date,
-#             default=datetime.date(TODAY_LOCAL.year,
-#                                   TODAY_LOCAL.month,
-#                                   1),
-#             label=T("Start date"),
-#             widget=os_datepicker_widget),
-#         Field('Enddate', 'date', required=False,
-#             requires=IS_EMPTY_OR(IS_DATE_IN_RANGE(format=DATE_FORMAT,
-#                                   minimum=datetime.date(1900,1,1),
-#                                   maximum=datetime.date(2999,1,1))),
-#             represent=represent_date,
-#             default=get_last_day_month(TODAY_LOCAL),
-#             label=T("End date"),
-#             widget=os_datepicker_widget),
-#         formstyle='bootstrap3_stacked',
-#         submit_button=T("Find")
-#     )
-#
-#     result = set_form_id_and_get_submit_button(form, 'MainForm')
-#     form = result['form']
-#     submit = result['submit']
-#
-#     if form.process().accepted:
-#         start = form.vars.Startdate
-#         end = form.vars.Enddate
-#
-#         ec = EmployeeClaims()
-#         result = ec.check_missing(
-#             start,
-#             end
-#         )
-#
-#         if result['error']:
-#             response.flash = result['message']
-#         else:
-#             session.flash = SPAN(result['message'], ' ', T("Class(es) added to Not verified"))
-#             redirect(return_url)
-#
-#     content.append(form)
-#
-#     back = os_gui.get_button('back', return_url)
-#
-#     return dict(content=content,
-#                 back=back,
-#                 save=submit)
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'employee_claims'))
+def employee_claims_processed():
+    """
+
+    :return:
+    """
+    from openstudio.os_employee_claims import EmployeeClaims
+
+    response.title = T('Employee Claims')
+    response.subtitle = T('')
+    response.view = 'general/only_content_no_box.html'
+
+    status = request.vars['status']
+
+    try:
+        page = int(request.args[0])
+    except IndexError:
+        page = 0
+
+    ec = EmployeeClaims()
+
+
+
+    table = ec.get_processed(
+        formatted=True,
+
+    )
+
+    content = DIV(
+        employee_claims_get_menu(request.function),
+        DIV(DIV(table,
+                 _class='tab-pane active'),
+            _class='tab-content'),
+        _class='nav-tabs-custom'
+    )
+
+    return dict(
+        content=content
+    )
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -1992,7 +1961,7 @@ def employee_claims_pending():
     success = ec.pending()
 
     if success:
-        session.flash = T("Claim moved to rejected")
+        session.flash = T("Claim moved to pending")
     else:
         session.flash = T("Error rejecting Claim")
 
@@ -2001,98 +1970,26 @@ def employee_claims_pending():
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('create', 'invoices'))
-def employee_claims_classes_process_verified():
+def employee_claims_process_accepted():
     """
     Process verified classes; create credit invoices based on verified classes
     :return:
     """
-    from openstudio.os_teachers_payment_classes import TeachersPaymentClasses
+    from openstudio.os_employee_claims import EmployeeClaims
 
-    tpc = TeachersPaymentClasses()
-    count_processed = tpc.process_verified()
+    EC = EmployeeClaims()
+    count_processed = EC.process_accepted()
 
-    classes = T('classes')
+    claims = T('claims')
     if count_processed == 1:
-        classes = T("class")
+        claims = T("claim")
 
     session.flash = SPAN(
         T("Processed"), ' ',
         count_processed, ' ',
-        classes
+        claims
     )
 
-    redirect(URL('teacher_payment_classes', vars={'status': 'processed'}))
+    redirect(URL('employee_claims_processed'))
 
-
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('create', 'invoices'))
-def employee_claims_process_choose_dates():
-    """
-    :return: None
-    """
-    from openstudio.os_teachers_payment_classes import TeachersPaymentClasses
-    from general_helpers import set_form_id_and_get_submit_button
-
-    response.title = T('Teacher payments')
-    response.subtitle = T('Process verified')
-    response.view = 'ep/only_content.html'
-
-    # Add some explanation
-    content = DIV(
-        B(T("Choose a period within which to process verified classes.")), BR(), BR(),
-    )
-
-    return_url = URL('employee_claims', vars={'status': 'not_verified'})
-
-    # choose period and then do something
-    form = SQLFORM.factory(
-        Field('Startdate', 'date', required=True,
-            requires=IS_DATE_IN_RANGE(format=DATE_FORMAT,
-                                      minimum=datetime.date(1900,1,1),
-                                      maximum=datetime.date(2999,1,1)),
-            represent=represent_date,
-            default=datetime.date(TODAY_LOCAL.year,
-                                  TODAY_LOCAL.month,
-                                  1),
-            label=T("Start date"),
-            widget=os_datepicker_widget),
-        Field('Enddate', 'date', required=False,
-            requires=IS_EMPTY_OR(IS_DATE_IN_RANGE(format=DATE_FORMAT,
-                                  minimum=datetime.date(1900,1,1),
-                                  maximum=datetime.date(2999,1,1))),
-            represent=represent_date,
-            default=get_last_day_month(TODAY_LOCAL),
-            label=T("End date"),
-            widget=os_datepicker_widget),
-        formstyle='bootstrap3_stacked',
-        submit_button=T("Find")
-    )
-
-    result = set_form_id_and_get_submit_button(form, 'MainForm')
-    form = result['form']
-    submit = result['submit']
-
-    if form.process().accepted:
-        start = form.vars.Startdate
-        end = form.vars.Enddate
-
-        tpc = TeachersPaymentClasses()
-        result = tpc.process_verified(
-            start,
-            end
-        )
-
-        if result['error']:
-            response.flash = result['message']
-        else:
-            session.flash = SPAN(result['message'], ' ', T("Class(es) processed"))
-            redirect(return_url)
-
-    content.append(form)
-
-    back = os_gui.get_button('back', return_url)
-
-    return dict(content=content,
-                back=back,
-                save=submit)
 

@@ -568,11 +568,13 @@ def my_claims():
             edit = os_gui.get_button('edit',
                                      URL('my_claims_claim_edit',
                                          vars={'ECID': row.id}), _class='pull-right')
+
         if row.Status == 'Accepted':
             status = os_gui.get_label('success', T('Accepted'))
 
         if row.Status == 'Rejected':
             status = os_gui.get_label('danger', T('Declined'))
+
         if row.Status == 'Processed':
             status = os_gui.get_label('primary', T('Processed'))
 
