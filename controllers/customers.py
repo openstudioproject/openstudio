@@ -3902,7 +3902,7 @@ def mollie_mandates():
     cuID = request.vars['cuID']
     customer = Customer(cuID)
     response.title = customer.get_name()
-    response.subtitle = T("Payment info")
+    response.subtitle = T("Finance")
     response.view = 'general/tabs_menu.html'
 
     # back button
@@ -3933,7 +3933,7 @@ def bankaccount():
     cuID = request.vars['cuID']
     customer = Customer(cuID)
     response.title = customer.get_name()
-    response.subtitle = T("Payment info")
+    response.subtitle = T("Finance")
     response.view = 'general/tabs_menu.html'
 
     # back button
@@ -4026,7 +4026,7 @@ def bankaccount_mandate_add():
 
     customer = Customer(cuID)
     response.title = customer.get_name()
-    response.subtitle = T("Payment info")
+    response.subtitle = T("Finance")
     response.view = 'general/tabs_menu.html'
 
     db.customers_payment_info_mandates.customers_payment_info_id.default = cpiID
@@ -4107,7 +4107,7 @@ def direct_debit_extra():
     customers_id = request.vars['cuID']
     customer = Customer(customers_id)
     response.title = customer.get_name()
-    response.subtitle = T("Payment info")
+    response.subtitle = T("Finance")
     response.view = 'general/tabs_menu.html'
 
     # back button
@@ -4403,7 +4403,7 @@ def alternativepayment_add():
         request.args[0] is expected to be the customers_id
     """
     customers_id = request.args[0]
-    response.title = T("Payment info")
+    response.title = T("Finance")
     customer = Customer(customers_id)
     response.subtitle = SPAN(T('Direct debit extra'), ' ', customer.get_name())
     response.view = 'general/only_content.html'
@@ -4435,7 +4435,7 @@ def alternativepayment_edit():
         request.args[0] is expected to be the customers_id
         request.args[1] is expected to be the alternativepaymentsID
     """
-    response.title = T("Payment info")
+    response.title = T("Finance")
     customers_id = request.args[0]
     apID = request.args[1]
     customer = Customer(customers_id)
