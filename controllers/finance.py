@@ -809,19 +809,20 @@ def generate_batch_items_invoices(pbID,
             row.customers_payment_info.BankName = None
 
         db.payment_batches_items.insert(
-            payment_batches_id         = pbID,
-            auth_customer_id           = cuID,
+            payment_batches_id = pbID,
+            auth_customer_id = cuID,
             customers_subscriptions_id = csID,
-            invoices_id                = iID,
-            AccountHolder              = row.customers_payment_info.AccountHolder,
-            BIC                        = bic,
-            AccountNumber              = accountnr,
-            MandateSignatureDate       = msdate,
-            Amount                     = amount,
-            Currency                   = currency,
-            Description                = description,
-            BankName                   = row.customers_payment_info.BankName,
-            BankLocation               = row.customers_payment_info.BankLocation
+            invoices_id = iID,
+            AccountHolder = row.customers_payment_info.AccountHolder,
+            BIC = bic,
+            AccountNumber = accountnr,
+            MandateSignatureDate = msdate,
+            MandateReference = row.customers_payment_info_mandates.MandateReference,
+            Amount = amount,
+            Currency = currency,
+            Description = description,
+            BankName = row.customers_payment_info.BankName,
+            BankLocation = row.customers_payment_info.BankLocation
         )
 
 
@@ -901,17 +902,18 @@ def generate_batch_items_category(pbID,
             row.customers_payment_info.BankName = None
 
         db.payment_batches_items.insert(
-            payment_batches_id   = pbID,
-            auth_customer_id     = row.auth_user.id,
-            AccountHolder        = row.customers_payment_info.AccountHolder,
-            BIC                  = bic,
-            AccountNumber        = accountnr,
+            payment_batches_id = pbID,
+            auth_customer_id = row.auth_user.id,
+            AccountHolder = row.customers_payment_info.AccountHolder,
+            BIC = bic,
+            AccountNumber = accountnr,
             MandateSignatureDate = msdate,
-            Amount               = amount,
-            Currency             = currency,
-            Description          = description,
-            BankName             = row.customers_payment_info.BankName,
-            BankLocation         = row.customers_payment_info.BankLocation
+            MandateReference = row.customers_payment_info_mandates.MandateReference,
+            Amount = amount,
+            Currency = currency,
+            Description = description,
+            BankName = row.customers_payment_info.BankName,
+            BankLocation = row.customers_payment_info.BankLocation
         )
 
 
@@ -939,7 +941,7 @@ def get_batch_items_recurring_set(pbID):
     return ids
 
 
-def  get_batch_items(pbID, display=False, first=False, recurring=False):
+def get_batch_items(pbID, display=False, first=False, recurring=False):
     """
         Returns a list of batch items for a payment batch ( pbID )
         Set display to true, when the result will be displayed on a web page
@@ -973,8 +975,6 @@ def  get_batch_items(pbID, display=False, first=False, recurring=False):
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i+1].render())[0]
 
-        #TODO Update
-
         if row.MandateSignatureDate:
             msdate = row.MandateSignatureDate.strftime(DATE_FORMAT)
         else:
@@ -991,26 +991,27 @@ def  get_batch_items(pbID, display=False, first=False, recurring=False):
         else:
             description = row.Description
 
-        item = [
-            row.id,
-            i+1,
-            cuID,
-            csID,
-            row.AccountHolder,
-            row.AccountNumber.upper(),
-            row.BIC,
-            msdate,
-            row.Currency,
-            row.Amount,
-            description,
-            pb.Exdate.strftime(DATE_FORMAT),
-            repr_row.BankName,
-            repr_row.BankLocation,
-            row.invoices_id
-        ]
+        item = {
+            'id': row.id,
+            'line': i+1,
+            'cuID': cuID,
+            'csID': csID,
+            'account_holder': row.AccountHolder,
+            'account_number': row.AccountNumber.upper(),
+            'bic': row.BIC,
+            'mandate_sign_date': msdate,
+            'mandate_reference': row.MandateReference,
+            'currency': row.Currency,
+            'amount': row.Amount,
+            'description': description,
+            'execution_date': pb.Exdate.strftime(DATE_FORMAT),
+            'bank name': repr_row.BankName,
+            'bank_location': repr_row.BankLocation,
+            'invoice_id': row.invoices_id
+        }
 
         if not display:
-            item.append(location)
+            item['location'] = location
 
         bi.append(item)
 
@@ -1052,23 +1053,25 @@ def export_csv():
                      'Account number',
                      'BIC',
                      'Mandate Signature Date',
+                     'Mandate Reference',
                      'Description',
                      'Execution Date',
                      'Location'])
 
     batch_items = get_batch_items(pbID, first=first, recurring=recurring)
     for item in batch_items:
-        customers_id              = item[2]
-        customer_subscriptions_id = item[3]
-        account_holder            = item[4]
-        bank_location             = item[13]
-        currency                  = item[8]
-        amount                    = item[9]
-        account_number            = item[5]
-        bic                       = item[6]
-        mandate_signature_date    = item[7]
-        description               = item[10]
-        execution_date            = item[11]
+        customers_id = item['cuID']
+        customer_subscriptions_id = item['csID']
+        account_holder = item['account_holder']
+        bank_location = item[13]
+        currency = item[8]
+        amount = item[9]
+        account_number = item[5]
+        bic = item[6]
+        mandate_signature_date = item[7]
+        mandate_reference = item[7]
+        description = item[10]
+        execution_date = item[11]
 
         row = [ customers_id,
                 customer_subscriptions_id,
