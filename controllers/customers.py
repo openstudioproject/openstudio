@@ -4019,6 +4019,8 @@ def bankaccount_mandate_add():
     Page to add a mandate
     :return:
     """
+    import uuid
+
     cuID = request.vars['cuID']
     cpiID = request.vars['cpiID']
 

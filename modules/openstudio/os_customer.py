@@ -883,14 +883,17 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
                 )
 
             mandates.append(DIV(
-                DIV(H3(T("Direct debit mandate"), ' ',
-                       row.MandateReference,
+                DIV(H3(T("Direct debit mandate"),
                        _class="box-title"),
                     btn_delete,
                     _class="box-header"
                 ),
-                DIV(DIV(B(T("Signed on")), ' ', row.MandateSignatureDate),
-                    DIV(XML(row.MandateText)),
+                DIV(LABEL(T("Reference")),
+                    DIV(row.MandateReference),
+                    LABEL(T("Signed on")),
+                    DIV(row.MandateSignatureDate),
+                    LABEL(T("Mandate content")) if row.MandateText else '',
+                    DIV(XML(row.MandateText) ),
                     _class="box-body"
                 ),
                 _class="box box-solid"

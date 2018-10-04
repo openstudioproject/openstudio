@@ -796,7 +796,7 @@ class OSExactOnline:
         mandate_dict = {
             'Account': eoID,
             'BankAccount': eo_bankaccount_id,
-            'Reference': 487543587458,
+            'Reference': os_cpim.row.MandateReference,
             'SignatureDate': TODAY_LOCAL.strftime("%Y-%m-%d")
         }
 

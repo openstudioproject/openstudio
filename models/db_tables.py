@@ -2405,6 +2405,8 @@ def define_customers_payment_info_mandates():
     """
         Table to hold mandates for bank accounts
     """
+    import uuid
+
     db.define_table('customers_payment_info_mandates',
         Field('customers_payment_info_id', db.customers_payment_info,
               readable=False,
@@ -2412,7 +2414,9 @@ def define_customers_payment_info_mandates():
               label=T('Payment Info')),
         Field('MandateReference',
               requires=IS_NOT_EMPTY(),
-              label=T("Mandate reference")),
+              default=str(uuid.uuid4()),
+              label=T("Mandate reference"),
+              comment=T("OpenStudio automatically generates a unique reference for each mandate, but you're free to enter something else.")),
         Field('MandateText', 'text',
               represent=lambda value, row: value or '',
               writable =False),
