@@ -5208,6 +5208,7 @@ def setup_create_invoice_group():
         Footer=footer
     )
 
+
 def setup_create_invoice_group_defaults():
     """
         Set default invoice group as default for products

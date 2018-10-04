@@ -3925,7 +3925,7 @@ def mollie_mandates():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'customers_payments'))
+               auth.has_permission('update', 'customers_payments'))
 def bankaccount():
     """
         Lists bank account info
@@ -3978,11 +3978,20 @@ def bankaccount():
     content = DIV(submenu, BR(), form)
 
 
+    add_mandate = os_gui.get_button(
+        'noicon',
+        URL('bankaccount_add_mandate', vars={'cuID':cuID, 'cpiID':row.id}),
+        title=T("Add mandate"),
+        btn_size='',
+    )
+
+
     return dict(content=content,
                 content_extra=mandates,
                 menu=menu,
                 back=back,
-                tools=submit)
+                tools=SPAN(add_mandate, submit))
+
 
 
 def bankaccount_onaccept(form):
@@ -4002,6 +4011,16 @@ def bankaccount_get_returl_url(customers_id):
         Returns the return url for payment_info_add and payment_info_edit
     """
     return URL('bankaccount', vars={'cuID':customers_id})
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('create', 'customers_payments_info_mandates'))
+def bankaccount_add_mandate():
+    """
+    Page to add a mandate
+    :return:
+    """
+    return 'hello world'
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
