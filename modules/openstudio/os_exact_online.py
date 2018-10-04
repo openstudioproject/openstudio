@@ -840,6 +840,15 @@ class OSExactOnline:
         pass
 
 
+    def delete_dd_mandate(self, mandateID):
+        """
+
+        :return:
+        """
+        api = self.get_api()
+        api.directdebitmandates.delete(mandateID)
+
+
     def _log_error(self, action, object, object_id, result):
         """
         :param action: should be in ['create', 'read', 'update', 'delete']

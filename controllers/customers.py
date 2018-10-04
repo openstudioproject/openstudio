@@ -4012,24 +4012,9 @@ def bankaccount_get_returl_url(customers_id):
     return URL('bankaccount', vars={'cuID':customers_id})
 
 
-def bankaccount_mandate_on_create(form):
-    """
-    :param form: crud form for db.customers_payment_info_mandates
-    :return:
-    """
-    from openstudio.os_customers_payment_info_mandate import OsCustomersPaymentInfoMandate
-
-    cpimID = form.vars.id
-
-    print cpimID
-
-    cpim = OsCustomersPaymentInfoMandate(cpimID)
-    cpim.on_create()
-
-
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('create', 'customers_payments_info_mandates'))
-def bankaccount_add_mandate():
+def bankaccount_mandate_add():
     """
     Page to add a mandate
     :return:
@@ -4077,6 +4062,38 @@ def bankaccount_add_mandate():
         back=back,
         save=submit
     )
+
+
+def bankaccount_mandate_on_create(form):
+    """
+    :param form: crud form for db.customers_payment_info_mandates
+    :return:
+    """
+    from openstudio.os_customers_payment_info_mandate import OsCustomersPaymentInfoMandate
+
+    cpimID = form.vars.id
+    cpim = OsCustomersPaymentInfoMandate(cpimID)
+    cpim.on_create()
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('create', 'customers_payments_info_mandates'))
+def bankaccount_mandate_delete():
+    """
+    Delete bankaccount mandate
+    """
+    from openstudio.os_customers_payment_info_mandate import OsCustomersPaymentInfoMandate
+
+    cuID = request.vars['cuID']
+    cpimID = request.vars['cpimID']
+
+    cpim = OsCustomersPaymentInfoMandate(cpimID)
+    cpim.on_delete()
+
+    query = (db.customers_payment_info_mandates.id == cpimID)
+    db(query).delete()
+
+    redirect(URL(bankaccount_get_returl_url(cuID)))
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \

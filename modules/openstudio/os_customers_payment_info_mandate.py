@@ -42,3 +42,16 @@ class OsCustomersPaymentInfoMandate:
 
         os_eo = OSExactOnline()
         #os_eo.update_dd_mandate(os_customer, self)
+
+
+    def on_delete(self):
+        """
+
+        :return:
+        """
+        from os_exact_online import OSExactOnline
+
+        os_eo = OSExactOnline()
+        os_eo.delete_dd_mandate(
+            self.row.exact_online_directdebitmandates_id
+        )
