@@ -9,70 +9,11 @@ class EmployeeClaims:
     """
         Class that gathers useful functions for db.employee_claims
     """
-    # def check_missing(self, date_from, date_until):
-    #     """
-    #
-    #     :param date_from:
-    #     :param date_until:
-    #     :return:
-    #     """
-    #     from date_tools import DateTools
-    #     from os_class import Class
-    #     from os_class_schedule import ClassSchedule
-    #
-    #     T = current.T
-    #     db = current.db
-    #     dt = DateTools()
-    #
-    #     error = False
-    #     message = ''
-    #     classes_added = 0
-    #
-    #     days_between = dt.days_between_dates(date_from, date_until)
-    #     if days_between == False:
-    #         error = True
-    #         message = T("From date has to be smaller then until date.")
-    #
-    #     if days_between > 92:
-    #         error = True
-    #         message = T("Gap between dates can not be more then 3 months")
-    #
-    #     if not error:
-    #         date = date_from
-    #
-    #         while date <= date_until:
-    #             cs = ClassSchedule(date)
-    #             classes = cs.get_day_list()
-    #             for cls in classes:
-    #                 if not cls['Cancelled'] or cls['Holiday']:
-    #                     # Check if item in db.teachers_payment_classes
-    #                     query = (db.teachers_payment_classes.classes_id == cls['ClassesID']) & \
-    #                             (db.teachers_payment_classes.ClassDate == date)
-    #                     if db(query).count() == 0:
-    #                         os_cls = Class(
-    #                             cls['ClassesID'],
-    #                             date
-    #                         )
-    #                         result = os_cls.get_teacher_payment()
-    #
-    #                         if not result['error']:
-    #                             classes_added += 1
-    #
-    #             date += datetime.timedelta(days=1)
-    #
-    #         message = classes_added
-    #
-    #     return dict(
-    #         error=error,
-    #         message=message
-    #     )
 
 
     def get_rows(self,
                  status=None,
                  sorting='time',
-                 date_from=None,
-                 date_until=None,
                  formatted=False,
                  all=False,
                  items_per_page = 100,
@@ -80,35 +21,21 @@ class EmployeeClaims:
 
         db = current.db
 
-        limitby = None
-        if not all:
-            limitby = (page * items_per_page, (page + 1) * items_per_page + 1)
+        # limitby = None
+        # if not all:
+        #     limitby = (page * items_per_page, (page + 1) * items_per_page + 1)
 
-        # left = [
-        #     db.classes.on(
-        #         db.teachers_payment_classes.classes_id ==
-        #         db.classes.id
-        #     )
-        # ]
 
-        # if sorting == 'time':
-        #     orderby = ~db.teachers_payment_classes.ClassDate | \
-        #               db.classes.Starttime
-        # elif sorting == 'teacher':
-        #     orderby = db.teachers_payment_classes.auth_teacher_id | \
-        #               db.teachers_payment_classes.ClassDate | \
-        #               db.classes.Starttime
+        if sorting == 'time':
+            orderby = ~db.employee_claims.ClaimDate
+        elif sorting == 'employee':
+            orderby = db.employee_claims.auth_user_id
 
         query = (db.employee_claims.Status == status)
 
-        # if date_from:
-        #     query &= (db.teachers_payment_classes.ClassDate >= date_from)
-        #
-        # if date_until:
-        #     query &= (db.teachers_payment_classes.ClassDate <= date_from)
 
         rows = db(query).select(
-            orderby=db.employee_claims.auth_user_id
+            orderby=orderby
         )
 
         if not formatted:
@@ -146,18 +73,20 @@ class EmployeeClaims:
 
         table = TABLE(header, _class="table table-striped table-hover small_font")
 
-        permissions = self._rows_to_table_button_permissions()
+        permissions = auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'employee_claims')
 
         for i, row in enumerate(rows):
             repr_row = list(rows[i:i + 1].render())[0]
+            buttons=''
+            if permissions:
 
-            if status == 'Pending':
-                buttons = self._rows_to_table_get_pending_buttons(row, os_gui, permissions)
-            elif status == 'Accepted':
-                buttons = self._rows_to_table_get_accepted_buttons(row, os_gui)
-            elif status == 'Rejected':
-                buttons = self._rows_to_table_get_rejected_buttons(row, os_gui)
-
+                if status == 'Pending':
+                    buttons = self._rows_to_table_get_pending_buttons(row, os_gui)
+                elif status == 'Accepted':
+                    buttons = self._rows_to_table_get_accepted_buttons(row, os_gui)
+                elif status == 'Rejected':
+                    buttons = self._rows_to_table_get_rejected_buttons(row, os_gui)
             tr = TR(
                 TD(repr_row.auth_user_id),
                 TD(repr_row.ClaimDate),
@@ -165,27 +94,14 @@ class EmployeeClaims:
                 TD(repr_row.Amount),
                 TD(repr_row.Quantity),
                 TD(repr_row.Attachment),
-                # TD(repr_row.classes.school_classtypes_id),
-                # TD(repr_row.teachers_payment_classes.auth_teacher_id, BR(),
-                #    repr_row.teachers_payment_classes.auth_teacher_id2),
-                # TD(repr_row.teachers_payment_classes.RateType, BR(),
-                #    SPAN(repr_row.teachers_payment_classes.teachers_payment_attendance_list_id or '',
-                #         _class='grey')),
-                # TD(repr_row.teachers_payment_classes.AttendanceCount),
-                # TD(repr_row.teachers_payment_classes.ClassRate, BR(),
-                #    SPAN(repr_row.teachers_payment_classes.tax_rates_id,
-                #         _class='grey')),
-                # TD(repr_row.teachers_payment_classes.TravelAllowance, BR(),
-                #    SPAN(repr_row.teachers_payment_classes.tax_rates_id_travel_allowance or '',
-                #         _class='grey')),
                 TD(buttons)
             )
 
             table.append(tr)
 
-        # pager = self._rows_to_table_get_navigation(rows, items_per_page, page)
+        pager = self._rows_to_table_get_navigation(rows, items_per_page, page)
 
-        return DIV(table)
+        return DIV(table, pager)
 
 
     def _rows_to_table_get_navigation(self, rows, items_per_page, page):
@@ -219,24 +135,8 @@ class EmployeeClaims:
         return DIV(navigation)
 
 
-    def _rows_to_table_button_permissions(self):
-        """
-            :return: dict containing button permissions for a user
-        """
-        auth = current.auth
-        permissions = {}
 
-        if auth.has_membership(group_id='Admins') or \
-                auth.has_permission('read', 'classes_attendance'):
-            permissions['classes_attendance'] = True
-        if auth.has_membership(group_id='Admins') or \
-                auth.has_permission('update', 'teachers_payment_classes'):
-            permissions['teachers_payment_classes'] = True
-
-        return permissions
-
-
-    def _rows_to_table_get_pending_buttons(self, row, os_gui, permissions):
+    def _rows_to_table_get_pending_buttons(self, row, os_gui):
         """
             Returns buttons for schedule
             - one button group for edit & attendance buttons
@@ -381,6 +281,19 @@ class EmployeeClaims:
         )
 
 
+    def get_processed(self, page=0, formatted=False):
+        """
+        All processed classes
+        :param formatted: Bool
+        :return: gluon.dal.rows or html table
+        """
+        return self.get_rows(
+            status='Processed',
+            formatted=formatted,
+            page=page
+        )
+
+
     def accept_all(self):
         """
         Change status of all not_verified classes to verified
@@ -397,71 +310,61 @@ class EmployeeClaims:
 
         return updated
 
-    #
-    # def process_verified(self, date_from=None, date_until=None):
-    #     """
-    #     Create credit invoices for verified classes
-    #     :return:
-    #     """
-    #     from os_invoice import Invoice
-    #     from os_teachers_payment_class import TeachersPaymentClass
-    #
-    #     T = current.T
-    #     db = current.db
-    #
-    #     # Sort verified classes by teacher
-    #     rows = self.get_rows(
-    #         status='verified',
-    #         sorting='teacher',
-    #         formatted=False,
-    #         date_from=date_from,
-    #         date_until=date_until,
-    #         all=True
-    #     )
-    #
-    #     previous_teacher = None
-    #     current_teacher = None
-    #     processed = 0
-    #     invoices_created = 0
-    #     # For each teacher, create credit invoice and add all verified classes
-    #     for i, row in enumerate(rows):
-    #         teID = row.teachers_payment_classes.auth_teacher_id
-    #         if i == 0 or not previous_teacher == teID:
-    #             current_teacher = teID
-    #
-    #             igpt = db.invoices_groups_product_types(ProductType='teacher_payments')
-    #             iID = db.invoices.insert(
-    #                 invoices_groups_id=igpt.invoices_groups_id,
-    #                 TeacherPayment=True,
-    #                 Description=T('Classes'),
-    #                 Status='sent'
-    #             )
-    #
-    #             invoice = Invoice(iID)
-    #             invoice.link_to_customer(teID)
-    #
-    #             invoices_created += 1
-    #
-    #         tpcID = row.teachers_payment_classes.id
-    #         invoice.item_add_teacher_class_attendance_credit_payment(tpcID)
-    #
-    #         # Add travel allowance
-    #         if row.teachers_payment_classes.TravelAllowance:
-    #             invoice.item_add_teacher_class_credit_travel_allowance(
-    #                 row.teachers_payment_classes.classes_id,
-    #                 row.teachers_payment_classes.ClassDate,
-    #                 row.teachers_payment_classes.TravelAllowance,
-    #                 row.teachers_payment_classes.tax_rates_id_travel_allowance
-    #             )
-    #
-    #         # Set status processed
-    #         tpc = TeachersPaymentClass(tpcID)
-    #         tpc.set_status_processed()
-    #
-    #         previous_teacher = current_teacher
-    #         processed += 1
-    #
-    #     # Calculate total
-    #
-    #     return processed
+
+    def process_accepted(self):
+        """
+        Create credit invoices for verified classes
+        :return:
+        """
+        from os_invoice import Invoice
+        from os_employee_claim import EmployeeClaim
+
+        T = current.T
+        db = current.db
+
+        # Sort verified classes by teacher
+        rows = self.get_rows(
+            status='Accepted',
+            sorting='employee',
+            formatted=False,
+            all=True
+        )
+
+        # previous_teacher = None
+        # current_teacher = None
+        processed = 0
+        invoices_created = 0
+        # For each teacher, create credit invoice and add all accepted claims
+        for i, row in enumerate(rows):
+            epID = row.auth_user_id
+            if i == 0 or not previous_employee == epID:
+                current_employee = epID
+
+                igpt = db.invoices_groups_product_types(ProductType='employee_claims')
+                iID = db.invoices.insert(
+                    invoices_groups_id=igpt.invoices_groups_id,
+                    EmployeeClaim=True,
+                    Description=T('Claims'),
+                    Status='sent'
+                )
+
+                invoice = Invoice(iID)
+                invoice.link_to_customer(epID)
+
+                invoices_created += 1
+
+            ecID = row.id
+            invoice.item_add_employee_claim_credit_payment(ecID)
+
+
+            # Set status processed
+            ec = EmployeeClaim(ecID)
+            ec.set_status_processed()
+
+            previous_employee = current_employee
+            processed += 1
+
+        # Calculate total
+
+        return processed
 

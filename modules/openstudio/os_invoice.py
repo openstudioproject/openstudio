@@ -835,6 +835,49 @@ class Invoice:
         return iiID
 
 
+    def item_add_employee_claim_credit_payment(self,
+                                                         ecID,
+                                                        ):
+        """
+        :param clsID: db.classes.id
+        :param date: datetime.date class date
+        :return:
+        """
+        from os_teacher import Teacher
+        from os_employee_claim import EmployeeClaim
+
+        DATE_FORMAT = current.DATE_FORMAT
+        TIME_FORMAT = current.TIME_FORMAT
+        db = current.db
+        T = current.T
+
+        ec = EmployeeClaim(ecID)
+
+        # Get amount & tax rate
+        price = ec.row.Amount
+        tax_rates_id = ec.row.tax_rates_id
+
+        # add item to invoice
+        if price > 0:
+            next_sort_nr = self.get_item_next_sort_nr()
+
+            iiID = db.invoices_items.insert(
+                invoices_id=self.invoices_id,
+                ProductName=T('Claims'),
+                Description=ec.row.Description,
+                Quantity=ec.row.Quantity,
+                Price=price * -1,
+                Sorting=next_sort_nr,
+                tax_rates_id=tax_rates_id,
+            )
+
+            self.set_amounts()
+
+            self.on_update()
+
+            return iiID
+
+
     def payment_add(self,
                     amount,
                     date,

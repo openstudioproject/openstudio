@@ -77,5 +77,5 @@ class EmployeeClaim:
         self.row.update_record()
 
 
-    # def set_status_processed(self):
-    #     self.set_status('processed')
+    def set_status_processed(self):
+        self.set_status('Processed')
