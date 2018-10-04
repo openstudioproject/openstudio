@@ -3993,7 +3993,6 @@ def bankaccount():
                 tools=SPAN(add_mandate, submit))
 
 
-
 def bankaccount_onaccept(form):
     """
     :param form: crud form for db.customers_payment_info

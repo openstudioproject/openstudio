@@ -1149,11 +1149,11 @@ def access_group_permissions():
                     ['customers_documents-update', T("Edit uploaded documents")],
                     ['customers_documents-delete', T("Delete uploaded documents")],
                 ]],
-                ['customers_payments-read', T("View payment info"), [
-                    ['customers_payment_info-create', T("Add payment info")],
-                    ['customers_payment_info-update', T("Edit payment info")],
-                    ['customers_payment_info-delete',
-                        T("Delete payment info")]]],
+                ['customers_payments_info-read', T("View bank account"), [
+                    ['customers_payment_info-update', T("Edit bank account"), [
+                        ['customers_payment_info_mandates-create', T("Add direct debit mandates")],
+                        ['customers_payment_info_mandates-delete', T("Delete direct debit mandates")],
+                    ]]]],
                 ['auth_user_account-read', T('View account settings'), [
                     ['auth_user_account-update', T('Edit account settings')],
                     ['auth_user-set_password', T('Set a new password for accounts')],
