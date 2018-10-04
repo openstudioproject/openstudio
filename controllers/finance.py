@@ -785,6 +785,7 @@ def generate_batch_items_invoices(pbID,
         except AttributeError:
             bic = ''
 
+        #TODO Update
         msdate = row.customers_payment_info.MandateSignatureDate
 
         # set bank name
@@ -866,6 +867,7 @@ def generate_batch_items_category(pbID,
         except AttributeError:
             bic = ''
 
+        #TODO Update
         msdate = row.customers_payment_info.MandateSignatureDate
 
         if row.customers_payment_info.BankName == '':
@@ -943,6 +945,9 @@ def  get_batch_items(pbID, display=False, first=False, recurring=False):
 
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i+1].render())[0]
+
+        #TODO Update
+
         if row.MandateSignatureDate:
             msdate = row.MandateSignatureDate.strftime(DATE_FORMAT)
         else:

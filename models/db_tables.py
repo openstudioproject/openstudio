@@ -2367,7 +2367,7 @@ def define_customers_payment_info():
         Field('BIC',
             represent=lambda value, row: value or "",
             label=T("BIC")),
-        Field('MandateSignatureDate', 'date',
+        Field('MandateSignatureDate', 'date', # Deprecated from 2018.82 do NOT use. Store in payment_info_mandates
             readable=False,
             writable=False,
             requires=IS_EMPTY_OR(IS_DATE_IN_RANGE(format=DATE_FORMAT,
