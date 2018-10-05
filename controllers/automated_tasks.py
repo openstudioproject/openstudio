@@ -44,7 +44,10 @@ def create_customers_subscriptions_invoices_for_month():
               label=T("Year")),
         Field('description',
               label=T("Description"),
-              comment=T("This will be the invoice description and shown on the customers' bank statement in case you create a collection batch.")),
+              comment=T(
+                  "This will be the invoice description and shown on the customers' " + \
+                  "bank statement in case you create a collection batch. " + \
+                  "When an alt. price has been added for this month, this description will be used for that subscription.")),
         formstyle="bootstrap3_stacked",
         submit_button=T("Create invoices")
     )

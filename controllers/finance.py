@@ -1157,16 +1157,16 @@ def invoices():
 
     # tools dropdown
     today = datetime.date.today()
-    tool_links = [ A(SPAN(os_gui.get_fa_icon('fa-edit'), ' ',
-                          T("Create subscription invoices")),
-                     _href=URL('invoices', 'subscriptions_create_invoices',
-                                vars={'year':today.year,
-                                      'month':today.month})) ]
-    tools = os_gui.get_dropdown_menu(tool_links,
-                                     T(''),
-                                     btn_size='',
-                                     btn_icon='wrench',
-                                     menu_class='pull-right')
+    # tool_links = [ A(SPAN(os_gui.get_fa_icon('fa-edit'), ' ',
+    #                       T("Create subscription invoices")),
+    #                  _href=URL('invoices', 'subscriptions_create_invoices',
+    #                             vars={'year':today.year,
+    #                                   'month':today.month})) ]
+    # tools = os_gui.get_dropdown_menu(tool_links,
+    #                                  T(''),
+    #                                  btn_size='',
+    #                                  btn_icon='wrench',
+    #                                  menu_class='pull-right')
 
     export_links = [ A(SPAN(os_gui.get_fa_icon('fa-file-o'), ' ',
                             T('Invoices')),
@@ -1178,7 +1178,7 @@ def invoices():
                                       menu_class='pull-right')
 
     return dict(content=content,
-                header_tools=DIV(export, tools))
+                header_tools=DIV(export))
 
 
 def teacher_payments_get_menu(page, status='not_verified'):
