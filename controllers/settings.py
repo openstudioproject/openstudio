@@ -3435,45 +3435,58 @@ def admin_scheduled_tasks_run():
                       TH(T('Status')),
                       TH(T('Start time')),
                       TH(T('Stop time')),
+                      TH(T('vars')),
                       TH(T('Run output')),
                       TH(T('Run result')),
                       TH(T('Traceback')),
                       TH(T('Worker')),
                       TH(T('Actions')),
                       ))
-    table = TABLE(header, _class='table table-condensed table-striped table-hover')
+    table = TABLE(header, _class='table table-condensed table-striped table-hover small_font')
+
+    left = [
+        db.scheduler_task.on(
+            db.scheduler_run.task_id ==
+            db.scheduler_task.id
+        )
+    ]
 
 
-    query = (db.scheduler_run)
-    rows = db(query).select(db.scheduler_run.ALL,
-                            orderby=~db.scheduler_run.start_time,
-                            limitby=limitby)
+    query = (db.scheduler_run.id > 0)
+    rows = db(query).select(
+        db.scheduler_run.ALL,
+        db.scheduler_task.ALL,
+        left=left,
+        orderby=~db.scheduler_run.start_time,
+        limitby=limitby)
 
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
         details = os_gui.get_button('noicon',
-                                    URL('admin_scheduled_tasks_run_result', vars={'srID':row.id}),
+                                    URL('admin_scheduled_tasks_run_result',
+                                        vars={'srID':row.scheduler_run.id}),
                                     title=T('Details'),
                                     _class='pull-right')
 
         label_type = 'primary'
-        if row.status == 'FAILED':
+        if row.scheduler_run.status == 'FAILED':
             label_type = 'danger'
-        elif row.status == 'COMPLETED':
+        elif row.scheduler_run.status == 'COMPLETED':
             label_type = 'success'
 
-        status = os_gui.get_label(label_type, row.status)
+        status = os_gui.get_label(label_type, row.scheduler_run.status)
 
         tr = TR(
-            TD(row.task_id),
+            TD(row.scheduler_task.task_name),
             TD(status),
-            TD(row.start_time),
-            TD(row.stop_time),
-            TD(row.run_output),
-            TD(row.run_result),
-            TD(max_string_length(row.traceback, 32)),
-            TD(row.worker_name),
+            TD(row.scheduler_run.start_time),
+            TD(row.scheduler_run.stop_time),
+            TD(row.scheduler_task.vars),
+            TD(row.scheduler_run.run_output),
+            TD(row.scheduler_run.run_result),
+            TD(max_string_length(row.scheduler_run.traceback, 32)),
+            TD(row.scheduler_run.worker_name),
             TD(details),
         )
 
