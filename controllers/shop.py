@@ -1093,9 +1093,13 @@ def subscription_terms():
         content =  SPAN(
             H3(ssu.Name),
             SPAN(T("You have this subscription"), _class='bold'), ' ', XML('&bull;'), ' ',
-            SPAN(T("Please proceed to the invoices page in case you haven't paid yet.")), BR(),
-            SPAN(A(T("View invoices"),
-               _href=URL('profile', 'invoices')))
+            SPAN(T("Please proceed to the invoices page in case you haven't paid yet.")), BR(), BR(),
+            os_gui.get_button(
+                'noicon',
+                URL('profile', 'invoices'),
+                title=T("View invoices"),
+                btn_class='btn-primary'
+            )
         )
     else:
         # buy now
@@ -1108,34 +1112,47 @@ def subscription_terms():
         response.subtitle += ' '
         response.subtitle += ssu.Name
 
-    debit_mandate = ''
-    confirm = ''
-    if payment_method == 'mollie':
-        debit_mandate= DIV()
-        confirm = A(B(T('I agree')),
-                    _href=URL('mollie', 'subscription_buy_now', vars={'ssuID':ssuID}),
-                    _class='btn btn-primary')
-    elif not customer.has_payment_info_mandate():
-        mandate_text = get_sys_property('shop_direct_debit_mandate_text')
-        if mandate_text:
-            debit_mandate = DIV(
-                H4(T('Direct Debit Mandate')),
-                DIV(XML(mandate_text), _class='well')
-            )
+        general_terms = get_sys_property('shop_subscriptions_terms')
+        specific_terms = ssu.Terms
 
-        confirm =  A(B(T('I agree')),
-                    _href=URL('subscription_direct_debit', vars={'ssuID': ssuID}),
-                    _class='btn btn-primary')
+        terms = DIV()
+        if general_terms:
+            terms.append(B(T('General terms & conditions')))
+            terms.append(XML(general_terms))
+        if specific_terms:
+            terms.append(B(T('Subscription specific terms & conditions')))
+            terms.append(XML(specific_terms))
 
-    cancel = A(B(T('Cancel')),
-               _href=URL('subscriptions'),
-               _class='btn btn-default')
+        subscription_conditions = DIV(terms, _class='well')
 
-    content = DIV(H4(T('Terms & conditions')),
-                  subscription_conditions,
-                  debit_mandate,
-                  confirm,
-                  cancel)
+        direct_debit_mandate = ''
+        confirm = ''
+        if payment_method == 'mollie':
+            direct_debit_mandate= DIV()
+            confirm = A(B(T('I agree')),
+                        _href=URL('mollie', 'subscription_buy_now', vars={'ssuID':ssuID}),
+                        _class='btn btn-primary')
+        elif not customer.has_payment_info_mandate():
+            mandate_text = get_sys_property('shop_direct_debit_mandate_text')
+            if mandate_text:
+                direct_debit_mandate = DIV(
+                    H4(T('Direct Debit Mandate')),
+                    DIV(XML(mandate_text), _class='well')
+                )
+
+            confirm =  A(B(T('I agree')),
+                        _href=URL('subscription_direct_debit', vars={'ssuID': ssuID}),
+                        _class='btn btn-primary')
+
+        cancel = A(B(T('Cancel')),
+                   _href=URL('subscriptions'),
+                   _class='btn btn-default')
+
+        content = DIV(H4(T('Terms & conditions')),
+                      subscription_conditions,
+                      direct_debit_mandate,
+                      confirm,
+                      cancel)
 
     return dict(content=content)
 
