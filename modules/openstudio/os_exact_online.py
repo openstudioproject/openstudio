@@ -79,8 +79,6 @@ class OSExactOnline:
         storage = self.get_storage()
         api = self.get_api()
         cuID = os_invoice.get_linked_customer_id()
-        print "Customer:"
-        print cuID
         os_customer = Customer(os_invoice.get_linked_customer_id())
         eoID = os_customer.row.exact_online_relation_id
 
@@ -97,9 +95,6 @@ class OSExactOnline:
             selected_division = int(storage.get('transient', 'division'))
         except NoOptionError:
             selected_division = None
-
-        print "division:"
-        print selected_division
 
         amounts = os_invoice.get_amounts()
 
@@ -122,11 +117,6 @@ class OSExactOnline:
             'VATAmountDC': str(amounts.VAT),
             'VATAmountFC': str(amounts.VAT),
             'YourRef': local_invoice_number,
-            # must start uniquely at the start of a year, defaults to:
-            # YYJJ0001 where YY=invoice_date.year, and JJ=remote_journal
-            # 'InvoiceNumber': '%d%d%04d' % (invoice_date.year, remote_journal,
-            #                                int(local_invoice_number)),
-            # 'InvoiceNumber': local_invoice_number
         }
 
         if payment_method and payment_method.AccountingCode:
@@ -140,23 +130,21 @@ class OSExactOnline:
 
         try:
             result = api.invoices.create(invoice_data)
-
-            print "Create invoice result:"
-            pp = pprint.PrettyPrinter(depth=6)
-            pp.pprint(result)
+            #
+            # print "Create invoice result:"
+            # pp = pprint.PrettyPrinter(depth=6)
+            # pp.pprint(result)
 
             eoseID = result['EntryID']
             os_invoice.invoice.ExactOnlineSalesEntryID = eoseID
             os_invoice.invoice.InvoiceID = result['EntryNumber']
             os_invoice.invoice.update_record()
 
-            print "Entry lines"
             uri = result[u'SalesEntryLines'][u'__deferred']['uri']
             entry_lines = api.restv1(GET(str(uri)))
-            pp.pprint(entry_lines)
+            # pp.pprint(entry_lines)
 
             for i, line in enumerate(entry_lines):
-                print i
                 query = (db.invoices_items.invoices_id == os_invoice.invoice.id) & \
                         (db.invoices_items.Sorting == i + 1)
                 db(query).update(ExactOnlineSalesEntryLineID = line['ID'])
@@ -205,13 +193,9 @@ class OSExactOnline:
 
         eoseID = os_invoice.invoice.ExactOnlineSalesEntryID
 
-        print eoseID
         if not eoseID:
-            print 'creating sales entry'
             self.create_sales_entry(os_invoice)
             return
-
-        print "updating sales entry"
 
 
         import pprint
@@ -222,17 +206,12 @@ class OSExactOnline:
         storage = self.get_storage()
         api = self.get_api()
         cuID = os_invoice.get_linked_customer_id()
-        print "Customer:"
-        print cuID
         os_customer = Customer(os_invoice.get_linked_customer_id())
 
         try:
             selected_division = int(storage.get('transient', 'division'))
         except NoOptionError:
             selected_division = None
-
-        print "division:"
-        print selected_division
 
         amounts = os_invoice.get_amounts()
 
@@ -254,10 +233,6 @@ class OSExactOnline:
             'VATAmountDC': str(amounts.VAT),
             'VATAmountFC': str(amounts.VAT),
             'YourRef': local_invoice_number,
-            # must start uniquely at the start of a year, defaults to:
-            # YYJJ0001 where YY=invoice_date.year, and JJ=remote_journal
-            # 'InvoiceNumber': '%d%d%04d' % (invoice_date.year, remote_journal,
-            #                                int(local_invoice_number)),
         }
 
         if payment_method and payment_method.AccountingCode:
@@ -270,9 +245,9 @@ class OSExactOnline:
 
         try:
             result = api.invoices.update(eoseID, invoice_data)
-            print "Update invoice result:"
-            pp = pprint.PrettyPrinter(depth=6)
-            pp.pprint(result)
+            # print "Update invoice result:"
+            # pp = pprint.PrettyPrinter(depth=6)
+            # pp.pprint(result)
 
             self.update_sales_entry_lines(os_invoice)
 
@@ -351,7 +326,6 @@ class OSExactOnline:
                 line['EntryID'] = os_invoice.invoice.ExactOnlineSalesEntryID
 
                 result = self.create_sales_entry_line(line)
-                print result
 
                 item.ExactOnlineSalesEntryLineID = result['ID']
                 item.update_record()
@@ -402,7 +376,6 @@ class OSExactOnline:
 
         is_credit_invoice = os_invoice.is_credit_invoice()
         items = os_invoice.get_invoice_items_rows()
-        print items
 
         lines = []
         for item in items:
@@ -461,8 +434,6 @@ class OSExactOnline:
             except NoOptionError:
                 selected_division = None
 
-            print "division:"
-            print selected_division
 
             relation_dict = {
                 "AddressLine1": os_customer.row.address,
@@ -485,10 +456,6 @@ class OSExactOnline:
             try:
                 result = api.relations.create(relation_dict)
                 rel_id = result['ID']
-                print rel_id
-
-                # pp = pprint.PrettyPrinter(depth=6)
-                # pp.pprint(result)
 
                 os_customer.row.exact_online_relation_id = rel_id
                 os_customer.row.update_record()
@@ -528,8 +495,6 @@ class OSExactOnline:
 
             return
 
-        print 'update'
-
         eoID = os_customer.row.exact_online_relation_id
 
         print eoID
@@ -551,9 +516,6 @@ class OSExactOnline:
         except NoOptionError:
             selected_division = None
 
-        print "division:"
-        print selected_division
-
         relation_dict = {
             "AddressLine1": os_customer.row.address,
             "Name": os_customer.row.display_name,
@@ -572,14 +534,8 @@ class OSExactOnline:
         error = False
         message = ''
 
-        print 'update'
-        print eoID
-
-        # api.relations.update(eoID, relation_dict)
         try:
             result = api.relations.update(eoID, relation_dict)
-            # pp = pprint.PrettyPrinter(depth=6)
-            # pp.pprint(result)
         except HTTPError as e:
             error = True
             message = e
@@ -659,40 +615,40 @@ class OSExactOnline:
 
         eo_bankaccount_id = None
 
-        print "bank account creation result:"
-        result = api.bankaccounts.create(bank_account_dict)
+        # print "bank account creation result:"
+        # result = api.bankaccounts.create(bank_account_dict)
+        #
+        # import pprint
+        # pp = pprint.PrettyPrinter(depth=6)
+        # pp.pprint(result)
+        #
+        # eo_bankaccount_id = result['ID']
+        # os_customer_payment_info.row.exact_online_bankaccount_id = eo_bankaccount_id
+        # os_customer_payment_info.row.update_record()
 
-        import pprint
-        pp = pprint.PrettyPrinter(depth=6)
-        pp.pprint(result)
+        try:
+            result = api.bankaccounts.create(bank_account_dict)
 
-        eo_bankaccount_id = result['ID']
-        os_customer_payment_info.row.exact_online_bankaccount_id = eo_bankaccount_id
-        os_customer_payment_info.row.update_record()
+            # print "bank account creation result:"
+            # import pprint
+            # pp = pprint.PrettyPrinter(depth=6)
+            # pp.pprint(result)
 
-        # try:
-        #     result = api.bankaccounts.create(bank_account_dict)
-        #
-        #     print "bank account creation result:"
-        #     import pprint
-        #     pp = pprint.PrettyPrinter(depth=6)
-        #     pp.pprint(result)
-        #
-        #     eo_bankaccount_id = result['ID']
-        #     os_customer_payment_info.row.exact_online_bankaccount_id = eo_bankaccount_id
-        #     os_customer_payment_info.row.update_record()
-        #
-        # except HTTPError as e:
-        #     print 'bank account creation error...'
-        #
-        #
-        #     error = True
-        #     self._log_error(
-        #         'create',
-        #         'bankaccount',
-        #         os_customer_payment_info.row.id,
-        #         e
-        #     )
+            eo_bankaccount_id = result['ID']
+            os_customer_payment_info.row.exact_online_bankaccount_id = eo_bankaccount_id
+            os_customer_payment_info.row.update_record()
+
+        except HTTPError as e:
+            print 'bank account creation error...'
+
+
+            error = True
+            self._log_error(
+                'create',
+                'bankaccount',
+                os_customer_payment_info.row.id,
+                e
+            )
 
         return eo_bankaccount_id
 
@@ -725,8 +681,6 @@ class OSExactOnline:
         if not len(exact_account):
             self.create_bankaccount(os_customer, os_customer_payment_info)
 
-        print exact_account
-
         bank_account_dict = {
             'Account': eoID,
             'BankAccount': os_customer_payment_info.row.AccountNumber,
@@ -735,14 +689,10 @@ class OSExactOnline:
         }
 
         try:
-            print 'updating bank details'
-            print bank_account_dict
-
             api.bankaccounts.update(
                 os_customer_payment_info.row.exact_online_bankaccount_id,
                 bank_account_dict
             )
-
         except HTTPError as e:
             error = True
             self._log_error(
@@ -787,7 +737,7 @@ class OSExactOnline:
 
         eo_bankaccount_id = os_customer_payment_info.row.exact_online_bankaccount_id
 
-        print os_customer_payment_info.row
+        # print os_customer_payment_info.row
 
         if not eo_bankaccount_id:
             eo_bankaccount_id = self.create_bankaccount(customer, os_customer_payment_info)
@@ -801,40 +751,19 @@ class OSExactOnline:
         }
 
 
-        print mandate_dict
+        try:
+            result = api.directdebitmandates.create(mandate_dict)
+            os_cpim.row.exact_online_directdebitmandates_id = result['ID']
+            os_cpim.row.update_record()
 
-        result = api.directdebitmandates.create(mandate_dict)
-
-        print 'Mandate from Exact::'
-        import pprint
-        pp = pprint.PrettyPrinter(depth=6)
-        pp.pprint(result)
-
-        os_cpim.row.exact_online_directdebitmandates_id = result['ID']
-        os_cpim.row.update_record()
-
-
-        pp.pprint(api.directdebitmandates.filter(result['ID']))
-
-
-        # try:
-        #     result = api.directdebitmandates.create(mandate_dict)
-        #
-        #     import pp
-        #     pp = pprint.PrettyPrinter(depth=6)
-        #     pp.pprint(result)
-        #
-        #     os_cpim.row.exact_online_directdebitmandates_id = result['ID']
-        #     os_cpim.row.update_record()
-        #
-        # except HTTPError as e:
-        #     error = True
-        #     self._log_error(
-        #         'create',
-        #         'mandate',
-        #         os_customer_payment_info.cpiID,
-        #         e
-        #     )
+        except HTTPError as e:
+            error = True
+            self._log_error(
+                'create',
+                'mandate',
+                os_customer_payment_info.cpiID,
+                e
+            )
 
 
     def upgrate_dd_mandate(self):
