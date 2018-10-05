@@ -47,16 +47,25 @@ def index_get_customers_subscriptions_invoices(table):
             btn_size=''
         )
 
+        left = [
+            db.scheduler_run.on(
+                db.scheduler_task.id ==
+                db.scheduler_run.task_id
+            )
+        ]
+
         query = (db.scheduler_task.task_name == 'customers_subscriptions_create_invoices_for_month')
         rows = db(query).select(
             db.scheduler_task.ALL,
+            db.scheduler_run.ALL,
+            left=left,
             orderby=~db.scheduler_task.start_time,
             limitby=(0,3)
         )
 
-        result_table = TABLE(_class='table-condensed')
+        result_table = TABLE(_class='table-condensed automated-tasks-results')
         for row in rows:
-            vars = json.loads(row.vars)
+            vars = json.loads(row.scheduler_task.vars)
             print vars
 
             vars_display = DIV()
@@ -69,9 +78,11 @@ def index_get_customers_subscriptions_invoices(table):
 
 
             result_table.append(TR(
-                TD(row.start_time.strftime(DATETIME_FORMAT), BR(),
+                TD(B(T("Start"), ': '),
+                   pytz.utc.localize(row.scheduler_task.start_time).astimezone(pytz.timezone(TIMEZONE)).strftime(DATETIME_FORMAT), BR(),
                    vars_display),
-                TD(row.status)
+                TD(row.scheduler_run.status),
+                TD(row.scheduler_run.run_result or ''),
             ))
 
         tr = TR(

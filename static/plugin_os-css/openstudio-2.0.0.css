@@ -1135,6 +1135,14 @@ div.error {
 /* System settings branding end */
 
 
+/* Automated tasks begin */
+
+.automated-tasks-results td {
+    vertical-align: top;
+}
+
+/* Automated tasks end */
+
 /* AdminLTE mods begin */
 
 .datepicker-days table tr td, 
@@ -1167,3 +1175,5 @@ input.datepicker {
 }
 
 /* AdminLTE mods end */
+
+
