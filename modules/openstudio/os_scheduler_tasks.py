@@ -23,8 +23,10 @@ class OsSchedulerTasks:
         from general_helpers import get_last_day_month
         from os_invoice import Invoice
 
+        T = current.T
         db = current.db
         DATE_FORMAT = current.DATE_FORMAT
+
 
         year = int(year)
         month = int(month)
@@ -124,6 +126,7 @@ class OsSchedulerTasks:
         igpt = db.invoices_groups_product_types(ProductType = 'subscription')
         igID = igpt.invoices_groups_id
 
+        invoices_created = 0
 
         # Alright, time to create some invoices
         for row in rows:
@@ -179,7 +182,11 @@ class OsSchedulerTasks:
             invoice.item_add_subscription(year, month)
             invoice.set_amounts()
 
+            invoices_created += 1
+
         ##
         # For scheduled tasks db connection has to be committed manually
         ##
         db.commit()
+
+        return T("Invoices created") + ': ' + unicode(invoices_created)

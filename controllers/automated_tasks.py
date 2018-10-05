@@ -13,15 +13,80 @@ def index():
     response.subtitle = T("")
     response.view = 'general/only_content.html'
 
-    button = os_gui.get_button(
-        'noicon',
-        URL('create_customers_subscriptions_invoices_for_month'),
-        title=T("Create customers subscriptions invoices")
-    )
+    header = THEAD(TR(
+        TH(T("Task")),
+        TH(T("Run results")),
+        TH(), #Actions
+    ))
 
-    return dict(content=button)
+    table = TABLE(header, _class='table table-striped table-hover')
+
+    table = index_get_customers_subscriptions_invoices(table)
 
 
+
+    return dict(content=table)
+
+
+def index_get_customers_subscriptions_invoices(table):
+    """
+    :param var:
+    :return:
+    """
+    import json
+
+    permission = (auth.has_membership(group_id='Admins') or
+                  auth.has_permission('create', 'invoices'))
+
+    if permission:
+        run = os_gui.get_button(
+            'noicon',
+            URL('create_customers_subscriptions_invoices_for_month'),
+            title=T("Run"),
+            _class='pull-right',
+            btn_size=''
+        )
+
+        query = (db.scheduler_task.task_name == 'customers_subscriptions_create_invoices_for_month')
+        rows = db(query).select(
+            db.scheduler_task.ALL,
+            orderby=~db.scheduler_task.start_time,
+            limitby=(0,3)
+        )
+
+        result_table = TABLE(_class='table-condensed')
+        for row in rows:
+            vars = json.loads(row.vars)
+            print vars
+
+            vars_display = DIV()
+
+            for v in sorted(vars):
+                vars_display.append(DIV(
+                    B(v.capitalize() + ': '),
+                    vars[v]
+                ))
+
+
+            result_table.append(TR(
+                TD(row.start_time.strftime(DATETIME_FORMAT), BR(),
+                   vars_display),
+                TD(row.status)
+            ))
+
+        tr = TR(
+            TD(T("Create customer subscription invoices for month")),
+            TD(result_table),
+            TD(run)
+        )
+
+        table.append(tr)
+
+    return table
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('create', 'invoices'))
 def create_customers_subscriptions_invoices_for_month():
     """
 
