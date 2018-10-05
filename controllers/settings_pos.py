@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-    This file holds the settings for integrations
+    This file holds the settings for the Point of Sale
 """
 
 

@@ -3,7 +3,7 @@
 # -------------------------------------------------------------------------
 # once in production, comment out the following line
 # -------------------------------------------------------------------------
-# from gluon.custom_import import track_changes; track_changes(True)
+from gluon.custom_import import track_changes; track_changes(True)
 
 import re
 import string
@@ -284,6 +284,7 @@ def cache_clear_sys_organizations(var_one=None, var_two=None):
     sys_org_regex = 'openstudio_sys_organizations*'
     cache.ram.clear(regex = sys_org_regex)
     cache.disk.clear(regex = sys_org_regex)
+
 
 
 def set_sys_property(property, value):
@@ -570,7 +571,6 @@ def LTE_MENU(menu, _class, li_class, ul_class):
     lte_menu['_data-widget'] = "tree"
 
     return lte_menu
-
 
 CACHE_LONG = myconf.get('cache.max_cache_time') # 3 days
 GENDERS = set_genders()

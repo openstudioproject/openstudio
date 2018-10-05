@@ -36,6 +36,32 @@ class SchoolSubscription:
         self.Terms = row.Terms
 
 
+    def get_glaccount_on_date(self, date):
+        """
+        Returns glaccount from db.school_subscriptions_price on date
+        :param date: datetime.date
+        :return: string - glaccount
+        """
+        db = current.db
+
+        glaccount = ''
+
+        query = (db.school_subscriptions_price.school_subscriptions_id ==
+                 self.ssuID) & \
+                (db.school_subscriptions_price.Startdate <= date) & \
+                ((db.school_subscriptions_price.Enddate >= date) |
+                 (db.school_subscriptions_price.Enddate == None))
+
+        rows = db(query).select(db.school_subscriptions_price.GLAccount,
+                                orderby=db.school_subscriptions_price.Startdate)
+
+        if len(rows):
+            row = rows.first()
+            glaccount = row.GLAccount
+
+        return glaccount
+
+
     def get_price_on_date(self, date, formatted=True):
         """
             Returns the price for a subscription on a given date
@@ -64,6 +90,7 @@ class SchoolSubscription:
 
         return price
 
+
     def get_tax_rates_on_date(self, date):
         """
             Returns tax rates on date
@@ -91,6 +118,7 @@ class SchoolSubscription:
             row = None
 
         return row
+
 
     def get_name(self):
         """

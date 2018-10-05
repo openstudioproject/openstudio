@@ -3832,43 +3832,6 @@ def class_prices():
     clp = ClassPrices()
     table = clp.get_prices_for_class_display(clsID)
 
-
-
-
-
-    # links = [lambda row: os_gui.get_button('edit',
-    #                                        URL('class_price_edit',
-    #                                            vars={'clpID':row.id,
-    #                                                  'clsID':clsID,
-    #                                                  'date' :date_formatted}))]
-    #
-    # query = (db.classes_price.classes_id == clsID)
-    #
-    # fields = [ db.classes_price.Startdate,
-    #            db.classes_price.Enddate,
-    #            db.classes_price.Dropin,
-    #            db.classes_price.tax_rates_id_dropin,
-    #            db.classes_price.Trial,
-    #            db.classes_price.tax_rates_id_trial ]
-    #
-    # delete_permission = auth.has_membership(group_id='Admins') or \
-    #                     auth.has_permission('delete', 'classes_price')
-    #
-    # grid = SQLFORM.grid(query,
-    #                     fields=fields,
-    #                     links=links,
-    #                     details=False,
-    #                     searchable=False,
-    #                     deletable=delete_permission,
-    #                     csv=False,
-    #                     create=False,
-    #                     editable=False,
-    #                     orderby=~db.classes_price.Startdate,
-    #                     field_id=db.classes_price.id,
-    #                     ui = grid_ui)
-    # grid.element('.web2py_counter', replace=None) # remove the counter
-    # grid.elements('span[title=Delete]', replace=None) # remove text from delete button
-
     alert_msg = T("Please make sure the new price starts on the first day of a month and the previous price ends on the last day of the month before. ")
     alert_msg += T("Otherwise you might see unexpected results in the stats.")
     alert_icon = SPAN(_class='glyphicon glyphicon-info-sign')

@@ -1246,6 +1246,7 @@ def tickets():
     table = TABLE(THEAD(TR(TH(T('Name')),
                            TH(T('Description')),
                            TH(T('Price')),
+                           TH(T('G/L Account')),
                            TH(T('Shop')),
                            TH(),
                            TH(),
@@ -1334,6 +1335,7 @@ def tickets():
         table.append(TR(TD(row.Name),
                         TD(max_string_length(row.Description, 40)),
                         TD(row.Price),
+                        TD(row.GLAccount),
                         TD(shop),
                         TD(fws_label),
                         TD(buttons)))

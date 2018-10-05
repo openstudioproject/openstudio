@@ -7,12 +7,19 @@
 
 <div class="row">
     <div class="col-md-12">
-        <div class="box box-solid">
-            <div class="box-body">
-                {{=content}}
+        <div class="nav-tabs-custom">
+            {{=menu}}
+        <div class="tab-content">
+            {{=content}}
             </div>
         </div>
     </div>
+</div>
+
+<div class="row">
+	<div class="col-md-12">
+		{{try:}}{{=content_extra}}{{except:}}{{pass}}{{pass}}
+	</div>
 </div>
 
 <script>

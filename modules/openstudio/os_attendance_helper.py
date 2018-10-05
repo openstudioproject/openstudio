@@ -1488,7 +1488,11 @@ class AttendanceHelper:
                                    _class='btn btn-link pull-right'),
 
                 else:
-                    btn_enroll = SPAN(T("Not allowed"), _class='grey')
+                    btn_enroll = os_gui.get_button('noicon',
+                                                    URL('#'),
+                                                    title=SPAN(T("Not allowed for this class")),
+                                                    btn_class='btn-link',
+                                                    _class='disabled pull-right grey')
 
                 # Check Credits display
                 if s.school_subscriptions.Unlimited:

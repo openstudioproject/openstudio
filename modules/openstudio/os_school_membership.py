@@ -15,6 +15,25 @@ class SchoolMembership:
 
         self.smID = smID
         self.row = db.school_memberships(smID)
+
+
+    def get_price_rows_on_date(self, date):
+        """
+        :param date: datetime.date
+        :return: first db.school_membrships_price row found for date
+        """
+        db = current.db
+
+        query = (db.school_memberships_price.school_memberships_id ==
+                 self.smID) & \
+                (db.school_memberships_price.Startdate <= date) & \
+                ((db.school_memberships_price.Enddate >= date) |
+                 (db.school_memberships_price.Enddate == None))
+
+        rows = db(query).select(db.school_memberships_price.ALL,
+                                orderby=db.school_memberships_price.Startdate)
+
+        return rows
         
 
     def get_price_on_date(self, date, formatted=True):
@@ -24,14 +43,8 @@ class SchoolMembership:
         db = current.db
 
         price = ''
-        query = (db.school_memberships_price.school_memberships_id ==
-                 self.smID) & \
-                (db.school_memberships_price.Startdate <= date) & \
-                ((db.school_memberships_price.Enddate >= date) |
-                 (db.school_memberships_price.Enddate == None))
+        rows = self.get_price_rows_on_date(date)
 
-        rows = db(query).select(db.school_memberships_price.ALL,
-                                orderby=db.school_memberships_price.Startdate)
         if len(rows):
             if formatted:
                 repr_row = list(rows[0:1].render())[0] # first row

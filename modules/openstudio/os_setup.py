@@ -11,8 +11,19 @@ class OsSetup:
         Run setup
         :return:
         """
+        self._setup_shop_subscriptions_payment_method()
         self._setup_sys_notifications()
         self._setup_teachers_payment_rate_type()
+
+
+    def _setup_shop_subscriptions_payment_method(self):
+        """
+        Set shop subscriptions payment method to mollie by default
+        """
+        self.set_sys_property(
+            'shop_subscriptions_payment_method',
+            'mollie'
+        )
 
 
     def _setup_sys_notifications(self):

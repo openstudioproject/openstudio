@@ -38,7 +38,15 @@ class Invoice:
         """
         functions to be called when updating an invoice or invoice items
         """
+        from os_exact_online import OSExactOnline
+
+        # Set last updated datetime
         self._set_updated_at()
+
+        # Exact online integration
+        if self.invoice_group.JournalID:
+            os_eo = OSExactOnline()
+            os_eo.update_sales_entry(self)
 
 
     def _set_updated_at(self):
@@ -333,9 +341,22 @@ class Invoice:
         db = current.db
 
         query = (db.invoices_items.invoices_id == self.invoices_id)
-        rows = db(query).select(db.invoices_items.ALL)
+        rows = db(query).select(db.invoices_items.ALL,
+                                orderby=db.invoices_items.Sorting)
 
         return rows
+
+
+    def get_payment_method(self):
+        """
+        :return: db.payment_methods_row for invoice
+        """
+        db = current.db
+
+        if self.invoice.payment_methods_id:
+            return db.payment_methods(self.invoice.payment_methods_id)
+        else:
+            return None
 
 
     def item_add_class(self,
@@ -375,6 +396,7 @@ class Invoice:
         if product_type == 'dropin':
             price = prices['dropin']
             tax_rates_id = prices['dropin_tax_rates_id']
+            glaccount = prices['dropin_glaccount']
 
             if has_membership and prices['dropin_membership']:
                 price = prices['dropin_membership']
@@ -385,6 +407,7 @@ class Invoice:
         elif product_type == 'trial':
             price = prices['trial']
             tax_rates_id = prices['trial_tax_rates_id']
+            glaccount = prices['trial_glaccount']
 
             if has_membership and prices['trial_membership']:
                 price = prices['trial_membership']
@@ -404,6 +427,7 @@ class Invoice:
             Price=price,
             Sorting=next_sort_nr,
             tax_rates_id=tax_rates_id,
+            GLAccount=glaccount
         )
 
         self.set_amounts()
@@ -430,6 +454,16 @@ class Invoice:
 
         cls = Class(order_item_row.classes_id, order_item_row.ClassDate)
 
+        # Get GLAccount info
+        prices = cla.get_prices()
+        glaccount = None
+        if order_item_row.AttendanceType == 1:
+            # Trial
+            glaccount = prices['trial_glaccount']
+        else:
+            # Drop in
+            glaccount = prices['dropin_glaccount']
+
         # link invoice to attendance
         db.invoices_classes_attendance.insert(
             invoices_id=self.invoices_id,
@@ -439,7 +473,6 @@ class Invoice:
         # add item to invoice
         next_sort_nr = self.get_item_next_sort_nr()
 
-
         iiID = db.invoices_items.insert(
             invoices_id=self.invoices_id,
             ProductName=order_item_row.ProductName,
@@ -448,6 +481,7 @@ class Invoice:
             Price=order_item_row.Price,
             Sorting=next_sort_nr,
             tax_rates_id=order_item_row.tax_rates_id,
+            GLAccount=glaccount
         )
 
         self.set_amounts()
@@ -486,6 +520,7 @@ class Invoice:
             Price=price,
             Sorting=next_sort_nr,
             tax_rates_id=classcard.school_classcard.tax_rates_id,
+            GLAccount=classcard.glaccount
         )
 
         self.set_amounts()
@@ -523,7 +558,8 @@ class Invoice:
             Quantity=1,
             Price=wsp.Price,
             Sorting=next_sort_nr,
-            tax_rates_id=wsp.tax_rates_id
+            tax_rates_id=wsp.tax_rates_id,
+            GLAccount=wsp.GLAccount
         )
 
         self.set_amounts()
@@ -601,6 +637,7 @@ class Invoice:
 
         period_start = date
         period_end = get_last_day_month(date)
+        glaccount = ssu.get_glaccount_on_date(date)
         price = 0
 
         # check for alt price
@@ -650,6 +687,7 @@ class Invoice:
             Price = price,
             Sorting = next_sort_nr,
             tax_rates_id = tax_rates_id,
+            GLAccount = glaccount
         )
 
         ##
@@ -659,20 +697,18 @@ class Invoice:
                  (db.customers_subscriptions.id != cs.csID) &
                  (db.customers_subscriptions.school_subscriptions_id == cs.ssuID)) |
                  (db.customers_subscriptions.RegistrationFeePaid == True))
-        rowsfee = db(query).select(db.customers_subscriptions.ALL)
 
-        if not rowsfee: # Registration fee already paid
-            query = (db.school_subscriptions.id == ssuID)
-            regfee = db(query).select(db.school_subscriptions.RegistrationFee)
-            row = regfee.first()
-            registration_fee = row.RegistrationFee
-            if registration_fee:
+        rowsfee = db(query).select(db.customers_subscriptions.ALL)
+        ssu = db.school_subscriptions(ssuID)
+        if not rowsfee and ssu.RegistrationFee: # Registration fee not already paid and RegistrationFee defined?
+            price = row.RegistrationFee
+            if not price == 0 and price:
                 db.invoices_items.insert(
                     invoices_id = self.invoices_id,
                     ProductName = current.T("Registration fee"),
                     Description = current.T('One time registration fee'),
                     Quantity = 1,
-                    Price = registration_fee,
+                    Price = price,
                     Sorting = next_sort_nr,
                     tax_rates_id = tax_rates_id,
                 )
@@ -704,26 +740,31 @@ class Invoice:
 
         cm = CustomerMembership(cmID)
         sm = SchoolMembership(cm.row.school_memberships_id)
-        row = sm.get_tax_rates_on_date(period_start)
+        price_rows = sm.get_price_rows_on_date(period_start)
 
-        if row:
-            tax_rates_id = row.school_memberships_price.tax_rates_id
-        else:
-            tax_rates_id = None
+        if not price_rows:
+            return # Don't do anything if we don't have a price
 
-        price = sm.get_price_on_date(cm.row.Startdate, False)
+        price_row = price_rows.first()
+        tax_rates_id = price_row.tax_rates_id
+        price = price_row.Price
+
+        if price == 0:
+            return # Don't do anything if the price is 0
+
         description = cm.get_name() + ' ' + \
                       period_start.strftime(DATE_FORMAT) + ' - ' + \
                       period_end.strftime(DATE_FORMAT)
 
         iiID = db.invoices_items.insert(
-            invoices_id  = self.invoices_id,
-            ProductName  = current.T("Membership") + ' ' + unicode(cmID),
-            Description  = description,
-            Quantity     = 1,
-            Price        = price,
-            Sorting      = next_sort_nr,
+            invoices_id = self.invoices_id,
+            ProductName = current.T("Membership") + ' ' + unicode(cmID),
+            Description = description,
+            Quantity = 1,
+            Price = price,
+            Sorting = next_sort_nr,
             tax_rates_id = tax_rates_id,
+            GLAccount = sm.row.GLAccount
         )
 
         self.link_to_customer_membership(cmID)
@@ -779,7 +820,6 @@ class Invoice:
             )
 
             self.set_amounts()
-
             self.on_update()
 
             return iiID
@@ -823,7 +863,6 @@ class Invoice:
         )
 
         self.set_amounts()
-
         self.on_update()
 
         return iiID
@@ -886,6 +925,18 @@ class Invoice:
             return False
 
 
+    def is_credit_invoice(self):
+        """
+        True if credit invoice, False otherwise
+        :return: Boolean
+        """
+        credit_invoice = False
+        if self.invoice.credit_invoice_for:
+            credit_invoice = True
+
+        return credit_invoice
+
+
     def set_customer_info(self, cuID):
         """
             Set customer information for an invoice
@@ -910,6 +961,8 @@ class Invoice:
 
         self.invoice.update_record(
             CustomerCompany = customer.row.company,
+            CustomerCompanyRegistration = customer.row.company_registration,
+            CustomerCompanyTaxRegistration = customer.row.company_tax_registration,
             CustomerName = customer.row.full_name,
             CustomerListName = list_name,
             CustomerAddress = address,

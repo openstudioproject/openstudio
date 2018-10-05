@@ -160,6 +160,8 @@ from gluon import current
 current.db = db
 current.auth = auth
 current.crud = crud
+current.web2pytest = web2pytest
+current.CACHE_LONG  = CACHE_LONG
 
 
 # -------------------------------------------------------------------------

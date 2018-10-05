@@ -23,13 +23,14 @@ class OsScheduler:
         # clean up first
         self._remove_tasks()
         # add all tasks
-        scheduler.queue_task('daily',
-                             start_time=start_time,
-                             timeout=1800, # Run for max half an hour
-                             prevent_drift=True,
-                             period=24*60*60, # once a day
-                             repeats=0, # Every day
-                             )
+        scheduler.queue_task(
+            'daily',
+            start_time=start_time,
+            timeout=1800, # Run for max half an hour
+            prevent_drift=True,
+            period=24*60*60, # once a day
+            repeats=0, # Every day
+        )
 
     def _remove_tasks(self):
         """
