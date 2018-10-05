@@ -25,9 +25,11 @@ from general_helpers import create_classtypes_dict
 from decimal import Decimal, ROUND_HALF_UP
 
 # init scheduler
-scheduler = Scheduler(db,
-                      tasks=scheduler_tasks,
-                      utc_time=True)
+scheduler = Scheduler(
+    db,
+    tasks=scheduler_tasks,
+    utc_time=True
+)
 
 # helper functions
 
