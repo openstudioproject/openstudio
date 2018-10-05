@@ -5985,7 +5985,7 @@ def edit_teacher():
     crud.settings.update_onaccept = [
         cache_clear_school_teachers,
         cache_clear_classschedule,
-        edit_onaccept()
+        edit_onaccept
     ]
     form = crud.update(db.auth_user, cuID)
 
