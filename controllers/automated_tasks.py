@@ -153,7 +153,11 @@ def create_customers_subscriptions_invoices_for_month():
         session.flash = T("Started creating customer subscription invoices... please wait")
         redirect(URL('index'))
 
+
+    back = os_gui.get_button('back', URL('index'))
+
     return dict(
         save=submit,
-        content=form
+        content=form,
+        back=back,
     )
