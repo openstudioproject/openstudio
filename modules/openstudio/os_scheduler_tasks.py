@@ -20,7 +20,14 @@ class OsSchedulerTasks:
         """
             Actually create invoices for subscriptions for a given month
         """
+        from general_helpers import get_last_day_month
+        from os_invoice import Invoice
+
         db = current.db
+        DATE_FORMAT = current.DATE_FORMAT
+
+        year = int(year)
+        month = int(month)
 
         firstdaythismonth = datetime.date(year, month, 1)
         lastdaythismonth  = get_last_day_month(firstdaythismonth)
@@ -171,3 +178,8 @@ class OsSchedulerTasks:
             invoice.link_to_customer_subscription(csID)
             invoice.item_add_subscription(year, month)
             invoice.set_amounts()
+
+        ##
+        # For scheduled tasks db connection has to be committed manually
+        ##
+        db.commit()

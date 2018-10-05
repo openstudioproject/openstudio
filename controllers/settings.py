@@ -3478,7 +3478,7 @@ def admin_scheduled_tasks_run():
         status = os_gui.get_label(label_type, row.scheduler_run.status)
 
         tr = TR(
-            TD(row.scheduler_task.task_name),
+            TD(row.scheduler_task.id),
             TD(status),
             TD(row.scheduler_run.start_time),
             TD(row.scheduler_run.stop_time),
@@ -3581,11 +3581,10 @@ def admin_scheduled_tasks():
     response.view = 'general/tabs_menu.html'
 
     header = THEAD(TR(TH(T('id')),
-                      TH(T('App name')),
-                      TH(T('Task name')),
+                      TH(T('App, Task & Function name')),
+                      TH(T('Vars')),
                       TH(T('Group name')),
                       TH(T('Status')),
-                      TH(T('Function name')),
                       TH(T('enabled')),
                       TH(T('Start')),
                       TH(T('Next run')),
@@ -3594,11 +3593,11 @@ def admin_scheduled_tasks():
                       TH(T('Period')),
                       TH(T('Prevent drift')),
                       ))
-    table = TABLE(header, _class='table table-striped table-hover')
+    table = TABLE(header, _class='table table-striped table-hover small_font')
 
     query = (db.scheduler_task)
     rows = db(query).select(db.scheduler_task.ALL,
-                            orderby=db.scheduler_task.task_name)
+                            orderby=~db.scheduler_task.id)
 
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
@@ -3608,11 +3607,12 @@ def admin_scheduled_tasks():
 
         tr = TR(
             TD(row.id),
-            TD(row.application_name),
-            TD(row.task_name),
+            TD(row.application_name, BR(),
+               row.task_name, BR(),
+               row.function_name),
+            TD(row.vars),
             TD(row.group_name),
             TD(row.status),
-            TD(row.function_name),
             TD(row.enabled),
             TD(row.start_time),
             TD(row.next_run_time),
