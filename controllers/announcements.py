@@ -6,9 +6,9 @@ from general_helpers import set_form_id_and_get_submit_button
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'announcements'))
 def index():
-    '''
+    """
         Lists announcements
-    '''
+    """
     response.title = T("Pinboard")
     response.subtitle = T("Announcements")
     response.view = 'general/only_content.html'
@@ -91,10 +91,10 @@ def add():
 
 @auth.requires_login()
 def edit():
-    '''
+    """
         Shows edit page for an announcement
         request.vars['aID'] is expected to be announcements.id
-    '''
+    """
     aID = request.vars['aID']
     response.title = T("Pinboard")
     response.subtitle = T("Edit announcement")
