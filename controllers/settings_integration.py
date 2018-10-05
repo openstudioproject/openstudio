@@ -266,7 +266,6 @@ def mollie():
               default=online_payment_provider,
               label=T("Payment provider")),
         Field('mollie_website_profile',
-              requires=IS_NOT_EMPTY(),
               default=mollie_website_profile,
               label=T('Mollie website profile (API-Key)')),
         submit_button=T("Save"),

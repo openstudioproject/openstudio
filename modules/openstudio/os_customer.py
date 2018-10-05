@@ -535,7 +535,7 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         rows = db(query).select(db.invoices.ALL,
                                 db.invoices_amounts.ALL,
                                 left=left,
-                                orderby=~db.invoices.DateCreated)
+                                orderby=~db.invoices.DateCreated|~db.invoices.InvoiceID)
 
         return rows
 
@@ -959,12 +959,13 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
             #print mollie_customer_id
         else:
             # create one
-            self.register_mollie_customer()
+            mollie_customer_id = self.register_mollie_customer(mollie)
+
 
         return mollie.customer_mandates.withParentId(mollie_customer_id).all()
 
 
-    def register_mollie_customer(self):
+    def register_mollie_customer(self, mollie):
         """
             Registers this customer with mollie
         """
@@ -976,6 +977,8 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
             mollie_customer_id = mollie_customer['id']
             self.row.mollie_customer_id = mollie_customer_id
             self.row.update_record()
+
+        return self.row.mollie_customer_id
 
 
     def get_mollie_mandates_formatted(self):

@@ -677,6 +677,7 @@ class OsGui:
                     pages,
                     page,
                     horizontal=False,
+                    justified='',
                     htype='', # tabs or pills
                     _id='',
                     _class=''):
@@ -691,7 +692,10 @@ class OsGui:
         if horizontal:
             submenu_class = "os-submenu-horizontal"
             if htype == 'tabs':
-                menu = UL(_class='nav nav-tabs')
+                justified_class = ''
+                if justified:
+                    justified_class = 'nav-justified'
+                menu = UL(_class='nav nav-tabs ' + justified_class)
             else:
                 menu = UL(_class='nav nav-pills')
             for p in pages:

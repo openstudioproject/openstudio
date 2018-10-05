@@ -377,7 +377,7 @@ def subscription_buy_now():
 
     # Create invoice
     cs = CustomerSubscription(csID)
-    iID = cs.create_invoice_for_month(TODAY_LOCAL.year, TODAY_LOCAL.month)
+    iID = cs.create_invoice_for_month(startdate.year, startdate.month)
 
     # Pay invoice ... SHOW ME THE MONEY!! :)
     redirect(URL('invoice_pay', vars={'iID':iID}))

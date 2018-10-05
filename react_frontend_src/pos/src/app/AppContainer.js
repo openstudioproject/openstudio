@@ -2,6 +2,10 @@ import { connect } from 'react-redux'
 
 import App from './App'
 import { appOperations } from './duck'
+import { shopSchoolClasscardsOperations } from './shop/school/classcards/duck'
+import { shopSchoolMembershipsOperations } from './shop/school/memberships/duck'
+import { shopSchoolSubscriptionsOperations } from './shop/school/subscriptions/duck'
+
 
 const mapStateToProps = state => 
     ({
@@ -15,6 +19,15 @@ const mapDispatchToProps = dispatch =>
         },
         fetchSettings() {
             dispatch(appOperations.fetchSettings())
+        },
+        fetchShopSchoolClasscards() {
+            dispatch(shopSchoolClasscardsOperations.fetchShopClasscards())
+        },
+        fetchShopSchoolMemberships() {
+            dispatch(shopSchoolMembershipsOperations.fetchShopMemberships())
+        },
+        fetchShopSchoolSubscriptions() {
+            dispatch(shopSchoolSubscriptionsOperations.fetchShopSubscriptions())
         },
         setLoaded(loaded) {
             dispatch(appOperations.setLoaded(loaded))

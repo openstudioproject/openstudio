@@ -3920,8 +3920,7 @@ def mollie_mandates():
 
     return dict(content=content,
                 menu=menu,
-                back=back,
-                tools=add)
+                back=back)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -4497,7 +4496,7 @@ def events():
     session.invoices_edit_back = 'customers_events'
     session.invoices_payment_add_back = 'customers_events'
     # To redirect back here after sending info mail
-    session.workshops_product_resend_info_mail = 'customers_events'
+    session.workshops_ticket_resend_info_mail = 'customers_events'
 
 
     session.workshops_payment_back = 'customer'
@@ -5260,7 +5259,7 @@ def load_list_get_customer_index_buttons(row):
     if contact_permission:
         btn_mail = A(I(_class="fa fa-envelope"), " ",
                      _class="btn btn-default btn-sm",
-                     _href='mailto:' + row.email,
+                     _href='mailto:' + row.email or '',
                      _title=T("Mail customer"))
 
     buttons.append(btn_mail)
@@ -5696,10 +5695,25 @@ def account_set_password():
 
     submenu = account_get_submenu(request.function, cuID)
     description = DIV(B(T("Enter a new password for this account")))
+    description_send_link = DIV(B(
+        T("Send a set password link to this customers' email address")
+    ))
 
-    content = DIV(submenu, BR(),
-                  description,
-                  form)
+    content = DIV(
+        submenu,
+        BR(),
+        DIV(
+            description,
+            form,
+            _class="col-md-6"
+        ),
+        DIV(
+            #description_send_link,
+            _class="col-md-6"
+        ),
+        _class='row'
+    )
+
 
     back = edit_get_back()
     menu = customers_get_menu(cuID, request.function)

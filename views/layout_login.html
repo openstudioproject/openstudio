@@ -95,7 +95,6 @@
 	jQuery(document).ready(function() {
 		var $input_email = $('#auth_user_email');
 		$input_email.on('change', function() {
-			console.log($(this).val());
 			$input_email.val($(this).val().replace(/\s/g, ''));
 		});
 	});

@@ -1055,20 +1055,17 @@ def subscription_terms():
     response.subtitle = T('Subscription')
     response.view = 'shop/index.html'
 
-    ssuID = request.vars['ssuID']
-
     features = db.customers_shop_features(1)
     if not features.Subscriptions:
         return T('This feature is disabled')
+
+    ssuID = request.vars['ssuID']
+    ssu = SchoolSubscription(ssuID, set_db_info=True)
 
     # check if we require a complete profile
     shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile')
     if shop_requires_complete_profile:
         check_add_to_card_requires_complete_profile(auth.user.id)
-
-    # buy now
-    # part terms
-    # automatic payment
 
     ##
     # Check for valid bank details
@@ -1076,26 +1073,40 @@ def subscription_terms():
     payment_method = get_sys_property('shop_subscriptions_payment_method')
     subscription_terms_check_valid_bankdetails(payment_method)
 
+    ##
+    # Check startdate of subscription
+    ##
+    startdate = TODAY_LOCAL
+    shop_subscriptions_start = get_sys_property('shop_subscriptions_start')
+    if not shop_subscriptions_start == None:
+        if shop_subscriptions_start == 'next_month':
+            startdate = get_last_day_month(TODAY_LOCAL) + datetime.timedelta(days=1)
+
+    ##
+    # Check if customer already has this subscription
+    ##
     customer = Customer(auth.user.id)
-    ssu = SchoolSubscription(ssuID)
-    price = ssu.get_price_on_date(TODAY_LOCAL)
-    classes = ssu.get_classes_formatted()
+    customer_has_membership = customer.has_membership_on_date(startdate)
+    customer_subscriptions_ids = customer.get_school_subscriptions_ids_on_date(startdate)
 
-    response.subtitle += ' '
-    response.subtitle += ssu.Name
+    if int(ssuID) in customer_subscriptions_ids:
+        content =  SPAN(
+            H3(ssu.Name),
+            SPAN(T("You have this subscription"), _class='bold'), ' ', XML('&bull;'), ' ',
+            SPAN(T("Please proceed to the invoices page in case you haven't paid yet.")), BR(),
+            SPAN(A(T("View invoices"),
+               _href=URL('profile', 'invoices')))
+        )
+    else:
+        # buy now
+        # part terms
+        # automatic payment
+        ssu = SchoolSubscription(ssuID)
+        price = ssu.get_price_on_date(TODAY_LOCAL)
+        classes = ssu.get_classes_formatted()
 
-    general_terms = get_sys_property('shop_subscriptions_terms')
-    specific_terms = ssu.Terms
-
-    terms = DIV()
-    if general_terms:
-        terms.append(B(T('General terms & conditions')))
-        terms.append(XML(general_terms))
-    if specific_terms:
-        terms.append(B(T('Subscription specific terms & conditions')))
-        terms.append(XML(specific_terms))
-
-    subscription_conditions = DIV(terms, _class='well')
+        response.subtitle += ' '
+        response.subtitle += ssu.Name
 
     debit_mandate = ''
     confirm = ''
@@ -1125,10 +1136,6 @@ def subscription_terms():
                   debit_mandate,
                   confirm,
                   cancel)
-
-    features = db.customers_shop_features(1)
-    if not features.Subscriptions:
-        content = T('This feature is disabled')
 
     return dict(content=content)
 

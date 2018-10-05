@@ -12,6 +12,9 @@ import Attendance from './checkin/attendance/AttendanceContainer'
 import Book from './checkin/book/BookContainer'
 import Revenue from './checkin/revenue/RevenueContainer'
 import Home from './home/HomeContainer'
+import Classcards from './shop/school/classcards/ClasscardsContainer'
+import Memberships from './shop/school/memberships/MembershipsContainer'
+import Subscriptions from './shop/school/subscriptions/SubscriptionsContainer'
 import PermissionsError from './permissions_error/PermissionsErrorContainer'
 import Whoops404 from './whoops404/Whoops404'
 import LoadingScreen from '../components/ui/LoadingScreen'
@@ -27,6 +30,9 @@ class App extends Component {
   componentWillMount() {
     this.props.fetchUser()    
     this.props.fetchSettings()  
+    this.props.fetchShopSchoolClasscards()
+    this.props.fetchShopSchoolMemberships()
+    this.props.fetchShopSchoolSubscriptions()
   }
 
 
@@ -42,7 +48,9 @@ class App extends Component {
             <Route path='/checkin/attendance/:clsID' component={Attendance} />
             <Route path='/checkin/book/:clsID/:cuID' component={Book} />
             <Route path='/checkin/revenue/:clsID' component={Revenue} />
-            <Route path='/products' component={Home} />
+            <Route path='/products/school/classcards' component={Classcards} />
+            <Route path='/products/school/memberships' component={Memberships} />
+            <Route path='/products/school/subscriptions' component={Subscriptions} />
             <Route path='/permissions_error' component={PermissionsError} />
             {/* Add all your remaining routes here, like /trending, /about, etc. */}
             <Route component={Whoops404} />
