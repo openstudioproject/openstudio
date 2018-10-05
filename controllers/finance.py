@@ -1008,9 +1008,11 @@ def get_batch_items(pbID, display=False, first=False, recurring=False):
             csID = ''
 
         if display:
+            mandate_reference = repr_row.payment_batches_items.MandateReference
             description = SPAN(max_string_length(row.payment_batches_items.Description, 24),
                                _title=row.payment_batches_items.Description)
         else:
+            mandate_reference = row.payment_batches_items.MandateReference
             description = row.payment_batches_items.Description
 
         item = {
@@ -1022,7 +1024,7 @@ def get_batch_items(pbID, display=False, first=False, recurring=False):
             'account_number': row.payment_batches_items.AccountNumber.upper(),
             'bic': row.payment_batches_items.BIC,
             'mandate_signature_date': msdate,
-            'mandate_reference': repr_row.payment_batches_items.MandateReference,
+            'mandate_reference': mandate_reference,
             'currency': row.payment_batches_items.Currency,
             'amount': row.payment_batches_items.Amount,
             'description': description,
@@ -1105,6 +1107,7 @@ def export_csv():
                 account_number,
                 bic,
                 mandate_signature_date,
+                mandate_reference,
                 description,
                 execution_date ]
         if session.show_location:
