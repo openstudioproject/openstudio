@@ -19,7 +19,7 @@ def index():
         title=T("Create customers subscriptions invoices")
     )
 
-    return dict()
+    return dict(content=button)
 
 
 def create_customers_subscriptions_invoices_for_month():

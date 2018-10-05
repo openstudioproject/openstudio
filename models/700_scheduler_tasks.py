@@ -6,7 +6,7 @@ import Mollie
 from openstudio.os_customer_subscription import CustomerSubscription
 from openstudio.os_invoice import Invoice
 from openstudio.os_mail import OsMail
-from openstudio.os_scheduler_task import OsSchedulerTask
+from openstudio.os_scheduler_tasks import OsSchedulerTasks
 
 
 def task_openstudio_daily():
@@ -142,7 +142,7 @@ def scheduler_task_test():
     return 'success!'
 
 
-os_scheduler_tasks = OsSchedulerTaks()
+os_scheduler_tasks = OsSchedulerTasks()
 
 
 scheduler_tasks = {
