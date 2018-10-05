@@ -384,12 +384,11 @@ def batch_content():
            TH(T('AccountNR')),
            TH(T('BIC')),
            TH(T('Mandate date')),
+           TH(T('Mandate ref')),
            TH(T('Currency')),
            TH(T('Amount')),
            TH(T('Description')),
            TH(T('Execution date')),
-           TH(T('Bank')),
-           TH(T('Bank location')),
            TH(T('Invoice')),
            _class='header'),
         _class='table table-hover table-condensed small_font')
@@ -397,17 +396,17 @@ def batch_content():
     bi = get_batch_items(pbID, display=True)
     for item in bi:
         # remove ID
-        invoice_id = item.pop()
+        invoice_id = item['invoice_id']
         if invoice_id:
             invoice_link = A(T("Invoice"),
                              _href=URL('invoices', 'edit',
                                        vars={'iID':invoice_id}))
         else:
             invoice_link = ''
-        pbiID = item.pop(0)
+        pbiID = item['id']
 
-        cuID = item[1]
-        csID = item[2]
+        cuID = item['cuID']
+        csID = item['csID']
         cs_link = A(csID,
                  _href=URL('customers',
                            'subscriptions', vars={'cuID':cuID}),
@@ -416,13 +415,24 @@ def batch_content():
                     _href=URL('customers', 'edit', args=cuID),
                     _title=T('Customers ID'))
 
-        item[1] = cu_link
-        item[2] = cs_link
-
         # fill the table
 
-        tr = TR(*item)
-        tr.append(TD(invoice_link))
+        # tr = TR(*item)
+        tr = TR(
+            TD(item['line']),
+            TD(cu_link),
+            TD(cs_link),
+            TD(item['account_holder']),
+            TD(item['account_number']),
+            TD(item['bic']),
+            TD(item['mandate_signature_date']),
+            TD(item['mandate_reference']),
+            TD(item['currency']),
+            TD(item['amount']),
+            TD(item['description']),
+            TD(item['execution_date']),
+            TD(item['invoice_InvoiceID']),
+        )
         table.append(tr)
 
     # batch items end
@@ -968,46 +978,59 @@ def get_batch_items(pbID, display=False, first=False, recurring=False):
         # list customers where status == sent to bank and pbID < this batch, & batchtype (col or pay) is same then only customer id's in set
         query &= (db.payment_batches_items.auth_customer_id.belongs(recurring_ids))
 
+    left = [
+        db.invoices.on(
+            db.payment_batches_items.invoices_id ==
+            db.invoices.id
+        )
+    ]
 
     bi = []
-    rows = db(query).select(db.payment_batches_items.ALL)
+    rows = db(query).select(
+        db.payment_batches_items.ALL,
+        db.invoices.id,
+        db.invoices.InvoiceID,
+        left=left,
+        orderby=db.payment_batches_items.id
+    )
 
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i+1].render())[0]
 
-        if row.MandateSignatureDate:
-            msdate = row.MandateSignatureDate.strftime(DATE_FORMAT)
+        if row.payment_batches_items.MandateSignatureDate:
+            msdate = row.payment_batches_items.MandateSignatureDate.strftime(DATE_FORMAT)
         else:
             msdate = ''
 
-        cuID = row.auth_customer_id
-        csID = row.customers_subscriptions_id
+        cuID = row.payment_batches_items.auth_customer_id
+        csID = row.payment_batches_items.customers_subscriptions_id
         if not csID:
             csID = ''
 
         if display:
-            description = SPAN(max_string_length(row.Description, 24),
-                               _title=row.Description)
+            description = SPAN(max_string_length(row.payment_batches_items.Description, 24),
+                               _title=row.payment_batches_items.Description)
         else:
-            description = row.Description
+            description = row.payment_batches_items.Description
 
         item = {
-            'id': row.id,
+            'id': row.payment_batches_items.id,
             'line': i+1,
             'cuID': cuID,
             'csID': csID,
-            'account_holder': row.AccountHolder,
-            'account_number': row.AccountNumber.upper(),
-            'bic': row.BIC,
-            'mandate_sign_date': msdate,
-            'mandate_reference': row.MandateReference,
-            'currency': row.Currency,
-            'amount': row.Amount,
+            'account_holder': row.payment_batches_items.AccountHolder,
+            'account_number': row.payment_batches_items.AccountNumber.upper(),
+            'bic': row.payment_batches_items.BIC,
+            'mandate_signature_date': msdate,
+            'mandate_reference': repr_row.payment_batches_items.MandateReference,
+            'currency': row.payment_batches_items.Currency,
+            'amount': row.payment_batches_items.Amount,
             'description': description,
             'execution_date': pb.Exdate.strftime(DATE_FORMAT),
-            'bank name': repr_row.BankName,
-            'bank_location': repr_row.BankLocation,
-            'invoice_id': row.invoices_id
+            'bank_name': repr_row.payment_batches_items.BankName,
+            'bank_location': repr_row.payment_batches_items.BankLocation,
+            'invoice_id': row.payment_batches_items.invoices_id,
+            'invoice_InvoiceID': repr_row.invoices.InvoiceID
         }
 
         if not display:
@@ -1063,15 +1086,15 @@ def export_csv():
         customers_id = item['cuID']
         customer_subscriptions_id = item['csID']
         account_holder = item['account_holder']
-        bank_location = item[13]
-        currency = item[8]
-        amount = item[9]
-        account_number = item[5]
-        bic = item[6]
-        mandate_signature_date = item[7]
-        mandate_reference = item[7]
-        description = item[10]
-        execution_date = item[11]
+        bank_location = item['bank_location']
+        currency = item['currency']
+        amount = item['amount']
+        account_number = item['account_number']
+        bic = item['bic']
+        mandate_signature_date = item['mandate_signature_date']
+        mandate_reference = item['mandate_reference']
+        description = item['description']
+        execution_date = item['execution_date']
 
         row = [ customers_id,
                 customer_subscriptions_id,
@@ -1085,8 +1108,7 @@ def export_csv():
                 description,
                 execution_date ]
         if session.show_location:
-            location               = item[12]
-            row.append(location)
+            row.append(item.get('location', ''))
 
         writer.writerow(row)
 
