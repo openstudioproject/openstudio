@@ -35,6 +35,9 @@ class OsGui:
         elif button_type == 'add_class':
             title = current.T("Add class")
             icon = "fa fa-plus"
+        elif button_type == 'accept':
+            title = title
+            icon = 'fa fa-check'
         elif button_type == 'archive':
             title = current.T('')
             icon = 'fa fa-archive'
@@ -58,6 +61,9 @@ class OsGui:
         elif button_type == 'delete_notext':
             title = current.T("")
             icon = "fa fa-times"
+        elif button_type == 'cancel':
+            title = title
+            icon = 'fa fa-ban'
         elif button_type == 'cancel_notext':
             title = current.T('')
             icon = 'fa fa-ban'
@@ -70,6 +76,9 @@ class OsGui:
         elif button_type == 'list_notext':
             title = current.T('')
             icon = 'fa fa-list'
+        elif button_type == 'pending':
+            title = title
+            icon = 'fa fa-hourglass2'
         elif button_type == 'user_notext':
             title = current.T('')
             icon = 'fa fa-user'

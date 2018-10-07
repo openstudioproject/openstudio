@@ -150,16 +150,25 @@ class EmployeeClaims:
         links = []
         links.append(['header', T('Actions')])
 
-        links.append(A(os_gui.get_fa_icon('fa-check'), T("Move to 'Accepted'"),
-                       _href=URL( 'employee_claims_accept',
+        links.append(A(os_gui.get_button(('accept'),
+                       title=T(""),
+                      url= URL( 'employee_claims_accept',
                                  vars={'ecID': row.id}),
-                       _class=''))
+                       _class='',
+                       btn_class= 'btn-success'
+                                         ),
+                       # B(T("Move to 'Accepted'"))
+                       ))
         links.append('divider')
 
-        links.append(A(os_gui.get_fa_icon('fa-ban'), T("Move to 'Rejected'"),
-                       _href=URL('employee_claims_reject',
+        links.append(A(os_gui.get_button(('cancel'),
+                       title=T(""),
+                       url=URL( 'employee_claims_accept',
                                  vars={'ecID': row.id}),
-                       _class=''))
+                       _class='',
+                       btn_class= 'btn-danger'
+                                         )
+                       ))
 
 
         ec_menu = os_gui.get_dropdown_menu(
@@ -186,10 +195,10 @@ class EmployeeClaims:
         links = []
         links.append(['header', T('Actions')])
 
-        links.append(A(os_gui.get_fa_icon('fa-ban'), T("Move to 'Rejected'"),
-                       _href=URL( 'employee_claims_reject',
+        links.append(A(os_gui.get_button(('cancel'), T("Move to 'Rejected'"),
+                       url=URL( 'employee_claims_reject',
                                  vars={'ecID': row.id}),
-                       _class=''))
+                       _class='')))
         links.append('divider')
 
         links.append(A(os_gui.get_fa_icon('fa-hourglass-2'), T("Move to 'Pending'"),
@@ -222,7 +231,7 @@ class EmployeeClaims:
         links = []
         links.append(['header', T('Actions')])
 
-        links.append(A(os_gui.get_fa_icon('fa-ban'), T("Move to 'Accepted'"),
+        links.append(A(os_gui.get_fa_icon('fa-check'), T("Move to 'Accepted'"),
                        _href=URL( 'employee_claims_accept',
                                  vars={'ecID': row.id}),
                        _class=''))
