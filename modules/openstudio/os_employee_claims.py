@@ -150,24 +150,17 @@ class EmployeeClaims:
         links = []
         links.append(['header', T('Actions')])
 
-        links.append(A(os_gui.get_button(('accept'),
-                       title=T(""),
-                      url= URL( 'employee_claims_accept',
+        links.append(A(os_gui.get_fa_icon('fa-check'), T("Accept"),
+                       _href=URL( 'employee_claims_accept',
                                  vars={'ecID': row.id}),
-                       _class='',
-                       btn_class= 'btn-success'
-                                         ),
-                       # B(T("Move to 'Accepted'"))
+                       _class='text-green'
                        ))
         links.append('divider')
 
-        links.append(A(os_gui.get_button(('cancel'),
-                       title=T(""),
-                       url=URL( 'employee_claims_accept',
+        links.append(A(os_gui.get_fa_icon('fa-ban'), T("Reject"),
+                       _href=URL('employee_claims_reject',
                                  vars={'ecID': row.id}),
-                       _class='',
-                       btn_class= 'btn-danger'
-                                         )
+                       _class='text-red',
                        ))
 
 
@@ -195,13 +188,13 @@ class EmployeeClaims:
         links = []
         links.append(['header', T('Actions')])
 
-        links.append(A(os_gui.get_button(('cancel'), T("Move to 'Rejected'"),
-                       url=URL( 'employee_claims_reject',
+        links.append(A(os_gui.get_fa_icon('fa-ban'), T("Reject"),
+                       _href=URL( 'employee_claims_reject',
                                  vars={'ecID': row.id}),
-                       _class='')))
+                       _class='text-red'))
         links.append('divider')
 
-        links.append(A(os_gui.get_fa_icon('fa-hourglass-2'), T("Move to 'Pending'"),
+        links.append(A(os_gui.get_fa_icon('fa-hourglass-2'), T("Pending"),
                        _href=URL('employee_claims_pending',
                                  vars={'ecID': row.id}),
                        _class=''))
@@ -231,13 +224,13 @@ class EmployeeClaims:
         links = []
         links.append(['header', T('Actions')])
 
-        links.append(A(os_gui.get_fa_icon('fa-check'), T("Move to 'Accepted'"),
+        links.append(A(os_gui.get_fa_icon('fa-check'), T("Accept"),
                        _href=URL( 'employee_claims_accept',
                                  vars={'ecID': row.id}),
-                       _class=''))
+                       _class='text-green'))
         links.append('divider')
 
-        links.append(A(os_gui.get_fa_icon('fa-hourglass-2'), T("Move to 'Pending'"),
+        links.append(A(os_gui.get_fa_icon('fa-hourglass-2'), T("Pending"),
                        _href=URL('employee_claims_pending',
                                  vars={'ecID': row.id}),
                        _class=''))
