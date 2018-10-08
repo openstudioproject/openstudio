@@ -1342,7 +1342,7 @@ def teacher_payment_classes():
 
         table = tpc.get_not_verified(
             formatted=True,
-
+            page=page,
         )
 
     elif status == 'verified':
@@ -1370,7 +1370,8 @@ def teacher_payment_classes():
                 menu_class='btn-group pull-right')
 
         table = tpc.get_verified(
-            formatted=True
+            formatted=True,
+            page=page
         )
 
     elif status == 'processed':
