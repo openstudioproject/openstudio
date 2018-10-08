@@ -354,7 +354,7 @@ def subscription_buy_now():
 
     create_mollie_customer(auth.user.id, mollie)
 
-    # add subscription to customer﻿​_
+    # add subscription to customer
     startdate = TODAY_LOCAL
     shop_subscriptions_start = get_sys_property('shop_subscriptions_start')
     if not shop_subscriptions_start == None:
