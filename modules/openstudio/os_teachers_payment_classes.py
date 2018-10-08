@@ -47,12 +47,16 @@ class TeachersPaymentClasses:
                     if not cls['Cancelled'] or cls['Holiday']:
                         # Check if item in db.teachers_payment_classes
                         query = (db.teachers_payment_classes.classes_id == cls['ClassesID']) & \
-                                (db.teachers_payment_classes.ClassDate == date)
+                                (db.teachers_payment_classes.ClassDate == date) & \
+                                ((db.teachers_payment_classes.Status == 'verified') |
+                                 (db.teachers_payment_classes.Status == 'processed'))
                         if db(query).count() == 0:
                             os_cls = Class(
                                 cls['ClassesID'],
                                 date
                             )
+
+                            # This inserts or updates the class data with status not_verified
                             result = os_cls.get_teacher_payment()
 
                             if not result['error']:
