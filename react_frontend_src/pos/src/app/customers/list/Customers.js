@@ -106,6 +106,7 @@ class Customers extends Component {
 
     onClear(e) {
         this.props.clearSearchValue()
+        this.props.clearDisplayCustomerID()
     }
 
     onClickAdd(e) {
