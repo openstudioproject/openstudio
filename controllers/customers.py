@@ -4405,9 +4405,9 @@ def alternativepayment_add():
         request.args[0] is expected to be the customers_id
     """
     customers_id = request.args[0]
-    response.title = T("Finance")
     customer = Customer(customers_id)
-    response.subtitle = SPAN(T('Direct debit extra'), ' ', customer.get_name())
+    response.title = customer.get_name()
+    response.subtitle = SPAN(T('Finance - Direct debit extra'))
     response.view = 'general/only_content.html'
 
     session.customers_payments_tab = '#ap'
@@ -4437,11 +4437,11 @@ def alternativepayment_edit():
         request.args[0] is expected to be the customers_id
         request.args[1] is expected to be the alternativepaymentsID
     """
-    response.title = T("Finance")
     customers_id = request.args[0]
     apID = request.args[1]
     customer = Customer(customers_id)
-    response.subtitle = SPAN(T("Direct debit extra"), ' ', customer.get_name())
+    response.title = customer.get_name()
+    response.subtitle = SPAN(T("Finance - Direct debit extra"))
     response.view = 'general/only_content.html'
 
     session.customers_payments_tab = '#ap'

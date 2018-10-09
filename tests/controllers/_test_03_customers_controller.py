@@ -1725,7 +1725,7 @@ def test_bankaccount_mandate_delete(client, web2py):
     pass
 
 
-def test_payments_ap_add(client, web2py):
+def test_alternativepayment_add(client, web2py):
     """
         Can we add an alternative payment?
     """
@@ -1746,10 +1746,11 @@ def test_payments_ap_add(client, web2py):
                 )
     client.post(url, data=data)
     assert client.status == 200
-    assert "info" in client.text # check redirection
+    assert "Direct debit extra" in client.text # check redirection
     assert data['Amount'] in client.text
 
-def test_payments_ap_edit(client, web2py):
+
+def test_alternativepayment_edit(client, web2py):
     """
         Can we edit an alternative payment?
     """
@@ -1769,7 +1770,7 @@ def test_payments_ap_edit(client, web2py):
                 )
     client.post(url, data=data)
     assert client.status == 200
-    assert "info" in client.text # check redirection
+    assert "Direct debit extra" in client.text  # check redirection
     assert data['Amount'] in client.text
 
 
@@ -1912,12 +1913,15 @@ def test_payment_info_dutch_iban_validator_length_fail(client, web2py):
     populate_customers(web2py, 1)
     populate_customers_payment_info(web2py, 1)
 
-    url = '/customers/payment_info_edit/1001/1'
+    url = '/customers/bankaccount?cuID=1001'
     client.get(url)
     assert client.status == 200
 
-    data = {'id'            : 1,
-            'AccountNumber' : 'NL21INGB012345678'} # 1 digit too short for valid Dutch IBAN
+    data = {
+        'id'           : 1,
+        'AccountNumber': 'NL21INGB012345678',
+        'AccountHolder': 'The big mistery'
+    } # 1 digit too short for valid Dutch IBAN
     client.post(url, data=data)
     assert client.status == 200
 
@@ -1936,12 +1940,15 @@ def test_payment_info_dutch_iban_validator_validation_fail(client, web2py):
     populate_customers(web2py, 1)
     populate_customers_payment_info(web2py, 1)
 
-    url = '/customers/payment_info_edit/1001/1'
+    url = '/customers/bankaccount?cuID=1001'
     client.get(url)
     assert client.status == 200
 
-    data = {'id'            : 1,
-            'AccountNumber' : 'NL21INGB0123456789'} # Invalid Dutch IBAN
+    data = {
+        'id'           : 1,
+        'AccountNumber': 'NL21INGB0123456789',
+        'AccountHolder': 'The big mistery'
+    } # Invalid Dutch IBAN
     client.post(url, data=data)
     assert client.status == 200
 
@@ -1960,17 +1967,20 @@ def test_payment_info_dutch_iban_validator_pass(client, web2py):
     populate_customers(web2py, 1)
     populate_customers_payment_info(web2py, 1)
 
-    url = '/customers/payment_info_edit/1001/1'
+    url = '/customers/bankaccount?cuID=1001'
     client.get(url)
     assert client.status == 200
 
-    data = {'id'            : 1,
-            'AccountNumber' : 'NL89TRIO0390502103'} # Valid Dutch IBAN
+    data = {
+        'id'           : 1,
+        'AccountNumber': 'NL89TRIO0390502103', # Valid Dutch IBAN
+        'AccountHolder': 'The big mistery'
+    }
     client.post(url, data=data)
     assert client.status == 200
 
     # verify redirection
-    assert 'Payment info' in client.text
+    assert 'Finance' in client.text
 
     # verify database
     row = web2py.db.customers_payment_info(1)
@@ -1989,17 +1999,20 @@ def test_payment_info_not_iban_pass(client, web2py):
     populate_customers(web2py, 1)
     populate_customers_payment_info(web2py, 1)
 
-    url = '/customers/payment_info_edit/1001/1'
+    url = '/customers/bankaccount?cuID=1001'
     client.get(url)
     assert client.status == 200
 
-    data = {'id'            : 1,
-            'AccountNumber' : '12445565ef39i65'} # Random stuff
+    data = {
+        'id'           : 1,
+        'AccountNumber': '12445565ef39i65',
+        'AccountHolder': 'The big mistery'
+    } # Random stuff
     client.post(url, data=data)
     assert client.status == 200
 
     # verify redirection
-    assert 'Payment info' in client.text
+    assert 'Finance' in client.text
 
     # verify database
     row = web2py.db.customers_payment_info(1)
