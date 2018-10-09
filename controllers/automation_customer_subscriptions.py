@@ -66,8 +66,6 @@ def index_get_month_invoices(table):
         result_table = TABLE(_class='table-condensed automated-tasks-results')
         for row in rows:
             vars = json.loads(row.scheduler_task.vars)
-            print vars
-
             vars_display = DIV()
 
             for v in sorted(vars):
