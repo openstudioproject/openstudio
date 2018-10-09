@@ -1135,40 +1135,41 @@ def test_customer_classes_attendance_delete(client, web2py):
     assert 'fa-times' in client.text
 
 
-def test_customer_bankaccount_delete(client, web2py):
-    """
-        Is the delete permission for payment info under customers working?
-    """
-    # get random url to init payment methods in db
-    url = '/default/user/login'
-    client.get(url)
-    assert client.status == 200
-
-    setup_permission_tests(web2py)
-    populate_customers(web2py, 1)
-    web2py.db.customers_payment_info.insert(
-        auth_customer_id   = 1001,
-        AccountNumber      ='123456',
-        payment_methods_id = 1)
-
-    web2py.auth.add_permission(200, 'read', 'customers_payment_info', 0)
-    web2py.auth.add_permission(200, 'read', 'customers_payments', 0)
-    web2py.db.commit()
-
-    url = '/customers/bankaccount?cuID=1001'
-    client.get(url)
-    assert client.status == 200
-
-    assert not 'fa-times' in client.text
-
-    # grant permission and check again
-    web2py.auth.add_permission(200, 'delete', 'customers_payment_info', 0)
-    web2py.db.commit()
-
-    client.get(url)
-    assert client.status == 200
-
-    assert 'fa-times' in client.text
+# No longer possible to delete bankaccount for a customer
+# def test_customer_bankaccount_delete(client, web2py):
+#     """
+#         Is the delete permission for payment info under customers working?
+#     """
+#     # get random url to init payment methods in db
+#     url = '/default/user/login'
+#     client.get(url)
+#     assert client.status == 200
+#
+#     setup_permission_tests(web2py)
+#     populate_customers(web2py, 1)
+#     web2py.db.customers_payment_info.insert(
+#         auth_customer_id   = 1001,
+#         AccountNumber      ='123456',
+#         payment_methods_id = 1)
+#
+#     web2py.auth.add_permission(200, 'read', 'customers_payment_info', 0)
+#     web2py.auth.add_permission(200, 'read', 'customers_payments', 0)
+#     web2py.db.commit()
+#
+#     url = '/customers/bankaccount?cuID=1001'
+#     client.get(url)
+#     assert client.status == 200
+#
+#     assert not 'fa-times' in client.text
+#
+#     # grant permission and check again
+#     web2py.auth.add_permission(200, 'delete', 'customers_payment_info', 0)
+#     web2py.db.commit()
+#
+#     client.get(url)
+#     assert client.status == 200
+#
+#     assert 'fa-times' in client.text
 
 
 def test_customer_direct_debit_extra_delete(client, web2py):

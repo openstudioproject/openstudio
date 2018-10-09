@@ -455,7 +455,7 @@ class Invoice:
         cls = Class(order_item_row.classes_id, order_item_row.ClassDate)
 
         # Get GLAccount info
-        prices = cla.get_prices()
+        prices = cls.get_prices()
         glaccount = None
         if order_item_row.AttendanceType == 1:
             # Trial
