@@ -3,7 +3,7 @@
 import datetime
 from populate_os_tables import populate_customers_with_subscriptions
 
-def test_customers_subscriptions_create_montly_invoices(client, web2py):
+def test_automation_customers_subscriptions_create_monthly_invoices(client, web2py):
     """
         Can we create subscription invoices for a month?
     """
@@ -15,7 +15,9 @@ def test_customers_subscriptions_create_montly_invoices(client, web2py):
 
     populate_customers_with_subscriptions(web2py, 10)
 
-    url = '/test_automation/test_customers_subscriptions_create_invoices?month=1&year=2014&description=Subscription_Jan'
+    url = '/test_automation_customers_subscriptions/' + \
+          'test_create_invoices' + \
+          '?month=1&year=2014&description=Subscription_Jan'
     client.get(url)
     assert client.status == 200
 

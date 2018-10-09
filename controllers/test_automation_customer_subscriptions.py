@@ -4,7 +4,7 @@ from openstudio.os_scheduler_tasks import OsSchedulerTasks
 
 
 @auth.requires(auth.user_id == 1)
-def test_customers_subscriptions_create_invoices():
+def test_create_invoices():
     """
     Function to expose class & method used by scheduler task
     to create monthly invoices

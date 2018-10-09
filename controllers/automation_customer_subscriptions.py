@@ -9,8 +9,8 @@ def index():
     """
         Lists automated tasks
     """
-    response.title = T("Automated tasks")
-    response.subtitle = T("")
+    response.title = T("Automation")
+    response.subtitle = T("Customer subscriptions")
     response.view = 'general/only_content.html'
 
     header = THEAD(TR(
@@ -21,14 +21,13 @@ def index():
 
     table = TABLE(header, _class='table table-striped table-hover')
 
-    table = index_get_customers_subscriptions_invoices(table)
-
+    table = index_get_month_invoices(table)
 
 
     return dict(content=table)
 
 
-def index_get_customers_subscriptions_invoices(table):
+def index_get_month_invoices(table):
     """
     :param var:
     :return:
@@ -41,7 +40,7 @@ def index_get_customers_subscriptions_invoices(table):
     if permission:
         run = os_gui.get_button(
             'noicon',
-            URL('create_customers_subscriptions_invoices_for_month'),
+            URL('create_invoices_for_month'),
             title=T("Run"),
             _class='pull-right',
             btn_size=''
@@ -81,7 +80,7 @@ def index_get_customers_subscriptions_invoices(table):
                 TD(B(T("Start"), ': '),
                    pytz.utc.localize(row.scheduler_task.start_time).astimezone(pytz.timezone(TIMEZONE)).strftime(DATETIME_FORMAT), BR(),
                    vars_display),
-                TD(row.scheduler_run.status),
+                TD(row.scheduler_run.status or T("Pending...")),
                 TD(row.scheduler_run.run_result or ''),
             ))
 
@@ -98,13 +97,13 @@ def index_get_customers_subscriptions_invoices(table):
 
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('create', 'invoices'))
-def create_customers_subscriptions_invoices_for_month():
+def create_invoices_for_month():
     """
 
     :return:
     """
-    response.title = T("Automated tasks")
-    response.subtitle = T("Create customers subscriptions invoices")
+    response.title = T("Automation")
+    response.subtitle = T("Customer subscriptions - create invoices for month")
     response.view = 'general/only_content.html'
 
     months = get_months_list()

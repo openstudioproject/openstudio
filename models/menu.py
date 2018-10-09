@@ -608,9 +608,9 @@ def get_backend_menu():
         if user_helpers.check_read_permission('automated_tasks', user_id):
             submenu = []
 
-            submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Tasks'))),
+            submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Customer subscriptions'))),
                             False,
-                            URL('automated_tasks', 'index', extension='')))
+                            URL('automation_customer_subscriptions', 'index', extension='')))
 
 
             menu += [
