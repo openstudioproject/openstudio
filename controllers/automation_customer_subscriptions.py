@@ -41,7 +41,8 @@ def index_get_month_invoices(table):
         run = os_gui.get_button(
             'noicon',
             URL('create_invoices_for_month'),
-            title=T("Run"),
+            title=T("Run task"),
+            btn_class='btn-primary',
             _class='pull-right',
             btn_size=''
         )
