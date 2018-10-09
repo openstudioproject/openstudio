@@ -698,17 +698,17 @@ class Invoice:
                  (db.customers_subscriptions.school_subscriptions_id == cs.ssuID)) |
                  (db.customers_subscriptions.RegistrationFeePaid == True))
 
-        rowsfee = db(query).select(db.customers_subscriptions.ALL)
+        fee_paid_in_past = db(query).count()
         ssu = db.school_subscriptions(ssuID)
-        if not rowsfee and ssu.RegistrationFee: # Registration fee not already paid and RegistrationFee defined?
-            price = row.RegistrationFee
-            if not price == 0 and price:
+        if not fee_paid_in_past and ssu.RegistrationFee: # Registration fee not already paid and RegistrationFee defined?
+            regfee_to_be_paid = ssu.RegistrationFee or 0
+            if regfee_to_be_paid:
                 db.invoices_items.insert(
                     invoices_id = self.invoices_id,
                     ProductName = current.T("Registration fee"),
                     Description = current.T('One time registration fee'),
                     Quantity = 1,
-                    Price = price,
+                    Price = regfee_to_be_paid,
                     Sorting = next_sort_nr,
                     tax_rates_id = tax_rates_id,
                 )

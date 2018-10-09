@@ -17,7 +17,8 @@ def test_workflow(client, web2py):
         'shop_requires_complete_profile': 'on',
         'shop_classes_advance_booking_limit':'22',
         'shop_classes_cancellation_limit':'7',
-        'shop_subscriptions_start':'today'
+        'shop_subscriptions_start':'today',
+        'shop_subscriptions_payment_method': 'directdebit'
     }
 
     client.post(url, data=data)
@@ -32,6 +33,8 @@ def test_workflow(client, web2py):
            data['shop_classes_cancellation_limit']
     assert web2py.db.sys_properties(Property='shop_subscriptions_start').PropertyValue == \
            data['shop_subscriptions_start']
+    assert web2py.db.sys_properties(Property='shop_subscriptions_payment_method').PropertyValue == \
+           data['shop_subscriptions_payment_method']
 
 
 def test_products(client, web2py):
