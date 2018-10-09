@@ -119,7 +119,7 @@ export const listReducer = (state = {}, action={ type: null }) => {
         case T.SET_SEARCH_VALUE:
             return {
                 ...state,
-                search_value: action.value,
+                search_value: action.value.toLowerCase(),
             }
         case T.CLEAR_SELECTED_CUSTOMER_ID:
             return {

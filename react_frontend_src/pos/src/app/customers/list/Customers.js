@@ -79,6 +79,7 @@ class Customers extends Component {
 
         } else {
             console.log('not an int value')
+
         }
 
         console.log(value)
@@ -161,10 +162,21 @@ class Customers extends Component {
         const memberships = this.props.memberships
 
         let customers_display = []
-        if ( customers.searchID ) {
-            customers_display = [
-                customers.data[customers.searchID]
-            ]
+        if (customers.loaded && memberships.loaded) {
+            if ( customers.searchID ) {
+                customers_display = [
+                    customers.data[customers.searchID]
+                ]
+            } else if (customers.search_value && customers.search_value.length > 1) {
+            Object.keys(customers.data).map( (key) => {
+                    //console.log('customer:')
+                    //console.log(key)
+                    //console.log(customers.data[key])
+                    if (customers.data[key].search_name.includes(customers.search_value)) {
+                        customers_display.push(customers.data[key])
+                    }
+                })
+            }
         }
         console.log(customers_display)
 

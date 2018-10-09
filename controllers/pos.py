@@ -456,6 +456,7 @@ def get_customers():
             'first_name': row.first_name,
             'last_name': row.last_name,
             'display_name': row.display_name,
+            'search_name': row.display_name.lower(),
             'email': row.email,
             'gender': row.gender,
             'date_of_birth': row.date_of_birth,
