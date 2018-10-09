@@ -453,6 +453,7 @@ def get_customers():
 
     for row in rows:
         customers[row.id] = {
+            'id': row.id,
             'first_name': row.first_name,
             'last_name': row.last_name,
             'display_name': row.display_name,

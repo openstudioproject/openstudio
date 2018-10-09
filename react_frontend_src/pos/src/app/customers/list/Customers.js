@@ -156,6 +156,12 @@ class Customers extends Component {
         this.props.updateCustomer(data)
     }
 
+    onClickCustomersListItem(id) {
+        console.log('clicked')
+        console.log(id)
+        this.props.setDisplayCustomerID(id)
+    }
+
     render() {
         const customers = this.props.customers
         const intl = this.props.intl
@@ -223,7 +229,8 @@ class Customers extends Component {
                                                 />
 
                             <CustomersList customers={customers_display}
-                                           intl={intl} />
+                                           intl={intl}
+                                           onClick={this.onClickCustomersListItem.bind(this)} />
                             {/* <AttendanceList attendance_items={this.props.attendance.data} /> */}
                         </section>
                 }

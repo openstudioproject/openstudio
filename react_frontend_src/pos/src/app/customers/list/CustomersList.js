@@ -5,7 +5,7 @@ import validator from 'validator'
 import { v4 } from "uuid"
 
 
-const CustomersList = ({customers}) => 
+const CustomersList = ({customers, onClick=f=>f}) => 
     <div className="box box-solid"> 
         <div className="box-header">
             <h3 className="box-title">Search results</h3>
@@ -22,7 +22,7 @@ const CustomersList = ({customers}) =>
                 </thead>
                 <tbody>
                     {customers.map((customer, i) => 
-                        <tr key={v4()}>
+                        <tr key={v4()} onClick={() => onClick(customer.id)}>
                             <td><img src={customer.thumbsmall}></img></td>
                             <td>{customer.display_name}</td>
                             <td>{customer.address}</td>
