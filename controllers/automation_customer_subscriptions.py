@@ -136,7 +136,7 @@ def create_invoices_for_month():
         month = request.vars['month']
         description = request.vars['description'] or ''
 
-        print scheduler.queue_task(
+        scheduler.queue_task(
             'customers_subscriptions_create_invoices_for_month',
             pvars={
                 'year': year,
