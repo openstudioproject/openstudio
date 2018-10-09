@@ -1899,6 +1899,13 @@ def cancel_and_create_credit_invoice():
     # Set InvoiceID and Due date
     new_invoice = Invoice(new_iID)
 
+    # Link credit invoice to customer
+    current_invoice = Invoice(iID)
+    linked_customer_id = current_invoice.get_linked_customer_id()
+
+    if linked_customer_id:
+        new_invoice.link_to_customer(linked_customer_id)
+
     # Duplicate invoice items with negative prices
     query = (db.invoices_items.invoices_id == invoice.id)
     rows = db(query).select(db.invoices_items.ALL)
