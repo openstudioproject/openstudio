@@ -1190,8 +1190,6 @@ def teacher_payments_get_menu(page, status='not_verified'):
         ]
     ]
 
-    print status
-
     if ( auth.has_membership(group_id='Admins') or
          auth.has_permission('read', 'teachers_payment_classes_attendance') ):
         pages.append([ 'teacher_payment_classes_processed',
@@ -1541,7 +1539,8 @@ def teachers_payment_classes_process_verified():
     from openstudio.os_teachers_payment_classes import TeachersPaymentClasses
 
     tpc = TeachersPaymentClasses()
-    count_processed = tpc.process_verified()
+    result = tpc.process_verified()
+    count_processed = result['message']
 
     classes = T('classes')
     if count_processed == 1:
@@ -1574,7 +1573,7 @@ def teacher_payment_classes_process_choose_dates():
         B(T("Choose a period within which to process verified classes.")), BR(), BR(),
     )
 
-    return_url = URL('teacher_payment_classes', vars={'status': 'not_verified'})
+    return_url = URL('teacher_payment_classes', vars={'status': 'verified'})
 
     # choose period and then do something
     form = SQLFORM.factory(
@@ -1597,7 +1596,7 @@ def teacher_payment_classes_process_choose_dates():
             label=T("End date"),
             widget=os_datepicker_widget),
         formstyle='bootstrap3_stacked',
-        submit_button=T("Find")
+        submit_button=T("Process")
     )
 
     result = set_form_id_and_get_submit_button(form, 'MainForm')
@@ -1610,8 +1609,8 @@ def teacher_payment_classes_process_choose_dates():
 
         tpc = TeachersPaymentClasses()
         result = tpc.process_verified(
-            start,
-            end
+            date_from = start,
+            date_until = end
         )
 
         if result['error']:

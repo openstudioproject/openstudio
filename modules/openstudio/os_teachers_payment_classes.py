@@ -109,7 +109,7 @@ class TeachersPaymentClasses:
             query &= (db.teachers_payment_classes.ClassDate >= date_from)
 
         if date_until:
-            query &= (db.teachers_payment_classes.ClassDate <= date_from)
+            query &= (db.teachers_payment_classes.ClassDate <= date_until)
 
         rows = db(query).select(
             db.teachers_payment_classes.ALL,
@@ -385,6 +385,9 @@ class TeachersPaymentClasses:
         T = current.T
         db = current.db
 
+        error = False
+        message = ''
+
         # Sort verified classes by teacher
         rows = self.get_rows(
             status='verified',
@@ -438,6 +441,8 @@ class TeachersPaymentClasses:
             processed += 1
 
         # Calculate total
-
-        return processed
+        return dict(
+            error=error,
+            message=processed
+        )
 
