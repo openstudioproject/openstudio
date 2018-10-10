@@ -22,10 +22,13 @@ def index():
     session.profile_class_cancel_confirm_back = 'profile_index'
     session.profile_subscription_credits_back = 'profile_index'
 
+    # verification required
+    verification_required = index_get_verification_required()
+
     # announcements
     announcements = index_get_announcements()
 
-    # cutomer content
+    # customer content
     customer_content = DIV(_class='row')
     cc_left = DIV(_class='col-md-6')
     cc_right = DIV(_class='col-md-6')
@@ -57,9 +60,67 @@ def index():
     customer_content.append(cc_left)
     customer_content.append(cc_right)
 
-    content = DIV(announcements, customer_content)
+    content = DIV(
+        verification_required,
+        announcements,
+        customer_content
+    )
 
-    return dict(content=content)
+    email_verified = index_get_email_verified()
+
+    return dict(
+        content=content,
+        header_tools=email_verified,
+    )
+
+
+def index_get_email_verified(var=None):
+    """
+
+    """
+    auth_user = db.auth_user(auth.user.id)
+    if not auth_user.registration_key:
+        return SPAN(
+            SPAN(os_gui.get_fa_icon('fa-check'),
+                 _class='text-green'),
+            ' ',
+            T("Email verified")
+        )
+    else:
+        return SPAN(
+            SPAN(os_gui.get_fa_icon('fa-times'),
+                 _class='text-red'),
+            ' ',
+            T("Email not verified")
+        )
+
+
+def index_get_verification_required(var=None):
+    """
+        Get verification required
+    """
+    content = DIV(_class='row')
+
+    auth_user = db.auth_user(auth.user.id)
+    if not auth_user.registration_key:
+        return ''
+
+    content = DIV(
+        T("Welcome!"), ' ',
+        T("Soon you'll receive an email from us asking to verify your email address."), ' ',
+        T("Please take the time to click the link in the email so we can ensure that you address is correct."), BR(),
+        T("In case there is ever a reason for us to contact you concerning your order, we would like to be able to do so."), BR(), BR(),
+        T("No email within 15 minutes? Please check your spam folder or contact us in case you need any assistance."), BR(), BR(),
+
+        T("Thank you")
+    )
+
+    return os_gui.get_box(T('Email address not yet verified'),
+                          content,
+                          box_class='box-success',
+                          with_border=False,
+                          show_footer=False,
+                          footer_padding=False)
 
 
 def index_get_announcements(var=None):
@@ -181,7 +242,7 @@ def index_get_upcoming_events(customer):
                      T("Click "),
                      A(T("here"),
                        _href=URL('shop', 'events')), ' ',
-                     T("to book an events."))
+                     T("to book an event."))
     else:
         header = THEAD(TR(TH(T('Date')),
                           TH(T('Event')),
