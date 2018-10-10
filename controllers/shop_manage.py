@@ -12,7 +12,11 @@ def workflow():
     response.subtitle = T('Workflow')
     response.view = 'general/only_content.html'
 
-    shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile')
+    shop_requires_complete_profile_classes = get_sys_property('shop_requires_complete_profile_classes')
+    shop_requires_complete_profile_memberships = get_sys_property('shop_requires_complete_profile_memberships')
+    shop_requires_complete_profile_classcards = get_sys_property('shop_requires_complete_profile_classcards')
+    shop_requires_complete_profile_events = get_sys_property('shop_requires_complete_profile_events')
+    shop_requires_complete_profile_subscriptions = get_sys_property('shop_requires_complete_profile_subscriptions')
     shop_classes_advance_booking_limit = get_sys_property('shop_classes_advance_booking_limit')
     shop_classes_cancellation_limit = get_sys_property('shop_classes_cancellation_limit')
     shop_subscriptions_start = get_sys_property('shop_subscriptions_start')
@@ -20,10 +24,26 @@ def workflow():
     shop_subscriptions_payment_method = get_sys_property('shop_subscriptions_payment_method')
 
     form = SQLFORM.factory(
-        Field('shop_requires_complete_profile', 'boolean',
-              default=shop_requires_complete_profile,
-              label=T('Orders require complete profiles'),
-              comment=T('Require complete profiles before customers can place an order')),
+        Field('shop_requires_complete_profile_classes', 'boolean',
+              default=shop_requires_complete_profile_classes,
+              label=T('Booking classes require complete profiles'),
+              comment=T('Require complete profiles before customers can book a class')),
+        Field('shop_requires_complete_profile_memberships', 'boolean',
+              default=shop_requires_complete_profile_memberships,
+              label=T('Memberships require complete profiles'),
+              comment=T('Require complete profiles before customers can get a membership')),
+        Field('shop_requires_complete_profile_classcards', 'boolean',
+              default=shop_requires_complete_profile_classcards,
+              label=T('Classcards require complete profiles'),
+              comment=T('Require complete profiles before customers can buy a classcard')),
+        Field('shop_requires_complete_profile_events', 'boolean',
+              default=shop_requires_complete_profile_events,
+              label=T('Events require complete profiles'),
+              comment=T('Require complete profiles before customers can book an event')),
+        Field('shop_requires_complete_profile_subscriptions', 'boolean',
+              default=shop_requires_complete_profile_subscriptions,
+              label=T('Subscriptions require complete profiles'),
+              comment=T('Require complete profiles before customers can sign up for a subscription')),
         Field('shop_classes_advance_booking_limit', 'integer',
               default=shop_classes_advance_booking_limit,
               requires=IS_INT_IN_RANGE(0, 1099),
@@ -60,52 +80,25 @@ def workflow():
     submit = result['submit']
 
     if form.process().accepted:
-        # check shop require complete profiles
-        shop_requires_complete_profile = request.vars['shop_requires_complete_profile']
-        row = db.sys_properties(Property='shop_requires_complete_profile')
-        if not row:
-            db.sys_properties.insert(Property='shop_requires_complete_profile',
-                                     PropertyValue=shop_requires_complete_profile)
-        else:
-            row.PropertyValue = shop_requires_complete_profile
-            row.update_record()
-
-        # check shop_classes_advance_booking_limit
-        shop_classes_advance_booking_limit = request.vars['shop_classes_advance_booking_limit']
-        row = db.sys_properties(Property='shop_classes_advance_booking_limit')
-        if not row:
-            db.sys_properties.insert(Property='shop_classes_advance_booking_limit',
-                                     PropertyValue=shop_classes_advance_booking_limit)
-        else:
-            row.PropertyValue = shop_classes_advance_booking_limit
-            row.update_record()
-
-        # check shop_classes_cancellation_limit
-        shop_classes_cancellation_limit = request.vars['shop_classes_cancellation_limit']
-        row = db.sys_properties(Property='shop_classes_cancellation_limit')
-        if not row:
-            db.sys_properties.insert(Property='shop_classes_cancellation_limit',
-                                     PropertyValue=shop_classes_cancellation_limit)
-        else:
-            row.PropertyValue = shop_classes_cancellation_limit
-            row.update_record()
-
-        # check shop_subscriptions_start
-        shop_subscriptions_start = request.vars['shop_subscriptions_start']
-        row = db.sys_properties(Property='shop_subscriptions_start')
-        if not row:
-            db.sys_properties.insert(Property='shop_subscriptions_start',
-                                     PropertyValue=shop_subscriptions_start)
-        else:
-            row.PropertyValue = shop_subscriptions_start
-            row.update_record()
-
-        # check shop_subscriptions_payment_method
-        shop_subscriptions_payment_method = request.vars['shop_subscriptions_payment_method']
-        set_sys_property(
+        form_vars = [
+            'shop_requires_complete_profile_classes',
+            'shop_requires_complete_profile_memberships',
+            'shop_requires_complete_profile_classcards',
+            'shop_requires_complete_profile_events',
+            'shop_requires_complete_profile_subscriptions',
+            'shop_classes_advance_booking_limit',
+            'shop_classes_cancellation_limit',
+            'shop_subscriptions_start',
             'shop_subscriptions_payment_method',
-            shop_subscriptions_payment_method
-        )
+
+        ]
+
+        for fvar in form_vars:
+            if fvar in request.vars:
+                set_sys_property(
+                    fvar,
+                    request.vars[fvar]
+                )
 
         # Clear cache
         cache_clear_sys_properties()
