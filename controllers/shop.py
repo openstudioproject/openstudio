@@ -1037,8 +1037,6 @@ def subscription_terms_check_valid_bankdetails(payment_method):
                  (db.customers_payment_info.AccountHolder != None))
         complete_bankaccount_details = db(query).count()
 
-        print complete_bankaccount_details
-
         if not complete_bankaccount_details:
              redirect(URL('subscription_enter_bankaccount'))
 
