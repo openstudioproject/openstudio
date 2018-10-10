@@ -5303,7 +5303,7 @@ def setup_set_email_templates():
         ['email_template_sys_verify_email',
          """<h3>Welcome %(first_name)s!</h3>
 <p>&nbsp;</p>
-<p>Please click on the <a href="%(link)s">link</a> to verify your email address</p>"""],
+<p>Please click on this <a href="%(link)s">link</a> to verify your email address</p>"""],
         ['email_template_payment_recurring_failed',
          """<h3>Recurring payment failed</h3>
 <p>&nbsp;</p>
