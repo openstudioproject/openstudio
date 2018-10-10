@@ -448,7 +448,7 @@ def me():
          title=T("If you change your email address, you'll have to use the new address to login."),
          btn_icon='info')
 
-    session.payment_information_redirect = URL('me')
+    session.profile_me_bankaccount_next = URL('me_bankaccount')
 
     customer_fields = [
         db.auth_user.first_name,
@@ -611,35 +611,32 @@ def me_bankaccount():
     query = (db.customers_payment_info.auth_customer_id == auth.user_id)
     if db(query).count() < 1:
         db.customers_payment_info.auth_customer_id.default = auth.user.id
+        form = SQLFORM(
+            db.customers_payment_info,
+            submit_button = T("Save")
+        )
 
-
-        crud.messages.submit_button = T("Save")
-        crud.messages.record_created = T("Added payment info")
-        crud.settings.formstyle = 'divs'
-        crud.settings.create_next = session.payment_information_redirect
-        # print session.payment_information_redirect
-        form = crud.create(db.customers_payment_info)
-
-        # print form.errors
-
-        result = set_form_id_and_get_submit_button(form, 'MainForm')
-        form = result['form']
-        submit = result['submit']
     else:
         db.customers_payment_info.auth_customer_id.default = auth.user.id
+        pi = db.customers_payment_info(auth_customer_id=auth.user.id)
+
+        form = SQLFORM(
+            db.customers_payment_info,
+            pi.id,
+            submit_button = T("Save")
+        )
+
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
+    form = result['form']
+    submit = result['submit']
 
 
-        crud.messages.submit_button = T("Save")
-        crud.messages.record_created = T("Updated payment info")
-        crud.settings.formstyle = 'divs'
-        crud.settings.create_next = session.payment_information_redirect
-        # print session.payment_information_redirect
-        piID = db.customers_payment_info(auth_customer_id=auth.user.id)
-        form = crud.update(db.customers_payment_info, piID.id)
+    if form.process().accepted:
+        session.flash = T("Saved")
+        redirect(session.profile_me_bankaccount_next)
 
-        result = set_form_id_and_get_submit_button(form, 'MainForm')
-        form = result['form']
-        submit = result['submit']
+    elif form.errors:
+        response.flash = ''
 
     form = DIV(
         XML('<form id="MainForm" action="#" enctype="multipart/form-data" method="post">'),
@@ -661,16 +658,16 @@ def me_bankaccount():
                 _class='col-md-4'),
             _class='row'),
 
-        DIV(INPUT(_type="checkbox",
-                  _id='data_true_and_complete',
-                  _class="iCheck-line-aero"), ' ',
-            LABEL(T("I confirm that the data above is true and complete"),
-                  _for="data_true_and_complete"),
-            _class="form-group"),
-        DIV(DIV(submit, _class='col-md-12'),
-            _class='row'),
-        form.custom.end,
-        _class='grid')
+    DIV(INPUT(_type="checkbox",
+              _id='data_true_and_complete',
+              _class="iCheck-line-aero"), ' ',
+        LABEL(T("I confirm that the data above is true and complete"),
+              _for="data_true_and_complete"),
+        _class="form-group"),
+    DIV(DIV(submit, _class='col-md-12'),
+        _class='row'),
+    form.custom.end,
+    _class='grid')
 
     content = form
 

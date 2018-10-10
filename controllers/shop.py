@@ -1237,7 +1237,7 @@ def subscription_enter_bankaccount():
             btn_class='btn-primary'
         ))
 
-    session.payment_information_redirect = URL('shop', 'subscriptions')
+    session.profile_me_bankaccount_next = URL('shop', 'subscriptions')
 
     return dict(content = content)
 
