@@ -5661,7 +5661,7 @@ auth.settings.extra_fields['auth_user'] = [
                            row.last_name.strip()),
     Field('display_name',
         writable=False,
-        compute=lambda row:row.company if row.business and row.company else row.full_name,
+        compute=lambda row: row.company if (row.business and row.company) else row.full_name,
         label=T("Customer")),
     Field('mollie_customer_id',
         readable=False,

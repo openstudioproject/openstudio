@@ -384,6 +384,7 @@ class TeachersPaymentClasses:
 
         T = current.T
         db = current.db
+        DATE_FORMAT = current.DATE_FORMAT
 
         error = False
         message = ''
@@ -408,11 +409,17 @@ class TeachersPaymentClasses:
             if i == 0 or not previous_teacher == teID:
                 current_teacher = teID
 
+                description = T("Classes")
+                if date_from and date_until:
+                    description = T("Classes") + ' ' + \
+                                  date_from.strftime(DATE_FORMAT) + ' - ' + \
+                                  date_until.strftime(DATE_FORMAT)
+
                 igpt = db.invoices_groups_product_types(ProductType='teacher_payments')
                 iID = db.invoices.insert(
                     invoices_groups_id=igpt.invoices_groups_id,
                     TeacherPayment=True,
-                    Description=T('Classes'),
+                    Description=description,
                     Status='sent'
                 )
 
