@@ -83,6 +83,14 @@ def user():
                                                              error_message=T('Please select a location'),
                                                              zero=T('Please select a location...'))
     # actually create auth form
+    # Set nicer error messages for name fields
+    db.auth_user.first_name.requires = IS_NOT_EMPTY(
+        error_message = T("Please enter your first name")
+    )
+    db.auth_user.last_name.requires = IS_NOT_EMPTY(
+        error_message = T("Please enter your last name")
+    )
+
     form=auth()
 
     form_login = ''
@@ -110,7 +118,7 @@ def user():
         has_privacy_notice = False
 
     if 'register' in request.args:
-        register_title = T("Register")
+        register_title = T("Create your account")
         login_title = T("Already have an account?")
         login_link = A(T("Click here to log in"),
                        _href=URL(args='login'))
@@ -135,6 +143,8 @@ def user():
         password['_placeholder'] = T("Password...")
         password2 = form.element('#auth_user_password_two')
         password2['_placeholder'] = T("Repeat Password...")
+        submit = form.element('input[type=submit]')
+        submit['_value'] = T('Create account')
 
         location = ''
         if session.show_location:
@@ -180,7 +190,7 @@ def user():
                 form.custom.widget.password_two,
                 _class='form-group'),
             location,
-            SPAN(T('By signing up I'), _class='bold'),
+            SPAN(T('By creating an account I'), _class='bold'),
             accept_ul,
             BR(),
             A(T('Cancel'),
@@ -220,7 +230,7 @@ def user():
     if 'login' in request.args:
         response.view = 'default/user_login.html'
         login_title = T("Log in")
-        register_title = T("New here?")
+        register_title = T("Create your account")
 
         auth.messages.login_button = T('Sign In')
 
@@ -252,9 +262,14 @@ def user():
 
 
         if not 'register' in auth.settings.actions_disabled:
-            register_link = A(T("Click here to register"),
+            form_register = SPAN(
+                T("Are you new here and would you like to create an account?"), BR(),
+                T("Please click the button below to get started."), BR(),
+            )
+            register_link = A(T("Create your account"),
                                _href=URL(args='register',
-                                         vars=request.vars))
+                                         vars=request.vars),
+                               _class='btn btn-primary btn-create_your_account')
 
         form_login = form
 

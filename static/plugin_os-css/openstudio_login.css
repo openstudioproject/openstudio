@@ -85,8 +85,25 @@ img.logo_os_clouds {
     padding-left: 20px;
 }
 
+.btn-create_your_account {
+    margin-top: 38px;
+}
+
 @media only screen and (min-width: 768px) {
 	.login-box {
 		width: 720px;
 	}
-Do you}
+}
+
+@media only screen and (max-width: 768px) {
+    .register {
+        margin-top: 50px;
+     }
+     
+    .btn-create_your_account {
+        margin-top: 20px;
+    }
+}
+
+
+
