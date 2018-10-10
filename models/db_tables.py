@@ -5301,9 +5301,9 @@ def setup_set_email_templates():
          """<h3>Reset password</h3>
 <p>Please click on the <a href="%(link)s">link</a> to reset your password</p>"""],
         ['email_template_sys_verify_email',
-         """<h3>Verify email</h3>
-<p>Welcome %(first_name)s!</p>
-<p>Please click on the <a href="%(link)s">link</a> to verify your email</p>"""],
+         """<h3>Welcome %(first_name)s!</h3>
+<p>&nbsp;</p>
+<p>Please click on the <a href="%(link)s">link</a> to verify your email address</p>"""],
         ['email_template_payment_recurring_failed',
          """<h3>Recurring payment failed</h3>
 <p>&nbsp;</p>

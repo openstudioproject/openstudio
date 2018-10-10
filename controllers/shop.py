@@ -2160,28 +2160,25 @@ def check_add_to_card_requires_complete_profile(auID):
     """
         Checks if a completed profile is required, if so and it isn't complete, redirect to the profile edit page
     """
-    shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile')
+    user = db.auth_user(auID)
 
-    if shop_requires_complete_profile:
-        user = db.auth_user(auID)
+    required_fields = [
+        user.first_name,
+        user.last_name,
+        user.email,
+        user.gender,
+        user.date_of_birth,
+        user.address,
+        user.city,
+        user.postcode,
+        user.country,
+        user.mobile
+    ]
 
-        required_fields = [
-            user.first_name,
-            user.last_name,
-            user.email,
-            user.gender,
-            user.date_of_birth,
-            user.address,
-            user.city,
-            user.postcode,
-            user.country,
-            user.mobile
-        ]
-
-        for f in required_fields:
-            if f is None:
-                session.flash = T('To offer you the best service possible, we kindly ask you to complete your profile before placing any orders.')
-                redirect(URL('profile', 'me'))
+    for f in required_fields:
+        if f is None:
+            session.flash = T('To offer you the best service possible, we kindly ask you to complete your profile.')
+            redirect(URL('profile', 'me'))
 
 
     #TODO: The rest of the code...
