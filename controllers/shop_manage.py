@@ -99,6 +99,11 @@ def workflow():
                     fvar,
                     request.vars[fvar]
                 )
+            else:
+                set_sys_property(
+                    fvar,
+                    None
+                )
 
         # Clear cache
         cache_clear_sys_properties()
