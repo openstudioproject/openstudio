@@ -104,7 +104,7 @@ def event_add_to_cart():
                              T("This product is sold out"))
         redirect(workshop_return_url)
     else:
-        shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile')
+        shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile_events')
         if shop_requires_complete_profile:
             check_add_to_card_requires_complete_profile(auth.user.id)
 
@@ -151,7 +151,7 @@ def classcard_add_to_cart():
 
     features = db.customers_shop_features(1)
     if features.Classcards:
-        shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile')
+        shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile_classcards')
         if shop_requires_complete_profile:
             check_add_to_card_requires_complete_profile(auth.user.id)
 
@@ -964,7 +964,7 @@ def membership_terms():
         return T('This feature is disabled')
 
     # check if we require a complete profile
-    shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile')
+    shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile_memberships')
     if shop_requires_complete_profile:
         check_add_to_card_requires_complete_profile(auth.user.id)
 
@@ -1063,7 +1063,7 @@ def subscription_terms():
     ssu = SchoolSubscription(ssuID, set_db_info=True)
 
     # check if we require a complete profile
-    shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile')
+    shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile_subscriptions')
     if shop_requires_complete_profile:
         check_add_to_card_requires_complete_profile(auth.user.id)
 
@@ -2082,7 +2082,7 @@ def class_add_to_cart():
     if not features.Classes:
         return T('This feature is disabled')
 
-    shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile')
+    shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile_classes')
     if shop_requires_complete_profile:
         check_add_to_card_requires_complete_profile(auth.user.id)
 
