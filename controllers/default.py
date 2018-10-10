@@ -253,7 +253,8 @@ def user():
 
         if not 'register' in auth.settings.actions_disabled:
             register_link = A(T("Click here to register"),
-                               _href=URL(args='register'))
+                               _href=URL(args='register',
+                                         vars=request.vars))
 
         form_login = form
 
