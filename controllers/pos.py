@@ -595,8 +595,11 @@ def get_products():
 
     :return: dict containing products sorted by category
     """
+    from openstudio.os_shop_category import ShopCategory
+
     import pprint
 
+    pp = pprint.PrettyPrinter(depth=6)
     set_headers()
 
     query = (db.shop_categories.Archived == False)
@@ -607,10 +610,18 @@ def get_products():
 
     data = []
     for category in categories:
+        print category
+
+        sc = ShopCategory(category.id)
+        products = sc.get_products()
+        
+        print products
+
+
         data.append({
             'Name': category.Name,
             'Description': category.Description,
         })
 
-    pp = pprint.PrettyPrinter(depth=6)
+
     pp.pprint(data)
