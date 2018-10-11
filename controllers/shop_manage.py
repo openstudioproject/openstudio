@@ -301,6 +301,12 @@ def product_edit_get_menu(page, spID):
         pages.append(['product_variants',
                        T('Variants'),
                       URL('shop_manage', 'product_variants', vars=vars)])
+    # Categories
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('read', 'shop_categories_products'):
+        pages.append(['product_categories',
+                       T('Categories'),
+                      URL('shop_manage', 'product_categories', vars=vars)])
 
     # Categories
     # if auth.has_membership(group_id='Admins') or \
@@ -369,6 +375,34 @@ def product_delete():
 
     session.flash = T('Deleted product')
     redirect(shop_products_get_return_url())
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'shop_categories_products'))
+def product_categories():
+    """
+
+    :return:
+    """
+    from openstudio.os_shop_product import ShopProduct
+
+    spID = request.vars['spID']
+    product = ShopProduct(spID)
+
+    response.title = T('Shop')
+    response.subtitle = T('Edit product - {product_name}'.format(
+        product_name=product.row.Name)
+    )
+    response.view = 'general/tabs_menu.html'
+
+    content = "Hello world"
+
+    back = os_gui.get_button('back', shop_products_get_return_url())
+    menu = product_edit_get_menu(request.function, spID)
+
+    return dict(content=content,
+                back=back,
+                menu=menu)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
