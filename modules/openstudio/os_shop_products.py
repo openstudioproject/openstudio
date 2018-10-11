@@ -16,6 +16,29 @@ class ShopProducts:
         return rows
 
 
+    def list_products_categories(self):
+        """
+        :return:
+        """
+        db = current.db
+
+        left = [
+            db.shop_categories_products.on(
+                db.shop_categories_products.shop_categories_id ==
+                db.shop_categories.id
+            )
+        ]
+
+        query = (db.shop_categories.Archived == False)
+        rows = db(query).select(
+            db.shop_categories_products.ALL,
+            left=left,
+            orderby=db.shop_categories.Name
+        )
+
+        print rows
+
+
     def list_formatted(self):
         """
             :return: HTML table with shop products
@@ -27,8 +50,12 @@ class ShopProducts:
         header = THEAD(TR(TH(),
                           TH(T('Name')),
                           TH(T('Description')),
+                          TH(T('Categories')),
                           TH()))
         table = TABLE(header, _class='table table-striped table-hover')
+
+
+        categories = self.list_products_categories()
 
         permission_variants = (auth.has_membership(group_id='Admins') or
                                auth.has_permission('read', 'shop_products_variants'))
@@ -65,6 +92,7 @@ class ShopProducts:
                 TD(repr_row.thumbsmall),
                 TD(os_gui.max_string_length(row.Name, 30)),
                 TD(os_gui.max_string_length(row.Description, 30)),
+                TD('categories here'),
                 TD(buttons)
             )
 
