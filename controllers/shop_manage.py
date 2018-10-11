@@ -420,13 +420,18 @@ def product_variant_add():
     """
         Add a product variant
     """
+    from openstudio.os_shop_product import ShopProduct
     from openstudio.os_forms import OsForms
 
     spID = request.vars['spID']
     product_variant_add_check_products_set(spID)
 
+    product = ShopProduct(spID)
+
     response.title = T('Shop')
-    response.subtitle = T('Catalog')
+    response.subtitle = T('Edit product - {product_name}'.format(
+        product_name=product.row.Name)
+    )
     response.view = 'general/tabs_menu.html'
 
     return_url = product_variants_get_return_url(spID)
@@ -441,14 +446,9 @@ def product_variant_add():
     form = result['form']
     back = os_gui.get_button('back', return_url)
 
-    content = DIV(
-        H4(T('Add product variant')),
-        form
-    )
+    menu = product_edit_get_menu('product_variants', spID)
 
-    menu = catalog_get_menu('products')
-
-    return dict(content=content,
+    return dict(content=form,
                 save=result['submit'],
                 back=back,
                 menu=menu)
