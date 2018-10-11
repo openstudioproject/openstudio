@@ -609,17 +609,25 @@ def my_claims_claim_add():
     if auth.user.teacher == False and auth.user.employee == False:
         redirect(URL('ep', 'index'))
 
-    return_url = ('my_claims')
+    return_url = URL('my_claims')
     db.employee_claims.auth_user_id.default = auth.user.id
     db.employee_claims.Status.default = 'Pending'
-    os_forms = OsForms()
-    result = os_forms.get_crud_form_create(
-        db.employee_claims,
-        return_url,
 
-    )
+    form = SQLFORM(db.employee_claims, submit_button = T('Save'),
+                   formstyle='divs')
 
+    if form.process().accepted:
+        # response.flash = 'form accepted'
+        redirect(return_url)
+    elif form.errors:
+        response.flash = 'form has errors'
+    else:
+        response.flash = 'please fill out the form'
+
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
     form = result['form']
+    submit = result['submit']
+
     back = os_gui.get_button('back', return_url)
 
     content = DIV(
@@ -628,7 +636,7 @@ def my_claims_claim_add():
     )
 
     return dict(content=content,
-                save=result['submit'],
+                save=submit,
                 back=back)
 
 
@@ -644,13 +652,19 @@ def my_claims_claim_edit():
     response.view = 'ep/only_content.html'
 
     return_url = URL('my_claims')
+    ECID = request.vars['ECID']
+    record = db.employee_claims(id=ECID)
+    db.employee_claims.id.readable =False
+    form = SQLFORM(db.employee_claims, record, submit_button=T('Save'),
+                   formstyle='divs')
 
-    os_forms = OsForms()
-    result = os_forms.get_crud_form_update(
-        db.employee_claims,
-        return_url,
-        request.vars['ECID'],
-    )
+    if form.process().accepted:
+        # response.flash = 'form accepted'
+        redirect(return_url)
+    elif form.errors:
+        response.flash = 'form has errors'
+
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
 
     form = result['form']
     back = os_gui.get_button('back', return_url)

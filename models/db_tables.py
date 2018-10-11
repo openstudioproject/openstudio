@@ -1730,7 +1730,7 @@ def define_employee_claims():
               label=T("Amount")),
         Field('Quantity', 'double',
               default=0,
-              represent=represent_float_as_amount,
+              # represent=represent_float_as_amount,
               label=T("Quantity")),
         Field('tax_rates_id', db.tax_rates,
               label= T('Tax Rate')),
