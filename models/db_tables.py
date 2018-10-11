@@ -4601,14 +4601,18 @@ def define_shop_products():
                                               error_message=T('650KB or less'))]),  # 650KB
               label=T("Image (Max 650KB)")),
         Field('thumbsmall', 'upload',  # generate 50*50 for list view
-              autodelete=True, writable=False,
+              autodelete=True,
+              readable=False,
+              writable=False,
               compute=lambda row: SMARTHUMB(row.picture,
                                             (50, 50),
                                             name="Small"),
               represent=represent_shop_products_thumbsmall,
               label=T("Image")),
         Field('thumblarge', 'upload',  # generate 400*400 for edit view
-              autodelete=True, writable=False,
+              autodelete=True,
+              readable=False,
+              writable=False,
               compute=lambda row: SMARTHUMB(row.picture,
                                             (400, 400),
                                             name="Large"),
