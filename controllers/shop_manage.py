@@ -384,6 +384,7 @@ def product_categories():
 
     :return:
     """
+    from general_helpers import set_form_id_and_get_submit_button
     from openstudio.os_shop_product import ShopProduct
 
     spID = request.vars['spID']
@@ -395,12 +396,69 @@ def product_categories():
     )
     response.view = 'general/tabs_menu.html'
 
-    content = "Hello world"
+    header = THEAD(TR(
+        TH(),
+        TH(T("Category"))
+    ))
+
+    table = TABLE(header, _class='table table-hover')
+    query = (db.shop_categories_products.shop_products_id == spID)
+    # rows = db(query).select(db.teachers_classtypes.school_classtypes_id)
+    rows = db(query).select(db.shop_categories_products.shop_categories_id)
+    selected_ids = []
+    for row in rows:
+        selected_ids.append(unicode(row.shop_categories_id))
+
+    query = (db.shop_categories.Archived == False)
+    rows = db(query).select(
+        db.shop_categories.id,
+        db.shop_categories.Name,
+        orderby=db.shop_categories.Name
+    )
+
+    for row in rows:
+        if unicode(row.id) in selected_ids:
+            # check the row
+            table.append(TR(TD(INPUT(_type='checkbox',
+                                     _name=row.id,
+                                     _value="on",
+                                     value="on"),
+                                     _class='td_status_marker'),
+                            TD(row.Name)))
+        else:
+            table.append(TR(TD(INPUT(_type='checkbox',
+                                     _name=row.id,
+                                     _value="on"),
+                                     _class='td_status_marker'),
+                            TD(row.Name)))
+    form = FORM(table, _id='MainForm')
+
+    return_url = URL(vars={'spID':spID})
+    # After submitting, check which categories are 'on'
+    if form.accepts(request,session):
+        # Remove all current records
+        query = (db.shop_categories_products.shop_products_id == spID)
+        db(query).delete()
+        # insert new records for product
+        for row in rows:
+            if request.vars[unicode(row.id)] == 'on':
+                db.shop_categories_products.insert(
+                    shop_categories_id = row.id,
+                    shop_products_id = spID
+                )
+
+        # Clear teachers (API) cache
+        cache_clear_school_teachers()
+
+        session.flash = T('Saved')
+        redirect(return_url)
+
 
     back = os_gui.get_button('back', shop_products_get_return_url())
     menu = product_edit_get_menu(request.function, spID)
 
-    return dict(content=content,
+    return dict(content=form,
+                save=os_gui.get_submit_button('MainForm'),
                 back=back,
                 menu=menu)
 
