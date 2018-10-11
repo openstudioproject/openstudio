@@ -230,7 +230,7 @@ def test_my_payments(client, web2py):
 
 def test_my_claims(client, web2py):
     """
-        Is the staff payments page showing?
+        Is the my claims page showing?
     """
     from populate_os_tables import populate_auth_user_teachers_payment_invoices
     from populate_os_tables import populate_employee_claims
@@ -239,9 +239,8 @@ def test_my_claims(client, web2py):
     assert client.status == 200
 
     setup_ep_tests(web2py)
-    populate_auth_user_teachers_payment_invoices(web2py)
     populate_employee_claims(web2py)
-    # Check payments display
+    # Check claims display
     url = '/ep/my_claims'
     client.get(url)
     assert client.status == 200
@@ -249,25 +248,45 @@ def test_my_claims(client, web2py):
     assert 'First Claim' in client.text
 
 
+def test_my_claims_add(client, web2py):
+    """
+        Can we add a claim?
+    """
+    from populate_os_tables import populate_tax_rates
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    setup_ep_tests(web2py)
+    populate_tax_rates(web2py)
+
+    url = '/default/user/logout'
+    client.get(url)
+    assert client.status == 200
+
+    data = dict(email='ep@openstudioproject.com',
+                password='password',
+                _formname='login',
+                )
+    client.post('/default/user/login', data=data)
+    assert client.status == 200
+
+    url = '/ep/my_claims_claim_add'
+    client.get(url)
+    assert client.status == 200
+    # assert 'Add Claim' in client.text
+
+    data = {
+            'Amount'       :'5',
+            'Quantity'      : '3',
+            'tax_rate_id'  : '1',
+            'Description'   : 'Add First Claim'}
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+    print client.text
 
 
-# def test_my_claims_add(client, web2py):
-#     """
-#         Is the staff payments page showing?
-#     """
-#     from populate_os_tables import populate_auth_user_teachers_payment_invoices
-#     url = '/default/user/login'
-#     client.get(url)
-#     assert client.status == 200
-#
-#     setup_ep_tests(web2py)
-#     populate_auth_user_teachers_payment_invoices(web2py)
-#
-#     # Check payments display
-#     url = '/ep/my_claims'
-#     client.get(url)
-#     assert client.status == 200
-#
-#     # ic = web2py.db.invoices_customers(auth_customer_id=400)
-#     # invoice = web2py.db.invoices(ic.invoices_id)
-#     # assert invoice.InvoiceID in client.text
+    assert web2py.db(web2py.db.employee_claims).count() == 1
+

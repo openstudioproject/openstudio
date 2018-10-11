@@ -26,6 +26,28 @@ import datetime
 
 
 
+def test_employee_claims_pending_page(client, web2py):
+    """
+    Check pending page and if a pending claim is displayed
+    """
+    from populate_os_tables import populate_auth_user_teachers_payment_invoices
+    from populate_os_tables import populate_employee_claims
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+
+    populate_employee_claims(web2py)
+
+    # Check claims display
+    url = '/finance/employee_claims'
+    client.get(url)
+    assert client.status == 200
+
+    print client.text
+    
+    assert 'First Claim' in client.text
+
 
 def test_teacher_payments_batch_set_status_sent_to_bank_add_payments(client, web2py):
     """
@@ -826,3 +848,5 @@ def test_invoices_batch_set_status_sent_to_bank_add_payments(client, web2py):
     payments_amount = web2py.db().select(sum).first()[sum]
 
     assert invoices_amount == payments_amount
+
+

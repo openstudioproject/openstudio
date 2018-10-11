@@ -223,7 +223,7 @@ def my_classes():
                 TD(repr_row.classes.school_locations_id),
                 TD(repr_row.classes.school_classtypes_id),
                 TD(sub_requested),
-                #TD(button)
+                TD(button)
             )
 
             table.append(tr)
@@ -603,7 +603,7 @@ def my_claims_claim_add():
     """
     from openstudio.os_forms import OsForms
     response.title = T('My Claims')
-    response.subtitle= T('Add new Claims')
+    response.subtitle= T('Add New Claim')
     response.view = 'ep/only_content.html'
 
     if auth.user.teacher == False and auth.user.employee == False:
@@ -626,7 +626,6 @@ def my_claims_claim_add():
         H4(T('Add Claim')),
         form
     )
-
 
     return dict(content=content,
                 save=result['submit'],
