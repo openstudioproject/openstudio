@@ -258,7 +258,7 @@ def product_edit():
     os_forms = OsForms()
     result = os_forms.get_crud_form_update(
         db.shop_products,
-        return_url,
+        URL(vars={'spID': spID}),
         spID,
         onaccept=product_onaccept
     )
@@ -271,7 +271,7 @@ def product_edit():
         form
     )
 
-    menu = product_edit_get_menu(request.function)
+    menu = product_edit_get_menu(request.function, spID)
 
     return dict(content=content,
                 save=result['submit'],
@@ -279,18 +279,28 @@ def product_edit():
                 menu=menu)
 
 
-def product_edit_get_menu(page):
+def product_edit_get_menu(page, spID):
     """
         Returns menu for shop edit pages
     """
     pages = []
+
+    vars = {
+        'spID': spID
+    }
 
     # Products
     if auth.has_membership(group_id='Admins') or \
        auth.has_permission('update', 'shop_products'):
         pages.append(['product_edit',
                        T('Edit'),
-                      URL('shop_manage', 'product_edit')])
+                      URL('shop_manage', 'product_edit', vars=vars)])
+    # Variants
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('read', 'shop_products_variants'):
+        pages.append(['product_variants',
+                       T('Variants'),
+                      URL('shop_manage', 'product_variants', vars=vars)])
 
     # Categories
     # if auth.has_membership(group_id='Admins') or \
@@ -374,14 +384,13 @@ def product_variants():
     product = ShopProduct(spID)
 
     response.title = T('Shop')
-    response.subtitle = T('Catalog')
+    response.subtitle = T('Edit product - {product_name}'.format(
+        product_name=product.row.Name)
+    )
     response.view = 'general/tabs_menu.html'
 
     variants = ShopProductsVariants(spID)
-    content = DIV(
-        H4(T('Variants for'), ' ', product.row.Name),
-        variants.list_formatted()
-    )
+    content = variants.list_formatted()
 
     add = ''
     if not product.has_products_set():
@@ -390,7 +399,7 @@ def product_variants():
                                     vars={'spID':spID}))
 
     back = os_gui.get_button('back', shop_products_get_return_url())
-    menu = catalog_get_menu('products')
+    menu = product_edit_get_menu(request.function, spID)
 
     return dict(content=content,
                 add=add,
