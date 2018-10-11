@@ -243,8 +243,14 @@ def product_edit():
         Edit a product
     """
     from openstudio.os_forms import OsForms
+
+    spID = request.vars['spID']
+    sp = db.shop_products(spID)
+
     response.title = T('Shop')
-    response.subtitle = T('Catalog')
+    response.subtitle = T('Edit product - {product_name}'.format(
+        product_name=sp.Name)
+    )
     response.view = 'general/tabs_menu.html'
 
     return_url = shop_products_get_return_url()
@@ -253,7 +259,7 @@ def product_edit():
     result = os_forms.get_crud_form_update(
         db.shop_products,
         return_url,
-        request.vars['spID'],
+        spID,
         onaccept=product_onaccept
     )
 
@@ -265,12 +271,58 @@ def product_edit():
         form
     )
 
-    menu = catalog_get_menu('products')
+    menu = product_edit_get_menu(request.function)
 
     return dict(content=content,
                 save=result['submit'],
                 back=back,
                 menu=menu)
+
+
+def product_edit_get_menu(page):
+    """
+        Returns menu for shop edit pages
+    """
+    pages = []
+
+    # Products
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('update', 'shop_products'):
+        pages.append(['product_edit',
+                       T('Edit'),
+                      URL('shop_manage', 'product_edit')])
+
+    # Categories
+    # if auth.has_membership(group_id='Admins') or \
+    #    auth.has_permission('read', 'shop_categories'):
+    #     pages.append(['categories',
+    #                    T('Categories'),
+    #                   URL('shop_manage', 'categories')])
+    # # Brands
+    # if auth.has_membership(group_id='Admins') or \
+    #    auth.has_permission('read', 'shop_brands'):
+    #     pages.append(['brands',
+    #                    T('Brands'),
+    #                   URL('shop_manage', 'brands')])
+    # # Suppliers
+    # if auth.has_membership(group_id='Admins') or \
+    #    auth.has_permission('read', 'shop_suppliers'):
+    #     pages.append(['suppliers',
+    #                    T('Suppliers'),
+    #                   URL('shop_manage', 'suppliers')])
+    # # Product sets
+    # if auth.has_membership(group_id='Admins') or \
+    #    auth.has_permission('read', 'shop_products_sets'):
+    #     pages.append(['products_sets',
+    #                    T('Product sets'),
+    #                   URL('shop_manage', 'products_sets')])
+
+    return os_gui.get_submenu(pages,
+                              page,
+                              _id='os-customers_edit_menu',
+                              horizontal=True,
+                              htype='tabs')
+
 
 
 def product_onaccept(form):
