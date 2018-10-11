@@ -588,3 +588,29 @@ def update_customer():
                     id=cuID)
 
 
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'shop_products'))
+def get_products():
+    """
+
+    :return: dict containing products sorted by category
+    """
+    import pprint
+
+    set_headers()
+
+    query = (db.shop_categories.Archived == False)
+    categories = db(query).select(
+        db.shop_categories.ALL,
+        orderby=db.shop_categories.Name
+    )
+
+    data = []
+    for category in categories:
+        data.append({
+            'Name': category.Name,
+            'Description': category.Description,
+        })
+
+    pp = pprint.PrettyPrinter(depth=6)
+    pp.pprint(data)
