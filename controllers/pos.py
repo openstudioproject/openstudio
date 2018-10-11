@@ -614,7 +614,7 @@ def get_products():
 
         sc = ShopCategory(category.id)
         products = sc.get_products()
-        
+
         print products
 
 
