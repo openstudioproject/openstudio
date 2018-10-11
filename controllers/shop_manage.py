@@ -478,13 +478,16 @@ def product_variant_edit():
     spID = request.vars['spID']
     spvID = request.vars['spvID']
 
+    product = ShopProduct(spID)
+
     response.title = T('Shop')
-    response.subtitle = T('Catalog')
+    response.subtitle = T('Edit product - {product_name}'.format(
+        product_name=product.row.Name)
+    )
     response.view = 'general/tabs_menu.html'
 
     return_url = product_variants_get_return_url(spID)
 
-    product = ShopProduct(spID)
     if product.has_products_set():
         db.shop_products_variants.Name.writable = False
 
@@ -498,14 +501,9 @@ def product_variant_edit():
     form = result['form']
     back = os_gui.get_button('back', return_url)
 
-    content = DIV(
-        H4(T('Edit product variant')),
-        form
-    )
+    menu = product_edit_get_menu('product_variants', spID)
 
-    menu = catalog_get_menu('products')
-
-    return dict(content=content,
+    return dict(content=form,
                 save=result['submit'],
                 back=back,
                 menu=menu)
