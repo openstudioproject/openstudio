@@ -118,7 +118,7 @@ def get_settings():
     settings = {
         'currency_symbol': CURRSYM,
         'currency': get_sys_property('Currency'),
-        'checkin_barcodes': get_sys_property('pos_barcodes_checkin')
+        'customers_barcodes': get_sys_property('pos_customers_barcodes')
     }
 
     return dict(data = settings)
@@ -416,4 +416,175 @@ def get_school_memberships():
         })
 
     return dict(data=data)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'auth_user'))
+def get_customers():
+    """
+    List not trashed customers
+    """
+    set_headers()
+
+    query = (db.auth_user.customer == True) & \
+            (db.auth_user.trashed == False)
+
+    rows = db(query).select(
+        db.auth_user.id,
+        db.auth_user.first_name,
+        db.auth_user.last_name,
+        db.auth_user.display_name,
+        db.auth_user.email,
+        db.auth_user.gender,
+        db.auth_user.date_of_birth,
+        db.auth_user.address,
+        db.auth_user.postcode,
+        db.auth_user.city,
+        db.auth_user.country,
+        db.auth_user.phone,
+        db.auth_user.mobile,
+        db.auth_user.emergency,
+        db.auth_user.company,
+        db.auth_user.thumbsmall,
+        db.auth_user.thumblarge,
+    )
+
+    customers = {}
+
+    for row in rows:
+        customers[row.id] = {
+            'id': row.id,
+            'first_name': row.first_name,
+            'last_name': row.last_name,
+            'display_name': row.display_name,
+            'search_name': row.display_name.lower(),
+            'email': row.email,
+            'gender': row.gender,
+            'date_of_birth': row.date_of_birth,
+            'address': row.address,
+            'postcode': row.postcode,
+            'city': row.city,
+            'country': row.country,
+            'phone': row.phone,
+            'mobile': row.mobile,
+            'emergency': row.emergency,
+            'company': row.company,
+            'thumbsmall': URL(
+                'default', 'download', args=[row.thumbsmall],
+                extension='',
+                host=True,
+                scheme=True
+            ),
+            'thumblarge': URL(
+                'default', 'download', args=[row.thumblarge],
+                extension='',
+                host=True,
+                scheme=True
+            ),
+        }
+
+    return customers
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'customers_memberships'))
+def get_customers_memberships():
+    """
+    List not trashed customers
+    """
+    set_headers()
+
+    query = (db.customers_memberships.Startdate <= TODAY_LOCAL) & \
+            ((db.customers_memberships.Enddate >= TODAY_LOCAL) |\
+             (db.customers_memberships.Enddate == None))
+
+    rows = db(query).select(
+        db.customers_memberships.id,
+        db.customers_memberships.auth_customer_id,
+        db.customers_memberships.school_memberships_id,
+        db.customers_memberships.Startdate,
+        db.customers_memberships.Enddate,
+        db.customers_memberships.DateID
+    )
+
+    memberships = {}
+    for i, row in enumerate(rows):
+        repr_row = list(rows[i:i + 1].render())[0]
+
+        memberships[row.id] = {
+            'auth_customer_id': row.auth_customer_id,
+            'name': repr_row.school_memberships_id,
+            'start': row.Startdate,
+            'end': row.Enddate,
+            'date_id': row.DateID
+        }
+
+    return memberships
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('create', 'auth_user'))
+def create_customer():
+    """
+    :return: dict containing data of new auth_user
+    """
+    set_headers()
+
+
+    db.auth_user.password.requires = None
+    print request.vars
+
+    result = db.auth_user.validate_and_insert(**request.vars)
+    print result
+
+    return dict(result=result)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'auth_user'))
+def update_customer():
+    """
+    :return: dict containing data of new auth_user
+    """
+    set_headers()
+
+    db.auth_user.password.requires = None
+    print request.vars
+
+    cuID = request.vars.pop('id', None)
+
+    print cuID
+    print request.vars
+
+    print db.auth_user.email.requires
+
+    ##
+    # The default validator returns an error in this case
+    # It says an account already exists for this email
+    # when trying to update the users' own/current email.
+    # This validator works around that.
+    ##
+    query = (db.auth_user.id != cuID)
+
+    db.auth_user.email.requires = [
+        IS_EMAIL(),
+        IS_LOWER(),
+        IS_NOT_IN_DB(
+            db(query),
+            'auth_user.email',
+            error_message=T("This email already has an account")
+        )
+    ]
+
+
+    if cuID:
+        query = (db.auth_user.id == cuID)
+
+
+        result = db(query).validate_and_update(**request.vars)
+        print result
+
+        return dict(result=result,
+                    id=cuID)
+
 

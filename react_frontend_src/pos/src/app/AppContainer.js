@@ -2,6 +2,8 @@ import { connect } from 'react-redux'
 
 import App from './App'
 import { appOperations } from './duck'
+import { customersListOperations } from './customers/list/duck'
+import { customersMembershipsOperations } from './customers/memberships/duck'
 import { shopSchoolClasscardsOperations } from './shop/school/classcards/duck'
 import { shopSchoolMembershipsOperations } from './shop/school/memberships/duck'
 import { shopSchoolSubscriptionsOperations } from './shop/school/subscriptions/duck'
@@ -19,6 +21,12 @@ const mapDispatchToProps = dispatch =>
         },
         fetchSettings() {
             dispatch(appOperations.fetchSettings())
+        },
+        fetchCustomers() {
+            dispatch(customersListOperations.fetchCustomers())
+        },
+        fetchCustomersMemberships() {
+            dispatch(customersMembershipsOperations.fetchMemberships())
         },
         fetchShopSchoolClasscards() {
             dispatch(shopSchoolClasscardsOperations.fetchShopClasscards())

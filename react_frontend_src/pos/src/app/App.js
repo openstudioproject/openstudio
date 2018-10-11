@@ -7,6 +7,7 @@ import {
 } from 'react-router-dom';
 
 
+import Customers from './customers/list/CustomersContainer'
 import Classes from './checkin/classes/ClassesContainer'
 import Attendance from './checkin/attendance/AttendanceContainer'
 import Book from './checkin/book/BookContainer'
@@ -30,6 +31,8 @@ class App extends Component {
   componentWillMount() {
     this.props.fetchUser()    
     this.props.fetchSettings()  
+    this.props.fetchCustomers()
+    this.props.fetchCustomersMemberships()
     this.props.fetchShopSchoolClasscards()
     this.props.fetchShopSchoolMemberships()
     this.props.fetchShopSchoolSubscriptions()
@@ -48,6 +51,7 @@ class App extends Component {
             <Route path='/checkin/attendance/:clsID' component={Attendance} />
             <Route path='/checkin/book/:clsID/:cuID' component={Book} />
             <Route path='/checkin/revenue/:clsID' component={Revenue} />
+            <Route path='/customers' component= {Customers} />
             <Route path='/products/school/classcards' component={Classcards} />
             <Route path='/products/school/memberships' component={Memberships} />
             <Route path='/products/school/subscriptions' component={Subscriptions} />
