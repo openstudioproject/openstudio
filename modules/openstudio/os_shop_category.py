@@ -65,6 +65,9 @@ class ShopCategory:
                 'id': product_row.id,
                 'name': product_row.Name,
                 'description': product_row.DescriptionShop,
+                'picture': product_row.picture,
+                'thumbsmall': product_row.thumbsmall,
+                'thumblarge': product_row.thumblarge,
                 'variants': rows.as_list(),
             })
 
