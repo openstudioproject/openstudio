@@ -15,8 +15,8 @@ const activeClassName = 'active'
 class MainMenu extends Component {
     getNavLinkClass = (path) => {
         let location = this.props.location.pathname.substring(0, path.length)
-        console.log('mm location')        
-        console.log(location)
+        // console.log('mm location')        
+        // console.log(location)
 
         return ((location == path) && (path != '/')) || (path == this.props.location.pathname) ? 'active' : '';
     }
