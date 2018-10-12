@@ -72,3 +72,4 @@ class ShopCategory:
             })
 
         return products_with_variants
+    
