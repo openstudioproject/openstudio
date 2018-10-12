@@ -68,6 +68,11 @@
         }
     },
     "shop": {
+        "products": {
+            "data": {},
+            "loaded": false,
+            "loading": false
+        },
         "school": {
             "classcards": {
                 "data": {},
