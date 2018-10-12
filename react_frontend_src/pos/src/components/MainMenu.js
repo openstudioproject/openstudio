@@ -15,10 +15,10 @@ const activeClassName = 'active'
 class MainMenu extends Component {
     getNavLinkClass = (path) => {
         let location = this.props.location.pathname.substring(0, path.length)
-        // console.log('mm location')        
-        // console.log(location)
+        console.log('mm location')        
+        console.log(location)
 
-        return ((location == path) && (path != '/')) || (path == this.props.location.pathname) ? 'active' : '';
+        return ((location == path) && (path != '/') || ( this.props.location.pathname == path)) ? 'active' : ''
     }
 
     render() {
@@ -30,7 +30,7 @@ class MainMenu extends Component {
                 <NavbarNav>
                     <li className={this.getNavLinkClass('/')}><NavLink to="/" activeClassName={activeClassName}>Home</NavLink></li>
                     <li className={this.getNavLinkClass('/checkin')}><NavLink to="/checkin" activeClassName={activeClassName}>Check-in</NavLink></li>
-                    <li className={this.getNavLinkClass('/shop/products')}><NavLink to="/shop/products" activeClassName={activeClassName}>Shop</NavLink></li>
+                    <li className={this.getNavLinkClass('/shop')}><NavLink to="/shop/products" activeClassName={activeClassName}>Shop</NavLink></li>
                 </NavbarNav>                
             </NavbarCollapse>
             <NavbarCustomMenu>
