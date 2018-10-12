@@ -3,7 +3,7 @@ import { injectIntl } from 'react-intl';
 import { withRouter } from 'react-router'
 
 import { appOperations } from '../../../duck'
-import Classcards from './Classcards';
+import Classcards from './Classcards'
 
 
 const mapStateToProps = state => 

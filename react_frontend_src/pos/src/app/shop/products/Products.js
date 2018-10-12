@@ -27,10 +27,11 @@ class Products extends Component {
     render() {
         return (
             <ShopTemplate app_state={this.props.app}>
-                { this.props.loaded ? 
+                Products here!
+                {/* { this.props.loaded ? 
                      "loaded products":
                      "Loading..."
-                }
+                } */}
             </ShopTemplate>
         )
     }
