@@ -23,7 +23,7 @@ class ShopProducts:
         db = current.db
 
         left = [
-            db.shop_categories_products.on(
+            db.shop_categories.on(
                 db.shop_categories_products.shop_categories_id ==
                 db.shop_categories.id
             )
@@ -36,7 +36,9 @@ class ShopProducts:
             orderby=db.shop_categories.Name
         )
 
-        print rows
+        return rows
+
+
 
 
     def list_formatted(self):

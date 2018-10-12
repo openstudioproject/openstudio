@@ -613,14 +613,15 @@ def get_products():
         print category
 
         sc = ShopCategory(category.id)
-        products = sc.get_products()
+        products_with_variants = sc.get_products_with_variants()
 
-        print products
+
 
 
         data.append({
-            'Name': category.Name,
-            'Description': category.Description,
+            'name': category.Name,
+            'description': category.Description,
+            'products': products_with_variants,
         })
 
 
