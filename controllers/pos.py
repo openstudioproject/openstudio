@@ -625,4 +625,4 @@ def get_products():
         })
 
 
-    pp.pprint(data)
+    return dict(data=data)

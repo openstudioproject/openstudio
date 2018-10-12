@@ -71,5 +71,6 @@ class ShopCategory:
                 'variants': rows.as_list(),
             })
 
+
         return products_with_variants
-    
+
