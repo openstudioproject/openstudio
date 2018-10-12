@@ -5,22 +5,25 @@ import { NavLink, withRouter } from 'react-router-dom'
 
 class NavTabs extends Component {
     getNavLinkClass = (path) => {
-        console.log(path)
+        console.log('pathname')
         console.log(this.props.location.pathname)
-        return (this.props.location.pathname.search(path)) ? 'active' : '';
+        console.log('path')
+        console.log(path)      
+
+        return !(this.props.location.pathname.search(path)) ? 'active' : '';
     }
 
     render() {
      return (
          <ul className="nav nav-tabs">
-         <li className={this.getNavLinkClass("/products")} role="presetation">
-                <NavLink to="/products" activeClassName={activeClassName}>Products</NavLink>
+            <li className={this.getNavLinkClass("/shop/products")} role="presetation">
+                <NavLink to="/shop/products" activeClassName={activeClassName}>Products</NavLink>
             </li>
-            <li className={this.getNavLinkClass("/school")} role="presetation">
-                <NavLink to="/school" activeClassName={activeClassName}>School</NavLink>
+            <li className={this.getNavLinkClass("/shop/school")} role="presetation">
+                <NavLink to="/shop/school/classcards" activeClassName={activeClassName}>School</NavLink>
             </li>
          </ul>
-     )};
+     )}
    }
 NavTabs = withRouter(NavTabs);
 
