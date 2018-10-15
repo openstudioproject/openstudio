@@ -13,7 +13,15 @@ class ProductsList extends Component {
         console.log(this.props.categories)
     }
 
-    populateProducts = (categories) => {
+    populateCategoryProducts = (products) => {
+
+        
+        return (
+            "products here..."
+        )
+    }
+
+    populateCategories = (categories) => {
         let tabs = []
         let tabs_content = []
 
@@ -25,20 +33,25 @@ class ProductsList extends Component {
             let current_id = v4()
 
             tabs.push(
-                <li role="presentation" className={activeClass}>
+                <li key={v4()} role="presentation" className={activeClass}>
                     <a href={"#" + current_id} 
                        title={category.description}
                        aria-controls={current_id}
                        role="tab"
-                       data-toggle="tab">
+                       data-toggle="tab"
+                       key={v4()}>
                         {category.name}
                     </a>
                 </li>
             )
 
             tabs_content.push(
-                <div role="tabpanel" className={"tab-pane " + activeClass} id={current_id}>
-                    {category.name}
+                <div key={v4()} role="tabpanel" className={"tab-pane " + activeClass} id={current_id}>
+                    {
+                        (category.products.length == 0) ? 
+                        "No products in this category":
+                        this.populateCategoryProducts(category.products)
+                    }
                 </div>
             )
 
@@ -80,7 +93,7 @@ class ProductsList extends Component {
         const categories = this.props.categories
 
         return (
-            this.populateProducts(categories)
+            this.populateCategories(categories)
         )
     }
 }
