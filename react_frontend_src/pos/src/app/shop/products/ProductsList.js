@@ -77,6 +77,7 @@ class ProductsList extends Component {
 
             tabs_content.push(
                 <div key={v4()} role="tabpanel" className={"tab-pane " + activeClass} id={current_id}>
+                    <h4>{category.description}</h4>
                     {
                         (category.products.length == 0) ? 
                         "No products in this category":
