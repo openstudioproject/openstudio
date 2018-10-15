@@ -10,17 +10,34 @@ import { v4 } from "uuid"
 class ProductsList extends Component {
     constructor(props) {
         super(props)
-        console.log(this.props.products)
+        console.log(this.props.categories)
     }
 
-    populateProducts = (products) => {
+    populateProducts = (categories) => {
         let tabs = []
         let tabs_content = []
 
-        products.map((product, i) => {
-            console.log(i)
-            console.log(product)
+        categories.map( (key) => {
+            console.log(key)
+
+            // tabs.push(
+            //     <li role="presentation" className='active'>
+            //         <a href={"#" + v4()}>
+            //             tab name here
+            //         </a>
+            //     </li>
+            // )
+
+            
         })
+
+        return (
+            <div>
+                <ul className="nav nav-tabs">
+                    {tabs}
+                </ul>
+            </div>
+        )
     }
 
     // populateRows = (classcards) => {
@@ -43,12 +60,10 @@ class ProductsList extends Component {
     // }
     
     render() {
-        const products = this.props.products
+        const categories = this.props.categories
 
         return (
-            <div>
-            Products here
-            </div>
+            this.populateProducts(categories)
         )
     }
 }

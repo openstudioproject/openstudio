@@ -15,7 +15,7 @@ class Products extends Component {
         intl: intlShape.isRequired,
         setPageTitle: PropTypes.function,
         app: PropTypes.object,
-        products: PropTypes.object,
+        categories: PropTypes.object,
         loaded: PropTypes.boolean,
     }
 
@@ -26,12 +26,12 @@ class Products extends Component {
     }
     
     render() {
-        const products = this.props.products
+        const categories = this.props.categories
 
         return (
             <ShopTemplate app_state={this.props.app}>
                 { this.props.loaded ? 
-                     <ProductsList products={products} />:
+                     <ProductsList categories={categories} />:
                      "Loading..."
                 }
             </ShopTemplate>

@@ -10,7 +10,7 @@ const mapStateToProps = state =>
     ({
         app: state.app,
         loaded: state.shop.products.loaded,
-        products: state.shop.products.data
+        categories: state.shop.products.data
     })
 
 const mapDispatchToProps = dispatch =>
