@@ -13,12 +13,43 @@ class ProductsList extends Component {
         console.log(this.props.categories)
     }
 
-    populateCategoryProducts = (products) => {
+    // populateRows = (classcards) => {
+    //     let container = []
+    //     let children = []
+    //     classcards.map((card, i) => {
+    //         console.log(i)
+    //         console.log(card)
+    //         children.push(<ClasscardsListItem key={"card_" + v4()}
+    //                                           data={card} />)
+    //         if (( (i+1) % 3 ) === 0 || i+1 == classcards.length)  {
+    //             console.log('pushing')
+    //             console.log(children)
+    //             container.push(<div className="row" key={"row_" + v4()}>{children}</div>)
+    //             children = []
+    //         }
+    //     })
+               
+    //     return container
+    // }
 
+    populateCategoryProducts = (products) => {
+        let container = []
+        let children = []
+
+        products.map((product, i) => {
+            console.log(i)
+            console.log(product)
+
+            children.push(product.name)
+            if (( (i+1) % 3 ) === 0 || i+1 == products.length)  {
+                console.log('pushing')
+                console.log(children)
+                container.push(<div className="row" key={"row_" + v4()}>{children}</div>)
+                children = []
+            }
+        })
         
-        return (
-            "products here..."
-        )
+        return container
     }
 
     populateCategories = (categories) => {
@@ -26,9 +57,8 @@ class ProductsList extends Component {
         let tabs_content = []
 
         categories.map( (category, i) => {
-            console.log(i)
-            console.log(category)
-
+            // console.log(i)
+            // console.log(category)
             let activeClass = (i == 0) ? 'active': ''
             let current_id = v4()
 
@@ -56,7 +86,6 @@ class ProductsList extends Component {
             )
         })
 
-        
         return (
             <div>
                 <ul className="nav nav-tabs nav-justified">
@@ -69,25 +98,6 @@ class ProductsList extends Component {
         )
     }
 
-    // populateRows = (classcards) => {
-    //     let container = []
-    //     let children = []
-    //     classcards.map((card, i) => {
-    //         console.log(i)
-    //         console.log(card)
-    //         children.push(<ClasscardsListItem key={"card_" + v4()}
-    //                                           data={card} />)
-    //         if (( (i+1) % 3 ) === 0 || i+1 == classcards.length)  {
-    //             console.log('pushing')
-    //             console.log(children)
-    //             container.push(<div className="row" key={"row_" + v4()}>{children}</div>)
-    //             children = []
-    //         }
-    //     })
-               
-    //     return container
-    // }
-    
     render() {
         const categories = this.props.categories
 
