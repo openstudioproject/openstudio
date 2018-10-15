@@ -3,6 +3,7 @@ import { intlShape } from "react-intl"
 import PropTypes from "prop-types"
 
 import ShopTemplate from '../components/ShopTemplate'
+import ProductsList from "./ProductsList"
 
 class Products extends Component {
     constructor(props) {
@@ -25,10 +26,12 @@ class Products extends Component {
     }
     
     render() {
+        const products = this.props.products
+
         return (
             <ShopTemplate app_state={this.props.app}>
                 { this.props.loaded ? 
-                     "Loaded products":
+                     <ProductsList products={products} />:
                      "Loading..."
                 }
             </ShopTemplate>

@@ -2,43 +2,55 @@ import React, {Component} from "react"
 import { v4 } from "uuid"
 
 // import AttendanceListItem from "./ClasscardsListItem"
-import Box from '../../../../components/ui/Box'
-import BoxBody from '../../../../components/ui/BoxBody'
-import ClasscardsListItem from "./ProductsListItem";
+// import Box from '../../../../components/ui/Box'
+// import BoxBody from '../../../../components/ui/BoxBody'
+// import ProductsListItem from "./ProductsListItem"
 
 
-class ClasscardsList extends Component {
+class ProductsList extends Component {
     constructor(props) {
         super(props)
+        console.log(this.props.products)
     }
 
-    populateRows = (classcards) => {
-        let container = []
-        let children = []
-        classcards.map((card, i) => {
+    populateProducts = (products) => {
+        let tabs = []
+        let tabs_content = []
+
+        products.map((product, i) => {
             console.log(i)
-            console.log(card)
-            children.push(<ClasscardsListItem key={"card_" + v4()}
-                                              data={card} />)
-            if (( (i+1) % 3 ) === 0 || i+1 == classcards.length)  {
-                console.log('pushing')
-                console.log(children)
-                container.push(<div className="row" key={"row_" + v4()}>{children}</div>)
-                children = []
-            }
+            console.log(product)
         })
-               
-        return container
     }
+
+    // populateRows = (classcards) => {
+    //     let container = []
+    //     let children = []
+    //     classcards.map((card, i) => {
+    //         console.log(i)
+    //         console.log(card)
+    //         children.push(<ClasscardsListItem key={"card_" + v4()}
+    //                                           data={card} />)
+    //         if (( (i+1) % 3 ) === 0 || i+1 == classcards.length)  {
+    //             console.log('pushing')
+    //             console.log(children)
+    //             container.push(<div className="row" key={"row_" + v4()}>{children}</div>)
+    //             children = []
+    //         }
+    //     })
+               
+    //     return container
+    // }
     
     render() {
-        const classcards = this.props.classcards
+        const products = this.props.products
 
-        console.log(classcards.length)
         return (
-            this.populateRows(classcards)
+            <div>
+            Products here
+            </div>
         )
     }
 }
 
-export default ClasscardsList
+export default ProductsList
