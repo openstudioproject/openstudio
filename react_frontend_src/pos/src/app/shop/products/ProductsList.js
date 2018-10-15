@@ -54,10 +54,9 @@ class ProductsList extends Component {
                     }
                 </div>
             )
-
-            
         })
 
+        
         return (
             <div>
                 <ul className="nav nav-tabs nav-justified">

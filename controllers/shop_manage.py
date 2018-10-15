@@ -202,6 +202,10 @@ def shop_products_get_return_url(var=None):
     return URL('shop_manage', 'products')
 
 
+# def shop_products_get_add_edit_return_url(var=None):
+#
+
+
 @auth.requires_login()
 def product_add():
     """
@@ -217,8 +221,9 @@ def product_add():
     os_forms = OsForms()
     result = os_forms.get_crud_form_create(
         db.shop_products,
-        return_url,
+        '/shop_manage/product_edit?spID=[id]',
         onaccept=product_onaccept,
+        message_record_created=T("Added product, you can now add variants and categories")
     )
 
     form = result['form']
