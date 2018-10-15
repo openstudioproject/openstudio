@@ -653,9 +653,9 @@ def my_claims_claim_edit():
 
     return_url = URL('my_claims')
     ECID = request.vars['ECID']
-    record = db.employee_claims(id=ECID)
+    # record = db.employee_claims(id=ECID)
     db.employee_claims.id.readable =False
-    form = SQLFORM(db.employee_claims, record, submit_button=T('Save'),
+    form = SQLFORM(db.employee_claims, ECID, submit_button=T('Save'),
                    formstyle='divs')
 
     if form.process().accepted:

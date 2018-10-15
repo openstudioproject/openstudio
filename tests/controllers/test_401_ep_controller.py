@@ -238,7 +238,6 @@ def test_my_claims(client, web2py):
     client.get(url)
     assert client.status == 200
 
-    setup_ep_tests(web2py)
     populate_employee_claims(web2py)
     # Check claims display
     url = '/ep/my_claims'
@@ -291,21 +290,21 @@ def test_my_claims_edit(client, web2py):
     client.get(url)
     assert client.status == 200
 
-    setup_ep_tests(web2py)
+
     populate_employee_claims(web2py)
-    assert web2py.db(web2py.db.employee_claims).count() == 1
-    assert (web2py.db.employee_claims.id == 1)
+
     # Check claims display
     url = '/ep/my_claims_claim_edit?ECID=1'
     client.get(url)
     assert client.status == 200
 
     data = {
+        'id': '1',
         'Amount': '5',
         'Quantity': '3',
         'tax_rates_id': '1',
         'Description': 'Edit First Claim'}
-    print client.text
+
 
     client.post(url, data=data)
     assert client.status == 200
@@ -319,11 +318,10 @@ def test_my_claims_delete(client, web2py):
     client.get(url)
     assert client.status == 200
 
-    setup_ep_tests(web2py)
     populate_employee_claims(web2py)
     # Check claims display
     url = '/ep/my_claims_claim_delete?ECID=1'
     client.get(url)
     assert client.status == 200
 
-    assert web2py.db(web2py.db.employee_claims).count() == 0
+    assert web2py.db(web2py.db.employee_claims).count() == 3
