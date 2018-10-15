@@ -17,25 +17,42 @@ class ProductsList extends Component {
         let tabs = []
         let tabs_content = []
 
-        categories.map( (key) => {
-            console.log(key)
+        categories.map( (category, i) => {
+            console.log(i)
+            console.log(category)
 
-            // tabs.push(
-            //     <li role="presentation" className='active'>
-            //         <a href={"#" + v4()}>
-            //             tab name here
-            //         </a>
-            //     </li>
-            // )
+            let activeClass = (i == 0) ? 'active': ''
+            let current_id = v4()
+
+            tabs.push(
+                <li role="presentation" className={activeClass}>
+                    <a href={"#" + current_id} 
+                       title={category.description}
+                       aria-controls={current_id}
+                       role="tab"
+                       data-toggle="tab">
+                        {category.name}
+                    </a>
+                </li>
+            )
+
+            tabs_content.push(
+                <div role="tabpanel" className={"tab-pane " + activeClass} id={current_id}>
+                    {category.name}
+                </div>
+            )
 
             
         })
 
         return (
             <div>
-                <ul className="nav nav-tabs">
+                <ul className="nav nav-tabs nav-justified">
                     {tabs}
                 </ul>
+                <div className="tab-content">
+                    {tabs_content}
+                </div>
             </div>
         )
     }
