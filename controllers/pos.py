@@ -616,8 +616,6 @@ def get_products():
         products_with_variants = sc.get_products_with_variants()
 
 
-
-
         data.append({
             'name': category.Name,
             'description': category.Description,

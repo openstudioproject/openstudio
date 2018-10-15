@@ -47,6 +47,8 @@ class ShopCategory:
 
         :return: All products in this category
         """
+        from general_helpers import get_download_url
+
         db = current.db
 
         products_with_variants = []

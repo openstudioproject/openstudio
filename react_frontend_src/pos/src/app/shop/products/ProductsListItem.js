@@ -1,16 +1,18 @@
 import React from "react"
-import { withRouter } from 'react-router-dom'
-import { injectIntl } from 'react-intl';
+// import { withRouter } from 'react-router-dom'
+import { injectIntl } from 'react-intl'
 
 // import Check from '../../../components/ui/Check'
 // import Label from '../../../components/ui/Label'
 
-import Currency from '../../../../components/ui/Currency'
+import Currency from '../../../components/ui/Currency'
 
 
-const ClasscardsListItem = injectIntl(withRouter(({data, intl}) => 
+const ProductListItem = injectIntl(({data, intl}) => 
     <div className="col-md-4">
-        <div className="panel panel-default">
+        <img src={data.thumblarge} />
+
+        {/* <div className="panel panel-default">
             <div className="panel-heading">
                 <h3 className="panel-title">{data.Name}</h3>
             </div>
@@ -38,9 +40,9 @@ const ClasscardsListItem = injectIntl(withRouter(({data, intl}) =>
                         </tr>
                     </tbody>
                 </table>
-        </div>
+        </div> */}
     </div>
-))
+)
 
 
-export default ClasscardsListItem
+export default ProductListItem

@@ -4,7 +4,7 @@ import { v4 } from "uuid"
 // import AttendanceListItem from "./ClasscardsListItem"
 // import Box from '../../../../components/ui/Box'
 // import BoxBody from '../../../../components/ui/BoxBody'
-// import ProductsListItem from "./ProductsListItem"
+import ProductsListItem from "./ProductsListItem"
 
 
 class ProductsList extends Component {
@@ -40,7 +40,12 @@ class ProductsList extends Component {
             console.log(i)
             console.log(product)
 
-            children.push(product.name)
+            // children.push(product.name)
+            children.push(
+                <ProductsListItem data={product}
+                                  key={"product_" + v4()}
+                                  />
+            )
             if (( (i+1) % 3 ) === 0 || i+1 == products.length)  {
                 console.log('pushing')
                 console.log(children)
@@ -77,7 +82,8 @@ class ProductsList extends Component {
 
             tabs_content.push(
                 <div key={v4()} role="tabpanel" className={"tab-pane " + activeClass} id={current_id}>
-                    <h4>{category.description}</h4>
+                    {/* <h4>{category.description}</h4> */}
+                    <br/><br/>
                     {
                         (category.products.length == 0) ? 
                         "No products in this category":
