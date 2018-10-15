@@ -1891,7 +1891,7 @@ def employee_claims_accept_all():
     """
     from openstudio.os_employee_claims import EmployeeClaims
 
-    ec = EmployeeClaim()
+    ec = EmployeeClaims()
     number_accepted = ec.accept_all()
 
     if number_accepted:

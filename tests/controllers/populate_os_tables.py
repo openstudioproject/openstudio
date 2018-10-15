@@ -502,11 +502,12 @@ def populate_employee_claims(web2py):
     :param web2py:
     :return:
     '''
+    from setup_ep_tests import setup_ep_tests
     try:
         populate_tax_rates(web2py)
     except:
         print 'Tried to insert tax rates, but one or more already exists in db.tax_rates'
-
+    setup_ep_tests(web2py)
     try:
         web2py.db.employee_claims.insert(
             auth_user_id     = 400,
@@ -515,6 +516,30 @@ def populate_employee_claims(web2py):
             taxe_rate_id     = 1,
             Status           = 'Pending',
             Description      = 'First Claim'
+        )
+        web2py.db.employee_claims.insert(
+            auth_user_id     = 400,
+            Amount           = 5,
+            Quantity         = 3,
+            taxe_rate_id     = 1,
+            Status           = 'Accepted',
+            Description      = 'Accepted Claim'
+        )
+        web2py.db.employee_claims.insert(
+            auth_user_id     = 400,
+            Amount           = 5,
+            Quantity         = 3,
+            taxe_rate_id     = 1,
+            Status           = 'Rejected',
+            Description      = 'Rejected Claim'
+        )
+        web2py.db.employee_claims.insert(
+            auth_user_id     = 400,
+            Amount           = 5,
+            Quantity         = 3,
+            taxe_rate_id     = 1,
+            Status           = 'Processed',
+            Description      = 'Processed Claim'
         )
         web2py.db.commit()
     except:

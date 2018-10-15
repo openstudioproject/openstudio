@@ -30,7 +30,7 @@ def test_employee_claims_pending_page(client, web2py):
     """
     Check pending page and if a pending claim is displayed
     """
-    from populate_os_tables import populate_auth_user_teachers_payment_invoices
+
     from populate_os_tables import populate_employee_claims
     url = '/default/user/login'
     client.get(url)
@@ -44,9 +44,155 @@ def test_employee_claims_pending_page(client, web2py):
     client.get(url)
     assert client.status == 200
 
-    print client.text
-    
     assert 'First Claim' in client.text
+
+
+def test_employee_claims_move_claim_to_accepted(client, web2py):
+    """Check if a claim can be moved to accepted"""
+    from populate_os_tables import populate_employee_claims
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    populate_employee_claims(web2py)
+
+    # Check claims display
+    url = '/finance/employee_claims_accept?ecID=1'
+    client.get(url)
+    assert client.status == 200
+
+    assert web2py.db(web2py.db.employee_claims.Status == 'Accepted').count() == 2
+
+
+def test_employee_claims_accept_all(client, web2py):
+    """Check if a claim can be moved to accepted"""
+    from populate_os_tables import populate_employee_claims
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    populate_employee_claims(web2py)
+
+    # Check claims display
+    url = '/finance/employee_claims_accept_all'
+    client.get(url)
+    assert client.status == 200
+
+    assert web2py.db(web2py.db.employee_claims.Status == 'Accepted').count() == 2
+
+
+def test_employee_claims_move_claim_to_rejected(client, web2py):
+    """Check if a claim can be moved to accepted"""
+    from populate_os_tables import populate_employee_claims
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    populate_employee_claims(web2py)
+
+    # Check claims display
+    url = '/finance/employee_claims_reject?ecID=1'
+    client.get(url)
+    assert client.status == 200
+
+    assert web2py.db(web2py.db.employee_claims.Status == 'Rejected').count() == 2
+
+
+def test_employee_claims_move_claim_to_pending(client, web2py):
+    """Check if a claim can be moved to accepted"""
+    from populate_os_tables import populate_employee_claims
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    populate_employee_claims(web2py)
+
+    # Check claims display
+    url = '/finance/employee_claims_pending?ecID=2'
+    client.get(url)
+    assert client.status == 200
+
+    assert web2py.db(web2py.db.employee_claims.Status == 'Pending').count() == 2
+
+
+def test_employee_claims_rejected_page(client, web2py):
+    """
+    Check rejected page and if a accepted claim is displayed
+    """
+
+    from populate_os_tables import populate_employee_claims
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    populate_employee_claims(web2py)
+
+
+    # Check claims display
+    url = '/finance/employee_claims_rejected'
+    client.get(url)
+    assert client.status == 200
+
+    assert 'Rejected Claim' in client.text
+
+
+def test_employee_claims_accepted_page(client, web2py):
+    """
+    Check accepted page and if a accepted claim is displayed
+    """
+
+    from populate_os_tables import populate_employee_claims
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+
+    populate_employee_claims(web2py)
+
+    # Check claims display
+    url = '/finance/employee_claims_accepted'
+    client.get(url)
+    assert client.status == 200
+
+
+    assert 'Accepted Claim' in client.text
+
+
+def test_employee_claims_process_accepted(client, web2py):
+    """Check if a claim can be moved to accepted"""
+    from populate_os_tables import populate_employee_claims
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    populate_employee_claims(web2py)
+
+    # Check claims display
+    url = '/finance/employee_claims_process_accepted'
+    client.get(url)
+    assert client.status == 200
+
+    assert web2py.db(web2py.db.employee_claims.Status == 'Processed').count() == 2
+    assert web2py.db(web2py.db.invoices).count() >=1
+
+def test_employee_claims_processed_page(client, web2py):
+    """
+    Check proccessed page and if a processed claim is displayed
+    """
+
+    from populate_os_tables import populate_employee_claims
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    populate_employee_claims(web2py)
+
+    # Check claims display
+    url = '/finance/employee_claims_processed'
+    client.get(url)
+    assert client.status == 200
+
+    assert 'Processed Claim' in client.text
 
 
 def test_teacher_payments_batch_set_status_sent_to_bank_add_payments(client, web2py):
