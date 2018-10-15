@@ -232,7 +232,7 @@ def test_my_claims(client, web2py):
     """
         Is the my claims page showing?
     """
-    from populate_os_tables import populate_auth_user_teachers_payment_invoices
+
     from populate_os_tables import populate_employee_claims
     url = '/default/user/login'
     client.get(url)
@@ -260,16 +260,6 @@ def test_my_claims_add(client, web2py):
     setup_ep_tests(web2py)
     populate_tax_rates(web2py)
 
-    url = '/default/user/logout'
-    client.get(url)
-    assert client.status == 200
-
-    data = dict(email='ep@openstudioproject.com',
-                password='password',
-                _formname='login',
-                )
-    client.post('/default/user/login', data=data)
-    assert client.status == 200
 
     url = '/ep/my_claims_claim_add'
     client.get(url)
@@ -277,16 +267,63 @@ def test_my_claims_add(client, web2py):
     # assert 'Add Claim' in client.text
 
     data = {
-            'Amount'       :'5',
-            'Quantity'      : '3',
-            'tax_rate_id'  : '1',
-            'Description'   : 'Add First Claim'}
+            'Amount': '5',
+            'Quantity': '3',
+            'tax_rates_id': '1',
+            'Description': 'Add First Claim'}
 
     client.post(url, data=data)
     assert client.status == 200
 
-    print client.text
+    # print client.text
 
 
     assert web2py.db(web2py.db.employee_claims).count() == 1
 
+
+def test_my_claims_edit(client, web2py):
+    """
+         Can you edit a claim
+         """
+
+    from populate_os_tables import populate_employee_claims
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    setup_ep_tests(web2py)
+    populate_employee_claims(web2py)
+    assert web2py.db(web2py.db.employee_claims).count() == 1
+    assert (web2py.db.employee_claims.id == 1)
+    # Check claims display
+    url = '/ep/my_claims_claim_edit?ECID=1'
+    client.get(url)
+    assert client.status == 200
+
+    data = {
+        'Amount': '5',
+        'Quantity': '3',
+        'tax_rates_id': '1',
+        'Description': 'Edit First Claim'}
+    print client.text
+
+    client.post(url, data=data)
+    assert client.status == 200
+    assert (web2py.db.employee_claims.Description == 'Edit First Claim')
+
+
+def test_my_claims_delete(client, web2py):
+    """Can you delete a claim"""
+    from populate_os_tables import populate_employee_claims
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    setup_ep_tests(web2py)
+    populate_employee_claims(web2py)
+    # Check claims display
+    url = '/ep/my_claims_claim_delete?ECID=1'
+    client.get(url)
+    assert client.status == 200
+
+    assert web2py.db(web2py.db.employee_claims).count() == 0
