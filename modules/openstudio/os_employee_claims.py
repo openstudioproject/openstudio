@@ -35,8 +35,6 @@ class EmployeeClaims:
             limitby=limitby
         )
 
-        print rows
-
         if not formatted:
             return rows
         else:
@@ -376,6 +374,8 @@ class EmployeeClaims:
             formatted=False,
             all=True
         )
+
+        print rows
 
         # previous_teacher = None
         # current_teacher = None

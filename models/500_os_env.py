@@ -422,7 +422,7 @@ def get_invoices_groups_product_types():
         ['wsp', T('Workshop products')],
         ['shop', T('OpenStudio shop (All sales from the shop will go into this group)')],
         ['teacher_payments', T('Credit invoices for teacher payments')],
-        ['employee_claims', T('Credit invoices for employee_claims')]
+        ['employee_claims', T('Credit invoices for employee claims')]
     ]
 
     return categories
