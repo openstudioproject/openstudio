@@ -25,13 +25,12 @@ from populate_os_tables import populate_customers_with_subscriptions
 import datetime
 
 
-
 def test_employee_claims_pending_page(client, web2py):
     """
     Check pending page and if a pending claim is displayed
     """
-
     from populate_os_tables import populate_employee_claims
+
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
@@ -49,7 +48,9 @@ def test_employee_claims_pending_page(client, web2py):
 
 def test_employee_claims_move_claim_to_accepted(client, web2py):
     """Check if a claim can be moved to accepted"""
+
     from populate_os_tables import populate_employee_claims
+
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
@@ -67,6 +68,7 @@ def test_employee_claims_move_claim_to_accepted(client, web2py):
 def test_employee_claims_accept_all(client, web2py):
     """Check if a claim can be moved to accepted"""
     from populate_os_tables import populate_employee_claims
+
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
@@ -84,6 +86,7 @@ def test_employee_claims_accept_all(client, web2py):
 def test_employee_claims_move_claim_to_rejected(client, web2py):
     """Check if a claim can be moved to accepted"""
     from populate_os_tables import populate_employee_claims
+
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
@@ -101,6 +104,7 @@ def test_employee_claims_move_claim_to_rejected(client, web2py):
 def test_employee_claims_move_claim_to_pending(client, web2py):
     """Check if a claim can be moved to accepted"""
     from populate_os_tables import populate_employee_claims
+
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
@@ -119,14 +123,13 @@ def test_employee_claims_rejected_page(client, web2py):
     """
     Check rejected page and if a accepted claim is displayed
     """
-
     from populate_os_tables import populate_employee_claims
+
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
 
     populate_employee_claims(web2py)
-
 
     # Check claims display
     url = '/finance/employee_claims_rejected'
@@ -140,12 +143,11 @@ def test_employee_claims_accepted_page(client, web2py):
     """
     Check accepted page and if a accepted claim is displayed
     """
-
     from populate_os_tables import populate_employee_claims
+
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
-
 
     populate_employee_claims(web2py)
 
@@ -154,13 +156,13 @@ def test_employee_claims_accepted_page(client, web2py):
     client.get(url)
     assert client.status == 200
 
-
     assert 'Accepted Claim' in client.text
 
 
 def test_employee_claims_process_accepted(client, web2py):
     """Check if a claim can be moved to accepted"""
     from populate_os_tables import populate_employee_claims
+
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
@@ -173,14 +175,15 @@ def test_employee_claims_process_accepted(client, web2py):
     assert client.status == 200
 
     assert web2py.db(web2py.db.employee_claims.Status == 'Processed').count() == 2
-    assert web2py.db(web2py.db.invoices).count() >=1
+    assert web2py.db(web2py.db.invoices).count() >= 1
+
 
 def test_employee_claims_processed_page(client, web2py):
     """
     Check proccessed page and if a processed claim is displayed
     """
-
     from populate_os_tables import populate_employee_claims
+
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
@@ -486,7 +489,6 @@ def test_teacher_payment_classes_verified(client, web2py):
     tpc = web2py.db.teachers_payment_classes(1)
     assert str(tpc.ClassDate) in client.text
     assert format(tpc.ClassRate, '.2f') in client.text
-
 
 
 def test_teacher_payment_classes_processed(client, web2py):
