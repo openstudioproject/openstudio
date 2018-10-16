@@ -147,8 +147,6 @@ def financial_glaccounts():
     items = api.financialglaccounts.all()
     sorted_items = sorted(items, key=lambda k: k['Code'])
 
-    print items
-
     header = THEAD(TR(
         TH('G/L Account code'),
         TH('G/L Account Description'),
