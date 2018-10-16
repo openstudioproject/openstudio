@@ -15,6 +15,14 @@ def authorize():
     redirect(url)
 
 
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'settings'))
+def deactivate():
+    set_sys_property('exact_online_authorized', 'False')
+
+    redirect(URL('settings_integration', 'exact_online'))
+
+
 def oauth2_success():
     """
 
