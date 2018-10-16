@@ -269,7 +269,7 @@ def order_pay():
 
     # check if the order belongs to the currently logged in customer
     if not order.order.auth_customer_id == auth.user.id:
-        session.flash = T("What are you doing? This order isn't yours")
+        session.flash = T("Unable to show order")
         redirect(URL('cart'))
 
 

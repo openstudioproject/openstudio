@@ -512,7 +512,7 @@ def complete():
 
         # Does this order belong to this customer?
         if not order.order.auth_customer_id == auth.user.id:
-            session.flash = T("That order isn't yours...")
+            session.flash = T("Unable to show order")
             redirect(URL('cart'))
 
         # Do we have a donation?
@@ -567,7 +567,7 @@ def complete():
         invoice = Invoice(iID)
 
         if not invoice.get_linked_customer_id() == auth.user.id:
-            session.flash = T("That invoice isn't yours...")
+            session.flash = T("Unable to show invoice")
             redirect(URL('profile', 'index'))
 
 
@@ -1859,7 +1859,7 @@ def class_book():
         Actually book class
     """
     def wrong_user():
-        return "Looks like this subscription or class card isn't yours..."
+        return "Unable to use this subscription or class card"
 
     from openstudio.os_attendance_helper import AttendanceHelper
     from openstudio.os_class import Class

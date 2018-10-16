@@ -641,6 +641,12 @@ def my_claims_claim_edit():
 
     return_url = URL('my_claims')
     ecID = request.vars['ecID']
+
+    ec = db.employee_claims(ecID)
+    if not ec.auth_user_id == auth.user.id:
+        session.flash = T("Unable to edit this claim")
+        redirect(return_url)
+    
     db.employee_claims.id.readable =False
     form = SQLFORM(
         db.employee_claims,

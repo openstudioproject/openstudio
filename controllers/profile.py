@@ -847,7 +847,7 @@ def invoice():
     invoice = Invoice(iID)
 
     if not invoice.get_linked_customer_id() == auth.user.id:
-        session.flash = T("That invoice isn't yours...")
+        session.flash = T("Unable to show invoice")
         redirect(URL('profile', 'invoices'))
 
     response.subtitle = invoice.invoice.InvoiceID
