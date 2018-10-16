@@ -646,7 +646,7 @@ def my_claims_claim_edit():
     if not ec.auth_user_id == auth.user.id:
         session.flash = T("Unable to edit this claim")
         redirect(return_url)
-    
+
     db.employee_claims.id.readable =False
     form = SQLFORM(
         db.employee_claims,
@@ -681,6 +681,11 @@ def my_claims_claim_delete():
     :return:
     """
     ecID = request.vars['ecID']
+
+    ec = db.employee_claims(ecID)
+    if not ec.auth_user_id == auth.user.id:
+        session.flash = T("Unable to delete this claim")
+        redirect(return_url)
 
     query = (db.employee_claims.id == ecID)
     db(query).delete()
