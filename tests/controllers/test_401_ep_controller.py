@@ -321,8 +321,8 @@ def test_my_claims(client, web2py):
     """
         Is the my claims page showing?
     """
-
     from populate_os_tables import populate_employee_claims
+
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
@@ -341,13 +341,13 @@ def test_my_claims_add(client, web2py):
         Can we add a claim?
     """
     from populate_os_tables import populate_tax_rates
+
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
 
     setup_ep_tests(web2py)
     populate_tax_rates(web2py)
-
 
     url = '/ep/my_claims_claim_add'
     client.get(url)
@@ -363,22 +363,18 @@ def test_my_claims_add(client, web2py):
     client.post(url, data=data)
     assert client.status == 200
 
-    # print client.text
-
-
     assert web2py.db(web2py.db.employee_claims).count() == 1
 
 
 def test_my_claims_edit(client, web2py):
     """
          Can you edit a claim
-         """
-
+    """
     from populate_os_tables import populate_employee_claims
+
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
-
 
     populate_employee_claims(web2py)
 
@@ -397,18 +393,24 @@ def test_my_claims_edit(client, web2py):
     client.post(url, data=data)
     assert client.status == 200
     assert (web2py.db.employee_claims.Description == 'Edit First Claim')
-    
+
+
 def test_my_claims_delete(client, web2py):
-    """Can you delete a claim"""
+    """
+    Can you delete a claim
+    """
     from populate_os_tables import populate_employee_claims
+
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
 
     populate_employee_claims(web2py)
+    claims_before_delete = web2py.db(web2py.db.employee_claims).count()
+
     # Check claims display
     url = '/ep/my_claims_claim_delete?ECID=1'
     client.get(url)
     assert client.status == 200
 
-    assert web2py.db(web2py.db.employee_claims).count() == 3
+    assert web2py.db(web2py.db.employee_claims).count() == claims_before_delete - 1
