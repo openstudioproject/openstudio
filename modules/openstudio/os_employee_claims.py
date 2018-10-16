@@ -107,6 +107,9 @@ class EmployeeClaims:
         """
         Display claim attachments in a modal
         """
+        if not row.Attachment:
+            return ''
+
         T = current.T
 
         attachment_url = URL('default', 'download', row.Attachment)
