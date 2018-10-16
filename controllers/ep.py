@@ -543,7 +543,7 @@ def my_claims():
     query= (db.employee_claims.auth_user_id== auth.user.id)
     rows= db(query).select(orderby=~db.employee_claims.ClaimDate)
 
-    onclick_del = "return confirm('Want to delete this Claim?');"
+    onclick_del = "return confirm('Do you really want to delete this Claim?');"
 
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
