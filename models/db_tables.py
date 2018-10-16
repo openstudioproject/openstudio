@@ -1734,6 +1734,49 @@ def define_classes_notes():
         )
 
 
+def define_employee_claims():
+    db.define_table('employee_claims',
+        Field('auth_user_id', db.auth_user,  # Employee that does the claims
+              required= True,
+              readable=False,
+              writable=False,
+              label=T('Employee/Teacher')),
+        Field('Amount', 'double',
+              default=0,
+              represent=represent_float_as_amount,
+              label=T("Amount")),
+        Field('Quantity', 'double',
+              default=0,
+              # represent=represent_float_as_amount,
+              label=T("Quantity")),
+        Field('tax_rates_id', db.tax_rates,
+              label= T('Tax Rate')),
+        Field('ClaimDate', 'datetime',
+              default=NOW_LOCAL,
+              readable= False,
+              writable= False,
+              label=T('Date')),
+        Field('Description',
+              label=T('Description')),
+        Field('Attachment', 'upload', autodelete=True,
+              requires=IS_EMPTY_OR([IS_IMAGE(extensions=('jpeg', 'jpg', 'png')),
+                                    IS_LENGTH(maxsize=665600,
+                                              error_message=T('650KB or less'))]),  # 650KB
+              label=T("Image Attachment (Max 650KB)")),
+
+        Field('Status',
+              readable=False,
+              writable=False,
+              label=T("Status")),
+        Field('VerifiedBy', db.auth_user,
+              readable=False,
+              writable=False),
+        Field('VerifiedOn', 'datetime',
+              readable=False,
+              writable=False),
+         )
+
+
 def define_classes():
     weekdays = [('1',T('Monday')),
                 ('2',T('Tuesday')),
@@ -3859,6 +3902,22 @@ def define_invoices():
               writable=False,
               default=TODAY_LOCAL.year,
               label=T('Year')),
+        Field('EmployeeClaim', 'boolean',
+            readable=False,
+            writable=False,
+            default=False),
+        Field('EmployeeClaimMonth', 'integer',
+              readable=False,
+              writable=False,
+              requires=IS_IN_SET(months, zero=T('Please select...')),
+              represent=NRtoMonth,
+              default=TODAY_LOCAL.month,
+              label=T('Month')),
+        Field('EmployeeClaimYear', 'integer',
+              readable=False,
+              writable=False,
+              default=TODAY_LOCAL.year,
+              label=T('Year')),
         Field('CustomerCompany',
               label=T('Company')),
         Field('CustomerCompanyRegistration',
@@ -5823,6 +5882,9 @@ define_customers_orders()
 define_customers_orders_items()
 define_customers_orders_amounts()
 define_customers_orders_mollie_payment_ids()
+
+#employee claims definitions
+define_employee_claims()
 
 
 # invoice definitions

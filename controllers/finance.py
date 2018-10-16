@@ -1627,3 +1627,429 @@ def teacher_payment_classes_process_choose_dates():
                 back=back,
                 save=submit)
 
+
+def employee_claims_get_menu(page):
+    pages = [
+        [
+            'employee_claims_invoices',
+            T('Credit invoices'),
+            URL('employee_claims_invoices')
+        ]
+    ]
+
+    # print status
+
+    if ( auth.has_membership(group_id='Admins') or
+         auth.has_permission('read', 'employee_claims') ):
+        pages.append([ 'employee_claims_processed',
+                       T('Processed'),
+                       URL('employee_claims_processed') ]),\
+        pages.append([ 'employee_claims_accepted',
+                       T('Accepted'),
+                       URL('employee_claims_accepted') ])
+        pages.append([ 'employee_claims_rejected',
+                       T('Rejected'),
+                       URL('employee_claims_rejected') ])
+        pages.append([ 'employee_claims',
+                       T('Pending'),
+                       URL('employee_claims') ])
+
+
+    return os_gui.get_submenu(pages,page, horizontal=True, htype='tabs')
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'invoices'))
+def employee_claims_invoices():
+    """
+        List teacher payments invoices by month and add button to add invoices for a
+        selected month
+    """
+    response.title = T('Employee Claims')
+    response.subtitle = T('')
+    response.view = 'general/only_content_no_box.html'
+
+    invoices = Invoices()
+    status_filter = invoices.list_get_status_filter()
+    list = invoices.list_invoices(only_employee_claim_credit_invoices=True)
+
+    content = DIV(
+        employee_claims_get_menu(request.function),
+         DIV(DIV(status_filter,
+                 list,
+                  _class='tab-pane active'),
+             _class='tab-content'),
+         _class='nav-tabs-custom')
+
+    return dict(content=content)
+
+
+# @auth.requires(auth.has_membership(group_id='Admins') or \
+#                auth.has_permission('create', 'invoices'))
+# def teacher_payments_generate_invoices_choose_month():
+#     """
+#         Choose year and month to create invoices
+#     """
+#     from openstudio.os_forms import OsForms
+#
+#     response.title = T('Teacher payments')
+#     response.subtitle = T('')
+#     response.view = 'general/only_content.html'
+#
+#     if 'year' in request.vars and 'month' in request.vars:
+#         year = int(request.vars['year'])
+#         month = int(request.vars['month'])
+#         teacher_payments_generate_invoices(year, month)
+#         redirect(URL('teacher_payments'))
+#
+#     os_forms = OsForms()
+#     form = os_forms.get_month_year_form(
+#         request.vars['year'],
+#         request.vars['month'],
+#         submit_button = T('Create invoices')
+#     )
+#
+#     content = DIV(
+#         H4(T('Create teacher credit invoices for month')),
+#         DIV(form['form']),
+#         _class='col-md-6'
+#     )
+#
+#     back = os_gui.get_button('back', URL('teacher_payments'))
+#
+#     return dict(content=content,
+#                 save=form['submit'],
+#                 back=back)
+
+
+#TODO move code from this function to integrate with attendance based payments
+def employee_claims_generate_invoices(year, month):
+    """
+        Actually generate teacher payment credit invoices
+    """
+    from openstudio.os_invoices import Invoices
+
+    invoices = Invoices()
+    nr_created = invoices.batch_generate_teachers_invoices(year, month)
+    session.flash = SPAN(T('Created'), ' ', nr_created, ' ', T('invoice'))
+    if nr_created > 1:
+        session.flash.append('s')
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'employee_claims'))
+def employee_claims():
+    """
+
+    :return:
+    """
+    from openstudio.os_employee_claims import EmployeeClaims
+
+    response.title = T('Employee Claims')
+    response.subtitle = T('')
+    response.view = 'general/only_content_no_box.html'
+
+    status = request.vars['status']
+
+    try:
+        page = int(request.args[0])
+    except IndexError:
+        page = 0
+
+    ec = EmployeeClaims()
+
+    tools = ''
+    # if status == 'not_verified':
+    create_permission = auth.has_membership(group_id='Admins') or \
+                        auth.has_permission('update', 'employee_claims')
+
+    verify_all = ''
+
+    if create_permission:
+        verify_all = os_gui.get_button(
+            'noicon',
+            URL('employee_claims_accept_all'),
+            title=T("Accept all"),
+            tooltip="Accept all listed claims",
+            btn_class='btn-primary'
+        )
+
+
+    tools = DIV(
+        verify_all,
+    )
+
+    table = ec.get_pending(
+        formatted=True,
+
+    )
+
+
+    content = DIV(
+        employee_claims_get_menu(request.function),
+        DIV(DIV(table,
+                 _class='tab-pane active'),
+            _class='tab-content'),
+        _class='nav-tabs-custom'
+    )
+
+    return dict(
+        content=content,
+        header_tools=tools
+    )
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'employee_claims'))
+def employee_claims_accepted():
+    """
+
+    :return:
+    """
+    from openstudio.os_employee_claims import EmployeeClaims
+
+    response.title = T('Employee Claims')
+    response.subtitle = T('')
+    response.view = 'general/only_content_no_box.html'
+
+    status = request.vars['status']
+
+    try:
+        page = int(request.args[0])
+    except IndexError:
+        page = 0
+
+    tools = ''
+    # if status == 'not_verified':
+    create_permission = auth.has_membership(group_id='Admins') or \
+                        auth.has_permission('create', 'invoices')
+
+    verify_all = ''
+
+    if create_permission:
+        verify_all = os_gui.get_button(
+            'noicon',
+            URL('employee_claims_process_accepted'),
+            title=T("Process all"),
+            tooltip="Process all accepted Claims into invoices",
+            btn_class='btn-primary'
+        )
+    tools = verify_all
+    ec = EmployeeClaims()
+
+
+
+    table = ec.get_accepted(
+        formatted=True,
+
+    )
+
+    content = DIV(
+        employee_claims_get_menu(request.function),
+        DIV(DIV(table,
+                 _class='tab-pane active'),
+            _class='tab-content'),
+        _class='nav-tabs-custom'
+    )
+
+    return dict(
+        content=content,
+        header_tools= tools
+    )
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'employee_claims'))
+def employee_claims_rejected():
+    """
+
+    :return:
+    """
+    from openstudio.os_employee_claims import EmployeeClaims
+
+    response.title = T('Employee Claims')
+    response.subtitle = T('')
+    response.view = 'general/only_content_no_box.html'
+
+    status = request.vars['status']
+
+    try:
+        page = int(request.args[0])
+    except IndexError:
+        page = 0
+
+    ec = EmployeeClaims()
+
+
+
+    table = ec.get_rejected(
+        formatted=True,
+
+    )
+
+    content = DIV(
+        employee_claims_get_menu(request.function),
+        DIV(DIV(table,
+                 _class='tab-pane active'),
+            _class='tab-content'),
+        _class='nav-tabs-custom'
+    )
+
+    return dict(
+        content=content
+    )
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'employee_claims'))
+def employee_claims_processed():
+    """
+
+    :return:
+    """
+    from openstudio.os_employee_claims import EmployeeClaims
+
+    response.title = T('Employee Claims')
+    response.subtitle = T('')
+    response.view = 'general/only_content_no_box.html'
+
+    status = request.vars['status']
+
+    try:
+        page = int(request.args[0])
+    except IndexError:
+        page = 0
+
+    ec = EmployeeClaims()
+
+
+
+    table = ec.get_processed(
+        formatted=True,
+
+    )
+
+    content = DIV(
+        employee_claims_get_menu(request.function),
+        DIV(DIV(table,
+                 _class='tab-pane active'),
+            _class='tab-content'),
+        _class='nav-tabs-custom'
+    )
+
+    return dict(
+        content=content
+    )
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'employee_claims'))
+def employee_claims_accept_all():
+    """
+    Verify all not-verified classes
+    :return: None
+    """
+    from openstudio.os_employee_claims import EmployeeClaims
+
+    ec = EmployeeClaims()
+    number_accepted = ec.accept_all()
+
+    if number_accepted:
+        session.flash = T("All not accepted claims have been accepted")
+    else:
+        session.flash = T("No classes were accepted")
+
+    redirect(URL('employee_claims'))
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'employee_claims'))
+def employee_claims_accept():
+    """
+    Verify attendance / payment
+    :return: None
+    """
+    from openstudio.os_employee_claim import EmployeeClaim
+
+    ecID = request.vars['ecID']
+
+    ec = EmployeeClaim(ecID)
+    success = ec.accept()
+
+    if success:
+        session.flash = T("Claim accepted")
+    else:
+        session.flash = T("Error accepting claim")
+
+    redirect(URL('employee_claims'))
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'employee_claims'))
+def employee_claims_reject():
+    """
+    Verify attendance / payment
+    :return: None
+    """
+    from openstudio.os_employee_claim import EmployeeClaim
+
+    ecID = request.vars['ecID']
+
+    ec = EmployeeClaim(ecID)
+    success = ec.reject()
+
+    if success:
+        session.flash = T("Claim moved to rejected")
+    else:
+        session.flash = T("Error rejecting Claim")
+
+    redirect(URL('employee_claims'))\
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'employee_claims'))
+def employee_claims_pending():
+    """
+    Verify attendance / payment
+    :return: None
+    """
+    from openstudio.os_employee_claim import EmployeeClaim
+
+    ecID = request.vars['ecID']
+
+    ec = EmployeeClaim(ecID)
+    success = ec.pending()
+
+    if success:
+        session.flash = T("Claim moved to pending")
+    else:
+        session.flash = T("Error rejecting Claim")
+
+    redirect(URL('employee_claims'))
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('create', 'invoices'))
+def employee_claims_process_accepted():
+    """
+    Process verified classes; create credit invoices based on verified classes
+    :return:
+    """
+    from openstudio.os_employee_claims import EmployeeClaims
+
+    EC = EmployeeClaims()
+    count_processed = EC.process_accepted()
+
+    claims = T('claims')
+    if count_processed == 1:
+        claims = T("claim")
+
+    session.flash = SPAN(
+        T("Processed"), ' ',
+        count_processed, ' ',
+        claims
+    )
+
+    redirect(URL('employee_claims_processed'))
+
+

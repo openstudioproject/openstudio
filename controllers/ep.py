@@ -223,7 +223,7 @@ def my_classes():
                 TD(repr_row.classes.school_locations_id),
                 TD(repr_row.classes.school_classtypes_id),
                 TD(sub_requested),
-                #TD(button)
+                TD(button)
             )
 
             table.append(tr)
@@ -513,3 +513,183 @@ def my_payments_get_content(var=None):
         ))
 
     return table
+
+
+@auth.requires_login()
+def my_claims():
+    """
+    Page to view and Add/Edit Employee Claims
+    :return:
+    """
+    response.title = T('My Claims')
+    response.view = 'ep/only_content.html'
+
+    if auth.user.teacher == False and auth.user.employee == False:
+        redirect(URL('ep', 'index'))
+
+    header = THEAD(TR(
+        TH(T('Description')),
+        TH(T('Received On')),
+        TH(T('Amount')),
+        TH(T('Quantity')),
+        TH(T('Status')),
+        TH()
+    ))
+
+    table = TABLE(header, _class='table table-striped table-hover')
+
+    query= (db.employee_claims.auth_user_id== auth.user.id)
+    rows= db(query).select(orderby=~db.employee_claims.ClaimDate)
+
+    onclick_del = "return confirm('Want to delete this Claim?');"
+
+    for i, row in enumerate(rows):
+        repr_row = list(rows[i:i + 1].render())[0]
+
+
+
+
+        # pdf = os_gui.get_button(
+        #     'print',
+        #     URL('invoices', 'pdf',
+        #         vars={'iID': row.invoices.id}),
+        #     btn_size='',
+        #     _class='pull-right'
+        # )
+        delete = ''
+        edit = ''
+
+        if row.Status == 'Pending':
+            status= os_gui.get_label('warning', T('Pending'))
+            delete = os_gui.get_button('delete_notext',
+                                       URL('my_claims_claim_delete', vars={'ECID': row.id}),
+                                       onclick=onclick_del,
+                                       _class='pull-right')
+            edit = os_gui.get_button('edit',
+                                     URL('my_claims_claim_edit',
+                                         vars={'ECID': row.id}), _class='pull-right')
+
+        if row.Status == 'Accepted':
+            status = os_gui.get_label('success', T('Accepted'))
+
+        if row.Status == 'Rejected':
+            status = os_gui.get_label('danger', T('Declined'))
+
+        if row.Status == 'Processed':
+            status = os_gui.get_label('primary', T('Processed'))
+
+
+        table.append(TR(
+            TD(repr_row.Description),
+            TD(repr_row.ClaimDate),
+            TD(repr_row.Amount),
+            TD(repr_row.Quantity),
+            TD(status),
+            TD(delete, edit)
+        ))
+
+    add_url = URL('my_claims_claim_add')
+    add = os_gui.get_button('add', add_url, T("Add new Claim"), btn_size='',btn_class='btn-success', _class='pull-right')
+    content= DIV(table)
+
+    return dict(content=content, add= add)
+
+
+@auth.requires_login()
+def my_claims_claim_add():
+    """
+    Page to add a claim
+    :return:
+    """
+    from openstudio.os_forms import OsForms
+    response.title = T('My Claims')
+    response.subtitle= T('Add New Claim')
+    response.view = 'ep/only_content.html'
+
+    if auth.user.teacher == False and auth.user.employee == False:
+        redirect(URL('ep', 'index'))
+
+    return_url = URL('my_claims')
+    db.employee_claims.auth_user_id.default = auth.user.id
+    db.employee_claims.Status.default = 'Pending'
+
+    form = SQLFORM(db.employee_claims, submit_button = T('Save'),
+                   formstyle='divs')
+
+    if form.process().accepted:
+        # response.flash = 'form accepted'
+        redirect(return_url)
+    elif form.errors:
+        response.flash = 'form has errors'
+    else:
+        response.flash = 'please fill out the form'
+
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
+    form = result['form']
+    submit = result['submit']
+
+    back = os_gui.get_button('back', return_url)
+
+    content = DIV(
+        H4(T('Add Claim')),
+        form
+    )
+
+    return dict(content=content,
+                save=submit,
+                back=back)
+
+
+@auth.requires_login()
+def my_claims_claim_edit():
+    """
+    Page to Edit Claim
+    :return:
+    """
+    from openstudio.os_forms import OsForms
+    response.title = T('My Claims')
+    response.subtitle = T('Edit Claim')
+    response.view = 'ep/only_content.html'
+
+    return_url = URL('my_claims')
+    ECID = request.vars['ECID']
+    # record = db.employee_claims(id=ECID)
+    db.employee_claims.id.readable =False
+    form = SQLFORM(db.employee_claims, ECID, submit_button=T('Save'),
+                   formstyle='divs')
+
+    if form.process().accepted:
+        # response.flash = 'form accepted'
+        redirect(return_url)
+    elif form.errors:
+        response.flash = 'form has errors'
+
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
+
+    form = result['form']
+    back = os_gui.get_button('back', return_url)
+
+    content = DIV(
+        H4(T('Edit Claim')),
+        form
+    )
+
+
+    return dict(content=content,
+                save=result['submit'],
+                back=back)
+
+
+@auth.requires_login()
+def my_claims_claim_delete():
+    """
+    Delete Claim
+    :return:
+    """
+    ECID = request.vars['ECID']
+
+    query = (db.employee_claims.id == ECID)
+    db(query).delete()
+
+    session.flash = T('Deleted claim')
+    redirect('my_claims')
