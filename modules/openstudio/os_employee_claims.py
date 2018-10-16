@@ -35,6 +35,8 @@ class EmployeeClaims:
             limitby=limitby
         )
 
+        print rows
+
         if not formatted:
             return rows
         else:

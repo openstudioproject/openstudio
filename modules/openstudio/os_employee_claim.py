@@ -24,10 +24,9 @@ class EmployeeClaim:
         auth = current.auth
         NOW_LOCAL = current.NOW_LOCAL
 
-
         self.row.VerifiedBy = auth.user.id
 
-        self.row.Status = 'Accepted'
+        self.row.Status = 'accepted'
         self.row.VerifiedOn = NOW_LOCAL
 
         result = self.row.update_record()
@@ -43,7 +42,7 @@ class EmployeeClaim:
         auth= current.auth
 
         self.row.VerifiedBy = auth.user.id
-        self.row.Status = 'Rejected'
+        self.row.Status = 'rejected'
         self.row.VerifiedOn = current.NOW_LOCAL
 
         result = self.row.update_record()
@@ -59,7 +58,7 @@ class EmployeeClaim:
         auth= current.auth
 
         self.row.VerifiedBy = auth.user.id
-        self.row.Status = 'Pending'
+        self.row.Status = 'pending'
         self.row.VerifiedOn = current.NOW_LOCAL
 
         result = self.row.update_record()
@@ -78,4 +77,4 @@ class EmployeeClaim:
 
 
     def set_status_processed(self):
-        self.set_status('Processed')
+        self.set_status('processed')

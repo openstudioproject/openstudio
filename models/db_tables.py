@@ -1755,6 +1755,7 @@ def define_employee_claims():
               default=NOW_LOCAL,
               readable= False,
               writable= False,
+              represent=represent_datetime,
               label=T('Date')),
         Field('Description',
               label=T('Description')),

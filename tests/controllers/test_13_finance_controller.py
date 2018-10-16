@@ -62,7 +62,7 @@ def test_employee_claims_move_claim_to_accepted(client, web2py):
     client.get(url)
     assert client.status == 200
 
-    assert web2py.db(web2py.db.employee_claims.Status == 'Accepted').count() == 2
+    assert web2py.db(web2py.db.employee_claims.Status == 'accepted').count() == 2
 
 
 def test_employee_claims_accept_all(client, web2py):
@@ -80,7 +80,7 @@ def test_employee_claims_accept_all(client, web2py):
     client.get(url)
     assert client.status == 200
 
-    assert web2py.db(web2py.db.employee_claims.Status == 'Accepted').count() == 2
+    assert web2py.db(web2py.db.employee_claims.Status == 'accepted').count() == 2
 
 
 def test_employee_claims_move_claim_to_rejected(client, web2py):
@@ -98,7 +98,7 @@ def test_employee_claims_move_claim_to_rejected(client, web2py):
     client.get(url)
     assert client.status == 200
 
-    assert web2py.db(web2py.db.employee_claims.Status == 'Rejected').count() == 2
+    assert web2py.db(web2py.db.employee_claims.Status == 'rejected').count() == 2
 
 
 def test_employee_claims_move_claim_to_pending(client, web2py):
@@ -116,7 +116,7 @@ def test_employee_claims_move_claim_to_pending(client, web2py):
     client.get(url)
     assert client.status == 200
 
-    assert web2py.db(web2py.db.employee_claims.Status == 'Pending').count() == 2
+    assert web2py.db(web2py.db.employee_claims.Status == 'pending').count() == 2
 
 
 def test_employee_claims_rejected_page(client, web2py):
@@ -174,7 +174,7 @@ def test_employee_claims_process_accepted(client, web2py):
     client.get(url)
     assert client.status == 200
 
-    assert web2py.db(web2py.db.employee_claims.Status == 'Processed').count() == 2
+    assert web2py.db(web2py.db.employee_claims.Status == 'processed').count() == 2
     assert web2py.db(web2py.db.invoices).count() >= 1
 
 

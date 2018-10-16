@@ -514,7 +514,7 @@ def populate_employee_claims(web2py):
         Amount           = 5,
         Quantity         = 3,
         tax_rates_id     = 1,
-        Status           = 'Pending',
+        Status           = 'pending',
         Description      = 'First Claim'
     )
     web2py.db.employee_claims.insert(
@@ -522,7 +522,7 @@ def populate_employee_claims(web2py):
         Amount           = 5,
         Quantity         = 3,
         tax_rates_id     = 1,
-        Status           = 'Accepted',
+        Status           = 'accepted',
         Description      = 'Accepted Claim'
     )
     web2py.db.employee_claims.insert(
@@ -530,7 +530,7 @@ def populate_employee_claims(web2py):
         Amount           = 5,
         Quantity         = 3,
         tax_rates_id     = 1,
-        Status           = 'Rejected',
+        Status           = 'rejected',
         Description      = 'Rejected Claim'
     )
     web2py.db.employee_claims.insert(
@@ -538,7 +538,7 @@ def populate_employee_claims(web2py):
         Amount           = 5,
         Quantity         = 3,
         tax_rates_id     = 1,
-        Status           = 'Processed',
+        Status           = 'processed',
         Description      = 'Processed Claim'
     )
 
