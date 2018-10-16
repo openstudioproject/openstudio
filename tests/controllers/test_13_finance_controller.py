@@ -321,7 +321,7 @@ def test_teacher_payment_classes_verified(client, web2py):
 
 
 
-def test_teacher_payment_classes_verified(client, web2py):
+def test_teacher_payment_classes_processed(client, web2py):
     """
 
     """
@@ -512,7 +512,9 @@ def test_add_batch_invoices_without_zero_lines(client, web2py):
     populate_customers_with_subscriptions(web2py, 10)
 
     # create invoices
-    inv_url = '/test_automation/test_customers_subscriptions_create_invoices?month=1&year=2014&description=Subscription_Jan'
+    inv_url = '/test_automation_customer_subscriptions/' + \
+              'test_create_invoices' + \
+              '?month=1&year=2014&description=Subscription_Jan'
     client.get(inv_url)
     assert client.status == 200
 
@@ -565,7 +567,9 @@ def test_add_batch_invoices_with_zero_lines(client, web2py):
     populate_customers_with_subscriptions(web2py, 10)
 
     # create invoices
-    inv_url = '/test_automation/test_customers_subscriptions_create_invoices?month=1&year=2014&description=Subscription_Jan'
+    inv_url = '/test_automation_customer_subscriptions/' + \
+              'test_create_invoices' + \
+              '?month=1&year=2014&description=Subscription_Jan'
     client.get(inv_url)
     assert client.status == 200
 
@@ -636,7 +640,9 @@ def test_add_batch_invoices_location(client, web2py):
     populate_customers_with_subscriptions(web2py, 10)
 
     # create invoices
-    inv_url = '/test_automation/test_customers_subscriptions_create_invoices?month=1&year=2014&description=Subscription_Jan'
+    inv_url = '/test_automation_customer_subscriptions/' + \
+              'test_create_invoices' + \
+              '?month=1&year=2014&description=Subscription_Jan'
     client.get(inv_url)
     assert client.status == 200
 
@@ -783,7 +789,9 @@ def test_invoices_batch_set_status_sent_to_bank_add_payments(client, web2py):
     populate_customers_with_subscriptions(web2py, 10)
 
     # create invoices
-    inv_url = '/test_automation/test_customers_subscriptions_create_invoices?month=1&year=2014&description=Subscription_Jan'
+    inv_url = '/test_automation_customer_subscriptions/' + \
+                  'test_create_invoices' + \
+                  '?month=1&year=2014&description=Subscription_Jan'
     client.get(inv_url)
     assert client.status == 200
 

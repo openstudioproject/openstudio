@@ -20,12 +20,12 @@ def test_settings_pos_index(client, web2py):
     assert client.status == 200
 
     data = {
-        'pos_barcodes_checkin': 'membership_id'
+        'pos_customers_barcodes': 'membership_id'
     }
 
     client.post(url, data=data)
     assert client.status == 200
 
-    sp = web2py.db.sys_properties(Property='pos_barcodes_checkin')
-    assert sp.PropertyValue == data['pos_barcodes_checkin']
+    sp = web2py.db.sys_properties(Property='pos_customers_barcodes')
+    assert sp.PropertyValue == data['pos_customers_barcodes']
 

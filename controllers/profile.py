@@ -131,7 +131,7 @@ def index_get_announcements(var=None):
 
     query = (db.customers_profile_announcements.PublicAnnouncement == True) & \
             (db.customers_profile_announcements.Startdate <= TODAY_LOCAL) & \
-            ((db.customers_profile_announcements.Enddate >= TODAY_LOCAL) | \
+            ((db.customers_profile_announcements.Enddate >= TODAY_LOCAL) |
              (db.customers_profile_announcements.Enddate == None))
 
     rows = db(query).select(db.customers_profile_announcements.ALL,

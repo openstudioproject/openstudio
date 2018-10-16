@@ -15,7 +15,7 @@ def test_automation_customers_subscriptions_create_monthly_invoices(client, web2
 
     populate_customers_with_subscriptions(web2py, 10)
 
-    url = '/test_automation_customers_subscriptions/' + \
+    url = '/test_automation_customer_subscriptions/' + \
           'test_create_invoices' + \
           '?month=1&year=2014&description=Subscription_Jan'
     client.get(url)
