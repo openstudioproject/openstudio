@@ -558,7 +558,6 @@ def update_customer():
 
     print db.auth_user.email.requires
 
-    ##
     # The default validator returns an error in this case
     # It says an account already exists for this email
     # when trying to update the users' own/current email.
