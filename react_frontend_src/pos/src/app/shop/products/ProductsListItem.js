@@ -1,5 +1,5 @@
 import React from "react"
-// import { withRouter } from 'react-router-dom'
+import { withRouter } from 'react-router-dom'
 import { injectIntl } from 'react-intl'
 
 // import Check from '../../../components/ui/Check'
@@ -8,8 +8,9 @@ import { injectIntl } from 'react-intl'
 import Currency from '../../../components/ui/Currency'
 
 
-const ProductListItem = injectIntl(({data, intl}) => 
-    <div className="col-md-4">
+const ProductListItem = injectIntl(withRouter(({data, intl, history}) => 
+    <div onClick={() => { history.push('/shop/products/' + data.id) }}
+         className="col-md-4">
         <div className="info-box bg-purple">
             <div className="info-box-icon">
                 <img src={data.thumblarge} />
@@ -24,7 +25,7 @@ const ProductListItem = injectIntl(({data, intl}) =>
             </div>
         </div>
     </div>
-)
+))
 
 
 export default ProductListItem
