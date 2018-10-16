@@ -534,6 +534,7 @@ def my_claims():
         TH(T('Amount')),
         TH(T('Quantity')),
         TH(T('Status')),
+        TH(T('Attachment')),
         TH()
     ))
 
@@ -560,15 +561,11 @@ def my_claims():
                                      URL('my_claims_claim_edit',
                                          vars={'ecID': row.id}), _class='pull-right')
 
-        # if row.Status == 'Accepted':
-        #     status = os_gui.get_label('success', T('Accepted'))
-        #
-        # if row.Status == 'Rejected':
-        #     status = os_gui.get_label('danger', T('Declined'))
-        #
-        # if row.Status == 'Processed':
-        #     status = os_gui.get_label('primary', T('Processed'))
-
+        download_attachment = os_gui.get_button(
+            'download',
+            URL('default', 'download', row.Attachment),
+            title=T("Download"),
+        )
 
         table.append(TR(
             TD(row.id),
@@ -577,6 +574,7 @@ def my_claims():
             TD(repr_row.Amount),
             TD(repr_row.Quantity),
             TD(repr_row.Status),
+            TD(download_attachment),
             TD(delete, edit)
         ))
 
