@@ -1767,6 +1767,8 @@ def define_employee_claims():
         Field('Status',
               readable=False,
               writable=False,
+              requires=IS_IN_SET(employee_claims_statuses),
+              represent=represent_employee_claims_status,
               label=T("Status")),
         Field('VerifiedBy', db.auth_user,
               readable=False,

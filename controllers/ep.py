@@ -550,7 +550,7 @@ def my_claims():
         edit = ''
 
         if row.Status == 'Pending':
-            status= os_gui.get_label('warning', T('Pending'))
+            # status = os_gui.get_label('warning', T('Pending'))
             delete = os_gui.get_button('delete_notext',
                                        URL('my_claims_claim_delete', vars={'ecID': row.id}),
                                        onclick=onclick_del,
@@ -559,14 +559,14 @@ def my_claims():
                                      URL('my_claims_claim_edit',
                                          vars={'ecID': row.id}), _class='pull-right')
 
-        if row.Status == 'Accepted':
-            status = os_gui.get_label('success', T('Accepted'))
-
-        if row.Status == 'Rejected':
-            status = os_gui.get_label('danger', T('Declined'))
-
-        if row.Status == 'Processed':
-            status = os_gui.get_label('primary', T('Processed'))
+        # if row.Status == 'Accepted':
+        #     status = os_gui.get_label('success', T('Accepted'))
+        #
+        # if row.Status == 'Rejected':
+        #     status = os_gui.get_label('danger', T('Declined'))
+        #
+        # if row.Status == 'Processed':
+        #     status = os_gui.get_label('primary', T('Processed'))
 
 
         table.append(TR(
@@ -574,7 +574,7 @@ def my_claims():
             TD(repr_row.ClaimDate),
             TD(repr_row.Amount),
             TD(repr_row.Quantity),
-            TD(status),
+            TD(repr_row.status),
             TD(delete, edit)
         ))
 

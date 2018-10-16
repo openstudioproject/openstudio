@@ -9,10 +9,8 @@ class EmployeeClaims:
     """
         Class that gathers useful functions for db.employee_claims
     """
-
-
     def get_rows(self,
-                 status=None,
+                 status='pending',
                  sorting='time',
                  formatted=False,
                  all=False,
@@ -21,10 +19,9 @@ class EmployeeClaims:
 
         db = current.db
 
-        # limitby = None
-        # if not all:
-        #     limitby = (page * items_per_page, (page + 1) * items_per_page + 1)
-
+        limitby = None
+        if not all:
+            limitby = (page * items_per_page, (page + 1) * items_per_page + 1)
 
         if sorting == 'time':
             orderby = ~db.employee_claims.ClaimDate
@@ -33,9 +30,9 @@ class EmployeeClaims:
 
         query = (db.employee_claims.Status == status)
 
-
         rows = db(query).select(
-            orderby=orderby
+            orderby=orderby,
+            limitby=limitby
         )
 
         if not formatted:
@@ -64,7 +61,7 @@ class EmployeeClaims:
             TH(T("Description")),
             TH(T("Amount")),
             TH(T("Quantity")),
-            TH(T("Attached Document")),
+            TH(T("Attachment")),
             # TH(T("Attendance")),
             # TH(T("Payment")),
             # TH(os_gui.get_fa_icon('fa-subway')),
@@ -81,11 +78,11 @@ class EmployeeClaims:
             buttons=''
             if permissions:
 
-                if status == 'Pending':
+                if status == 'pending':
                     buttons = self._rows_to_table_get_pending_buttons(row, os_gui)
-                elif status == 'Accepted':
+                elif status == 'accepted':
                     buttons = self._rows_to_table_get_accepted_buttons(row, os_gui)
-                elif status == 'Rejected':
+                elif status == 'rejected':
                     buttons = self._rows_to_table_get_rejected_buttons(row, os_gui)
             tr = TR(
                 TD(repr_row.auth_user_id),
@@ -252,7 +249,7 @@ class EmployeeClaims:
         :return: gluon.dal.rows or html table
         """
         return self.get_rows(
-            status='Pending',
+            status='pending',
             formatted=formatted,
             page=page
         )
@@ -264,7 +261,7 @@ class EmployeeClaims:
         :return: gluon.dal.rows or html table
         """
         return self.get_rows(
-            status='Accepted',
+            status='accepted',
             formatted=formatted,
             page=page
         )
@@ -277,7 +274,7 @@ class EmployeeClaims:
         :return: gluon.dal.rows or html table
         """
         return self.get_rows(
-            status='Rejected',
+            status='rejected',
             formatted=formatted,
             page=page
         )
@@ -290,7 +287,7 @@ class EmployeeClaims:
         :return: gluon.dal.rows or html table
         """
         return self.get_rows(
-            status='Processed',
+            status='processed',
             formatted=formatted,
             page=page
         )
@@ -304,11 +301,12 @@ class EmployeeClaims:
         db = current.db
         auth = current.auth
 
-        query = (db.employee_claims.Status == 'Pending')
-        updated = db(query).update(Status = 'Accepted',
-                                   VerifiedBy = auth.user.id,
-                                   VerifiedOn = datetime.datetime.now()
-                                   )
+        query = (db.employee_claims.Status == 'pending')
+        updated = db(query).update(
+            Status = 'accepted',
+            VerifiedBy = auth.user.id,
+            VerifiedOn = datetime.datetime.now()
+        )
 
         return updated
 
@@ -324,9 +322,9 @@ class EmployeeClaims:
         T = current.T
         db = current.db
 
-        # Sort verified classes by teacher
+        # Sort verified classes by employee
         rows = self.get_rows(
-            status='Accepted',
+            status='accepted',
             sorting='employee',
             formatted=False,
             all=True
@@ -336,7 +334,7 @@ class EmployeeClaims:
         # current_teacher = None
         processed = 0
         invoices_created = 0
-        # For each teacher, create credit invoice and add all accepted claims
+        # For each employee, create credit invoice and add all accepted claims
         for i, row in enumerate(rows):
             epID = row.auth_user_id
             if i == 0 or not previous_employee == epID:

@@ -1684,64 +1684,11 @@ def employee_claims_invoices():
     return dict(content=content)
 
 
-# @auth.requires(auth.has_membership(group_id='Admins') or \
-#                auth.has_permission('create', 'invoices'))
-# def teacher_payments_generate_invoices_choose_month():
-#     """
-#         Choose year and month to create invoices
-#     """
-#     from openstudio.os_forms import OsForms
-#
-#     response.title = T('Teacher payments')
-#     response.subtitle = T('')
-#     response.view = 'general/only_content.html'
-#
-#     if 'year' in request.vars and 'month' in request.vars:
-#         year = int(request.vars['year'])
-#         month = int(request.vars['month'])
-#         teacher_payments_generate_invoices(year, month)
-#         redirect(URL('teacher_payments'))
-#
-#     os_forms = OsForms()
-#     form = os_forms.get_month_year_form(
-#         request.vars['year'],
-#         request.vars['month'],
-#         submit_button = T('Create invoices')
-#     )
-#
-#     content = DIV(
-#         H4(T('Create teacher credit invoices for month')),
-#         DIV(form['form']),
-#         _class='col-md-6'
-#     )
-#
-#     back = os_gui.get_button('back', URL('teacher_payments'))
-#
-#     return dict(content=content,
-#                 save=form['submit'],
-#                 back=back)
-
-
-#TODO move code from this function to integrate with attendance based payments
-def employee_claims_generate_invoices(year, month):
-    """
-        Actually generate teacher payment credit invoices
-    """
-    from openstudio.os_invoices import Invoices
-
-    invoices = Invoices()
-    nr_created = invoices.batch_generate_teachers_invoices(year, month)
-    session.flash = SPAN(T('Created'), ' ', nr_created, ' ', T('invoice'))
-    if nr_created > 1:
-        session.flash.append('s')
-
-
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'employee_claims'))
 def employee_claims():
     """
-
-    :return:
+    List all pending claims
     """
     from openstudio.os_employee_claims import EmployeeClaims
 
@@ -1760,12 +1707,12 @@ def employee_claims():
 
     tools = ''
     # if status == 'not_verified':
-    create_permission = auth.has_membership(group_id='Admins') or \
+    update_permission = auth.has_membership(group_id='Admins') or \
                         auth.has_permission('update', 'employee_claims')
 
     verify_all = ''
 
-    if create_permission:
+    if update_permission:
         verify_all = os_gui.get_button(
             'noicon',
             URL('employee_claims_accept_all'),
@@ -1774,16 +1721,14 @@ def employee_claims():
             btn_class='btn-primary'
         )
 
-
     tools = DIV(
         verify_all,
     )
 
     table = ec.get_pending(
-        formatted=True,
-
+        formatted = True,
+        page = page
     )
-
 
     content = DIV(
         employee_claims_get_menu(request.function),
@@ -1837,11 +1782,9 @@ def employee_claims_accepted():
     tools = verify_all
     ec = EmployeeClaims()
 
-
-
     table = ec.get_accepted(
-        formatted=True,
-
+        formatted = True,
+        page = page
     )
 
     content = DIV(
@@ -1880,11 +1823,9 @@ def employee_claims_rejected():
 
     ec = EmployeeClaims()
 
-
-
     table = ec.get_rejected(
-        formatted=True,
-
+        formatted = True,
+        page = page
     )
 
     content = DIV(
@@ -1922,11 +1863,9 @@ def employee_claims_processed():
 
     ec = EmployeeClaims()
 
-
-
     table = ec.get_processed(
-        formatted=True,
-
+        formatted = True,
+        page = page
     )
 
     content = DIV(
