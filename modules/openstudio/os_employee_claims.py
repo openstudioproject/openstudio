@@ -48,6 +48,7 @@ class EmployeeClaims:
         and db.classes
         :return: html table
         """
+        import uuid
         from os_gui import OsGui
 
         T = current.T
@@ -55,7 +56,7 @@ class EmployeeClaims:
         os_gui = OsGui()
 
         header = THEAD(TR(
-            # TH(),
+            TH('Claim #'),
             TH(T("Employee")),
             TH(T("Date")),
             TH(T("Description")),
@@ -85,12 +86,13 @@ class EmployeeClaims:
                 elif status == 'rejected':
                     buttons = self._rows_to_table_get_rejected_buttons(row, os_gui)
             tr = TR(
+                TD(row.id),
                 TD(repr_row.auth_user_id),
                 TD(repr_row.ClaimDate),
                 TD(repr_row.Description),
                 TD(repr_row.Amount),
                 TD(repr_row.Quantity),
-                TD(repr_row.Attachment),
+                TD(self._rows_to_table_get_attachment(row, os_gui, uuid)),
                 TD(buttons)
             )
 
@@ -99,6 +101,46 @@ class EmployeeClaims:
         pager = self._rows_to_table_get_navigation(rows, items_per_page, page)
 
         return DIV(table, pager)
+
+
+    def _rows_to_table_get_attachment(self, row, os_gui, uuid):
+        """
+        Display claim attachments in a modal
+        """
+        T = current.T
+
+        attachment_url = URL('default', 'download', row.Attachment)
+        modal_class = str(uuid.uuid4())
+
+        modal_content = DIV(
+            IMG(_src=attachment_url),
+            _class='ec_modal_attachment_content'
+        )
+
+        title = T('Attachment for claim #{id}'.format(id=row.id))
+
+        footer_content = os_gui.get_button(
+            'download',
+            attachment_url,
+            btn_size='',
+            title=T("Download")
+        )
+
+        result = os_gui.get_modal(
+            button_text=T('View'),
+            button_class='btn-sm',
+            button_title=title,
+            modal_title=title,
+            modal_content=modal_content,
+            modal_footer_content=footer_content,
+            modal_class=modal_class,
+            modal_size='lg'
+        )
+
+        return SPAN(
+            result['button'],
+            result['modal']
+        )
 
 
     def _rows_to_table_get_navigation(self, rows, items_per_page, page):

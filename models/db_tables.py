@@ -1762,7 +1762,7 @@ def define_employee_claims():
               requires=IS_EMPTY_OR([IS_IMAGE(extensions=('jpeg', 'jpg', 'png')),
                                     IS_LENGTH(maxsize=665600,
                                               error_message=T('650KB or less'))]),  # 650KB
-              label=T("Image Attachment (Max 650KB)")),
+              label=T("Attachment (Max 650KB)")),
 
         Field('Status',
               readable=False,

@@ -528,6 +528,7 @@ def my_claims():
         redirect(URL('ep', 'index'))
 
     header = THEAD(TR(
+        TH(T('Claim #')),
         TH(T('Description')),
         TH(T('Received On')),
         TH(T('Amount')),
@@ -549,7 +550,7 @@ def my_claims():
         delete = ''
         edit = ''
 
-        if row.Status == 'Pending':
+        if row.Status == 'pending':
             # status = os_gui.get_label('warning', T('Pending'))
             delete = os_gui.get_button('delete_notext',
                                        URL('my_claims_claim_delete', vars={'ecID': row.id}),
@@ -570,11 +571,12 @@ def my_claims():
 
 
         table.append(TR(
+            TD(row.id),
             TD(repr_row.Description),
             TD(repr_row.ClaimDate),
             TD(repr_row.Amount),
             TD(repr_row.Quantity),
-            TD(repr_row.status),
+            TD(repr_row.Status),
             TD(delete, edit)
         ))
 
@@ -603,7 +605,7 @@ def my_claims_claim_add():
 
     return_url = URL('my_claims')
     db.employee_claims.auth_user_id.default = auth.user.id
-    db.employee_claims.Status.default = 'Pending'
+    db.employee_claims.Status.default = 'pending'
 
     form = SQLFORM(db.employee_claims, submit_button = T('Save'),
                    formstyle='divs')

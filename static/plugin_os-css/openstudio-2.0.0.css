@@ -1134,6 +1134,13 @@ div.error {
 
 /* System settings branding end */
 
+/* Employee claims begin */
+.ec_modal_attachment_content img {
+    max-width: 100%;
+}
+
+/* Employee claims end */
+
 
 /* Automated tasks begin */
 

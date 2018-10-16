@@ -201,11 +201,12 @@ class OsGui:
         return XML(button)
 
 
-    def _get_modal_button(self, button_text,
-                                button_class,
-                                button_id,
-                                modal_class,
-                                button_title = ''):
+    def _get_modal_button(self,
+                          button_text,
+                          button_class,
+                          button_id,
+                          modal_class,
+                          button_title = ''):
         """
             Returns a button that can be used to access the modal
         """
@@ -222,6 +223,7 @@ class OsGui:
         button_xml += '</button>'
         return XML(button_xml)
 
+
     def _get_modal_button_close(self, close_id):
         """
             Returns a close button for the modal
@@ -232,6 +234,7 @@ class OsGui:
         button_xml += 'data-dismiss="modal" aria-label="Close">'
         button_xml += '<span aria-hidden="true">×</span></button>'
         return XML(button_xml)
+
 
     def get_modal(self,
                   button_text='',
