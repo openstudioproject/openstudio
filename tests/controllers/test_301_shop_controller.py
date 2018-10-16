@@ -1779,7 +1779,7 @@ def test_complete(client, web2py):
     url = '/shop/complete?coID=2'
     client.get(url)
     assert client.status == 200
-    assert "That order isn&#x27;t yours..." in client.text
+    assert "Unable" in client.text # this is part of a string that says something like "Unable to show order"
 
     url = '/shop/complete?coID=1'
     client.get(url)
