@@ -3,9 +3,9 @@ from gluon import *
 
 class Tasks:
     def add_get_modal(self, add_vars):
-        '''
+        """
             Returns add button and modal
-        '''
+        """
         T = current.T
         os_gui = current.globalenv['os_gui']
 

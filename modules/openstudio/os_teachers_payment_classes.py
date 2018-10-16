@@ -47,12 +47,16 @@ class TeachersPaymentClasses:
                     if not cls['Cancelled'] or cls['Holiday']:
                         # Check if item in db.teachers_payment_classes
                         query = (db.teachers_payment_classes.classes_id == cls['ClassesID']) & \
-                                (db.teachers_payment_classes.ClassDate == date)
+                                (db.teachers_payment_classes.ClassDate == date) & \
+                                ((db.teachers_payment_classes.Status == 'verified') |
+                                 (db.teachers_payment_classes.Status == 'processed'))
                         if db(query).count() == 0:
                             os_cls = Class(
                                 cls['ClassesID'],
                                 date
                             )
+
+                            # This inserts or updates the class data with status not_verified
                             result = os_cls.get_teacher_payment()
 
                             if not result['error']:
@@ -105,7 +109,7 @@ class TeachersPaymentClasses:
             query &= (db.teachers_payment_classes.ClassDate >= date_from)
 
         if date_until:
-            query &= (db.teachers_payment_classes.ClassDate <= date_from)
+            query &= (db.teachers_payment_classes.ClassDate <= date_until)
 
         rows = db(query).select(
             db.teachers_payment_classes.ALL,
@@ -380,6 +384,10 @@ class TeachersPaymentClasses:
 
         T = current.T
         db = current.db
+        DATE_FORMAT = current.DATE_FORMAT
+
+        error = False
+        message = ''
 
         # Sort verified classes by teacher
         rows = self.get_rows(
@@ -401,11 +409,17 @@ class TeachersPaymentClasses:
             if i == 0 or not previous_teacher == teID:
                 current_teacher = teID
 
+                description = T("Classes")
+                if date_from and date_until:
+                    description = T("Classes") + ' ' + \
+                                  date_from.strftime(DATE_FORMAT) + ' - ' + \
+                                  date_until.strftime(DATE_FORMAT)
+
                 igpt = db.invoices_groups_product_types(ProductType='teacher_payments')
                 iID = db.invoices.insert(
                     invoices_groups_id=igpt.invoices_groups_id,
                     TeacherPayment=True,
-                    Description=T('Classes'),
+                    Description=description,
                     Status='sent'
                 )
 
@@ -434,6 +448,8 @@ class TeachersPaymentClasses:
             processed += 1
 
         # Calculate total
-
-        return processed
+        return dict(
+            error=error,
+            message=processed
+        )
 

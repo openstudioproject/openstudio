@@ -1266,10 +1266,13 @@ def subscriptions_prices():
     db.school_subscriptions_price.id.readable=False
 
     query = (db.school_subscriptions_price.school_subscriptions_id == ssuID)
-    fields = [ db.school_subscriptions_price.Startdate,
-               db.school_subscriptions_price.Enddate,
-               db.school_subscriptions_price.Price,
-               db.school_subscriptions_price.tax_rates_id ]
+    fields = [
+        db.school_subscriptions_price.Startdate,
+        db.school_subscriptions_price.Enddate,
+        db.school_subscriptions_price.Price,
+        db.school_subscriptions_price.tax_rates_id,
+        db.school_subscriptions_price.GLAccount
+    ]
     links = [ lambda row: os_gui.get_button('edit',
                                      URL('subscription_price_edit',
                                          vars={'ssuID':ssuID,
@@ -1768,6 +1771,7 @@ def classcards():
               db.school_classcards.sys_organizations_id,
               db.school_classcards.Description,
               db.school_classcards.Price,
+              db.school_classcards.GLAccount,
               db.school_classcards.Validity,
               db.school_classcards.ValidityUnit,
               db.school_classcards.Classes,

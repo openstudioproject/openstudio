@@ -2221,6 +2221,7 @@ def subscriptions_overview_customers():
     header = THEAD(TR(TH(),
                       TH(T('Customer')),
                       TH(T('Subscription')),
+                      TH(T('Payment Method')),
                       TH(T('Start')),
                       TH(),
                       TH(),
@@ -2247,6 +2248,7 @@ def subscriptions_overview_customers():
         tr = TR(TD(repr_row.auth_user.thumbsmall, _class='os-customer_image_td'),
                 TD(SPAN(row.auth_user.display_name)),
                 TD(repr_row.customers_subscriptions.school_subscriptions_id),
+                TD(repr_row.customers_subscriptions.payment_methods_id),
                 TD(repr_row.customers_subscriptions.Startdate),
                 location,
                 TD(buttons)

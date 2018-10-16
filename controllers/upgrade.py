@@ -88,6 +88,13 @@ def index():
         else:
             session.flash = T('Already up to date')
 
+        if version < 2018.82:
+            print version
+            upgrade_to_201882()
+            session.flash = T("Upgraded db to 2018.82")
+        else:
+            session.flash = T('Already up to date')
+
         # always renew permissions for admin group after update
         set_permissions_for_admin_group()
 
@@ -468,3 +475,30 @@ def upgrade_to_201881():
     from openstudio.os_setup import OsSetup
     setup = OsSetup()
     setup._setup_teachers_payment_rate_type()
+
+
+def upgrade_to_201882():
+    """
+        Upgrade operations to 2018.82
+    """
+    ##
+    # Set default payment method for subscriptions in shop
+    # This is a new setting in this release
+    ##
+    from openstudio.os_setup import OsSetup
+    setup = OsSetup()
+    setup._setup_shop_subscriptions_payment_method()
+
+    ##
+    # Migrate MandateSignatureDate field from customers_payment_info
+    # to customers_payment_info_mandates table
+    ##
+    query = (db.customers_payment_info.MandateSignatureDate != None)
+    rows = db(query).select(db.customers_payment_info.ALL)
+
+    for row in rows:
+        db.customers_payment_info_mandates.insert(
+            customers_payment_info_id = row.id,
+            MandateReference = unicode(row.auth_customer_id),
+            MandateSignatureDate = row.MandateSignatureDate
+        )

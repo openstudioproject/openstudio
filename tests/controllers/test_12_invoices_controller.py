@@ -115,7 +115,9 @@ def test_invoice_add_from_customer_subscription_with_registration_fee(client, we
     assert client.status == 200
 
     populate_customers_with_subscriptions(web2py, 2)
-    web2py.db.school_subscriptions[1]=dict(RegistrationFee=25.00)
+
+    # Update first school subscription to have a registration fee
+    web2py.db.school_subscriptions[1] = dict(RegistrationFee=25.00)
     web2py.db.commit()
     url = '/customers/subscription_invoices?cuID=1001&csID=1'
     client.get(url)
@@ -144,7 +146,7 @@ def test_invoice_add_from_customer_subscription_with_registration_fee(client, we
 
 
     # verify if registration fee is added
-    assert web2py.db(web2py.db.invoices_items.ProductName =='Registration Fee').count() == 1
+    assert web2py.db(web2py.db.invoices_items.ProductName =='Registration fee').count() == 1
     assert web2py.db(web2py.db.invoices.id >0).count()        == 2
 
 
@@ -284,58 +286,6 @@ def test_invoice_item_delete(client, web2py):
     amounts = web2py.db.invoices_amounts(1)
     assert amounts.TotalPriceVAT == 0
 
-
-def test_subscriptions_create_montly_invoices(client, web2py):
-    """
-        Can we create subscription invoices for a month?
-    """
-    # Get random url to initialize OpenStudio environment
-    url = '/default/user/login'
-
-    client.get(url)
-    assert client.status == 200
-
-    populate_customers_with_subscriptions(web2py, 10)
-
-    url = '/invoices/subscriptions_create_invoices?month=1&year=2014'
-    client.get(url)
-    assert client.status == 200
-
-    data = {'description':'Default invoice description'}
-    client.post(url, data=data)
-    assert client.status == 200
-
-    #print web2py.db().select(web2py.db.invoices.ALL)
-
-    # Verify that the confirmation message is showing
-    assert 'Created invoices' in client.text
-
-    # check the created invoices
-    ig_100 = web2py.db.invoices_groups(100)
-    invoice = web2py.db.invoices(1)
-    assert invoice.Status == 'sent'
-    assert invoice.InvoiceID == 'INV' + unicode(datetime.date.today().year) + '1'
-    assert ig_100.Terms == invoice.Terms
-    assert ig_100.Footer == invoice.Footer
-
-    ics = web2py.db.invoices_customers_subscriptions(1)
-    assert ics.invoices_id == 1
-    assert ics.customers_subscriptions_id == 1
-
-    # make sure the 2nd customer (1002) doesn't have an invoice, the subscription is paused
-    assert web2py.db(web2py.db.invoices_customers.auth_customer_id==1002).count() == 0
-
-    ## check created invoice items
-    # alt. Price subscription item (first subscription gets a different price)
-    altp = web2py.db.customers_subscriptions_alt_prices(1)
-    item = web2py.db.invoices_items(1)
-    assert altp.Amount == item.Price
-    assert altp.Description == item.Description
-
-    # regular item
-    ssup = web2py.db.school_subscriptions_price(1)
-    item = web2py.db.invoices_items(2)
-    assert item.Price == ssup.Price
 
 
 def test_invoice_overdue_duedate_is_red(client, web2py):

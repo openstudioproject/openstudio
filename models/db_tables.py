@@ -25,9 +25,11 @@ from general_helpers import create_classtypes_dict
 from decimal import Decimal, ROUND_HALF_UP
 
 # init scheduler
-scheduler = Scheduler(db,
-                      tasks=scheduler_tasks,
-                      utc_time=True)
+scheduler = Scheduler(
+    db,
+    tasks=scheduler_tasks,
+    utc_time=True
+)
 
 # helper functions
 
@@ -797,9 +799,13 @@ def define_payment_methods():
             writable=False,
             default=False,
             label=T('System method (OpenStudio defined)')),
-        Field('Name', required=True,
+        Field('Name',
             requires=IS_NOT_EMPTY(),
             label=T("Name")),
+        Field('AccountingCode',
+            represent=lambda value, row: value or '',
+            label=T("Accounting code"),
+            comment=T("Payment method/condition code in your accounting software.")),
         format='%(Name)s')
 
 
@@ -1087,6 +1093,10 @@ def define_school_classcards():
             default=False,
             required=True,
             label=T('Trial card')),
+        Field('GLAccount',
+              represent=lambda value, row: value or '',
+              label=T('G/L Account'),
+              comment=T('General ledger account ID in your accounting software')),
         format=format)
 
 
@@ -1157,6 +1167,9 @@ def define_school_memberships():
               label=T('Validity In')),
         Field('Terms', 'text',
               label=T('Terms & conditions')),
+        Field('GLAccount',
+              label= T('G/L Account'),
+              comment= T('General ledger account ID in your accounting software')),
         format='%(Name)s'
         )
 
@@ -1272,7 +1285,7 @@ def define_school_subscriptions():
               ),
         Field('RegistrationFee', 'double',
               label=T('Registration Fee'),
-              default=0,
+              default = 0,
               comment=T("This Amount will be added to the first invoice for this subscription. Set to 0 for no registration fee."),
               ),
         format=format)
@@ -1348,6 +1361,10 @@ def define_school_subscriptions_price():
             label=T("Monthly Fee incl VAT")),
         Field('tax_rates_id', db.tax_rates,
             label=T('Tax rate')),
+        Field('GLAccount',
+            represent=lambda value, row: value or '',
+            label=T('G/L Account'),
+            comment=T('General ledger account ID in your accounting software')),
         )
 
 
@@ -2122,6 +2139,14 @@ def define_classes_price():
             label=T("Membership trial incl. VAT")),
         Field('tax_rates_id_trial_membership', db.tax_rates,
             label=T('Membership trial tax rate')),
+        Field('GLAccountDropin',
+            represent=lambda value, row: value or '',
+            label=T('G/L Account Drop-in'),
+            comment=T('General ledger account ID in your accounting software')),
+        Field('GLAccountTrial',
+            represent=lambda value, row: value or '',
+            label=T('G/L Account Trial'),
+            comment=T('General ledger account ID in your accounting software')),
         )
 
 
@@ -2366,22 +2391,30 @@ def define_customers_payment_info():
             readable=False,
             writable=False,
             label=T('CustomerID')),
-        Field('payment_methods_id', db.payment_methods, required=True,
+        Field('payment_methods_id', db.payment_methods,
             requires=IS_EMPTY_OR(IS_IN_DB(db,'payment_methods.id','%(Name)s',
                                           zero=T("Please select..."))),
             represent=lambda value, row: payment_methods_dict.get(value),
             label=T("Default payment method")),
         Field('AccountNumber',
-            requires=IS_EMPTY_OR(IS_IBAN()),
+            requires=[
+                IS_NOT_EMPTY(error_message=T("Account number is required")),
+                IS_IBAN()
+            ],
             represent=lambda value, row: value or "",
             label=T("Account number")),
         Field('AccountHolder',
+            requires=IS_NOT_EMPTY(
+                error_message=T("Account holder is required")
+            ),
             represent=lambda value, row: value or "",
             label=T("Account holder")),
         Field('BIC',
             represent=lambda value, row: value or "",
             label=T("BIC")),
-        Field('MandateSignatureDate', 'date',
+        Field('MandateSignatureDate', 'date', # Deprecated from 2018.82 do NOT use. Store in payment_info_mandates
+            readable=False,
+            writable=False,
             requires=IS_EMPTY_OR(IS_DATE_IN_RANGE(format=DATE_FORMAT,
                                       minimum=datetime.date(1900,1,1),
                                       maximum=datetime.date(2999,1,1))),
@@ -2394,6 +2427,9 @@ def define_customers_payment_info():
         Field('BankLocation',
             represent=lambda value, row: value or "",
             label=T("Bank location")),
+        Field('exact_online_bankaccount_id',
+            readable=False,
+            writable=False),
         singular=T("Bank details"), plural=T("Bank details")
         )
 
@@ -2408,6 +2444,46 @@ def define_customers_payment_info():
     #         _name=f.name, _id="%s_%s" % (f._tablename, f.name),
     #         _value=v,
     #         value=v)
+
+
+def define_customers_payment_info_mandates():
+    """
+        Table to hold mandates for bank accounts
+    """
+    import uuid
+
+    db.define_table('customers_payment_info_mandates',
+        Field('customers_payment_info_id', db.customers_payment_info,
+              readable=False,
+              writable=False,
+              label=T('Payment Info')),
+        Field('MandateReference',
+              requires=IS_NOT_EMPTY(),
+              default=str(uuid.uuid4()),
+              label=T("Mandate reference"),
+              comment=T("OpenStudio automatically generates a unique reference for each mandate, but you're free to enter something else.")),
+        Field('MandateText', 'text',
+              represent=lambda value, row: value or '',
+              writable =False),
+        Field('MandateSignatureDate', 'date',
+              requires=IS_EMPTY_OR(
+                  IS_DATE_IN_RANGE(format=DATE_FORMAT,
+                                   minimum=datetime.date(1900, 1, 1),
+                                   maximum=datetime.date(2999, 1, 1))
+              ),
+              default=TODAY_LOCAL ,
+              represent=represent_date,
+              label=T("Mandate signature date"),
+              widget=os_datepicker_widget),
+        Field("CreatedOn", 'datetime',
+              readable=False,
+              writable=False,
+              represent=represent_datetime,
+              default=datetime.datetime.now()),
+        Field('exact_online_directdebitmandates_id',
+              readable=False,
+              writable=False)
+    )
 
 
 def define_customers_memberships():
@@ -3248,6 +3324,10 @@ def define_workshops_products():
             label=T("Donation based"),
             default=False,
             comment=T("Shows 'Donation based' instead of the price in the shop.")),
+        Field('GLAccount',
+            represent=lambda value, row: value or '',
+            label=T('G/L Account'),
+            comment=T('General ledger account id in your accounting software')),
         format='%(Name)s')
 
 
@@ -3536,6 +3616,9 @@ def define_payment_batches_items():
                                       maximum=datetime.date(2999,1,1))),
             label=T("Mandate signature date"),
             widget=os_datepicker_widget),
+        Field('MandateReference',
+            represent=lambda value, row: value or SPAN(T("Not set"), _class='text-red'),
+            label=T("Mandate reference")),
         Field('Amount', 'float',
             requires=IS_EMPTY_OR(IS_FLOAT_IN_RANGE(0,99999999, dot='.',
                                  error_message=T('Too small or too large'))),
@@ -3699,6 +3782,11 @@ def define_invoices_groups():
               label=T("Terms")),
         Field('Footer', 'text',
               label=T("Footer")),
+        Field('JournalID',
+              represent=lambda value, row: value or '',
+              label=T("Journal ID"),
+              comment=T(
+                  "Journal ID / Code in your accounting software. All invoices in this group will be mapped to this journal.")),
         format='%(Name)s')
 
 
@@ -3832,6 +3920,10 @@ def define_invoices():
               label=T('Year')),
         Field('CustomerCompany',
               label=T('Company')),
+        Field('CustomerCompanyRegistration',
+            label=T("Company Registration")),
+        Field('CustomerCompanyTaxRegistration',
+            label=T("Company Tax Registration")),
         Field('CustomerName',
               represent=lambda value, row: value or '',
               label=T('Name')),
@@ -3873,6 +3965,9 @@ def define_invoices():
             label=T("Footer")),
         Field('Note', 'text',
             label=T("Note")),
+        Field('ExactOnlineSalesEntryID',
+            readable=False,
+            writable=False),
         Field('PaymentDates', 'text',
             readable=False,
             writable=False),
@@ -4054,9 +4149,6 @@ def define_invoices_items():
         Field('Sorting', 'integer',
             readable=False,
             writable=False),
-        # Field('ProductID',
-        #     requires=IS_NOT_EMPTY(error_message = T("Enter product #")),
-        #     label   =T("Product #")),
         Field('ProductName',
             requires=IS_NOT_EMPTY(error_message = T("Enter product name")),
             label   =T("Product Name")),
@@ -4078,14 +4170,20 @@ def define_invoices_items():
             represent=represent_tax_rate,
             label=T("Tax rate")),
         Field('TotalPriceVAT', 'double',
-              compute=lambda row: row.Price * row.Quantity,
-              represent=represent_float_as_amount),
+            compute=lambda row: row.Price * row.Quantity,
+            represent=represent_float_as_amount),
         Field('VAT', 'double',
-              compute=compute_invoice_item_vat,
-              represent=represent_float_as_amount),
+            compute=compute_invoice_item_vat,
+            represent=represent_float_as_amount),
         Field('TotalPrice', 'double',
             compute=compute_invoice_item_total_price,
             represent=represent_float_as_amount),
+        Field('GLAccount',
+            represent=lambda value, row: value or '',
+            label=T("G/L Account")),
+        Field('ExactOnlineSalesEntryLineID',
+            readable=False,
+            writable=False),
     )
 
 
@@ -4178,8 +4276,12 @@ def define_tax_rates():
         Field('Percentage', 'float',
             requires=IS_FLOAT_IN_RANGE(0,100, dot='.',
                                        error_message=float_error),
-            comment='%',
+            comment='A percentage as numbers only is expected (without %). Use " . " for decimals.',
             label=T('Percentage')),
+        Field('VATCodeID',
+            represent=lambda value, row: value or '',
+            label=T("VAT Code ID"),
+            comment=T("VAT Code in your accounting software.")),
         format='%(Name)s'
     )
 
@@ -4666,7 +4768,10 @@ def define_shop_products_variants():
               label=T('Default variant for a product')),
         Field('VariantCode',
               readable=False,
-              writable=False)
+              writable=False),
+        Field('GLAccount',
+              label=T('G/L Account'),
+              comment=T('General ledger account ID in your accounting software')),
     )
 
 
@@ -4910,6 +5015,22 @@ def define_mollie_log_webhook():
         Field('mollie_payment', 'text'))
 
 
+def define_integration_exact_online_log():
+    db.define_table('integration_exact_online_log',
+        Field('ActionName'),
+        Field('ObjectName'),
+        Field('ObjectID'),
+        Field('ActionResult', 'text'),
+        Field('Status',
+            requires=IS_IN_SET(
+                ['success', T("Success")],
+                ['fail', T("Fail")],
+            )),
+        Field('CreatedOn', 'datetime',
+            default=datetime.datetime.now())
+    )
+
+
 def define_customers_profile_features():
     """
         Define table to hold which features are enabled for customer logins
@@ -5045,6 +5166,17 @@ def define_mailing_lists():
     )
 
 
+# def define_integration_exact_online_storage():
+#     """
+#     Settings for exact online
+#     """
+#     db.define_table('integration_exact_online_storage',
+#         Field('ConfigSection'),
+#         Field('ConfigOption'),
+#         Field('ConfigValue'),
+#     )
+#
+
 def set_static_payment_methods():
     """
         This function adds the following to the paymentmethods table
@@ -5149,6 +5281,7 @@ def setup_create_invoice_group():
         Footer=footer
     )
 
+
 def setup_create_invoice_group_defaults():
     """
         Set default invoice group as default for products
@@ -5227,9 +5360,9 @@ def setup_set_email_templates():
          """<h3>Reset password</h3>
 <p>Please click on the <a href="%(link)s">link</a> to reset your password</p>"""],
         ['email_template_sys_verify_email',
-         """<h3>Verify email</h3>
-<p>Welcome %(first_name)s!</p>
-<p>Please click on the <a href="%(link)s">link</a> to verify your email</p>"""],
+         """<h3>Welcome %(first_name)s!</h3>
+<p>&nbsp;</p>
+<p>Please click on this <a href="%(link)s">link</a> to verify your email address</p>"""],
         ['email_template_payment_recurring_failed',
          """<h3>Recurring payment failed</h3>
 <p>&nbsp;</p>
@@ -5525,6 +5658,10 @@ auth.settings.extra_fields['auth_user'] = [
         label=T("Newsletter")),
     Field('company',
         label=T("Company")),
+    Field('company_registration',
+        label=T("Registration")),
+    Field('company_tax_registration',
+        label=T("Tax Registration")),
     Field('school_discovery_id', db.school_discovery,
         requires=IS_EMPTY_OR(IS_IN_DB(db(dis_query),
                                       'school_discovery.id',
@@ -5583,12 +5720,16 @@ auth.settings.extra_fields['auth_user'] = [
                            row.last_name.strip()),
     Field('display_name',
         writable=False,
-        compute=lambda row:row.company if row.business and row.company else row.full_name,
+        compute=lambda row: row.company if (row.business and row.company) else row.full_name,
         label=T("Customer")),
     Field('mollie_customer_id',
         readable=False,
         writable=False,
         label=T("Mollie customer id")),
+    Field('exact_online_relation_id',
+        readable=False,
+        writable=False,
+        label=T("Exact online customer ID")),
     Field('merged', 'boolean',
         readable=False,
         writable=False,
@@ -5647,6 +5788,7 @@ define_payment_methods()
 payment_methods_dict = create_payment_methods_dict()
 
 define_mailing_lists()
+define_integration_exact_online_log()
 define_postcode_groups()
 define_tax_rates()
 
@@ -5681,6 +5823,7 @@ define_workshops_mail()
 define_customers_documents()
 define_customers_notes()
 define_customers_payment_info()
+define_customers_payment_info_mandates()
 define_customers_messages()
 define_customers_memberships()
 define_customers_subscriptions()

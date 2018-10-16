@@ -43,12 +43,16 @@ class ClassPrices:
             tr = TR(
                 TD(repr_row.Startdate),
                 TD(repr_row.Enddate),
-                TD(repr_row.Dropin, ' ', repr_row.tax_rates_id_dropin),
-                TD(repr_row.Trial, ' ', repr_row.tax_rates_id_trial),
-                TD(SPAN(repr_row.DropinMembership, ' ',
+                TD(repr_row.Dropin, BR(),
+                   repr_row.tax_rates_id_dropin),
+                TD(repr_row.Trial, BR(),
+                   repr_row.tax_rates_id_trial),
+                TD(SPAN(repr_row.DropinMembership, BR(),
                    repr_row.tax_rates_id_dropin_membership) if row.DropinMembership else ''),
-                TD(SPAN(repr_row.TrialMembership, ' ',
+                TD(SPAN(repr_row.TrialMembership, BR(),
                    repr_row.tax_rates_id_trial_membership) if row.TrialMembership else ''),
+                TD(repr_row.GLAccountDropin),
+                TD(repr_row.GLAccountTrial),
                 TD(self._get_prices_for_class_display_buttons(
                     os_gui,
                     row,
@@ -105,6 +109,8 @@ class ClassPrices:
             TH(T('Trial')),
             TH(T('Membership Drop-in')),
             TH(T('Membership Trial')),
+            TH(T('G/L Account Drop-in')),
+            TH(T('G/L Account Trial')),
             TH() # buttons
         ))
 

@@ -2533,25 +2533,21 @@ def attendance():
 
 
     ah = AttendanceHelper()
-
-    # attendance = ah.get_checkin_list_customers(clsID,
-    #                                            date,
-    #                                            pictures=True,
-    #                                            manual_enabled=True,
-    #                                            reservations_cancel=True,
-    #                                            invoices=True,
-    #                                            show_notes=True)
-
     attendance = ah.get_checkin_list_customers_booked(clsID, date)
 
+
+    add_customer = ''
     customers = Customers()
-    result = customers.get_add_modal(
-        button_text   = "Customer",
-        button_class  = '',
-        redirect_vars = {'clsID' : clsID,
-                         'date'  : date_formatted})
-    add_customer = result['button']
-    modals.append(result['modal'])
+
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('create', 'auth_user'):
+        result = customers.get_add_modal(
+            button_text   = "Customer",
+            button_class  = '',
+            redirect_vars = {'clsID' : clsID,
+                             'date'  : date_formatted})
+        add_customer = result['button']
+        modals.append(result['modal'])
 
 
     chart_buttons = DIV(SPAN(I(_class='fa fa-angle-left'),
@@ -3128,14 +3124,15 @@ def attendance_set_status():
     clsID = clatt.classes_id
     date_formatted = clatt.ClassDate.strftime(DATE_FORMAT)
 
-    ##
-    # Change invoice status to cancelled
-    ##
-    query = (db.invoices_classes_attendance.classes_attendance_id == clattID)
-    rows = db(query).select(db.invoices_classes_attendance.ALL)
-    for row in rows:
-        invoice = Invoice(row.invoices_id)
-        invoice.set_status('cancelled')
+    if status == 'cancelled':
+        ##
+        # Change invoice status to cancelled
+        ##
+        query = (db.invoices_classes_attendance.classes_attendance_id == clattID)
+        rows = db(query).select(db.invoices_classes_attendance.ALL)
+        for row in rows:
+            invoice = Invoice(row.invoices_id)
+            invoice.set_status('cancelled')
 
     # Clear api cache to refresh available spaces
     cache_clear_classschedule_api()
@@ -3834,43 +3831,6 @@ def class_prices():
 
     clp = ClassPrices()
     table = clp.get_prices_for_class_display(clsID)
-
-
-
-
-
-    # links = [lambda row: os_gui.get_button('edit',
-    #                                        URL('class_price_edit',
-    #                                            vars={'clpID':row.id,
-    #                                                  'clsID':clsID,
-    #                                                  'date' :date_formatted}))]
-    #
-    # query = (db.classes_price.classes_id == clsID)
-    #
-    # fields = [ db.classes_price.Startdate,
-    #            db.classes_price.Enddate,
-    #            db.classes_price.Dropin,
-    #            db.classes_price.tax_rates_id_dropin,
-    #            db.classes_price.Trial,
-    #            db.classes_price.tax_rates_id_trial ]
-    #
-    # delete_permission = auth.has_membership(group_id='Admins') or \
-    #                     auth.has_permission('delete', 'classes_price')
-    #
-    # grid = SQLFORM.grid(query,
-    #                     fields=fields,
-    #                     links=links,
-    #                     details=False,
-    #                     searchable=False,
-    #                     deletable=delete_permission,
-    #                     csv=False,
-    #                     create=False,
-    #                     editable=False,
-    #                     orderby=~db.classes_price.Startdate,
-    #                     field_id=db.classes_price.id,
-    #                     ui = grid_ui)
-    # grid.element('.web2py_counter', replace=None) # remove the counter
-    # grid.elements('span[title=Delete]', replace=None) # remove text from delete button
 
     alert_msg = T("Please make sure the new price starts on the first day of a month and the previous price ends on the last day of the month before. ")
     alert_msg += T("Otherwise you might see unexpected results in the stats.")

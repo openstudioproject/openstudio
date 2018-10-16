@@ -61,7 +61,7 @@ def test_index_exists(client):
     """
         page index exists?
     """
-    client.get('/default/index') # get a page
+    client.get('/default/user/login') # get a page
     assert client.status == 200
     assert "login" in client.text.lower()
 

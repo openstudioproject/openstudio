@@ -57,7 +57,7 @@
         {{=login_message}}
         {{=reset_passwd}}
       </div>
-      <div class="col-md-6">
+      <div class="col-md-6 register">
         <h4>{{=register_title}}</h4>
         {{=form_register}} 
         {{=register_link}}
@@ -95,7 +95,6 @@
 	jQuery(document).ready(function() {
 		var $input_email = $('#auth_user_email');
 		$input_email.on('change', function() {
-			console.log($(this).val());
 			$input_email.val($(this).val().replace(/\s/g, ''));
 		});
 	});

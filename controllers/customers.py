@@ -45,6 +45,7 @@ def _edit_check_picture(form):
         row.thumblarge = None
         row.update_record()
 
+
 def classes_check_reservation(row):
     """
         Check if a customer is already reserved for a class.
@@ -60,6 +61,7 @@ def classes_check_reservation(row):
                                            #'back'="customers_classes")
     else:
         return ""
+
 
 #TODO: Rename & reuse for subscriptions_alt_prices repeat
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -178,17 +180,19 @@ def edit_remodel_form(form,
         form.custom.label.country = ''
         form.custom.widget.country = ''
 
-    div_picture = DIV(LABEL(form.custom.label.newsletter),
-                      form.custom.widget.newsletter,
-                      BR(),
-                      picture,
-                      change_picture, ' ',
-                      SPAN(label_id, ' ', customers_id,
-                           _id='customers_id'),
-                      _class='col-md-6')
+    div_picture = DIV(
+        H3(T("Picture")),
+        picture,
+        change_picture, ' ',
+        SPAN(label_id, ' ', customers_id,
+           _id='customers_id'),
+        _class='col-md-6'
+    )
 
     # basic info
-    div_basic_info = DIV( TABLE(
+    div_basic_info = DIV(
+        H3(T("Contact")),
+        TABLE(
             TR( TD(LABEL(form.custom.label.first_name)),
                 TD(form.custom.widget.first_name),
                 ),
@@ -213,9 +217,8 @@ def edit_remodel_form(form,
             TR( TD(LABEL(form.custom.label.mobile)),
                 TD(form.custom.widget.mobile),
                 ),
-            TR( TD(LABEL(form.custom.label.company)),
-                TD(form.custom.widget.company),
-                ),
+            TR( TD(LABEL(form.custom.label.school_languages_id)),
+                TD(form.custom.widget.school_languages_id)),
             TR( TD(LABEL(form.custom.label.emergency)),
                 TD(form.custom.widget.emergency),
                 ),
@@ -240,7 +243,7 @@ def edit_remodel_form(form,
     if not customers_id is None and not customers_id == '':
         if auth.has_membership(group_id='Admins') or \
            auth.has_permission('read', 'customers_notes_backoffice'):
-            bo_label = LABEL(T("Notes"), BR(), T("Back office"))
+            bo_label = LABEL(T("Back office"))
             bo_note = DIV(LOAD('customers', 'notes.load', ajax=True,
                                         target='os-bonote_latest',
                                         vars={'cuID':customers_id,
@@ -251,7 +254,7 @@ def edit_remodel_form(form,
 
         if auth.has_membership(group_id='Admins') or \
            auth.has_permission('read', 'customers_notes_teachers'):
-            te_label = LABEL(T("Notes"), BR(), T("Teachers"))
+            te_label = LABEL(T("Teachers"))
             te_note = DIV(LOAD('customers', 'notes.load', ajax=True,
                                      target='os-tenote_latest',
                                    vars={'cuID':customers_id,
@@ -262,39 +265,64 @@ def edit_remodel_form(form,
 
     # address info
     div_address = DIV(
-        H3(T("Address and studio info")),
-        DIV(
-            TABLE(
-                TR( TD(LABEL(form.custom.label.address)),
-                    TD(form.custom.widget.address),
-                    ),
-                TR( TD(LABEL(form.custom.label.city)),
-                    TD(form.custom.widget.city),
-                    ),
-                TR( TD(LABEL(form.custom.label.school_levels_id)),
-                    TD(form.custom.widget.school_levels_id),
-                    ),
-                TR( TD(LABEL(form.custom.label.keynr)),
-                    TD(form.custom.widget.keynr),
-                    ),
-                TR( TD(location_label),
-                    TD(location_widget)),
-                _class='full-width'),
-        _class='col-md-6'),
-        DIV(TABLE(
-            TR( TD(LABEL(form.custom.label.postcode)),
-                TD(form.custom.widget.postcode)),
-            TR( TD(LABEL(form.custom.label.country)),
-                TD(form.custom.widget.country)),
-            TR( TD(LABEL(form.custom.label.school_discovery_id)),
-                TD(form.custom.widget.school_discovery_id)),
-            TR( TD(LABEL(form.custom.label.school_languages_id)),
-                TD(form.custom.widget.school_languages_id)),
-            _class='full-width'),
+            DIV(H3(T('Address')), _class='col-md-12'),
+            DIV(TABLE(
+                    TR( TD(LABEL(form.custom.label.address)),
+                        TD(form.custom.widget.address),
+                        ),
+                    TR( TD(LABEL(form.custom.label.city)),
+                        TD(form.custom.widget.city),
+                        ),
+                    _class='full-width'),
             _class='col-md-6'),
+            DIV(TABLE(
+                TR( TD(LABEL(form.custom.label.postcode)),
+                    TD(form.custom.widget.postcode)),
+                TR( TD(LABEL(form.custom.label.country)),
+                    TD(form.custom.widget.country)),
+                _class='full-width'),
+                _class='col-md-6'),
         _class='col-md-12 customers_edit_address_info')
 
+    # business info
+    div_business = DIV(
+        DIV(
+            H3(T("Studio")),
+            TABLE(
+                TR(TD(LABEL(form.custom.label.school_levels_id)),
+                   TD(form.custom.widget.school_levels_id)),
+                TR(TD(LABEL(form.custom.label.school_discovery_id)),
+                   TD(form.custom.widget.school_discovery_id)),
+                TR(TD(LABEL(form.custom.label.keynr)),
+                   TD(form.custom.widget.keynr)),
+                TR(TD(location_label),
+                   TD(location_widget)),
+
+                _class='full-width'),
+            _class='col-md-6'),
+        DIV(
+
+
+                H3(T("Business")),
+                TABLE(
+                    TR(TD(LABEL(form.custom.label.business)),
+                       TD(form.custom.widget.business),
+                       ),
+                    TR(TD(LABEL(form.custom.label.company)),
+                       TD(form.custom.widget.company),
+                       ),
+                    TR(TD(LABEL(form.custom.label.company_registration)),
+                       TD(form.custom.widget.company_registration)),
+                    TR(TD(LABEL(form.custom.label.company_tax_registration)),
+                       TD(form.custom.widget.company_tax_registration)),
+            _class='full-width'),
+            _class='col-md-6'),
+        _class='col-md-12 customers_edit_address_info'
+    )
+
+
     notes = DIV(
+        DIV(H3(T('Notes')), _class='col-md-12'),
         DIV(
             TABLE( TR( TD(bo_label),
                        TD(bo_note, bo_button)),
@@ -312,6 +340,7 @@ def edit_remodel_form(form,
                    div_basic_info,
                    _class='col-md-12'),
                div_address,
+               div_business,
                notes,
                form.custom.end,
                _class='customers_edit_container row')
@@ -731,6 +760,7 @@ def add():
 
     crud.messages.submit_button = T("Save")
     crud.messages.record_created = T("Saved")
+    crud.settings.create_onaccept = [add_oncreate]
     crud.settings.create_next = next_url
     form = crud.create(db.auth_user)
 
@@ -749,6 +779,14 @@ def add():
     table['_class'] = 'full-width'
 
     return dict(content=form)
+
+
+
+def add_oncreate(form):
+    from openstudio.os_customer import Customer
+
+    customer = Customer(form.vars.id)
+    customer.on_create()
 
 
 
@@ -800,6 +838,11 @@ def edit():
     db.auth_user.password.readable=False
     db.auth_user.password.writable=False
 
+    # enable business checkbox
+    db.auth_user.business.readable=True
+    db.auth_user.business.writable=True
+    # db.auth_user.business.widget=SQLFORM.widgets.checkboxes.widget
+
 
     picture_class = 'customer_image_edit'
     picture = DIV(IMG(_src=URL('static', 'images/person.png'), _alt="Person picture"),
@@ -834,13 +877,13 @@ def edit():
     change_picture = A(change_picture_title,
                        _href=URL('edit_picture', args=[customers_id]))
 
-    #crud.settings.update_onaccept.auth_user.append(_check_active)
+    crud.settings.update_onaccept = [edit_onaccept]
     crud.messages.submit_button = T('Save')
     crud.messages.record_updated = T('Saved')
 
     # Clear teachers cache if we're updating a teacher
     if row.teacher:
-        crud.settings.update_onaccept = [cache_clear_school_teachers]
+        crud.settings.update_onaccept.append(cache_clear_school_teachers)
 
     form = crud.update(db.auth_user, customers_id)
     # Tie the elements together using the form html5 attribute.
@@ -939,6 +982,19 @@ def edit():
                 save=submit)
 
 
+def edit_onaccept(form):
+    """
+    :param form: crud form for db.auth_user
+    :return: None
+    """
+    from openstudio.os_customer import Customer
+
+    print 'running edit_onaccept'
+
+    customer = Customer(form.vars.id)
+    customer.on_update()
+
+
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'auth_user'))
 def edit_picture():
@@ -968,7 +1024,11 @@ def edit_picture():
         crud.settings.label_separator = ''
         crud.settings.update_deletable = False
         crud.settings.update_onvalidation.customers.append(_edit_clear_old_thumbs)
-        crud.settings.update_onaccept.customers.extend([_edit_check_picture, cache_clear_school_teachers])
+        crud.settings.update_onaccept.customers.extend(
+            [ _edit_check_picture,
+              cache_clear_school_teachers,
+              edit_onaccept ]
+        )
 
         crud.messages.submit_button = T('Save')
         crud.messages.record_updated = T('Saved')
@@ -1374,6 +1434,7 @@ def classcards():
     response.subtitle = T("Class cards")
 
     session.invoices_payment_add_back = 'customers_classcards'
+    session.invoices_edit_back = 'customers_classcards'
 
     query = (db.customers_classcards.auth_customer_id == customers_id)
     db.customers_classcards.id.label = T("Pass number")
@@ -3841,7 +3902,7 @@ def mollie_mandates():
     cuID = request.vars['cuID']
     customer = Customer(cuID)
     response.title = customer.get_name()
-    response.subtitle = T("Payment info")
+    response.subtitle = T("Finance")
     response.view = 'general/tabs_menu.html'
 
     # back button
@@ -3859,20 +3920,19 @@ def mollie_mandates():
 
     return dict(content=content,
                 menu=menu,
-                back=back,
-                tools=add)
+                back=back)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'customers_payments'))
+               auth.has_permission('update', 'customers_payments'))
 def bankaccount():
     """
         Lists bank account info
     """
-    customers_id = request.vars['cuID']
-    customer = Customer(customers_id)
+    cuID = request.vars['cuID']
+    customer = Customer(cuID)
     response.title = customer.get_name()
-    response.subtitle = T("Payment info")
+    response.subtitle = T("Finance")
     response.view = 'general/tabs_menu.html'
 
     # back button
@@ -3882,52 +3942,162 @@ def bankaccount():
     db.customers_payment_info.id.readable=False
     db.customers_payment_info.auth_customer_id.readable=False
 
-    query = (db.customers_payment_info.auth_customer_id == customers_id)
+    query = (db.customers_payment_info.auth_customer_id == cuID)
+    count = db(query).count()
 
-    db.customers_payment_info.auth_customer_id.default = customers_id
+    if not count:
+        db.customers_payment_info.insert(
+            auth_customer_id = cuID
+        )
 
-    fields = [ db.customers_payment_info.payment_methods_id,
-               db.customers_payment_info.AccountNumber,
-               db.customers_payment_info.AccountHolder,
-               db.customers_payment_info.BIC,
-               db.customers_payment_info.BankName,
-               db.customers_payment_info.BankLocation ]
+    rows = db(query).select(db.customers_payment_info.ALL)
+    row = rows.first()
 
-    links = [lambda row: os_gui.get_button('edit',
-                                    URL('payment_info_edit',
-                                        args=[customers_id, row.id])) ]
+    return_url = bankaccount_get_returl_url(cuID)
 
-    delete_permission = auth.has_membership(group_id='Admins') or \
-                        auth.has_permission('delete', 'customers_payment_info')
+    crud.messages.submit_button = T("Save")
+    crud.messages.record_updated = T("Saved")
+    crud.settings.formstyle = "bootstrap3_stacked"
+    crud.settings.update_next = return_url
+    crud.settings.update_deletable = False
+    crud.settings.update_onaccept = [bankaccount_onaccept]
+    form = crud.update(db.customers_payment_info, row.id)
 
-    bd_grid = SQLFORM.grid(query,
-                           fields=fields,
-                           links=links,
-                           create=False,
-                           details=False,
-                           editable=False,
-                           csv=False,
-                           searchable=False,
-                           deletable=delete_permission,
-                           field_id=db.customers_payment_info.id,
-                           ui=grid_ui)
-    if db(query).count() == 0:
-        add = os_gui.get_button('add', URL('payment_info_add', args=[customers_id]))
-    else:
-        add = ''
-    bd_grid.element('.web2py_counter', replace=None) # remove the counter
-    bd_grid.elements('span[title=Delete]', replace=None) # remove text from delete button
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
+    form = result['form']
+    submit = result['submit']
 
-    menu = customers_get_menu(customers_id, request.function)
-    submenu = payments_get_submenu(request.function, customers_id)
+    menu = customers_get_menu(cuID, request.function)
+    submenu = payments_get_submenu(request.function, cuID)
 
-    content = DIV(submenu, BR(), bd_grid)
+    mandates = DIV(
+        customer.get_payment_info_mandates(formatted=True),
+        _class="col-md-12"
+    )
+    content = DIV(submenu, BR(), form)
+
+
+    add_mandate = ''
+    query = (db.customers_payment_info_mandates.customers_payment_info_id == row.id)
+    if not db(query).count():
+        add_mandate = os_gui.get_button(
+            'noicon',
+            URL('bankaccount_mandate_add', vars={'cuID':cuID, 'cpiID':row.id}),
+            title=T("Add mandate"),
+            btn_size='',
+        )
 
 
     return dict(content=content,
+                content_extra=mandates,
                 menu=menu,
                 back=back,
-                tools=add)
+                tools=SPAN(add_mandate, submit))
+
+
+def bankaccount_onaccept(form):
+    """
+    :param form: crud form for db.customers_payment_info
+    :return:
+    """
+    from openstudio.os_customers_payment_info import OsCustomersPaymentInfo
+
+    cpiID = form.vars.id
+    cpi = OsCustomersPaymentInfo(cpiID)
+    cpi.on_update()
+
+
+def bankaccount_get_returl_url(customers_id):
+    """
+        Returns the return url for payment_info_add and payment_info_edit
+    """
+    return URL('bankaccount', vars={'cuID':customers_id})
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('create', 'customers_payments_info_mandates'))
+def bankaccount_mandate_add():
+    """
+    Page to add a mandate
+    :return:
+    """
+    import uuid
+
+    cuID = request.vars['cuID']
+    cpiID = request.vars['cpiID']
+
+    customer = Customer(cuID)
+    response.title = customer.get_name()
+    response.subtitle = T("Finance")
+    response.view = 'general/tabs_menu.html'
+
+    db.customers_payment_info_mandates.customers_payment_info_id.default = cpiID
+
+    return_url = bankaccount_get_returl_url(cuID)
+
+    crud.messages.submit_button = T("Save")
+    crud.messages.record_updated = T("Saved")
+    crud.settings.formstyle = "bootstrap3_stacked"
+    crud.settings.create_next = return_url
+    crud.settings.create_onaccept = [bankaccount_mandate_on_create]
+    form = crud.create(db.customers_payment_info_mandates)
+
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
+    form = result['form']
+    submit = result['submit']
+
+    menu = customers_get_menu(cuID, request.function)
+    submenu = payments_get_submenu(request.function, cuID)
+
+    content = DIV(
+        submenu, BR(),
+        H3(T("New mandate")),
+        form
+    )
+
+    back = os_gui.get_button(
+        'back',
+        return_url
+    )
+
+    return dict(
+        content=content,
+        menu=menu,
+        back=back,
+        save=submit
+    )
+
+
+def bankaccount_mandate_on_create(form):
+    """
+    :param form: crud form for db.customers_payment_info_mandates
+    :return:
+    """
+    from openstudio.os_customers_payment_info_mandate import OsCustomersPaymentInfoMandate
+
+    cpimID = form.vars.id
+    cpim = OsCustomersPaymentInfoMandate(cpimID)
+    cpim.on_create()
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('create', 'customers_payments_info_mandates'))
+def bankaccount_mandate_delete():
+    """
+    Delete bankaccount mandate
+    """
+    from openstudio.os_customers_payment_info_mandate import OsCustomersPaymentInfoMandate
+
+    cuID = request.vars['cuID']
+    cpimID = request.vars['cpimID']
+
+    cpim = OsCustomersPaymentInfoMandate(cpimID)
+    cpim.on_delete()
+
+    query = (db.customers_payment_info_mandates.id == cpimID)
+    db(query).delete()
+
+    redirect(bankaccount_get_returl_url(cuID))
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -3939,7 +4109,7 @@ def direct_debit_extra():
     customers_id = request.vars['cuID']
     customer = Customer(customers_id)
     response.title = customer.get_name()
-    response.subtitle = T("Payment info")
+    response.subtitle = T("Finance")
     response.view = 'general/tabs_menu.html'
 
     # back button
@@ -4221,83 +4391,6 @@ def notes_get_add(var=None):
     return form
 
 
-def payment_info_get_returl_url(customers_id):
-    """
-        Returns the return url for payment_info_add and payment_info_edit
-    """
-    return URL('bankaccount', vars={'cuID':customers_id})
-
-
-@auth.requires_login()
-def payment_info_add():
-    """
-        This function shows an add page for payment_info
-        request.args[0] is expected to be the customers_id
-    """
-    customers_id = request.args[0]
-    customer = Customer(customers_id)
-    response.title = customer.get_name()
-    response.subtitle = T("Payment info")
-    response.view = 'general/only_content.html'
-
-    session.customers_payments_tab = '#bd'
-
-    return_url = payment_info_get_returl_url(customers_id)
-
-    submit = ''
-    query = (db.customers_payment_info.auth_customer_id == customers_id)
-    if db(query).count() < 1:
-        db.customers_payment_info.auth_customer_id.default = customers_id
-
-        crud.messages.submit_button = T("Save")
-        crud.messages.record_created = T("Added payment info")
-        crud.settings.create_next = return_url
-        form = crud.create(db.customers_payment_info)
-
-        result = set_form_id_and_get_submit_button(form, 'MainForm')
-        form = result['form']
-        submit = result['submit']
-    else:
-        form = T("Payment info already entered for this customer.")
-
-    back = os_gui.get_button('back', return_url)
-
-    return dict(content=form, save=submit, back=back)
-
-
-@auth.requires_login()
-def payment_info_edit():
-    """
-        This function shows an edit page for the payment_info of a customer
-        request.args[0] is expected to be the customers_id
-        request.args[1] is expected to be the payment_infoID (piID)
-    """
-    customers_id = request.args[0]
-    piID = request.args[1]
-    customer = Customer(customers_id)
-    response.title = customer.get_name()
-    response.subtitle = T("Payment info")
-    response.view = 'general/only_content.html'
-
-    session.customers_payments_tab = '#bd'
-
-    return_url = payment_info_get_returl_url(customers_id)
-
-    crud.messages.submit_button = T("Save")
-    crud.messages.record_updated = T("Updated payment info")
-    crud.settings.update_next = return_url
-    crud.settings.update_deletable = False
-    form = crud.update(db.customers_payment_info, piID)
-
-    result = set_form_id_and_get_submit_button(form, 'MainForm')
-    form = result['form']
-    submit = result['submit']
-
-    back = os_gui.get_button('back', return_url)
-
-    return dict(content=form, save=submit, back=back)
-
-
 def alternativepayment_get_return_url(customers_id):
     """
         Returns return url for alternative payments
@@ -4312,9 +4405,9 @@ def alternativepayment_add():
         request.args[0] is expected to be the customers_id
     """
     customers_id = request.args[0]
-    response.title = T("Payment info")
     customer = Customer(customers_id)
-    response.subtitle = SPAN(T('Direct debit extra'), ' ', customer.get_name())
+    response.title = customer.get_name()
+    response.subtitle = SPAN(T('Finance - Direct debit extra'))
     response.view = 'general/only_content.html'
 
     session.customers_payments_tab = '#ap'
@@ -4344,11 +4437,11 @@ def alternativepayment_edit():
         request.args[0] is expected to be the customers_id
         request.args[1] is expected to be the alternativepaymentsID
     """
-    response.title = T("Payment info")
     customers_id = request.args[0]
     apID = request.args[1]
     customer = Customer(customers_id)
-    response.subtitle = SPAN(T("Direct debit extra"), ' ', customer.get_name())
+    response.title = customer.get_name()
+    response.subtitle = SPAN(T("Finance - Direct debit extra"))
     response.view = 'general/only_content.html'
 
     session.customers_payments_tab = '#ap'
@@ -4403,7 +4496,7 @@ def events():
     session.invoices_edit_back = 'customers_events'
     session.invoices_payment_add_back = 'customers_events'
     # To redirect back here after sending info mail
-    session.workshops_product_resend_info_mail = 'customers_events'
+    session.workshops_ticket_resend_info_mail = 'customers_events'
 
 
     session.workshops_payment_back = 'customer'
@@ -5166,7 +5259,7 @@ def load_list_get_customer_index_buttons(row):
     if contact_permission:
         btn_mail = A(I(_class="fa fa-envelope"), " ",
                      _class="btn btn-default btn-sm",
-                     _href='mailto:' + row.email,
+                     _href='mailto:' + row.email or '',
                      _title=T("Mail customer"))
 
     buttons.append(btn_mail)
@@ -5371,6 +5464,7 @@ def account():
 
     crud.messages.submit_button = T("Save")
     crud.messages.record_updated = T("Saved")
+    crud.settings.update_onaccept.auth_user.append(edit_onaccept)
     crud.settings.update_deletable = False
     form = crud.update(db.auth_user, cuID)
 
@@ -5586,6 +5680,7 @@ def account_set_password():
     db.auth_user.password.readable = True
     db.auth_user.password.writable = True
 
+    crud.settings.update_onaccept.auth_user.append(edit_onaccept)
     form = crud.update(db.auth_user, cuID)
 
     form_id = "MainForm"
@@ -5600,10 +5695,25 @@ def account_set_password():
 
     submenu = account_get_submenu(request.function, cuID)
     description = DIV(B(T("Enter a new password for this account")))
+    description_send_link = DIV(B(
+        T("Send a set password link to this customers' email address")
+    ))
 
-    content = DIV(submenu, BR(),
-                  description,
-                  form)
+    content = DIV(
+        submenu,
+        BR(),
+        DIV(
+            description,
+            form,
+            _class="col-md-6"
+        ),
+        DIV(
+            #description_send_link,
+            _class="col-md-6"
+        ),
+        _class='row'
+    )
+
 
     back = edit_get_back()
     menu = customers_get_menu(cuID, request.function)
@@ -5872,7 +5982,11 @@ def edit_teacher():
 
     crud.messages.submit_button = T('Save')
     crud.messages.record_updated = T('Saved')
-    crud.settings.update_onaccept = [cache_clear_school_teachers, cache_clear_classschedule]
+    crud.settings.update_onaccept = [
+        cache_clear_school_teachers,
+        cache_clear_classschedule,
+        edit_onaccept
+    ]
     form = crud.update(db.auth_user, cuID)
 
     result = set_form_id_and_get_submit_button(form, 'MainForm')

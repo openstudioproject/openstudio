@@ -22,10 +22,13 @@ def index():
     session.profile_class_cancel_confirm_back = 'profile_index'
     session.profile_subscription_credits_back = 'profile_index'
 
+    # verification required
+    verification_required = index_get_verification_required()
+
     # announcements
     announcements = index_get_announcements()
 
-    # cutomer content
+    # customer content
     customer_content = DIV(_class='row')
     cc_left = DIV(_class='col-md-6')
     cc_right = DIV(_class='col-md-6')
@@ -57,9 +60,67 @@ def index():
     customer_content.append(cc_left)
     customer_content.append(cc_right)
 
-    content = DIV(announcements, customer_content)
+    content = DIV(
+        verification_required,
+        announcements,
+        customer_content
+    )
 
-    return dict(content=content)
+    email_verified = index_get_email_verified()
+
+    return dict(
+        content=content,
+        header_tools=email_verified,
+    )
+
+
+def index_get_email_verified(var=None):
+    """
+
+    """
+    auth_user = db.auth_user(auth.user.id)
+    if not auth_user.registration_key:
+        return SPAN(
+            SPAN(os_gui.get_fa_icon('fa-check'),
+                 _class='text-green'),
+            ' ',
+            T("Email verified")
+        )
+    else:
+        return SPAN(
+            SPAN(os_gui.get_fa_icon('fa-times'),
+                 _class='text-red'),
+            ' ',
+            T("Email not verified")
+        )
+
+
+def index_get_verification_required(var=None):
+    """
+        Get verification required
+    """
+    content = DIV(_class='row')
+
+    auth_user = db.auth_user(auth.user.id)
+    if not auth_user.registration_key:
+        return ''
+
+    content = DIV(
+        T("Welcome!"), ' ',
+        T("Soon you'll receive an email from us asking to verify your email address."), ' ',
+        T("Please take the time to click the link in the email so we can ensure that you address is correct."), BR(),
+        T("In case there is ever a reason for us to contact you concerning your order, we would like to be able to do so."), BR(), BR(),
+        T("No email within 15 minutes? Please check your spam folder or contact us in case you need any assistance."), BR(), BR(),
+
+        T("Thank you")
+    )
+
+    return os_gui.get_box(T('Email address not yet verified'),
+                          content,
+                          box_class='box-success',
+                          with_border=False,
+                          show_footer=False,
+                          footer_padding=False)
 
 
 def index_get_announcements(var=None):
@@ -70,7 +131,7 @@ def index_get_announcements(var=None):
 
     query = (db.customers_profile_announcements.PublicAnnouncement == True) & \
             (db.customers_profile_announcements.Startdate <= TODAY_LOCAL) & \
-            ((db.customers_profile_announcements.Enddate >= TODAY_LOCAL) | \
+            ((db.customers_profile_announcements.Enddate >= TODAY_LOCAL) |
              (db.customers_profile_announcements.Enddate == None))
 
     rows = db(query).select(db.customers_profile_announcements.ALL,
@@ -109,7 +170,11 @@ def index_get_upcoming_classes(customer):
     rows = customer.get_classes_attendance_rows(upcoming=True)
 
     if not rows:
-        table = T('No upcoming classes')
+        table = SPAN(T('No upcoming classes.'), BR(), BR(),
+                     T("Click "),
+                     A(T("here"),
+                       _href=URL('shop', 'classes')), ' ',
+                     T("to book a class."))
     else:
         header = THEAD(TR(TH(T('Date')),
                           TH(T('Time')),
@@ -173,7 +238,11 @@ def index_get_upcoming_events(customer):
     rows = customer.get_workshops_rows(upcoming=True)
 
     if not rows:
-        table = T('No upcoming events')
+        table = SPAN(T('No upcoming events.'), BR(), BR(),
+                     T("Click "),
+                     A(T("here"),
+                       _href=URL('shop', 'events')), ' ',
+                     T("to book an event."))
     else:
         header = THEAD(TR(TH(T('Date')),
                           TH(T('Event')),
@@ -214,7 +283,11 @@ def index_get_classcards(customer):
     rows = customer.get_classcards(TODAY_LOCAL, from_cache=False)
 
     if not rows:
-        table = T("No current class cards")
+        table = SPAN(T("No current class cards."), BR(), BR(),
+                     T("Click "),
+                     A(T("here"),
+                       _href=URL('shop', 'classcards')), ' ',
+                     T("to buy a class card."))
     else:
         header = THEAD(TR(TH(T('Card')),
                           TH(T('Expires')),
@@ -254,7 +327,11 @@ def index_get_subscriptions(customer):
     rows = customer.get_subscriptions_on_date(TODAY_LOCAL, from_cache=False)
 
     if not rows:
-        table = T('No current subscriptions')
+        table = SPAN(T('No current subscriptions.'), BR(), BR(),
+                     T("Click "),
+                     A(T("here"),
+                       _href=URL('shop', 'subscriptions')), ' ',
+                     T("to get a subscription."))
     else:
         header = THEAD(TR(TH(T('#')),
                           TH(T('Subscription')),
@@ -297,7 +374,11 @@ def index_get_memberships(customer):
     rows = customer.get_memberships_on_date(TODAY_LOCAL, from_cache=False)
 
     if not rows:
-        table = T('No current memberships')
+        table = SPAN(T('No current memberships.'), BR(), BR(),
+                     T("Click "),
+                     A(T("here"),
+                       _href=URL('shop', 'memberships')), ' ',
+                     T("to get a membership."))
     else:
         header = THEAD(TR(TH(T('#')),
                           TH(T('Membership')),
@@ -366,6 +447,8 @@ def me():
     db.auth_user.email.comment =  os_gui.get_info_icon(
          title=T("If you change your email address, you'll have to use the new address to login."),
          btn_icon='info')
+
+    session.profile_me_bankaccount_next = URL('me_bankaccount')
 
     customer_fields = [
         db.auth_user.first_name,
@@ -499,12 +582,120 @@ def me():
 
     content = form
     privacy = me_get_link_privacy()
-
+    menu = me_get_menu(request.function)
     return dict(content = content,
+                menu=menu,
                 header_tools = SPAN(T('Your CustomerID is ') + auth.user.id,
                                     BR(), privacy)
 
                 )
+
+
+@auth.requires_login()
+def me_bankaccount():
+    """
+            Allows users to edit payment information of their profile
+    """
+    from openstudio.os_customer import Customer
+    from general_helpers import set_form_id_and_get_submit_button
+    response.title = T('Profile')
+    response.subtitle = 'Bank Account'
+    response.view = 'profile/me.html'
+
+    customer = Customer(auth.user.id)
+
+    db.customers_payment_info.payment_methods_id.default = 3
+    db.customers_payment_info.payment_methods_id.readable = False
+    db.customers_payment_info.payment_methods_id.writable = False
+
+    query = (db.customers_payment_info.auth_customer_id == auth.user_id)
+    if db(query).count() < 1:
+        db.customers_payment_info.auth_customer_id.default = auth.user.id
+        form = SQLFORM(
+            db.customers_payment_info,
+            submit_button = T("Save")
+        )
+
+    else:
+        db.customers_payment_info.auth_customer_id.default = auth.user.id
+        pi = db.customers_payment_info(auth_customer_id=auth.user.id)
+
+        form = SQLFORM(
+            db.customers_payment_info,
+            pi.id,
+            submit_button = T("Save")
+        )
+
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
+    form = result['form']
+    submit = result['submit']
+
+
+    if form.process().accepted:
+        session.flash = T("Saved")
+        redirect(session.profile_me_bankaccount_next)
+
+    elif form.errors:
+        response.flash = ''
+
+    form = DIV(
+        XML('<form id="MainForm" action="#" enctype="multipart/form-data" method="post">'),
+        DIV(DIV(os_gui.get_form_group(form.custom.label.AccountNumber,
+                                      form.custom.widget.AccountNumber),
+                _class='col-md-4'),
+            DIV(os_gui.get_form_group(form.custom.label.AccountHolder,
+                                      form.custom.widget.AccountHolder),
+                _class='col-md-4'),
+            DIV(os_gui.get_form_group(form.custom.label.BIC,
+                                      form.custom.widget.BIC),
+                _class='col-md-4'),
+            _class='row'),
+        DIV(DIV(os_gui.get_form_group(form.custom.label.BankName,
+                                      form.custom.widget.BankName),
+                _class='col-md-4'),
+            DIV(os_gui.get_form_group(form.custom.label.BankLocation,
+                                      form.custom.widget.BankLocation),
+                _class='col-md-4'),
+            _class='row'),
+
+    DIV(INPUT(_type="checkbox",
+              _id='data_true_and_complete',
+              _class="iCheck-line-aero"), ' ',
+        LABEL(T("I confirm that the data above is true and complete"),
+              _for="data_true_and_complete"),
+        _class="form-group"),
+    DIV(DIV(submit, _class='col-md-12'),
+        _class='row'),
+    form.custom.end,
+    _class='grid')
+
+    content = form
+
+    mandates = customer.get_payment_info_mandates(formatted=True)
+    privacy = me_get_link_privacy()
+    menu = me_get_menu(request.function)
+    return dict(content=content,
+                menu=menu,
+                save=submit,
+                content_extra=mandates,
+                header_tools=SPAN(T('Your CustomerID is ') + auth.user.id,
+                                  BR(), privacy)
+
+                )
+
+
+def me_get_menu(page=None):
+    pages = []
+
+    pages.append(['me',
+                  T("General Information"),
+                  URL("me")])
+    pages.append(['me_bankaccount',
+                T("Bank Account"),
+                      URL("me_bankaccount"),
+                  ])
+
+    return os_gui.get_submenu(pages, page, _id='os-customers_edit_menu', horizontal=True, htype='tabs')
 
 
 def me_get_link_privacy(var=None):
@@ -640,6 +831,150 @@ def classcard_info():
     back = os_gui.get_button('back', URL('profile', 'index'))
 
     return dict(content=content, back=back)
+
+
+@auth.requires_login()
+def invoice():
+    """
+    Display invoice for a customer
+    """
+    from openstudio.os_invoice import Invoice
+
+    response.title = T('Invoice')
+
+    iID = request.vars['iID']
+
+    invoice = Invoice(iID)
+
+    if not invoice.get_linked_customer_id() == auth.user.id:
+        session.flash = T("That invoice isn't yours...")
+        redirect(URL('profile', 'invoices'))
+
+    response.subtitle = invoice.invoice.InvoiceID
+
+    si = invoice.get_studio_info()
+    studio_info = DIV(
+        DIV(H3(T('From'), _class='box-title'),
+            _class='box-header'),
+        DIV(B(si['name']),
+            XML(si['address']), BR(),
+            si['email'], BR(),
+            si['phone'], BR(),
+            si['registration'], BR(),
+            si['tax_registration'], BR(),
+            _class="box-body"),
+        _class='box box-solid'
+    )
+
+    ci = invoice.get_customer_info()
+    customer_info = DIV(
+        DIV(H3(T('Bill to'), _class='box-title'),
+            _class='box-header'),
+        DIV(B(ci['company']),
+            ci['name'], BR(),
+            XML(ci['address'].replace('\n', '<br>')), BR(),
+            # ci['registration'], BR(),
+            # ci['tax_registration'], BR(),
+            _class="box-body"),
+        _class='box box-solid'
+    )
+
+    invoice_info = DIV(
+        DIV(H3(T('About'), _class='box-title'),
+            _class='box-header'),
+        DIV(LABEL(T("Issued")), BR(),
+            invoice.invoice.DateCreated.strftime(DATE_FORMAT), BR(),
+            LABEL(T("Due date")), BR(),
+            invoice.invoice.DateDue.strftime(DATE_FORMAT), BR(),
+            LABEL(T("Status")), BR(),
+            represent_invoice_status(invoice.invoice.Status, invoice.invoice),
+            _class="box-body"),
+        _class='box box-solid'
+    )
+
+    items_header = THEAD(TR(
+        TH('Product Name'),
+        TH('Description'),
+        TH('Quantity'),
+        TH('Price incl. VAT'),
+        TH(SPAN('Subtotal', _class='pull-right')),
+        TH(SPAN('Tax rate', _class='pull-right')),
+    ))
+    items = TABLE(items_header, _class="table table-striped")
+    rows = invoice.get_invoice_items_rows()
+    for i, row in enumerate(rows):
+        repr_row = repr_row = list(rows[i:i + 1].render())[0]
+
+        items.append(TR(
+            TD(row.ProductName),
+            TD(row.Description),
+            TD(row.Quantity),
+            TD(repr_row.Price),
+            TD(SPAN(repr_row.TotalPrice, _class='pull-right')),
+            TD(SPAN(repr_row.tax_rates_id, _class='pull-right')),
+        ))
+
+    # add totals
+    amounts_total = invoice.get_amounts()
+    amounts_vat   = invoice.get_amounts_tax_rates(formatted=False)
+
+    # try:
+    tfoot = TFOOT()
+    amounts = [ [ T('Sub total'), amounts_total.TotalPrice ] ]
+
+    for tax_rate in amounts_vat:
+        amounts.append( [ tax_rate['Name'], tax_rate['Amount']])
+
+    amounts.append([T('Total')    , amounts_total.TotalPriceVAT ])
+
+    for amount in amounts:
+        tfoot.append(TR(TD(),
+                        TD(),
+                        TD(),
+                        TD(amount[0], _class='bold'),
+                        TD(SPAN(CURRSYM, ' ',
+                                format(amount[1], '.2f'),
+                                _class='bold pull-right')),
+                        # TD(),
+                        # TD(),
+                        TD(),
+                        ))
+    items.append(tfoot)
+
+    invoice_terms = XML(invoice.invoice.Terms.replace('\n', '<br>'))
+    invoice_footer = XML(invoice.invoice.Footer.replace('\n', '<br>'))
+
+    header_tools = DIV(
+        os_gui.get_button(
+            'print',
+            URL('invoices', 'pdf', vars={'iID':iID}),
+            btn_size=''),
+            _class='pull-right'
+    )
+
+    if invoice.invoice.Status == 'sent':
+        header_tools.append(os_gui.get_button(
+            'noicon',
+            URL('mollie', 'invoice_pay', vars={'iID':iID}),
+            title=T("Pay now"),
+            _class='pull-right',
+            btn_class="btn-success",
+            btn_size=''
+        ))
+
+    back = os_gui.get_button(
+        'back',
+        URL('profile', 'invoices')
+    )
+
+    return dict(studio_info = studio_info,
+                customer_info = customer_info,
+                invoice_info = invoice_info,
+                invoice_items = items,
+                invoice_terms = invoice_terms,
+                invoice_footer = invoice_footer,
+                header_tools = header_tools,
+                back=back)
 
 
 @auth.requires_login()

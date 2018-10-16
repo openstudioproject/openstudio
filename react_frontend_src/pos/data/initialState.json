@@ -35,5 +35,55 @@
         "teacher_payment_loading": false,
         "teacher_payment_verifying": false,
         "teacher_payment": {}
+    },
+    "customers": {
+        "list": {
+            "loading": false,
+            "loaded": false,
+            "data": {},
+            "displayID": null,
+            "searchTimeout": 0,
+            "searchID": null,
+            "search_value": "",
+            "selectedID": null,
+            "create_customer": false,
+            "create_customer_temp_data": {},
+            "create_customer_error_data": {
+                "first_name": "",
+                "last_name": "",
+                "email": ""
+            },
+            "update_customer": false,
+            "update_customer_temp_data": {},
+            "update_customer_error_data": {
+                "first_name": "",
+                "last_name": "",
+                "email": ""
+            }
+        },
+        "memberships": {
+            "loading": false,
+            "loaded": false,
+            "data": {}
+        }
+    },
+    "shop": {
+        "school": {
+            "classcards": {
+                "data": {},
+                "loaded": false,
+                "loading": false
+            },
+            "memberships": {
+                "data": {},
+                "loaded": false,
+                "loading": false
+            },
+            "subscriptions": {
+                "data": {},
+                "loaded": false,
+                "loading": false
+            }
+        }
     }
 }
