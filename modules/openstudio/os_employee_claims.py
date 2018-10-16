@@ -375,8 +375,6 @@ class EmployeeClaims:
             all=True
         )
 
-        print rows
-
         # previous_teacher = None
         # current_teacher = None
         processed = 0
