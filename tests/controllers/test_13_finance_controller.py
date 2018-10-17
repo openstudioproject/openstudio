@@ -176,11 +176,26 @@ def test_employee_claims_process_accepted(client, web2py):
     assert web2py.db(web2py.db.employee_claims.Status == 'processed').count() == 2
     assert web2py.db(web2py.db.invoices).count() >= 1
 
-    assert ((web2py.db.invoices.Description == 'Claims'))
+    # assert ((web2py.db.invoices.Description == 'Claims'))
 
-    assert ((web2py.db.invoices_items.invoices_id == 1) & \
-            (web2py.db.invoices_items.Description == 'Accepted Claim') & \
-            (web2py.db.invoices_items.TotalPrice == -15))
+    query = ((web2py.db.invoices.Description == 'Claims')&\
+             (web2py.db.invoices.EmployeeClaim == True))
+    row = web2py.db(query).select().first()
+    assert query
+    InECquery = (web2py.db.invoices_employee_claims.invoices_id == row.id)
+    InECrows = web2py.db(InECquery).select()
+
+    for i, row in enumerate(InECrows):
+
+        ECquery= (web2py.db.employee_claims.id == row.employee_claims_id)
+        ECrow= web2py.db(ECquery).select().first()
+
+        assert ((web2py.db.invoices_items.invoices_id == row.id) & \
+                (web2py.db.invoices_items.Description == ECrow.Description) & \
+                (web2py.db.invoices_items.Quantity == ECrow.Quantity) &\
+                (web2py.db.invoices_items.Price == ECrow.Amount * -1) &\
+                (web2py.db.invoices_items.TotalPrice == (ECrow.Amount * -1 * ECrow.Quantity))
+                )
 
 
 def test_employee_claims_processed_page(client, web2py):
