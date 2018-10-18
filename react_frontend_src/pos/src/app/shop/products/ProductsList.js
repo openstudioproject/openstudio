@@ -95,7 +95,7 @@ class ProductsList extends Component {
 
         return (
             <div>
-                <ul className="nav nav-tabs nav-justified">
+                <ul className="nav nav-pills nav-justified">
                     {tabs}
                 </ul>
                 <div className="tab-content">
