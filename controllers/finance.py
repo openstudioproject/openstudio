@@ -220,6 +220,7 @@ def batch_add():
 
     crud.messages.submit_button = T("Save")
     crud.messages.record_created = T("Added batch")
+    crud.settings.formstyle = 'bootstrap3_stacked'
     crud.settings.create_onaccept = [ generate_batch_items ]
     crud.settings.create_next = '/finance/batch_content?pbID=[id]'
     form = crud.create(db.payment_batches)
@@ -234,39 +235,58 @@ def batch_add():
 
     submit = form.element('input[type=submit]')
 
-    locations_row = ''
+    locations = ''
     if session.show_location:
-        locations_row = TR(TD(LABEL(form.custom.label.school_locations_id)),
-                           TD(form.custom.widget.school_locations_id))
+        locations = DIV(LABEL(form.custom.label.school_locations_id,
+                         _class='control-label'),
+                         form.custom.widget.school_locations_id,
+                         _class='form-group')
 
-    tr_categories = ''
+    categories = ''
     if what == 'category':
-        tr_categories = TR(TD(LABEL(form.custom.label.payment_categories_id)),
-                           TD(form.custom.widget.payment_categories_id))
+        categories = DIV(LABEL(form.custom.label.payment_categories_id,
+                         _class='control-label'),
+                         form.custom.widget.payment_categories_id,
+                         _class='form-group')
 
     if what == 'category':
-        tr_col_month  = TR(TD(LABEL(form.custom.label.ColMonth)),
-                           TD(form.custom.widget.ColMonth))
-        tr_col_year = TR(TD(LABEL(form.custom.label.ColYear),
-                         TD(form.custom.widget.ColYear)))
+        col_month = DIV(LABEL(form.custom.label.ColMonth,
+                         _class='control-label'),
+                   form.custom.widget.ColMonth,
+                   _class='form-group')
+        col_year = DIV(LABEL(form.custom.label.ColYear,
+                         _class='control-label'),
+                   form.custom.widget.ColYear,
+                   _class='form-group')
     else:
-        tr_col_month  = ''
-        tr_col_year = ''
+        col_month  = ''
+        col_year = ''
 
     form = DIV(XML('<form action="#" enctype="multipart/form-data" id="MainForm" method="post">'),
-               TABLE(TR(TD(LABEL(form.custom.label.Name)),
-                        TD(form.custom.widget.Name)),
-                     tr_categories,
-                     tr_col_month,
-                     tr_col_year,
-                     TR(TD(LABEL(form.custom.label.Exdate)),
-                        TD(form.custom.widget.Exdate)),
-                     locations_row,
-                     TR(TD(LABEL(form.custom.label.Note)),
-                        TD(form.custom.widget.Note)),
-                     TR(TD(LABEL(form.custom.label.IncludeZero)),
-                        TD(form.custom.widget.IncludeZero)),
-                      ),
+               DIV(LABEL(form.custom.label.Name,
+                         _class='control-label'),
+                         form.custom.widget.Name,
+                         _class='form-group'
+               ),
+               categories,
+               col_month,
+               col_year,
+               DIV(LABEL(form.custom.label.Exdate,
+                         _class='control-label'),
+                         form.custom.widget.Exdate,
+                         _class='form-group'
+               ),
+               locations,
+               DIV(LABEL(form.custom.label.Note,
+                         _class='control-label'),
+                         form.custom.widget.Note,
+                         _class='form-group'
+               ),
+               DIV(LABEL(form.custom.label.IncludeZero,
+                         _class='control-label'),
+                         form.custom.widget.IncludeZero,
+                         _class='form-group'
+               ),
                form.custom.end,
                _id='payment_batches_add')
 
