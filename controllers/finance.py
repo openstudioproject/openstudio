@@ -184,7 +184,7 @@ def batch_add():
             db.payment_batches.payment_categories_id.requires = None
             response.subtitle.append(T('Invoices batch'))
 
-        if what == 'category':
+        elif what == 'category':
             db.payment_batches.BatchTypeDescription.default = 'category'
             response.subtitle.append(T('Direct debit category batch'))
 
@@ -193,9 +193,17 @@ def batch_add():
     elif batchtype == 'payment':
         if what == 'teacher_payments':
             db.payment_batches.BatchTypeDescription.default = 'teacher_payments'
+            db.payment_batches.ColYear.requires = ''
+            db.payment_batches.ColMonth.requires = ''
             db.payment_batches.payment_categories_id.requires = None
             response.subtitle = SPAN(T('Teacher payments'))
-        if what == 'category':
+        elif what == 'employee_claims':
+            db.payment_batches.BatchTypeDescription.default = 'employee_claims'
+            db.payment_batches.ColYear.requires = ''
+            db.payment_batches.ColMonth.requires = ''
+            db.payment_batches.payment_categories_id.requires = None
+            response.subtitle = SPAN(T('Employee claims'))
+        elif what == 'category':
             response.subtitle = SPAN(T('Payment'))
             db.payment_batches.BatchTypeDescription.default = 'category'
 
@@ -236,7 +244,7 @@ def batch_add():
         tr_categories = TR(TD(LABEL(form.custom.label.payment_categories_id)),
                            TD(form.custom.widget.payment_categories_id))
 
-    if what == 'category' or what == 'teacher_payments':
+    if what == 'category':
         tr_col_month  = TR(TD(LABEL(form.custom.label.ColMonth)),
                            TD(form.custom.widget.ColMonth))
         tr_col_year = TR(TD(LABEL(form.custom.label.ColYear),
