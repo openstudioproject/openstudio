@@ -677,6 +677,8 @@ def batch_edit():
     db.payment_batches.payment_categories_id.readable=False
     db.payment_batches.Description.readable=False
     db.payment_batches.Description.writable=False
+    db.payment_batches.BatchTypeDescription.readable=False
+    db.payment_batches.BatchTypeDescription.writable=False
     db.payment_batches.Exdate.readable=False
     db.payment_batches.Exdate.writable=False
     db.payment_batches.ColYear.readable=False
@@ -690,6 +692,7 @@ def batch_edit():
 
     crud.messages.submit_button = T("Save")
     crud.messages.record_updated = T('Saved batch')
+    crud.settings.formstyle = 'bootstrap3_stacked'
     crud.settings.update_next = return_url
     crud.settings.update_deletable = False
     form = crud.update(db.payment_batches, pbID)
