@@ -1746,7 +1746,7 @@ def define_employee_claims():
               represent=represent_float_as_amount,
               label=T("Amount (incl. VAT)")),
         Field('Quantity', 'double',
-              default=0,
+              default=1,
               # represent=represent_float_as_amount,
               label=T("Quantity")),
         Field('tax_rates_id', db.tax_rates,
