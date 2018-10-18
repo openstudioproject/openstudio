@@ -561,11 +561,13 @@ def my_claims():
                                      URL('my_claims_claim_edit',
                                          vars={'ecID': row.id}), _class='pull-right')
 
-        download_attachment = os_gui.get_button(
-            'download',
-            URL('default', 'download', row.Attachment),
-            title=T("Download"),
-        )
+        download_attachment = ''
+        if row.Attachment:
+            download_attachment = os_gui.get_button(
+                'download',
+                URL('default', 'download', row.Attachment),
+                title=T("Download"),
+            )
 
         table.append(TR(
             TD(row.id),
