@@ -9,7 +9,8 @@ import Currency from '../../../components/ui/Currency'
 
 
 const ProductListItem = injectIntl(withRouter(({data, intl, history}) => 
-    <div onClick={() => { history.push('/shop/products/' + data.id) }}
+    <div 
+        // onClick={() => { history.push('/shop/products/' + data.id) }}
          className="col-md-4">
         <div className="info-box bg-purple">
             <div className="info-box-icon">
@@ -17,10 +18,15 @@ const ProductListItem = injectIntl(withRouter(({data, intl, history}) =>
             </div>
             <div className="info-box-content">
                 <div className="info-box-number">
-                    {data.name}
+                    {data.product_name}
                 </div>
                 <div className="info-box-text">
-                    {data.variants.length} Products
+                    {data.variant_name} {' '}
+                </div>
+                <div className="info-box-text">
+                    { (data.price) ? 
+                      <Currency amount={data.price} /> : 
+                      intl.formatMessage({ id:"app.general.strings.not_set"}) }
                 </div>
             </div>
         </div>

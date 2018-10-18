@@ -22,10 +22,9 @@ class ProductsList extends Component {
 
             // children.push(product.name)
             children.push(
-                product.product_name + ' - ' + product.variant_name
-                // <ProductsListItem data={product}
-                //                   key={"product_" + v4()}
-                //                   />
+                <ProductsListItem data={product}
+                                  key={"product_" + v4()}
+                                  />
             )
             if (( (i+1) % 3 ) === 0 || i+1 == products.length)  {
                 console.log('pushing')
