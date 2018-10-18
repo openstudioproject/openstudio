@@ -34,7 +34,8 @@ class ShopProducts:
         table = TABLE(header, _class='table table-striped table-hover')
 
 
-        categories = self.list_products_categories()
+        shop_categories = ShopCategories()
+        categories = shop_categories.list_products_categories()
 
         permission_variants = (auth.has_membership(group_id='Admins') or
                                auth.has_permission('read', 'shop_products_variants'))
@@ -46,8 +47,6 @@ class ShopProducts:
         onclick_delete = "return confirm('" \
             + T('Do you really want to delete this product?') + "');"
 
-        shop_categories = ShopCategories()
-        product_categories = shop_categories.list_products_categories()
 
         rows = self.list()
         for i, row in enumerate(rows):
