@@ -8,7 +8,7 @@ import { injectIntl } from 'react-intl'
 import Currency from '../../../components/ui/Currency'
 
 
-const ProductListItem = injectIntl(withRouter(({data, intl, history}) => 
+const ProductListItem = injectIntl(({data, intl, onClick=f=>f}) => 
     <div 
         // onClick={() => { history.push('/shop/products/' + data.id) }}
          className="col-md-4">
@@ -31,7 +31,7 @@ const ProductListItem = injectIntl(withRouter(({data, intl, history}) =>
             </div>
         </div>
     </div>
-))
+)
 
 
 export default ProductListItem
