@@ -755,6 +755,8 @@ def generate_batch_items_invoices(pbID,
         Generate invoices batch and write to db.payment_batches_items
     """
     query = (db.invoices.Status == 'sent') & \
+            (db.invoices.TeacherPayment == False) & \
+            (db.invoices.EmployeeClaim == False) & \
             (db.invoices.payment_methods_id == 3) # 3 = Direct Debit
 
     if not pb.school_locations_id is None and pb.school_locations_id != '':
