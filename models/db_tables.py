@@ -1777,7 +1777,7 @@ def define_employee_claims():
         Field('VerifiedOn', 'datetime',
               readable=False,
               writable=False),
-         )
+        )
 
 
 def define_classes():
