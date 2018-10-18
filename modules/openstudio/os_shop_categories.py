@@ -60,3 +60,28 @@ class ShopCategories:
             table.append(tr)
 
         return table
+
+
+    def list_products_categories(self):
+        """
+
+        :return:
+        """
+        db = current.db
+
+        left = [
+            db.shop_categories.on(
+                db.shop_categories_products.shop_categories_id ==
+                db.shop_categories.id
+            )
+        ]
+
+        query = (db.shop_categories.Archived == False)
+        rows = db(query).select(
+            db.shop_categories_products.ALL,
+            db.shop_categories.Name,
+            left=left,
+            orderby=db.shop_categories.Name
+        )
+
+        return rows

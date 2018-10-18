@@ -16,34 +16,12 @@ class ShopProducts:
         return rows
 
 
-    def list_products_categories(self):
-        """
-        :return:
-        """
-        db = current.db
-
-        left = [
-            db.shop_categories.on(
-                db.shop_categories_products.shop_categories_id ==
-                db.shop_categories.id
-            )
-        ]
-
-        query = (db.shop_categories.Archived == False)
-        rows = db(query).select(
-            db.shop_categories_products.ALL,
-            db.shop_categories.Name,
-            left=left,
-            orderby=db.shop_categories.Name
-        )
-
-        return rows
-
-
     def list_formatted(self):
         """
             :return: HTML table with shop products
         """
+        from os_shop_categories import ShopCategories
+
         T = current.T
         os_gui = current.globalenv['os_gui']
         auth = current.auth
@@ -68,7 +46,8 @@ class ShopProducts:
         onclick_delete = "return confirm('" \
             + T('Do you really want to delete this product?') + "');"
 
-        categories = self.list_products_categories()
+        shop_categories = ShopCategories()
+        product_categories = shop_categories.list_products_categories()
 
         rows = self.list()
         for i, row in enumerate(rows):

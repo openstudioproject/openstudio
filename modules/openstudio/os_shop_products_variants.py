@@ -9,18 +9,85 @@ class ShopProductsVariants:
 
 
     def list_pos(self):
+        """
+        list product variants in a way convenient for the PoS
+        """
+        from os_shop_categories import ShopCategories
+        from general_helpers import get_download_url
+
         db = current.db
+
+
+        shop_categories = ShopCategories()
+        product_categories = shop_categories.list_products_categories()
+        print product_categories
+
+
+        data = []
+
+        left = [
+            db.shop_products.on(
+                db.shop_products_variants.shop_products_id ==
+                db.shop_products.id
+            )
+        ]
 
         rows = db().select(
             db.shop_products_variants.ALL,
+            db.shop_products.ALL,
+            left=left,
             orderby=db.shop_products_variants.Name
         )
 
-        print rows
+        for row in rows:
+            categories = []
+            for category_row in product_categories:
+                if category_row.shop_categories_products.shop_products_id == row.shop_products.id:
+                    categories.append(category_row.shop_categories_products.shop_categories_id)
 
 
-        return 'More to come...'
+            data.append({
+                'id': row.shop_products_variants.id,
+                'name': row.shop_products_variants.Name,
+                'description': row.shop_products.Description,
+                'product_name': row.shop_products.Name,
+                'price': row.shop_products_variants.Price,
+                'thumbsmall': get_download_url(row.shop_products_variants.thumbsmall),
+                'thumblarge': get_download_url(row.shop_products_variants.thumblarge),
+                'categories': categories,
+            })
 
+
+
+
+
+        # db = current.db
+        #
+        # products_with_variants = []
+        #
+        # product_rows = self.get_products()
+        #
+        # for product_row in product_rows:
+        #     query = (db.shop_products_variants.shop_products_id == self.id)
+        #
+        #     rows = db(query).select(
+        #         db.shop_products_variants.ALL,
+        #         orderby=db.shop_products_variants.Name,
+        #     )
+        #
+        #     products_with_variants.append({
+        #         'id': product_row.id,
+        #         'name': product_row.Name,
+        #         'description': product_row.DescriptionShop,
+        #         'picture': product_row.picture,
+        #         'thumbsmall': get_download_url(product_row.thumbsmall),
+        #         'thumblarge': get_download_url(product_row.thumblarge),
+        #         'variants': rows.as_list(),
+        #     })
+
+
+
+        return data
 
 
     def list(self):
