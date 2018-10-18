@@ -778,8 +778,10 @@ def generate_batch_items_invoices(pbID,
         Generate invoices batch and write to db.payment_batches_items
     """
     query = (db.invoices.Status == 'sent') & \
-            (db.invoices.TeacherPayment == False) & \
-            (db.invoices.EmployeeClaim == False) & \
+            ((db.invoices.TeacherPayment == False) |
+             (db.invoices.TeacherPayment == None)) & \
+            ((db.invoices.EmployeeClaim == False) |
+             (db.invoices.EmployeeClaim == None)) & \
             (db.invoices.payment_methods_id == 3) # 3 = Direct Debit
 
     if not pb.school_locations_id is None and pb.school_locations_id != '':
@@ -825,6 +827,9 @@ def generate_batch_items_invoices(pbID,
                             db.auth_user.id,
                             left=left,
                             orderby=db.auth_user.id)
+
+
+    print rows
 
     for row in rows:
         cuID = row.auth_user.id
