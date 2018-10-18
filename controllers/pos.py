@@ -608,27 +608,4 @@ def get_products():
     data = spv.list_pos()
     pp.pprint(data)
 
-
-
-    # query = (db.shop_categories.Archived == False)
-    # categories = db(query).select(
-    #     db.shop_categories.ALL,
-    #     orderby=db.shop_categories.Name
-    # )
-    #
-    # data = []
-    # for category in categories:
-    #     print category
-    #
-    #     sc = ShopCategory(category.id)
-    #     products_with_variants = sc.get_products_with_variants()
-    #
-    #
-    #     data.append({
-    #         'name': category.Name,
-    #         'description': category.Description,
-    #         'products': products_with_variants,
-    #     })
-
-
     return dict(data=data)
