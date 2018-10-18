@@ -84,29 +84,74 @@ class ShopProducts:
                     )
                     product_categories.append(' ')
 
-            if permission_variants:
-                variants = os_gui.get_button('noicon',
-                    URL('shop_manage', 'product_variants', vars=vars),
-                    title=T('Variants'))
-                buttons.append(variants)
-            if permission_edit:
-                edit = os_gui.get_button('edit',
-                    URL('shop_manage', 'product_edit', vars=vars))
-                buttons.append(edit)
+            delete = ''
             if permission_delete:
-                delete = os_gui.get_button('delete_notext',
+                delete = os_gui.get_button(
+                    'delete_notext',
                     URL('shop_manage', 'product_delete', vars=vars),
-                    onclick=onclick_delete)
-                buttons.append(delete)
+                    onclick=onclick_delete,
+                    _class='pull-right'
+                )
+
+            actions = self._list_formatted_get_actions(
+                   permission_edit,
+                   permission_variants,
+                   row,
+                   os_gui,
+                   T
+            )
 
             tr = TR(
                 TD(repr_row.thumbsmall),
                 TD(os_gui.max_string_length(row.Name, 30)),
                 TD(os_gui.max_string_length(row.Description, 30)),
                 TD(product_categories),
-                TD(buttons)
+                TD(delete, actions)
             )
 
             table.append(tr)
 
         return table
+
+
+    def _list_formatted_get_actions(self,
+                                    permission_edit,
+                                    permission_variants,
+                                    row,
+                                    os_gui,
+                                    T):
+        """
+            Return actions drop down
+        """
+        links = []
+
+        vars = {'spID': row.id}
+
+        if permission_variants:
+            links.append(
+                A(os_gui.get_fa_icon('fa-list'), T('Variants'),
+                  _href=URL('shop_manage', 'product_variants',
+                            vars=vars))
+            )
+        if permission_edit:
+            links.append(
+                A(os_gui.get_fa_icon('fa-pencil'), T('Edit'),
+                  _href=URL('shop_manage', 'product_edit',
+                            vars=vars))
+            )
+
+        # set_default = ''
+        # if not row.DefaultVariant:
+        #     set_default = A(os_gui.get_fa_icon('fa-check-circle'),
+        #                     T('Set default'),
+        #                     _href=URL('shop_manage', 'product_variant_set_default',
+        #                               vars=vars))
+
+        dd = os_gui.get_dropdown_menu(
+            links=links,
+            btn_text=T('Actions'),
+            btn_size='btn-sm',
+            btn_icon='actions',
+            menu_class='btn-group pull-right')
+
+        return dd
