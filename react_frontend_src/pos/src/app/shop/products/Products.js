@@ -26,12 +26,12 @@ class Products extends Component {
     }
     
     render() {
-        const categories = this.props.categories
+        const products = this.props.products
 
         return (
             <ShopTemplate app_state={this.props.app}>
                 { this.props.loaded ? 
-                     <ProductsList categories={categories} />:
+                     <ProductsList products={products} />:
                      "Loading..."
                 }
             </ShopTemplate>

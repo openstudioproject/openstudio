@@ -48,7 +48,7 @@ class ShopProductsVariants:
 
             data.append({
                 'id': row.shop_products_variants.id,
-                'name': row.shop_products_variants.Name,
+                'variant_name': row.shop_products_variants.Name,
                 'description': row.shop_products.Description,
                 'product_name': row.shop_products.Name,
                 'price': row.shop_products_variants.Price,
