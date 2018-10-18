@@ -36,7 +36,8 @@ class ShopProductsVariants:
             db.shop_products_variants.ALL,
             db.shop_products.ALL,
             left=left,
-            orderby=db.shop_products_variants.Name
+            orderby=db.shop_products_variants.Name|
+                    db.shop_products.Name
         )
 
         for row in rows:
