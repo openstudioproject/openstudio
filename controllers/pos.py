@@ -594,32 +594,41 @@ def get_products():
 
     :return: dict containing products sorted by category
     """
-    from openstudio.os_shop_category import ShopCategory
+    from openstudio.os_shop_products_variants import ShopProductsVariants
+    # from openstudio.os_shop_category import ShopCategory
 
     import pprint
 
     pp = pprint.PrettyPrinter(depth=6)
     set_headers()
 
-    query = (db.shop_categories.Archived == False)
-    categories = db(query).select(
-        db.shop_categories.ALL,
-        orderby=db.shop_categories.Name
-    )
 
-    data = []
-    for category in categories:
-        print category
+    spv = ShopProductsVariants()
 
-        sc = ShopCategory(category.id)
-        products_with_variants = sc.get_products_with_variants()
+    data = spv.list_pos()
+    pp.pprint(data)
 
 
-        data.append({
-            'name': category.Name,
-            'description': category.Description,
-            'products': products_with_variants,
-        })
+
+    # query = (db.shop_categories.Archived == False)
+    # categories = db(query).select(
+    #     db.shop_categories.ALL,
+    #     orderby=db.shop_categories.Name
+    # )
+    #
+    # data = []
+    # for category in categories:
+    #     print category
+    #
+    #     sc = ShopCategory(category.id)
+    #     products_with_variants = sc.get_products_with_variants()
+    #
+    #
+    #     data.append({
+    #         'name': category.Name,
+    #         'description': category.Description,
+    #         'products': products_with_variants,
+    #     })
 
 
     return dict(data=data)

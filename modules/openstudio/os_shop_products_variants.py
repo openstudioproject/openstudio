@@ -16,6 +16,8 @@ class ShopProductsVariants:
             orderby=db.shop_products_variants.Name
         )
 
+        print rows
+
 
         return 'More to come...'
 
