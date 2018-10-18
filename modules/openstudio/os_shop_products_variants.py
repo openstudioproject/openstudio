@@ -4,8 +4,22 @@ from gluon import *
 
 
 class ShopProductsVariants:
-    def __init__(self, shop_products_id):
+    def __init__(self, shop_products_id=None):
         self.shop_products_id = shop_products_id
+
+
+    def list_pos(self):
+        db = current.db
+
+        rows = db().select(
+            db.shop_products_variants.ALL,
+            orderby=db.shop_products_variants.Name
+        )
+
+
+        return 'More to come...'
+
+
 
     def list(self):
         """

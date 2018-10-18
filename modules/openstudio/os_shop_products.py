@@ -32,13 +32,12 @@ class ShopProducts:
         query = (db.shop_categories.Archived == False)
         rows = db(query).select(
             db.shop_categories_products.ALL,
+            db.shop_categories.Name,
             left=left,
             orderby=db.shop_categories.Name
         )
 
         return rows
-
-
 
 
     def list_formatted(self):
@@ -69,11 +68,21 @@ class ShopProducts:
         onclick_delete = "return confirm('" \
             + T('Do you really want to delete this product?') + "');"
 
+        categories = self.list_products_categories()
+
         rows = self.list()
         for i, row in enumerate(rows):
             repr_row = list(rows[i:i + 1].render())[0]
             buttons = DIV(_class='pull-right')
             vars = {'spID':row.id}
+
+            product_categories = SPAN()
+            for category in categories:
+                if category.shop_categories_products.shop_products_id == row.id:
+                    product_categories.append(
+                        os_gui.get_label('info', category.shop_categories.Name)
+                    )
+                    product_categories.append(' ')
 
             if permission_variants:
                 variants = os_gui.get_button('noicon',
@@ -94,7 +103,7 @@ class ShopProducts:
                 TD(repr_row.thumbsmall),
                 TD(os_gui.max_string_length(row.Name, 30)),
                 TD(os_gui.max_string_length(row.Description, 30)),
-                TD('categories here'),
+                TD(product_categories),
                 TD(buttons)
             )
 
