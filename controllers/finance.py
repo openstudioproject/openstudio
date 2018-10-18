@@ -730,7 +730,8 @@ def generate_batch_items(form):
         generate_batch_items_invoices(pbID,
                                       pb,
                                       currency)
-    elif pb.BatchTypeDescription == 'teacher_payments':
+    elif ( pb.BatchTypeDescription == 'teacher_payments' or
+           pb.BatchTypeDescription == 'employee_claims' ):
         from openstudio.os_payment_batch import PaymentBatch
         pb = PaymentBatch(pbID)
         pb.generate_batch_items()
