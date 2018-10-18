@@ -17,10 +17,10 @@ const ProductListItem = injectIntl(withRouter(({data, intl, history}) =>
                 <img src={data.thumblarge} />
             </div>
             <div className="info-box-content">
-                <div className="info-box-number">
+                <div className="info-box-text">
                     {data.product_name}
                 </div>
-                <div className="info-box-text">
+                <div className="info-box-number">
                     {data.variant_name} {' '}
                 </div>
                 <div className="info-box-text">
