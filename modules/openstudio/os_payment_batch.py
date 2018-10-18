@@ -54,6 +54,10 @@ class PaymentBatch:
             db.customers_payment_info.on(
                 db.customers_payment_info.auth_customer_id ==
                 db.auth_user.id
+            ),
+            db.customers_payment_info_mandates.on(
+                db.customers_payment_info_mandates.customers_payment_info_id ==
+                db.customers_payment_info.id
             )
         ]
 
@@ -64,6 +68,7 @@ class PaymentBatch:
                                 db.auth_user.ALL,
                                 db.invoices_amounts.ALL,
                                 db.customers_payment_info.ALL,
+                                db.customers_payment_info_mandates.ALL,
                                 left=left,
                                 orderby=db.auth_user.id)
 
@@ -100,7 +105,7 @@ class PaymentBatch:
             except AttributeError:
                 bic = ''
 
-            msdate = row.customers_payment_info.MandateSignatureDate
+            msdate = row.customers_payment_info_mandates.MandateSignatureDate
 
             # set bank name
             if row.customers_payment_info.BankName == '':
@@ -115,6 +120,7 @@ class PaymentBatch:
                 BIC=bic,
                 AccountNumber=accountnr,
                 MandateSignatureDate=msdate,
+                MandateReference=row.customers_payment_info_mandates.MandateReference,
                 Amount=amount,
                 Currency=self.currency,
                 Description=description,
@@ -146,6 +152,10 @@ class PaymentBatch:
             db.customers_payment_info.on(
                 db.customers_payment_info.auth_customer_id ==
                 db.auth_user.id
+            ),
+            db.customers_payment_info_mandates.on(
+                db.customers_payment_info_mandates.customers_payment_info_id ==
+                db.customers_payment_info.id
             )
         ]
 
@@ -156,6 +166,7 @@ class PaymentBatch:
                                 db.auth_user.ALL,
                                 db.invoices_amounts.ALL,
                                 db.customers_payment_info.ALL,
+                                db.customers_payment_info_mandates.ALL,
                                 left=left,
                                 orderby=db.auth_user.id)
 
@@ -191,7 +202,7 @@ class PaymentBatch:
             except AttributeError:
                 bic = ''
 
-            msdate = row.customers_payment_info.MandateSignatureDate
+            msdate = row.customers_payment_info_mandates.MandateSignatureDate
 
             # set bank name
             if row.customers_payment_info.BankName == '':
@@ -206,6 +217,7 @@ class PaymentBatch:
                 BIC=bic,
                 AccountNumber=accountnr,
                 MandateSignatureDate=msdate,
+                MandateReference=row.customers_payment_info_mandates.MandateReference,
                 Amount=amount,
                 Currency=self.currency,
                 Description=description,
