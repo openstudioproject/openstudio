@@ -581,7 +581,14 @@ def my_claims():
         ))
 
     add_url = URL('my_claims_claim_add')
-    add = os_gui.get_button('add', add_url, T("Add new Claim"), btn_size='',btn_class='btn-success', _class='pull-right')
+    add = os_gui.get_button(
+        'add',
+        add_url,
+        T("Add new Claim"),
+        btn_class='btn-success',
+        btn_size='',
+        _class='pull-right'
+    )
 
     content= DIV(table)
 
