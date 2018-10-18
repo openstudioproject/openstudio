@@ -128,23 +128,35 @@ def add_payment_batch_type():
     return_url = URL('batches_index', vars={'export':export})
 
     question = T("What kind of batch would you like to create?")
-    invoices = LI(A(
+
+    teacher_payments = LI(A(
         T('Teacher payments'),
         _href=URL('batch_add', vars={'export': export,
                                      'what':'teacher_payments'})), BR(),
-        T("Create a batch containing all teacher invoices for a chosen month with status 'sent'."))
+        T("Create a batch containing all teacher payment invoices with status 'sent'."))
+    employee_claims = LI(A(
+        T('Employee claims'),
+        _href=URL('batch_add', vars={'export': export,
+                                     'what':'employee_claims'})), BR(),
+        T("Create a batch containing all employee claim invoices with status 'sent'."))
     category = LI(A(
         T('Direct debit extra'),
         _href=URL('batch_add', vars={'export':export,
                                      'what':'category'})), BR(),
         T("Create a batch containing items from a direct debit extra category."))
+
     cancel = os_gui.get_button('noicon',
         return_url,
         title=T("Cancel"),
         _class='btn btn-default',
         btn_size='')
+
     back = os_gui.get_button('back', return_url)
-    ul = UL(invoices, category)
+    ul = UL(
+        teacher_payments,
+        employee_claims,
+        category
+    )
     content = DIV(H3(question), ul)
 
     return dict(content=content,
