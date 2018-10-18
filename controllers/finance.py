@@ -95,12 +95,12 @@ def add_collection_batch_type():
 
     question = T("What kind of batch would you like to create?")
     invoices = LI(A(
-        T('Invoices'),
+        B(T('Invoices')),
         _href=URL('batch_add', vars={'export':export,
                                      'what':'invoices'})), BR(),
         T("Create a batch containing all invoices with status 'sent' and payment method 'direct debit'."))
     category = LI(A(
-        T('Direct debit extra'),
+        B(T('Direct debit extra')),
         _href=URL('batch_add', vars={'export':export,
                                      'what':'category'})), BR(),
         T("Create a batch containing items from a direct debit extra category."))
@@ -130,17 +130,17 @@ def add_payment_batch_type():
     question = T("What kind of batch would you like to create?")
 
     teacher_payments = LI(A(
-        T('Teacher payments'),
+        B(T('Teacher payments')),
         _href=URL('batch_add', vars={'export': export,
                                      'what':'teacher_payments'})), BR(),
         T("Create a batch containing all teacher payment invoices with status 'sent'."))
     employee_claims = LI(A(
-        T('Employee claims'),
+        B(T('Employee claims')),
         _href=URL('batch_add', vars={'export': export,
                                      'what':'employee_claims'})), BR(),
         T("Create a batch containing all employee claim invoices with status 'sent'."))
     category = LI(A(
-        T('Direct debit extra'),
+        B(T('Direct debit extra')),
         _href=URL('batch_add', vars={'export':export,
                                      'what':'category'})), BR(),
         T("Create a batch containing items from a direct debit extra category."))
