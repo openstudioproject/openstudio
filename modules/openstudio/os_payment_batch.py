@@ -67,8 +67,6 @@ class PaymentBatch:
                                 left=left,
                                 orderby=db.auth_user.id)
 
-        print rows
-
 
         for row in rows:
             cuID = row.auth_user.id
@@ -160,8 +158,6 @@ class PaymentBatch:
                                 db.customers_payment_info.ALL,
                                 left=left,
                                 orderby=db.auth_user.id)
-
-        print rows
 
         for row in rows:
             cuID = row.auth_user.id
