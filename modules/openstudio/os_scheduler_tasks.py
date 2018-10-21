@@ -205,8 +205,8 @@ class OsSchedulerTasks:
         db = current.db
         DATE_FORMAT = current.DATE_FORMAT
 
-        db.test_scheduler_print_data.insert(task_message='task starts')
-        db.commit()
+        # db.test_scheduler_print_data.insert(task_message='task starts')
+        # db.commit()
 
         year = int(year)
         month = int(month)
@@ -221,33 +221,66 @@ class OsSchedulerTasks:
                            left=(db.customers_subscriptions.on(db.customers_subscriptions.auth_customer_id == db.customers_memberships.auth_customer_id),
                                 db.school_subscriptions.on(db.school_subscriptions.id == db.customers_subscriptions.school_subscriptions_id)))
         invoices_created = 0
-        db.test_scheduler_print_data.insert(task_message = rows)
-        db.commit()
+        # db.test_scheduler_print_data.insert(task_message = rows)
+        # db.commit()
         for row in rows:
             if row.customers_memberships.Enddate <= lastdaythismonth:
-                db.test_scheduler_print_data.insert(task_message='Enddate Memberships works')
-                db.commit()
+                # db.test_scheduler_print_data.insert(task_message='Enddate Memberships works')
+                # db.commit()
                 if row.customers_subscriptions.Enddate > lastdaythismonth:
-                    db.test_scheduler_print_data.insert(task_message='Enddate Subscription works')
-                    db.commit()
+                    # db.test_scheduler_print_data.insert(task_message='Enddate Subscription works')
+                    # db.commit()
                     if row.school_subscriptions.MembershipRequired == True:
-                        db.test_scheduler_print_data.insert(task_message='Membership required works')
-                        db.commit()
+                        # db.test_scheduler_print_data.insert(task_message='Membership required works')
+                        # db.commit()
                         membership = row.customers_memberships.school_memberships_id
+                        db.test_scheduler_print_data.insert(task_message=row.customers_memberships.school_memberships_id)
+                        db.commit()
                         membership_row = db.school_memberships(id= membership)
+                        # db.test_scheduler_print_data.insert(task_message=membership_row)
+                        # db.commit()
                         sm = SchoolMembership(membership)
                         startdate = row.customers_memberships.Enddate
                         enddate = sm.sell_to_customer_get_enddate(row.customers_memberships.Enddate)
                         cmID = db.customers_memberships.insert(
                             auth_customer_id = row.customers_memberships.auth_customer_id,
+                            school_memberships_id= row.customers_memberships.school_memberships_id,
                             Startdate = startdate,
                             Enddate = enddate,
                             payment_methods_id = row.customers_memberships.payment_methods_id
                         )
+                        db.commit()
                         cm = CustomerMembership(cmID)
                         cm.set_date_id_and_barcode()
                         invoices_created += 1
-                        sm.sell_to_customer_create_invoice(cmID)
+                        # sm.sell_to_customer_create_invoice(cmID)
+
+                        # Check if price exists and > 0:
+                        if sm.get_price_on_date(cm.row.Startdate):
+                            period_start = cm.row.Startdate
+                            period_end = cm.get_period_enddate(cm.row.Startdate)
+
+                            igpt = db.invoices_groups_product_types(ProductType='membership')
+
+                            iID = db.invoices.insert(
+                                invoices_groups_id=igpt.invoices_groups_id,
+                                Description=cm.get_name(),
+                                MembershipPeriodStart=period_start,
+                                MembershipPeriodEnd=period_end,
+                                Status='sent'
+                            )
+
+                            invoice = Invoice(iID)
+                            invoice.link_to_customer(cm.row.auth_customer_id)
+                            invoice.item_add_membership(
+                                cmID,
+                                period_start,
+                                period_end
+                            )
+
+                            return iID
+                        else:
+                            return None
 
                         # igpt = db.invoices_groups_product_types(ProductType = 'subscription')
                         # igID = igpt.invoices_groups_id
