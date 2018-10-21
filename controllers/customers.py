@@ -6189,6 +6189,7 @@ def membership_add():
         onaccept = [
             membership_add_create_invoice,
             membership_add_set_date_id,
+            membership_add_set_enddate,
             memberships_clear_cache,
         ]
     )
@@ -6220,6 +6221,23 @@ def membership_add_create_invoice(form):
     # create invoice
     sm = SchoolMembership(smID)
     sm.sell_to_customer_create_invoice(cmID)
+
+
+def membership_add_set_enddate(form):
+    """
+        Calculate and set enddate when adding a membership
+    """
+    from openstudio.os_school_membership import SchoolMembership
+
+    cmID = form.vars.id
+    smID = form.vars.school_memberships_id
+    sm = SchoolMembership(smID)
+    enddate = sm.sell_to_customer_get_enddate(form.vars.Startdate)
+
+    # set enddate
+    row = db.customers_memberships(cmID)
+    row.Enddate = enddate
+    row.update_record()
 
 
 def membership_add_set_date_id(form):
