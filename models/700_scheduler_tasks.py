@@ -148,5 +148,6 @@ os_scheduler_tasks = OsSchedulerTasks()
 scheduler_tasks = {
     'daily': task_openstudio_daily,
     'customers_subscriptions_create_invoices_for_month': os_scheduler_tasks.customers_subscriptions_create_invoices_for_month,
+    'customers_exp_membership_check_subscriptions': os_scheduler_tasks.customers_exp_membership_check_subscriptions,
     'openstudio_test_task': task_openstudio_test
 }

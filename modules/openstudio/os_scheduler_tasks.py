@@ -190,3 +190,129 @@ class OsSchedulerTasks:
         db.commit()
 
         return T("Invoices created") + ': ' + unicode(invoices_created)
+
+
+    def customers_exp_membership_check_subscriptions(self, year, month, description):
+        """
+            Checks if a subscription exceeds the expiration of a membership. If so it creates a new membership and an invoice for it for the customer
+        """
+        from general_helpers import get_last_day_month
+        from os_invoice import Invoice
+        from os_school_membership import SchoolMembership
+        from os_customer_membership import CustomerMembership
+
+        T = current.T
+        db = current.db
+        DATE_FORMAT = current.DATE_FORMAT
+
+        db.test_scheduler_print_data.insert(task_message='task starts')
+        db.commit()
+
+        year = int(year)
+        month = int(month)
+
+        firstdaythismonth = datetime.date(year, month, 1)
+        lastdaythismonth  = get_last_day_month(firstdaythismonth)
+
+        rows = db().select(db.customers_memberships.ALL,
+                           db.customers_subscriptions.ALL,
+                           db.school_subscriptions.id,
+                           db.school_subscriptions.MembershipRequired,
+                           left=(db.customers_subscriptions.on(db.customers_subscriptions.auth_customer_id == db.customers_memberships.auth_customer_id),
+                                db.school_subscriptions.on(db.school_subscriptions.id == db.customers_subscriptions.school_subscriptions_id)))
+        invoices_created = 0
+        db.test_scheduler_print_data.insert(task_message = rows)
+        db.commit()
+        for row in rows:
+            if row.customers_memberships.Enddate <= lastdaythismonth:
+                db.test_scheduler_print_data.insert(task_message='Enddate Memberships works')
+                db.commit()
+                if row.customers_subscriptions.Enddate > lastdaythismonth:
+                    db.test_scheduler_print_data.insert(task_message='Enddate Subscription works')
+                    db.commit()
+                    if row.school_subscriptions.MembershipRequired == True:
+                        db.test_scheduler_print_data.insert(task_message='Membership required works')
+                        db.commit()
+                        membership = row.customers_memberships.school_memberships_id
+                        membership_row = db.school_memberships(id= membership)
+                        sm = SchoolMembership(membership)
+                        startdate = row.customers_memberships.Enddate
+                        enddate = sm.sell_to_customer_get_enddate(row.customers_memberships.Enddate)
+                        cmID = db.customers_memberships.insert(
+                            auth_customer_id = row.customers_memberships.auth_customer_id,
+                            Startdate = startdate,
+                            Enddate = enddate,
+                            payment_methods_id = row.customers_memberships.payment_methods_id
+                        )
+                        cm = CustomerMembership(cmID)
+                        cm.set_date_id_and_barcode()
+                        invoices_created += 1
+                        sm.sell_to_customer_create_invoice(cmID)
+
+                        # igpt = db.invoices_groups_product_types(ProductType = 'subscription')
+                        # igID = igpt.invoices_groups_id
+                        #
+                        # invoices_created = 0
+                        #
+                        # # Alright, time to create some invoices
+                        # for row in rows:
+                        #     if row.invoices.id:
+                        #         # an invoice already exists, do nothing
+                        #         continue
+                        #     if row.customers_subscriptions_paused.id:
+                        #         # the subscription is paused, don't create an invoice
+                        #         continue
+                        #     if row.customers_subscriptions_alt_prices.Amount == 0:
+                        #         # Don't create an invoice if there's an alt price for the subscription with amount 0.
+                        #         continue
+                        #
+                        #     csID = row.customers_subscriptions.id
+                        #     cuID = row.customers_subscriptions.auth_customer_id
+                        #     pmID = row.customers_subscriptions.payment_methods_id
+                        #
+                        #     subscr_name = row.school_subscriptions.Name
+                        #
+                        #     if row.customers_subscriptions_alt_prices.Description:
+                        #         inv_description = row.customers_subscriptions_alt_prices.Description
+                        #     else:
+                        #         inv_description = description
+                        #
+                        #     if row.customers_subscriptions.Startdate > firstdaythismonth:
+                        #         period_begin = row.customers_subscriptions.Startdate
+                        #     else:
+                        #         period_begin = firstdaythismonth
+                        #
+                        #     period_end = lastdaythismonth
+                        #     if row.customers_subscriptions.Enddate:
+                        #         if row.customers_subscriptions.Enddate >= firstdaythismonth and \
+                        #            row.customers_subscriptions.Enddate < lastdaythismonth:
+                        #             period_end = row.customers_subscriptions.Enddate
+                        #
+                        #
+                        #     item_description = period_begin.strftime(DATE_FORMAT) + ' - ' + \
+                        #                        period_end.strftime(DATE_FORMAT)
+                        #
+                        #     iID = db.invoices.insert(
+                        #         invoices_groups_id = igID,
+                        #         payment_methods_id = pmID,
+                        #         SubscriptionYear = year,
+                        #         SubscriptionMonth = month,
+                        #         Description = inv_description,
+                        #         Status = 'sent'
+                        #     )
+                        #
+                        #     # create object to set Invoice# and due date
+                        #     invoice = Invoice(iID)
+                        #     invoice.link_to_customer(cuID)
+                        #     invoice.link_to_customer_subscription(csID)
+                        #     invoice.item_add_subscription(year, month)
+                        #     invoice.set_amounts()
+
+                            # invoices_created += 1
+
+        ##
+        # For scheduled tasks db connection has to be committed manually
+        ##
+        db.commit()
+
+        return T("Invoices created") + ': ' + unicode(invoices_created)
