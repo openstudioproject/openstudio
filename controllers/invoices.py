@@ -854,11 +854,19 @@ def item_edit():
     return dict(content=content)
 
 
-def item_duplicate(iID):
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'invoices_items'))
+def item_duplicate():
     """
     Duplicate invoice item
     """
-    print 'duplicate clicked'
+    iID = request.vars['iID']
+    iiID = request.vars['iiID']
+
+    invoice = Invoice(iID)
+    invoice.item_duplicate(iiID)
+
+    redirect(item_edit_delete_get_return_url(iID))
 
 
 def item_edit_delete_get_return_url(iID):

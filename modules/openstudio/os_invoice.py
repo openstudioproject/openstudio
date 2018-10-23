@@ -359,6 +359,34 @@ class Invoice:
             return None
 
 
+    def item_duplicate(self, iiID):
+        """
+        :param iiID: db.invoices_items.id
+        :return: int - ID of newly inserted (duplicated) item
+        """
+        db = current.db
+
+        item = db.invoices_items(iiID)
+        next_sort_nr = self.get_item_next_sort_nr()
+
+        db.invoices_items.insert(
+            invoices_id = item.invoices_id,
+            Sorting = next_sort_nr,
+            ProductName = item.ProductName,
+            Description = item.Description,
+            Quantity = item.Quantity,
+            Price = item.Price,
+            tax_rates_id = item.tax_rates_id,
+            TotalPriceVAT = item.TotalPriceVAT,
+            VAT = item.VAT,
+            TotalPrice = item.TotalPrice,
+            GLAccount = item.GLAccount
+        )
+
+        # This calls self.on_update()
+        self.set_amounts()
+
+
     def item_add_class(self,
                        cuID,
                        caID,
@@ -430,10 +458,9 @@ class Invoice:
             GLAccount=glaccount
         )
 
-        self.set_amounts()
         self.link_to_customer(cuID)
-
-        self.on_update()
+        # This calls self.on_update()
+        self.set_amounts()
 
 
     def item_add_class_from_order(self, order_item_row, caID):
@@ -484,9 +511,8 @@ class Invoice:
             GLAccount=glaccount
         )
 
+        # This calls self.on_update()
         self.set_amounts()
-
-        self.on_update()
 
         return iiID
 
@@ -523,9 +549,8 @@ class Invoice:
             GLAccount=classcard.glaccount
         )
 
+        # This calls self.on_update()
         self.set_amounts()
-
-        self.on_update()
 
         return iiID
 
@@ -562,9 +587,8 @@ class Invoice:
             GLAccount=wsp.GLAccount
         )
 
+        # This calls self.on_update()
         self.set_amounts()
-
-        self.on_update()
 
         return iiID
 
@@ -596,9 +620,8 @@ class Invoice:
             tax_rates_id=tax_rates_id,
         )
 
+        # This calls self.on_update()
         self.set_amounts()
-
-        self.on_update()
 
         return iiID
 
@@ -719,8 +742,8 @@ class Invoice:
         ##
         # Always call these
         ##
+        # This calls self.on_update()
         self.set_amounts()
-        self.on_update()
 
         return iiID
 
@@ -768,9 +791,8 @@ class Invoice:
         )
 
         self.link_to_customer_membership(cmID)
+        # This calls self.on_update()
         self.set_amounts()
-
-        self.on_update()
 
         return iiID
 
@@ -819,8 +841,8 @@ class Invoice:
                 tax_rates_id=tax_rates_id,
             )
 
+            # This calls self.on_update()
             self.set_amounts()
-            self.on_update()
 
             return iiID
 
@@ -862,8 +884,8 @@ class Invoice:
             tax_rates_id=tax_rates_id,
         )
 
+        # This calls self.on_update()
         self.set_amounts()
-        self.on_update()
 
         return iiID
 
@@ -904,9 +926,8 @@ class Invoice:
                 tax_rates_id=tax_rates_id,
             )
 
+            # This calls self.on_update()
             self.set_amounts()
-
-            self.on_update()
 
             return iiID
 
