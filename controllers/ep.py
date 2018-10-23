@@ -31,7 +31,6 @@ import datetime
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'employee_portal'))
-@auth.requires_login()
 def index():
     """
         Employee Portal page, a quick overview of today
@@ -54,7 +53,7 @@ def index():
     return dict(content=content)
 
 
-#TODO: Move to os_teacher (after merge)
+#TODO: Move to openstudio.os_teacher (after merge)
 def ep_index_teacher_upcoming_classes(days=3):
     """
         @return: List upcoming classes for a teacher
@@ -73,7 +72,7 @@ def ep_index_teacher_upcoming_classes(days=3):
     return teacher.get_upcoming_classes_formatted(days)
 
 
-#TODO: move to os_teacher for use in pinboard and here.
+#TODO: move to openstudio.os_teacher for use in pinboard and here.
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'employee_portal'))
 def ep_index_teacher_sub_classes():
@@ -451,7 +450,8 @@ def cancel_request_sub():
     redirect(URL('my_classes'))
 
 
-@auth.requires_login()
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'employee_portal'))
 def my_payments():
     """
         List staff payments
@@ -515,7 +515,8 @@ def my_payments_get_content(var=None):
     return table
 
 
-@auth.requires_login()
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'employee_portal'))
 def my_claims():
     """
     Page to view and Add/Edit Employee Claims
@@ -596,7 +597,8 @@ def my_claims():
     return dict(content=content, add=add)
 
 
-@auth.requires_login()
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'employee_portal'))
 def my_claims_claim_add():
     """
     Page to add a claim
@@ -637,7 +639,8 @@ def my_claims_claim_add():
                 back=back)
 
 
-@auth.requires_login()
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'employee_portal'))
 def my_claims_claim_edit():
     """
     Page to Edit Claim
@@ -683,7 +686,8 @@ def my_claims_claim_edit():
                 back=back)
 
 
-@auth.requires_login()
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'employee_portal'))
 def my_claims_claim_delete():
     """
     Delete Claim
