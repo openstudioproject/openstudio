@@ -929,7 +929,6 @@ def item_delete():
     iiID = request.vars['iiID']
 
     item = db.invoices_items(iiID)
-    print item
 
     if exact_online_enabled and item.ExactOnlineSalesEntryLineID:
         from openstudio.os_exact_online import OSExactOnline

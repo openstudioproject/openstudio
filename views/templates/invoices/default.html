@@ -42,9 +42,8 @@
         table { border-collapse: collapse; }
 
         footer {
+            margin-top: 1.5cm;
             font-size: 90%;
-            position: absolute;
-            bottom: 50px;
             width: 100%;
             text-align: center;
             padding-top: 10px;
@@ -253,14 +252,14 @@
     <!-- Don't forget the terms and footer -->
 
     {{ if invoice['Terms']: }}
-        <div id="terms" class="grey">
+        <div id="terms" class="clear grey">
             <span id="terms-header" class="bold">TERMS AND CONDITIONS</span>
             {{ =XML(invoice['Terms']) }}
         </div>
     {{pass}}
 
     {{ if invoice['Footer']: }}
-        <footer>
+        <footer class="clear">
             <div class="footer-inner">
                 {{ =XML(invoice['Footer']) }}
             </div>
