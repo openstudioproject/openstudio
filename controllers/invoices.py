@@ -709,11 +709,20 @@ def list_items():
         permission = auth.has_membership(group_id='Admins') or \
                      auth.has_permission('update', 'invoices_items')
         if permission:
-            btn_edit   = os_gui.get_button('edit_notext',
-                                           URL('item_edit',
-                                               vars=btn_vars),
-                                           cid=request.cid )
+            # Edit button
+            btn_edit = os_gui.get_button(
+                'edit_notext',
+                URL('item_edit', vars=btn_vars),
+                cid=request.cid
+            )
             buttons.append(btn_edit)
+            # Duplicate button
+            btn_duplicate = os_gui.get_button(
+                'duplicate',
+                URL('item_duplicate', vars=btn_vars),
+                cid=request.cid
+            )
+            buttons.append(btn_duplicate)
 
             sort_handler = SPAN(_title=T("Click, hold and drag to change the order of items"),
                                 _class='glyphicon glyphicon-option-vertical grey')
@@ -723,11 +732,15 @@ def list_items():
         permission = auth.has_membership(group_id='Admins') or \
                      auth.has_permission('delete', 'invoices_items')
         if permission:
-            btn_delete = os_gui.get_button('delete_notext',
-                                           URL('item_delete_confirm',
-                                               vars=btn_vars),
-                                           cid=request.cid )
-            buttons.append(btn_delete)
+            btn_delete = os_gui.get_button(
+                'delete_notext',
+                URL('item_delete_confirm', vars=btn_vars),
+                btn_class='btn-danger',
+                _class='pull-right',
+                cid=request.cid
+            )
+        else:
+            btn_delete = ''
 
 
         tr = TR(TD(sort_handler, _class='sort-handler movable'),
@@ -743,7 +756,7 @@ def list_items():
                         _title=T("Subtotal: ") + CURRSYM + format(row.TotalPrice, '.2f') + ' ' +\
                                T('VAT: ') + CURRSYM + format(row.VAT, '.2f'),
                         _class='pull-right')),
-                TD(buttons))
+                TD(btn_delete, buttons))
 
         table.append(tr)
 
@@ -839,6 +852,13 @@ def item_edit():
     content.append(form.custom.end)
 
     return dict(content=content)
+
+
+def item_duplicate(iID):
+    """
+    Duplicate invoice item
+    """
+    print 'duplicate clicked'
 
 
 def item_edit_delete_get_return_url(iID):
