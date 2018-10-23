@@ -111,7 +111,7 @@ def _task_mollie_subscription_invoices_and_payments():
                             'value': format(invoice_amounts.TotalPriceVAT, '.2f')
                         },
                         'customerId': mollie_customer_id,
-                        'recurringType': 'recurring',  # important
+                        'sequenceType': 'recurring',  # important
                         'description': description,
                         'webhookUrl': webhook_url,
                         'metadata': {

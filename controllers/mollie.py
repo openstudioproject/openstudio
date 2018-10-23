@@ -236,7 +236,7 @@ def invoice_pay():
                 'value': format(invoice_amounts.TotalPriceVAT, '.2f')
             },
             'description': description,
-            'recurringType': recurring_type,
+            'sequenceType': recurring_type,
             'customerId': mollie_customer_id,
             'redirectUrl': 'https://' + request.env.http_host + '/shop/complete?iID=' + unicode(iID),
             'webhookUrl': webhook_url,
@@ -288,7 +288,6 @@ def order_pay():
     description = T('Order') + ' #' + unicode(coID)
 
     try:
-
         payment = mollie.payments.create({
             'amount': {
                 'currency': CURRENCY,
