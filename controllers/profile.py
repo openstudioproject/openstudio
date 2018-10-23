@@ -776,7 +776,7 @@ def classcards():
 
 def classcard_get_remaining(row):
     total_classes = row.school_classcards.Classes
-    if total_classes == 0:
+    if total_classes == 0 or row.school_classcards.Unlimited:
         remaining = T('Unlimited')
     else:
         taken_classes = row.customers_classcards.ClassesTaken
