@@ -79,7 +79,7 @@ def webhook():
             # The payment isn't paid, pending nor open. We can assume it was aborted.
             #
             return 'Cancelled'
-    except Mollie.API.Error as e:
+    except MollieError as e:
         return 'API call failed: ' + e.message
 
 
@@ -256,7 +256,7 @@ def invoice_pay():
         # Send the customer off to complete the payment.
         redirect(payment.checkout_url)
 
-    except Mollie.API.Error as e:
+    except MollieError as e:
         return 'API call failed: ' + e.message
 
 

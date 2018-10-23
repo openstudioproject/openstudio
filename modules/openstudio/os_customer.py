@@ -963,7 +963,9 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
             mollie_customer_id = self.register_mollie_customer(mollie)
 
 
-        return mollie.customer_mandates.withParentId(mollie_customer_id).all()
+        mandates = mollie.customer_mandates.with_parent_id(mollie_customer_id).list()
+
+        return mandates
 
 
     def register_mollie_customer(self, mollie):
