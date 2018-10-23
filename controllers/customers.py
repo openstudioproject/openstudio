@@ -5480,7 +5480,16 @@ def account():
 
 
     submenu = account_get_submenu(request.function, cuID)
-    content = DIV(submenu, BR(), form)
+    verify_email = account_get_verify_email(cuID)
+    content = DIV(
+        DIV(
+            submenu, BR(),
+            DIV(form, _class='col-md-6'),
+            DIV(verify_email, _class='col-md-6'),
+            _class='col-md-12'
+        ),
+        _class='row'
+    )
 
     back = edit_get_back()
     menu = customers_get_menu(cuID, 'account')
@@ -5489,6 +5498,55 @@ def account():
                 menu=menu,
                 back=back,
                 save=submit)
+
+
+def account_get_verify_email(cuID):
+    """
+    Returns a button to verify the customer's email address
+    if not verified
+    """
+    permission = (auth.has_membership(group_id='Admins') or
+                  auth.has_permission('update', 'auth_user'))
+
+    au = db.auth_user(cuID)
+
+    if not permission:
+        return ''
+    else:
+        if not au.registration_key:
+            return DIV(
+                os_gui.get_fa_icon('fa-check'), ' ',
+                T("The email address of this account has been verified"),
+                _class='text-green'
+            )
+        else:
+            verify = os_gui.get_button(
+                'noicon',
+                URL('account_verify_email', vars={'cuID': cuID}),
+                title=T("Verify email address"),
+                btn_class='btn-success'
+            )
+
+            return DIV(
+                B(T("Manually verify {email} as valid".format(email=au.email))), BR(),
+                T("This account hasn't verified it's email address yet using the verification email."), BR(), BR(),
+                verify
+            )
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('update', 'auth_user'))
+def account_verify_email():
+    """
+    Manually verify email address
+    """
+    cuID = request.vars['cuID']
+
+    au = db.auth_user(cuID)
+    au.registration_key = None
+    au.update_record()
+
+    redirect(URL('account', vars={'cuID': cuID}))
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
