@@ -12,6 +12,7 @@ from openstudio.os_order import Order
 from decimal import Decimal, ROUND_HALF_UP
 
 from mollie.api.client import Client
+from mollie.api.error import Error as MollieError
 
 
 def webhook():
@@ -27,7 +28,7 @@ def webhook():
     try:
         mollie = Client()
         mollie_api_key = get_sys_property('mollie_website_profile')
-        mollie.set_api_client(mollie_api_key)
+        mollie.set_api_key(mollie_api_key)
 
         payment_id = id
         payment = mollie.payments.get(payment_id)
@@ -178,7 +179,7 @@ def invoice_pay():
 
     mollie = Client()
     mollie_api_key = get_sys_property('mollie_website_profile')
-    mollie.set_api_client(mollie_api_key)
+    mollie.set_api_key(mollie_api_key)
 
     description = invoice.invoice.Description + ' - ' + invoice.invoice.InvoiceID
     recurring_type = None
@@ -232,7 +233,7 @@ def invoice_pay():
         payment = mollie.payments.create({
             'amount': {
                 'currency': CURRENCY,
-                'value': invoice_amounts.TotalPriceVAT
+                'value': format(invoice_amounts.TotalPriceVAT, '.2f')
             },
             'description': description,
             'recurringType': recurring_type,
@@ -253,7 +254,7 @@ def invoice_pay():
         )
 
         # Send the customer off to complete the payment.
-        redirect(payment.getPaymentUrl())
+        redirect(payment.checkout_url)
 
     except Mollie.API.Error as e:
         return 'API call failed: ' + e.message
@@ -278,15 +279,16 @@ def order_pay():
 
     mollie = Client()
     mollie_api_key = get_sys_property('mollie_website_profile')
-    mollie.set_api_client(mollie_api_key)
+    mollie.set_api_key(mollie_api_key)
 
     amounts = order.get_amounts()
 
     # Go to Mollie for payment
-    amount = amounts.TotalPriceVAT
+    amount = format(amounts.TotalPriceVAT, '.2f')
     description = T('Order') + ' #' + unicode(coID)
 
     try:
+
         payment = mollie.payments.create({
             'amount': {
                 'currency': CURRENCY,
@@ -306,9 +308,9 @@ def order_pay():
         )
 
         # Send the customer off to complete the payment.
-        redirect(payment.getPaymentUrl())
+        redirect(payment.checkout_url)
 
-    except Mollie.API.Error as e:
+    except MollieError as e:
         return 'API call failed: ' + e.message
 
 
@@ -356,7 +358,7 @@ def subscription_buy_now():
     # init mollie
     mollie = Client()
     mollie_api_key = get_sys_property('mollie_website_profile')
-    mollie.set_api_client(mollie_api_key)
+    mollie.set_api_key(mollie_api_key)
 
     create_mollie_customer(auth.user.id, mollie)
 
@@ -402,7 +404,7 @@ def membership_buy_now():
     # init mollie
     mollie = Client()
     mollie_api_key = get_sys_property('mollie_website_profile')
-    mollie.set_api_client(mollie_api_key)
+    mollie.set_api_key(mollie_api_key)
 
     # check if we have a mollie customer id
     create_mollie_customer(auth.user.id, mollie)
@@ -460,4 +462,4 @@ def donate():
     )
 
     # Send the customer off to complete the payment.
-    redirect(payment.getPaymentUrl())
+    redirect(payment.checkout_url)

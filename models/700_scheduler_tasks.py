@@ -2,6 +2,7 @@
 
 import datetime
 from mollie.api.client import Client
+from mollie.api.error import Error as MollieError
 
 from openstudio.os_customer_subscription import CustomerSubscription
 from openstudio.os_invoice import Invoice
@@ -47,7 +48,7 @@ def _task_mollie_subscription_invoices_and_payments():
     # set up Mollie
     mollie = Client()
     mollie_api_key = get_sys_property('mollie_website_profile')
-    mollie.set_api_client(mollie_api_key)
+    mollie.set_api_key(mollie_api_key)
     # set dates
     today = datetime.date.today()
     firstdaythismonth = datetime.date(today.year, today.month, 1)
@@ -107,7 +108,7 @@ def _task_mollie_subscription_invoices_and_payments():
                     payment = mollie.payments.create({
                         'amount': {
                             'currency': CURRENCY,
-                            'value': invoice_amounts.TotalPriceVAT
+                            'value': format(invoice_amounts.TotalPriceVAT, '.2f')
                         },
                         'customerId': mollie_customer_id,
                         'recurringType': 'recurring',  # important
@@ -127,7 +128,7 @@ def _task_mollie_subscription_invoices_and_payments():
                         WebhookURL=webhook_url
                     )
 
-                except Mollie.API.Error as e:
+                except MollieError as e:
                     print e
                     # send mail to ask customer to pay manually
                     send_mail_failed(cs.auth_customer_id)
