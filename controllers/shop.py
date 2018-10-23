@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import Mollie
+from mollie.api.client import Client
 
 from general_helpers import workshops_get_full_workshop_product_id
 from general_helpers import datestr_to_python

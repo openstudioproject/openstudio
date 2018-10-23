@@ -947,11 +947,11 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         """
         get_sys_property = current.globalenv['get_sys_property']
 
-        import Mollie
+        from mollie.api.client import Client
         # init mollie
-        mollie = Mollie.API.Client()
+        mollie = Client()
         mollie_api_key = get_sys_property('mollie_website_profile')
-        mollie.setApiKey(mollie_api_key)
+        mollie.set_api_client(mollie_api_key)
 
         # check if we have a mollie customer id
         if self.row.mollie_customer_id:

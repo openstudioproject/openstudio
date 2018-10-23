@@ -11,7 +11,7 @@ from openstudio.os_order import Order
 
 from decimal import Decimal, ROUND_HALF_UP
 
-import Mollie
+from mollie.api.client import Client
 
 
 def webhook():
@@ -25,9 +25,9 @@ def webhook():
 
     # try to get payment
     try:
-        mollie = Mollie.API.Client()
+        mollie = Client()
         mollie_api_key = get_sys_property('mollie_website_profile')
-        mollie.setApiKey(mollie_api_key)
+        mollie.set_api_client(mollie_api_key)
 
         payment_id = id
         payment = mollie.payments.get(payment_id)
@@ -176,9 +176,9 @@ def invoice_pay():
     if not invoice.get_linked_customer_id() == auth.user.id:
         return 'Not authorized'
 
-    mollie = Mollie.API.Client()
+    mollie = Client()
     mollie_api_key = get_sys_property('mollie_website_profile')
-    mollie.setApiKey(mollie_api_key)
+    mollie.set_api_client(mollie_api_key)
 
     description = invoice.invoice.Description + ' - ' + invoice.invoice.InvoiceID
     recurring_type = None
@@ -230,7 +230,10 @@ def invoice_pay():
     try:
         webhook_url = 'https://' + request.env.http_host + '/mollie/webhook'
         payment = mollie.payments.create({
-            'amount':      invoice_amounts.TotalPriceVAT,
+            'amount': {
+                'currency': CURRENCY,
+                'value': invoice_amounts.TotalPriceVAT
+            },
             'description': description,
             'recurringType': recurring_type,
             'customerId': mollie_customer_id,
@@ -273,9 +276,9 @@ def order_pay():
         redirect(URL('cart'))
 
 
-    mollie = Mollie.API.Client()
+    mollie = Client()
     mollie_api_key = get_sys_property('mollie_website_profile')
-    mollie.setApiKey(mollie_api_key)
+    mollie.set_api_client(mollie_api_key)
 
     amounts = order.get_amounts()
 
@@ -285,7 +288,10 @@ def order_pay():
 
     try:
         payment = mollie.payments.create({
-            'amount': amount,
+            'amount': {
+                'currency': CURRENCY,
+                'value': amount
+            },
             'description': description,
             'redirectUrl': 'https://' + request.env.http_host + '/shop/complete?coID=' + unicode(coID),
             'webhookUrl': 'https://' + request.env.http_host + '/mollie/webhook',
@@ -348,9 +354,9 @@ def subscription_buy_now():
     ssuID = request.vars['ssuID']
 
     # init mollie
-    mollie = Mollie.API.Client()
+    mollie = Client()
     mollie_api_key = get_sys_property('mollie_website_profile')
-    mollie.setApiKey(mollie_api_key)
+    mollie.set_api_client(mollie_api_key)
 
     create_mollie_customer(auth.user.id, mollie)
 
@@ -394,9 +400,9 @@ def membership_buy_now():
     smID = request.vars['smID']
 
     # init mollie
-    mollie = Mollie.API.Client()
+    mollie = Client()
     mollie_api_key = get_sys_property('mollie_website_profile')
-    mollie.setApiKey(mollie_api_key)
+    mollie.set_api_client(mollie_api_key)
 
     # check if we have a mollie customer id
     create_mollie_customer(auth.user.id, mollie)
@@ -433,7 +439,10 @@ def donate():
 
 
     payment = mollie.payments.create({
-        'amount': amount,
+        'amount': {
+            'currency': CURRENCY,
+            'value': amount
+        },
         'description': description,
         'redirectUrl': 'https://' + request.env.http_host + '/shop/complete?iID=' + unicode(iID),
         'webhookUrl': 'https://' + request.env.http_host + '/mollie/webhook',

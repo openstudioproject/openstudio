@@ -5756,6 +5756,10 @@ MAIL = mail
 CURRSYM = get_sys_property('CurrencySymbol')
 if not CURRSYM:
     CURRSYM = u'€'
+# setup currency
+CURRENCY = get_sys_property('Currency')
+if not CURRENCY:
+    CURRENCY = 'EUR'
 
 
 ### Sys properties and auth tables end
