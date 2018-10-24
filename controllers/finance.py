@@ -1233,25 +1233,28 @@ def invoices():
 
 
 def teacher_payments_get_menu(page, status='not_verified'):
-    pages = [
+    pages = []
+
+    if ( auth.has_membership(group_id='Admins') or
+         auth.has_permission('read', 'teachers_payment_classes_attendance') ):
+        pages.append([ 'teacher_payment_classes_not_verified',
+                       T('Not verified'),
+                       URL('teacher_payment_classes', vars={'status': 'not_verified'}) ])
+        pages.append([ 'teacher_payment_classes_verified',
+                       T('Verified'),
+                       URL('teacher_payment_classes', vars={'status': 'verified'}) ])
+        pages.append([ 'teacher_payment_classes_processed',
+                       T('Processed'),
+                       URL('teacher_payment_classes', vars={'status': 'processed'}) ])
+
+
+    pages.append(
         [
             'teacher_payments_invoices',
             T('Credit invoices'),
             URL('teacher_payments_invoices')
         ]
-    ]
-
-    if ( auth.has_membership(group_id='Admins') or
-         auth.has_permission('read', 'teachers_payment_classes_attendance') ):
-        pages.append([ 'teacher_payment_classes_processed',
-                       T('Processed'),
-                       URL('teacher_payment_classes', vars={'status': 'processed'}) ])
-        pages.append([ 'teacher_payment_classes_verified',
-                       T('Verified'),
-                       URL('teacher_payment_classes', vars={'status': 'verified'}) ])
-        pages.append([ 'teacher_payment_classes_not_verified',
-                       T('Not verified'),
-                       URL('teacher_payment_classes', vars={'status': 'not_verified'}) ])
+    )
 
 
     return os_gui.get_submenu(pages, page, horizontal=True, htype='tabs')
