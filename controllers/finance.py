@@ -1683,30 +1683,38 @@ def teacher_payment_classes_process_choose_dates():
 
 
 def employee_claims_get_menu(page):
-    pages = [
-        [
-            'employee_claims_invoices',
-            T('Credit invoices'),
-            URL('employee_claims_invoices')
-        ]
-    ]
+    pages = []
 
     # print status
 
     if ( auth.has_membership(group_id='Admins') or
          auth.has_permission('read', 'employee_claims') ):
-        pages.append([ 'employee_claims_processed',
-                       T('Processed'),
-                       URL('employee_claims_processed') ]),\
-        pages.append([ 'employee_claims_accepted',
-                       T('Accepted'),
-                       URL('employee_claims_accepted') ])
-        pages.append([ 'employee_claims_rejected',
-                       T('Rejected'),
-                       URL('employee_claims_rejected') ])
-        pages.append([ 'employee_claims',
-                       T('Pending'),
-                       URL('employee_claims') ])
+        pages.append([
+            'employee_claims',
+            T('Pending'),
+            URL('employee_claims')
+        ])
+        pages.append([
+            'employee_claims_rejected',
+            T('Rejected'),
+            URL('employee_claims_rejected')
+        ])
+        pages.append([
+            'employee_claims_accepted',
+            T('Accepted'),
+            URL('employee_claims_accepted')
+        ])
+        pages.append([
+            'employee_claims_processed',
+            T('Processed'),
+            URL('employee_claims_processed')
+        ])
+
+    pages.append([
+        'employee_claims_invoices',
+        T('Credit invoices'),
+        URL('employee_claims_invoices')
+    ])
 
 
     return os_gui.get_submenu(pages,page, horizontal=True, htype='tabs')
