@@ -236,7 +236,7 @@ class OsSchedulerTasks:
 
                         sm = SchoolMembership(membership)
                         startdate = row.customers_memberships.Enddate + timedelta(days=1)
-                        
+
                         enddate = sm.sell_to_customer_get_enddate(row.customers_memberships.Enddate)
                         cmID = db.customers_memberships.insert(
                             auth_customer_id = row.customers_memberships.auth_customer_id,
