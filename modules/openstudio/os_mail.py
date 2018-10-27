@@ -270,7 +270,7 @@ class OsMail:
             template_content = self.get_email_template(email_template)
 
         # Render template
-        if email_template == 'email_template_order_received':
+        if email_template == 'order_received':
             subject = T('Order received')
             # do some pre-processing to show the correct order info
             content = self._render_email_template_order(template_content, customers_orders_id)
@@ -284,12 +284,12 @@ class OsMail:
                     XML(order.order.CustomerNote.replace('\n', '<br>'))
                 )
 
-        elif email_template == 'email_template_order_delivered':
+        elif email_template == 'order_delivered':
             subject = T('Order delivered')
             # do some pre-processing to show the correct order info
             content = self._render_email_template_order(template_content, customers_orders_id)
 
-        elif email_template == 'email_template_payment_recurring_failed':
+        elif email_template == 'payment_recurring_failed':
             subject = T('Recurring payment failed')
             content = self._render_email_template_payment_recurring_failed(template_content)
 
@@ -303,8 +303,8 @@ class OsMail:
             content = result['content']
             description = result['description']
             
-        elif (email_template == 'email_template_sys_verify_email' or
-              email_template == 'email_template_sys_reset_password'):
+        elif (email_template == 'sys_verify_email' or
+              email_template == 'sys_reset_password'):
             template_name = 'default_simple.html'
             content = XML(template_content)
             subject = subject
@@ -314,7 +314,7 @@ class OsMail:
             content = XML(template_content)
             subject = subject
 
-        footer = XML(get_sys_property('email_template_sys_footer'))
+        footer = XML(get_sys_property('sys_email_footer'))
 
 
         template = os.path.join(

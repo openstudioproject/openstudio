@@ -18,17 +18,17 @@ def test_osmail_render_template():
 
     os_mail = OsMail()
     rendered_message = T('template not found...')
-    if email_template == 'email_template_payment_recurring_failed':
+    if email_template == 'payment_recurring_failed':
         #TODO: write test
 
         pass
-    elif email_template == 'email_template_order_received' or email_template == 'email_template_order_delivered':
+    elif email_template == 'order_received' or email_template == 'order_delivered':
         rendered_message = os_mail.render_email_template(
             email_template,
             customers_orders_id = customers_orders_id,
             return_html = True
         )
-    elif email_template == 'email_template_sys_reset_password':
+    elif email_template == 'sys_reset_password':
         rendered_message = os_mail.render_email_template(email_template,
                                                          return_html = True)
 

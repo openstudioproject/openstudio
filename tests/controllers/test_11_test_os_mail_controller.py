@@ -30,7 +30,7 @@ def test_osmail_render_footer(client, web2py):
     populate_customers(web2py)
 
     footer_content = 'FooterTest'
-    web2py.db(web2py.db.sys_properties.Property == 'email_template_sys_footer').update(PropertyValue=footer_content)
+    web2py.db(web2py.db.sys_properties.Property == 'sys_email_footer').update(PropertyValue=footer_content)
     web2py.db.commit()
 
     # render message and check
@@ -39,6 +39,7 @@ def test_osmail_render_footer(client, web2py):
     assert client.status == 200
 
     assert footer_content in client.text
+    assert 1 == 2
 
 
 def test_osmail_render_order_received(client, web2py):
