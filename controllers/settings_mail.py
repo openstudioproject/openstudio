@@ -353,7 +353,7 @@ def notifications_email_add():
 
     form = result['form']
     back = os_gui.get_button('back', return_url)
-    menu = system_get_menu(request.function)
+    menu = mail_get_menu(request.function)
 
     row = db.sys_notifications(snID)
 

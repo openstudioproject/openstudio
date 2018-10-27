@@ -10,14 +10,22 @@ class OsMail:
         :param template: str - template name
         :return: str - template
         """
+        web2pytest = current.globalenv['web2pytest']
+        request = current.request
+
         db = current.db
         cache = current.cache
+
+        if web2pytest.is_running_under_test(request, request.application):
+            caching = None
+        else:
+            caching = (cache.ram, 300)
 
         # Get template and cache query for 5 minutes
         query = (db.sys_email_templates.Name == template)
         rows = db(query).select(
             db.sys_email_templates.ALL,
-            cache = (cache.ram, 300)
+            cache = caching
         )
 
         try:
@@ -327,7 +335,6 @@ class OsMail:
             subject = subject
 
         footer = XML(self.get_email_template('sys_email_footer'))
-
 
         template = os.path.join(
             template_path,
