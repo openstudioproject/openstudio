@@ -3738,6 +3738,23 @@ def define_invoices_customers_classcards():
             writable=False))
 
 
+def define_invoices_employee_claims():
+    """
+        Table to link employee claims to invoices
+    """
+    db.define_table('invoices_employee_claims',
+        Field('invoices_id', db.invoices,
+            readable=False,
+            writable=False),
+
+        Field('employee_claims_id',
+              db.employee_claims,
+              readable= False,
+              writable = False,
+              label=T('Employee Claim')
+              ))
+
+
 def define_invoices_customers_orders():
     """
         Table to link customers_orders to invoices
@@ -5911,6 +5928,7 @@ define_invoices_customers()
 define_invoices_customers_memberships()
 define_invoices_customers_subscriptions()
 define_invoices_customers_orders()
+define_invoices_employee_claims()
 define_invoices_mollie_payment_ids()
 
 # payment batches definitions
