@@ -274,12 +274,6 @@ class OsMail:
 
         logo = self._render_email_template_get_logo()
 
-
-        print 'sending mail'
-        print email_template
-        print '----------------------'
-
-
         template_name = 'default.html'
         template_path = os.path.join(request.folder, 'views', 'templates', 'email')
         # Get template
