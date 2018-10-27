@@ -146,22 +146,18 @@ def templates():
     response.subtitle = T('Email templates')
     response.view = 'settings/email_templates.html'
 
-
-    #NOTE: in the end, the drop down select will go here to select a default template
     header = THEAD(TR(
-        TH('Templates'),
-
+        TH('Template'),
         TH(T(''))
     ))
 
     table = TABLE(header, _class='table table-hover table-striped')
 
-
-    #the templates saved in sys_email_templates sorted after Titles
-    query = (db.sys_email_templates.id >0)
+    # the templates saved in sys_email_templates sorted by Name
+    query = db.sys_email_templates
     rows = db(query).select(db.sys_email_templates.id,
                             db.sys_email_templates.Title,
-                            orderby= db.sys_email_templates.Title)
+                            orderby=db.sys_email_templates.Name)
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
@@ -170,18 +166,18 @@ def templates():
                 os_gui.get_button(
                     'edit_custom',
                     URL('edit_template', vars={'template':row.Title}),
-                    T("Edit the content of this template",),
+                    T("Edit the content of this template"),
                     title='Edit template',
                     _class='pull-right')
                 )
 
         table.append(tr)
-    # submenu = email_templates_get_menu(request.function)
 
     content = DIV(table)
-    return dict(content=content,
-                menu=mail_get_menu(request.function),
-                left_sidebar_enabled=True)
+    return dict(
+        content=content,
+        menu=mail_get_menu(request.function),
+    )
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
