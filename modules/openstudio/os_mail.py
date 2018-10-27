@@ -5,6 +5,20 @@ import os
 from gluon import *
 
 class OsMail:
+    def get_email_template(self, template):
+        """
+        :param template: str - template name
+        :return: str - template
+        """
+        db = current.db
+
+        row = db.sys_email_templates(
+            Name = template
+        )
+
+        return row.TemplateContent
+
+
     def send_notification(self,
                           sys_notification,
                           customers_orders_id=None):
@@ -248,10 +262,12 @@ class OsMail:
 
         template_name = 'default.html'
         template_path = os.path.join(request.folder, 'views', 'templates', 'email')
+        # Get template
         if template_content is None:
-            # Get email template from settings
-            template_content = get_sys_property(email_template)
+            # Get email template from db
+            template_content = self.get_email_template(email_template)
 
+        # Render template
         if email_template == 'email_template_order_received':
             subject = T('Order received')
             # do some pre-processing to show the correct order info

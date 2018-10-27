@@ -742,16 +742,15 @@ def define_sys_properties():
 
 def define_sys_email_templates():
     db.define_table('sys_email_templates',
+        Field('Name',
+              label=T('Name')),
         Field('Title',
-              requires = IS_NOT_EMPTY(),
-              label = T('Title')),
+              label=T('Title')),
         Field('Description',
-              label = T('Description')),
-        Field('Body',
-              requires= IS_NOT_EMPTY(),
-              label = T('Body')),
-        Field('Comments',
-              label = T('Comments')))
+              label=T('Description')),
+        Field('TemplateContent',
+              label=T('Content'))
+    )
 
 
 def define_sys_notifications():
@@ -5330,41 +5329,60 @@ def setup_set_email_templates():
         Insert default email templates
     """
     templates = [
-                ['Email Footer',
-                     """ """],
-                ['Reset Password',
-                    """<h3>Reset password</h3>
-                    <p>Please click on the <a href="%(link)s">link</a> to reset your password</p>"""],
-                ['Verify Email',
-                    """<h3>Verify email</h3>
-                    <p>Welcome %(first_name)s!</p>
-                    <p>Please click on the <a href="%(link)s">link</a> to verify your email</p>"""]
-                [ 'Order received',
-                    """<h3>We have received your order with number #{order_id} on {order_date}</h3>
-                    <p>&nbsp;</p>
-                    <p>{order_items}</p>
-                    <p>&nbsp;</p>
-                    <p>To view your orders, please click <a href="{link_profile_orders}">here</a>.</p>""" ],
-                [ 'Order delivered',
-                   """<h3>Your order&nbsp;with number #{order_id} has been delivered</h3>
-                    <p>All items listed below have been added to your account</p>
-                    <p>&nbsp;</p>
-                    <p>{order_items}</p>
-                    <p>&nbsp;</p>
-                    <p>To view your orders, please click <a href="{link_profile_orders}">here</a>.</p>
-                    <p>To view your invoices, please click <a href="{link_profile_invoices}">here</a>.</p>"""],
-                ['Payment recurring failed',
-                    """<h3>Recurring payment failed</h3>
-                    <p>&nbsp;</p>
-                    <p>One or more recurring payments failed, please log in to your account and pay any open invoices before the due date.</p>
-                    <p>&nbsp;</p>
-                    <p>To view your invoices, please click <a href="{link_profile_invoices}">here</a>.</p>"""]
+        [
+            'sys_email_footer',
+            'Email Footer',
+             """ """
+        ],
+        [
+            'sys_reset_password',
+            'Reset Password',
+            """<h3>Reset password</h3>
+            <p>Please click on the <a href="%(link)s">link</a> to reset your password</p>"""
+        ],
+        [
+            'sys_verify_email',
+            'Verify Email',
+            """<h3>Verify email</h3>
+            <p>Welcome %(first_name)s!</p>
+            <p>Please click on the <a href="%(link)s">link</a> to verify your email</p>"""]
+        [
+            'order_received'
+            'Order received',
+            """<h3>We have received your order with number #{order_id} on {order_date}</h3>
+            <p>&nbsp;</p>
+            <p>{order_items}</p>
+            <p>&nbsp;</p>
+            <p>To view your orders, please click <a href="{link_profile_orders}">here</a>.</p>"""
+        ],
+        [
+            'order_delivered'
+            'Order delivered',
+           """<h3>Your order&nbsp;with number #{order_id} has been delivered</h3>
+            <p>All items listed below have been added to your account</p>
+            <p>&nbsp;</p>
+            <p>{order_items}</p>
+            <p>&nbsp;</p>
+            <p>To view your orders, please click <a href="{link_profile_orders}">here</a>.</p>
+            <p>To view your invoices, please click <a href="{link_profile_invoices}">here</a>.</p>"""
+        ],
+        [
+            'payment_recurring_failed'
+            'Recurring payment failed',
+            """<h3>Recurring payment failed</h3>
+            <p>&nbsp;</p>
+            <p>One or more recurring payments failed, please log in to your account and pay any open invoices before the due date.</p>
+            <p>&nbsp;</p>
+            <p>To view your invoices, please click <a href="{link_profile_invoices}">here</a>.</p>"""
+        ],
     ]
-    for template, template_content in templates :
+    for name, title, template_content in templates :
         db.sys_email_templates.insert(
-            Title= template,
-            Body = template_content
+            Name = name,
+            Title = title,
+            TemplateContent = template_content
         )
+
 
 def setup():
     """
