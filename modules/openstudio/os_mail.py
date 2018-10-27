@@ -12,8 +12,10 @@ class OsMail:
         """
         db = current.db
 
+        # Get template and cache query for 5 minutes
         row = db.sys_email_templates(
-            Name = template
+            Name = template,
+            cache = (cache.ram, 300)
         )
 
         return row.TemplateContent

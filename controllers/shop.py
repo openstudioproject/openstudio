@@ -434,7 +434,10 @@ def order_received_mail_customer(coID):
     from openstudio.os_mail import OsMail
 
     osmail = OsMail()
-    msgID = osmail.render_email_template('email_template_order_received', customers_orders_id=coID)
+    msgID = osmail.render_email_template(
+        'order_received',
+        customers_orders_id=coID
+    )
 
     osmail.send(msgID, auth.user.id)
 
