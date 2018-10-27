@@ -141,64 +141,65 @@ def templates():
     """
         Templates main
     """
-    response.title = T('Settings')
-    response.subtitle = T('Email')
+
+    response.title = T('System Settings')
+    response.subtitle = T('Email templates')
     response.view = 'settings/email_templates.html'
 
+
     #NOTE: in the end, the drop down select will go here to select a default template
-    content = T('Using the tabs to the right you can configure the text in the templates.')
+    header = THEAD(TR(
+        TH('Templates'),
 
-    submenu = email_templates_get_menu(request.function)
+        TH(T(''))
+    ))
+
+    table = TABLE(header, _class='table table-hover table-striped')
 
 
-    return dict(content=DIV(submenu, BR(), P(content)),
+    #the templates saved in sys_email_templates sorted after Titles
+    query = (db.sys_email_templates.id >0)
+    rows = db(query).select(db.sys_email_templates.id,
+                            db.sys_email_templates.Title,
+                            orderby= db.sys_email_templates.Title)
+    for i, row in enumerate(rows):
+        repr_row = list(rows[i:i + 1].render())[0]
+
+        tr = TR(
+                TD(repr_row.Title),
+                os_gui.get_button(
+                    'edit_custom',
+                    URL('edit_template', vars={'template':row.Title}),
+                    T("Edit the content of this template",),
+                    title='Edit template',
+                    _class='pull-right')
+                )
+
+        table.append(tr)
+    # submenu = email_templates_get_menu(request.function)
+
+    content = DIV(table)
+    return dict(content=content,
                 menu=mail_get_menu(request.function),
                 left_sidebar_enabled=True)
 
 
-def email_templates_get_menu(page):
-    """
-        Return menu for invoice templates
-    """
-    pages = [ ['templates', T('Info'),
-               URL('templates')],
-              # ['email_template_invoice_created', T('Invoice created'),
-              #  URL('email_template', vars={'template':'email_template_invoice_created'})],
-              ['email_template_order_received', T('Order received'),
-               URL('template', vars={'template': 'email_template_order_received'})],
-              ['email_template_order_delivered', T('Order delivered'),
-               URL('template', vars={'template': 'email_template_order_delivered'})],
-              # ['email_template_payment_received', T('Payment received'),
-              #  URL('email_template', vars={'template':'email_template_payment_received'})],
-              ['email_template_payment_recurring_failed', T('Payment recurring failed'),
-               URL('template', vars={'template':'email_template_payment_recurring_failed'})],
-              ['email_template_sys_footer', T('Email footer'),
-               URL('template', vars={'template':'email_template_sys_footer'})],
-              ['email_template_sys_reset_password', T('System reset password'),
-               URL('template', vars={'template':'email_template_sys_reset_password'})],
-              ['email_template_sys_verify_email', T('System verify email'),
-               URL('template', vars={'template':'email_template_sys_verify_email'})]
-              ]
-
-    return os_gui.get_submenu(pages, page, horizontal=True, htype='tabs')
-
-
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
-def template():
+def edit_template():
     """
         Page to edit an email_template
     """
     from openstudio.os_forms import OsForms
 
-    response.title = T('Email Settings')
-    response.subtitle = T('Templates')
+    response.title = T('System Settings')
+    response.subtitle = T('Email Templates')
     response.view = 'settings/email_templates.html'
 
     template = request.vars['template']
 
-    template_content = get_sys_property(template)
-
+    row=db.sys_email_templates(Title=template)
+    template_content = row.Body
     form = SQLFORM.factory(
         Field("email_template", 'text',
               default=template_content,
@@ -214,22 +215,24 @@ def template():
     result = os_forms.set_form_id_and_get_submit_button(form, 'MainForm')
     form = result['form']
     submit = result['submit']
-
     if form.accepts(request.vars, session):
         # check smtp_signature
         email_template = request.vars['email_template']
-        set_sys_property(template, email_template)
+        db(db.sys_email_templates.Title == template).update(Body=email_template)
 
         # User feedback
         session.flash = T('Saved')
 
         # reload so the user sees how the values are stored in the db now
-        redirect(URL(vars={'template':template}))
+        redirect(URL(vars={'template': template}))
 
-    submenu = email_templates_get_menu(template)
-    content = DIV(submenu, BR(), form)
+
+    back = os_gui.get_button('back', URL('templates'))
+    # submenu = email_templates_get_menu(template)
+    content = DIV(form)
 
     return dict(content=content,
+                back=back,
                 menu=mail_get_menu('templates'),
                 save=submit)
 
