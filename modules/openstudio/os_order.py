@@ -388,6 +388,9 @@ class Order:
         from os_mail import OsMail
 
         osmail = OsMail()
-        msgID = osmail.render_email_template('email_template_order_delivered', customers_orders_id=self.coID)
+        msgID = osmail.render_email_template(
+            'order_delivered',
+            customers_orders_id=self.coID
+        )
 
         osmail.send(msgID, self.order.auth_customer_id)

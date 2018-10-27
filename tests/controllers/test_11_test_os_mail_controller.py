@@ -78,7 +78,7 @@ def test_osmail_render_order_delivered(client, web2py):
     populate_customers_orders(web2py)
     populate_customers_orders_items(web2py)
 
-    url = '/test_os_mail/test_osmail_render_template?email_template=email_template_order_delivered&customers_orders_id=1'
+    url = '/test_os_mail/test_osmail_render_template?email_template=order_delivered&customers_orders_id=1'
     client.get(url)
     assert client.status == 200
 
