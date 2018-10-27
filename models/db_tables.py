@@ -5345,9 +5345,10 @@ def setup_set_email_templates():
             'Verify Email',
             """<h3>Verify email</h3>
             <p>Welcome %(first_name)s!</p>
-            <p>Please click on the <a href="%(link)s">link</a> to verify your email</p>"""]
+            <p>Please click on the <a href="%(link)s">link</a> to verify your email</p>"""
+        ],
         [
-            'order_received'
+            'order_received',
             'Order received',
             """<h3>We have received your order with number #{order_id} on {order_date}</h3>
             <p>&nbsp;</p>
@@ -5356,9 +5357,9 @@ def setup_set_email_templates():
             <p>To view your orders, please click <a href="{link_profile_orders}">here</a>.</p>"""
         ],
         [
-            'order_delivered'
+            'order_delivered',
             'Order delivered',
-           """<h3>Your order&nbsp;with number #{order_id} has been delivered</h3>
+            """<h3>Your order&nbsp;with number #{order_id} has been delivered</h3>
             <p>All items listed below have been added to your account</p>
             <p>&nbsp;</p>
             <p>{order_items}</p>
@@ -5367,7 +5368,7 @@ def setup_set_email_templates():
             <p>To view your invoices, please click <a href="{link_profile_invoices}">here</a>.</p>"""
         ],
         [
-            'payment_recurring_failed'
+            'payment_recurring_failed',
             'Recurring payment failed',
             """<h3>Recurring payment failed</h3>
             <p>&nbsp;</p>
@@ -5376,7 +5377,7 @@ def setup_set_email_templates():
             <p>To view your invoices, please click <a href="{link_profile_invoices}">here</a>.</p>"""
         ],
     ]
-    for name, title, template_content in templates :
+    for name, title, template_content in templates:
         db.sys_email_templates.insert(
             Name = name,
             Title = title,
