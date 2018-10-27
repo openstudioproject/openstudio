@@ -92,6 +92,14 @@ class TeachersPaymentClasses:
             db.classes.on(
                 db.teachers_payment_classes.classes_id ==
                 db.classes.id
+            ),
+            db.invoices_teachers_payment_classes.on(
+                db.invoices_teachers_payment_classes.teachers_payment_classes_id ==
+                db.teachers_payment_classes.id
+            ),
+            db.invoices.on(
+                db.invoices_teachers_payment_classes.invoices_id ==
+                db.invoices.id
             )
         ]
 
@@ -111,9 +119,12 @@ class TeachersPaymentClasses:
         if date_until:
             query &= (db.teachers_payment_classes.ClassDate <= date_until)
 
+
         rows = db(query).select(
             db.teachers_payment_classes.ALL,
             db.classes.ALL,
+            db.invoices_teachers_payment_classes.ALL,
+            db.invoices.ALL,
             left=left,
             limitby=limitby,
             orderby=orderby
@@ -140,7 +151,7 @@ class TeachersPaymentClasses:
 
         header = THEAD(TR(
             TH(),
-            TH(T("Date")),
+            TH(T("Class date")),
             TH(T("Time")),
             TH(T("Location")),
             TH(T("Class type")),
@@ -149,6 +160,7 @@ class TeachersPaymentClasses:
             TH(T("Attendance")),
             TH(T("Payment")),
             TH(os_gui.get_fa_icon('fa-subway')),
+            TH(T("Invoice")),
             TH() # Actions
         ))
 
@@ -184,6 +196,7 @@ class TeachersPaymentClasses:
                 TD(repr_row.teachers_payment_classes.TravelAllowance, BR(),
                    SPAN(repr_row.teachers_payment_classes.tax_rates_id_travel_allowance or '',
                         _class='grey')),
+                TD(self._rows_to_table_get_invoice_link(row, os_gui)),
                 TD(buttons)
             )
 
@@ -192,6 +205,23 @@ class TeachersPaymentClasses:
         pager = self._rows_to_table_get_navigation(rows, items_per_page, page)
 
         return DIV(table, pager)
+
+
+    def _rows_to_table_get_invoice_link(self, row, os_gui):
+        """
+        Display claim attachments in a modal
+        """
+        if not row.invoices_teachers_payment_classes.id:
+            return ''
+
+        T = current.T
+
+        invoice_url = URL('invoices', 'edit', vars={'iID': row.invoices.id})
+
+        return A(
+            row.invoices.InvoiceID,
+            _href=invoice_url
+        )
 
 
     def _rows_to_table_get_navigation(self, rows, items_per_page, page):

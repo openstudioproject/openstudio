@@ -159,6 +159,7 @@ class EmployeeClaims:
             result['modal']
         )
 
+
     def _rows_to_table_get_invoice_link(self, row, os_gui):
         """
         Display claim attachments in a modal

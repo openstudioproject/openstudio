@@ -1427,6 +1427,8 @@ def teacher_payment_classes():
         )
 
     elif status == 'processed':
+        session.invoices_edit_back = 'finance_teacher_payment_classes_processed'
+
         table = tpc.get_processed(
             formatted=True,
             page = page
