@@ -316,7 +316,7 @@ class OsMail:
             content = XML(template_content)
             subject = subject
 
-        footer = XML(get_sys_property('sys_email_footer'))
+        footer = XML(self.get_email_template('sys_email_footer'))
 
 
         template = os.path.join(
