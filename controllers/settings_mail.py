@@ -155,6 +155,7 @@ def templates():
     # the templates saved in sys_email_templates sorted by Name
     query = db.sys_email_templates
     rows = db(query).select(db.sys_email_templates.id,
+                            db.sys_email_templates.Name,
                             db.sys_email_templates.Title,
                             orderby=db.sys_email_templates.Name)
     for i, row in enumerate(rows):
@@ -164,7 +165,7 @@ def templates():
                 TD(repr_row.Title),
                 os_gui.get_button(
                     'edit_custom',
-                    URL('edit_template', vars={'template':row.Title}),
+                    URL('edit_template', vars={'template':row.Name}),
                     T("Edit the content of this template"),
                     title='Edit template',
                     _class='pull-right')
@@ -193,12 +194,12 @@ def edit_template():
 
     template = request.vars['template']
 
-    row=db.sys_email_templates(Title=template)
-    template_content = row.Body
+    row = db.sys_email_templates(Name=template)
+    template_content = row.TemplateContent
     form = SQLFORM.factory(
         Field("email_template", 'text',
               default=template_content,
-              label=T("Edit template")),
+              label=T("Template content")),
         submit_button=T("Save"),
         separator=' ',
         formstyle='bootstrap3_stacked')
@@ -213,7 +214,8 @@ def edit_template():
     if form.accepts(request.vars, session):
         # check smtp_signature
         email_template = request.vars['email_template']
-        db(db.sys_email_templates.Title == template).update(Body=email_template)
+        query = (db.sys_email_templates.Name == template)
+        db(query).update(TemplateContent=email_template)
 
         # User feedback
         session.flash = T('Saved')
@@ -224,7 +226,10 @@ def edit_template():
 
     back = os_gui.get_button('back', URL('templates'))
     # submenu = email_templates_get_menu(template)
-    content = DIV(form)
+    content = DIV(
+        H4(T("Edit template: {name}".format(name=row.Title))),
+        form
+    )
 
     return dict(content=content,
                 back=back,
