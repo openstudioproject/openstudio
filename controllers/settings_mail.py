@@ -141,7 +141,6 @@ def templates():
     """
         Templates main
     """
-
     response.title = T('System Settings')
     response.subtitle = T('Email templates')
     response.view = 'settings/email_templates.html'

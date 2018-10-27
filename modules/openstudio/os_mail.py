@@ -11,14 +11,16 @@ class OsMail:
         :return: str - template
         """
         db = current.db
+        cache = current.cache
 
         # Get template and cache query for 5 minutes
-        row = db.sys_email_templates(
-            Name = template,
+        query = (db.sys_email_templates.Name == template)
+        rows = db(query).select(
+            db.sys_email_templates.ALL,
             cache = (cache.ram, 300)
         )
 
-        return row.TemplateContent
+        return rows.first().TemplateContent
 
 
     def send_notification(self,
