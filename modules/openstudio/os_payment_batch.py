@@ -27,6 +27,8 @@ class PaymentBatch:
         """
         if self.row.BatchTypeDescription == 'teacher_payments':
             self._generate_batch_items_teacher_payments()
+        elif self.row.BatchTypeDescription == 'employee_claims':
+            self._generate_batch_items_employee_claims()
 
 
     def _generate_batch_items_teacher_payments(self):
@@ -52,22 +54,23 @@ class PaymentBatch:
             db.customers_payment_info.on(
                 db.customers_payment_info.auth_customer_id ==
                 db.auth_user.id
+            ),
+            db.customers_payment_info_mandates.on(
+                db.customers_payment_info_mandates.customers_payment_info_id ==
+                db.customers_payment_info.id
             )
         ]
 
         query = (db.invoices.TeacherPayment == True) & \
-                (db.invoices.TeacherPaymentMonth == self.row.ColMonth) & \
-                (db.invoices.TeacherPaymentYear == self.row.ColYear) & \
                 (db.invoices.Status == 'sent')
 
         rows = db(query).select(db.invoices.ALL,
                                 db.auth_user.ALL,
                                 db.invoices_amounts.ALL,
                                 db.customers_payment_info.ALL,
+                                db.customers_payment_info_mandates.ALL,
                                 left=left,
                                 orderby=db.auth_user.id)
-
-        print rows
 
 
         for row in rows:
@@ -102,7 +105,7 @@ class PaymentBatch:
             except AttributeError:
                 bic = ''
 
-            msdate = row.customers_payment_info.MandateSignatureDate
+            msdate = row.customers_payment_info_mandates.MandateSignatureDate
 
             # set bank name
             if row.customers_payment_info.BankName == '':
@@ -117,6 +120,104 @@ class PaymentBatch:
                 BIC=bic,
                 AccountNumber=accountnr,
                 MandateSignatureDate=msdate,
+                MandateReference=row.customers_payment_info_mandates.MandateReference,
+                Amount=amount,
+                Currency=self.currency,
+                Description=description,
+                BankName=row.customers_payment_info.BankName,
+                BankLocation=row.customers_payment_info.BankLocation
+            )
+
+
+    def _generate_batch_items_employee_claims(self):
+        """
+        :return: None
+        """
+        db = current.db
+
+        # Get teacher payment invoices with status sent for month
+        left = [
+            db.invoices_amounts.on(
+                db.invoices_amounts.invoices_id ==
+                db.invoices.id
+            ),
+            db.invoices_customers.on(
+                db.invoices_customers.invoices_id ==
+                db.invoices.id
+            ),
+            db.auth_user.on(
+                db.invoices_customers.auth_customer_id ==
+                db.auth_user.id
+            ),
+            db.customers_payment_info.on(
+                db.customers_payment_info.auth_customer_id ==
+                db.auth_user.id
+            ),
+            db.customers_payment_info_mandates.on(
+                db.customers_payment_info_mandates.customers_payment_info_id ==
+                db.customers_payment_info.id
+            )
+        ]
+
+        query = (db.invoices.EmployeeClaim == True) & \
+                (db.invoices.Status == 'sent')
+
+        rows = db(query).select(db.invoices.ALL,
+                                db.auth_user.ALL,
+                                db.invoices_amounts.ALL,
+                                db.customers_payment_info.ALL,
+                                db.customers_payment_info_mandates.ALL,
+                                left=left,
+                                orderby=db.auth_user.id)
+
+        for row in rows:
+            cuID = row.auth_user.id
+            csID = row.invoices.customers_subscriptions_id
+            iID = row.invoices.id
+
+            amount = row.invoices_amounts.TotalPriceVAT
+
+            # check for zero amount
+            if not self.row.IncludeZero and amount == 0:
+                continue
+
+            # set description
+            description = row.invoices.Description
+            if not description:
+                description = self.row.Description
+
+            try:
+                description = description.strip()
+            except:
+                pass
+
+            # set account number
+            try:
+                accountnr = row.customers_payment_info.AccountNumber.strip()
+            except AttributeError:
+                accountnr = ''
+            # set BIC
+            try:
+                bic = row.customers_payment_info.BIC.strip()
+            except AttributeError:
+                bic = ''
+
+            msdate = row.customers_payment_info_mandates.MandateSignatureDate
+
+            # set bank name
+            if row.customers_payment_info.BankName == '':
+                row.customers_payment_info.BankName = None
+
+            db.payment_batches_items.insert(
+                payment_batches_id=self.id,
+                auth_customer_id=cuID,
+                customers_subscriptions_id=csID,
+                invoices_id=iID,
+                AccountHolder=row.customers_payment_info.AccountHolder,
+                BIC=bic,
+                AccountNumber=accountnr,
+                MandateSignatureDate=msdate,
+                MandateReference=row.customers_payment_info_mandates.MandateReference,
                 Amount=amount,
                 Currency=self.currency,
                 Description=description,

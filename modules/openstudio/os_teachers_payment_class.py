@@ -26,19 +26,6 @@ class TeachersPaymentClass:
         auth = current.auth
         NOW_LOCAL = current.NOW_LOCAL
 
-        cls = Class(
-            self.row.classes_id,
-            self.row.ClassDate
-        )
-
-        teachers = cls.get_teachers()
-
-        self.row.auth_teacher_id = teachers['teacher']['id']
-        try:
-            self.row.auth_teacher_id2 = teachers['teacher2']['id']
-        except (KeyError, TypeError):
-            pass
-
         self.row.VerifiedBy = auth.user.id
         self.row.Status = 'verified'
         self.row.VerifiedOn = NOW_LOCAL

@@ -48,7 +48,7 @@ class ClassesReservation:
                 month,
                 calendar.monthrange(
                     year,
-                    month
+                    month,
                     )[1]
                 ) # Last day of next month from today (local time)
 

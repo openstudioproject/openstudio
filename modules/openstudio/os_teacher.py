@@ -3,6 +3,8 @@
     This file holds OpenStudio Teacher class
 """
 
+import datetime
+
 from gluon import *
 from mailchimp3 import MailChimp
 from mailchimp3.mailchimpclient import MailChimpError
@@ -19,6 +21,250 @@ class Teacher:
 
         self.id = auID
         self.row = db.auth_user(auID)
+
+
+    def get_upcoming_classes_formatted(self, days=3):
+        """
+            Returns upcoming classes for teacher
+        """
+        from os_gui import OsGui
+        from os_class_schedule import ClassSchedule
+
+        T = current.T
+        db = current.db
+        auth = current.auth
+        os_gui = OsGui()
+        DATE_FORMAT = current.DATE_FORMAT
+        TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
+
+        attendance_permission = (auth.has_membership(group_id='Admins') or
+                                 auth.has_permission('update', 'classes_attendance'))
+
+        date = TODAY_LOCAL
+        delta = datetime.timedelta(days=1)
+
+        header = THEAD(TR(TH(T('Class date')),
+                          TH(T('Time')),
+                          TH(T('Location')),
+                          TH(T('Class type')),
+                          TH(T('Teacher')),
+                          TH(T('Teacher2')),
+                          TH(),
+                          ))
+
+        table = TABLE(header, _class='table table-hover')
+
+        for day in range(0, days):
+            cs = ClassSchedule(
+                date,
+                filter_id_teacher=self.id)
+
+            rows = cs.get_day_rows()
+            for i, row in enumerate(rows):
+                if row.classes_otc.Status == 'cancelled' or row.school_holidays.id:
+                    continue
+
+                repr_row = list(rows[i:i + 1].render())[0]
+
+                result = cs._get_day_row_teacher_roles(row, repr_row)
+
+                teacher = result['teacher_role']
+                teacher2 = result['teacher_role2']
+
+                attendance = ''
+                if attendance_permission:
+                    attendance = os_gui.get_button('noicon', URL('classes', 'attendance',
+                                                                 vars={'clsID': row.classes.id,
+                                                                       'date': date.strftime(DATE_FORMAT)}),
+                                                   title=T('Attendance'),
+                                                   _class=T('pull-right'))
+
+                tr = TR(TD(date.strftime(DATE_FORMAT), _class='bold green' if day == 0 else ''),
+                        TD(repr_row.classes.Starttime, ' - ', repr_row.classes.Endtime),
+                        TD(repr_row.classes.school_locations_id),
+                        TD(repr_row.classes.school_classtypes_id),
+                        TD(teacher),
+                        TD(teacher2),
+                        TD(attendance)
+                        )
+
+                table.append(tr)
+
+            date += delta
+
+        upcoming_classes = DIV(DIV(H3(T('My upcoming classes'), _class="box-title"),
+                                   DIV(A(I(_class='fa fa-minus'),
+                                         _href='#',
+                                         _class='btn btn-box-tool',
+                                         _title=T("Collapse"),
+                                         **{'_data-widget': 'collapse'}),
+                                       _class='box-tools pull-right'),
+                                   _class='box-header with-border'),
+                               DIV(table, _class='box-body'),
+                               self._get_teacher_upcoming_classes_formatted_footer(),
+                               _class='box box-primary')
+
+        return upcoming_classes
+
+    def _get_teacher_upcoming_classes_formatted_footer(self):
+        """
+        Footer for upcoming classes page
+        :return: div.box-footer
+        """
+        T = current.T
+        TODAY_LOCAL = current.TODAY_LOCAL
+
+
+        # Last month
+        if TODAY_LOCAL.month == 1:
+            month_last = 12
+            year_last = TODAY_LOCAL.year - 1
+        else:
+            month_last = TODAY_LOCAL.month - 1
+            year_last = TODAY_LOCAL.year
+
+        # Next month
+        if TODAY_LOCAL.month == 12:
+            month_next = 1
+            year_next = TODAY_LOCAL.year + 1
+        else:
+            month_next = TODAY_LOCAL.month + 1
+            year_next = TODAY_LOCAL.year
+
+        link_last_month = A(
+            T("Last month"),
+            _href=URL('ep', 'my_classes_set_month',
+                      vars={'month': month_last,
+                            'year': year_last,
+                            'back': 'my_classes'})
+        )
+
+        link_this_month = A(
+            T("This month"),
+            _href=URL('ep', 'my_classes_set_month',
+                      vars={'month': TODAY_LOCAL.month,
+                            'year': TODAY_LOCAL.year,
+                            'back': 'my_classes'})
+        )
+
+        link_next_month = A(
+            T("Next month"),
+            _href=URL('ep', 'my_classes_set_month',
+                      vars={'month': month_next,
+                            'year': year_next,
+                            'back': 'my_classes'})
+        )
+
+        return DIV(
+            DIV(
+                DIV(link_last_month, _class='pull-left'),
+                DIV(link_next_month, _class='pull-right'),
+                DIV(link_this_month, _class='center'),
+                _class='col-md-12'),
+            _class='box-footer'
+        )
+
+
+    def get_subrequests_formatted(self):
+        """
+        :return: HTML table holding subrequests this teacher can apply for
+        """
+        from os_gui import OsGui
+
+        os_gui = OsGui()
+
+        T = current.T
+        db = current.db
+        auth = current.auth
+        TODAY_LOCAL = current.TODAY_LOCAL
+
+        header = THEAD(TR(
+            TH(T('Class date')),
+            TH(T('Time')),
+            TH(T('Location')),
+            TH(T('Class type')),
+            TH()
+        ))
+
+        table = TABLE(header, _class='table table-hover')
+
+        # Get classtypes for currently logged on teacher
+        query = (db.teachers_classtypes.auth_user_id == self.id)
+        rows = db(query).select(db.teachers_classtypes.school_classtypes_id)
+        ctIDs = [row.school_classtypes_id for row in rows]
+
+        left = [
+            db.classes.on(
+                db.classes_otc.classes_id == db.classes.id,
+            ),
+            db.classes_teachers.on(
+                db.classes_teachers.classes_id == db.classes.id
+            )
+        ]
+
+        query = ((db.classes_otc.Status == 'open') &
+                 ((db.classes.school_classtypes_id.belongs(ctIDs)) |
+                  (db.classes_otc.school_classtypes_id.belongs(ctIDs))) &
+                 (db.classes_teachers.Startdate <= db.classes_otc.ClassDate) &
+                 ((db.classes_teachers.Enddate >= db.classes_otc.ClassDate) |
+                  (db.classes_teachers.Enddate == None)) &
+                 (db.classes_otc.ClassDate >= TODAY_LOCAL)
+                 )
+
+        rows = db(query).select(
+            db.classes_otc.ALL,
+            db.classes.ALL,
+            left=left,
+            orderby=db.classes.id
+        )
+
+        for i, row in enumerate(rows):
+            repr_row = list(rows[i:i + 1].render())[0]
+            row_avail = db.classes_otc_sub_avail(
+                classes_otc_id=row.classes_otc.id,
+                auth_teacher_id=auth.user.id
+            )
+
+            if not row_avail:
+                button = os_gui.get_button('noicon',
+                                           URL('ep', 'available_for_sub',
+                                               vars={'cotcID': row.classes_otc.id}),
+                                           title=T("I'm available to sub"), _class='pull-right',
+                                           btn_class='btn-success')
+            else:
+                button = os_gui.get_button('noicon',
+                                           URL('ep', 'cancel_available_for_sub',
+                                               vars={'cotcsaID': row_avail.id}),
+                                           title=T("I'm no longer available"),
+                                           _class='pull-right',
+                                           btn_class='btn-warning')
+            tr = TR(TD(repr_row.classes_otc.ClassDate),
+                    TD(repr_row.classes.Starttime, ' - ', repr_row.classes.Endtime),
+                    TD(repr_row.classes.school_locations_id),
+                    TD(repr_row.classes.school_classtypes_id),
+                    TD(button)
+                    )
+            table.append(tr)
+
+        if not len(rows):
+            table = T("No one is looking for a sub at the moment...")
+
+        sub_requests = DIV(DIV(H3(T('Can you sub a class?'), _class="box-title"),
+                               DIV(A(I(_class='fa fa-minus'),
+                                     _href='#',
+                                     _class='btn btn-box-tool',
+                                     _title=T("Collapse"),
+                                     **{'_data-widget': 'collapse'}),
+                                   _class='box-tools pull-right'),
+                               _class='box-header with-border'),
+                           DIV(table, _class='box-body'),
+                           _class='box box-success')
+
+        ## disable for now
+        return ''
+
+        #return sub_requests
+
 
 
     def get_payment_fixed_rate_default(self, render=False):

@@ -1,8 +1,8 @@
 {{extend 'layout.html'}}
 {{block header}}
     {{try:}}{{=back}}{{except:}}{{pass}}{{pass}}    
-    {{try:}}{{=tools}}{{except:}}{{pass}}{{pass}}
     {{try:}}{{=save}}{{except:}}{{pass}}{{pass}}    
+    {{try:}}{{=tools}}{{except:}}{{pass}}{{pass}}
     {{try:}}{{=add}}{{except:}}{{pass}}{{pass}}
 {{end}}
 
@@ -14,6 +14,12 @@
             {{=content}}
         </div>
     </div>
+</div>
+
+<div class='row'>
+	<div class='col-md-12'>
+		{{try:}}{{=content_extra}}{{except:}}{{pass}}{{pass}}
+	</div>
 </div>
 
 {{try:}}

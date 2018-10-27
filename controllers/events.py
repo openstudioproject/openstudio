@@ -1246,6 +1246,7 @@ def tickets():
     table = TABLE(THEAD(TR(TH(T('Name')),
                            TH(T('Description')),
                            TH(T('Price')),
+                           TH(T('G/L Account')),
                            TH(T('Shop')),
                            TH(),
                            TH(),
@@ -1334,6 +1335,7 @@ def tickets():
         table.append(TR(TD(row.Name),
                         TD(max_string_length(row.Description, 40)),
                         TD(row.Price),
+                        TD(row.GLAccount),
                         TD(shop),
                         TD(fws_label),
                         TD(buttons)))
@@ -2046,7 +2048,7 @@ def tickets_list_customers():
 
     session.invoices_edit_back = 'events_tickets_list_customers'
     session.invoices_payment_add_back = 'events_tickets_list_customers'
-    session.workshops_product_resend_info_mail = 'events_tickets_list_customers'
+    session.workshops_ticket_resend_info_mail = 'events_tickets_list_customers'
 
     wsp = WorkshopProduct(wspID)
 
@@ -2181,7 +2183,7 @@ def tickets_list_customers_get_list(table,
         if row.workshops_products_customers.WorkshopInfo:
             link_text = T('Resend')
         resend_link = A(link_text, ' ', T('info mail'),
-                        _href=URL('product_resend_info_mail', vars={'wspcID':wsp_cuID}))
+                        _href=URL('ticket_resend_info_mail', vars={'wspcID':wsp_cuID}))
         event_info = wh.get_customer_info(wsp_cuID,
                                           wsID,
                                           row.workshops_products_customers.WorkshopInfo,
@@ -2201,7 +2203,7 @@ def tickets_list_customers_get_list(table,
             cust_name.append(get_cancelled_label())
 
         if row.workshops_products_customers.Waitinglist:
-            wai_url = URL('product_remove_customer_from_waitinglist',
+            wai_url = URL('ticket_remove_customer_from_waitinglist',
                           vars={'wsp_cuID': wsp_cuID,
                                 'wsID': wsID})
             if fullWS:
@@ -2784,7 +2786,7 @@ def ticket_resend_info_mail():
     wsp = db.workshops_products(wspc.workshops_products_id)
 
 
-    if session.workshops_product_resend_info_mail == 'customers_events':
+    if session.workshops_ticket_resend_info_mail == 'customers_events':
         redirect(URL('customers', 'events', vars={'cuID':cuID}))
     else:
         redirect(URL('events', 'tickets_list_customers', vars={'wsID':wsp.workshops_id,

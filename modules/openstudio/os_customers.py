@@ -228,7 +228,8 @@ WHERE (au.last_login < '{date}' OR au.last_login IS NULL) AND
         return {'form': form,
                 'form_styled': form_styled}
 
-    def classes_add_get_list(self, date, list_type, cuID=None):
+
+    def classes_add_get_list(self, date, list_type, cuID=None, teID=None):
         """
             Get list of classes for a date
             list_type is expected to be in
@@ -290,7 +291,7 @@ WHERE (au.last_login < '{date}' OR au.last_login IS NULL) AND
                     'noicon',
                     URL('teachers',
                         'payment_fixed_rate_class',
-                        vars={'teID': cuID,
+                        vars={'teID': teID,
                               'clsID': c['ClassesID']}),
                     title=T('Set rate'),
                     _class='pull-right'

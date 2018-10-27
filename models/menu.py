@@ -50,6 +50,43 @@ def shoppingcart_menu_item():
                 _title=T('Shopping cart'))
 
 
+def ep_menu():
+    user_helpers = User_helpers()
+    menu= []
+
+    # Home
+    menu.append([(  # I(_class='fa fa-home'),
+        SPAN(T('Home'))),
+        False,
+        URL('ep', 'index', extension='')])
+
+    # Monthly Classes
+    if auth.user.teacher:
+        menu.append([(  # I(_class='fa fa-graduation-cap'),
+            SPAN(T('My Classes'))),
+            False,
+            URL('ep', 'my_classes', extension='')])
+
+    # My Payments / Staffpayments
+    menu.append([(  # I(_class='fa fa-home'),
+        SPAN(T('My Payments'))),
+        False,
+        URL('ep', 'my_payments', extension='')])
+
+    # My Claims
+    menu.append([(  # I(_class='fa fa-home'),
+        SPAN(T('My Claims'))),
+        False,
+        URL('ep', 'my_claims', extension='')])
+
+    menu.append([(  # I(_class='fa fa-home'),
+        SPAN(T('Back end'))),
+        False,
+        URL('pinboard', 'index', extension='')])
+
+
+    return menu
+
 
 def profile_menu():
     featured_class = ''
@@ -285,6 +322,12 @@ def get_backend_menu():
                 submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Classes'))),
                                 False,
                                 URL('classes', 'schedule', extension='')))
+            #TODO: enable as soon as find a sub is released
+            # if user_helpers.check_read_permission('classes_otc_sub_avail', user_id):
+            #     submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Available subs'))),
+            #                     False,
+            #                     URL('classes', 'subs_manage', extension='')))
+
             if user_helpers.check_read_permission('shifts', user_id):
                 submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Studio staff'))),
                                 False,
@@ -467,6 +510,11 @@ def get_backend_menu():
                                 URL('finance', 'teacher_payment_classes',
                                     vars={'status': 'not_verified'},
                                     extension='')))
+            if user_helpers.check_read_permission('employee_claims', user_id):
+                submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Employee Claims'))),
+                                False,
+                                URL('finance', 'employee_claims',
+                                    extension='')))
 
             if user_helpers.check_read_permission('payment_batches', user_id):
                 submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Batch collections'))),
@@ -518,6 +566,7 @@ def get_backend_menu():
                                 URL('#', extension=''), submenu )
                              ]
 
+
         # settings
         if user_helpers.check_read_permission('settings', user_id):
             submenu = []
@@ -531,6 +580,9 @@ def get_backend_menu():
             submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Access'))),
                             False,
                             URL('settings', 'access_groups', extension=''))),
+            submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Point of Sale'))),
+                            False,
+                            URL('settings_pos', 'index', extension=''))),
             submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Shop'))),
                             False,
                             URL('settings', 'shop_settings', extension=''))),
@@ -539,7 +591,7 @@ def get_backend_menu():
                             URL('settings', 'selfcheckin', extension=''))),
             submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Integration'))),
                             False,
-                            URL('settings_integration', 'mollie', extension='')))
+                            URL('settings_integration', 'exact_online', extension='')))
             submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Mail'))),
                             False,
                             URL('settings_mail', 'mailing_lists', extension='')))
@@ -563,7 +615,27 @@ def get_backend_menu():
                                 URL('#', extension=''), submenu)
                              ]
 
-        # Flash to
+
+        # automated tasks
+        if user_helpers.check_read_permission('automated_tasks', user_id):
+            submenu = []
+
+            submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Customer subscriptions'))),
+                            False,
+                            URL('automation_customer_subscriptions', 'index', extension='')))
+
+
+            menu += [
+                ((I(_class=settings_class + ' fa fa-magic', _title=T('Automation')),
+                  SPAN(T('Automation')),
+                  SPAN(I(_class='fa fa-angle-left pull-right'),
+                       _class="pull-right-container")),
+                  False,
+                  URL('#', extension=''), submenu)
+            ]
+
+
+        # Go to
         submenu = [
             ( '', False, A((os_gui.get_fa_icon('fa-caret-right'),
                             SPAN(T('Shop'))),
@@ -575,7 +647,13 @@ def get_backend_menu():
             submenu.insert(0, ( '', False, A((os_gui.get_fa_icon('fa-caret-right'),
                                               SPAN(T('Self check-in'))),
                                               _href=URL('selfcheckin', 'index', extension=''),
-                                              _target='_blank')))
+                                              _target="_blank"
+                                             )))
+
+        if user_helpers.check_read_permission('employee_portal', user_id):
+            submenu.insert(0, ( '', False, A((os_gui.get_fa_icon('fa-caret-right'),
+                                              SPAN(T('Employee portal'))),
+                                              _href=URL('ep', 'index', extension=''))))
 
         menu += [ ((I(_class=jumpto_class + ' fa fa-flash', _title=T('Go to')),
                             SPAN(T('Go to')),
@@ -605,8 +683,9 @@ if request.controller == 'shop' or request.controller == 'profile':
     response.menu_shop = shop_menu()
     response.menu_shop_about = shop_menu_about()
     response.menu_shopping_cart = shoppingcart_menu_item()
-    response.menu_profile = profile_menu()
     response.menu_links = shop_links()
+    response.menu_profile = profile_menu()
+
 
     response.logo = SPAN(B('Open'), 'Studio', _class='logo-lg')
 
@@ -625,6 +704,9 @@ if request.controller == 'shop' or request.controller == 'profile':
     shop_header_logo_url = get_sys_property('shop_header_logo_url')
     if shop_header_logo_url:
         response.logo_url = shop_header_logo_url
+
+elif request.controller == 'ep':
+    response.menu = ep_menu()
 
 else:
     if auth.user:

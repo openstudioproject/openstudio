@@ -1149,11 +1149,11 @@ def access_group_permissions():
                     ['customers_documents-update', T("Edit uploaded documents")],
                     ['customers_documents-delete', T("Delete uploaded documents")],
                 ]],
-                ['customers_payments-read', T("View payment info"), [
-                    ['customers_payment_info-create', T("Add payment info")],
-                    ['customers_payment_info-update', T("Edit payment info")],
-                    ['customers_payment_info-delete',
-                        T("Delete payment info")]]],
+                ['customers_payments_info-read', T("View bank account"), [
+                    ['customers_payment_info-update', T("Edit bank account"), [
+                        ['customers_payment_info_mandates-create', T("Add direct debit mandates")],
+                        ['customers_payment_info_mandates-delete', T("Delete direct debit mandates")],
+                    ]]]],
                 ['auth_user_account-read', T('View account settings'), [
                     ['auth_user_account-update', T('Edit account settings')],
                     ['auth_user-set_password', T('Set a new password for accounts')],
@@ -1209,6 +1209,8 @@ def access_group_permissions():
                 ['classes_school_classcards_groups-create', T("Add allowed class cards groups")],
                 ['classes_school_classcards_groups-update', T("Edit allowed class cards groups")],
                 ['classes_school_classcards_groups-delete', T("Delete allowed class cards groups")]]],
+            ['classes_otc_sub_avail-read', T("Manage sub teachers request list"), [
+                ['classes_otc_sub_avail-update', T("Accept/Decline sub teacher requests")]]],
             ['teacher_classes-read', T('Teacher classes by month')],
             ['classes_open-read', T('View all open classes')],
             ['schedule_set_default_sort-update', T('Set default sorting of classes')],
@@ -1366,6 +1368,8 @@ def access_group_permissions():
 
     other_permissions = [
         ['selfcheckin-read', T("Use self check-in")],
+        ['employee_portal-read', T("Use employee portal")],
+        ['automated_tasks-read', T("Use automated tasks (back-end)")],
         ['settings-read', T("Settings"), [
             ['auth_user-create', T("Add users")],
             ['auth_user-update', T("Edit users")],
@@ -1675,12 +1679,17 @@ def financial_payment_methods():
         session.settings_payment_methods_show = show
 
     db.payment_methods.id.readable = False
-    fields = [db.payment_methods.Name,
-              db.payment_methods.SystemMethod]
-    links = [financial_payment_methods_get_link_edit,
-             financial_payment_methods_get_link_archive]
+    fields = [
+        db.payment_methods.Name,
+        db.payment_methods.SystemMethod,
+        db.payment_methods.AccountingCode
+    ]
+    links = [
+        financial_payment_methods_get_link_edit,
+        financial_payment_methods_get_link_archive
+    ]
 
-    maxtextlengths = {'payment_methods.Name': 50}
+    maxtextlengths = {'payment_methods.Name': 40}
     grid = SQLFORM.grid(query,
                         fields=fields,
                         links=links,
@@ -1725,6 +1734,7 @@ def financial_payment_method_add():
 
     crud.messages.submit_button = T("Save")
     crud.messages.record_created = T("Added payment method")
+    crud.settings.formstyle = 'bootstrap3_stacked'
     crud.settings.create_next = return_url
     form = crud.create(db.payment_methods)
 
@@ -1757,8 +1767,13 @@ def financial_payment_method_edit():
 
     return_url = URL('financial_payment_methods')
 
+    pm = db.payment_methods(pmID)
+    if pm.SystemMethod:
+        db.payment_methods.Name.writable = False
+
     crud.messages.submit_button = T("Save")
     crud.messages.record_updated = T("Updated payment method")
+    crud.settings.formstyle = 'bootstrap3_stacked'
     crud.settings.update_next = return_url
     crud.settings.update_deletable = False
     form = crud.update(db.payment_methods, pmID)
@@ -1810,12 +1825,10 @@ def financial_payment_methods_get_link_edit(row):
         if the id is > 3. The first 3 are reserved for OpenStudio defined
         methods.
     """
-    edit = ''
-    if not row.SystemMethod:
-        edit = os_gui.get_button('edit',
-                                 URL('financial_payment_method_edit',
-                                     args=[row.id]),
-                                 T("Edit this payment method"))
+    edit = os_gui.get_button('edit',
+                              URL('financial_payment_method_edit',
+                                  args=[row.id]),
+                              T("Edit this payment method"))
 
     return edit
 
@@ -1871,8 +1884,11 @@ def financial_tax_rates():
         session.settings_tax_rates_show = show
 
     db.tax_rates.id.readable = False
-    fields = [db.tax_rates.Name,
-              db.tax_rates.Percentage]
+    fields = [
+        db.tax_rates.Name,
+        db.tax_rates.Percentage,
+        db.tax_rates.VATCodeID
+    ]
 
     links = [lambda row: os_gui.get_button('edit',
                                            URL('financial_tax_rate_edit', vars={'tID': row.id})),
@@ -1941,6 +1957,7 @@ def financial_tax_rate_add():
 
     crud.messages.submit_button = T("Save")
     crud.messages.record_created = T("Saved")
+    crud.settings.formstyle = 'bootstrap3_stacked'
     crud.settings.create_next = return_url
     form = crud.create(db.tax_rates)
 
@@ -1975,6 +1992,7 @@ def financial_tax_rate_edit():
 
     crud.messages.submit_button = T("Save")
     crud.messages.record_updated = T("Saved")
+    crud.settings.formstyle = 'bootstrap3_stacked'
     crud.settings.update_next = return_url
     crud.settings.update_deletable = False
     form = crud.update(db.tax_rates, tID)
@@ -2837,7 +2855,63 @@ def shop_subscription_terms():
         else:
             row.PropertyValue = subscription_terms
             row.update_record()
+        # Clear cache
+        cache_clear_sys_properties()
+        # User feedback
+        session.flash = T('Saved')
 
+        # reload so the user sees how the values are stored in the db now
+        redirect(URL())
+
+    content = form
+    menu = shop_get_menu(request.function)
+
+    return dict(content=content,
+                menu=menu,
+                save=submit)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'settings'))
+def shop_direct_debit_mandate():
+    """
+        Set default terms for all subscriptions
+    """
+    response.title = T("Settings")
+    response.subtitle = T('Shop Direct Debit Mandate ')
+    response.view = 'general/tabs_menu.html'
+
+    sys_property = 'shop_direct_debit_mandate_text'
+    mandate = get_sys_property(sys_property)
+
+    form = SQLFORM.factory(
+        Field("direct_debit_mandate_text", 'text',
+              default=mandate,
+              label=T("Mandate terms for direct debit"),
+              comment= T('This has to be filled with a text to make clear to your customer, that he is agreeing to a direct debit Mandate, by accepting these terms. '
+                         'This text will be added under the terms and conditions box when buying a subscription over the shop ')),
+        submit_button=T("Save"),
+        separator=' ',
+        formstyle='bootstrap3_stacked')
+
+    form_element = form.element('#no_table_direct_debit_mandate_text')
+    form_element['_class'] += ' tmced'
+
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
+    form = result['form']
+    submit = result['submit']
+
+    if form.accepts(request.vars, session):
+        # check terms
+        direct_debit_mandate_text = request.vars['direct_debit_mandate_text']
+        row= db.sys_properties(Property=sys_property)
+        if not row:
+            db.sys_properties.insert(
+                Property=sys_property,
+                PropertyValue= direct_debit_mandate_text)
+        else:
+            row.PropertyValue = direct_debit_mandate_text
+            row.update_record()
         # Clear cache
         cache_clear_sys_properties()
         # User feedback
@@ -3209,6 +3283,9 @@ def shop_get_menu(page):
              ['shop_customers_profile_announcements',
               T('Profile announcements'),
               URL('shop_customers_profile_announcements')],
+             ['shop_direct_debit_mandate',
+              T('Direct Debit Mandate'),
+              URL('shop_direct_debit_mandate')],
              ['shop_subscription_terms',
               T('Subscription terms'),
               URL('shop_subscription_terms')],
@@ -3359,45 +3436,58 @@ def admin_scheduled_tasks_run():
                       TH(T('Status')),
                       TH(T('Start time')),
                       TH(T('Stop time')),
+                      TH(T('vars')),
                       TH(T('Run output')),
                       TH(T('Run result')),
                       TH(T('Traceback')),
                       TH(T('Worker')),
                       TH(T('Actions')),
                       ))
-    table = TABLE(header, _class='table table-condensed table-striped table-hover')
+    table = TABLE(header, _class='table table-condensed table-striped table-hover small_font')
+
+    left = [
+        db.scheduler_task.on(
+            db.scheduler_run.task_id ==
+            db.scheduler_task.id
+        )
+    ]
 
 
-    query = (db.scheduler_run)
-    rows = db(query).select(db.scheduler_run.ALL,
-                            orderby=~db.scheduler_run.start_time,
-                            limitby=limitby)
+    query = (db.scheduler_run.id > 0)
+    rows = db(query).select(
+        db.scheduler_run.ALL,
+        db.scheduler_task.ALL,
+        left=left,
+        orderby=~db.scheduler_run.start_time,
+        limitby=limitby)
 
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
         details = os_gui.get_button('noicon',
-                                    URL('admin_scheduled_tasks_run_result', vars={'srID':row.id}),
+                                    URL('admin_scheduled_tasks_run_result',
+                                        vars={'srID':row.scheduler_run.id}),
                                     title=T('Details'),
                                     _class='pull-right')
 
         label_type = 'primary'
-        if row.status == 'FAILED':
+        if row.scheduler_run.status == 'FAILED':
             label_type = 'danger'
-        elif row.status == 'COMPLETED':
+        elif row.scheduler_run.status == 'COMPLETED':
             label_type = 'success'
 
-        status = os_gui.get_label(label_type, row.status)
+        status = os_gui.get_label(label_type, row.scheduler_run.status)
 
         tr = TR(
-            TD(row.task_id),
+            TD(row.scheduler_task.id),
             TD(status),
-            TD(row.start_time),
-            TD(row.stop_time),
-            TD(row.run_output),
-            TD(row.run_result),
-            TD(max_string_length(row.traceback, 32)),
-            TD(row.worker_name),
+            TD(row.scheduler_run.start_time),
+            TD(row.scheduler_run.stop_time),
+            TD(row.scheduler_task.vars),
+            TD(row.scheduler_run.run_output),
+            TD(row.scheduler_run.run_result),
+            TD(max_string_length(row.scheduler_run.traceback, 32)),
+            TD(row.scheduler_run.worker_name),
             TD(details),
         )
 
@@ -3470,7 +3560,7 @@ def admin_scheduled_tasks_run_result():
             DIV(sr.run_result, _class='col-md-9'),
             _class='row'),
         DIV(DIV(LABEL(T('Traceback')), _class='col-md-2'),
-            DIV(XML(sr.traceback.replace("\n", "<br>")), _class='col-md-9'),
+            DIV(XML(sr.traceback.replace("\n", "<br>") if sr.traceback else ''), _class='col-md-9'),
             _class='row'),
     )
 
@@ -3492,11 +3582,10 @@ def admin_scheduled_tasks():
     response.view = 'general/tabs_menu.html'
 
     header = THEAD(TR(TH(T('id')),
-                      TH(T('App name')),
-                      TH(T('Task name')),
+                      TH(T('App, Task & Function name')),
+                      TH(T('Vars')),
                       TH(T('Group name')),
                       TH(T('Status')),
-                      TH(T('Function name')),
                       TH(T('enabled')),
                       TH(T('Start')),
                       TH(T('Next run')),
@@ -3505,11 +3594,11 @@ def admin_scheduled_tasks():
                       TH(T('Period')),
                       TH(T('Prevent drift')),
                       ))
-    table = TABLE(header, _class='table table-striped table-hover')
+    table = TABLE(header, _class='table table-striped table-hover small_font')
 
     query = (db.scheduler_task)
     rows = db(query).select(db.scheduler_task.ALL,
-                            orderby=db.scheduler_task.task_name)
+                            orderby=~db.scheduler_task.id)
 
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
@@ -3519,11 +3608,12 @@ def admin_scheduled_tasks():
 
         tr = TR(
             TD(row.id),
-            TD(row.application_name),
-            TD(row.task_name),
+            TD(row.application_name, BR(),
+               row.task_name, BR(),
+               row.function_name),
+            TD(row.vars),
             TD(row.group_name),
             TD(row.status),
-            TD(row.function_name),
             TD(row.enabled),
             TD(row.start_time),
             TD(row.next_run_time),

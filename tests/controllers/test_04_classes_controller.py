@@ -20,6 +20,7 @@ from populate_os_tables import populate_workshop_activity_overlapping_class
 from populate_os_tables import populate_school_subscriptions_groups
 from populate_os_tables import populate_customers_notes
 from populate_os_tables import populate_auth_user_teachers_fixed_rate_default
+from populate_os_tables import prepare_classes_otc_subs_avail
 
 
 def next_weekday(d, weekday):
@@ -2109,3 +2110,63 @@ def test_notes_delete(client, web2py):
     assert client.status == 200
 
     assert web2py.db(web2py.db.classes_notes).count() == 0
+
+
+def test_subs_manage_pending(client, web2py):
+    """
+    Manage sub requests
+    """
+    prepare_classes_otc_subs_avail(web2py, accepted=None)
+
+    url = '/classes/subs_manage'
+    client.get(url)
+    assert client.status == 200
+
+    cotcsa = web2py.db.classes_otc_sub_avail(1)
+    cotc = web2py.db.classes_otc(cotcsa.classes_otc_id)
+
+    assert unicode(cotc.ClassDate) in client.text
+
+
+def test_subs_manage_processed(client, web2py):
+    """
+    Manage sub requests
+    """
+    prepare_classes_otc_subs_avail(web2py, accepted=True)
+
+    url = '/classes/subs_manage?Status=processed'
+    client.get(url)
+    assert client.status == 200
+
+    cotcsa = web2py.db.classes_otc_sub_avail(1)
+    cotc = web2py.db.classes_otc(cotcsa.classes_otc_id)
+
+    assert unicode(cotc.ClassDate) in client.text
+
+
+def test_sub_avail_accept(client, web2py):
+    """
+    Are cotcsa rows accepted correctly?
+    """
+    prepare_classes_otc_subs_avail(web2py, accepted=None)
+
+    url = '/classes/sub_avail_accept?cotcsaID=1'
+    client.get(url)
+    assert client.status == 200
+
+    cotcsa = web2py.db.classes_otc_sub_avail(1)
+    assert cotcsa.Accepted == True
+
+
+def test_sub_avail_decline(client, web2py):
+    """
+    Are cotcsa rows declined correctly?
+    """
+    prepare_classes_otc_subs_avail(web2py, accepted=None)
+
+    url = '/classes/sub_avail_decline?cotcsaID=1'
+    client.get(url)
+    assert client.status == 200
+
+    cotcsa = web2py.db.classes_otc_sub_avail(1)
+    assert cotcsa.Accepted == False

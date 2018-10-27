@@ -496,6 +496,55 @@ def populate_customers_with_memberships(web2py,
     web2py.db.commit()
 
 
+def populate_employee_claims(web2py):
+    """
+    Add one claim to teacher
+    """
+    from setup_ep_tests import setup_ep_tests
+
+    try:
+        populate_tax_rates(web2py)
+    except:
+        print 'Tried to insert tax rates, but one or more already exists in db.tax_rates'
+
+    setup_ep_tests(web2py)
+
+    web2py.db.employee_claims.insert(
+        auth_user_id     = 400,
+        Amount           = 5,
+        Quantity         = 3,
+        tax_rates_id     = 1,
+        Status           = 'pending',
+        Description      = 'First Claim'
+    )
+    web2py.db.employee_claims.insert(
+        auth_user_id     = 400,
+        Amount           = 5,
+        Quantity         = 3,
+        tax_rates_id     = 1,
+        Status           = 'accepted',
+        Description      = 'Accepted Claim'
+    )
+    web2py.db.employee_claims.insert(
+        auth_user_id     = 400,
+        Amount           = 5,
+        Quantity         = 3,
+        tax_rates_id     = 1,
+        Status           = 'rejected',
+        Description      = 'Rejected Claim'
+    )
+    web2py.db.employee_claims.insert(
+        auth_user_id     = 400,
+        Amount           = 5,
+        Quantity         = 3,
+        tax_rates_id     = 1,
+        Status           = 'processed',
+        Description      = 'Processed Claim'
+    )
+
+    web2py.db.commit()
+
+
 def populate_auth_user_teachers(web2py,
                                 teaches_classes=True,
                                 teaches_workshops=True):
@@ -750,6 +799,7 @@ def populate_classes(web2py, with_otc=False):
 
 
 def prepare_classes(web2py,
+                    auth_teacher_id = 2,
                     nr_of_customers = 10,
                     cuID = 1001,
                     attendance=True,
@@ -866,10 +916,10 @@ def prepare_classes(web2py,
     web2py.db.classes_waitinglist.insert(auth_customer_id=cuID,
                                          classes_id='1')
     web2py.db.classes_teachers.insert(classes_id=1,
-                                      auth_teacher_id=2,
+                                      auth_teacher_id=auth_teacher_id,
                                       Startdate='2014-01-01')
     web2py.db.classes_teachers.insert(classes_id=2,
-                                      auth_teacher_id=2,
+                                      auth_teacher_id=auth_teacher_id,
                                       Startdate='2014-01-01')
     web2py.db.classes_teachers.insert(classes_id=3,
                                       auth_teacher_id=3,
@@ -1010,6 +1060,28 @@ def prepare_classes(web2py,
         TeacherNote = True,
         Note = 'Avocado')
 
+
+    web2py.db.commit()
+
+
+
+def prepare_classes_otc_subs_avail(web2py, accepted=None):
+    """
+    Add item to subs available table
+    """
+    prepare_classes(web2py)
+
+    cotcID = web2py.db.classes_otc.insert(
+        classes_id = 1,
+        ClassDate = '2099-01-01',
+        Status = 'open'
+    )
+
+    web2py.db.classes_otc_sub_avail.insert(
+        classes_otc_id = cotcID,
+        auth_teacher_id = 3,
+        Accepted=accepted
+    )
 
     web2py.db.commit()
 

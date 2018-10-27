@@ -95,12 +95,12 @@ def add_collection_batch_type():
 
     question = T("What kind of batch would you like to create?")
     invoices = LI(A(
-        T('Invoices'),
+        B(T('Invoices')),
         _href=URL('batch_add', vars={'export':export,
                                      'what':'invoices'})), BR(),
         T("Create a batch containing all invoices with status 'sent' and payment method 'direct debit'."))
     category = LI(A(
-        T('Direct debit extra'),
+        B(T('Direct debit extra')),
         _href=URL('batch_add', vars={'export':export,
                                      'what':'category'})), BR(),
         T("Create a batch containing items from a direct debit extra category."))
@@ -128,23 +128,35 @@ def add_payment_batch_type():
     return_url = URL('batches_index', vars={'export':export})
 
     question = T("What kind of batch would you like to create?")
-    invoices = LI(A(
-        T('Teacher payments'),
+
+    teacher_payments = LI(A(
+        B(T('Teacher payments')),
         _href=URL('batch_add', vars={'export': export,
                                      'what':'teacher_payments'})), BR(),
-        T("Create a batch containing all teacher invoices for a chosen month with status 'sent'."))
+        T("Create a batch containing all teacher payment invoices with status 'sent'."))
+    employee_claims = LI(A(
+        B(T('Employee claims')),
+        _href=URL('batch_add', vars={'export': export,
+                                     'what':'employee_claims'})), BR(),
+        T("Create a batch containing all employee claim invoices with status 'sent'."))
     category = LI(A(
-        T('Direct debit extra'),
+        B(T('Direct debit extra')),
         _href=URL('batch_add', vars={'export':export,
                                      'what':'category'})), BR(),
         T("Create a batch containing items from a direct debit extra category."))
+
     cancel = os_gui.get_button('noicon',
         return_url,
         title=T("Cancel"),
         _class='btn btn-default',
         btn_size='')
+
     back = os_gui.get_button('back', return_url)
-    ul = UL(invoices, category)
+    ul = UL(
+        teacher_payments,
+        employee_claims,
+        category
+    )
     content = DIV(H3(question), ul)
 
     return dict(content=content,
@@ -172,7 +184,7 @@ def batch_add():
             db.payment_batches.payment_categories_id.requires = None
             response.subtitle.append(T('Invoices batch'))
 
-        if what == 'category':
+        elif what == 'category':
             db.payment_batches.BatchTypeDescription.default = 'category'
             response.subtitle.append(T('Direct debit category batch'))
 
@@ -181,9 +193,17 @@ def batch_add():
     elif batchtype == 'payment':
         if what == 'teacher_payments':
             db.payment_batches.BatchTypeDescription.default = 'teacher_payments'
+            db.payment_batches.ColYear.requires = ''
+            db.payment_batches.ColMonth.requires = ''
             db.payment_batches.payment_categories_id.requires = None
             response.subtitle = SPAN(T('Teacher payments'))
-        if what == 'category':
+        elif what == 'employee_claims':
+            db.payment_batches.BatchTypeDescription.default = 'employee_claims'
+            db.payment_batches.ColYear.requires = ''
+            db.payment_batches.ColMonth.requires = ''
+            db.payment_batches.payment_categories_id.requires = None
+            response.subtitle = SPAN(T('Employee claims'))
+        elif what == 'category':
             response.subtitle = SPAN(T('Payment'))
             db.payment_batches.BatchTypeDescription.default = 'category'
 
@@ -200,6 +220,7 @@ def batch_add():
 
     crud.messages.submit_button = T("Save")
     crud.messages.record_created = T("Added batch")
+    crud.settings.formstyle = 'bootstrap3_stacked'
     crud.settings.create_onaccept = [ generate_batch_items ]
     crud.settings.create_next = '/finance/batch_content?pbID=[id]'
     form = crud.create(db.payment_batches)
@@ -214,39 +235,58 @@ def batch_add():
 
     submit = form.element('input[type=submit]')
 
-    locations_row = ''
+    locations = ''
     if session.show_location:
-        locations_row = TR(TD(LABEL(form.custom.label.school_locations_id)),
-                           TD(form.custom.widget.school_locations_id))
+        locations = DIV(LABEL(form.custom.label.school_locations_id,
+                         _class='control-label'),
+                         form.custom.widget.school_locations_id,
+                         _class='form-group')
 
-    tr_categories = ''
+    categories = ''
     if what == 'category':
-        tr_categories = TR(TD(LABEL(form.custom.label.payment_categories_id)),
-                           TD(form.custom.widget.payment_categories_id))
+        categories = DIV(LABEL(form.custom.label.payment_categories_id,
+                         _class='control-label'),
+                         form.custom.widget.payment_categories_id,
+                         _class='form-group')
 
-    if what == 'category' or what == 'teacher_payments':
-        tr_col_month  = TR(TD(LABEL(form.custom.label.ColMonth)),
-                           TD(form.custom.widget.ColMonth))
-        tr_col_year = TR(TD(LABEL(form.custom.label.ColYear),
-                         TD(form.custom.widget.ColYear)))
+    if what == 'category':
+        col_month = DIV(LABEL(form.custom.label.ColMonth,
+                         _class='control-label'),
+                   form.custom.widget.ColMonth,
+                   _class='form-group')
+        col_year = DIV(LABEL(form.custom.label.ColYear,
+                         _class='control-label'),
+                   form.custom.widget.ColYear,
+                   _class='form-group')
     else:
-        tr_col_month  = ''
-        tr_col_year = ''
+        col_month  = ''
+        col_year = ''
 
     form = DIV(XML('<form action="#" enctype="multipart/form-data" id="MainForm" method="post">'),
-               TABLE(TR(TD(LABEL(form.custom.label.Name)),
-                        TD(form.custom.widget.Name)),
-                     tr_categories,
-                     tr_col_month,
-                     tr_col_year,
-                     TR(TD(LABEL(form.custom.label.Exdate)),
-                        TD(form.custom.widget.Exdate)),
-                     locations_row,
-                     TR(TD(LABEL(form.custom.label.Note)),
-                        TD(form.custom.widget.Note)),
-                     TR(TD(LABEL(form.custom.label.IncludeZero)),
-                        TD(form.custom.widget.IncludeZero)),
-                      ),
+               DIV(LABEL(form.custom.label.Name,
+                         _class='control-label'),
+                         form.custom.widget.Name,
+                         _class='form-group'
+               ),
+               categories,
+               col_month,
+               col_year,
+               DIV(LABEL(form.custom.label.Exdate,
+                         _class='control-label'),
+                         form.custom.widget.Exdate,
+                         _class='form-group'
+               ),
+               locations,
+               DIV(LABEL(form.custom.label.Note,
+                         _class='control-label'),
+                         form.custom.widget.Note,
+                         _class='form-group'
+               ),
+               DIV(LABEL(form.custom.label.IncludeZero,
+                         _class='control-label'),
+                         form.custom.widget.IncludeZero,
+                         _class='form-group'
+               ),
                form.custom.end,
                _id='payment_batches_add')
 
@@ -384,12 +424,11 @@ def batch_content():
            TH(T('AccountNR')),
            TH(T('BIC')),
            TH(T('Mandate date')),
+           TH(T('Mandate ref')),
            TH(T('Currency')),
            TH(T('Amount')),
            TH(T('Description')),
            TH(T('Execution date')),
-           TH(T('Bank')),
-           TH(T('Bank location')),
            TH(T('Invoice')),
            _class='header'),
         _class='table table-hover table-condensed small_font')
@@ -397,17 +436,17 @@ def batch_content():
     bi = get_batch_items(pbID, display=True)
     for item in bi:
         # remove ID
-        invoice_id = item.pop()
+        invoice_id = item['invoice_id']
         if invoice_id:
             invoice_link = A(T("Invoice"),
                              _href=URL('invoices', 'edit',
                                        vars={'iID':invoice_id}))
         else:
             invoice_link = ''
-        pbiID = item.pop(0)
+        pbiID = item['id']
 
-        cuID = item[1]
-        csID = item[2]
+        cuID = item['cuID']
+        csID = item['csID']
         cs_link = A(csID,
                  _href=URL('customers',
                            'subscriptions', vars={'cuID':cuID}),
@@ -416,13 +455,24 @@ def batch_content():
                     _href=URL('customers', 'edit', args=cuID),
                     _title=T('Customers ID'))
 
-        item[1] = cu_link
-        item[2] = cs_link
-
         # fill the table
 
-        tr = TR(*item)
-        tr.append(TD(invoice_link))
+        # tr = TR(*item)
+        tr = TR(
+            TD(item['line']),
+            TD(cu_link),
+            TD(cs_link),
+            TD(item['account_holder']),
+            TD(item['account_number']),
+            TD(item['bic']),
+            TD(item['mandate_signature_date']),
+            TD(item['mandate_reference']),
+            TD(item['currency']),
+            TD(item['amount']),
+            TD(item['description']),
+            TD(item['execution_date']),
+            TD(item['invoice_InvoiceID']),
+        )
         table.append(tr)
 
     # batch items end
@@ -647,6 +697,8 @@ def batch_edit():
     db.payment_batches.payment_categories_id.readable=False
     db.payment_batches.Description.readable=False
     db.payment_batches.Description.writable=False
+    db.payment_batches.BatchTypeDescription.readable=False
+    db.payment_batches.BatchTypeDescription.writable=False
     db.payment_batches.Exdate.readable=False
     db.payment_batches.Exdate.writable=False
     db.payment_batches.ColYear.readable=False
@@ -660,6 +712,7 @@ def batch_edit():
 
     crud.messages.submit_button = T("Save")
     crud.messages.record_updated = T('Saved batch')
+    crud.settings.formstyle = 'bootstrap3_stacked'
     crud.settings.update_next = return_url
     crud.settings.update_deletable = False
     form = crud.update(db.payment_batches, pbID)
@@ -700,7 +753,8 @@ def generate_batch_items(form):
         generate_batch_items_invoices(pbID,
                                       pb,
                                       currency)
-    elif pb.BatchTypeDescription == 'teacher_payments':
+    elif ( pb.BatchTypeDescription == 'teacher_payments' or
+           pb.BatchTypeDescription == 'employee_claims' ):
         from openstudio.os_payment_batch import PaymentBatch
         pb = PaymentBatch(pbID)
         pb.generate_batch_items()
@@ -724,34 +778,58 @@ def generate_batch_items_invoices(pbID,
         Generate invoices batch and write to db.payment_batches_items
     """
     query = (db.invoices.Status == 'sent') & \
+            ((db.invoices.TeacherPayment == False) |
+             (db.invoices.TeacherPayment == None)) & \
+            ((db.invoices.EmployeeClaim == False) |
+             (db.invoices.EmployeeClaim == None)) & \
             (db.invoices.payment_methods_id == 3) # 3 = Direct Debit
 
     if not pb.school_locations_id is None and pb.school_locations_id != '':
         query &= (db.auth_user.school_locations_id==pb.school_locations_id)
 
-    left = [ db.invoices_amounts.on(db.invoices_amounts.invoices_id ==
-                db.invoices.id),
-             db.invoices_customers.on(db.invoices_customers.invoices_id ==
-                                      db.invoices.id),
-             db.invoices_customers_subscriptions.on(
-                 db.invoices_customers_subscriptions.invoices_id ==
-                 db.invoices.id),
-             db.auth_user.on(db.invoices_customers.auth_customer_id ==
-                             db.auth_user.id),
-             db.customers_payment_info.on(
-                     db.customers_payment_info.auth_customer_id ==
-                     db.invoices_customers.auth_customer_id),
-             db.school_locations.on(db.auth_user.school_locations_id ==
-                                    db.school_locations.id) ]
+    left = [
+        db.invoices_amounts.on(
+            db.invoices_amounts.invoices_id ==
+            db.invoices.id
+        ),
+        db.invoices_customers.on(
+            db.invoices_customers.invoices_id ==
+            db.invoices.id
+        ),
+        db.invoices_customers_subscriptions.on(
+            db.invoices_customers_subscriptions.invoices_id ==
+            db.invoices.id
+        ),
+        db.auth_user.on(
+            db.invoices_customers.auth_customer_id ==
+            db.auth_user.id
+        ),
+        db.customers_payment_info.on(
+            db.customers_payment_info.auth_customer_id ==
+            db.invoices_customers.auth_customer_id
+        ),
+        db.customers_payment_info_mandates.on(
+            db.customers_payment_info_mandates.customers_payment_info_id ==
+            db.customers_payment_info.id
+        ),
+        db.school_locations.on(
+            db.auth_user.school_locations_id ==
+            db.school_locations.id
+        )
+    ]
 
     rows = db(query).select(db.invoices.ALL,
                             db.invoices_amounts.ALL,
                             db.invoices_customers_subscriptions.ALL,
                             db.customers_payment_info.ALL,
+                            db.customers_payment_info_mandates.ALL,
                             db.school_locations.Name,
                             db.auth_user.id,
                             left=left,
                             orderby=db.auth_user.id)
+
+
+    print rows
 
     for row in rows:
         cuID = row.auth_user.id
@@ -785,26 +863,27 @@ def generate_batch_items_invoices(pbID,
         except AttributeError:
             bic = ''
 
-        msdate = row.customers_payment_info.MandateSignatureDate
+        msdate = row.customers_payment_info_mandates.MandateSignatureDate
 
         # set bank name
         if row.customers_payment_info.BankName == '':
             row.customers_payment_info.BankName = None
 
         db.payment_batches_items.insert(
-            payment_batches_id         = pbID,
-            auth_customer_id           = cuID,
+            payment_batches_id = pbID,
+            auth_customer_id = cuID,
             customers_subscriptions_id = csID,
-            invoices_id                = iID,
-            AccountHolder              = row.customers_payment_info.AccountHolder,
-            BIC                        = bic,
-            AccountNumber              = accountnr,
-            MandateSignatureDate       = msdate,
-            Amount                     = amount,
-            Currency                   = currency,
-            Description                = description,
-            BankName                   = row.customers_payment_info.BankName,
-            BankLocation               = row.customers_payment_info.BankLocation
+            invoices_id = iID,
+            AccountHolder = row.customers_payment_info.AccountHolder,
+            BIC = bic,
+            AccountNumber = accountnr,
+            MandateSignatureDate = msdate,
+            MandateReference = row.customers_payment_info_mandates.MandateReference,
+            Amount = amount,
+            Currency = currency,
+            Description = description,
+            BankName = row.customers_payment_info.BankName,
+            BankLocation = row.customers_payment_info.BankLocation
         )
 
 
@@ -824,13 +903,24 @@ def generate_batch_items_category(pbID,
     if not pb.school_locations_id is None and pb.school_locations_id != '':
         query &= (db.auth_user.school_locations_id==pb.school_locations_id)
 
-    left = [ db.auth_user.on(db.auth_user.id == \
-                             db.alternativepayments.auth_customer_id),
-             db.school_locations.on(db.school_locations.id == \
-                                    db.auth_user.school_locations_id),
-             db.customers_payment_info.on(
-                               db.customers_payment_info.auth_customer_id == \
-                               db.alternativepayments.auth_customer_id) ]
+    left = [
+        db.auth_user.on(
+            db.auth_user.id ==
+            db.alternativepayments.auth_customer_id
+        ),
+        db.school_locations.on(
+            db.school_locations.id ==
+            db.auth_user.school_locations_id
+        ),
+        db.customers_payment_info.on(
+            db.customers_payment_info.auth_customer_id ==
+            db.alternativepayments.auth_customer_id
+        ),
+        db.customers_payment_info_mandates.on(
+            db.customers_payment_info_mandates.customers_payment_info_id ==
+            db.customers_payment_info.id
+        )
+    ]
 
     rows = db(query).select(db.alternativepayments.Amount,
                             db.alternativepayments.Description,
@@ -840,6 +930,7 @@ def generate_batch_items_category(pbID,
                             db.auth_user.last_name,
                             db.school_locations.Name,
                             db.customers_payment_info.ALL,
+                            db.customers_payment_info_mandates.ALL,
                             left=left,
                             orderby=db.auth_user.id)
     for row in rows:
@@ -866,23 +957,24 @@ def generate_batch_items_category(pbID,
         except AttributeError:
             bic = ''
 
-        msdate = row.customers_payment_info.MandateSignatureDate
+        msdate = row.customers_payment_info_mandates.MandateSignatureDate
 
         if row.customers_payment_info.BankName == '':
             row.customers_payment_info.BankName = None
 
         db.payment_batches_items.insert(
-            payment_batches_id   = pbID,
-            auth_customer_id     = row.auth_user.id,
-            AccountHolder        = row.customers_payment_info.AccountHolder,
-            BIC                  = bic,
-            AccountNumber        = accountnr,
+            payment_batches_id = pbID,
+            auth_customer_id = row.auth_user.id,
+            AccountHolder = row.customers_payment_info.AccountHolder,
+            BIC = bic,
+            AccountNumber = accountnr,
             MandateSignatureDate = msdate,
-            Amount               = amount,
-            Currency             = currency,
-            Description          = description,
-            BankName             = row.customers_payment_info.BankName,
-            BankLocation         = row.customers_payment_info.BankLocation
+            MandateReference = row.customers_payment_info_mandates.MandateReference,
+            Amount = amount,
+            Currency = currency,
+            Description = description,
+            BankName = row.customers_payment_info.BankName,
+            BankLocation = row.customers_payment_info.BankLocation
         )
 
 
@@ -910,7 +1002,7 @@ def get_batch_items_recurring_set(pbID):
     return ids
 
 
-def  get_batch_items(pbID, display=False, first=False, recurring=False):
+def get_batch_items(pbID, display=False, first=False, recurring=False):
     """
         Returns a list of batch items for a payment batch ( pbID )
         Set display to true, when the result will be displayed on a web page
@@ -937,48 +1029,65 @@ def  get_batch_items(pbID, display=False, first=False, recurring=False):
         # list customers where status == sent to bank and pbID < this batch, & batchtype (col or pay) is same then only customer id's in set
         query &= (db.payment_batches_items.auth_customer_id.belongs(recurring_ids))
 
+    left = [
+        db.invoices.on(
+            db.payment_batches_items.invoices_id ==
+            db.invoices.id
+        )
+    ]
 
     bi = []
-    rows = db(query).select(db.payment_batches_items.ALL)
+    rows = db(query).select(
+        db.payment_batches_items.ALL,
+        db.invoices.id,
+        db.invoices.InvoiceID,
+        left=left,
+        orderby=db.payment_batches_items.id
+    )
 
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i+1].render())[0]
-        if row.MandateSignatureDate:
-            msdate = row.MandateSignatureDate.strftime(DATE_FORMAT)
+
+        if row.payment_batches_items.MandateSignatureDate:
+            msdate = row.payment_batches_items.MandateSignatureDate.strftime(DATE_FORMAT)
         else:
             msdate = ''
 
-        cuID = row.auth_customer_id
-        csID = row.customers_subscriptions_id
+        cuID = row.payment_batches_items.auth_customer_id
+        csID = row.payment_batches_items.customers_subscriptions_id
         if not csID:
             csID = ''
 
         if display:
-            description = SPAN(max_string_length(row.Description, 24),
-                               _title=row.Description)
+            mandate_reference = repr_row.payment_batches_items.MandateReference
+            description = SPAN(max_string_length(row.payment_batches_items.Description, 24),
+                               _title=row.payment_batches_items.Description)
         else:
-            description = row.Description
+            mandate_reference = row.payment_batches_items.MandateReference
+            description = row.payment_batches_items.Description
 
-        item = [
-            row.id,
-            i+1,
-            cuID,
-            csID,
-            row.AccountHolder,
-            row.AccountNumber.upper(),
-            row.BIC,
-            msdate,
-            row.Currency,
-            row.Amount,
-            description,
-            pb.Exdate.strftime(DATE_FORMAT),
-            repr_row.BankName,
-            repr_row.BankLocation,
-            row.invoices_id
-        ]
+        item = {
+            'id': row.payment_batches_items.id,
+            'line': i+1,
+            'cuID': cuID,
+            'csID': csID,
+            'account_holder': row.payment_batches_items.AccountHolder,
+            'account_number': row.payment_batches_items.AccountNumber.upper(),
+            'bic': row.payment_batches_items.BIC,
+            'mandate_signature_date': msdate,
+            'mandate_reference': mandate_reference,
+            'currency': row.payment_batches_items.Currency,
+            'amount': row.payment_batches_items.Amount,
+            'description': description,
+            'execution_date': pb.Exdate.strftime(DATE_FORMAT),
+            'bank_name': repr_row.payment_batches_items.BankName,
+            'bank_location': repr_row.payment_batches_items.BankLocation,
+            'invoice_id': row.payment_batches_items.invoices_id,
+            'invoice_InvoiceID': repr_row.invoices.InvoiceID
+        }
 
         if not display:
-            item.append(location)
+            item['location'] = location
 
         bi.append(item)
 
@@ -1020,23 +1129,25 @@ def export_csv():
                      'Account number',
                      'BIC',
                      'Mandate Signature Date',
+                     'Mandate Reference',
                      'Description',
                      'Execution Date',
                      'Location'])
 
     batch_items = get_batch_items(pbID, first=first, recurring=recurring)
     for item in batch_items:
-        customers_id              = item[2]
-        customer_subscriptions_id = item[3]
-        account_holder            = item[4]
-        bank_location             = item[13]
-        currency                  = item[8]
-        amount                    = item[9]
-        account_number            = item[5]
-        bic                       = item[6]
-        mandate_signature_date    = item[7]
-        description               = item[10]
-        execution_date            = item[11]
+        customers_id = item['cuID']
+        customer_subscriptions_id = item['csID']
+        account_holder = item['account_holder']
+        bank_location = item['bank_location']
+        currency = item['currency']
+        amount = item['amount']
+        account_number = item['account_number']
+        bic = item['bic']
+        mandate_signature_date = item['mandate_signature_date']
+        mandate_reference = item['mandate_reference']
+        description = item['description']
+        execution_date = item['execution_date']
 
         row = [ customers_id,
                 customer_subscriptions_id,
@@ -1047,11 +1158,11 @@ def export_csv():
                 account_number,
                 bic,
                 mandate_signature_date,
+                mandate_reference,
                 description,
                 execution_date ]
         if session.show_location:
-            location               = item[12]
-            row.append(location)
+            row.append(item.get('location', ''))
 
         writer.writerow(row)
 
@@ -1097,16 +1208,16 @@ def invoices():
 
     # tools dropdown
     today = datetime.date.today()
-    tool_links = [ A(SPAN(os_gui.get_fa_icon('fa-edit'), ' ',
-                          T("Create subscription invoices")),
-                     _href=URL('invoices', 'subscriptions_create_invoices',
-                                vars={'year':today.year,
-                                      'month':today.month})) ]
-    tools = os_gui.get_dropdown_menu(tool_links,
-                                     T(''),
-                                     btn_size='',
-                                     btn_icon='wrench',
-                                     menu_class='pull-right')
+    # tool_links = [ A(SPAN(os_gui.get_fa_icon('fa-edit'), ' ',
+    #                       T("Create subscription invoices")),
+    #                  _href=URL('invoices', 'subscriptions_create_invoices',
+    #                             vars={'year':today.year,
+    #                                   'month':today.month})) ]
+    # tools = os_gui.get_dropdown_menu(tool_links,
+    #                                  T(''),
+    #                                  btn_size='',
+    #                                  btn_icon='wrench',
+    #                                  menu_class='pull-right')
 
     export_links = [ A(SPAN(os_gui.get_fa_icon('fa-file-o'), ' ',
                             T('Invoices')),
@@ -1118,31 +1229,32 @@ def invoices():
                                       menu_class='pull-right')
 
     return dict(content=content,
-                header_tools=DIV(export, tools))
+                header_tools=DIV(export))
 
 
 def teacher_payments_get_menu(page, status='not_verified'):
-    pages = [
+    pages = []
+
+    if ( auth.has_membership(group_id='Admins') or
+         auth.has_permission('read', 'teachers_payment_classes_attendance') ):
+        pages.append([ 'teacher_payment_classes_not_verified',
+                       T('Not verified'),
+                       URL('teacher_payment_classes', vars={'status': 'not_verified'}) ])
+        pages.append([ 'teacher_payment_classes_verified',
+                       T('Verified'),
+                       URL('teacher_payment_classes', vars={'status': 'verified'}) ])
+        pages.append([ 'teacher_payment_classes_processed',
+                       T('Processed'),
+                       URL('teacher_payment_classes', vars={'status': 'processed'}) ])
+
+
+    pages.append(
         [
             'teacher_payments_invoices',
             T('Credit invoices'),
             URL('teacher_payments_invoices')
         ]
-    ]
-
-    print status
-
-    if ( auth.has_membership(group_id='Admins') or
-         auth.has_permission('read', 'teachers_payment_classes_attendance') ):
-        pages.append([ 'teacher_payment_classes_processed',
-                       T('Processed'),
-                       URL('teacher_payment_classes', vars={'status': 'processed'}) ])
-        pages.append([ 'teacher_payment_classes_verified',
-                       T('Verified'),
-                       URL('teacher_payment_classes', vars={'status': 'verified'}) ])
-        pages.append([ 'teacher_payment_classes_not_verified',
-                       T('Not verified'),
-                       URL('teacher_payment_classes', vars={'status': 'not_verified'}) ])
+    )
 
 
     return os_gui.get_submenu(pages, page, horizontal=True, htype='tabs')
@@ -1282,7 +1394,7 @@ def teacher_payment_classes():
 
         table = tpc.get_not_verified(
             formatted=True,
-
+            page=page,
         )
 
     elif status == 'verified':
@@ -1310,7 +1422,8 @@ def teacher_payment_classes():
                 menu_class='btn-group pull-right')
 
         table = tpc.get_verified(
-            formatted=True
+            formatted=True,
+            page=page
         )
 
     elif status == 'processed':
@@ -1480,7 +1593,8 @@ def teachers_payment_classes_process_verified():
     from openstudio.os_teachers_payment_classes import TeachersPaymentClasses
 
     tpc = TeachersPaymentClasses()
-    count_processed = tpc.process_verified()
+    result = tpc.process_verified()
+    count_processed = result['message']
 
     classes = T('classes')
     if count_processed == 1:
@@ -1513,7 +1627,7 @@ def teacher_payment_classes_process_choose_dates():
         B(T("Choose a period within which to process verified classes.")), BR(), BR(),
     )
 
-    return_url = URL('teacher_payment_classes', vars={'status': 'not_verified'})
+    return_url = URL('teacher_payment_classes', vars={'status': 'verified'})
 
     # choose period and then do something
     form = SQLFORM.factory(
@@ -1536,7 +1650,7 @@ def teacher_payment_classes_process_choose_dates():
             label=T("End date"),
             widget=os_datepicker_widget),
         formstyle='bootstrap3_stacked',
-        submit_button=T("Find")
+        submit_button=T("Process")
     )
 
     result = set_form_id_and_get_submit_button(form, 'MainForm')
@@ -1549,8 +1663,8 @@ def teacher_payment_classes_process_choose_dates():
 
         tpc = TeachersPaymentClasses()
         result = tpc.process_verified(
-            start,
-            end
+            date_from = start,
+            date_until = end
         )
 
         if result['error']:
@@ -1566,4 +1680,377 @@ def teacher_payment_classes_process_choose_dates():
     return dict(content=content,
                 back=back,
                 save=submit)
+
+
+def employee_claims_get_menu(page):
+    pages = []
+
+    # print status
+
+    if ( auth.has_membership(group_id='Admins') or
+         auth.has_permission('read', 'employee_claims') ):
+        pages.append([
+            'employee_claims',
+            T('Pending'),
+            URL('employee_claims')
+        ])
+        pages.append([
+            'employee_claims_rejected',
+            T('Rejected'),
+            URL('employee_claims_rejected')
+        ])
+        pages.append([
+            'employee_claims_accepted',
+            T('Accepted'),
+            URL('employee_claims_accepted')
+        ])
+        pages.append([
+            'employee_claims_processed',
+            T('Processed'),
+            URL('employee_claims_processed')
+        ])
+
+    pages.append([
+        'employee_claims_invoices',
+        T('Credit invoices'),
+        URL('employee_claims_invoices')
+    ])
+
+
+    return os_gui.get_submenu(pages,page, horizontal=True, htype='tabs')
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'invoices'))
+def employee_claims_invoices():
+    """
+        List teacher payments invoices by month and add button to add invoices for a
+        selected month
+    """
+    response.title = T('Employee Claims')
+    response.subtitle = T('')
+    response.view = 'general/only_content_no_box.html'
+
+    invoices = Invoices()
+    status_filter = invoices.list_get_status_filter()
+    list = invoices.list_invoices(only_employee_claim_credit_invoices=True)
+
+    content = DIV(
+        employee_claims_get_menu(request.function),
+         DIV(DIV(status_filter,
+                 list,
+                  _class='tab-pane active'),
+             _class='tab-content'),
+         _class='nav-tabs-custom')
+
+    return dict(content=content)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'employee_claims'))
+def employee_claims():
+    """
+    List all pending claims
+    """
+    from openstudio.os_employee_claims import EmployeeClaims
+
+    response.title = T('Employee Claims')
+    response.subtitle = T('')
+    response.view = 'general/only_content_no_box.html'
+
+    status = request.vars['status']
+
+    try:
+        page = int(request.args[0])
+    except IndexError:
+        page = 0
+
+    ec = EmployeeClaims()
+
+    tools = ''
+    # if status == 'not_verified':
+    update_permission = auth.has_membership(group_id='Admins') or \
+                        auth.has_permission('update', 'employee_claims')
+
+    verify_all = ''
+
+    if update_permission:
+        verify_all = os_gui.get_button(
+            'noicon',
+            URL('employee_claims_accept_all'),
+            title=T("Accept all"),
+            tooltip="Accept all listed claims",
+            btn_class='btn-primary'
+        )
+
+    tools = DIV(
+        verify_all,
+    )
+
+    table = ec.get_pending(
+        formatted = True,
+        page = page
+    )
+
+    content = DIV(
+        employee_claims_get_menu(request.function),
+        DIV(DIV(table,
+                 _class='tab-pane active'),
+            _class='tab-content'),
+        _class='nav-tabs-custom'
+    )
+
+    return dict(
+        content=content,
+        header_tools=tools
+    )
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'employee_claims'))
+def employee_claims_accepted():
+    """
+
+    :return:
+    """
+    from openstudio.os_employee_claims import EmployeeClaims
+
+    response.title = T('Employee Claims')
+    response.subtitle = T('')
+    response.view = 'general/only_content_no_box.html'
+
+    status = request.vars['status']
+
+    try:
+        page = int(request.args[0])
+    except IndexError:
+        page = 0
+
+    tools = ''
+    # if status == 'not_verified':
+    create_permission = auth.has_membership(group_id='Admins') or \
+                        auth.has_permission('create', 'invoices')
+
+    verify_all = ''
+
+    if create_permission:
+        verify_all = os_gui.get_button(
+            'noicon',
+            URL('employee_claims_process_accepted'),
+            title=T("Process all"),
+            tooltip="Process all accepted Claims into invoices",
+            btn_class='btn-primary'
+        )
+    tools = verify_all
+    ec = EmployeeClaims()
+
+    table = ec.get_accepted(
+        formatted = True,
+        page = page
+    )
+
+    content = DIV(
+        employee_claims_get_menu(request.function),
+        DIV(DIV(table,
+                 _class='tab-pane active'),
+            _class='tab-content'),
+        _class='nav-tabs-custom'
+    )
+
+    return dict(
+        content=content,
+        header_tools= tools
+    )
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'employee_claims'))
+def employee_claims_rejected():
+    """
+
+    :return:
+    """
+    from openstudio.os_employee_claims import EmployeeClaims
+
+    response.title = T('Employee Claims')
+    response.subtitle = T('')
+    response.view = 'general/only_content_no_box.html'
+
+    status = request.vars['status']
+
+    try:
+        page = int(request.args[0])
+    except IndexError:
+        page = 0
+
+    ec = EmployeeClaims()
+
+    table = ec.get_rejected(
+        formatted = True,
+        page = page
+    )
+
+    content = DIV(
+        employee_claims_get_menu(request.function),
+        DIV(DIV(table,
+                 _class='tab-pane active'),
+            _class='tab-content'),
+        _class='nav-tabs-custom'
+    )
+
+    return dict(
+        content=content
+    )
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'employee_claims'))
+def employee_claims_processed():
+    """
+
+    :return:
+    """
+    from openstudio.os_employee_claims import EmployeeClaims
+
+    response.title = T('Employee Claims')
+    response.subtitle = T('')
+    response.view = 'general/only_content_no_box.html'
+
+    status = request.vars['status']
+
+    try:
+        page = int(request.args[0])
+    except IndexError:
+        page = 0
+
+    ec = EmployeeClaims()
+
+    table = ec.get_processed(
+        formatted = True,
+        page = page
+    )
+
+    content = DIV(
+        employee_claims_get_menu(request.function),
+        DIV(DIV(table,
+                 _class='tab-pane active'),
+            _class='tab-content'),
+        _class='nav-tabs-custom'
+    )
+
+    return dict(
+        content=content
+    )
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'employee_claims'))
+def employee_claims_accept_all():
+    """
+    Verify all not-verified classes
+    :return: None
+    """
+    from openstudio.os_employee_claims import EmployeeClaims
+
+    ec = EmployeeClaims()
+    number_accepted = ec.accept_all()
+
+    if number_accepted:
+        session.flash = T("All not accepted claims have been accepted")
+    else:
+        session.flash = T("No classes were accepted")
+
+    redirect(URL('employee_claims'))
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'employee_claims'))
+def employee_claims_accept():
+    """
+    Verify attendance / payment
+    :return: None
+    """
+    from openstudio.os_employee_claim import EmployeeClaim
+
+    ecID = request.vars['ecID']
+
+    ec = EmployeeClaim(ecID)
+    success = ec.accept()
+
+    if success:
+        session.flash = T("Claim accepted")
+    else:
+        session.flash = T("Error accepting claim")
+
+    redirect(URL('employee_claims'))
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'employee_claims'))
+def employee_claims_reject():
+    """
+    Verify attendance / payment
+    :return: None
+    """
+    from openstudio.os_employee_claim import EmployeeClaim
+
+    ecID = request.vars['ecID']
+
+    ec = EmployeeClaim(ecID)
+    success = ec.reject()
+
+    if success:
+        session.flash = T("Claim moved to rejected")
+    else:
+        session.flash = T("Error rejecting Claim")
+
+    redirect(URL('employee_claims'))\
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'employee_claims'))
+def employee_claims_pending():
+    """
+    Verify attendance / payment
+    :return: None
+    """
+    from openstudio.os_employee_claim import EmployeeClaim
+
+    ecID = request.vars['ecID']
+
+    ec = EmployeeClaim(ecID)
+    success = ec.pending()
+
+    if success:
+        session.flash = T("Claim moved to pending")
+    else:
+        session.flash = T("Error rejecting Claim")
+
+    redirect(URL('employee_claims'))
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('create', 'invoices'))
+def employee_claims_process_accepted():
+    """
+    Process verified classes; create credit invoices based on verified classes
+    :return:
+    """
+    from openstudio.os_employee_claims import EmployeeClaims
+
+    EC = EmployeeClaims()
+    count_processed = EC.process_accepted()
+
+    claims = T('claims')
+    if count_processed == 1:
+        claims = T("claim")
+
+    session.flash = SPAN(
+        T("Processed"), ' ',
+        count_processed, ' ',
+        claims
+    )
+
+    redirect(URL('employee_claims_processed'))
+
 

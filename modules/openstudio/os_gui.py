@@ -35,9 +35,15 @@ class OsGui:
         elif button_type == 'add_class':
             title = current.T("Add class")
             icon = "fa fa-plus"
+        elif button_type == 'accept':
+            title = title
+            icon = 'fa fa-check'
         elif button_type == 'archive':
             title = current.T('')
             icon = 'fa fa-archive'
+        elif button_type == 'astronaut':
+            title = title
+            icon = 'fa fa-grav'
         elif button_type == 'barcode':
             icon = 'fa fa-barcode'
         elif button_type == 'edit':
@@ -55,6 +61,9 @@ class OsGui:
         elif button_type == 'delete_notext':
             title = current.T("")
             icon = "fa fa-times"
+        elif button_type == 'cancel':
+            title = title
+            icon = 'fa fa-ban'
         elif button_type == 'cancel_notext':
             title = current.T('')
             icon = 'fa fa-ban'
@@ -67,6 +76,9 @@ class OsGui:
         elif button_type == 'list_notext':
             title = current.T('')
             icon = 'fa fa-list'
+        elif button_type == 'pending':
+            title = title
+            icon = 'fa fa-hourglass2'
         elif button_type == 'user_notext':
             title = current.T('')
             icon = 'fa fa-user'
@@ -120,6 +132,7 @@ class OsGui:
         elif button_type == 'noicon':
             title = title
             icon = ''
+
         else:
             title = current.T("Invalid button type, please check...")
             icon = ''
@@ -188,11 +201,12 @@ class OsGui:
         return XML(button)
 
 
-    def _get_modal_button(self, button_text,
-                                button_class,
-                                button_id,
-                                modal_class,
-                                button_title = ''):
+    def _get_modal_button(self,
+                          button_text,
+                          button_class,
+                          button_id,
+                          modal_class,
+                          button_title = ''):
         """
             Returns a button that can be used to access the modal
         """
@@ -209,6 +223,7 @@ class OsGui:
         button_xml += '</button>'
         return XML(button_xml)
 
+
     def _get_modal_button_close(self, close_id):
         """
             Returns a close button for the modal
@@ -219,6 +234,7 @@ class OsGui:
         button_xml += 'data-dismiss="modal" aria-label="Close">'
         button_xml += '<span aria-hidden="true">×</span></button>'
         return XML(button_xml)
+
 
     def get_modal(self,
                   button_text='',
@@ -673,6 +689,7 @@ class OsGui:
                     pages,
                     page,
                     horizontal=False,
+                    justified='',
                     htype='', # tabs or pills
                     _id='',
                     _class=''):
@@ -687,7 +704,10 @@ class OsGui:
         if horizontal:
             submenu_class = "os-submenu-horizontal"
             if htype == 'tabs':
-                menu = UL(_class='nav nav-tabs')
+                justified_class = ''
+                if justified:
+                    justified_class = 'nav-justified'
+                menu = UL(_class='nav nav-tabs ' + justified_class)
             else:
                 menu = UL(_class='nav nav-pills')
             for p in pages:

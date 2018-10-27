@@ -16,7 +16,35 @@ class Customer:
         db = current.db
 
         self.cuID = cuID
-        self.row = db.auth_user(cuID)
+        self.refresh_row()
+
+
+    def refresh_row(self):
+        db = current.db
+
+        self.row = db.auth_user(self.cuID)
+
+
+    def on_create(self):
+        """
+        Functions to be called when creating a customer
+        """
+        from os_exact_online import OSExactOnline
+
+        os_eo = OSExactOnline()
+        os_eo.create_relation(self)
+
+
+    def on_update(self):
+        """
+        Functions to be called when updating a customer
+        """
+        from os_exact_online import OSExactOnline
+
+        print 'running on_update in os_customer'
+
+        os_eo = OSExactOnline()
+        os_eo.update_relation(self)
 
 
     def get_name(self):
@@ -507,7 +535,7 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         rows = db(query).select(db.invoices.ALL,
                                 db.invoices_amounts.ALL,
                                 left=left,
-                                orderby=~db.invoices.DateCreated)
+                                orderby=~db.invoices.DateCreated|~db.invoices.InvoiceID)
 
         return rows
 
@@ -820,17 +848,111 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         return message
 
 
+    def _get_payment_info_mandates_format(self, rows):
+        """
+        :param rows: gluon.dal.rows object of db.customers_payment_info_mandates
+        :return:
+        """
+        from os_gui import OsGui
+
+        T = current.T
+        auth = current.auth
+        os_gui = OsGui()
+        request = current.request
+
+        delete_permission = (
+            auth.has_membership(group_id='Admins') or
+            auth.has_permission('delete', 'customers_payments_info_mandates')
+        )
+
+        onclick = "return confirm('" + \
+                     T('Do you really want to remove this mandate?') + "');"
+
+        mandates = DIV()
+        for row in rows.render():
+            btn_delete = ''
+            if delete_permission and request.controller == 'customers':
+                btn_delete = DIV(
+                    A(os_gui.get_fa_icon('fa-times'),
+                      _href=URL('customers', 'bankaccount_mandate_delete',
+                                vars={'cuID':self.cuID,
+                                      'cpimID': row.id}),
+                      _onclick=onclick,
+                      _class='text-red'),
+                    _class='box-tools'
+                )
+
+            mandates.append(DIV(
+                DIV(H3(T("Direct debit mandate"),
+                       _class="box-title"),
+                    btn_delete,
+                    _class="box-header"
+                ),
+                DIV(LABEL(T("Reference")),
+                    DIV(row.MandateReference),
+                    LABEL(T("Signed on")),
+                    DIV(row.MandateSignatureDate),
+                    LABEL(T("Mandate content")) if row.MandateText else '',
+                    DIV(XML(row.MandateText) ),
+                    _class="box-body"
+                ),
+                _class="box box-solid"
+            ))
+
+        return mandates
+
+
+    def get_payment_info_mandates(self, formatted=False):
+        """
+        :param formatted: Boolean
+        :return: gluon.dal.rows object if not formatted, else
+        html
+        """
+        db = current.db
+
+        payment_info = db.customers_payment_info(auth_customer_id = self.cuID)
+
+        if not payment_info:
+            if formatted:
+                return ''
+            else:
+                return None
+
+        query = (db.customers_payment_info_mandates.customers_payment_info_id == payment_info.id)
+        rows = db(query).select(
+            db.customers_payment_info_mandates.ALL,
+            orderby=db.customers_payment_info_mandates.MandateSignatureDate
+        )
+
+        if formatted:
+            return self._get_payment_info_mandates_format(rows)
+        else:
+            return rows
+
+
+    def has_payment_info_mandate(self):
+        """
+
+        :return:
+        """
+        if self.get_payment_info_mandates():
+            return True
+        else:
+            return False
+
+
     def get_mollie_mandates(self):
         """
             Returns mollie mandates
         """
         get_sys_property = current.globalenv['get_sys_property']
 
-        import Mollie
+        from mollie.api.client import Client
+        from mollie.api.error import Error as MollieError
         # init mollie
-        mollie = Mollie.API.Client()
+        mollie = Client()
         mollie_api_key = get_sys_property('mollie_website_profile')
-        mollie.setApiKey(mollie_api_key)
+        mollie.set_api_key(mollie_api_key)
 
         # check if we have a mollie customer id
         if self.row.mollie_customer_id:
@@ -838,6 +960,19 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
             #print mollie_customer_id
         else:
             # create one
+            mollie_customer_id = self.register_mollie_customer(mollie)
+
+
+        mandates = mollie.customer_mandates.with_parent_id(mollie_customer_id).list()
+
+        return mandates
+
+
+    def register_mollie_customer(self, mollie):
+        """
+            Registers this customer with mollie
+        """
+        if not self.row.mollie_customer_id:
             mollie_customer = mollie.customers.create({
                 'name': self.row.display_name,
                 'email': self.row.email
@@ -846,7 +981,7 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
             self.row.mollie_customer_id = mollie_customer_id
             self.row.update_record()
 
-        return mollie.customer_mandates.withParentId(mollie_customer_id).all()
+        return self.row.mollie_customer_id
 
 
     def get_mollie_mandates_formatted(self):

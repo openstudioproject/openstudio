@@ -150,7 +150,7 @@ class School:
                                                     ssuID,
                                                     membership_required,
                                                     customer_has_membership,
-                                                    customer_subscription_ids):
+                                                    customer_subscriptions_ids):
         """
             Get button to add card to shopping cart
         """
@@ -161,7 +161,7 @@ class School:
             return A(SPAN(T("Membership required")),
                      _href=URL('shop', 'memberships'))
 
-        if ssuID in customer_subscription_ids:
+        if ssuID in customer_subscriptions_ids:
             return SPAN(
                 SPAN(T("You have this subscription"), _class='bold'), ' ', XML('&bull;'), ' ',
                 SPAN(A(T("View invoices"),
@@ -199,20 +199,28 @@ class School:
             :param public: boolean, defines whether to show only public or all subscriptions
             :return: list of school_subscriptions formatted for shop
         """
+        from general_helpers import get_last_day_month
         from openstudio.os_school_subscription import SchoolSubscription
         from openstudio.os_customer import Customer
 
 
+        T = current.T
         TODAY_LOCAL = current.TODAY_LOCAL
         os_gui = current.globalenv['os_gui']
-        T = current.T
+        get_sys_property = current.globalenv['get_sys_property']
 
         customer_has_membership = False
         customer_subscriptions_ids = []
         if auth_customer_id:
+            startdate = TODAY_LOCAL
+            shop_subscriptions_start = get_sys_property('shop_subscriptions_start')
+            if not shop_subscriptions_start == None:
+                if shop_subscriptions_start == 'next_month':
+                    startdate = get_last_day_month(TODAY_LOCAL) + datetime.timedelta(days=1)
+
             customer = Customer(auth_customer_id)
-            customer_has_membership = customer.has_membership_on_date(TODAY_LOCAL)
-            customer_subscriptions_ids = customer.get_school_subscriptions_ids_on_date(TODAY_LOCAL)
+            customer_has_membership = customer.has_membership_on_date(startdate)
+            customer_subscriptions_ids = customer.get_school_subscriptions_ids_on_date(startdate)
 
         if per_row == 3:
             card_class = 'col-md-4'

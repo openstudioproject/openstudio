@@ -1,11 +1,13 @@
 # # -*- coding: utf-8 -*-
 
 import datetime
-import Mollie
+from mollie.api.client import Client
+from mollie.api.error import Error as MollieError
 
 from openstudio.os_customer_subscription import CustomerSubscription
 from openstudio.os_invoice import Invoice
 from openstudio.os_mail import OsMail
+from openstudio.os_scheduler_tasks import OsSchedulerTasks
 
 
 def task_openstudio_daily():
@@ -44,9 +46,9 @@ def _task_mollie_subscription_invoices_and_payments():
     # hostname
     sys_hostname = get_sys_property('sys_hostname')
     # set up Mollie
-    mollie = Mollie.API.Client()
+    mollie = Client()
     mollie_api_key = get_sys_property('mollie_website_profile')
-    mollie.setApiKey(mollie_api_key)
+    mollie.set_api_key(mollie_api_key)
     # set dates
     today = datetime.date.today()
     firstdaythismonth = datetime.date(today.year, today.month, 1)
@@ -104,9 +106,12 @@ def _task_mollie_subscription_invoices_and_payments():
                 try:
                     webhook_url = URL('mollie', 'webhook', scheme='https', host=sys_hostname)
                     payment = mollie.payments.create({
-                        'amount': invoice_amounts.TotalPriceVAT,
+                        'amount': {
+                            'currency': CURRENCY,
+                            'value': format(invoice_amounts.TotalPriceVAT, '.2f')
+                        },
                         'customerId': mollie_customer_id,
-                        'recurringType': 'recurring',  # important
+                        'sequenceType': 'recurring',  # important
                         'description': description,
                         'webhookUrl': webhook_url,
                         'metadata': {
@@ -123,7 +128,7 @@ def _task_mollie_subscription_invoices_and_payments():
                         WebhookURL=webhook_url
                     )
 
-                except Mollie.API.Error as e:
+                except MollieError as e:
                     print e
                     # send mail to ask customer to pay manually
                     send_mail_failed(cs.auth_customer_id)
@@ -141,6 +146,11 @@ def scheduler_task_test():
     return 'success!'
 
 
+os_scheduler_tasks = OsSchedulerTasks()
 
-scheduler_tasks = {'daily': task_openstudio_daily,
-                   'openstudio_test_task': task_openstudio_test}
+
+scheduler_tasks = {
+    'daily': task_openstudio_daily,
+    'customers_subscriptions_create_invoices_for_month': os_scheduler_tasks.customers_subscriptions_create_invoices_for_month,
+    'openstudio_test_task': task_openstudio_test
+}

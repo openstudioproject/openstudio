@@ -35,7 +35,7 @@ class OsMailChimp():
         """
         T = current.T
 
-        from openstudio.openstudio import Customer
+        from os_customer import Customer
         customer = Customer(cuID)
         subscriber_hash = customer.get_email_hash('md5')
 
@@ -66,7 +66,7 @@ class OsMailChimp():
         """
             Delete a member from a list
         """
-        from openstudio.openstudio import Customer
+        from os_customer import Customer
         customer = Customer(cuID)
 
         mailchimp = self.get_client()

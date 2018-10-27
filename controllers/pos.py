@@ -118,6 +118,7 @@ def get_settings():
     settings = {
         'currency_symbol': CURRSYM,
         'currency': get_sys_property('Currency'),
+        'customers_barcodes': get_sys_property('pos_customers_barcodes')
     }
 
     return dict(data = settings)
@@ -262,6 +263,328 @@ def get_class_booking_options():
     return dict(options = options)
 
 
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'school_classcards'))
+def get_school_classcards():
+    """
+    List of school not archived classcards
+    Sorted by name
+    :return:
+    """
+    def get_validity(row):
+        """
+            takes a db.school_classcards() row as argument
+        """
+        validity = unicode(row.Validity) + ' '
 
+        validity_in = represent_validity_units(row.ValidityUnit, row)
+        if row.Validity == 1:  # Cut the last 's"
+            validity_in = validity_in[:-1]
+
+        return validity + validity_in
+
+    set_headers()
+
+    #TODO order by Trial card and then name
+    query = (db.school_classcards.Archived == False)
+    rows = db(query).select(db.school_classcards.Name,
+                            db.school_classcards.Description,
+                            db.school_classcards.Price,
+                            db.school_classcards.Validity,
+                            db.school_classcards.ValidityUnit,
+                            db.school_classcards.Classes,
+                            db.school_classcards.Unlimited,
+                            db.school_classcards.Trialcard,
+                            orderby=db.school_classcards.Name)
+
+    data_rows = []
+    for row in rows:
+        item = {
+            'Name': row.Name,
+            'Description': row.Description,
+            'Price': row.Price,
+            'Validity': row.Validity,
+            'ValidityUnit': row.ValidityUnit,
+            'ValidityDisplay': get_validity(row),
+            'Classes': row.Classes,
+            'Unlimited': row.Unlimited,
+            'Trialcard': row.Trialcard
+        }
+
+        data_rows.append(item)
+
+    return dict(data=data_rows)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'school_subscriptions'))
+def get_school_subscriptions():
+    """
+    List of not archived school classcards
+    Sorted by Name
+    """
+    set_headers()
+
+    query = """
+        SELECT sc.Name,
+               sc.SortOrder,
+               sc.Description,
+               sc.Classes,
+               sc.SubscriptionUnit,
+               sc.Unlimited,
+               scp.Price
+        FROM school_subscriptions sc
+        LEFT JOIN
+        ( SELECT school_subscriptions_id, 
+                 Price
+          FROM school_subscriptions_price
+          WHERE Startdate <= '{today}' AND
+                (Enddate >= '{today}' OR Enddate IS NULL) 
+        ) scp ON sc.id = scp.school_subscriptions_id
+        WHERE sc.Archived = 'F'
+        ORDER BY sc.Name
+    """.format(today=TODAY_LOCAL)
+
+    fields = [ db.school_subscriptions.Name,
+               db.school_subscriptions.SortOrder,
+               db.school_subscriptions.Description,
+               db.school_subscriptions.Classes,
+               db.school_subscriptions.SubscriptionUnit,
+               db.school_subscriptions.Unlimited,
+               db.school_subscriptions_price.Price ]
+
+    rows = db.executesql(query, fields=fields)
+
+    data = []
+    for row in rows:
+        data.append({
+            'Name': row.school_subscriptions.Name,
+            'SortOrder': row.school_subscriptions.SortOrder,
+            'Description': row.school_subscriptions.Description or '',
+            'Classes': row.school_subscriptions.Classes,
+            'SubscriptionUnit': row.school_subscriptions.SubscriptionUnit,
+            'Unlimited': row.school_subscriptions.Unlimited,
+            'Price': row.school_subscriptions_price.Price
+        })
+
+    return dict(data=data)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'school_memberships'))
+def get_school_memberships():
+    """
+    List of not archived school classcards
+    Sorted by Name
+    """
+    set_headers()
+
+    query = """
+        SELECT sm.Name,
+               sm.Description,
+               sm.Validity,
+               sm.ValidityUnit,
+               smp.Price
+        FROM school_memberships sm
+        LEFT JOIN
+        ( SELECT school_memberships_id, 
+                 Price
+          FROM school_memberships_price
+          WHERE Startdate <= '{today}' AND
+                (Enddate >= '{today}' OR Enddate IS NULL) 
+        ) smp ON sm.id = smp.school_memberships_id
+        WHERE sm.Archived = 'F'
+        ORDER BY sm.Name
+    """.format(today=TODAY_LOCAL)
+
+    fields = [ db.school_memberships.Name,
+               db.school_memberships.Description,
+               db.school_memberships.Validity,
+               db.school_memberships.ValidityUnit,
+               db.school_memberships_price.Price ]
+
+    rows = db.executesql(query, fields=fields)
+
+    data = []
+    for row in rows:
+        data.append({
+            'Name': row.school_memberships.Name,
+            'Description': row.school_memberships.Description or '',
+            'Validity': row.school_memberships.Validity,
+            'ValidityUnit': row.school_memberships.ValidityUnit,
+            'Price': row.school_memberships_price.Price
+        })
+
+    return dict(data=data)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'auth_user'))
+def get_customers():
+    """
+    List not trashed customers
+    """
+    set_headers()
+
+    query = (db.auth_user.customer == True) & \
+            (db.auth_user.trashed == False)
+
+    rows = db(query).select(
+        db.auth_user.id,
+        db.auth_user.first_name,
+        db.auth_user.last_name,
+        db.auth_user.display_name,
+        db.auth_user.email,
+        db.auth_user.gender,
+        db.auth_user.date_of_birth,
+        db.auth_user.address,
+        db.auth_user.postcode,
+        db.auth_user.city,
+        db.auth_user.country,
+        db.auth_user.phone,
+        db.auth_user.mobile,
+        db.auth_user.emergency,
+        db.auth_user.company,
+        db.auth_user.thumbsmall,
+        db.auth_user.thumblarge,
+    )
+
+    customers = {}
+
+    for row in rows:
+        customers[row.id] = {
+            'id': row.id,
+            'first_name': row.first_name,
+            'last_name': row.last_name,
+            'display_name': row.display_name,
+            'search_name': row.display_name.lower(),
+            'email': row.email,
+            'gender': row.gender,
+            'date_of_birth': row.date_of_birth,
+            'address': row.address,
+            'postcode': row.postcode,
+            'city': row.city,
+            'country': row.country,
+            'phone': row.phone,
+            'mobile': row.mobile,
+            'emergency': row.emergency,
+            'company': row.company,
+            'thumbsmall': URL(
+                'default', 'download', args=[row.thumbsmall],
+                extension='',
+                host=True,
+                scheme=True
+            ),
+            'thumblarge': URL(
+                'default', 'download', args=[row.thumblarge],
+                extension='',
+                host=True,
+                scheme=True
+            ),
+        }
+
+    return customers
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'customers_memberships'))
+def get_customers_memberships():
+    """
+    List not trashed customers
+    """
+    set_headers()
+
+    query = (db.customers_memberships.Startdate <= TODAY_LOCAL) & \
+            ((db.customers_memberships.Enddate >= TODAY_LOCAL) |\
+             (db.customers_memberships.Enddate == None))
+
+    rows = db(query).select(
+        db.customers_memberships.id,
+        db.customers_memberships.auth_customer_id,
+        db.customers_memberships.school_memberships_id,
+        db.customers_memberships.Startdate,
+        db.customers_memberships.Enddate,
+        db.customers_memberships.DateID
+    )
+
+    memberships = {}
+    for i, row in enumerate(rows):
+        repr_row = list(rows[i:i + 1].render())[0]
+
+        memberships[row.id] = {
+            'auth_customer_id': row.auth_customer_id,
+            'name': repr_row.school_memberships_id,
+            'start': row.Startdate,
+            'end': row.Enddate,
+            'date_id': row.DateID
+        }
+
+    return memberships
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('create', 'auth_user'))
+def create_customer():
+    """
+    :return: dict containing data of new auth_user
+    """
+    set_headers()
+
+
+    db.auth_user.password.requires = None
+    print request.vars
+
+    result = db.auth_user.validate_and_insert(**request.vars)
+    print result
+
+    return dict(result=result)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'auth_user'))
+def update_customer():
+    """
+    :return: dict containing data of new auth_user
+    """
+    set_headers()
+
+    db.auth_user.password.requires = None
+    print request.vars
+
+    cuID = request.vars.pop('id', None)
+
+    print cuID
+    print request.vars
+
+    print db.auth_user.email.requires
+
+    ##
+    # The default validator returns an error in this case
+    # It says an account already exists for this email
+    # when trying to update the users' own/current email.
+    # This validator works around that.
+    ##
+    query = (db.auth_user.id != cuID)
+
+    db.auth_user.email.requires = [
+        IS_EMAIL(),
+        IS_LOWER(),
+        IS_NOT_IN_DB(
+            db(query),
+            'auth_user.email',
+            error_message=T("This email already has an account")
+        )
+    ]
+
+
+    if cuID:
+        query = (db.auth_user.id == cuID)
+
+
+        result = db(query).validate_and_update(**request.vars)
+        print result
+
+        return dict(result=result,
+                    id=cuID)
 
 

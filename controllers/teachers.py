@@ -33,46 +33,6 @@ def index():
     session.customers_add_back = 'teachers'
     session.settings_groups_back = 'teachers'
 
-
-    #
-    # db.auth_user.id.readable = False
-    # db.auth_user.education.readable = False
-    # db.auth_user.gender.readable = False
-    # db.auth_user.address.readable = False
-    # db.auth_user.postcode.readable = False
-    # db.auth_user.country.readable = False
-    # db.auth_user.country.readable = False
-    #
-    #
-    #
-    # maxtextlengths = {'auth_user.email' : 40}
-    # headers = {'auth_user.display_name' : T('Teacher'),
-    #            'auth_user.thumbsmall' : ''}
-    #
-    # fields = [ db.auth_user.enabled,
-    #            db.auth_user.thumbsmall,
-    #            db.auth_user.trashed,
-    #            db.auth_user.birthday,
-    #            db.auth_user.display_name,
-    #            db.auth_user.teaches_classes,
-    #            db.auth_user.teaches_workshops ]
-    #
-    # grid = SQLFORM.grid(query,
-    #                     fields=fields,
-    #                     links=links,
-    #                     headers=headers,
-    #                     create=False,
-    #                     editable=False,
-    #                     details=False,
-    #                     csv=False,
-    #                     searchable=False,
-    #                     deletable=False,
-    #                     maxtextlengths=maxtextlengths,
-    #                     orderby=db.auth_user.display_name,
-    #                     ui = grid_ui)
-    # grid.element('.web2py_counter', replace=None) # remove the counter
-    # grid.elements('span[title=Delete]', replace=None) # remove text from delete button
-
     # show back, add and export buttons above teachers list
     back = os_gui.get_button('back', URL('school_properties', 'index'))
 
@@ -468,7 +428,7 @@ def payment_fixed_rate_class_add():
 
     db.classes.id.readable = False
     # list of classes
-    grid = customers.classes_add_get_list(date, 'tp_fixed_rate')
+    grid = customers.classes_add_get_list(date, 'tp_fixed_rate', teID=teID)
 
     back = os_gui.get_button('back',
                              URL('payment_fixed_rate',

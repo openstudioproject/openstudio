@@ -11,7 +11,8 @@ from openstudio.os_order import Order
 
 from decimal import Decimal, ROUND_HALF_UP
 
-import Mollie
+from mollie.api.client import Client
+from mollie.api.error import Error as MollieError
 
 
 def webhook():
@@ -25,9 +26,9 @@ def webhook():
 
     # try to get payment
     try:
-        mollie = Mollie.API.Client()
+        mollie = Client()
         mollie_api_key = get_sys_property('mollie_website_profile')
-        mollie.setApiKey(mollie_api_key)
+        mollie.set_api_key(mollie_api_key)
 
         payment_id = id
         payment = mollie.payments.get(payment_id)
@@ -78,7 +79,7 @@ def webhook():
             # The payment isn't paid, pending nor open. We can assume it was aborted.
             #
             return 'Cancelled'
-    except Mollie.API.Error as e:
+    except MollieError as e:
         return 'API call failed: ' + e.message
 
 
@@ -176,9 +177,9 @@ def invoice_pay():
     if not invoice.get_linked_customer_id() == auth.user.id:
         return 'Not authorized'
 
-    mollie = Mollie.API.Client()
+    mollie = Client()
     mollie_api_key = get_sys_property('mollie_website_profile')
-    mollie.setApiKey(mollie_api_key)
+    mollie.set_api_key(mollie_api_key)
 
     description = invoice.invoice.Description + ' - ' + invoice.invoice.InvoiceID
     recurring_type = None
@@ -205,8 +206,10 @@ def invoice_pay():
                 # print 'customer id invalid, create new customer'
                 if 'The customer id is invalid' in str(e):
                     create_mollie_customer(auth.user.id, mollie)
+                    os_customer = Customer(auth.user.id) # refresh
         else:
             create_mollie_customer(auth.user.id, mollie)
+            os_customer = Customer(auth.user.id) # refresh
 
         mandates = os_customer.get_mollie_mandates()
         # set default recurring type, change to recurring if a valid mandate is found.
@@ -228,9 +231,12 @@ def invoice_pay():
     try:
         webhook_url = 'https://' + request.env.http_host + '/mollie/webhook'
         payment = mollie.payments.create({
-            'amount':      invoice_amounts.TotalPriceVAT,
+            'amount': {
+                'currency': CURRENCY,
+                'value': format(invoice_amounts.TotalPriceVAT, '.2f')
+            },
             'description': description,
-            'recurringType': recurring_type,
+            'sequenceType': recurring_type,
             'customerId': mollie_customer_id,
             'redirectUrl': 'https://' + request.env.http_host + '/shop/complete?iID=' + unicode(iID),
             'webhookUrl': webhook_url,
@@ -248,9 +254,9 @@ def invoice_pay():
         )
 
         # Send the customer off to complete the payment.
-        redirect(payment.getPaymentUrl())
+        redirect(payment.checkout_url)
 
-    except Mollie.API.Error as e:
+    except MollieError as e:
         return 'API call failed: ' + e.message
 
 
@@ -267,23 +273,26 @@ def order_pay():
 
     # check if the order belongs to the currently logged in customer
     if not order.order.auth_customer_id == auth.user.id:
-        session.flash = T("What are you doing? This order isn't yours")
+        session.flash = T("Unable to show order")
         redirect(URL('cart'))
 
 
-    mollie = Mollie.API.Client()
+    mollie = Client()
     mollie_api_key = get_sys_property('mollie_website_profile')
-    mollie.setApiKey(mollie_api_key)
+    mollie.set_api_key(mollie_api_key)
 
     amounts = order.get_amounts()
 
     # Go to Mollie for payment
-    amount = amounts.TotalPriceVAT
+    amount = format(amounts.TotalPriceVAT, '.2f')
     description = T('Order') + ' #' + unicode(coID)
 
     try:
         payment = mollie.payments.create({
-            'amount': amount,
+            'amount': {
+                'currency': CURRENCY,
+                'value': amount
+            },
             'description': description,
             'redirectUrl': 'https://' + request.env.http_host + '/shop/complete?coID=' + unicode(coID),
             'webhookUrl': 'https://' + request.env.http_host + '/mollie/webhook',
@@ -298,9 +307,9 @@ def order_pay():
         )
 
         # Send the customer off to complete the payment.
-        redirect(payment.getPaymentUrl())
+        redirect(payment.checkout_url)
 
-    except Mollie.API.Error as e:
+    except MollieError as e:
         return 'API call failed: ' + e.message
 
 
@@ -346,13 +355,13 @@ def subscription_buy_now():
     ssuID = request.vars['ssuID']
 
     # init mollie
-    mollie = Mollie.API.Client()
+    mollie = Client()
     mollie_api_key = get_sys_property('mollie_website_profile')
-    mollie.setApiKey(mollie_api_key)
+    mollie.set_api_key(mollie_api_key)
 
     create_mollie_customer(auth.user.id, mollie)
 
-    # add subscription to customer﻿​_
+    # add subscription to customer
     startdate = TODAY_LOCAL
     shop_subscriptions_start = get_sys_property('shop_subscriptions_start')
     if not shop_subscriptions_start == None:
@@ -375,7 +384,7 @@ def subscription_buy_now():
 
     # Create invoice
     cs = CustomerSubscription(csID)
-    iID = cs.create_invoice_for_month(TODAY_LOCAL.year, TODAY_LOCAL.month)
+    iID = cs.create_invoice_for_month(startdate.year, startdate.month)
 
     # Pay invoice ... SHOW ME THE MONEY!! :)
     redirect(URL('invoice_pay', vars={'iID':iID}))
@@ -392,9 +401,9 @@ def membership_buy_now():
     smID = request.vars['smID']
 
     # init mollie
-    mollie = Mollie.API.Client()
+    mollie = Client()
     mollie_api_key = get_sys_property('mollie_website_profile')
-    mollie.setApiKey(mollie_api_key)
+    mollie.set_api_key(mollie_api_key)
 
     # check if we have a mollie customer id
     create_mollie_customer(auth.user.id, mollie)
@@ -431,7 +440,10 @@ def donate():
 
 
     payment = mollie.payments.create({
-        'amount': amount,
+        'amount': {
+            'currency': CURRENCY,
+            'value': amount
+        },
         'description': description,
         'redirectUrl': 'https://' + request.env.http_host + '/shop/complete?iID=' + unicode(iID),
         'webhookUrl': 'https://' + request.env.http_host + '/mollie/webhook',
@@ -449,4 +461,4 @@ def donate():
     )
 
     # Send the customer off to complete the payment.
-    redirect(payment.getPaymentUrl())
+    redirect(payment.checkout_url)

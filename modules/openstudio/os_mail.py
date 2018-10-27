@@ -390,6 +390,10 @@ class OsMail:
                            )
                     ),
                     TR(
+                        TD(B(T('Order status'))),
+                        TD(order.order.Status)
+                    ),
+                    TR(
                         TD(B(T('Order date'))),
                         TD(order.order.DateCreated)
                     ),

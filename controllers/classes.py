@@ -2533,25 +2533,21 @@ def attendance():
 
 
     ah = AttendanceHelper()
-
-    # attendance = ah.get_checkin_list_customers(clsID,
-    #                                            date,
-    #                                            pictures=True,
-    #                                            manual_enabled=True,
-    #                                            reservations_cancel=True,
-    #                                            invoices=True,
-    #                                            show_notes=True)
-
     attendance = ah.get_checkin_list_customers_booked(clsID, date)
 
+
+    add_customer = ''
     customers = Customers()
-    result = customers.get_add_modal(
-        button_text   = "Customer",
-        button_class  = '',
-        redirect_vars = {'clsID' : clsID,
-                         'date'  : date_formatted})
-    add_customer = result['button']
-    modals.append(result['modal'])
+
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('create', 'auth_user'):
+        result = customers.get_add_modal(
+            button_text   = "Customer",
+            button_class  = '',
+            redirect_vars = {'clsID' : clsID,
+                             'date'  : date_formatted})
+        add_customer = result['button']
+        modals.append(result['modal'])
 
 
     chart_buttons = DIV(SPAN(I(_class='fa fa-angle-left'),
@@ -3128,14 +3124,15 @@ def attendance_set_status():
     clsID = clatt.classes_id
     date_formatted = clatt.ClassDate.strftime(DATE_FORMAT)
 
-    ##
-    # Change invoice status to cancelled
-    ##
-    query = (db.invoices_classes_attendance.classes_attendance_id == clattID)
-    rows = db(query).select(db.invoices_classes_attendance.ALL)
-    for row in rows:
-        invoice = Invoice(row.invoices_id)
-        invoice.set_status('cancelled')
+    if status == 'cancelled':
+        ##
+        # Change invoice status to cancelled
+        ##
+        query = (db.invoices_classes_attendance.classes_attendance_id == clattID)
+        rows = db(query).select(db.invoices_classes_attendance.ALL)
+        for row in rows:
+            invoice = Invoice(row.invoices_id)
+            invoice.set_status('cancelled')
 
     # Clear api cache to refresh available spaces
     cache_clear_classschedule_api()
@@ -3834,43 +3831,6 @@ def class_prices():
 
     clp = ClassPrices()
     table = clp.get_prices_for_class_display(clsID)
-
-
-
-
-
-    # links = [lambda row: os_gui.get_button('edit',
-    #                                        URL('class_price_edit',
-    #                                            vars={'clpID':row.id,
-    #                                                  'clsID':clsID,
-    #                                                  'date' :date_formatted}))]
-    #
-    # query = (db.classes_price.classes_id == clsID)
-    #
-    # fields = [ db.classes_price.Startdate,
-    #            db.classes_price.Enddate,
-    #            db.classes_price.Dropin,
-    #            db.classes_price.tax_rates_id_dropin,
-    #            db.classes_price.Trial,
-    #            db.classes_price.tax_rates_id_trial ]
-    #
-    # delete_permission = auth.has_membership(group_id='Admins') or \
-    #                     auth.has_permission('delete', 'classes_price')
-    #
-    # grid = SQLFORM.grid(query,
-    #                     fields=fields,
-    #                     links=links,
-    #                     details=False,
-    #                     searchable=False,
-    #                     deletable=delete_permission,
-    #                     csv=False,
-    #                     create=False,
-    #                     editable=False,
-    #                     orderby=~db.classes_price.Startdate,
-    #                     field_id=db.classes_price.id,
-    #                     ui = grid_ui)
-    # grid.element('.web2py_counter', replace=None) # remove the counter
-    # grid.elements('span[title=Delete]', replace=None) # remove text from delete button
 
     alert_msg = T("Please make sure the new price starts on the first day of a month and the previous price ends on the last day of the month before. ")
     alert_msg += T("Otherwise you might see unexpected results in the stats.")
@@ -4892,6 +4852,110 @@ def class_classcard_group_add_get_already_added(clsID):
     return ids
 
 
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'classes_otc_sub_avail'))
+def subs_manage():
+    """
+    Page to accept and decline substitution requests
+    :return:
+    """
+    from openstudio.os_classes_otc_sub_availables import ClassesOTCSubAvailables
+
+    response.title = T("Available sub teachers")
+    response.subtitle = T("")
+    response.view = 'general/only_content.html'
+
+    ## Pagination begin
+    if 'page' in request.vars:
+        try:
+            page = int(request.vars['page'])
+        except ValueError:
+            page = 0
+    else:
+        page = 0
+    items_per_page = 11
+    limitby=(page*items_per_page,(page+1)*items_per_page+1)
+    ## Pagination end
+
+    if 'Status' in request.vars:
+        session.classes_subs_manage_status = request.vars['Status']
+    elif not session.classes_subs_manage_status:
+        session.classes_subs_manage_status = 'pending'
+
+    subs_avail = ClassesOTCSubAvailables()
+    result = subs_avail.list_formatted(
+        session.classes_subs_manage_status,
+        limitby
+    )
+    table = result['table']
+    rows = result['rows']
+
+    form = subs_avail.get_form_filter_status(
+        session.classes_subs_manage_status
+    )
+
+    ## Pager begin
+    navigation = ''
+    url_previous = ''
+    url_next = ''
+    if len(rows) > items_per_page or page:
+        previous = SPAN(_class='fa fa-chevron-left grey')
+        if page:
+            url_previous = URL(request.function, vars={'page':page-1})
+            previous = A(SPAN(_class='fa fa-chevron-left'),
+                         _href=url_previous)
+
+        nxt = SPAN(_class='fa fa-chevron-right grey')
+        if len(rows) > items_per_page:
+            url_next = URL(request.function, vars={'page':page+1})
+            nxt = A(SPAN(_class='fa fa-chevron-right'),
+                    _href=url_next)
+
+        navigation = os_gui.get_page_navigation_simple(url_previous, url_next, page + 1, request.cid)
+
+
+    return dict(content=DIV(form, table, navigation))
+
+
+def sub_request_get_return_url(var=None):
+    return URL('subs_manage')
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'classes_otc_sub_avail'))
+def sub_avail_accept():
+    cotcsaID = request.vars['cotcsaID']
+
+    # Accept this offer
+    row = db.classes_otc_sub_avail(cotcsaID)
+    row.Accepted = True
+    row.update_record()
+
+    # Set teacher as sub
+    cotc = db.classes_otc(row.classes_otc_id)
+    cotc.auth_teacher_id = row.auth_teacher_id
+    cotc.update_record()
+
+    # Reject all others
+    query = (db.classes_otc_sub_avail.classes_otc_id == row.classes_otc_id) & \
+            (db.classes_otc_sub_avail.id != cotcsaID)
+    db(query).update(Accepted = False)
+
+    db.classes_otc[row.classes_otc_id] = dict(Status = None)
+
+    redirect(sub_request_get_return_url())
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'classes_otc_sub_avail'))
+def sub_avail_decline():
+    cotcsaID = request.vars['cotcsaID']
+
+    db.classes_otc_sub_avail[cotcsaID] = dict(Accepted = False)
+
+    redirect(sub_request_get_return_url())
+
+    
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'classes_revenue'))
 def revenue():

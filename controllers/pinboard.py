@@ -1,12 +1,5 @@
 # -*- coding: utf-8 -*-
-# this file is released under the gplv2 (or later at your choice) license
 
-#########################################################################
-## - index is the default action of any application
-## - user is required for authentication and authorization
-## - download is for downloading files uploaded in the db (does streaming)
-## - call exposes all registered services (none by default)
-#########################################################################
 
 from general_helpers import datestr_to_python
 from general_helpers import get_label
@@ -75,6 +68,7 @@ def index():
 
     session.customers_back = 'pinboard'
     session.workshops_manage_back = 'pinboard'
+    session.ep_available_for_sub_back = 'pinboard_index'
 
     welcome_message = ''
     if ( db.sys_properties(Property='ShowWelcomeMessage') is None or
@@ -107,12 +101,15 @@ def index():
     # upcoming classes (for teachers)
     upcoming_classes = pinboard_get_teacher_upcoming_classes()
 
+    # Classes that are open to substitute
+    sub_classes = pinboard_get_teacher_sub_classes()
+
 
     # birthdays
     birthdays = get_birthdays()
 
     content = DIV(DIV(welcome_message, _class='row'),
-                  DIV(DIV(announcements, upcoming_classes, tasks, cancelled_classes, _class='col-md-9'),
+                  DIV(DIV(announcements, upcoming_classes,sub_classes, tasks, cancelled_classes, _class='col-md-9'),
                       DIV(birthdays, _class='col-md-3'),
                       _class='row'))
 
@@ -133,6 +130,23 @@ def pinboard_get_tasks(var=None):
                              content=os_gui.get_ajax_loader()))
 
     return tasks
+
+
+def pinboard_get_teacher_sub_classes(var=None):
+    """
+    Returns list of classes available for subbing
+    """
+    from openstudio.os_teacher import Teacher
+
+    if auth.user.id and auth.user.teacher:
+        teachers_id = auth.user.id
+        cache_clear_classschedule()
+    else:
+        return ''
+
+    teacher = Teacher(auth.user.id)
+
+    return teacher.get_subrequests_formatted()
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -264,142 +278,20 @@ def pinboard_get_teacher_upcoming_classes(days=3):
     """
         @return: List upcoming classes for a teacher
     """
+    from openstudio.os_teacher import Teacher
+
     if auth.user.id and auth.user.teacher:
         teachers_id = auth.user.id
         cache_clear_classschedule()
     else:
         return ''
 
-    attendance_permission = (auth.has_membership(group_id='Admins') or
-                             auth.has_permission('update', 'classes_attendance'))
-
-    date = datetime.date.today()
-    delta = datetime.timedelta(days=1)
-
-    header = THEAD(TR(TH(T('Class date')),
-                      TH(T('Time')),
-                      TH(T('Location')),
-                      TH(T('Class type')),
-                      TH(T('Teacher')),
-                      TH(T('Teacher2')),
-                      TH(),
-                      ))
-
-    table = TABLE(header, _class='table table-hover dataTable')
+    teacher = Teacher(auth.user.id)
 
 
-    for day in range(0, days):
-        cs = ClassSchedule(
-            date,
-            filter_id_teacher=teachers_id)
+    return teacher.get_upcoming_classes_formatted(days)
 
-        rows = cs.get_day_rows()
-        for i, row in enumerate(rows):
-            if row.classes_otc.Status == 'cancelled' or row.school_holidays.id:
-                continue
-
-            repr_row = list(rows[i:i + 1].render())[0]
-
-            result = cs._get_day_row_teacher_roles(row, repr_row)
-            teacher = result['teacher_role']
-            teacher2 = result['teacher_role2']
-
-            attendance = ''
-            if attendance_permission:
-                attendance = os_gui.get_button('noicon', URL('classes', 'attendance',
-                                                           vars={'clsID':row.classes.id,
-                                                                 'date':date.strftime(DATE_FORMAT)}),
-                                               title=T('Attendance'),
-                                               _class=T('pull-right'))
-
-            tr = TR(TD(date.strftime(DATE_FORMAT), _class='bold green' if day == 0 else ''),
-                    TD(repr_row.classes.Starttime, ' - ', repr_row.classes.Endtime),
-                    TD(repr_row.classes.school_locations_id),
-                    TD(repr_row.classes.school_classtypes_id),
-                    TD(teacher),
-                    TD(teacher2),
-                    TD(attendance)
-                    )
-
-            table.append(tr)
-
-
-        date += delta
-
-    upcoming_classes = DIV(DIV(H3(T('My upcoming classes'), _class="box-title"),
-                               DIV(A(I(_class='fa fa-minus'),
-                                     _href='#',
-                                     _class='btn btn-box-tool',
-                                     _title=T("Collapse"),
-                                     **{'_data-widget': 'collapse'}),
-                                   _class='box-tools pull-right'),
-                               _class='box-header with-border'),
-                               DIV(table, _class='box-body'),
-                               pinboard_get_teacher_upcoming_classes_footer(),
-                          _class='box box-info')
-
-    return upcoming_classes
-
-
-
-def pinboard_get_teacher_upcoming_classes_footer(var=None):
-    """
-    Footer for upcoming classes page 
-    :return: div.box-footer
-    """
-    # Last month
-    if TODAY_LOCAL.month == 1:
-        month_last = 12
-        year_last = TODAY_LOCAL.year - 1 
-    else:
-        month_last = TODAY_LOCAL.month - 1
-        year_last = TODAY_LOCAL.year
-        
-    # Next month
-    if TODAY_LOCAL.month == 12:
-        month_next = 1
-        year_next = TODAY_LOCAL.year + 1 
-    else:
-        month_next = TODAY_LOCAL.month + 1
-        year_next = TODAY_LOCAL.year
-    
-    link_last_month = A(
-        T("Last month"),
-        _href=URL('teacher_classes_set_month',
-                  vars={'month': month_last,
-                        'year': year_last,
-                        'back': 'teacher_classes_month'})
-    )
-
-    link_this_month = A(
-        T("This month"),
-        _href=URL('teacher_classes_set_month',
-                  vars={'month': TODAY_LOCAL.month,
-                        'year': TODAY_LOCAL.year,
-                        'back': 'teacher_classes_month'})
-    )
-
-    link_next_month = A(
-        T("Next month"),
-        _href=URL('teacher_classes_set_month',
-                  vars={'month': month_next,
-                        'year': year_next,
-                        'back': 'teacher_classes_month'})
-    )
-    
-
-    return DIV(
-        DIV(
-            DIV(link_last_month, _class='pull-left'),
-            DIV(link_next_month, _class='pull-right'),
-            DIV(link_this_month, _class='center'),
-            _class='col-md-12'),
-        _class='box-footer'
-    )
-
-
-
-
+  
 def pinboard_get_cancelled_classes(days=3):
     """
     :return: list of cancelled classes
@@ -468,85 +360,6 @@ def pinboard_get_cancelled_classes(days=3):
     return classes
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('read', 'pinboard'))
-def teacher_classes_month():
-    """
-    creates page that displays the classes tought montlhy
-    :return:
-    """
-    response.title = T("My classes")
-    response.subtitle = T("")
-    response.view = 'general/only_content.html'
-
-
-    if session.pinboard_teacher_classes_month is None or session.pinboard_teacher_classes_year is None:
-        session.pinboard_teacher_classes_year = TODAY_LOCAL.year
-        session.pinboard_teacher_classes_month = TODAY_LOCAL.month
-
-    table = TABLE(_class='table table-hover')
-    table.append(THEAD(TR(
-        TH(),
-        TH(T('Date')),
-        TH(T('Start')),
-        TH(T('Location')),
-        TH(T('Class Type')),
-        TH(),  # actions))
-    )))
-
-    date = datetime.date(
-        session.pinboard_teacher_classes_year,
-        session.pinboard_teacher_classes_month,
-        1
-    )
-    last_day = get_last_day_month(date)
-
-    for each_day in range(1, last_day.day + 1):
-        # list days
-        day = datetime.date(session.pinboard_teacher_classes_year,
-                            session.pinboard_teacher_classes_month,
-                            each_day)
-
-        class_schedule = ClassSchedule(
-            date=day,
-            filter_id_teacher=auth.user.id
-        )
-
-        rows = class_schedule.get_day_rows()
-        for i, row in enumerate(rows):
-            repr_row = list(rows[i:i + 1].render())[0]
-
-            result = class_schedule._get_day_row_status(row)
-            status_marker = result['marker']
-
-            date_formatted = day.strftime(DATE_FORMAT)
-
-            tr = TR(
-                TD(status_marker,
-                   _class='td_status_marker'),
-                TD(date_formatted),
-                TD(repr_row.classes.Starttime),
-                TD(repr_row.classes.school_locations_id),
-                TD(repr_row.classes.school_classtypes_id)
-            )
-
-            table.append(tr)
-
-    form_subtitle = get_form_subtitle(session.pinboard_teacher_classes_month,
-                                      session.pinboard_teacher_classes_year,
-                                      request.function,
-                                      _class='col-md-8')
-    response.subtitle = form_subtitle['subtitle']
-    month_chooser = form_subtitle['month_chooser']
-    current_month = form_subtitle['current_month']
-
-    response.subtitle = form_subtitle['subtitle']
-
-    header_tools = month_chooser + current_month
-    return dict(header_tools=header_tools,
-                content=table)
-
-
 def get_form_subtitle(month=None, year=None, function=None, _class='col-md-4'):
     months = get_months_list()
     subtitle = ''
@@ -610,91 +423,4 @@ def get_form_subtitle(month=None, year=None, function=None, _class='col-md-4'):
         submit=submit
     )
 
-
-def get_month_subtitle(month, year):
-    """
-    :param month: int 1 - 12
-    :return: subtitle
-    """
-    months = get_months_list()
-    subtitle = ''
-    if year and month:
-        for m in months:
-            if m[0] == month:
-                month_title = m[1]
-        subtitle = month_title + " " + unicode(year)
-
-    return subtitle
-
-
-@auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('read', 'pinboard'))
-def teacher_classes_set_month():
-    """
-        Sets the session variables for teacher_classes year and month
-    """
-    year  = request.vars['year']
-    month = request.vars['month']
-    back  = request.vars['back']
-
-    session.pinboard_teacher_classes_year = int(year)
-    session.pinboard_teacher_classes_month = int(month)
-
-    redirect(URL(back))
-
-
-@auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('read', 'pinboard'))
-def teacher_classes_show_current():
-    """
-        Resets some session variables to show the current month for
-        teacher_classes
-    """
-    session.pinboard_teacher_classes_year = None
-    session.pinboard_teacher_classes_month = None
-    back = request.vars['back']
-
-    redirect(URL('teacher_classes_month'))
-
-
-def overview_get_month_chooser(page):
-    """
-        Returns month chooser for overview
-    """
-
-    year  = session.pinboard_teacher_classes_year
-    month = session.pinboard_teacher_classes_month
-
-    link = 'teacher_classes_set_month'
-
-
-    if month == 1:
-        prev_month = 12
-        prev_year  = year - 1
-    else:
-        prev_month = month - 1
-        prev_year  = year
-
-    if month == 12:
-        next_month = 1
-        next_year  = year + 1
-    else:
-        next_month = month + 1
-        next_year  = year
-
-    url_prev = URL(link, vars={'month':prev_month,
-                               'year' :prev_year,
-                               'back' :page})
-
-    url_next = URL(link, vars={'month':next_month,
-                                  'year' :next_year,
-                                  'back' :page})
-
-    previous = A(I(_class='fa fa-angle-left'),
-                 _href=url_prev,
-                 _class='btn btn-default')
-    nxt = A(I(_class='fa fa-angle-right'),
-            _href=url_next,
-            _class='btn btn-default')
-
-    return DIV(previous, nxt, _class='btn-group pull-right')
+  
