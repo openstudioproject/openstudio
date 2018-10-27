@@ -20,7 +20,11 @@ class OsMail:
             cache = (cache.ram, 300)
         )
 
-        return rows.first().TemplateContent
+        try:
+            return rows.first().TemplateContent
+        except AttributeError:
+            # Catch NoneType exceptions
+            return None
 
 
     def send_notification(self,
@@ -231,7 +235,13 @@ class OsMail:
         image = IMG(_src=URL('default', 'download', ws.picture, scheme=True, host=True),
                     _style="max-width:500px")
 
-        return dict(content=DIV(image, BR(), BR(), XML(content)), description=description)
+        return dict(
+            content=DIV(
+                image, BR(), BR(),
+                XML(content)
+            ),
+            description=description
+        )
 
 
     def render_email_template(self,
@@ -325,19 +335,19 @@ class OsMail:
         )
 
         context = dict(
-            logo=logo,
-            title=title,
-            description=description,
-            content=content,
-            comments=comments,
-            footer=footer,
-            request=request
+            logo = logo,
+            title = title,
+            description = description,
+            content = content,
+            comments = comments,
+            footer = footer,
+            request = request
         )
 
         message = render(
             filename = template,
             path = template_path,
-            context=context
+            context = context
         )
 
         if return_html:
