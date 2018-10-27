@@ -3744,13 +3744,27 @@ def define_invoices_employee_claims():
     """
     db.define_table('invoices_employee_claims',
         Field('invoices_id', db.invoices,
-            readable=False,
-            writable=False),
-        Field('employee_claims_id',
-              db.employee_claims,
+              readable=False,
+              writable=False),
+        Field('employee_claims_id', db.employee_claims,
               readable= False,
               writable = False,
-              label=T('Employee Claim')
+              label=T('Employee Claim'))
+    )
+
+
+def define_invoices_teacher_payment_classes():
+    """
+        Table to link teacher payment classes to invoices
+    """
+    db.define_table('invoices_teacher_payment_classes',
+        Field('invoices_id', db.invoices,
+            readable=False,
+            writable=False),
+        Field('teachers_payment_classes_id', db.teachers_payment_classes,
+              readable= False,
+              writable = False,
+              label=T('Teacher payment class')
               )
     )
 
@@ -5929,6 +5943,7 @@ define_invoices_customers_memberships()
 define_invoices_customers_subscriptions()
 define_invoices_customers_orders()
 define_invoices_employee_claims()
+define_invoices_teacher_payment_classes()
 define_invoices_mollie_payment_ids()
 
 # payment batches definitions
