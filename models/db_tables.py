@@ -3753,11 +3753,11 @@ def define_invoices_employee_claims():
     )
 
 
-def define_invoices_teacher_payment_classes():
+def define_invoices_teachers_payment_classes():
     """
         Table to link teacher payment classes to invoices
     """
-    db.define_table('invoices_teacher_payment_classes',
+    db.define_table('invoices_teachers_payment_classes',
         Field('invoices_id', db.invoices,
             readable=False,
             writable=False),
@@ -5943,7 +5943,7 @@ define_invoices_customers_memberships()
 define_invoices_customers_subscriptions()
 define_invoices_customers_orders()
 define_invoices_employee_claims()
-define_invoices_teacher_payment_classes()
+define_invoices_teachers_payment_classes()
 define_invoices_mollie_payment_ids()
 
 # payment batches definitions

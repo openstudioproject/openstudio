@@ -841,6 +841,8 @@ class Invoice:
                 tax_rates_id=tax_rates_id,
             )
 
+            self.link_to_teachers_payment_class(tpcID)
+
             # This calls self.on_update()
             self.set_amounts()
 
@@ -1066,12 +1068,23 @@ class Invoice:
 
     def link_to_employee_claim(self, ecID):
         """
-            Link invoice to customer subscription
+            Link invoice to employee claim
         """
         db = current.db
         db.invoices_employee_claims.insert(
             invoices_id = self.invoices_id,
             employee_claims_id = ecID
+        )
+
+
+    def link_to_teachers_payment_class(self, tpcID):
+        """
+            Link invoice to teachers payment class
+        """
+        db = current.db
+        db.invoices_teachers_payment_classes.insert(
+            invoices_id = self.invoices_id,
+            teachers_payment_classes_id = tpcID
         )
 
 
