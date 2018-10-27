@@ -407,7 +407,7 @@ class OsMail:
             au = db.auth_user()
 
             description = DIV(
-                T('A new order has been received:'), BR(),
+                T('A new order has been received:'), BR(), BR(),
                 TABLE(
                     TR(
                         TD(B(T('Order'))),
