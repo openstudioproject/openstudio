@@ -198,6 +198,16 @@ def test_employee_claims_process_accepted(client, web2py):
                 )
 
 
+    assert ((web2py.db.invoices.Description == 'Claims'))
+
+    assert ((web2py.db.invoices_items.invoices_id==1)&\
+            (web2py.db.invoices_items.Description == 'Accepted Claim')&\
+            (web2py.db.invoices_items.TotalPrice == -15 ))
+
+
+
+
+
 def test_employee_claims_processed_page(client, web2py):
     """
     Check proccessed page and if a processed claim is displayed
