@@ -28,9 +28,24 @@ class EmployeeClaims:
         elif sorting == 'employee':
             orderby = db.employee_claims.auth_user_id
 
+        left = [
+            db.invoices_employee_claims.on(
+                db.invoices_employee_claims.employee_claims_id ==
+                db.employee_claims.id
+            ),
+            db.invoices.on(
+                db.invoices_employee_claims.invoices_id ==
+                db.invoices.id
+            )
+        ]
+
         query = (db.employee_claims.Status == status)
 
         rows = db(query).select(
+            db.employee_claims.ALL,
+            db.invoices_employee_claims.ALL,
+            db.invoices.ALL,
+            left=left,
             orderby=orderby,
             limitby=limitby
         )
@@ -63,9 +78,7 @@ class EmployeeClaims:
             TH(T("Amount")),
             TH(T("Quantity")),
             TH(T("Attachment")),
-            # TH(T("Attendance")),
-            # TH(T("Payment")),
-            # TH(os_gui.get_fa_icon('fa-subway')),
+            TH(T("Invoice")),
             TH() # Actions
         ))
 
@@ -86,13 +99,14 @@ class EmployeeClaims:
                 elif status == 'rejected':
                     buttons = self._rows_to_table_get_rejected_buttons(row, os_gui)
             tr = TR(
-                TD(row.id),
-                TD(repr_row.auth_user_id),
-                TD(repr_row.ClaimDate),
-                TD(repr_row.Description),
-                TD(repr_row.Amount),
-                TD(repr_row.Quantity),
+                TD(row.employee_claims.id),
+                TD(repr_row.employee_claims.auth_user_id),
+                TD(repr_row.employee_claims.ClaimDate),
+                TD(repr_row.employee_claims.Description),
+                TD(repr_row.employee_claims.Amount),
+                TD(repr_row.employee_claims.Quantity),
                 TD(self._rows_to_table_get_attachment(row, os_gui, uuid)),
+                TD(self._rows_to_table_get_invoice_link(row, os_gui)),
                 TD(buttons)
             )
 
@@ -107,12 +121,12 @@ class EmployeeClaims:
         """
         Display claim attachments in a modal
         """
-        if not row.Attachment:
+        if not row.employee_claims.Attachment:
             return ''
 
         T = current.T
 
-        attachment_url = URL('default', 'download', row.Attachment)
+        attachment_url = URL('default', 'download', row.employee_claims.Attachment)
         modal_class = str(uuid.uuid4())
 
         modal_content = DIV(
@@ -120,7 +134,7 @@ class EmployeeClaims:
             _class='ec_modal_attachment_content'
         )
 
-        title = T('Attachment for claim #{id}'.format(id=row.id))
+        title = T('Attachment for claim #{id}'.format(id=row.employee_claims.id))
 
         footer_content = os_gui.get_button(
             'download',
@@ -143,6 +157,22 @@ class EmployeeClaims:
         return SPAN(
             result['button'],
             result['modal']
+        )
+
+    def _rows_to_table_get_invoice_link(self, row, os_gui):
+        """
+        Display claim attachments in a modal
+        """
+        if not row.invoices_employee_claims.id:
+            return ''
+
+        T = current.T
+
+        invoice_url = URL('invoices', 'edit', vars={'iID': row.invoices.id})
+
+        return A(
+            row.invoices.InvoiceID,
+            _href=invoice_url
         )
 
 
@@ -194,14 +224,14 @@ class EmployeeClaims:
 
         links.append(A(os_gui.get_fa_icon('fa-check'), T("Accept"),
                        _href=URL( 'employee_claims_accept',
-                                 vars={'ecID': row.id}),
+                                 vars={'ecID': row.employee_claims.id}),
                        _class='text-green'
                        ))
         links.append('divider')
 
         links.append(A(os_gui.get_fa_icon('fa-ban'), T("Reject"),
                        _href=URL('employee_claims_reject',
-                                 vars={'ecID': row.id}),
+                                 vars={'ecID': row.employee_claims.id}),
                        _class='text-red',
                        ))
 
@@ -232,13 +262,13 @@ class EmployeeClaims:
 
         links.append(A(os_gui.get_fa_icon('fa-ban'), T("Reject"),
                        _href=URL( 'employee_claims_reject',
-                                 vars={'ecID': row.id}),
+                                 vars={'ecID': row.employee_claims.id}),
                        _class='text-red'))
         links.append('divider')
 
         links.append(A(os_gui.get_fa_icon('fa-hourglass-2'), T("Pending"),
                        _href=URL('employee_claims_pending',
-                                 vars={'ecID': row.id}),
+                                 vars={'ecID': row.employee_claims.id}),
                        _class=''))
 
 
@@ -268,13 +298,13 @@ class EmployeeClaims:
 
         links.append(A(os_gui.get_fa_icon('fa-check'), T("Accept"),
                        _href=URL( 'employee_claims_accept',
-                                 vars={'ecID': row.id}),
+                                 vars={'ecID': row.employee_claims.id}),
                        _class='text-green'))
         links.append('divider')
 
         links.append(A(os_gui.get_fa_icon('fa-hourglass-2'), T("Pending"),
                        _href=URL('employee_claims_pending',
-                                 vars={'ecID': row.id}),
+                                 vars={'ecID': row.employee_claims.id}),
                        _class=''))
 
 
@@ -381,7 +411,7 @@ class EmployeeClaims:
         invoices_created = 0
         # For each employee, create credit invoice and add all accepted claims
         for i, row in enumerate(rows):
-            epID = row.auth_user_id
+            epID = row.employee_claims.auth_user_id
             if i == 0 or not previous_employee == epID:
                 current_employee = epID
 
@@ -398,9 +428,8 @@ class EmployeeClaims:
 
                 invoices_created += 1
 
-            ecID = row.id
+            ecID = row.employee_claims.id
             invoice.item_add_employee_claim_credit_payment(ecID)
-
 
             # Set status processed
             ec = EmployeeClaim(ecID)

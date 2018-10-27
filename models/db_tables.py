@@ -3746,13 +3746,13 @@ def define_invoices_employee_claims():
         Field('invoices_id', db.invoices,
             readable=False,
             writable=False),
-
         Field('employee_claims_id',
               db.employee_claims,
               readable= False,
               writable = False,
               label=T('Employee Claim')
-              ))
+              )
+    )
 
 
 def define_invoices_customers_orders():

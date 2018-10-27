@@ -531,6 +531,8 @@ def edit_get_back(cuID, csID=None, cmID=None):
         url = URL('finance', 'invoices')
     elif session.invoices_edit_back == 'finance_batch_content':
         url = URL('finance', 'batch_content')
+    elif session.invoices_edit_back == 'finance_employee_claims_processed':
+        url = URL('finance', 'employee_claims_processed')
     elif session.invoices_edit_back == 'reports_subscriptions_alt_prices':
         url = URL('reports', 'subscriptions_alt_prices')
     else:

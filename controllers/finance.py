@@ -1916,6 +1916,8 @@ def employee_claims_processed():
     response.subtitle = T('')
     response.view = 'general/only_content_no_box.html'
 
+    session.invoices_edit_back = 'finance_employee_claims_processed'
+
     status = request.vars['status']
 
     try:
@@ -2038,8 +2040,8 @@ def employee_claims_process_accepted():
     """
     from openstudio.os_employee_claims import EmployeeClaims
 
-    EC = EmployeeClaims()
-    count_processed = EC.process_accepted()
+    ec = EmployeeClaims()
+    count_processed = ec.process_accepted()
 
     claims = T('claims')
     if count_processed == 1:
