@@ -154,7 +154,10 @@ def classcard_add_to_cart():
     if features.Classcards:
         shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile_classcards')
         if shop_requires_complete_profile:
-            check_add_to_cart_requires_complete_profile(auth.user.id)
+            check_add_to_cart_requires_complete_profile(
+                auth.user.id,
+                _next=URL(request.controller, request.function, vars={'scdID': scdID})
+            )
 
         scd = SchoolClasscard(scdID)
         scd.add_to_shoppingcart(auth.user.id)

@@ -989,8 +989,6 @@ def edit_onaccept(form):
     """
     from openstudio.os_customer import Customer
 
-    print 'running edit_onaccept'
-
     customer = Customer(form.vars.id)
     customer.on_update()
 

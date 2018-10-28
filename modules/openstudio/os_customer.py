@@ -41,8 +41,6 @@ class Customer:
         """
         from os_exact_online import OSExactOnline
 
-        print 'running on_update in os_customer'
-
         os_eo = OSExactOnline()
         os_eo.update_relation(self)
 
