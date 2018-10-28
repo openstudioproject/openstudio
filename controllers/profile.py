@@ -444,6 +444,8 @@ def me():
     response.title = T('Profile')
     response.subtitle = ''
 
+    _next = request.vars['_next']
+
     db.auth_user.email.comment =  os_gui.get_info_icon(
          title=T("If you change your email address, you'll have to use the new address to login."),
          btn_icon='info')
@@ -469,8 +471,7 @@ def me():
 
     db.auth_user.mobile.requires = IS_NOT_EMPTY(error_message = T('Please enter your mobile number'))
 
-    shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile')
-    if shop_requires_complete_profile:
+    if _next:
         dis_query = dis_query = (db.school_discovery.Archived == False)
 
         db.auth_user.gender.requires=IS_IN_SET(GENDERS, error_message=T("Cannot be empty"))
@@ -507,6 +508,10 @@ def me():
 
     if form.process().accepted:
         response.flash = T('Saved')
+
+        if _next:
+            redirect(_next)
+
     elif form.errors:
         response.flash = ''
 

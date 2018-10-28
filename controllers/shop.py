@@ -970,7 +970,10 @@ def membership_terms():
     # check if we require a complete profile
     shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile_memberships')
     if shop_requires_complete_profile:
-        check_add_to_cart_requires_complete_profile(auth.user.id)
+        check_add_to_cart_requires_complete_profile(
+            auth.user.id,
+            _next = URL(request.controller, request.function, vars={'smID': smID})
+        )
 
     sm = SchoolMembership(smID)
     price = sm.get_price_on_date(TODAY_LOCAL)
@@ -1067,7 +1070,10 @@ def subscription_terms():
     # check if we require a complete profile
     shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile_subscriptions')
     if shop_requires_complete_profile:
-        check_add_to_cart_requires_complete_profile(auth.user.id)
+        check_add_to_cart_requires_complete_profile(
+            auth.user.id,
+            _next=URL(request.controller, request.function, vars={'ssuID': ssuID})
+        )
 
     ##
     # Check for valid bank details
@@ -2158,7 +2164,7 @@ def donate_get_form(var=None):
     return form
 
 
-def check_add_to_cart_requires_complete_profile(auID):
+def check_add_to_cart_requires_complete_profile(auID, _next=''):
     """
         Checks if a completed profile is required, if so and it isn't complete, redirect to the profile edit page
     """
@@ -2178,9 +2184,12 @@ def check_add_to_cart_requires_complete_profile(auID):
     ]
 
     for f in required_fields:
-        if f is None:
-            session.flash = T('To offer you the best service possible, we kindly ask you to complete your profile.')
-            redirect(URL('profile', 'me'))
+        if not f:
+            session.flash = SPAN(
+                T('To offer you the best service possible, we kindly ask you to complete the general information in your profile.'), BR(),
+                T('After completing your profile information you will be redirected to the next step.')
+            )
+            redirect(URL('profile', 'me', vars={'_next': _next}))
 
 
     #TODO: The rest of the code...
