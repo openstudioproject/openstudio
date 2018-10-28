@@ -107,7 +107,10 @@ def event_add_to_cart():
     else:
         shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile_events')
         if shop_requires_complete_profile:
-            check_add_to_cart_requires_complete_profile(auth.user.id)
+            check_add_to_cart_requires_complete_profile(
+                auth.user.id,
+                _next=URL(request.controller, request.function, vars={'wspID': wspID})
+            )
 
         wsp.add_to_shoppingcart(auth.user.id)
         redirect(URL('cart'))
