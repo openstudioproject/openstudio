@@ -2098,7 +2098,10 @@ def class_add_to_cart():
 
     shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile_classes')
     if shop_requires_complete_profile:
-        check_add_to_cart_requires_complete_profile(auth.user.id)
+        check_add_to_cart_requires_complete_profile(
+            auth.user.id,
+            _next=URL(request.controller, request.function, vars=request.vars)
+        )
 
     cls = Class(clsID, date)
     # Drop in
