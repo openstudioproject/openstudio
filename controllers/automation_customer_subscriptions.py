@@ -43,6 +43,7 @@ def index_get_currnet_month_mollie_recurring(table):
             'noicon',
             URL('collect_mollie_recurring_payments_current_month'),
             title=T("Collect payments"),
+            tooltip=T("Collect payments for this month"),
             btn_class='btn-primary',
             _class='pull-right',
             btn_size=''
@@ -111,6 +112,7 @@ def index_get_month_invoices(table):
             'noicon',
             URL('create_invoices_for_month'),
             title=T("Create invoices"),
+            tooltip=T("Select month for which to create invoices"),
             btn_class='btn-primary',
             _class='pull-right',
             btn_size=''
