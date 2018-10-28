@@ -220,7 +220,11 @@ def create_invoices_for_month():
             timeout=1800, # run for max. half an hour.
         )
 
-        session.flash = T("Started creating customer subscription invoices... please wait")
+        session.flash = SPAN(
+            T("Started creating customer subscription invoices... "),
+            T("please refresh this page in a few minutes."), BR(),
+            T("Please note that you can continue to work on other things in the meantime and you don't have to wait on this page.")
+        )
         redirect(URL('index'))
 
 
@@ -247,5 +251,10 @@ def collect_mollie_recurring_payments_current_month():
         timeout=1800, # run for max. half an hour.
     )
 
-    session.flash = T("Started collecting customer subscription recurring payments using Mollie... please wait")
+    session.flash = SPAN(
+        T("Started collecting customer subscription recurring payments using Mollie... "),
+        T("please refresh this page in a few minutes."), BR(),
+        T("Please note that you can continue to work on other things in the meantime and you don't have to wait on this page.")
+    )
+
     redirect(URL('index'))
