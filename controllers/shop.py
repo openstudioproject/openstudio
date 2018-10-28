@@ -107,7 +107,7 @@ def event_add_to_cart():
     else:
         shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile_events')
         if shop_requires_complete_profile:
-            check_add_to_card_requires_complete_profile(auth.user.id)
+            check_add_to_cart_requires_complete_profile(auth.user.id)
 
         wsp.add_to_shoppingcart(auth.user.id)
         redirect(URL('cart'))
@@ -154,7 +154,7 @@ def classcard_add_to_cart():
     if features.Classcards:
         shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile_classcards')
         if shop_requires_complete_profile:
-            check_add_to_card_requires_complete_profile(auth.user.id)
+            check_add_to_cart_requires_complete_profile(auth.user.id)
 
         scd = SchoolClasscard(scdID)
         scd.add_to_shoppingcart(auth.user.id)
@@ -970,7 +970,7 @@ def membership_terms():
     # check if we require a complete profile
     shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile_memberships')
     if shop_requires_complete_profile:
-        check_add_to_card_requires_complete_profile(auth.user.id)
+        check_add_to_cart_requires_complete_profile(auth.user.id)
 
     sm = SchoolMembership(smID)
     price = sm.get_price_on_date(TODAY_LOCAL)
@@ -1067,7 +1067,7 @@ def subscription_terms():
     # check if we require a complete profile
     shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile_subscriptions')
     if shop_requires_complete_profile:
-        check_add_to_card_requires_complete_profile(auth.user.id)
+        check_add_to_cart_requires_complete_profile(auth.user.id)
 
     ##
     # Check for valid bank details
@@ -2086,7 +2086,7 @@ def class_add_to_cart():
 
     shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile_classes')
     if shop_requires_complete_profile:
-        check_add_to_card_requires_complete_profile(auth.user.id)
+        check_add_to_cart_requires_complete_profile(auth.user.id)
 
     cls = Class(clsID, date)
     # Drop in
@@ -2158,7 +2158,7 @@ def donate_get_form(var=None):
     return form
 
 
-def check_add_to_card_requires_complete_profile(auID):
+def check_add_to_cart_requires_complete_profile(auID):
     """
         Checks if a completed profile is required, if so and it isn't complete, redirect to the profile edit page
     """
