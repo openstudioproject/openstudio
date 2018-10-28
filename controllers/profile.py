@@ -436,6 +436,32 @@ def subscription_get_link_info(row):
              _class='grey pull-right')
 
 
+def me_requires_complete_profile(auID):
+    """
+    :param auID: db.auth_user.id
+    :return: Check if we require a complete profile
+    """
+    from openstudio.os_customer import Customer
+
+    # shop_requires_complete_profile_classes = get_sys_property('shop_requires_complete_profile_classes')
+    shop_requires_complete_profile_memberships = get_sys_property('shop_requires_complete_profile_memberships')
+    # shop_requires_complete_profile_classcards = get_sys_property('shop_requires_complete_profile_classcards')
+    # shop_requires_complete_profile_events = get_sys_property('shop_requires_complete_profile_events')
+    shop_requires_complete_profile_subscriptions = get_sys_property('shop_requires_complete_profile_subscriptions')
+
+    customer = Customer(auID)
+
+    require_complete_profile = False
+
+    if shop_requires_complete_profile_memberships and customer.has_membership_on_date(TODAY_LOCAL):
+        require_complete_profile = True
+
+    if shop_requires_complete_profile_subscriptions and customer.has_subscription_on_date(TODAY_LOCAL):
+        require_complete_profile = True
+
+    return require_complete_profile
+
+
 @auth.requires_login()
 def me():
     """
@@ -471,7 +497,7 @@ def me():
 
     db.auth_user.mobile.requires = IS_NOT_EMPTY(error_message = T('Please enter your mobile number'))
 
-    if _next:
+    if me_requires_complete_profile(auth.user.id):
         dis_query = dis_query = (db.school_discovery.Archived == False)
 
         db.auth_user.gender.requires=IS_IN_SET(GENDERS, error_message=T("Cannot be empty"))
