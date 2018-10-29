@@ -89,7 +89,7 @@ def index_get_month_credits_add(table):
             ))
 
         tr = TR(
-            TD(T("Collect recurring Mollie payments for subscriptions (this month)")),
+            TD(T("Add subscription credits for month")),
             TD(result_table),
             TD(run)
         )
