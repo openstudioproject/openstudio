@@ -192,7 +192,7 @@ class OsSchedulerTasks:
         return T("Invoices created") + ': ' + unicode(invoices_created)
 
 
-    def customers_memberships_renew_expired(self, year, month, description):
+    def customers_memberships_renew_expired(self, year, month):
         """
             Checks if a subscription exceeds the expiration of a membership.
             If so it creates a new membership and an invoice for it for the customer
@@ -221,7 +221,7 @@ class OsSchedulerTasks:
             db.customers_memberships.ALL
         )
 
-        invoices_created = 0
+        renewed = 0
 
         for row in rows:
             # Check if a subscription will be active next month for customer
@@ -242,10 +242,11 @@ class OsSchedulerTasks:
                     payment_methods_id=row.payment_methods_id
                 )
 
+                renewed += 1
 
         ##
         # For scheduled tasks db connection has to be committed manually
         ##
         db.commit()
 
-        return T("Invoices created") + ': ' + unicode(invoices_created)
+        return T("Memberships renewed") + ': ' + unicode(renewed)

@@ -43,7 +43,7 @@ def index_get_month_invoices(table):
         run = os_gui.get_button(
             'noicon',
             URL('create_invoices_for_month'),
-            title=T("Run task"),
+            title=T("Renew memberships"),
             btn_class='btn-primary',
             _class='pull-right',
             btn_size=''
@@ -86,7 +86,7 @@ def index_get_month_invoices(table):
             ))
 
         tr = TR(
-            TD(T("Create customer membership invoices, that are expiring with running subscription, for month")),
+            TD(T("Renew memberships that will expire in selected month")),
             TD(result_table),
             TD(run)
         )
@@ -104,7 +104,7 @@ def create_invoices_for_month():
     :return:
     """
     response.title = T("Automation")
-    response.subtitle = T("Customer memberships - create invoices for month")
+    response.subtitle = T("Customer memberships - renew expiring memberships in month")
     response.view = 'general/only_content.html'
 
     months = get_months_list()
@@ -118,14 +118,14 @@ def create_invoices_for_month():
               default=TODAY_LOCAL.year,
               requires=IS_INT_IN_RANGE(2010, 2999),
               label=T("Year")),
-        Field('description',
-              label=T("Description"),
-              comment=T(
-                  "This will be the invoice description and shown on the customers' " + \
-                  "bank statement in case you create a collection batch. " + \
-                  "When an alt. price has been added for this month, this description will be used for that subscription.")),
+        # Field('description',
+        #       label=T("Description"),
+        #       comment=T(
+        #           "This will be the invoice description and shown on the customers' " + \
+        #           "bank statement in case you create a collection batch. " + \
+        #           "When an alt. price has been added for this month, this description will be used for that subscription.")),
         formstyle="bootstrap3_stacked",
-        submit_button=T("Create invoices")
+        submit_button=T("Renew memberships")
     )
 
     result = set_form_id_and_get_submit_button(form, 'MainForm')
@@ -139,11 +139,10 @@ def create_invoices_for_month():
         description = request.vars['description'] or ''
 
         scheduler.queue_task(
-            'customers_exp_membership_check_subscriptions',
+            'customers_membership_renew_expired',
             pvars={
                 'year': year,
-                'month': month,
-                'description': description
+                'month': month
             },
             stop_time=datetime.datetime.now() + datetime.timedelta(hours=1),
             last_run_time=datetime.datetime(1963, 8, 28, 14, 30),
@@ -151,10 +150,9 @@ def create_invoices_for_month():
         )
 
         session.flash = SPAN(
-            T("Started creating customer memberships invoices... "),
+            T("Started renewing customer memberships... "),
             T("please refresh this page in a few minutes."), BR(),
-            T(
-                "Please note that you can continue to work on other things in the meantime and you don't have to wait on this page.")
+            T("Please note that you can continue to work on other things in the meantime and you don't have to wait on this page.")
         )
         redirect(URL('index'))
 

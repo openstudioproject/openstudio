@@ -141,7 +141,7 @@ class SchoolMembership:
         if invoice:
             self.sell_to_customer_create_invoice(cmID)
 
-        return ccdID
+        return cmID
 
 
     def sell_to_customer_create_invoice(self, cmID):
