@@ -190,3 +190,98 @@ class OsSchedulerTasks:
         db.commit()
 
         return T("Invoices created") + ': ' + unicode(invoices_created)
+
+
+    def customers_exp_membership_check_subscriptions(self, year, month, description):
+        """
+            Checks if a subscription exceeds the expiration of a membership. If so it creates a new membership and an invoice for it for the customer
+        """
+        from general_helpers import get_last_day_month
+        from datetime import timedelta
+        from os_invoice import Invoice
+        from os_school_membership import SchoolMembership
+        from os_customer_membership import CustomerMembership
+
+        T = current.T
+        db = current.db
+        DATE_FORMAT = current.DATE_FORMAT
+
+        # db.test_scheduler_print_data.insert(task_message='task starts')
+        # db.commit()
+
+        year = int(year)
+        month = int(month)
+
+        firstdaythismonth = datetime.date(year, month, 1)
+        lastdaythismonth  = get_last_day_month(firstdaythismonth)
+
+        rows = db().select(db.customers_memberships.ALL,
+                           db.customers_subscriptions.ALL,
+                           db.school_subscriptions.id,
+                           db.school_subscriptions.MembershipRequired,
+                           left=(db.customers_subscriptions.on(db.customers_subscriptions.auth_customer_id == db.customers_memberships.auth_customer_id),
+                                db.school_subscriptions.on(db.school_subscriptions.id == db.customers_subscriptions.school_subscriptions_id)))
+        invoices_created = 0
+
+        for row in rows:
+            if row.customers_memberships.Enddate <= lastdaythismonth:
+
+                if row.customers_subscriptions.Enddate > lastdaythismonth:
+
+                    if row.school_subscriptions.MembershipRequired == True:
+
+                        membership = row.customers_memberships.school_memberships_id
+
+                        membership_row = db.school_memberships(id= membership)
+
+                        sm = SchoolMembership(membership)
+                        startdate = row.customers_memberships.Enddate + timedelta(days=1)
+
+                        enddate = sm.sell_to_customer_get_enddate(row.customers_memberships.Enddate)
+                        cmID = db.customers_memberships.insert(
+                            auth_customer_id = row.customers_memberships.auth_customer_id,
+                            school_memberships_id= row.customers_memberships.school_memberships_id,
+                            Startdate = startdate,
+                            Enddate = enddate,
+                            payment_methods_id = row.customers_memberships.payment_methods_id
+                        )
+                        db.commit()
+                        cm = CustomerMembership(cmID)
+                        cm.set_date_id_and_barcode()
+                        invoices_created += 1
+                        sm.sell_to_customer_create_invoice(cmID)
+
+                        # # Check if price exists and > 0:
+                        # if sm.get_price_on_date(startdate):
+                        #     period_start = startdate
+                        #     period_end = enddate
+                        #
+                        #     igpt = db.invoices_groups_product_types(ProductType='membership')
+                        #
+                        #     iID = db.invoices.insert(
+                        #         invoices_groups_id=igpt.invoices_groups_id,
+                        #         Description=cm.get_name(),
+                        #         MembershipPeriodStart=period_start,
+                        #         MembershipPeriodEnd=period_end,
+                        #         Status='sent'
+                        #     )
+                        #
+                        #     invoice = Invoice(iID)
+                        #     invoice.link_to_customer(cm.row.auth_customer_id)
+                        #     invoice.item_add_membership(
+                        #         cmID,
+                        #         period_start,
+                        #         period_end
+                        #     )
+                        #
+                        #     return iID
+                        # else:
+                        #     return None
+
+
+        ##
+        # For scheduled tasks db connection has to be committed manually
+        ##
+        db.commit()
+
+        return T("Invoices created") + ': ' + unicode(invoices_created)

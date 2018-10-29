@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import calendar
+import datetime
 from gluon import *
 
 
@@ -182,7 +184,51 @@ class SchoolMembership:
         else:
             return None
 
+    def sell_to_customer_get_enddate(self, date_start):
+        """
+           Calculate and set enddate when adding a membership
+           :param cmID: db.customers_memberships.id
+           :return : enddate for a membership
+        """
 
+        def add_months(sourcedate, months):
+            month = sourcedate.month - 1 + months
+            year = int(sourcedate.year + month / 12)
+            month = month % 12 + 1
+            last_day_new = calendar.monthrange(year, month)[1]
+            day = min(sourcedate.day, last_day_new)
+
+            ret_val = datetime.date(year, month, day)
+
+            last_day_source = calendar.monthrange(sourcedate.year,
+                                                  sourcedate.month)[1]
+
+            if sourcedate.day == last_day_source and last_day_source > last_day_new:
+                return ret_val
+            else:
+                delta = datetime.timedelta(days=1)
+                return ret_val - delta
+
+        db = current.db
+
+        # get info
+        card = db.school_memberships(self.smID)
+
+        if card.ValidityUnit == 'months':
+            # check for and add months
+            months = card.Validity
+            if months:
+                enddate = add_months(date_start, months)
+        else:
+            if card.ValidityUnit == 'weeks':
+                days = card.Validity * 7
+            else:
+                days = card.Validity
+
+            delta_days = datetime.timedelta(days=days)
+            enddate = (date_start + delta_days) - datetime.timedelta(days=1)
+
+        return enddate
     # def sell_to_customer_get_enddate(self, date_start):
     #     """
     #        Calculate and set enddate when adding a membership
