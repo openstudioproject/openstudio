@@ -22,14 +22,14 @@ def index():
 
     table = TABLE(header, _class='table table-striped table-hover')
 
-    table = index_get_month_invoices(table)
+    table = index_get_month_renew(table)
 
 
 
     return dict(content=table)
 
 
-def index_get_month_invoices(table):
+def index_get_month_renew(table):
     """
     :param var:
     :return:
@@ -42,7 +42,7 @@ def index_get_month_invoices(table):
     if permission:
         run = os_gui.get_button(
             'noicon',
-            URL('create_invoices_for_month'),
+            URL('renew_in_month'),
             title=T("Renew memberships"),
             btn_class='btn-primary',
             _class='pull-right',
@@ -99,7 +99,7 @@ def index_get_month_invoices(table):
 
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('create', 'invoices'))
-def create_invoices_for_month():
+def renew_in_month():
     """
 
     :return:
@@ -119,12 +119,6 @@ def create_invoices_for_month():
               default=TODAY_LOCAL.year,
               requires=IS_INT_IN_RANGE(2010, 2999),
               label=T("Year")),
-        # Field('description',
-        #       label=T("Description"),
-        #       comment=T(
-        #           "This will be the invoice description and shown on the customers' " + \
-        #           "bank statement in case you create a collection batch. " + \
-        #           "When an alt. price has been added for this month, this description will be used for that subscription.")),
         formstyle="bootstrap3_stacked",
         submit_button=T("Renew memberships")
     )
