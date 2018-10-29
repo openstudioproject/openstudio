@@ -323,7 +323,8 @@ class Invoices:
                       cmID=None,
                       search_enabled=False,
                       group_filter_enabled=False,
-                      only_teacher_credit_invoices=False):
+                      only_teacher_credit_invoices=False,
+                      only_employee_claim_credit_invoices=False):
         db = current.db
         auth = current.auth
         session = current.session
@@ -344,6 +345,7 @@ class Invoices:
         db.invoices.Note.readable = False
         db.invoices.Terms.readable = False
         db.invoices.TeacherPayment.readable = False
+        db.invoices.EmployeeClaim.readable = False
 
         links = [dict(header=T("Balance"),
                       body=self._list_invoices_get_balance),
@@ -378,6 +380,8 @@ class Invoices:
             query = self._list_invoices_get_groups_query(query)
         if only_teacher_credit_invoices:
             query &= (db.invoices.TeacherPayment == True)
+        if only_employee_claim_credit_invoices:
+            query &= (db.invoices.EmployeeClaim == True)
 
         # General list, list for customer or list for subscription
         if not cuID and not csID:

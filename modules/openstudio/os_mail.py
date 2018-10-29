@@ -5,6 +5,36 @@ import os
 from gluon import *
 
 class OsMail:
+    def get_email_template(self, template):
+        """
+        :param template: str - template name
+        :return: str - template
+        """
+        web2pytest = current.globalenv['web2pytest']
+        request = current.request
+
+        db = current.db
+        cache = current.cache
+
+        if web2pytest.is_running_under_test(request, request.application):
+            caching = None
+        else:
+            caching = (cache.ram, 300)
+
+        # Get template and cache query for 5 minutes
+        query = (db.sys_email_templates.Name == template)
+        rows = db(query).select(
+            db.sys_email_templates.ALL,
+            cache = caching
+        )
+
+        try:
+            return rows.first().TemplateContent
+        except AttributeError:
+            # Catch NoneType exceptions
+            return None
+
+
     def send_notification(self,
                           sys_notification,
                           customers_orders_id=None):
@@ -213,7 +243,13 @@ class OsMail:
         image = IMG(_src=URL('default', 'download', ws.picture, scheme=True, host=True),
                     _style="max-width:500px")
 
-        return dict(content=DIV(image, BR(), BR(), XML(content)), description=description)
+        return dict(
+            content=DIV(
+                image, BR(), BR(),
+                XML(content)
+            ),
+            description=description
+        )
 
 
     def render_email_template(self,
@@ -248,11 +284,13 @@ class OsMail:
 
         template_name = 'default.html'
         template_path = os.path.join(request.folder, 'views', 'templates', 'email')
+        # Get template
         if template_content is None:
-            # Get email template from settings
-            template_content = get_sys_property(email_template)
+            # Get email template from db
+            template_content = self.get_email_template(email_template)
 
-        if email_template == 'email_template_order_received':
+        # Render template
+        if email_template == 'order_received':
             subject = T('Order received')
             # do some pre-processing to show the correct order info
             content = self._render_email_template_order(template_content, customers_orders_id)
@@ -266,12 +304,12 @@ class OsMail:
                     XML(order.order.CustomerNote.replace('\n', '<br>'))
                 )
 
-        elif email_template == 'email_template_order_delivered':
+        elif email_template == 'order_delivered':
             subject = T('Order delivered')
             # do some pre-processing to show the correct order info
             content = self._render_email_template_order(template_content, customers_orders_id)
 
-        elif email_template == 'email_template_payment_recurring_failed':
+        elif email_template == 'payment_recurring_failed':
             subject = T('Recurring payment failed')
             content = self._render_email_template_payment_recurring_failed(template_content)
 
@@ -285,8 +323,8 @@ class OsMail:
             content = result['content']
             description = result['description']
             
-        elif (email_template == 'email_template_sys_verify_email' or
-              email_template == 'email_template_sys_reset_password'):
+        elif (email_template == 'sys_verify_email' or
+              email_template == 'sys_reset_password'):
             template_name = 'default_simple.html'
             content = XML(template_content)
             subject = subject
@@ -296,8 +334,7 @@ class OsMail:
             content = XML(template_content)
             subject = subject
 
-        footer = XML(get_sys_property('email_template_sys_footer'))
-
+        footer = XML(self.get_email_template('sys_email_footer'))
 
         template = os.path.join(
             template_path,
@@ -305,19 +342,19 @@ class OsMail:
         )
 
         context = dict(
-            logo=logo,
-            title=title,
-            description=description,
-            content=content,
-            comments=comments,
-            footer=footer,
-            request=request
+            logo = logo,
+            title = title,
+            description = description,
+            content = content,
+            comments = comments,
+            footer = footer,
+            request = request
         )
 
         message = render(
             filename = template,
             path = template_path,
-            context=context
+            context = context
         )
 
         if return_html:
@@ -377,7 +414,7 @@ class OsMail:
             au = db.auth_user()
 
             description = DIV(
-                T('A new order has been received:'), BR(),
+                T('A new order has been received:'), BR(), BR(),
                 TABLE(
                     TR(
                         TD(B(T('Order'))),
@@ -388,6 +425,10 @@ class OsMail:
                                        host=True),
                              )
                            )
+                    ),
+                    TR(
+                        TD(B(T('Order status'))),
+                        TD(order.order.Status)
                     ),
                     TR(
                         TD(B(T('Order date'))),

@@ -558,7 +558,6 @@ def update_customer():
 
     print db.auth_user.email.requires
 
-    ##
     # The default validator returns an error in this case
     # It says an account already exists for this email
     # when trying to update the users' own/current email.
@@ -588,3 +587,25 @@ def update_customer():
                     id=cuID)
 
 
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'shop_products'))
+def get_products():
+    """
+
+    :return: dict containing products sorted by category
+    """
+    from openstudio.os_shop_products_variants import ShopProductsVariants
+    # from openstudio.os_shop_category import ShopCategory
+
+    import pprint
+
+    pp = pprint.PrettyPrinter(depth=6)
+    set_headers()
+
+
+    spv = ShopProductsVariants()
+
+    data = spv.list_pos()
+    pp.pprint(data)
+
+    return dict(data=data)

@@ -497,9 +497,7 @@ class OSExactOnline:
 
         eoID = os_customer.row.exact_online_relation_id
 
-        print eoID
         if not eoID:
-            print 'creating relation'
             self.create_relation(os_customer)
             return
 
@@ -587,9 +585,6 @@ class OSExactOnline:
         from exactonline.http import HTTPError
         from tools import OsTools
 
-        print "Creating bank account"
-        print os_customer_payment_info.row
-
         os_tools = OsTools()
         authorized = os_tools.get_sys_property('exact_online_authorized')
 
@@ -639,9 +634,6 @@ class OSExactOnline:
             os_customer_payment_info.row.update_record()
 
         except HTTPError as e:
-            print 'bank account creation error...'
-
-
             error = True
             self._log_error(
                 'create',

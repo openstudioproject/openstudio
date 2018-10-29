@@ -61,16 +61,23 @@ def ep_menu():
         URL('ep', 'index', extension='')])
 
     # Monthly Classes
-    menu.append([(  # I(_class='fa fa-graduation-cap'),
-        SPAN(T('My Classes'))),
-        False,
-        URL('ep', 'my_classes', extension='')])
+    if auth.user.teacher:
+        menu.append([(  # I(_class='fa fa-graduation-cap'),
+            SPAN(T('My Classes'))),
+            False,
+            URL('ep', 'my_classes', extension='')])
 
     # My Payments / Staffpayments
     menu.append([(  # I(_class='fa fa-home'),
         SPAN(T('My Payments'))),
         False,
         URL('ep', 'my_payments', extension='')])
+
+    # My Claims
+    menu.append([(  # I(_class='fa fa-home'),
+        SPAN(T('My Claims'))),
+        False,
+        URL('ep', 'my_claims', extension='')])
 
     menu.append([(  # I(_class='fa fa-home'),
         SPAN(T('Back end'))),
@@ -502,6 +509,11 @@ def get_backend_menu():
                                 False,
                                 URL('finance', 'teacher_payment_classes',
                                     vars={'status': 'not_verified'},
+                                    extension='')))
+            if user_helpers.check_read_permission('employee_claims', user_id):
+                submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Employee Claims'))),
+                                False,
+                                URL('finance', 'employee_claims',
                                     extension='')))
 
             if user_helpers.check_read_permission('payment_batches', user_id):

@@ -740,6 +740,19 @@ def define_sys_properties():
         format='%(Property)s')
 
 
+def define_sys_email_templates():
+    db.define_table('sys_email_templates',
+        Field('Name',
+              label=T('Name')),
+        Field('Title',
+              label=T('Title')),
+        Field('Description',
+              label=T('Description')),
+        Field('TemplateContent',
+              label=T('Content'))
+    )
+
+
 def define_sys_notifications():
     db.define_table("sys_notifications",
         Field("Notification",
@@ -1033,6 +1046,10 @@ def define_school_classcards():
         Field('MembershipRequired', 'boolean',
               default=False,
               label=T('Requires membership')),
+        Field('Trialcard', 'boolean',
+              default=False,
+              required=True,
+              label=T('Trial card')),
         Field('sys_organizations_id', db.sys_organizations,
               readable=True if len(ORGANIZATIONS) > 2 else False,
               writable=True if len(ORGANIZATIONS) > 2 else False,
@@ -1086,13 +1103,7 @@ def define_school_classcards():
             readable=False,
             default=False,
             label=T("Unlimited classes"),
-            comment=os_gui.get_info_icon(
-                  title=T('For unlimited cards the number of classes entered is ignored'),
-                  btn_icon='info')),
-        Field('Trialcard', 'boolean',
-            default=False,
-            required=True,
-            label=T('Trial card')),
+            comment=T('For unlimited cards the number of classes entered is ignored')),
         Field('GLAccount',
               represent=lambda value, row: value or '',
               label=T('G/L Account'),
@@ -1731,6 +1742,52 @@ def define_classes_notes():
               default=False),
         Field('Note', 'text', required=True,
               requires=IS_NOT_EMPTY()),
+        )
+
+
+def define_employee_claims():
+    db.define_table('employee_claims',
+        Field('auth_user_id', db.auth_user,  # Employee that does the claims
+              required= True,
+              readable=False,
+              writable=False,
+              label=T('Employee/Teacher')),
+        Field('Amount', 'double',
+              default=0,
+              represent=represent_float_as_amount,
+              label=T("Amount (incl. VAT)")),
+        Field('Quantity', 'double',
+              default=1,
+              # represent=represent_float_as_amount,
+              label=T("Quantity")),
+        Field('tax_rates_id', db.tax_rates,
+              label= T('Tax Rate')),
+        Field('ClaimDate', 'datetime',
+              default=NOW_LOCAL,
+              readable= False,
+              writable= False,
+              represent=represent_datetime,
+              label=T('Date')),
+        Field('Description',
+              label=T('Description')),
+        Field('Attachment', 'upload', autodelete=True,
+              requires=IS_EMPTY_OR([IS_IMAGE(extensions=('jpeg', 'jpg', 'png')),
+                                    IS_LENGTH(maxsize=665600,
+                                              error_message=T('650KB or less'))]),  # 650KB
+              label=T("Attachment (Max 650KB)")),
+
+        Field('Status',
+              readable=False,
+              writable=False,
+              requires=IS_IN_SET(employee_claims_statuses),
+              represent=represent_employee_claims_status,
+              label=T("Status")),
+        Field('VerifiedBy', db.auth_user,
+              readable=False,
+              writable=False),
+        Field('VerifiedOn', 'datetime',
+              readable=False,
+              writable=False),
         )
 
 
@@ -3685,6 +3742,37 @@ def define_invoices_customers_classcards():
             writable=False))
 
 
+def define_invoices_employee_claims():
+    """
+        Table to link employee claims to invoices
+    """
+    db.define_table('invoices_employee_claims',
+        Field('invoices_id', db.invoices,
+              readable=False,
+              writable=False),
+        Field('employee_claims_id', db.employee_claims,
+              readable= False,
+              writable = False,
+              label=T('Employee Claim'))
+    )
+
+
+def define_invoices_teachers_payment_classes():
+    """
+        Table to link teacher payment classes to invoices
+    """
+    db.define_table('invoices_teachers_payment_classes',
+        Field('invoices_id', db.invoices,
+            readable=False,
+            writable=False),
+        Field('teachers_payment_classes_id', db.teachers_payment_classes,
+              readable= False,
+              writable = False,
+              label=T('Teacher payment class')
+              )
+    )
+
+
 def define_invoices_customers_orders():
     """
         Table to link customers_orders to invoices
@@ -3851,18 +3939,22 @@ def define_invoices():
             readable=False,
             writable=False,
             default=False),
-        Field('TeacherPaymentMonth', 'integer',
-              readable=False,
-              writable=False,
-              requires=IS_IN_SET(months, zero=T('Please select...')),
-              represent=NRtoMonth,
-              default=TODAY_LOCAL.month,
-              label=T('Month')),
-        Field('TeacherPaymentYear', 'integer',
-              readable=False,
-              writable=False,
-              default=TODAY_LOCAL.year,
-              label=T('Year')),
+        # Field('TeacherPaymentMonth', 'integer',
+        #       readable=False,
+        #       writable=False,
+        #       requires=IS_IN_SET(months, zero=T('Please select...')),
+        #       represent=NRtoMonth,
+        #       default=TODAY_LOCAL.month,
+        #       label=T('Month')),
+        # Field('TeacherPaymentYear', 'integer',
+        #       readable=False,
+        #       writable=False,
+        #       default=TODAY_LOCAL.year,
+        #       label=T('Year')),
+        Field('EmployeeClaim', 'boolean',
+            readable=False,
+            writable=False,
+            default=False),
         Field('CustomerCompany',
               label=T('Company')),
         Field('CustomerCompanyRegistration',
@@ -4605,14 +4697,18 @@ def define_shop_products():
                                               error_message=T('650KB or less'))]),  # 650KB
               label=T("Image (Max 650KB)")),
         Field('thumbsmall', 'upload',  # generate 50*50 for list view
-              autodelete=True, writable=False,
+              autodelete=True,
+              readable=False,
+              writable=False,
               compute=lambda row: SMARTHUMB(row.picture,
                                             (50, 50),
                                             name="Small"),
               represent=represent_shop_products_thumbsmall,
               label=T("Image")),
         Field('thumblarge', 'upload',  # generate 400*400 for edit view
-              autodelete=True, writable=False,
+              autodelete=True,
+              readable=False,
+              writable=False,
               compute=lambda row: SMARTHUMB(row.picture,
                                             (400, 400),
                                             name="Large"),
@@ -4665,14 +4761,18 @@ def define_shop_products_variants():
                                               error_message=T('650KB or less'))]),  # 650KB
               label=T("Image (Max 650KB)")),
         Field('thumbsmall', 'upload',  # generate 50*50 for list view
-              autodelete=True, writable=False,
+              autodelete=True,
+              readable=False,
+              writable=False,
               compute=lambda row: SMARTHUMB(row.picture,
                                             (50, 50),
                                             name="Small"),
               represent=represent_shop_products_variants_thumbsmall,
               label=T("Image")),
         Field('thumblarge', 'upload',  # generate 400*400 for edit view
-              autodelete=True, writable=False,
+              autodelete=True,
+              readable=False,
+              writable=False,
               compute=lambda row: SMARTHUMB(row.picture,
                                             (400, 400),
                                             name="Large"),
@@ -5272,57 +5372,60 @@ def setup_set_email_templates():
         Insert default email templates
     """
     templates = [
-#         [ 'email_template_invoice_created',
-#           """<h3>A new invoice has been added to your account</h3>
-# <p>&nbsp;</p>
-# <p>{invoice_items}</p>
-# <p>&nbsp;</p>
-# <p>To view your invoices, please click <a href="{link_profile_invoices}">here</a>.</p>
-# <p>&nbsp;</p>""" ],
-        [ 'email_template_order_received',
-          """<h3>We have received your order with number #{order_id} on {order_date}</h3>
-<p>&nbsp;</p>
-<p>{order_items}</p>
-<p>&nbsp;</p>
-<p>To view your orders, please click <a href="{link_profile_orders}">here</a>.</p>""" ],
-        [ 'email_template_order_delivered',
-           """<h3>Your order&nbsp;with number #{order_id} has been delivered</h3>
-<p>All items listed below have been added to your account</p>
-<p>&nbsp;</p>
-<p>{order_items}</p>
-<p>&nbsp;</p>
-<p>To view your orders, please click <a href="{link_profile_orders}">here</a>.</p>
-<p>To view your invoices, please click <a href="{link_profile_invoices}">here</a>.</p>"""],
-#         [ 'email_template_payment_received',
-#           """<h3>Payment received for invoice #{invoice_id}</h3>
-# <p>&nbsp;</p>
-# <p>On {payment_date} we have received a payment of {payment_amount} for invoice #{invoice_id}</p>
-# <p>&nbsp;</p>
-# <p>To view your invoices, please click <a href="{link_profile_invoices}">here</a>.</p>"""],
-        ['email_template_sys_footer',
-         """ """],
-        ['email_template_sys_reset_password',
-         """<h3>Reset password</h3>
-<p>Please click on the <a href="%(link)s">link</a> to reset your password</p>"""],
-        ['email_template_sys_verify_email',
-         """<h3>Welcome %(first_name)s!</h3>
-<p>&nbsp;</p>
-<p>Please click on this <a href="%(link)s">link</a> to verify your email address</p>"""],
-        ['email_template_payment_recurring_failed',
-         """<h3>Recurring payment failed</h3>
-<p>&nbsp;</p>
-<p>One or more recurring payments failed, please log in to your account and pay any open invoices before the due date.</p>
-<p>&nbsp;</p>
-<p>To view your invoices, please click <a href="{link_profile_invoices}">here</a>.</p>"""]
+        [
+            'sys_email_footer',
+            'Email Footer',
+             """ """
+        ],
+        [
+            'sys_reset_password',
+            'Reset Password',
+            """<h3>Reset password</h3>
+            <p>Please click on the <a href="%(link)s">link</a> to reset your password</p>"""
+        ],
+        [
+            'sys_verify_email',
+            'Verify Email',
+            """<h3>Verify email</h3>
+            <p>Welcome %(first_name)s!</p>
+            <p>Please click on the <a href="%(link)s">link</a> to verify your email</p>"""
+        ],
+        [
+            'order_received',
+            'Order received',
+            """<h3>We have received your order with number #{order_id} on {order_date}</h3>
+            <p>&nbsp;</p>
+            <p>{order_items}</p>
+            <p>&nbsp;</p>
+            <p>To view your orders, please click <a href="{link_profile_orders}">here</a>.</p>"""
+        ],
+        [
+            'order_delivered',
+            'Order delivered',
+            """<h3>Your order&nbsp;with number #{order_id} has been delivered</h3>
+            <p>All items listed below have been added to your account</p>
+            <p>&nbsp;</p>
+            <p>{order_items}</p>
+            <p>&nbsp;</p>
+            <p>To view your orders, please click <a href="{link_profile_orders}">here</a>.</p>
+            <p>To view your invoices, please click <a href="{link_profile_invoices}">here</a>.</p>"""
+        ],
+        [
+            'payment_recurring_failed',
+            'Recurring payment failed',
+            """<h3>Recurring payment failed</h3>
+            <p>&nbsp;</p>
+            <p>One or more recurring payments failed, please log in to your account and pay any open invoices before the due date.</p>
+            <p>&nbsp;</p>
+            <p>To view your invoices, please click <a href="{link_profile_invoices}">here</a>.</p>"""
+        ],
     ]
-
-    for template, template_content in templates:
-            db.sys_properties.insert(
-            Property = template,
-            PropertyValue = template_content
+    for name, title, template_content in templates:
+        db.sys_email_templates.insert(
+            Name = name,
+            Title = title,
+            TemplateContent = template_content
         )
-
-    cache_clear_sys_properties()
 
 
 def setup():
@@ -5712,6 +5815,10 @@ MAIL = mail
 CURRSYM = get_sys_property('CurrencySymbol')
 if not CURRSYM:
     CURRSYM = u'€'
+# setup currency
+CURRENCY = get_sys_property('Currency')
+if not CURRENCY:
+    CURRENCY = 'EUR'
 
 
 ### Sys properties and auth tables end
@@ -5722,6 +5829,7 @@ define_sys_organizations()
 define_sys_api_users()
 define_sys_files()
 define_sys_accounting()
+define_sys_email_templates()
 define_sys_notifications()
 define_sys_notifications_email()
 set_show_location()
@@ -5828,6 +5936,9 @@ define_customers_orders_items()
 define_customers_orders_amounts()
 define_customers_orders_mollie_payment_ids()
 
+#employee claims definitions
+define_employee_claims()
+
 
 # invoice definitions
 define_invoices_groups()
@@ -5843,6 +5954,8 @@ define_invoices_customers()
 define_invoices_customers_memberships()
 define_invoices_customers_subscriptions()
 define_invoices_customers_orders()
+define_invoices_employee_claims()
+define_invoices_teachers_payment_classes()
 define_invoices_mollie_payment_ids()
 
 # payment batches definitions

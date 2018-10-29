@@ -1343,7 +1343,7 @@ def test_class_add_to_cart_requires_complete_profile(client, web2py):
     populate_school_classcards(web2py, nr=2)
 
     web2py.db.sys_properties.insert(
-        Property="shop_requires_complete_profile",
+        Property="shop_requires_complete_profile_classes",
         PropertyValue="on"
     )
     web2py.db.commit()
@@ -1442,7 +1442,7 @@ def test_classcard_add_to_cart_requires_complete_profile(client, web2py):
     """
     setup_profile_tests(web2py)
     web2py.db.sys_properties.insert(
-        Property="shop_requires_complete_profile",
+        Property="shop_requires_complete_profile_classcards",
         PropertyValue="on"
     )
     web2py.db.commit()
@@ -1779,7 +1779,7 @@ def test_complete(client, web2py):
     url = '/shop/complete?coID=2'
     client.get(url)
     assert client.status == 200
-    assert "That order isn&#x27;t yours..." in client.text
+    assert "Unable" in client.text # this is part of a string that says something like "Unable to show order"
 
     url = '/shop/complete?coID=1'
     client.get(url)
@@ -1964,7 +1964,7 @@ def test_event_add_to_cart_requires_complete_profile(client, web2py):
     populate_workshops(web2py)
 
     web2py.db.sys_properties.insert(
-        Property="shop_requires_complete_profile",
+        Property="shop_requires_complete_profile_events",
         PropertyValue="on"
     )
     web2py.db.commit()
@@ -2108,7 +2108,7 @@ def test_subscription_terms_requires_complete_profile(client, web2py):
 
     populate_school_subscriptions(web2py)
     web2py.db.sys_properties.insert(
-        Property="shop_requires_complete_profile",
+        Property="shop_requires_complete_profile_subscriptions",
         PropertyValue="on"
     )
 
@@ -2176,7 +2176,7 @@ def test_membership_terms_requires_complete_profile(client, web2py):
 
     populate_school_memberships(web2py)
     web2py.db.sys_properties.insert(
-        Property="shop_requires_complete_profile",
+        Property="shop_requires_complete_profile_memberships",
         PropertyValue="on"
     )
 

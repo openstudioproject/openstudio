@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import Mollie
+from mollie.api.client import Client
+from mollie.api.error import Error as MollieError
 
 from general_helpers import workshops_get_full_workshop_product_id
 from general_helpers import datestr_to_python
@@ -106,7 +107,10 @@ def event_add_to_cart():
     else:
         shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile_events')
         if shop_requires_complete_profile:
-            check_add_to_card_requires_complete_profile(auth.user.id)
+            check_add_to_cart_requires_complete_profile(
+                auth.user.id,
+                _next=URL(request.controller, request.function, vars={'wspID': wspID})
+            )
 
         wsp.add_to_shoppingcart(auth.user.id)
         redirect(URL('cart'))
@@ -153,7 +157,10 @@ def classcard_add_to_cart():
     if features.Classcards:
         shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile_classcards')
         if shop_requires_complete_profile:
-            check_add_to_card_requires_complete_profile(auth.user.id)
+            check_add_to_cart_requires_complete_profile(
+                auth.user.id,
+                _next=URL(request.controller, request.function, vars={'scdID': scdID})
+            )
 
         scd = SchoolClasscard(scdID)
         scd.add_to_shoppingcart(auth.user.id)
@@ -433,7 +440,10 @@ def order_received_mail_customer(coID):
     from openstudio.os_mail import OsMail
 
     osmail = OsMail()
-    msgID = osmail.render_email_template('email_template_order_received', customers_orders_id=coID)
+    msgID = osmail.render_email_template(
+        'order_received',
+        customers_orders_id=coID
+    )
 
     osmail.send(msgID, auth.user.id)
 
@@ -512,7 +522,7 @@ def complete():
 
         # Does this order belong to this customer?
         if not order.order.auth_customer_id == auth.user.id:
-            session.flash = T("That order isn't yours...")
+            session.flash = T("Unable to show order")
             redirect(URL('cart'))
 
         # Do we have a donation?
@@ -567,7 +577,7 @@ def complete():
         invoice = Invoice(iID)
 
         if not invoice.get_linked_customer_id() == auth.user.id:
-            session.flash = T("That invoice isn't yours...")
+            session.flash = T("Unable to show invoice")
             redirect(URL('profile', 'index'))
 
 
@@ -966,7 +976,10 @@ def membership_terms():
     # check if we require a complete profile
     shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile_memberships')
     if shop_requires_complete_profile:
-        check_add_to_card_requires_complete_profile(auth.user.id)
+        check_add_to_cart_requires_complete_profile(
+            auth.user.id,
+            _next = URL(request.controller, request.function, vars={'smID': smID})
+        )
 
     sm = SchoolMembership(smID)
     price = sm.get_price_on_date(TODAY_LOCAL)
@@ -1063,7 +1076,10 @@ def subscription_terms():
     # check if we require a complete profile
     shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile_subscriptions')
     if shop_requires_complete_profile:
-        check_add_to_card_requires_complete_profile(auth.user.id)
+        check_add_to_cart_requires_complete_profile(
+            auth.user.id,
+            _next=URL(request.controller, request.function, vars={'ssuID': ssuID})
+        )
 
     ##
     # Check for valid bank details
@@ -1859,7 +1875,7 @@ def class_book():
         Actually book class
     """
     def wrong_user():
-        return "Looks like this subscription or class card isn't yours..."
+        return "Unable to use this subscription or class card"
 
     from openstudio.os_attendance_helper import AttendanceHelper
     from openstudio.os_class import Class
@@ -2082,7 +2098,10 @@ def class_add_to_cart():
 
     shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile_classes')
     if shop_requires_complete_profile:
-        check_add_to_card_requires_complete_profile(auth.user.id)
+        check_add_to_cart_requires_complete_profile(
+            auth.user.id,
+            _next=URL(request.controller, request.function, vars=request.vars)
+        )
 
     cls = Class(clsID, date)
     # Drop in
@@ -2154,7 +2173,7 @@ def donate_get_form(var=None):
     return form
 
 
-def check_add_to_card_requires_complete_profile(auID):
+def check_add_to_cart_requires_complete_profile(auID, _next=''):
     """
         Checks if a completed profile is required, if so and it isn't complete, redirect to the profile edit page
     """
@@ -2174,9 +2193,12 @@ def check_add_to_card_requires_complete_profile(auID):
     ]
 
     for f in required_fields:
-        if f is None:
-            session.flash = T('To offer you the best service possible, we kindly ask you to complete your profile.')
-            redirect(URL('profile', 'me'))
+        if not f:
+            session.flash = SPAN(
+                T('To offer you the best service possible, we kindly ask you to complete the general information in your profile.'), BR(),
+                T('After completing your profile information you will be redirected to the next step.')
+            )
+            redirect(URL('profile', 'me', vars={'_next': _next}))
 
 
     #TODO: The rest of the code...

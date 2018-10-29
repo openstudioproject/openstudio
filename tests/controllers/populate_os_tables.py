@@ -496,6 +496,55 @@ def populate_customers_with_memberships(web2py,
     web2py.db.commit()
 
 
+def populate_employee_claims(web2py):
+    """
+    Add one claim to teacher
+    """
+    from setup_ep_tests import setup_ep_tests
+
+    try:
+        populate_tax_rates(web2py)
+    except:
+        print 'Tried to insert tax rates, but one or more already exists in db.tax_rates'
+
+    setup_ep_tests(web2py)
+
+    web2py.db.employee_claims.insert(
+        auth_user_id     = 400,
+        Amount           = 5,
+        Quantity         = 3,
+        tax_rates_id     = 1,
+        Status           = 'pending',
+        Description      = 'First Claim'
+    )
+    web2py.db.employee_claims.insert(
+        auth_user_id     = 400,
+        Amount           = 5,
+        Quantity         = 3,
+        tax_rates_id     = 1,
+        Status           = 'accepted',
+        Description      = 'Accepted Claim'
+    )
+    web2py.db.employee_claims.insert(
+        auth_user_id     = 400,
+        Amount           = 5,
+        Quantity         = 3,
+        tax_rates_id     = 1,
+        Status           = 'rejected',
+        Description      = 'Rejected Claim'
+    )
+    web2py.db.employee_claims.insert(
+        auth_user_id     = 400,
+        Amount           = 5,
+        Quantity         = 3,
+        tax_rates_id     = 1,
+        Status           = 'processed',
+        Description      = 'Processed Claim'
+    )
+
+    web2py.db.commit()
+
+
 def populate_auth_user_teachers(web2py,
                                 teaches_classes=True,
                                 teaches_workshops=True):

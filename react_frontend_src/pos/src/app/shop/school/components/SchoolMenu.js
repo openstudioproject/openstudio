@@ -4,8 +4,8 @@ import { injectIntl } from 'react-intl';
 
 class NavTabs extends Component {
     getNavLinkClass = (path) => {
-        console.log(path)
-        console.log(this.props.location.pathname)
+        // console.log(path)
+        // console.log(this.props.location.pathname)
         return (this.props.location.pathname === path) ? 'active' : '';
     }
 
@@ -14,18 +14,18 @@ class NavTabs extends Component {
 
         return (
             <ul className="nav nav-tabs nav-justified">
-                <li className={this.getNavLinkClass("/products/school/classcards")} role="presetation">
-                    <NavLink to="/products/school/classcards" activeClassName={activeClassName}>
+                <li className={this.getNavLinkClass("/shop/school/classcards")} role="presetation">
+                    <NavLink to="/shop/school/classcards" activeClassName={activeClassName}>
                         {intl.formatMessage({ id:"app.general.strings.classcards" })}
                     </NavLink>
                 </li>
-                <li className={this.getNavLinkClass("/products/school/subscriptions")} role="presetation">
-                    <NavLink to="/products/school/subscriptions" activeClassName={activeClassName}>
+                <li className={this.getNavLinkClass("/shop/school/subscriptions")} role="presetation">
+                    <NavLink to="/shop/school/subscriptions" activeClassName={activeClassName}>
                         {intl.formatMessage({ id:"app.general.strings.subscriptions" })}
                     </NavLink>
                 </li>
-                <li className={this.getNavLinkClass("/products/school/memberships")} role="presetation">
-                    <NavLink to="/products/school/memberships" activeClassName={activeClassName}>
+                <li className={this.getNavLinkClass("/shop/school/memberships")} role="presetation">
+                    <NavLink to="/shop/school/memberships" activeClassName={activeClassName}>
                         {intl.formatMessage({ id:"app.general.strings.memberships" })}
                     </NavLink>
                 </li>

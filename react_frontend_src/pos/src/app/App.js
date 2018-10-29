@@ -13,6 +13,7 @@ import Attendance from './checkin/attendance/AttendanceContainer'
 import Book from './checkin/book/BookContainer'
 import Revenue from './checkin/revenue/RevenueContainer'
 import Home from './home/HomeContainer'
+import Products from './shop/products/ProductsContainer'
 import Classcards from './shop/school/classcards/ClasscardsContainer'
 import Memberships from './shop/school/memberships/MembershipsContainer'
 import Subscriptions from './shop/school/subscriptions/SubscriptionsContainer'
@@ -33,6 +34,7 @@ class App extends Component {
     this.props.fetchSettings()  
     this.props.fetchCustomers()
     this.props.fetchCustomersMemberships()
+    this.props.fetchShopProducts()
     this.props.fetchShopSchoolClasscards()
     this.props.fetchShopSchoolMemberships()
     this.props.fetchShopSchoolSubscriptions()
@@ -51,10 +53,11 @@ class App extends Component {
             <Route path='/checkin/attendance/:clsID' component={Attendance} />
             <Route path='/checkin/book/:clsID/:cuID' component={Book} />
             <Route path='/checkin/revenue/:clsID' component={Revenue} />
-            <Route path='/customers' component= {Customers} />
-            <Route path='/products/school/classcards' component={Classcards} />
-            <Route path='/products/school/memberships' component={Memberships} />
-            <Route path='/products/school/subscriptions' component={Subscriptions} />
+            <Route path='/customers' component={Customers} />
+            <Route exact path='/shop/products' component={Products} />
+            <Route path='/shop/school/classcards' component={Classcards} />
+            <Route path='/shop/school/memberships' component={Memberships} />
+            <Route path='/shop/school/subscriptions' component={Subscriptions} />
             <Route path='/permissions_error' component={PermissionsError} />
             {/* Add all your remaining routes here, like /trending, /about, etc. */}
             <Route component={Whoops404} />

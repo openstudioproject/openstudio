@@ -131,7 +131,7 @@ def index_get_announcements(var=None):
 
     query = (db.customers_profile_announcements.PublicAnnouncement == True) & \
             (db.customers_profile_announcements.Startdate <= TODAY_LOCAL) & \
-            ((db.customers_profile_announcements.Enddate >= TODAY_LOCAL) | \
+            ((db.customers_profile_announcements.Enddate >= TODAY_LOCAL) |
              (db.customers_profile_announcements.Enddate == None))
 
     rows = db(query).select(db.customers_profile_announcements.ALL,
@@ -436,6 +436,32 @@ def subscription_get_link_info(row):
              _class='grey pull-right')
 
 
+def me_requires_complete_profile(auID):
+    """
+    :param auID: db.auth_user.id
+    :return: Check if we require a complete profile
+    """
+    from openstudio.os_customer import Customer
+
+    # shop_requires_complete_profile_classes = get_sys_property('shop_requires_complete_profile_classes')
+    shop_requires_complete_profile_memberships = get_sys_property('shop_requires_complete_profile_memberships')
+    # shop_requires_complete_profile_classcards = get_sys_property('shop_requires_complete_profile_classcards')
+    # shop_requires_complete_profile_events = get_sys_property('shop_requires_complete_profile_events')
+    shop_requires_complete_profile_subscriptions = get_sys_property('shop_requires_complete_profile_subscriptions')
+
+    customer = Customer(auID)
+
+    require_complete_profile = False
+
+    if shop_requires_complete_profile_memberships and customer.has_membership_on_date(TODAY_LOCAL):
+        require_complete_profile = True
+
+    if shop_requires_complete_profile_subscriptions and customer.has_subscription_on_date(TODAY_LOCAL):
+        require_complete_profile = True
+
+    return require_complete_profile
+
+
 @auth.requires_login()
 def me():
     """
@@ -443,6 +469,8 @@ def me():
     """
     response.title = T('Profile')
     response.subtitle = ''
+
+    _next = request.vars['_next']
 
     db.auth_user.email.comment =  os_gui.get_info_icon(
          title=T("If you change your email address, you'll have to use the new address to login."),
@@ -469,8 +497,7 @@ def me():
 
     db.auth_user.mobile.requires = IS_NOT_EMPTY(error_message = T('Please enter your mobile number'))
 
-    shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile')
-    if shop_requires_complete_profile:
+    if me_requires_complete_profile(auth.user.id):
         dis_query = dis_query = (db.school_discovery.Archived == False)
 
         db.auth_user.gender.requires=IS_IN_SET(GENDERS, error_message=T("Cannot be empty"))
@@ -507,6 +534,10 @@ def me():
 
     if form.process().accepted:
         response.flash = T('Saved')
+
+        if _next:
+            redirect(_next)
+
     elif form.errors:
         response.flash = ''
 
@@ -776,7 +807,7 @@ def classcards():
 
 def classcard_get_remaining(row):
     total_classes = row.school_classcards.Classes
-    if total_classes == 0:
+    if total_classes == 0 or row.school_classcards.Unlimited:
         remaining = T('Unlimited')
     else:
         taken_classes = row.customers_classcards.ClassesTaken
@@ -847,7 +878,7 @@ def invoice():
     invoice = Invoice(iID)
 
     if not invoice.get_linked_customer_id() == auth.user.id:
-        session.flash = T("That invoice isn't yours...")
+        session.flash = T("Unable to show invoice")
         redirect(URL('profile', 'invoices'))
 
     response.subtitle = invoice.invoice.InvoiceID

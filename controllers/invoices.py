@@ -531,6 +531,10 @@ def edit_get_back(cuID, csID=None, cmID=None):
         url = URL('finance', 'invoices')
     elif session.invoices_edit_back == 'finance_batch_content':
         url = URL('finance', 'batch_content')
+    elif session.invoices_edit_back == 'finance_employee_claims_processed':
+        url = URL('finance', 'employee_claims_processed')
+    elif session.invoices_edit_back == 'finance_teacher_payment_classes_processed':
+        url = URL('finance', 'teacher_payment_classes', vars={'status': 'processed'})
     elif session.invoices_edit_back == 'reports_subscriptions_alt_prices':
         url = URL('reports', 'subscriptions_alt_prices')
     else:
@@ -709,11 +713,20 @@ def list_items():
         permission = auth.has_membership(group_id='Admins') or \
                      auth.has_permission('update', 'invoices_items')
         if permission:
-            btn_edit   = os_gui.get_button('edit_notext',
-                                           URL('item_edit',
-                                               vars=btn_vars),
-                                           cid=request.cid )
+            # Edit button
+            btn_edit = os_gui.get_button(
+                'edit_notext',
+                URL('item_edit', vars=btn_vars),
+                cid=request.cid
+            )
             buttons.append(btn_edit)
+            # Duplicate button
+            btn_duplicate = os_gui.get_button(
+                'duplicate',
+                URL('item_duplicate', vars=btn_vars),
+                cid=request.cid
+            )
+            buttons.append(btn_duplicate)
 
             sort_handler = SPAN(_title=T("Click, hold and drag to change the order of items"),
                                 _class='glyphicon glyphicon-option-vertical grey')
@@ -723,11 +736,15 @@ def list_items():
         permission = auth.has_membership(group_id='Admins') or \
                      auth.has_permission('delete', 'invoices_items')
         if permission:
-            btn_delete = os_gui.get_button('delete_notext',
-                                           URL('item_delete_confirm',
-                                               vars=btn_vars),
-                                           cid=request.cid )
-            buttons.append(btn_delete)
+            btn_delete = os_gui.get_button(
+                'delete_notext',
+                URL('item_delete_confirm', vars=btn_vars),
+                btn_class='btn-danger',
+                _class='pull-right',
+                cid=request.cid
+            )
+        else:
+            btn_delete = ''
 
 
         tr = TR(TD(sort_handler, _class='sort-handler movable'),
@@ -743,7 +760,7 @@ def list_items():
                         _title=T("Subtotal: ") + CURRSYM + format(row.TotalPrice, '.2f') + ' ' +\
                                T('VAT: ') + CURRSYM + format(row.VAT, '.2f'),
                         _class='pull-right')),
-                TD(buttons))
+                TD(btn_delete, buttons))
 
         table.append(tr)
 
@@ -841,6 +858,21 @@ def item_edit():
     return dict(content=content)
 
 
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'invoices_items'))
+def item_duplicate():
+    """
+    Duplicate invoice item
+    """
+    iID = request.vars['iID']
+    iiID = request.vars['iiID']
+
+    invoice = Invoice(iID)
+    invoice.item_duplicate(iiID)
+
+    redirect(item_edit_delete_get_return_url(iID))
+
+
 def item_edit_delete_get_return_url(iID):
     """
         Return url for item_edit & item_delete
@@ -901,7 +933,6 @@ def item_delete():
     iiID = request.vars['iiID']
 
     item = db.invoices_items(iiID)
-    print item
 
     if exact_online_enabled and item.ExactOnlineSalesEntryLineID:
         from openstudio.os_exact_online import OSExactOnline

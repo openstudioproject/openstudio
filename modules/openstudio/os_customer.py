@@ -41,8 +41,6 @@ class Customer:
         """
         from os_exact_online import OSExactOnline
 
-        print 'running on_update in os_customer'
-
         os_eo = OSExactOnline()
         os_eo.update_relation(self)
 
@@ -947,11 +945,12 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         """
         get_sys_property = current.globalenv['get_sys_property']
 
-        import Mollie
+        from mollie.api.client import Client
+        from mollie.api.error import Error as MollieError
         # init mollie
-        mollie = Mollie.API.Client()
+        mollie = Client()
         mollie_api_key = get_sys_property('mollie_website_profile')
-        mollie.setApiKey(mollie_api_key)
+        mollie.set_api_key(mollie_api_key)
 
         # check if we have a mollie customer id
         if self.row.mollie_customer_id:
@@ -962,7 +961,9 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
             mollie_customer_id = self.register_mollie_customer(mollie)
 
 
-        return mollie.customer_mandates.withParentId(mollie_customer_id).all()
+        mandates = mollie.customer_mandates.with_parent_id(mollie_customer_id).list()
+
+        return mandates
 
 
     def register_mollie_customer(self, mollie):

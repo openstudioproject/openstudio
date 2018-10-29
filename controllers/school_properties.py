@@ -1873,6 +1873,7 @@ def classcard_add():
 
     crud.messages.submit_button = T("Save")
     crud.messages.record_created = T("Saved")
+    crud.settings.formstyle = 'bootstrap3_stacked'
     crud.settings.create_next = return_url
     crud.settings.create_onaccept = [cache_clear_school_classcards]
     form = crud.create(db.school_classcards)
@@ -1910,6 +1911,7 @@ def classcard_edit():
 
     crud.messages.submit_button = T("Save")
     crud.messages.record_updated = T("Saved")
+    crud.settings.formstyle = 'bootstrap3_stacked'
     crud.settings.update_next = return_url
     crud.settings.update_deletable = False
     crud.settings.update_onaccept = [cache_clear_school_classcards]

@@ -359,6 +359,34 @@ class Invoice:
             return None
 
 
+    def item_duplicate(self, iiID):
+        """
+        :param iiID: db.invoices_items.id
+        :return: int - ID of newly inserted (duplicated) item
+        """
+        db = current.db
+
+        item = db.invoices_items(iiID)
+        next_sort_nr = self.get_item_next_sort_nr()
+
+        db.invoices_items.insert(
+            invoices_id = item.invoices_id,
+            Sorting = next_sort_nr,
+            ProductName = item.ProductName,
+            Description = item.Description,
+            Quantity = item.Quantity,
+            Price = item.Price,
+            tax_rates_id = item.tax_rates_id,
+            TotalPriceVAT = item.TotalPriceVAT,
+            VAT = item.VAT,
+            TotalPrice = item.TotalPrice,
+            GLAccount = item.GLAccount
+        )
+
+        # This calls self.on_update()
+        self.set_amounts()
+
+
     def item_add_class(self,
                        cuID,
                        caID,
@@ -430,10 +458,9 @@ class Invoice:
             GLAccount=glaccount
         )
 
-        self.set_amounts()
         self.link_to_customer(cuID)
-
-        self.on_update()
+        # This calls self.on_update()
+        self.set_amounts()
 
 
     def item_add_class_from_order(self, order_item_row, caID):
@@ -484,9 +511,8 @@ class Invoice:
             GLAccount=glaccount
         )
 
+        # This calls self.on_update()
         self.set_amounts()
-
-        self.on_update()
 
         return iiID
 
@@ -523,9 +549,8 @@ class Invoice:
             GLAccount=classcard.glaccount
         )
 
+        # This calls self.on_update()
         self.set_amounts()
-
-        self.on_update()
 
         return iiID
 
@@ -562,9 +587,8 @@ class Invoice:
             GLAccount=wsp.GLAccount
         )
 
+        # This calls self.on_update()
         self.set_amounts()
-
-        self.on_update()
 
         return iiID
 
@@ -596,9 +620,8 @@ class Invoice:
             tax_rates_id=tax_rates_id,
         )
 
+        # This calls self.on_update()
         self.set_amounts()
-
-        self.on_update()
 
         return iiID
 
@@ -719,8 +742,8 @@ class Invoice:
         ##
         # Always call these
         ##
+        # This calls self.on_update()
         self.set_amounts()
-        self.on_update()
 
         return iiID
 
@@ -768,9 +791,8 @@ class Invoice:
         )
 
         self.link_to_customer_membership(cmID)
+        # This calls self.on_update()
         self.set_amounts()
-
-        self.on_update()
 
         return iiID
 
@@ -819,8 +841,10 @@ class Invoice:
                 tax_rates_id=tax_rates_id,
             )
 
+            self.link_to_teachers_payment_class(tpcID)
+
+            # This calls self.on_update()
             self.set_amounts()
-            self.on_update()
 
             return iiID
 
@@ -862,10 +886,53 @@ class Invoice:
             tax_rates_id=tax_rates_id,
         )
 
+        # This calls self.on_update()
         self.set_amounts()
-        self.on_update()
 
         return iiID
+
+
+    def item_add_employee_claim_credit_payment(self,
+                                                         ecID,
+                                                        ):
+        """
+        :param clsID: db.classes.id
+        :param date: datetime.date class date
+        :return:
+        """
+        from os_teacher import Teacher
+        from os_employee_claim import EmployeeClaim
+
+        DATE_FORMAT = current.DATE_FORMAT
+        TIME_FORMAT = current.TIME_FORMAT
+        db = current.db
+        T = current.T
+
+        ec = EmployeeClaim(ecID)
+
+        # Get amount & tax rate
+        price = ec.row.Amount
+        tax_rates_id = ec.row.tax_rates_id
+
+        # add item to invoice
+        if price > 0:
+            next_sort_nr = self.get_item_next_sort_nr()
+
+            iiID = db.invoices_items.insert(
+                invoices_id=self.invoices_id,
+                ProductName=T('Claim'),
+                Description=ec.row.Description,
+                Quantity=ec.row.Quantity,
+                Price=price * -1,
+                Sorting=next_sort_nr,
+                tax_rates_id=tax_rates_id,
+            )
+            self.link_to_employee_claim(ecID)
+
+            # This calls self.on_update()
+            self.set_amounts()
+
+            return iiID
 
 
     def payment_add(self,
@@ -996,6 +1063,28 @@ class Invoice:
         db.invoices_customers_subscriptions.insert(
             invoices_id = self.invoices_id,
             customers_subscriptions_id = csID
+        )
+
+
+    def link_to_employee_claim(self, ecID):
+        """
+            Link invoice to employee claim
+        """
+        db = current.db
+        db.invoices_employee_claims.insert(
+            invoices_id = self.invoices_id,
+            employee_claims_id = ecID
+        )
+
+
+    def link_to_teachers_payment_class(self, tpcID):
+        """
+            Link invoice to teachers payment class
+        """
+        db = current.db
+        db.invoices_teachers_payment_classes.insert(
+            invoices_id = self.invoices_id,
+            teachers_payment_classes_id = tpcID
         )
 
 
