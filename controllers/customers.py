@@ -487,13 +487,13 @@ def index():
 
     export = index_get_export()
     add = index_get_add()
-    tools = index_get_tools()
+    # tools = index_get_tools()
 
     return dict(add=add,
                 export=export,
                 content=content,
                 nr_items=index_get_select_nr_items(),
-                header_tools=tools)
+                header_tools='')
 
 
 def index_get_show_location():
@@ -587,32 +587,32 @@ def index_get_select_nr_items(var=None):
     return form
 
 
-def index_get_tools(var=None):
-    """
-        Returns tools menu for customers list
-    """
-    tools = []
-
-    # teacher holidays
-    permission = auth.has_membership(group_id='Admins') or \
-                 auth.has_permission('read', 'customers_subscriptions_credits')
-
-    if permission:
-        subscription_credits = A(os_gui.get_fa_icon('fa-check-square-o'),
-                                 T("Subscription credits"),
-                                 _href=URL('customers', 'subscription_credits_month'),
-                                 _title=T('List subscription credits for a selected month'))
-        tools.append(subscription_credits)
-
-    # get menu
-    tools = os_gui.get_dropdown_menu(tools,
-                                     '',
-                                     btn_size='btn-sm',
-                                     btn_icon='wrench',
-                                     menu_class='pull-right'
-                                     )
-
-    return tools
+# def index_get_tools(var=None):
+#     """
+#         Returns tools menu for customers list
+#     """
+#     tools = []
+#
+#     # teacher holidays
+#     permission = auth.has_membership(group_id='Admins') or \
+#                  auth.has_permission('read', 'customers_subscriptions_credits')
+#
+#     if permission:
+#         subscription_credits = A(os_gui.get_fa_icon('fa-check-square-o'),
+#                                  T("Subscription credits"),
+#                                  _href=URL('customers', 'subscription_credits_month'),
+#                                  _title=T('List subscription credits for a selected month'))
+#         tools.append(subscription_credits)
+#
+#     # get menu
+#     tools = os_gui.get_dropdown_menu(tools,
+#                                      '',
+#                                      btn_size='btn-sm',
+#                                      btn_icon='wrench',
+#                                      menu_class='pull-right'
+#                                      )
+#
+#     return tools
 
 
 # @auth.requires(auth.has_membership(group_id='Admins') or

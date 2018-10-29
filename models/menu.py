@@ -308,11 +308,33 @@ def get_backend_menu():
                                 False,
                                 URL('tasks', 'index', extension='')) ]
         # customers
+        # if user_helpers.check_read_permission('auth_user', user_id):
+        #     menu += [ ((I(_class='fa fa-users'),
+        #                          SPAN(T('Customers'))),
+        #                         False,
+        #                         URL('customers', 'index', extension='')) ]
+        # Customers
         if user_helpers.check_read_permission('auth_user', user_id):
-            menu += [ ((I(_class='fa fa-users'),
-                                 SPAN(T('Customers'))),
+
+            submenu = []
+            if user_helpers.check_read_permission('classes', user_id):
+                submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('List customers'))),
                                 False,
-                                URL('customers', 'index', extension='')) ]
+                                URL('customers', 'index', extension='')))
+
+            if user_helpers.check_read_permission('customers_subscriptions_credits', user_id):
+                submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Subscription credits'))),
+                                False,
+                                URL('customers', 'subscription_credits_month', extension='')))
+
+            menu += [ ((I(_class='fa fa-users'),
+                                 SPAN(T('Customers')),
+                                 SPAN(I(_class='fa fa-angle-left pull-right'),
+                                      _class="pull-right-container")),
+                                 False,
+                                 URL('classes', 'schedule', extension=''),
+                                 submenu) ]
+
         # Schedule ( classes & employees )
         if ( user_helpers.check_read_permission('classes', user_id) or
              user_helpers.check_read_permission('shifts', user_id) ):
