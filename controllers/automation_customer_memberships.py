@@ -56,7 +56,7 @@ def index_get_month_invoices(table):
             )
         ]
 
-        query = (db.scheduler_task.task_name == 'customers_exp_membership_check_subscriptions')
+        query = (db.scheduler_task.task_name == 'customers_membership_renew_expired')
         rows = db(query).select(
             db.scheduler_task.ALL,
             db.scheduler_run.ALL,
@@ -76,13 +76,14 @@ def index_get_month_invoices(table):
                     vars[v]
                 ))
 
+            run_result = row.scheduler_run.run_result or ''
 
             result_table.append(TR(
                 TD(B(T("Start"), ': '),
                    pytz.utc.localize(row.scheduler_task.start_time).astimezone(pytz.timezone(TIMEZONE)).strftime(DATETIME_FORMAT), BR(),
                    vars_display),
                 TD(row.scheduler_run.status or T("Pending...")),
-                TD(row.scheduler_run.run_result or ''),
+                TD(XML(run_result.replace('"', ''))),
             ))
 
         tr = TR(
