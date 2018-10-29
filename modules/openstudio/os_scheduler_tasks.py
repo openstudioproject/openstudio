@@ -207,9 +207,6 @@ class OsSchedulerTasks:
         db = current.db
         DATE_FORMAT = current.DATE_FORMAT
 
-        # db.test_scheduler_print_data.insert(task_message='task starts')
-        # db.commit()
-
         year = int(year)
         month = int(month)
 
@@ -244,27 +241,6 @@ class OsSchedulerTasks:
                     invoice=True,
                     payment_methods_id=row.payment_methods_id
                 )
-
-                # membership = row.customers_memberships.school_memberships_id
-                #
-                # membership_row = db.school_memberships(id= membership)
-                #
-                # sm = SchoolMembership(membership)
-                # startdate = row.customers_memberships.Enddate + timedelta(days=1)
-                #
-                # enddate = sm.sell_to_customer_get_enddate(row.customers_memberships.Enddate)
-                # cmID = db.customers_memberships.insert(
-                #     auth_customer_id = row.customers_memberships.auth_customer_id,
-                #     school_memberships_id= row.customers_memberships.school_memberships_id,
-                #     Startdate = startdate,
-                #     Enddate = enddate,
-                #     payment_methods_id = row.customers_memberships.payment_methods_id
-                # )
-                # db.commit()
-                # cm = CustomerMembership(cmID)
-                # cm.set_date_id_and_barcode()
-                # invoices_created += 1
-                # sm.sell_to_customer_create_invoice(cmID)
 
 
         ##

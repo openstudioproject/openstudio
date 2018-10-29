@@ -3510,10 +3510,6 @@ def define_customers_messages():
         )
 
 
-def define_test_scheduler_print_data():
-    db.define_table('test_scheduler_print_data',
-        Field('task_message'))
-
 def define_payment_batches():
     loc_query = (db.school_locations.Archived == False)
     pc_query = (db.payment_categories.Archived == False)
@@ -5990,6 +5986,3 @@ set_preferences_permissions()
 # some system maintendance
 create_admin_user_and_group()
 setup()
-
-#Scheduler saving data for testing Scheduler functions
-define_test_scheduler_print_data()
