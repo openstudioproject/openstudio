@@ -120,7 +120,7 @@ class SchoolMembership:
         )
 
 
-    def sell_to_customer(self, auth_user_id, date_start, note=None, invoice=True):
+    def sell_to_customer(self, auth_user_id, date_start, note=None, invoice=True, payment_methods_id=None):
         """
             :param auth_user_id: Sell membership to customer
         """
@@ -132,7 +132,8 @@ class SchoolMembership:
             school_memberships_id = self.smID,
             Startdate = date_start,
             Enddate = self.sell_to_customer_get_enddate(date_start),
-            Note = note
+            Note = note,
+            payment_methods_id=payment_methods_id
         )
 
         #cache_clear_customers_classcards(auth_user_id)
@@ -169,7 +170,8 @@ class SchoolMembership:
                 Description=cm.get_name(),
                 MembershipPeriodStart=period_start,
                 MembershipPeriodEnd=period_end,
-                Status='sent'
+                Status='sent',
+                payment_methods_id=cm.row.payment_methods_id
             )
 
             invoice = Invoice(iID)
@@ -183,6 +185,7 @@ class SchoolMembership:
             return iID
         else:
             return None
+
 
     def sell_to_customer_get_enddate(self, date_start):
         """

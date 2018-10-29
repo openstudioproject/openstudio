@@ -192,15 +192,16 @@ class OsSchedulerTasks:
         return T("Invoices created") + ': ' + unicode(invoices_created)
 
 
-    def customers_exp_membership_check_subscriptions(self, year, month, description):
+    def customers_memberships_renew_expired(self, year, month, description):
         """
-            Checks if a subscription exceeds the expiration of a membership. If so it creates a new membership and an invoice for it for the customer
+            Checks if a subscription exceeds the expiration of a membership.
+            If so it creates a new membership and an invoice for it for the customer
         """
         from general_helpers import get_last_day_month
         from datetime import timedelta
+        from os_customer import Customer
         from os_invoice import Invoice
         from os_school_membership import SchoolMembership
-        from os_customer_membership import CustomerMembership
 
         T = current.T
         db = current.db
@@ -214,69 +215,56 @@ class OsSchedulerTasks:
 
         firstdaythismonth = datetime.date(year, month, 1)
         lastdaythismonth  = get_last_day_month(firstdaythismonth)
+        firstdaynextmonth = lastdaythismonth + datetime.timedelta(days=1)
 
-        rows = db().select(db.customers_memberships.ALL,
-                           db.customers_subscriptions.ALL,
-                           db.school_subscriptions.id,
-                           db.school_subscriptions.MembershipRequired,
-                           left=(db.customers_subscriptions.on(db.customers_subscriptions.auth_customer_id == db.customers_memberships.auth_customer_id),
-                                db.school_subscriptions.on(db.school_subscriptions.id == db.customers_subscriptions.school_subscriptions_id)))
+        query = (db.customers_memberships.Enddate >= firstdaythismonth) & \
+                (db.customers_memberships.Enddate <= lastdaythismonth)
+
+        rows = db(query).select(
+            db.customers_memberships.ALL
+        )
+
         invoices_created = 0
 
         for row in rows:
-            if row.customers_memberships.Enddate <= lastdaythismonth:
+            # Check if a subscription will be active next month for customer
+            # if so, add another membership
+            customer = Customer(row.auth_customer_id)
 
-                if row.customers_subscriptions.Enddate > lastdaythismonth:
+            if customer.has_subscription_on_date(firstdaynextmonth):
+                new_cm_start = row.Enddate + datetime.timedelta(days=1)
 
-                    if row.school_subscriptions.MembershipRequired == True:
+                school_membership = SchoolMembership(row.school_memberships_id)
 
-                        membership = row.customers_memberships.school_memberships_id
+                school_membership.sell_to_customer(
+                    row.auth_customer_id,
+                    new_cm_start,
+                    note=T("Renewed membership {previous_id}".format(
+                        previous_id=row.id)),
+                    invoice=True,
+                    payment_methods_id=row.payment_methods_id
+                )
 
-                        membership_row = db.school_memberships(id= membership)
-
-                        sm = SchoolMembership(membership)
-                        startdate = row.customers_memberships.Enddate + timedelta(days=1)
-
-                        enddate = sm.sell_to_customer_get_enddate(row.customers_memberships.Enddate)
-                        cmID = db.customers_memberships.insert(
-                            auth_customer_id = row.customers_memberships.auth_customer_id,
-                            school_memberships_id= row.customers_memberships.school_memberships_id,
-                            Startdate = startdate,
-                            Enddate = enddate,
-                            payment_methods_id = row.customers_memberships.payment_methods_id
-                        )
-                        db.commit()
-                        cm = CustomerMembership(cmID)
-                        cm.set_date_id_and_barcode()
-                        invoices_created += 1
-                        sm.sell_to_customer_create_invoice(cmID)
-
-                        # # Check if price exists and > 0:
-                        # if sm.get_price_on_date(startdate):
-                        #     period_start = startdate
-                        #     period_end = enddate
-                        #
-                        #     igpt = db.invoices_groups_product_types(ProductType='membership')
-                        #
-                        #     iID = db.invoices.insert(
-                        #         invoices_groups_id=igpt.invoices_groups_id,
-                        #         Description=cm.get_name(),
-                        #         MembershipPeriodStart=period_start,
-                        #         MembershipPeriodEnd=period_end,
-                        #         Status='sent'
-                        #     )
-                        #
-                        #     invoice = Invoice(iID)
-                        #     invoice.link_to_customer(cm.row.auth_customer_id)
-                        #     invoice.item_add_membership(
-                        #         cmID,
-                        #         period_start,
-                        #         period_end
-                        #     )
-                        #
-                        #     return iID
-                        # else:
-                        #     return None
+                # membership = row.customers_memberships.school_memberships_id
+                #
+                # membership_row = db.school_memberships(id= membership)
+                #
+                # sm = SchoolMembership(membership)
+                # startdate = row.customers_memberships.Enddate + timedelta(days=1)
+                #
+                # enddate = sm.sell_to_customer_get_enddate(row.customers_memberships.Enddate)
+                # cmID = db.customers_memberships.insert(
+                #     auth_customer_id = row.customers_memberships.auth_customer_id,
+                #     school_memberships_id= row.customers_memberships.school_memberships_id,
+                #     Startdate = startdate,
+                #     Enddate = enddate,
+                #     payment_methods_id = row.customers_memberships.payment_methods_id
+                # )
+                # db.commit()
+                # cm = CustomerMembership(cmID)
+                # cm.set_date_id_and_barcode()
+                # invoices_created += 1
+                # sm.sell_to_customer_create_invoice(cmID)
 
 
         ##

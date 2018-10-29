@@ -6102,6 +6102,7 @@ def memberships():
                       TH(db.customers_memberships.school_memberships_id.label),
                       TH(db.customers_memberships.Startdate.label),
                       TH(db.customers_memberships.Enddate.label),
+                      TH(db.customers_memberships.payment_methods_id.label),
                       TH(db.customers_memberships.Note.label),
                       TH())  # buttons
                    )
@@ -6109,12 +6110,7 @@ def memberships():
     table = TABLE(header, _class='table table-hover table-striped')
 
     query = (db.customers_memberships.auth_customer_id == customers_id)
-    rows = db(query).select(db.customers_memberships.id,
-                            db.customers_memberships.auth_customer_id,
-                            db.customers_memberships.school_memberships_id,
-                            db.customers_memberships.Startdate,
-                            db.customers_memberships.Enddate,
-                            db.customers_memberships.Note,
+    rows = db(query).select(db.customers_memberships.ALL,
                             orderby=~db.customers_memberships.Startdate)
 
     edit_permission = auth.has_membership(group_id='Admins') or \
@@ -6142,6 +6138,7 @@ def memberships():
                 TD(repr_row.school_memberships_id),
                 TD(repr_row.Startdate),
                 TD(repr_row.Enddate),
+                TD(repr_row.payment_methods_id),
                 TD(repr_row.Note),
                 TD(delete, edit))
 
