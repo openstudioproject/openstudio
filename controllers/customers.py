@@ -3681,7 +3681,11 @@ def subscription_credits_set_month():
     session.customers_subscription_credits_year  = int(year)
     session.customers_subscription_credits_month = int(month)
 
-    redirect(URL('subscription_credits_month'))
+
+    if back:
+        redirect(back)
+    else:
+        redirect(URL('subscription_credits_month'))
 
 
 def subscription_credits_month_set_date(var=None):
