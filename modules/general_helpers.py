@@ -737,3 +737,17 @@ def represent_subscription_units(value, row):
             break
 
     return return_value
+
+
+def get_download_url(db_upload_field_value):
+    """
+        :param rel_url: db.workshops.thumblarge
+        :return: formatted url
+    """
+    url = ''
+    if db_upload_field_value:
+        url = URL('default', 'download', args=db_upload_field_value,
+                  scheme=True,
+                  host=True,
+                  extension='')
+    return url

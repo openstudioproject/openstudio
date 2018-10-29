@@ -28,7 +28,8 @@ class OsForms:
                              onaccept=[],
                              formstyle="bootstrap3_stacked",
                              form_id="MainForm",
-                             tinymce_enabled=False
+                             tinymce_enabled=False,
+                             message_record_created = ''
                              ):
         """
             Return a crud form to add a record to the database
@@ -37,7 +38,7 @@ class OsForms:
         crud = current.crud
 
         crud.messages.submit_button = submit_button or T("Save")
-        crud.messages.record_created = T("Saved")
+        crud.messages.record_created = message_record_created or T("Saved")
         crud.settings.create_next = return_url
         crud.settings.create_onaccept = onaccept
         crud.settings.formstyle = formstyle
@@ -59,7 +60,8 @@ class OsForms:
                              onaccept=[],
                              formstyle="bootstrap3_stacked",
                              form_id="MainForm",
-                             tinymce_enabled=False
+                             tinymce_enabled=False,
+                             message_record_updated = ''
                              ):
         """
             Return a crud form to add a record to the database
@@ -68,7 +70,7 @@ class OsForms:
         crud = current.crud
 
         crud.messages.submit_button = submit_button or T("Save")
-        crud.messages.record_updated = T("Saved")
+        crud.messages.record_updated = message_record_updated or T("Saved")
         crud.settings.update_next = return_url
         crud.settings.update_onaccept = onaccept
         crud.settings.formstyle = formstyle

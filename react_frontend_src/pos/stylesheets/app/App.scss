@@ -2,3 +2,13 @@ html, body, div#app {
     height: auto;
     min-height: 100%;
 }
+
+.info-box-icon {
+    overflow: hidden;
+}
+
+.info-box-icon img {
+    width: 90px;
+    height: 90px;    
+    margin-top: -10px;
+}

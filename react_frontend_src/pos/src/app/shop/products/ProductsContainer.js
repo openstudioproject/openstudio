@@ -2,15 +2,15 @@ import { connect } from 'react-redux'
 import { injectIntl } from 'react-intl';
 import { withRouter } from 'react-router'
 
-import { appOperations } from '../../../duck'
-import Classcards from './Classcards'
+import { appOperations } from '../../duck'
+import Products from './Products'
 
 
 const mapStateToProps = state => 
     ({
         app: state.app,
-        loaded: state.shop.school.classcards.loaded,
-        classcards: state.shop.school.classcards.data
+        loaded: state.shop.products.loaded,
+        products: state.shop.products.data
     })
 
 const mapDispatchToProps = dispatch =>
@@ -20,9 +20,9 @@ const mapDispatchToProps = dispatch =>
         }
     })
 
-const ClasscardsContainer = withRouter(injectIntl(connect(
+const ProductsContainer = withRouter(injectIntl(connect(
     mapStateToProps,
     mapDispatchToProps
-)(Classcards)))
+)(Products)))
 
-export default ClasscardsContainer
+export default ProductsContainer
