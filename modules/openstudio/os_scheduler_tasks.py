@@ -224,10 +224,17 @@ class OsSchedulerTasks:
         renewed = 0
 
         for row in rows:
+            new_cm_start = row.Enddate + datetime.timedelta(days=1)
+
             # Check if a subscription will be active next month for customer
             # if so, add another membership
             customer = Customer(row.auth_customer_id)
 
+            # Check if a new membership hasn't ben added already
+            if customer.has_membership_on_date(new_cm_start):
+                continue
+
+            # Ok all good, continue
             if customer.has_subscription_on_date(firstdaynextmonth):
                 new_cm_start = row.Enddate + datetime.timedelta(days=1)
 
@@ -236,7 +243,7 @@ class OsSchedulerTasks:
                 school_membership.sell_to_customer(
                     row.auth_customer_id,
                     new_cm_start,
-                    note=T("Renewed membership {previous_id}".format(
+                    note=T("Renewal for membership {previous_id}".format(
                         previous_id=row.id)),
                     invoice=True,
                     payment_methods_id=row.payment_methods_id
