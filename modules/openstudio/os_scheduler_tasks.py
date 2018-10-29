@@ -192,6 +192,25 @@ class OsSchedulerTasks:
         return T("Invoices created") + ': ' + unicode(invoices_created)
 
 
+    def customers_subscriptions_add_credits_for_month(self, year, month):
+        """
+        :param year: int
+        :param month: int
+        :return: Add customer subscription credits for month
+        """
+        from os_customers_subscriptions_credits import CustomersSubscriptionsCredits
+
+        T = current.T
+
+        year = int(year)
+        month = int(month)
+
+        csch = CustomersSubscriptionsCredits()
+        added = csch.add_credits(year, month)
+
+        return T("Subscriptions for which credits were added") + ': ' + unicode(added)
+
+
     def customers_memberships_renew_expired(self, year, month):
         """
             Checks if a subscription exceeds the expiration of a membership.
