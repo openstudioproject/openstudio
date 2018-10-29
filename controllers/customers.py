@@ -3574,7 +3574,7 @@ def subscription_credits_month():
     )
 
     add = os_gui.get_button('add',
-                            URL('customers', 'subscription_credits_month_add_confirm'),
+                            URL('automation_customer_subscriptions', 'index'),
                             btn_class='btn-primary')
     content = subscription_credits_month_get_content()
     back = os_gui.get_button('back', URL('customers', 'index'))
@@ -3783,68 +3783,68 @@ def subscription_credits_month_get_menu(page=None):
                               htype='tabs')
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('create', 'customers_subscriptions_credits'))
-def subscription_credits_month_add_confirm():
-    """
-        Show confirmation page before adding credits for a month
-    """
-    response.title = T('Customers')
-    response.subtitle = T('Subscription credits - Add confirmation')
-    response.view = 'general/only_content_header_footer.html'
+# @auth.requires(auth.has_membership(group_id='Admins') or \
+#                auth.has_permission('create', 'customers_subscriptions_credits'))
+# def subscription_credits_month_add_confirm():
+#     """
+#         Show confirmation page before adding credits for a month
+#     """
+#     response.title = T('Customers')
+#     response.subtitle = T('Subscription credits - Add confirmation')
+#     response.view = 'general/only_content_header_footer.html'
+#
+#     # Set default values for session vars if not set
+#     subscription_credits_month_set_date()
+#
+#     year = session.customers_subscription_credits_year
+#     month = session.customers_subscription_credits_month
+#     date = datetime.date(year, month, 1)
+#
+#     box_title = SPAN(T('Add subscription credits for'), ' ', date.strftime('%B %Y'))
+#
+#     content = DIV(
+#
+#         P(T("This operation will only add credits for subscriptions where credits haven't been granted yet for this month.")),
+#         P(T("Paused subscriptions and subscriptions where credits are already granted for this month will be skipped."))
+#     )
+#
+#     buttons = SPAN(
+#         os_gui.get_button('noicon',
+#                           URL('customers', 'subscription_credits_month_add'),
+#                           title=T('Continue'),
+#                           btn_class='btn-primary'),
+#         os_gui.get_button('noicon',
+#                           URL('customers', 'subscription_credits_month'),
+#                           title=T('Cancel'),
+#                           btn_class='btn-link')
+#     )
+#
+#
+#     back = os_gui.get_button('back', URL('customers', 'subscription_credits_month'))
+#
+#     return dict(content=content,
+#                 box_title=box_title,
+#                 footer=buttons,
+#                 back=back)
 
-    # Set default values for session vars if not set
-    subscription_credits_month_set_date()
-
-    year = session.customers_subscription_credits_year
-    month = session.customers_subscription_credits_month
-    date = datetime.date(year, month, 1)
-
-    box_title = SPAN(T('Add subscription credits for'), ' ', date.strftime('%B %Y'))
-
-    content = DIV(
-
-        P(T("This operation will only add credits for subscriptions where credits haven't been granted yet for this month.")),
-        P(T("Paused subscriptions and subscriptions where credits are already granted for this month will be skipped."))
-    )
-
-    buttons = SPAN(
-        os_gui.get_button('noicon',
-                          URL('customers', 'subscription_credits_month_add'),
-                          title=T('Continue'),
-                          btn_class='btn-primary'),
-        os_gui.get_button('noicon',
-                          URL('customers', 'subscription_credits_month'),
-                          title=T('Cancel'),
-                          btn_class='btn-link')
-    )
-
-
-    back = os_gui.get_button('back', URL('customers', 'subscription_credits_month'))
-
-    return dict(content=content,
-                box_title=box_title,
-                footer=buttons,
-                back=back)
-
-
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('create', 'customers_subscriptions_credits'))
-def subscription_credits_month_add():
-    """
-        Add credits for subscriptions in selected month
-    """
-    from openstudio.os_customers_subscriptions_credits import CustomersSubscriptionsCredits
-
-    year = session.customers_subscription_credits_year
-    month = session.customers_subscription_credits_month
-
-    csch = CustomersSubscriptionsCredits()
-    added = csch.add_credits(year, month)
-
-    session.flash = T("Added subscription credits for") + ' ' + unicode(added) + ' ' + T('customers') + '.'
-
-    redirect(URL('subscription_credits_month'))
+#
+# @auth.requires(auth.has_membership(group_id='Admins') or \
+#                auth.has_permission('create', 'customers_subscriptions_credits'))
+# def subscription_credits_month_add():
+#     """
+#         Add credits for subscriptions in selected month
+#     """
+#     from openstudio.os_customers_subscriptions_credits import CustomersSubscriptionsCredits
+#
+#     year = session.customers_subscription_credits_year
+#     month = session.customers_subscription_credits_month
+#
+#     csch = CustomersSubscriptionsCredits()
+#     added = csch.add_credits(year, month)
+#
+#     session.flash = T("Added subscription credits for") + ' ' + unicode(added) + ' ' + T('customers') + '.'
+#
+#     redirect(URL('subscription_credits_month'))
 
 
 def payments_get_submenu(page, cuID):

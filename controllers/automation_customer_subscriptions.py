@@ -128,6 +128,13 @@ def add_subscription_credits_for_month():
     form = result['form']
     submit = result['submit']
 
+    content = DIV(
+        LABEL(T("Info")), BR(),
+        P(T("This operation will only add credits for subscriptions where credits haven't been added yet for the selected month.")),
+        P(T("Paused subscriptions and subscriptions where credits are already added for the selected month will be skipped.")),
+        form
+    )
+
 
     if 'year' in request.vars and 'month' in request.vars:
         year = request.vars['year']
@@ -157,7 +164,7 @@ def add_subscription_credits_for_month():
 
     return dict(
         save=submit,
-        content=form,
+        content=content,
         back=back,
     )
 
