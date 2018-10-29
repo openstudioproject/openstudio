@@ -442,9 +442,11 @@ def populate_customers_with_memberships(web2py,
     query = (web2py.db.auth_user.id > 1)
     rows = web2py.db(query).select(web2py.db.auth_user.ALL)
 
-    for row in rows:
+    for i, row in enumerate(rows):
+        aucID = row.id
+
         cmID = web2py.db.customers_memberships.insert(
-            auth_customer_id = row.id,
+            auth_customer_id = aucID,
             school_memberships_id = 1,
             Startdate = startdate,
             Enddate = enddate,
