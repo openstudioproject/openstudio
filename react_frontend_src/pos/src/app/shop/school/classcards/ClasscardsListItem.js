@@ -8,6 +8,15 @@ import { injectIntl } from 'react-intl';
 import Currency from '../../../../components/ui/Currency'
 
 
+const representMembershipRequired = (data, intl) => {
+    if (data.MembershipRequired == true) {
+        return intl.formatMessage({ id:"app.general.strings.requires_membership" })
+    } else {
+        return ""
+    }
+}
+
+
 const ClasscardsListItem = injectIntl(withRouter(({data, intl, onClick=f=>f}) => 
     <div className="col-md-4"
          onClick={onClick}>
@@ -36,6 +45,10 @@ const ClasscardsListItem = injectIntl(withRouter(({data, intl, onClick=f=>f}) =>
                         <tr>
                             <td>{intl.formatMessage({ id:"app.general.strings.description" })}</td>
                             <td>{data.Description}</td>
+                        </tr>
+                        <tr>
+                            <td>{intl.formatMessage({ id:"app.general.strings.membership" })}</td>
+                            <td>{representMembershipRequired(data, intl)}</td>
                         </tr>
                     </tbody>
                 </table>

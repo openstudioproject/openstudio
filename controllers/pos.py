@@ -296,6 +296,7 @@ def get_school_classcards():
                             db.school_classcards.Classes,
                             db.school_classcards.Unlimited,
                             db.school_classcards.Trialcard,
+                            db.school_classcards.MembershipRequired,
                             orderby=db.school_classcards.Name)
 
     data_rows = []
@@ -309,7 +310,8 @@ def get_school_classcards():
             'ValidityDisplay': get_validity(row),
             'Classes': row.Classes,
             'Unlimited': row.Unlimited,
-            'Trialcard': row.Trialcard
+            'Trialcard': row.Trialcard,
+            'MembershipRequired': row.MembershipRequired
         }
 
         data_rows.append(item)
