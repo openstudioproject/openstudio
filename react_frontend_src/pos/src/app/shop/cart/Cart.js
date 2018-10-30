@@ -2,7 +2,7 @@ import React, { Component } from "react"
 import { intlShape } from "react-intl"
 import PropTypes from "prop-types"
 
-import ShopTemplate from '../components/ShopTemplate'
+import ShopTemplate from '../ShopTemplate'
 import ProductsList from "./CartList"
 
 class Products extends Component {
@@ -28,7 +28,7 @@ class Products extends Component {
 
         return (
             <div class="box box-solid cart">
-                { items ? 
+                { items.length ? 
                      "we have items on our cart":
                      "The shopping cart is empty"
                 }
