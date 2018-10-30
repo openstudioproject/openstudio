@@ -24,6 +24,7 @@ class ProductsList extends Component {
             children.push(
                 <ProductsListItem data={product}
                                   key={"product_" + v4()}
+                                  onClick={() => this.props.onClick(product)}
                                   />
             )
             if (( (i+1) % 3 ) === 0 || i+1 == products.length)  {

@@ -14,6 +14,7 @@ class Products extends Component {
     PropTypes = {
         intl: intlShape.isRequired,
         setPageTitle: PropTypes.function,
+        addToCart: PropTypes.function,
         app: PropTypes.object,
         categories: PropTypes.object,
         loaded: PropTypes.boolean,
@@ -24,6 +25,12 @@ class Products extends Component {
             this.props.intl.formatMessage({ id: 'app.pos.products' })
         )
     }
+
+    onClickProductListItem(product) {
+        console.log('clicked on:')
+        console.log(product)
+        // this.props.setDisplayCustomerID(id)
+    }
     
     render() {
         const products = this.props.products
@@ -31,7 +38,8 @@ class Products extends Component {
         return (
             <ShopTemplate app_state={this.props.app}>
                 { this.props.loaded ? 
-                     <ProductsList products={products} />:
+                     <ProductsList products={products}
+                                   onClick={this.onClickProductListItem.bind(this)} />:
                      "Loading..."
                 }
             </ShopTemplate>

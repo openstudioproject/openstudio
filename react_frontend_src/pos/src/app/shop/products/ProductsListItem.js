@@ -9,8 +9,7 @@ import Currency from '../../../components/ui/Currency'
 
 
 const ProductListItem = injectIntl(({data, intl, onClick=f=>f}) => 
-    <div 
-        // onClick={() => { history.push('/shop/products/' + data.id) }}
+    <div onClick={onClick}
          className="col-md-4">
         <div className="info-box bg-purple">
             <div className="info-box-icon">
