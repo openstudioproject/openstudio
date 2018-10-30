@@ -26,10 +26,18 @@ class Products extends Component {
         const items = this.props.items
 
         return (
-            items.length ? 
-            <CartList items={items} />:
-            "The shopping cart is empty"
-                
+            <div className="box box-solid"> 
+                <div className="box-header">
+                    <h3 className="box-title">
+                        Shopping cart
+                    </h3>
+                </div>
+                <div className="box-body">
+                {(items.length) ? 
+                    <CartList items={items} />:
+                    "The shopping cart is empty" }
+                </div>
+            </div>    
         )
     }
 }
