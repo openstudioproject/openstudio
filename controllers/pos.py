@@ -333,6 +333,8 @@ def get_school_subscriptions():
                sc.Classes,
                sc.SubscriptionUnit,
                sc.Unlimited,
+               sc.RegistrationFee,
+               sc.MembershipRequired,
                scp.Price
         FROM school_subscriptions sc
         LEFT JOIN
@@ -346,13 +348,17 @@ def get_school_subscriptions():
         ORDER BY sc.Name
     """.format(today=TODAY_LOCAL)
 
-    fields = [ db.school_subscriptions.Name,
-               db.school_subscriptions.SortOrder,
-               db.school_subscriptions.Description,
-               db.school_subscriptions.Classes,
-               db.school_subscriptions.SubscriptionUnit,
-               db.school_subscriptions.Unlimited,
-               db.school_subscriptions_price.Price ]
+    fields = [
+        db.school_subscriptions.Name,
+        db.school_subscriptions.SortOrder,
+        db.school_subscriptions.Description,
+        db.school_subscriptions.Classes,
+        db.school_subscriptions.SubscriptionUnit,
+        db.school_subscriptions.Unlimited,
+        db.school_subscriptions.RegistrationFee,
+        db.school_subscriptions.MembershipRequired,
+        db.school_subscriptions_price.Price,
+    ]
 
     rows = db.executesql(query, fields=fields)
 
@@ -365,7 +371,9 @@ def get_school_subscriptions():
             'Classes': row.school_subscriptions.Classes,
             'SubscriptionUnit': row.school_subscriptions.SubscriptionUnit,
             'Unlimited': row.school_subscriptions.Unlimited,
-            'Price': row.school_subscriptions_price.Price
+            'Price': row.school_subscriptions_price.Price,
+            'RegistrationFee': row.school_subscriptions.RegistrationFee,
+            'MembershipRequired': row.school_subscriptions.MembershipRequired,
         })
 
     return dict(data=data)
