@@ -4,7 +4,7 @@ import axios from 'axios'
 const hostname = window && window.location && window.location.hostname
 let backendHost
 
-(hostname === 'localhost') ?
+(hostname === 'dev.openstudioproject.com') ?
     backendHost = "http://dev.openstudioproject.com:8000" :
     backendHost = ""
 

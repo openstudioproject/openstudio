@@ -14,9 +14,10 @@ def index():
 
 
 def set_headers(var=None):
-    if request.env.HTTP_ORIGIN == 'http://localhost:8080':
+    if request.env.HTTP_ORIGIN == 'http://dev.openstudioproject.com:8080':
         response.headers["Access-Control-Allow-Origin"] = request.env.HTTP_ORIGIN
     response.headers["Access-Control-Allow-Credentials"] = "true"
+    # response.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept'
 
 
 def return_json_login_error(var=None):
@@ -606,6 +607,6 @@ def get_products():
     spv = ShopProductsVariants()
 
     data = spv.list_pos()
-    pp.pprint(data)
+    # pp.pprint(data)
 
     return dict(data=data)

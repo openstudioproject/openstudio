@@ -16,6 +16,8 @@ module.exports = {
   },
   devtool: '#source-map',
   devServer: {
+    host: "dev.openstudioproject.com",
+    port: "8080",
     historyApiFallback: true,
   },
   module: {
