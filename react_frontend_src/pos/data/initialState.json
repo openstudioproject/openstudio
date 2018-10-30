@@ -68,6 +68,9 @@
         }
     },
     "shop": {
+        "cart": {
+            "items": []
+        },
         "products": {
             "data": {},
             "loaded": false,

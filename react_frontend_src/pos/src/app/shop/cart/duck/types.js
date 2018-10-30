@@ -1,6 +1,5 @@
 const types = {
-    REQUEST_PRODUCTS: "REQUEST_PRODUCTS",
-    RECEIVE_PRODUCTS: "RECEIVE_PRODUCTS",
+    ADD_ITEM: "ADD_ITEM"
 }
 
 export default types

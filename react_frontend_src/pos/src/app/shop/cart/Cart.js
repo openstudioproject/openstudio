@@ -3,7 +3,7 @@ import { intlShape } from "react-intl"
 import PropTypes from "prop-types"
 
 import ShopTemplate from '../components/ShopTemplate'
-import ProductsList from "./ProductsList"
+import ProductsList from "./CartList"
 
 class Products extends Component {
     constructor(props) {

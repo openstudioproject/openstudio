@@ -1,5 +1,5 @@
 // index.js
-import { shopProductsReducer } from './reducers'
-export { default as shopProductsOperations } from './operations'
-export { default as shopProductsTypes } from './types'
-export default shopProductsReducer
+import { shopCartReducer } from './reducers'
+export { default as shopCartOperations } from './operations'
+export { default as shopCartTypes } from './types'
+export default shopCartReducer

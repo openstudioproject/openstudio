@@ -4,7 +4,7 @@ import { v4 } from "uuid"
 // import AttendanceListItem from "./ClasscardsListItem"
 // import Box from '../../../../components/ui/Box'
 // import BoxBody from '../../../../components/ui/BoxBody'
-import ProductsListItem from "./ProductsListItem"
+import ProductsListItem from "./CartListItem"
 
 class ProductsList extends Component {
     constructor(props) {
