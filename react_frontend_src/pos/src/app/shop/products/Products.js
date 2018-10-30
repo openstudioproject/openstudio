@@ -33,7 +33,7 @@ class Products extends Component {
 
         let item = {
            id: v4(),
-           product_type: 'product',
+           item_type: 'product',
            quantity: 1,
            data: product 
         }

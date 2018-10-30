@@ -7,7 +7,8 @@ const CartList = ({items}) =>
     <div className="box box-solid"> 
         <div className="box-body">
             {items.map((cart_item, i) => 
-                console.log(cart_item)
+                <CartListItem key={"ci_" + v4()}
+                              item={cart_item} />
                 // <AttendanceListItem key={"ai_" + v4()}
                 //                     data={ai} />
             )}

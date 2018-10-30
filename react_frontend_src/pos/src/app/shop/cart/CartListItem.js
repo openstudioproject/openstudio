@@ -1,5 +1,4 @@
 import React from "react"
-import { withRouter } from 'react-router-dom'
 import { injectIntl } from 'react-intl'
 
 // import Check from '../../../components/ui/Check'
@@ -8,30 +7,24 @@ import { injectIntl } from 'react-intl'
 import Currency from '../../../components/ui/Currency'
 
 
-const ProductListItem = injectIntl(({data, intl, onClick=f=>f}) => 
-    <div 
-        // onClick={() => { history.push('/shop/products/' + data.id) }}
-         className="col-md-4">
-        <div className="info-box bg-purple">
-            <div className="info-box-icon">
-                <img src={data.thumblarge} />
-            </div>
-            <div className="info-box-content">
-                <div className="info-box-text">
-                    {data.product_name}
-                </div>
-                <div className="info-box-number">
-                    {data.variant_name} {' '}
-                </div>
-                <div className="info-box-text">
-                    { (data.price) ? 
-                      <Currency amount={data.price} /> : 
-                      intl.formatMessage({ id:"app.general.strings.not_set"}) }
-                </div>
-            </div>
-        </div>
+const CartListProduct = ({item}) => 
+    <div>
+        {console.log('cart item')}
+        {console.log(item)}
+        <span className="bold">{item.data.variant_name} - {item.data.product_name}</span> <br/>
+        <span className="text-muted">{item.quantity}</span>
+
+    </div>
+
+
+const CartListItem = injectIntl(({item, intl, onClick=f=>f}) => 
+    <div>
+        { (item.item_type == 'product') ? 
+            <CartListProduct item={item} /> : '' }
+        
+        
     </div>
 )
 
 
-export default ProductListItem
+export default CartListItem
