@@ -25,6 +25,15 @@ const CartListClasscard = ({item}) =>
     </div>
 
 
+const CartListMembership = ({item}) => 
+    <div>
+        {console.log('cart item')}
+        {console.log(item)}
+        <span className="bold">Membership - {item.data.Name}</span> <br/>
+        <span className="text-muted">{item.quantity}</span>
+    </div>
+
+
 const CartListSubscription = ({item}) => 
     <div>
         {console.log('cart item')}
@@ -40,6 +49,8 @@ const CartListItem = injectIntl(({item, intl, onClick=f=>f}) =>
             <CartListProduct item={item} /> : '' }
         { (item.item_type == 'classcard') ?
             <CartListClasscard item={item} /> : '' }
+        { (item.item_type == 'membership') ?
+            <CartListMembership item={item} /> : '' }
         { (item.item_type == 'subscription') ?
             <CartListSubscription item={item} /> : '' }
         
