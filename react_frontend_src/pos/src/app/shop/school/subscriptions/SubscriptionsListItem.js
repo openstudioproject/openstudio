@@ -26,8 +26,9 @@ const representClasses = (data, intl) => {
     
 
 
-const SubscriptionsListItem = injectIntl(withRouter(({data, intl, currency_symbol}) => 
-    <div className="col-md-4">
+const SubscriptionsListItem = injectIntl(withRouter(({data, intl, currency_symbol, onClick=f=>f}) => 
+    <div className="col-md-4"
+         onClick={onClick}>
         <div className="panel panel-default">
             <div className="panel-heading">
                 <h3 className="panel-title">{data.Name}</h3>
