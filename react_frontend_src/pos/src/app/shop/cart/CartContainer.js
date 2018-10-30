@@ -1,16 +1,14 @@
 import { connect } from 'react-redux'
 import { injectIntl } from 'react-intl';
-import { withRouter } from 'react-router'
 
 import { appOperations } from '../../duck'
-import Products from './Products'
+import Cart from './Cart'
 
 
 const mapStateToProps = state => 
     ({
         app: state.app,
-        loaded: state.shop.products.loaded,
-        products: state.shop.products.data
+        items: state.shop.cart.items
     })
 
 const mapDispatchToProps = dispatch =>
@@ -20,9 +18,9 @@ const mapDispatchToProps = dispatch =>
         }
     })
 
-const ProductsContainer = withRouter(injectIntl(connect(
+const CartContainer = injectIntl(connect(
     mapStateToProps,
     mapDispatchToProps
-)(Products)))
+)(Cart))
 
-export default ProductsContainer
+export default CartContainer

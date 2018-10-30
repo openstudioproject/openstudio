@@ -13,10 +13,8 @@ class Products extends Component {
 
     PropTypes = {
         intl: intlShape.isRequired,
-        setPageTitle: PropTypes.function,
         app: PropTypes.object,
-        categories: PropTypes.object,
-        loaded: PropTypes.boolean,
+        items: PropTypes.array
     }
 
     componentWillMount() {
@@ -26,15 +24,15 @@ class Products extends Component {
     }
     
     render() {
-        const products = this.props.products
+        const items = this.props.items
 
         return (
-            <ShopTemplate app_state={this.props.app}>
-                { this.props.loaded ? 
-                     <ProductsList products={products} />:
-                     "Loading..."
+            <div class="box box-solid cart">
+                { items ? 
+                     "we have items on our cart":
+                     "The shopping cart is empty"
                 }
-            </ShopTemplate>
+            </div>
         )
     }
 }
