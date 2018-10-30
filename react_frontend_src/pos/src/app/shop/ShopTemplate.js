@@ -6,7 +6,7 @@ import React from "react"
 // import Content from "./ui/Content";
 // import ErrorScreen from "./ui/ErrorScreen";
 
-import PageTemplate from '../../../components/PageTemplate'
+import PageTemplate from '../../components/PageTemplate'
 import ShopMainMenu from "./MainMenu";
 
 const ShopTemplate = ({ app_state, children }) =>

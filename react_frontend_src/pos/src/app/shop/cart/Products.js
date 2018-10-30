@@ -2,12 +2,10 @@ import React, { Component } from "react"
 import { intlShape } from "react-intl"
 import PropTypes from "prop-types"
 
-import ShopTemplate from '../../ShopTemplate'
-import SchoolMenu from '../components/SchoolMenu'
+import ShopTemplate from '../components/ShopTemplate'
+import ProductsList from "./ProductsList"
 
-import ClasscardsList from './ClasscardsList'
-
-class Classcards extends Component {
+class Products extends Component {
     constructor(props) {
         super(props)
         console.log(props)
@@ -17,7 +15,7 @@ class Classcards extends Component {
         intl: intlShape.isRequired,
         setPageTitle: PropTypes.function,
         app: PropTypes.object,
-        classcards: PropTypes.object,
+        categories: PropTypes.object,
         loaded: PropTypes.boolean,
     }
 
@@ -28,13 +26,12 @@ class Classcards extends Component {
     }
     
     render() {
+        const products = this.props.products
+
         return (
             <ShopTemplate app_state={this.props.app}>
                 { this.props.loaded ? 
-                     <SchoolMenu>
-                         <br /><br />
-                         <ClasscardsList classcards={this.props.classcards} />
-                     </SchoolMenu> :
+                     <ProductsList products={products} />:
                      "Loading..."
                 }
             </ShopTemplate>
@@ -42,4 +39,4 @@ class Classcards extends Component {
     }
 }
 
-export default Classcards
+export default Products
