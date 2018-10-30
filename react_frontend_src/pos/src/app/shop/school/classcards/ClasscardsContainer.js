@@ -3,6 +3,7 @@ import { injectIntl } from 'react-intl';
 import { withRouter } from 'react-router'
 
 import { appOperations } from '../../../duck'
+import { shopCartOperations } from '../../cart/duck'
 import Classcards from './Classcards'
 
 
@@ -17,6 +18,9 @@ const mapDispatchToProps = dispatch =>
     ({
         setPageTitle(title) {
             dispatch(appOperations.setPageTitle(title))
+        },
+        addToCart(item) {
+            dispatch(shopCartOperations.addItem(item))
         }
     })
 

@@ -8,8 +8,9 @@ import { injectIntl } from 'react-intl';
 import Currency from '../../../../components/ui/Currency'
 
 
-const ClasscardsListItem = injectIntl(withRouter(({data, intl}) => 
-    <div className="col-md-4">
+const ClasscardsListItem = injectIntl(withRouter(({data, intl, onClick=f=>f}) => 
+    <div className="col-md-4"
+         onClick={onClick}>
         <div className="panel panel-default">
             <div className="panel-heading">
                 <h3 className="panel-title">{data.Name}</h3>
