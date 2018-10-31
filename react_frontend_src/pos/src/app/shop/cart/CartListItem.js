@@ -6,13 +6,20 @@ import { injectIntl } from 'react-intl'
 
 import Currency from '../../../components/ui/Currency'
 
+const CartListItemQuantity = ({qty, price}) =>
+    <span className="text-muted">
+        {qty} Item(s) at <Currency amount={price} /> each
+    </span>
+
 
 const CartListProduct = ({item}) => 
     <div>
         {console.log('cart item')}
         {console.log(item)}
         <span className="bold">{item.data.variant_name} - {item.data.product_name}</span> <br/>
-        <span className="text-muted">{item.quantity}</span>
+        <CartListItemQuantity qty={item.quantity}
+                              price={item.data.price}
+        />
     </div>
 
 
@@ -21,7 +28,9 @@ const CartListClasscard = ({item}) =>
         {console.log('cart item')}
         {console.log(item)}
         <span className="bold">Classcard - {item.data.Name}</span> <br/>
-        <span className="text-muted">{item.quantity}</span>
+        <CartListItemQuantity qty={item.quantity}
+                              price={item.data.Price}
+        />
     </div>
 
 
@@ -30,7 +39,9 @@ const CartListMembership = ({item}) =>
         {console.log('cart item')}
         {console.log(item)}
         <span className="bold">Membership - {item.data.Name}</span> <br/>
-        <span className="text-muted">{item.quantity}</span>
+        <CartListItemQuantity qty={item.quantity}
+                              price={item.data.Price}
+        />
     </div>
 
 
@@ -39,7 +50,9 @@ const CartListSubscription = ({item}) =>
         {console.log('cart item')}
         {console.log(item)}
         <span className="bold">Subscription - {item.data.Name}</span> <br/>
-        <span className="text-muted">{item.quantity}</span>
+        <CartListItemQuantity qty={item.quantity}
+                              price={item.data.Price}
+        />
     </div>
 
 

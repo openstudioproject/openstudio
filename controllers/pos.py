@@ -586,7 +586,6 @@ def update_customer():
         )
     ]
 
-
     if cuID:
         query = (db.auth_user.id == cuID)
 
