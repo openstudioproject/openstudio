@@ -9,7 +9,7 @@ import React from "react"
 import PageTemplate from '../../components/PageTemplate'
 import ShopMainMenu from "./MainMenu";
 import Cart from "./cart/CartContainer"
-import CartTools from "./cart/CartTools"
+import CartTools from "./cart/CartToolsContainer"
 
 const ShopTemplate = ({ app_state, children }) =>
     <PageTemplate app_state={app_state}>
