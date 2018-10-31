@@ -1243,6 +1243,7 @@ def tickets():
         add_url = URL('ticket_add', args=[wsID])
         add = os_gui.get_button('add', add_url, T("Add new ticket"), _class='pull-right')
 
+
     table = TABLE(THEAD(TR(TH(T('Name')),
                            TH(T('Description')),
                            TH(T('Price')),
@@ -1253,6 +1254,7 @@ def tickets():
                            _class='header')),
                   _class='table table-hover')
 
+    actions_permissions = tickets_get_actions_permissions()
     query = (db.workshops_products.workshops_id == wsID)
     rows = db(query).select(db.workshops_products.ALL)
     for row in rows.render():
@@ -1272,35 +1274,11 @@ def tickets():
         else:
             fws_label = ''
 
-        # check permission for adding activities to products
-        perm = auth.has_membership(group_id='Admins') or \
-               auth.has_permission('update', 'workshops_products_activities')
-        if perm and not row.FullWorkshop:
-            activities = os_gui.get_button('list_notext',
-                                           URL('ticket_activities',
-                                               vars={'wsID': wsID,
-                                                     'wspID': row.id}),
-                                           tooltip=T("Activities"))
-
-        # check permission to update workshops (edit and delete)
-        perm = auth.has_membership(group_id='Admins') or \
-               auth.has_permission('update', 'workshops')
-        if perm:
-            edit = os_gui.get_button('edit_notext',
-                                     URL('ticket_edit', args=[row.id]),
-                                     tooltip=T('Edit ticket'))
-
-        # check permission to create workshop products
-        perm = auth.has_membership(group_id='Admins') or \
-               auth.has_permission('create', 'workshops_products')
-        if perm:
-            duplicate = os_gui.get_button('duplicate',
-                                          URL('ticket_duplicate', vars={'wspID':row.id}),
-                                          tooltip=T("Duplicate product"))
 
         # check delete permission
         if row.Deletable:
-            confirm_msg = T("Really remove this ticket?")
+            confirm_msg = T("Really remove this ticket?") + ' '
+            confirm_msg += T("Note that this will remove all customers from the list for this ticket.")
             onclick = "return confirm('" + confirm_msg + "');"
             delete = ''
             if auth.has_membership(group_id='Admins') or \
@@ -1310,6 +1288,7 @@ def tickets():
                                                                        'wspID': row.id}),
                                            onclick=onclick,
                                            tooltip=T('Delete ticket'),
+                                           btn_class='btn-danger',
                                            _class='pull-right')
 
         # check permission to view customers for a product
@@ -1325,12 +1304,18 @@ def tickets():
         else:
             customers = ''
 
-        buttons = DIV(delete,
-                      DIV(customers,
+        buttons = DIV(customers,
                           activities,
                           edit,
                           duplicate,
-                          _class='btn-group pull-right'))
+                          _class='btn-group pull-right')
+
+
+        actions = tickets_get_actions(
+            wsID,
+            row,
+            actions_permissions
+        )
 
         table.append(TR(TD(row.Name),
                         TD(max_string_length(row.Description, 40)),
@@ -1338,7 +1323,7 @@ def tickets():
                         TD(row.GLAccount),
                         TD(shop),
                         TD(fws_label),
-                        TD(buttons)))
+                        TD(delete, actions)))
 
     products.append(table)
 
@@ -1356,6 +1341,101 @@ def tickets():
                 back=back,
                 header_tools=export,
                 add=add)
+
+
+def tickets_get_actions_permissions(var=None):
+    """
+    :param var:
+    :return:
+    """
+    permissions = {
+        "update_workshops_products_activities": False,
+        "update_workshops_products": False,
+        "create_workshops_products": False,
+        "read_workshops_products_customers": False,
+    }
+
+    # check permission for adding activities to products
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('update', 'workshops_products_activities'):
+        permissions['update_workshops_products_activities'] = True
+
+    # check permission to update workshops (edit and delete)
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('update', 'workshops_products'):
+        permissions["update_workshops_products"] = True
+
+    # check permission to create workshop products
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('create', 'workshops_products'):
+        permissions["create_workshops_products"] = True
+
+    # check permission to view customers for a product
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('read', 'workshops_products_customers'):
+        permissions['read_workshops_products_customers'] = True
+
+    return permissions
+
+
+def tickets_get_actions(wsID, row, permissions):
+    """
+    :param row:
+    :param permissions:
+    :return:
+    """
+    # Don't add activities link for row.FullWorkshop
+
+    links = []
+
+    vars = {
+        'wsID': wsID,
+        'wspID': row.id
+    }
+
+    # Ticket Customers
+    if permissions['read_workshops_products_customers']:
+        links.append(
+            A(os_gui.get_fa_icon('fa-user'),
+              T("Customers"),
+              _href=URL('tickets_list_customers', vars=vars))
+        )
+
+
+    # Ticket activities
+    if permissions['update_workshops_products_activities'] and not row.FullWorkshop:
+        links.append(
+            A(os_gui.get_fa_icon('fa-list'),
+              T("Activities"),
+              _href=URL('ticket_activities',vars=vars))
+        )
+
+    # Duplicate
+    if permissions['create_workshops_products']:
+        links.append(
+            A(os_gui.get_fa_icon('fa-copy'),
+              T("Duplicate"),
+              _href=URL('ticket_duplicate', vars=vars))
+        )
+
+
+    # Edit
+    if permissions['update_workshops_products']:
+        links.append(LI(_role='separator', _class='divider'))
+        links.append(
+            A(os_gui.get_fa_icon('fa-pencil'),
+              T("Edit"),
+              _href=URL('ticket_edit',vars=vars))
+        )
+
+    dd = os_gui.get_dropdown_menu(
+        links=links,
+        btn_text=T('Actions'),
+        btn_size='btn-sm',
+        btn_icon='actions',
+        menu_class='btn-group pull-right')
+
+    return dd
 
 
 def tickets_get_export(wsID):
@@ -1538,7 +1618,7 @@ def ticket_duplicate():
 
     session.flash = T('You are now editing the duplicated ticket')
 
-    redirect(URL('events', 'ticket_edit', args=new_wspID))
+    redirect(URL('events', 'ticket_edit', vars={'wspID': new_wspID}))
 
 
 def event_get_alert_no_activities(wsID):
@@ -2113,9 +2193,11 @@ def tickets_list_customers():
                          _style="display:none;")
 
 
-    content = DIV(search_results,
-                  DIV(add, _class='pull-right'),
-                  H4(T('Customers for'), ' ', wsp.name), BR(), table)
+    content = DIV(
+        search_results,
+        H4(T('Customers for'), ' ', wsp.name), BR(),
+        table
+    )
 
     menu = get_workshops_menu('tickets', wsID)
     back = os_gui.get_button('back', URL('events', 'tickets', vars={'wsID':wsID}))
@@ -2161,16 +2243,13 @@ def tickets_list_customers_get_list(table,
                 db.workshops_products_customers.Waitinglist | \
                 db.auth_user.display_name)
 
-    left = [db.workshops_products.on(
-        db.workshops_products.id == \
-        db.workshops_products_customers.workshops_products_id),
-               db.workshops.on(db.workshops_products.workshops_id == \
-                               db.workshops.id),
-               db.invoices_workshops_products_customers.on(
-                   db_icwspc.workshops_products_customers_id ==
-                   db.workshops_products_customers.id),
-               db.invoices.on(db_icwspc.invoices_id == db.invoices.id)
-           ],
+    if not len(rows):
+        return DIV(
+            H1(os_gui.get_fa_icon('fa-search')),
+            H1(T("Search to add customers")),
+            _class='grey center clear'
+        )
+
 
     invoices = Invoices()
     for i, row in enumerate(rows):
@@ -2389,7 +2468,7 @@ def ticket_edit():
     """
         Edit ticket
     """
-    wspID = request.args[0]
+    wspID = request.vars['wspID']
     wsID = db.workshops_products(wspID).workshops_id
 
     response.title = T('Event')
@@ -2508,7 +2587,7 @@ def ticket_activities():
 
     form.append(table)
 
-    content = DIV(DIV(H4(T('Activities included in'), ' ', product.Name), form, _class='col-md-8 clear'),
+    content = DIV(DIV(H4(T('Activities included in'), ' ', product.Name), form, _class='col-md-12 clear'),
                   _class='row')
 
     if form.process().accepted:
