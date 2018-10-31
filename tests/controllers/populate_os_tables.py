@@ -1777,11 +1777,12 @@ def populate_invoices_items(web2py, credit_items=False):
         iID = row.id
 
         web2py.db.invoices_items.insert(
-            invoices_id         = iID,
-            ProductName         = 'Fruits',
-            Description         = 'Bananas',
-            Quantity            = quantity,
-            Price               = price
+            invoices_id = iID,
+            ProductName = 'Fruits',
+            Description = 'Bananas',
+            Quantity = quantity,
+            Price = price,
+            Sorting = 1
         )
 
         amounts = web2py.db.invoices_amounts(iID)
