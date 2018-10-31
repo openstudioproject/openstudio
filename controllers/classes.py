@@ -2626,6 +2626,15 @@ def attendance():
 
     attendance_count = attendance_get_count(clsID, date)
 
+
+    if not attendance_get_count(clsID, date, formatted=False):
+        content = DIV(
+            H1(os_gui.get_fa_icon('fa-search')),
+            H1(T("Search to add customers")),
+            _class='grey center clear'
+        )
+
+
     menu = classes_get_menu(request.function, clsID, date_formatted)
     export = attendance_get_export(clsID, date_formatted)
     header_tools = DIV(add_customer, btn_attendance_chart, export,
@@ -2690,7 +2699,7 @@ def attendance_get_export(clsID, date_formatted):
     return export
 
 
-def attendance_get_count(clsID, date):
+def attendance_get_count(clsID, date, formatted=True):
     """
         :param clsID: db.classes.id
         :param date: date of class
@@ -2700,11 +2709,15 @@ def attendance_get_count(clsID, date):
             (db.classes_attendance.ClassDate == date)
     count = db(query).count()
 
-    count_text = 'Customers attending'
-    if count == 1:
-        count_text = 'Customer attending'
 
-    return SPAN(count, ' ', count_text, _class='grey pull-right')
+    if not formatted:
+        return count
+    else:
+        count_text = 'Customers attending'
+        if count == 1:
+            count_text = 'Customer attending'
+
+        return SPAN(count, ' ', count_text, _class='grey pull-right')
 
 
 

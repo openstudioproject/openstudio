@@ -2164,9 +2164,10 @@ def tickets_list_customers_get_list(table,
                 db.auth_user.display_name)
 
     if not len(rows):
-        return  DIV(
-            H5(T("Search to add customers")),
-            _class='grey'
+        return DIV(
+            H1(os_gui.get_fa_icon('fa-search')),
+            H1(T("Search to add customers")),
+            _class='grey center clear'
         )
 
 
