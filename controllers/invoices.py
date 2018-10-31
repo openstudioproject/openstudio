@@ -513,6 +513,8 @@ def edit_get_back(cuID, csID=None, cmID=None):
         url = URL('customers', 'invoices', vars={'cuID':cuID})
     if session.invoices_edit_back == 'customers_orders':
         url = URL('customers', 'orders', vars={'cuID':cuID})
+    elif session.invoices_edit_back == 'customers_classcards':
+        url = URL('customers', 'classcards', vars={'cuID':cuID})
     elif session.invoices_edit_back == 'customers_membership_invoices':
         url = URL('customers', 'membership_invoices', vars={'cuID':cuID,
                                                             'cmID':cmID})
@@ -529,6 +531,10 @@ def edit_get_back(cuID, csID=None, cmID=None):
         url = URL('finance', 'invoices')
     elif session.invoices_edit_back == 'finance_batch_content':
         url = URL('finance', 'batch_content')
+    elif session.invoices_edit_back == 'finance_employee_claims_processed':
+        url = URL('finance', 'employee_claims_processed')
+    elif session.invoices_edit_back == 'finance_teacher_payment_classes_processed':
+        url = URL('finance', 'teacher_payment_classes', vars={'status': 'processed'})
     elif session.invoices_edit_back == 'reports_subscriptions_alt_prices':
         url = URL('reports', 'subscriptions_alt_prices')
     else:
@@ -618,6 +624,10 @@ def edit_get_customer_info(invoice, form):
     info = DIV(
         LABEL(form.custom.label.CustomerCompany),
         form.custom.widget.CustomerCompany,
+        LABEL(form.custom.label.CustomerCompanyRegistration),
+        form.custom.widget.CustomerCompanyRegistration,
+        LABEL(form.custom.label.CustomerCompanyTaxRegistration),
+        form.custom.widget.CustomerCompanyTaxRegistration,
         LABEL(form.custom.label.CustomerName),
         form.custom.widget.CustomerName,
         LABEL(form.custom.label.CustomerAddress),
@@ -665,7 +675,7 @@ def list_items():
 
     table = TABLE(THEAD(TR(
                      TH(_class='Sorting'),
-                    #  TH(T('Product #'), _class='ProductID'),
+                     TH(T('GLAccount'), _class='GLAccount'),
                      TH(T('Product Name'), _class='ProductName'),
                      TH(T('Description'), _class='Description'),
                      TH(T('Qty'), _class='Quantity'),
@@ -677,7 +687,7 @@ def list_items():
                      TH(),
                      _class='header')),
                   TR(TD(),
-                    #  TD(form.custom.widget.ProductID),
+                     TD(form.custom.widget.GLAccount),
                      TD(form.custom.widget.ProductName),
                      TD(form.custom.widget.Description),
                      TD(form.custom.widget.Quantity),
@@ -703,11 +713,20 @@ def list_items():
         permission = auth.has_membership(group_id='Admins') or \
                      auth.has_permission('update', 'invoices_items')
         if permission:
-            btn_edit   = os_gui.get_button('edit_notext',
-                                           URL('item_edit',
-                                               vars=btn_vars),
-                                           cid=request.cid )
+            # Edit button
+            btn_edit = os_gui.get_button(
+                'edit_notext',
+                URL('item_edit', vars=btn_vars),
+                cid=request.cid
+            )
             buttons.append(btn_edit)
+            # Duplicate button
+            btn_duplicate = os_gui.get_button(
+                'duplicate',
+                URL('item_duplicate', vars=btn_vars),
+                cid=request.cid
+            )
+            buttons.append(btn_duplicate)
 
             sort_handler = SPAN(_title=T("Click, hold and drag to change the order of items"),
                                 _class='glyphicon glyphicon-option-vertical grey')
@@ -717,15 +736,19 @@ def list_items():
         permission = auth.has_membership(group_id='Admins') or \
                      auth.has_permission('delete', 'invoices_items')
         if permission:
-            btn_delete = os_gui.get_button('delete_notext',
-                                           URL('item_delete_confirm',
-                                               vars=btn_vars),
-                                           cid=request.cid )
-            buttons.append(btn_delete)
+            btn_delete = os_gui.get_button(
+                'delete_notext',
+                URL('item_delete_confirm', vars=btn_vars),
+                btn_class='btn-danger',
+                _class='pull-right',
+                cid=request.cid
+            )
+        else:
+            btn_delete = ''
 
 
         tr = TR(TD(sort_handler, _class='sort-handler movable'),
-                # TD(row.ProductID),
+                TD(repr_row.GLAccount),
                 TD(row.ProductName),
                 TD(row.Description, _class='Description'),
                 TD(row.Quantity),
@@ -737,7 +760,7 @@ def list_items():
                         _title=T("Subtotal: ") + CURRSYM + format(row.TotalPrice, '.2f') + ' ' +\
                                T('VAT: ') + CURRSYM + format(row.VAT, '.2f'),
                         _class='pull-right')),
-                TD(buttons))
+                TD(btn_delete, buttons))
 
         table.append(tr)
 
@@ -757,6 +780,7 @@ def list_items():
 
     for amount in amounts:
         tfoot.append(TR(TD(),
+                        TD(),
                         TD(),
                         TD(),
                         TD(),
@@ -810,7 +834,7 @@ def item_edit():
 
     table = TABLE(THEAD(TR(
                      TH(),
-                    #  TH(T('Product #'), _class='ProductID'),
+                     TH(T('GLAccount'), _class='GLAccount'),
                      TH(T('Product Name'), _class='ProductName'),
                      TH(T('Description'), _class='Description'),
                      TH(T('Quantity'), _class='Quantity'),
@@ -819,7 +843,7 @@ def item_edit():
                      TH(),
                      _class='header')),
                   TR(TD(),
-                    #  TD(form.custom.widget.ProductID),
+                     TD(form.custom.widget.GLAccount),
                      TD(form.custom.widget.ProductName),
                      TD(form.custom.widget.Description),
                      TD(form.custom.widget.Quantity),
@@ -832,6 +856,21 @@ def item_edit():
     content.append(form.custom.end)
 
     return dict(content=content)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'invoices_items'))
+def item_duplicate():
+    """
+    Duplicate invoice item
+    """
+    iID = request.vars['iID']
+    iiID = request.vars['iiID']
+
+    invoice = Invoice(iID)
+    invoice.item_duplicate(iiID)
+
+    redirect(item_edit_delete_get_return_url(iID))
 
 
 def item_edit_delete_get_return_url(iID):
@@ -884,11 +923,35 @@ def item_delete():
     """
         Delete item from invoice
     """
+    from openstudio.tools import OsTools
+
+    db = current.db
+    os_tools = OsTools()
+    exact_online_enabled = os_tools.get_sys_property('exact_online_authorized')
+
     iID = request.vars['iID']
     iiID = request.vars['iiID']
 
+    item = db.invoices_items(iiID)
+
+    if exact_online_enabled and item.ExactOnlineSalesEntryLineID:
+        from openstudio.os_exact_online import OSExactOnline
+
+        eo = OSExactOnline()
+        eo.delete_sales_entry_line(item.ExactOnlineSalesEntryLineID)
+
+    # Actually delete item
     query = (db.invoices_items.id == iiID)
     db(query).delete()
+
+    # Update sorting so we have a consecutive order (important for rowSorter - Sorting should match with rowSorter index)
+    query = (db.invoices_items.invoices_id == iID) & \
+            (db.invoices_items.Sorting > item.Sorting)
+    rows = db(query).select(db.invoices_items.ALL)
+    for row in rows:
+        row.Sorting = row.Sorting - 1
+        row.update_record()
+
 
     # update invoice amounts (this also calls invoice.on_update() through set_amounts())
     list_items_set_invoice_amounts(iID)
@@ -909,7 +972,9 @@ def list_items_get_form_add(iID):
 
     crud.messages.submit_button = T('Add')
     crud.messages.record_created = T("Added item")
-    crud.settings.create_onaccept = [list_items_create_update_onaccept]
+    crud.settings.create_onaccept = [
+        list_items_create_update_onaccept
+    ]
     form = crud.create(db.invoices_items)
 
     return form
@@ -952,8 +1017,8 @@ def items_update_sorting():
     new_index = int(request.vars['new_index'])
 
     query = (db.invoices_items.invoices_id == iID) & \
-            (db.invoices_items.Sorting     == old_index)
-    changed_row= db(query).select(db.invoices_items.ALL).first()
+            (db.invoices_items.Sorting == old_index)
+    changed_row = db(query).select(db.invoices_items.ALL).first()
 
     if old_index > new_index:
         query = (db.invoices_items.invoices_id == iID) & \
@@ -980,7 +1045,7 @@ def items_update_sorting():
     invoice.on_update()
 
 
-    return dict(status  = status,
+    return dict(status = status,
                 message = message)
 
 
@@ -1266,235 +1331,6 @@ def list_payments():
     return dict(content=grid)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('create', 'invoices'))
-def subscriptions_create_invoices():
-    """
-        Create Invoices for all subscriptions in a selected month
-    """
-    year = int(request.vars['year'])
-    month = int(request.vars['month'])
-    description = request.vars['description']
-
-    response.title = T("Create subscription invoices")
-    response.subtitle = SPAN(NRtoMonth(month), ' ', year)
-    response.view = 'general/only_content.html'
-
-    return_url = URL('finance', 'invoices')
-
-    if month == 12:
-        next_month = 1
-        next_year  = year + 1
-    else:
-        next_month = month + 1
-        next_year = year
-
-    if month == 1:
-        prev_year  = year - 1
-        prev_month = 12
-    else:
-        prev_month = month - 1
-        prev_year  = year
-
-
-    url_prev = URL(vars={'month':prev_month, 'year' :prev_year})
-    url_next = URL(vars={'month':next_month, 'year' :next_year})
-
-
-    previous = A(I(_class='fa fa-angle-left'),
-                 _href=url_prev,
-                 _class='btn btn-default')
-    nxt = A(I(_class='fa fa-angle-right'),
-            _href=url_next,
-            _class='btn btn-default')
-
-    date_chooser = DIV(previous, nxt, _class='btn-group pull-right')
-
-    form = SQLFORM.factory(
-        Field('description',
-              requires=IS_NOT_EMPTY(),
-              label=T("Default invoice description"),
-              ## tooltip
-              comment = T("When no alt. price is defined, use this description \
-                    as the invoice description.")),
-              submit_button = T('Create invoices'),
-        formstyle='divs',
-        _class='full-width')
-
-    result = set_form_id_and_get_submit_button(form, 'MainForm')
-    form = result['form']
-    submit = result['submit']
-
-    content = form
-
-    if not description is None:
-        subscriptions_create_invoices_execute(year, month, description)
-        session.flash = T("Created invoices")
-        redirect(return_url)
-
-    back = os_gui.get_button('back', return_url)
-
-    return dict(content=content,
-                menu=date_chooser,
-                back=SPAN(back, date_chooser),
-                save=submit)
-
-
-def subscriptions_create_invoices_execute(year, month, description):
-    """
-        Actually create invoices for subscriptions for a given month
-    """
-    firstdaythismonth = datetime.date(year, month, 1)
-    lastdaythismonth  = get_last_day_month(firstdaythismonth)
-
-    csap = db.customers_subscriptions_alt_prices
-
-    fields = [
-        db.customers_subscriptions.id,
-        db.customers_subscriptions.auth_customer_id,
-        db.customers_subscriptions.school_subscriptions_id,
-        db.customers_subscriptions.Startdate,
-        db.customers_subscriptions.Enddate,
-        db.customers_subscriptions.payment_methods_id,
-        db.school_subscriptions.Name,
-        db.school_subscriptions_price.Price,
-        db.school_subscriptions_price.tax_rates_id,
-        db.tax_rates.Percentage,
-        db.customers_subscriptions_paused.id,
-        db.invoices.id,
-        csap.id,
-        csap.Amount,
-        csap.Description
-    ]
-
-    rows = db.executesql(
-        """
-            SELECT cs.id,
-                   cs.auth_customer_id,
-                   cs.school_subscriptions_id,
-                   cs.Startdate,
-                   cs.Enddate,
-                   cs.payment_methods_id,
-                   ssu.Name,
-                   ssp.Price,
-                   ssp.tax_rates_id,
-                   tr.Percentage,
-                   csp.id,
-                   i.invoices_id,
-                   csap.id,
-                   csap.Amount,
-                   csap.Description
-            FROM customers_subscriptions cs
-            LEFT JOIN auth_user au
-             ON au.id = cs.auth_customer_id
-            LEFT JOIN school_subscriptions ssu
-             ON cs.school_subscriptions_id = ssu.id
-            LEFT JOIN
-             (SELECT id,
-                     school_subscriptions_id,
-                     Startdate,
-                     Enddate,
-                     Price,
-                     tax_rates_id
-              FROM school_subscriptions_price
-              WHERE Startdate <= '{firstdaythismonth}' AND
-                    (Enddate >= '{firstdaythismonth}' OR Enddate IS NULL)) ssp
-             ON ssp.school_subscriptions_id = ssu.id
-            LEFT JOIN tax_rates tr
-             ON ssp.tax_rates_id = tr.id
-            LEFT JOIN
-             (SELECT id,
-                     customers_subscriptions_id
-              FROM customers_subscriptions_paused
-              WHERE Startdate <= '{firstdaythismonth}' AND
-                    (Enddate >= '{firstdaythismonth}' OR Enddate IS NULL)) csp
-             ON cs.id = csp.customers_subscriptions_id
-            LEFT JOIN
-             (SELECT ics.id,
-                     ics.invoices_id,
-                     ics.customers_subscriptions_id
-              FROM invoices_customers_subscriptions ics
-              LEFT JOIN invoices on ics.invoices_id = invoices.id
-              WHERE invoices.SubscriptionYear = {year} AND invoices.SubscriptionMonth = {month}) i
-             ON i.customers_subscriptions_id = cs.id
-            LEFT JOIN
-             (SELECT id,
-                     customers_subscriptions_id,
-                     Amount,
-                     Description
-              FROM customers_subscriptions_alt_prices
-              WHERE SubscriptionYear = {year} AND SubscriptionMonth = {month}) csap
-             ON csap.customers_subscriptions_id = cs.id
-            WHERE cs.Startdate <= '{lastdaythismonth}' AND
-                  (cs.Enddate >= '{firstdaythismonth}' OR cs.Enddate IS NULL) AND
-                  ssp.Price <> 0 AND
-                  ssp.Price IS NOT NULL AND
-                  au.trashed = 'F'
-        """.format(firstdaythismonth=firstdaythismonth,
-                   lastdaythismonth =lastdaythismonth,
-                   year=year,
-                   month=month),
-      fields=fields)
-
-    igpt = db.invoices_groups_product_types(ProductType = 'subscription')
-    igID = igpt.invoices_groups_id
-
-
-    # Alright, time to create some invoices
-    for row in rows:
-        if row.invoices.id:
-            # an invoice already exists, do nothing
-            continue
-        if row.customers_subscriptions_paused.id:
-            # the subscription is paused, don't create an invoice
-            continue
-        if row.customers_subscriptions_alt_prices.Amount == 0:
-            # Don't create an invoice if there's an alt price for the subscription with amount 0.
-            continue
-
-        csID = row.customers_subscriptions.id
-        cuID = row.customers_subscriptions.auth_customer_id
-        pmID = row.customers_subscriptions.payment_methods_id
-
-        subscr_name = row.school_subscriptions.Name
-
-        if row.customers_subscriptions_alt_prices.Description:
-            inv_description = row.customers_subscriptions_alt_prices.Description
-        else:
-            inv_description = description
-
-        if row.customers_subscriptions.Startdate > firstdaythismonth:
-            period_begin = row.customers_subscriptions.Startdate
-        else:
-            period_begin = firstdaythismonth
-
-        period_end = lastdaythismonth
-        if row.customers_subscriptions.Enddate:
-            if row.customers_subscriptions.Enddate >= firstdaythismonth and \
-               row.customers_subscriptions.Enddate < lastdaythismonth:
-                period_end = row.customers_subscriptions.Enddate
-
-
-        item_description = period_begin.strftime(DATE_FORMAT) + ' - ' + \
-                           period_end.strftime(DATE_FORMAT)
-
-        iID = db.invoices.insert(
-            invoices_groups_id = igID,
-            payment_methods_id = pmID,
-            SubscriptionYear = year,
-            SubscriptionMonth = month,
-            Description = inv_description,
-            Status = 'sent'
-        )
-
-        # create object to set Invoice# and due date
-        invoice = Invoice(iID)
-        invoice.link_to_customer(cuID)
-        invoice.link_to_customer_subscription(csID)
-        invoice.item_add_subscription(year, month)
-        invoice.set_amounts()
-
-
 def pdf_template_get_logo(var=None):
     """
         Returns logo for pdf template
@@ -1666,12 +1502,13 @@ def export_invoices():
     if form.process().accepted:
         response.flash = T("Form accepted")
 
-        stream = export_invoices_get_export(form.vars.from_date,
-                                            form.vars.until_date,
-                                            form.vars.invoices_groups_id,
-                                            form.vars.filetype,
-                                            form.vars.include_subscriptions
-                                            )
+        stream = export_invoices_get_export(
+            form.vars.from_date,
+            form.vars.until_date,
+            form.vars.invoices_groups_id,
+            form.vars.filetype,
+            form.vars.include_subscriptions
+        )
 
         if form.vars.filetype == 'excel':
             fname = "Invoices.xlsx"
@@ -1723,6 +1560,7 @@ def export_invoices_get_export(from_date, until_date, invoices_groups_id, filety
         'Date Due',
         'Status',
         'Description',
+        'G/L Account',
         'Item #',
         'Item Name',
         'Item Description',
@@ -1772,6 +1610,7 @@ def export_invoices_get_export(from_date, until_date, invoices_groups_id, filety
                i.DateDue,
                i.Status,
                i.Description,
+               ii.GLAccount,
                ii.Sorting,
                ii.ProductName,
                ii.Description,
@@ -1810,9 +1649,7 @@ def export_invoices_get_export(from_date, until_date, invoices_groups_id, filety
 
         rows = db.executesql(query)
 
-        item_nr = 1
-        prev_iID = None
-        for c, row in enumerate(rows):
+        for row in rows:
             unicode_list = []
             for item in row:
                 try:
@@ -1826,6 +1663,8 @@ def export_invoices_get_export(from_date, until_date, invoices_groups_id, filety
             else:
                 csv_writer.writerow(unicode_list)
 
+
+        # While loop control
         if len(rows) < m:
             break
         i += 1
@@ -2099,6 +1938,13 @@ def cancel_and_create_credit_invoice():
 
     # Set InvoiceID and Due date
     new_invoice = Invoice(new_iID)
+
+    # Link credit invoice to customer
+    current_invoice = Invoice(iID)
+    linked_customer_id = current_invoice.get_linked_customer_id()
+
+    if linked_customer_id:
+        new_invoice.link_to_customer(linked_customer_id)
 
     # Duplicate invoice items with negative prices
     query = (db.invoices_items.invoices_id == invoice.id)

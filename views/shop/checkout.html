@@ -4,7 +4,7 @@
 
 {{ from openstudio.os_school_classcard import SchoolClasscard }}
 {{ from openstudio.os_class import Class }}
-
+{{ from openstudio.os_workshop_product import WorkshopProduct }}
 
 {{block header}}
 {{try:}}{{=header_tools}}{{except:}}{{pass}}{{pass}}
@@ -31,9 +31,10 @@
                     {{ price = 0 }}
                     
                     {{if row.customers_shoppingcart.workshops_products_id:}}
+						{{ wsp = WorkshopProduct(row.customers_shoppingcart.workshops_products_id) }}
                         {{ product = T('Event') }}
                         {{ description = SPAN(repr_row.workshops.Name, ' ', SPAN(repr_row.workshops_products.Name, _class='grey')) }}
-                        {{ price = repr_row.workshops_products.Price }}
+                        {{ price = wsp.get_price_for_customer_formatted(auth.user.id) }}
                     {{pass}}
                     
                     {{if row.customers_shoppingcart.school_classcards_id:}}

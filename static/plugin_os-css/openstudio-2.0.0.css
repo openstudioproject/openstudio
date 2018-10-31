@@ -286,7 +286,7 @@ td.os-customer_image_td {
 }
 
 .customers_edit_container tr td:first-child {
-    width: 84px;
+    width: 110px;
 }
 
 .customers_edit_container .input-group {
@@ -754,6 +754,11 @@ table.invoice-items tr th:first-child {
     width: 14px;
 }
 
+table.invoice-items th.GLAccount {
+    width: 50px;
+}
+
+
 table.invoice-items th.ProductName {
     width: 160px;
 }
@@ -1129,6 +1134,21 @@ div.error {
 
 /* System settings branding end */
 
+/* Employee claims begin */
+.ec_modal_attachment_content img {
+    max-width: 100%;
+}
+
+/* Employee claims end */
+
+
+/* Automated tasks begin */
+
+.automated-tasks-results td {
+    vertical-align: top;
+}
+
+/* Automated tasks end */
 
 /* AdminLTE mods begin */
 
@@ -1162,3 +1182,5 @@ input.datepicker {
 }
 
 /* AdminLTE mods end */
+
+

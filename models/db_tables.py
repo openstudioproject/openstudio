@@ -25,9 +25,11 @@ from general_helpers import create_classtypes_dict
 from decimal import Decimal, ROUND_HALF_UP
 
 # init scheduler
-scheduler = Scheduler(db,
-                      tasks=scheduler_tasks,
-                      utc_time=True)
+scheduler = Scheduler(
+    db,
+    tasks=scheduler_tasks,
+    utc_time=True
+)
 
 # helper functions
 
@@ -738,6 +740,19 @@ def define_sys_properties():
         format='%(Property)s')
 
 
+def define_sys_email_templates():
+    db.define_table('sys_email_templates',
+        Field('Name',
+              label=T('Name')),
+        Field('Title',
+              label=T('Title')),
+        Field('Description',
+              label=T('Description')),
+        Field('TemplateContent',
+              label=T('Content'))
+    )
+
+
 def define_sys_notifications():
     db.define_table("sys_notifications",
         Field("Notification",
@@ -797,9 +812,13 @@ def define_payment_methods():
             writable=False,
             default=False,
             label=T('System method (OpenStudio defined)')),
-        Field('Name', required=True,
+        Field('Name',
             requires=IS_NOT_EMPTY(),
             label=T("Name")),
+        Field('AccountingCode',
+            represent=lambda value, row: value or '',
+            label=T("Accounting code"),
+            comment=T("Payment method/condition code in your accounting software.")),
         format='%(Name)s')
 
 
@@ -1027,6 +1046,10 @@ def define_school_classcards():
         Field('MembershipRequired', 'boolean',
               default=False,
               label=T('Requires membership')),
+        Field('Trialcard', 'boolean',
+              default=False,
+              required=True,
+              label=T('Trial card')),
         Field('sys_organizations_id', db.sys_organizations,
               readable=True if len(ORGANIZATIONS) > 2 else False,
               writable=True if len(ORGANIZATIONS) > 2 else False,
@@ -1080,13 +1103,11 @@ def define_school_classcards():
             readable=False,
             default=False,
             label=T("Unlimited classes"),
-            comment=os_gui.get_info_icon(
-                  title=T('For unlimited cards the number of classes entered is ignored'),
-                  btn_icon='info')),
-        Field('Trialcard', 'boolean',
-            default=False,
-            required=True,
-            label=T('Trial card')),
+            comment=T('For unlimited cards the number of classes entered is ignored')),
+        Field('GLAccount',
+              represent=lambda value, row: value or '',
+              label=T('G/L Account'),
+              comment=T('General ledger account ID in your accounting software')),
         format=format)
 
 
@@ -1157,6 +1178,9 @@ def define_school_memberships():
               label=T('Validity In')),
         Field('Terms', 'text',
               label=T('Terms & conditions')),
+        Field('GLAccount',
+              label= T('G/L Account'),
+              comment= T('General ledger account ID in your accounting software')),
         format='%(Name)s'
         )
 
@@ -1272,7 +1296,7 @@ def define_school_subscriptions():
               ),
         Field('RegistrationFee', 'double',
               label=T('Registration Fee'),
-              default=0,
+              default = 0,
               comment=T("This Amount will be added to the first invoice for this subscription. Set to 0 for no registration fee."),
               ),
         format=format)
@@ -1348,6 +1372,10 @@ def define_school_subscriptions_price():
             label=T("Monthly Fee incl VAT")),
         Field('tax_rates_id', db.tax_rates,
             label=T('Tax rate')),
+        Field('GLAccount',
+            represent=lambda value, row: value or '',
+            label=T('G/L Account'),
+            comment=T('General ledger account ID in your accounting software')),
         )
 
 
@@ -1717,6 +1745,52 @@ def define_classes_notes():
         )
 
 
+def define_employee_claims():
+    db.define_table('employee_claims',
+        Field('auth_user_id', db.auth_user,  # Employee that does the claims
+              required= True,
+              readable=False,
+              writable=False,
+              label=T('Employee/Teacher')),
+        Field('Amount', 'double',
+              default=0,
+              represent=represent_float_as_amount,
+              label=T("Amount (incl. VAT)")),
+        Field('Quantity', 'double',
+              default=1,
+              # represent=represent_float_as_amount,
+              label=T("Quantity")),
+        Field('tax_rates_id', db.tax_rates,
+              label= T('Tax Rate')),
+        Field('ClaimDate', 'datetime',
+              default=NOW_LOCAL,
+              readable= False,
+              writable= False,
+              represent=represent_datetime,
+              label=T('Date')),
+        Field('Description',
+              label=T('Description')),
+        Field('Attachment', 'upload', autodelete=True,
+              requires=IS_EMPTY_OR([IS_IMAGE(extensions=('jpeg', 'jpg', 'png')),
+                                    IS_LENGTH(maxsize=665600,
+                                              error_message=T('650KB or less'))]),  # 650KB
+              label=T("Attachment (Max 650KB)")),
+
+        Field('Status',
+              readable=False,
+              writable=False,
+              requires=IS_IN_SET(employee_claims_statuses),
+              represent=represent_employee_claims_status,
+              label=T("Status")),
+        Field('VerifiedBy', db.auth_user,
+              readable=False,
+              writable=False),
+        Field('VerifiedOn', 'datetime',
+              readable=False,
+              writable=False),
+        )
+
+
 def define_classes():
     weekdays = [('1',T('Monday')),
                 ('2',T('Tuesday')),
@@ -2079,6 +2153,14 @@ def define_classes_price():
             label=T("Membership trial incl. VAT")),
         Field('tax_rates_id_trial_membership', db.tax_rates,
             label=T('Membership trial tax rate')),
+        Field('GLAccountDropin',
+            represent=lambda value, row: value or '',
+            label=T('G/L Account Drop-in'),
+            comment=T('General ledger account ID in your accounting software')),
+        Field('GLAccountTrial',
+            represent=lambda value, row: value or '',
+            label=T('G/L Account Trial'),
+            comment=T('General ledger account ID in your accounting software')),
         )
 
 
@@ -2323,22 +2405,30 @@ def define_customers_payment_info():
             readable=False,
             writable=False,
             label=T('CustomerID')),
-        Field('payment_methods_id', db.payment_methods, required=True,
+        Field('payment_methods_id', db.payment_methods,
             requires=IS_EMPTY_OR(IS_IN_DB(db,'payment_methods.id','%(Name)s',
                                           zero=T("Please select..."))),
             represent=lambda value, row: payment_methods_dict.get(value),
             label=T("Default payment method")),
         Field('AccountNumber',
-            requires=IS_EMPTY_OR(IS_IBAN()),
+            requires=[
+                IS_NOT_EMPTY(error_message=T("Account number is required")),
+                IS_IBAN()
+            ],
             represent=lambda value, row: value or "",
             label=T("Account number")),
         Field('AccountHolder',
+            requires=IS_NOT_EMPTY(
+                error_message=T("Account holder is required")
+            ),
             represent=lambda value, row: value or "",
             label=T("Account holder")),
         Field('BIC',
             represent=lambda value, row: value or "",
             label=T("BIC")),
-        Field('MandateSignatureDate', 'date',
+        Field('MandateSignatureDate', 'date', # Deprecated from 2018.82 do NOT use. Store in payment_info_mandates
+            readable=False,
+            writable=False,
             requires=IS_EMPTY_OR(IS_DATE_IN_RANGE(format=DATE_FORMAT,
                                       minimum=datetime.date(1900,1,1),
                                       maximum=datetime.date(2999,1,1))),
@@ -2351,6 +2441,9 @@ def define_customers_payment_info():
         Field('BankLocation',
             represent=lambda value, row: value or "",
             label=T("Bank location")),
+        Field('exact_online_bankaccount_id',
+            readable=False,
+            writable=False),
         singular=T("Bank details"), plural=T("Bank details")
         )
 
@@ -2365,6 +2458,46 @@ def define_customers_payment_info():
     #         _name=f.name, _id="%s_%s" % (f._tablename, f.name),
     #         _value=v,
     #         value=v)
+
+
+def define_customers_payment_info_mandates():
+    """
+        Table to hold mandates for bank accounts
+    """
+    import uuid
+
+    db.define_table('customers_payment_info_mandates',
+        Field('customers_payment_info_id', db.customers_payment_info,
+              readable=False,
+              writable=False,
+              label=T('Payment Info')),
+        Field('MandateReference',
+              requires=IS_NOT_EMPTY(),
+              default=str(uuid.uuid4()),
+              label=T("Mandate reference"),
+              comment=T("OpenStudio automatically generates a unique reference for each mandate, but you're free to enter something else.")),
+        Field('MandateText', 'text',
+              represent=lambda value, row: value or '',
+              writable =False),
+        Field('MandateSignatureDate', 'date',
+              requires=IS_EMPTY_OR(
+                  IS_DATE_IN_RANGE(format=DATE_FORMAT,
+                                   minimum=datetime.date(1900, 1, 1),
+                                   maximum=datetime.date(2999, 1, 1))
+              ),
+              default=TODAY_LOCAL ,
+              represent=represent_date,
+              label=T("Mandate signature date"),
+              widget=os_datepicker_widget),
+        Field("CreatedOn", 'datetime',
+              readable=False,
+              writable=False,
+              represent=represent_datetime,
+              default=datetime.datetime.now()),
+        Field('exact_online_directdebitmandates_id',
+              readable=False,
+              writable=False)
+    )
 
 
 def define_customers_memberships():
@@ -3205,6 +3338,10 @@ def define_workshops_products():
             label=T("Donation based"),
             default=False,
             comment=T("Shows 'Donation based' instead of the price in the shop.")),
+        Field('GLAccount',
+            represent=lambda value, row: value or '',
+            label=T('G/L Account'),
+            comment=T('General ledger account id in your accounting software')),
         format='%(Name)s')
 
 
@@ -3493,6 +3630,9 @@ def define_payment_batches_items():
                                       maximum=datetime.date(2999,1,1))),
             label=T("Mandate signature date"),
             widget=os_datepicker_widget),
+        Field('MandateReference',
+            represent=lambda value, row: value or SPAN(T("Not set"), _class='text-red'),
+            label=T("Mandate reference")),
         Field('Amount', 'float',
             requires=IS_EMPTY_OR(IS_FLOAT_IN_RANGE(0,99999999, dot='.',
                                  error_message=T('Too small or too large'))),
@@ -3598,6 +3738,37 @@ def define_invoices_customers_classcards():
             writable=False))
 
 
+def define_invoices_employee_claims():
+    """
+        Table to link employee claims to invoices
+    """
+    db.define_table('invoices_employee_claims',
+        Field('invoices_id', db.invoices,
+              readable=False,
+              writable=False),
+        Field('employee_claims_id', db.employee_claims,
+              readable= False,
+              writable = False,
+              label=T('Employee Claim'))
+    )
+
+
+def define_invoices_teachers_payment_classes():
+    """
+        Table to link teacher payment classes to invoices
+    """
+    db.define_table('invoices_teachers_payment_classes',
+        Field('invoices_id', db.invoices,
+            readable=False,
+            writable=False),
+        Field('teachers_payment_classes_id', db.teachers_payment_classes,
+              readable= False,
+              writable = False,
+              label=T('Teacher payment class')
+              )
+    )
+
+
 def define_invoices_customers_orders():
     """
         Table to link customers_orders to invoices
@@ -3656,6 +3827,11 @@ def define_invoices_groups():
               label=T("Terms")),
         Field('Footer', 'text',
               label=T("Footer")),
+        Field('JournalID',
+              represent=lambda value, row: value or '',
+              label=T("Journal ID"),
+              comment=T(
+                  "Journal ID / Code in your accounting software. All invoices in this group will be mapped to this journal.")),
         format='%(Name)s')
 
 
@@ -3759,20 +3935,28 @@ def define_invoices():
             readable=False,
             writable=False,
             default=False),
-        Field('TeacherPaymentMonth', 'integer',
-              readable=False,
-              writable=False,
-              requires=IS_IN_SET(months, zero=T('Please select...')),
-              represent=NRtoMonth,
-              default=TODAY_LOCAL.month,
-              label=T('Month')),
-        Field('TeacherPaymentYear', 'integer',
-              readable=False,
-              writable=False,
-              default=TODAY_LOCAL.year,
-              label=T('Year')),
+        # Field('TeacherPaymentMonth', 'integer',
+        #       readable=False,
+        #       writable=False,
+        #       requires=IS_IN_SET(months, zero=T('Please select...')),
+        #       represent=NRtoMonth,
+        #       default=TODAY_LOCAL.month,
+        #       label=T('Month')),
+        # Field('TeacherPaymentYear', 'integer',
+        #       readable=False,
+        #       writable=False,
+        #       default=TODAY_LOCAL.year,
+        #       label=T('Year')),
+        Field('EmployeeClaim', 'boolean',
+            readable=False,
+            writable=False,
+            default=False),
         Field('CustomerCompany',
               label=T('Company')),
+        Field('CustomerCompanyRegistration',
+            label=T("Company Registration")),
+        Field('CustomerCompanyTaxRegistration',
+            label=T("Company Tax Registration")),
         Field('CustomerName',
               represent=lambda value, row: value or '',
               label=T('Name')),
@@ -3814,6 +3998,9 @@ def define_invoices():
             label=T("Footer")),
         Field('Note', 'text',
             label=T("Note")),
+        Field('ExactOnlineSalesEntryID',
+            readable=False,
+            writable=False),
         Field('PaymentDates', 'text',
             readable=False,
             writable=False),
@@ -3995,9 +4182,6 @@ def define_invoices_items():
         Field('Sorting', 'integer',
             readable=False,
             writable=False),
-        # Field('ProductID',
-        #     requires=IS_NOT_EMPTY(error_message = T("Enter product #")),
-        #     label   =T("Product #")),
         Field('ProductName',
             requires=IS_NOT_EMPTY(error_message = T("Enter product name")),
             label   =T("Product Name")),
@@ -4019,14 +4203,20 @@ def define_invoices_items():
             represent=represent_tax_rate,
             label=T("Tax rate")),
         Field('TotalPriceVAT', 'double',
-              compute=lambda row: row.Price * row.Quantity,
-              represent=represent_float_as_amount),
+            compute=lambda row: row.Price * row.Quantity,
+            represent=represent_float_as_amount),
         Field('VAT', 'double',
-              compute=compute_invoice_item_vat,
-              represent=represent_float_as_amount),
+            compute=compute_invoice_item_vat,
+            represent=represent_float_as_amount),
         Field('TotalPrice', 'double',
             compute=compute_invoice_item_total_price,
             represent=represent_float_as_amount),
+        Field('GLAccount',
+            represent=lambda value, row: value or '',
+            label=T("G/L Account")),
+        Field('ExactOnlineSalesEntryLineID',
+            readable=False,
+            writable=False),
     )
 
 
@@ -4119,8 +4309,12 @@ def define_tax_rates():
         Field('Percentage', 'float',
             requires=IS_FLOAT_IN_RANGE(0,100, dot='.',
                                        error_message=float_error),
-            comment='%',
+            comment='A percentage as numbers only is expected (without %). Use " . " for decimals.',
             label=T('Percentage')),
+        Field('VATCodeID',
+            represent=lambda value, row: value or '',
+            label=T("VAT Code ID"),
+            comment=T("VAT Code in your accounting software.")),
         format='%(Name)s'
     )
 
@@ -4499,14 +4693,18 @@ def define_shop_products():
                                               error_message=T('650KB or less'))]),  # 650KB
               label=T("Image (Max 650KB)")),
         Field('thumbsmall', 'upload',  # generate 50*50 for list view
-              autodelete=True, writable=False,
+              autodelete=True,
+              readable=False,
+              writable=False,
               compute=lambda row: SMARTHUMB(row.picture,
                                             (50, 50),
                                             name="Small"),
               represent=represent_shop_products_thumbsmall,
               label=T("Image")),
         Field('thumblarge', 'upload',  # generate 400*400 for edit view
-              autodelete=True, writable=False,
+              autodelete=True,
+              readable=False,
+              writable=False,
               compute=lambda row: SMARTHUMB(row.picture,
                                             (400, 400),
                                             name="Large"),
@@ -4559,14 +4757,18 @@ def define_shop_products_variants():
                                               error_message=T('650KB or less'))]),  # 650KB
               label=T("Image (Max 650KB)")),
         Field('thumbsmall', 'upload',  # generate 50*50 for list view
-              autodelete=True, writable=False,
+              autodelete=True,
+              readable=False,
+              writable=False,
               compute=lambda row: SMARTHUMB(row.picture,
                                             (50, 50),
                                             name="Small"),
               represent=represent_shop_products_variants_thumbsmall,
               label=T("Image")),
         Field('thumblarge', 'upload',  # generate 400*400 for edit view
-              autodelete=True, writable=False,
+              autodelete=True,
+              readable=False,
+              writable=False,
               compute=lambda row: SMARTHUMB(row.picture,
                                             (400, 400),
                                             name="Large"),
@@ -4607,7 +4809,10 @@ def define_shop_products_variants():
               label=T('Default variant for a product')),
         Field('VariantCode',
               readable=False,
-              writable=False)
+              writable=False),
+        Field('GLAccount',
+              label=T('G/L Account'),
+              comment=T('General ledger account ID in your accounting software')),
     )
 
 
@@ -4851,6 +5056,22 @@ def define_mollie_log_webhook():
         Field('mollie_payment', 'text'))
 
 
+def define_integration_exact_online_log():
+    db.define_table('integration_exact_online_log',
+        Field('ActionName'),
+        Field('ObjectName'),
+        Field('ObjectID'),
+        Field('ActionResult', 'text'),
+        Field('Status',
+            requires=IS_IN_SET(
+                ['success', T("Success")],
+                ['fail', T("Fail")],
+            )),
+        Field('CreatedOn', 'datetime',
+            default=datetime.datetime.now())
+    )
+
+
 def define_customers_profile_features():
     """
         Define table to hold which features are enabled for customer logins
@@ -4986,6 +5207,17 @@ def define_mailing_lists():
     )
 
 
+# def define_integration_exact_online_storage():
+#     """
+#     Settings for exact online
+#     """
+#     db.define_table('integration_exact_online_storage',
+#         Field('ConfigSection'),
+#         Field('ConfigOption'),
+#         Field('ConfigValue'),
+#     )
+#
+
 def set_static_payment_methods():
     """
         This function adds the following to the paymentmethods table
@@ -5090,6 +5322,7 @@ def setup_create_invoice_group():
         Footer=footer
     )
 
+
 def setup_create_invoice_group_defaults():
     """
         Set default invoice group as default for products
@@ -5135,57 +5368,60 @@ def setup_set_email_templates():
         Insert default email templates
     """
     templates = [
-#         [ 'email_template_invoice_created',
-#           """<h3>A new invoice has been added to your account</h3>
-# <p>&nbsp;</p>
-# <p>{invoice_items}</p>
-# <p>&nbsp;</p>
-# <p>To view your invoices, please click <a href="{link_profile_invoices}">here</a>.</p>
-# <p>&nbsp;</p>""" ],
-        [ 'email_template_order_received',
-          """<h3>We have received your order with number #{order_id} on {order_date}</h3>
-<p>&nbsp;</p>
-<p>{order_items}</p>
-<p>&nbsp;</p>
-<p>To view your orders, please click <a href="{link_profile_orders}">here</a>.</p>""" ],
-        [ 'email_template_order_delivered',
-           """<h3>Your order&nbsp;with number #{order_id} has been delivered</h3>
-<p>All items listed below have been added to your account</p>
-<p>&nbsp;</p>
-<p>{order_items}</p>
-<p>&nbsp;</p>
-<p>To view your orders, please click <a href="{link_profile_orders}">here</a>.</p>
-<p>To view your invoices, please click <a href="{link_profile_invoices}">here</a>.</p>"""],
-#         [ 'email_template_payment_received',
-#           """<h3>Payment received for invoice #{invoice_id}</h3>
-# <p>&nbsp;</p>
-# <p>On {payment_date} we have received a payment of {payment_amount} for invoice #{invoice_id}</p>
-# <p>&nbsp;</p>
-# <p>To view your invoices, please click <a href="{link_profile_invoices}">here</a>.</p>"""],
-        ['email_template_sys_footer',
-         """ """],
-        ['email_template_sys_reset_password',
-         """<h3>Reset password</h3>
-<p>Please click on the <a href="%(link)s">link</a> to reset your password</p>"""],
-        ['email_template_sys_verify_email',
-         """<h3>Verify email</h3>
-<p>Welcome %(first_name)s!</p>
-<p>Please click on the <a href="%(link)s">link</a> to verify your email</p>"""],
-        ['email_template_payment_recurring_failed',
-         """<h3>Recurring payment failed</h3>
-<p>&nbsp;</p>
-<p>One or more recurring payments failed, please log in to your account and pay any open invoices before the due date.</p>
-<p>&nbsp;</p>
-<p>To view your invoices, please click <a href="{link_profile_invoices}">here</a>.</p>"""]
+        [
+            'sys_email_footer',
+            'Email Footer',
+             """ """
+        ],
+        [
+            'sys_reset_password',
+            'Reset Password',
+            """<h3>Reset password</h3>
+            <p>Please click on the <a href="%(link)s">link</a> to reset your password</p>"""
+        ],
+        [
+            'sys_verify_email',
+            'Verify Email',
+            """<h3>Verify email</h3>
+            <p>Welcome %(first_name)s!</p>
+            <p>Please click on the <a href="%(link)s">link</a> to verify your email</p>"""
+        ],
+        [
+            'order_received',
+            'Order received',
+            """<h3>We have received your order with number #{order_id} on {order_date}</h3>
+            <p>&nbsp;</p>
+            <p>{order_items}</p>
+            <p>&nbsp;</p>
+            <p>To view your orders, please click <a href="{link_profile_orders}">here</a>.</p>"""
+        ],
+        [
+            'order_delivered',
+            'Order delivered',
+            """<h3>Your order&nbsp;with number #{order_id} has been delivered</h3>
+            <p>All items listed below have been added to your account</p>
+            <p>&nbsp;</p>
+            <p>{order_items}</p>
+            <p>&nbsp;</p>
+            <p>To view your orders, please click <a href="{link_profile_orders}">here</a>.</p>
+            <p>To view your invoices, please click <a href="{link_profile_invoices}">here</a>.</p>"""
+        ],
+        [
+            'payment_recurring_failed',
+            'Recurring payment failed',
+            """<h3>Recurring payment failed</h3>
+            <p>&nbsp;</p>
+            <p>One or more recurring payments failed, please log in to your account and pay any open invoices before the due date.</p>
+            <p>&nbsp;</p>
+            <p>To view your invoices, please click <a href="{link_profile_invoices}">here</a>.</p>"""
+        ],
     ]
-
-    for template, template_content in templates:
-            db.sys_properties.insert(
-            Property = template,
-            PropertyValue = template_content
+    for name, title, template_content in templates:
+        db.sys_email_templates.insert(
+            Name = name,
+            Title = title,
+            TemplateContent = template_content
         )
-
-    cache_clear_sys_properties()
 
 
 def setup():
@@ -5466,6 +5702,10 @@ auth.settings.extra_fields['auth_user'] = [
         label=T("Newsletter")),
     Field('company',
         label=T("Company")),
+    Field('company_registration',
+        label=T("Registration")),
+    Field('company_tax_registration',
+        label=T("Tax Registration")),
     Field('school_discovery_id', db.school_discovery,
         requires=IS_EMPTY_OR(IS_IN_DB(db(dis_query),
                                       'school_discovery.id',
@@ -5524,12 +5764,16 @@ auth.settings.extra_fields['auth_user'] = [
                            row.last_name.strip()),
     Field('display_name',
         writable=False,
-        compute=lambda row:row.company if row.business and row.company else row.full_name,
+        compute=lambda row: row.company if (row.business and row.company) else row.full_name,
         label=T("Customer")),
     Field('mollie_customer_id',
         readable=False,
         writable=False,
         label=T("Mollie customer id")),
+    Field('exact_online_relation_id',
+        readable=False,
+        writable=False,
+        label=T("Exact online customer ID")),
     Field('merged', 'boolean',
         readable=False,
         writable=False,
@@ -5567,6 +5811,10 @@ MAIL = mail
 CURRSYM = get_sys_property('CurrencySymbol')
 if not CURRSYM:
     CURRSYM = u'€'
+# setup currency
+CURRENCY = get_sys_property('Currency')
+if not CURRENCY:
+    CURRENCY = 'EUR'
 
 
 ### Sys properties and auth tables end
@@ -5577,6 +5825,7 @@ define_sys_organizations()
 define_sys_api_users()
 define_sys_files()
 define_sys_accounting()
+define_sys_email_templates()
 define_sys_notifications()
 define_sys_notifications_email()
 set_show_location()
@@ -5588,6 +5837,7 @@ define_payment_methods()
 payment_methods_dict = create_payment_methods_dict()
 
 define_mailing_lists()
+define_integration_exact_online_log()
 define_postcode_groups()
 define_tax_rates()
 
@@ -5622,6 +5872,7 @@ define_workshops_mail()
 define_customers_documents()
 define_customers_notes()
 define_customers_payment_info()
+define_customers_payment_info_mandates()
 define_customers_messages()
 define_customers_memberships()
 define_customers_subscriptions()
@@ -5681,6 +5932,9 @@ define_customers_orders_items()
 define_customers_orders_amounts()
 define_customers_orders_mollie_payment_ids()
 
+#employee claims definitions
+define_employee_claims()
+
 
 # invoice definitions
 define_invoices_groups()
@@ -5696,6 +5950,8 @@ define_invoices_customers()
 define_invoices_customers_memberships()
 define_invoices_customers_subscriptions()
 define_invoices_customers_orders()
+define_invoices_employee_claims()
+define_invoices_teachers_payment_classes()
 define_invoices_mollie_payment_ids()
 
 # payment batches definitions

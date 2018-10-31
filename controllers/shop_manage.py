@@ -12,16 +12,38 @@ def workflow():
     response.subtitle = T('Workflow')
     response.view = 'general/only_content.html'
 
-    shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile')
+    shop_requires_complete_profile_classes = get_sys_property('shop_requires_complete_profile_classes')
+    shop_requires_complete_profile_memberships = get_sys_property('shop_requires_complete_profile_memberships')
+    shop_requires_complete_profile_classcards = get_sys_property('shop_requires_complete_profile_classcards')
+    shop_requires_complete_profile_events = get_sys_property('shop_requires_complete_profile_events')
+    shop_requires_complete_profile_subscriptions = get_sys_property('shop_requires_complete_profile_subscriptions')
     shop_classes_advance_booking_limit = get_sys_property('shop_classes_advance_booking_limit')
     shop_classes_cancellation_limit = get_sys_property('shop_classes_cancellation_limit')
     shop_subscriptions_start = get_sys_property('shop_subscriptions_start')
 
+    shop_subscriptions_payment_method = get_sys_property('shop_subscriptions_payment_method')
+
     form = SQLFORM.factory(
-        Field('shop_requires_complete_profile', 'boolean',
-              default=shop_requires_complete_profile,
-              label=T('Orders require complete profiles'),
-              comment=T('Require complete profiles before customers can place an order')),
+        Field('shop_requires_complete_profile_classes', 'boolean',
+              default=shop_requires_complete_profile_classes,
+              label=T('Booking classes require complete profiles'),
+              comment=T('Require complete profiles before customers can book a class')),
+        Field('shop_requires_complete_profile_memberships', 'boolean',
+              default=shop_requires_complete_profile_memberships,
+              label=T('Memberships require complete profiles'),
+              comment=T('Require complete profiles before customers can get a membership')),
+        Field('shop_requires_complete_profile_classcards', 'boolean',
+              default=shop_requires_complete_profile_classcards,
+              label=T('Classcards require complete profiles'),
+              comment=T('Require complete profiles before customers can buy a classcard')),
+        Field('shop_requires_complete_profile_events', 'boolean',
+              default=shop_requires_complete_profile_events,
+              label=T('Events require complete profiles'),
+              comment=T('Require complete profiles before customers can book an event')),
+        Field('shop_requires_complete_profile_subscriptions', 'boolean',
+              default=shop_requires_complete_profile_subscriptions,
+              label=T('Subscriptions require complete profiles'),
+              comment=T('Require complete profiles before customers can sign up for a subscription')),
         Field('shop_classes_advance_booking_limit', 'integer',
               default=shop_classes_advance_booking_limit,
               requires=IS_INT_IN_RANGE(0, 1099),
@@ -40,6 +62,14 @@ def workflow():
                   zero=None),
               label=T('Subscriptions start date'),
               comment=T("Set the default start date for subscriptions in the shop")),
+        Field('shop_subscriptions_payment_method',
+              default=shop_subscriptions_payment_method,
+              requires=IS_IN_SET([
+                  ['directdebit', T('Direct Debit')],
+                  ['mollie', T('Mollie')]],
+                  zero=None),
+              label=T('Subscriptions Payment Method'),
+              comment=T("Set the default payment method for subscriptions in the shop")),
         submit_button=T("Save"),
         separator=' ',
         formstyle='bootstrap3_stacked'
@@ -50,45 +80,30 @@ def workflow():
     submit = result['submit']
 
     if form.process().accepted:
-        # check shop require complete profiles
-        shop_requires_complete_profile = request.vars['shop_requires_complete_profile']
-        row = db.sys_properties(Property='shop_requires_complete_profile')
-        if not row:
-            db.sys_properties.insert(Property='shop_requires_complete_profile',
-                                     PropertyValue=shop_requires_complete_profile)
-        else:
-            row.PropertyValue = shop_requires_complete_profile
-            row.update_record()
+        form_vars = [
+            'shop_requires_complete_profile_classes',
+            'shop_requires_complete_profile_memberships',
+            'shop_requires_complete_profile_classcards',
+            'shop_requires_complete_profile_events',
+            'shop_requires_complete_profile_subscriptions',
+            'shop_classes_advance_booking_limit',
+            'shop_classes_cancellation_limit',
+            'shop_subscriptions_start',
+            'shop_subscriptions_payment_method',
 
-        # check shop_classes_advance_booking_limit
-        shop_classes_advance_booking_limit = request.vars['shop_classes_advance_booking_limit']
-        row = db.sys_properties(Property='shop_classes_advance_booking_limit')
-        if not row:
-            db.sys_properties.insert(Property='shop_classes_advance_booking_limit',
-                                     PropertyValue=shop_classes_advance_booking_limit)
-        else:
-            row.PropertyValue = shop_classes_advance_booking_limit
-            row.update_record()
+        ]
 
-        # check shop_classes_cancellation_limit
-        shop_classes_cancellation_limit = request.vars['shop_classes_cancellation_limit']
-        row = db.sys_properties(Property='shop_classes_cancellation_limit')
-        if not row:
-            db.sys_properties.insert(Property='shop_classes_cancellation_limit',
-                                     PropertyValue=shop_classes_cancellation_limit)
-        else:
-            row.PropertyValue = shop_classes_cancellation_limit
-            row.update_record()
-
-        # check shop_subscriptions_start
-        shop_subscriptions_start = request.vars['shop_subscriptions_start']
-        row = db.sys_properties(Property='shop_subscriptions_start')
-        if not row:
-            db.sys_properties.insert(Property='shop_subscriptions_start',
-                                     PropertyValue=shop_subscriptions_start)
-        else:
-            row.PropertyValue = shop_subscriptions_start
-            row.update_record()
+        for fvar in form_vars:
+            if fvar in request.vars:
+                set_sys_property(
+                    fvar,
+                    request.vars[fvar]
+                )
+            else:
+                set_sys_property(
+                    fvar,
+                    None
+                )
 
         # Clear cache
         cache_clear_sys_properties()
@@ -187,6 +202,10 @@ def shop_products_get_return_url(var=None):
     return URL('shop_manage', 'products')
 
 
+# def shop_products_get_add_edit_return_url(var=None):
+#
+
+
 @auth.requires_login()
 def product_add():
     """
@@ -202,8 +221,9 @@ def product_add():
     os_forms = OsForms()
     result = os_forms.get_crud_form_create(
         db.shop_products,
-        return_url,
+        '/shop_manage/product_edit?spID=[id]',
         onaccept=product_onaccept,
+        message_record_created=T("Added product, you can now add variants and categories")
     )
 
     form = result['form']
@@ -228,8 +248,14 @@ def product_edit():
         Edit a product
     """
     from openstudio.os_forms import OsForms
+
+    spID = request.vars['spID']
+    sp = db.shop_products(spID)
+
     response.title = T('Shop')
-    response.subtitle = T('Catalog')
+    response.subtitle = T('Edit product - {product_name}'.format(
+        product_name=sp.Name)
+    )
     response.view = 'general/tabs_menu.html'
 
     return_url = shop_products_get_return_url()
@@ -237,8 +263,8 @@ def product_edit():
     os_forms = OsForms()
     result = os_forms.get_crud_form_update(
         db.shop_products,
-        return_url,
-        request.vars['spID'],
+        URL(vars={'spID': spID}),
+        spID,
         onaccept=product_onaccept
     )
 
@@ -250,12 +276,74 @@ def product_edit():
         form
     )
 
-    menu = catalog_get_menu('products')
+    menu = product_edit_get_menu(request.function, spID)
 
     return dict(content=content,
                 save=result['submit'],
                 back=back,
                 menu=menu)
+
+
+def product_edit_get_menu(page, spID):
+    """
+        Returns menu for shop edit pages
+    """
+    pages = []
+
+    vars = {
+        'spID': spID
+    }
+
+    # Products
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('update', 'shop_products'):
+        pages.append(['product_edit',
+                       T('Edit'),
+                      URL('shop_manage', 'product_edit', vars=vars)])
+    # Variants
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('read', 'shop_products_variants'):
+        pages.append(['product_variants',
+                       T('Variants'),
+                      URL('shop_manage', 'product_variants', vars=vars)])
+    # Categories
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('read', 'shop_categories_products'):
+        pages.append(['product_categories',
+                       T('Categories'),
+                      URL('shop_manage', 'product_categories', vars=vars)])
+
+    # Categories
+    # if auth.has_membership(group_id='Admins') or \
+    #    auth.has_permission('read', 'shop_categories'):
+    #     pages.append(['categories',
+    #                    T('Categories'),
+    #                   URL('shop_manage', 'categories')])
+    # # Brands
+    # if auth.has_membership(group_id='Admins') or \
+    #    auth.has_permission('read', 'shop_brands'):
+    #     pages.append(['brands',
+    #                    T('Brands'),
+    #                   URL('shop_manage', 'brands')])
+    # # Suppliers
+    # if auth.has_membership(group_id='Admins') or \
+    #    auth.has_permission('read', 'shop_suppliers'):
+    #     pages.append(['suppliers',
+    #                    T('Suppliers'),
+    #                   URL('shop_manage', 'suppliers')])
+    # # Product sets
+    # if auth.has_membership(group_id='Admins') or \
+    #    auth.has_permission('read', 'shop_products_sets'):
+    #     pages.append(['products_sets',
+    #                    T('Product sets'),
+    #                   URL('shop_manage', 'products_sets')])
+
+    return os_gui.get_submenu(pages,
+                              page,
+                              _id='os-customers_edit_menu',
+                              horizontal=True,
+                              htype='tabs')
+
 
 
 def product_onaccept(form):
@@ -295,6 +383,92 @@ def product_delete():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'shop_categories_products'))
+def product_categories():
+    """
+
+    :return:
+    """
+    from general_helpers import set_form_id_and_get_submit_button
+    from openstudio.os_shop_product import ShopProduct
+
+    spID = request.vars['spID']
+    product = ShopProduct(spID)
+
+    response.title = T('Shop')
+    response.subtitle = T('Edit product - {product_name}'.format(
+        product_name=product.row.Name)
+    )
+    response.view = 'general/tabs_menu.html'
+
+    header = THEAD(TR(
+        TH(),
+        TH(T("Category"))
+    ))
+
+    table = TABLE(header, _class='table table-hover')
+    query = (db.shop_categories_products.shop_products_id == spID)
+    # rows = db(query).select(db.teachers_classtypes.school_classtypes_id)
+    rows = db(query).select(db.shop_categories_products.shop_categories_id)
+    selected_ids = []
+    for row in rows:
+        selected_ids.append(unicode(row.shop_categories_id))
+
+    query = (db.shop_categories.Archived == False)
+    rows = db(query).select(
+        db.shop_categories.id,
+        db.shop_categories.Name,
+        orderby=db.shop_categories.Name
+    )
+
+    for row in rows:
+        if unicode(row.id) in selected_ids:
+            # check the row
+            table.append(TR(TD(INPUT(_type='checkbox',
+                                     _name=row.id,
+                                     _value="on",
+                                     value="on"),
+                                     _class='td_status_marker'),
+                            TD(row.Name)))
+        else:
+            table.append(TR(TD(INPUT(_type='checkbox',
+                                     _name=row.id,
+                                     _value="on"),
+                                     _class='td_status_marker'),
+                            TD(row.Name)))
+    form = FORM(table, _id='MainForm')
+
+    return_url = URL(vars={'spID':spID})
+    # After submitting, check which categories are 'on'
+    if form.accepts(request,session):
+        # Remove all current records
+        query = (db.shop_categories_products.shop_products_id == spID)
+        db(query).delete()
+        # insert new records for product
+        for row in rows:
+            if request.vars[unicode(row.id)] == 'on':
+                db.shop_categories_products.insert(
+                    shop_categories_id = row.id,
+                    shop_products_id = spID
+                )
+
+        # Clear teachers (API) cache
+        cache_clear_school_teachers()
+
+        session.flash = T('Saved')
+        redirect(return_url)
+
+
+    back = os_gui.get_button('back', shop_products_get_return_url())
+    menu = product_edit_get_menu(request.function, spID)
+
+    return dict(content=form,
+                save=os_gui.get_submit_button('MainForm'),
+                back=back,
+                menu=menu)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'shop_products_variants'))
 def product_variants():
     """
@@ -307,14 +481,13 @@ def product_variants():
     product = ShopProduct(spID)
 
     response.title = T('Shop')
-    response.subtitle = T('Catalog')
+    response.subtitle = T('Edit product - {product_name}'.format(
+        product_name=product.row.Name)
+    )
     response.view = 'general/tabs_menu.html'
 
     variants = ShopProductsVariants(spID)
-    content = DIV(
-        H4(T('Variants for'), ' ', product.row.Name),
-        variants.list_formatted()
-    )
+    content = variants.list_formatted()
 
     add = ''
     if not product.has_products_set():
@@ -323,7 +496,7 @@ def product_variants():
                                     vars={'spID':spID}))
 
     back = os_gui.get_button('back', shop_products_get_return_url())
-    menu = catalog_get_menu('products')
+    menu = product_edit_get_menu(request.function, spID)
 
     return dict(content=content,
                 add=add,
@@ -344,13 +517,18 @@ def product_variant_add():
     """
         Add a product variant
     """
+    from openstudio.os_shop_product import ShopProduct
     from openstudio.os_forms import OsForms
 
     spID = request.vars['spID']
     product_variant_add_check_products_set(spID)
 
+    product = ShopProduct(spID)
+
     response.title = T('Shop')
-    response.subtitle = T('Catalog')
+    response.subtitle = T('Edit product - {product_name}'.format(
+        product_name=product.row.Name)
+    )
     response.view = 'general/tabs_menu.html'
 
     return_url = product_variants_get_return_url(spID)
@@ -365,14 +543,9 @@ def product_variant_add():
     form = result['form']
     back = os_gui.get_button('back', return_url)
 
-    content = DIV(
-        H4(T('Add product variant')),
-        form
-    )
+    menu = product_edit_get_menu('product_variants', spID)
 
-    menu = catalog_get_menu('products')
-
-    return dict(content=content,
+    return dict(content=form,
                 save=result['submit'],
                 back=back,
                 menu=menu)
@@ -402,13 +575,16 @@ def product_variant_edit():
     spID = request.vars['spID']
     spvID = request.vars['spvID']
 
+    product = ShopProduct(spID)
+
     response.title = T('Shop')
-    response.subtitle = T('Catalog')
+    response.subtitle = T('Edit product - {product_name}'.format(
+        product_name=product.row.Name)
+    )
     response.view = 'general/tabs_menu.html'
 
     return_url = product_variants_get_return_url(spID)
 
-    product = ShopProduct(spID)
     if product.has_products_set():
         db.shop_products_variants.Name.writable = False
 
@@ -422,14 +598,9 @@ def product_variant_edit():
     form = result['form']
     back = os_gui.get_button('back', return_url)
 
-    content = DIV(
-        H4(T('Edit product variant')),
-        form
-    )
+    menu = product_edit_get_menu('product_variants', spID)
 
-    menu = catalog_get_menu('products')
-
-    return dict(content=content,
+    return dict(content=form,
                 save=result['submit'],
                 back=back,
                 menu=menu)

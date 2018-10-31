@@ -1,11 +1,13 @@
 # # -*- coding: utf-8 -*-
 
 import datetime
-import Mollie
+from mollie.api.client import Client
+from mollie.api.error import Error as MollieError
 
 from openstudio.os_customer_subscription import CustomerSubscription
 from openstudio.os_invoice import Invoice
 from openstudio.os_mail import OsMail
+from openstudio.os_scheduler_tasks import OsSchedulerTasks
 
 
 def task_openstudio_daily():
@@ -14,7 +16,7 @@ def task_openstudio_daily():
     """
     today = datetime.date.today()
     if today.day == 1:
-        _task_mollie_subscription_invoices_and_payments()
+        task_mollie_subscription_invoices_and_payments()
 
     return 'Daily task - OK'
 
@@ -26,7 +28,7 @@ def task_openstudio_test():
     return 'Test task - OK'
 
 
-def _task_mollie_subscription_invoices_and_payments():
+def task_mollie_subscription_invoices_and_payments():
     """
         Create subscription invoices for subscriptions with payment method 100
         Collect payment for these invoices
@@ -36,7 +38,7 @@ def _task_mollie_subscription_invoices_and_payments():
             When a recurring payment fails, mail customer with request to pay manually
         """
         os_mail = OsMail()
-        msgID = os_mail.render_email_template('email_template_payment_recurring_failed')
+        msgID = os_mail.render_email_template('payment_recurring_failed')
         os_mail.send(msgID, cuID)
 
     from openstudio.os_customer import Customer
@@ -44,9 +46,9 @@ def _task_mollie_subscription_invoices_and_payments():
     # hostname
     sys_hostname = get_sys_property('sys_hostname')
     # set up Mollie
-    mollie = Mollie.API.Client()
+    mollie = Client()
     mollie_api_key = get_sys_property('mollie_website_profile')
-    mollie.setApiKey(mollie_api_key)
+    mollie.set_api_key(mollie_api_key)
     # set dates
     today = datetime.date.today()
     firstdaythismonth = datetime.date(today.year, today.month, 1)
@@ -60,6 +62,9 @@ def _task_mollie_subscription_invoices_and_payments():
             ((db.customers_subscriptions.Enddate >= firstdaythismonth) |
              (db.customers_subscriptions.Enddate == None))
     rows = db(query).select(db.customers_subscriptions.ALL)
+
+    success = 0
+    failed = 0
 
     # create invoices
     for i, row in enumerate(rows):
@@ -104,9 +109,12 @@ def _task_mollie_subscription_invoices_and_payments():
                 try:
                     webhook_url = URL('mollie', 'webhook', scheme='https', host=sys_hostname)
                     payment = mollie.payments.create({
-                        'amount': invoice_amounts.TotalPriceVAT,
+                        'amount': {
+                            'currency': CURRENCY,
+                            'value': format(invoice_amounts.TotalPriceVAT, '.2f')
+                        },
                         'customerId': mollie_customer_id,
-                        'recurringType': 'recurring',  # important
+                        'sequenceType': 'recurring',  # important
                         'description': description,
                         'webhookUrl': webhook_url,
                         'metadata': {
@@ -123,24 +131,41 @@ def _task_mollie_subscription_invoices_and_payments():
                         WebhookURL=webhook_url
                     )
 
-                except Mollie.API.Error as e:
+                    success += 1
+
+                except MollieError as e:
                     print e
                     # send mail to ask customer to pay manually
                     send_mail_failed(cs.auth_customer_id)
+
+                    failed += 1
                     # return error
                     # return 'API call failed: ' + e.message
         else:
             # send mail to ask customer to pay manually
             send_mail_failed(cs.auth_customer_id)
 
+            failed +=1
+
     # For scheduled tasks, db has to be committed manually
     db.commit()
+
+    return T("Payments collected") + ': ' + unicode(success) + '<br>' + \
+        T("Payments failed to collect") + ': ' + unicode(failed)
 
 
 def scheduler_task_test():
     return 'success!'
 
 
+os_scheduler_tasks = OsSchedulerTasks()
 
-scheduler_tasks = {'daily': task_openstudio_daily,
-                   'openstudio_test_task': task_openstudio_test}
+
+scheduler_tasks = {
+    'daily': task_openstudio_daily,
+    'customers_subscriptions_create_invoices_for_month': os_scheduler_tasks.customers_subscriptions_create_invoices_for_month,
+    'customers_subscriptions_add_credits_for_month': os_scheduler_tasks.customers_subscriptions_add_credits_for_month,
+    'customers_membership_renew_expired': os_scheduler_tasks.customers_memberships_renew_expired,
+    'customers_subscriptions_collect_mollie_recurring_current_month': task_mollie_subscription_invoices_and_payments,
+    'openstudio_test_task': task_openstudio_test
+}

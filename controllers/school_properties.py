@@ -1266,10 +1266,13 @@ def subscriptions_prices():
     db.school_subscriptions_price.id.readable=False
 
     query = (db.school_subscriptions_price.school_subscriptions_id == ssuID)
-    fields = [ db.school_subscriptions_price.Startdate,
-               db.school_subscriptions_price.Enddate,
-               db.school_subscriptions_price.Price,
-               db.school_subscriptions_price.tax_rates_id ]
+    fields = [
+        db.school_subscriptions_price.Startdate,
+        db.school_subscriptions_price.Enddate,
+        db.school_subscriptions_price.Price,
+        db.school_subscriptions_price.tax_rates_id,
+        db.school_subscriptions_price.GLAccount
+    ]
     links = [ lambda row: os_gui.get_button('edit',
                                      URL('subscription_price_edit',
                                          vars={'ssuID':ssuID,
@@ -1768,6 +1771,7 @@ def classcards():
               db.school_classcards.sys_organizations_id,
               db.school_classcards.Description,
               db.school_classcards.Price,
+              db.school_classcards.GLAccount,
               db.school_classcards.Validity,
               db.school_classcards.ValidityUnit,
               db.school_classcards.Classes,
@@ -1869,6 +1873,7 @@ def classcard_add():
 
     crud.messages.submit_button = T("Save")
     crud.messages.record_created = T("Saved")
+    crud.settings.formstyle = 'bootstrap3_stacked'
     crud.settings.create_next = return_url
     crud.settings.create_onaccept = [cache_clear_school_classcards]
     form = crud.create(db.school_classcards)
@@ -1906,6 +1911,7 @@ def classcard_edit():
 
     crud.messages.submit_button = T("Save")
     crud.messages.record_updated = T("Saved")
+    crud.settings.formstyle = 'bootstrap3_stacked'
     crud.settings.update_next = return_url
     crud.settings.update_deletable = False
     crud.settings.update_onaccept = [cache_clear_school_classcards]

@@ -47,12 +47,16 @@ class TeachersPaymentClasses:
                     if not cls['Cancelled'] or cls['Holiday']:
                         # Check if item in db.teachers_payment_classes
                         query = (db.teachers_payment_classes.classes_id == cls['ClassesID']) & \
-                                (db.teachers_payment_classes.ClassDate == date)
+                                (db.teachers_payment_classes.ClassDate == date) & \
+                                ((db.teachers_payment_classes.Status == 'verified') |
+                                 (db.teachers_payment_classes.Status == 'processed'))
                         if db(query).count() == 0:
                             os_cls = Class(
                                 cls['ClassesID'],
                                 date
                             )
+
+                            # This inserts or updates the class data with status not_verified
                             result = os_cls.get_teacher_payment()
 
                             if not result['error']:
@@ -88,6 +92,14 @@ class TeachersPaymentClasses:
             db.classes.on(
                 db.teachers_payment_classes.classes_id ==
                 db.classes.id
+            ),
+            db.invoices_teachers_payment_classes.on(
+                db.invoices_teachers_payment_classes.teachers_payment_classes_id ==
+                db.teachers_payment_classes.id
+            ),
+            db.invoices.on(
+                db.invoices_teachers_payment_classes.invoices_id ==
+                db.invoices.id
             )
         ]
 
@@ -105,11 +117,14 @@ class TeachersPaymentClasses:
             query &= (db.teachers_payment_classes.ClassDate >= date_from)
 
         if date_until:
-            query &= (db.teachers_payment_classes.ClassDate <= date_from)
+            query &= (db.teachers_payment_classes.ClassDate <= date_until)
+
 
         rows = db(query).select(
             db.teachers_payment_classes.ALL,
             db.classes.ALL,
+            db.invoices_teachers_payment_classes.ALL,
+            db.invoices.ALL,
             left=left,
             limitby=limitby,
             orderby=orderby
@@ -136,7 +151,7 @@ class TeachersPaymentClasses:
 
         header = THEAD(TR(
             TH(),
-            TH(T("Date")),
+            TH(T("Class date")),
             TH(T("Time")),
             TH(T("Location")),
             TH(T("Class type")),
@@ -145,6 +160,7 @@ class TeachersPaymentClasses:
             TH(T("Attendance")),
             TH(T("Payment")),
             TH(os_gui.get_fa_icon('fa-subway')),
+            TH(T("Invoice")),
             TH() # Actions
         ))
 
@@ -180,6 +196,7 @@ class TeachersPaymentClasses:
                 TD(repr_row.teachers_payment_classes.TravelAllowance, BR(),
                    SPAN(repr_row.teachers_payment_classes.tax_rates_id_travel_allowance or '',
                         _class='grey')),
+                TD(self._rows_to_table_get_invoice_link(row, os_gui)),
                 TD(buttons)
             )
 
@@ -188,6 +205,23 @@ class TeachersPaymentClasses:
         pager = self._rows_to_table_get_navigation(rows, items_per_page, page)
 
         return DIV(table, pager)
+
+
+    def _rows_to_table_get_invoice_link(self, row, os_gui):
+        """
+        Display claim attachments in a modal
+        """
+        if not row.invoices_teachers_payment_classes.id:
+            return ''
+
+        T = current.T
+
+        invoice_url = URL('invoices', 'edit', vars={'iID': row.invoices.id})
+
+        return A(
+            row.invoices.InvoiceID,
+            _href=invoice_url
+        )
 
 
     def _rows_to_table_get_navigation(self, rows, items_per_page, page):
@@ -380,6 +414,10 @@ class TeachersPaymentClasses:
 
         T = current.T
         db = current.db
+        DATE_FORMAT = current.DATE_FORMAT
+
+        error = False
+        message = ''
 
         # Sort verified classes by teacher
         rows = self.get_rows(
@@ -401,11 +439,17 @@ class TeachersPaymentClasses:
             if i == 0 or not previous_teacher == teID:
                 current_teacher = teID
 
+                description = T("Classes")
+                if date_from and date_until:
+                    description = T("Classes") + ' ' + \
+                                  date_from.strftime(DATE_FORMAT) + ' - ' + \
+                                  date_until.strftime(DATE_FORMAT)
+
                 igpt = db.invoices_groups_product_types(ProductType='teacher_payments')
                 iID = db.invoices.insert(
                     invoices_groups_id=igpt.invoices_groups_id,
                     TeacherPayment=True,
-                    Description=T('Classes'),
+                    Description=description,
                     Status='sent'
                 )
 
@@ -434,6 +478,8 @@ class TeachersPaymentClasses:
             processed += 1
 
         # Calculate total
-
-        return processed
+        return dict(
+            error=error,
+            message=processed
+        )
 

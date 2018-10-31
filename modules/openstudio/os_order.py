@@ -73,19 +73,25 @@ class Order:
             :param workshops_products_id: db.workshops_products.id
             :return: db.customers_orders_items.id of inserted item
         """
+        from os_workshop_product import WorkshopProduct
+
         db = current.db
         T  = current.T
 
-        wsp = db.workshops_products(workshops_products_id)
-        ws = db.workshops(wsp.workshops_id)
+        wsp = WorkshopProduct(workshops_products_id)
+        ws = wsp.workshop
+
+        # Check for subscription price
+        price = wsp.get_price_for_customer(self.order.auth_customer_id)
+
 
         coiID = db.customers_orders_items.insert(
             customers_orders_id = self.coID,
             workshops_products_id = workshops_products_id,
             ProductName = T('Event'),
-            Description = ws.Name + ' - ' + wsp.Name,
+            Description = ws.Name + ' - ' + wsp.name,
             Quantity = 1,
-            Price = wsp.Price,
+            Price = price,
             tax_rates_id = wsp.tax_rates_id
         )
 
@@ -382,6 +388,9 @@ class Order:
         from os_mail import OsMail
 
         osmail = OsMail()
-        msgID = osmail.render_email_template('email_template_order_delivered', customers_orders_id=self.coID)
+        msgID = osmail.render_email_template(
+            'order_delivered',
+            customers_orders_id=self.coID
+        )
 
         osmail.send(msgID, self.order.auth_customer_id)

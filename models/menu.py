@@ -61,16 +61,23 @@ def ep_menu():
         URL('ep', 'index', extension='')])
 
     # Monthly Classes
-    menu.append([(  # I(_class='fa fa-graduation-cap'),
-        SPAN(T('My Classes'))),
-        False,
-        URL('ep', 'my_classes', extension='')])
+    if auth.user.teacher:
+        menu.append([(  # I(_class='fa fa-graduation-cap'),
+            SPAN(T('My Classes'))),
+            False,
+            URL('ep', 'my_classes', extension='')])
 
     # My Payments / Staffpayments
     menu.append([(  # I(_class='fa fa-home'),
         SPAN(T('My Payments'))),
         False,
         URL('ep', 'my_payments', extension='')])
+
+    # My Claims
+    menu.append([(  # I(_class='fa fa-home'),
+        SPAN(T('My Claims'))),
+        False,
+        URL('ep', 'my_claims', extension='')])
 
     menu.append([(  # I(_class='fa fa-home'),
         SPAN(T('Back end'))),
@@ -301,11 +308,33 @@ def get_backend_menu():
                                 False,
                                 URL('tasks', 'index', extension='')) ]
         # customers
+        # if user_helpers.check_read_permission('auth_user', user_id):
+        #     menu += [ ((I(_class='fa fa-users'),
+        #                          SPAN(T('Customers'))),
+        #                         False,
+        #                         URL('customers', 'index', extension='')) ]
+        # Customers
         if user_helpers.check_read_permission('auth_user', user_id):
-            menu += [ ((I(_class='fa fa-users'),
-                                 SPAN(T('Customers'))),
+
+            submenu = []
+            if user_helpers.check_read_permission('classes', user_id):
+                submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('List customers'))),
                                 False,
-                                URL('customers', 'index', extension='')) ]
+                                URL('customers', 'index', extension='')))
+
+            if user_helpers.check_read_permission('customers_subscriptions_credits', user_id):
+                submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Subscription credits'))),
+                                False,
+                                URL('customers', 'subscription_credits_month', extension='')))
+
+            menu += [ ((I(_class='fa fa-users'),
+                                 SPAN(T('Customers')),
+                                 SPAN(I(_class='fa fa-angle-left pull-right'),
+                                      _class="pull-right-container")),
+                                 False,
+                                 URL('classes', 'schedule', extension=''),
+                                 submenu) ]
+
         # Schedule ( classes & employees )
         if ( user_helpers.check_read_permission('classes', user_id) or
              user_helpers.check_read_permission('shifts', user_id) ):
@@ -315,10 +344,11 @@ def get_backend_menu():
                 submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Classes'))),
                                 False,
                                 URL('classes', 'schedule', extension='')))
-            if user_helpers.check_read_permission('classes_otc_sub_avail', user_id):
-                submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Available subs'))),
-                                False,
-                                URL('classes', 'subs_manage', extension='')))
+            #TODO: enable as soon as find a sub is released
+            # if user_helpers.check_read_permission('classes_otc_sub_avail', user_id):
+            #     submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Available subs'))),
+            #                     False,
+            #                     URL('classes', 'subs_manage', extension='')))
 
             if user_helpers.check_read_permission('shifts', user_id):
                 submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Studio staff'))),
@@ -502,6 +532,11 @@ def get_backend_menu():
                                 URL('finance', 'teacher_payment_classes',
                                     vars={'status': 'not_verified'},
                                     extension='')))
+            if user_helpers.check_read_permission('employee_claims', user_id):
+                submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Employee Claims'))),
+                                False,
+                                URL('finance', 'employee_claims',
+                                    extension='')))
 
             if user_helpers.check_read_permission('payment_batches', user_id):
                 submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Batch collections'))),
@@ -553,6 +588,7 @@ def get_backend_menu():
                                 URL('#', extension=''), submenu )
                              ]
 
+
         # settings
         if user_helpers.check_read_permission('settings', user_id):
             submenu = []
@@ -566,6 +602,9 @@ def get_backend_menu():
             submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Access'))),
                             False,
                             URL('settings', 'access_groups', extension=''))),
+            submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Point of Sale'))),
+                            False,
+                            URL('settings_pos', 'index', extension=''))),
             submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Shop'))),
                             False,
                             URL('settings', 'shop_settings', extension=''))),
@@ -574,7 +613,7 @@ def get_backend_menu():
                             URL('settings', 'selfcheckin', extension=''))),
             submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Integration'))),
                             False,
-                            URL('settings_integration', 'mollie', extension='')))
+                            URL('settings_integration', 'exact_online', extension='')))
             submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Mail'))),
                             False,
                             URL('settings_mail', 'mailing_lists', extension='')))
@@ -597,6 +636,29 @@ def get_backend_menu():
                                 False,
                                 URL('#', extension=''), submenu)
                              ]
+
+
+        # automated tasks
+        if user_helpers.check_read_permission('automated_tasks', user_id):
+            submenu = []
+
+            submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Customer subscriptions'))),
+                            False,
+                            URL('automation_customer_subscriptions', 'index', extension='')))
+            submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Customer memberships'))),
+                            False,
+                            URL('automation_customer_memberships', 'index', extension='')))
+
+
+            menu += [
+                ((I(_class=settings_class + ' fa fa-magic', _title=T('Automation')),
+                  SPAN(T('Automation')),
+                  SPAN(I(_class='fa fa-angle-left pull-right'),
+                       _class="pull-right-container")),
+                  False,
+                  URL('#', extension=''), submenu)
+            ]
+
 
         # Go to
         submenu = [

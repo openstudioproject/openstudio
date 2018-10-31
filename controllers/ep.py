@@ -31,7 +31,6 @@ import datetime
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'employee_portal'))
-@auth.requires_login()
 def index():
     """
         Employee Portal page, a quick overview of today
@@ -54,7 +53,7 @@ def index():
     return dict(content=content)
 
 
-#TODO: Move to os_teacher (after merge)
+#TODO: Move to openstudio.os_teacher (after merge)
 def ep_index_teacher_upcoming_classes(days=3):
     """
         @return: List upcoming classes for a teacher
@@ -73,7 +72,7 @@ def ep_index_teacher_upcoming_classes(days=3):
     return teacher.get_upcoming_classes_formatted(days)
 
 
-#TODO: move to os_teacher for use in pinboard and here.
+#TODO: move to openstudio.os_teacher for use in pinboard and here.
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'employee_portal'))
 def ep_index_teacher_sub_classes():
@@ -223,7 +222,7 @@ def my_classes():
                 TD(repr_row.classes.school_locations_id),
                 TD(repr_row.classes.school_classtypes_id),
                 TD(sub_requested),
-                #TD(button)
+                TD(button)
             )
 
             table.append(tr)
@@ -451,7 +450,8 @@ def cancel_request_sub():
     redirect(URL('my_classes'))
 
 
-@auth.requires_login()
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'employee_portal'))
 def my_payments():
     """
         List staff payments
@@ -513,3 +513,195 @@ def my_payments_get_content(var=None):
         ))
 
     return table
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'employee_portal'))
+def my_claims():
+    """
+    Page to view and Add/Edit Employee Claims
+    :return:
+    """
+    response.title = T('My Claims')
+    response.view = 'ep/only_content.html'
+
+    if auth.user.teacher == False and auth.user.employee == False:
+        redirect(URL('ep', 'index'))
+
+    header = THEAD(TR(
+        TH(T('Claim #')),
+        TH(T('Description')),
+        TH(T('Received On')),
+        TH(T('Amount')),
+        TH(T('Quantity')),
+        TH(T('Status')),
+        TH(T('Attachment')),
+        TH()
+    ))
+
+    table = TABLE(header, _class='table table-striped table-hover')
+
+    query= (db.employee_claims.auth_user_id== auth.user.id)
+    rows= db(query).select(orderby=~db.employee_claims.ClaimDate)
+
+    onclick_del = "return confirm('Do you really want to delete this Claim?');"
+
+    for i, row in enumerate(rows):
+        repr_row = list(rows[i:i + 1].render())[0]
+
+        delete = ''
+        edit = ''
+
+        if row.Status == 'pending':
+            # status = os_gui.get_label('warning', T('Pending'))
+            delete = os_gui.get_button('delete_notext',
+                                       URL('my_claims_claim_delete', vars={'ecID': row.id}),
+                                       onclick=onclick_del,
+                                       _class='pull-right')
+            edit = os_gui.get_button('edit',
+                                     URL('my_claims_claim_edit',
+                                         vars={'ecID': row.id}), _class='pull-right')
+
+        download_attachment = ''
+        if row.Attachment:
+            download_attachment = os_gui.get_button(
+                'download',
+                URL('default', 'download', row.Attachment),
+                title=T("Download"),
+            )
+
+        table.append(TR(
+            TD(row.id),
+            TD(repr_row.Description),
+            TD(repr_row.ClaimDate),
+            TD(repr_row.Amount),
+            TD(repr_row.Quantity),
+            TD(repr_row.Status),
+            TD(download_attachment),
+            TD(delete, edit)
+        ))
+
+    add_url = URL('my_claims_claim_add')
+    add = os_gui.get_button(
+        'add',
+        add_url,
+        T("Add new Claim"),
+        btn_class='btn-success',
+        btn_size='',
+        _class='pull-right'
+    )
+
+    content= DIV(table)
+
+
+    return dict(content=content, add=add)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'employee_portal'))
+def my_claims_claim_add():
+    """
+    Page to add a claim
+    """
+    from openstudio.os_forms import OsForms
+
+    response.title = T('My Claims')
+    response.subtitle= T('Add New Claim')
+    response.view = 'ep/only_content.html'
+
+    if auth.user.teacher == False and auth.user.employee == False:
+        redirect(URL('ep', 'index'))
+
+    return_url = URL('my_claims')
+    db.employee_claims.auth_user_id.default = auth.user.id
+    db.employee_claims.Status.default = 'pending'
+
+    form = SQLFORM(db.employee_claims, submit_button = T('Save'),
+                   formstyle='divs')
+
+    if form.process().accepted:
+        # response.flash = 'form accepted'
+        redirect(return_url)
+
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
+    form = result['form']
+    submit = result['submit']
+
+    back = os_gui.get_button('back', return_url)
+
+    content = DIV(
+        H4(T('Add Claim')),
+        form
+    )
+
+    return dict(content=content,
+                save=submit,
+                back=back)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'employee_portal'))
+def my_claims_claim_edit():
+    """
+    Page to Edit Claim
+    :return:
+    """
+    from openstudio.os_forms import OsForms
+    response.title = T('My Claims')
+    response.subtitle = T('Edit Claim')
+    response.view = 'ep/only_content.html'
+
+    return_url = URL('my_claims')
+    ecID = request.vars['ecID']
+
+    ec = db.employee_claims(ecID)
+    if not ec.auth_user_id == auth.user.id:
+        session.flash = T("Unable to edit this claim")
+        redirect(return_url)
+
+    db.employee_claims.id.readable =False
+    form = SQLFORM(
+        db.employee_claims,
+        ecID,
+        submit_button=T('Save'),
+        formstyle='divs'
+    )
+
+    if form.process().accepted:
+        redirect(return_url)
+
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
+
+    form = result['form']
+    back = os_gui.get_button('back', return_url)
+
+    content = DIV(
+        H4(T('Edit Claim')),
+        form
+    )
+
+
+    return dict(content=content,
+                save=result['submit'],
+                back=back)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'employee_portal'))
+def my_claims_claim_delete():
+    """
+    Delete Claim
+    :return:
+    """
+    ecID = request.vars['ecID']
+
+    ec = db.employee_claims(ecID)
+    if not ec.auth_user_id == auth.user.id:
+        session.flash = T("Unable to delete this claim")
+        redirect(return_url)
+
+    query = (db.employee_claims.id == ecID)
+    db(query).delete()
+
+    session.flash = T('Deleted claim')
+    redirect('my_claims')

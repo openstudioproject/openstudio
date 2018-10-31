@@ -5,7 +5,6 @@ import React from "react"
 import Footer from "./ui/Footer"
 import MainMenu from "./MainMenu"
 import Content from "./ui/Content";
-import LoadingScreen from "./ui/LoadingScreen";
 import ErrorScreen from "./ui/ErrorScreen";
 
 const PageTemplate = ({ app_state, children }) => 

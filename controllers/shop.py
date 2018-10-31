@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import Mollie
+from mollie.api.client import Client
+from mollie.api.error import Error as MollieError
 
 from general_helpers import workshops_get_full_workshop_product_id
 from general_helpers import datestr_to_python
@@ -104,9 +105,12 @@ def event_add_to_cart():
                              T("This product is sold out"))
         redirect(workshop_return_url)
     else:
-        shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile')
+        shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile_events')
         if shop_requires_complete_profile:
-            check_add_to_card_requires_complete_profile(auth.user.id)
+            check_add_to_cart_requires_complete_profile(
+                auth.user.id,
+                _next=URL(request.controller, request.function, vars={'wspID': wspID})
+            )
 
         wsp.add_to_shoppingcart(auth.user.id)
         redirect(URL('cart'))
@@ -151,9 +155,12 @@ def classcard_add_to_cart():
 
     features = db.customers_shop_features(1)
     if features.Classcards:
-        shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile')
+        shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile_classcards')
         if shop_requires_complete_profile:
-            check_add_to_card_requires_complete_profile(auth.user.id)
+            check_add_to_cart_requires_complete_profile(
+                auth.user.id,
+                _next=URL(request.controller, request.function, vars={'scdID': scdID})
+            )
 
         scd = SchoolClasscard(scdID)
         scd.add_to_shoppingcart(auth.user.id)
@@ -433,7 +440,10 @@ def order_received_mail_customer(coID):
     from openstudio.os_mail import OsMail
 
     osmail = OsMail()
-    msgID = osmail.render_email_template('email_template_order_received', customers_orders_id=coID)
+    msgID = osmail.render_email_template(
+        'order_received',
+        customers_orders_id=coID
+    )
 
     osmail.send(msgID, auth.user.id)
 
@@ -512,7 +522,7 @@ def complete():
 
         # Does this order belong to this customer?
         if not order.order.auth_customer_id == auth.user.id:
-            session.flash = T("That order isn't yours...")
+            session.flash = T("Unable to show order")
             redirect(URL('cart'))
 
         # Do we have a donation?
@@ -567,7 +577,7 @@ def complete():
         invoice = Invoice(iID)
 
         if not invoice.get_linked_customer_id() == auth.user.id:
-            session.flash = T("That invoice isn't yours...")
+            session.flash = T("Unable to show invoice")
             redirect(URL('profile', 'index'))
 
 
@@ -964,9 +974,12 @@ def membership_terms():
         return T('This feature is disabled')
 
     # check if we require a complete profile
-    shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile')
+    shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile_memberships')
     if shop_requires_complete_profile:
-        check_add_to_card_requires_complete_profile(auth.user.id)
+        check_add_to_cart_requires_complete_profile(
+            auth.user.id,
+            _next = URL(request.controller, request.function, vars={'smID': smID})
+        )
 
     sm = SchoolMembership(smID)
     price = sm.get_price_on_date(TODAY_LOCAL)
@@ -1025,68 +1038,224 @@ def subscriptions():
     return dict(content = content)
 
 
+def subscription_terms_check_valid_bankdetails(payment_method, ssuID):
+    """
+
+    :param var:
+    :return:
+    """
+    if payment_method != 'mollie' :
+        query = ((db.customers_payment_info.auth_customer_id == auth.user.id) &
+                 (db.customers_payment_info.AccountNumber != None) &
+                 (db.customers_payment_info.AccountHolder != None))
+        complete_bankaccount_details = db(query).count()
+
+        if not complete_bankaccount_details:
+             redirect(URL('subscription_add_bankaccount', vars={'ssuID': ssuID}))
+
+
+@auth.requires_login()
 def subscription_terms():
     """
         Buy subscription confirmation page
     """
+    from openstudio.os_customer import Customer
     from openstudio.os_school_subscription import SchoolSubscription
 
     response.title= T('Shop')
     response.subtitle = T('Subscription')
     response.view = 'shop/index.html'
 
-    ssuID = request.vars['ssuID']
-
     features = db.customers_shop_features(1)
     if not features.Subscriptions:
         return T('This feature is disabled')
 
+    ssuID = request.vars['ssuID']
+    ssu = SchoolSubscription(ssuID, set_db_info=True)
+
     # check if we require a complete profile
-    shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile')
+    shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile_subscriptions')
     if shop_requires_complete_profile:
-        check_add_to_card_requires_complete_profile(auth.user.id)
+        check_add_to_cart_requires_complete_profile(
+            auth.user.id,
+            _next=URL(request.controller, request.function, vars={'ssuID': ssuID})
+        )
 
-    # buy now
-    # part terms
-    # automatic payment
+    ##
+    # Check for valid bank details
+    ##
+    payment_method = get_sys_property('shop_subscriptions_payment_method')
+    subscription_terms_check_valid_bankdetails(payment_method, ssuID)
 
-    ssu = SchoolSubscription(ssuID)
-    price = ssu.get_price_on_date(TODAY_LOCAL)
-    classes = ssu.get_classes_formatted()
+    ##
+    # Check startdate of subscription
+    ##
+    startdate = TODAY_LOCAL
+    shop_subscriptions_start = get_sys_property('shop_subscriptions_start')
+    if not shop_subscriptions_start == None:
+        if shop_subscriptions_start == 'next_month':
+            startdate = get_last_day_month(TODAY_LOCAL) + datetime.timedelta(days=1)
 
-    response.subtitle += ' '
-    response.subtitle += ssu.Name
+    ##
+    # Check if customer already has this subscription
+    ##
+    customer = Customer(auth.user.id)
+    customer_has_membership = customer.has_membership_on_date(startdate)
+    customer_subscriptions_ids = customer.get_school_subscriptions_ids_on_date(startdate)
 
-    general_terms = get_sys_property('shop_subscriptions_terms')
-    specific_terms = ssu.Terms
+    if int(ssuID) in customer_subscriptions_ids:
+        content =  SPAN(
+            H3(ssu.Name),
+            SPAN(T("You have this subscription"), _class='bold'), ' ', XML('&bull;'), ' ',
+            SPAN(T("Please proceed to the invoices page in case you haven't paid yet.")), BR(), BR(),
+            os_gui.get_button(
+                'noicon',
+                URL('profile', 'invoices'),
+                title=T("View invoices"),
+                btn_class='btn-primary'
+            )
+        )
+    else:
+        # buy now
+        # part terms
+        # automatic payment
+        ssu = SchoolSubscription(ssuID)
+        price = ssu.get_price_on_date(TODAY_LOCAL)
+        classes = ssu.get_classes_formatted()
 
-    terms = DIV()
-    if general_terms:
-        terms.append(B(T('General terms & conditions')))
-        terms.append(XML(general_terms))
-    if specific_terms:
-        terms.append(B(T('Subscription specific terms & conditions')))
-        terms.append(XML(specific_terms))
+        response.subtitle += ' '
+        response.subtitle += ssu.Name
 
-    subscription_conditions = DIV(terms, _class='well')
+        general_terms = get_sys_property('shop_subscriptions_terms')
+        specific_terms = ssu.Terms
 
-    confirm = A(B(T('I agree')),
-                _href=URL('mollie', 'subscription_buy_now', vars={'ssuID':ssuID}),
-                _class='btn btn-primary')
-    cancel = A(B(T('Cancel')),
-               _href=URL('subscriptions'),
-               _class='btn btn-default')
+        terms = DIV()
+        if general_terms:
+            terms.append(B(T('General terms & conditions')))
+            terms.append(XML(general_terms))
+        if specific_terms:
+            terms.append(B(T('Subscription specific terms & conditions')))
+            terms.append(XML(specific_terms))
 
-    content = DIV(H4(T('Terms & conditions')),
-                  subscription_conditions,
-                  confirm,
-                  cancel)
+        subscription_conditions = DIV(terms, _class='well')
 
-    features = db.customers_shop_features(1)
-    if not features.Subscriptions:
-        content = T('This feature is disabled')
+        direct_debit_mandate = ''
+        confirm = ''
+        if payment_method == 'mollie':
+            direct_debit_mandate= DIV()
+            confirm = A(B(T('I agree')),
+                        _href=URL('mollie', 'subscription_buy_now', vars={'ssuID':ssuID}),
+                        _class='btn btn-primary')
+        elif not customer.has_payment_info_mandate():
+            mandate_text = get_sys_property('shop_direct_debit_mandate_text')
+            if mandate_text:
+                direct_debit_mandate = DIV(
+                    H4(T('Direct Debit Mandate')),
+                    DIV(XML(mandate_text), _class='well')
+                )
+
+            confirm =  A(B(T('I agree')),
+                        _href=URL('subscription_direct_debit', vars={'ssuID': ssuID}),
+                        _class='btn btn-primary')
+
+        cancel = A(B(T('Cancel')),
+                   _href=URL('subscriptions'),
+                   _class='btn btn-default')
+
+        content = DIV(H4(T('Terms & conditions')),
+                      subscription_conditions,
+                      direct_debit_mandate,
+                      confirm,
+                      cancel)
 
     return dict(content=content)
+
+
+@auth.requires_login()
+def subscription_direct_debit():
+    """
+       Get a subscription
+    """
+    ssuID = request.vars['ssuID']
+
+    #TODO: redo this bit to make to more readable
+
+    row = db.customers_payment_info(auth_customer_id = auth.user.id)
+    query = (db.customers_payment_info_mandates.customers_payment_info_id == row.id)
+    if not db(query).count():
+        from openstudio.os_customers_payment_info_mandate import OsCustomersPaymentInfoMandate
+
+        mandate_text = get_sys_property('shop_direct_debit_mandate_text')
+
+
+        cpimID = db.customers_payment_info_mandates.insert(
+            customers_payment_info_id = row.id,
+            MandateText = mandate_text
+        )
+
+        cpim = OsCustomersPaymentInfoMandate(cpimID)
+        cpim.on_create()
+
+        #TODO: Sync to exact
+
+         # db.customers_orders_direct_debit[0]= dict(auth_customer_id = auth.user.id,
+         #                                           customers_payment_info_id= row)
+    # add subscription to customer﻿​
+    startdate = TODAY_LOCAL
+    shop_subscriptions_start = get_sys_property('shop_subscriptions_start')
+    if not shop_subscriptions_start == None:
+        if shop_subscriptions_start == 'next_month':
+            startdate = get_last_day_month(TODAY_LOCAL) + datetime.timedelta(days=1)
+
+    csID = db.customers_subscriptions.insert(
+        auth_customer_id=auth.user.id,
+        school_subscriptions_id=ssuID,
+        Startdate=startdate,
+        payment_methods_id=3,  # important, 3 = Direct Debit
+    )
+
+    # Add credits for the first month
+    cs = CustomerSubscription(csID)
+    cs.add_credits_month(startdate.year, startdate.month)
+
+    # clear cache to make sure it shows in the back end
+    cache_clear_customers_subscriptions(auth.user.id)
+
+    # Create invoice
+    cs = CustomerSubscription(csID)
+    iID = cs.create_invoice_for_month(TODAY_LOCAL.year, TODAY_LOCAL.month)
+    # iID.payment_method_id = 3
+    # Come back to the shop
+    session.flash=T('Subscription has been added to your Account!')
+    redirect(URL('profile','index'))
+
+
+@auth.requires_login()
+def subscription_add_bankaccount():
+    """
+    Request customer to enter bank account info
+    """
+    response.title = T('Shop')
+    response.subtitle = T('Subscription')
+    response.view = 'shop/index.html'
+
+    ssuID = request.vars['ssuID']
+
+    content = DIV(
+        H3(T('Please enter your bank account details')),
+        T('A valid bank account is required to continue. All subscriptions are paid using direct debit.'), BR(),
+        T('After entering your bank account, you will be redirected back to the page to get a subscription.'), BR(),
+        T('Please click "Continue" below to enter your bank account details.'), BR(), BR(),
+        os_gui.get_button(
+            'noicon',
+            URL('profile', 'me_bankaccount'),
+            title=T("Continue"),
+            btn_class='btn-primary'
+        ))
+
+    session.profile_me_bankaccount_next = URL('shop', 'subscription_terms', vars={'ssuID': ssuID})
+
+    return dict(content = content)
 
 
 def classes():
@@ -1495,49 +1664,8 @@ def classes_book_options():
     enrollment_options = class_book_options_get_enrollment_options(clsID, date, date_formatted, features, customer)
     content.append(enrollment_options)
 
-    # ##
-    # # Shop options
-    # ##
-    # content.append(DIV(DIV(H4(T('Shop'), _class='center'), _class='col-md-12'),
-    #                    _class='row'))
-    # book_shop_links = class_book_options_get_shop_options(clsID, date, date_formatted, features, customer)
-    # content.append(book_shop_links)
-
 
     return dict(content=content, back=back)
-
-
-# def class_book_options_get_shop_options(clsID, date, date_formatted, features, customer):
-#     """
-#         List shop options for customer
-#     """
-#     options = DIV(_class='row')
-#
-#     ##
-#     # Subscription
-#     ##
-#     if not customer.has_subscription_on_date(date) and features.Subscriptions:
-#         subscriptions = DIV(
-#             A(T('Have a look at our subscriptions'),
-#               _href=URL('shop', 'subscriptions')),
-#             _class='col-md-10 col-md-offset-1 col-xs-12 center'
-#         )
-#         options.append(subscriptions)
-#
-#     ##
-#     # Class card
-#     ##
-#     if not customer.has_classcard_on_date(date) and features.Classcards:
-#         cards = DIV(
-#             A(T('Have a look at our class cards'),
-#               _href=URL('shop', 'classcards')),
-#             _class='col-md-10 col-md-offset-1 col-xs-12 center'
-#         )
-#         options.append(cards)
-#
-#
-#     return options
-
 
 
 
@@ -1749,7 +1877,7 @@ def class_book():
         Actually book class
     """
     def wrong_user():
-        return "Looks like this subscription or class card isn't yours..."
+        return "Unable to use this subscription or class card"
 
     from openstudio.os_attendance_helper import AttendanceHelper
     from openstudio.os_class import Class
@@ -1970,9 +2098,12 @@ def class_add_to_cart():
     if not features.Classes:
         return T('This feature is disabled')
 
-    shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile')
+    shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile_classes')
     if shop_requires_complete_profile:
-        check_add_to_card_requires_complete_profile(auth.user.id)
+        check_add_to_cart_requires_complete_profile(
+            auth.user.id,
+            _next=URL(request.controller, request.function, vars=request.vars)
+        )
 
     cls = Class(clsID, date)
     # Drop in
@@ -2044,32 +2175,32 @@ def donate_get_form(var=None):
     return form
 
 
-def check_add_to_card_requires_complete_profile(auID):
+def check_add_to_cart_requires_complete_profile(auID, _next=''):
     """
         Checks if a completed profile is required, if so and it isn't complete, redirect to the profile edit page
     """
-    shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile')
+    user = db.auth_user(auID)
 
-    if shop_requires_complete_profile:
-        user = db.auth_user(auID)
+    required_fields = [
+        user.first_name,
+        user.last_name,
+        user.email,
+        user.gender,
+        user.date_of_birth,
+        user.address,
+        user.city,
+        user.postcode,
+        user.country,
+        user.mobile
+    ]
 
-        required_fields = [
-            user.first_name,
-            user.last_name,
-            user.email,
-            user.gender,
-            user.date_of_birth,
-            user.address,
-            user.city,
-            user.postcode,
-            user.country,
-            user.mobile
-        ]
-
-        for f in required_fields:
-            if f is None:
-                session.flash = T('To offer you the best service possible, we kindly ask you to complete your profile before placing any orders.')
-                redirect(URL('profile', 'me'))
+    for f in required_fields:
+        if not f:
+            session.flash = SPAN(
+                T('To offer you the best service possible, we kindly ask you to complete the general information in your profile.'), BR(),
+                T('After completing your profile information you will be redirected to the next step.')
+            )
+            redirect(URL('profile', 'me', vars={'_next': _next}))
 
 
     #TODO: The rest of the code...

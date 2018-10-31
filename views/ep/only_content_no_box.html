@@ -1,0 +1,12 @@
+{{extend 'layout_ep.html'}}
+{{block header}}
+    {{try:}}{{=breadcrumb}}{{except:}}{{pass}}{{pass}}
+    {{try:}}{{=back}}{{except:}}{{pass}}{{pass}}
+    {{try:}}{{=save}}{{except:}}{{pass}}{{pass}}
+    {{try:}}{{=add}}{{except:}}{{pass}}{{pass}}
+    {{try:}}{{=header_tools}}{{except:}}{{pass}}{{pass}}
+{{end}}
+
+{{=content}}
+
+

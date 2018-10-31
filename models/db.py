@@ -141,15 +141,15 @@ if web2pytest.is_running_under_test(request, request.application):
 auth.settings.create_user_groups = None # Don't create groups for individual users
 auth.settings.expiration = 10800
 auth.settings.registration_requires_verification = True
-auth.settings.login_after_registration = False
+auth.settings.login_after_registration = True
 auth.settings.registration_requires_approval = False
 auth.settings.reset_password_requires_verification = True
 auth.settings.reset_password_next = URL('profile', 'index')
 auth.settings.password_min_length = 8
 auth.settings.logged_url = URL('profile', 'index')
-auth.messages.email_sent = T("Verification email sent. Please check your inbox or your spam folder in case you don't receive a message within 15 minutes")
-auth.messages.email_verified = T('Email verified, you can now log in.')
-auth.messages.registration_verifying = T('Please verify your email address by clicking on the link in the verification email before logging in.')
+auth.messages.email_sent = T("Email sent. Please check your inbox or your spam folder in case you don't receive a message within 15 minutes")
+auth.messages.email_verified = T('Email verified, you can now log in using your email address and the password chosen when registering.')
+auth.messages.registration_verifying = T('Please verify your email address by clicking on the link in the verification email.')
 # auth.settings.actions_disabled.append('register')
 # auth.settings.actions_disabled.append('profile')
 
@@ -160,6 +160,8 @@ from gluon import current
 current.db = db
 current.auth = auth
 current.crud = crud
+current.web2pytest = web2pytest
+current.CACHE_LONG  = CACHE_LONG
 
 
 # -------------------------------------------------------------------------

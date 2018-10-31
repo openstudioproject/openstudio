@@ -88,6 +88,13 @@ def index():
         else:
             session.flash = T('Already up to date')
 
+        if version < 2018.82:
+            print version
+            upgrade_to_201882()
+            session.flash = T("Upgraded db to 2018.82")
+        else:
+            session.flash = T('Already up to date')
+
         # always renew permissions for admin group after update
         set_permissions_for_admin_group()
 
@@ -468,3 +475,71 @@ def upgrade_to_201881():
     from openstudio.os_setup import OsSetup
     setup = OsSetup()
     setup._setup_teachers_payment_rate_type()
+
+
+def upgrade_to_201882():
+    """
+        Upgrade operations to 2018.82
+    """
+    ##
+    # Set default payment method for subscriptions in shop
+    # This is a new setting in this release
+    ##
+    from openstudio.os_setup import OsSetup
+    setup = OsSetup()
+    setup._setup_shop_subscriptions_payment_method()
+
+    ##
+    # Migrate MandateSignatureDate field from customers_payment_info
+    # to customers_payment_info_mandates table
+    ##
+    query = (db.customers_payment_info.MandateSignatureDate != None)
+    rows = db(query).select(db.customers_payment_info.ALL)
+
+    for row in rows:
+        db.customers_payment_info_mandates.insert(
+            customers_payment_info_id = row.id,
+            MandateReference = unicode(row.auth_customer_id),
+            MandateSignatureDate = row.MandateSignatureDate
+        )
+
+    ##
+    # Migrate email templates from sys_properties to sys_email_templates
+    ##
+    row = db.sys_properties(Property='email_template_order_received')
+    db.sys_email_templates.insert(
+        Name='order_received',
+        Title=T('Order received'),
+        TemplateContent=row.PropertyValue
+    )
+    row = db.sys_properties(Property='email_template_order_delivered')
+    db.sys_email_templates.insert(
+        Name='order_delivered',
+        Title=T('Order delivered'),
+        TemplateContent=row.PropertyValue
+    )
+    row = db.sys_properties(Property='email_template_payment_recurring_failed')
+    db.sys_email_templates.insert(
+        Name='payment_recurring_failed',
+        Title=T('Recurring payment failed'),
+        TemplateContent=row.PropertyValue
+    )
+    row = db.sys_properties(Property='email_template_sys_footer')
+    db.sys_email_templates.insert(
+        Name='sys_email_footer',
+        Title=T('System email footer'),
+        TemplateContent=row.PropertyValue
+    )
+    row = db.sys_properties(Property='email_template_sys_reset_password')
+    db.sys_email_templates.insert(
+        Name='sys_reset_password',
+        Title=T('System reset password'),
+        TemplateContent=row.PropertyValue
+    )
+    row = db.sys_properties(Property='email_template_sys_verify_email')
+    db.sys_email_templates.insert(
+        Name='sys_verify_email',
+        Title=T('System verify email'),
+        TemplateContent=row.PropertyValue
+    )
+

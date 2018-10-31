@@ -439,8 +439,12 @@ def populate_customers_with_memberships(web2py,
     startdate = '2014-01-01'
     enddate = '2014-01-31'
 
-    for i in range(1, nr_of_customers+1):
-        aucID = i + 1000
+    query = (web2py.db.auth_user.id > 1)
+    rows = web2py.db(query).select(web2py.db.auth_user.ALL)
+
+    for i, row in enumerate(rows):
+        aucID = row.id
+
         cmID = web2py.db.customers_memberships.insert(
             auth_customer_id = aucID,
             school_memberships_id = 1,
@@ -492,6 +496,55 @@ def populate_customers_with_memberships(web2py,
                 invoices_id=iID,
                 customers_memberships_id=cmID
             )
+
+    web2py.db.commit()
+
+
+def populate_employee_claims(web2py):
+    """
+    Add one claim to teacher
+    """
+    from setup_ep_tests import setup_ep_tests
+
+    try:
+        populate_tax_rates(web2py)
+    except:
+        print 'Tried to insert tax rates, but one or more already exists in db.tax_rates'
+
+    setup_ep_tests(web2py)
+
+    web2py.db.employee_claims.insert(
+        auth_user_id     = 400,
+        Amount           = 5,
+        Quantity         = 3,
+        tax_rates_id     = 1,
+        Status           = 'pending',
+        Description      = 'First Claim'
+    )
+    web2py.db.employee_claims.insert(
+        auth_user_id     = 400,
+        Amount           = 5,
+        Quantity         = 3,
+        tax_rates_id     = 1,
+        Status           = 'accepted',
+        Description      = 'Accepted Claim'
+    )
+    web2py.db.employee_claims.insert(
+        auth_user_id     = 400,
+        Amount           = 5,
+        Quantity         = 3,
+        tax_rates_id     = 1,
+        Status           = 'rejected',
+        Description      = 'Rejected Claim'
+    )
+    web2py.db.employee_claims.insert(
+        auth_user_id     = 400,
+        Amount           = 5,
+        Quantity         = 3,
+        tax_rates_id     = 1,
+        Status           = 'processed',
+        Description      = 'Processed Claim'
+    )
 
     web2py.db.commit()
 

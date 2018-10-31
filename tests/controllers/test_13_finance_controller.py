@@ -25,6 +25,207 @@ from populate_os_tables import populate_customers_with_subscriptions
 import datetime
 
 
+def test_employee_claims_pending_page(client, web2py):
+    """
+    Check pending page and if a pending claim is displayed
+    """
+    from populate_os_tables import populate_employee_claims
+
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    populate_employee_claims(web2py)
+
+    # Check claims display
+    url = '/finance/employee_claims'
+    client.get(url)
+    assert client.status == 200
+
+    assert 'First Claim' in client.text
+
+
+def test_employee_claims_move_claim_to_accepted(client, web2py):
+    """Check if a claim can be moved to accepted"""
+
+    from populate_os_tables import populate_employee_claims
+
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    populate_employee_claims(web2py)
+
+    # Check claims display
+    url = '/finance/employee_claims_accept?ecID=1'
+    client.get(url)
+    assert client.status == 200
+
+    assert web2py.db(web2py.db.employee_claims.Status == 'accepted').count() == 2
+
+
+def test_employee_claims_accept_all(client, web2py):
+    """Check if a claim can be moved to accepted"""
+    from populate_os_tables import populate_employee_claims
+
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    populate_employee_claims(web2py)
+
+    # Check claims display
+    url = '/finance/employee_claims_accept_all'
+    client.get(url)
+    assert client.status == 200
+
+    assert web2py.db(web2py.db.employee_claims.Status == 'accepted').count() == 2
+
+
+def test_employee_claims_move_claim_to_rejected(client, web2py):
+    """Check if a claim can be moved to accepted"""
+    from populate_os_tables import populate_employee_claims
+
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    populate_employee_claims(web2py)
+
+    # Check claims display
+    url = '/finance/employee_claims_reject?ecID=1'
+    client.get(url)
+    assert client.status == 200
+
+    assert web2py.db(web2py.db.employee_claims.Status == 'rejected').count() == 2
+
+
+def test_employee_claims_move_claim_to_pending(client, web2py):
+    """Check if a claim can be moved to accepted"""
+    from populate_os_tables import populate_employee_claims
+
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    populate_employee_claims(web2py)
+
+    # Check claims display
+    url = '/finance/employee_claims_pending?ecID=2'
+    client.get(url)
+    assert client.status == 200
+
+    assert web2py.db(web2py.db.employee_claims.Status == 'pending').count() == 2
+
+
+def test_employee_claims_rejected_page(client, web2py):
+    """
+    Check rejected page and if a accepted claim is displayed
+    """
+    from populate_os_tables import populate_employee_claims
+
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    populate_employee_claims(web2py)
+
+    # Check claims display
+    url = '/finance/employee_claims_rejected'
+    client.get(url)
+    assert client.status == 200
+
+    assert 'Rejected Claim' in client.text
+
+
+def test_employee_claims_accepted_page(client, web2py):
+    """
+    Check accepted page and if a accepted claim is displayed
+    """
+    from populate_os_tables import populate_employee_claims
+
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    populate_employee_claims(web2py)
+
+    # Check claims display
+    url = '/finance/employee_claims_accepted'
+    client.get(url)
+    assert client.status == 200
+
+    assert 'Accepted Claim' in client.text
+
+
+def test_employee_claims_process_accepted(client, web2py):
+    """Check if a claim can be moved to accepted"""
+    from populate_os_tables import populate_employee_claims
+
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    populate_employee_claims(web2py)
+
+    # Check claims display
+    url = '/finance/employee_claims_process_accepted'
+    client.get(url)
+    assert client.status == 200
+
+    assert web2py.db(web2py.db.employee_claims.Status == 'processed').count() == 2
+    assert web2py.db(web2py.db.invoices).count() >= 1
+
+    # assert ((web2py.db.invoices.Description == 'Claims'))
+
+    query = ((web2py.db.invoices.Description == 'Claims')&\
+             (web2py.db.invoices.EmployeeClaim == True))
+    row = web2py.db(query).select().first()
+    assert query
+    InECquery = (web2py.db.invoices_employee_claims.invoices_id == row.id)
+    InECrows = web2py.db(InECquery).select()
+
+    for i, row in enumerate(InECrows):
+
+        ECquery= (web2py.db.employee_claims.id == row.employee_claims_id)
+        ECrow= web2py.db(ECquery).select().first()
+
+        assert ((web2py.db.invoices_items.invoices_id == row.id) & \
+                (web2py.db.invoices_items.Description == ECrow.Description) & \
+                (web2py.db.invoices_items.Quantity == ECrow.Quantity) &\
+                (web2py.db.invoices_items.Price == ECrow.Amount * -1) &\
+                (web2py.db.invoices_items.TotalPrice == (ECrow.Amount * -1 * ECrow.Quantity))
+                )
+
+
+    assert ((web2py.db.invoices.Description == 'Claims'))
+
+    assert ((web2py.db.invoices_items.invoices_id==1)&\
+            (web2py.db.invoices_items.Description == 'Accepted Claim')&\
+            (web2py.db.invoices_items.TotalPrice == -15 ))
+
+
+
+
+
+def test_employee_claims_processed_page(client, web2py):
+    """
+    Check proccessed page and if a processed claim is displayed
+    """
+    from populate_os_tables import populate_employee_claims
+
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    populate_employee_claims(web2py)
+
+    # Check claims display
+    url = '/finance/employee_claims_processed'
+    client.get(url)
+    assert client.status == 200
+
+    assert 'Processed Claim' in client.text
 
 
 def test_teacher_payments_batch_set_status_sent_to_bank_add_payments(client, web2py):
@@ -320,8 +521,7 @@ def test_teacher_payment_classes_verified(client, web2py):
     assert format(tpc.ClassRate, '.2f') in client.text
 
 
-
-def test_teacher_payment_classes_verified(client, web2py):
+def test_teacher_payment_classes_processed(client, web2py):
     """
 
     """
@@ -512,7 +712,9 @@ def test_add_batch_invoices_without_zero_lines(client, web2py):
     populate_customers_with_subscriptions(web2py, 10)
 
     # create invoices
-    inv_url = '/invoices/subscriptions_create_invoices?month=1&year=2014'
+    inv_url = '/test_automation_customer_subscriptions/' + \
+              'test_create_invoices' + \
+              '?month=1&year=2014&description=Subscription_Jan'
     client.get(inv_url)
     assert client.status == 200
 
@@ -565,7 +767,9 @@ def test_add_batch_invoices_with_zero_lines(client, web2py):
     populate_customers_with_subscriptions(web2py, 10)
 
     # create invoices
-    inv_url = '/invoices/subscriptions_create_invoices?month=1&year=2014'
+    inv_url = '/test_automation_customer_subscriptions/' + \
+              'test_create_invoices' + \
+              '?month=1&year=2014&description=Subscription_Jan'
     client.get(inv_url)
     assert client.status == 200
 
@@ -636,7 +840,9 @@ def test_add_batch_invoices_location(client, web2py):
     populate_customers_with_subscriptions(web2py, 10)
 
     # create invoices
-    inv_url = '/invoices/subscriptions_create_invoices?month=1&year=2014&create=do_stuff'
+    inv_url = '/test_automation_customer_subscriptions/' + \
+              'test_create_invoices' + \
+              '?month=1&year=2014&description=Subscription_Jan'
     client.get(inv_url)
     assert client.status == 200
 
@@ -783,7 +989,9 @@ def test_invoices_batch_set_status_sent_to_bank_add_payments(client, web2py):
     populate_customers_with_subscriptions(web2py, 10)
 
     # create invoices
-    inv_url = '/invoices/subscriptions_create_invoices?month=1&year=2014&create=do_stuff'
+    inv_url = '/test_automation_customer_subscriptions/' + \
+                  'test_create_invoices' + \
+                  '?month=1&year=2014&description=Subscription_Jan'
     client.get(inv_url)
     assert client.status == 200
 
@@ -826,3 +1034,5 @@ def test_invoices_batch_set_status_sent_to_bank_add_payments(client, web2py):
     payments_amount = web2py.db().select(sum).first()[sum]
 
     assert invoices_amount == payments_amount
+
+

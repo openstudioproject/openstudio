@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import calendar
+import datetime
 from gluon import *
 
 
@@ -15,6 +17,25 @@ class SchoolMembership:
 
         self.smID = smID
         self.row = db.school_memberships(smID)
+
+
+    def get_price_rows_on_date(self, date):
+        """
+        :param date: datetime.date
+        :return: first db.school_membrships_price row found for date
+        """
+        db = current.db
+
+        query = (db.school_memberships_price.school_memberships_id ==
+                 self.smID) & \
+                (db.school_memberships_price.Startdate <= date) & \
+                ((db.school_memberships_price.Enddate >= date) |
+                 (db.school_memberships_price.Enddate == None))
+
+        rows = db(query).select(db.school_memberships_price.ALL,
+                                orderby=db.school_memberships_price.Startdate)
+
+        return rows
         
 
     def get_price_on_date(self, date, formatted=True):
@@ -24,14 +45,8 @@ class SchoolMembership:
         db = current.db
 
         price = ''
-        query = (db.school_memberships_price.school_memberships_id ==
-                 self.smID) & \
-                (db.school_memberships_price.Startdate <= date) & \
-                ((db.school_memberships_price.Enddate >= date) |
-                 (db.school_memberships_price.Enddate == None))
+        rows = self.get_price_rows_on_date(date)
 
-        rows = db(query).select(db.school_memberships_price.ALL,
-                                orderby=db.school_memberships_price.Startdate)
         if len(rows):
             if formatted:
                 repr_row = list(rows[0:1].render())[0] # first row
@@ -105,7 +120,7 @@ class SchoolMembership:
         )
 
 
-    def sell_to_customer(self, auth_user_id, date_start, note=None, invoice=True):
+    def sell_to_customer(self, auth_user_id, date_start, note=None, invoice=True, payment_methods_id=None):
         """
             :param auth_user_id: Sell membership to customer
         """
@@ -117,7 +132,8 @@ class SchoolMembership:
             school_memberships_id = self.smID,
             Startdate = date_start,
             Enddate = self.sell_to_customer_get_enddate(date_start),
-            Note = note
+            Note = note,
+            payment_methods_id=payment_methods_id
         )
 
         #cache_clear_customers_classcards(auth_user_id)
@@ -125,7 +141,7 @@ class SchoolMembership:
         if invoice:
             self.sell_to_customer_create_invoice(cmID)
 
-        return ccdID
+        return cmID
 
 
     def sell_to_customer_create_invoice(self, cmID):
@@ -154,7 +170,8 @@ class SchoolMembership:
                 Description=cm.get_name(),
                 MembershipPeriodStart=period_start,
                 MembershipPeriodEnd=period_end,
-                Status='sent'
+                Status='sent',
+                payment_methods_id=cm.row.payment_methods_id
             )
 
             invoice = Invoice(iID)
@@ -170,6 +187,51 @@ class SchoolMembership:
             return None
 
 
+    def sell_to_customer_get_enddate(self, date_start):
+        """
+           Calculate and set enddate when adding a membership
+           :param cmID: db.customers_memberships.id
+           :return : enddate for a membership
+        """
+
+        def add_months(sourcedate, months):
+            month = sourcedate.month - 1 + months
+            year = int(sourcedate.year + month / 12)
+            month = month % 12 + 1
+            last_day_new = calendar.monthrange(year, month)[1]
+            day = min(sourcedate.day, last_day_new)
+
+            ret_val = datetime.date(year, month, day)
+
+            last_day_source = calendar.monthrange(sourcedate.year,
+                                                  sourcedate.month)[1]
+
+            if sourcedate.day == last_day_source and last_day_source > last_day_new:
+                return ret_val
+            else:
+                delta = datetime.timedelta(days=1)
+                return ret_val - delta
+
+        db = current.db
+
+        # get info
+        card = db.school_memberships(self.smID)
+
+        if card.ValidityUnit == 'months':
+            # check for and add months
+            months = card.Validity
+            if months:
+                enddate = add_months(date_start, months)
+        else:
+            if card.ValidityUnit == 'weeks':
+                days = card.Validity * 7
+            else:
+                days = card.Validity
+
+            delta_days = datetime.timedelta(days=days)
+            enddate = (date_start + delta_days) - datetime.timedelta(days=1)
+
+        return enddate
     # def sell_to_customer_get_enddate(self, date_start):
     #     """
     #        Calculate and set enddate when adding a membership

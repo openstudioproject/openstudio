@@ -988,140 +988,6 @@ def test_customer_subscription_credits_month(client, web2py):
     assert str(round(csc.MutationAmount, 1)) in client.text
 
 
-def test_subscription_credits_month_add_confirm(client, web2py):
-    """
-        Is the confirmation page to add credits showing?
-    """
-    url = '/customers/subscription_credits_month_add_confirm'
-    client.get(url)
-    assert client.status == 200
-
-    assert "Add confirmation" in client.text
-
-
-def test_subscription_credits_month_add(client, web2py):
-    """
-        Are credits batch-added correctly?
-    """
-    import calendar
-
-    # get a random url to initialize the OS environment
-    url = '/default/user/login'
-    client.get(url)
-    assert client.status == 200
-
-    prepare_classes(web2py, credits=True)
-
-    # Set session variables
-    url = '/customers/subscription_credits_month?year=2014&month=1'
-    client.get(url)
-    assert client.status == 200
-
-    # Add credits
-    url = '/customers/subscription_credits_month_add'
-    client.get(url)
-    assert client.status == 200
-
-    # Check skipping of subscriptions that already got credits
-    # count customers_subscriptions_id where mutationtype = add should be 1
-    query = (web2py.db.customers_subscriptions_credits.MutationType=="add") & \
-            (web2py.db.customers_subscriptions_credits.customers_subscriptions_id == 1)
-    assert web2py.db(query).count() == 1
-
-    # Check skipping of paused subscriptions
-    # Customers_subscription 2 is paused in januari 2014
-    query = (web2py.db.customers_subscriptions_credits.MutationType=="add") & \
-            (web2py.db.customers_subscriptions_credits.customers_subscriptions_id == 2)
-    assert web2py.db(query).count() == 0
-
-    # Check skipping of school subscriptions where number of classes is None or == 0
-    # Check skipping of school subscriptions where subscription unit is not defined
-    query = (web2py.db.customers_subscriptions_credits.customers_subscriptions_id == 10) | \
-            (web2py.db.customers_subscriptions_credits.customers_subscriptions_id == 11)
-    assert web2py.db(query).count() == 0
-
-    # Check calculation of amount of credits given for month
-    # SSU 3
-    assert web2py.db.customers_subscriptions_credits(8).MutationAmount == 1
-
-    # Check calculation of amount of credits given for week
-    first_day = datetime.date(2014, 1, 1)
-    last_day =  datetime.date(first_day.year,
-                              first_day.month,
-                              calendar.monthrange(first_day.year,first_day.month)[1])
-
-    t_days = (last_day - first_day) + datetime.timedelta(days=1)
-    percent = 1 # (full  month of january should be calculated correctly
-
-    ssu = web2py.db.school_subscriptions(1)
-    subscription_unit = ssu.SubscriptionUnit
-    classes = ssu.Classes
-    if subscription_unit == 'month':
-        credits = round(classes * percent, 1)
-    else:
-        weeks_in_month = round(t_days.days / float(7), 1)
-        credits = round((weeks_in_month * classes) * percent, 1)
-
-    assert web2py.db.customers_subscriptions_credits(3).MutationAmount == credits
-
-
-def test_subscription_credits_month_add_book_classes_for_recurring_reservations(client, web2py):
-    """
-        Are classes for recurring reservations booked?
-    """
-    ##
-    # Check if classes for recurring reservations are booked
-    ##
-    import calendar
-
-    # get a random url to initialize the OS environment
-    url = '/default/user/login'
-    client.get(url)
-    assert client.status == 200
-
-    prepare_classes(web2py, credits=True)
-
-    ##
-    # Cancel a class
-    ##
-    web2py.db.classes_otc.insert(
-        classes_id = 1,
-        ClassDate = '2099-01-05', # First Monday for 2099
-        Status = 'cancelled'
-    )
-
-    ##
-    # Add a holiday so the second monday of month will be cancelled
-    ##
-    shID = web2py.db.school_holidays.insert(
-        Description = 'test',
-        Startdate = '2099-01-06',
-        Enddate = '2099-01-13',
-        Classes = True
-    )
-
-    web2py.db.school_holidays_locations.insert(
-        school_holidays_id = shID,
-        school_locations_id = 1,
-    )
-
-    web2py.db.commit()
-
-    # Set session variables
-    url = '/customers/subscription_credits_month?year=2099&month=1'
-    client.get(url)
-    assert client.status == 200
-
-    # Add credits
-    url = '/customers/subscription_credits_month_add'
-    client.get(url)
-    assert client.status == 200
-
-
-    query = (web2py.db.classes_attendance.ClassDate >= '2099-01-01')
-    assert web2py.db(query).count() == 2
-
-
 def test_subscription_credits_in_customers_list(client, web2py):
     """
         Test listing of credits in customers list
@@ -1630,35 +1496,36 @@ def test_classes_attendance_cancel_booking_and_refund_credits(client, web2py):
     assert web2py.db(query).count() == 1
 
 
-def test_payments_info_add(client, web2py):
-    """
-        Can we add info for a customer?
-    """
-    populate_customers(web2py)
-    assert web2py.db(web2py.db.auth_user).count() > 0
+# def test_payments_info_add(client, web2py):
+#     """
+#         Can we add info for a customer?
+#     """
+#     populate_customers(web2py)
+#     assert web2py.db(web2py.db.auth_user).count() > 0
+#
+#     url = '/customers/payment_info_add/1001'
+#     client.get(url)
+#     assert client.status == 200
+#
+#     data = dict(payments_methods_id='3',
+#                 AccountNumber='123456',
+#                 AccountHolder='Hello',
+#                 BIC="NLBIC123",
+#                 MandateSignatureDate='2014-01-01',
+#                 BankName='ING',
+#                 BankLocation='NL'
+#                 )
+#     client.post(url, data=data)
+#     assert client.status == 200
+#     assert "info" in client.text # check redirection
+#     assert data['AccountNumber'] in client.text
+#
+#     client.get(url) # check if we can add only once
+#     assert client.status == 200
+#     assert 'already' in client.text
 
-    url = '/customers/payment_info_add/1001'
-    client.get(url)
-    assert client.status == 200
 
-    data = dict(payments_methods_id='3',
-                AccountNumber='123456',
-                AccountHolder='Hello',
-                BIC="NLBIC123",
-                MandateSignatureDate='2014-01-01',
-                BankName='ING',
-                BankLocation='NL'
-                )
-    client.post(url, data=data)
-    assert client.status == 200
-    assert "info" in client.text # check redirection
-    assert data['AccountNumber'] in client.text
-
-    client.get(url) # check if we can add only once
-    assert client.status == 200
-    assert 'already' in client.text
-
-def test_payments_info_edit(client, web2py):
+def test_bankaccount(client, web2py):
     """
         Can we edit info for a customer?
     """
@@ -1676,28 +1543,55 @@ def test_payments_info_edit(client, web2py):
     assert web2py.db(web2py.db.auth_user).count() > 0
     assert web2py.db(web2py.db.customers_payment_info).count() == 1
 
-    url = '/customers/payment_info_edit/1001/1'
+    url = '/customers/bankaccount?cuID=1001'
 
     client.get(url)
     assert client.status == 200
 
-    data = dict(id                 = 1,
-                auth_customer_id   = 1001,
-                payment_methods_id='3',
-                AccountNumber='123456',
-                AccountHolder='Hello',
-                BIC="NLBIC123",
-                MandateSignatureDate='2014-01-01',
-                BankName='ING',
-                BankLocation='NL'
-                )
+    data = dict(
+        id = 1,
+        auth_customer_id = 1001,
+        payment_methods_id='3',
+        AccountNumber='123456',
+        AccountHolder='Hello',
+        BIC="NLBIC123",
+        MandateSignatureDate='2014-01-01',
+        BankName='ING',
+        BankLocation='NL'
+    )
     client.post(url, data=data)
     assert client.status == 200
     assert "info" in client.text # check redirection
     assert data['AccountNumber'] in client.text
 
 
-def test_payments_ap_add(client, web2py):
+def test_bankaccount_mandate_add(client, web2py):
+    """
+        Can we add a mandate?
+    """
+    pass
+    # populate_customers(web2py)
+    # populate_customers_payment_info(10)
+    #
+    # url = '/customers/bankaccount_mandate_add?cpiID=1&cuID=1001'
+    # data = {
+    #     'MandateSignatureDate': '2014-01-01'
+    # }
+    #
+    # client.post(url, data=data)
+    # assert client.status == 200
+
+
+
+
+def test_bankaccount_mandate_delete(client, web2py):
+    """
+        Can we delete a mandate?
+    """
+    pass
+
+
+def test_alternativepayment_add(client, web2py):
     """
         Can we add an alternative payment?
     """
@@ -1718,10 +1612,11 @@ def test_payments_ap_add(client, web2py):
                 )
     client.post(url, data=data)
     assert client.status == 200
-    assert "info" in client.text # check redirection
+    assert "Direct debit extra" in client.text # check redirection
     assert data['Amount'] in client.text
 
-def test_payments_ap_edit(client, web2py):
+
+def test_alternativepayment_edit(client, web2py):
     """
         Can we edit an alternative payment?
     """
@@ -1741,7 +1636,7 @@ def test_payments_ap_edit(client, web2py):
                 )
     client.post(url, data=data)
     assert client.status == 200
-    assert "info" in client.text # check redirection
+    assert "Direct debit extra" in client.text  # check redirection
     assert data['Amount'] in client.text
 
 
@@ -1884,12 +1779,15 @@ def test_payment_info_dutch_iban_validator_length_fail(client, web2py):
     populate_customers(web2py, 1)
     populate_customers_payment_info(web2py, 1)
 
-    url = '/customers/payment_info_edit/1001/1'
+    url = '/customers/bankaccount?cuID=1001'
     client.get(url)
     assert client.status == 200
 
-    data = {'id'            : 1,
-            'AccountNumber' : 'NL21INGB012345678'} # 1 digit too short for valid Dutch IBAN
+    data = {
+        'id'           : 1,
+        'AccountNumber': 'NL21INGB012345678',
+        'AccountHolder': 'The big mistery'
+    } # 1 digit too short for valid Dutch IBAN
     client.post(url, data=data)
     assert client.status == 200
 
@@ -1908,12 +1806,15 @@ def test_payment_info_dutch_iban_validator_validation_fail(client, web2py):
     populate_customers(web2py, 1)
     populate_customers_payment_info(web2py, 1)
 
-    url = '/customers/payment_info_edit/1001/1'
+    url = '/customers/bankaccount?cuID=1001'
     client.get(url)
     assert client.status == 200
 
-    data = {'id'            : 1,
-            'AccountNumber' : 'NL21INGB0123456789'} # Invalid Dutch IBAN
+    data = {
+        'id'           : 1,
+        'AccountNumber': 'NL21INGB0123456789',
+        'AccountHolder': 'The big mistery'
+    } # Invalid Dutch IBAN
     client.post(url, data=data)
     assert client.status == 200
 
@@ -1932,17 +1833,20 @@ def test_payment_info_dutch_iban_validator_pass(client, web2py):
     populate_customers(web2py, 1)
     populate_customers_payment_info(web2py, 1)
 
-    url = '/customers/payment_info_edit/1001/1'
+    url = '/customers/bankaccount?cuID=1001'
     client.get(url)
     assert client.status == 200
 
-    data = {'id'            : 1,
-            'AccountNumber' : 'NL89TRIO0390502103'} # Valid Dutch IBAN
+    data = {
+        'id'           : 1,
+        'AccountNumber': 'NL89TRIO0390502103', # Valid Dutch IBAN
+        'AccountHolder': 'The big mistery'
+    }
     client.post(url, data=data)
     assert client.status == 200
 
     # verify redirection
-    assert 'Payment info' in client.text
+    assert 'Finance' in client.text
 
     # verify database
     row = web2py.db.customers_payment_info(1)
@@ -1961,17 +1865,20 @@ def test_payment_info_not_iban_pass(client, web2py):
     populate_customers(web2py, 1)
     populate_customers_payment_info(web2py, 1)
 
-    url = '/customers/payment_info_edit/1001/1'
+    url = '/customers/bankaccount?cuID=1001'
     client.get(url)
     assert client.status == 200
 
-    data = {'id'            : 1,
-            'AccountNumber' : '12445565ef39i65'} # Random stuff
+    data = {
+        'id'           : 1,
+        'AccountNumber': '12445565ef39i65',
+        'AccountHolder': 'The big mistery'
+    } # Random stuff
     client.post(url, data=data)
     assert client.status == 200
 
     # verify redirection
-    assert 'Payment info' in client.text
+    assert 'Finance' in client.text
 
     # verify database
     row = web2py.db.customers_payment_info(1)
