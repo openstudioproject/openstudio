@@ -2113,9 +2113,11 @@ def tickets_list_customers():
                          _style="display:none;")
 
 
-    content = DIV(search_results,
-                  DIV(add, _class='pull-right'),
-                  H4(T('Customers for'), ' ', wsp.name), BR(), table)
+    content = DIV(
+        search_results,
+        H4(T('Customers for'), ' ', wsp.name), BR(),
+        table
+    )
 
     menu = get_workshops_menu('tickets', wsID)
     back = os_gui.get_button('back', URL('events', 'tickets', vars={'wsID':wsID}))
@@ -2161,16 +2163,12 @@ def tickets_list_customers_get_list(table,
                 db.workshops_products_customers.Waitinglist | \
                 db.auth_user.display_name)
 
-    left = [db.workshops_products.on(
-        db.workshops_products.id == \
-        db.workshops_products_customers.workshops_products_id),
-               db.workshops.on(db.workshops_products.workshops_id == \
-                               db.workshops.id),
-               db.invoices_workshops_products_customers.on(
-                   db_icwspc.workshops_products_customers_id ==
-                   db.workshops_products_customers.id),
-               db.invoices.on(db_icwspc.invoices_id == db.invoices.id)
-           ],
+    if not len(rows):
+        return  DIV(
+            H5(T("Search to add customers")),
+            _class='grey'
+        )
+
 
     invoices = Invoices()
     for i, row in enumerate(rows):
