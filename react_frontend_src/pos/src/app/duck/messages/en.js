@@ -9,6 +9,7 @@ export const ENGLISH_TRANSLATION = {
         "app.general.strings.count": "Count",
         "app.general.strings.description": "Description",
         "app.general.strings.loading": "Loading...",
+        "app.general.strings.membership": "Membership",
         "app.general.strings.memberships": "Memberships",
         "app.general.strings.month": "Month",
         "app.general.strings.monthly": "Monthly",
@@ -16,6 +17,7 @@ export const ENGLISH_TRANSLATION = {
         "app.general.strings.not_set": "Not set",
         "app.general.strings.pdf": "PDF",
         "app.general.strings.price": "Price",
+        "app.general.strings.requires_membership": "Requires membership",
         "app.general.strings.revenue": "Revenue",
         "app.general.strings.subscriptions": "Subscriptions",
         "app.general.strings.teacher_payment": "Teacher payment",
@@ -51,5 +53,6 @@ export const ENGLISH_TRANSLATION = {
         "app.pos.permissions_error.page_title": "Whoops... ",
         "app.pos.permissions_error.content": "Looks like you don't have sufficient permissions to do that.",
         "app.pos.products": "Products",
+        "app.pos.products.school.subscription.registration_fee": "Registration Fee",
     }
 }

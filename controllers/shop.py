@@ -1038,7 +1038,7 @@ def subscriptions():
     return dict(content = content)
 
 
-def subscription_terms_check_valid_bankdetails(payment_method):
+def subscription_terms_check_valid_bankdetails(payment_method, ssuID):
     """
 
     :param var:
@@ -1051,7 +1051,7 @@ def subscription_terms_check_valid_bankdetails(payment_method):
         complete_bankaccount_details = db(query).count()
 
         if not complete_bankaccount_details:
-             redirect(URL('subscription_enter_bankaccount'))
+             redirect(URL('subscription_add_bankaccount', vars={'ssuID': ssuID}))
 
 
 @auth.requires_login()
@@ -1085,7 +1085,7 @@ def subscription_terms():
     # Check for valid bank details
     ##
     payment_method = get_sys_property('shop_subscriptions_payment_method')
-    subscription_terms_check_valid_bankdetails(payment_method)
+    subscription_terms_check_valid_bankdetails(payment_method, ssuID)
 
     ##
     # Check startdate of subscription
@@ -1231,7 +1231,7 @@ def subscription_direct_debit():
 
 
 @auth.requires_login()
-def subscription_enter_bankaccount():
+def subscription_add_bankaccount():
     """
     Request customer to enter bank account info
     """
@@ -1239,10 +1239,12 @@ def subscription_enter_bankaccount():
     response.subtitle = T('Subscription')
     response.view = 'shop/index.html'
 
+    ssuID = request.vars['ssuID']
+
     content = DIV(
         H3(T('Please enter your bank account details')),
         T('A valid bank account is required to continue. All subscriptions are paid using direct debit.'), BR(),
-        T('After entering your bank account, you can go back to subscriptions in the shop to get your subscription.'), BR(),
+        T('After entering your bank account, you will be redirected back to the page to get a subscription.'), BR(),
         T('Please click "Continue" below to enter your bank account details.'), BR(), BR(),
         os_gui.get_button(
             'noicon',
@@ -1251,7 +1253,7 @@ def subscription_enter_bankaccount():
             btn_class='btn-primary'
         ))
 
-    session.profile_me_bankaccount_next = URL('shop', 'subscriptions')
+    session.profile_me_bankaccount_next = URL('shop', 'subscription_terms', vars={'ssuID': ssuID})
 
     return dict(content = content)
 

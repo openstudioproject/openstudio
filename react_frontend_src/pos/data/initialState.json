@@ -68,6 +68,10 @@
         }
     },
     "shop": {
+        "cart": {
+            "selected_item": "",
+            "items": []
+        },
         "products": {
             "data": {},
             "loaded": false,

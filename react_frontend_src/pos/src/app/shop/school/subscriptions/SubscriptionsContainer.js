@@ -3,7 +3,8 @@ import { injectIntl } from 'react-intl';
 import { withRouter } from 'react-router'
 
 import { appOperations } from '../../../duck'
-import Subscriptions from './Subscriptions';
+import { shopCartOperations } from '../../cart/duck'
+import Subscriptions from './Subscriptions'
 
 
 const mapStateToProps = state => 
@@ -18,6 +19,9 @@ const mapDispatchToProps = dispatch =>
     ({
         setPageTitle(title) {
             dispatch(appOperations.setPageTitle(title))
+        },
+        addToCart(item) {
+            dispatch(shopCartOperations.addItem(item))
         }
     })
 

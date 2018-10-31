@@ -12,12 +12,13 @@ class SubscriptionsList extends Component {
     populateRows = (subscriptions) => {
         let container = []
         let children = []
-        subscriptions.map((card, i) => {
+        subscriptions.map((subscription, i) => {
             console.log(i)
-            console.log(card)
-            children.push(<SubscriptionsListItem key={"card_" + v4()}
-                                                 data={card}
-                                                 currency_symbol={this.props.currency_symbol} />)
+            console.log(subscription)
+            children.push(<SubscriptionsListItem key={"subscription_" + v4()}
+                                                 data={subscription}
+                                                 currency_symbol={this.props.currency_symbol}
+                                                 onClick={() => this.props.onClick(subscription)} />)
             if (( (i+1) % 3 ) === 0 || i+1 == subscriptions.length)  {
                 console.log('pushing')
                 console.log(children)

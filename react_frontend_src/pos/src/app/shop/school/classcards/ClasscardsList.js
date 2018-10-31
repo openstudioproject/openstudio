@@ -19,7 +19,8 @@ class ClasscardsList extends Component {
             console.log(i)
             console.log(card)
             children.push(<ClasscardsListItem key={"card_" + v4()}
-                                              data={card} />)
+                                              data={card}
+                                              onClick={() => this.props.onClick(card)} />)
             if (( (i+1) % 3 ) === 0 || i+1 == classcards.length)  {
                 console.log('pushing')
                 console.log(children)

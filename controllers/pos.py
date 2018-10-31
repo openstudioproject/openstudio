@@ -14,9 +14,10 @@ def index():
 
 
 def set_headers(var=None):
-    if request.env.HTTP_ORIGIN == 'http://localhost:8080':
+    if request.env.HTTP_ORIGIN == 'http://dev.openstudioproject.com:8080':
         response.headers["Access-Control-Allow-Origin"] = request.env.HTTP_ORIGIN
     response.headers["Access-Control-Allow-Credentials"] = "true"
+    # response.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept'
 
 
 def return_json_login_error(var=None):
@@ -295,6 +296,7 @@ def get_school_classcards():
                             db.school_classcards.Classes,
                             db.school_classcards.Unlimited,
                             db.school_classcards.Trialcard,
+                            db.school_classcards.MembershipRequired,
                             orderby=db.school_classcards.Name)
 
     data_rows = []
@@ -308,7 +310,8 @@ def get_school_classcards():
             'ValidityDisplay': get_validity(row),
             'Classes': row.Classes,
             'Unlimited': row.Unlimited,
-            'Trialcard': row.Trialcard
+            'Trialcard': row.Trialcard,
+            'MembershipRequired': row.MembershipRequired
         }
 
         data_rows.append(item)
@@ -332,6 +335,8 @@ def get_school_subscriptions():
                sc.Classes,
                sc.SubscriptionUnit,
                sc.Unlimited,
+               sc.RegistrationFee,
+               sc.MembershipRequired,
                scp.Price
         FROM school_subscriptions sc
         LEFT JOIN
@@ -345,13 +350,17 @@ def get_school_subscriptions():
         ORDER BY sc.Name
     """.format(today=TODAY_LOCAL)
 
-    fields = [ db.school_subscriptions.Name,
-               db.school_subscriptions.SortOrder,
-               db.school_subscriptions.Description,
-               db.school_subscriptions.Classes,
-               db.school_subscriptions.SubscriptionUnit,
-               db.school_subscriptions.Unlimited,
-               db.school_subscriptions_price.Price ]
+    fields = [
+        db.school_subscriptions.Name,
+        db.school_subscriptions.SortOrder,
+        db.school_subscriptions.Description,
+        db.school_subscriptions.Classes,
+        db.school_subscriptions.SubscriptionUnit,
+        db.school_subscriptions.Unlimited,
+        db.school_subscriptions.RegistrationFee,
+        db.school_subscriptions.MembershipRequired,
+        db.school_subscriptions_price.Price,
+    ]
 
     rows = db.executesql(query, fields=fields)
 
@@ -364,7 +373,9 @@ def get_school_subscriptions():
             'Classes': row.school_subscriptions.Classes,
             'SubscriptionUnit': row.school_subscriptions.SubscriptionUnit,
             'Unlimited': row.school_subscriptions.Unlimited,
-            'Price': row.school_subscriptions_price.Price
+            'Price': row.school_subscriptions_price.Price,
+            'RegistrationFee': row.school_subscriptions.RegistrationFee,
+            'MembershipRequired': row.school_subscriptions.MembershipRequired,
         })
 
     return dict(data=data)
@@ -606,6 +617,6 @@ def get_products():
     spv = ShopProductsVariants()
 
     data = spv.list_pos()
-    pp.pprint(data)
+    # pp.pprint(data)
 
     return dict(data=data)

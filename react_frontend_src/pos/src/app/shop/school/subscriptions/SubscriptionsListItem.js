@@ -16,6 +16,7 @@ const representSubscriptionUnit = ( SubscriptionUnit, intl ) => {
     }
 }
 
+
 const representClasses = (data, intl) => {
     if (data.Unlimited) {
         return intl.formatMessage({ id:"app.general.strings.unlimited" })
@@ -25,9 +26,18 @@ const representClasses = (data, intl) => {
 }
     
 
+const representMembershipRequired = (data, intl) => {
+    if (data.MembershipRequired == true) {
+        return intl.formatMessage({ id:"app.general.strings.requires_membership" })
+    } else {
+        return ""
+    }
+}
 
-const SubscriptionsListItem = injectIntl(withRouter(({data, intl, currency_symbol}) => 
-    <div className="col-md-4">
+
+const SubscriptionsListItem = injectIntl(withRouter(({data, intl, currency_symbol, onClick=f=>f}) => 
+    <div className="col-md-4"
+         onClick={onClick}>
         <div className="panel panel-default">
             <div className="panel-heading">
                 <h3 className="panel-title">{data.Name}</h3>
@@ -45,8 +55,18 @@ const SubscriptionsListItem = injectIntl(withRouter(({data, intl, currency_symbo
                                     intl.formatMessage({ id:"app.general.strings.not_set"}) }</td>
                         </tr>
                         <tr>
+                            <td>{intl.formatMessage({ id:"app.pos.products.school.subscription.registration_fee" })}</td>
+                            <td>{(data.RegistrationFee) ? 
+                                    <Currency amount={data.RegistrationFee} /> : 
+                                    intl.formatMessage({ id:"app.general.strings.not_set"}) }</td>
+                        </tr>
+                        <tr>
                             <td>{intl.formatMessage({ id:"app.general.strings.description" })}</td>
                             <td>{data.Description}</td>
+                        </tr>
+                        <tr>
+                            <td>{intl.formatMessage({ id:"app.general.strings.membership" })}</td>
+                            <td>{representMembershipRequired(data, intl)}</td>
                         </tr>
                     </tbody>
                 </table>
