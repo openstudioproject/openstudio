@@ -13,9 +13,10 @@ const CartToolsCustomer = ({customers, history, intl}) =>
         {
             <Button history={history}>
                 <i className="fa fa-user x2"></i> {' '}
-                {(customers.selectedID) ? 
-                 customers.data[customers.selectedID].display_name : 'Customer'
-                 }
+                {
+                    (customers.selectedID) ? 
+                    customers.data[customers.selectedID].display_name : 'Customer'
+                }
             </Button>
         }
     </div>
