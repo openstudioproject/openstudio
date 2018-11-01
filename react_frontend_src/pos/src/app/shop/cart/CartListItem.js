@@ -19,7 +19,8 @@ const CartListItemSelected = ({children, item, selected_item}) =>
 
 const CartListItemQuantity = ({qty, price}) =>
     <span className="text-muted">
-        {qty} Item(s) at <Currency amount={price} /> each
+        <span className="pull-right"><Currency amount={qty*price} /></span>
+        {qty} Item(s) at <Currency amount={price} /> each 
     </span>
 
 
