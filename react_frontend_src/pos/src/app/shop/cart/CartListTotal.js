@@ -21,11 +21,11 @@ class CartListTotal extends Component {
         items.map((item, i) => {
             if (item.item_type == 'product') {
                 if (item.data.price) {
-                    total = total + item.data.price
+                    total = total + (item.data.price * item.quantity)
                 }
             } else {
                 if (item.data.Price) {
-                    total = total + item.data.Price 
+                    total = total + (item.data.Price * item.quantity)
                 }
             }
         })
