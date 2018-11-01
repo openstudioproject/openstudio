@@ -21,6 +21,8 @@ const CartTools = ({customers, deleteSelectedItem, cart_selected_item}) =>
             </div>
             <div className="col-md-12">
                 Payment button here
+
+                {/* Check for selected customer when one or more school products was selected.. otherwise disable. */}
             </div>
         </div>
     </div>
