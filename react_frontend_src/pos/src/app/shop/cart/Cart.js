@@ -13,7 +13,8 @@ class Cart extends Component {
     PropTypes = {
         intl: intlShape.isRequired,
         app: PropTypes.object,
-        items: PropTypes.array
+        items: PropTypes.array,
+        setSelectedItem: PropTypes.function
     }
 
     componentWillMount() {
@@ -25,6 +26,8 @@ class Cart extends Component {
     onClickCartItem(id) {
         console.log('clicked')
         console.log(id)
+
+        this.props.setSelectedItem(id)
     }
     
     render() {

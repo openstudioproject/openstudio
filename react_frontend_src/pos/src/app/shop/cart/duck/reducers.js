@@ -10,6 +10,11 @@ export const shopCartReducer = (state = {}, action={ type: null }) => {
                 ...state,
                 items: [...state.items, action.data]
             }
+        case T.SET_SELECTED_ITEM:
+            return {
+                ...state,
+                selected_item: action.data
+            }
         default:
             return {
                 ...state
