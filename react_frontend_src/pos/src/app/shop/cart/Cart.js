@@ -24,9 +24,6 @@ class Cart extends Component {
     }
 
     onClickCartItem(id) {
-        console.log('clicked')
-        console.log(id)
-
         this.props.setSelectedItem(id)
     }
     

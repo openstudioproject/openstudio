@@ -12,8 +12,8 @@ const CartListItemQuantity = ({qty, price}) =>
     </span>
 
 
-const CartListProduct = ({item, onClick=f=>f}) => 
-    <div onClick={() => onClick(item.id)}>
+const CartListProduct = ({item}) => 
+    <div>
         {console.log('cart item')}
         {console.log(item)}
         <span className="bold">{item.data.variant_name} - {item.data.product_name}</span> <br/>
@@ -57,10 +57,9 @@ const CartListSubscription = ({item}) =>
 
 
 const CartListItem = injectIntl(({item, intl, onClick=f=>f}) => 
-    <div>
+    <div onClick={() => onClick(item.id)}>
         { (item.item_type == 'product') ? 
             <CartListProduct item={item}
-                             onClick={onClick}
              /> : '' }
         { (item.item_type == 'classcard') ?
             <CartListClasscard item={item} /> : '' }
