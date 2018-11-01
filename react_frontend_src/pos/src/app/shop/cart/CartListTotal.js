@@ -27,7 +27,7 @@ class CartListTotal extends Component {
                 }
             } else {
                 if (item.data.Price) {
-                    total = total + item.date.Price 
+                    total = total + item.data.Price 
                 }
             }
         })
