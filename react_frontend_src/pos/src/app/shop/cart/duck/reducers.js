@@ -9,19 +9,27 @@ export const shopCartReducer = (state = {}, action={ type: null }) => {
 
             for (i = 0; i < state.items.length; i++) {
                 let item = state.items[i]
-                if ((item.product_type == action.data.product_type) && (item.data.id == action.data.data.id)) {
+                if ((item.product_type === action.data.product_type) && (item.data.id === action.data.data.id)) {
                     item_exists = true
                     break
                 }
             }
 
+            console.log(action.data)
+
             if (item_exists) {
-                // increate quantity
-                return {
-                    ...state,
-                    items: state.items.map((item, index) =>
-                        index === i ? {...item, quantity: item.quantity + 1} : item
-                    )
+                // increate quantity if product, don't do anything for school products
+                if (action.data.item_type === 'product') {
+                    return {
+                        ...state,
+                        items: state.items.map((item, index) =>
+                            index === i ? {...item, quantity: item.quantity + 1} : item
+                        )
+                    }
+                } else {
+                    return {
+                        ...state
+                    }
                 }
             } else {
                 // add new item, don't increate quantity
