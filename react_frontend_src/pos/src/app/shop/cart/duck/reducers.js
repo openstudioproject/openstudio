@@ -10,6 +10,12 @@ export const shopCartReducer = (state = {}, action={ type: null }) => {
                 ...state,
                 items: [...state.items, action.data]
             }
+        case T.DELETE_SELECTED_ITEM:
+            return {
+                ...state,
+                selected_item: "",
+                items: state.items.filter(item => item.id !== state.selected_item)
+            }
         case T.SET_SELECTED_ITEM:
             return {
                 ...state,

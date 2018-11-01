@@ -1,5 +1,6 @@
 import {
     addItem,
+    deleteSelectedItem,
     setSelectedItem
 } from './actions'
 
@@ -33,5 +34,6 @@ import {
 
 export default {
     addItem,
+    deleteSelectedItem,
     setSelectedItem
 }

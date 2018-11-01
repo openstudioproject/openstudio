@@ -67,8 +67,6 @@ const CartListItem = injectIntl(({item, intl, onClick=f=>f}) =>
             <CartListMembership item={item} /> : '' }
         { (item.item_type == 'subscription') ?
             <CartListSubscription item={item} /> : '' }
-        
-        
     </div>
 )
 

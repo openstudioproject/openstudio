@@ -4,7 +4,7 @@ import { v4 } from "uuid"
 import CartToolsCustomer from "./CartToolsCustomerContainer"
 
 
-const CartTools = ({customers}) => 
+const CartTools = ({customers, deleteSelectedItem}) => 
     <div className="box box-solid">
         <div className="box-body">
             <div className="col-md-4">
@@ -12,7 +12,9 @@ const CartTools = ({customers}) =>
                 Customer & Payment
             </div>
             <div className="col-md-4">
-                Numpad
+                <button onClick={() => deleteSelectedItem()}>
+                    Delete
+                </button>
             </div>
         </div>
     </div>
