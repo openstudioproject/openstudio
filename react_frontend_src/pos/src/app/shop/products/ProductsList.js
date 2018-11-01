@@ -17,10 +17,6 @@ class ProductsList extends Component {
         let children = []
 
         products.map((product, i) => {
-            console.log(i)
-            console.log(product)
-
-            // children.push(product.name)
             children.push(
                 <ProductsListItem data={product}
                                   key={"product_" + v4()}
@@ -28,8 +24,6 @@ class ProductsList extends Component {
                                   />
             )
             if (( (i+1) % 3 ) === 0 || i+1 == products.length)  {
-                console.log('pushing')
-                console.log(children)
                 container.push(<div className="row" key={"row_" + v4()}>{children}</div>)
                 children = []
             }

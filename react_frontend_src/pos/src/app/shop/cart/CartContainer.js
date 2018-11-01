@@ -9,7 +9,8 @@ import Cart from './Cart'
 const mapStateToProps = state => 
     ({
         app: state.app,
-        items: state.shop.cart.items
+        items: state.shop.cart.items,
+        selected_item: state.shop.cart.selected_item
     })
 
 const mapDispatchToProps = dispatch =>

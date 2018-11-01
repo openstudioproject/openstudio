@@ -14,6 +14,7 @@ class Cart extends Component {
         intl: intlShape.isRequired,
         app: PropTypes.object,
         items: PropTypes.array,
+        selected_item: PropTypes.string,
         setSelectedItem: PropTypes.function
     }
 
@@ -29,6 +30,7 @@ class Cart extends Component {
     
     render() {
         const items = this.props.items
+        const selected_item = this.props.selected_item
 
         return (
             <div className="box box-solid"> 
@@ -40,6 +42,7 @@ class Cart extends Component {
                 <div className="box-body">
                 {(items.length) ? 
                     <CartList items={items}
+                              selected_item={selected_item}
                               onClick={this.onClickCartItem.bind(this)} />:
                     "The shopping cart is empty" }
                 </div>
