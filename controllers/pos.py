@@ -417,6 +417,7 @@ def get_school_memberships():
     """.format(today=TODAY_LOCAL)
 
     fields = [
+        db.school_memberships.id,
         db.school_memberships.Name,
         db.school_memberships.Description,
         db.school_memberships.Validity,

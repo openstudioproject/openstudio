@@ -8,7 +8,7 @@ import Currency from "../../../components/ui/Currency"
 class CartListTotal extends Component {
     constructor(props) {
         super(props)
-        console.log(props)
+        // console.log(props)
     }
 
     PropTypes = {
@@ -18,9 +18,7 @@ class CartListTotal extends Component {
 
     calculateTotal(items) {
         let total = 0
-        console.log('calculating price')
         items.map((item, i) => {
-            console.log(item.data)
             if (item.item_type == 'product') {
                 if (item.data.price) {
                     total = total + item.data.price
