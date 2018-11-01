@@ -81,6 +81,8 @@ const CartListSubscription = ({item, selected_item}) =>
 
 const CartListItem = injectIntl(({item, selected_item, intl, onClick=f=>f}) => 
     <div onClick={() => onClick(item.id)}>
+        {console.log('item in cast list item:')}
+        {console.log(item)}
         { (item.item_type == 'product') ? 
             <CartListProduct item={item}
                              selected_item={selected_item} /> : '' }
