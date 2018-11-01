@@ -49,35 +49,3 @@ class CartListTotal extends Component {
 
 export default CartListTotal
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import React from "react"
-// import { v4 } from "uuid"
-
-
-// const CartListTotal = ({items}) => 
-//     <div>
-//         {/* {items.map((cart_item, i) => 
-//             (cart_item.item_type == 'product') ? 
-//                 total = total + item.date.price :
-//                 total = total + item.date.Price
-//         )} */}
-//         Total: {this.total}
-
-//     </div>
-
-// CartListTotal.total = 0
-
-
-// export default CartListTotal
