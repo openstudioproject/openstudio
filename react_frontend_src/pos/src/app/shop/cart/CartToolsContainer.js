@@ -8,7 +8,8 @@ import CartTools from './CartTools'
 
 const mapStateToProps = state => 
     ({
-        customers: state.customers.list
+        customers: state.customers.list,
+        cart_selected_item: state.shop.cart.selected_item
     })
 
 const mapDispatchToProps = dispatch =>

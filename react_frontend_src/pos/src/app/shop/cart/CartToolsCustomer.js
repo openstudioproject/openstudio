@@ -2,7 +2,7 @@ import React from "react"
 import { v4 } from "uuid"
 
 const Button = ({history, children}) =>
-    <button className="btn btn-default"
+    <button className="btn btn-default btn-block"
             onClick={() => history.push('/customers')}>
         {children}
     </button>
