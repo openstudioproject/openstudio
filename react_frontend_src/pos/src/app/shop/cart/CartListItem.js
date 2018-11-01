@@ -83,14 +83,16 @@ const CartListItem = injectIntl(({item, selected_item, intl, onClick=f=>f}) =>
     <div onClick={() => onClick(item.id)}>
         { (item.item_type == 'product') ? 
             <CartListProduct item={item}
-                             selected_item={selected_item}
-             /> : '' }
+                             selected_item={selected_item} /> : '' }
         { (item.item_type == 'classcard') ?
-            <CartListClasscard item={item} /> : '' }
+            <CartListClasscard item={item}
+                               selected_item={selected_item} /> : '' }
         { (item.item_type == 'membership') ?
-            <CartListMembership item={item} /> : '' }
+            <CartListMembership item={item}
+                                selected_item={selected_item} /> : '' }
         { (item.item_type == 'subscription') ?
-            <CartListSubscription item={item} /> : '' }
+            <CartListSubscription item={item}
+                                  selected_item={selected_item} /> : '' }
     </div>
 )
 
