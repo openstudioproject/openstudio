@@ -373,8 +373,8 @@ def get_school_subscriptions():
             'Classes': row.school_subscriptions.Classes,
             'SubscriptionUnit': row.school_subscriptions.SubscriptionUnit,
             'Unlimited': row.school_subscriptions.Unlimited,
-            'Price': row.school_subscriptions_price.Price,
-            'RegistrationFee': row.school_subscriptions.RegistrationFee,
+            'Price': row.school_subscriptions_price.Price or 0,
+            'RegistrationFee': row.school_subscriptions.RegistrationFee or 0,
             'MembershipRequired': row.school_subscriptions.MembershipRequired,
         })
 
@@ -423,7 +423,7 @@ def get_school_memberships():
             'Description': row.school_memberships.Description or '',
             'Validity': row.school_memberships.Validity,
             'ValidityUnit': row.school_memberships.ValidityUnit,
-            'Price': row.school_memberships_price.Price
+            'Price': row.school_memberships_price.Price or 0
         })
 
     return dict(data=data)
