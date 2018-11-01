@@ -11,7 +11,8 @@ const mapStateToProps = state =>
     ({
         app: state.app,
         loaded: state.shop.school.classcards.loaded,
-        classcards: state.shop.school.classcards.data
+        classcards: state.shop.school.classcards.data,
+        selected_customer: state.customers.list.selectedID
     })
 
 const mapDispatchToProps = dispatch =>

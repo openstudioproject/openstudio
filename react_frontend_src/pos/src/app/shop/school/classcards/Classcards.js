@@ -21,6 +21,7 @@ class Classcards extends Component {
         app: PropTypes.object,
         classcards: PropTypes.object,
         loaded: PropTypes.boolean,
+        selected_customer: PropTypes.int
     }
 
     componentWillMount() {
@@ -53,7 +54,9 @@ class Classcards extends Component {
     render() {
         return (
             <ShopTemplate app_state={this.props.app}>
-                { this.props.loaded ? 
+                { (!this.props.selected_customer) ? 
+                    "Please select a customer" :
+                  this.props.loaded ? 
                      <SchoolMenu>
                          <br /><br />
                          <ClasscardsList classcards={this.props.classcards}
