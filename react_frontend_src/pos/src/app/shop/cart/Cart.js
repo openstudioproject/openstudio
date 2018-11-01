@@ -4,7 +4,7 @@ import PropTypes from "prop-types"
 
 import CartList from "./CartList"
 
-class Products extends Component {
+class Cart extends Component {
     constructor(props) {
         super(props)
         console.log(props)
@@ -21,6 +21,11 @@ class Products extends Component {
             this.props.intl.formatMessage({ id: 'app.pos.products' })
         )
     }
+
+    onClickCartItem(id) {
+        console.log('clicked')
+        console.log(id)
+    }
     
     render() {
         const items = this.props.items
@@ -34,7 +39,8 @@ class Products extends Component {
                 </div>
                 <div className="box-body">
                 {(items.length) ? 
-                    <CartList items={items} />:
+                    <CartList items={items}
+                              onClick={this.onClickCartItem.bind(this)} />:
                     "The shopping cart is empty" }
                 </div>
             </div>    
@@ -42,4 +48,4 @@ class Products extends Component {
     }
 }
 
-export default Products
+export default Cart
