@@ -2,6 +2,7 @@ import React from "react"
 import { v4 } from "uuid"
 
 import CartToolsCustomer from "./CartToolsCustomerContainer"
+import CartToolsPayment from "./CartToolsPaymentContainer"
 
 
 const CartTools = ({customers, deleteSelectedItem, cart_selected_item}) => 
@@ -18,11 +19,9 @@ const CartTools = ({customers, deleteSelectedItem, cart_selected_item}) =>
                         onClick={ () => deleteSelectedItem() }>
                     Delete
                 </button>
-            </div>
+            </div> <br /> <br />
             <div className="col-md-12">
-                Payment button here
-
-                {/* Check for selected customer when one or more school products was selected.. otherwise disable. */}
+                <CartToolsPayment />
             </div>
         </div>
     </div>
