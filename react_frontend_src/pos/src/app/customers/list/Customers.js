@@ -133,7 +133,7 @@ class Customers extends Component {
 
     onClickButtonBack(e) {
         console.log("clicked")
-        this.props.history.push('/products/school/classcards')
+        this.props.history.push('/shop/products')
     }
 
     onCreateCustomer(e) {

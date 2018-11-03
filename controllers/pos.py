@@ -288,20 +288,24 @@ def get_school_classcards():
 
     #TODO order by Trial card and then name
     query = (db.school_classcards.Archived == False)
-    rows = db(query).select(db.school_classcards.Name,
-                            db.school_classcards.Description,
-                            db.school_classcards.Price,
-                            db.school_classcards.Validity,
-                            db.school_classcards.ValidityUnit,
-                            db.school_classcards.Classes,
-                            db.school_classcards.Unlimited,
-                            db.school_classcards.Trialcard,
-                            db.school_classcards.MembershipRequired,
-                            orderby=db.school_classcards.Name)
+    rows = db(query).select(
+        db.school_classcards.id,
+        db.school_classcards.Name,
+        db.school_classcards.Description,
+        db.school_classcards.Price,
+        db.school_classcards.Validity,
+        db.school_classcards.ValidityUnit,
+        db.school_classcards.Classes,
+        db.school_classcards.Unlimited,
+        db.school_classcards.Trialcard,
+        db.school_classcards.MembershipRequired,
+        orderby=db.school_classcards.Name
+    )
 
     data_rows = []
     for row in rows:
         item = {
+            'id': row.id,
             'Name': row.Name,
             'Description': row.Description,
             'Price': row.Price,
@@ -329,7 +333,8 @@ def get_school_subscriptions():
     set_headers()
 
     query = """
-        SELECT sc.Name,
+        SELECT sc.id,
+               sc.Name,
                sc.SortOrder,
                sc.Description,
                sc.Classes,
@@ -351,6 +356,7 @@ def get_school_subscriptions():
     """.format(today=TODAY_LOCAL)
 
     fields = [
+        db.school_subscriptions.id,
         db.school_subscriptions.Name,
         db.school_subscriptions.SortOrder,
         db.school_subscriptions.Description,
@@ -367,14 +373,15 @@ def get_school_subscriptions():
     data = []
     for row in rows:
         data.append({
+            'id': row.school_subscriptions.id,
             'Name': row.school_subscriptions.Name,
             'SortOrder': row.school_subscriptions.SortOrder,
             'Description': row.school_subscriptions.Description or '',
             'Classes': row.school_subscriptions.Classes,
             'SubscriptionUnit': row.school_subscriptions.SubscriptionUnit,
             'Unlimited': row.school_subscriptions.Unlimited,
-            'Price': row.school_subscriptions_price.Price,
-            'RegistrationFee': row.school_subscriptions.RegistrationFee,
+            'Price': row.school_subscriptions_price.Price or 0,
+            'RegistrationFee': row.school_subscriptions.RegistrationFee or 0,
             'MembershipRequired': row.school_subscriptions.MembershipRequired,
         })
 
@@ -391,7 +398,8 @@ def get_school_memberships():
     set_headers()
 
     query = """
-        SELECT sm.Name,
+        SELECT sm.id,
+               sm.Name,
                sm.Description,
                sm.Validity,
                sm.ValidityUnit,
@@ -408,22 +416,26 @@ def get_school_memberships():
         ORDER BY sm.Name
     """.format(today=TODAY_LOCAL)
 
-    fields = [ db.school_memberships.Name,
-               db.school_memberships.Description,
-               db.school_memberships.Validity,
-               db.school_memberships.ValidityUnit,
-               db.school_memberships_price.Price ]
+    fields = [
+        db.school_memberships.id,
+        db.school_memberships.Name,
+        db.school_memberships.Description,
+        db.school_memberships.Validity,
+        db.school_memberships.ValidityUnit,
+        db.school_memberships_price.Price
+    ]
 
     rows = db.executesql(query, fields=fields)
 
     data = []
     for row in rows:
         data.append({
+            'id': row.school_memberships.id,
             'Name': row.school_memberships.Name,
             'Description': row.school_memberships.Description or '',
             'Validity': row.school_memberships.Validity,
             'ValidityUnit': row.school_memberships.ValidityUnit,
-            'Price': row.school_memberships_price.Price
+            'Price': row.school_memberships_price.Price or 0
         })
 
     return dict(data=data)
@@ -585,7 +597,6 @@ def update_customer():
             error_message=T("This email already has an account")
         )
     ]
-
 
     if cuID:
         query = (db.auth_user.id == cuID)
