@@ -1,5 +1,7 @@
 import {
-    addItem
+    addItem,
+    deleteSelectedItem,
+    setSelectedItem
 } from './actions'
 
 // import axios_os from '../../../../utils/axios_os'
@@ -31,5 +33,7 @@ import {
 
 
 export default {
-    addItem
+    addItem,
+    deleteSelectedItem,
+    setSelectedItem
 }
