@@ -1,31 +1,26 @@
 import { connect } from 'react-redux'
 import { injectIntl } from 'react-intl';
+import { withRouter } from 'react-router-dom'
 
 import { appOperations } from '../../duck'
-import { shopCartOperations } from './duck'
-import Cart from './Cart'
+import CartToolsCustomer from './CartToolsCustomer'
 
 
 const mapStateToProps = state => 
     ({
-        app: state.app,
-        items: state.shop.cart.items,
-        selected_item: state.shop.cart.selected_item
+        customers: state.customers.list
     })
 
 const mapDispatchToProps = dispatch =>
     ({
         setPageTitle(title) {
             dispatch(appOperations.setPageTitle(title))
-        },
-        setSelectedItem(id) {
-            dispatch(shopCartOperations.setSelectedItem(id))
         }
     })
 
-const CartContainer = injectIntl(connect(
+const CartToolsCustomerContainer = withRouter(injectIntl(connect(
     mapStateToProps,
     mapDispatchToProps
-)(Cart))
+)(CartToolsCustomer)))
 
-export default CartContainer
+export default CartToolsCustomerContainer
