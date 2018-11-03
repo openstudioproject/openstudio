@@ -8,7 +8,8 @@ import CartToolsPayment from './CartToolsPayment'
 
 const mapStateToProps = state => 
     ({
-        customers: state.customers.list
+        customers: state.customers.list,
+        cart_items: state.shop.cart.items
     })
 
 const mapDispatchToProps = dispatch =>
