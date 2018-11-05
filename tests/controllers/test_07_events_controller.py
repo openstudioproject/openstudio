@@ -355,7 +355,7 @@ def test_ticket_edit(client, web2py):
     """
     populate_workshops_with_activity(web2py)
 
-    url = '/events/ticket_edit/1'
+    url = '/events/ticket_edit?wspID=1'
     client.get(url)
     assert client.status == 200
     data = dict(id=1,
