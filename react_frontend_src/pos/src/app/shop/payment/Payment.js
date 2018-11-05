@@ -4,6 +4,9 @@ import PropTypes from "prop-types"
 import { v4 } from "uuid"
 
 import PageTemplate from "../../../components/PageTemplate"
+import Box from "../../../components/ui/Box"
+import BoxBody from "../../../components/ui/BoxBody"
+import BoxHeader from "../../../components/ui/BoxHeader"
 
 class Payment extends Component {
     constructor(props) {
@@ -27,8 +30,29 @@ class Payment extends Component {
 
         return (
             <PageTemplate app_state={this.props.app}>
-
-                Payment screen will go here
+                <div className="row">
+                    <div className="col-md-12">
+                        Cancel & validate
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col-md-4">
+                        <Box>
+                            <BoxHeader title="Payment methods" />
+                            <BoxBody>
+                                Payment methods content
+                            </BoxBody>
+                        </Box>
+                    </div>
+                    <div className="col-md-8">
+                        <Box>
+                            <BoxHeader title="Enter payment" />
+                            <BoxBody>
+                                Payment, numpad & customer display
+                            </BoxBody>
+                        </Box>
+                    </div>
+                </div>
             </PageTemplate>
         )
     }
