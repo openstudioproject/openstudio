@@ -7,6 +7,7 @@ import PageTemplate from "../../../components/PageTemplate"
 import Box from "../../../components/ui/Box"
 import BoxBody from "../../../components/ui/BoxBody"
 import BoxHeader from "../../../components/ui/BoxHeader"
+import ButtonBack from "../../../components/ui/ButtonBack"
 
 class Payment extends Component {
     constructor(props) {
@@ -27,11 +28,16 @@ class Payment extends Component {
     }
     
     render() {
+        const history = this.props.history
+
 
         return (
             <PageTemplate app_state={this.props.app}>
                 <div className="row">
                     <div className="col-md-12">
+                        <ButtonBack onClick={() => history.push('/shop/products')}>
+                            Cancel
+                        </ButtonBack>
                         Cancel & validate
                     </div>
                 </div>
