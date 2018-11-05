@@ -2629,9 +2629,13 @@ def attendance():
 
     if not attendance_get_count(clsID, date, formatted=False):
         content = DIV(
-            H1(os_gui.get_fa_icon('fa-search')),
-            H1(T("Search to add customers")),
-            _class='grey center clear'
+            search_results,
+            DIV(
+                H1(os_gui.get_fa_icon('fa-search')),
+                H1(T("Search to add customers")),
+                _class='grey center clear'
+            ),
+            modals
         )
 
 
