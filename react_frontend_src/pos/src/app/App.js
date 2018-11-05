@@ -13,6 +13,7 @@ import Attendance from './checkin/attendance/AttendanceContainer'
 import Book from './checkin/book/BookContainer'
 import Revenue from './checkin/revenue/RevenueContainer'
 import Home from './home/HomeContainer'
+import Payment from './shop/payment/PaymentContainer'
 import Products from './shop/products/ProductsContainer'
 import Classcards from './shop/school/classcards/ClasscardsContainer'
 import Memberships from './shop/school/memberships/MembershipsContainer'
@@ -54,6 +55,7 @@ class App extends Component {
             <Route path='/checkin/book/:clsID/:cuID' component={Book} />
             <Route path='/checkin/revenue/:clsID' component={Revenue} />
             <Route path='/customers' component={Customers} />
+            <Route path="/shop/payment" component={Payment} />
             <Route exact path='/shop/products' component={Products} />
             <Route path='/shop/school/classcards' component={Classcards} />
             <Route path='/shop/school/memberships' component={Memberships} />
