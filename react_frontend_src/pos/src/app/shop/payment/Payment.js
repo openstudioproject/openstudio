@@ -15,20 +15,18 @@ class Payment extends Component {
         intl: intlShape.isRequired,
         setPageTitle: PropTypes.function,
         app: PropTypes.object,
-        categories: PropTypes.object,
-        loaded: PropTypes.boolean,
     }
 
     componentWillMount() {
         this.props.setPageTitle(
-            this.props.intl.formatMessage({ id: 'app.pos.products' })
+            this.props.intl.formatMessage({ id: 'app.pos.shop.payment.page_title' })
         )
     }
     
     render() {
 
         return (
-            <PageTemplate>
+            <PageTemplate app_state={this.props.app}>
 
                 Payment screen will go here
             </PageTemplate>
