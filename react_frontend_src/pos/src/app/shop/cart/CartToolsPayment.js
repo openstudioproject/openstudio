@@ -4,7 +4,7 @@ import { v4 } from "uuid"
 
 const PaymentEnabled = (cart_items, customers) => {
     console.log(cart_items.length)
-    if (cart_items.length > 0) {
+    if (cart_items.length === 0) {
         console.log('no items in cart')
         return true
     } else {
