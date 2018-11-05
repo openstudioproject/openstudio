@@ -506,7 +506,8 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
 
     def get_invoices_rows(self,
                           public_group=True,
-                          payments_only=False):
+                          debit_only=False,
+                          payments_only=False,):
         """
             Returns invoices records for a customer as gluon.dal.rows object
         """
@@ -528,7 +529,14 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
                 query &= (db.invoices_groups.PublicGroup == True)
 
         if payments_only:
-            query &= (db.invoices.TeacherPayment == True)
+            query &= ((db.invoices.TeacherPayment == True) |
+                      (db.invoices.EmployeeClaim == True))
+
+        if debit_only:
+            query &= ((db.invoices.TeacherPayment == False) &
+                      (db.invoices.EmployeeClaim == False))
+
+
 
         rows = db(query).select(db.invoices.ALL,
                                 db.invoices_amounts.ALL,
