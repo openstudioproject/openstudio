@@ -46,7 +46,7 @@ const Button = ({history, children, cart_items, customers}) =>
 {/* Check for selected customer when one or more school products was selected.. otherwise disable. */}
 
 const CartToolsPayment = ({customers, cart_items, history, intl}) =>
-    <div>
+    <div onClick={() => history.push('/shop/payment')}>
         {console.log(customers)}
         {console.log('cart items')}
         {console.log(cart_items)}
