@@ -2796,12 +2796,27 @@ def reservation_remove():
     """
         Remove reservation
     """
+    from openstudio.os_classes_reservation import ClassesReservation
+
     crID  = request.vars['crID']
     clsID = request.vars['clsID']
     date_formatted  = request.vars['date']
 
+    ##
+    # Remove booked classes after date
+    ##
+    reservation = ClassesReservation(crID)
+    bookings_removed = reservation.remove_attendance_booked_classes(TODAY_LOCAL)
+
+    ##
+    # Delete reservation
+    ##
     query = (db.classes_reservation.id == crID)
     db(query).delete()
+
+    session.flash = T("Removed reservation and {classes} booking(s) for classes".format(
+        classes=bookings_removed
+    ))
 
     redirect(reservation_get_return_url(clsID, date_formatted))
 
@@ -3091,7 +3106,7 @@ def attendance_remove():
     date_formatted = clatt.ClassDate.strftime(DATE_FORMAT)
 
     ##
-    # Change invoice status to cancelled
+    # Change invoice status to cancelled (if any)
     ##
     query = (db.invoices_classes_attendance.classes_attendance_id == clattID)
     rows = db(query).select(db.invoices_classes_attendance.ALL)

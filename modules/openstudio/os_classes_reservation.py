@@ -111,7 +111,7 @@ class ClassesReservation:
             # Sign in to a class
             ##
             # remove this reservation from the list, as we have just booked it, so it won't be booked again using
-            # another subscriptin
+            # another subscription
             ##
             cls = upcoming_classes.pop(0) # always get the first in the list, we pop all classes already booked
             ah.attendance_sign_in_subscription(
@@ -127,3 +127,30 @@ class ClassesReservation:
             credits -= 1
 
         return classes_booked
+
+
+    def remove_attendance_booked_classes(self, cancel_from):
+        """
+        This function is used to cancel all classes after a given date for
+        a reservation. Used when setting an end date for a reservation or
+        deleting a reservation
+
+        :param cancel_from: datetime.date (usually TODAY_LOCAL)
+        :return: None
+        """
+        T = current.T
+        db = current.db
+        # Find all booked classes
+
+        # customerID, classesID, customers_subscriptions_id
+        attendance_deleted = 0
+        if self.row.customers_subscriptions_id:
+            query = (db.classes_attendance.classes_id == self.row.classes_id) & \
+                    (db.classes_attendance.auth_customer_id == self.row.auth_customer_id) & \
+                    (db.classes_attendance.customers_subscriptions_id == self.row.customers_subscriptions_id) & \
+                    (db.classes_attendance.ClassDate >= cancel_from)
+
+            attendance_deleted = db(query).count()
+            db(query).delete()
+
+        return attendance_deleted
