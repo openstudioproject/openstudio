@@ -138,11 +138,12 @@ class ClassesReservation:
         :param cancel_from: datetime.date (usually TODAY_LOCAL)
         :return: None
         """
+        from os_cache_manager import OsCacheManager
+
         T = current.T
         db = current.db
-        # Find all booked classes
 
-        # customerID, classesID, customers_subscriptions_id
+        # Find all booked classes
         attendance_deleted = 0
         if self.row.customers_subscriptions_id:
             query = (db.classes_attendance.classes_id == self.row.classes_id) & \
@@ -152,5 +153,10 @@ class ClassesReservation:
 
             attendance_deleted = db(query).count()
             db(query).delete()
+
+            # Clear cache
+            ocm = OsCacheManager()
+            ocm.clear_customers_subscriptions()
+            ocm.clear_classschedule_api()
 
         return attendance_deleted

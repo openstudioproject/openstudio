@@ -2978,7 +2978,9 @@ def reservation_edit():
 
     crud.messages.submit_button = T("Save")
     crud.messages.record_updated = T("Saved reservation")
-    crud.settings.update_onaccept = [cache_clear_classschedule]
+    crud.settings.update_onaccept = [
+        cache_clear_classschedule
+    ]
     crud.settings.update_next = return_url
     crud.settings.update_deletable = False
     crud.settings.formstyle='bootstrap3_stacked'
