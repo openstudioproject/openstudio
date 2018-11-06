@@ -37,9 +37,10 @@ class PaymentMethods extends Component {
 
         return (
             payment_methods.map((method, i) =>
-                <div key={v4()}>
+                <button className="btn btn-default btn-lg btn-block btn-flat"
+                        key={v4()}>
                     {method['Name']}
-                </div>
+                </button>
             )
         )
     }
