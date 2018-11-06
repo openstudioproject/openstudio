@@ -9,6 +9,8 @@ import BoxBody from "../../../components/ui/BoxBody"
 import BoxHeader from "../../../components/ui/BoxHeader"
 import ButtonBack from "../../../components/ui/ButtonBack"
 
+import PaymentMethods from "./PaymentMethods"
+
 class Payment extends Component {
     constructor(props) {
         super(props)
@@ -46,7 +48,7 @@ class Payment extends Component {
                         <Box>
                             <BoxHeader title="Payment methods" />
                             <BoxBody>
-                                Payment methods content
+                                <PaymentMethods methods={this.props.app.payment_methods} />
                             </BoxBody>
                         </Box>
                     </div>
