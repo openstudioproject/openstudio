@@ -1,4 +1,5 @@
 const api_urls = {
+    'APP_PAYMENT_METHODS': '/pos/get_payment_methods.json',
     'APP_USER': '/pos/get_user.json',
     'APP_USER_LOGGED_IN': '/pos/get_logged_in.json',
     'APP_SETTINGS': '/pos/get_settings.json',

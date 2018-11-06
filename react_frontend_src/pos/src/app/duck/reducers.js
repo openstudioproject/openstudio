@@ -18,7 +18,7 @@ export const appReducer = (state = {}, action={ type: null }) => {
             return {
                 ...state,
                 loading_progress: pm_progress,
-                payment_methods: action.data
+                payment_methods: action.data.data
             }
         case T.REQUEST_USER:
             return {

@@ -640,11 +640,13 @@ def get_payment_methods():
 
     :return: dict containing payment methods sorted by name
     """
+    set_headers()
+
     query = (db.payment_methods.Archived == False)
 
     rows = db(query).select(
         db.payment_methods.ALL,
-        orderby=db.payment_methods.SystemMethod|db.payment_methods.Name
+        orderby=~db.payment_methods.SystemMethod|db.payment_methods.Name
     )
 
-    return rows.as_list()
+    return dict(data=rows.as_list())

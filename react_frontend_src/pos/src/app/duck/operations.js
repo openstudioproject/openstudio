@@ -1,4 +1,6 @@
 import {
+    requestPaymentMethods,
+    receivePaymentMethods,
     requestUser as request_user,
     receiveUser as receive_user,
     requestSettings as request_settings,
@@ -28,6 +30,37 @@ const setPageTitle = set_page_title
 
 
 // data fetchers
+
+const fetchPaymentMethods = () => {
+  return dispatch => {
+      dispatch(requestPaymentMethods)
+      dispatch(setLoading())
+
+      dispatch(set_loading_message("Payment methods"))
+      axios_os.get(OS_API.APP_PAYMENT_METHODS)
+      .then(function (response) {
+        // handle success
+        console.log('receive payment methods here')
+        dispatch(receivePaymentMethods(response.data))
+        dispatch(setLoaded())  
+        dispatch(setLoading())        
+      })
+      .catch(function (error) {
+        // handle error
+        console.log(error)
+        dispatch(setError(true))
+        dispatch(setErrorMessage("Error loading payment methods"))
+        if (error.config) {
+          dispatch(setErrorData(error.config.url))
+        } 
+      })
+      .then(function () {
+        // always executed
+      });
+  }
+}
+
+
 const fetchUser = () => {
     return dispatch => {
         dispatch(request_user)
@@ -88,6 +121,7 @@ const fetchSettings = () => {
 }
 
 export default {
+    fetchPaymentMethods,
     fetchUser,
     fetchSettings,
     setError,
