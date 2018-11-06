@@ -828,9 +828,6 @@ def generate_batch_items_invoices(pbID,
                             left=left,
                             orderby=db.auth_user.id)
 
-
-    print rows
-
     for row in rows:
         cuID = row.auth_user.id
         csID = row.invoices_customers_subscriptions.customers_subscriptions_id
