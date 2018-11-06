@@ -8,12 +8,24 @@ const initialState = {
 
 export const appReducer = (state = {}, action={ type: null }) => {
     switch (action.type) {
+        case T.REQUEST_PAYMENT_METHODS:
+            return {
+                ...state,
+            }
+        case T.RECEIVE_PAYMENT_METHODS:
+            let pm_progress = state.loading_progress + 33
+
+            return {
+                ...state,
+                loading_progress: pm_progress,
+                payment_methods: action.data
+            }
         case T.REQUEST_USER:
             return {
                 ...state,
             }
         case T.RECEIVE_USER:
-            let u_progress = state.loading_progress + 50
+            let u_progress = state.loading_progress + 34
 
             return {
                 ...state,
@@ -25,7 +37,7 @@ export const appReducer = (state = {}, action={ type: null }) => {
                 ...state,
             }
         case T.RECEIVE_SETTINGS:
-            let s_progress = state.loading_progress + 50
+            let s_progress = state.loading_progress + 33
 
             return {
                 ...state,
