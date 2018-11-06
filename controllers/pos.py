@@ -631,3 +631,20 @@ def get_products():
     # pp.pprint(data)
 
     return dict(data=data)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'shop_products'))
+def get_payment_methods():
+    """
+
+    :return: dict containing payment methods sorted by name
+    """
+    query = (db.payment_methods.Archived == False)
+
+    rows = db(query).select(
+        db.payment_methods.ALL,
+        orderby=db.payment_methods.SystemMethod|db.payment_methods.Name
+    )
+
+    return rows.as_list()
