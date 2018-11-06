@@ -32,7 +32,6 @@ class Payment extends Component {
     render() {
         const history = this.props.history
 
-
         return (
             <PageTemplate app_state={this.props.app}>
                 <div className="row">
