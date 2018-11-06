@@ -70,8 +70,9 @@
     },
     "shop": {
         "cart": {
+            "items": [],
             "selected_item": "",
-            "items": []
+            "total": 0
         },
         "products": {
             "data": {},
