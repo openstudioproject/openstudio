@@ -173,12 +173,12 @@ class CustomersSubscriptionsCredits:
                     # Sign in to a class
                     ##
                     # remove this reservation from the list, as we have just booked it, so it won't be booked again using
-                    # another subscriptin
+                    # another subscription
                     ##
                     reservation = self.add_credits_reservations[cuID].pop(0) # always get the first in the list, we pop all classes already booked
                     ah.attendance_sign_in_subscription(cuID, reservation['clsID'], csID, reservation['date'])
 
-                    # Subtract one credit from current balance in this object (self.add_credists_balance)
+                    # Subtract one credit from current balance in this object (self.add_credits_balance)
                     self.add_credits_balance[cuID] -= 1
 
 
@@ -397,7 +397,7 @@ class CustomersSubscriptionsCredits:
                         customers_subscriptions_id = row.customers_subscriptions.id,
                         MutationDateTime = NOW_LOCAL,
                         MutationType = 'sub',
-                        MutationAmount = expired_credits,
+                        MutationAmount = round(expired_credits, 1),
                         Description = T('Credits expiration'),
                         Expiration = True
                     )

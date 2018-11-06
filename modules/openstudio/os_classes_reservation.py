@@ -149,7 +149,7 @@ class ClassesReservation:
             query = (db.classes_attendance.classes_id == self.row.classes_id) & \
                     (db.classes_attendance.auth_customer_id == self.row.auth_customer_id) & \
                     (db.classes_attendance.customers_subscriptions_id == self.row.customers_subscriptions_id) & \
-                    (db.classes_attendance.ClassDate >= cancel_from)
+                    (db.classes_attendance.ClassDate > cancel_from)
 
             attendance_deleted = db(query).count()
             db(query).delete()

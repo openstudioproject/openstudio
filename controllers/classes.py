@@ -2002,10 +2002,8 @@ def reservations():
     else:
         session.classes_reservations_filter = 'this'
 
-    buttons = [ [ 'this', T('This class') ],
-                [ 'recurring', T('History') ]]
-                # [ 'single', T('Drop in') ],
-                # [ 'trial', T('Trial') ] ]
+    buttons = [ [ 'this', T('Current') ],
+                [ 'recurring', T('Archive') ]]
     filter_form = os_gui.get_radio_buttons_form(
         session.classes_reservations_filter,
         buttons)
@@ -2979,7 +2977,8 @@ def reservation_edit():
     crud.messages.submit_button = T("Save")
     crud.messages.record_updated = T("Saved reservation")
     crud.settings.update_onaccept = [
-        cache_clear_classschedule
+        cache_clear_classschedule,
+        reservation_edit_remove_booked_classes
     ]
     crud.settings.update_next = return_url
     crud.settings.update_deletable = False
@@ -2998,6 +2997,19 @@ def reservation_edit():
     back = os_gui.get_button("back", return_url)
 
     return dict(content=form, back=back, save=submit)
+
+
+def reservation_edit_remove_booked_classes(form):
+    """
+    Delete booked classes after enddate is set
+    :param form: crud form of db.classes_reservation
+    :return:
+    """
+    if form.vars.Enddate:
+        from openstudio.os_classes_reservation import ClassesReservation
+
+        reservation = ClassesReservation(form.vars.id)
+        bookings_removed = reservation.remove_attendance_booked_classes(TODAY_LOCAL)
 
 
 def reservation_get_cancelled(crID, date):
