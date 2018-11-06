@@ -9,6 +9,7 @@ import Payment from './Payment'
 const mapStateToProps = state => 
     ({
         app: state.app,
+        total: state.shop.cart.total,
     })
 
 const mapDispatchToProps = dispatch =>

@@ -10,6 +10,7 @@ import BoxHeader from "../../../components/ui/BoxHeader"
 import ButtonBack from "../../../components/ui/ButtonBack"
 
 import PaymentMethods from "./PaymentMethods"
+import PaymentTotal from "./PaymentTotal"
 
 class Payment extends Component {
     constructor(props) {
@@ -21,6 +22,7 @@ class Payment extends Component {
         intl: intlShape.isRequired,
         setPageTitle: PropTypes.function,
         app: PropTypes.object,
+        total: PropTypes.int,
     }
 
     componentWillMount() {
@@ -31,6 +33,7 @@ class Payment extends Component {
     
     render() {
         const history = this.props.history
+        const total = this.props.total
 
         return (
             <PageTemplate app_state={this.props.app}>
@@ -55,6 +58,7 @@ class Payment extends Component {
                         <Box>
                             <BoxHeader title="Enter payment" />
                             <BoxBody>
+                                <PaymentTotal total={total} />
                                 Payment, numpad & customer display
                             </BoxBody>
                         </Box>
