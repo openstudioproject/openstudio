@@ -8,6 +8,7 @@
         "loading_message": "Start loading...",
         "loading_progress": 0,
         "current_page_title": "Welcome",
+        "payment_methods": {},
         "settings": {},
         "user": {}
     },
