@@ -69,7 +69,7 @@ export const shopCartReducer = (state = {}, action={ type: null }) => {
             return {
                 ...state,
                 selected_item: "",
-                total: calculateCartTotal(state.items),
+                total: calculateCartTotal(new_items),
                 items: new_items
             }
         case T.SET_SELECTED_ITEM:
