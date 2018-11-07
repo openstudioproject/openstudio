@@ -48,13 +48,13 @@ class Payment extends Component {
                         <ButtonBack onClick={() => history.push('/shop/products')}>
                             Cancel
                         </ButtonBack>
-                        Cancel & validate
+                        Validate
                     </div>
                 </div>
                 <div className="row">
                     <div className="col-md-4">
                         <Box>
-                            <BoxHeader title="Payment methods" />
+                            {/* <BoxHeader title="Payment methods" /> */}
                             <BoxBody>
                                 <PaymentMethods methods={this.props.app.payment_methods}
                                                 selected_method={selected_method}
@@ -64,10 +64,12 @@ class Payment extends Component {
                     </div>
                     <div className="col-md-8">
                         <Box>
-                            <BoxHeader title="Enter payment" />
+                            {/* <BoxHeader title="Enter payment" /> */}
                             <BoxBody>
-                                <PaymentTotal total={total} />
-                                Payment, numpad & customer display
+                                <PaymentTotal methods={this.props.app.payment_methods}
+                                              total={total}
+                                              selected_method={selected_method} />
+                                
                             </BoxBody>
                         </Box>
                     </div>

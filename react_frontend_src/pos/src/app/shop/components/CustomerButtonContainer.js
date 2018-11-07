@@ -3,7 +3,7 @@ import { injectIntl } from 'react-intl';
 import { withRouter } from 'react-router-dom'
 
 import { appOperations } from '../../duck'
-import CartToolsCustomer from './CartToolsCustomer'
+import CustomerButton from './CustomerButton'
 
 
 const mapStateToProps = state => 
@@ -18,9 +18,9 @@ const mapDispatchToProps = dispatch =>
         }
     })
 
-const CartToolsCustomerContainer = withRouter(injectIntl(connect(
+const CustomerButtonContainer = withRouter(injectIntl(connect(
     mapStateToProps,
     mapDispatchToProps
-)(CartToolsCustomer)))
+)(CustomerButton)))
 
-export default CartToolsCustomerContainer
+export default CustomerButtonContainer
