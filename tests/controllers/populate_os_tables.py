@@ -1725,7 +1725,7 @@ def populate_invoices(web2py, teacher_fixed_price_invoices=False):
     today = datetime.date.today()
     delta = datetime.timedelta(days = 14)
 
-    teacher_payment = False,
+    teacher_payment = False
     teacher_payment_month = None
     teacher_payment_year = None
 
