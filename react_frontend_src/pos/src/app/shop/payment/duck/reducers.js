@@ -1,23 +1,11 @@
 import T from './types'
 
-export const shopProductsReducer = (state = {}, action={ type: null }) => {
+export const shopPaymentReducer = (state = {}, action={ type: null }) => {
     switch (action.type) {
-        case T.SET_PRODUCTS_LOADING:
+        case T.SET_SELECTED_PAYMENT_METHOD:
             return {
                 ...state,
-                loading: action.loading,
-            }
-        case T.REQUEST_PRODUCTS:
-            return {
-                loading: true,
-                loaded: false,
-                data: {}
-            }
-        case T.RECEIVE_PRODUCTS:
-            return {
-                loading: false,
-                loaded: true,
-                data: action.data.data,
+                selectedID: action.data
             }
         default:
             return {

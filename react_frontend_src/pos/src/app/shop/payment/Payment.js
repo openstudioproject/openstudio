@@ -33,6 +33,7 @@ class Payment extends Component {
 
     onClickPaymentMethod(id) {
         console.log(id)
+        this.props.setSelectedPaymentMethod(id)
     }
     
     render() {

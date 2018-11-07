@@ -74,6 +74,9 @@
             "selected_item": "",
             "total": 0
         },
+        "payment": {
+            "selectedID": ""
+        },
         "products": {
             "data": {},
             "loaded": false,
