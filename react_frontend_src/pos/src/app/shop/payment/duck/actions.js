@@ -1,13 +1,8 @@
 import T from './types'
 
 
-export const requestProducts = () =>
+export const setSelectedPaymentMethod = () =>
     ({
-        type: T.REQUEST_PRODUCTS
+        type: T.SET_SELECTED_PAYMENT_METHOD
     })
 
-export const receiveProducts = (data) =>
-    ({
-        type: T.RECEIVE_PRODUCTS,
-        data
-    })
