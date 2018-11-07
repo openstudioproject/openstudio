@@ -30,6 +30,10 @@ class Payment extends Component {
             this.props.intl.formatMessage({ id: 'app.pos.shop.payment.page_title' })
         )
     }
+
+    onClickPaymentMethod(id) {
+        console.log(id)
+    }
     
     render() {
         const history = this.props.history
@@ -50,7 +54,8 @@ class Payment extends Component {
                         <Box>
                             <BoxHeader title="Payment methods" />
                             <BoxBody>
-                                <PaymentMethods methods={this.props.app.payment_methods} />
+                                <PaymentMethods methods={this.props.app.payment_methods}
+                                                onClick={this.onClickPaymentMethod.bind(this)} />
                             </BoxBody>
                         </Box>
                     </div>

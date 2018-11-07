@@ -18,6 +18,7 @@ class PaymentMethods extends Component {
         return (
             payment_methods.map((method, i) =>
                 <button className="btn btn-default btn-lg btn-block btn-flat"
+                        onClick={() => this.props.onClick(method.id)}
                         key={v4()}>
                     {method['Name']}
                 </button>
