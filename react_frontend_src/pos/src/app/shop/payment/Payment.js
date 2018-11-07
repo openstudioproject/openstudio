@@ -11,6 +11,7 @@ import ButtonBack from "../../../components/ui/ButtonBack"
 
 import PaymentMethods from "./PaymentMethods"
 import PaymentTotal from "./PaymentTotal"
+import CustomerButton from "../components/CustomerButtonContainer"
 
 class Payment extends Component {
     constructor(props) {
@@ -66,10 +67,19 @@ class Payment extends Component {
                         <Box>
                             {/* <BoxHeader title="Enter payment" /> */}
                             <BoxBody>
-                                <PaymentTotal methods={this.props.app.payment_methods}
-                                              total={total}
-                                              selected_method={selected_method} />
-                                
+                                <div className="row">
+                                    <div className="col-md-12">
+                                        <PaymentTotal methods={this.props.app.payment_methods}
+                                                      total={total}
+                                                      selected_method={selected_method} />
+                                    </div>
+                                </div>
+
+                                <div className="row">
+                                    <div className="col-md-3">
+                                        <CustomerButton />
+                                    </div>
+                                </div>
                             </BoxBody>
                         </Box>
                     </div>
