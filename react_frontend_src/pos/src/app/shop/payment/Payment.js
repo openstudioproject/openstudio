@@ -39,6 +39,7 @@ class Payment extends Component {
     render() {
         const history = this.props.history
         const total = this.props.total
+        const selected_method = this.props.selected_method
 
         return (
             <PageTemplate app_state={this.props.app}>
@@ -56,6 +57,7 @@ class Payment extends Component {
                             <BoxHeader title="Payment methods" />
                             <BoxBody>
                                 <PaymentMethods methods={this.props.app.payment_methods}
+                                                selected_method={selected_method}
                                                 onClick={this.onClickPaymentMethod.bind(this)} />
                             </BoxBody>
                         </Box>
