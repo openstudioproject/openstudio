@@ -2093,21 +2093,24 @@ def classes_reservations():
     delete_permission = auth.has_membership(group_id='Admins') or \
                         auth.has_permission('delete', 'classes_reservation')
 
-    grid = SQLFORM.grid(query,
-                        fields=fields,
-                        headers=headers,
-                        links=links,
-                        details=False,
-                        searchable=False,
-                        deletable=delete_permission,
-                        csv=False,
-                        create=False,
-                        editable=False,
-                        maxtextlengths=maxtextlengths,
-                        left=left,
-                        orderby=~db.classes_reservation.Startdate,
-                        field_id=db.classes_reservation.id,
-                        ui = grid_ui)
+    grid = SQLFORM.grid(
+        query,
+        fields=fields,
+        headers=headers,
+        links=links,
+        details=False,
+        searchable=False,
+        deletable=delete_permission,
+        ondelete=classes_reservations_ondelete,
+        csv=False,
+        create=False,
+        editable=False,
+        maxtextlengths=maxtextlengths,
+        left=left,
+        orderby=~db.classes_reservation.Startdate,
+        field_id=db.classes_reservation.id,
+        ui = grid_ui
+    )
     grid.element('.web2py_counter', replace=None) # remove the counter
     grid.elements('span[title=Delete]', replace=None) # remove text from delete button
 
@@ -2122,6 +2125,20 @@ def classes_reservations():
                 add=add,
                 menu=menu,
                 left_sidebar_enabled=True)
+
+
+def classes_reservations_ondelete(table, id):
+    """
+    :param table: db table
+    :param id: classes_reservation record
+    :return: none
+    """
+    from openstudio.os_classes_reservation import ClassesReservation
+    ##
+    # Remove booked classes after date
+    ##
+    reservation = ClassesReservation(id)
+    bookings_removed = reservation.remove_attendance_booked_classes(TODAY_LOCAL)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \

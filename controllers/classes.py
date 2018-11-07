@@ -2002,10 +2002,8 @@ def reservations():
     else:
         session.classes_reservations_filter = 'this'
 
-    buttons = [ [ 'this', T('This class') ],
-                [ 'recurring', T('History') ]]
-                # [ 'single', T('Drop in') ],
-                # [ 'trial', T('Trial') ] ]
+    buttons = [ [ 'this', T('Current') ],
+                [ 'recurring', T('Archive') ]]
     filter_form = os_gui.get_radio_buttons_form(
         session.classes_reservations_filter,
         buttons)
@@ -2796,12 +2794,27 @@ def reservation_remove():
     """
         Remove reservation
     """
+    from openstudio.os_classes_reservation import ClassesReservation
+
     crID  = request.vars['crID']
     clsID = request.vars['clsID']
     date_formatted  = request.vars['date']
 
+    ##
+    # Remove booked classes after date
+    ##
+    reservation = ClassesReservation(crID)
+    bookings_removed = reservation.remove_attendance_booked_classes(TODAY_LOCAL)
+
+    ##
+    # Delete reservation
+    ##
     query = (db.classes_reservation.id == crID)
     db(query).delete()
+
+    session.flash = T("Removed reservation and {classes} booking(s) for classes".format(
+        classes=bookings_removed
+    ))
 
     redirect(reservation_get_return_url(clsID, date_formatted))
 
@@ -2963,7 +2976,10 @@ def reservation_edit():
 
     crud.messages.submit_button = T("Save")
     crud.messages.record_updated = T("Saved reservation")
-    crud.settings.update_onaccept = [cache_clear_classschedule]
+    crud.settings.update_onaccept = [
+        cache_clear_classschedule,
+        reservation_edit_remove_booked_classes
+    ]
     crud.settings.update_next = return_url
     crud.settings.update_deletable = False
     crud.settings.formstyle='bootstrap3_stacked'
@@ -2981,6 +2997,19 @@ def reservation_edit():
     back = os_gui.get_button("back", return_url)
 
     return dict(content=form, back=back, save=submit)
+
+
+def reservation_edit_remove_booked_classes(form):
+    """
+    Delete booked classes after enddate is set
+    :param form: crud form of db.classes_reservation
+    :return:
+    """
+    if form.vars.Enddate:
+        from openstudio.os_classes_reservation import ClassesReservation
+
+        reservation = ClassesReservation(form.vars.id)
+        bookings_removed = reservation.remove_attendance_booked_classes(TODAY_LOCAL)
 
 
 def reservation_get_cancelled(crID, date):
@@ -3091,7 +3120,7 @@ def attendance_remove():
     date_formatted = clatt.ClassDate.strftime(DATE_FORMAT)
 
     ##
-    # Change invoice status to cancelled
+    # Change invoice status to cancelled (if any)
     ##
     query = (db.invoices_classes_attendance.classes_attendance_id == clattID)
     rows = db(query).select(db.invoices_classes_attendance.ALL)

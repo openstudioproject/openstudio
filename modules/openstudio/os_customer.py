@@ -533,10 +533,12 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
                       (db.invoices.EmployeeClaim == True))
 
         if debit_only:
-            query &= ((db.invoices.TeacherPayment == False) &
-                      (db.invoices.EmployeeClaim == False))
-
-
+            query &= (
+                ((db.invoices.TeacherPayment == False) |
+                 (db.invoices.TeacherPayment == None)) &
+                ((db.invoices.EmployeeClaim == False) |
+                 (db.invoices.EmployeeClaim == None))
+            )
 
         rows = db(query).select(db.invoices.ALL,
                                 db.invoices_amounts.ALL,

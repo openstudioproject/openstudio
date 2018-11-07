@@ -201,12 +201,15 @@ class OsSchedulerTasks:
         from os_customers_subscriptions_credits import CustomersSubscriptionsCredits
 
         T = current.T
+        db = current.db
 
         year = int(year)
         month = int(month)
 
         csch = CustomersSubscriptionsCredits()
         added = csch.add_credits(year, month)
+
+        db.commit()
 
         return T("Subscriptions for which credits were added") + ': ' + unicode(added)
 

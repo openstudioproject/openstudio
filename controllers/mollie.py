@@ -42,18 +42,14 @@ def webhook():
             # Invoice payment instead of order payment
             iID = payment['metadata']['invoice_id']
 
-        if payment.isRefunded():
-            #
-            # The payment has been refunded
-            #
-            return 'Refunded'
-        elif payment.isPaid():
+
+        if payment.is_paid():
             #
             # At this point you'd probably want to start the process of delivering the
             # product to the customer.
             #
-            payment_amount = float(payment['amount'])
-            payment_date = datetime.datetime.strptime(payment[u'paidDatetime'].split('.')[0],
+            payment_amount = float(payment.amount['value'])
+            payment_date = datetime.datetime.strptime(payment.paid_at.split('+')[0],
                                                       '%Y-%m-%dT%H:%M:%S').date()
 
             if coID == 'invoice':
@@ -64,12 +60,12 @@ def webhook():
                 webhook_order_paid(coID, payment_amount, payment_date, payment_id)
 
             return 'Paid'
-        elif payment.isPending():
+        elif payment.is_pending():
             #
             # The payment has started but is not complete yet.
             #
             return 'Pending'
-        elif payment.isOpen():
+        elif payment.is_open():
             #
             # The payment has not started yet. Wait for it.
             #
@@ -80,7 +76,7 @@ def webhook():
             #
             return 'Cancelled'
     except MollieError as e:
-        return 'API call failed: ' + e.message
+        return 'API call failed: {error}'.format(error=e)
 
 
 def test_webhook_order_paid():
