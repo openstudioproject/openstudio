@@ -900,7 +900,6 @@ def test_order_cancel(client, web2py):
     assert order.Status == 'cancelled'
 
 
-
 def test_invoices(client, web2py):
     """
         Is the list of invoices showing?
