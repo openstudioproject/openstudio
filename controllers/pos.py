@@ -642,7 +642,9 @@ def get_payment_methods():
     """
     set_headers()
 
-    query = (db.payment_methods.Archived == False)
+    not_pos_methods = [2, 3, 100]
+    query = (db.payment_methods.Archived == False) & \
+            ~(db.payment_methods.id.belongs(not_pos_methods))
 
     rows = db(query).select(
         db.payment_methods.ALL,
