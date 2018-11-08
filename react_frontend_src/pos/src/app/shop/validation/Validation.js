@@ -9,6 +9,7 @@ import BoxBody from "../../../components/ui/BoxBody"
 import BoxHeader from "../../../components/ui/BoxHeader"
 
 import ButtonNextOrder from "./ButtonNextOrder"
+import ValidationList from "./ValidationList"
 
 
 class Validation extends Component {
@@ -41,6 +42,7 @@ class Validation extends Component {
     
     render() {
         const history = this.props.history
+        const items = this.props.items
         const total = this.props.total
         const selected_method = this.props.selected_method
 
@@ -64,6 +66,9 @@ class Validation extends Component {
                             {/* <BoxHeader title="Payment methods" /> */}
                             <BoxBody>
                                 Receipt example content
+                                <ValidationList items={items}
+                                                total={total}
+                                                selected_method={selected_method} />
                             </BoxBody>
                         </Box>
                     </div>
