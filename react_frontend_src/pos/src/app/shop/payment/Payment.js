@@ -40,6 +40,7 @@ class Payment extends Component {
 
     onClickValidate() {
         console.log('validate clicked')
+        this.props.history.push('/shop/validation')
     }
     
     render() {

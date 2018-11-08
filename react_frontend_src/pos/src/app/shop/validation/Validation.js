@@ -28,7 +28,7 @@ class Validation extends Component {
 
     componentWillMount() {
         this.props.setPageTitle(
-            this.props.intl.formatMessage({ id: 'app.pos.shop.payment.page_title' })
+            this.props.intl.formatMessage({ id: 'app.pos.shop.validation.page_title' })
         )
     }
 

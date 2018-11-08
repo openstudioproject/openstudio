@@ -40,4 +40,4 @@ class ButtonNextOrder extends Component {
     }
 }
 
-export default ButtonNextOrdere
+export default ButtonNextOrder
