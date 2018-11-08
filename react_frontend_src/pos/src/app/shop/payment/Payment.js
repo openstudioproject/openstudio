@@ -52,6 +52,7 @@ class Payment extends Component {
                 <div className="row">
                     <div className="col-md-12">
                         <ButtonValidate selectedID={selected_method}
+                                        total={total}
                                         onClick={this.onClickValidate.bind(this)} />
                         <ButtonBack onClick={() => history.push('/shop/products')}>
                             Cancel

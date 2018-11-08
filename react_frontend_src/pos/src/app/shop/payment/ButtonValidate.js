@@ -12,7 +12,8 @@ class ButtonValidate extends Component {
 
     PropTypes = {
         intl: intlShape.isRequired,
-        selectedID: PropTypes.int
+        selectedID: PropTypes.int,
+        total: PropTypes.int
         // setPageTitle: PropTypes.function,
         // app: PropTypes.object,
         // total: PropTypes.int,
@@ -21,11 +22,16 @@ class ButtonValidate extends Component {
     
     render() {
         const selectedID = this.props.selectedID
-        const btnClass = (selectedID) ? "btn-success": "btn-default"
+        const total = this.props.total
+        const btnClass = (selectedID) && (total > 0) ? "btn-success": "btn-default"
+
+        console.log(!(selectedID))
+        console.log(total > 0)
+        console.log(!(selectedID) && total > 0)
 
         return (
             <button className={ "pull-right btn " + btnClass }
-                    disabled={!(selectedID)}
+                    disabled={ (!(selectedID) || (total <= 0)) }
                     onClick={this.props.onClick}>
                 Validate { " " }
                 <i className="fa fa-angle-double-right"></i>
