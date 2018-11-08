@@ -21,12 +21,12 @@ class ButtonValidate extends Component {
     
     render() {
         const selectedID = this.props.selectedID
-
         const btnClass = (selectedID) ? "btn-success": "btn-default"
 
         return (
             <button className={ "pull-right btn " + btnClass }
-                    disabled={!(selectedID)}>
+                    disabled={!(selectedID)}
+                    onClick={this.props.onClick}>
                 Validate { " " }
                 <i className="fa fa-angle-double-right"></i>
             </button>

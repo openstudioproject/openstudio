@@ -37,6 +37,10 @@ class Payment extends Component {
         console.log(id)
         this.props.setSelectedPaymentMethod(id)
     }
+
+    onClickValidate() {
+        console.log('validate clicked')
+    }
     
     render() {
         const history = this.props.history
@@ -47,7 +51,8 @@ class Payment extends Component {
             <PageTemplate app_state={this.props.app}>
                 <div className="row">
                     <div className="col-md-12">
-                        <ButtonValidate selectedID={selected_method} />
+                        <ButtonValidate selectedID={selected_method}
+                                        onClick={this.onClickValidate.bind(this)} />
                         <ButtonBack onClick={() => history.push('/shop/products')}>
                             Cancel
                         </ButtonBack>
