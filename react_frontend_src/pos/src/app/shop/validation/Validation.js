@@ -35,6 +35,7 @@ class Validation extends Component {
 
     onClickNextOrder() {
         console.log('next order clicked')
+        this.props.history.push('/shop/products')
 
     }
     
@@ -48,7 +49,7 @@ class Validation extends Component {
                 <div className="row">
                     <div className="col-md-12">
 
-                        hello world!
+                        <ButtonNextOrder onClick={this.onClickNextOrder.bind(this)} />
                         {/* <ButtonValidate selectedID={selected_method}
                                         total={total}
                                         onClick={this.onClickValidate.bind(this)} />
@@ -58,7 +59,7 @@ class Validation extends Component {
                     </div>
                 </div>
                 <div className="row">
-                    <div className="col-md-4 col-offset-md-4">
+                    <div className="col-md-4 col-md-offset-4">
                         <Box>
                             {/* <BoxHeader title="Payment methods" /> */}
                             <BoxBody>

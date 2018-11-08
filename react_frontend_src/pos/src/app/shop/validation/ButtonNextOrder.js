@@ -21,19 +21,11 @@ class ButtonNextOrder extends Component {
 
     
     render() {
-        const selectedID = this.props.selectedID
-        const total = this.props.total
-        const btnClass = (selectedID) && (total > 0) ? "btn-success": "btn-default"
-
-        console.log(!(selectedID))
-        console.log(total > 0)
-        console.log(!(selectedID) && total > 0)
 
         return (
-            <button className={ "pull-right btn " + btnClass }
-                    disabled={ (!(selectedID) || (total <= 0)) }
+            <button className={ "pull-right btn btn-success" }
                     onClick={this.props.onClick}>
-                Validate { " " }
+                Next Order { " " }
                 <i className="fa fa-angle-double-right"></i>
             </button>
         )
