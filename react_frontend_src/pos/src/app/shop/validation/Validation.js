@@ -50,22 +50,14 @@ class Validation extends Component {
             <PageTemplate app_state={this.props.app}>
                 <div className="row">
                     <div className="col-md-12">
-
                         <ButtonNextOrder onClick={this.onClickNextOrder.bind(this)} />
-                        {/* <ButtonValidate selectedID={selected_method}
-                                        total={total}
-                                        onClick={this.onClickValidate.bind(this)} />
-                        <ButtonBack onClick={() => history.push('/shop/products')}>
-                            Cancel
-                        </ButtonBack> */}
                     </div>
                 </div>
                 <div className="row">
                     <div className="col-md-4 col-md-offset-4">
                         <Box>
-                            {/* <BoxHeader title="Payment methods" /> */}
                             <BoxBody>
-                                Receipt example content
+                                
                                 <ValidationList items={items}
                                                 total={total}
                                                 selected_method={selected_method} />
