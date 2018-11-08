@@ -7,14 +7,11 @@ import PageTemplate from "../../../components/PageTemplate"
 import Box from "../../../components/ui/Box"
 import BoxBody from "../../../components/ui/BoxBody"
 import BoxHeader from "../../../components/ui/BoxHeader"
-import ButtonBack from "../../../components/ui/ButtonBack"
 
-import PaymentMethods from "./PaymentMethods"
-import PaymentTotal from "./PaymentTotal"
-import CustomerButton from "../components/CustomerButtonContainer"
-import ButtonValidate from "./ButtonValidate"
+import ButtonNextOrder from "./ButtonNextOrder"
 
-class Payment extends Component {
+
+class Validation extends Component {
     constructor(props) {
         super(props)
         console.log(props)
@@ -24,7 +21,9 @@ class Payment extends Component {
         intl: intlShape.isRequired,
         setPageTitle: PropTypes.function,
         app: PropTypes.object,
+        items: PropTypes.array,
         total: PropTypes.int,
+        selected_method: PropTypes.int,
     }
 
     componentWillMount() {
@@ -33,13 +32,10 @@ class Payment extends Component {
         )
     }
 
-    onClickPaymentMethod(id) {
-        console.log(id)
-        this.props.setSelectedPaymentMethod(id)
-    }
 
-    onClickValidate() {
-        console.log('validate clicked')
+    onClickNextOrder() {
+        console.log('next order clicked')
+
     }
     
     render() {
@@ -51,42 +47,22 @@ class Payment extends Component {
             <PageTemplate app_state={this.props.app}>
                 <div className="row">
                     <div className="col-md-12">
-                        <ButtonValidate selectedID={selected_method}
+
+                        hello world!
+                        {/* <ButtonValidate selectedID={selected_method}
                                         total={total}
                                         onClick={this.onClickValidate.bind(this)} />
                         <ButtonBack onClick={() => history.push('/shop/products')}>
                             Cancel
-                        </ButtonBack>
+                        </ButtonBack> */}
                     </div>
                 </div>
                 <div className="row">
-                    <div className="col-md-4">
+                    <div className="col-md-4 col-offset-md-4">
                         <Box>
                             {/* <BoxHeader title="Payment methods" /> */}
                             <BoxBody>
-                                <PaymentMethods methods={this.props.app.payment_methods}
-                                                selected_method={selected_method}
-                                                onClick={this.onClickPaymentMethod.bind(this)} />
-                            </BoxBody>
-                        </Box>
-                    </div>
-                    <div className="col-md-8">
-                        <Box>
-                            {/* <BoxHeader title="Enter payment" /> */}
-                            <BoxBody>
-                                <div className="row">
-                                    <div className="col-md-12">
-                                        <PaymentTotal methods={this.props.app.payment_methods}
-                                                      total={total}
-                                                      selected_method={selected_method} />
-                                    </div>
-                                </div>
-
-                                <div className="row">
-                                    <div className="col-md-3">
-                                        <CustomerButton />
-                                    </div>
-                                </div>
+                                Receipt example content
                             </BoxBody>
                         </Box>
                     </div>
@@ -96,4 +72,4 @@ class Payment extends Component {
     }
 }
 
-export default Payment
+export default Validation

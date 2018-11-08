@@ -4,7 +4,7 @@ import PropTypes from "prop-types"
 import { v4 } from "uuid"
 
 
-class ButtonValidate extends Component {
+class ButtonNextOrder extends Component {
     constructor(props) {
         super(props)
         console.log(props)
@@ -40,4 +40,4 @@ class ButtonValidate extends Component {
     }
 }
 
-export default ButtonValidate
+export default ButtonNextOrdere
