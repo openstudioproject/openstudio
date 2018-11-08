@@ -3,13 +3,7 @@ import { intlShape } from "react-intl"
 import PropTypes from "prop-types"
 import { v4 } from "uuid"
 
-
-import Box from "../../../components/ui/Box"
-import BoxBody from "../../../components/ui/BoxBody"
-
-import ButtonNextOrder from "./ButtonNextOrder"
 import Currency from "../../../components/ui/Currency"
-
 import PaymentMethodName from "../components/PaymentMethodNameContainer"
 
 
