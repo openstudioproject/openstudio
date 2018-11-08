@@ -10,6 +10,8 @@ import BoxBody from "../../../components/ui/BoxBody"
 import ButtonNextOrder from "./ButtonNextOrder"
 import Currency from "../../../components/ui/Currency"
 
+import PaymentMethodName from "../components/PaymentMethodNameContainer"
+
 
 class ValidationList extends Component {
     constructor(props) {
@@ -33,6 +35,7 @@ class ValidationList extends Component {
 
         return (
             <div>
+                Payment Method: <PaymentMethodName />
                 Total: <Currency amount={total} />
             </div>
         )
