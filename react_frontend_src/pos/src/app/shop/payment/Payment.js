@@ -12,6 +12,7 @@ import ButtonBack from "../../../components/ui/ButtonBack"
 import PaymentMethods from "./PaymentMethods"
 import PaymentTotal from "./PaymentTotal"
 import CustomerButton from "../components/CustomerButtonContainer"
+import ButtonValidate from "./ButtonValidate"
 
 class Payment extends Component {
     constructor(props) {
@@ -46,10 +47,10 @@ class Payment extends Component {
             <PageTemplate app_state={this.props.app}>
                 <div className="row">
                     <div className="col-md-12">
+                        <ButtonValidate selectedID={selected_method} />
                         <ButtonBack onClick={() => history.push('/shop/products')}>
                             Cancel
                         </ButtonBack>
-                        Validate
                     </div>
                 </div>
                 <div className="row">
