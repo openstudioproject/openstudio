@@ -679,3 +679,21 @@ def process_cart():
     # If no customerID; just make receipt and update stock
 
     # if customerID; Make order, deliver order, add payment to invoice created by deliver order
+
+    cuID = request.vars['customerID']
+    print 'customerID'
+    print type(cuID)
+    print cuID
+
+    # IF customerID; add order; deliver
+
+    # If not customerID; add receipt & payment to receipt (Perhaps receipts can just state payments)
+
+
+    items = request.vars['items']
+    print items
+    #TODO: process items
+
+    # Use to add payment to receipt or invoice
+    pmID = request.vars['payment_methodID']
+    print pmID
