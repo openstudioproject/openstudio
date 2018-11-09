@@ -7,3 +7,9 @@ export const setSelectedPaymentMethod = (data) =>
         data
     })
 
+
+export const clearSelectedPaymentMethod = () =>
+    ({
+        type: T.CLEAR_SELECTED_PAYMENT_METHOD,
+    })
+

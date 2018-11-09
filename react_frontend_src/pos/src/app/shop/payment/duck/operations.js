@@ -1,5 +1,6 @@
 import {
     setSelectedPaymentMethod,
+    clearSelectedPaymentMethod
 } from './actions'
 
 
@@ -10,5 +11,6 @@ import {
 
 
 export default {
-    setSelectedPaymentMethod
+    setSelectedPaymentMethod,
+    clearSelectedPaymentMethod
 }

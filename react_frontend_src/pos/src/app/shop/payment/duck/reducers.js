@@ -7,6 +7,11 @@ export const shopPaymentReducer = (state = {}, action={ type: null }) => {
                 ...state,
                 selectedID: action.data
             }
+        case T.CLEAR_SELECTED_PAYMENT_METHOD:
+            return {
+                ...state,
+                selectedID: ""
+            }
         default:
             return {
                 ...state

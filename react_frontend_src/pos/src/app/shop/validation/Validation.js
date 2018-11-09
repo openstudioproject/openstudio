@@ -36,6 +36,7 @@ class Validation extends Component {
 
     onClickNextOrder() {
         console.log('next order clicked')
+        this.props.clearSelectedPaymentMethod()
         this.props.history.push('/shop/products')
 
     }

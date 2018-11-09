@@ -4,6 +4,7 @@ import { withRouter } from 'react-router'
 
 import { appOperations } from '../../duck'
 // import { shopPaymentOperations } from "./duck"
+import { shopPaymentOperations } from "../payment/duck"
 import Validation from "./Validation"
 
 
@@ -20,6 +21,9 @@ const mapDispatchToProps = dispatch =>
         setPageTitle(title) {
             dispatch(appOperations.setPageTitle(title))
         },
+        clearSelectedPaymentMethod() {
+            dispatch(shopPaymentOperations.clearSelectedPaymentMethod())
+        }
     })
 
 const ValidationContainer = withRouter(injectIntl(connect(
