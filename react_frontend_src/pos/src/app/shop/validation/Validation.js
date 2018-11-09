@@ -26,7 +26,8 @@ class Validation extends Component {
         total: PropTypes.int,
         selected_method: PropTypes.int,
         clearSelectedPaymentMethod: PropTypes.function,
-        clearCartItems: PropTypes.function
+        clearCartItems: PropTypes.function,
+        clearSelectedCustomer: PropTypes.function
     }
 
     componentWillMount() {
@@ -40,6 +41,7 @@ class Validation extends Component {
         console.log('next order clicked')
         this.props.clearSelectedPaymentMethod()
         this.props.clearCartItems()
+        this.props.clearSelectedCustomer()
         this.props.history.push('/shop/products')
 
     }

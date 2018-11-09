@@ -6,6 +6,7 @@ import { appOperations } from '../../duck'
 // import { shopPaymentOperations } from "./duck"
 import { shopPaymentOperations } from "../payment/duck"
 import { shopCartOperations } from '../cart/duck'
+import { customersListOperations } from '../../customers/list/duck'
 import Validation from "./Validation"
 
 
@@ -27,6 +28,9 @@ const mapDispatchToProps = dispatch =>
         },
         clearCartItems() {
             dispatch(shopCartOperations.clearItems())
+        },
+        clearSelectedCustomer() {
+            dispatch(customersListOperations.clearSelectedCustomerID())
         }
     })
 
