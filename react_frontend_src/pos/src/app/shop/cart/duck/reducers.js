@@ -77,6 +77,13 @@ export const shopCartReducer = (state = {}, action={ type: null }) => {
                 ...state,
                 selected_item: action.data
             }
+        case T.CLEAR_ITEMS:
+            return {
+                ...state,
+                selected_item: "",
+                items: [],
+                total: 0
+            }
         default:
             return {
                 ...state

@@ -652,3 +652,18 @@ def get_payment_methods():
     )
 
     return dict(data=rows.as_list())
+
+
+#TODO make read PoS permission
+@auth.requires(auth.has_membership(group_id='Admins'))
+               # auth.has_permission('read', 'shop_products'))
+def process_cart():
+    """
+    Process shopping cart
+    :return:
+    """
+    print request.vars
+
+    # If no customerID; just make receipt and update stock
+
+    # if customerID; Make order, deliver order, add payment to invoice created by deliver order
