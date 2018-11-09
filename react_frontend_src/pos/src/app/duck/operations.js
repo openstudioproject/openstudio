@@ -130,11 +130,21 @@ const submitCart = (state) => {
     // const date = new Date()
     // const iso_date = toISODate(date)
     console.log(state)
-    const params = new URLSearchParams()
+    // const params = new URLSearchParams()
+
+    // params.append('customerID', state.customers.list.selectedID)
+    // params.append('items', state.shop.cart.items)
+
     // params.append('clsID', clsID)
     // params.append('date', iso_date)
     // console.log(params)
-    axios_os.post(OS_API.APP_SUBMIT_CART, params)
+    let payload = {
+      payment_methodID: state.shop.payment.selectedID,
+      customerID: state.customers.list.selectedID,
+      items: state.shop.cart.items
+    }
+
+    axios_os.post(OS_API.APP_SUBMIT_CART, payload)
     .then(function (response) {
       // handle success
       dispatch(receiveSubmitCart(response.data))
