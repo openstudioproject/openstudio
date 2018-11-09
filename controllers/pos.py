@@ -662,6 +662,8 @@ def process_cart():
     Process shopping cart
     :return:
     """
+    set_headers()
+
     print request.vars
 
     # If no customerID; just make receipt and update stock

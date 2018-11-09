@@ -1,6 +1,8 @@
 import {
     requestPaymentMethods,
     receivePaymentMethods,
+    requestSubmitCart,
+    receiveSubmitCart,
     requestUser as request_user,
     receiveUser as receive_user,
     requestSettings as request_settings,
@@ -120,10 +122,40 @@ const fetchSettings = () => {
     }
 }
 
+
+const submitCart = (state) => {
+  return dispatch => {
+    dispatch(requestSubmitCart())
+
+    // const date = new Date()
+    // const iso_date = toISODate(date)
+    console.log(state)
+    const params = new URLSearchParams()
+    // params.append('clsID', clsID)
+    // params.append('date', iso_date)
+    // console.log(params)
+    axios_os.post(OS_API.APP_SUBMIT_CART, params)
+    .then(function (response) {
+      // handle success
+      dispatch(receiveSubmitCart(response.data))
+      // dispatch(setLoadingProgress(100))
+    })
+    .catch(function (error) {
+      // handle error
+      console.log(error)
+    })
+    .then(function () {
+      // always executed
+    });
+  } 
+}
+
+
 export default {
     fetchPaymentMethods,
     fetchUser,
     fetchSettings,
+    submitCart,
     setError,
     setErrorData,
     setErrorMessage,

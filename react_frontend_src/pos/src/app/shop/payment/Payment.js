@@ -24,6 +24,7 @@ class Payment extends Component {
         intl: intlShape.isRequired,
         setPageTitle: PropTypes.function,
         app: PropTypes.object,
+        state: PropTypes.object,
         total: PropTypes.int,
     }
 
@@ -40,6 +41,7 @@ class Payment extends Component {
 
     onClickValidate() {
         console.log('validate clicked')
+        this.props.submitCart(this.props.state)
         this.props.history.push('/shop/validation')
     }
     
