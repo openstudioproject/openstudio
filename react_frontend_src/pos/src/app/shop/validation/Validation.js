@@ -47,6 +47,9 @@ class Validation extends Component {
     }
     
     render() {
+        const app = this.props.app
+        console.log('app')
+        console.log(app)
         const history = this.props.history
         const items = this.props.items
         const total = this.props.total
@@ -64,9 +67,11 @@ class Validation extends Component {
                         <Box>
                             <BoxBody>
                                 
-                                <ValidationList items={items}
-                                                total={total}
-                                                selected_method={selected_method} />
+                                <ValidationList 
+                                    app={app}
+                                    items={items}
+                                    total={total}
+                                    selected_method={selected_method} />
                             </BoxBody>
                         </Box>
                     </div>

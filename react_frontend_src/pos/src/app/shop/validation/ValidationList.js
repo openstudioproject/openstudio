@@ -5,6 +5,7 @@ import { v4 } from "uuid"
 
 import Currency from "../../../components/ui/Currency"
 import PaymentMethodName from "../components/PaymentMethodNameContainer"
+import ValidationListItems from "./ValidationListItems"
 
 
 class ValidationList extends Component {
@@ -21,16 +22,23 @@ class ValidationList extends Component {
         total: PropTypes.int,
         selected_method: PropTypes.int,
     }
-    
+
     render() {
+        const app = this.props.app
         const items = this.props.items
         const total = this.props.total
         const selected_method = this.props.selected_method
 
+        const d = new Date()
+
         return (
             <div>
-                Payment Method: <PaymentMethodName />
+                <ValidationListItems items={items} />
+                Date: {d.getDay() + "-" + d.getMonth() + "-" + d.getFullYear()}<br />
+                Cashier: {app.user.profile.id} <br />
+                Payment Method: <PaymentMethodName /> <br />
                 Total: <Currency amount={total} />
+
             </div>
         )
     }
