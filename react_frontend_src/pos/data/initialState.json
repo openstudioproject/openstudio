@@ -10,7 +10,8 @@
         "current_page_title": "Welcome",
         "payment_methods": {},
         "settings": {},
-        "user": {}
+        "user": {},
+        "submitting_cart": false
     },
     "checkin_attendance": {
         "loading": false,

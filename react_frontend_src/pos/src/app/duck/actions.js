@@ -88,3 +88,15 @@ export const setPageTitle = (title) =>
         title
     })
 
+
+export const requestSubmitCart = () =>
+    ({
+        type: T.REQUEST_SUBMIT_CART
+    })
+
+
+export const receiveSubmitCart = () =>
+    ({
+        type: T.RECEIVE_SUBMIT_CART
+    })
+    
