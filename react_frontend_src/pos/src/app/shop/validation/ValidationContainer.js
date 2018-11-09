@@ -5,6 +5,7 @@ import { withRouter } from 'react-router'
 import { appOperations } from '../../duck'
 // import { shopPaymentOperations } from "./duck"
 import { shopPaymentOperations } from "../payment/duck"
+import { shopCartOperations } from '../cart/duck'
 import Validation from "./Validation"
 
 
@@ -23,6 +24,9 @@ const mapDispatchToProps = dispatch =>
         },
         clearSelectedPaymentMethod() {
             dispatch(shopPaymentOperations.clearSelectedPaymentMethod())
+        },
+        clearCartItems() {
+            dispatch(shopCartOperations.clearItems())
         }
     })
 
