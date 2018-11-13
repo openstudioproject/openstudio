@@ -697,12 +697,17 @@ def validate_cart():
 
     # IF customerID; add order; deliver
 
+
+
     # If not customerID; add receipt & payment to receipt (Perhaps receipts can just state payments)
 
 
     items = request.vars['items']
     print items
     #TODO: process items
+
+    ## IMPORTANT: Get Item price & VAT info from server DB, not from Stuff submitted by Javascript.
+    # JS can be manipulated.
 
     # Use to add payment to receipt or invoice
     pmID = request.vars['payment_methodID']
