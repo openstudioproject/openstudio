@@ -22,9 +22,6 @@ const mapDispatchToProps = dispatch =>
         },
         setSelectedPaymentMethod(id) {
             dispatch(shopPaymentOperations.setSelectedPaymentMethod(id))
-        },
-        validateCart(state) {
-            dispatch(appOperations.validateCart(state))
         }
     })
 

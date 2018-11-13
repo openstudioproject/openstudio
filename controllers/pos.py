@@ -697,3 +697,8 @@ def validate():
     # Use to add payment to receipt or invoice
     pmID = request.vars['payment_methodID']
     print pmID
+    
+
+    return dict(
+        url="link to print receipt page"
+    )

@@ -44,12 +44,12 @@ export const appReducer = (state = {}, action={ type: null }) => {
                 loading_progress: s_progress,
                 settings: action.data
             }
-        case T.REQUEST_SUBMIT_CART:
+        case T.REQUEST_VALIDATE_CART:
             return {
                 ...state,
                 submitting_cart: true
             }
-        case T.RECEIVE_SUBMIT_CART:
+        case T.RECEIVE_VALIDATE_CART:
             return {
                 ...state,
                 submitting_cart: false
