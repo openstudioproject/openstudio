@@ -31,9 +31,11 @@ const mapDispatchToProps = dispatch =>
         },
         clearSelectedCustomer() {
             dispatch(customersListOperations.clearSelectedCustomerID())
+        },
+        validateCart(state) {
+            dispatch(appOperations.validateCart(state))
         }
     })
-
 const ValidationContainer = withRouter(injectIntl(connect(
     mapStateToProps,
     mapDispatchToProps

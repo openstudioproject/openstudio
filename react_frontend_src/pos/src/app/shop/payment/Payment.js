@@ -24,7 +24,6 @@ class Payment extends Component {
         intl: intlShape.isRequired,
         setPageTitle: PropTypes.function,
         app: PropTypes.object,
-        state: PropTypes.object,
         total: PropTypes.int,
     }
 
