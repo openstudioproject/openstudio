@@ -1,6 +1,17 @@
 import T from './types'
 
 
+export const requestPaymentMethods = () =>
+    ({
+        type: T.REQUEST_PAYMENT_METHODS
+    })
+
+export const receivePaymentMethods = (data) =>
+    ({
+        type: T.RECEIVE_PAYMENT_METHODS,
+        data
+    })
+
 export const requestUser = () =>
     ({
         type: T.REQUEST_USER
@@ -77,3 +88,15 @@ export const setPageTitle = (title) =>
         title
     })
 
+
+export const requestSubmitCart = () =>
+    ({
+        type: T.REQUEST_SUBMIT_CART
+    })
+
+
+export const receiveSubmitCart = () =>
+    ({
+        type: T.RECEIVE_SUBMIT_CART
+    })
+    

@@ -19,3 +19,9 @@ export const setSelectedItem = (data) =>
         type: T.SET_SELECTED_ITEM,
         data
     })
+
+
+export const clearItems = () =>
+    ({
+        type: T.CLEAR_ITEMS,
+    })

@@ -8,8 +8,10 @@
         "loading_message": "Start loading...",
         "loading_progress": 0,
         "current_page_title": "Welcome",
+        "payment_methods": {},
         "settings": {},
-        "user": {}
+        "user": {},
+        "submitting_cart": false
     },
     "checkin_attendance": {
         "loading": false,
@@ -69,8 +71,12 @@
     },
     "shop": {
         "cart": {
+            "items": [],
             "selected_item": "",
-            "items": []
+            "total": 0
+        },
+        "payment": {
+            "selectedID": ""
         },
         "products": {
             "data": {},

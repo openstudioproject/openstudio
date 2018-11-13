@@ -1,14 +1,15 @@
 import React from "react"
 import { v4 } from "uuid"
 
-import CartToolsCustomer from "./CartToolsCustomerContainer"
+import CustomerButton from "../components/CustomerButtonContainer"
+import CartToolsPayment from "./CartToolsPaymentContainer"
 
 
 const CartTools = ({customers, deleteSelectedItem, cart_selected_item}) => 
     <div className="box box-solid">
         <div className="box-body">
             <div className="col-md-6">
-                <CartToolsCustomer customers={customers} />
+                <CustomerButton customers={customers} />
             </div>
             <div className="col-md-6">
                 {console.log('cart_selected_item')}
@@ -18,11 +19,9 @@ const CartTools = ({customers, deleteSelectedItem, cart_selected_item}) =>
                         onClick={ () => deleteSelectedItem() }>
                     Delete
                 </button>
-            </div>
+            </div> <br /> <br />
             <div className="col-md-12">
-                Payment button here
-
-                {/* Check for selected customer when one or more school products was selected.. otherwise disable. */}
+                <CartToolsPayment />
             </div>
         </div>
     </div>

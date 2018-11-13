@@ -13,10 +13,12 @@ import Attendance from './checkin/attendance/AttendanceContainer'
 import Book from './checkin/book/BookContainer'
 import Revenue from './checkin/revenue/RevenueContainer'
 import Home from './home/HomeContainer'
+import Payment from './shop/payment/PaymentContainer'
 import Products from './shop/products/ProductsContainer'
 import Classcards from './shop/school/classcards/ClasscardsContainer'
 import Memberships from './shop/school/memberships/MembershipsContainer'
 import Subscriptions from './shop/school/subscriptions/SubscriptionsContainer'
+import Validation from './shop/validation/ValidationContainer'
 import PermissionsError from './permissions_error/PermissionsErrorContainer'
 import Whoops404 from './whoops404/Whoops404'
 import LoadingScreen from '../components/ui/LoadingScreen'
@@ -30,6 +32,7 @@ class App extends Component {
   }
 
   componentWillMount() {
+    this.props.fetchPaymentMethods()
     this.props.fetchUser()    
     this.props.fetchSettings()  
     this.props.fetchCustomers()
@@ -54,6 +57,8 @@ class App extends Component {
             <Route path='/checkin/book/:clsID/:cuID' component={Book} />
             <Route path='/checkin/revenue/:clsID' component={Revenue} />
             <Route path='/customers' component={Customers} />
+            <Route path="/shop/payment" component={Payment} />
+            <Route path="/shop/validation" component={Validation} />
             <Route exact path='/shop/products' component={Products} />
             <Route path='/shop/school/classcards' component={Classcards} />
             <Route path='/shop/school/memberships' component={Memberships} />

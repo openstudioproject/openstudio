@@ -13,29 +13,28 @@ class CartListTotal extends Component {
 
     PropTypes = {
         intl: intlShape.isRequired,
-        items: PropTypes.array,
+        total: PropTypes.int,
     }
 
-    calculateTotal(items) {
-        let total = 0
-        items.map((item, i) => {
-            if (item.item_type == 'product') {
-                if (item.data.price) {
-                    total = total + (item.data.price * item.quantity)
-                }
-            } else {
-                if (item.data.Price) {
-                    total = total + (item.data.Price * item.quantity)
-                }
-            }
-        })
+    // calculateTotal(items) {
+    //     let total = 0
+    //     items.map((item, i) => {
+    //         if (item.item_type == 'product') {
+    //             if (item.data.price) {
+    //                 total = total + (item.data.price * item.quantity)
+    //             }
+    //         } else {
+    //             if (item.data.Price) {
+    //                 total = total + (item.data.Price * item.quantity)
+    //             }
+    //         }
+    //     })
 
-        return total
-    }
+    //     return total
+    // }
     
     render() {
-        const items = this.props.items
-        let total = this.calculateTotal(items)
+        const total = this.props.total
 
         return (
             <div className="pull-right">

@@ -16,8 +16,18 @@ def index():
 def set_headers(var=None):
     if request.env.HTTP_ORIGIN == 'http://dev.openstudioproject.com:8080':
         response.headers["Access-Control-Allow-Origin"] = request.env.HTTP_ORIGIN
-    response.headers["Access-Control-Allow-Credentials"] = "true"
-    # response.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept'
+    #
+    # response.headers["Access-Control-Allow-Credentials"] = "true"
+    # response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, PATCH, POST, DELETE, OPTIONS"
+    # response.headers["Access-Control-Allow-Headers"] = "*"
+    # response.headers["Access-Control-Allow-Origin"] = '*'
+    response.headers['Access-Control-Max-Age'] = 86400
+    # response.headers['Access-Control-Allow-Headers'] = '*'
+    response.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept'
+    response.headers['Access-Control-Allow-Methods'] = '*'
+    response.headers['Access-Control-Allow-Content-Type'] = 'application/json'
+    response.headers['Access-Control-Allow-Credentials'] = 'true'
+
 
 
 def return_json_login_error(var=None):
@@ -631,3 +641,59 @@ def get_products():
     # pp.pprint(data)
 
     return dict(data=data)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'shop_products'))
+def get_payment_methods():
+    """
+
+    :return: dict containing payment methods sorted by name
+    """
+    set_headers()
+
+    not_pos_methods = [2, 3, 100]
+    query = (db.payment_methods.Archived == False) & \
+            ~(db.payment_methods.id.belongs(not_pos_methods))
+
+    rows = db(query).select(
+        db.payment_methods.ALL,
+        orderby=~db.payment_methods.SystemMethod|db.payment_methods.Name
+    )
+
+    return dict(data=rows.as_list())
+
+
+#TODO make read PoS permission
+# @auth.requires(auth.has_membership(group_id='Admins'))
+               # auth.has_permission('read', 'shop_products'))
+def process_cart():
+    """
+    Process shopping cart
+    :return:
+    """
+    set_headers()
+
+    print request.vars
+
+    # If no customerID; just make receipt and update stock
+
+    # if customerID; Make order, deliver order, add payment to invoice created by deliver order
+
+    cuID = request.vars['customerID']
+    print 'customerID'
+    print type(cuID)
+    print cuID
+
+    # IF customerID; add order; deliver
+
+    # If not customerID; add receipt & payment to receipt (Perhaps receipts can just state payments)
+
+
+    items = request.vars['items']
+    print items
+    #TODO: process items
+
+    # Use to add payment to receipt or invoice
+    pmID = request.vars['payment_methodID']
+    print pmID
