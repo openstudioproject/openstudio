@@ -4375,6 +4375,38 @@ def compute_receipt_item_vat(row):
     return vat
 
 
+def define_receipts_amounts():
+    db.define_table('receipts_amounts',
+        Field('receipts_id', db.invoices),
+        Field('TotalPrice', 'double',
+            default=0,
+            represent=represent_float_as_amount,
+            label=T("Subtotal")),
+        Field('VAT', 'double',
+            default=0,
+            represent=represent_float_as_amount,
+            label=T("VAT")),
+        Field('TotalPriceVAT', 'double',
+            default=0,
+            represent=represent_float_as_amount,
+            label=T("Total")),
+        Field('Paid', 'double',
+            default=0,
+            represent=represent_float_as_amount,
+            ),
+        Field('Balance', 'double',
+            compute=compute_receipts_amounts_balance,
+            default=0,
+            represent=represent_float_as_amount)
+        )
+
+
+def compute_receipts_amounts_balance(row):
+    """
+        Calculates the balance for an receipts amounts row
+    """
+    return row.TotalPriceVAT - row.Paid
+
 
 def represent_tax_rate(value, row):
     """
@@ -6046,6 +6078,11 @@ define_invoices_customers_orders()
 define_invoices_employee_claims()
 define_invoices_teachers_payment_classes()
 define_invoices_mollie_payment_ids()
+
+# receipts definitions
+define_receipts()
+define_receipts_items()
+define_receipts_amounts()
 
 # payment batches definitions
 define_payment_batches()
