@@ -667,7 +667,7 @@ def get_payment_methods():
 #TODO make read PoS permission
 # @auth.requires(auth.has_membership(group_id='Admins'))
                # auth.has_permission('read', 'shop_products'))
-def process_cart():
+def validate():
     """
     Process shopping cart
     :return:

@@ -23,8 +23,8 @@ const mapDispatchToProps = dispatch =>
         setSelectedPaymentMethod(id) {
             dispatch(shopPaymentOperations.setSelectedPaymentMethod(id))
         },
-        submitCart(state) {
-            dispatch(appOperations.submitCart(state))
+        validateCart(state) {
+            dispatch(appOperations.validateCart(state))
         }
     })
 

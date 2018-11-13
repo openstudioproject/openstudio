@@ -41,7 +41,7 @@ class Payment extends Component {
 
     onClickValidate() {
         console.log('validate clicked')
-        this.props.submitCart(this.props.state)
+        this.props.validateCart(this.props.state)
         this.props.history.push('/shop/validation')
     }
     
