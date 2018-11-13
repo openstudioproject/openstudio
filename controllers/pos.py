@@ -6,6 +6,16 @@ from general_helpers import datestr_to_python
 # auth.settings.on_failed_authorization = URL('return_json_permissions_error')
 
 
+# print request.env
+#
+# if request.env.http_origin:
+#     response.headers['Access-Control-Allow-Origin'] = request.env.http_origin;
+#     response.headers['Access-Control-Allow-Methods'] = "POST,GET,OPTIONS";
+#     response.headers['Access-Control-Allow-Credentials'] = "true";
+#     response.headers['Access-Control-Allow-Headers'] = "Accept, Authorization, Content-Type, If-Match, If-Modified-Since, If-None-Match, If-Unmodified-Since, Accept-Encoding";
+#     response.headers['Access-Control-Allow-Content-Type'] = 'application/json'
+#     # response.headers['Access-Control-Allow-Origin'] = "*"
+
 @auth.requires_login()
 def index():
     # print auth.user
@@ -16,7 +26,7 @@ def index():
 def set_headers(var=None):
     if request.env.HTTP_ORIGIN == 'http://dev.openstudioproject.com:8080':
         response.headers["Access-Control-Allow-Origin"] = request.env.HTTP_ORIGIN
-    #
+
     # response.headers["Access-Control-Allow-Credentials"] = "true"
     # response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, PATCH, POST, DELETE, OPTIONS"
     # response.headers["Access-Control-Allow-Headers"] = "*"
@@ -667,18 +677,18 @@ def get_payment_methods():
 #TODO make read PoS permission
 # @auth.requires(auth.has_membership(group_id='Admins'))
                # auth.has_permission('read', 'shop_products'))
-def validate():
+def validate_cart():
     """
     Process shopping cart
     :return:
     """
+    # print request.env
+
     set_headers()
 
-    print request.vars
 
-    # If no customerID; just make receipt and update stock
-
-    # if customerID; Make order, deliver order, add payment to invoice created by deliver order
+    #If no customerID; just make receipt and update stock
+    #if customerID; Make order, deliver order, add payment to invoice created by deliver order
 
     cuID = request.vars['customerID']
     print 'customerID'
@@ -697,8 +707,6 @@ def validate():
     # Use to add payment to receipt or invoice
     pmID = request.vars['payment_methodID']
     print pmID
-    
 
-    return dict(
-        url="link to print receipt page"
-    )
+
+    return dict(data="hello world")

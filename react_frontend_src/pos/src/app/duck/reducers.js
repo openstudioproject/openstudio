@@ -47,12 +47,12 @@ export const appReducer = (state = {}, action={ type: null }) => {
         case T.REQUEST_VALIDATE_CART:
             return {
                 ...state,
-                submitting_cart: true
+                validating_cart: true
             }
         case T.RECEIVE_VALIDATE_CART:
             return {
                 ...state,
-                submitting_cart: false
+                validating_cart: false
             }
         case T.SET_ERROR:
             return {

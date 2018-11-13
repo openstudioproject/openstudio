@@ -4283,6 +4283,105 @@ def compute_invoices_amounts_balance(row):
     return row.TotalPriceVAT - row.Paid
 
 
+
+def define_receipts():
+    db.define_table('receipts',
+        Field('auth_customer_id', db.auth_user, # Deprecated from 2018.2 onwards (only used for migrations)
+            readable=False,
+            writable=False,
+            represent=lambda value, row: A(db.auth_user(value).display_name,
+                                           _href=URL('customers', 'edit', args=value, extension='')) if value else '',
+            label=T('CustomerID')),
+        Field('payment_methods_id', db.payment_methods,
+            requires=IS_EMPTY_OR(
+                     IS_IN_DB(db,'payment_methods.id','%(Name)s',
+                              error_message=T("Please select a payment method"),
+                              zero=T("Not set"))),
+            represent=lambda value, row: payment_methods_dict.get(value),
+            label=T("Payment method")),
+        Field('Created_at', 'datetime',
+            readable=False,
+            writable=False,
+            default=datetime.datetime.now(),
+            represent=represent_datetime ),
+        )
+
+
+def define_receipts_items():
+    db.define_table('receipts_items',
+        Field('receipts_id', db.receipts,
+            readable=False,
+            writable=False),
+        Field('Sorting', 'integer',
+            readable=False,
+            writable=False),
+        Field('ProductName',
+            requires=IS_NOT_EMPTY(error_message = T("Enter product name")),
+            label   =T("Product Name")),
+        Field('Description', 'text',
+            label=T("Description")),
+        Field('Quantity', 'double',
+            requires=IS_FLOAT_IN_RANGE(-100000, 1000000, dot=".",
+                     error_message=T("Enter a number, decimals use '.'")),
+            default=1,
+            label=T("Quantity")),
+        Field('Price', 'double',
+            represent=represent_float_as_amount,
+            default=0,
+            label=T("Price")),
+        Field('tax_rates_id', db.tax_rates,
+            requires=IS_EMPTY_OR(IS_IN_DB(db(),
+                                  'tax_rates.id',
+                                  '%(Name)s')),
+            represent=represent_tax_rate,
+            label=T("Tax rate")),
+        Field('TotalPriceVAT', 'double',
+            compute=lambda row: row.Price * row.Quantity,
+            represent=represent_float_as_amount),
+        Field('VAT', 'double',
+            compute=compute_receipt_item_vat,
+            represent=represent_float_as_amount),
+        Field('TotalPrice', 'double',
+            compute=compute_receipt_item_total_price,
+            represent=represent_float_as_amount),
+        Field('GLAccount',
+            represent=lambda value, row: value or '',
+            label=T("G/L Account")),
+        # How are receipts processed in Exact Online?
+    )
+
+
+def compute_receipt_item_total_price(row):
+    """
+        Returns the total price for an receipt item
+    """
+    total_price_vat = Decimal(row.TotalPriceVAT)
+
+    total = Decimal(Decimal(total_price_vat - row.VAT).quantize(Decimal('.01'),
+                                                                rounding=ROUND_HALF_UP))
+    return total
+
+
+def compute_receipt_item_vat(row):
+    """
+        Returns the vat for an receipt item
+    """
+    tID = row.tax_rates_id
+    if not tID:
+        vat = 0
+    else:
+        vat_rate = db.tax_rates(tID).Percentage / 100
+
+        total_price_vat = float(row.TotalPriceVAT)
+        vat = total_price_vat - (total_price_vat / (1 + vat_rate))
+
+        vat = Decimal(Decimal(vat).quantize(Decimal('.01'),
+                                            rounding=ROUND_HALF_UP))
+
+    return vat
+
+
+
 def represent_tax_rate(value, row):
     """
         Returns name for a tax rate
