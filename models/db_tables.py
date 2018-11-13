@@ -4286,12 +4286,6 @@ def compute_invoices_amounts_balance(row):
 
 def define_receipts():
     db.define_table('receipts',
-        Field('auth_customer_id', db.auth_user, # Deprecated from 2018.2 onwards (only used for migrations)
-            readable=False,
-            writable=False,
-            represent=lambda value, row: A(db.auth_user(value).display_name,
-                                           _href=URL('customers', 'edit', args=value, extension='')) if value else '',
-            label=T('CustomerID')),
         Field('payment_methods_id', db.payment_methods,
             requires=IS_EMPTY_OR(
                      IS_IN_DB(db,'payment_methods.id','%(Name)s',
