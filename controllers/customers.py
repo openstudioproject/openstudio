@@ -5756,6 +5756,8 @@ def account_set_password():
 
     db.auth_user.password.readable = True
     db.auth_user.password.writable = True
+    # Enforce strong passwords!
+    db.auth_user.password.requires.insert(0, IS_STRONG())
 
     crud.settings.update_onaccept.auth_user.append(edit_onaccept)
     form = crud.update(db.auth_user, cuID)
