@@ -1018,12 +1018,15 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
 
             table = TABLE(header, _class="table table-striped table-hover")
 
-            for m in mollie_mandates['data']:
+            print mollie_mandates
+            print mollie_mandates['_embedded']['mandates']
+
+            for m in mollie_mandates['_embedded']['mandates']:
                 # 2018-06-14T10:35:01.0Z -- createdDatetime format
 
                 table.append(TR(
                     TD(m['id']),
-                    TD(m['createdDatetime']),
+                    TD(m['createdAt']),
                     TD(m['signatureDate']),
                     TD(m['status']),
                     TD(m['method'])
