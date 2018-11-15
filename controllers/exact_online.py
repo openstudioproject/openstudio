@@ -333,8 +333,9 @@ def bankaccount_get():
 
     return 'success'
 
+
 def ddm_get():
-    accountID = "7bcdaae644-88fd-4136-9de3-2694fea3c930"
+    accountID = "b8d78262-e8f3-4cca-a19b-daa8a3fdb6aa"
 
     import pprint
 
@@ -347,7 +348,7 @@ def ddm_get():
     api = os_eo.get_api()
 
     # result = api.bankaccounts.all()
-    result = api.directdebitmandates.filter(relation_code=accountID)
+    result = api.directdebitmandates.filter(account=accountID)
 
     pp = pprint.PrettyPrinter(depth=6)
     pp.pprint(result)

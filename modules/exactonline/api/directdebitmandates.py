@@ -11,7 +11,7 @@ from .manager import Manager
 class DirectDebitMandates(Manager):
     resource = 'cashflow/DirectDebitMandates'
     
-    def filter(self, ID=None, relation_code=None, **kwargs):
+    def filter(self, ID=None, account=None, reference=None, **kwargs):
         
         if 'top' not in kwargs:
             kwargs['top'] = 1
@@ -21,8 +21,8 @@ class DirectDebitMandates(Manager):
             # Filter by our account number.
             self._filter_append(kwargs, u"ID eq guid%s" % (remote_id,))
         
-        if relation_code is not None:
-            remote_id = self._remote_id(relation_code)
+        if account is not None:
+            remote_id = self._remote_account(account)
             # Filter by our account number.
             self._filter_append(kwargs, u"Account eq guid%s" % (remote_id,))
 
@@ -31,3 +31,5 @@ class DirectDebitMandates(Manager):
     def _remote_id(self, ID):
         return u"'%s'" % (ID.replace("'", "''"),)
 
+    def _remote_account(self, account):
+        return u"'%s'" % (account.replace("'", "''"),)
