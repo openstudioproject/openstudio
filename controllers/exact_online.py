@@ -336,7 +336,7 @@ def bankaccount_get():
 
 def ddm_get():
     accountID = "b8d78262-e8f3-4cca-a19b-daa8a3fdb6aa"
-    reference = '565e8384-ca09-44d9-ab30-a730dce8ab3'
+    reference = '487543587461'
 
     import pprint
 
