@@ -22,14 +22,15 @@ class DirectDebitMandates(Manager):
             self._filter_append(kwargs, u"ID eq guid%s" % (remote_id,))
         
         if account is not None:
-            remote_id = self._remote_account(account)
+            remote_id = self._remote_id(account)
             # Filter by our account number.
             self._filter_append(kwargs, u"Account eq guid%s" % (remote_id,))
+
+        if reference is not None:
+            remote_id = self._remote_id(reference)
+            self._filter_append(kwargs, u"Reference eq %s" % (remote_id,))
 
         return super(DirectDebitMandates, self).filter(**kwargs)
 
     def _remote_id(self, ID):
         return u"'%s'" % (ID.replace("'", "''"),)
-
-    def _remote_account(self, account):
-        return u"'%s'" % (account.replace("'", "''"),)
