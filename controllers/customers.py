@@ -4069,7 +4069,10 @@ def bankaccount_exact_online():
     response.view = 'general/tabs_menu.html'
 
     # back button
-    back = edit_get_back()
+    back = os_gui.get_button(
+        'back',
+        URL('bankaccount', vars={'cuID': cuID})
+    )
 
     # payment_info
     menu = customers_get_menu(cuID, request.function)
@@ -4148,6 +4151,25 @@ def bankaccount_exact_online():
         tools=''
     )
 
+
+@auth.requires(auth.has_membership(group_id='Admins'))
+def bankaccount_exact_online_link_bankaccount():
+    """
+    Link exact online relation to OpenStudio customer
+    """
+    from openstudio.os_customers_payment_info import OsCustomersPaymentInfo
+
+    cpi = OsCustomersPaymentInfo(cpiID)
+
+    cuID = request.vars['cuID']
+    cpiID = request.vars['cpiID']
+    eoID = request.vars['eoID']
+
+    cpi.exact_online_link_to_bankaccount(eoID)
+
+    session.flash = message
+    redirect(URL('bankaccount_exact_online', vars={'cuID': cuID,
+                                                   'cpiID': cpiID}))
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
