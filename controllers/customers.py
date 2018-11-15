@@ -3995,6 +3995,29 @@ def bankaccount():
     )
     content = DIV(submenu, BR(), form)
 
+    eo_authorized = get_sys_property('exact_online_authorized')
+    if auth.has_membership(group_id='Admins') and eo_authorized:
+        if row.exact_online_bankaccount_id:
+            eo_message = SPAN(
+                os_gui.get_fa_icon('fa-check'), ' ',
+                T("This bank account is linked to Exact Online"),
+                _class='text-green'
+            )
+        else:
+            eo_message = SPAN(
+                os_gui.get_fa_icon('fa-ban'), ' ',
+                T("This bank account is not linked to Exact Online"),
+                _class='text-red'
+            )
+
+        content.append(DIV(
+            A(os_gui.get_fa_icon('fa-pencil'), ' ',
+              T("Edit Exact Online link"),
+              _href=URL('bankaccount_exact_online', vars={'cuID':cuID, 'cpiID':row.id}),
+              _class='pull-right'),
+            eo_message
+        ))
+
 
     add_mandate = ''
     query = (db.customers_payment_info_mandates.customers_payment_info_id == row.id)
@@ -4031,6 +4054,124 @@ def bankaccount_get_returl_url(customers_id):
         Returns the return url for payment_info_add and payment_info_edit
     """
     return URL('bankaccount', vars={'cuID':customers_id})
+
+
+@auth.requires(auth.has_membership(group_id='Admins'))
+def bankaccount_exact_online():
+    """
+    Update Exact Online link for Payment info
+    """
+    cpiID = request.vars['cpiID']
+    cuID = request.vars['cuID']
+    customer = Customer(cuID)
+    response.title = customer.get_name()
+    response.subtitle = T("Finance")
+    response.view = 'general/tabs_menu.html'
+
+    # back button
+    back = os_gui.get_button(
+        'back',
+        URL('bankaccount', vars={'cuID': cuID})
+    )
+
+    # payment_info
+    menu = customers_get_menu(cuID, request.function)
+    submenu = payments_get_submenu('bankaccount', cuID)
+
+    # Customer EO account code
+
+    eo_account_ID = customer.row.exact_online_relation_id
+    if not eo_account_ID:
+        content = T("Unable to link bank account, this customer isn't linked to an Exact Online relation")
+    else:
+        from openstudio.os_customers_payment_info import OsCustomersPaymentInfo
+
+        accounts = customer.exact_online_get_bankaccounts()
+
+        search_result = ''
+        if not len(accounts):
+            search_result = T("No bank accounts found for this relation in Exact Online")
+        else:
+            header = THEAD(TR(
+                TH(T('Exact Online Relation Name')),
+                TH(T('Exact Online Bank Account')),
+                TH()
+            ))
+            search_result = TABLE(header, _class="table table-striped table-hover")
+
+            for account in accounts:
+                btn_link = os_gui.get_button(
+                    'noicon',
+                    URL('bankaccount_exact_online_link_bankaccount',
+                        vars={'cuID': cuID,
+                              'cpiID': cpiID,
+                              'eoID': account['ID']}),
+                    title=T("Link to this bank account"),
+                    _class='pull-right'
+                )
+
+                search_result.append(TR(
+                    TD(account['AccountName']),
+                    TD(account['BankAccount']),
+                    TD(btn_link)
+                ))
+
+
+        current_link = T("Please select a bank account listed on the right.")
+
+        cpi = OsCustomersPaymentInfo(cpiID)
+        linked_account = cpi.exact_online_get_bankaccount()
+
+        if linked_account:
+            current_link = DIV(
+                T("This customer is linked to the following Exact Online Bank Account"), BR(), BR(),
+                T("OpenStudio bank account: %s" % (cpi.row.AccountNumber)), BR(), BR(),
+                T("Exact Online bank account: %s" % (linked_account[0]['BankAccount'])),  BR(),
+                T("Exact Online relation name: %s" % (linked_account[0]['AccountName'])), BR(), BR(),
+                T("To link this bank account to another Exact Online bank account, please select one from the list on the right.")
+            )
+
+        display = DIV(
+            DIV(
+                H4(T("Current link")),
+                current_link,
+                _class='col-md-6'
+            ),
+            DIV(
+                H4(T('Bank accounts for this relation in Exact Online')),
+                search_result,
+                _class='col-md-6'
+            ),
+            _class='row'
+        )
+
+        content = DIV(submenu, BR(), display)
+
+    return dict(
+        content=content,
+        menu=menu,
+        back=back,
+        tools=''
+    )
+
+
+@auth.requires(auth.has_membership(group_id='Admins'))
+def bankaccount_exact_online_link_bankaccount():
+    """
+    Link exact online relation to OpenStudio customer
+    """
+    from openstudio.os_customers_payment_info import OsCustomersPaymentInfo
+
+    cuID = request.vars['cuID']
+    cpiID = request.vars['cpiID']
+    eoID = request.vars['eoID']
+
+    cpi = OsCustomersPaymentInfo(cpiID)
+    message = cpi.exact_online_link_to_bankaccount(eoID)
+
+    session.flash = message
+    redirect(URL('bankaccount_exact_online', vars={'cuID': cuID,
+                                                   'cpiID': cpiID}))
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -5851,6 +5992,124 @@ def account_acceptance_log():
                 back=back)
 
 
+@auth.requires(auth.has_membership(group_id='Admins'))
+def account_exact_online():
+    """
+    Manage link exact online linked customer
+    """
+    response.view = 'customers/edit_general.html'
+    cuID = request.vars['cuID']
+    customer = Customer(cuID)
+    response.title = customer.get_name()
+    response.subtitle = T('Account')
+
+    submenu = account_get_submenu(request.function, cuID)
+
+    form = SQLFORM.factory(
+        Field('code',
+              defualt=request.vars['code'],
+              requires=IS_NOT_EMPTY(),
+              label=T("Exact Online relation code")
+              ),
+        formstyle = 'bootstrap3_stacked',
+        submit_button = T('Find Exact relations')
+    )
+
+    search_result = ''
+    if form.process().accepted:
+        from openstudio.os_exact_online import OSExactOnline
+
+        response.flash = T("Successfully submitted search to Exact Online")
+        code = request.vars['code']
+
+        os_eo = OSExactOnline()
+        api = os_eo.get_api()
+        relations = api.relations.filter(relation_code=code)
+
+        if not len(relations):
+            search_result = T("No relations found with this code in Exact Online")
+        else:
+            header = THEAD(TR(
+                TH(T('Exact Online Code')),
+                TH(T('Exact Online Name')),
+                TH()
+            ))
+            search_result = TABLE(header, _class="table table-striped table-hover")
+
+            for relation in relations:
+                btn_link = os_gui.get_button(
+                    'noicon',
+                    URL('account_exact_online_link_relation', vars={'cuID': cuID,
+                                                                    'eoID': relation['ID']}),
+                    title=T("Link to this relation"),
+                    _class='pull-right'
+                )
+
+                search_result.append(TR(
+                    TD(relation['Code']),
+                    TD(relation['Name']),
+                    TD(btn_link)
+                ))
+
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
+    form = result['form']
+    submit = result['submit']
+
+
+    current_link = T("Search for a relation code to link an Exact Online relation to this customer.")
+    linked_relations = customer.exact_online_get_relation()
+    if linked_relations:
+        current_link = DIV(
+            T("This customer is linked to the following Exact Online relation"), BR(), BR(),
+            T("Exact Online code: %s" % (linked_relations[0]['Code'])), BR(),
+                T("Exact Online name: %s" % (linked_relations[0]['Name'])), BR(), BR(),
+            T("To link this customer to another Exact Online relation, search for a relation code.")
+        )
+
+    display = DIV(
+        DIV(
+            H4(T("Current link")),
+            current_link,
+            _class='col-md-6'
+        ),
+        DIV(
+            H4(T('Find relations in Exact Online')),
+            form,
+            HR(),
+            search_result,
+            _class='col-md-6'
+        ),
+        _class='row'
+    )
+
+    content = DIV(submenu, BR(), display)
+
+    menu = customers_get_menu(cuID, 'account')
+    back = edit_get_back()
+
+    return dict(content=content,
+                menu=menu,
+                save=submit,
+                back=back)
+
+
+@auth.requires(auth.has_membership(group_id='Admins'))
+def account_exact_online_link_relation():
+    """
+    Link exact online relation to OpenStudio customer
+    """
+    from openstudio.os_customer import Customer
+
+    cuID = request.vars['cuID']
+    eoID = request.vars['eoID']
+
+    customer = Customer(cuID)
+    message = customer.exact_online_link_to_relation(eoID)
+
+    session.flash = message
+    redirect(URL('account_exact_online', vars={'cuID': cuID}))
+
+
 def account_get_submenu(page, cuID):
     """
         Returns submenu for account pages
@@ -5871,6 +6130,11 @@ def account_get_submenu(page, cuID):
        auth.has_permission('account_acceptance_log', 'auth_user'):
         pages.append(['account_acceptance_log', T('Accepted documents'),
                        URL('account_acceptance_log', vars=vars)])
+
+    eo_authorized = get_sys_property('exact_online_authorized')
+    if auth.has_membership(group_id='Admins') and eo_authorized:
+        pages.append(['account_exact_online', T('Exact Online'),
+                       URL('account_exact_online', vars=vars)])
 
     horizontal = True
 
@@ -5918,8 +6182,6 @@ def invoices():
                 add=add,
                 modal_class=modal_class,
                 left_sidebar_enabled=True)
-
-
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \

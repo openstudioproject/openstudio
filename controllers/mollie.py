@@ -213,7 +213,7 @@ def invoice_pay():
         if mandates['count'] > 0:
             # background payment
             valid_mandate = False
-            for mandate in mandates:
+            for mandate in mandates['_embedded']['mandates']:
                 if mandate['status'] == 'valid':
                     valid_mandate = True
                     break

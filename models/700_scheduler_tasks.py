@@ -99,7 +99,7 @@ def task_mollie_subscription_invoices_and_payments():
         # set default recurring type, change to recurring if a valid mandate is found.
         if mandates['count'] > 0:
             # background payment
-            for mandate in mandates:
+            for mandate in mandates['_embedded']['mandates']:
                 if mandate['status'] == 'valid':
                     valid_mandate = True
                     break
