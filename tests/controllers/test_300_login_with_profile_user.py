@@ -38,7 +38,7 @@ def test_login_profile_user(client, web2py):
     setup_profile_tests(web2py)
 
     data = dict(email='profile@openstudioproject.com',
-                password='password',
+                password='Password@1',
                 _formname='login')
     client.post('/default/user/login', data=data)
     assert client.status == 200
