@@ -512,7 +512,25 @@ def duplicate_credit_invoice():
             tax_rates_id = row.tax_rates_id,
             GLAccount = row.GLAccount,
         )
-    #ToDO Invoice Items, lings etc.
+
+    query = (db.invoices_customers_orders.invoices_id == oldiID)
+    rows = db(query).select()
+    if rows:
+        for row in rows:
+            db.invoices_customers_orders.insert(
+                invoices_id = iID,
+                customers_orders_id = row.customers_orders_id
+            )
+
+
+    query = (db.invoices_customers.invoices_id == oldiID)
+    row = db(query).select().first()
+    if row:
+        db.invoices_customers.insert(
+            invoices_id = iID,
+            auth_customer_id = row.auth_customer_id
+        )
+
 
     redirect(URL('edit', vars= {'iID': iID}))
 
