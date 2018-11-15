@@ -4125,6 +4125,7 @@ def bankaccount_exact_online():
         if linked_account:
             current_link = DIV(
                 T("This customer is linked to the following Exact Online Bank Account"), BR(), BR(),
+                T("OpenStudio bank account: %s" % (cpi.row.AccountNumber)), BR(), BR(),
                 T("Exact Online bank account: %s" % (linked_account[0]['BankAccount'])),  BR(),
                 T("Exact Online relation name: %s" % (linked_account[0]['AccountName'])), BR(), BR(),
                 T("To link this bank account to another Exact Online bank account, please select one from the list on the right.")
