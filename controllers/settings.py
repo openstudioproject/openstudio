@@ -82,7 +82,7 @@ def system_general():
         Field('sys_hostname',
               requires=IS_NOT_EMPTY(),
               default=sys_hostname,
-              label=T('Hostname for this OpenStudio installation'),
+              label=T('Hostname of this OpenStudio installation'),
               comment=T("eg. demo.openstudioproject.com (without http or https)")),
         submit_button=T("Save"),
         separator=' ',
