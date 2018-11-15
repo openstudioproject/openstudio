@@ -310,52 +310,52 @@ def invoices():
 #     pp.pprint(result)
 #
 #     return 'success'
-
-
-def bankaccount_get():
-    accountID = "b8d78262-e8f3-4cca-a19b-daa8a3fdb6aa"
-
-    import pprint
-
-    from ConfigParser import NoOptionError
-    from openstudio.os_exact_online import OSExactOnline
-    from exactonline.http import HTTPError
-
-    os_eo = OSExactOnline()
-    storage = os_eo.get_storage()
-    api = os_eo.get_api()
-
-    # result = api.bankaccounts.all()
-    result = api.bankaccounts.filter(account=accountID)
-
-    pp = pprint.PrettyPrinter(depth=6)
-    pp.pprint(result)
-
-    return 'success'
-
-
-def ddm_get():
-    accountID = "b8d78262-e8f3-4cca-a19b-daa8a3fdb6aa"
-    reference = '487543587461'
-
-    import pprint
-
-    from ConfigParser import NoOptionError
-    from openstudio.os_exact_online import OSExactOnline
-    from exactonline.http import HTTPError
-
-    os_eo = OSExactOnline()
-    storage = os_eo.get_storage()
-    api = os_eo.get_api()
-
-    # result = api.bankaccounts.all()
-    # result = api.directdebitmandates.filter(account=accountID)
-    result = api.directdebitmandates.filter(reference=reference)
-
-    pp = pprint.PrettyPrinter(depth=6)
-    pp.pprint(result)
-
-    return 'success'
+#
+#
+# def bankaccount_get():
+#     accountID = "b8d78262-e8f3-4cca-a19b-daa8a3fdb6aa"
+#
+#     import pprint
+#
+#     from ConfigParser import NoOptionError
+#     from openstudio.os_exact_online import OSExactOnline
+#     from exactonline.http import HTTPError
+#
+#     os_eo = OSExactOnline()
+#     storage = os_eo.get_storage()
+#     api = os_eo.get_api()
+#
+#     # result = api.bankaccounts.all()
+#     result = api.bankaccounts.filter(account=accountID)
+#
+#     pp = pprint.PrettyPrinter(depth=6)
+#     pp.pprint(result)
+#
+#     return 'success'
+#
+#
+# def ddm_get():
+#     accountID = "b8d78262-e8f3-4cca-a19b-daa8a3fdb6aa"
+#     reference = '487543587461'
+#
+#     import pprint
+#
+#     from ConfigParser import NoOptionError
+#     from openstudio.os_exact_online import OSExactOnline
+#     from exactonline.http import HTTPError
+#
+#     os_eo = OSExactOnline()
+#     storage = os_eo.get_storage()
+#     api = os_eo.get_api()
+#
+#     # result = api.bankaccounts.all()
+#     # result = api.directdebitmandates.filter(account=accountID)
+#     result = api.directdebitmandates.filter(reference=reference)
+#
+#     pp = pprint.PrettyPrinter(depth=6)
+#     pp.pprint(result)
+#
+#     return 'success'
 
 
 # def bankaccount_create():
