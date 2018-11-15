@@ -5851,6 +5851,53 @@ def account_acceptance_log():
                 back=back)
 
 
+@auth.requires(auth.has_membership(group_id='Admins'))
+def account_exact_online():
+    """
+    Manage link exact online linked customer
+    """
+    response.view = 'customers/edit_general.html'
+    cuID = request.vars['cuID']
+    customer = Customer(cuID)
+    response.title = customer.get_name()
+    response.subtitle = T('Account')
+
+    submenu = account_get_submenu(request.function, cuID)
+
+    # header = THEAD(
+    #     TR(
+    #         TH(T('Document')),
+    #         TH(T('Document Description')),
+    #         TH(T('Document Version')),
+    #         TH(T('Document URL')),
+    #         TH(T('OpenStudio Version')),
+    #         TH(T('Accepted On')),
+    #     )
+    # )
+    # table = TABLE(header, _class='table table-striped table-hover')
+    # rows = customer.get_accepted_documents()
+    # for row in rows.render():
+    #     tr = TR(
+    #         TD(row.DocumentName),
+    #         TD(row.DocumentDescription),
+    #         TD(row.DocumentVersion),
+    #         TD(row.DocumentURL),
+    #         TD(row.OpenStudioVersion),
+    #         TD(row.CreatedOn),
+    #     )
+    #
+    #     table.append(tr)
+
+    content = DIV(submenu, BR(), 'hello world')
+
+    menu = customers_get_menu(cuID, 'account')
+    back = edit_get_back()
+
+    return dict(content=content,
+                menu=menu,
+                back=back)
+
+
 def account_get_submenu(page, cuID):
     """
         Returns submenu for account pages
@@ -5871,6 +5918,11 @@ def account_get_submenu(page, cuID):
        auth.has_permission('account_acceptance_log', 'auth_user'):
         pages.append(['account_acceptance_log', T('Accepted documents'),
                        URL('account_acceptance_log', vars=vars)])
+
+    eo_authorized = get_sys_property('exact_online_authorized')
+    if auth.has_membership(group_id='Admins') and eo_authorized:
+        pages.append(['account_exact_online', T('Exact Online'),
+                       URL('account_exact_online', vars=vars)])
 
     horizontal = True
 
