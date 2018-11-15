@@ -3995,6 +3995,29 @@ def bankaccount():
     )
     content = DIV(submenu, BR(), form)
 
+    eo_authorized = get_sys_property('exact_online_authorized')
+    if auth.has_membership(group_id='Admins') and eo_authorized:
+        if row.exact_online_bankaccount_id:
+            eo_message = SPAN(
+                os_gui.get_fa_icon('fa-check'), ' ',
+                T("This bank account is linked to Exact Online"),
+                _class='text-green'
+            )
+        else:
+            eo_message = SPAN(
+                os_gui.get_fa_icon('fa-ban'), ' ',
+                T("This bank account is not linked to Exact Online"),
+                _class='text-red'
+            )
+
+        content.append(DIV(
+            A(os_gui.get_fa_icon('fa-pencil'), ' ',
+              T("Edit Exact Online link"),
+              _href=URL('bankaccount_exact_online'),
+              _class='pull-right'),
+            eo_message
+        ))
+
 
     add_mandate = ''
     query = (db.customers_payment_info_mandates.customers_payment_info_id == row.id)
@@ -4031,6 +4054,15 @@ def bankaccount_get_returl_url(customers_id):
         Returns the return url for payment_info_add and payment_info_edit
     """
     return URL('bankaccount', vars={'cuID':customers_id})
+
+
+@auth.requires(auth.has_membership(group_id='Admins'))
+def bankaccount_exact_online():
+    """
+    Update Exact Online link for Payment info
+    """
+    
+
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -6041,8 +6073,6 @@ def invoices():
                 add=add,
                 modal_class=modal_class,
                 left_sidebar_enabled=True)
-
-
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
