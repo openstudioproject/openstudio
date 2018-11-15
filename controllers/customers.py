@@ -5864,38 +5864,91 @@ def account_exact_online():
 
     submenu = account_get_submenu(request.function, cuID)
 
-    # header = THEAD(
-    #     TR(
-    #         TH(T('Document')),
-    #         TH(T('Document Description')),
-    #         TH(T('Document Version')),
-    #         TH(T('Document URL')),
-    #         TH(T('OpenStudio Version')),
-    #         TH(T('Accepted On')),
-    #     )
-    # )
-    # table = TABLE(header, _class='table table-striped table-hover')
-    # rows = customer.get_accepted_documents()
-    # for row in rows.render():
-    #     tr = TR(
-    #         TD(row.DocumentName),
-    #         TD(row.DocumentDescription),
-    #         TD(row.DocumentVersion),
-    #         TD(row.DocumentURL),
-    #         TD(row.OpenStudioVersion),
-    #         TD(row.CreatedOn),
-    #     )
-    #
-    #     table.append(tr)
+    form = SQLFORM.factory(
+        Field('code',
+              defualt=request.vars['code'],
+              requires=IS_NOT_EMPTY()),
+        formstyle = 'bootstrap3_stacked',
+        submit_button = T('Find Exact relations')
+    )
 
-    content = DIV(submenu, BR(), 'hello world')
+    search_result = ''
+    if form.process().accepted:
+        response.flash = T("Successfully submitted search to Exact Online")
+        code = request.vars['code']
+
+        import pprint
+
+        from openstudio.os_exact_online import OSExactOnline
+
+        os_eo = OSExactOnline()
+        api = os_eo.get_api()
+        relations = api.relations.filter(relation_code=code)
+
+        if not len(relations):
+            search_result = T("No relations found with this code in Exact Online")
+        else:
+            header = THEAD(TR(
+                TH(T('Exact Online Code')),
+                TH(T('Exact Online Name')),
+                TH()
+            ))
+            search_result = TABLE(header, _class="table table-striped table-hover")
+
+            for relation in relations:
+                btn_link = os_gui.get_button(
+                    'noicon',
+                    URL('account_exact_online_link_relation', vars={'cuID': cuID,
+                                                                    'eoID': relation['ID']}),
+                    title=T("Link"),
+                    _class='pull-right'
+                )
+
+                search_result.append(TR(
+                    TD(relation['Code']),
+                    TD(relation['Name']),
+                    TD(btn_link)
+                ))
+
+        pp = pprint.PrettyPrinter(depth=6)
+        pp.pprint(relations)
+
+
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
+    form = result['form']
+    submit = result['submit']
+
+
+    content = DIV(submenu, BR(), form, HR(), search_result)
 
     menu = customers_get_menu(cuID, 'account')
     back = edit_get_back()
 
     return dict(content=content,
                 menu=menu,
+                save=submit,
                 back=back)
+
+
+@auth.requires(auth.has_membership(group_id='Admins'))
+def account_exact_online_link_relation():
+    """
+    Link exact online relation to OpenStudio customer
+    """
+    from openstudio.os_customer import Customer
+
+    cuID = request.vars['cuID']
+    eoID = request.vars['eoID']
+
+    print cuID
+    print eoID
+
+    customer = Customer(cuID)
+    customer.exact_online_link_to_relation(eoID)
+
+    session.flash = T("Linked Exact Online relation")
+
+    redirect(URL('account_exact_online', vars={'cuID': cuID}))
 
 
 def account_get_submenu(page, cuID):

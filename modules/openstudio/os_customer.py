@@ -64,6 +64,15 @@ class Customer:
         return md5.hexdigest()
 
 
+    def exact_online_link_to_relation(self, exact_online_relation_id):
+        """
+        :param exact_online_relation_id: Exact Online crm/Account guid
+        :return:
+        """
+        self.row.exact_online_relation_id = exact_online_relation_id
+        self.row.update_record()
+
+
     def _get_subscriptions_on_date(self, date):
         """
             Returns subscription for a date
