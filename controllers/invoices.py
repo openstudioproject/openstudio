@@ -500,142 +500,21 @@ def duplicate_credit_invoice():
         Note = oldinvoice.Note,
         PaymentDates = oldinvoice.PaymentDates,
     )
-    #ToDO Invoice Items etc.
+    query = (db.invoices_items.invoices_id == oldiID)
+    rows = db(query).select()
+    for row in rows:
+        db.invoices_items.insert(
+            invoices_id = iID,
+            ProductName = row.ProductName,
+            Description = row.Description,
+            Quantity = row.Quantity,
+            Price = row.Price,
+            tax_rates_id = row.tax_rates_id,
+            GLAccount = row.GLAccount,
+        )
+    #ToDO Invoice Items, lings etc.
 
-    invoice = Invoice(iID)
-
-    session.invoices_payment_add_back = 'invoices_edit'
-
-    modals = DIV()
-
-    response.title = T("Invoice") + ' ' + invoice.invoice.InvoiceID
-    response.subtitle = ''
-    response.view = 'general/only_content_no_box.html'
-    try:
-        cuID = db.invoices_customers(invoices_id=iID).auth_customer_id
-    except AttributeError:
-        cuID = None
-
-
-    return_url = edit_get_back(cuID)
-
-    # Disable CustomerListName Field to prevent w2p expecting data (it's not in the form)
-    db.invoices.CustomerListName.readable=False
-    db.invoices.CustomerListName.writable=False
-
-    crud.messages.submit_button = T("Save")
-    crud.messages.record_updated = T("Saved")
-    crud.settings.update_next = URL('invoices', 'edit', vars={'iID':iID})
-    crud.settings.update_onaccept = [ edit_set_amounts ]
-    crud.settings.update_deletable = False
-    form = crud.update(db.invoices, iID)
-
-    # Tie the elements together using the form html5 attribute.
-    elements = form.elements('input, select, textarea')
-    for element in elements:
-        element['_form'] = "MainForm"
-
-    submit = form.element('input[type=submit]')
-    submit['_class'] = 'btn'
-
-    textareas = form.elements('textarea')
-    for textarea in textareas:
-        textarea['_class'] += ' tmced'
-
-    back = os_gui.get_button('back', return_url)
-    modal_payments = edit_get_modal_payments(iID)
-    modal_payment_add = edit_get_link_add_payment(iID)
-    modals.append(modal_payments)
-    modals.append(modal_payment_add['modal'])
-    payments = edit_get_payments_button(iID)
-    pdf = os_gui.get_button('print',
-                                 URL('pdf', vars={'iID':iID}),
-                                 title='PDF',
-                                 btn_size='btn')
-    tools = edit_get_tools(iID)
-
-
-    header_tools = SPAN(pdf, DIV(form.custom.submit, _class="pull-right"), DIV(payments, _class='pull-right'), tools)
-
-    items = DIV(LOAD('invoices', 'list_items.load',
-                     ajax=True,
-                     ajax_trap=True,
-                     vars={'iID':iID},
-                     content=os_gui.get_ajax_loader(
-                             message=T("Loading items"))))
-
-    form = DIV(
-        XML('<form id="MainForm" action="#" enctype="multipart/form-data" method="post">'),
-        form.custom.end,
-        DIV(DIV(edit_get_studio_info(), _class='col-md-6'),
-            DIV(edit_get_customer_info(invoice, form),
-                _class='col-md-6'),
-            DIV(DIV(DIV(H3(form.custom.label.Description, _class='box-title'),
-                        _class='box-header'),
-                    DIV(form.custom.widget.Description,
-                        _class='box-body'),
-                    _class='box box-primary'),
-                _class='col-md-12'),
-            DIV(DIV(DIV(H3(T('Items'), _class='box-title'),
-                        _class='box-header'),
-                    DIV(items, _class='box-body'),
-                    _class='box box-primary'),
-                _class='col-md-12'),
-            DIV(DIV(DIV(H3(T('Terms and Conditions'), _class='box-title'),
-                        _class='box-header'),
-                    DIV(DIV(form.custom.widget.Terms),
-                        _class='box-body'),
-                    _class='box box-primary'),
-                _class='col-md-12'),
-            DIV(DIV(DIV(H3(T('Footer'), _class='box-title'),
-                            _class='box-header'),
-                            DIV(form.custom.widget.Footer,
-                            _class='box-body'),
-                        _class='box box-primary'),
-                    _class='col-md-12'),
-            _class='col-md-10 no-padding-left'),
-        # options container
-        DIV(edit_get_amounts(invoice),
-            DIV(DIV(H3(T('Options'), _class='box-title'),
-                       _class='box-header'),
-                    DIV(DIV(LABEL(form.custom.label.InvoiceID),
-                            form.custom.widget.InvoiceID,
-                            _class='form-group'),
-                        DIV(LABEL(form.custom.label.DateCreated),
-                            form.custom.widget.DateCreated,
-                            _class='form-group'),
-                        DIV(LABEL(form.custom.label.DateDue),
-                            form.custom.widget.DateDue,
-                            _class='form-group'),
-                        DIV(LABEL(form.custom.label.Status),
-                            form.custom.widget.Status,
-                            _class='form-group'),
-                        DIV(LABEL(form.custom.label.payment_methods_id),
-                            form.custom.widget.payment_methods_id,
-                            _class='form-group'),
-                        DIV(LABEL(T("Last updated")), BR(),
-                            represent_datetime(invoice.invoice.Updated_at)
-                            ),
-                        _class='box-body'),
-                    _class='box box-primary'),
-            _class='col-md-2 no-padding-left'),
-    _class='row')
-
-    credit_invoice_for = ''
-    if invoice.invoice.credit_invoice_for:
-        original_invoice = Invoice(invoice.invoice.credit_invoice_for)
-
-        credit_invoice_for = os_gui.get_alert('info',
-             SPAN(T('This is a credit invoice for invoice'), ' ',
-                  A(original_invoice.invoice.InvoiceID,
-                    _href=URL('edit', vars={'iID':original_invoice.invoice.id}))))
-
-
-    content = DIV(credit_invoice_for, form, modals)
-
-    return dict(content=content,
-                header_tools=header_tools,
-                back=back)
+    redirect(URL('edit', vars= {'iID': iID}))
 
 
 def edit_set_amounts(form):
