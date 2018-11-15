@@ -123,11 +123,13 @@ def task_mollie_subscription_invoices_and_payments():
                         }
                     })
 
+                    print payment
+
                     # link invoice to mollie_payment_id
                     db.invoices_mollie_payment_ids.insert(
                         invoices_id=invoice.invoice.id,
                         mollie_payment_id=payment['id'],
-                        RecurringType=payment['recurringType'],
+                        RecurringType='recurring',
                         WebhookURL=webhook_url
                     )
 

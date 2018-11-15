@@ -452,7 +452,6 @@ def donate():
     db.invoices_mollie_payment_ids.insert(
         invoices_id=iID,
         mollie_payment_id=payment['id'],
-        RecurringType=payment['recurringType'],
         WebhookURL=payment['webhookUrl']
     )
 
