@@ -2477,8 +2477,8 @@ def define_customers_payment_info_mandates():
               label=T("Mandate reference"),
               comment=T("OpenStudio automatically generates a unique reference for each mandate, but you're free to enter something else.")),
         Field('MandateText', 'text',
-              represent=lambda value, row: value or '',
-              writable =False),
+              writable=False,
+              represent=lambda value, row: value or ''),
         Field('MandateSignatureDate', 'date',
               requires=IS_EMPTY_OR(
                   IS_DATE_IN_RANGE(format=DATE_FORMAT,

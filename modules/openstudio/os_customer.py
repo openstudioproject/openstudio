@@ -953,14 +953,6 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         for row in rows.render():
             btn_delete = ''
             box_tools = DIV(_class='box-tools')
-            if edit_permission and request.controller == 'customers':
-                box_tools.append(
-                    A(os_gui.get_fa_icon('fa-pencil'), ' ', T("Edit"),
-                      _href=URL('customers', 'bankaccount_mandate_edit',
-                                vars={'cuID': self.cuID,
-                                      'cpimID': row.id}),
-                      _class = 'btn-box-tool')
-                )
             if delete_permission and request.controller == 'customers':
                 box_tools.append(
                     A(os_gui.get_fa_icon('fa-times'),
