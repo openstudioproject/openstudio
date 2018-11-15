@@ -941,27 +941,40 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
             auth.has_permission('delete', 'customers_payments_info_mandates')
         )
 
+        edit_permission = (
+            auth.has_membership(group_id='Admins') or
+            auth.has_permission('update', 'customers_payments_info_mandates')
+        )
+
         onclick = "return confirm('" + \
                      T('Do you really want to remove this mandate?') + "');"
 
         mandates = DIV()
         for row in rows.render():
             btn_delete = ''
+            box_tools = DIV(_class='box-tools')
+            if edit_permission and request.controller == 'customers':
+                box_tools.append(
+                    A(os_gui.get_fa_icon('fa-pencil'), ' ', T("Edit"),
+                      _href=URL('customers', 'bankaccount_mandate_edit',
+                                vars={'cuID': self.cuID,
+                                      'cpimID': row.id}),
+                      _class = 'btn-box-tool')
+                )
             if delete_permission and request.controller == 'customers':
-                btn_delete = DIV(
+                box_tools.append(
                     A(os_gui.get_fa_icon('fa-times'),
                       _href=URL('customers', 'bankaccount_mandate_delete',
                                 vars={'cuID':self.cuID,
                                       'cpimID': row.id}),
                       _onclick=onclick,
-                      _class='text-red'),
-                    _class='box-tools'
+                      _class='btn-box-tool text-red')
                 )
 
             mandates.append(DIV(
                 DIV(H3(T("Direct debit mandate"),
                        _class="box-title"),
-                    btn_delete,
+                    box_tools,
                     _class="box-header"
                 ),
                 DIV(LABEL(T("Reference")),
