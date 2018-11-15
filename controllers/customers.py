@@ -4013,7 +4013,7 @@ def bankaccount():
         content.append(DIV(
             A(os_gui.get_fa_icon('fa-pencil'), ' ',
               T("Edit Exact Online link"),
-              _href=URL('bankaccount_exact_online'),
+              _href=URL('bankaccount_exact_online', vars={'cuID':cuID, 'cpiID':row.id}),
               _class='pull-right'),
             eo_message
         ))
@@ -4061,7 +4061,92 @@ def bankaccount_exact_online():
     """
     Update Exact Online link for Payment info
     """
-    
+    cpiID = request.vars['cpiID']
+    cuID = request.vars['cuID']
+    customer = Customer(cuID)
+    response.title = customer.get_name()
+    response.subtitle = T("Finance")
+    response.view = 'general/tabs_menu.html'
+
+    # back button
+    back = edit_get_back()
+
+    # payment_info
+    menu = customers_get_menu(cuID, request.function)
+    submenu = payments_get_submenu('bankaccount', cuID)
+
+    # Customer EO account code
+
+    eo_account_ID = customer.row.exact_online_relation_id
+    if not eo_account_ID:
+        content = T("Unable to link bank account, this customer isn't linked to an Exact Online relation")
+    else:
+        from openstudio.os_customers_payment_info import OsCustomersPaymentInfo
+
+        accounts = customer.exact_online_get_bankaccounts()
+
+        search_result = ''
+        if not len(accounts):
+            search_result = T("No bank accounts found for this relation in Exact Online")
+        else:
+            header = THEAD(TR(
+                TH(T('Exact Online Relation Name')),
+                TH(T('Exact Online Bank Account')),
+                TH()
+            ))
+            search_result = TABLE(header, _class="table table-striped table-hover")
+
+            for account in accounts:
+                btn_link = os_gui.get_button(
+                    'noicon',
+                    URL('account_exact_online_link_relation', vars={'cuID': cuID,
+                                                                    'eoID': account['ID']}),
+                    title=T("Link to this bank account"),
+                    _class='pull-right'
+                )
+
+                search_result.append(TR(
+                    TD(account['AccountName']),
+                    TD(account['BankAccount']),
+                    TD(btn_link)
+                ))
+
+
+        current_link = T("Please select a bank account listed on the right.")
+
+        cpi = OsCustomersPaymentInfo(cpiID)
+        linked_account = cpi.exact_online_get_bankaccount()
+
+        if linked_account:
+            current_link = DIV(
+                T("This customer is linked to the following Exact Online Bank Account"), BR(), BR(),
+                T("Exact Online bank account: %s" % (linked_account[0]['BankAccount'])),  BR(),
+                T("Exact Online relation name: %s" % (linked_account[0]['AccountName'])), BR(), BR(),
+                T("To link this bank account to another Exact Online bank account, please select one from the list on the right.")
+            )
+
+        display = DIV(
+            DIV(
+                H4(T("Current link")),
+                current_link,
+                _class='col-md-6'
+            ),
+            DIV(
+                H4(T('Bank accounts for this relation in Exact Online')),
+                search_result,
+                _class='col-md-6'
+            ),
+            _class='row'
+        )
+
+        content = DIV(submenu, BR(), display)
+
+    return dict(
+        content=content,
+        menu=menu,
+        back=back,
+        tools=''
+    )
 
 
 

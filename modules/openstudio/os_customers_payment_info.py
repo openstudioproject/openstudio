@@ -37,3 +37,20 @@ class OsCustomersPaymentInfo:
 
         os_eo = OSExactOnline()
         os_eo.update_bankaccount(os_customer, self)
+
+
+    def exact_online_get_bankaccount(self):
+        """
+
+        :return:
+        """
+        from openstudio.os_exact_online import OSExactOnline
+        eoID = self.row.exact_online_bankaccount_id
+
+        if not eoID:
+            return None
+
+        os_eo = OSExactOnline()
+        api = os_eo.get_api()
+
+        return api.bankaccounts.filter(ID=eoID)

@@ -116,6 +116,22 @@ class Customer:
         return api.relations.filter(ID=eoID)
 
 
+    def exact_online_get_bankaccounts(self):
+        """
+        :return:  Exact Online bankaccounts data for OpenStudio customer
+        """
+        from openstudio.os_exact_online import OSExactOnline
+        eoID = self.row.exact_online_relation_id
+
+        if not eoID:
+            return None
+
+        os_eo = OSExactOnline()
+        api = os_eo.get_api()
+
+        return api.bankaccounts.filter(account=eoID)
+
+
     def _get_subscriptions_on_date(self, date):
         """
             Returns subscription for a date
