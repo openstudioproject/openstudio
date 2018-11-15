@@ -73,6 +73,22 @@ class Customer:
         self.row.update_record()
 
 
+    def exact_online_get_relation(self):
+        """
+        :return: Exact Online relation data for OpenStudio customer
+        """
+        from openstudio.os_exact_online import OSExactOnline
+        eoID = self.row.exact_online_relation_id
+
+        if not eoID:
+            return None
+
+        os_eo = OSExactOnline()
+        api = os_eo.get_api()
+
+        return api.relations.filter(ID=eoID)
+
+
     def _get_subscriptions_on_date(self, date):
         """
             Returns subscription for a date

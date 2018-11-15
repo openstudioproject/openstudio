@@ -5867,19 +5867,19 @@ def account_exact_online():
     form = SQLFORM.factory(
         Field('code',
               defualt=request.vars['code'],
-              requires=IS_NOT_EMPTY()),
+              requires=IS_NOT_EMPTY(),
+              label=T("Exact Online relation code")
+              ),
         formstyle = 'bootstrap3_stacked',
         submit_button = T('Find Exact relations')
     )
 
     search_result = ''
     if form.process().accepted:
+        from openstudio.os_exact_online import OSExactOnline
+
         response.flash = T("Successfully submitted search to Exact Online")
         code = request.vars['code']
-
-        import pprint
-
-        from openstudio.os_exact_online import OSExactOnline
 
         os_eo = OSExactOnline()
         api = os_eo.get_api()
@@ -5900,7 +5900,7 @@ def account_exact_online():
                     'noicon',
                     URL('account_exact_online_link_relation', vars={'cuID': cuID,
                                                                     'eoID': relation['ID']}),
-                    title=T("Link"),
+                    title=T("Link to this relation"),
                     _class='pull-right'
                 )
 
@@ -5910,16 +5910,38 @@ def account_exact_online():
                     TD(btn_link)
                 ))
 
-        pp = pprint.PrettyPrinter(depth=6)
-        pp.pprint(relations)
-
-
     result = set_form_id_and_get_submit_button(form, 'MainForm')
     form = result['form']
     submit = result['submit']
 
 
-    content = DIV(submenu, BR(), form, HR(), search_result)
+    current_link = T("Search for a relation code to link an Exact Online relation to this customer.")
+    linked_relations = customer.exact_online_get_relation()
+    if linked_relations:
+        current_link = DIV(
+            T("This customer is linked to the following Exact Online relation"), BR(), BR(),
+            T("Exact Online code: %s" % (linked_relations[0]['Code'])), BR(),
+                T("Exact Online name: %s" % (linked_relations[0]['Name'])), BR(), BR(),
+            T("To link this customer to another Exact Online relation, search for a relation code.")
+        )
+
+    display = DIV(
+        DIV(
+            H4(T("Current link")),
+            current_link,
+            _class='col-md-6'
+        ),
+        DIV(
+            H4(T('Find relations in Exact Online')),
+            form,
+            HR(),
+            search_result,
+            _class='col-md-6'
+        ),
+        _class='row'
+    )
+
+    content = DIV(submenu, BR(), display)
 
     menu = customers_get_menu(cuID, 'account')
     back = edit_get_back()
@@ -5940,13 +5962,10 @@ def account_exact_online_link_relation():
     cuID = request.vars['cuID']
     eoID = request.vars['eoID']
 
-    print cuID
-    print eoID
-
     customer = Customer(cuID)
     customer.exact_online_link_to_relation(eoID)
 
-    session.flash = T("Linked Exact Online relation")
+    session.flash = T("Updates link to Exact Online relation")
 
     redirect(URL('account_exact_online', vars={'cuID': cuID}))
 

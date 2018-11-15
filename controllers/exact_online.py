@@ -291,25 +291,25 @@ def invoices():
     return 'got it!'
 
 
-def relation_get():
-    code = '6929'
-
-    import pprint
-
-    from ConfigParser import NoOptionError
-    from openstudio.os_exact_online import OSExactOnline
-    from exactonline.http import HTTPError
-
-    os_eo = OSExactOnline()
-    api = os_eo.get_api()
-
-    # result = api.bankaccounts.all()
-    result = api.relations.filter(relation_code=code)
-
-    pp = pprint.PrettyPrinter(depth=6)
-    pp.pprint(result)
-
-    return 'success'
+# def relation_get():
+#     code = '6929'
+#
+#     import pprint
+#
+#     from ConfigParser import NoOptionError
+#     from openstudio.os_exact_online import OSExactOnline
+#     from exactonline.http import HTTPError
+#
+#     os_eo = OSExactOnline()
+#     api = os_eo.get_api()
+#
+#     # result = api.bankaccounts.all()
+#     result = api.relations.filter(relation_code=code)
+#
+#     pp = pprint.PrettyPrinter(depth=6)
+#     pp.pprint(result)
+#
+#     return 'success'
 
 
 def bankaccount_get():
