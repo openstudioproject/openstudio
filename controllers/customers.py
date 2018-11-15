@@ -4102,8 +4102,10 @@ def bankaccount_exact_online():
             for account in accounts:
                 btn_link = os_gui.get_button(
                     'noicon',
-                    URL('account_exact_online_link_relation', vars={'cuID': cuID,
-                                                                    'eoID': account['ID']}),
+                    URL('bankaccount_exact_online_link_bankaccount',
+                        vars={'cuID': cuID,
+                              'cpiID': cpiID,
+                              'eoID': account['ID']}),
                     title=T("Link to this bank account"),
                     _class='pull-right'
                 )
@@ -4159,13 +4161,12 @@ def bankaccount_exact_online_link_bankaccount():
     """
     from openstudio.os_customers_payment_info import OsCustomersPaymentInfo
 
-    cpi = OsCustomersPaymentInfo(cpiID)
-
     cuID = request.vars['cuID']
     cpiID = request.vars['cpiID']
     eoID = request.vars['eoID']
 
-    cpi.exact_online_link_to_bankaccount(eoID)
+    cpi = OsCustomersPaymentInfo(cpiID)
+    message = cpi.exact_online_link_to_bankaccount(eoID)
 
     session.flash = message
     redirect(URL('bankaccount_exact_online', vars={'cuID': cuID,

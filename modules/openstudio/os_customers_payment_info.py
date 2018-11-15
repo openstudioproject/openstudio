@@ -54,3 +54,42 @@ class OsCustomersPaymentInfo:
         api = os_eo.get_api()
 
         return api.bankaccounts.filter(ID=eoID)
+
+
+    def exact_online_link_to_bankaccount(self, exact_online_bankaccount_id):
+        """
+        :param exact_online_relation_id: Exact Online crm/BankAccounts guid
+        :return:
+        """
+        T = current.T
+        db = current.db
+        message = ''
+
+        query = (db.customers_payment_info.id != self.cpiID) & \
+                (db.customers_payment_info.exact_online_bankaccount_id ==
+                    exact_online_bankaccount_id)
+        rows = db(query).select(
+            db.customers_payment_info.id,
+            db.customers_payment_info.auth_customer_id,
+            db.customers_payment_info.AccountNumber
+        )
+
+        if len(rows):
+            row = rows.first()
+
+            message = SPAN(
+                B(T("Unable to update Exact Online bank account link.")),
+                T("This Exact Online bank account is already linked to "),
+                A(row.display_name,
+                  _href=URL('customers', 'bankaccount', vars={'cpiID': row.id,
+                                                              'cuID': row.auth_customer_id}),
+                  _target="_blank"),
+                '.'
+            )
+        else:
+            self.row.exact_online_bankaccount_id = exact_online_bankaccount_id
+            self.row.update_record()
+
+            message = T("Updated link to Exact Online bank account")
+
+        return message
