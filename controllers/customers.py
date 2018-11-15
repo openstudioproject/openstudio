@@ -5963,10 +5963,9 @@ def account_exact_online_link_relation():
     eoID = request.vars['eoID']
 
     customer = Customer(cuID)
-    customer.exact_online_link_to_relation(eoID)
+    message = customer.exact_online_link_to_relation(eoID)
 
-    session.flash = T("Updates link to Exact Online relation")
-
+    session.flash = message
     redirect(URL('account_exact_online', vars={'cuID': cuID}))
 
 

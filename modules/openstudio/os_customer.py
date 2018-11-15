@@ -69,8 +69,35 @@ class Customer:
         :param exact_online_relation_id: Exact Online crm/Account guid
         :return:
         """
-        self.row.exact_online_relation_id = exact_online_relation_id
-        self.row.update_record()
+        T = current.T
+        db = current.db
+        message = ''
+
+        query = (db.auth_user.id != self.cuID) & \
+                (db.auth_user.exact_online_relation_id == exact_online_relation_id)
+        rows = db(query).select(
+            db.auth_user.id,
+            db.auth_user.display_name
+        )
+
+        if len(rows):
+            row = rows.first()
+
+            message = SPAN(
+                B(T("Unable to update Exact Online relation link.")),
+                T("This Exact Online relation is already linked to "),
+                A(row.display_name,
+                  _href=URL('customers', 'edit', args=[row.id]),
+                  _target="_blank"),
+                '.'
+            )
+        else:
+            self.row.exact_online_relation_id = exact_online_relation_id
+            self.row.update_record()
+
+            message = T("Updated link to Exact Online relation")
+
+        return message
 
 
     def exact_online_get_relation(self):
