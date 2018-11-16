@@ -100,12 +100,6 @@ def user():
         error_message = T("Please enter your last name")
     )
 
-    # Enforce strong passwords!
-    db.auth_user.password.requires.insert(0, IS_STRONG())
-
-
-    form=auth()
-
     form_login = ''
     login_link = ''
     login_title = ''
@@ -131,6 +125,10 @@ def user():
         has_privacy_notice = False
 
     if 'register' in request.args:
+        # Enforce strong passwords
+        db.auth_user.password.requires.insert(0, IS_STRONG())
+        form = auth()
+
         register_title = T("Create your account")
         login_title = T("Already have an account?")
         login_link = A(T("Click here to log in"),
@@ -234,12 +232,13 @@ def user():
     logo_login = DIV(logo_img, logo_text,
                      _class=logo_class)
 
-    # set email placeholder
-    if 'login' in request.args or 'request_reset_password' in request.args:
-        email = form.element('#auth_user_email')
-        email['_placeholder'] = T("Email...")
+    if 'logout' in request.args:
+        form = auth()
+
 
     if 'login' in request.args:
+        form = auth()
+
         response.view = 'default/user_login.html'
         login_title = T("Log in")
         register_title = T("Create your account")
@@ -286,13 +285,8 @@ def user():
         form_login = form
 
 
-    if 'request_reset_password' in request.args or \
-       'reset_password' in request.args:
-        submit = form.element('input[type=submit]')
-        submit['_value'] = T('Reset password')
-
-
     if 'request_reset_password' in request.args:
+        form = auth()
         response.view = 'default/user_login.html'
 
         cancel = A(T("Cancel"),
@@ -317,7 +311,16 @@ def user():
               _href=URL(args="login"))
         )
 
+    # set email placeholder
+    if 'login' in request.args or 'request_reset_password' in request.args:
+        email = form.element('#auth_user_email')
+        email['_placeholder'] = T("Email...")
+
     if 'reset_password' in request.args:
+        # Enforce strong passwords
+        db.auth_user.password.requires.insert(0, IS_STRONG())
+        form = auth()
+
         response.view = 'default/user_login.html'
 
         passwd = form.element('#no_table_new_password')
@@ -342,8 +345,18 @@ def user():
               _href=URL(args="login"))
         )
 
+        
+    if 'request_reset_password' in request.args or \
+       'reset_password' in request.args:
+        submit = form.element('input[type=submit]')
+        submit['_value'] = T('Reset password')
+
 
     if 'change_password' in request.args:
+        # Enforce strong passwords
+        db.auth_user.password.requires.insert(0, IS_STRONG())
+        form = auth()
+
         response.view = 'default/user_login.html'
         response.title = T('Change password')
 
