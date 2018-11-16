@@ -12,15 +12,23 @@ from .manager import Manager
 class Relations(Manager):
     resource = 'crm/Accounts'
 
-    def filter(self, relation_code=None, **kwargs):
+    def filter(self, ID=None, relation_code=None, **kwargs):
         # $select=ID,Code,Name
         if 'select' not in kwargs:
             kwargs['select'] = 'ID,Code,Name'
+            
+        if ID is not None:
+            remote_id = self._remote_id(ID)
+            # Filter by our account number.
+            self._filter_append(kwargs, u"ID eq guid%s" % (remote_id,))
 
         if relation_code is not None:
             remote_id = self._remote_relation_code(relation_code)
             self._filter_append(kwargs, u'Code eq %s' % (remote_id,))
         return super(Relations, self).filter(**kwargs)
+
+    def _remote_id(self, ID):
+        return u"'%s'" % (ID.replace("'", "''"),)
 
     def _remote_relation_code(self, code):
         return u"'%18s'" % (code.replace("'", "''"),)

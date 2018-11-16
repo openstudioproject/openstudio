@@ -8,7 +8,7 @@ const Button = ({history, children}) =>
     </button>
 
 
-const CartToolsCustomer = ({customers, history, intl}) =>
+const CustomerButton = ({customers, history, intl}) =>
     <div>
         {
             <Button history={history}>
@@ -22,4 +22,4 @@ const CartToolsCustomer = ({customers, history, intl}) =>
     </div>
 
 
-export default CartToolsCustomer
+export default CustomerButton

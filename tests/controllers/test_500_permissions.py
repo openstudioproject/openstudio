@@ -47,7 +47,7 @@ def test_login_nopriv_user(client, web2py):
     setup_permission_tests(web2py)
 
     data = dict(email='support@openstudioproject.com',
-                password='password',
+                password='Password@1',
                 _formname='login')
     client.post('/default/user/login', data=data)
     assert client.status == 200

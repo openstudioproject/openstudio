@@ -101,7 +101,7 @@ from gluon.tools import Auth, Crud, Service, PluginManager
 auth = Auth(db, host_names=myconf.get('host.names'))
 service = Service()
 plugins = PluginManager()
-crud    = Crud(db)
+crud = Crud(db)
 
 # -------------------------------------------------------------------------
 # Turn of record change detection globally to allow saving a form multiple times
@@ -150,8 +150,6 @@ auth.settings.logged_url = URL('profile', 'index')
 auth.messages.email_sent = T("Email sent. Please check your inbox or your spam folder in case you don't receive a message within 15 minutes")
 auth.messages.email_verified = T('Email verified, you can now log in using your email address and the password chosen when registering.')
 auth.messages.registration_verifying = T('Please verify your email address by clicking on the link in the verification email.')
-# auth.settings.actions_disabled.append('register')
-# auth.settings.actions_disabled.append('profile')
 
 # -------------------------------------------------------------------------
 # Make some objects accessible in modules through current imported from gluon

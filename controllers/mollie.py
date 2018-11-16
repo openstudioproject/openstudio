@@ -213,7 +213,7 @@ def invoice_pay():
         if mandates['count'] > 0:
             # background payment
             valid_mandate = False
-            for mandate in mandates:
+            for mandate in mandates['_embedded']['mandates']:
                 if mandate['status'] == 'valid':
                     valid_mandate = True
                     break
@@ -452,7 +452,6 @@ def donate():
     db.invoices_mollie_payment_ids.insert(
         invoices_id=iID,
         mollie_payment_id=payment['id'],
-        RecurringType=payment['recurringType'],
         WebhookURL=payment['webhookUrl']
     )
 

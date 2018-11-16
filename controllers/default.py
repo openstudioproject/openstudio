@@ -97,6 +97,10 @@ def user():
         error_message = T("Please enter your last name")
     )
 
+    # Enforce strong passwords!
+    db.auth_user.password.requires.insert(0, IS_STRONG())
+
+
     form=auth()
 
     form_login = ''
@@ -137,7 +141,6 @@ def user():
         )
         response.view = 'default/user_login.html'
         user_registration_set_visible_fields()
-        #db.auth_user.password.requires=IS_STRONG()
 
         first_name = form.element('#auth_user_first_name')
         first_name['_placeholder'] = T("First name...")

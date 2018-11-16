@@ -17,6 +17,9 @@ const mapStateToProps = state =>
 
 const mapDispatchToProps = dispatch =>
     ({  
+        fetchPaymentMethods() {
+            dispatch(appOperations.fetchPaymentMethods())
+        },
         fetchUser() {
             dispatch(appOperations.fetchUser())
         },

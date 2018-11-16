@@ -10,7 +10,8 @@ const mapStateToProps = state =>
     ({
         app: state.app,
         items: state.shop.cart.items,
-        selected_item: state.shop.cart.selected_item
+        selected_item: state.shop.cart.selected_item,
+        total: state.shop.cart.total
     })
 
 const mapDispatchToProps = dispatch =>

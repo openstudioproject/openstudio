@@ -64,6 +64,74 @@ class Customer:
         return md5.hexdigest()
 
 
+    def exact_online_link_to_relation(self, exact_online_relation_id):
+        """
+        :param exact_online_relation_id: Exact Online crm/Account guid
+        :return:
+        """
+        T = current.T
+        db = current.db
+        message = ''
+
+        query = (db.auth_user.id != self.cuID) & \
+                (db.auth_user.exact_online_relation_id == exact_online_relation_id)
+        rows = db(query).select(
+            db.auth_user.id,
+            db.auth_user.display_name
+        )
+
+        if len(rows):
+            row = rows.first()
+
+            message = SPAN(
+                B(T("Unable to update Exact Online relation link.")),
+                T("This Exact Online relation is already linked to "),
+                A(row.display_name,
+                  _href=URL('customers', 'edit', args=[row.id]),
+                  _target="_blank"),
+                '.'
+            )
+        else:
+            self.row.exact_online_relation_id = exact_online_relation_id
+            self.row.update_record()
+
+            message = T("Updated link to Exact Online relation")
+
+        return message
+
+
+    def exact_online_get_relation(self):
+        """
+        :return: Exact Online relation data for OpenStudio customer
+        """
+        from openstudio.os_exact_online import OSExactOnline
+        eoID = self.row.exact_online_relation_id
+
+        if not eoID:
+            return None
+
+        os_eo = OSExactOnline()
+        api = os_eo.get_api()
+
+        return api.relations.filter(ID=eoID)
+
+
+    def exact_online_get_bankaccounts(self):
+        """
+        :return:  Exact Online bankaccounts data for OpenStudio customer
+        """
+        from openstudio.os_exact_online import OSExactOnline
+        eoID = self.row.exact_online_relation_id
+
+        if not eoID:
+            return None
+
+        os_eo = OSExactOnline()
+        api = os_eo.get_api()
+
+        return api.bankaccounts.filter(account=eoID)
+
+
     def _get_subscriptions_on_date(self, date):
         """
             Returns subscription for a date
@@ -873,27 +941,32 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
             auth.has_permission('delete', 'customers_payments_info_mandates')
         )
 
+        edit_permission = (
+            auth.has_membership(group_id='Admins') or
+            auth.has_permission('update', 'customers_payments_info_mandates')
+        )
+
         onclick = "return confirm('" + \
                      T('Do you really want to remove this mandate?') + "');"
 
         mandates = DIV()
         for row in rows.render():
             btn_delete = ''
+            box_tools = DIV(_class='box-tools')
             if delete_permission and request.controller == 'customers':
-                btn_delete = DIV(
+                box_tools.append(
                     A(os_gui.get_fa_icon('fa-times'),
                       _href=URL('customers', 'bankaccount_mandate_delete',
                                 vars={'cuID':self.cuID,
                                       'cpimID': row.id}),
                       _onclick=onclick,
-                      _class='text-red'),
-                    _class='box-tools'
+                      _class='btn-box-tool text-red')
                 )
 
             mandates.append(DIV(
                 DIV(H3(T("Direct debit mandate"),
                        _class="box-title"),
-                    btn_delete,
+                    box_tools,
                     _class="box-header"
                 ),
                 DIV(LABEL(T("Reference")),
@@ -1018,12 +1091,12 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
 
             table = TABLE(header, _class="table table-striped table-hover")
 
-            for m in mollie_mandates['data']:
+            for m in mollie_mandates['_embedded']['mandates']:
                 # 2018-06-14T10:35:01.0Z -- createdDatetime format
 
                 table.append(TR(
                     TD(m['id']),
-                    TD(m['createdDatetime']),
+                    TD(m['createdAt']),
                     TD(m['signatureDate']),
                     TD(m['status']),
                     TD(m['method'])

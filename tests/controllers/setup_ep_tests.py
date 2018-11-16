@@ -7,7 +7,7 @@ def setup_ep_tests(web2py):
             A new group
             Adds the user to the group
     """
-    password = web2py.db.auth_user.password.validate('password')[0]
+    password = web2py.db.auth_user.password.validate('Password@1')[0]
     uid = 400
     gid = 400
 

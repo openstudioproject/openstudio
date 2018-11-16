@@ -4,7 +4,7 @@ import { v4 } from "uuid"
 import CartListItem from "./CartListItem"
 import CartListTotal from "./CartListTotal"
 
-const CartList = ({items, selected_item, onClick=f=>f}) => 
+const CartList = ({items, selected_item, total, onClick=f=>f}) => 
     <div>
         {items.map((cart_item, i) => 
             <CartListItem key={"ci_" + v4()}
@@ -12,7 +12,7 @@ const CartList = ({items, selected_item, onClick=f=>f}) =>
                           selected_item={selected_item}
                           onClick={onClick} />
         )}
-        <CartListTotal items={items} />
+        <CartListTotal total={total} />
         
     </div>
 

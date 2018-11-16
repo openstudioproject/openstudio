@@ -1,4 +1,8 @@
 import {
+    requestPaymentMethods,
+    receivePaymentMethods,
+    requestSubmitCart,
+    receiveSubmitCart,
     requestUser as request_user,
     receiveUser as receive_user,
     requestSettings as request_settings,
@@ -28,6 +32,37 @@ const setPageTitle = set_page_title
 
 
 // data fetchers
+
+const fetchPaymentMethods = () => {
+  return dispatch => {
+      dispatch(requestPaymentMethods)
+      dispatch(setLoading())
+
+      dispatch(set_loading_message("Payment methods"))
+      axios_os.get(OS_API.APP_PAYMENT_METHODS)
+      .then(function (response) {
+        // handle success
+        console.log('receive payment methods here')
+        dispatch(receivePaymentMethods(response.data))
+        dispatch(setLoaded())  
+        dispatch(setLoading())        
+      })
+      .catch(function (error) {
+        // handle error
+        console.log(error)
+        dispatch(setError(true))
+        dispatch(setErrorMessage("Error loading payment methods"))
+        if (error.config) {
+          dispatch(setErrorData(error.config.url))
+        } 
+      })
+      .then(function () {
+        // always executed
+      });
+  }
+}
+
+
 const fetchUser = () => {
     return dispatch => {
         dispatch(request_user)
@@ -87,9 +122,50 @@ const fetchSettings = () => {
     }
 }
 
+
+const submitCart = (state) => {
+  return dispatch => {
+    dispatch(requestSubmitCart())
+
+    // const date = new Date()
+    // const iso_date = toISODate(date)
+    console.log(state)
+    // const params = new URLSearchParams()
+
+    // params.append('customerID', state.customers.list.selectedID)
+    // params.append('items', state.shop.cart.items)
+
+    // params.append('clsID', clsID)
+    // params.append('date', iso_date)
+    // console.log(params)
+    let payload = {
+      payment_methodID: state.shop.payment.selectedID,
+      customerID: state.customers.list.selectedID,
+      items: state.shop.cart.items
+    }
+
+    axios_os.post(OS_API.APP_SUBMIT_CART, payload)
+    .then(function (response) {
+      // handle success
+      dispatch(receiveSubmitCart(response.data))
+      // dispatch(setLoadingProgress(100))
+    })
+    .catch(function (error) {
+      // handle error
+      console.log(error)
+    })
+    .then(function () {
+      // always executed
+    });
+  } 
+}
+
+
 export default {
+    fetchPaymentMethods,
     fetchUser,
     fetchSettings,
+    submitCart,
     setError,
     setErrorData,
     setErrorMessage,

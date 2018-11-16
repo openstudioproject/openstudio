@@ -11,7 +11,7 @@ def test_logout_and_login_as_teacher(client, web2py):
     assert client.status == 200
 
     data = dict(email='ep@openstudioproject.com',
-                password='password',
+                password='Password@1',
                 _formname='login',
                 )
     client.post('/default/user/login', data=data)
