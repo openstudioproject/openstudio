@@ -232,7 +232,8 @@ def user():
     logo_login = DIV(logo_img, logo_text,
                      _class=logo_class)
 
-    if 'logout' in request.args:
+
+    if 'logout' in request.args or 'not_authorized' in request.args:
         form = auth()
 
 
@@ -281,7 +282,6 @@ def user():
                                _href=URL(args='register',
                                          vars=request.vars),
                                _class='btn btn-primary btn-create_your_account')
-
         form_login = form
 
 

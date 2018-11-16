@@ -26,8 +26,6 @@ from openstudio.os_class_schedule import ClassSchedule
 
 import datetime
 
-# helpers start
-
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'employee_portal'))
@@ -36,7 +34,7 @@ def index():
         Employee Portal page, a quick overview of today
     """
     response.title = T("Employee Portal")
-    response.subtitle = T('Welcome ') +auth.user.display_name
+    response.subtitle = T('Welcome ') + auth.user.display_name
 
     # upcoming classes (for teachers)
     upcoming_classes = ep_index_teacher_upcoming_classes()
