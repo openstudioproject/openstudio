@@ -17,6 +17,9 @@ def integration_get_menu(page):
         ['mollie',
          T('Mollie'),
          URL('mollie')],
+        ['moneybird',
+         T('Moneybird'),
+         URL('moneybird')],
     ]
 
     return os_gui.get_submenu(pages, page, horizontal=True, htype='tabs')
@@ -189,6 +192,70 @@ def exact_online():
     return dict(content=form,
                 menu=menu,
                 tools=tools,
+                save=submit)
+
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'settings'))
+def moneybird():
+    """
+        Page to set Moneybird API Token
+    """
+
+    from openstudio.os_moneybird import OSMoneybird
+
+    response.title = T("Settings")
+    response.subtitle = T("Integration")
+
+    response.view = 'general/tabs_menu.html'
+
+    moneybird_token = get_sys_property('moneybird_token')
+    # mailchimp_username = get_sys_property('mailchimp_username')
+
+    form = SQLFORM.factory(
+        # Field('mailchimp_username',
+            #   requires=IS_NOT_EMPTY(),
+            #   default=mailchimp_username,
+            #   label=T('MailChimp User name')),
+        Field('moneybird_token',
+              requires=IS_NOT_EMPTY(),
+              default=moneybird_token,
+              label=T('Moneybird API token')),
+        submit_button=T("Save"),
+        formstyle='bootstrap3_stacked',
+        separator=' ')
+
+    form_id = "MainForm"
+    form_element = form.element('form')
+    form['_id'] = form_id
+
+    elements = form.elements('input, select, textarea')
+    for element in elements:
+        element['_form'] = form_id
+
+    submit = form.element('input[type=submit]')
+
+    if form.accepts(request.vars, session):
+        moneybird_token = request.vars['moneybird_token']
+        set_sys_property('moneybird_token', moneybird_token)
+
+        os_mb = OSMoneybird()
+        moneybird_api = os_mb.get_api()
+
+        # Get an administration id
+        administrations = moneybird_api.get('administrations')
+
+        # feedback to user
+        session.flash = T('Connection established with: ' + administrations[0]['name'])
+
+        # reload so the user sees how the values are stored in the db now
+        redirect(URL('moneybird'))
+
+    menu = integration_get_menu(request.function)
+
+    return dict(content=form,
+                menu=menu,
                 save=submit)
 
 
