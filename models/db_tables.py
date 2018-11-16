@@ -5629,6 +5629,7 @@ auth.settings.extra_fields['auth_user'] = [
         writable=False,
         requires=IS_IN_SET([ ['backend', T('Backend')],
                              ['selfcheckin', T("Self Check-in")],
+                             ['ep', T("Employee portal")],
                              ['profile', T('Customer profile')]
                            ]),
         default='profile',

@@ -26,6 +26,9 @@ def index():
     if auth.user.login_start == 'selfcheckin':
         redirect(URL('selfcheckin', 'index'))
 
+    if auth.user.login_start == 'ep':
+        redirect(URL('ep', 'index'))
+
     user_helpers = User_helpers()
     if user_helpers.check_read_permission('pinboard', auth.user.id):
         redirect(URL('pinboard', 'index'))
