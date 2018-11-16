@@ -22,3 +22,5 @@ tests/controllers/__pycache__/
 \.gitignore~
 
 *.ini~
+
+*.DS_Store
