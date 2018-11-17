@@ -1,6 +1,6 @@
 # OpenStudio
 
-OpenStudio is freely distributed web based yoga studio software built upon OpenSource technology. 
+OpenStudio is freely distributed web based yoga studio software built upon open source technology. 
 OpenStudio will help you manage customers, subscriptions, class cards, schedule classes, plan events and more. 
 
 Online payments are provided through [Mollie](https://www.mollie.com/en). Please refer to their website & support for current rates and questions about availability in your region.
