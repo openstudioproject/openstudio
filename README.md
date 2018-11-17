@@ -8,7 +8,7 @@ The OpenStudio Mollie integration handles single payments for classes, class car
 
 More information can be found on [www.openstudioproject.com](https://www.openstudioproject.com).
 
-Although initially written for yoga studio, OpenStudio is now used by different kinds of organizations as well like dance studios and Buddhist centers. Basically any organization or business dealing with subscriptions, classes or events could benefit from using OpenStudio.
+Although initially written for yoga studios, OpenStudio is now used by different kinds of organizations as well like dance studios and Buddhist centers. Basically any organization or business dealing with subscriptions, classes or events could benefit from using OpenStudio.
 
 ## Website integration
 
