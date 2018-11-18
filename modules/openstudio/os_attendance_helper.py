@@ -1152,6 +1152,7 @@ class AttendanceHelper:
             }
 
         # Request review
+        options['under_review'] = False
         if request_review:
             under_review = self._attendance_sign_in_check_under_review(
                 clsID,
@@ -1159,11 +1160,9 @@ class AttendanceHelper:
                 date
             )
 
-
             if under_review:
                 options['under_review'] = True
             else:
-                options['under_review'] = False
                 options['request_review'] = {
                     "Type": "request_review",
                     "Name": T('Request review'),
@@ -1175,8 +1174,7 @@ class AttendanceHelper:
                 "Type": "complementary",
                 "Name": T('Complementary'),
             }
-
-
+            
 
         return options
 
