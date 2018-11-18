@@ -29,14 +29,14 @@ class OSMoneybird:
 
         db = current.db
         os_tools = OsTools()
-        authorized = os_tools.get_sys_property('exact_online_authorized')
+        authorized = os_tools.get_sys_property('moneybird_administration_id')
 
         if not authorized:
             self._log_error(
                 'create',
                 'sales_entry',
                 os_invoice.invoice.id,
-                "Exact online integration not authorized"
+                "Moneybird integration not authorized"
             )
 
             return
@@ -62,7 +62,7 @@ class OSMoneybird:
                 'create',
                 'sales_entry',
                 os_invoice.invoice.id,
-                "This customer is not linked to Exact Online - " + unicode(os_customer.row.id)
+                "This customer is not linked to Moneybird - " + unicode(os_customer.row.id)
             )
             return
 
@@ -150,14 +150,14 @@ class OSMoneybird:
         from tools import OsTools
 
         os_tools = OsTools()
-        authorized = os_tools.get_sys_property('exact_online_authorized')
+        authorized = os_tools.get_sys_property('moneybird_administration_id')
 
         if not authorized:
             self._log_error(
                 'update',
                 'sales_entry',
                 os_invoice.invoice.id,
-                "Exact online integration not authorized"
+                "Moneybird integration not authorized"
             )
 
             return
@@ -261,7 +261,7 @@ class OSMoneybird:
 
     def delete_sales_entry_line(self, ID):
         """
-        :param ID: Exact Online SalesEntryLine ID
+        :param ID: Moneybird SalesEntryLine ID
         :return:
         """
         api = self.get_api()
@@ -375,67 +375,54 @@ class OSMoneybird:
         return lines
 
 
-    def create_relation(self, os_customer):
+    def create_contact(self, os_customer):
         """
         :param os_customer: OsCustomer object
-        :return: exact online relation id
+        :return: Moneybird relation id
         """
         from tools import OsTools
+        from moneybird import MoneyBird
 
         os_tools = OsTools()
-        authorized = os_tools.get_sys_property('exact_online_authorized')
+        authorized = os_tools.get_sys_property('moneybird_administration_id')
 
         if not authorized:
             self._log_error(
                 'create',
                 'relation',
                 os_customer.row.id,
-                "Exact online integration not authorized"
+                "Moneybird not authorized"
             )
 
             return
 
         else:
-            import pprint
-
-            from ConfigParser import NoOptionError
-            from exactonline.http import HTTPError
-
-            storage = self.get_storage()
             api = self.get_api()
 
-            try:
-                selected_division = int(storage.get('transient', 'division'))
-            except NoOptionError:
-                selected_division = None
-
-
-            relation_dict = {
-                "AddressLine1": os_customer.row.address,
-                "ChamberOfCommerce": os_customer.row.company_registration,
-                "City": os_customer.row.city,
-                "Code": os_customer.row.id,
-                "Country": os_customer.row.country,
-                "Division": selected_division,
-                "Email": os_customer.row.email,
-                "Name": os_customer.row.display_name,
-                "Phone": os_customer.row.phone,
-                "Postcode": os_customer.row.postcode,
-                "Status": "C", # Customer
-                "VATNumber": os_customer.row.company_tax_registration,
-                "Website": os_customer.row.teacher_website
+            contact_data = {
+                "contact": {
+                    "firstname": os_customer.row.first_name,
+                    "lastname": os_customer.row.last_name,
+                    "address1": os_customer.row.address,
+                    "phone": os_customer.row.phone,
+                    "zipcode": os_customer.row.postcode,
+                    "city": os_customer.row.city,
+                    "send_invoices_to_email": os_customer.row.email,
+                    "tax_number": os_customer.row.company_tax_registration,
+                    "chamber_of_commerce": os_customer.row.company_registration,
+                    "country": os_customer.row.country,
+                }
             }
-
             error = False
 
             try:
-                result = api.relations.create(relation_dict)
-                rel_id = result['ID']
+                result = api.post('contacts', contact_data, authorized)
+                rel_id = result['id']
 
-                os_customer.row.exact_online_relation_id = rel_id
+                os_customer.row.moneybird_contact_id = rel_id
                 os_customer.row.update_record()
 
-            except HTTPError as e:
+            except MoneyBird.APIError as e:
                 error = True
                 self._log_error(
                     'create',
@@ -450,304 +437,68 @@ class OSMoneybird:
             return rel_id
 
 
-    def update_relation(self, os_customer):
+    def update_contact(self, os_customer):
         """
         :param os_customer: OsCustomer object
         :return: dict(error=True|False, message='')
         """
         from tools import OsTools
+        from moneybird import MoneyBird
 
         os_tools = OsTools()
-        authorized = os_tools.get_sys_property('exact_online_authorized')
+        authorized = os_tools.get_sys_property('moneybird_administration_id')
 
         if not authorized:
             self._log_error(
                 'create',
-                'relation',
+                'contact',
                 os_customer.row.id,
-                "Exact online integration not authorized"
+                "Moneybird integration not authorized"
             )
 
             return
 
-        eoID = os_customer.row.exact_online_relation_id
+        mbID = os_customer.row.moneybird_contact_id
 
-        if not eoID:
-            self.create_relation(os_customer)
+        if not mbID:
+            self.create_contact(os_customer)
             return
-
-        import pprint
-
-        from ConfigParser import NoOptionError
-        from exactonline.http import HTTPError
-
-        storage = self.get_storage()
+            
         api = self.get_api()
 
-        try:
-            selected_division = int(storage.get('transient', 'division'))
-        except NoOptionError:
-            selected_division = None
-
-        relation_dict = {
-            "AddressLine1": os_customer.row.address,
-            "Name": os_customer.row.display_name,
-            "ChamberOfCommerce": os_customer.row.company_registration,
-            "City": os_customer.row.city,
-            "Code": os_customer.row.id,
-            "Country": os_customer.row.country,
-            "Email": os_customer.row.email,
-            "Phone": os_customer.row.phone,
-            "Postcode": os_customer.row.postcode,
-            "Status": "C", # Customer
-            "VATNumber": os_customer.row.company_tax_registration,
-            "Website": os_customer.row.teacher_website
-        }
+        contact_data = {
+                "contact": {
+                    "firstname": os_customer.row.first_name,
+                    "lastname": os_customer.row.last_name,
+                    "address1": os_customer.row.address,
+                    "phone": os_customer.row.phone,
+                    "zipcode": os_customer.row.postcode,
+                    "city": os_customer.row.city,
+                    "send_invoices_to_email": os_customer.row.email,
+                    "tax_number": os_customer.row.company_tax_registration,
+                    "chamber_of_commerce": os_customer.row.company_registration,
+                    "country": os_customer.row.country,
+                }
+            }
 
         error = False
         message = ''
 
         try:
-            result = api.relations.update(eoID, relation_dict)
-        except HTTPError as e:
+            result = api.patch('contacts/'+mbID, contact_data, authorized)
+        except MoneyBird.APIError as e:
             error = True
             message = e
 
             self._log_error(
                 'update',
-                'relation',
+                'contact',
                 os_customer.row.id,
                 e
             )
 
 
         return dict(error=error, message=message)
-
-
-    def get_bankaccount(self, os_customer):
-        """
-        :param os_customer: OsCustomer object
-        :return: ExactOnline bankaccount for os_customer
-        """
-        eoID = os_customer.row.exact_online_relation_id
-
-        import pprint
-
-        from ConfigParser import NoOptionError
-        from exactonline.http import HTTPError
-
-        storage = self.get_storage()
-        api = self.get_api()
-
-        try:
-            return api.bankaccounts.filter(account=eoID)
-        except HTTPError as e:
-            error = True
-            self._log_error(
-                'get',
-                'bankaccount',
-                os_customer.row.id,
-                e
-            )
-            return False
-
-
-    def create_bankaccount(self, os_customer, os_customer_payment_info):
-        """
-        :param os_customer: OsCustomer object
-        :return: None
-        """
-        from exactonline.http import HTTPError
-        from tools import OsTools
-
-        os_tools = OsTools()
-        authorized = os_tools.get_sys_property('exact_online_authorized')
-
-        if not authorized:
-            self._log_error(
-                'create',
-                'bankaccount',
-                os_customer.row.id,
-                "Exact online integration not authorized"
-            )
-
-            return
-
-        api = self.get_api()
-        eoID = os_customer.row.exact_online_relation_id
-
-        bank_account_dict = {
-            'Account': eoID,
-            'BankAccount': os_customer_payment_info.row.AccountNumber,
-            'BankAccountHolderName': os_customer_payment_info.row.AccountHolder,
-            'BICCode': os_customer_payment_info.row.BIC
-        }
-
-        eo_bankaccount_id = None
-
-        # print "bank account creation result:"
-        # result = api.bankaccounts.create(bank_account_dict)
-        #
-        # import pprint
-        # pp = pprint.PrettyPrinter(depth=6)
-        # pp.pprint(result)
-        #
-        # eo_bankaccount_id = result['ID']
-        # os_customer_payment_info.row.exact_online_bankaccount_id = eo_bankaccount_id
-        # os_customer_payment_info.row.update_record()
-
-        try:
-            result = api.bankaccounts.create(bank_account_dict)
-
-            # print "bank account creation result:"
-            # import pprint
-            # pp = pprint.PrettyPrinter(depth=6)
-            # pp.pprint(result)
-
-            eo_bankaccount_id = result['ID']
-            os_customer_payment_info.row.exact_online_bankaccount_id = eo_bankaccount_id
-            os_customer_payment_info.row.update_record()
-
-        except HTTPError as e:
-            error = True
-            self._log_error(
-                'create',
-                'bankaccount',
-                os_customer_payment_info.row.id,
-                e
-            )
-
-        return eo_bankaccount_id
-
-
-    def update_bankaccount(self, os_customer, os_customer_payment_info):
-        """
-        :param os_customer: OsCustomer object
-        :return: None
-        """
-        from exactonline.http import HTTPError
-        from tools import OsTools
-
-        os_tools = OsTools()
-        authorized = os_tools.get_sys_property('exact_online_authorized')
-
-        if not authorized:
-            self._log_error(
-                'update',
-                'bankaccount',
-                os_customer.row.id,
-                "Exact online integration not authorized"
-            )
-
-            return
-
-        api = self.get_api()
-        eoID = os_customer.row.exact_online_relation_id
-
-        exact_account = self.get_bankaccount(os_customer)
-        if not len(exact_account):
-            self.create_bankaccount(os_customer, os_customer_payment_info)
-
-        bank_account_dict = {
-            'Account': eoID,
-            'BankAccount': os_customer_payment_info.row.AccountNumber,
-            'BankAccountHolderName': os_customer_payment_info.row.AccountHolder,
-            'BICCode': os_customer_payment_info.row.BIC
-        }
-
-        try:
-            api.bankaccounts.update(
-                os_customer_payment_info.row.exact_online_bankaccount_id,
-                bank_account_dict
-            )
-        except HTTPError as e:
-            error = True
-            self._log_error(
-                'update',
-                'bankaccount',
-                os_customer.row.id,
-                e
-            )
-
-
-    def create_dd_mandate(self, os_customer_payment_info, os_cpim):
-        """
-        :param os_customer_payment_info: payment info object
-        :param os_cpim: payment info mandates object
-        :return:
-        """
-        from exactonline.http import HTTPError
-        from tools import OsTools
-        from os_customer import Customer
-
-        TODAY_LOCAL = current.TODAY_LOCAL
-        os_tools = OsTools()
-        authorized = os_tools.get_sys_property('exact_online_authorized')
-
-
-        if not authorized:
-            self._log_error(
-                'create',
-                'directdebitmandate',
-                os_cpim.cpimID,
-                "Exact online integration not authorized"
-            )
-
-            return
-
-        api = self.get_api()
-
-        customer = Customer(os_customer_payment_info.row.auth_customer_id)
-        eoID = customer.row.exact_online_relation_id
-        if not eoID:
-            eoID = self.create_relation(customer)
-
-        eo_bankaccount_id = os_customer_payment_info.row.exact_online_bankaccount_id
-
-        # print os_customer_payment_info.row
-
-        if not eo_bankaccount_id:
-            eo_bankaccount_id = self.create_bankaccount(customer, os_customer_payment_info)
-
-
-        mandate_dict = {
-            'Account': eoID,
-            'BankAccount': eo_bankaccount_id,
-            'Reference': os_cpim.row.MandateReference,
-            'SignatureDate': TODAY_LOCAL.strftime("%Y-%m-%d")
-        }
-
-
-        try:
-            result = api.directdebitmandates.create(mandate_dict)
-            os_cpim.row.exact_online_directdebitmandates_id = result['ID']
-            os_cpim.row.update_record()
-
-        except HTTPError as e:
-            error = True
-            self._log_error(
-                'create',
-                'mandate',
-                os_customer_payment_info.cpiID,
-                e
-            )
-
-
-    def upgrate_dd_mandate(self):
-        """
-
-        :return:
-        """
-        pass
-
-
-    def delete_dd_mandate(self, mandateID):
-        """
-
-        :return:
-        """
-        api = self.get_api()
-        api.directdebitmandates.delete(mandateID)
 
 
     def _log_error(self, action, object, object_id, result):
@@ -760,74 +511,10 @@ class OSMoneybird:
         """
         db = current.db
 
-        db.integration_exact_online_log.insert(
+        db.integration_moneybird_log.insert(
             ActionName = action,
             ObjectName = object,
             ObjectID = object_id,
             ActionResult = result,
             Status = 'fail'
         )
-
-
-
-# class ExactOnlineStorage(ExactOnlineConfig):
-#     def get_response_url(self):
-#         """Configure your custom response URL."""
-#         return self.get_base_url() + '/exact_online/oauth2_success/'
-#
-#     def get(self, section, option):
-#         option = self._get_value(section, option)
-#
-#         if not option:
-#             raise ValueError('Required option is not set')
-#
-#         return option
-#
-#     def set(self, section, option, value):
-#         self._set_value(section, option, value)
-#
-#
-#     def _get_value(self, section, option):
-#         """
-#
-#         :param section:
-#         :param option:
-#         :return:
-#         """
-#         db = current.db
-#
-#         query = (db.integration_exact_online_storage.ConfigSection == section) & \
-#                 (db.integration_exact_online_storage.ConfigOption == option)
-#         rows = db(query).select(db.integration_exact_online_storage.ConfigValue)
-#
-#         value = None
-#         if rows:
-#             value = rows.first().ConfigValue
-#
-#         return value
-#
-#
-#     def _set_value(self, section, option, value):
-#         """
-#
-#         :param section:
-#         :param option:
-#         :return:
-#         """
-#         db = current.db
-#
-#         query = (db.integration_exact_online_storage.ConfigSection == section) & \
-#                 (db.integration_exact_online_storage.ConfigOption == option)
-#         rows = db(query).select(db.integration_exact_online_storage.ALL)
-#
-#         if rows:
-#             row = rows.first()
-#             row.ConfigValue = value
-#             row.update_record()
-#         else:
-#             db.integration_exact_online_storage.insert(
-#                 ConfigSection = section,
-#                 ConfigOption = option,
-#                 ConfigValue = value
-#             )
-#
