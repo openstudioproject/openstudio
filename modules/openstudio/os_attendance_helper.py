@@ -2010,20 +2010,33 @@ class AttendanceHelper:
         message = ''
         caID = ''
 
+        class_data = dict(
+            auth_customer_id=cuID,
+            CustomerMembership=self._attendance_sign_in_has_membership(cuID, date),
+            classes_id=clsID,
+            ClassDate=date,
+            AttendanceType=2,  # 2 = drop in class
+            online_booking=online_booking,
+            BookingStatus=booking_status
+        )
+
         signed_in = self._attendance_sign_in_check_signed_in(clsID, cuID, date)
         if signed_in:
-            message = T("Already checked in for this class")
+            if signed_in.AttendanceType == 5:
+                # Under review, so update
+                db(db.classes_attendance._id == signed_in.id).update(**class_data)
+                caID = signed_in.id
+                if invoice:
+                    self._attendance_sign_in_create_invoice(cuID,
+                                                            caID,
+                                                            clsID,
+                                                            date,
+                                                            'dropin')
+            else:
+                message = T("Already checked in for this class")
         else:
             status = 'ok'
-            caID = db.classes_attendance.insert(
-                auth_customer_id=cuID,
-                CustomerMembership = self._attendance_sign_in_has_membership(cuID, date),
-                classes_id=clsID,
-                ClassDate=date,
-                AttendanceType=2,  # 2 = drop in class
-                online_booking=online_booking,
-                BookingStatus=booking_status
-            )
+            caID = db.classes_attendance.insert(**class_data)
 
             if invoice:
                 self._attendance_sign_in_create_invoice(cuID,
