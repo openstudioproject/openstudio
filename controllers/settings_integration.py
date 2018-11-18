@@ -214,10 +214,6 @@ def moneybird():
     # mailchimp_username = get_sys_property('mailchimp_username')
 
     form = SQLFORM.factory(
-        # Field('mailchimp_username',
-            #   requires=IS_NOT_EMPTY(),
-            #   default=mailchimp_username,
-            #   label=T('MailChimp User name')),
         Field('moneybird_token',
               requires=IS_NOT_EMPTY(),
               default=moneybird_token,
@@ -248,6 +244,7 @@ def moneybird():
 
         # feedback to user
         session.flash = T('Connection established with: ' + administrations[0]['name'])
+        set_sys_property('moneybird_administration_id', administrations[0]['id'])
 
         # reload so the user sees how the values are stored in the db now
         redirect(URL('moneybird'))
