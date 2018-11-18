@@ -1243,7 +1243,14 @@ class AttendanceHelper:
                 DIV(
                     os_gui.get_alert(
                         'warning',
-                        T("You're reviewing this check-in. By choosing one of the options below it'll automatically be removed from the 'Review requested' list."),
+                        SPAN(T("You're reviewing this check-in."), ' ',
+                             T("By choosing one of the options below it'll automatically be removed from the 'Review requested' list."),
+                             BR(),
+                             T("Click"), ' ',
+                             A(T("here"),
+                               _href=URL('reports', 'attendance_review_requested')), ' ',
+                             T("to go back to the overview of requested check-in reviews.")
+                             ),
                         dismissable=False,
                     ),
                     _class="col-md-10 col-md-offset-1 col-xs-12"
