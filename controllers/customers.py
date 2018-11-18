@@ -2413,6 +2413,9 @@ def classes_attendance():
         elif row.classes_attendance.AttendanceType == 4:
             # Complementary class
             ct = os_gui.get_label('default', repr_row.classes_attendance.AttendanceType)
+        elif row.classes_attendance.AttendanceType == 5:
+            # Review requested
+            ct = os_gui.get_label('warning', repr_row.classes_attendance.AttendanceType)
 
 
         ##

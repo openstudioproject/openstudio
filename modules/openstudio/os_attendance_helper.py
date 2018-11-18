@@ -447,6 +447,11 @@ class AttendanceHelper:
             except AttributeError:
                 pass
 
+
+            if row.classes_attendance.AttendanceType == 5:
+                td_labels.append(' ')
+                td_labels.append(os_gui.get_label('warning', T("Review")))
+
             if show_booking_time:
                 td_labels.append(BR())
                 td_labels.append(SPAN(T('Booked on'), ' ', repr_row.classes_attendance.CreatedOn,
