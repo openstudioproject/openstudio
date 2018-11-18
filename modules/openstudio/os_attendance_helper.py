@@ -1159,7 +1159,11 @@ class AttendanceHelper:
                 date
             )
 
-            if not under_review:
+
+            if under_review:
+                options['under_review'] = True
+            else:
+                options['under_review'] = False
                 options['request_review'] = {
                     "Type": "request_review",
                     "Name": T('Request review'),
@@ -1233,6 +1237,18 @@ class AttendanceHelper:
             list_type
         )
         formatted_options = DIV(_class='shop-classes-booking-options row')
+
+        if options['under_review']:
+            formatted_options.append(
+                DIV(
+                    os_gui.get_alert(
+                        'warning',
+                        T("You're reviewing this check-in. By choosing one of the options below it'll automatically be removed from the 'Review requested' list."),
+                        dismissable=False,
+                    ),
+                    _class="col-md-10 col-md-offset-1 col-xs-12"
+                )
+            )
 
         if options['subscriptions']:
             for subscription in options['subscriptions']:
