@@ -2417,7 +2417,6 @@ def classes_attendance():
             # Review requested
             ct = os_gui.get_label('warning', repr_row.classes_attendance.AttendanceType)
 
-
         ##
         # Invoice
         ##

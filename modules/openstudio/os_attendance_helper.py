@@ -1655,40 +1655,7 @@ class AttendanceHelper:
             :param date: datetime.date
             :return: dict status[ok|fail], message
         """
-        from os_class import Class
-
-        db = current.db
-        T = current.T
-        DATE_FORMAT = current.DATE_FORMAT
-        cache_clear_customers_subscriptions = current.globalenv['cache_clear_customers_subscriptions']
-
-
-        status = 'fail'
-        message = ''
-        signed_in = self._attendance_sign_in_check_signed_in(clsID, cuID, date)
-        # check credits remaining
-
-        credits_remaining = self._attendance_sign_in_subscription_credits_remaining(csID)
-        message_no_credits = T('No credits remaining on this subscription')
-
-        if signed_in:
-            message = T("Customer has already booked or is already checked-in")
-        elif not credits_remaining and credits_hard_limit:
-            # return message, don't sign in
-            message = message_no_credits
-        else:
-            status = 'ok'
-            clattID = db.classes_attendance.insert(
-                auth_customer_id = cuID,
-                CustomerMembership = self._attendance_sign_in_has_membership(cuID, date),
-                classes_id = clsID,
-                ClassDate = date,
-                AttendanceType = None, # None = subscription
-                customers_subscriptions_id = csID,
-                online_booking=online_booking,
-                BookingStatus=booking_status
-                )
-
+        def take_credit():
             # Take 1 credit
             cls = Class(clsID, date)
             cscID = db.customers_subscriptions_credits.insert(
@@ -1699,16 +1666,58 @@ class AttendanceHelper:
                 Description = cls.get_name(pretty_date=True)
             )
 
-            cache_clear_customers_subscriptions(cuID)
+        from os_class import Class
 
-            # # check credits remaining
-            if not credits_remaining:
-                message = message_no_credits
+        db = current.db
+        T = current.T
+        DATE_FORMAT = current.DATE_FORMAT
+        cache_clear_customers_subscriptions = current.globalenv['cache_clear_customers_subscriptions']
 
-            # check for paused subscription
-            result = self._attedance_sign_in_subscription_check_paused(csID, date)
-            if result:
-                message = result
+        status = 'fail'
+        message = ''
+        signed_in = self._attendance_sign_in_check_signed_in(clsID, cuID, date)
+        # check credits remaining
+
+        paused = self._attedance_sign_in_subscription_check_paused(csID, date)
+        credits_remaining = self._attendance_sign_in_subscription_credits_remaining(csID)
+        message_no_credits = T('No credits remaining on this subscription')
+
+        class_data = dict(
+            auth_customer_id=cuID,
+            CustomerMembership=self._attendance_sign_in_has_membership(cuID, date),
+            classes_id=clsID,
+            ClassDate=date,
+            AttendanceType=None,  # None = subscription
+            customers_subscriptions_id=csID,
+            online_booking=online_booking,
+            BookingStatus=booking_status
+        )
+
+
+        if not credits_remaining and credits_hard_limit:
+            # return message, don't sign in
+            message = message_no_credits
+        elif paused: # check for paused subscription
+            # return message, don't sign in
+            message = paused
+        else:
+            if signed_in:
+                if signed_in.AttendanceType == 5:
+                    # Under review, so update
+                    status = 'ok'
+                    db(db.classes_attendance._id == signed_in.id).update(**class_data)
+                    clattID = signed_in.id
+                    take_credit()
+                else:
+                    # return message, don't sign in
+                    message = T("Customer has already booked or is already checked-in")
+            else:
+                status = 'ok'
+                clattID = db.classes_attendance.insert(**class_data)
+
+                take_credit()
+
+                cache_clear_customers_subscriptions(cuID)
 
         return dict(status=status, message=message)
 
@@ -1960,6 +1969,7 @@ class AttendanceHelper:
             if signed_in:
                 if signed_in.AttendanceType == 5:
                     # Under review, so update
+                    status = 'success'
                     db(db.classes_attendance._id == signed_in.id).update(**class_data)
                 else:
                     message = T("Already checked in for this class")

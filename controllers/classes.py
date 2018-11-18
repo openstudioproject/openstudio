@@ -3274,7 +3274,9 @@ def attendance_sign_in_get_returl_url(clsID, date_formatted, cuID):
         from openstudio.os_customer import Customer
         customer = Customer(cuID)
 
-        session.flash = T("Successfully checked in %s" % customer.row.display_name)
+        session.flash = SPAN(T("Successfully checked in"), ' ',
+                             A(customer.row.display_name,
+                               _href=URL('customers', 'edit', args=cuID)))
         url = URL('reports', 'attendance_review_requested')
     elif session.classes_attendance_signin_back == 'self_checkin':
         url = URL('selfcheckin', 'checkin',
