@@ -30,9 +30,12 @@ class Customer:
         Functions to be called when creating a customer
         """
         from os_exact_online import OSExactOnline
+        from os_moneybird import OSMoneybird
 
         os_eo = OSExactOnline()
         os_eo.create_relation(self)
+        os_mb = OSMoneybird()
+        os_mb.create_contact(self)
 
 
     def on_update(self):
@@ -40,9 +43,13 @@ class Customer:
         Functions to be called when updating a customer
         """
         from os_exact_online import OSExactOnline
+        from os_moneybird import OSMoneybird
 
         os_eo = OSExactOnline()
         os_eo.update_relation(self)
+
+        os_mb = OSMoneybird()
+        os_mb.update_contact(self)
 
 
     def get_name(self):
