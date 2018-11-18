@@ -5071,6 +5071,20 @@ def define_integration_exact_online_log():
             default=datetime.datetime.now())
     )
 
+def define_integration_moneybird_log():
+    db.define_table('integration_moneybird_log',
+        Field('ActionName'),
+        Field('ObjectName'),
+        Field('ObjectID'),
+        Field('ActionResult', 'text'),
+        Field('Status',
+            requires=IS_IN_SET(
+                ['success', T("Success")],
+                ['fail', T("Fail")],
+            )),
+        Field('CreatedOn', 'datetime',
+            default=datetime.datetime.now())
+    )
 
 def define_customers_profile_features():
     """
@@ -5771,6 +5785,10 @@ auth.settings.extra_fields['auth_user'] = [
         readable=False,
         writable=False,
         label=T("Exact online customer ID")),
+    Field('moneybird_contact_id',
+        readable=False,
+        writable=False,
+        label=T("Moneybird customer ID")),
     Field('merged', 'boolean',
         readable=False,
         writable=False,
@@ -5835,6 +5853,7 @@ payment_methods_dict = create_payment_methods_dict()
 
 define_mailing_lists()
 define_integration_exact_online_log()
+define_integration_moneybird_log()
 define_postcode_groups()
 define_tax_rates()
 
