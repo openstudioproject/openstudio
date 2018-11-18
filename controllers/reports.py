@@ -2883,11 +2883,8 @@ def attendance_review_requested():
     response.subtitle = T("Classes attendance")
     response.view = 'general/only_content.html'
 
-    show = 'pending'
-    #To come back successfully after changing a check-in
-    session.classes_attendance_signin_back = 'problem_checkin'
-    # print session.classes_attendance_signin_back
-
+    # Redirect back here after reviewing a check-in
+    session.classes_attendance_signin_back = 'reports_attendance_review_requested'
 
     header = THEAD(TR(TH(''),
                      TH("Customer"),

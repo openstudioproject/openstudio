@@ -1945,21 +1945,29 @@ class AttendanceHelper:
         status = 'fail'
         message = ''
         if classes_available:
+            class_data = dict(
+                auth_customer_id=cuID,
+                CustomerMembership=self._attendance_sign_in_has_membership(cuID, date),
+                classes_id=clsID,
+                ClassDate=date,
+                AttendanceType=3,  # 3 = classcard
+                customers_classcards_id=ccdID,
+                online_booking=online_booking,
+                BookingStatus=booking_status
+            )
+
             signed_in = self._attendance_sign_in_check_signed_in(clsID, cuID, date)
             if signed_in:
-                message = T("Already checked in for this class")
+                if signed_in.AttendanceType == 5:
+                    # Under review, so update
+                    db(db.classes_attendance._id == signed_in.id).update(**class_data)
+                else:
+                    message = T("Already checked in for this class")
             else:
                 status = 'success'
 
                 db.classes_attendance.insert(
-                    auth_customer_id=cuID,
-                    CustomerMembership = self._attendance_sign_in_has_membership(cuID, date),
-                    classes_id=clsID,
-                    ClassDate=date,
-                    AttendanceType=3,  # 3 = classcard
-                    customers_classcards_id=ccdID,
-                    online_booking=online_booking,
-                    BookingStatus=booking_status
+                    **class_data
                 )
 
                 # update class count
