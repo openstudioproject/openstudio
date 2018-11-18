@@ -1020,6 +1020,7 @@ class AttendanceHelper:
                                            date,
                                            customer,
                                            trial=False,
+                                           request_review=False,
                                            complementary=False,
                                            list_type='shop'):
         """
@@ -1145,12 +1146,20 @@ class AttendanceHelper:
                 "Message": get_sys_property('shop_classes_trial_message') or ''
             }
 
+        # Request review
+        if complementary:
+            options['request_review'] = {
+                "Type": "request_review",
+                "Name": T('Request review'),
+            }
+
         # Complementary
         if complementary:
             options['complementary'] = {
                 "Type": "complementary",
                 "Name": T('Complementary'),
             }
+
 
 
         return options
@@ -1161,6 +1170,7 @@ class AttendanceHelper:
                                                      date,
                                                      customer,
                                                      trial=False,
+                                                     request_review=False,
                                                      complementary=False,
                                                      list_type='shop',
                                                      controller=''):
@@ -1172,13 +1182,16 @@ class AttendanceHelper:
         :param: list_type: [shop, attendance, selfcheckin]
         :return:
         """
-        def classes_book_options_get_button_book(url):
+        def classes_book_options_get_button_book(url, btn_text=""):
             """
                 Return book button for booking options
             """
             button_text = T('Book')
             if list_type == 'attendance' or list_type == 'selfcheckin':
-                button_text = T('Check in')
+                button_text = T("Check in")
+
+            if btn_text:
+                button_text = btn_text
 
             button_book = A(SPAN(button_text, ' ', os_gui.get_fa_icon('fa-chevron-right')),
                             _href=url,
@@ -1417,6 +1430,33 @@ class AttendanceHelper:
                          _class='col-md-10 col-md-offset-1 col-xs-12')
 
             formatted_options.append(option)
+
+
+        # Request review
+        if request_review and options['request_review']:
+            request_review = options['request_review']
+
+            formatted_options.append(DIV(HR(), _class='col-md-10 col-md-offset-1'))
+
+            url = URL(controller, 'class_book', vars={'clsID': clsID,
+                                                      'request_review': 'true',
+                                                      'cuID': customer.row.id,
+                                                      'date': date_formatted})
+            button_book = classes_book_options_get_button_book(url, T("Request review"))
+
+            option = DIV(DIV(request_review['Name'],
+                             _class='col-md-3 bold'),
+                         DIV(T('Should someone review this check-in later?'),
+                             BR(),
+                             SPAN(T("Please use this option in case an expected check-in option isn't available"),
+                                  _class='grey'),
+                             _class='col-md-6'),
+                         DIV(button_book,
+                             _class='col-md-3'),
+                         _class='col-md-10 col-md-offset-1 col-xs-12')
+
+            formatted_options.append(option)
+
 
         # Complementary
         if complementary and options['complementary']:

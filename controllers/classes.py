@@ -2753,6 +2753,7 @@ def attendance_booking_options():
                                                               date,
                                                               customer,
                                                               trial=True,
+                                                              request_review=True,
                                                               complementary=complementary_permission,
                                                               list_type='attendance',
                                                               controller='classes')
@@ -3238,6 +3239,9 @@ def class_book():
     if request.vars['trial'] == 'true':
         # Add drop in class to shopping cart
         result = ah.attendance_sign_in_trialclass(cuID, clsID, date, booking_status='attending')
+
+    if request.vars['request_review'] == 'true':
+        result = ah.attendance_sign_in_request_review(cuID, clsID, date, booking_status='attending')
 
     if request.vars['complementary'] == 'true':
         result = ah.attendance_sign_in_complementary(cuID, clsID, date, booking_status='attending')
