@@ -1152,11 +1152,18 @@ class AttendanceHelper:
             }
 
         # Request review
-        if complementary:
-            options['request_review'] = {
-                "Type": "request_review",
-                "Name": T('Request review'),
-            }
+        if request_review:
+            under_review = self._attendance_sign_in_check_under_review(
+                clsID,
+                customer.row.id,
+                date
+            )
+
+            if not under_review:
+                options['request_review'] = {
+                    "Type": "request_review",
+                    "Name": T('Request review'),
+                }
 
         # Complementary
         if complementary:
@@ -1438,7 +1445,7 @@ class AttendanceHelper:
 
 
         # Request review
-        if request_review and options['request_review']:
+        if request_review and 'request_review' in options:
             request_review = options['request_review']
 
             formatted_options.append(DIV(HR(), _class='col-md-10 col-md-offset-1'))
@@ -1635,7 +1642,7 @@ class AttendanceHelper:
 
         status = 'fail'
         message = ''
-        signed_in = self.attendance_sign_in_check_signed_in(clsID, cuID, date)
+        signed_in = self._attendance_sign_in_check_signed_in(clsID, cuID, date)
         # check credits remaining
 
         credits_remaining = self._attendance_sign_in_subscription_credits_remaining(csID)
@@ -1915,7 +1922,7 @@ class AttendanceHelper:
         status = 'fail'
         message = ''
         if classes_available:
-            signed_in = self.attendance_sign_in_check_signed_in(clsID, cuID, date)
+            signed_in = self._attendance_sign_in_check_signed_in(clsID, cuID, date)
             if signed_in:
                 message = T("Already checked in for this class")
             else:
@@ -1962,7 +1969,7 @@ class AttendanceHelper:
         message = ''
         caID = ''
 
-        signed_in = self.attendance_sign_in_check_signed_in(clsID, cuID, date)
+        signed_in = self._attendance_sign_in_check_signed_in(clsID, cuID, date)
         if signed_in:
             message = T("Already checked in for this class")
         else:
@@ -2007,7 +2014,7 @@ class AttendanceHelper:
         message = ''
         caID = ''
 
-        signed_in = self.attendance_sign_in_check_signed_in(clsID, cuID, date)
+        signed_in = self._attendance_sign_in_check_signed_in(clsID, cuID, date)
 
         if signed_in:
             message = T("Already checked in for this class")
@@ -2051,7 +2058,7 @@ class AttendanceHelper:
         message = ''
         caID = ''
 
-        signed_in = self.attendance_sign_in_check_signed_in(clsID, cuID, date)
+        signed_in = self._attendance_sign_in_check_signed_in(clsID, cuID, date)
 
         if signed_in:
             message = T("Already checked in for this class")
@@ -2089,7 +2096,7 @@ class AttendanceHelper:
         message = ''
         caID = ''
 
-        signed_in = self.attendance_sign_in_check_signed_in(clsID, cuID, date)
+        signed_in = self._attendance_sign_in_check_signed_in(clsID, cuID, date)
 
         if signed_in:
             message = T("Already checked in for this class")
@@ -2108,7 +2115,7 @@ class AttendanceHelper:
         return dict(status=status, message=message, caID=caID)
 
 
-    def attendance_sign_in_check_signed_in(self, clsID, cuID, date):
+    def _attendance_sign_in_check_signed_in(self, clsID, cuID, date):
         """
             Check if a customer isn't already signed in to a class
         """
@@ -2118,7 +2125,29 @@ class AttendanceHelper:
                 (db.classes_attendance.ClassDate == date) & \
                 (db.classes_attendance.BookingStatus != 'cancelled')
 
-        return db(query).count()
+        rows = db(query).select(db.classes_attendance.ALL)
+        if rows:
+            return rows.first()
+        else:
+            return False
+
+
+    def _attendance_sign_in_check_under_review(self, clsID, cuID, date):
+        """
+            Check if a customer isn't already signed in to a class
+        """
+        under_review = False
+
+        attending = self._attendance_sign_in_check_signed_in(
+            clsID,
+            cuID,
+            date
+        )
+
+        if attending and attending.AttendanceType == 5:
+            under_review = True
+
+        return under_review
 
 
     def attendance_cancel_classes_in_school_holiday(self, shID):
