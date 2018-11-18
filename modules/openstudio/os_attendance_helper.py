@@ -2026,6 +2026,43 @@ class AttendanceHelper:
         return dict(status=status, message=message, caID=caID)
 
 
+    def attendance_sign_in_request_review(self,
+                                         cuID,
+                                         clsID,
+                                         date,
+                                         booking_status='attending'):
+        """
+            :param cuID: db.auth_user.id
+            :param clsID: db.classes.id
+            :param date: datetime.date
+            :return:
+        """
+        db = current.db
+        T = current.T
+
+        status = 'fail'
+        message = ''
+        caID = ''
+
+        signed_in = self.attendance_sign_in_check_signed_in(clsID, cuID, date)
+
+        if signed_in:
+            message = T("Already checked in for this class")
+        else:
+            status = 'ok'
+            caID = db.classes_attendance.insert(
+                auth_customer_id=cuID,
+                CustomerMembership = self._attendance_sign_in_has_membership(cuID, date),
+                classes_id=clsID,
+                ClassDate=date,
+                AttendanceType=5, # 5 = Request review
+                online_booking=False,
+                BookingStatus=booking_status
+            )
+
+        return dict(status=status, message=message, caID=caID)
+
+
     def attendance_sign_in_check_signed_in(self, clsID, cuID, date):
         """
             Check if a customer isn't already signed in to a class
