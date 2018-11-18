@@ -1969,12 +1969,12 @@ class AttendanceHelper:
             if signed_in:
                 if signed_in.AttendanceType == 5:
                     # Under review, so update
-                    status = 'success'
+                    status = 'ok'
                     db(db.classes_attendance._id == signed_in.id).update(**class_data)
                 else:
                     message = T("Already checked in for this class")
             else:
-                status = 'success'
+                status = 'ok'
 
                 db.classes_attendance.insert(
                     **class_data
@@ -2025,6 +2025,7 @@ class AttendanceHelper:
             if signed_in.AttendanceType == 5:
                 # Under review, so update
                 db(db.classes_attendance._id == signed_in.id).update(**class_data)
+                status = 'ok'
                 caID = signed_in.id
                 if invoice:
                     self._attendance_sign_in_create_invoice(cuID,
@@ -2082,6 +2083,7 @@ class AttendanceHelper:
 
         if signed_in:
             if signed_in.AttendanceType == 5:
+                status = 'ok'
                 db(db.classes_attendance._id == signed_in.id).update(**class_data)
                 caID = signed_in.id
                 if invoice:
@@ -2172,7 +2174,11 @@ class AttendanceHelper:
         signed_in = self._attendance_sign_in_check_signed_in(clsID, cuID, date)
 
         if signed_in:
-            message = T("Already checked in for this class")
+            if signed_in.AttendanceType == 5:
+                # Under review, so update
+                message = T("A review has already been requested for this check-in")
+            else:
+                message = T("Already checked in for this class")
         else:
             status = 'ok'
             caID = db.classes_attendance.insert(
