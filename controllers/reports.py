@@ -66,7 +66,11 @@ def attendance_get_menu(page=None):
         (['attendance_organizations',
           T('Organizations'),
           URL('reports',"attendance_organizations")]),
-        ]
+        (['attendance_review_requested',
+          T('Review requested'),
+          URL('reports','attendance_review_requested')]),
+    ]
+
 
     return get_submenu(pages,
                        page,
@@ -2867,6 +2871,78 @@ def attendance_classes_get_form(year=TODAY_LOCAL.year,
                _class = 'row')
 
     return form
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'classes_attendance'))
+def attendance_review_requested():
+    """
+        List Problem Check-ins that occured
+    """
+    response.title = T("Reports")
+    response.subtitle = T("Classes attendance")
+    response.view = 'general/only_content.html'
+
+    show = 'pending'
+    #To come back successfully after changing a check-in
+    session.classes_attendance_signin_back = 'problem_checkin'
+    # print session.classes_attendance_signin_back
+
+
+    header = THEAD(TR(TH(''),
+                     TH("Customer"),
+                     TH(db.classes.school_classtypes_id.label),
+                     TH(db.classes_attendance.ClassDate.label),
+                     TH(db.classes.Starttime.label),
+                     TH(db.classes.school_locations_id.label),
+                     TH())  # buttons
+                  )
+
+    table = TABLE(header, _class='table table-hover table-striped')
+
+    left = [
+        db.classes.on(db.classes_attendance.classes_id == db.classes.id),
+        db.auth_user.on(db.classes_attendance.auth_customer_id == db.auth_user.id)
+    ]
+
+    query = (db.classes_attendance.AttendanceType == 5)
+    rows = db(query).select(
+        db.classes_attendance.ALL,
+        db.classes.ALL,
+        db.auth_user.ALL,
+        left=left
+    )
+    # print rows
+    for i, row in enumerate(rows):
+        repr_row = list(rows[i:i + 1].render())[0]
+
+        resolve = os_gui.get_button(
+            'noicon',
+             URL('classes', 'attendance_booking_options',
+                 vars = {'clsID': row.classes.id,
+                         'cuID': row.classes_attendance.auth_customer_id,
+                         'date': row.classes_attendance.ClassDate.strftime(DATE_FORMAT)}),
+             title= T("Review"),
+             _class= 'pull-right'
+        )
+
+        tr = TR(TD(repr_row.auth_user.thumbsmall),
+                TD(repr_row.classes_attendance.auth_customer_id),
+                TD(repr_row.classes.school_classtypes_id),
+                TD(repr_row.classes_attendance.ClassDate),
+                TD(repr_row.classes.Starttime),
+                TD(repr_row.classes.school_locations_id),
+                TD(resolve))
+
+        table.append(tr)
+
+    content = table
+    menu = attendance_get_menu(request.function)
+
+    return dict(
+        content=content,
+        menu=menu
+    )
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
