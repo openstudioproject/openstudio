@@ -389,8 +389,9 @@ def test_invoice_duplicate_invoice(client, web2py):
     #Is the connection to invoices_customers_order there?
     oldcusorderrow = web2py.db(web2py.db.invoices_customers_orders.invoices_id == oldrow.id).select().first()
     if oldcusorderrow:
-        assert ((web2py.db.invoices_custumers_orders.invoices_id == newrow.id)&\
-                (web2py.db.invoices_custumers_orders.customers_orders_id == oldcusorderrow.customers_orders_id))
+        query = ((web2py.db.invoices_customers_orders.invoices_id == newrow.id)&\
+                (web2py.db.invoices_customers_orders.customers_orders_id == oldcusorderrow.customers_orders_id))
+        assert web2py.db(query).count() == 1
 
 
 def test_invoice_item_add(client, web2py):
