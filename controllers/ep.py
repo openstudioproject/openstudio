@@ -515,7 +515,7 @@ def my_payments_get_content(var=None):
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'employee_portal'))
-def my_claims():
+def my_expenses():
     """
     Page to view and Add/Edit Employee Claims
     :return:
@@ -553,11 +553,11 @@ def my_claims():
         if row.Status == 'pending':
             # status = os_gui.get_label('warning', T('Pending'))
             delete = os_gui.get_button('delete_notext',
-                                       URL('my_claims_claim_delete', vars={'ecID': row.id}),
+                                       URL('my_expenses_claim_delete', vars={'ecID': row.id}),
                                        onclick=onclick_del,
                                        _class='pull-right')
             edit = os_gui.get_button('edit',
-                                     URL('my_claims_claim_edit',
+                                     URL('my_expenses_claim_edit',
                                          vars={'ecID': row.id}), _class='pull-right')
 
         download_attachment = ''
@@ -579,7 +579,7 @@ def my_claims():
             TD(delete, edit)
         ))
 
-    add_url = URL('my_claims_claim_add')
+    add_url = URL('my_expenses_claim_add')
     add = os_gui.get_button(
         'add',
         add_url,
@@ -597,7 +597,7 @@ def my_claims():
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'employee_portal'))
-def my_claims_claim_add():
+def my_expenses_claim_add():
     """
     Page to add a claim
     """
@@ -610,7 +610,7 @@ def my_claims_claim_add():
     if auth.user.teacher == False and auth.user.employee == False:
         redirect(URL('ep', 'index'))
 
-    return_url = URL('my_claims')
+    return_url = URL('my_expenses')
     db.employee_claims.auth_user_id.default = auth.user.id
     db.employee_claims.Status.default = 'pending'
 
@@ -639,7 +639,7 @@ def my_claims_claim_add():
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'employee_portal'))
-def my_claims_claim_edit():
+def my_expenses_claim_edit():
     """
     Page to Edit Claim
     :return:
@@ -649,7 +649,7 @@ def my_claims_claim_edit():
     response.subtitle = T('Edit Claim')
     response.view = 'ep/only_content.html'
 
-    return_url = URL('my_claims')
+    return_url = URL('my_expenses')
     ecID = request.vars['ecID']
 
     ec = db.employee_claims(ecID)
@@ -686,7 +686,7 @@ def my_claims_claim_edit():
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'employee_portal'))
-def my_claims_claim_delete():
+def my_expenses_claim_delete():
     """
     Delete Claim
     :return:
@@ -695,11 +695,11 @@ def my_claims_claim_delete():
 
     ec = db.employee_claims(ecID)
     if not ec.auth_user_id == auth.user.id:
-        session.flash = T("Unable to delete this claim")
+        session.flash = T("Unable to delete this expense")
         redirect(return_url)
 
     query = (db.employee_claims.id == ecID)
     db(query).delete()
 
     session.flash = T('Deleted claim')
-    redirect('my_claims')
+    redirect('my_expenses')

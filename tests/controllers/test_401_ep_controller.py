@@ -317,9 +317,9 @@ def test_my_payments(client, web2py):
     assert invoice.InvoiceID in client.text
 
 
-def test_my_claims(client, web2py):
+def test_my_expenses(client, web2py):
     """
-        Is the my claims page showing?
+        Is the my expenses page showing?
     """
     from populate_os_tables import populate_employee_claims
 
@@ -328,15 +328,15 @@ def test_my_claims(client, web2py):
     assert client.status == 200
 
     populate_employee_claims(web2py)
-    # Check claims display
-    url = '/ep/my_claims'
+    # Check expenses display
+    url = '/ep/my_expenses'
     client.get(url)
     assert client.status == 200
 
     assert 'First Claim' in client.text
 
 
-def test_my_claims_add(client, web2py):
+def test_my_expenses_add(client, web2py):
     """
         Can we add a claim?
     """
@@ -349,7 +349,7 @@ def test_my_claims_add(client, web2py):
     setup_ep_tests(web2py)
     populate_tax_rates(web2py)
 
-    url = '/ep/my_claims_claim_add'
+    url = '/ep/my_expenses_claim_add'
     client.get(url)
     assert client.status == 200
     # assert 'Add Claim' in client.text
@@ -366,7 +366,7 @@ def test_my_claims_add(client, web2py):
     assert web2py.db(web2py.db.employee_claims).count() == 1
 
 
-def test_my_claims_edit(client, web2py):
+def test_my_expenses_edit(client, web2py):
     """
          Can you edit a claim
     """
@@ -378,8 +378,8 @@ def test_my_claims_edit(client, web2py):
 
     populate_employee_claims(web2py)
 
-    # Check claims display
-    url = '/ep/my_claims_claim_edit?ecID=1'
+    # Check expenses display
+    url = '/ep/my_expenses_claim_edit?ecID=1'
     client.get(url)
     assert client.status == 200
 
@@ -388,14 +388,14 @@ def test_my_claims_edit(client, web2py):
         'Amount': '5',
         'Quantity': '3',
         'tax_rates_id': '1',
-        'Description': 'Edit First Claim'}
+        'Description': 'Edit first expense'}
     
     client.post(url, data=data)
     assert client.status == 200
-    assert (web2py.db.employee_claims.Description == 'Edit First Claim')
+    assert (web2py.db.employee_claims.Description == data['Description'])
 
 
-def test_my_claims_delete(client, web2py):
+def test_my_expenses_delete(client, web2py):
     """
     Can you delete a claim
     """
@@ -408,8 +408,8 @@ def test_my_claims_delete(client, web2py):
     populate_employee_claims(web2py)
     claims_before_delete = web2py.db(web2py.db.employee_claims).count()
 
-    # Check claims display
-    url = '/ep/my_claims_claim_delete?ecID=1'
+    # Check expenses display
+    url = '/ep/my_expenses_claim_delete?ecID=1'
     client.get(url)
     assert client.status == 200
 

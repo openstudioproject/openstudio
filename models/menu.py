@@ -75,9 +75,9 @@ def ep_menu():
 
     # My Claims
     menu.append([(  # I(_class='fa fa-home'),
-        SPAN(T('My Claims'))),
+        SPAN(T('My Expenses'))),
         False,
-        URL('ep', 'my_claims', extension='')])
+        URL('ep', 'my_expenses', extension='')])
 
     menu.append([(  # I(_class='fa fa-home'),
         SPAN(T('Back end'))),
@@ -523,9 +523,9 @@ def get_backend_menu():
                                     vars={'status': 'not_verified'},
                                     extension='')))
             if user_helpers.check_read_permission('employee_claims', user_id):
-                submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Employee Claims'))),
+                submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Employee Expenses'))),
                                 False,
-                                URL('finance', 'employee_claims',
+                                URL('finance', 'employee_expenses',
                                     extension='')))
 
             if user_helpers.check_read_permission('payment_batches', user_id):

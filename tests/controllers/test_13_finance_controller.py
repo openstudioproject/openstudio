@@ -25,7 +25,7 @@ from populate_os_tables import populate_customers_with_subscriptions
 import datetime
 
 
-def test_employee_claims_pending_page(client, web2py):
+def test_employee_expenses_pending_page(client, web2py):
     """
     Check pending page and if a pending claim is displayed
     """
@@ -37,15 +37,15 @@ def test_employee_claims_pending_page(client, web2py):
 
     populate_employee_claims(web2py)
 
-    # Check claims display
-    url = '/finance/employee_claims'
+    # Check expenses display
+    url = '/finance/employee_expenses'
     client.get(url)
     assert client.status == 200
 
     assert 'First Claim' in client.text
 
 
-def test_employee_claims_move_claim_to_accepted(client, web2py):
+def test_employee_expenses_move_claim_to_accepted(client, web2py):
     """Check if a claim can be moved to accepted"""
 
     from populate_os_tables import populate_employee_claims
@@ -56,15 +56,15 @@ def test_employee_claims_move_claim_to_accepted(client, web2py):
 
     populate_employee_claims(web2py)
 
-    # Check claims display
-    url = '/finance/employee_claims_accept?ecID=1'
+    # Check expenses display
+    url = '/finance/employee_expenses_accept?ecID=1'
     client.get(url)
     assert client.status == 200
 
     assert web2py.db(web2py.db.employee_claims.Status == 'accepted').count() == 2
 
 
-def test_employee_claims_accept_all(client, web2py):
+def test_employee_expenses_accept_all(client, web2py):
     """Check if a claim can be moved to accepted"""
     from populate_os_tables import populate_employee_claims
 
@@ -74,15 +74,15 @@ def test_employee_claims_accept_all(client, web2py):
 
     populate_employee_claims(web2py)
 
-    # Check claims display
-    url = '/finance/employee_claims_accept_all'
+    # Check expenses display
+    url = '/finance/employee_expenses_accept_all'
     client.get(url)
     assert client.status == 200
 
     assert web2py.db(web2py.db.employee_claims.Status == 'accepted').count() == 2
 
 
-def test_employee_claims_move_claim_to_rejected(client, web2py):
+def test_employee_expenses_move_claim_to_rejected(client, web2py):
     """Check if a claim can be moved to accepted"""
     from populate_os_tables import populate_employee_claims
 
@@ -92,15 +92,15 @@ def test_employee_claims_move_claim_to_rejected(client, web2py):
 
     populate_employee_claims(web2py)
 
-    # Check claims display
-    url = '/finance/employee_claims_reject?ecID=1'
+    # Check expenses display
+    url = '/finance/employee_expenses_reject?ecID=1'
     client.get(url)
     assert client.status == 200
 
     assert web2py.db(web2py.db.employee_claims.Status == 'rejected').count() == 2
 
 
-def test_employee_claims_move_claim_to_pending(client, web2py):
+def test_employee_expenses_move_claim_to_pending(client, web2py):
     """Check if a claim can be moved to accepted"""
     from populate_os_tables import populate_employee_claims
 
@@ -110,15 +110,15 @@ def test_employee_claims_move_claim_to_pending(client, web2py):
 
     populate_employee_claims(web2py)
 
-    # Check claims display
-    url = '/finance/employee_claims_pending?ecID=2'
+    # Check expenses display
+    url = '/finance/employee_expenses_pending?ecID=2'
     client.get(url)
     assert client.status == 200
 
     assert web2py.db(web2py.db.employee_claims.Status == 'pending').count() == 2
 
 
-def test_employee_claims_rejected_page(client, web2py):
+def test_employee_expenses_rejected_page(client, web2py):
     """
     Check rejected page and if a accepted claim is displayed
     """
@@ -130,19 +130,19 @@ def test_employee_claims_rejected_page(client, web2py):
 
     populate_employee_claims(web2py)
 
-    # Check claims display
-    url = '/finance/employee_claims_rejected'
+    # Check expenses display
+    url = '/finance/employee_expenses_rejected'
     client.get(url)
     assert client.status == 200
 
     assert 'Rejected Claim' in client.text
 
 
-def test_employee_claims_accepted_page(client, web2py):
+def test_employee_expenses_accepted_page(client, web2py):
     """
     Check accepted page and if a accepted claim is displayed
     """
-    from populate_os_tables import populate_employee_claims
+    from populate_os_tables import populate_employee_expenses
 
     url = '/default/user/login'
     client.get(url)
@@ -150,8 +150,8 @@ def test_employee_claims_accepted_page(client, web2py):
 
     populate_employee_claims(web2py)
 
-    # Check claims display
-    url = '/finance/employee_claims_accepted'
+    # Check expenses display
+    url = '/finance/employee_expenses_accepted'
     client.get(url)
     assert client.status == 200
 
@@ -168,8 +168,8 @@ def test_employee_claims_process_accepted(client, web2py):
 
     populate_employee_claims(web2py)
 
-    # Check claims display
-    url = '/finance/employee_claims_process_accepted'
+    # Check expenses display
+    url = '/finance/employee_expenses_process_accepted'
     client.get(url)
     assert client.status == 200
 
@@ -208,7 +208,7 @@ def test_employee_claims_process_accepted(client, web2py):
 
 
 
-def test_employee_claims_processed_page(client, web2py):
+def test_employee_expenses_processed_page(client, web2py):
     """
     Check proccessed page and if a processed claim is displayed
     """
@@ -220,8 +220,8 @@ def test_employee_claims_processed_page(client, web2py):
 
     populate_employee_claims(web2py)
 
-    # Check claims display
-    url = '/finance/employee_claims_processed'
+    # Check expenses display
+    url = '/finance/employee_expenses_processed'
     client.get(url)
     assert client.status == 200
 
