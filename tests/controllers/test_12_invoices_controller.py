@@ -173,6 +173,91 @@ def test_invoice_edit(client, web2py):
     assert data['Description'] in client.text
 
 
+def test_invoice_show_duplicate_button(client, web2py):
+    """
+    Does the Button show and doesn't when it shouldn't
+    """
+    populate_customers(web2py,3)
+
+    url = '/customers/invoices?cuID=1001'
+    client.get(url)
+    assert client.status == 200
+
+    populate_invoices(web2py)
+
+    populate_invoices_items(web2py)
+
+    url = '/invoices/edit?iID=1'
+    client.get(url)
+    assert client.status == 200
+
+    assert 'Duplicate credit invoice' in client.text
+    #
+    # # web2py.db.invoices[1] = dict(TeacherPayment = True)
+    # web2py.db.invoices[1] = dict(EmployeeClaim = True)
+    # web2py.db.commit
+    #
+    # # assert ((web2py.db.invoices.id== 1) &\
+    # #         (web2py.db.invoices.TeacherPayment==True))
+    #
+    # url = '/default/user/login'
+    # client.get(url)
+    # assert client.status == 200
+    #
+    # url = '/invoices/edit?iID=1'
+    # client.get(url)
+    # assert client.status == 200
+
+    # print client.text
+
+    # assert 'Duplicate credit invoice' not in client.text
+
+
+def test_invoice_duplicate_invoice(client, web2py):
+    """
+    Does the Duplicate get generated correctly?
+    """
+    populate_customers(web2py,3)
+
+
+    url = '/customers/invoices?cuID=1001'
+    client.get(url)
+    assert client.status == 200
+
+    populate_invoices(web2py)
+    # print 1
+
+    populate_invoices_items(web2py)
+    # print 2
+
+    url = '/invoices/edit?iID=1'
+    client.get(url)
+    assert client.status == 200
+    # print 3
+
+    url = '/invoices/duplicate_credit_invoice?iID=1'
+    client.get(url)
+    assert client.status == 200
+    # print 4
+    oldrow = web2py.db.invoices(id = 1)
+    query = ((web2py.db.invoices.CustomerName == oldrow.CustomerName) &\
+             (web2py.db.invoices.auth_customer_id == oldrow.auth_customer_id) &\
+             (web2py.db.invoices.invoices_groups_id == oldrow.invoices_groups_id) &\
+             (web2py.db.invoices.payment_methods_id == oldrow.payment_methods_id)&\
+             (web2py.db.invoices.id != oldrow.id)&\
+             (web2py.db.invoices.InvoiceID != oldrow.InvoiceID))
+
+    assert web2py.db(query).count() == 1
+
+    row = web2py.db(query).select().first()
+
+    cusrow= web2py.db(web2py.db.invoices_customers.invoices_id == row.id).select().first()
+
+    oldcusrow = web2py.db(web2py.db.invoices_customers.invoices_id == oldrow.id).select().first()
+
+    assert cusrow.auth_customer_id == oldcusrow.auth_customer_id
+
+
 def test_invoice_item_add(client, web2py):
     """
         Can we add an item to an invoice?
