@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/env python
 
-'''
+"""
     py.test test cases to test OpenStudio.
     These tests run based on webclient and need web2py server running.
-'''
+"""
 
 import datetime
 
@@ -20,9 +20,9 @@ from populate_os_tables import populate_reports_attendance_organizations
 
 
 #def test_stats_customer_postcode_as_int(client, web2py):
-    #'''
+    #"""
         #Check that the compute function for customers is working
-    #'''
+    #"""
     #populate_customers(web2py)
     #populate_postcode_groups(web2py)
 
@@ -290,10 +290,10 @@ def test_reports_retention_dropoff_rate(client, web2py):
 
 
 def test_reports_teacher_classes(client, web2py):
-    '''
+    """
         Does the page list the classes for the teacher (incl. sub classes correctly)
         Does the page list the revenue correctly?
-    '''
+    """
     # get random page to set up OpenStudio environment
     url = '/default/user/login'
     client.get(url)
@@ -316,9 +316,9 @@ def test_reports_teacher_classes(client, web2py):
 
 
 def test_reports_teacher_classes_class_revenue(client, web2py):
-    '''
+    """
         Does the page list the revenue breakdown correctly for this class
-    '''
+    """
     # get random page to set up OpenStudio environment
     url = '/default/user/login'
     client.get(url)
@@ -349,25 +349,25 @@ def test_reports_teacher_classes_class_revenue(client, web2py):
 
 
 def test_reports_classcards(client, web2py):
-    '''
+    """
         Is the page showing?
-    '''
+    """
     pass
     #TODO: write test
 
 
 def test_reports_classcards_current(client, web2py):
-    '''
+    """
         Is the page showing?
-    '''
+    """
     pass
     #TODO: write test
 
 
 def test_reports_dropinclasses(client, web2py):
-    '''
+    """
         Is the page listing drop in classes for a month working?
-    '''
+    """
     populate_customers(web2py)
     populate_classes(web2py, with_otc=True)
 
@@ -392,9 +392,9 @@ def test_reports_dropinclasses(client, web2py):
 
 
 def test_reports_trialclasses(client, web2py):
-    '''
+    """
         Is the page listing drop in classes for a month working?
-    '''
+    """
     populate_customers(web2py)
     populate_classes(web2py, with_otc=True)
 
@@ -420,18 +420,18 @@ def test_reports_trialclasses(client, web2py):
 
 
 def test_reports_postcodes_groups_list(client, web2py):
-    '''
+    """
         Is the page that lists postcode groups working?
-    '''
+    """
     url = '/reports/postcodes_groups_list'
     client.get(url)
     assert client.status == 200
 
 
 def test_reports_postcode_group_add(client, web2py):
-    '''
+    """
         Can we add a new postcode group?
-    '''
+    """
     url = '/reports/postcode_group_add'
     client.get(url)
     assert client.status == 200
@@ -451,9 +451,9 @@ def test_reports_postcode_group_add(client, web2py):
 
 
 def test_reports_postcode_group_edit(client, web2py):
-    '''
+    """
         Can we edit a postcode group?
-    '''
+    """
     populate_postcode_groups(web2py)
 
     url = '/reports/postcode_group_edit?pgID=1'
@@ -476,9 +476,9 @@ def test_reports_postcode_group_edit(client, web2py):
 
 
 def test_reports_postcode_group_archive(client, web2py):
-    '''
+    """
         Test if a group can be (un)archived
-    '''
+    """
     populate_postcode_groups(web2py)
 
     url = '/reports/postcode_groups_archive?pgID=1'
@@ -501,9 +501,9 @@ def test_reports_postcode_group_archive(client, web2py):
 
 
 def test_reports_postcodes(client, web2py):
-    '''
+    """
         Is the stats page counting correct?
-    '''
+    """
     populate_customers(web2py)
     populate_postcode_groups(web2py)
 
@@ -520,10 +520,24 @@ def test_reports_postcodes(client, web2py):
     assert '<td>' + unicode(count) + '</td>' in client.text
 
 
+def test_reports_attendance_review_requested(client, web2py):
+    """
+    Are check-ins listed as they should?
+    """
+    prepare_classes(web2py)
+
+    url = '/reports/attendance_review_requested'
+    client.get(url)
+    assert client.status == 200
+
+    assert '<td>customer_1 1</td>' in client.text
+    assert '/classes/attendance_booking_options?clsID=1&amp;cuID=1001&amp;date=2014-02-03' in client.text
+
+
 def test_reports_attendance_classtypes(client, web2py):
-    '''
+    """
         Is the attendance classtypes page counting correctly?
-    '''
+    """
     prepare_classes(web2py)
 
     url = '/reports/attendance_set_month?year=2014&month=1&back=/attendance_classtypes'
@@ -539,9 +553,9 @@ def test_reports_attendance_classtypes(client, web2py):
 
 
 def test_attendance_organizations(client, web2py):
-    '''
+    """
         Is the report showing correctly?
-    '''
+    """
     populate_reports_attendance_organizations(web2py)
 
     url = '/reports/attendance_organizations?year=2014&month=1'
@@ -558,9 +572,9 @@ def test_attendance_organizations(client, web2py):
 
 
 def test_attendance_organizations_list_attendance(client, web2py):
-    '''
+    """
         test customers list for an organization
-    '''
+    """
     populate_reports_attendance_organizations(web2py)
 
     url = '/reports/attendance_organizations_list_attendance?year=2014&month=1&soID=1'
@@ -576,9 +590,9 @@ def test_attendance_organizations_list_attendance(client, web2py):
 
 
 def test_reports_attendance_organizations_res_prices(client, web2py):
-    '''
+    """
         Is the page to list organizations with resolve prices showing?
-    '''
+    """
     populate_sys_organizations(web2py)
 
     url = '/reports/attendance_organizations_res_prices'
@@ -590,9 +604,9 @@ def test_reports_attendance_organizations_res_prices(client, web2py):
 
 
 def test_reports_attendance_organizations_res_price_edit(client, web2py):
-    '''
+    """
         Is the page to edit resolve prices for an organization showing?
-    '''
+    """
     populate_sys_organizations(web2py)
 
     url = '/reports/attendance_organizations_res_price_edit?soID=1'
@@ -610,9 +624,9 @@ def test_reports_attendance_organizations_res_price_edit(client, web2py):
 
 
 def test_reports_subscriptions_alt_prices(client, web2py):
-    '''
+    """
         Is the list of alt. prices for subscriptions being shown correctly?
-    '''
+    """
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
@@ -641,9 +655,9 @@ def test_reports_subscriptions_alt_prices(client, web2py):
 
 
 def test_reports_subscriptions_overview_customers_location_filter(client, web2py):
-    '''
+    """
         Does the filter actually ... filter?
-    '''
+    """
     url = '/default/user/login'
     client.get(url)
     assert client.status == 200
