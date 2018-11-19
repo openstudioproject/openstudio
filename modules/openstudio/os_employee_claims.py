@@ -71,7 +71,7 @@ class EmployeeClaims:
         os_gui = OsGui()
 
         header = THEAD(TR(
-            TH('Claim #'),
+            TH('Expense #'),
             TH(T("Employee")),
             TH(T("Date")),
             TH(T("Description")),
@@ -134,7 +134,7 @@ class EmployeeClaims:
             _class='ec_modal_attachment_content'
         )
 
-        title = T('Attachment for claim #{id}'.format(id=row.employee_claims.id))
+        title = T('Attachment for expense #{id}'.format(id=row.employee_claims.id))
 
         footer_content = os_gui.get_button(
             'download',
@@ -416,11 +416,11 @@ class EmployeeClaims:
             if i == 0 or not previous_employee == epID:
                 current_employee = epID
 
-                igpt = db.invoices_groups_product_types(ProductType='employee_claims')
+                igpt = db.invoices_groups_product_types(ProductType='employee_expenses')
                 iID = db.invoices.insert(
                     invoices_groups_id=igpt.invoices_groups_id,
                     EmployeeClaim=True,
-                    Description=T('Claims'),
+                    Description=T('Expenses'),
                     Status='sent'
                 )
 

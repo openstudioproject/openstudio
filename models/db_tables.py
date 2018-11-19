@@ -1747,7 +1747,7 @@ def define_classes_notes():
 
 def define_employee_claims():
     db.define_table('employee_claims',
-        Field('auth_user_id', db.auth_user,  # Employee that does the claims
+        Field('auth_user_id', db.auth_user,  # Employee that does the expenses
               required= True,
               readable=False,
               writable=False,
@@ -1779,8 +1779,8 @@ def define_employee_claims():
         Field('Status',
               readable=False,
               writable=False,
-              requires=IS_IN_SET(employee_claims_statuses),
-              represent=represent_employee_claims_status,
+              requires=IS_IN_SET(employee_expenses_statuses),
+              represent=represent_employee_expenses_status,
               label=T("Status")),
         Field('VerifiedBy', db.auth_user,
               readable=False,
@@ -3754,7 +3754,7 @@ def define_invoices_employee_claims():
         Field('employee_claims_id', db.employee_claims,
               readable= False,
               writable = False,
-              label=T('Employee Claim'))
+              label=T('Employee Expense'))
     )
 
 
@@ -5934,7 +5934,7 @@ define_customers_orders_items()
 define_customers_orders_amounts()
 define_customers_orders_mollie_payment_ids()
 
-#employee claims definitions
+# employee claims definitions
 define_employee_claims()
 
 

@@ -3649,6 +3649,8 @@ def subscription_credits_month_get_content(expired=False):
                             db.customers_subscriptions_credits.MutationDateTime,
                             db.customers_subscriptions_credits.MutationType,
                             db.customers_subscriptions_credits.MutationAmount,
+                            db.customers_subscriptions_credits.SubscriptionYear,
+                            db.customers_subscriptions_credits.SubscriptionMonth,
                             left=left,
                             orderby=db.auth_user.display_name
                             )
@@ -3659,6 +3661,7 @@ def subscription_credits_month_get_content(expired=False):
         TH(T('Subscription')),
         TH(T('Subscription start')),
         TH(T('Mutation Date')),
+        TH(T('For')),
         TH(T('Credits')),
         TH(),
         TH(),
@@ -3674,6 +3677,8 @@ def subscription_credits_month_get_content(expired=False):
             TD(repr_row.customers_subscriptions.school_subscriptions_id),
             TD(repr_row.customers_subscriptions.Startdate),
             TD(repr_row.customers_subscriptions_credits.MutationDateTime),
+            TD(repr_row.customers_subscriptions_credits.SubscriptionMonth, ' ',
+               repr_row.customers_subscriptions_credits.SubscriptionYear),
             TD(repr_row.customers_subscriptions_credits.MutationAmount),
             TD(repr_row.customers_subscriptions_credits.MutationType),
             TD(os_gui.get_button('edit',
