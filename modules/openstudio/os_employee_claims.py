@@ -416,7 +416,7 @@ class EmployeeClaims:
             if i == 0 or not previous_employee == epID:
                 current_employee = epID
 
-                igpt = db.invoices_groups_product_types(ProductType='employee_claims')
+                igpt = db.invoices_groups_product_types(ProductType='employee_expenses')
                 iID = db.invoices.insert(
                     invoices_groups_id=igpt.invoices_groups_id,
                     EmployeeClaim=True,

@@ -142,7 +142,7 @@ def test_employee_expenses_accepted_page(client, web2py):
     """
     Check accepted page and if a accepted claim is displayed
     """
-    from populate_os_tables import populate_employee_expenses
+    from populate_os_tables import populate_employee_claims
 
     url = '/default/user/login'
     client.get(url)
