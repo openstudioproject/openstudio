@@ -134,7 +134,7 @@ class EmployeeClaims:
             _class='ec_modal_attachment_content'
         )
 
-        title = T('Attachment for claim #{id}'.format(id=row.employee_claims.id))
+        title = T('Attachment for expense #{id}'.format(id=row.employee_claims.id))
 
         footer_content = os_gui.get_button(
             'download',
