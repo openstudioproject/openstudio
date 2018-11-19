@@ -460,7 +460,7 @@ def edit_get_tools(iID):
                             link = A(os_gui.get_fa_icon('fa-clone'),
                                              T("Duplicate credit invoice"),
                                              _href=URL('invoices', 'duplicate_credit_invoice', vars={'iID': iID}),
-                                             _title=T('Cancel and create credit invoice'))
+                                             _title=T('Duplicate Credit invoice'))
                             invoice_tools.append(link)
 
 
