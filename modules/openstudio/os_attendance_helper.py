@@ -1174,7 +1174,7 @@ class AttendanceHelper:
                 "Type": "complementary",
                 "Name": T('Complementary'),
             }
-            
+
 
         return options
 
