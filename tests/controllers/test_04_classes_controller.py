@@ -540,6 +540,153 @@ def test_class_book_request_review(client, web2py):
     assert clatt.AttendanceType == 5
 
 
+def test_class_book_subscription_review(client, web2py):
+    """
+        Can we book a class on a subscription?
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    classdate = '2014-01-06'
+    prepare_classes(web2py, attendance=True, credits=True)
+
+    count = web2py.db(web2py.db.classes_attendance).count()
+
+    url = '/classes/class_book?csID=1&date=2014-02-03&cuID=1001&clsID=1'
+    client.get(url)
+    assert client.status == 200
+
+    clatt = web2py.db.classes_attendance(5)
+    assert clatt.ClassDate == datetime.date(2014, 2, 3)
+    assert clatt.classes_id == 1
+    assert clatt.auth_customer_id == 1001
+    assert clatt.customers_subscriptions_id == 1
+    assert clatt.AttendanceType is None
+
+    # Let's make sure we haven't added duplicate entries
+    assert web2py.db(web2py.db.classes_attendance).count() == count
+    # Check there are no more check-ins to review
+    assert web2py.db(web2py.db.classes_attendance.AttendanceType == 5).count() == 0
+
+
+def test_class_book_classcard_review(client, web2py):
+    """
+        Can we book a class on a card?
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    classdate = '2014-01-06'
+    prepare_classes(web2py)
+
+    count = web2py.db(web2py.db.classes_attendance).count()
+
+    url = '/classes/class_book?ccdID=1&date=2014-02-03&cuID=1001&clsID=1'
+    client.get(url)
+    assert client.status == 200
+
+    clatt = web2py.db.classes_attendance(5)
+    assert clatt.ClassDate == datetime.date(2014, 2, 3)
+    assert clatt.classes_id == 1
+    assert clatt.auth_customer_id == 1001
+    assert clatt.customers_classcards_id == 1
+    assert clatt.AttendanceType == 3
+
+    # Let's make sure we haven't added duplicate entries
+    assert web2py.db(web2py.db.classes_attendance).count() == count
+    # Check there are no more check-ins to review
+    assert web2py.db(web2py.db.classes_attendance.AttendanceType == 5).count() == 0
+
+
+def test_class_book_dropin_review(client, web2py):
+    """
+        Can we book a class as drop in?
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    classdate = '2014-01-06'
+    prepare_classes(web2py)
+
+    count = web2py.db(web2py.db.classes_attendance).count()
+
+    url = '/classes/class_book?dropin=true&date=2014-02-03&cuID=1001&clsID=1'
+    client.get(url)
+    assert client.status == 200
+
+    clatt = web2py.db.classes_attendance(5)
+    assert clatt.ClassDate == datetime.date(2014, 2, 3)
+    assert clatt.classes_id == 1
+    assert clatt.auth_customer_id == 1001
+    assert clatt.AttendanceType == 2
+
+    # Let's make sure we haven't added duplicate entries
+    assert web2py.db(web2py.db.classes_attendance).count() == count
+    # Check there are no more check-ins to review
+    assert web2py.db(web2py.db.classes_attendance.AttendanceType == 5).count() == 0
+
+
+def test_class_book_trial_review(client, web2py):
+    """
+        Can we book a class as trial class?
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    classdate = '2014-01-06'
+    prepare_classes(web2py)
+
+    count = web2py.db(web2py.db.classes_attendance).count()
+
+    url = '/classes/class_book?trial=true&date=2014-02-03&cuID=1001&clsID=1'
+    client.get(url)
+    assert client.status == 200
+
+    clatt = web2py.db.classes_attendance(5)
+    assert clatt.ClassDate == datetime.date(2014, 2, 3)
+    assert clatt.classes_id == 1
+    assert clatt.auth_customer_id == 1001
+    assert clatt.AttendanceType == 1
+
+    # Let's make sure we haven't added duplicate entries
+    assert web2py.db(web2py.db.classes_attendance).count() == count
+    # Check there are no more check-ins to review
+    assert web2py.db(web2py.db.classes_attendance.AttendanceType == 5).count() == 0
+
+
+def test_class_book_complementary_review(client, web2py):
+    """
+        Can we book a class as complementary?
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    classdate = '2014-01-06'
+    prepare_classes(web2py)
+
+    count = web2py.db(web2py.db.classes_attendance).count()
+
+    url = '/classes/class_book?complementary=true&date=2014-02-03&cuID=1001&clsID=1'
+    client.get(url)
+    assert client.status == 200
+
+    clatt = web2py.db.classes_attendance(5)
+    assert clatt.ClassDate == datetime.date(2014, 2, 3)
+    assert clatt.classes_id == 1
+    assert clatt.auth_customer_id == 1001
+    assert clatt.AttendanceType == 4
+
+    # Let's make sure we haven't added duplicate entries
+    assert web2py.db(web2py.db.classes_attendance).count() == count
+    # Check there are no more check-ins to review
+    assert web2py.db(web2py.db.classes_attendance.AttendanceType == 5).count() == 0
+
+
 def test_attendance_set_status_attending(client, web2py):
     """
         Can we change the status of an attendance record?
@@ -628,6 +775,23 @@ def test_attendance_booking_options_request_review(client, web2py):
     assert client.status == 200
 
     assert "Request review" in client.text
+
+
+def test_attendance_booking_options_request_review_message(client, web2py):
+    """
+        Is the subscription not allowed message shown to customers like it should?
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    prepare_classes(web2py)
+
+    url = '/classes/attendance_booking_options?clsID=1&cuID=1001&date=2014-02-03'
+    client.get(url)
+    assert client.status == 200
+
+    assert "You're reviewing this check-in." in client.text
 
 
 def test_attendance_booking_options_subscription_not_allowed(client, web2py):
