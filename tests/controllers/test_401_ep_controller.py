@@ -333,12 +333,12 @@ def test_my_expenses(client, web2py):
     client.get(url)
     assert client.status == 200
 
-    assert 'First Claim' in client.text
+    assert 'First Expense' in client.text
 
 
 def test_my_expenses_add(client, web2py):
     """
-        Can we add a claim?
+        Can we add a expense?
     """
     from populate_os_tables import populate_tax_rates
 
@@ -349,16 +349,16 @@ def test_my_expenses_add(client, web2py):
     setup_ep_tests(web2py)
     populate_tax_rates(web2py)
 
-    url = '/ep/my_expenses_claim_add'
+    url = '/ep/my_expenses_expense_add'
     client.get(url)
     assert client.status == 200
-    # assert 'Add Claim' in client.text
+    # assert 'Add Expense' in client.text
 
     data = {
             'Amount': '5',
             'Quantity': '3',
             'tax_rates_id': '1',
-            'Description': 'Add First Claim'}
+            'Description': 'Add First Expense'}
 
     client.post(url, data=data)
     assert client.status == 200
@@ -368,7 +368,7 @@ def test_my_expenses_add(client, web2py):
 
 def test_my_expenses_edit(client, web2py):
     """
-         Can you edit a claim
+         Can you edit an expense
     """
     from populate_os_tables import populate_employee_claims
 
@@ -379,7 +379,7 @@ def test_my_expenses_edit(client, web2py):
     populate_employee_claims(web2py)
 
     # Check expenses display
-    url = '/ep/my_expenses_claim_edit?ecID=1'
+    url = '/ep/my_expenses_expense_edit?ecID=1'
     client.get(url)
     assert client.status == 200
 
@@ -397,7 +397,7 @@ def test_my_expenses_edit(client, web2py):
 
 def test_my_expenses_delete(client, web2py):
     """
-    Can you delete a claim
+    Can you delete a expense
     """
     from populate_os_tables import populate_employee_claims
 
@@ -409,7 +409,7 @@ def test_my_expenses_delete(client, web2py):
     claims_before_delete = web2py.db(web2py.db.employee_claims).count()
 
     # Check expenses display
-    url = '/ep/my_expenses_claim_delete?ecID=1'
+    url = '/ep/my_expenses_expense_delete?ecID=1'
     client.get(url)
     assert client.status == 200
 

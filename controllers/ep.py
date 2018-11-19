@@ -517,17 +517,17 @@ def my_payments_get_content(var=None):
                auth.has_permission('read', 'employee_portal'))
 def my_expenses():
     """
-    Page to view and Add/Edit Employee Claims
+    Page to view and Add/Edit Employee Expenses
     :return:
     """
-    response.title = T('My Claims')
+    response.title = T('My Expenses')
     response.view = 'ep/only_content.html'
 
     if auth.user.teacher == False and auth.user.employee == False:
         redirect(URL('ep', 'index'))
 
     header = THEAD(TR(
-        TH(T('Claim #')),
+        TH(T('Expense #')),
         TH(T('Description')),
         TH(T('Received On')),
         TH(T('Amount')),
@@ -542,7 +542,7 @@ def my_expenses():
     query= (db.employee_claims.auth_user_id== auth.user.id)
     rows= db(query).select(orderby=~db.employee_claims.ClaimDate)
 
-    onclick_del = "return confirm('Do you really want to delete this Claim?');"
+    onclick_del = "return confirm('Do you really want to delete this expense?');"
 
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
@@ -583,7 +583,7 @@ def my_expenses():
     add = os_gui.get_button(
         'add',
         add_url,
-        T("Add new Claim"),
+        T("Add new expense"),
         btn_class='btn-success',
         btn_size='',
         _class='pull-right'
@@ -603,8 +603,8 @@ def my_expenses_claim_add():
     """
     from openstudio.os_forms import OsForms
 
-    response.title = T('My Claims')
-    response.subtitle= T('Add New Claim')
+    response.title = T('My Expenses')
+    response.subtitle= T('Add new expense')
     response.view = 'ep/only_content.html'
 
     if auth.user.teacher == False and auth.user.employee == False:
@@ -628,7 +628,7 @@ def my_expenses_claim_add():
     back = os_gui.get_button('back', return_url)
 
     content = DIV(
-        H4(T('Add Claim')),
+        H4(T('Add expense')),
         form
     )
 
@@ -641,12 +641,12 @@ def my_expenses_claim_add():
                auth.has_permission('read', 'employee_portal'))
 def my_expenses_claim_edit():
     """
-    Page to Edit Claim
+    Page to Edit Expense
     :return:
     """
     from openstudio.os_forms import OsForms
-    response.title = T('My Claims')
-    response.subtitle = T('Edit Claim')
+    response.title = T('My Expenses')
+    response.subtitle = T('Edit expense')
     response.view = 'ep/only_content.html'
 
     return_url = URL('my_expenses')
@@ -674,7 +674,7 @@ def my_expenses_claim_edit():
     back = os_gui.get_button('back', return_url)
 
     content = DIV(
-        H4(T('Edit Claim')),
+        H4(T('Edit expense')),
         form
     )
 
@@ -688,7 +688,7 @@ def my_expenses_claim_edit():
                auth.has_permission('read', 'employee_portal'))
 def my_expenses_claim_delete():
     """
-    Delete Claim
+    Delete Expense
     :return:
     """
     ecID = request.vars['ecID']

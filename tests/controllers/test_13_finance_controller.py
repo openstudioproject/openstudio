@@ -42,7 +42,7 @@ def test_employee_expenses_pending_page(client, web2py):
     client.get(url)
     assert client.status == 200
 
-    assert 'First Claim' in client.text
+    assert 'First Expense' in client.text
 
 
 def test_employee_expenses_move_claim_to_accepted(client, web2py):
@@ -135,7 +135,7 @@ def test_employee_expenses_rejected_page(client, web2py):
     client.get(url)
     assert client.status == 200
 
-    assert 'Rejected Claim' in client.text
+    assert 'Rejected Expense' in client.text
 
 
 def test_employee_expenses_accepted_page(client, web2py):
@@ -155,7 +155,7 @@ def test_employee_expenses_accepted_page(client, web2py):
     client.get(url)
     assert client.status == 200
 
-    assert 'Accepted Claim' in client.text
+    assert 'Accepted Expense' in client.text
 
 
 def test_employee_claims_process_accepted(client, web2py):
@@ -176,9 +176,9 @@ def test_employee_claims_process_accepted(client, web2py):
     assert web2py.db(web2py.db.employee_claims.Status == 'processed').count() == 2
     assert web2py.db(web2py.db.invoices).count() >= 1
 
-    # assert ((web2py.db.invoices.Description == 'Claims'))
+    # assert ((web2py.db.invoices.Description == 'Expenses'))
 
-    query = ((web2py.db.invoices.Description == 'Claims')&\
+    query = ((web2py.db.invoices.Description == 'Expenses')&\
              (web2py.db.invoices.EmployeeClaim == True))
     row = web2py.db(query).select().first()
     assert query
@@ -198,10 +198,10 @@ def test_employee_claims_process_accepted(client, web2py):
                 )
 
 
-    assert ((web2py.db.invoices.Description == 'Claims'))
+    assert ((web2py.db.invoices.Description == 'Expenses'))
 
     assert ((web2py.db.invoices_items.invoices_id==1)&\
-            (web2py.db.invoices_items.Description == 'Accepted Claim')&\
+            (web2py.db.invoices_items.Description == 'Accepted Expense')&\
             (web2py.db.invoices_items.TotalPrice == -15 ))
 
 
@@ -225,7 +225,7 @@ def test_employee_expenses_processed_page(client, web2py):
     client.get(url)
     assert client.status == 200
 
-    assert 'Processed Claim' in client.text
+    assert 'Processed Expense' in client.text
 
 
 def test_teacher_payments_batch_set_status_sent_to_bank_add_payments(client, web2py):

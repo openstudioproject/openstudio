@@ -3754,7 +3754,7 @@ def define_invoices_employee_claims():
         Field('employee_claims_id', db.employee_claims,
               readable= False,
               writable = False,
-              label=T('Employee Claim'))
+              label=T('Employee Expense'))
     )
 
 

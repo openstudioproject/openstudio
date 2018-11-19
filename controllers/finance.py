@@ -1753,7 +1753,7 @@ def employee_expenses():
     """
     from openstudio.os_employee_claims import EmployeeClaims
 
-    response.title = T('Employee Claims')
+    response.title = T('Employee Expenses')
     response.subtitle = T('')
     response.view = 'general/only_content_no_box.html'
 
@@ -1814,7 +1814,7 @@ def employee_expenses_accepted():
     """
     from openstudio.os_employee_claims import EmployeeClaims
 
-    response.title = T('Employee Claims')
+    response.title = T('Employee Expenses')
     response.subtitle = T('')
     response.view = 'general/only_content_no_box.html'
 
@@ -1837,7 +1837,7 @@ def employee_expenses_accepted():
             'noicon',
             URL('employee_expenses_process_accepted'),
             title=T("Process all"),
-            tooltip="Process all accepted Claims into invoices",
+            tooltip="Process all accepted expenses and create invoices",
             btn_class='btn-primary'
         )
     tools = verify_all
@@ -1871,7 +1871,7 @@ def employee_expenses_rejected():
     """
     from openstudio.os_employee_claims import EmployeeClaims
 
-    response.title = T('Employee Claims')
+    response.title = T('Employee Expenses')
     response.subtitle = T('')
     response.view = 'general/only_content_no_box.html'
 
@@ -1911,7 +1911,7 @@ def employee_expenses_processed():
     """
     from openstudio.os_employee_claims import EmployeeClaims
 
-    response.title = T('Employee Claims')
+    response.title = T('Employee Expenses')
     response.subtitle = T('')
     response.view = 'general/only_content_no_box.html'
 
@@ -1979,7 +1979,7 @@ def employee_expenses_accept():
     success = ec.accept()
 
     if success:
-        session.flash = T("Claim accepted")
+        session.flash = T("Expense accepted")
     else:
         session.flash = T("Error accepting claim")
 
@@ -2001,9 +2001,9 @@ def employee_expenses_reject():
     success = ec.reject()
 
     if success:
-        session.flash = T("Claim moved to rejected")
+        session.flash = T("Expense moved to rejected")
     else:
-        session.flash = T("Error rejecting Claim")
+        session.flash = T("Error rejecting expense")
 
     redirect(URL('employee_expenses'))
 
@@ -2023,9 +2023,9 @@ def employee_expenses_pending():
     success = ec.pending()
 
     if success:
-        session.flash = T("Claim moved to pending")
+        session.flash = T("Expense moved to pending")
     else:
-        session.flash = T("Error rejecting Claim")
+        session.flash = T("Error rejecting expense")
 
     redirect(URL('employee_expenses'))
 

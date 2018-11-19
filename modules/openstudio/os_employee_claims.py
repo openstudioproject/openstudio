@@ -71,7 +71,7 @@ class EmployeeClaims:
         os_gui = OsGui()
 
         header = THEAD(TR(
-            TH('Claim #'),
+            TH('Expense #'),
             TH(T("Employee")),
             TH(T("Date")),
             TH(T("Description")),
@@ -420,7 +420,7 @@ class EmployeeClaims:
                 iID = db.invoices.insert(
                     invoices_groups_id=igpt.invoices_groups_id,
                     EmployeeClaim=True,
-                    Description=T('Claims'),
+                    Description=T('Expenses'),
                     Status='sent'
                 )
 

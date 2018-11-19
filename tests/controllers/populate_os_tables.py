@@ -519,7 +519,7 @@ def populate_employee_claims(web2py):
         Quantity         = 3,
         tax_rates_id     = 1,
         Status           = 'pending',
-        Description      = 'First Claim'
+        Description      = 'First Expense'
     )
     web2py.db.employee_claims.insert(
         auth_user_id     = 400,
@@ -527,7 +527,7 @@ def populate_employee_claims(web2py):
         Quantity         = 3,
         tax_rates_id     = 1,
         Status           = 'accepted',
-        Description      = 'Accepted Claim'
+        Description      = 'Accepted Expense'
     )
     web2py.db.employee_claims.insert(
         auth_user_id     = 400,
@@ -535,7 +535,7 @@ def populate_employee_claims(web2py):
         Quantity         = 3,
         tax_rates_id     = 1,
         Status           = 'rejected',
-        Description      = 'Rejected Claim'
+        Description      = 'Rejected Expense'
     )
     web2py.db.employee_claims.insert(
         auth_user_id     = 400,
@@ -543,7 +543,7 @@ def populate_employee_claims(web2py):
         Quantity         = 3,
         tax_rates_id     = 1,
         Status           = 'processed',
-        Description      = 'Processed Claim'
+        Description      = 'Processed Expense'
     )
 
     web2py.db.commit()
