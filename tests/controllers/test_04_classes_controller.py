@@ -944,6 +944,23 @@ def test_attendance_remove_cancel_invoice(client, web2py):
     assert web2py.db(web2py.db.invoices.Status == 'cancelled').count() == 1
 
 
+def test_attendance_booking_options_request_review(client, web2py):
+    """
+        Is the subscription not allowed message shown to customers like it should?
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    prepare_classes(web2py)
+
+    url = '/classes/attendance_booking_options?clsID=1&cuID=1001&date=2014-01-06'
+    client.get(url)
+    assert client.status == 200
+
+    assert "Request review" in client.text
+
+
 def test_attendance_booking_options_subscription_not_allowed(client, web2py):
     """
         Is the subscription not allowed message shown to customers like it should?
@@ -960,7 +977,6 @@ def test_attendance_booking_options_subscription_not_allowed(client, web2py):
     query = (web2py.db.customers_classcards.id > 0)
     web2py.db(query).delete()
     web2py.db.commit()
-
 
 
     url = '/classes/attendance_booking_options?clsID=1&cuID=1001&date=2014-01-06'

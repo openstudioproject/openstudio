@@ -1057,7 +1057,7 @@ def prepare_classes(web2py,
                                             customers_classcards_id=1)
 
         # Request review
-        problem1ID = web2py.db.classes_attendance.insert(
+        web2py.db.classes_attendance.insert(
             auth_customer_id=cuID,
             classes_id=1,
             ClassDate='2014-02-03',
@@ -1070,7 +1070,8 @@ def prepare_classes(web2py,
         auth_user_id = 1001,
         ClassDate = '2014-01-06',
         TeacherNote = True,
-        Note = 'Avocado')
+        Note = 'Avocado'
+    )
 
 
     web2py.db.commit()
