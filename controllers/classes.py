@@ -2753,6 +2753,7 @@ def attendance_booking_options():
                                                               date,
                                                               customer,
                                                               trial=True,
+                                                              request_review=True,
                                                               complementary=complementary_permission,
                                                               list_type='attendance',
                                                               controller='classes')
@@ -3239,6 +3240,9 @@ def class_book():
         # Add drop in class to shopping cart
         result = ah.attendance_sign_in_trialclass(cuID, clsID, date, booking_status='attending')
 
+    if request.vars['request_review'] == 'true':
+        result = ah.attendance_sign_in_request_review(cuID, clsID, date, booking_status='attending')
+
     if request.vars['complementary'] == 'true':
         result = ah.attendance_sign_in_complementary(cuID, clsID, date, booking_status='attending')
 
@@ -3266,6 +3270,14 @@ def attendance_sign_in_get_returl_url(clsID, date_formatted, cuID):
         url = URL('customers', 'classes_attendance',
                    vars={'cuID':cuID},
                    extension='html')
+    elif session.classes_attendance_signin_back == 'reports_attendance_review_requested':
+        from openstudio.os_customer import Customer
+        customer = Customer(cuID)
+
+        session.flash = SPAN(T("Successfully checked in"), ' ',
+                             A(customer.row.display_name,
+                               _href=URL('customers', 'edit', args=cuID)))
+        url = URL('reports', 'attendance_review_requested')
     elif session.classes_attendance_signin_back == 'self_checkin':
         url = URL('selfcheckin', 'checkin',
                   vars={'clsID': clsID,

@@ -447,6 +447,11 @@ class AttendanceHelper:
             except AttributeError:
                 pass
 
+
+            if row.classes_attendance.AttendanceType == 5:
+                td_labels.append(' ')
+                td_labels.append(os_gui.get_label('warning', T("Review")))
+
             if show_booking_time:
                 td_labels.append(BR())
                 td_labels.append(SPAN(T('Booked on'), ' ', repr_row.classes_attendance.CreatedOn,
@@ -1020,6 +1025,7 @@ class AttendanceHelper:
                                            date,
                                            customer,
                                            trial=False,
+                                           request_review=False,
                                            complementary=False,
                                            list_type='shop'):
         """
@@ -1145,6 +1151,23 @@ class AttendanceHelper:
                 "Message": get_sys_property('shop_classes_trial_message') or ''
             }
 
+        # Request review
+        options['under_review'] = False
+        if request_review:
+            under_review = self._attendance_sign_in_check_under_review(
+                clsID,
+                customer.row.id,
+                date
+            )
+
+            if under_review:
+                options['under_review'] = True
+            else:
+                options['request_review'] = {
+                    "Type": "request_review",
+                    "Name": T('Request review'),
+                }
+
         # Complementary
         if complementary:
             options['complementary'] = {
@@ -1161,6 +1184,7 @@ class AttendanceHelper:
                                                      date,
                                                      customer,
                                                      trial=False,
+                                                     request_review=False,
                                                      complementary=False,
                                                      list_type='shop',
                                                      controller=''):
@@ -1172,13 +1196,16 @@ class AttendanceHelper:
         :param: list_type: [shop, attendance, selfcheckin]
         :return:
         """
-        def classes_book_options_get_button_book(url):
+        def classes_book_options_get_button_book(url, btn_text=""):
             """
                 Return book button for booking options
             """
             button_text = T('Book')
             if list_type == 'attendance' or list_type == 'selfcheckin':
-                button_text = T('Check in')
+                button_text = T("Check in")
+
+            if btn_text:
+                button_text = btn_text
 
             button_book = A(SPAN(button_text, ' ', os_gui.get_fa_icon('fa-chevron-right')),
                             _href=url,
@@ -1208,6 +1235,25 @@ class AttendanceHelper:
             list_type
         )
         formatted_options = DIV(_class='shop-classes-booking-options row')
+
+        if options['under_review']:
+            formatted_options.append(
+                DIV(
+                    os_gui.get_alert(
+                        'warning',
+                        SPAN(T("You're reviewing this check-in."), ' ',
+                             T("By choosing one of the options below it'll automatically be removed from the 'Review requested' list."),
+                             BR(),
+                             T("Click"), ' ',
+                             A(T("here"),
+                               _href=URL('reports', 'attendance_review_requested')), ' ',
+                             T("to go back to the overview of requested check-in reviews.")
+                             ),
+                        dismissable=False,
+                    ),
+                    _class="col-md-10 col-md-offset-1 col-xs-12"
+                )
+            )
 
         if options['subscriptions']:
             for subscription in options['subscriptions']:
@@ -1418,6 +1464,33 @@ class AttendanceHelper:
 
             formatted_options.append(option)
 
+
+        # Request review
+        if request_review and 'request_review' in options:
+            request_review = options['request_review']
+
+            formatted_options.append(DIV(HR(), _class='col-md-10 col-md-offset-1'))
+
+            url = URL(controller, 'class_book', vars={'clsID': clsID,
+                                                      'request_review': 'true',
+                                                      'cuID': customer.row.id,
+                                                      'date': date_formatted})
+            button_book = classes_book_options_get_button_book(url, T("Request review"))
+
+            option = DIV(DIV(request_review['Name'],
+                             _class='col-md-3 bold'),
+                         DIV(T('Should someone review this check-in later?'),
+                             BR(),
+                             SPAN(T("Please use this option in case an expected check-in option isn't available"),
+                                  _class='grey'),
+                             _class='col-md-6'),
+                         DIV(button_book,
+                             _class='col-md-3'),
+                         _class='col-md-10 col-md-offset-1 col-xs-12')
+
+            formatted_options.append(option)
+
+
         # Complementary
         if complementary and options['complementary']:
             complementary = options['complementary']
@@ -1580,40 +1653,7 @@ class AttendanceHelper:
             :param date: datetime.date
             :return: dict status[ok|fail], message
         """
-        from os_class import Class
-
-        db = current.db
-        T = current.T
-        DATE_FORMAT = current.DATE_FORMAT
-        cache_clear_customers_subscriptions = current.globalenv['cache_clear_customers_subscriptions']
-
-
-        status = 'fail'
-        message = ''
-        signed_in = self.attendance_sign_in_check_signed_in(clsID, cuID, date)
-        # check credits remaining
-
-        credits_remaining = self._attendance_sign_in_subscription_credits_remaining(csID)
-        message_no_credits = T('No credits remaining on this subscription')
-
-        if signed_in:
-            message = T("Customer has already booked or is already checked-in")
-        elif not credits_remaining and credits_hard_limit:
-            # return message, don't sign in
-            message = message_no_credits
-        else:
-            status = 'ok'
-            clattID = db.classes_attendance.insert(
-                auth_customer_id = cuID,
-                CustomerMembership = self._attendance_sign_in_has_membership(cuID, date),
-                classes_id = clsID,
-                ClassDate = date,
-                AttendanceType = None, # None = subscription
-                customers_subscriptions_id = csID,
-                online_booking=online_booking,
-                BookingStatus=booking_status
-                )
-
+        def take_credit():
             # Take 1 credit
             cls = Class(clsID, date)
             cscID = db.customers_subscriptions_credits.insert(
@@ -1624,16 +1664,58 @@ class AttendanceHelper:
                 Description = cls.get_name(pretty_date=True)
             )
 
-            cache_clear_customers_subscriptions(cuID)
+        from os_class import Class
 
-            # # check credits remaining
-            if not credits_remaining:
-                message = message_no_credits
+        db = current.db
+        T = current.T
+        DATE_FORMAT = current.DATE_FORMAT
+        cache_clear_customers_subscriptions = current.globalenv['cache_clear_customers_subscriptions']
 
-            # check for paused subscription
-            result = self._attedance_sign_in_subscription_check_paused(csID, date)
-            if result:
-                message = result
+        status = 'fail'
+        message = ''
+        signed_in = self._attendance_sign_in_check_signed_in(clsID, cuID, date)
+        # check credits remaining
+
+        paused = self._attedance_sign_in_subscription_check_paused(csID, date)
+        credits_remaining = self._attendance_sign_in_subscription_credits_remaining(csID)
+        message_no_credits = T('No credits remaining on this subscription')
+
+        class_data = dict(
+            auth_customer_id=cuID,
+            CustomerMembership=self._attendance_sign_in_has_membership(cuID, date),
+            classes_id=clsID,
+            ClassDate=date,
+            AttendanceType=None,  # None = subscription
+            customers_subscriptions_id=csID,
+            online_booking=online_booking,
+            BookingStatus=booking_status
+        )
+
+
+        if not credits_remaining and credits_hard_limit:
+            # return message, don't sign in
+            message = message_no_credits
+        elif paused: # check for paused subscription
+            # return message, don't sign in
+            message = paused
+        else:
+            if signed_in:
+                if signed_in.AttendanceType == 5:
+                    # Under review, so update
+                    status = 'ok'
+                    db(db.classes_attendance._id == signed_in.id).update(**class_data)
+                    clattID = signed_in.id
+                    take_credit()
+                else:
+                    # return message, don't sign in
+                    message = T("Customer has already booked or is already checked-in")
+            else:
+                status = 'ok'
+                clattID = db.classes_attendance.insert(**class_data)
+
+                take_credit()
+
+                cache_clear_customers_subscriptions(cuID)
 
         return dict(status=status, message=message)
 
@@ -1870,21 +1952,30 @@ class AttendanceHelper:
         status = 'fail'
         message = ''
         if classes_available:
-            signed_in = self.attendance_sign_in_check_signed_in(clsID, cuID, date)
+            class_data = dict(
+                auth_customer_id=cuID,
+                CustomerMembership=self._attendance_sign_in_has_membership(cuID, date),
+                classes_id=clsID,
+                ClassDate=date,
+                AttendanceType=3,  # 3 = classcard
+                customers_classcards_id=ccdID,
+                online_booking=online_booking,
+                BookingStatus=booking_status
+            )
+
+            signed_in = self._attendance_sign_in_check_signed_in(clsID, cuID, date)
             if signed_in:
-                message = T("Already checked in for this class")
+                if signed_in.AttendanceType == 5:
+                    # Under review, so update
+                    status = 'ok'
+                    db(db.classes_attendance._id == signed_in.id).update(**class_data)
+                else:
+                    message = T("Already checked in for this class")
             else:
-                status = 'success'
+                status = 'ok'
 
                 db.classes_attendance.insert(
-                    auth_customer_id=cuID,
-                    CustomerMembership = self._attendance_sign_in_has_membership(cuID, date),
-                    classes_id=clsID,
-                    ClassDate=date,
-                    AttendanceType=3,  # 3 = classcard
-                    customers_classcards_id=ccdID,
-                    online_booking=online_booking,
-                    BookingStatus=booking_status
+                    **class_data
                 )
 
                 # update class count
@@ -1917,20 +2008,34 @@ class AttendanceHelper:
         message = ''
         caID = ''
 
-        signed_in = self.attendance_sign_in_check_signed_in(clsID, cuID, date)
+        class_data = dict(
+            auth_customer_id=cuID,
+            CustomerMembership=self._attendance_sign_in_has_membership(cuID, date),
+            classes_id=clsID,
+            ClassDate=date,
+            AttendanceType=2,  # 2 = drop in class
+            online_booking=online_booking,
+            BookingStatus=booking_status
+        )
+
+        signed_in = self._attendance_sign_in_check_signed_in(clsID, cuID, date)
         if signed_in:
-            message = T("Already checked in for this class")
+            if signed_in.AttendanceType == 5:
+                # Under review, so update
+                db(db.classes_attendance._id == signed_in.id).update(**class_data)
+                status = 'ok'
+                caID = signed_in.id
+                if invoice:
+                    self._attendance_sign_in_create_invoice(cuID,
+                                                            caID,
+                                                            clsID,
+                                                            date,
+                                                            'dropin')
+            else:
+                message = T("Already checked in for this class")
         else:
             status = 'ok'
-            caID = db.classes_attendance.insert(
-                auth_customer_id=cuID,
-                CustomerMembership = self._attendance_sign_in_has_membership(cuID, date),
-                classes_id=clsID,
-                ClassDate=date,
-                AttendanceType=2,  # 2 = drop in class
-                online_booking=online_booking,
-                BookingStatus=booking_status
-            )
+            caID = db.classes_attendance.insert(**class_data)
 
             if invoice:
                 self._attendance_sign_in_create_invoice(cuID,
@@ -1962,21 +2067,34 @@ class AttendanceHelper:
         message = ''
         caID = ''
 
-        signed_in = self.attendance_sign_in_check_signed_in(clsID, cuID, date)
+        class_data = dict(
+            auth_customer_id=cuID,
+            CustomerMembership=self._attendance_sign_in_has_membership(cuID, date),
+            classes_id=clsID,
+            ClassDate=date,
+            AttendanceType=1,  # 1 = trial class
+            online_booking=online_booking,
+            BookingStatus=booking_status
+        )
+
+        signed_in = self._attendance_sign_in_check_signed_in(clsID, cuID, date)
 
         if signed_in:
-            message = T("Already checked in for this class")
+            if signed_in.AttendanceType == 5:
+                status = 'ok'
+                db(db.classes_attendance._id == signed_in.id).update(**class_data)
+                caID = signed_in.id
+                if invoice:
+                    self._attendance_sign_in_create_invoice(cuID,
+                                                            caID,
+                                                            clsID,
+                                                            date,
+                                                            'trial')
+            else:
+                message = T("Already checked in for this class")
         else:
             status = 'ok'
-            caID = db.classes_attendance.insert(
-                auth_customer_id=cuID,
-                CustomerMembership = self._attendance_sign_in_has_membership(cuID, date),
-                classes_id=clsID,
-                ClassDate=date,
-                AttendanceType=1,  # 1 = trial class
-                online_booking=online_booking,
-                BookingStatus=booking_status
-            )
+            caID = db.classes_attendance.insert(**class_data)
 
             if invoice:
                 self._attendance_sign_in_create_invoice(cuID,
@@ -2006,10 +2124,59 @@ class AttendanceHelper:
         message = ''
         caID = ''
 
-        signed_in = self.attendance_sign_in_check_signed_in(clsID, cuID, date)
+        class_data = dict(
+            auth_customer_id=cuID,
+            CustomerMembership=self._attendance_sign_in_has_membership(cuID, date),
+            classes_id=clsID,
+            ClassDate=date,
+            AttendanceType=4,  # 4 = Complementary class
+            online_booking=False,
+            BookingStatus=booking_status
+        )
+
+        signed_in = self._attendance_sign_in_check_signed_in(clsID, cuID, date)
 
         if signed_in:
-            message = T("Already checked in for this class")
+            if signed_in.AttendanceType == 5:
+                # Under review, so update
+                status = 'ok'
+                db(db.classes_attendance._id == signed_in.id).update(**class_data)
+            else:
+                message = T("Already checked in for this class")
+        else:
+            status = 'ok'
+            caID = db.classes_attendance.insert(**class_data)
+
+
+        return dict(status=status, message=message, caID=caID)
+
+
+    def attendance_sign_in_request_review(self,
+                                         cuID,
+                                         clsID,
+                                         date,
+                                         booking_status='attending'):
+        """
+            :param cuID: db.auth_user.id
+            :param clsID: db.classes.id
+            :param date: datetime.date
+            :return:
+        """
+        db = current.db
+        T = current.T
+
+        status = 'fail'
+        message = ''
+        caID = ''
+
+        signed_in = self._attendance_sign_in_check_signed_in(clsID, cuID, date)
+
+        if signed_in:
+            if signed_in.AttendanceType == 5:
+                # Under review, so update
+                message = T("A review has already been requested for this check-in")
+            else:
+                message = T("Already checked in for this class")
         else:
             status = 'ok'
             caID = db.classes_attendance.insert(
@@ -2017,16 +2184,15 @@ class AttendanceHelper:
                 CustomerMembership = self._attendance_sign_in_has_membership(cuID, date),
                 classes_id=clsID,
                 ClassDate=date,
-                AttendanceType=4,  # 4 = Complementary class
+                AttendanceType=5, # 5 = Request review
                 online_booking=False,
                 BookingStatus=booking_status
             )
 
-
         return dict(status=status, message=message, caID=caID)
 
 
-    def attendance_sign_in_check_signed_in(self, clsID, cuID, date):
+    def _attendance_sign_in_check_signed_in(self, clsID, cuID, date):
         """
             Check if a customer isn't already signed in to a class
         """
@@ -2036,7 +2202,29 @@ class AttendanceHelper:
                 (db.classes_attendance.ClassDate == date) & \
                 (db.classes_attendance.BookingStatus != 'cancelled')
 
-        return db(query).count()
+        rows = db(query).select(db.classes_attendance.ALL)
+        if rows:
+            return rows.first()
+        else:
+            return False
+
+
+    def _attendance_sign_in_check_under_review(self, clsID, cuID, date):
+        """
+            Check if a customer isn't already signed in to a class
+        """
+        under_review = False
+
+        attending = self._attendance_sign_in_check_signed_in(
+            clsID,
+            cuID,
+            date
+        )
+
+        if attending and attending.AttendanceType == 5:
+            under_review = True
+
+        return under_review
 
 
     def attendance_cancel_classes_in_school_holiday(self, shID):

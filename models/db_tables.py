@@ -2297,17 +2297,22 @@ def define_customers_classcards():
 
 
 def define_classes_attendance():
-    types = [ (1,T("Trial class")),
-              (2,T("Drop In")),
-              (3,T("Class card")),
-              (4,T("Complementary")),
+    types = [
+        (1,T("Trial class")),
+        (2,T("Drop In")),
+        (3,T("Class card")),
+        (4,T("Complementary")),
+        (5,T("To be reviewed")),
     ]
     # None = subscription
-    session.att_types_dict = { None:T("Subscription"),
-                               1:T("Trial class"),
-                               2:T("Drop In"),
-                               3:T("Class card"),
-                               4:T("Complementary")}
+    session.att_types_dict = {
+        None: T("Subscription"),
+        1: T("Trial class"),
+        2: T("Drop In"),
+        3: T("Class card"),
+        4: T("Complementary"),
+        5: T("To be reviewed")
+    }
     db.define_table('classes_attendance',
         Field('auth_customer_id', db.auth_user, required=True,
             label=T('CustomerID')),

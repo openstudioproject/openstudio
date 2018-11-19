@@ -318,361 +318,6 @@ def test_attendance_list_add_customer(client, web2py):
     assert web2py.db(query).count() == 1
 
 
-# def test_expected_attendance_reservations(client, web2py):
-#     """
-#         Does the expected attendance page show?
-#     """
-#     populate_classes(web2py)
-#     populate_customers(web2py, 1)
-#     web2py.db.classes_reservation.insert(classes_id='1',
-#                                          auth_customer_id=1001,
-#                                          Startdate='2014-01-01')
-#     web2py.db.commit()
-#
-#     assert web2py.db(web2py.db.auth_user).count() > 1
-#     assert web2py.db(web2py.db.classes).count() == 1
-#     assert web2py.db(web2py.db.classes_reservation).count() == 1
-#
-#     url = '/classes/attendance?clsID=1&date=2014-01-06'
-#     client.get(url)
-#     assert client.status == 200
-#     assert web2py.db.auth_user(1001).first_name in client.text
-
-
-
-# def test_expected_attendance_from_previous_attendance_classcard(client, web2py):
-#     """
-#         Does the expected attendance page show customers without reservations
-#         who attended using a class card or subscription in the past month?
-#     """
-#     # get random url to init payment methods
-#     url = '/default/user/login'
-#     client.get(url)
-#     assert client.status == 200
-#
-#     populate_classes(web2py)
-#     populate_customers_with_classcards(web2py)
-#
-#     web2py.db.classes_attendance.insert(
-#         classes_id                 = 1,
-#         auth_customer_id           = 1001,
-#         customers_classcards_id    = 1,
-#         ClassDate                  = '2014-01-06',
-#         AttendanceType             = 3 )
-#
-#     web2py.db.commit()
-#
-#     url = '/classes/attendance?clsID=1&date=2014-01-20'
-#     client.get(url)
-#     assert client.status == 200
-#
-#     assert web2py.db.auth_user(1001).first_name in client.text
-
-
-# def test_attendance_sign_in_trialclass(client, web2py):
-#     """
-#         Can we check in a customer for a trial class?
-#         Check using auth_user.id 1002
-#     """
-#     classdate = '2014-01-06'
-#     prepare_classes(web2py)
-#
-#     url = '/classes/attendance_sign_in_trialclass?cuID=1002&clsID=1&date=2014-01-06'
-#     client.get(url)
-#     assert client.status == 200
-#
-#     # check we have count 2 for attendance in db
-#     query = (web2py.db.classes_attendance.id > 0)
-#     count = web2py.db(query).count()
-#     assert count == 4
-#
-#     assert web2py.db(web2py.db.invoices).count() == 1
-#     invoice = web2py.db.invoices(1)
-#     assert invoice.invoices_groups_id == 100
-#
-#     inv_clatt = web2py.db.invoices_classes_attendance(1)
-#     assert inv_clatt.classes_attendance_id == 5
-#
-#     price = web2py.db.classes_price(1).Trial
-#     invoice_amount = web2py.db.invoices_amounts(1).TotalPriceVAT
-#
-#     assert price == invoice_amount
-
-
-# def test_attendance_sign_in_dropin(client, web2py):
-#     """
-#         Can we check in a customer for a drop in class?
-#         Check using auth_user.id 1002
-#     """
-#     classdate = '2014-01-06'
-#     prepare_classes(web2py)
-#
-#     url = '/classes/attendance_sign_in_dropin?cuID=1002&clsID=1&date=2014-01-06'
-#     client.get(url)
-#     assert client.status == 200
-#
-#     # check we have count 2 for attendance in db
-#     query = (web2py.db.classes_attendance.id > 0)
-#     count = web2py.db(query).count()
-#     assert count == 4
-#
-#     assert web2py.db(web2py.db.invoices).count() == 1
-#     invoice = web2py.db.invoices(1)
-#     assert invoice.invoices_groups_id == 100
-#
-#     inv_clatt = web2py.db.invoices_classes_attendance(1)
-#     assert inv_clatt.classes_attendance_id == 5
-#
-#     price = web2py.db.classes_price(1).Dropin
-#     invoice_amount = web2py.db.invoices_amounts(1).TotalPriceVAT
-#
-#     assert price == invoice_amount
-
-
-# def test_attendance_sign_in_subscription(client, web2py):
-#     """
-#         Can we check in a customer for a class using a subscription?
-#         Check using auth_user.id 1001
-#     """
-#     # get random url to init payment methods for subscription
-#     client.get('/default/user/login')
-#     assert client.status == 200
-#
-#     populate_customers_with_subscriptions(web2py, credits=True)
-#
-#     populate(web2py.db.school_locations, 2)
-#     populate(web2py.db.school_classtypes, 3)
-#     populate(web2py.db.school_levels, 3)
-#     web2py.db.classes.insert(school_locations_id=1,
-#                              school_classtypes_id=1,
-#                              Week_day=1,
-#                              Starttime='06:00:00',
-#                              Endtime='09:00:00',
-#                              Startdate='2014-01-01',
-#                              Enddate='2999-01-01',
-#                              Maxstudents=20,
-#                              )
-#
-#     web2py.db.commit()
-#
-#     url = '/classes/attendance_sign_in_subscription?cuID=1001&csID=1&clsID=1&date=2015-01-05'
-#     client.get(url)
-#     assert client.status == 200
-#
-#     # check we have count 1 for attendance in db
-#     query = (web2py.db.classes_attendance.id > 0)
-#     count = web2py.db(query).count()
-#     assert count == 1
-#
-#     # check we have 2 counts in db.customers_subscriptions_credits
-#     # one for initial add of credits from populate table and 1 from subtracting a credit for this class
-#     query = (web2py.db.customers_subscriptions_credits.id > 0)
-#     assert web2py.db(query).count() == 2
-#
-#
-# def test_attendance_sign_in_subscription_check_paused(client, web2py):
-#     """
-#         Can we check in a customer for a class using a subscription
-#         does it show a message when the subscription is paused'?
-#         Check using auth_user.id 1001
-#     """
-#     # get random url to init payment methods for subscription
-#     client.get('/default/user/login')
-#     assert client.status == 200
-#
-#     populate_customers_with_subscriptions(web2py)
-#
-#     populate(web2py.db.school_locations, 2)
-#     populate(web2py.db.school_classtypes, 3)
-#     populate(web2py.db.school_levels, 3)
-#     web2py.db.classes.insert(school_locations_id=1,
-#                              school_classtypes_id=1,
-#                              Week_day=1,
-#                              Starttime='06:00:00',
-#                              Endtime='09:00:00',
-#                              Startdate='2014-01-01',
-#                              Enddate='2999-01-01',
-#                              Maxstudents=20,
-#                              )
-#
-#     web2py.db.customers_subscriptions_paused.insert(
-#         customers_subscriptions_id = 1,
-#         Startdate                  = '2014-01-01',
-#         Enddate                    = '2014-12-31',
-#         Description                = 'for testing')
-#
-#     web2py.db.commit()
-#
-#     url = '/classes/attendance_sign_in_subscription?cuID=1001&csID=1&clsID=1&date=2014-01-06'
-#     client.get(url)
-#     assert client.status == 200
-#
-#     # check we have count 1 for attendance in db
-#     query = (web2py.db.classes_attendance.id > 0)
-#     count = web2py.db(query).count()
-#     assert count == 1
-#     assert 'Subscription is paused on this date' in client.text
-
-
-# def test_attendance_sign_in_subscription_weekly_classes_check(client, web2py):
-#     """
-#         Can we check in a customer for a class using a subscription?
-#         Check using auth_user.id 1001
-#     """
-#     # get random url to init payment methods for subscription
-#     client.get('/default/user/login')
-#     assert client.status == 200
-#
-#     populate_customers_with_subscriptions(web2py)
-#
-#     populate(web2py.db.school_locations, 2)
-#     populate(web2py.db.school_classtypes, 3)
-#     populate(web2py.db.school_levels, 3)
-#     web2py.db.classes.insert(school_locations_id=1,
-#                              school_classtypes_id=1,
-#                              Week_day=1,
-#                              Starttime='06:00:00',
-#                              Endtime='09:00:00',
-#                              Startdate='2014-01-01',
-#                              Enddate='2999-01-01',
-#                              Maxstudents=20,
-#                              )
-#     web2py.db.classes.insert(school_locations_id=1,
-#                              school_classtypes_id=1,
-#                              Week_day=2,
-#                              Starttime='06:00:00',
-#                              Endtime='09:00:00',
-#                              Startdate='2014-01-01',
-#                              Enddate='2999-01-01',
-#                              Maxstudents=20,
-#                              )
-#
-#     web2py.db.commit()
-#
-#     # Check in to a class
-#     url = '/classes/attendance_sign_in_subscription?cuID=1001&csID=1&clsID=1&date=2015-01-05'
-#     client.get(url)
-#     assert client.status == 200
-#
-#     # Check in to another class
-#     url = '/classes/attendance_sign_in_subscription?cuID=1001&csID=1&clsID=2&date=2015-01-05'
-#     client.get(url)
-#     assert client.status == 200
-#     # now we should be over the limit
-#     assert 'exceeded' in client.text
-#
-#     # check we have count 2 for attendance in db
-#     query = (web2py.db.classes_attendance.id > 0)
-#     count = web2py.db(query).count()
-#     assert count == 2
-#
-#
-# def test_attendance_sign_in_subscription_monthly_classes_check(client, web2py):
-#     """
-#         Can we check in a customer for a class using a subscription?
-#         Check using auth_user.id 1001
-#     """
-#     # get random url to init payment methods for subscription
-#     client.get('/default/user/login')
-#     assert client.status == 200
-#
-#     populate_customers_with_subscriptions(web2py)
-#
-#     # change first customer subscription to monthly one school_subscriptions_id = 3
-#     cs = web2py.db.customers_subscriptions(1)
-#     cs.school_subscriptions_id = 3
-#     cs.update_record()
-#
-#     populate(web2py.db.school_locations, 2)
-#     populate(web2py.db.school_classtypes, 3)
-#     populate(web2py.db.school_levels, 3)
-#     web2py.db.classes.insert(school_locations_id=1,
-#                              school_classtypes_id=1,
-#                              Week_day=1,
-#                              Starttime='06:00:00',
-#                              Endtime='09:00:00',
-#                              Startdate='2014-01-01',
-#                              Enddate='2999-01-01',
-#                              Maxstudents=20,
-#                              )
-#     web2py.db.classes.insert(school_locations_id=1,
-#                              school_classtypes_id=1,
-#                              Week_day=2,
-#                              Starttime='06:00:00',
-#                              Endtime='09:00:00',
-#                              Startdate='2014-01-01',
-#                              Enddate='2999-01-01',
-#                              Maxstudents=20,
-#                              )
-#
-#     web2py.db.commit()
-#
-#     url = '/classes/attendance_sign_in_subscription?cuID=1001&csID=3&clsID=1&date=2015-01-05'
-#     client.get(url)
-#     assert client.status == 200
-#
-#     url = '/classes/attendance_sign_in_subscription?cuID=1001&csID=3&clsID=2&date=2015-01-05'
-#     client.get(url)
-#     assert client.status == 200
-#     assert 'exceeded' in client.text
-#
-#     # check we have count 2 for attendance in db
-#     query = (web2py.db.classes_attendance.id > 0)
-#     count = web2py.db(query).count()
-#     assert count == 2
-
-
-# def test_attendance_sign_in_classcard(client, web2py):
-#     """
-#         Can we check in a customer for a class using a class card?
-#         Check using auth_user.id 1002
-#     """
-#     classdate = '2014-01-06'
-#     populate_customers_with_classcards(web2py)
-#
-#     populate(web2py.db.school_locations, 2)
-#     populate(web2py.db.school_classtypes, 3)
-#     populate(web2py.db.school_levels, 3)
-#     web2py.db.classes.insert(school_locations_id=1,
-#                              school_classtypes_id=1,
-#                              Week_day=1,
-#                              Starttime='06:00:00',
-#                              Endtime='09:00:00',
-#                              Startdate='2014-01-01',
-#                              Enddate='2999-01-01',
-#                              Maxstudents=20,
-#                              )
-#     web2py.db.commit()
-#
-#     url = '/classes/attendance_sign_in_classcard?cuID=1002&ccdID=2&clsID=1&date=2015-01-05'
-#     client.get(url)
-#     assert client.status == 200
-#
-#     # check we have count 1 for attendance in db
-#     query = (web2py.db.classes_attendance.id > 0)
-#     assert web2py.db(query).count() == 1
-#
-#     # check classes remaining count; should be total classes on card - 1
-#     scd = web2py.db.school_classcards(1)
-#     card_total = scd.Classes
-#
-#     url = '/customers/classcards?cuID=1002'
-#     client.get(url)
-#     assert client.status == 200
-#     assert unicode(card_total - 1) + ' Classes remaining' in client.text
-#
-#     # check again after cancelling booking (manually); should be equal to total classes available on card
-#     row = web2py.db.classes_attendance(1)
-#     row.BookingStatus = 'cancelled'
-#     row.update_record()
-#
-#     web2py.db.commit()
-#
-#     url = '/customers/classcards?cuID=1002'
-#     client.get(url)
-#     assert client.status == 200
-#     assert unicode(card_total) + ' Classes remaining' in client.text
-
 def test_class_book_subscription(client, web2py):
     """
         Can we book a class on a subscription?
@@ -871,6 +516,177 @@ def test_class_book_complementary(client, web2py):
     assert clatt.AttendanceType == 4
 
 
+def test_class_book_request_review(client, web2py):
+    """
+        Can we book a class as complementary?
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    classdate = '2014-01-06'
+    prepare_classes(web2py, attendance=False)
+
+    assert web2py.db(web2py.db.classes_attendance).count() == 0
+
+    url = '/classes/class_book?request_review=true&date=2014-01-06&cuID=1001&clsID=1'
+    client.get(url)
+    assert client.status == 200
+
+    clatt = web2py.db.classes_attendance(1)
+    assert clatt.ClassDate == datetime.date(2014, 1, 6)
+    assert clatt.classes_id == 1
+    assert clatt.auth_customer_id == 1001
+    assert clatt.AttendanceType == 5
+
+
+def test_class_book_subscription_review(client, web2py):
+    """
+        Can we book a class on a subscription?
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    classdate = '2014-01-06'
+    prepare_classes(web2py, attendance=True, credits=True)
+
+    count = web2py.db(web2py.db.classes_attendance).count()
+
+    url = '/classes/class_book?csID=1&date=2014-02-03&cuID=1001&clsID=1'
+    client.get(url)
+    assert client.status == 200
+
+    clatt = web2py.db.classes_attendance(5)
+    assert clatt.ClassDate == datetime.date(2014, 2, 3)
+    assert clatt.classes_id == 1
+    assert clatt.auth_customer_id == 1001
+    assert clatt.customers_subscriptions_id == 1
+    assert clatt.AttendanceType is None
+
+    # Let's make sure we haven't added duplicate entries
+    assert web2py.db(web2py.db.classes_attendance).count() == count
+    # Check there are no more check-ins to review
+    assert web2py.db(web2py.db.classes_attendance.AttendanceType == 5).count() == 0
+
+
+def test_class_book_classcard_review(client, web2py):
+    """
+        Can we book a class on a card?
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    classdate = '2014-01-06'
+    prepare_classes(web2py)
+
+    count = web2py.db(web2py.db.classes_attendance).count()
+
+    url = '/classes/class_book?ccdID=1&date=2014-02-03&cuID=1001&clsID=1'
+    client.get(url)
+    assert client.status == 200
+
+    clatt = web2py.db.classes_attendance(5)
+    assert clatt.ClassDate == datetime.date(2014, 2, 3)
+    assert clatt.classes_id == 1
+    assert clatt.auth_customer_id == 1001
+    assert clatt.customers_classcards_id == 1
+    assert clatt.AttendanceType == 3
+
+    # Let's make sure we haven't added duplicate entries
+    assert web2py.db(web2py.db.classes_attendance).count() == count
+    # Check there are no more check-ins to review
+    assert web2py.db(web2py.db.classes_attendance.AttendanceType == 5).count() == 0
+
+
+def test_class_book_dropin_review(client, web2py):
+    """
+        Can we book a class as drop in?
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    classdate = '2014-01-06'
+    prepare_classes(web2py)
+
+    count = web2py.db(web2py.db.classes_attendance).count()
+
+    url = '/classes/class_book?dropin=true&date=2014-02-03&cuID=1001&clsID=1'
+    client.get(url)
+    assert client.status == 200
+
+    clatt = web2py.db.classes_attendance(5)
+    assert clatt.ClassDate == datetime.date(2014, 2, 3)
+    assert clatt.classes_id == 1
+    assert clatt.auth_customer_id == 1001
+    assert clatt.AttendanceType == 2
+
+    # Let's make sure we haven't added duplicate entries
+    assert web2py.db(web2py.db.classes_attendance).count() == count
+    # Check there are no more check-ins to review
+    assert web2py.db(web2py.db.classes_attendance.AttendanceType == 5).count() == 0
+
+
+def test_class_book_trial_review(client, web2py):
+    """
+        Can we book a class as trial class?
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    classdate = '2014-01-06'
+    prepare_classes(web2py)
+
+    count = web2py.db(web2py.db.classes_attendance).count()
+
+    url = '/classes/class_book?trial=true&date=2014-02-03&cuID=1001&clsID=1'
+    client.get(url)
+    assert client.status == 200
+
+    clatt = web2py.db.classes_attendance(5)
+    assert clatt.ClassDate == datetime.date(2014, 2, 3)
+    assert clatt.classes_id == 1
+    assert clatt.auth_customer_id == 1001
+    assert clatt.AttendanceType == 1
+
+    # Let's make sure we haven't added duplicate entries
+    assert web2py.db(web2py.db.classes_attendance).count() == count
+    # Check there are no more check-ins to review
+    assert web2py.db(web2py.db.classes_attendance.AttendanceType == 5).count() == 0
+
+
+def test_class_book_complementary_review(client, web2py):
+    """
+        Can we book a class as complementary?
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    classdate = '2014-01-06'
+    prepare_classes(web2py)
+
+    count = web2py.db(web2py.db.classes_attendance).count()
+
+    url = '/classes/class_book?complementary=true&date=2014-02-03&cuID=1001&clsID=1'
+    client.get(url)
+    assert client.status == 200
+
+    clatt = web2py.db.classes_attendance(5)
+    assert clatt.ClassDate == datetime.date(2014, 2, 3)
+    assert clatt.classes_id == 1
+    assert clatt.auth_customer_id == 1001
+    assert clatt.AttendanceType == 4
+
+    # Let's make sure we haven't added duplicate entries
+    assert web2py.db(web2py.db.classes_attendance).count() == count
+    # Check there are no more check-ins to review
+    assert web2py.db(web2py.db.classes_attendance.AttendanceType == 5).count() == 0
+
+
 def test_attendance_set_status_attending(client, web2py):
     """
         Can we change the status of an attendance record?
@@ -881,7 +697,7 @@ def test_attendance_set_status_attending(client, web2py):
 
     classdate = '2014-01-06'
     prepare_classes(web2py)
-    assert web2py.db(web2py.db.classes_attendance).count() == 4
+    assert web2py.db(web2py.db.classes_attendance).count() == 5
 
     url = '/classes/attendance_set_status?clattID=1&status=attending'
     client.get(url)
@@ -897,7 +713,7 @@ def test_attendance_remove(client, web2py):
     """
     classdate = '2014-01-06'
     prepare_classes(web2py)
-    assert web2py.db(web2py.db.classes_attendance).count() == 4
+    assert web2py.db(web2py.db.classes_attendance).count() == 5
 
     # first visit the attendance page to set the session var used to determine where to redirect
     url = '/classes/attendance?clsID=1&date=' + classdate
@@ -912,7 +728,7 @@ def test_attendance_remove(client, web2py):
     # check redirect back to attendance
     assert 'Attendance' in client.text
 
-    assert web2py.db(web2py.db.classes_attendance).count() == 2
+    assert web2py.db(web2py.db.classes_attendance).count() == 3
 
 
 def test_attendance_remove_cancel_invoice(client, web2py):
@@ -925,7 +741,7 @@ def test_attendance_remove_cancel_invoice(client, web2py):
 
     classdate = '2014-01-06'
     prepare_classes(web2py, invoices=True)
-    assert web2py.db(web2py.db.classes_attendance).count() == 4
+    assert web2py.db(web2py.db.classes_attendance).count() == 5
 
     # first visit the attendance page to set the session var used to determine where to redirect
     url = '/classes/attendance?clsID=1&date=' + classdate
@@ -944,6 +760,40 @@ def test_attendance_remove_cancel_invoice(client, web2py):
     assert web2py.db(web2py.db.invoices.Status == 'cancelled').count() == 1
 
 
+def test_attendance_booking_options_request_review(client, web2py):
+    """
+        Is the subscription not allowed message shown to customers like it should?
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    prepare_classes(web2py)
+
+    url = '/classes/attendance_booking_options?clsID=1&cuID=1001&date=2014-01-06'
+    client.get(url)
+    assert client.status == 200
+
+    assert "Request review" in client.text
+
+
+def test_attendance_booking_options_request_review_message(client, web2py):
+    """
+        Is the subscription not allowed message shown to customers like it should?
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    prepare_classes(web2py)
+
+    url = '/classes/attendance_booking_options?clsID=1&cuID=1001&date=2014-02-03'
+    client.get(url)
+    assert client.status == 200
+
+    assert "You're reviewing this check-in." in client.text
+
+
 def test_attendance_booking_options_subscription_not_allowed(client, web2py):
     """
         Is the subscription not allowed message shown to customers like it should?
@@ -960,7 +810,6 @@ def test_attendance_booking_options_subscription_not_allowed(client, web2py):
     query = (web2py.db.customers_classcards.id > 0)
     web2py.db(query).delete()
     web2py.db.commit()
-
 
 
     url = '/classes/attendance_booking_options?clsID=1&cuID=1001&date=2014-01-06'
