@@ -132,19 +132,19 @@ class Order:
             :param school_memberships_id: db.school_memberships.id
             :return : db.customers_orders_items.id of inserted item
         """
-        from os_school_membership import Schoolmembership
+        from os_school_membership import SchoolMembership
 
         db = current.db
         T  = current.T
 
-        sme = Schoolmembership(school_memberships_id)
+        sme = SchoolMembership(school_memberships_id)
         sme_tax_rates = sme.get_tax_rates_on_date(startdate)
 
         coiID = db.customers_orders_items.insert(
             customers_orders_id  = self.coID,
             school_memberships_id = school_memberships_id,
             ProductName = T('membership'),
-            Description = sme.get_name(),
+            Description = sme.row.Name,
             Quantity = 1,
             Price = sme.get_price_on_date(startdate, formatted=False),
             tax_rates_id = sme_tax_rates.tax_rates.id
@@ -343,6 +343,7 @@ class Order:
         from os_invoice import Invoice
         from os_school_classcard import SchoolClasscard
         from os_school_subscription import SchoolSubscription
+        from os_school_membership import SchoolMembership
         from os_customer_membership import CustomerMembership
         from os_workshop import Workshop
         from os_workshop_product import WorkshopProduct
@@ -454,10 +455,10 @@ class Order:
                     cm = CustomerMembership(cmID)
 
                     # Check if price exists and > 0:
-                    if self.get_price_on_date(membership_start):
+                    if sme.get_price_on_date(membership_start):
                         period_start = cm.row.Startdate
                         period_end = cm.get_period_enddate(cm.row.Startdate)
-                    
+
                         invoice.item_add_membership(
                             cmID,
                             period_start,
