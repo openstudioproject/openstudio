@@ -750,8 +750,8 @@ def validate_cart_create_order(cuID, pmID, items):
                 item['data']['id'],
                 TODAY_LOCAL
             )
-        # elif item['item_type'] == 'membership':
-        #     order.order_item_add_membership(item['data']['id'])
+        elif item['item_type'] == 'membership':
+            order.order_item_add_membership(item['data']['id'])
 
     # update order status
     order.set_status_awaiting_payment()

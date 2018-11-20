@@ -111,8 +111,6 @@ class Order:
 
         ssu = SchoolSubscription(school_subscriptions_id)
         ssu_tax_rates = ssu.get_tax_rates_on_date(startdate)
-        print ssu_tax_rates
-
 
         coiID = db.customers_orders_items.insert(
             customers_orders_id  = self.coID,
@@ -122,6 +120,34 @@ class Order:
             Quantity = 1,
             Price = ssu.get_price_on_date(startdate, formatted=False),
             tax_rates_id = ssu_tax_rates.tax_rates.id
+        )
+
+        self.set_amounts()
+
+        return coiID
+
+
+    def order_item_add_membership(self, school_memberships_id, startdate):
+        """
+            :param school_memberships_id: db.school_memberships.id
+            :return : db.customers_orders_items.id of inserted item
+        """
+        from os_school_membership import Schoolmembership
+
+        db = current.db
+        T  = current.T
+
+        sme = Schoolmembership(school_memberships_id)
+        sme_tax_rates = sme.get_tax_rates_on_date(startdate)
+
+        coiID = db.customers_orders_items.insert(
+            customers_orders_id  = self.coID,
+            school_memberships_id = school_memberships_id,
+            ProductName = T('membership'),
+            Description = sme.get_name(),
+            Quantity = 1,
+            Price = sme.get_price_on_date(startdate, formatted=False),
+            tax_rates_id = sme_tax_rates.tax_rates.id
         )
 
         self.set_amounts()
@@ -317,6 +343,7 @@ class Order:
         from os_invoice import Invoice
         from os_school_classcard import SchoolClasscard
         from os_school_subscription import SchoolSubscription
+        from os_customer_membership import CustomerMembership
         from os_workshop import Workshop
         from os_workshop_product import WorkshopProduct
 
@@ -409,6 +436,33 @@ class Order:
                         TODAY_LOCAL.year,
                         TODAY_LOCAL.month
                     )
+
+            # Check for membership
+            if row.school_memberships_id:
+                # Deliver membership
+                membership_start = TODAY_LOCAL
+                sme = SchoolMembership(row.school_memberships_id)
+                cmID = sme.sell_to_customer(
+                    self.order.auth_customer_id,
+                    membership_start,
+                )
+
+                if create_invoice:
+                    invoice.link_to_customer_membership(cmID)
+
+                    # This will also add the registration fee if required.
+                    cm = CustomerMembership(cmID)
+
+                    # Check if price exists and > 0:
+                    if self.get_price_on_date(membership_start):
+                        period_start = cm.row.Startdate
+                        period_end = cm.get_period_enddate(cm.row.Startdate)
+                    
+                        invoice.item_add_membership(
+                            cmID,
+                            period_start,
+                            period_end
+                        )
 
             # Check for workshop
             if row.workshops_products_id:
