@@ -519,7 +519,7 @@ def populate_employee_claims(web2py):
         Quantity         = 3,
         tax_rates_id     = 1,
         Status           = 'pending',
-        Description      = 'First Claim'
+        Description      = 'First Expense'
     )
     web2py.db.employee_claims.insert(
         auth_user_id     = 400,
@@ -527,7 +527,7 @@ def populate_employee_claims(web2py):
         Quantity         = 3,
         tax_rates_id     = 1,
         Status           = 'accepted',
-        Description      = 'Accepted Claim'
+        Description      = 'Accepted Expense'
     )
     web2py.db.employee_claims.insert(
         auth_user_id     = 400,
@@ -535,7 +535,7 @@ def populate_employee_claims(web2py):
         Quantity         = 3,
         tax_rates_id     = 1,
         Status           = 'rejected',
-        Description      = 'Rejected Claim'
+        Description      = 'Rejected Expense'
     )
     web2py.db.employee_claims.insert(
         auth_user_id     = 400,
@@ -543,7 +543,7 @@ def populate_employee_claims(web2py):
         Quantity         = 3,
         tax_rates_id     = 1,
         Status           = 'processed',
-        Description      = 'Processed Claim'
+        Description      = 'Processed Expense'
     )
 
     web2py.db.commit()
@@ -1056,13 +1056,22 @@ def prepare_classes(web2py,
                                             AttendanceType=3,
                                             customers_classcards_id=1)
 
+        # Request review
+        web2py.db.classes_attendance.insert(
+            auth_customer_id=cuID,
+            classes_id=1,
+            ClassDate='2014-02-03',
+            AttendanceType=5
+        )
+
     # Class notes
     web2py.db.classes_notes.insert(
         classes_id = 1,
         auth_user_id = 1001,
         ClassDate = '2014-01-06',
         TeacherNote = True,
-        Note = 'Avocado')
+        Note = 'Avocado'
+    )
 
 
     web2py.db.commit()

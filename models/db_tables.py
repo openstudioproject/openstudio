@@ -1747,7 +1747,7 @@ def define_classes_notes():
 
 def define_employee_claims():
     db.define_table('employee_claims',
-        Field('auth_user_id', db.auth_user,  # Employee that does the claims
+        Field('auth_user_id', db.auth_user,  # Employee that does the expenses
               required= True,
               readable=False,
               writable=False,
@@ -1779,8 +1779,8 @@ def define_employee_claims():
         Field('Status',
               readable=False,
               writable=False,
-              requires=IS_IN_SET(employee_claims_statuses),
-              represent=represent_employee_claims_status,
+              requires=IS_IN_SET(employee_expenses_statuses),
+              represent=represent_employee_expenses_status,
               label=T("Status")),
         Field('VerifiedBy', db.auth_user,
               readable=False,
@@ -2297,17 +2297,22 @@ def define_customers_classcards():
 
 
 def define_classes_attendance():
-    types = [ (1,T("Trial class")),
-              (2,T("Drop In")),
-              (3,T("Class card")),
-              (4,T("Complementary")),
+    types = [
+        (1,T("Trial class")),
+        (2,T("Drop In")),
+        (3,T("Class card")),
+        (4,T("Complementary")),
+        (5,T("To be reviewed")),
     ]
     # None = subscription
-    session.att_types_dict = { None:T("Subscription"),
-                               1:T("Trial class"),
-                               2:T("Drop In"),
-                               3:T("Class card"),
-                               4:T("Complementary")}
+    session.att_types_dict = {
+        None: T("Subscription"),
+        1: T("Trial class"),
+        2: T("Drop In"),
+        3: T("Class card"),
+        4: T("Complementary"),
+        5: T("To be reviewed")
+    }
     db.define_table('classes_attendance',
         Field('auth_customer_id', db.auth_user, required=True,
             label=T('CustomerID')),
@@ -3749,7 +3754,7 @@ def define_invoices_employee_claims():
         Field('employee_claims_id', db.employee_claims,
               readable= False,
               writable = False,
-              label=T('Employee Claim'))
+              label=T('Employee Expense'))
     )
 
 
@@ -5929,7 +5934,7 @@ define_customers_orders_items()
 define_customers_orders_amounts()
 define_customers_orders_mollie_payment_ids()
 
-#employee claims definitions
+# employee claims definitions
 define_employee_claims()
 
 
