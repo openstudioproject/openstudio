@@ -99,6 +99,36 @@ class Order:
         return coiID
 
 
+    def order_item_add_subscription(self, school_subscriptions_id, startdate):
+        """
+            :param school_subscriptions_id: db.school_subscriptions.id
+            :return : db.customers_orders_items.id of inserted item
+        """
+        from os_school_subscription import SchoolSubscription
+
+        db = current.db
+        T  = current.T
+
+        ssu = SchoolSubscription(school_subscriptions_id)
+        ssu_tax_rates = ssu.get_tax_rates_on_date(startdate)
+        print ssu_tax_rates
+
+
+        coiID = db.customers_orders_items.insert(
+            customers_orders_id  = self.coID,
+            school_subscriptions_id = school_subscriptions_id,
+            ProductName = T('Subscription'),
+            Description = ssu.get_name(),
+            Quantity = 1,
+            Price = ssu.get_price_on_date(startdate, formatted=False),
+            tax_rates_id = ssu_tax_rates.tax_rates.id
+        )
+
+        self.set_amounts()
+
+        return coiID
+
+
     def order_item_add_workshop_product(self, workshops_products_id):
         """
             :param workshops_products_id: db.workshops_products.id
@@ -292,6 +322,7 @@ class Order:
 
         cache_clear_classschedule_api = current.globalenv['cache_clear_classschedule_api']
         get_sys_property = current.globalenv['get_sys_property']
+        TODAY_LOCAL = current.TODAY_LOCAL
         db = current.db
         T = current.T
 
@@ -344,7 +375,7 @@ class Order:
             # Check for classcard
             if row.school_classcards_id:
                 # Deliver card
-                card_start = datetime.date.today()
+                card_start = TODAY_LOCAL
                 scd = SchoolClasscard(row.school_classcards_id)
                 ccdID = scd.sell_to_customer(self.order.auth_customer_id,
                                              card_start,
@@ -352,6 +383,25 @@ class Order:
                 # Add card to invoice
                 if create_invoice:
                     invoice.item_add_classcard(ccdID)
+
+            # Check for subscription
+            if row.school_subscriptions_id:
+                # Deliver subscription
+                subscription_start = TODAY_LOCAL
+                ssu = SchoolSubscription(row.school_subscriptions_id)
+                csID = ssu.sell_to_customer(
+                    self.order.auth_customer_id,
+                    subscription_start,
+                )
+
+                if create_invoice:
+                    invoice.link_to_customer_subscription(csID)
+
+                    # This will also add the registration fee if required.
+                    invoice.item_add_subscription(
+                        TODAY_LOCAL.year,
+                        TODAY_LOCAL.month
+                    )
 
             # Check for workshop
             if row.workshops_products_id:
