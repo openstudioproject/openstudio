@@ -556,6 +556,23 @@ def represent_employee_claims_status(value, row):
     return os_gui.get_label(label_class, return_value)
 
 
+def set_customers_orders_origins():
+    return [
+        ['shop', T("Shop")],
+        ['pos', T("Point of Sale")],
+    ]
+
+
+def represent_customers_orders_origin(value, row):
+    return_value = ''
+    for s in customers_orders_origins:
+        if value == s[0]:
+            return_value = s[1]
+            break
+
+    return return_value
+
+
 def represent_gender(value, row):
     """
         Helper to represent genders
@@ -617,6 +634,7 @@ payment_batchtypes = set_payment_batchtypes()
 teacher_payment_classes_statuses = set_teachers_payment_classes_statuses()
 teacher_payment_classes_rate_types = set_teacher_payment_classes_rate_types()
 employee_claims_statuses = set_employee_claims_statuses()
+customers_orders_origins = set_customers_orders_origins()
 
 
 os_gui = OsGui()

@@ -39,6 +39,7 @@ def index():
         db.customers_orders.id,
         db.customers_orders.auth_customer_id,
         db.customers_orders.DateCreated,
+        db.customers_orders.Origin,
         db.customers_orders_amounts.TotalPriceVAT,
         db.customers_orders.Status,
         db.invoices.id,
