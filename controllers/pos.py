@@ -691,6 +691,7 @@ def validate_cart():
     #if customerID; Make order, deliver order, add payment to invoice created by deliver order
 
     items = request.vars['items']
+    pmID = request.vars['payment_methodID']
     cuID = request.vars['customerID']
     print 'customerID'
     print type(cuID)
@@ -699,7 +700,7 @@ def validate_cart():
     # IF customerID; add order; deliver
     if cuID:
         print 'create order'
-        validate_cart_create_order(cuID, items)
+        validate_cart_create_order(cuID, pmID, items)
 
 
     # Always create payment receipt
@@ -717,15 +718,13 @@ def validate_cart():
     ## IMPORTANT: Get Item price & VAT info from server DB, not from Stuff submitted by Javascript.
     # JS can be manipulated.
 
-    # Use to add payment to receipt or invoice
-    pmID = request.vars['payment_methodID']
-    print pmID
+
 
 
     return dict(data="hello world")
 
 
-def validate_cart_create_order(cuID, items):
+def validate_cart_create_order(cuID, pmID, items):
     """
     :param cuID: db.auth_user.id
     :param items:
@@ -744,8 +743,8 @@ def validate_cart_create_order(cuID, items):
     for item in items:
         if item['item_type'] == 'product':
             order.order_item_add_product_variant(item['data']['id'], item['quantity'])
-        # elif item['item_type'] == 'classcard':
-        #     order.order_item_add_classcard(item['data']['id'])
+        elif item['item_type'] == 'classcard':
+             order.order_item_add_classcard(item['data']['id'])
         # elif item['item_type'] == 'subscription':
         #     order.order_item_add_subscription(item['data']['id'])
         # elif item['item_type'] == 'membership':
@@ -761,7 +760,15 @@ def validate_cart_create_order(cuID, items):
     amounts = order.get_amounts()
 
     # Deliver order, add stuff to customer's account
-    (iID, invoice) = order.deliver()
+    result = order.deliver()
+    invoice = result['invoice']
+
+    # Add payment
+    ipID = invoice.payment_add(
+        amounts.TotalPriceVAT,
+        TODAY_LOCAL,
+        payment_methods_id=pmID,
+    )
 
 
 
