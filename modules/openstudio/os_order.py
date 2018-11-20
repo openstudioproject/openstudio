@@ -43,6 +43,37 @@ class Order:
         self.order.update_record()
 
 
+    def order_item_add_product_variant(self, shop_product_variant_id, quantity=1):
+        """
+        :param shop_product_variant_id: db.shop_products_variants.id
+        :return:
+        """
+        T = current.T
+        db = current.db
+
+        pv = db.shop_products_variants(shop_product_variant_id)
+        product = db.shop_products(pv.shop_products_id)
+
+        coiID = db.customers_orders_items.insert(
+            customers_orders_id  = self.coID,
+            ProductName = product.Name,
+            Description = pv.Name,
+            Quantity = quantity,
+            Price = pv.Price,
+            tax_rates_id = pv.tax_rates_id
+        )
+
+        self.set_amounts()
+
+        # Link order item to product variant
+        db.customers_orders_items_shop_products_variants.insert(
+            customers_orders_items_id = coiID,
+            shop_products_variants_id = shop_product_variant_id
+        )
+
+        return coiID
+
+
     def order_item_add_classcard(self, school_classcards_id):
         """
             :param school_classcards_id: db.school_classcards.id

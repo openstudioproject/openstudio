@@ -5174,6 +5174,18 @@ def define_customers_orders_items():
         )
 
 
+def define_customers_orders_items_shop_products_variants():
+    """
+    Added addition table to allow deleting of product and product variants. Adding a link to the orders_items table
+    would cause all order items with that product variant to be deleted when that product variant is deleted.
+    A full history of orders is always nice to have!
+    """
+    db.define_table('customers_orders_items_shop_products_variants',
+        Field('customers_orders_items_id', db.customers_orders_items),
+        Field('shop_products_variants_id', db.shop_products_variants)
+    )
+
+
 def define_customers_orders_mollie_payment_ids():
     db.define_table('customers_orders_mollie_payment_ids',
         Field('customers_orders_id', db.customers_orders,
@@ -6119,6 +6131,7 @@ define_shop_products()
 define_shop_products_variants()
 define_shop_categories()
 define_shop_categories_products()
+define_customers_orders_items_shop_products_variants()
 
 set_preferences_permissions()
 

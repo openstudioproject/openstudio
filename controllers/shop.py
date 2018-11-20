@@ -374,7 +374,7 @@ def order_received():
     # mail order to customer
     order_received_mail_customer(coID)
 
-    # check if this order needs to be paid or it's free and can be added to the customers' account straigt away
+    # check if this order needs to be paid or it's free and can be added to the customers' account straight away
     amounts = order.get_amounts()
 
     if not amounts:

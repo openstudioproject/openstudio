@@ -690,19 +690,27 @@ def validate_cart():
     #If no customerID; just make receipt and update stock
     #if customerID; Make order, deliver order, add payment to invoice created by deliver order
 
+    items = request.vars['items']
     cuID = request.vars['customerID']
     print 'customerID'
     print type(cuID)
     print cuID
 
     # IF customerID; add order; deliver
+    if cuID:
+        print 'create order'
+        validate_cart_create_order(cuID, items)
 
+
+    # Always create payment receipt
+
+    #Add invoice id to receipt
+    else:
+        print 'create receipt'
 
 
     # If not customerID; add receipt & payment to receipt (Perhaps receipts can just state payments)
 
-
-    items = request.vars['items']
     print items
     #TODO: process items
 
@@ -715,3 +723,46 @@ def validate_cart():
 
 
     return dict(data="hello world")
+
+
+def validate_cart_create_order(cuID, items):
+    """
+    :param cuID: db.auth_user.id
+    :param items:
+    :return:
+    """
+    from openstudio.os_order import Order
+
+    coID = db.customers_orders.insert(
+        auth_customer_id = cuID,
+        Status = 'order_received',
+        Origin = 'pos',
+    )
+    order = Order(coID)
+
+    # Add items
+    for item in items:
+        if item['item_type'] == 'product':
+            order.order_item_add_product_variant(item['data']['id'], item['quantity'])
+        # elif item['item_type'] == 'classcard':
+        #     order.order_item_add_classcard(item['data']['id'])
+        # elif item['item_type'] == 'subscription':
+        #     order.order_item_add_subscription(item['data']['id'])
+        # elif item['item_type'] == 'membership':
+        #     order.order_item_add_membership(item['data']['id'])
+
+    # update order status
+    order.set_status_awaiting_payment()
+
+    # mail order to customer
+#    order_received_mail_customer(coID)
+
+    # check if this order needs to be paid or it's free and can be added to the customers' account straight away
+    amounts = order.get_amounts()
+
+    # Deliver order, add stuff to customer's account
+    (iID, invoice) = order.deliver()
+
+
+
+
