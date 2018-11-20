@@ -394,6 +394,13 @@ class Order:
                     subscription_start,
                 )
 
+                # Add credits for the first month
+                cs = CustomerSubscription(csID)
+                cs.add_credits_month(
+                    subscription_start.year,
+                    subscription_start.month
+                )
+
                 if create_invoice:
                     invoice.link_to_customer_subscription(csID)
 
