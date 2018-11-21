@@ -441,27 +441,35 @@ def edit_get_tools(iID):
         invoice_tools.append(link)
 
         #Check if invoice is not a subscription, no teacherpayment, no claim, no event, no classcard, no membership
-        query = (((db.invoices.id == iID) &\
+        query = ((db.invoices.id == iID) &\
                  (db.invoices.TeacherPayment == False) &\
-                 (db.invoices.EmployeeClaim == False)))
+                 (db.invoices.EmployeeClaim == False))
+                 # (db.invoices_customers_memberships.invoices_id != iID)&\
+                 # (db.invoices_customers_subscriptions.invoices_id != iID) &\
+                 # (db.invoices_customers_classcards.invoices_id != iID) &\
+                 # (db.invoices_workshops_products_customers.invoices_id != iID))
 
-        row = db(query).select().first()
+        row = db(query).select(db.invoices.ALL,
+                               # db.invoices_customers_memberships.invoices_id,
+                               # db.invoices_customers_subscriptions.invoices_id,
+                               # db.invoices_customers_classcards.invoices_id,
+                               # db.invoices_workshops_products_customers.invoices_id,
+                               # left=(db.invoices_customers_memberships.on(db.invoices.id == db.invoices_customers_memberships.invoices_id),
+                               #       db.invoices_customers_subscriptions.on(db.invoices.id == db.invoices_customers_subscriptions.invoices_id),
+                               #       db.invoices_customers_classcards.on(db.invoices.id == db.invoices_customers_classcards.invoices_id),
+                               #       db.invoices_workshops_products_customers.on(db.invoices.id == db.invoices_workshops_products_customers.invoices_id))
+                               ).first()
         # print row
-        if row :
-            if not db(db.invoices_customers_memberships.invoices_id == row.id).select().first():
-                # print "First Gate"
-                if not db(db.invoices_customers_subscriptions.invoices_id == row.id).select().first():
-                    # print "Second Gate"
-                    if not db(db.invoices_customers_classcards.invoices_id == row.id).select().first():
-                        # print "Third Gate"
-                        if not db(db.invoices_workshops_products_customers.invoices_id == row.id).select().first():
-                            # print "Fourth Gate!"
-
-                            link = A(os_gui.get_fa_icon('fa-clone'),
-                                             T("Duplicate credit invoice"),
-                                             _href=URL('invoices', 'duplicate_credit_invoice', vars={'iID': iID}),
-                                             _title=T('Duplicate Credit invoice'))
-                            invoice_tools.append(link)
+        if row:
+            if not db(db.invoices_customers_memberships.invoices_id == row.id).select().first()\
+                    and not db(db.invoices_customers_subscriptions.invoices_id == row.id).select().first()\
+                    and not db(db.invoices_customers_classcards.invoices_id == row.id).select().first()\
+                    and not db(db.invoices_workshops_products_customers.invoices_id == row.id).select().first():
+                link = A(os_gui.get_fa_icon('fa-clone'),
+                                 T("Duplicate credit invoice"),
+                                 _href=URL('invoices', 'duplicate_credit_invoice', vars={'iID': iID}),
+                                 _title=T('Duplicate Credit invoice'))
+                invoice_tools.append(link)
 
 
     # get menu

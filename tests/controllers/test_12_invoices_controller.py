@@ -280,49 +280,58 @@ def test_invoice_dont_show_duplicate_button_subscription(client, web2py):
     assert 'Duplicate credit invoice' not in client.text
 
 
-# def test_invoice_dont_show_duplicate_button_membership(client, web2py):
-#     """
-#     Does the Button not show when it is a membership?
-#     """
-#     populate_customers_with_memberships(web2py, invoices=True)
-#
-#     # url = '/customers/invoices?cuID=1001'
-#     # client.get(url)
-#     # assert client.status == 200
-#
-#     url = '/invoices/edit?iID=1'
-#     client.get(url)
-#     assert client.status == 200
-#
-#     assert 'Duplicate credit invoice' not in client.text
-#
-#
-# def test_invoice_dont_show_duplicate_button_classcards(client, web2py):
-#     """
-#     Does the Button  not show when it is a classcard?
-#     """
-#     populate_customers_with_classcards(web2py,3, invoices = True)
-#
-#
-#     url = '/invoices/edit?iID=1'
-#     client.get(url)
-#     assert client.status == 200
-#
-#     assert 'Duplicate credit invoice' not in client.text
-#
-#
-# def test_invoice_dont_show_duplicate_button_workshop(client, web2py):
-#     """
-#     Does the Button not show when it is a workshop order?
-#     """
-#     populate_workshops_products_customers(web2py,3)
-#
-#
-#     url = '/invoices/edit?iID=1'
-#     client.get(url)
-#     assert client.status == 200
-#
-#     assert 'Duplicate credit invoice' not in client.text
+def test_invoice_dont_show_duplicate_button_membership(client, web2py):
+    """
+    Does the Button not show when it is a membership?
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+    populate_customers_with_memberships(web2py, invoices=True)
+
+    # url = '/customers/invoices?cuID=1001'
+    # client.get(url)
+    # assert client.status == 200
+
+    url = '/invoices/edit?iID=1'
+    client.get(url)
+    assert client.status == 200
+
+    assert 'Duplicate credit invoice' not in client.text
+
+
+def test_invoice_dont_show_duplicate_button_classcards(client, web2py):
+    """
+    Does the Button  not show when it is a classcard?
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+    populate_customers_with_classcards(web2py,3, invoices = True)
+
+
+    url = '/invoices/edit?iID=1'
+    client.get(url)
+    assert client.status == 200
+
+    assert 'Duplicate credit invoice' not in client.text
+
+
+def test_invoice_dont_show_duplicate_button_workshop(client, web2py):
+    """
+    Does the Button not show when it is a workshop order?
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+    populate_workshops_products_customers(web2py,3)
+
+
+    url = '/invoices/edit?iID=1'
+    client.get(url)
+    assert client.status == 200
+
+    assert 'Duplicate credit invoice' not in client.text
 
 
 
