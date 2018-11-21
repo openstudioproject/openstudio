@@ -40,7 +40,7 @@ Professional hosting is available.
 - Monitoring
 - Daily backups 
 
-[Hosting pricing and conditions](https://openstudioproject.com/get)
+[Hosting pricing and conditions](https://openstudioproject.com/pricing)
 
 
 Please use the [contact from](https://openstudioproject.com/contact) on our website for sales questions or requesting paid support.
