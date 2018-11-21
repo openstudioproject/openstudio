@@ -221,7 +221,7 @@ class Receipt:
             return None
         
         
-    def receipt_item_add_product_variant(self, pvID, quantity):
+    def item_add_product_variant(self, pvID, quantity):
         """
         
         :return: 
