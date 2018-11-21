@@ -12,7 +12,7 @@ class Receipt:
     """
     def __init__(self, rID):
         """
-        Init function for an invoice
+        Init function for an receipt
         """
         db = current.db
 
@@ -27,21 +27,21 @@ class Receipt:
 
     def on_create(self):
         """
-        functions to be called when creating an invoice
+        functions to be called when creating an receipt
         """
         self._insert_amounts()
 
 
     def on_update(self):
         """
-        functions to be called when updating an invoice or invoice items
+        functions to be called when updating an receipt or receipt items
         """
         pass
 
 
     def _set_updated_at(self):
         """
-        Set db.invoices.Updated_at to current time (UTC)
+        Set db.receipts.Updated_at to current time (UTC)
         """
         self.row.Updated_at = datetime.datetime.now()
         self.row.update_record()
@@ -49,7 +49,7 @@ class Receipt:
 
     def _insert_amounts(self):
         """
-            Insert amounts row for invoice, without data
+            Insert amounts row for receipt, without data
         """
         db = current.db
         db.receipts_amounts.insert(receipts_id = self.receipts_id)
@@ -61,12 +61,12 @@ class Receipt:
         """
         db = current.db
         # set sums
-        sum_subtotal = db.invoices_items.TotalPrice.sum()
-        sum_vat = db.invoices_items.VAT.sum()
-        sum_totalvat = db.invoices_items.TotalPriceVAT.sum()
+        sum_subtotal = db.receipts_items.TotalPrice.sum()
+        sum_vat = db.receipts_items.VAT.sum()
+        sum_totalvat = db.receipts_items.TotalPriceVAT.sum()
 
         # get info from db
-        query = (db.invoices_items.invoices_id == self.invoices_id)
+        query = (db.receipts_items.receipts_id == self.receipts_id)
         rows = db(query).select(sum_subtotal,
                                 sum_vat,
                                 sum_totalvat)
@@ -88,7 +88,7 @@ class Receipt:
         balance = self.get_balance()
 
         # check what to do
-        amounts = db.invoices_amounts(invoices_id = self.invoices_id)
+        amounts = db.receipts_amounts(receipts_id = self.receipts_id)
         if amounts:
             # update current row
             amounts.TotalPrice    = subtotal
@@ -99,8 +99,8 @@ class Receipt:
             amounts.update_record()
         else:
             # insert new row
-            db.invoices_amounts.insert(
-                invoices_id   = self.invoices_id,
+            db.receipts_amounts.insert(
+                receipts_id   = self.receipts_id,
                 TotalPrice    = subtotal,
                 VAT           = vat,
                 TotalPriceVAT = total,
@@ -185,27 +185,13 @@ class Receipt:
         )
 
 
-    def get_customer_info(self):
-        """
-        :return: dict with customer info
-        """
-
-        #TODO: Add registration and tax registration fields after merging exact online branch
-        return dict(
-            company = self.invoice.CustomerCompany or '',
-            name = self.invoice.CustomerName or '',
-            list_name = self.invoice.CustomerListName or '',
-            address = self.invoice.CustomerAddress or ''
-        )
-
-
     def get_item_next_sort_nr(self):
         """
-            Returns the next item number for an invoice
+            Returns the next item number for an receipt
             use to set sorting when adding an item
         """
         db = current.db
-        query = (db.invoices_items.invoices_id == self.invoices_id)
+        query = (db.receipts_items.receipts_id == self.receipts_id)
 
         return db(query).count() + 1
 
@@ -225,7 +211,7 @@ class Receipt:
 
     def get_payment_method(self):
         """
-        :return: db.payment_methods_row for invoice
+        :return: db.payment_methods_row for receipt
         """
         db = current.db
 
@@ -233,6 +219,31 @@ class Receipt:
             return db.payment_methods(self.receipt.payment_methods_id)
         else:
             return None
+        
+        
+    def receipt_item_add_product_variant(self, pvID, quantity):
+        """
+        
+        :return: 
+        """
+        db = current.db
+        
+        sorting = self.get_item_next_sort_nr()
+        variant = db.shop_products_variants(pvID)
+        product = db.shop_products(variant.shop_products_id)
+        
+        reID = db.receipts_items.insert(
+            receipts_id = self.receipts_id,
+            Sorting = sorting,
+            ProductName = product.Name,
+            Description = variant.Name,
+            Quantity = quantity,
+            Price = variant.Price,
+            tax_rates_id = variant.tax_rates_id,
+            GLAccount = variant.GLAccount
+        )
+
+        return reID
 
 
     def item_add_class(self,
@@ -242,7 +253,7 @@ class Receipt:
                        date,
                        product_type):
         """
-        Add invoice item when checking in to a class
+        Add receipt item when checking in to a class
 
         :param cuID: db.auth_user.id
         :param caID: db.classes_attendance.id
@@ -278,7 +289,7 @@ class Receipt:
                 price = prices['dropin_membership']
                 tax_rates_id = prices['dropin_tax_rates_id_membership']
 
-            description = cls.get_invoice_order_description(2) # 2 = drop in class
+            description = cls.get_receipt_order_description(2) # 2 = drop in class
 
         elif product_type == 'trial':
             price = prices['trial']
@@ -289,14 +300,14 @@ class Receipt:
                 price = prices['trial_membership']
                 tax_rates_id = prices['trial_tax_rates_id_membership']
 
-            description = cls.get_invoice_order_description(1) # 1 = trial class
+            description = cls.get_receipt_order_description(1) # 1 = trial class
 
-        # link invoice to attendance
+        # link receipt to attendance
         self.link_to_classes_attendance(caID)
 
         next_sort_nr = self.get_item_next_sort_nr()
-        iiID = db.invoices_items.insert(
-            invoices_id=self.invoices_id,
+        iiID = db.receipts_items.insert(
+            receipts_id=self.receipts_id,
             ProductName=T("Class"),
             Description=description,
             Quantity=1,
@@ -313,12 +324,12 @@ class Receipt:
 
     def item_add_class_from_order(self, order_item_row, caID):
         """
-            Add class to invoice from Order.deliver()
+            Add class to receipt from Order.deliver()
 
             :param clsID: db.classes.id
             :param class_date: datetime.date
             :param attendance_type: int 1 or 2 
-            :return: db.invoices_items.id
+            :return: db.receipts_items.id
         """
         from os_class import Class
 
@@ -339,17 +350,17 @@ class Receipt:
             # Drop in
             glaccount = prices['dropin_glaccount']
 
-        # link invoice to attendance
-        db.invoices_classes_attendance.insert(
-            invoices_id=self.invoices_id,
+        # link receipt to attendance
+        db.receipts_classes_attendance.insert(
+            receipts_id=self.receipts_id,
             classes_attendance_id=caID
         )
 
-        # add item to invoice
+        # add item to receipt
         next_sort_nr = self.get_item_next_sort_nr()
 
-        iiID = db.invoices_items.insert(
-            invoices_id=self.invoices_id,
+        iiID = db.receipts_items.insert(
+            receipts_id=self.receipts_id,
             ProductName=order_item_row.ProductName,
             Description=order_item_row.Description,
             Quantity=order_item_row.Quantity,
@@ -367,7 +378,7 @@ class Receipt:
 
     def item_add_classcard(self, ccdID):
         """
-            :param ccdID: Add customer classcard to invoice
+            :param ccdID: Add customer classcard to receipt
             :return: None
         """
         from os_customer_classcard import CustomerClasscard
@@ -376,18 +387,18 @@ class Receipt:
         T  = current.T
 
         classcard = CustomerClasscard(ccdID)
-        # link invoice to classcard sold to customer
-        db.invoices_customers_classcards.insert(
-            invoices_id=self.invoices_id,
+        # link receipt to classcard sold to customer
+        db.receipts_customers_classcards.insert(
+            receipts_id=self.receipts_id,
             customers_classcards_id=ccdID
         )
 
-        # add item to invoice
+        # add item to receipt
         next_sort_nr = self.get_item_next_sort_nr()
         price = classcard.price
 
-        iiID = db.invoices_items.insert(
-            invoices_id=self.invoices_id,
+        iiID = db.receipts_items.insert(
+            receipts_id=self.receipts_id,
             ProductName=T("Class card"),
             Description=classcard.name.decode('utf-8') + u' (' + T("Class card") + u' ' + unicode(ccdID) + u')',
             Quantity=1,
@@ -406,7 +417,7 @@ class Receipt:
     # def item_add_workshop_product(self, wspcID):
     #     """
     #         :param wspID: db.workshops_products_id
-    #         :return: db.invoices_items.id
+    #         :return: db.receipts_items.id
     #     """
     #     DATE_FORMAT = current.DATE_FORMAT
     #     db = current.db
@@ -415,17 +426,17 @@ class Receipt:
     #     wspc = db.workshops_products_customers(wspcID)
     #     wsp = db.workshops_products(wspc.workshops_products_id)
     #     ws = db.workshops(wsp.workshops_id)
-    #     # Link invoice to workshop product sold to customer
-    #     db.invoices_workshops_products_customers.insert(
-    #         invoices_id = self.invoices_id,
+    #     # Link receipt to workshop product sold to customer
+    #     db.receipts_workshops_products_customers.insert(
+    #         receipts_id = self.receipts_id,
     #         workshops_products_customers_id = wspcID
     #     )
     #
-    #     # Add item to invoice
+    #     # Add item to receipt
     #     next_sort_nr = self.get_item_next_sort_nr()
     #
-    #     iiID = db.invoices_items.insert(
-    #         invoices_id=self.invoices_id,
+    #     iiID = db.receipts_items.insert(
+    #         receipts_id=self.receipts_id,
     #         ProductName=T('Event'),
     #         Description=ws.Name.decode('utf-8') + u' - ' + wsp.Name.decode('utf-8') + ' [' + ws.Startdate.strftime(DATE_FORMAT) + ']',
     #         Quantity=1,
@@ -454,12 +465,12 @@ class Receipt:
     #     sys_property = 'shop_donations_tax_rates_id'
     #     tax_rates_id = int(get_sys_property(sys_property))
     #
-    #     # add item to invoice
+    #     # add item to receipt
     #     next_sort_nr = self.get_item_next_sort_nr()
     #     price = amount
     #
-    #     iiID = db.invoices_items.insert(
-    #         invoices_id=self.invoices_id,
+    #     iiID = db.receipts_items.insert(
+    #         receipts_id=self.receipts_id,
     #         ProductName=T("Donation"),
     #         Description=description.decode('utf-8'),
     #         Quantity=1,
@@ -478,7 +489,7 @@ class Receipt:
         """
             :param SubscriptionYear: Year of subscription
             :param SubscriptionMonth: Month of subscription
-            :return: db.invoices_items.id
+            :return: db.receipts_items.id
         """
         from general_helpers import get_last_day_month
 
@@ -494,7 +505,7 @@ class Receipt:
                              int(SubscriptionMonth),
                              1)
 
-        ics = db.invoices_customers_subscriptions(invoices_id = self.invoices_id)
+        ics = db.receipts_customers_subscriptions(receipts_id = self.receipts_id)
         csID = ics.customers_subscriptions_id
         cs = CustomerSubscription(csID)
         ssuID = cs.ssuID
@@ -550,8 +561,8 @@ class Receipt:
             if not description:
                 description = cs.name.decode('utf-8') + u' ' + period_start.strftime(DATE_FORMAT) + u' - ' + period_end.strftime(DATE_FORMAT)
 
-        iiID = db.invoices_items.insert(
-            invoices_id = self.invoices_id,
+        iiID = db.receipts_items.insert(
+            receipts_id = self.receipts_id,
             ProductName = current.T("Subscription") + ' ' + unicode(csID),
             Description = description,
             Quantity = 1,
@@ -574,8 +585,8 @@ class Receipt:
         if not fee_paid_in_past and ssu.RegistrationFee: # Registration fee not already paid and RegistrationFee defined?
             regfee_to_be_paid = ssu.RegistrationFee or 0
             if regfee_to_be_paid:
-                db.invoices_items.insert(
-                    invoices_id = self.invoices_id,
+                db.receipts_items.insert(
+                    receipts_id = self.receipts_id,
                     ProductName = current.T("Registration fee"),
                     Description = current.T('One time registration fee'),
                     Quantity = 1,
@@ -599,7 +610,7 @@ class Receipt:
     def item_add_membership(self, cmID, period_start, period_end):
         """
         :param cmID: db.customers_memberships.id
-        :return: db.invoices_items.id
+        :return: db.receipts_items.id
         """
         from openstudio.os_customer_membership import CustomerMembership
         from openstudio.os_school_membership import SchoolMembership
@@ -627,8 +638,8 @@ class Receipt:
                       period_start.strftime(DATE_FORMAT) + ' - ' + \
                       period_end.strftime(DATE_FORMAT)
 
-        iiID = db.invoices_items.insert(
-            invoices_id = self.invoices_id,
+        iiID = db.receipts_items.insert(
+            receipts_id = self.receipts_id,
             ProductName = current.T("Membership") + ' ' + unicode(cmID),
             Description = description,
             Quantity = 1,
@@ -652,12 +663,12 @@ class Receipt:
                     note=None,
                     mollie_payment_id=None):
         """
-            Add payment to invoice
+            Add payment to receipt
         """
         db = current.db
 
-        ipID = db.invoices_payments.insert(
-            invoices_id = self.invoices_id,
+        ipID = db.receipts_payments.insert(
+            receipts_id = self.receipts_id,
             Amount = amount,
             PaymentDate = date,
             payment_methods_id = payment_methods_id,

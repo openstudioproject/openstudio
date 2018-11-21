@@ -686,6 +686,9 @@ def validate_cart():
 
     set_headers()
 
+    error = False
+    message = ''
+
 
     #If no customerID; just make receipt and update stock
     #if customerID; Make order, deliver order, add payment to invoice created by deliver order
@@ -693,21 +696,31 @@ def validate_cart():
     items = request.vars['items']
     pmID = request.vars['payment_methodID']
     cuID = request.vars['customerID']
+
     print 'customerID'
     print type(cuID)
     print cuID
 
-    # IF customerID; add order; deliver
-    invoices_payment_id = None
-    if cuID:
-        print 'create order'
-        invoices_payment_id = validate_cart_create_order(cuID, pmID, items)
+    print 'validate_cart_items:'
+    print items
+
+    if not items:
+        error = True
+        message = T("No items were submitted for processing")
 
 
-    # Always create payment receipt
 
-    #Add invoice id to receipt
-    else:
+    ## IMPORTANT: Get Item price & VAT info from server DB, not from Stuff submitted by Javascript.
+    # JS can be manipulated.
+    if not error:
+        # IF customerID; add order; deliver
+        invoices_payment_id = None
+        if cuID:
+            print 'create order'
+            invoices_payment_id = validate_cart_create_order(cuID, pmID, items)
+
+
+        # Always create payment receipt
         print 'create receipt'
         validate_cart_create_receipt(
             pmID,
@@ -716,16 +729,9 @@ def validate_cart():
         )
 
 
-    # If not customerID; add receipt & payment to receipt (Perhaps receipts can just state payments)
-
-    print items
-    #TODO: process items
-
-    ## IMPORTANT: Get Item price & VAT info from server DB, not from Stuff submitted by Javascript.
-    # JS can be manipulated.
 
 
-    return dict(data="hello world")
+    return dict(error=error, message=message)
 
 
 def validate_cart_create_order(cuID, pmID, items):
@@ -797,6 +803,8 @@ def validate_cart_create_receipt(pmID, invoices_payment_id, items):
     receipt = Receipt(rID)
 
     # Add items
+    print 'create_receipt_items:'
+    print items
     for item in items:
         if item['item_type'] == 'product':
             receipt.receipt_item_add_product_variant(item['data']['id'], item['quantity'])
