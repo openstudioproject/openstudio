@@ -37,6 +37,7 @@ const mapDispatchToProps = dispatch =>
             dispatch(appOperations.validateCart(state))
         }
     })
+    
 const ValidationContainer = withRouter(injectIntl(connect(
     mapStateToProps,
     mapDispatchToProps

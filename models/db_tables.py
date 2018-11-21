@@ -4298,6 +4298,11 @@ def define_receipts():
             writable=False,
             default=datetime.datetime.now(),
             represent=represent_datetime ),
+        Field('Updated_at', 'datetime',
+            readable=False,
+            writable=False,
+            default=datetime.datetime.now(),
+            represent=represent_datetime ),
         )
 
 

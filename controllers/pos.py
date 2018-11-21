@@ -698,9 +698,10 @@ def validate_cart():
     print cuID
 
     # IF customerID; add order; deliver
+    invoices_payment_id = None
     if cuID:
         print 'create order'
-        validate_cart_create_order(cuID, pmID, items)
+        invoices_payment_id = validate_cart_create_order(cuID, pmID, items)
 
 
     # Always create payment receipt
@@ -708,6 +709,10 @@ def validate_cart():
     #Add invoice id to receipt
     else:
         print 'create receipt'
+        validate_cart_create_receipt(
+            pmID,
+            invoices_payment_id,
+        )
 
 
     # If not customerID; add receipt & payment to receipt (Perhaps receipts can just state payments)
