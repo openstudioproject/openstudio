@@ -712,6 +712,7 @@ def validate_cart():
         validate_cart_create_receipt(
             pmID,
             invoices_payment_id,
+            items,
         )
 
 
@@ -722,8 +723,6 @@ def validate_cart():
 
     ## IMPORTANT: Get Item price & VAT info from server DB, not from Stuff submitted by Javascript.
     # JS can be manipulated.
-
-
 
 
     return dict(data="hello world")
@@ -781,6 +780,38 @@ def validate_cart_create_order(cuID, pmID, items):
         payment_methods_id=pmID,
     )
 
+
+def validate_cart_create_receipt(pmID, invoices_payment_id, items):
+    """
+    :param pmID: db.payment_methods.id
+    :param invoices_payment_id: db.invoices_payments.id
+    :param items: PoS items
+    :return: int - receipt_id
+    """
+    from openstudio.os_receipt import Receipt
+
+    rID = db.receipts.insert(
+        payment_methods_id = pmID,
+    )
+
+    receipt = Receipt(rID)
+
+    # Add items
+    for item in items:
+        if item['item_type'] == 'product':
+            receipt.receipt_item_add_product_variant(item['data']['id'], item['quantity'])
+        # elif item['item_type'] == 'classcard':
+        #      order.order_item_add_classcard(item['data']['id'])
+        # elif item['item_type'] == 'subscription':
+        #     order.order_item_add_subscription(
+        #         item['data']['id'],
+        #         TODAY_LOCAL
+        #     )
+        # elif item['item_type'] == 'membership':
+        #     order.order_item_add_membership(
+        #         item['data']['id'],
+        #         TODAY_LOCAL
+        #     )
 
 
 

@@ -19,12 +19,17 @@ class Receipt:
         self.receipts_id = rID
         self.row = db.receipts(rID)
 
+        # New receipt?
+        query = (db.receipts_amounts.receipts_id == self.receipts_id)
+        if not db(query).count():
+            self.on_create()
+
 
     def on_create(self):
         """
         functions to be called when creating an invoice
         """
-        pass
+        self._insert_amounts()
 
 
     def on_update(self):

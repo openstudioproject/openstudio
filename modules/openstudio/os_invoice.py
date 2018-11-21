@@ -313,10 +313,10 @@ class Invoice:
         """
         :return: dict with customer info
         """
-
-        #TODO: Add registration and tax registration fields after merging exact online branch
         return dict(
             company = self.invoice.CustomerCompany or '',
+            company_registration = self.invoice.CompanyRegistration or '',
+            company_tax_registration = self.invoice.CompanyTaxRegistration or '',
             name = self.invoice.CustomerName or '',
             list_name = self.invoice.CustomerListName or '',
             address = self.invoice.CustomerAddress or ''
