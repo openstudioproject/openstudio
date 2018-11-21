@@ -5121,6 +5121,10 @@ def define_customers_orders_items():
         Field('Donation', 'boolean',
             readable=False,
             writable=False),
+        Field('ProductVariant', 'boolean',
+            readable=False,
+            writable=False,
+            default=False),
         Field('school_classcards_id', db.school_classcards,
             readable=False,
             writable=False),
@@ -5178,6 +5182,10 @@ def define_customers_orders_items():
         Field('TotalPrice', 'double',
               compute=compute_invoice_item_total_price,
               represent=represent_float_as_amount),
+        Field('GLAccount',
+              represent=lambda value, row: value or '',
+              label=T('G/L Account'),
+              comment=T('General ledger account ID in your accounting software')),
         )
 
 

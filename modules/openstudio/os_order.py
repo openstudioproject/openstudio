@@ -56,11 +56,13 @@ class Order:
 
         coiID = db.customers_orders_items.insert(
             customers_orders_id  = self.coID,
+            ProductVariant = True,
             ProductName = product.Name,
             Description = pv.Name,
             Quantity = quantity,
             Price = pv.Price,
-            tax_rates_id = pv.tax_rates_id
+            tax_rates_id = pv.tax_rates_id,
+            GLAccount = pv.GLAccount
         )
 
         self.set_amounts()
@@ -399,6 +401,18 @@ class Order:
             # Only rows where school_classcards_id, workshops_products_id , classes_id or Donation are set
             # are put on the invoice
             ##
+
+            # Check for product:
+            if row.ProductVariant:
+                if create_invoice:
+                    invoice.item_add_product_variant(
+                        product_name = row.ProductName,
+                        description = row.Description,
+                        quantity = row.Quantity,
+                        price = row.Price,
+                        tax_rates_id = row.tax_rates_id,
+                        glaccount = row.GLAccount
+                    )
 
             # Check for classcard
             if row.school_classcards_id:
