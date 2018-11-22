@@ -83,10 +83,6 @@ class Receipt:
         if total is None:
             total = 0
 
-        # check if we have any payments
-        paid = self.get_amount_paid()
-        balance = self.get_balance()
-
         # check what to do
         amounts = db.receipts_amounts(receipts_id = self.receipts_id)
         if amounts:
@@ -94,8 +90,7 @@ class Receipt:
             amounts.TotalPrice    = subtotal
             amounts.VAT           = vat
             amounts.TotalPriceVAT = total
-            amounts.Paid          = paid
-            amounts.Balance       = balance
+            amounts.Paid          = total
             amounts.update_record()
         else:
             # insert new row
@@ -243,137 +238,139 @@ class Receipt:
             GLAccount = variant.GLAccount
         )
 
+        self.set_amounts()
+
         return reID
 
+    #
+    # def item_add_class(self,
+    #                    cuID,
+    #                    caID,
+    #                    clsID,
+    #                    date,
+    #                    product_type):
+    #     """
+    #     Add receipt item when checking in to a class
+    #
+    #     :param cuID: db.auth_user.id
+    #     :param caID: db.classes_attendance.id
+    #     :param clsID: db.classes.id
+    #     :param date: datetime.date (class date)
+    #     :param product_type: has to be 'trial' or 'dropin'
+    #     :return:
+    #     """
+    #     from os_customer import Customer
+    #     from os_class import Class
+    #
+    #     db = current.db
+    #     DATE_FORMAT = current.DATE_FORMAT
+    #     T = current.T
+    #
+    #     date_formatted = date.strftime(DATE_FORMAT)
+    #
+    #     if product_type not in ['trial', 'dropin']:
+    #         raise ValueError("Product type has to be 'trial' or 'dropin'.")
+    #
+    #     customer = Customer(cuID)
+    #     cls = Class(clsID, date)
+    #     prices = cls.get_prices()
+    #
+    #     has_membership = customer.has_membership_on_date(date)
+    #
+    #     if product_type == 'dropin':
+    #         price = prices['dropin']
+    #         tax_rates_id = prices['dropin_tax_rates_id']
+    #         glaccount = prices['dropin_glaccount']
+    #
+    #         if has_membership and prices['dropin_membership']:
+    #             price = prices['dropin_membership']
+    #             tax_rates_id = prices['dropin_tax_rates_id_membership']
+    #
+    #         description = cls.get_receipt_order_description(2) # 2 = drop in class
+    #
+    #     elif product_type == 'trial':
+    #         price = prices['trial']
+    #         tax_rates_id = prices['trial_tax_rates_id']
+    #         glaccount = prices['trial_glaccount']
+    #
+    #         if has_membership and prices['trial_membership']:
+    #             price = prices['trial_membership']
+    #             tax_rates_id = prices['trial_tax_rates_id_membership']
+    #
+    #         description = cls.get_receipt_order_description(1) # 1 = trial class
+    #
+    #     # link receipt to attendance
+    #     self.link_to_classes_attendance(caID)
+    #
+    #     next_sort_nr = self.get_item_next_sort_nr()
+    #     iiID = db.receipts_items.insert(
+    #         receipts_id=self.receipts_id,
+    #         ProductName=T("Class"),
+    #         Description=description,
+    #         Quantity=1,
+    #         Price=price,
+    #         Sorting=next_sort_nr,
+    #         tax_rates_id=tax_rates_id,
+    #         GLAccount=glaccount
+    #     )
+    #
+    #     self.link_to_customer(cuID)
+    #     # This calls self.on_update()
+    #     self.set_amounts()
 
-    def item_add_class(self,
-                       cuID,
-                       caID,
-                       clsID,
-                       date,
-                       product_type):
-        """
-        Add receipt item when checking in to a class
-
-        :param cuID: db.auth_user.id
-        :param caID: db.classes_attendance.id
-        :param clsID: db.classes.id
-        :param date: datetime.date (class date)
-        :param product_type: has to be 'trial' or 'dropin'
-        :return:
-        """
-        from os_customer import Customer
-        from os_class import Class
-
-        db = current.db
-        DATE_FORMAT = current.DATE_FORMAT
-        T = current.T
-
-        date_formatted = date.strftime(DATE_FORMAT)
-
-        if product_type not in ['trial', 'dropin']:
-            raise ValueError("Product type has to be 'trial' or 'dropin'.")
-
-        customer = Customer(cuID)
-        cls = Class(clsID, date)
-        prices = cls.get_prices()
-
-        has_membership = customer.has_membership_on_date(date)
-
-        if product_type == 'dropin':
-            price = prices['dropin']
-            tax_rates_id = prices['dropin_tax_rates_id']
-            glaccount = prices['dropin_glaccount']
-
-            if has_membership and prices['dropin_membership']:
-                price = prices['dropin_membership']
-                tax_rates_id = prices['dropin_tax_rates_id_membership']
-
-            description = cls.get_receipt_order_description(2) # 2 = drop in class
-
-        elif product_type == 'trial':
-            price = prices['trial']
-            tax_rates_id = prices['trial_tax_rates_id']
-            glaccount = prices['trial_glaccount']
-
-            if has_membership and prices['trial_membership']:
-                price = prices['trial_membership']
-                tax_rates_id = prices['trial_tax_rates_id_membership']
-
-            description = cls.get_receipt_order_description(1) # 1 = trial class
-
-        # link receipt to attendance
-        self.link_to_classes_attendance(caID)
-
-        next_sort_nr = self.get_item_next_sort_nr()
-        iiID = db.receipts_items.insert(
-            receipts_id=self.receipts_id,
-            ProductName=T("Class"),
-            Description=description,
-            Quantity=1,
-            Price=price,
-            Sorting=next_sort_nr,
-            tax_rates_id=tax_rates_id,
-            GLAccount=glaccount
-        )
-
-        self.link_to_customer(cuID)
-        # This calls self.on_update()
-        self.set_amounts()
-
-
-    def item_add_class_from_order(self, order_item_row, caID):
-        """
-            Add class to receipt from Order.deliver()
-
-            :param clsID: db.classes.id
-            :param class_date: datetime.date
-            :param attendance_type: int 1 or 2 
-            :return: db.receipts_items.id
-        """
-        from os_class import Class
-
-        DATE_FORMAT = current.DATE_FORMAT
-        TIME_FORMAT = current.TIME_FORMAT
-        db = current.db
-        T  = current.T
-
-        cls = Class(order_item_row.classes_id, order_item_row.ClassDate)
-
-        # Get GLAccount info
-        prices = cls.get_prices()
-        glaccount = None
-        if order_item_row.AttendanceType == 1:
-            # Trial
-            glaccount = prices['trial_glaccount']
-        else:
-            # Drop in
-            glaccount = prices['dropin_glaccount']
-
-        # link receipt to attendance
-        db.receipts_classes_attendance.insert(
-            receipts_id=self.receipts_id,
-            classes_attendance_id=caID
-        )
-
-        # add item to receipt
-        next_sort_nr = self.get_item_next_sort_nr()
-
-        iiID = db.receipts_items.insert(
-            receipts_id=self.receipts_id,
-            ProductName=order_item_row.ProductName,
-            Description=order_item_row.Description,
-            Quantity=order_item_row.Quantity,
-            Price=order_item_row.Price,
-            Sorting=next_sort_nr,
-            tax_rates_id=order_item_row.tax_rates_id,
-            GLAccount=glaccount
-        )
-
-        # This calls self.on_update()
-        self.set_amounts()
-
-        return iiID
+    #
+    # def item_add_class_from_order(self, order_item_row, caID):
+    #     """
+    #         Add class to receipt from Order.deliver()
+    #
+    #         :param clsID: db.classes.id
+    #         :param class_date: datetime.date
+    #         :param attendance_type: int 1 or 2
+    #         :return: db.receipts_items.id
+    #     """
+    #     from os_class import Class
+    #
+    #     DATE_FORMAT = current.DATE_FORMAT
+    #     TIME_FORMAT = current.TIME_FORMAT
+    #     db = current.db
+    #     T  = current.T
+    #
+    #     cls = Class(order_item_row.classes_id, order_item_row.ClassDate)
+    #
+    #     # Get GLAccount info
+    #     prices = cls.get_prices()
+    #     glaccount = None
+    #     if order_item_row.AttendanceType == 1:
+    #         # Trial
+    #         glaccount = prices['trial_glaccount']
+    #     else:
+    #         # Drop in
+    #         glaccount = prices['dropin_glaccount']
+    #
+    #     # link receipt to attendance
+    #     db.receipts_classes_attendance.insert(
+    #         receipts_id=self.receipts_id,
+    #         classes_attendance_id=caID
+    #     )
+    #
+    #     # add item to receipt
+    #     next_sort_nr = self.get_item_next_sort_nr()
+    #
+    #     iiID = db.receipts_items.insert(
+    #         receipts_id=self.receipts_id,
+    #         ProductName=order_item_row.ProductName,
+    #         Description=order_item_row.Description,
+    #         Quantity=order_item_row.Quantity,
+    #         Price=order_item_row.Price,
+    #         Sorting=next_sort_nr,
+    #         tax_rates_id=order_item_row.tax_rates_id,
+    #         GLAccount=glaccount
+    #     )
+    #
+    #     # This calls self.on_update()
+    #     self.set_amounts()
+    #
+    #     return iiID
 
 
     def item_add_classcard(self, ccdID):
@@ -387,11 +384,6 @@ class Receipt:
         T  = current.T
 
         classcard = CustomerClasscard(ccdID)
-        # link receipt to classcard sold to customer
-        db.receipts_customers_classcards.insert(
-            receipts_id=self.receipts_id,
-            customers_classcards_id=ccdID
-        )
 
         # add item to receipt
         next_sort_nr = self.get_item_next_sort_nr()

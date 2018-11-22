@@ -808,8 +808,8 @@ def validate_cart_create_receipt(pmID, invoices_payment_id, items):
     for item in items:
         if item['item_type'] == 'product':
             receipt.item_add_product_variant(item['data']['id'], item['quantity'])
-        # elif item['item_type'] == 'classcard':
-        #      order.order_item_add_classcard(item['data']['id'])
+        elif item['item_type'] == 'classcard':
+             receipt.item_add_classcard(item['data']['id'])
         # elif item['item_type'] == 'subscription':
         #     order.order_item_add_subscription(
         #         item['data']['id'],
