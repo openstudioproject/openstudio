@@ -1247,6 +1247,19 @@ def receipts():
     return dict(content=content)
 
 
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'receipts'))
+def receipt():
+    """
+    Print friendly view of receipt
+    """
+    from openstudio.os_receipts import Receipt
+
+    rid = request.vars['rID']
+
+    return "hello world"
+
+
 def teacher_payments_get_menu(page, status='not_verified'):
     pages = []
 
