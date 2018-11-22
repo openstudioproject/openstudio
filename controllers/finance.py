@@ -1235,14 +1235,16 @@ def receipts():
     """
     List receipts
     """
+    from openstudio.os_receipts import Receipts
+
     response.title = T('Receipts')
     response.subtitle = T('')
     response.view = 'general/only_content.html'
 
-    content = 'hello world'
+    receipts = Receipts()
+    content = receipts.list(formatted=True)
 
     return dict(content=content)
-
 
 
 def teacher_payments_get_menu(page, status='not_verified'):
