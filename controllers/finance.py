@@ -1253,7 +1253,7 @@ def receipt():
     """
     Print friendly view of receipt
     """
-    from openstudio.os_receipts import Receipt
+    from openstudio.os_receipt import Receipt
 
     rid = request.vars['rID']
 

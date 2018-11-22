@@ -23,6 +23,23 @@ class Receipts:
             return db(query).select(db.receipts.ALL)
 
 
+    def _list_formatted_link_view(self, row):
+        """
+        Returns the 'view' button for a receipt
+        """
+        from os_gui import OsGui
+
+        T = current.T
+        os_gui = OsGui()
+
+        return os_gui.get_button(
+            'noicon',
+            URL('finance', 'receipt', vars={'rID': row.id}),
+            title=T("View")
+        )
+
+
+
     def _list_formatted(self):
         """
 
@@ -40,6 +57,10 @@ class Receipts:
             db.receipts.payment_methods_id
         ]
 
+        links = [
+            self._list_formatted_link_view,
+        ]
+
         db.receipts.id.label = T("Receipt")
 
         delete_permission = auth.has_membership(group_id='Admins') or \
@@ -47,7 +68,7 @@ class Receipts:
 
         grid = SQLFORM.grid(
             db.receipts,
-            # links=links,
+            links=links,
             # left=left,
             field_id=db.receipts.id,
             fields=fields,
