@@ -345,6 +345,7 @@ class Order:
         from os_invoice import Invoice
         from os_school_classcard import SchoolClasscard
         from os_school_subscription import SchoolSubscription
+        from os_customer_subscription import CustomerSubscription
         from os_school_membership import SchoolMembership
         from os_customer_membership import CustomerMembership
         from os_workshop import Workshop

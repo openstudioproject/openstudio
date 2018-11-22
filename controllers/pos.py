@@ -714,17 +714,22 @@ def validate_cart():
     # JS can be manipulated.
     if not error:
         # IF customerID; add order; deliver
+        invoice = None
         invoices_payment_id = None
+        invoice_created = False
         if cuID:
             print 'create order'
-            invoices_payment_id = validate_cart_create_order(cuID, pmID, items)
+            invoice = validate_cart_create_order(cuID, pmID, items)
+            invoice_created = True
+
 
 
         # Always create payment receipt
         print 'create receipt'
         validate_cart_create_receipt(
+            invoice_created,
+            invoice,
             pmID,
-            invoices_payment_id,
             items,
         )
 
@@ -786,8 +791,15 @@ def validate_cart_create_order(cuID, pmID, items):
         payment_methods_id=pmID,
     )
 
+    return invoice
 
-def validate_cart_create_receipt(pmID, invoices_payment_id, items):
+
+def validate_cart_create_receipt(
+        invoice_created,
+        invoice,
+        pmID,
+        items
+    ):
     """
     :param pmID: db.payment_methods.id
     :param invoices_payment_id: db.invoices_payments.id
@@ -808,18 +820,10 @@ def validate_cart_create_receipt(pmID, invoices_payment_id, items):
     for item in items:
         if item['item_type'] == 'product':
             receipt.item_add_product_variant(item['data']['id'], item['quantity'])
-        elif item['item_type'] == 'classcard':
-             receipt.item_add_classcard(item['data']['id'])
-        # elif item['item_type'] == 'subscription':
-        #     order.order_item_add_subscription(
-        #         item['data']['id'],
-        #         TODAY_LOCAL
-        #     )
-        # elif item['item_type'] == 'membership':
-        #     order.order_item_add_membership(
-        #         item['data']['id'],
-        #         TODAY_LOCAL
-        #     )
 
 
+    if invoice_created:
+        invoice_items = invoice.get_invoice_items_rows()
+        for item in invoice_items:
+            receipt.item_add_from_invoice_item(item)
 

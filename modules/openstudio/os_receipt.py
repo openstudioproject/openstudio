@@ -227,7 +227,7 @@ class Receipt:
         variant = db.shop_products_variants(pvID)
         product = db.shop_products(variant.shop_products_id)
         
-        reID = db.receipts_items.insert(
+        riID = db.receipts_items.insert(
             receipts_id = self.receipts_id,
             Sorting = sorting,
             ProductName = product.Name,
@@ -240,435 +240,64 @@ class Receipt:
 
         self.set_amounts()
 
-        return reID
-
-    #
-    # def item_add_class(self,
-    #                    cuID,
-    #                    caID,
-    #                    clsID,
-    #                    date,
-    #                    product_type):
-    #     """
-    #     Add receipt item when checking in to a class
-    #
-    #     :param cuID: db.auth_user.id
-    #     :param caID: db.classes_attendance.id
-    #     :param clsID: db.classes.id
-    #     :param date: datetime.date (class date)
-    #     :param product_type: has to be 'trial' or 'dropin'
-    #     :return:
-    #     """
-    #     from os_customer import Customer
-    #     from os_class import Class
-    #
-    #     db = current.db
-    #     DATE_FORMAT = current.DATE_FORMAT
-    #     T = current.T
-    #
-    #     date_formatted = date.strftime(DATE_FORMAT)
-    #
-    #     if product_type not in ['trial', 'dropin']:
-    #         raise ValueError("Product type has to be 'trial' or 'dropin'.")
-    #
-    #     customer = Customer(cuID)
-    #     cls = Class(clsID, date)
-    #     prices = cls.get_prices()
-    #
-    #     has_membership = customer.has_membership_on_date(date)
-    #
-    #     if product_type == 'dropin':
-    #         price = prices['dropin']
-    #         tax_rates_id = prices['dropin_tax_rates_id']
-    #         glaccount = prices['dropin_glaccount']
-    #
-    #         if has_membership and prices['dropin_membership']:
-    #             price = prices['dropin_membership']
-    #             tax_rates_id = prices['dropin_tax_rates_id_membership']
-    #
-    #         description = cls.get_receipt_order_description(2) # 2 = drop in class
-    #
-    #     elif product_type == 'trial':
-    #         price = prices['trial']
-    #         tax_rates_id = prices['trial_tax_rates_id']
-    #         glaccount = prices['trial_glaccount']
-    #
-    #         if has_membership and prices['trial_membership']:
-    #             price = prices['trial_membership']
-    #             tax_rates_id = prices['trial_tax_rates_id_membership']
-    #
-    #         description = cls.get_receipt_order_description(1) # 1 = trial class
-    #
-    #     # link receipt to attendance
-    #     self.link_to_classes_attendance(caID)
-    #
-    #     next_sort_nr = self.get_item_next_sort_nr()
-    #     iiID = db.receipts_items.insert(
-    #         receipts_id=self.receipts_id,
-    #         ProductName=T("Class"),
-    #         Description=description,
-    #         Quantity=1,
-    #         Price=price,
-    #         Sorting=next_sort_nr,
-    #         tax_rates_id=tax_rates_id,
-    #         GLAccount=glaccount
-    #     )
-    #
-    #     self.link_to_customer(cuID)
-    #     # This calls self.on_update()
-    #     self.set_amounts()
-
-    #
-    # def item_add_class_from_order(self, order_item_row, caID):
-    #     """
-    #         Add class to receipt from Order.deliver()
-    #
-    #         :param clsID: db.classes.id
-    #         :param class_date: datetime.date
-    #         :param attendance_type: int 1 or 2
-    #         :return: db.receipts_items.id
-    #     """
-    #     from os_class import Class
-    #
-    #     DATE_FORMAT = current.DATE_FORMAT
-    #     TIME_FORMAT = current.TIME_FORMAT
-    #     db = current.db
-    #     T  = current.T
-    #
-    #     cls = Class(order_item_row.classes_id, order_item_row.ClassDate)
-    #
-    #     # Get GLAccount info
-    #     prices = cls.get_prices()
-    #     glaccount = None
-    #     if order_item_row.AttendanceType == 1:
-    #         # Trial
-    #         glaccount = prices['trial_glaccount']
-    #     else:
-    #         # Drop in
-    #         glaccount = prices['dropin_glaccount']
-    #
-    #     # link receipt to attendance
-    #     db.receipts_classes_attendance.insert(
-    #         receipts_id=self.receipts_id,
-    #         classes_attendance_id=caID
-    #     )
-    #
-    #     # add item to receipt
-    #     next_sort_nr = self.get_item_next_sort_nr()
-    #
-    #     iiID = db.receipts_items.insert(
-    #         receipts_id=self.receipts_id,
-    #         ProductName=order_item_row.ProductName,
-    #         Description=order_item_row.Description,
-    #         Quantity=order_item_row.Quantity,
-    #         Price=order_item_row.Price,
-    #         Sorting=next_sort_nr,
-    #         tax_rates_id=order_item_row.tax_rates_id,
-    #         GLAccount=glaccount
-    #     )
-    #
-    #     # This calls self.on_update()
-    #     self.set_amounts()
-    #
-    #     return iiID
+        return riID
 
 
-    def item_add_classcard(self, ccdID):
+    def item_add_from_invoice_item(self, item):
         """
-            :param ccdID: Add customer classcard to receipt
-            :return: None
-        """
-        from os_customer_classcard import CustomerClasscard
 
+        :param item: gluon.dal.row object of db.invoices_items
+        :return:
+        """
         db = current.db
-        T  = current.T
 
-        classcard = CustomerClasscard(ccdID)
+        sorting = self.get_item_next_sort_nr()
 
-        # add item to receipt
-        next_sort_nr = self.get_item_next_sort_nr()
-        price = classcard.price
-
-        iiID = db.receipts_items.insert(
+        riID = db.receipts_items.insert(
             receipts_id=self.receipts_id,
-            ProductName=T("Class card"),
-            Description=classcard.name.decode('utf-8') + u' (' + T("Class card") + u' ' + unicode(ccdID) + u')',
-            Quantity=1,
-            Price=price,
-            Sorting=next_sort_nr,
-            tax_rates_id=classcard.school_classcard.tax_rates_id,
-            GLAccount=classcard.glaccount
+            Sorting=sorting,
+            ProductName=item.ProductName,
+            Description=item.Description,
+            Quantity=item.Quantity,
+            Price=item.Price,
+            tax_rates_id=item.tax_rates_id,
+            GLAccount=item.GLAccount
         )
 
-        # This calls self.on_update()
         self.set_amounts()
 
-        return iiID
 
     #
-    # def item_add_workshop_product(self, wspcID):
+    # def item_add_classcard(self, ccdID):
     #     """
-    #         :param wspID: db.workshops_products_id
-    #         :return: db.receipts_items.id
+    #         :param ccdID: Add customer classcard to receipt
+    #         :return: None
     #     """
-    #     DATE_FORMAT = current.DATE_FORMAT
+    #     from os_customer_classcard import CustomerClasscard
+    #
     #     db = current.db
     #     T  = current.T
     #
-    #     wspc = db.workshops_products_customers(wspcID)
-    #     wsp = db.workshops_products(wspc.workshops_products_id)
-    #     ws = db.workshops(wsp.workshops_id)
-    #     # Link receipt to workshop product sold to customer
-    #     db.receipts_workshops_products_customers.insert(
-    #         receipts_id = self.receipts_id,
-    #         workshops_products_customers_id = wspcID
-    #     )
-    #
-    #     # Add item to receipt
-    #     next_sort_nr = self.get_item_next_sort_nr()
-    #
-    #     iiID = db.receipts_items.insert(
-    #         receipts_id=self.receipts_id,
-    #         ProductName=T('Event'),
-    #         Description=ws.Name.decode('utf-8') + u' - ' + wsp.Name.decode('utf-8') + ' [' + ws.Startdate.strftime(DATE_FORMAT) + ']',
-    #         Quantity=1,
-    #         Price=wsp.Price,
-    #         Sorting=next_sort_nr,
-    #         tax_rates_id=wsp.tax_rates_id,
-    #         GLAccount=wsp.GLAccount
-    #     )
-    #
-    #     # This calls self.on_update()
-    #     self.set_amounts()
-    #
-    #     return iiID
-    #
-    #
-    # def item_add_donation(self, amount, description):
-    #     """
-    #         :param amount: donation amount
-    #         :param description: donation description
-    #         :return: db.customers_orders.items.id of inserted item
-    #     """
-    #     db = current.db
-    #     T  = current.T
-    #     get_sys_property = current.globalenv['get_sys_property']
-    #
-    #     sys_property = 'shop_donations_tax_rates_id'
-    #     tax_rates_id = int(get_sys_property(sys_property))
+    #     classcard = CustomerClasscard(ccdID)
     #
     #     # add item to receipt
     #     next_sort_nr = self.get_item_next_sort_nr()
-    #     price = amount
+    #     price = classcard.price
     #
     #     iiID = db.receipts_items.insert(
     #         receipts_id=self.receipts_id,
-    #         ProductName=T("Donation"),
-    #         Description=description.decode('utf-8'),
+    #         ProductName=T("Class card"),
+    #         Description=classcard.name.decode('utf-8') + u' (' + T("Class card") + u' ' + unicode(ccdID) + u')',
     #         Quantity=1,
     #         Price=price,
     #         Sorting=next_sort_nr,
-    #         tax_rates_id=tax_rates_id,
+    #         tax_rates_id=classcard.school_classcard.tax_rates_id,
+    #         GLAccount=classcard.glaccount
     #     )
     #
     #     # This calls self.on_update()
     #     self.set_amounts()
     #
     #     return iiID
-
-
-    def item_add_subscription(self, SubscriptionYear, SubscriptionMonth, description=''):
-        """
-            :param SubscriptionYear: Year of subscription
-            :param SubscriptionMonth: Month of subscription
-            :return: db.receipts_items.id
-        """
-        from general_helpers import get_last_day_month
-
-        from os_customer_subscription import CustomerSubscription
-        from os_school_subscription import SchoolSubscription
-
-        db = current.db
-        DATE_FORMAT = current.DATE_FORMAT
-
-        next_sort_nr = self.get_item_next_sort_nr()
-
-        date = datetime.date(int(SubscriptionYear),
-                             int(SubscriptionMonth),
-                             1)
-
-        ics = db.receipts_customers_subscriptions(receipts_id = self.receipts_id)
-        csID = ics.customers_subscriptions_id
-        cs = CustomerSubscription(csID)
-        ssuID = cs.ssuID
-        ssu = SchoolSubscription(ssuID)
-        row = ssu.get_tax_rates_on_date(date)
-
-        if row:
-            tax_rates_id = row.school_subscriptions_price.tax_rates_id
-        else:
-            tax_rates_id = None
-
-        period_start = date
-        period_end = get_last_day_month(date)
-        glaccount = ssu.get_glaccount_on_date(date)
-        price = 0
-
-        # check for alt price
-        csap = db.customers_subscriptions_alt_prices
-        query = (csap.customers_subscriptions_id == csID) & \
-                (csap.SubscriptionYear == SubscriptionYear) & \
-                (csap.SubscriptionMonth == SubscriptionMonth)
-        csap_rows = db(query).select(csap.ALL)
-        if csap_rows:
-            csap_row = csap_rows.first()
-            price    = csap_row.Amount
-            description = csap_row.Description
-        else:
-            price = ssu.get_price_on_date(date, False)
-
-            broken_period = False
-            if cs.startdate > date and cs.startdate <= period_end:
-                # Start later in month
-                broken_period = True
-                period_start = cs.startdate
-                delta = period_end - cs.startdate
-                cs_days = delta.days + 1
-                total_days = period_end.day
-
-            if cs.enddate:
-                if cs.enddate >= date and cs.enddate < period_end:
-                    # End somewhere in month
-                    broken_period = True
-
-                    delta = cs.enddate - date
-                    cs_days = delta.days + 1
-                    total_days = period_end.day
-
-                    period_end = cs.enddate
-
-            if broken_period:
-                price = round(float(cs_days) / float(total_days) * float(price), 2)
-
-            if not description:
-                description = cs.name.decode('utf-8') + u' ' + period_start.strftime(DATE_FORMAT) + u' - ' + period_end.strftime(DATE_FORMAT)
-
-        iiID = db.receipts_items.insert(
-            receipts_id = self.receipts_id,
-            ProductName = current.T("Subscription") + ' ' + unicode(csID),
-            Description = description,
-            Quantity = 1,
-            Price = price,
-            Sorting = next_sort_nr,
-            tax_rates_id = tax_rates_id,
-            GLAccount = glaccount
-        )
-
-        ##
-        # Check if a registration fee should be added
-        ##
-        query = (((db.customers_subscriptions.auth_customer_id == cs.auth_customer_id) &
-                 (db.customers_subscriptions.id != cs.csID) &
-                 (db.customers_subscriptions.school_subscriptions_id == cs.ssuID)) |
-                 (db.customers_subscriptions.RegistrationFeePaid == True))
-
-        fee_paid_in_past = db(query).count()
-        ssu = db.school_subscriptions(ssuID)
-        if not fee_paid_in_past and ssu.RegistrationFee: # Registration fee not already paid and RegistrationFee defined?
-            regfee_to_be_paid = ssu.RegistrationFee or 0
-            if regfee_to_be_paid:
-                db.receipts_items.insert(
-                    receipts_id = self.receipts_id,
-                    ProductName = current.T("Registration fee"),
-                    Description = current.T('One time registration fee'),
-                    Quantity = 1,
-                    Price = regfee_to_be_paid,
-                    Sorting = next_sort_nr,
-                    tax_rates_id = tax_rates_id,
-                )
-
-                # Mark registration fee as paid for subscription
-                db.customers_subscriptions[cs.csID] = dict(RegistrationFeePaid=True)
-
-        ##
-        # Always call these
-        ##
-        # This calls self.on_update()
-        self.set_amounts()
-
-        return iiID
-
-
-    def item_add_membership(self, cmID, period_start, period_end):
-        """
-        :param cmID: db.customers_memberships.id
-        :return: db.receipts_items.id
-        """
-        from openstudio.os_customer_membership import CustomerMembership
-        from openstudio.os_school_membership import SchoolMembership
-
-        db = current.db
-        DATE_FORMAT = current.DATE_FORMAT
-
-        next_sort_nr = self.get_item_next_sort_nr()
-
-        cm = CustomerMembership(cmID)
-        sm = SchoolMembership(cm.row.school_memberships_id)
-        price_rows = sm.get_price_rows_on_date(period_start)
-
-        if not price_rows:
-            return # Don't do anything if we don't have a price
-
-        price_row = price_rows.first()
-        tax_rates_id = price_row.tax_rates_id
-        price = price_row.Price
-
-        if price == 0:
-            return # Don't do anything if the price is 0
-
-        description = cm.get_name() + ' ' + \
-                      period_start.strftime(DATE_FORMAT) + ' - ' + \
-                      period_end.strftime(DATE_FORMAT)
-
-        iiID = db.receipts_items.insert(
-            receipts_id = self.receipts_id,
-            ProductName = current.T("Membership") + ' ' + unicode(cmID),
-            Description = description,
-            Quantity = 1,
-            Price = price,
-            Sorting = next_sort_nr,
-            tax_rates_id = tax_rates_id,
-            GLAccount = sm.row.GLAccount
-        )
-
-        self.link_to_customer_membership(cmID)
-        # This calls self.on_update()
-        self.set_amounts()
-
-        return iiID
-
-
-    def payment_add(self,
-                    amount,
-                    date,
-                    payment_methods_id,
-                    note=None,
-                    mollie_payment_id=None):
-        """
-            Add payment to receipt
-        """
-        db = current.db
-
-        ipID = db.receipts_payments.insert(
-            receipts_id = self.receipts_id,
-            Amount = amount,
-            PaymentDate = date,
-            payment_methods_id = payment_methods_id,
-            Note = note,
-            mollie_payment_id = mollie_payment_id
-        )
-
-        self.is_paid()
-        self.on_update()
-
-        return ipID
+    #
+    #
