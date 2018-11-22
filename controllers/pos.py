@@ -815,8 +815,6 @@ def validate_cart_create_receipt(
     receipt = Receipt(rID)
 
     # Add items
-    print 'create_receipt_items:'
-    print items
     for item in items:
         if item['item_type'] == 'product':
             receipt.item_add_product_variant(item['data']['id'], item['quantity'])
