@@ -279,8 +279,8 @@ class Receipt:
         ) or 'receipts/default.html' # Set default
         template_file = 'templates/' + template
 
-
         items = self._get_print_display_format_items(self.get_receipt_items_rows())
+        
 
         html = response.render(template_file,
                                dict(receipt=self.row,
@@ -299,11 +299,19 @@ class Receipt:
         items_header = THEAD(TR(
             TH("Product"),
             TH("Qty"),
-            TH("Total"),
+            TH("Total", _class="header-total"),
         ))
-        items = TABLE(items_header)
+        table = TABLE(items_header)
 
-        return items
+        for item in items:
+            table.append(TR(
+                TD(item.ProductName, BR(),
+                   SPAN(item.Description, _class='item-description')),
+                TD(item.Quantity),
+                TD(format(item.TotalPriceVAT, ".2f"))
+            ))
+
+        return table
 
 
     def _get_print_display_get_logo(var=None):

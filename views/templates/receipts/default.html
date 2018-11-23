@@ -16,6 +16,10 @@
                     visibility: hidden;
                 }
                 
+                .receipt {
+                    visibility: visible;
+                }
+                
                 .logo {
                     top: 4mm;
                 }
@@ -58,6 +62,15 @@
             .receipt > .receipt-items table td + td,
             .receipt > .receipt-items table th + th {
                 text-align: right;
+                vertical-align: top;
+            }
+            
+            .receipt > .receipt-items .header-total {
+                min-width: 13mm;
+            }
+            
+            .receipt > .receipt-items .item-description {
+                font-size: 80%;
             }
             
             .logo {
