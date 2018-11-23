@@ -2,25 +2,18 @@
     <head>
         <style> 
             @page {
-                size: 100mm 52mm landscape;
+                width: 72mm;
                 margin: 0;
             }
             
             @media print {
                 html, body {
-                    width: 100mm;
-                    height: 52mm;
+                    width: 72mm;
                     margin: 0;
-                    margin-right: 20mm;
                 }
                 
                 body {
                     visibility: hidden;
-                }
-                
-                .label {
-                    visibility: visible;
-                    padding-right: 20mm;
                 }
                 
                 .logo {
@@ -35,35 +28,40 @@
                 
             body {
                 font-family: sans-serif;
-                
                 background-color: #EAEAEA;
             }
             
-            .label {
+            .receipt {
                 position: relative;
                 background-color: #FFF;
 				margin-left: auto;
                 margin-right: auto;
-                width: 96mm;
-                height: 48mm;
+                width: 72mm;
                 padding: 4mm;
 			}
             
-            .label > .barcode {
-                position: absolute;
-                bottom: 0;
-                max-height: 36mm;
-                max-width: 82mm;
-                display: block;
-                margin-left: auto;
-                margin-right: 24mm; 
-                
+            .receipt > .receipt-items {
+                margin-top: 20mm;
+            }
+            
+            .receipt > .receipt-items table {
+                width: 100%;
+            }
+            
+            /* Align left for first column */
+            .receipt > .receipt-items table td,
+            .receipt > .receipt-items table th {
+                text-align: left;
+            }
+            
+            /* Align right for all others */
+            .receipt > .receipt-items table td + td,
+            .receipt > .receipt-items table th + th {
+                text-align: right;
             }
             
             .logo {
-                position: absolute;
-                top: 4mm;
-                right: 20mm;
+                text-align: center;
             }
             
             .logo img {
@@ -74,7 +72,7 @@
             .tools {
                 display: flex;
                 justify-content: center;
-                margin: 20px auto 0px auto;
+                margin: 20px auto 20px auto;
             }
             
             button {
@@ -86,11 +84,6 @@
         </style>
     </head>    
     <body>
-        <div class="label">
-            <div class="logo">{{=logo}}</div>
-            {{=customer.display_name}}
-            <img class="barcode" src="{{=barcode_image_url}}">  
-        </div>
         <div class="tools">
             <button onclick="window.print(); return false;">
                 {{=T('Print')}}
@@ -98,6 +91,12 @@
             <button onclick="window.close(); ">
                 {{=T('Close')}}
             </button>        
+        </div>
+        <div class="receipt">
+            <div class="logo">{{=logo}}</div>
+            <div class="receipt-items">
+                {{=items}}
+            </div>
         </div>
     </body>
 </html>

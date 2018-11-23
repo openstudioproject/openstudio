@@ -35,9 +35,9 @@ class Receipts:
         return os_gui.get_button(
             'noicon',
             URL('finance', 'receipt', vars={'rID': row.id}),
-            title=T("View")
+            title=T("View"),
+            _target="_blank"
         )
-
 
 
     def _list_formatted(self):

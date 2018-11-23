@@ -274,20 +274,36 @@ class Receipt:
         get_sys_property = current.globalenv['get_sys_property']
         response = current.response
 
-        template = get_sys_property('branding_default_template_barcode_label_customer') or 'barcode_label_customer/default.html'
+        template = get_sys_property(
+            'branding_default_template_receipts'
+        ) or 'receipts/default.html' # Set default
         template_file = 'templates/' + template
 
-        if not self.row.barcode:
-            self.set_barcode()
-        barcode_image_url = URL('default', 'download', args=self.row.barcode, host=True, scheme=True)
+
+        items = self._get_print_display_format_items(self.get_receipt_items_rows())
 
         html = response.render(template_file,
                                dict(receipt=self.row,
-                                    items=self.get_receipt_items_rows(),
+                                    items=items,
                                     amounts=self.get_amounts(),
                                     logo=self._get_print_display_get_logo()))
 
         return html
+
+
+    def _get_print_display_format_items(self, items):
+        """
+        :param items: gluon.dal.rows object of db.receipts_items
+        :return: html table
+        """
+        items_header = THEAD(TR(
+            TH("Product"),
+            TH("Qty"),
+            TH("Total"),
+        ))
+        items = TABLE(items_header)
+
+        return items
 
 
     def _get_print_display_get_logo(var=None):

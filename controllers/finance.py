@@ -1255,9 +1255,10 @@ def receipt():
     """
     from openstudio.os_receipt import Receipt
 
-    rid = request.vars['rID']
+    rID = request.vars['rID']
+    receipt = Receipt(rID)
 
-    return "hello world"
+    return receipt.get_print_display()
 
 
 def teacher_payments_get_menu(page, status='not_verified'):
