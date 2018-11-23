@@ -2,13 +2,13 @@
     <head>
         <style> 
             @page {
-                width: 72mm;
+                width: 80mm;
                 margin: 0;
             }
             
             @media print {
                 html, body {
-                    width: 72mm;
+                    width: 80mm;
                     margin: 0;
                 }
                 
@@ -40,8 +40,8 @@
                 background-color: #FFF;
 				margin-left: auto;
                 margin-right: auto;
-                width: 72mm;
-                padding: 4mm;
+                width: 70mm;
+                padding: 5mm;
 			}
             
             .receipt > .receipt-items {
@@ -75,6 +75,7 @@
             
             .logo {
                 text-align: center;
+                margin-bottom: 10mm;
             }
             
             .logo img {
@@ -107,6 +108,10 @@
         </div>
         <div class="receipt">
             <div class="logo">{{=logo}}</div>
+            <div class="organization">
+                {{=organization.Name}}
+                {{=XML(organization.Address)}}
+            </div>
             <div class="receipt-items">
                 {{=items}}
             </div>

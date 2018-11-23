@@ -271,7 +271,11 @@ class Receipt:
         """
             Print friendly display of a receipt
         """
+        from openstudio.os_sys_organization import SysOrganization
+
         get_sys_property = current.globalenv['get_sys_property']
+        ORGANIZATIONS = current.globalenv['ORGANIZATIONS']
+
         response = current.response
 
         template = get_sys_property(
@@ -279,11 +283,15 @@ class Receipt:
         ) or 'receipts/default.html' # Set default
         template_file = 'templates/' + template
 
-        items = self._get_print_display_format_items(self.get_receipt_items_rows())
+        so = SysOrganization(ORGANIZATIONS['default'])
+        organization = so.row
         
+        items = self._get_print_display_format_items(self.get_receipt_items_rows())
+
 
         html = response.render(template_file,
-                               dict(receipt=self.row,
+                               dict(organization=organization,
+                                    receipt=self.row,
                                     items=items,
                                     amounts=self.get_amounts(),
                                     logo=self._get_print_display_get_logo()))
