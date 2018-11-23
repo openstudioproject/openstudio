@@ -331,6 +331,7 @@ class Receipt:
         from tools import OsTools
 
         T = current.T
+        db = current.db
         os_tools = OsTools()
         currency = os_tools.get_sys_property('Currency')
         amounts_total = self.get_amounts()
@@ -353,8 +354,6 @@ class Receipt:
 
         items_footer = TFOOT()
 
-
-
         amounts = [[T('Total'), amounts_total.TotalPriceVAT]]
 
         for tax_rate in amounts_vat:
@@ -374,6 +373,14 @@ class Receipt:
                     _class='bold pull-right')),
             )
         )
+
+        # Payment method
+        pm = db.payment_methods(self.row.payment_methods_id)
+
+        items_footer.append(TR(
+          TD(T("Payment method")),
+          TD(pm.Name, _colspan="2")
+        ))
 
         table.append(items_footer)
 
