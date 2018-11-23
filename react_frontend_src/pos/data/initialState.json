@@ -11,7 +11,9 @@
         "payment_methods": {},
         "settings": {},
         "user": {},
-        "validating_cart": false
+        "cart_validating": false,
+        "cart_validation_error": false,
+        "cart_validation_message": ""
     },
     "checkin_attendance": {
         "loading": false,

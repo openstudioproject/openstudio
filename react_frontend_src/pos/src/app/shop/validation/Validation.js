@@ -59,7 +59,7 @@ class Validation extends Component {
 
         return (
             <PageTemplate app_state={app}>
-                {(app.validating_cart) ?
+                {(app.cart_validating) ?
                     <div className="row">
                         <div className="col-md-4 col-md-offset-4">
                             <Box>
@@ -70,8 +70,19 @@ class Validation extends Component {
                             </Box>
                         </div>
                     </div>
-                    :
-                    <div>
+                    : (app.cart_validation_error) ?
+                        <div className="row">
+                            <div className="col-md-4 col-md-offset-4">
+                                <Box>
+                                    <BoxBody>
+                                        Validation Error <br />
+                                        {app.cart_validation_message}
+                                    </BoxBody>
+                                </Box>
+                            </div>
+                        </div> :
+                        // Everything ok
+                        <div>
                         <div className="row">
                             <div className="col-md-12">
                                 <ButtonNextOrder onClick={this.onClickNextOrder.bind(this)} />

@@ -4304,7 +4304,10 @@ def define_receipts():
             represent=represent_datetime ),
         )
 
-    db.receipts.Created_by.default = auth.user.id
+    try:
+        db.receipts.Created_by.default = auth.user.id
+    except AttributeError:
+        pass
 
 
 def define_receipts_items():
