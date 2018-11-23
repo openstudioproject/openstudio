@@ -182,11 +182,13 @@ def default_templates():
     sprop_t_barcode_label_customer = 'branding_default_template_barcode_label_customer'
     sprop_t_barcode_label_membership = 'branding_default_template_barcode_label_membership'
     sprop_t_email = 'branding_default_template_email'
+    sprop_t_receipts = 'branding_default_template_receipts'
     sprop_t_events = 'branding_default_template_events'
     t_barcode_label_customer = get_sys_property(sprop_t_barcode_label_customer)
     t_barcode_label_membership = get_sys_property(sprop_t_barcode_label_membership)
     t_class_revenue = get_sys_property(sprop_t_class_revenue)
     t_email = get_sys_property(sprop_t_email)
+    t_receipts = get_sys_property(sprop_t_receipts)
     t_events = get_sys_property(sprop_t_events)
 
     form = SQLFORM.factory(
@@ -206,6 +208,10 @@ def default_templates():
               default=t_email,
               requires=IS_IN_SET(default_templates_list_templates('email')),
               label=T('Email template')),
+        Field('t_receipts',
+              default=t_receipts,
+              requires=IS_IN_SET(default_templates_list_templates('receipts')),
+              label=T('Receipt template')),
         Field('t_events',
               default=t_events,
               requires=IS_IN_SET(default_templates_list_templates('events')),
@@ -242,6 +248,10 @@ def default_templates():
         t_email = request.vars['t_email']
         set_sys_property(sprop_t_email, t_email)
 
+        # Check receipts template
+        t_receipts = request.vars['t_receipts']
+        set_sys_property(sprop_t_receipts, t_receipts)
+
         # Check events template
         t_events = request.vars['t_events']
         set_sys_property(sprop_t_events, t_events)
@@ -273,6 +283,7 @@ def default_templates_list_templates(template_type):
         'class_revenue',
         'email',
         'invoices',
+        'receipts',
         'events'
     ]
     if template_type not in template_types:
