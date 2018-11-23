@@ -53,15 +53,16 @@ class Receipts:
 
         fields = [
             db.receipts.id,
+            db.receipts.Created_by,
+            db.receipts.payment_methods_id,
             db.receipts.Created_at,
-            db.receipts.payment_methods_id
         ]
 
         links = [
             self._list_formatted_link_view,
         ]
 
-        db.receipts.id.label = T("Receipt")
+        db.receipts.id.label = T("Receipt #")
 
         delete_permission = auth.has_membership(group_id='Admins') or \
                             auth.has_permission('delete', 'receipts')

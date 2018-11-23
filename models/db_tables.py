@@ -4293,7 +4293,6 @@ def define_receipts():
             writable=False,
             label=T("Employee")),
         Field('Created_at', 'datetime',
-            readable=False,
             writable=False,
             default=datetime.datetime.now(),
             represent=represent_datetime,
