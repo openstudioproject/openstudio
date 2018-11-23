@@ -285,21 +285,45 @@ class Receipt:
 
         so = SysOrganization(ORGANIZATIONS['default'])
         organization = so.row
-        items = self._get_print_display_format_items(
-            self.get_receipt_items_rows(),
-            self.get_amounts()
-        )
 
         html = response.render(template_file,
                                dict(organization=organization,
                                     receipt=self.row,
-                                    items=items,
+                                    receipt_info=self._get_print_display_receipt_info(),
+                                    items=self._get_print_display_format_items(),
                                     logo=self._get_print_display_get_logo()))
 
         return html
 
 
-    def _get_print_display_format_items(self, items, amounts):
+    def _get_print_display_receipt_info(self):
+        """
+        :return:
+        """
+        T = current.T
+        DATETIME_FORMAT = current.DATETIME_FORMAT
+
+        header = THEAD(TR(
+            TD(T("Helped by")),
+            TD(T("Receipt")),
+            TD(T("Time")),
+        ))
+
+        data = TR(
+            TD(self.row.Created_by or ''),
+            TD(self.row.id),
+            TD(self.row.Created_at.strftime(DATETIME_FORMAT)),
+        )
+
+        table = TABLE(
+            header,
+            data
+        )
+
+        return table
+
+
+    def _get_print_display_format_items(self):
         """
         :param items: gluon.dal.rows object of db.receipts_items
         :return: html table
@@ -309,6 +333,8 @@ class Receipt:
         T = current.T
         os_tools = OsTools()
         currency = os_tools.get_sys_property('Currency')
+        amounts_total = self.get_amounts()
+        amounts_vat = self.get_amounts_tax_rates()
 
         items_header = THEAD(TR(
             TH(T("Product")),
@@ -317,7 +343,7 @@ class Receipt:
         ))
         table = TABLE(items_header)
 
-        for item in items:
+        for item in self.get_receipt_items_rows():
             table.append(TR(
                 TD(item.ProductName, BR(),
                    SPAN(item.Description, _class='item-description')),
@@ -325,13 +351,29 @@ class Receipt:
                 TD(format(item.TotalPriceVAT, ".2f"))
             ))
 
-        items_footer = TFOOT(TR(
-            TH(T("Total")),
-            TH(currency),
-            TH(format(amounts.TotalPriceVAT, ".2f"))
-        ))
+        items_footer = TFOOT()
 
 
+
+        amounts = [[T('Total'), amounts_total.TotalPriceVAT]]
+
+        for tax_rate in amounts_vat:
+            amounts.append([tax_rate['Name'], tax_rate['Amount']])
+
+        amounts.append([T('Sub total'), amounts_total.TotalPrice])
+
+        for i, amount in enumerate(amounts):
+            if i == 0:
+                celltype = TH
+            else:
+                celltype = TD
+            items_footer.append(TR(
+            celltype(amount[0], _class='bold'),
+            celltype(currency),
+            celltype(SPAN(format(amount[1], '.2f'),
+                    _class='bold pull-right')),
+            )
+        )
 
         table.append(items_footer)
 

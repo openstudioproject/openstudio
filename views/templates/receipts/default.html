@@ -35,17 +35,26 @@
                 background-color: #EAEAEA;
             }
             
+            table {
+                font-size: 3.2mm;
+            }
+            
             .receipt {
                 position: relative;
+                font-size: 3.2mm;
                 background-color: #FFF;
 				margin-left: auto;
                 margin-right: auto;
                 width: 70mm;
-                padding: 5mm;
+                padding: 10mm 5mm 10mm 5mm;
 			}
             
+            .receipt .organization {
+                text-align: center;
+            }
+            
             .receipt > .receipt-items {
-                margin-top: 20mm;
+                margin-top: 10mm;
             }
             
             .receipt > .receipt-items table {
@@ -84,8 +93,16 @@
                 min-width: 13mm;
             }
             
-            .receipt > .receipt-items .item-description {
-                font-size: 80%;
+            .receipt > .receipt-info {
+                margin-top: 10mm;
+            }
+            
+            .receipt > .receipt-info table {
+                width: 100%;
+            }
+            
+            .receipt > .receipt-info table tr:first-child td {
+                border-top: 1px dashed #000;
             }
             
             .logo {
@@ -129,6 +146,9 @@
             </div>
             <div class="receipt-items">
                 {{=items}}
+            </div>
+            <div class="receipt-info">
+                {{=receipt_info}}
             </div>
         </div>
     </body>
