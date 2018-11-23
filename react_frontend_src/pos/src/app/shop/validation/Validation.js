@@ -44,6 +44,7 @@ class Validation extends Component {
         this.props.clearSelectedPaymentMethod()
         this.props.clearCartItems()
         this.props.clearSelectedCustomer()
+        //TODO: Add clear functions for cart error & error message, if any.
         this.props.history.push('/shop/products')
 
     }
@@ -71,38 +72,45 @@ class Validation extends Component {
                         </div>
                     </div>
                     : (app.cart_validation_error) ?
-                        <div className="row">
-                            <div className="col-md-4 col-md-offset-4">
-                                <Box>
-                                    <BoxBody>
-                                        Validation Error <br />
-                                        {app.cart_validation_message}
-                                    </BoxBody>
-                                </Box>
+                        <div>
+                            <div className="row">
+                                <div className="col-md-12">
+                                    <ButtonNextOrder onClick={this.onClickNextOrder.bind(this)} />
+                                </div>
+                            </div>
+                            <div className="row">
+                                <div className="col-md-4 col-md-offset-4">
+                                    <Box>
+                                        <BoxBody>
+                                            Validation Error <br />
+                                            {app.cart_validation_message}
+                                        </BoxBody>
+                                    </Box>
+                                </div>
                             </div>
                         </div> :
                         // Everything ok
                         <div>
-                        <div className="row">
-                            <div className="col-md-12">
-                                <ButtonNextOrder onClick={this.onClickNextOrder.bind(this)} />
+                            <div className="row">
+                                <div className="col-md-12">
+                                    <ButtonNextOrder onClick={this.onClickNextOrder.bind(this)} />
+                                </div>
+                            </div>
+                            <div className="row">
+                                <div className="col-md-4 col-md-offset-4">
+                                    <Box>
+                                        <BoxBody>
+                                            
+                                            <ValidationList 
+                                                app={app}
+                                                items={items}
+                                                total={total}
+                                                selected_method={selected_method} />
+                                        </BoxBody>
+                                    </Box>
+                                </div>
                             </div>
                         </div>
-                        <div className="row">
-                            <div className="col-md-4 col-md-offset-4">
-                                <Box>
-                                    <BoxBody>
-                                        
-                                        <ValidationList 
-                                            app={app}
-                                            items={items}
-                                            total={total}
-                                            selected_method={selected_method} />
-                                    </BoxBody>
-                                </Box>
-                            </div>
-                        </div>
-                    </div>
                 }
             </PageTemplate>
         )
