@@ -36,7 +36,8 @@ def logos():
                       logos_get_logo('branding_logo_header'),
                       logos_get_logo('branding_logo_invoices'),
                       _class='col-md-12'),
-                  DIV(logos_get_logo('branding_logo_selfcheckin'),
+                  DIV(logos_get_logo('branding_logo_receipts'),
+                      logos_get_logo('branding_logo_selfcheckin'),
                       _class='col-md-12'),
                   _class='row',
                   _id='settings_branding_logos')
@@ -122,6 +123,8 @@ def logos_get_logo(name):
         h = H3(T('Shop header logo'))
     elif name == 'branding_logo_invoices':
         h = H3(T('Invoice & email logo'))
+    elif name == 'branding_logo_receipts':
+        h = H3(T('Receipt logo'))
     elif name == 'branding_logo_selfcheckin':
         h = H3(T('Self check-in logo'))
 
