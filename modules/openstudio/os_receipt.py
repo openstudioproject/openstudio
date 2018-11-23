@@ -267,6 +267,53 @@ class Receipt:
         self.set_amounts()
 
 
+    def get_print_display(self):
+        """
+            Print friendly display of a receipt
+        """
+        get_sys_property = current.globalenv['get_sys_property']
+        response = current.response
+
+        template = get_sys_property('branding_default_template_barcode_label_customer') or 'barcode_label_customer/default.html'
+        template_file = 'templates/' + template
+
+        if not self.row.barcode:
+            self.set_barcode()
+        barcode_image_url = URL('default', 'download', args=self.row.barcode, host=True, scheme=True)
+
+        html = response.render(template_file,
+                               dict(receipt=self.row,
+                                    items=self.get_receipt_items_rows(),
+                                    amounts=self.get_amounts(),
+                                    logo=self._get_print_display_get_logo()))
+
+        return html
+
+
+    def _get_print_display_get_logo(var=None):
+        """
+            Returns logo for template
+        """
+        import os
+
+        request = current.request
+
+        branding_logo = os.path.join(request.folder,
+                                     'static',
+                                     'plugin_os-branding',
+                                     'logos',
+                                     'branding_logo_receipts.png')
+        if os.path.isfile(branding_logo):
+            abs_url = URL('static', 'plugin_os-branding/logos/branding_logo_receipts.png',
+                          scheme=True,
+                          host=True)
+            logo_img = IMG(_src=abs_url)
+        else:
+            logo_img = ''
+
+        return logo_img
+
+
     #
     # def item_add_classcard(self, ccdID):
     #     """
