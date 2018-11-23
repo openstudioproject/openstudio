@@ -4289,6 +4289,9 @@ def define_receipts():
                               zero=T("Not set"))),
             represent=lambda value, row: payment_methods_dict.get(value),
             label=T("Payment method")),
+        Field('Created_by', db.auth_user,
+            writable=False,
+            label=T("Employee")),
         Field('Created_at', 'datetime',
             readable=False,
             writable=False,
@@ -4301,6 +4304,8 @@ def define_receipts():
             default=datetime.datetime.now(),
             represent=represent_datetime ),
         )
+
+    db.receipts.Created_by.default = auth.user.id
 
 
 def define_receipts_items():

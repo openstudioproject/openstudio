@@ -50,6 +50,21 @@
             
             .receipt > .receipt-items table {
                 width: 100%;
+                border-collapse: collapse;
+            }
+            
+            .receipt > .receipt-items table td, 
+            .receipt > .receipt-items table th {
+                padding-top: 2mm;
+                padding-bottom: 2mm;
+            }
+            
+            .receipt > .receipt-items table thead th {
+                border-bottom: 1px dashed #000;
+            }
+            
+            .receipt > .receipt-items table tfoot th:last-child {
+                border-top: 1px dashed #000;
             }
             
             /* Align left for first column */

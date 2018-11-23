@@ -285,29 +285,35 @@ class Receipt:
 
         so = SysOrganization(ORGANIZATIONS['default'])
         organization = so.row
-        
-        items = self._get_print_display_format_items(self.get_receipt_items_rows())
-
+        items = self._get_print_display_format_items(
+            self.get_receipt_items_rows(),
+            self.get_amounts()
+        )
 
         html = response.render(template_file,
                                dict(organization=organization,
                                     receipt=self.row,
                                     items=items,
-                                    amounts=self.get_amounts(),
                                     logo=self._get_print_display_get_logo()))
 
         return html
 
 
-    def _get_print_display_format_items(self, items):
+    def _get_print_display_format_items(self, items, amounts):
         """
         :param items: gluon.dal.rows object of db.receipts_items
         :return: html table
         """
+        from tools import OsTools
+
+        T = current.T
+        os_tools = OsTools()
+        currency = os_tools.get_sys_property('Currency')
+
         items_header = THEAD(TR(
-            TH("Product"),
-            TH("Qty"),
-            TH("Total", _class="header-total"),
+            TH(T("Product")),
+            TH(T("Qty")),
+            TH(T("Total"), _class="header-total"),
         ))
         table = TABLE(items_header)
 
@@ -318,6 +324,16 @@ class Receipt:
                 TD(item.Quantity),
                 TD(format(item.TotalPriceVAT, ".2f"))
             ))
+
+        items_footer = TFOOT(TR(
+            TH(T("Total")),
+            TH(currency),
+            TH(format(amounts.TotalPriceVAT, ".2f"))
+        ))
+
+
+
+        table.append(items_footer)
 
         return table
 
