@@ -313,10 +313,10 @@ class Invoice:
         """
         :return: dict with customer info
         """
-
-        #TODO: Add registration and tax registration fields after merging exact online branch
         return dict(
             company = self.invoice.CustomerCompany or '',
+            company_registration = self.invoice.CompanyRegistration or '',
+            company_tax_registration = self.invoice.CompanyTaxRegistration or '',
             name = self.invoice.CustomerName or '',
             list_name = self.invoice.CustomerListName or '',
             address = self.invoice.CustomerAddress or ''
@@ -385,6 +385,42 @@ class Invoice:
 
         # This calls self.on_update()
         self.set_amounts()
+
+
+    def item_add_product_variant(self,
+                                 product_name,
+                                 description,
+                                 quantity,
+                                 price,
+                                 tax_rates_id,
+                                 glaccount):
+        """
+        :param product_name: string
+        :param description: string
+        :param quantity: float
+        :param price: float
+        :param tax_rates_id: db.tax_rates_id
+        :return:
+        """
+        db = current.db
+
+        next_sort_nr = self.get_item_next_sort_nr()
+
+        iiID = db.invoices_items.insert(
+            invoices_id=self.invoices_id,
+            ProductName=product_name,
+            Description=description,
+            Quantity=quantity,
+            Price=price,
+            Sorting=next_sort_nr,
+            tax_rates_id=tax_rates_id,
+            GLAccount=glaccount
+        )
+
+        # This calls self.on_update()
+        self.set_amounts()
+
+        return iiID
 
 
     def item_add_class(self,

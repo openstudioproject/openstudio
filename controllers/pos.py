@@ -6,6 +6,16 @@ from general_helpers import datestr_to_python
 # auth.settings.on_failed_authorization = URL('return_json_permissions_error')
 
 
+# print request.env
+#
+# if request.env.http_origin:
+#     response.headers['Access-Control-Allow-Origin'] = request.env.http_origin;
+#     response.headers['Access-Control-Allow-Methods'] = "POST,GET,OPTIONS";
+#     response.headers['Access-Control-Allow-Credentials'] = "true";
+#     response.headers['Access-Control-Allow-Headers'] = "Accept, Authorization, Content-Type, If-Match, If-Modified-Since, If-None-Match, If-Unmodified-Since, Accept-Encoding";
+#     response.headers['Access-Control-Allow-Content-Type'] = 'application/json'
+#     # response.headers['Access-Control-Allow-Origin'] = "*"
+
 @auth.requires_login()
 def index():
     # print auth.user
@@ -16,7 +26,7 @@ def index():
 def set_headers(var=None):
     if request.env.HTTP_ORIGIN == 'http://dev.openstudioproject.com:8080':
         response.headers["Access-Control-Allow-Origin"] = request.env.HTTP_ORIGIN
-    #
+
     # response.headers["Access-Control-Allow-Credentials"] = "true"
     # response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, PATCH, POST, DELETE, OPTIONS"
     # response.headers["Access-Control-Allow-Headers"] = "*"
@@ -667,33 +677,151 @@ def get_payment_methods():
 #TODO make read PoS permission
 # @auth.requires(auth.has_membership(group_id='Admins'))
                # auth.has_permission('read', 'shop_products'))
-def process_cart():
+def validate_cart():
     """
     Process shopping cart
     :return:
     """
+    # print request.env
+
     set_headers()
 
-    print request.vars
+    error = False
+    message = ''
 
-    # If no customerID; just make receipt and update stock
 
-    # if customerID; Make order, deliver order, add payment to invoice created by deliver order
+    #If no customerID; just make receipt and update stock
+    #if customerID; Make order, deliver order, add payment to invoice created by deliver order
 
+    items = request.vars['items']
+    pmID = request.vars['payment_methodID']
     cuID = request.vars['customerID']
+
     print 'customerID'
     print type(cuID)
     print cuID
 
-    # IF customerID; add order; deliver
-
-    # If not customerID; add receipt & payment to receipt (Perhaps receipts can just state payments)
-
-
-    items = request.vars['items']
+    print 'validate_cart_items:'
     print items
-    #TODO: process items
 
-    # Use to add payment to receipt or invoice
-    pmID = request.vars['payment_methodID']
-    print pmID
+    if not items:
+        error = True
+        message = T("No items were submitted for processing")
+
+
+
+    ## IMPORTANT: Get Item price & VAT info from server DB, not from Stuff submitted by Javascript.
+    # JS can be manipulated.
+    if not error:
+        # IF customerID; add order; deliver
+        invoice = None
+        invoices_payment_id = None
+        invoice_created = False
+        if cuID:
+            print 'create order'
+            invoice = validate_cart_create_order(cuID, pmID, items)
+            invoice_created = True
+
+
+
+        # Always create payment receipt
+        print 'create receipt'
+        validate_cart_create_receipt(
+            invoice_created,
+            invoice,
+            pmID,
+            items,
+        )
+
+
+
+
+    return dict(error=error, message=message)
+
+
+def validate_cart_create_order(cuID, pmID, items):
+    """
+    :param cuID: db.auth_user.id
+    :param items:
+    :return:
+    """
+    from openstudio.os_order import Order
+
+    coID = db.customers_orders.insert(
+        auth_customer_id = cuID,
+        Status = 'order_received',
+        Origin = 'pos',
+    )
+    order = Order(coID)
+
+    # Add items
+    for item in items:
+        if item['item_type'] == 'product':
+            order.order_item_add_product_variant(item['data']['id'], item['quantity'])
+        elif item['item_type'] == 'classcard':
+             order.order_item_add_classcard(item['data']['id'])
+        elif item['item_type'] == 'subscription':
+            order.order_item_add_subscription(
+                item['data']['id'],
+                TODAY_LOCAL
+            )
+        elif item['item_type'] == 'membership':
+            order.order_item_add_membership(
+                item['data']['id'],
+                TODAY_LOCAL
+            )
+
+    # update order status
+    order.set_status_awaiting_payment()
+
+    # mail order to customer
+#    order_received_mail_customer(coID)
+
+    # check if this order needs to be paid or it's free and can be added to the customers' account straight away
+    amounts = order.get_amounts()
+
+    # Deliver order, add stuff to customer's account
+    result = order.deliver()
+    invoice = result['invoice']
+
+    # Add payment
+    ipID = invoice.payment_add(
+        amounts.TotalPriceVAT,
+        TODAY_LOCAL,
+        payment_methods_id=pmID,
+    )
+
+    return invoice
+
+
+def validate_cart_create_receipt(
+        invoice_created,
+        invoice,
+        pmID,
+        items
+    ):
+    """
+    :param pmID: db.payment_methods.id
+    :param invoices_payment_id: db.invoices_payments.id
+    :param items: PoS items
+    :return: int - receipt_id
+    """
+    from openstudio.os_receipt import Receipt
+
+    rID = db.receipts.insert(
+        payment_methods_id = pmID,
+    )
+
+    receipt = Receipt(rID)
+
+    # Add items
+    for item in items:
+        if item['item_type'] == 'product':
+            receipt.item_add_product_variant(item['data']['id'], item['quantity'])
+
+
+    if invoice_created:
+        invoice_items = invoice.get_invoice_items_rows()
+        for item in invoice_items:
+            receipt.item_add_from_invoice_item(item)
+

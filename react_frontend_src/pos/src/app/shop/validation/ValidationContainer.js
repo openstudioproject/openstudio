@@ -12,6 +12,7 @@ import Validation from "./Validation"
 
 const mapStateToProps = state => 
     ({
+        state: state,
         app: state.app,
         items: state.shop.cart.items,
         total: state.shop.cart.total,
@@ -31,9 +32,12 @@ const mapDispatchToProps = dispatch =>
         },
         clearSelectedCustomer() {
             dispatch(customersListOperations.clearSelectedCustomerID())
+        },
+        validateCart(state) {
+            dispatch(appOperations.validateCart(state))
         }
     })
-
+    
 const ValidationContainer = withRouter(injectIntl(connect(
     mapStateToProps,
     mapDispatchToProps

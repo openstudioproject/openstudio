@@ -3,7 +3,7 @@
 from gluon import *
 
 class OsCacheManager:
-    def clear(var_one=None, var_two=None):
+    def clear(self, var_one=None, var_two=None):
         """
             Clears all cache entries on disk & in ram
             # Takes arguments in case it's called from a crud form or SQLFORM.grid
@@ -13,7 +13,7 @@ class OsCacheManager:
         cache.ram.clear()
         cache.disk.clear()
 
-    def clear_customers_memberships(cuID):
+    def clear_customers_memberships(self, cuID):
         """
             Clears memberships cache entries on disk & in ram
         """
@@ -24,7 +24,7 @@ class OsCacheManager:
         cache.disk.clear(regex=cu_sub_regex)
 
 
-    def clear_customers_subscriptions(cuID):
+    def clear_customers_subscriptions(self, cuID):
         """
             Clears subscription cache entries on disk & in ram
         """
@@ -35,7 +35,7 @@ class OsCacheManager:
         cache.disk.clear(regex=cu_sub_regex)
 
 
-    def clear_customers_classcards(cuID):
+    def clear_customers_classcards(self, cuID):
         """
             Clears subscription cache entries on disk & in ram
         """
@@ -46,7 +46,7 @@ class OsCacheManager:
         cache.disk.clear(regex=cu_cc_regex)
 
 
-    def clear_classschedule(var_one=None, var_two=None):
+    def clear_classschedule(self, var_one=None, var_two=None):
         """
             Clears the class schedule cache
             takes 2 dummy arguments in case it's called from a CRUD form or from SQLFORM.grid
@@ -60,7 +60,7 @@ class OsCacheManager:
         cache_clear_classschedule_api()
 
 
-    def clear_classschedule_api(var_one=None, var_two=None):
+    def clear_classschedule_api(self, var_one=None, var_two=None):
         """
             Clears the class schedule api cache
             takes 2 dummy arguments in case it's called from a CRUD form or from SQLFORM.grid
@@ -72,7 +72,7 @@ class OsCacheManager:
         cache.disk.clear(regex=api_schedule_regex)
 
 
-    def clear_classschedule_trend(var_one=None, var_two=None):
+    def clear_classschedule_trend(self, var_one=None, var_two=None):
         """
             Clears the class schedule trend column cache
             takes 2 dummy arguments in case it's called from a CRUD form or from SQLFORM.grid
@@ -84,7 +84,7 @@ class OsCacheManager:
         cache.disk.clear(regex=trend_regex)
 
 
-    def clear_sys_properties():
+    def clear_sys_properties(self):
         """
             Clears the sys_properties keys in cache
             :return: None
@@ -96,7 +96,7 @@ class OsCacheManager:
         cache.disk.clear(regex=sprop_regex)
 
 
-    def clear_menu_backend():
+    def clear_menu_backend(self):
         """
             Clears the backend menu's in cache
         """
@@ -107,7 +107,7 @@ class OsCacheManager:
         cache.disk.clear(regex=menu_regex)
 
 
-    def clear_workshops(var_one=None, var_two=None):
+    def clear_workshops(self, var_one=None, var_two=None):
         """
             Clears the workshops cache
             # accepts two vars to the function can be called from SQLFORM.grid ondelete or crud functions
@@ -119,7 +119,7 @@ class OsCacheManager:
         cache.disk.clear(regex=workshops_regex)
 
 
-    def clear_school_subscriptions(var_one=None, var_two=None):
+    def clear_school_subscriptions(self, var_one=None, var_two=None):
         """
             Clears the school subscriptions cache
             # accepts two vars to the function can be called from SQLFORM.grid ondelete or crud functions
@@ -136,7 +136,7 @@ class OsCacheManager:
         cache.disk.clear(regex=cu_sub_regex)
 
 
-    def clear_school_classcards(var_one=None, var_two=None):
+    def clear_school_classcards(self, var_one=None, var_two=None):
         """
             Clears the school classcards cache
             # accepts two vars to the function can be called from SQLFORM.grid ondelete or crud functions
@@ -148,7 +148,7 @@ class OsCacheManager:
         cache.disk.clear(regex=school_classcards_regex)
 
 
-    def clear_school_teachers(var_one=None, var_two=None):
+    def clear_school_teachers(self, var_one=None, var_two=None):
         """
             Clears the school teachers (API) cache
             # accepts two vars to the function can be called from SQLFORM.grid ondelete or crud functions
@@ -160,7 +160,7 @@ class OsCacheManager:
         cache.disk.clear(regex=school_teachers_api_regex)
 
 
-    def clear_school_classtypes(var_one=None, var_two=None):
+    def clear_school_classtypes(self, var_one=None, var_two=None):
         """
             Clears the school teachers (API) cache
             # accepts two vars to the function can be called from SQLFORM.grid ondelete or crud functions
@@ -172,7 +172,7 @@ class OsCacheManager:
         cache.disk.clear(regex=school_teachers_api_regex)
 
 
-    def clear_sys_organizations(var_one=None, var_two=None):
+    def clear_sys_organizations(self, var_one=None, var_two=None):
         """
             Clears the workshops cache
             # accepts two vars to the function can be called from SQLFORM.grid ondelete or crud functions

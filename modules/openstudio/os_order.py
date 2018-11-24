@@ -43,6 +43,39 @@ class Order:
         self.order.update_record()
 
 
+    def order_item_add_product_variant(self, shop_product_variant_id, quantity=1):
+        """
+        :param shop_product_variant_id: db.shop_products_variants.id
+        :return:
+        """
+        T = current.T
+        db = current.db
+
+        pv = db.shop_products_variants(shop_product_variant_id)
+        product = db.shop_products(pv.shop_products_id)
+
+        coiID = db.customers_orders_items.insert(
+            customers_orders_id  = self.coID,
+            ProductVariant = True,
+            ProductName = product.Name,
+            Description = pv.Name,
+            Quantity = quantity,
+            Price = pv.Price,
+            tax_rates_id = pv.tax_rates_id,
+            GLAccount = pv.GLAccount
+        )
+
+        self.set_amounts()
+
+        # Link order item to product variant
+        db.customers_orders_items_shop_products_variants.insert(
+            customers_orders_items_id = coiID,
+            shop_products_variants_id = shop_product_variant_id
+        )
+
+        return coiID
+
+
     def order_item_add_classcard(self, school_classcards_id):
         """
             :param school_classcards_id: db.school_classcards.id
@@ -61,6 +94,62 @@ class Order:
             Quantity = 1,
             Price = school_classcard.Price,
             tax_rates_id = school_classcard.tax_rates_id
+        )
+
+        self.set_amounts()
+
+        return coiID
+
+
+    def order_item_add_subscription(self, school_subscriptions_id, startdate):
+        """
+            :param school_subscriptions_id: db.school_subscriptions.id
+            :return : db.customers_orders_items.id of inserted item
+        """
+        from os_school_subscription import SchoolSubscription
+
+        db = current.db
+        T  = current.T
+
+        ssu = SchoolSubscription(school_subscriptions_id)
+        ssu_tax_rates = ssu.get_tax_rates_on_date(startdate)
+
+        coiID = db.customers_orders_items.insert(
+            customers_orders_id  = self.coID,
+            school_subscriptions_id = school_subscriptions_id,
+            ProductName = T('Subscription'),
+            Description = ssu.get_name(),
+            Quantity = 1,
+            Price = ssu.get_price_on_date(startdate, formatted=False),
+            tax_rates_id = ssu_tax_rates.tax_rates.id
+        )
+
+        self.set_amounts()
+
+        return coiID
+
+
+    def order_item_add_membership(self, school_memberships_id, startdate):
+        """
+            :param school_memberships_id: db.school_memberships.id
+            :return : db.customers_orders_items.id of inserted item
+        """
+        from os_school_membership import SchoolMembership
+
+        db = current.db
+        T  = current.T
+
+        sme = SchoolMembership(school_memberships_id)
+        sme_tax_rates = sme.get_tax_rates_on_date(startdate)
+
+        coiID = db.customers_orders_items.insert(
+            customers_orders_id  = self.coID,
+            school_memberships_id = school_memberships_id,
+            ProductName = T('membership'),
+            Description = sme.row.Name,
+            Quantity = 1,
+            Price = sme.get_price_on_date(startdate, formatted=False),
+            tax_rates_id = sme_tax_rates.tax_rates.id
         )
 
         self.set_amounts()
@@ -256,11 +345,15 @@ class Order:
         from os_invoice import Invoice
         from os_school_classcard import SchoolClasscard
         from os_school_subscription import SchoolSubscription
+        from os_customer_subscription import CustomerSubscription
+        from os_school_membership import SchoolMembership
+        from os_customer_membership import CustomerMembership
         from os_workshop import Workshop
         from os_workshop_product import WorkshopProduct
 
         cache_clear_classschedule_api = current.globalenv['cache_clear_classschedule_api']
         get_sys_property = current.globalenv['get_sys_property']
+        TODAY_LOCAL = current.TODAY_LOCAL
         db = current.db
         T = current.T
 
@@ -310,10 +403,22 @@ class Order:
             # are put on the invoice
             ##
 
+            # Check for product:
+            if row.ProductVariant:
+                if create_invoice:
+                    invoice.item_add_product_variant(
+                        product_name = row.ProductName,
+                        description = row.Description,
+                        quantity = row.Quantity,
+                        price = row.Price,
+                        tax_rates_id = row.tax_rates_id,
+                        glaccount = row.GLAccount
+                    )
+
             # Check for classcard
             if row.school_classcards_id:
                 # Deliver card
-                card_start = datetime.date.today()
+                card_start = TODAY_LOCAL
                 scd = SchoolClasscard(row.school_classcards_id)
                 ccdID = scd.sell_to_customer(self.order.auth_customer_id,
                                              card_start,
@@ -321,6 +426,59 @@ class Order:
                 # Add card to invoice
                 if create_invoice:
                     invoice.item_add_classcard(ccdID)
+
+            # Check for subscription
+            if row.school_subscriptions_id:
+                # Deliver subscription
+                subscription_start = TODAY_LOCAL
+                ssu = SchoolSubscription(row.school_subscriptions_id)
+                csID = ssu.sell_to_customer(
+                    self.order.auth_customer_id,
+                    subscription_start,
+                )
+
+                # Add credits for the first month
+                cs = CustomerSubscription(csID)
+                cs.add_credits_month(
+                    subscription_start.year,
+                    subscription_start.month
+                )
+
+                if create_invoice:
+                    invoice.link_to_customer_subscription(csID)
+
+                    # This will also add the registration fee if required.
+                    invoice.item_add_subscription(
+                        TODAY_LOCAL.year,
+                        TODAY_LOCAL.month
+                    )
+
+            # Check for membership
+            if row.school_memberships_id:
+                # Deliver membership
+                membership_start = TODAY_LOCAL
+                sme = SchoolMembership(row.school_memberships_id)
+                cmID = sme.sell_to_customer(
+                    self.order.auth_customer_id,
+                    membership_start,
+                )
+
+                if create_invoice:
+                    invoice.link_to_customer_membership(cmID)
+
+                    # This will also add the registration fee if required.
+                    cm = CustomerMembership(cmID)
+
+                    # Check if price exists and > 0:
+                    if sme.get_price_on_date(membership_start):
+                        period_start = cm.row.Startdate
+                        period_end = cm.get_period_enddate(cm.row.Startdate)
+
+                        invoice.item_add_membership(
+                            cmID,
+                            period_start,
+                            period_end
+                        )
 
             # Check for workshop
             if row.workshops_products_id:

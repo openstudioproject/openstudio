@@ -9,7 +9,6 @@ import Payment from './Payment'
 
 const mapStateToProps = state => 
     ({
-        state: state,
         app: state.app,
         total: state.shop.cart.total,
         selected_method: state.shop.payment.selectedID
@@ -22,9 +21,6 @@ const mapDispatchToProps = dispatch =>
         },
         setSelectedPaymentMethod(id) {
             dispatch(shopPaymentOperations.setSelectedPaymentMethod(id))
-        },
-        submitCart(state) {
-            dispatch(appOperations.submitCart(state))
         }
     })
 

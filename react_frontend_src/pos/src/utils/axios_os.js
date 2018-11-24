@@ -10,7 +10,11 @@ let backendHost
 
 const axios_os = axios.create({
     baseURL: backendHost,
-    withCredentials: true
+    withCredentials: true,
+    // headers: {
+    //     'Accept': 'application/json',
+    //     'Content-Type': 'application/json'
+    // }
 })
 
 // Intercept failed requests due to not logged in for all requests

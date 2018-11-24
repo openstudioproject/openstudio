@@ -3,7 +3,7 @@ const api_urls = {
     'APP_USER': '/pos/get_user.json',
     'APP_USER_LOGGED_IN': '/pos/get_logged_in.json',
     'APP_SETTINGS': '/pos/get_settings.json',
-    'APP_SUBMIT_CART': '/pos/process_cart.json',
+    'APP_VALIDATE_CART': '/pos/validate_cart.json',
     'CHECKIN_CLASSES': '/pos/get_classes.json',
     'CHECKIN_ATTENDANCE': '/pos/get_class_attendance.json',
     'CHECKIN_BOOKING_OPTIONS': '/pos/get_class_booking_options.json',
@@ -17,7 +17,7 @@ const api_urls = {
     'SHOP_PRODUCTS': '/pos/get_products.json',
     'SHOP_SCHOOL_CLASSCARDS': '/pos/get_school_classcards.json',
     'SHOP_SCHOOL_MEMBERSHIPS': '/pos/get_school_memberships.json',
-    'SHOP_SCHOOL_SUBSCRIPTIONS': '/pos/get_school_subscriptions.json'
+    'SHOP_SCHOOL_SUBSCRIPTIONS': '/pos/get_school_subscriptions.json',
 }
 
 export default api_urls
