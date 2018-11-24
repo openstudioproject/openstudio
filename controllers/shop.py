@@ -313,6 +313,8 @@ def checkout_get_form_order(var=None):
     """
     db.customers_orders.Status.readable = False
     db.customers_orders.Status.writable = False
+    db.customers_orders.Origin.readable = False
+    db.customers_orders.Origin.writable = False
     db.customers_orders.DateCreated.readable = False
     db.customers_orders.DateCreated.writable = False
 

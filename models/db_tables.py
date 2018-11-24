@@ -4274,6 +4274,10 @@ def define_invoices_amounts():
             default=0,
             represent=represent_float_as_amount,
             ),
+        Field('Balance', 'double',
+            compute=compute_invoices_amounts_balance,
+            default=0,
+            represent=represent_float_as_amount)
         )
 
 
@@ -4408,10 +4412,6 @@ def define_receipts_amounts():
             default=0,
             represent=represent_float_as_amount,
             ),
-        Field('Balance', 'double',
-            compute=compute_receipts_amounts_balance,
-            default=0,
-            represent=represent_float_as_amount)
         )
 
 
