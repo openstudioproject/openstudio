@@ -139,7 +139,7 @@ if web2pytest.is_running_under_test(request, request.application):
 # configure auth policy
 # -------------------------------------------------------------------------
 auth.settings.create_user_groups = None # Don't create groups for individual users
-auth.settings.expiration = 10800
+auth.settings.expiration = myconf.get('auth.session_expiration') or 1800
 auth.settings.registration_requires_verification = True
 auth.settings.login_after_registration = True
 auth.settings.registration_requires_approval = False
