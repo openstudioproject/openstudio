@@ -956,7 +956,7 @@ class Invoice:
 
             iiID = db.invoices_items.insert(
                 invoices_id=self.invoices_id,
-                ProductName=T('Claim'),
+                ProductName=T('Expense'),
                 Description=ec.row.Description,
                 Quantity=ec.row.Quantity,
                 Price=price * -1,

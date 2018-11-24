@@ -134,10 +134,10 @@ def add_payment_batch_type():
         _href=URL('batch_add', vars={'export': export,
                                      'what':'teacher_payments'})), BR(),
         T("Create a batch containing all teacher payment invoices with status 'sent'."))
-    employee_claims = LI(A(
-        B(T('Employee claims')),
+    employee_expenses = LI(A(
+        B(T('Employee expenses')),
         _href=URL('batch_add', vars={'export': export,
-                                     'what':'employee_claims'})), BR(),
+                                     'what':'employee_expenses'})), BR(),
         T("Create a batch containing all employee claim invoices with status 'sent'."))
     category = LI(A(
         B(T('Direct debit extra')),
@@ -154,7 +154,7 @@ def add_payment_batch_type():
     back = os_gui.get_button('back', return_url)
     ul = UL(
         teacher_payments,
-        employee_claims,
+        employee_expenses,
         category
     )
     content = DIV(H3(question), ul)
@@ -197,12 +197,12 @@ def batch_add():
             db.payment_batches.ColMonth.requires = ''
             db.payment_batches.payment_categories_id.requires = None
             response.subtitle = SPAN(T('Teacher payments'))
-        elif what == 'employee_claims':
-            db.payment_batches.BatchTypeDescription.default = 'employee_claims'
+        elif what == 'employee_expenses':
+            db.payment_batches.BatchTypeDescription.default = 'employee_expenses'
             db.payment_batches.ColYear.requires = ''
             db.payment_batches.ColMonth.requires = ''
             db.payment_batches.payment_categories_id.requires = None
-            response.subtitle = SPAN(T('Employee claims'))
+            response.subtitle = SPAN(T('Employee expenses'))
         elif what == 'category':
             response.subtitle = SPAN(T('Payment'))
             db.payment_batches.BatchTypeDescription.default = 'category'
@@ -754,7 +754,7 @@ def generate_batch_items(form):
                                       pb,
                                       currency)
     elif ( pb.BatchTypeDescription == 'teacher_payments' or
-           pb.BatchTypeDescription == 'employee_claims' ):
+           pb.BatchTypeDescription == 'employee_expenses' ):
         from openstudio.os_payment_batch import PaymentBatch
         pb = PaymentBatch(pbID)
         pb.generate_batch_items()
@@ -1713,7 +1713,7 @@ def teacher_payment_classes_process_choose_dates():
                 save=submit)
 
 
-def employee_claims_get_menu(page):
+def employee_expenses_get_menu(page):
     pages = []
 
     # print status
@@ -1721,30 +1721,30 @@ def employee_claims_get_menu(page):
     if ( auth.has_membership(group_id='Admins') or
          auth.has_permission('read', 'employee_claims') ):
         pages.append([
-            'employee_claims',
+            'employee_expenses',
             T('Pending'),
-            URL('employee_claims')
+            URL('employee_expenses')
         ])
         pages.append([
-            'employee_claims_rejected',
+            'employee_expenses_rejected',
             T('Rejected'),
-            URL('employee_claims_rejected')
+            URL('employee_expenses_rejected')
         ])
         pages.append([
-            'employee_claims_accepted',
+            'employee_expenses_accepted',
             T('Accepted'),
-            URL('employee_claims_accepted')
+            URL('employee_expenses_accepted')
         ])
         pages.append([
-            'employee_claims_processed',
+            'employee_expenses_processed',
             T('Processed'),
-            URL('employee_claims_processed')
+            URL('employee_expenses_processed')
         ])
 
     pages.append([
-        'employee_claims_invoices',
+        'employee_expenses_invoices',
         T('Credit invoices'),
-        URL('employee_claims_invoices')
+        URL('employee_expenses_invoices')
     ])
 
 
@@ -1753,12 +1753,12 @@ def employee_claims_get_menu(page):
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'invoices'))
-def employee_claims_invoices():
+def employee_expenses_invoices():
     """
         List teacher payments invoices by month and add button to add invoices for a
         selected month
     """
-    response.title = T('Employee Claims')
+    response.title = T('Employee Expenses')
     response.subtitle = T('')
     response.view = 'general/only_content_no_box.html'
 
@@ -1767,7 +1767,7 @@ def employee_claims_invoices():
     list = invoices.list_invoices(only_employee_claim_credit_invoices=True)
 
     content = DIV(
-        employee_claims_get_menu(request.function),
+        employee_expenses_get_menu(request.function),
          DIV(DIV(status_filter,
                  list,
                   _class='tab-pane active'),
@@ -1779,13 +1779,13 @@ def employee_claims_invoices():
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'employee_claims'))
-def employee_claims():
+def employee_expenses():
     """
-    List all pending claims
+    List all pending expenses
     """
     from openstudio.os_employee_claims import EmployeeClaims
 
-    response.title = T('Employee Claims')
+    response.title = T('Employee Expenses')
     response.subtitle = T('')
     response.view = 'general/only_content_no_box.html'
 
@@ -1801,16 +1801,16 @@ def employee_claims():
     tools = ''
     # if status == 'not_verified':
     update_permission = auth.has_membership(group_id='Admins') or \
-                        auth.has_permission('update', 'employee_claims')
+                        auth.has_permission('update', 'employee_expenses')
 
     verify_all = ''
 
     if update_permission:
         verify_all = os_gui.get_button(
             'noicon',
-            URL('employee_claims_accept_all'),
+            URL('employee_expenses_accept_all'),
             title=T("Accept all"),
-            tooltip="Accept all listed claims",
+            tooltip="Accept all listed expenses",
             btn_class='btn-primary'
         )
 
@@ -1824,7 +1824,7 @@ def employee_claims():
     )
 
     content = DIV(
-        employee_claims_get_menu(request.function),
+        employee_expenses_get_menu(request.function),
         DIV(DIV(table,
                  _class='tab-pane active'),
             _class='tab-content'),
@@ -1839,14 +1839,14 @@ def employee_claims():
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'employee_claims'))
-def employee_claims_accepted():
+def employee_expenses_accepted():
     """
 
     :return:
     """
     from openstudio.os_employee_claims import EmployeeClaims
 
-    response.title = T('Employee Claims')
+    response.title = T('Employee Expenses')
     response.subtitle = T('')
     response.view = 'general/only_content_no_box.html'
 
@@ -1867,9 +1867,9 @@ def employee_claims_accepted():
     if create_permission:
         verify_all = os_gui.get_button(
             'noicon',
-            URL('employee_claims_process_accepted'),
+            URL('employee_expenses_process_accepted'),
             title=T("Process all"),
-            tooltip="Process all accepted Claims into invoices",
+            tooltip="Process all accepted expenses and create invoices",
             btn_class='btn-primary'
         )
     tools = verify_all
@@ -1881,7 +1881,7 @@ def employee_claims_accepted():
     )
 
     content = DIV(
-        employee_claims_get_menu(request.function),
+        employee_expenses_get_menu(request.function),
         DIV(DIV(table,
                  _class='tab-pane active'),
             _class='tab-content'),
@@ -1896,14 +1896,14 @@ def employee_claims_accepted():
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'employee_claims'))
-def employee_claims_rejected():
+def employee_expenses_rejected():
     """
 
     :return:
     """
     from openstudio.os_employee_claims import EmployeeClaims
 
-    response.title = T('Employee Claims')
+    response.title = T('Employee Expenses')
     response.subtitle = T('')
     response.view = 'general/only_content_no_box.html'
 
@@ -1922,7 +1922,7 @@ def employee_claims_rejected():
     )
 
     content = DIV(
-        employee_claims_get_menu(request.function),
+        employee_expenses_get_menu(request.function),
         DIV(DIV(table,
                  _class='tab-pane active'),
             _class='tab-content'),
@@ -1936,18 +1936,18 @@ def employee_claims_rejected():
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'employee_claims'))
-def employee_claims_processed():
+def employee_expenses_processed():
     """
 
     :return:
     """
     from openstudio.os_employee_claims import EmployeeClaims
 
-    response.title = T('Employee Claims')
+    response.title = T('Employee Expenses')
     response.subtitle = T('')
     response.view = 'general/only_content_no_box.html'
 
-    session.invoices_edit_back = 'finance_employee_claims_processed'
+    session.invoices_edit_back = 'finance_employee_expenses_processed'
 
     status = request.vars['status']
 
@@ -1964,7 +1964,7 @@ def employee_claims_processed():
     )
 
     content = DIV(
-        employee_claims_get_menu(request.function),
+        employee_expenses_get_menu(request.function),
         DIV(DIV(table,
                  _class='tab-pane active'),
             _class='tab-content'),
@@ -1978,7 +1978,7 @@ def employee_claims_processed():
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'employee_claims'))
-def employee_claims_accept_all():
+def employee_expenses_accept_all():
     """
     Verify all not-verified classes
     :return: None
@@ -1989,16 +1989,16 @@ def employee_claims_accept_all():
     number_accepted = ec.accept_all()
 
     if number_accepted:
-        session.flash = T("All not accepted claims have been accepted")
+        session.flash = T("All not accepted expenses have been accepted")
     else:
         session.flash = T("No classes were accepted")
 
-    redirect(URL('employee_claims'))
+    redirect(URL('employee_expenses'))
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'employee_claims'))
-def employee_claims_accept():
+def employee_expenses_accept():
     """
     Verify attendance / payment
     :return: None
@@ -2011,16 +2011,16 @@ def employee_claims_accept():
     success = ec.accept()
 
     if success:
-        session.flash = T("Claim accepted")
+        session.flash = T("Expense accepted")
     else:
         session.flash = T("Error accepting claim")
 
-    redirect(URL('employee_claims'))
+    redirect(URL('employee_expenses'))
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'employee_claims'))
-def employee_claims_reject():
+def employee_expenses_reject():
     """
     Verify attendance / payment
     :return: None
@@ -2033,16 +2033,16 @@ def employee_claims_reject():
     success = ec.reject()
 
     if success:
-        session.flash = T("Claim moved to rejected")
+        session.flash = T("Expense moved to rejected")
     else:
-        session.flash = T("Error rejecting Claim")
+        session.flash = T("Error rejecting expense")
 
-    redirect(URL('employee_claims'))\
+    redirect(URL('employee_expenses'))
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'employee_claims'))
-def employee_claims_pending():
+def employee_expenses_pending():
     """
     Verify attendance / payment
     :return: None
@@ -2055,16 +2055,16 @@ def employee_claims_pending():
     success = ec.pending()
 
     if success:
-        session.flash = T("Claim moved to pending")
+        session.flash = T("Expense moved to pending")
     else:
-        session.flash = T("Error rejecting Claim")
+        session.flash = T("Error rejecting expense")
 
-    redirect(URL('employee_claims'))
+    redirect(URL('employee_expenses'))
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('create', 'invoices'))
-def employee_claims_process_accepted():
+def employee_expenses_process_accepted():
     """
     Process verified classes; create credit invoices based on verified classes
     :return:
@@ -2074,16 +2074,16 @@ def employee_claims_process_accepted():
     ec = EmployeeClaims()
     count_processed = ec.process_accepted()
 
-    claims = T('claims')
+    expenses = T('expenses')
     if count_processed == 1:
-        claims = T("claim")
+        expenses = T("expense")
 
     session.flash = SPAN(
         T("Processed"), ' ',
         count_processed, ' ',
-        claims
+        expenses
     )
 
-    redirect(URL('employee_claims_processed'))
+    redirect(URL('employee_expenses_processed'))
 
 

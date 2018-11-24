@@ -422,7 +422,7 @@ def get_invoices_groups_product_types():
         ['wsp', T('Workshop products')],
         ['shop', T('OpenStudio shop (All sales from the shop will go into this group)')],
         ['teacher_payments', T('Credit invoices for teacher payments')],
-        ['employee_claims', T('Credit invoices for employee claims')]
+        ['employee_expenses', T('Credit invoices for employee expenses')]
     ]
 
     return categories
@@ -526,7 +526,7 @@ def represent_teachers_payment_classes_status(value, row):
     return os_gui.get_label(label_class, return_value)
 
 
-def set_employee_claims_statuses():
+def set_employee_expenses_statuses():
     return [
         ['pending', T('Pending')],
         ['accepted', T('Accepted')],
@@ -535,9 +535,9 @@ def set_employee_claims_statuses():
     ]
 
 
-def represent_employee_claims_status(value, row):
+def represent_employee_expenses_status(value, row):
     return_value = ''
-    for s in employee_claims_statuses:
+    for s in employee_expenses_statuses:
         if value == s[0]:
             return_value = s[1]
             break
@@ -633,8 +633,7 @@ booking_statuses = set_booking_statuses()
 payment_batchtypes = set_payment_batchtypes()
 teacher_payment_classes_statuses = set_teachers_payment_classes_statuses()
 teacher_payment_classes_rate_types = set_teacher_payment_classes_rate_types()
-employee_claims_statuses = set_employee_claims_statuses()
 customers_orders_origins = set_customers_orders_origins()
-
+employee_expenses_statuses = set_employee_expenses_statuses()
 
 os_gui = OsGui()

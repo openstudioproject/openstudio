@@ -351,6 +351,9 @@ def test_classes_book_options(client, web2py):
     assert format(class_prices.Dropin, '.2f') in client.text
     assert format(class_prices.Trial, '.2f') in client.text
 
+    # Check request review check-in option not available
+    assert 'Request review' not in client.text
+
 
 def test_classes_book_options_dropin_trial_membership_prices(client, web2py):
     """

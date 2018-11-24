@@ -1747,7 +1747,7 @@ def define_classes_notes():
 
 def define_employee_claims():
     db.define_table('employee_claims',
-        Field('auth_user_id', db.auth_user,  # Employee that does the claims
+        Field('auth_user_id', db.auth_user,  # Employee that does the expenses
               required= True,
               readable=False,
               writable=False,
@@ -1779,8 +1779,8 @@ def define_employee_claims():
         Field('Status',
               readable=False,
               writable=False,
-              requires=IS_IN_SET(employee_claims_statuses),
-              represent=represent_employee_claims_status,
+              requires=IS_IN_SET(employee_expenses_statuses),
+              represent=represent_employee_expenses_status,
               label=T("Status")),
         Field('VerifiedBy', db.auth_user,
               readable=False,
@@ -2297,17 +2297,22 @@ def define_customers_classcards():
 
 
 def define_classes_attendance():
-    types = [ (1,T("Trial class")),
-              (2,T("Drop In")),
-              (3,T("Class card")),
-              (4,T("Complementary")),
+    types = [
+        (1,T("Trial class")),
+        (2,T("Drop In")),
+        (3,T("Class card")),
+        (4,T("Complementary")),
+        (5,T("To be reviewed")),
     ]
     # None = subscription
-    session.att_types_dict = { None:T("Subscription"),
-                               1:T("Trial class"),
-                               2:T("Drop In"),
-                               3:T("Class card"),
-                               4:T("Complementary")}
+    session.att_types_dict = {
+        None: T("Subscription"),
+        1: T("Trial class"),
+        2: T("Drop In"),
+        3: T("Class card"),
+        4: T("Complementary"),
+        5: T("To be reviewed")
+    }
     db.define_table('classes_attendance',
         Field('auth_customer_id', db.auth_user, required=True,
             label=T('CustomerID')),
@@ -2477,8 +2482,8 @@ def define_customers_payment_info_mandates():
               label=T("Mandate reference"),
               comment=T("OpenStudio automatically generates a unique reference for each mandate, but you're free to enter something else.")),
         Field('MandateText', 'text',
-              represent=lambda value, row: value or '',
-              writable =False),
+              writable=False,
+              represent=lambda value, row: value or ''),
         Field('MandateSignatureDate', 'date',
               requires=IS_EMPTY_OR(
                   IS_DATE_IN_RANGE(format=DATE_FORMAT,
@@ -3749,7 +3754,7 @@ def define_invoices_employee_claims():
         Field('employee_claims_id', db.employee_claims,
               readable= False,
               writable = False,
-              label=T('Employee Claim'))
+              label=T('Employee Expense'))
     )
 
 
@@ -5266,10 +5271,6 @@ def define_customers_profile_features():
         Field('Mail', 'boolean',
             default=True,
             label=T('Mailing lists')),
-        Field('StaffPayments', 'boolean',
-            default=True,
-            label=T('Staff payments'),
-            comment=T("List payments for teachers and other employees (Customers don't see this menu item)")),
         Field('Privacy', 'boolean',
             default=True,
             label=T('Privacy'),
@@ -5798,6 +5799,7 @@ auth.settings.extra_fields['auth_user'] = [
         writable=False,
         requires=IS_IN_SET([ ['backend', T('Backend')],
                              ['selfcheckin', T("Self Check-in")],
+                             ['ep', T("Employee portal")],
                              ['profile', T('Customer profile')]
                            ]),
         default='profile',
@@ -6097,7 +6099,7 @@ define_customers_orders_items()
 define_customers_orders_amounts()
 define_customers_orders_mollie_payment_ids()
 
-#employee claims definitions
+# employee claims definitions
 define_employee_claims()
 
 

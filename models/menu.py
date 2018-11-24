@@ -73,11 +73,11 @@ def ep_menu():
         False,
         URL('ep', 'my_payments', extension='')])
 
-    # My Claims
+    # My Expenses
     menu.append([(  # I(_class='fa fa-home'),
-        SPAN(T('My Claims'))),
+        SPAN(T('My Expenses'))),
         False,
-        URL('ep', 'my_claims', extension='')])
+        URL('ep', 'my_expenses', extension='')])
 
     menu.append([(  # I(_class='fa fa-home'),
         SPAN(T('Back end'))),
@@ -127,16 +127,6 @@ def profile_menu():
                             _class=featured_class),
                             False,
                             URL('profile', 'mail', extension='')))
-
-    # Teacher payments
-    if auth.user:
-        if features.StaffPayments and (auth.user.teacher == True or auth.user.employee == True):
-            menu.append(
-                    (SPAN(SPAN(#I(_class='fa fa-folder-open-o'), ' ',
-                                T('Payments')),
-                                _class=featured_class),
-                                False,
-                                URL('profile', 'staff_payments', extension='')))
 
     return menu
 
@@ -538,9 +528,9 @@ def get_backend_menu():
                                     vars={'status': 'not_verified'},
                                     extension='')))
             if user_helpers.check_read_permission('employee_claims', user_id):
-                submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Employee Claims'))),
+                submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Employee expenses'))),
                                 False,
-                                URL('finance', 'employee_claims',
+                                URL('finance', 'employee_expenses',
                                     extension='')))
 
             if user_helpers.check_read_permission('payment_batches', user_id):

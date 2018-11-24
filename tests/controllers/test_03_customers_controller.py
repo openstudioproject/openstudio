@@ -447,7 +447,7 @@ def test_account_merge(client, web2py):
     ## check all tables in the DB [ nr_of_records, table ]
     customer_tables = [
         [ 1, web2py.db.alternativepayments ],
-        [ 4, web2py.db.classes_attendance ],
+        [ 5, web2py.db.classes_attendance ],
         [ 3, web2py.db.classes_reservation ],
         [ 1, web2py.db.classes_waitinglist ],
         [ 3, web2py.db.customers_classcards ],
@@ -1468,7 +1468,7 @@ def test_classes_attendance(client, web2py):
 
     location_name = web2py.db.school_locations(1).Name.split(' ')[0]
     # make sure one reservation is showing
-    assert client.text.count(location_name) == 3
+    assert client.text.count(location_name) == 4
 
 
 def test_classes_attendance_cancel_booking_and_refund_credits(client, web2py):

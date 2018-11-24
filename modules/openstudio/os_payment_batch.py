@@ -27,8 +27,8 @@ class PaymentBatch:
         """
         if self.row.BatchTypeDescription == 'teacher_payments':
             self._generate_batch_items_teacher_payments()
-        elif self.row.BatchTypeDescription == 'employee_claims':
-            self._generate_batch_items_employee_claims()
+        elif self.row.BatchTypeDescription == 'employee_expenses':
+            self._generate_batch_items_employee_expenses()
 
 
     def _generate_batch_items_teacher_payments(self):
@@ -129,7 +129,7 @@ class PaymentBatch:
             )
 
 
-    def _generate_batch_items_employee_claims(self):
+    def _generate_batch_items_employee_expenses(self):
         """
         :return: None
         """
