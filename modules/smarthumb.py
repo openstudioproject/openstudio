@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from gluon import current
 import os
 try:
@@ -6,11 +8,12 @@ except:
     import Image
  
 def SMARTHUMB(image, box, fit=True, name="thumb"):
-    '''Downsample the image.
-     @param img: Image -  an Image-object
-     @param box: tuple(x, y) - the bounding box of the result image
-     @param fit: boolean - crop the image to fill the box
-    '''
+    """
+    Downsample the image.
+    @param img: Image -  an Image-object
+    @param box: tuple(x, y) - the bounding box of the result image
+    @param fit: boolean - crop the image to fill the box
+    """
     if image:
         request = current.request
         img = Image.open(request.folder + 'uploads/' + image)
