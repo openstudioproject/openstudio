@@ -313,6 +313,8 @@ def checkout_get_form_order(var=None):
     """
     db.customers_orders.Status.readable = False
     db.customers_orders.Status.writable = False
+    db.customers_orders.Origin.readable = False
+    db.customers_orders.Origin.writable = False
     db.customers_orders.DateCreated.readable = False
     db.customers_orders.DateCreated.writable = False
 
@@ -374,7 +376,7 @@ def order_received():
     # mail order to customer
     order_received_mail_customer(coID)
 
-    # check if this order needs to be paid or it's free and can be added to the customers' account straigt away
+    # check if this order needs to be paid or it's free and can be added to the customers' account straight away
     amounts = order.get_amounts()
 
     if not amounts:

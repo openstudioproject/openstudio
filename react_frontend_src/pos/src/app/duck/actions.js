@@ -1,4 +1,5 @@
 import T from './types'
+import { bindActionCreators } from 'redux';
 
 
 export const requestPaymentMethods = () =>
@@ -89,14 +90,15 @@ export const setPageTitle = (title) =>
     })
 
 
-export const requestSubmitCart = () =>
+export const requestValidateCart = () =>
     ({
-        type: T.REQUEST_SUBMIT_CART
+        type: T.REQUEST_VALIDATE_CART
     })
 
 
-export const receiveSubmitCart = () =>
+export const receiveValidateCart = (data) =>
     ({
-        type: T.RECEIVE_SUBMIT_CART
+        type: T.RECEIVE_VALIDATE_CART,
+        data
     })
     

@@ -1,0 +1,155 @@
+<html>
+    <head>
+        <style> 
+            @page {
+                width: 80mm;
+                margin: 0;
+            }
+            
+            @media print {
+                html, body {
+                    width: 80mm;
+                    margin: 0;
+                }
+                
+                body {
+                    visibility: hidden;
+                }
+                
+                .receipt {
+                    visibility: visible;
+                }
+                
+                .logo {
+                    top: 4mm;
+                }
+                
+                .tools, button {
+                    display: none;
+                }
+                
+            }
+                
+            body {
+                font-family: sans-serif;
+                background-color: #EAEAEA;
+            }
+            
+            table {
+                font-size: 3.2mm;
+            }
+            
+            .receipt {
+                position: relative;
+                font-size: 3.2mm;
+                background-color: #FFF;
+				margin-left: auto;
+                margin-right: auto;
+                width: 70mm;
+                padding: 10mm 5mm 10mm 5mm;
+			}
+            
+            .receipt .organization {
+                text-align: center;
+            }
+            
+            .receipt > .receipt-items {
+                margin-top: 10mm;
+            }
+            
+            .receipt > .receipt-items table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            
+            .receipt > .receipt-items table td, 
+            .receipt > .receipt-items table th {
+                padding-top: 2mm;
+                padding-bottom: 2mm;
+            }
+            
+            .receipt > .receipt-items table thead th {
+                border-bottom: 1px dashed #000;
+            }
+            
+            .receipt > .receipt-items table tfoot th {
+                border-top: 1px dashed #000;
+            }
+            
+            /* Align left for first column */
+            .receipt > .receipt-items table td,
+            .receipt > .receipt-items table th {
+                text-align: left;
+            }
+            
+            /* Align right for all others */
+            .receipt > .receipt-items table td + td,
+            .receipt > .receipt-items table th + th {
+                text-align: right;
+                vertical-align: top;
+            }
+            
+            .receipt > .receipt-items .header-total {
+                min-width: 13mm;
+            }
+            
+            .receipt > .receipt-info {
+                margin-top: 10mm;
+            }
+            
+            .receipt > .receipt-info table {
+                width: 100%;
+            }
+            
+            .receipt > .receipt-info table tr:first-child td {
+                border-top: 1px dashed #000;
+            }
+            
+            .logo {
+                text-align: center;
+                margin-bottom: 10mm;
+            }
+            
+            .logo img {
+                max-height: 24mm;
+                max-width: 40mm;
+            }
+            
+            .tools {
+                display: flex;
+                justify-content: center;
+                margin: 20px auto 20px auto;
+            }
+            
+            button {
+                padding: 3px 6px;
+                margin-right: 4px;
+            }
+            
+            
+        </style>
+    </head>    
+    <body>
+        <div class="tools">
+            <button onclick="window.print(); return false;">
+                {{=T('Print')}}
+            </button>   
+            <button onclick="window.close(); ">
+                {{=T('Close')}}
+            </button>        
+        </div>
+        <div class="receipt">
+            <div class="logo">{{=logo}}</div>
+            <div class="organization">
+                {{=organization.Name}}
+                {{=XML(organization.Address)}}
+            </div>
+            <div class="receipt-items">
+                {{=items}}
+            </div>
+            <div class="receipt-info">
+                {{=receipt_info}}
+            </div>
+        </div>
+    </body>
+</html>

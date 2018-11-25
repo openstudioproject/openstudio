@@ -909,6 +909,7 @@ def access_group_permissions():
                 ['invoices_payments-create', T('Add invoice payments')],
                 ['invoices_payments-update', T('Edit invoice payments')],
                 ['invoices_payments-delete', T('Delete invoice payments')]]],
+            ['receipts-read', T("View receipts")],
             ['reports_direct_debit_extra-read', T('View direct debit extra')]],
          ]
     ]

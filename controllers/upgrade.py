@@ -95,6 +95,13 @@ def index():
         else:
             session.flash = T('Already up to date')
 
+        if version < 2018.83:
+            print version
+            upgrade_to_201883()
+            session.flash = T("Upgraded db to 2018.83")
+        else:
+            session.flash = T('Already up to date')
+
         # always renew permissions for admin group after update
         set_permissions_for_admin_group()
 
@@ -543,3 +550,13 @@ def upgrade_to_201882():
         TemplateContent=row.PropertyValue
     )
 
+
+def upgrade_to_201883():
+    """
+        Upgrade operations to 2018.83
+    """
+    ###
+    # Enable AutoResetPrefixYear for invoice groups by default.
+    ###
+    query = (db.invoices_groups.AutoResetPrefixYear == None)
+    db(query).update(AutoResetPrefixYear = True)

@@ -3827,7 +3827,12 @@ def define_invoices_groups():
             label=T('Invoice prefix')),
         Field('PrefixYear', 'boolean',
             default=True,
-            label=T('Prefix year')),
+            label=T('Prefix year'),
+            comment=T("Prefix the year to an invoice number eg. INV20181")),
+        Field('AutoResetPrefixYear', 'boolean',
+            default=True,
+            label=T('Auto reset numbering'),
+            comment=T("Automatically reset invoice numbering to 1 when creating the first invoice of a new year. This setting only takes effect when Prefix year is enabled.")),
         Field('Terms', 'text',
               label=T("Terms")),
         Field('Footer', 'text',
@@ -3940,18 +3945,6 @@ def define_invoices():
             readable=False,
             writable=False,
             default=False),
-        # Field('TeacherPaymentMonth', 'integer',
-        #       readable=False,
-        #       writable=False,
-        #       requires=IS_IN_SET(months, zero=T('Please select...')),
-        #       represent=NRtoMonth,
-        #       default=TODAY_LOCAL.month,
-        #       label=T('Month')),
-        # Field('TeacherPaymentYear', 'integer',
-        #       readable=False,
-        #       writable=False,
-        #       default=TODAY_LOCAL.year,
-        #       label=T('Year')),
         Field('EmployeeClaim', 'boolean',
             readable=False,
             writable=False,
@@ -4284,6 +4277,140 @@ def define_invoices_amounts():
 def compute_invoices_amounts_balance(row):
     """
         Calculates the balance for an invoice amounts row
+    """
+    return row.TotalPriceVAT - row.Paid
+
+
+
+def define_receipts():
+    db.define_table('receipts',
+        Field('payment_methods_id', db.payment_methods,
+            requires=IS_EMPTY_OR(
+                     IS_IN_DB(db,'payment_methods.id','%(Name)s',
+                              error_message=T("Please select a payment method"),
+                              zero=T("Not set"))),
+            represent=lambda value, row: payment_methods_dict.get(value),
+            label=T("Payment method")),
+        Field('Created_by', db.auth_user,
+            writable=False,
+            label=T("Employee")),
+        Field('Created_at', 'datetime',
+            writable=False,
+            default=datetime.datetime.now(),
+            represent=represent_datetime,
+            label=T("Time")),
+        Field('Updated_at', 'datetime',
+            readable=False,
+            writable=False,
+            default=datetime.datetime.now(),
+            represent=represent_datetime ),
+        )
+
+    try:
+        db.receipts.Created_by.default = auth.user.id
+    except AttributeError:
+        pass
+
+
+def define_receipts_items():
+    db.define_table('receipts_items',
+        Field('receipts_id', db.receipts,
+            readable=False,
+            writable=False),
+        Field('Sorting', 'integer',
+            readable=False,
+            writable=False),
+        Field('ProductName',
+            requires=IS_NOT_EMPTY(error_message = T("Enter product name")),
+            label   =T("Product Name")),
+        Field('Description', 'text',
+            label=T("Description")),
+        Field('Quantity', 'double',
+            requires=IS_FLOAT_IN_RANGE(-100000, 1000000, dot=".",
+                     error_message=T("Enter a number, decimals use '.'")),
+            default=1,
+            label=T("Quantity")),
+        Field('Price', 'double',
+            represent=represent_float_as_amount,
+            default=0,
+            label=T("Price")),
+        Field('tax_rates_id', db.tax_rates,
+            requires=IS_EMPTY_OR(IS_IN_DB(db(),
+                                  'tax_rates.id',
+                                  '%(Name)s')),
+            represent=represent_tax_rate,
+            label=T("Tax rate")),
+        Field('TotalPriceVAT', 'double',
+            compute=lambda row: row.Price * row.Quantity,
+            represent=represent_float_as_amount),
+        Field('VAT', 'double',
+            compute=compute_receipt_item_vat,
+            represent=represent_float_as_amount),
+        Field('TotalPrice', 'double',
+            compute=compute_receipt_item_total_price,
+            represent=represent_float_as_amount),
+        Field('GLAccount',
+            represent=lambda value, row: value or '',
+            label=T("G/L Account")),
+        # How are receipts processed in Exact Online?
+    )
+
+
+def compute_receipt_item_total_price(row):
+    """
+        Returns the total price for an receipt item
+    """
+    total_price_vat = Decimal(row.TotalPriceVAT)
+
+    total = Decimal(Decimal(total_price_vat - row.VAT).quantize(Decimal('.01'),
+                                                                rounding=ROUND_HALF_UP))
+    return total
+
+
+def compute_receipt_item_vat(row):
+    """
+        Returns the vat for an receipt item
+    """
+    tID = row.tax_rates_id
+    if not tID:
+        vat = 0
+    else:
+        vat_rate = db.tax_rates(tID).Percentage / 100
+
+        total_price_vat = float(row.TotalPriceVAT)
+        vat = total_price_vat - (total_price_vat / (1 + vat_rate))
+
+        vat = Decimal(Decimal(vat).quantize(Decimal('.01'),
+                                            rounding=ROUND_HALF_UP))
+
+    return vat
+
+
+def define_receipts_amounts():
+    db.define_table('receipts_amounts',
+        Field('receipts_id', db.invoices),
+        Field('TotalPrice', 'double',
+            default=0,
+            represent=represent_float_as_amount,
+            label=T("Subtotal")),
+        Field('VAT', 'double',
+            default=0,
+            represent=represent_float_as_amount,
+            label=T("VAT")),
+        Field('TotalPriceVAT', 'double',
+            default=0,
+            represent=represent_float_as_amount,
+            label=T("Total")),
+        Field('Paid', 'double',
+            default=0,
+            represent=represent_float_as_amount,
+            ),
+        )
+
+
+def compute_receipts_amounts_balance(row):
+    """
+        Calculates the balance for an receipts amounts row
     """
     return row.TotalPriceVAT - row.Paid
 
@@ -4646,6 +4773,11 @@ def define_customers_orders():
             label=T('Status')),
         Field('CustomerNote', 'text',
             label=T("Anything you'd like to tell us about this order?")),
+        Field('Origin',
+            requires=IS_IN_SET(customers_orders_origins),
+            represent=represent_customers_orders_origin,
+            label=T("Order origin"),
+        ),
         Field('DateCreated', 'datetime',
               #readable=False,
               writable=False,
@@ -4991,7 +5123,17 @@ def define_customers_orders_items():
         Field('Donation', 'boolean',
             readable=False,
             writable=False),
+        Field('ProductVariant', 'boolean',
+            readable=False,
+            writable=False,
+            default=False),
         Field('school_classcards_id', db.school_classcards,
+            readable=False,
+            writable=False),
+        Field('school_subscriptions_id', db.school_subscriptions,
+            readable=False,
+            writable=False),
+        Field('school_memberships_id', db.school_memberships,
             readable=False,
             writable=False),
         Field('workshops_products_id', db.workshops_products,
@@ -5042,7 +5184,23 @@ def define_customers_orders_items():
         Field('TotalPrice', 'double',
               compute=compute_invoice_item_total_price,
               represent=represent_float_as_amount),
+        Field('GLAccount',
+              represent=lambda value, row: value or '',
+              label=T('G/L Account'),
+              comment=T('General ledger account ID in your accounting software')),
         )
+
+
+def define_customers_orders_items_shop_products_variants():
+    """
+    Added addition table to allow deleting of product and product variants. Adding a link to the orders_items table
+    would cause all order items with that product variant to be deleted when that product variant is deleted.
+    A full history of orders is always nice to have!
+    """
+    db.define_table('customers_orders_items_shop_products_variants',
+        Field('customers_orders_items_id', db.customers_orders_items),
+        Field('shop_products_variants_id', db.shop_products_variants)
+    )
 
 
 def define_customers_orders_mollie_payment_ids():
@@ -5956,6 +6114,11 @@ define_invoices_employee_claims()
 define_invoices_teachers_payment_classes()
 define_invoices_mollie_payment_ids()
 
+# receipts definitions
+define_receipts()
+define_receipts_items()
+define_receipts_amounts()
+
 # payment batches definitions
 define_payment_batches()
 define_payment_batches_items()
@@ -5982,6 +6145,7 @@ define_shop_products()
 define_shop_products_variants()
 define_shop_categories()
 define_shop_categories_products()
+define_customers_orders_items_shop_products_variants()
 
 set_preferences_permissions()
 

@@ -147,3 +147,24 @@ class SchoolSubscription:
             classes = SPAN(unicode(self.Classes) + ' ' + classes_text + ' ' + T('a') + ' ' + T('month'))
 
         return classes
+
+
+    def sell_to_customer(self, auth_user_id, date_start, payment_methods_id=3, note=None):
+        """
+            :param auth_user_id: Sell subscription to customer
+        """
+        from os_cache_manager import OsCacheManager
+        db = current.db
+        ocm = OsCacheManager()
+
+        csID = db.customers_subscriptions.insert(
+            auth_customer_id = auth_user_id,
+            school_subscriptions_id = self.ssuID,
+            Startdate = date_start,
+            Note = note,
+            payment_methods_id = payment_methods_id
+        )
+
+        ocm.clear_customers_subscriptions(auth_user_id)
+
+        return csID

@@ -1,8 +1,8 @@
 import {
     requestPaymentMethods,
     receivePaymentMethods,
-    requestSubmitCart,
-    receiveSubmitCart,
+    requestValidateCart,
+    receiveValidateCart,
     requestUser as request_user,
     receiveUser as receive_user,
     requestSettings as request_settings,
@@ -123,9 +123,9 @@ const fetchSettings = () => {
 }
 
 
-const submitCart = (state) => {
+const validateCart = (state) => {
   return dispatch => {
-    dispatch(requestSubmitCart())
+    dispatch(requestValidateCart())
 
     // const date = new Date()
     // const iso_date = toISODate(date)
@@ -144,10 +144,10 @@ const submitCart = (state) => {
       items: state.shop.cart.items
     }
 
-    axios_os.post(OS_API.APP_SUBMIT_CART, payload)
+    axios_os.post(OS_API.APP_VALIDATE_CART, payload)
     .then(function (response) {
       // handle success
-      dispatch(receiveSubmitCart(response.data))
+      dispatch(receiveValidateCart(response.data))
       // dispatch(setLoadingProgress(100))
     })
     .catch(function (error) {
@@ -165,7 +165,7 @@ export default {
     fetchPaymentMethods,
     fetchUser,
     fetchSettings,
-    submitCart,
+    validateCart,
     setError,
     setErrorData,
     setErrorMessage,

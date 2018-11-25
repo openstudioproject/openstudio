@@ -233,7 +233,7 @@ def user():
                      _class=logo_class)
 
 
-    if 'logout' in request.args or 'not_authorized' in request.args:
+    if 'logout' in request.args or 'not_authorized' in request.args or 'verify_email' in request.args:
         form = auth()
 
 

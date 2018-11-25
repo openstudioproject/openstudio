@@ -1229,6 +1229,38 @@ def invoices():
                 header_tools=DIV(export))
 
 
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'receipts'))
+def receipts():
+    """
+    List receipts
+    """
+    from openstudio.os_receipts import Receipts
+
+    response.title = T('Receipts')
+    response.subtitle = T('')
+    response.view = 'general/only_content.html'
+
+    receipts = Receipts()
+    content = receipts.list(formatted=True)
+
+    return dict(content=content)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'receipts'))
+def receipt():
+    """
+    Print friendly view of receipt
+    """
+    from openstudio.os_receipt import Receipt
+
+    rID = request.vars['rID']
+    receipt = Receipt(rID)
+
+    return receipt.get_print_display()
+
+
 def teacher_payments_get_menu(page, status='not_verified'):
     pages = []
 
