@@ -63,6 +63,17 @@ else:
     # session.connect(request, response, db = MEMDB(Client()))
     # ---------------------------------------------------------------------
 
+if myconf.get('cache.cache') == 'redis':
+    # If we have redis in the stack, let's use it for sessions
+    from gluon.contrib.redis_utils import RConn
+    from gluon.contrib.redis_session import RedisSession
+
+    redis_host = str(myconf.get('cache.redis_host'))
+    redis_port = str(myconf.get('cache.redis_port'))
+    rconn = RConn(redis_host, redis_port)
+    sessiondb = RedisSession(redis_conn=rconn, session_expiry=False)
+    session.connect(request, response, db = sessiondb)
+
 # -------------------------------------------------------------------------
 # by default give a view/generic.extension to all actions from localhost
 # none otherwise. a pattern can be 'controller/function.extension'
