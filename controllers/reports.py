@@ -2881,7 +2881,7 @@ def attendance_review_requested():
     """
     response.title = T("Reports")
     response.subtitle = T("Classes attendance")
-    response.view = 'general/only_content.html'
+    response.view = 'general/tabs_menu.html'
 
     # Redirect back here after reviewing a check-in
     session.classes_attendance_signin_back = 'reports_attendance_review_requested'
@@ -2933,11 +2933,10 @@ def attendance_review_requested():
 
         table.append(tr)
 
-    content = table
     menu = attendance_get_menu(request.function)
 
     return dict(
-        content=content,
+        content=table,
         menu=menu
     )
 
