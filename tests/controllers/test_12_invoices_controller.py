@@ -14,6 +14,8 @@ from populate_os_tables import populate_customers_with_subscriptions
 from populate_os_tables import populate_invoices
 from populate_os_tables import populate_invoices_items
 
+
+
 def test_invoice_add_from_customer(client, web2py):
     """
         Can we add an invoice from a customer?
@@ -46,6 +48,52 @@ def test_invoice_add_from_customer(client, web2py):
     assert invoice.DateDue == due
 
     assert invoice.InvoiceID == 'INV' + unicode(today.year) + '1'
+
+
+def test_invoice_add_from_customer_automatic_reset_numbering(client, web2py):
+    """
+        Can we add an invoice from a customer?
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    prepare_classes(web2py, invoices=True)
+
+    # Set date created to a previous year for all invoices
+    web2py.db(web2py.db.invoices).update(DateCreated="2014-01-01")
+    web2py.db.commit()
+
+    invoices_count = web2py.db(web2py.db.invoices).count()
+
+    url = '/customers/invoices?cuID=1001'
+    client.get(url)
+    assert client.status == 200
+
+    data = {'invoices_groups_id' : 100,
+            'Description'        : 'one crate of bananas'}
+    client.post(url, data=data)
+    assert client.status == 200
+
+    # verify entry of data
+    assert data['Description'] in client.text
+    assert web2py.db(web2py.db.invoices).count() == invoices_count + 1
+
+    # check setting of enddate and InvoiceID
+    max = web2py.db.invoices.id.max()
+    iID = web2py.db().select(max).first()[max]
+
+    invoice = web2py.db.invoices(iID)
+
+    # verify redirection
+    assert invoice.InvoiceID in client.text
+
+    # Make sure the numbering has been reset
+    today = datetime.date.today()
+    assert invoice.InvoiceID == 'INV' + unicode(today.year) + '1'
+
+    ig = web2py.db.invoices_groups(100)
+    assert ig.NextID == 2
 
 
 def test_invoice_add_from_customer_subscription(client, web2py):
