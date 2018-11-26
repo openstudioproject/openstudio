@@ -156,7 +156,7 @@ class ClassesReservation:
 
             # Clear cache
             ocm = OsCacheManager()
-            ocm.clear_customers_subscriptions()
+            ocm.clear_customers_subscriptions(self.row.auth_customer_id)
             ocm.clear_classschedule_api()
 
         return attendance_deleted
