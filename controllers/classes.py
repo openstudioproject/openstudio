@@ -2749,14 +2749,16 @@ def attendance_booking_options():
                                 auth.has_permission('complementary', 'classes_attendance'))
 
     ah = AttendanceHelper()
-    content = ah.get_customer_class_booking_options_formatted(clsID,
-                                                              date,
-                                                              customer,
-                                                              trial=True,
-                                                              request_review=True,
-                                                              complementary=complementary_permission,
-                                                              list_type='attendance',
-                                                              controller='classes')
+    content = ah.get_customer_class_booking_options_formatted(
+        clsID,
+        date,
+        customer,
+        trial=True,
+        request_review=True,
+        complementary=complementary_permission,
+        list_type='attendance',
+        controller='classes'
+    )
     cancel = os_gui.get_button('noicon',
                                URL('attendance', vars={'clsID': clsID, 'date': date_formatted}),
                                title=T('Cancel'),

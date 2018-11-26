@@ -1230,9 +1230,10 @@ class AttendanceHelper:
             clsID,
             date,
             customer,
-            trial,
-            complementary,
-            list_type
+            trial=trial,
+            request_review=request_review,
+            complementary=complementary,
+            list_type=list_type
         )
         formatted_options = DIV(_class='shop-classes-booking-options row')
 
