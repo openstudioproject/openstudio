@@ -186,6 +186,8 @@ class School:
         """
             Get button to add card to shopping cart
         """
+        from tools import OsTools
+
         os_gui = current.globalenv['os_gui']
         T = current.T
 
@@ -193,9 +195,10 @@ class School:
             return A(SPAN(T("Membership required"), ' ', os_gui.get_fa_icon('fa-arrow-right')),
                      _href=URL('shop', 'memberships'))
 
-        return A(SPAN(os_gui.get_fa_icon('fa-shopping-cart fa-2x')),
-                 _href=URL('classcard_add_to_cart', vars={'scdID': scdID}),
-                 _class='text-aqua')
+        link =  A(SPAN(os_gui.get_fa_icon('fa-shopping-cart fa-2x')),
+                 _href=URL('classcard_add_to_cart', vars={'scdID': scdID}))
+
+        return self._get_formatted_button_apply_accent_color(link)
 
 
     def _get_subscriptions_formatted_button_to_cart(self,
@@ -220,9 +223,24 @@ class School:
                        _href=URL('profile', 'invoices')))
             )
 
-        return A(SPAN(os_gui.get_fa_icon('fa-shopping-cart fa-2x')),
-                 _href=URL('subscription_terms', vars={'ssuID': ssuID}),
-                 _class='text-aqua')
+        link = A(SPAN(os_gui.get_fa_icon('fa-shopping-cart fa-2x')),
+                 _href=URL('subscription_terms', vars={'ssuID': ssuID}))
+
+        return self._get_formatted_button_apply_accent_color(link)
+
+
+    def _get_formatted_button_apply_accent_color(self, a):
+        from tools import OsTools
+
+        os_tools = OsTools()
+        color = os_tools.get_sys_property('shop_branding_secondary_accent_color')
+
+        if color:
+            a['_style'] = 'color: %s;' % (color)
+        else:
+            a['_class'] = 'text-aqua'
+
+        return a
 
 
     def get_subscriptions(self, public_only=True):
@@ -404,9 +422,10 @@ class School:
         os_gui = current.globalenv['os_gui']
         T = current.T
 
-        return A(SPAN(os_gui.get_fa_icon('fa-shopping-cart fa-2x')),
-                 _href=URL('membership_terms', vars={'smID': smID}),
-                 _class='text-aqua')
+        link =  A(SPAN(os_gui.get_fa_icon('fa-shopping-cart fa-2x')),
+                 _href=URL('membership_terms', vars={'smID': smID}))
+
+        return self._get_formatted_button_apply_accent_color(link)
 
 
     def get_memberships(self, public_only=True):
