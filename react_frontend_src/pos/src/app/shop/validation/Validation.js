@@ -23,8 +23,6 @@ class Validation extends Component {
         setPageTitle: PropTypes.function,
         state: PropTypes.object,
         app: PropTypes.object,
-        items: PropTypes.array,
-        total: PropTypes.int,
         selected_method: PropTypes.int,
         clearSelectedPaymentMethod: PropTypes.function,
         clearCartItems: PropTypes.function,
@@ -54,9 +52,6 @@ class Validation extends Component {
         console.log('app')
         console.log(app)
         const history = this.props.history
-        const items = this.props.items
-        const total = this.props.total
-        const selected_method = this.props.selected_method
 
         return (
             <PageTemplate app_state={app}>
@@ -112,6 +107,8 @@ class Validation extends Component {
                                                 <i className="fa fa-check fa-5x"></i>
                                             </div>
                                             Success!<br />
+                                            <ValidationList app={app}
+                                                            data={app.cart_validation_data} />
                                             <span className="text-green">
                                                 <i className="fa fa-leaf"></i> Please consider the environment before printing!
                                             </span><br /><br />

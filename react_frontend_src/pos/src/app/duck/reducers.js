@@ -47,7 +47,8 @@ export const appReducer = (state = {}, action={ type: null }) => {
         case T.REQUEST_VALIDATE_CART:
             return {
                 ...state,
-                cart_validating: true
+                cart_validating: true,
+                cart_validated: false
             }
         case T.RECEIVE_VALIDATE_CART:
             console.log('cart validation data:')
@@ -56,11 +57,9 @@ export const appReducer = (state = {}, action={ type: null }) => {
             return {
                 ...state,
                 cart_validating: false,
+                cart_validated: true,
                 cart_validation_error: action.data.error,
-                cart_validation_data: {
-                    message: action.data.message,
-                    receipt_link: action.data.receipt_link,
-                }
+                cart_validation_data: action.data
             }
         case T.SET_ERROR:
             return {

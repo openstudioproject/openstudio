@@ -691,6 +691,7 @@ def validate_cart():
     receipt_link = None
     receipt_items = None
     receipt_amounts = None
+    receipt_pmID = None
 
 
     #If no customerID; just make receipt and update stock
@@ -767,7 +768,8 @@ def validate_cart():
         )
 
         receipt_items = receipt.get_receipt_items_rows()
-        amounts = receipt.get_amounts()
+        receipt_amounts = receipt.get_amounts()
+        receipt_pmID = receipt.row.payment_methods_id
 
 
     return dict(
@@ -776,6 +778,7 @@ def validate_cart():
         receipt_link=receipt_link,
         receipt_items=receipt_items,
         receipt_amounts=receipt_amounts,
+        receipt_payment_methods_id=receipt_pmID
     )
 
 
