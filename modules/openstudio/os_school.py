@@ -87,14 +87,10 @@ class School:
 
             card = DIV(
                 DIV(
-                    DIV(H3(card_name,
-                           _class="widget-user-username"),
-                        H4(repr_row.Price,
-                           _class="widget-user-desc"),
-                        # H5(repr_row.Description,
-                        #    _class="widget-user-desc"),
-                        _class="widget-user-header bg-aqua-active"
-                    ),
+                    DIV(self._get_formatted_display_widget_header(
+                        card_name,
+                        repr_row.Price
+                    )),
                     DIV(DIV(repr_row.Description, _class='col-md-12'),
                             _class='box-body'),
                     DIV(
@@ -238,9 +234,28 @@ class School:
         if color:
             a['_style'] = 'color: %s;' % (color)
         else:
-            a['_class'] = 'text-aqua'
+            a['_class'] = ''
 
         return a
+
+
+    def _get_formatted_display_widget_header(self, name, price):
+        from tools import OsTools
+
+        os_tools = OsTools()
+        bg_color = os_tools.get_sys_property('shop_branding_primary_accent_bg_color')
+        fg_color = os_tools.get_sys_property('shop_branding_primary_accent_fg_color')
+
+        header = DIV(
+            H3(name, _class="widget-user-username"),
+            H4(price, _class="widget-user-desc"),
+            _class="widget-user-header"
+        )
+
+        if bg_color and fg_color:
+            header['_style'] = 'background: %s; color: %s;' % (bg_color, fg_color)
+
+        return header
 
 
     def get_subscriptions(self, public_only=True):
@@ -325,15 +340,9 @@ class School:
                 classes_unit = T("Per month")
 
             subscription = DIV(
-                DIV(
-                    DIV(H3(name,
-                           _class="widget-user-username"),
-                        H4(ssu.get_price_on_date(datetime.date.today()),
-                           XML("<small>"), T(""), XML("</small>"),
-                           _class="widget-user-desc"),
-                        # H5(repr_row.Description,
-                        #    _class="widget-user-desc"),
-                        _class="widget-user-header bg-aqua-active"
+                    DIV(self._get_formatted_display_widget_header(
+                        name,
+                        ssu.get_price_on_date(TODAY_LOCAL)
                     ),
                     DIV(DIV(repr_row.Description, _class='col-md-12'),
                             _class='box-body'),
@@ -460,6 +469,7 @@ class School:
         os_gui = current.globalenv['os_gui']
         T = current.T
         os_tools = OsTools()
+        TODAY_LOCAL = current.TODAY_LOCAL
 
         if per_row == 3:
             card_class = 'col-md-4'
@@ -485,14 +495,10 @@ class School:
 
             membership = DIV(
                 DIV(
-                    DIV(H3(name,
-                           _class="widget-user-username"),
-                        H4(sm.get_price_on_date(datetime.date.today()),
-                           _class="widget-user-desc"),
-                        # H5(repr_row.Description,
-                        #    _class="widget-user-desc"),
-                        _class="widget-user-header bg-aqua-active"
-                    ),
+                    DIV(self._get_formatted_display_widget_header(
+                        name,
+                        sm.get_price_on_date(TODAY_LOCAL)
+                    )),
                     DIV(DIV(repr_row.Description, _class='col-md-12'),
                             _class='box-body'),
                     DIV(

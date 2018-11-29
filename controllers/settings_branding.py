@@ -329,15 +329,21 @@ def shop_colors():
     response.subtitle = T('Branding')
     response.view = 'general/tabs_menu.html'
 
-    sprop_primary = 'shop_branding_primary_accent_color'
+    sprop_bg_primary = 'shop_branding_primary_accent_bg_color'
+    sprop_fg_primary = 'shop_branding_primary_accent_fg_color'
     sprop_secondary = 'shop_branding_secondary_accent_color'
-    primary = get_sys_property(sprop_primary)
+    bg_primary = get_sys_property(sprop_bg_primary)
+    fg_primary = get_sys_property(sprop_fg_primary)
     secondary = get_sys_property(sprop_secondary)
 
     form = SQLFORM.factory(
-        Field('shop_branding_primary_accent_color',
-              default=primary,
-              label=T('Primary accent color in shop'),
+        Field('shop_branding_primary_accent_bg_color',
+              default=bg_primary,
+              label=T('Primary accent background color in shop'),
+              comment=T("Enter as HEX or rgb(a) as you would in CSS, text and background color both have to be set.")),
+        Field('shop_branding_primary_accent_fg_color',
+              default=fg_primary,
+              label=T('Primary accent text color in shop'),
               comment=T("Enter as HEX or rgb(a) as you would in CSS")),
         Field('shop_branding_secondary_accent_color',
               default=secondary,
@@ -360,7 +366,8 @@ def shop_colors():
 
     if form.accepts(request.vars, session):
         vars = [
-            'shop_branding_primary_accent_color',
+            'shop_branding_primary_accent_bg_color',
+            'shop_branding_primary_accent_fg_color',
             'shop_branding_secondary_accent_color'
         ]
         for var in vars:
