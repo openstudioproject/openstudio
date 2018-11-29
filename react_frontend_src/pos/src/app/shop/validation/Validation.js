@@ -83,7 +83,7 @@ class Validation extends Component {
                                     <Box>
                                         <BoxBody>
                                             Validation Error <br />
-                                            {app.cart_validation_message}
+                                            {app.cart_validation_data.message}
                                         </BoxBody>
                                     </Box>
                                 </div>
@@ -100,12 +100,15 @@ class Validation extends Component {
                                 <div className="col-md-4 col-md-offset-4">
                                     <Box>
                                         <BoxBody>
-                                            
-                                            <ValidationList 
-                                                app={app}
-                                                items={items}
-                                                total={total}
-                                                selected_method={selected_method} />
+                                            Success!<br />
+                                            <span className="text-green">
+                                                <i className="fa fa-leaf"></i> Please consider the environment before printing!
+                                            </span><br /><br />
+                                            <a href={app.cart_validation_data.receipt_link} 
+                                               target="_blank"
+                                               className="btn btn-default">
+                                                <i className="fa fa-print"></i> Print receipt
+                                            </a>
                                         </BoxBody>
                                     </Box>
                                 </div>

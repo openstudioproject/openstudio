@@ -57,7 +57,10 @@ export const appReducer = (state = {}, action={ type: null }) => {
                 ...state,
                 cart_validating: false,
                 cart_validation_error: action.data.error,
-                cart_validation_message: action.data.message
+                cart_validation_data: {
+                    message: action.data.message,
+                    receipt_link: action.data.receipt_link,
+                }
             }
         case T.SET_ERROR:
             return {

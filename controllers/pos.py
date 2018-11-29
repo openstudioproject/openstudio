@@ -688,6 +688,7 @@ def validate_cart():
 
     error = False
     message = ''
+    receipt_link = ''
 
 
     #If no customerID; just make receipt and update stock
@@ -726,17 +727,27 @@ def validate_cart():
 
         # Always create payment receipt
         print 'create receipt'
-        validate_cart_create_receipt(
+        receipt = validate_cart_create_receipt(
             invoice_created,
             invoice,
             pmID,
             items,
         )
 
+        receipt_link = URL(
+            'finance', 'receipt',
+            vars={'rID':receipt.receipts_id},
+            extension='',
+            scheme=True,
+            host=True
+        )
 
 
-
-    return dict(error=error, message=message)
+    return dict(
+        error=error,
+        message=message,
+        receipt_link=receipt_link,
+    )
 
 
 def validate_cart_create_order(cuID, pmID, items):
@@ -825,3 +836,4 @@ def validate_cart_create_receipt(
         for item in invoice_items:
             receipt.item_add_from_invoice_item(item)
 
+    return receipt
