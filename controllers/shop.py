@@ -1006,7 +1006,7 @@ def membership_terms():
                 _href=URL('mollie', 'membership_buy_now', vars={'smID':smID}),
                 _class='btn btn-primary')
     cancel = A(B(T('Cancel')),
-               _href=URL('subscriptions'),
+               _href=URL('memberships'),
                _class='btn btn-default')
 
     content = DIV(H4(T('Terms & conditions')),
