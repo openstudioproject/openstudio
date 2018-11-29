@@ -85,35 +85,86 @@ class School:
             card_name = max_string_length(row.Name, 37)
             validity = get_validity(row)
 
-            card_content = TABLE(TR(TD(T('Validity')),
-                                    TD(validity)),
-                                 TR(TD(T('Classes')),
-                                    TD(repr_row.Classes)),
-                                 TR(TD(T('Price')),
-                                    TD(repr_row.Price)),
-                                 TR(TD(T('Description')),
-                                    TD(repr_row.Description or '')),
-                                 _class='table')
+            card = DIV(
+                DIV(
+                    DIV(H3(card_name,
+                           _class="widget-user-username"),
+                        H4(repr_row.Price,
+                           _class="widget-user-desc"),
+                        # H5(repr_row.Description,
+                        #    _class="widget-user-desc"),
+                        _class="widget-user-header bg-aqua-active"
+                    ),
+                    DIV(DIV(repr_row.Description, _class='col-md-12'),
+                            _class='box-body'),
+                    DIV(
+                        DIV(
+                            DIV(
+                                DIV(H5(validity,
+                                        _class="description-header"),
+                                    SPAN(T("Validity"), _class="description-text"),
+                                    _class="description-block"
+                                ),
+                                _class="col-sm-4 border-right"
+                            ),
+                            DIV(
+                                DIV(H5(repr_row.Classes,
+                                        _class="description-header"),
+                                    SPAN(T("Classes"), _class="description-text"),
+                                    _class="description-block"
+                                ),
+                                _class="col-sm-4 border-right"
+                            ),
+                            DIV(
+                                DIV(H5(self._get_classcards_formatted_button_to_cart(
+                                        row.id,
+                                        row.MembershipRequired,
+                                        customer_has_membership
+                                        ),
+                                        _class="description-header"),
+                                    SPAN(T(""), _class="description-text"),
+                                    _class="description-block"
+                                ),
+                                _class="col-sm-4 border-right"
+                            ),
+                            _class="row"
+                        ),
+                        _class="box-footer",
+                    ),
+                    _class="box box-widget widget-user"
+                ),
+                _class=card_class
+            )
 
-            if row.Trialcard:
-                panel_class = 'box-success'
-            else:
-                panel_class = 'box-primary'
-
-            footer_content = ''
-            if link_type == 'shop':
-                footer_content = self._get_classcards_formatted_button_to_cart(
-                    row.id,
-                    row.MembershipRequired,
-                    customer_has_membership
-                )
-
-            card = DIV(os_gui.get_box_table(card_name,
-                                            card_content,
-                                            panel_class,
-                                            show_footer=True,
-                                            footer_content=footer_content),
-                       _class=card_class)
+            # card_content = TABLE(TR(TD(T('Validity')),
+            #                         TD(validity)),
+            #                      TR(TD(T('Classes')),
+            #                         TD(repr_row.Classes)),
+            #                      TR(TD(T('Price')),
+            #                         TD(repr_row.Price)),
+            #                      TR(TD(T('Description')),
+            #                         TD(repr_row.Description or '')),
+            #                      _class='table')
+            #
+            # if row.Trialcard:
+            #     panel_class = 'box-success'
+            # else:
+            #     panel_class = 'box-primary'
+            #
+            # footer_content = ''
+            # if link_type == 'shop':
+            #     footer_content = self._get_classcards_formatted_button_to_cart(
+            #         row.id,
+            #         row.MembershipRequired,
+            #         customer_has_membership
+            #     )
+            #
+            # card = DIV(os_gui.get_box_table(card_name,
+            #                                 card_content,
+            #                                 panel_class,
+            #                                 show_footer=True,
+            #                                 footer_content=footer_content),
+            #            _class=card_class)
 
             display_row.append(card)
 
@@ -142,8 +193,9 @@ class School:
             return A(SPAN(T("Membership required")),
                      _href=URL('shop', 'memberships'))
 
-        return A(SPAN(os_gui.get_fa_icon('fa-shopping-cart'), ' ', T('Add to cart')),
-                 _href=URL('classcard_add_to_cart', vars={'scdID': scdID}))
+        return A(SPAN(os_gui.get_fa_icon('fa-shopping-cart fa-2x')),
+                 _href=URL('classcard_add_to_cart', vars={'scdID': scdID}),
+                 _class='')
 
 
     def _get_subscriptions_formatted_button_to_cart(self,
