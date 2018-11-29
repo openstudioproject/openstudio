@@ -768,6 +768,7 @@ def validate_cart():
         )
 
         receipt_items = receipt.get_receipt_items_rows()
+        print receipt_items
         receipt_amounts = receipt.get_amounts()
         receipt_pmID = receipt.row.payment_methods_id
 

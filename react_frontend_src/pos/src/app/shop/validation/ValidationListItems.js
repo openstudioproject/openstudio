@@ -20,39 +20,40 @@ class ValidationListItems extends Component {
 
     render() {
         const items = this.props.items
+        const total = this.props.total
 
         return (
             <table className='table'>
-                <tbody>
+                <thead>
                     <tr>
-                        <td>ITEM</td>
-                        <td>QTY</td>
-                        <td>PRICE</td>
+                        <th>ITEM</th>
+                        <th>QTY</th>
+                        <th>PRICE</th>
                     </tr>
-
+                </thead>
+                <tbody>
                     {
                     items.map((item, i) =>
                         <tr key={v4()}>
                             <td>
-                                { 
-                                    (item.item_type === 'product') ? 
-                                        item.data.variant_name + " (" + item.data.product_name + ")": 
-                                        item.data.Name 
-                                }
+                                {item.ProductName} <br /> 
+                                {item.Description}
                             </td>
                             <td>
-                                { item.quantity }
+                                { item.Quantity }
                             </td>
                             <td>
-                                <Currency amount={ (item.item_type === 'product') ? 
-                                        item.data.price : 
-                                        item.data.Price } 
-                                />
+                                <Currency amount={ item.TotalPriceVAT } />
                             </td>
                         </tr>
                     )
                     }
                 </tbody>
+                <tfoot>
+                    <th></th>
+                    <th></th>
+                    <th><Currency amount={total} /></th>
+                </tfoot>
             </table>
         )
     }
