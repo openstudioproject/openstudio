@@ -56,47 +56,13 @@ const SubscriptionsListItem = injectIntl(withRouter(({data, intl, currency_symbo
                 </p>
             </div>
             <div class="icon">
-              <i class="fa fa-sign-in"></i>
+              <i class="fa fa-pencil-square-o"></i>
             </div>
             { (data.MembershipRequired == true) ?
                 <span class="small-box-footer"><i class="fa fa-exclamation-circle"></i> {representMembershipRequired(data, intl)}</span>
                 : ""
             }
          </div>
-
-        {/* <div className="panel panel-default">
-            <div className="panel-heading">
-                <h3 className="panel-title">{data.Name}</h3>
-            </div>
-                <table className="table table-condensed">
-                    <tbody>
-                        <tr>
-                            <td>{intl.formatMessage({ id:"app.general.strings.classes" })}</td>
-                            <td>{representClasses(data, intl)}</td>
-                        </tr>
-                        <tr>
-                            <td>{intl.formatMessage({ id:"app.general.strings.monthly" })}</td>
-                            <td>{(data.Price) ? 
-                                    <Currency amount={data.Price} /> : 
-                                    intl.formatMessage({ id:"app.general.strings.not_set"}) }</td>
-                        </tr>
-                        <tr>
-                            <td>{intl.formatMessage({ id:"app.pos.products.school.subscription.registration_fee" })}</td>
-                            <td>{(data.RegistrationFee) ? 
-                                    <Currency amount={data.RegistrationFee} /> : 
-                                    intl.formatMessage({ id:"app.general.strings.not_set"}) }</td>
-                        </tr>
-                        <tr>
-                            <td>{intl.formatMessage({ id:"app.general.strings.description" })}</td>
-                            <td>{data.Description}</td>
-                        </tr>
-                        <tr>
-                            <td>{intl.formatMessage({ id:"app.general.strings.membership" })}</td>
-                            <td>{representMembershipRequired(data, intl)}</td>
-                        </tr>
-                    </tbody>
-                </table>
-        </div> */}
     </div>
 ))
 
