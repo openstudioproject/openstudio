@@ -12,8 +12,9 @@
         "settings": {},
         "user": {},
         "cart_validating": false,
+        "cart_validated": false,
         "cart_validation_error": false,
-        "cart_validation_message": ""
+        "cart_validation_data": {}
     },
     "checkin_attendance": {
         "loading": false,

@@ -298,6 +298,24 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
             return False
 
 
+    def get_school_memberships_ids_on_date(self, date, from_cache=True):
+        """
+        :param date: datetime.date
+        :param from_cache: Boolean
+        :return: list of smembership ids on date
+        """
+        rows = self.get_memberships_on_date(date, from_cache=from_cache)
+        ids = []
+        try:
+            for row in rows:
+                print row
+                ids.append(row.school_memberships_id)
+        except TypeError: # Bool is not iterable
+            pass
+
+        return ids
+
+
     def _get_memberships_on_date(self, date):
         """
         :param date: datetime.date
