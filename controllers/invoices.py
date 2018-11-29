@@ -1975,7 +1975,8 @@ def cancel_and_create_credit_invoice():
             tax_rates_id = row.tax_rates_id,
             TotalPriceVAT = totalpricevat,
             VAT = vat,
-            TotalPrice = totalprice
+            TotalPrice = totalprice,
+            GLAccount = row.GLAccount
         )
 
     new_invoice.set_amounts()
