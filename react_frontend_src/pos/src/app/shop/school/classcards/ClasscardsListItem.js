@@ -20,39 +20,31 @@ const representMembershipRequired = (data, intl) => {
 const ClasscardsListItem = injectIntl(withRouter(({data, intl, onClick=f=>f}) => 
     <div className="col-md-4"
          onClick={onClick}>
-        <div className="panel panel-default">
-            <div className="panel-heading">
-                <h3 className="panel-title">{data.Name}</h3>
+         <div className="small-box bg-purple">
+            <div className="inner">
+                <h4>
+                    {data.Name}
+                </h4>
+                <h4>
+                    <b>
+                    {(data.Price) ? 
+                        <Currency amount={data.Price} /> : 
+                    intl.formatMessage({ id:"app.general.strings.not_set"}) }
+                    </b>
+                </h4>
+                <p>
+                    Valid {data.ValidityDisplay} <br />
+                    {data.Description}
+                </p>
             </div>
-                <table className="table table-condensed">
-                    <tbody>
-                        <tr>
-                            <td>{intl.formatMessage({ id:"app.general.strings.validity" })}</td>
-                            <td>{data.ValidityDisplay}</td>
-                        </tr>
-                        <tr>
-                            <td>{intl.formatMessage({ id:"app.general.strings.classes" })}</td>
-                            <td>{data.Classes}</td>
-                        </tr>
-                        <tr>
-                            <td>{intl.formatMessage({ id:"app.general.strings.price" })}</td>
-                            <td>
-                                {(data.Price) ? 
-                                     <Currency amount={data.Price} /> : 
-                                     intl.formatMessage({ id:"app.general.strings.not_set"}) }
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>{intl.formatMessage({ id:"app.general.strings.description" })}</td>
-                            <td>{data.Description}</td>
-                        </tr>
-                        <tr>
-                            <td>{intl.formatMessage({ id:"app.general.strings.membership" })}</td>
-                            <td>{representMembershipRequired(data, intl)}</td>
-                        </tr>
-                    </tbody>
-                </table>
-        </div>
+            <div class="icon">
+              <i class="fa fa-id-card-o"></i>
+            </div>
+            { (data.MembershipRequired == true) ?
+                <span class="small-box-footer"><i class="fa fa-exclamation-circle"></i> {representMembershipRequired(data, intl)}</span>
+                : ""
+            }
+         </div>
     </div>
 ))
 
