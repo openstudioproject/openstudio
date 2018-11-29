@@ -688,7 +688,9 @@ def validate_cart():
 
     error = False
     message = ''
-    receipt_link = ''
+    receipt_link = None
+    receipt_items = None
+    receipt_amounts = None
 
 
     #If no customerID; just make receipt and update stock
@@ -705,12 +707,31 @@ def validate_cart():
     print 'validate_cart_items:'
     print items
 
+    # Verify items
     if not items:
         error = True
         message = T("No items were submitted for processing")
 
-
-
+    # Verify customer doesn't already have subscription or membership
+    if cuID:
+        from openstudio.os_customer import Customer
+        customer = Customer(cuID)
+        for item in items:
+            if item['item_type'] == 'subscription':
+                subscription_ids = customer.get_school_subscriptions_ids_on_date(TODAY_LOCAL)
+                print 'validating subscriptions'
+                print subscription_ids
+                if item['data']['id'] in subscription_ids:
+                    error = True
+                    message = T("This customer already has this subscription")
+                        
+            if item['item_type'] == 'membership':
+                membership_ids = customer.get_school_memberships_ids_on_date(TODAY_LOCAL)
+                print 'validating memberhsips'
+                print membership_ids
+                if item['data']['id'] in membership_ids:
+                    error = True
+                    message = T("This customer already has this membership")
     ## IMPORTANT: Get Item price & VAT info from server DB, not from Stuff submitted by Javascript.
     # JS can be manipulated.
     if not error:
@@ -722,7 +743,6 @@ def validate_cart():
             print 'create order'
             invoice = validate_cart_create_order(cuID, pmID, items)
             invoice_created = True
-
 
 
         # Always create payment receipt
@@ -742,11 +762,16 @@ def validate_cart():
             host=True
         )
 
+        receipt_items = receipt.get_receipt_items_rows()
+        amounts = receipt.get_amounts()
+
 
     return dict(
         error=error,
         message=message,
         receipt_link=receipt_link,
+        receipt_items=receipt_items,
+        receipt_amounts=receipt_amounts,
     )
 
 

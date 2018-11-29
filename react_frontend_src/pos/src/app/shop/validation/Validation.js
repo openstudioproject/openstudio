@@ -82,7 +82,7 @@ class Validation extends Component {
                                 <div className="col-md-4 col-md-offset-4">
                                     <Box>
                                         <BoxBody>
-                                            Validation Error <br />
+                                            Hmm... I seem to have found something that needs your attention while validating this shopping cart. <br /><br />
                                             {app.cart_validation_data.message}
                                         </BoxBody>
                                     </Box>
