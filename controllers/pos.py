@@ -712,8 +712,12 @@ def validate_cart():
         error = True
         message = T("No items were submitted for processing")
 
+    if not error and not pmID:
+        error = True
+        message = T("No payment method was selected")
+
     # Verify customer doesn't already have subscription or membership
-    if cuID:
+    if cuID and not error:
         from openstudio.os_customer import Customer
         customer = Customer(cuID)
         for item in items:

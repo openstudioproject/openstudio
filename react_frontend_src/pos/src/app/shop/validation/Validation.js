@@ -65,6 +65,9 @@ class Validation extends Component {
                         <div className="col-md-4 col-md-offset-4">
                             <Box>
                                 <BoxBody>
+                                    <div className='text-muted'>
+                                        <i className="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+                                    </div>
                                     Please wait... <br />
                                     Validating cart...
                                 </BoxBody>
@@ -82,8 +85,13 @@ class Validation extends Component {
                                 <div className="col-md-4 col-md-offset-4">
                                     <Box>
                                         <BoxBody>
+                                            <div className="text-orange">
+                                                <i className="fa fa-exclamation-triangle fa-5x"></i>
+                                            </div>
                                             Hmm... I seem to have found something that needs your attention while validating this shopping cart. <br /><br />
-                                            {app.cart_validation_data.message}
+                                            <div className="text-orange bold">
+                                                {app.cart_validation_data.message}
+                                            </div>
                                         </BoxBody>
                                     </Box>
                                 </div>
@@ -100,6 +108,9 @@ class Validation extends Component {
                                 <div className="col-md-4 col-md-offset-4">
                                     <Box>
                                         <BoxBody>
+                                            <div className='text-green'>
+                                                <i className="fa fa-check fa-5x"></i>
+                                            </div>
                                             Success!<br />
                                             <span className="text-green">
                                                 <i className="fa fa-leaf"></i> Please consider the environment before printing!
