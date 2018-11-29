@@ -125,7 +125,7 @@ class School:
                                     SPAN(T(""), _class="description-text"),
                                     _class="description-block"
                                 ),
-                                _class="col-sm-4 border-right"
+                                _class="col-sm-4"
                             ),
                             _class="row"
                         ),
@@ -190,7 +190,7 @@ class School:
         T = current.T
 
         if membership_required and not customer_has_membership:
-            return A(SPAN(T("Membership required")),
+            return A(SPAN(T("Membership required"), ' ', os_gui.get_fa_icon('fa-arrow-right')),
                      _href=URL('shop', 'memberships'))
 
         return A(SPAN(os_gui.get_fa_icon('fa-shopping-cart fa-2x')),
@@ -210,7 +210,7 @@ class School:
         T = current.T
 
         if membership_required and not customer_has_membership:
-            return A(SPAN(T("Membership required")),
+            return A(SPAN(T("Membership required"), ' ', os_gui.get_fa_icon('fa-arrow-right')),
                      _href=URL('shop', 'memberships'))
 
         if ssuID in customer_subscriptions_ids:
@@ -348,7 +348,7 @@ class School:
                                     SPAN(T(""), _class="description-text"),
                                     _class="description-block"
                                 ),
-                                _class="col-sm-4 border-right"
+                                _class="col-sm-4"
                             ),
                             _class="row"
                         ),
@@ -404,8 +404,9 @@ class School:
         os_gui = current.globalenv['os_gui']
         T = current.T
 
-        return A(SPAN(os_gui.get_fa_icon('fa-shopping-cart'), ' ', T('Get this membership')),
-                 _href=URL('membership_terms', vars={'smID': smID}))
+        return A(SPAN(os_gui.get_fa_icon('fa-shopping-cart fa-2x')),
+                 _href=URL('membership_terms', vars={'smID': smID}),
+                 _class='text-aqua')
 
 
     def get_memberships(self, public_only=True):
@@ -462,27 +463,76 @@ class School:
 
             validity = os_tools.format_validity(row.Validity, row.ValidityUnit)
 
-            membership_content = TABLE(TR(TD(T('Validity')),
-                                          TD(validity)),
-                                       TR(TD(T('Price')),
-                                          TD(sm.get_price_on_date(datetime.date.today()))),
-                                       TR(TD(T('Description')),
-                                          TD(row.Description or '')),
-                                       _class='table')
 
-            panel_class = 'box-primary'
+            membership = DIV(
+                DIV(
+                    DIV(H3(name,
+                           _class="widget-user-username"),
+                        H4(sm.get_price_on_date(datetime.date.today()),
+                           _class="widget-user-desc"),
+                        # H5(repr_row.Description,
+                        #    _class="widget-user-desc"),
+                        _class="widget-user-header bg-aqua-active"
+                    ),
+                    DIV(DIV(repr_row.Description, _class='col-md-12'),
+                            _class='box-body'),
+                    DIV(
+                        DIV(
+                            DIV(
+                                DIV(H5(validity,
+                                        _class="description-header"),
+                                    SPAN(T("Validity"), _class="description-text"),
+                                    _class="description-block"
+                                ),
+                                _class="col-sm-6 border-right"
+                            ),
+                            # DIV(
+                            #     DIV(H5(repr_row.Classes,
+                            #             _class="description-header"),
+                            #         SPAN(T("Classes"), _class="description-text"),
+                            #         _class="description-block"
+                            #     ),
+                            #     _class="col-sm-4 border-right"
+                            # ),
+                            DIV(
+                                DIV(H5(self._get_memberships_formatted_button_to_cart(row.id),
+                                        _class="description-header"),
+                                    SPAN(T(""), _class="description-text"),
+                                    _class="description-block"
+                                ),
+                                _class="col-sm-6"
+                            ),
+                            _class="row"
+                        ),
+                        _class="box-footer",
+                    ),
+                    _class="box box-widget widget-user"
+                ),
+                _class=card_class
+            )
 
-            footer_content = ''
-            if link_type == 'shop':
-                footer_content = self._get_memberships_formatted_button_to_cart(row.id)
 
-            membership = DIV(os_gui.get_box_table(
-                name,
-                membership_content,
-                panel_class,
-                show_footer=True,
-                footer_content=footer_content),
-                _class=card_class)
+            # membership_content = TABLE(TR(TD(T('Validity')),
+            #                               TD(validity)),
+            #                            TR(TD(T('Price')),
+            #                               TD(sm.get_price_on_date(datetime.date.today()))),
+            #                            TR(TD(T('Description')),
+            #                               TD(row.Description or '')),
+            #                            _class='table')
+            #
+            # panel_class = 'box-primary'
+            #
+            # footer_content = ''
+            # if link_type == 'shop':
+            #     footer_content = self._get_memberships_formatted_button_to_cart(row.id)
+            #
+            # membership = DIV(os_gui.get_box_table(
+            #     name,
+            #     membership_content,
+            #     panel_class,
+            #     show_footer=True,
+            #     footer_content=footer_content),
+            #     _class=card_class)
 
             display_row.append(membership)
 
