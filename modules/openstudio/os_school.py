@@ -195,7 +195,7 @@ class School:
 
         return A(SPAN(os_gui.get_fa_icon('fa-shopping-cart fa-2x')),
                  _href=URL('classcard_add_to_cart', vars={'scdID': scdID}),
-                 _class='')
+                 _class='text-aqua')
 
 
     def _get_subscriptions_formatted_button_to_cart(self,
@@ -220,8 +220,9 @@ class School:
                        _href=URL('profile', 'invoices')))
             )
 
-        return A(SPAN(os_gui.get_fa_icon('fa-shopping-cart'), ' ', T('Get this subscription')),
-                 _href=URL('subscription_terms', vars={'ssuID': ssuID}))
+        return A(SPAN(os_gui.get_fa_icon('fa-shopping-cart fa-2x')),
+                 _href=URL('subscription_terms', vars={'ssuID': ssuID}),
+                 _class='text-aqua')
 
 
     def get_subscriptions(self, public_only=True):
@@ -294,38 +295,95 @@ class School:
             name = max_string_length(row.Name, 33)
 
             classes = ''
+            classes_unit = ''
             if row.Unlimited:
                 classes = T('Unlimited')
+                classes_unit = T("Classes")
             elif row.SubscriptionUnit == 'week':
-                classes = SPAN(unicode(row.Classes) + ' / ' + T('Week'))
+                classes = SPAN(unicode(row.Classes) + ' ' + T('Classes'))
+                classes_unit = T("Per week")
             elif row.SubscriptionUnit == 'month':
-                classes = SPAN(unicode(row.Classes) + ' / ' + T('Month'))
+                classes = SPAN(unicode(row.Classes) + ' ' + T('Classes'))
+                classes_unit = T("Per month")
 
-            subscription_content = TABLE(TR(TD(T('Classes')),
-                                            TD(classes)),
-                                         TR(TD(T('Monthly')),
-                                            TD(ssu.get_price_on_date(datetime.date.today()))),
-                                         TR(TD(T('Description')),
-                                            TD(row.Description or '')),
-                                         _class='table')
+            subscription = DIV(
+                DIV(
+                    DIV(H3(name,
+                           _class="widget-user-username"),
+                        H4(ssu.get_price_on_date(datetime.date.today()),
+                           XML("<small>"), T(""), XML("</small>"),
+                           _class="widget-user-desc"),
+                        # H5(repr_row.Description,
+                        #    _class="widget-user-desc"),
+                        _class="widget-user-header bg-aqua-active"
+                    ),
+                    DIV(DIV(repr_row.Description, _class='col-md-12'),
+                            _class='box-body'),
+                    DIV(
+                        DIV(
+                            DIV(
+                                DIV(H5('Payment',
+                                        _class="description-header"),
+                                    SPAN(T("Monthly"), _class="description-text"),
+                                    _class="description-block"
+                                ),
+                                _class="col-sm-4 border-right"
+                            ),
+                            DIV(
+                                DIV(H5(classes,
+                                        _class="description-header"),
+                                    SPAN(classes_unit, _class="description-text"),
+                                    _class="description-block"
+                                ),
+                                _class="col-sm-4 border-right"
+                            ),
+                            DIV(
+                                DIV(H5(self._get_subscriptions_formatted_button_to_cart(
+                                        row.id,
+                                        row.MembershipRequired,
+                                        customer_has_membership,
+                                        customer_subscriptions_ids
+                                        ),
+                                        _class="description-header"),
+                                    SPAN(T(""), _class="description-text"),
+                                    _class="description-block"
+                                ),
+                                _class="col-sm-4 border-right"
+                            ),
+                            _class="row"
+                        ),
+                        _class="box-footer",
+                    ),
+                    _class="box box-widget widget-user"
+                ),
+                _class=card_class
+            )
 
-            panel_class = 'box-primary'
-
-            footer_content = ''
-            if link_type == 'shop':
-                footer_content = self._get_subscriptions_formatted_button_to_cart(
-                    row.id,
-                    row.MembershipRequired,
-                    customer_has_membership,
-                    customer_subscriptions_ids
-                )
-
-            subscription = DIV(os_gui.get_box_table(name,
-                                                    subscription_content,
-                                                    panel_class,
-                                                    show_footer=True,
-                                                    footer_content=footer_content),
-                               _class=card_class)
+            # subscription_content = TABLE(TR(TD(T('Classes')),
+            #                                 TD(classes)),
+            #                              TR(TD(T('Monthly')),
+            #                                 TD(ssu.get_price_on_date(datetime.date.today()))),
+            #                              TR(TD(T('Description')),
+            #                                 TD(row.Description or '')),
+            #                              _class='table')
+            #
+            # panel_class = 'box-primary'
+            #
+            # footer_content = ''
+            # if link_type == 'shop':
+            #     footer_content = self._get_subscriptions_formatted_button_to_cart(
+            #         row.id,
+            #         row.MembershipRequired,
+            #         customer_has_membership,
+            #         customer_subscriptions_ids
+            #     )
+            #
+            # subscription = DIV(os_gui.get_box_table(name,
+            #                                         subscription_content,
+            #                                         panel_class,
+            #                                         show_footer=True,
+            #                                         footer_content=footer_content),
+            #                    _class=card_class)
 
             display_row.append(subscription)
 
