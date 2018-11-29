@@ -12,7 +12,10 @@ def branding_get_menu(page):
               URL('logos')],
              ['default_templates',
               T('Default templates'),
-              URL('default_templates')]
+              URL('default_templates')],
+             ['shop_colors',
+              T('Shop accent colors'),
+              URL('shop_colors')]
              ]
 
     return os_gui.get_submenu(pages, page, horizontal=True, htype='tabs')
@@ -314,3 +317,67 @@ def default_templates_list_templates(template_type):
     os_templates.extend(custom_templates)
 
     return os_templates
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'settings'))
+def shop_colors():
+    """
+        Change accent colors for shop
+    """
+    response.title = T('Settings')
+    response.subtitle = T('Branding')
+    response.view = 'general/tabs_menu.html'
+
+    sprop_primary = 'shop_branding_primary_accent_color'
+    sprop_secondary = 'shop_branding_secondary_accent_color'
+    primary = get_sys_property(sprop_primary)
+    secondary = get_sys_property(sprop_secondary)
+
+    form = SQLFORM.factory(
+        Field('shop_branding_primary_accent_color',
+              default=primary,
+              label=T('Primary accent color in shop'),
+              comment=T("Enter as HEX or rgb(a) as you would in CSS")),
+        Field('shop_branding_secondary_accent_color',
+              default=secondary,
+              label=T('Secondary accent color in shop'),
+              comment=T("Enter as HEX or rgb(a) as you would in CSS")),
+        submit_button=T("Save"),
+        separator=' ',
+        formstyle='bootstrap3_stacked'
+    )
+
+    form_id = "MainForm"
+    form_element = form.element('form')
+    form['_id'] = form_id
+
+    elements = form.elements('input, select, textarea')
+    for element in elements:
+        element['_form'] = form_id
+
+    submit = form.element('input[type=submit]')
+
+    if form.accepts(request.vars, session):
+        vars = [
+            'shop_branding_primary_accent_color',
+            'shop_branding_secondary_accent_color'
+        ]
+        for var in vars:
+            value = request.vars[var]
+            set_sys_property(var, value)
+
+        session.flash = T('Saved')
+        # Clear cache
+        cache_clear_sys_properties()
+        # reload so the user sees how the values are stored in the db now
+        redirect(URL(request.function))
+
+    content = DIV(DIV(form, _class='col-md-6'),
+                  _class='row')
+
+    menu = branding_get_menu(request.function)
+
+    return dict(content=content,
+                save=submit,
+                menu=menu)
