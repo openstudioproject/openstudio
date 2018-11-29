@@ -327,16 +327,22 @@ class School:
             ssu = SchoolSubscription(row.id)
             name = max_string_length(row.Name, 33)
 
+
             classes = ''
             classes_unit = ''
+            classes_text = T("Classes")
             if row.Unlimited:
                 classes = T('Unlimited')
                 classes_unit = T("Classes")
             elif row.SubscriptionUnit == 'week':
-                classes = SPAN(unicode(row.Classes) + ' ' + T('Classes'))
+                if row.Classes == 1:
+                    classes_text = T("Class")
+                classes = SPAN(unicode(row.Classes) + ' ' + classes_text)
                 classes_unit = T("Per week")
             elif row.SubscriptionUnit == 'month':
-                classes = SPAN(unicode(row.Classes) + ' ' + T('Classes'))
+                if row.Classes == 1:
+                    classes_text = T("Class")
+                classes = SPAN(unicode(row.Classes) + ' ' + classes_text)
                 classes_unit = T("Per month")
 
             subscription = DIV(
