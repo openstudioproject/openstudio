@@ -38,7 +38,33 @@ const representMembershipRequired = (data, intl) => {
 const SubscriptionsListItem = injectIntl(withRouter(({data, intl, currency_symbol, onClick=f=>f}) => 
     <div className="col-md-4"
          onClick={onClick}>
-        <div className="panel panel-default">
+
+        <div className="small-box bg-purple">
+            <div className="inner">
+                <h4>
+                    {data.Name}
+                </h4>
+                <h4>
+                    <b>
+                    {(data.Price) ? 
+                        <Currency amount={data.Price} /> : 
+                    intl.formatMessage({ id:"app.general.strings.not_set"}) }
+                    </b> <small className="text-white">per month</small>
+                </h4>
+                <p>
+                    {data.Description}
+                </p>
+            </div>
+            <div class="icon">
+              <i class="fa fa-sign-in"></i>
+            </div>
+            { (data.MembershipRequired == true) ?
+                <span class="small-box-footer"><i class="fa fa-exclamation-circle"></i> {representMembershipRequired(data, intl)}</span>
+                : ""
+            }
+         </div>
+
+        {/* <div className="panel panel-default">
             <div className="panel-heading">
                 <h3 className="panel-title">{data.Name}</h3>
             </div>
@@ -70,7 +96,7 @@ const SubscriptionsListItem = injectIntl(withRouter(({data, intl, currency_symbo
                         </tr>
                     </tbody>
                 </table>
-        </div>
+        </div> */}
     </div>
 ))
 
