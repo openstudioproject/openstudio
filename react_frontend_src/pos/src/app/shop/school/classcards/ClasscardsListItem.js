@@ -22,13 +22,15 @@ const ClasscardsListItem = injectIntl(withRouter(({data, intl, onClick=f=>f}) =>
          onClick={onClick}>
          <div className="small-box bg-purple">
             <div className="inner">
-                <p>
-                    {data.Name}
-                </p>
                 <h4>
+                    {data.Name}
+                </h4>
+                <h4>
+                    <b>
                     {(data.Price) ? 
                         <Currency amount={data.Price} /> : 
                     intl.formatMessage({ id:"app.general.strings.not_set"}) }
+                    </b>
                 </h4>
                 <p>
                     Valid {data.ValidityDisplay} <br />
