@@ -340,15 +340,15 @@ def shop_colors():
         Field('shop_branding_primary_accent_bg_color',
               default=bg_primary,
               label=T('Primary accent background color in shop'),
-              comment=T("Enter as HEX or rgb(a) as you would in CSS, text and background color both have to be set.")),
+              comment=T("Choose a color by clicking the bar or enter HEX as you would in CSS")),
         Field('shop_branding_primary_accent_fg_color',
               default=fg_primary,
               label=T('Primary accent text color in shop'),
-              comment=T("Enter as HEX or rgb(a) as you would in CSS")),
+              comment=T("Choose a color by clicking the bar or enter HEX as you would in CSS")),
         Field('shop_branding_secondary_accent_color',
               default=secondary,
               label=T('Secondary accent color in shop'),
-              comment=T("Enter as HEX or rgb(a) as you would in CSS")),
+              comment=T("Choose a color by clicking the bar or enter HEX as you would in CSS")),
         submit_button=T("Save"),
         separator=' ',
         formstyle='bootstrap3_stacked'
@@ -380,7 +380,16 @@ def shop_colors():
         # reload so the user sees how the values are stored in the db now
         redirect(URL(request.function))
 
-    content = DIV(DIV(form, _class='col-md-6'),
+    info = DIV(
+        H4(T("How to use")),
+        UL(
+            LI(T("Text and background color both have to be set. Otherwise they're not applied"))
+        )
+    )
+
+    content = DIV(DIV(H4(T("Choose colors")),
+                      form, _class='col-md-6'),
+                  DIV(info, _class='col-md-6'),
                   _class='row')
 
     menu = branding_get_menu(request.function)
