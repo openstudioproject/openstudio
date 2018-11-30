@@ -65,7 +65,7 @@
                 "last_name": "",
                 "email": ""
             },
-            "redirect_next_component": ""
+            "redirect_next_component": null
         },
         "memberships": {
             "loading": false,
