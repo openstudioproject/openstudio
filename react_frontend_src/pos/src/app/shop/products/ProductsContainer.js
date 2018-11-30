@@ -4,6 +4,7 @@ import { withRouter } from 'react-router'
 
 import { appOperations } from '../../duck'
 import { shopCartOperations } from '../cart/duck'
+import { customersListOperations } from '../../customers/list/duck'
 import Products from './Products'
 
 
@@ -21,6 +22,9 @@ const mapDispatchToProps = dispatch =>
         },
         addToCart(item) {
             dispatch(shopCartOperations.addItem(item))
+        },
+        setCustomersListRedirectNext(next) {
+            dispatch(customersListOperations.setRedirectNextComponent(next))
         }
     })
 

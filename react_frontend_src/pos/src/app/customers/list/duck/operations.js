@@ -16,7 +16,9 @@ import {
     setSearchValue,
     clearSearchValue,
     setSelectedCustomerID,
-    clearSelectedCustomerID
+    clearSelectedCustomerID,
+    setRedirectNextComponent,
+    clearRedirectNextComponent
 } from './actions'
 
 import axios_os from '../../../../utils/axios_os'
@@ -112,5 +114,7 @@ export default {
     setSearchValue,
     clearSearchValue,
     setSelectedCustomerID,
-    clearSelectedCustomerID
+    clearSelectedCustomerID,
+    setRedirectNextComponent,
+    clearRedirectNextComponent,
 }

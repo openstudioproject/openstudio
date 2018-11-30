@@ -124,16 +124,31 @@ class Customers extends Component {
     onClickSetCustomer(e) {
         console.log('set customer clicked')
         this.props.setSelectedCustomerID(this.props.customers.displayID)
+        const next_component = this.props.customers.redirect_next_component
+        if (next_component) {
+            this.props.history.push(next_component)
+        }
     }
 
     onClickDeselectCustomer(e) {
         console.log('Deselect customer clicked')
         this.props.clearSelectedCustomerID()
+        const next_component = this.props.customers.redirect_next_component
+        if (next_component) {
+            this.props.history.push(next_component)
+        } else {
+            this.props.history.push('/shop/products')
+        }
     }
 
     onClickButtonBack(e) {
         console.log("clicked")
-        this.props.history.push('/shop/products')
+        const next_component = this.props.customers.redirect_next_component
+        if (next_component) {
+            this.props.history.push(next_component)
+        } else {
+            this.props.history.push('/shop/products')
+        }
     }
 
     onCreateCustomer(e) {

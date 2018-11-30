@@ -4,6 +4,7 @@ import { withRouter } from 'react-router'
 
 import { appOperations } from '../../duck'
 import { shopPaymentOperations } from "./duck"
+import { customersListOperations } from '../../customers/list/duck'
 import Payment from './Payment'
 
 
@@ -21,6 +22,9 @@ const mapDispatchToProps = dispatch =>
         },
         setSelectedPaymentMethod(id) {
             dispatch(shopPaymentOperations.setSelectedPaymentMethod(id))
+        },
+        setCustomersListRedirectNext(next) {
+            dispatch(customersListOperations.setRedirectNextComponent(next))
         }
     })
 
