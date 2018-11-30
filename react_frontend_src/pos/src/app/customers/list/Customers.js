@@ -37,10 +37,6 @@ class Customers extends Component {
         )
     }
 
-    componentDidMount() {
-
-    }
-
     setSearchValue(value) {
         console.log('done something :)!')
         console.log(this.props)
@@ -200,7 +196,6 @@ class Customers extends Component {
                 })
             }
         }
-        console.log(customers_display)
 
         return (
             <PageTemplate app_state={this.props.app}>
