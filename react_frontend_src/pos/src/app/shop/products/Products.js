@@ -25,6 +25,7 @@ class Products extends Component {
         this.props.setPageTitle(
             this.props.intl.formatMessage({ id: 'app.pos.products' })
         )
+        this.props.setCustomersListRedirectNext('/shop/products')
     }
 
     onClickProductListItem(product) {

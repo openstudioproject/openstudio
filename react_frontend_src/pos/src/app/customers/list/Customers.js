@@ -124,6 +124,11 @@ class Customers extends Component {
     onClickSetCustomer(e) {
         console.log('set customer clicked')
         this.props.setSelectedCustomerID(this.props.customers.displayID)
+        const next_component = this.props.customers.redirect_next_component
+        console.log(next_component)
+        if (next_component) {
+            this.props.history.push(next_component)
+        }
     }
 
     onClickDeselectCustomer(e) {
