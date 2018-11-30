@@ -9,6 +9,8 @@ class homeComponent extends Component {
     constructor(props) {
         super(props),
         this.videoStream = React.createRef()
+        this.snap = React.createRef()
+        this.superSecretPictureCanvas = React.createRef()
     }
 
     PropTypes = {
@@ -39,6 +41,48 @@ class homeComponent extends Component {
         
     }
 
+    onClickTakePhoto() {
+        console.log('say cheese!!')
+        var snap = this.takeSnapshot();
+
+        // Show image. 
+        this.snap.current.setAttribute('src', snap);
+        // image.classList.add("visible");
+
+        // Enable delete and save buttons
+        // delete_photo_btn.classList.remove("disabled")
+        // download_photo_btn.classList.remove("disabled")
+
+        // Set the href attribute of the download button to the snap url.
+        // download_photo_btn.href = snap
+
+        // Pause video playback of stream.
+        this.videoStream.current.pause()
+    }
+
+
+    takeSnapshot(){
+        // Here we're using a trick that involves a hidden canvas element.  
+        var video = this.videoStream.current
+        var hidden_canvas = this.superSecretPictureCanvas.current
+        var context = hidden_canvas.getContext('2d');
+
+        var width = video.videoWidth
+        var height = video.videoHeight
+
+        if (width && height) {
+
+            // Setup a canvas with the same dimensions as the video.
+            hidden_canvas.width = width;
+            hidden_canvas.height = height;
+
+            // Make a copy of the current frame in the video on the canvas.
+            context.drawImage(video, 0, 0, width, height);
+
+            // Turn the canvas image into a dataURL that can be used as a src for our photo.
+            return hidden_canvas.toDataURL('image/png');
+        }
+    }
 
 
     render() {
@@ -59,18 +103,18 @@ class homeComponent extends Component {
                         <video id="camera-stream" 
                                autoPlay 
                                ref={this.videoStream}></video>
-                        <img id="snap" />
+                        <img ref={this.snap} id="snap" />
 
                         <p id="error-message"></p>
 
                         <div className="controls">
-                        <a href="#" id="delete-photo" title="Delete Photo" className="disabled"><i className="material-icons">delete</i></a>
-                            <a href="#" id="take-photo" title="Take Photo"><i className="material-icons">camera_alt</i></a>
-                            <a href="#" id="download-photo" download="selfie.png" title="Save Photo" className="disabled"><i className="material-icons">file_download</i></a>  
+                            <button id="delete-photo" title="Delete Photo" className="disabled"><i className="fa fa-ban"></i></button>
+                            <button id="take-photo" onClick={this.onClickTakePhoto.bind(this)} title="Take Photo"><i className="fa fa-camera"></i></button>
+                            <button id="download-photo" download="selfie.png" title="Save Photo" className="disabled"><i className="fa fa-save"></i></button>  
                         </div>
 
                         {/* <!-- Hidden canvas element. Used for taking snapshot of video. --> */}
-                        <canvas></canvas>
+                        <canvas ref={this.superSecretPictureCanvas}></canvas>
                     </div>
                 </section>
             </PageTemplate>
