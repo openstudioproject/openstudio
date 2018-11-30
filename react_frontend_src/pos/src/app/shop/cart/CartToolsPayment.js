@@ -35,7 +35,7 @@ const PaymentDisabled = (cart_items, customers) => {
 
 const Button = ({history, children, cart_items, customers}) =>
     <button className="btn btn-default btn-block"
-            onClick={() => history.push('/shop/checkout')}
+            onClick={() => history.push('/shop/payment')}
             disabled={PaymentDisabled(cart_items, customers)}>
         {console.log('cart items button')}
         {console.log(cart_items)}
@@ -46,7 +46,8 @@ const Button = ({history, children, cart_items, customers}) =>
 {/* Check for selected customer when one or more school products was selected.. otherwise disable. */}
 
 const CartToolsPayment = ({customers, cart_items, history, intl}) =>
-    <div onClick={() => history.push('/shop/payment')}>
+    // <div onClick={() => history.push('/shop/payment')}>
+    <div>
         {console.log(customers)}
         {console.log('cart items')}
         {console.log(cart_items)}
