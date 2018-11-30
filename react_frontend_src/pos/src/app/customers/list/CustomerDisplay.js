@@ -22,6 +22,10 @@ class CustomerDisplay extends Component {
         onClickEdit: PropTypes.function
     }
 
+    onClickStartCamera(e) {
+        console.log('camera start clicked')
+    }
+
     render() {
         const customerID = this.props.customerID
         const customers = this.props.customers
@@ -38,7 +42,11 @@ class CustomerDisplay extends Component {
                     <div className="box-body">
                         <div className="col-md-6">
                             <div className="camera-app">
-                                <a href="#" id="start-camera" className="visible">Touch here to start the app.</a>
+                                <button id="start-camera" 
+                                        className="visible"
+                                        onClick={this.onClickStartCamera.bind(this)}>
+                                    Touch here to start the camera.
+                                </button>
                                 <video id="camera-stream"></video>
                                 <img id="snap" />
 
