@@ -32,7 +32,6 @@ const PaymentDisabled = (cart_items, customers) => {
     }
 }
 
-
 const Button = ({history, children, cart_items, customers}) =>
     <button className="btn btn-default btn-block"
             onClick={() => history.push('/shop/payment')}

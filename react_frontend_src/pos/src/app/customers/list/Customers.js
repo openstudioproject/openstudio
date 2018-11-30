@@ -133,6 +133,12 @@ class Customers extends Component {
     onClickDeselectCustomer(e) {
         console.log('Deselect customer clicked')
         this.props.clearSelectedCustomerID()
+        const next_component = this.props.customers.redirect_next_component
+        if (next_component) {
+            this.props.history.push(next_component)
+        } else {
+            this.props.history.push('/shop/products')
+        }
     }
 
     onClickButtonBack(e) {
