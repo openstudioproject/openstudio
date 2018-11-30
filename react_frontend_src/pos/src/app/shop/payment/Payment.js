@@ -31,6 +31,7 @@ class Payment extends Component {
         this.props.setPageTitle(
             this.props.intl.formatMessage({ id: 'app.pos.shop.payment.page_title' })
         )
+        this.props.setCustomersListRedirectNext('/shop/payment')
     }
 
     onClickPaymentMethod(id) {
