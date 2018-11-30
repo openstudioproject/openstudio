@@ -1827,6 +1827,7 @@ def classcard_add_classic():
     crud.messages.record_created = T("Added card")
     crud.settings.create_next = return_url
     crud.settings.create_onaccept = functions_onadd
+    crud.settings.formstyle = "bootstrap3_stacked"
     form = crud.create(db.customers_classcards)
 
     form_element = form.element('form')
@@ -1838,11 +1839,14 @@ def classcard_add_classic():
 
     submit = form.element('input[type=submit]')
 
-    back = os_gui.get_button('back_bs', return_url)
+    content = DIV(
+        H4(T("Add new card")),
+        BR(),
+        form
+    )
 
-    content = DIV(back, form)
+    back = os_gui.get_button('back', return_url)
 
-    back = edit_get_back()
 
     menu = customers_get_menu(customers_id, 'classcards')
 
@@ -1939,6 +1943,7 @@ def classcard_edit():
     crud.settings.update_onaccept = [ classcard_edit_update_classes_taken, classcards_clear_cache ]
     crud.settings.update_next = return_url
     crud.settings.update_deletable = False
+    crud.settings.formstyle = "bootstrap3_stacked"
     form = crud.update(db.customers_classcards, classcardID)
 
     form_element = form.element('form')
@@ -1950,11 +1955,14 @@ def classcard_edit():
 
     submit = form.element('input[type=submit]')
 
-    back = os_gui.get_button('back_bs', return_url)
+    back = os_gui.get_button('back', return_url)
 
-    content = DIV(back, form)
+    content = DIV(
+        H4(T("Edit class card")),
+        BR(),
+        form
+   )
 
-    back = edit_get_back()
 
     menu = customers_get_menu(customers_id, 'classcards')
 
