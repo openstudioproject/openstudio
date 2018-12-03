@@ -1148,17 +1148,18 @@ def subscription_terms():
             confirm = A(B(T('I agree')),
                         _href=URL('mollie', 'subscription_buy_now', vars={'ssuID':ssuID}),
                         _class='btn btn-primary')
-        elif not customer.has_payment_info_mandate():
-            mandate_text = get_sys_property('shop_direct_debit_mandate_text')
-            if mandate_text:
-                direct_debit_mandate = DIV(
-                    H4(T('Direct Debit Mandate')),
-                    DIV(XML(mandate_text), _class='well')
-                )
-
+        else:
             confirm =  A(B(T('I agree')),
                         _href=URL('subscription_direct_debit', vars={'ssuID': ssuID}),
                         _class='btn btn-primary')
+
+            if not customer.has_payment_info_mandate():
+                mandate_text = get_sys_property('shop_direct_debit_mandate_text')
+                if mandate_text:
+                    direct_debit_mandate = DIV(
+                        H4(T('Direct Debit Mandate')),
+                        DIV(XML(mandate_text), _class='well')
+                    )
 
         cancel = A(B(T('Cancel')),
                    _href=URL('subscriptions'),
@@ -1180,8 +1181,7 @@ def subscription_direct_debit():
     """
     ssuID = request.vars['ssuID']
 
-    #TODO: redo this bit to make to more readable
-
+    # Check for mandate
     row = db.customers_payment_info(auth_customer_id = auth.user.id)
     query = (db.customers_payment_info_mandates.customers_payment_info_id == row.id)
     if not db(query).count():
@@ -1189,20 +1189,15 @@ def subscription_direct_debit():
 
         mandate_text = get_sys_property('shop_direct_debit_mandate_text')
 
-
         cpimID = db.customers_payment_info_mandates.insert(
             customers_payment_info_id = row.id,
             MandateText = mandate_text
         )
 
         cpim = OsCustomersPaymentInfoMandate(cpimID)
-        cpim.on_create()
+        cpim.on_create() # This also syncs to Exact Online
 
-        #TODO: Sync to exact
-
-         # db.customers_orders_direct_debit[0]= dict(auth_customer_id = auth.user.id,
-         #                                           customers_payment_info_id= row)
-    # add subscription to customer﻿​
+    # Add subscription to customer﻿​
     startdate = TODAY_LOCAL
     shop_subscriptions_start = get_sys_property('shop_subscriptions_start')
     if not shop_subscriptions_start == None:
