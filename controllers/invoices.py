@@ -440,21 +440,22 @@ def edit_get_tools(iID):
                  _title=T('Cancel and create credit invoice'))
         invoice_tools.append(link)
 
-        #Check if invoice is not a subscription, no teacherpayment, no claim, no event, no classcard, no membership
+        #Check if invoice is not for a subscription, teacher payment, claim, event, class, classcard, or membership
         query = (
-            ((db.invoices.id == iID) &
-             (db.invoices.TeacherPayment == False) &
-             (db.invoices.EmployeeClaim == False))
-             ((db.invoices_customers_subscriptions.invoices_id != iID) |
-              (db.invoices_customers_subscriptions.invoices_id == None)) &
-             ((db.invoices_customers_memberships.invoices_id != iID) |
-              (db.invoices_customers_memberships.invoices_id == None)) &
-             ((db.invoices_customers_classcards.invoices_id != iID) |
-              (db.invoices_customers_classcards.invoices_id == None)) &
-             ((db.invoices_workshops_products_customers.invoices_id != iID) |
-              (db.invoices_workshops_products_customers.invoices_id == None))
+            (db.invoices.id == iID) &
+            (db.invoices.TeacherPayment == False) &
+            (db.invoices.EmployeeClaim == False) &
+            (db.invoices_classes_attendance.invoices_id == None) &
+            (db.invoices_customers_subscriptions.invoices_id == None) &
+            (db.invoices_customers_memberships.invoices_id == None) &
+            (db.invoices_customers_classcards.invoices_id == None) &
+            (db.invoices_workshops_products_customers.invoices_id == None)
         )
         left = [
+            db.invoices_classes_attendance.on(
+                db.invoices.id ==
+                db.invoices_classes_attendance.invoices_id
+            ),
             db.invoices_customers_subscriptions.on(
                 db.invoices.id ==
                 db.invoices_customers_subscriptions.invoices_id
@@ -472,7 +473,9 @@ def edit_get_tools(iID):
                 db.invoices_workshops_products_customers.invoices_id
             )
         ]
+
         row = db(query).select(db.invoices.ALL,
+                               db.invoices_classes_attendance.invoices_id,
                                db.invoices_customers_memberships.invoices_id,
                                db.invoices_customers_subscriptions.invoices_id,
                                db.invoices_customers_classcards.invoices_id,
