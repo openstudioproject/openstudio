@@ -3278,6 +3278,7 @@ def define_workshops_activities():
             label=T("Teacher 2")),
         )
 
+
 def define_workshops_products():
     db.define_table('workshops_products',
         Field('workshops_id', db.workshops,
@@ -3327,6 +3328,11 @@ def define_workshops_products():
               comment=T("Earlybird price will be applied until the date above"),
               widget=os_datepicker_widget,),
         Field('tax_rates_id', db.tax_rates,
+            requires=IS_IN_DB(db,
+                              'tax_rates.id',
+                              '%(Name)s',
+                              zero=T("Please select..."),
+                              error_message=T("Please select a tax rate")),
             label=T('Tax rate'),
             comment=T('Tax rate for prices')),
         Field('Description', 'text', required=False),
