@@ -641,6 +641,15 @@ class Invoices:
                                      tooltip=T('Edit Invoice'))
             links.append(edit)
 
+
+        # if auth.has_membership(group_id='Admins') or \
+        #         auth.has_permission('create', 'invoices'):
+        #     duplicate = os_gui.get_button('duplicate',
+        #                              URL('invoices', 'duplicate', vars={'iID': iID}, extension=''),
+        #                                   # title= T("Duplicate"),
+        #                              tooltip=T('Duplicate Invoice'))
+        #     links.append(duplicate)
+
         return buttons
 
 

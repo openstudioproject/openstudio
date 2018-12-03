@@ -11,6 +11,9 @@ from populate_os_tables import prepare_classes
 from populate_os_tables import populate_customers
 from populate_os_tables import populate_customers_payment_info
 from populate_os_tables import populate_customers_with_subscriptions
+from populate_os_tables import populate_customers_with_memberships
+from populate_os_tables import populate_customers_with_classcards
+from populate_os_tables import populate_workshops_products_customers
 from populate_os_tables import populate_invoices
 from populate_os_tables import populate_invoices_items
 
@@ -219,6 +222,233 @@ def test_invoice_edit(client, web2py):
     assert client.status == 200
 
     assert data['Description'] in client.text
+
+
+def test_invoice_show_duplicate_button(client, web2py):
+    """
+    Does the Button show and doesn't when it shouldn't
+    """
+    populate_customers(web2py,3)
+
+    url = '/customers/invoices?cuID=1001'
+    client.get(url)
+    assert client.status == 200
+
+    populate_invoices(web2py)
+
+    populate_invoices_items(web2py)
+
+    url = '/invoices/edit?iID=1'
+    client.get(url)
+    assert client.status == 200
+
+    assert 'Duplicate credit invoice' in client.text
+    #
+    # # web2py.db.invoices[1] = dict(TeacherPayment = True)
+    # web2py.db.invoices[1] = dict(EmployeeClaim = True)
+    # web2py.db.commit
+    #
+    # # assert ((web2py.db.invoices.id== 1) &\
+    # #         (web2py.db.invoices.TeacherPayment==True))
+    #
+    # url = '/default/user/login'
+    # client.get(url)
+    # assert client.status == 200
+    #
+    # url = '/invoices/edit?iID=1'
+    # client.get(url)
+    # assert client.status == 200
+
+    # print client.text
+
+    # assert 'Duplicate credit invoice' not in client.text
+
+
+def test_invoice_dont_show_duplicate_button_teacher_payment(client, web2py):
+    """
+    DOes the button not show when teacher payment?
+    """
+    populate_customers(web2py,3)
+
+    url = '/customers/invoices?cuID=1001'
+    client.get(url)
+    assert client.status == 200
+
+    populate_invoices(web2py, teacher_fixed_price_invoices= True)
+
+    populate_invoices_items(web2py)
+
+    url = '/invoices/edit?iID=1'
+    client.get(url)
+    assert client.status == 200
+
+    assert 'Duplicate credit invoice' not in client.text
+
+
+def test_invoice_dont_show_duplicate_button_employee_claim(client, web2py):
+    """
+    Does the Button not show when it is an employee Claim?
+    """
+    populate_customers(web2py,3)
+
+    url = '/customers/invoices?cuID=1001'
+    client.get(url)
+    assert client.status == 200
+
+    populate_invoices(web2py, employee_claim= True)
+
+    populate_invoices_items(web2py)
+
+    url = '/invoices/edit?iID=1'
+    client.get(url)
+    assert client.status == 200
+
+    assert 'Duplicate credit invoice' not in client.text
+
+
+def test_invoice_dont_show_duplicate_button_subscription(client, web2py):
+    """
+    Does the Button not show when it is a subscription?
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    populate_customers_with_subscriptions(web2py, 3, invoices=True)
+
+    # url = '/customers/invoices?cuID=1001'
+    # client.get(url)
+    # assert client.status == 200
+    # row = web2py.db(web2py.db.invoices_customers_subscriptions.id >0).select().first()
+
+    url = '/invoices/edit?iID=1'
+    client.get(url)
+    assert client.status == 200
+
+    assert 'Duplicate credit invoice' not in client.text
+
+
+def test_invoice_dont_show_duplicate_button_membership(client, web2py):
+    """
+    Does the Button not show when it is a membership?
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+    populate_customers_with_memberships(web2py, invoices=True)
+
+    # url = '/customers/invoices?cuID=1001'
+    # client.get(url)
+    # assert client.status == 200
+
+    url = '/invoices/edit?iID=1'
+    client.get(url)
+    assert client.status == 200
+
+    assert 'Duplicate credit invoice' not in client.text
+
+
+def test_invoice_dont_show_duplicate_button_classcards(client, web2py):
+    """
+    Does the Button  not show when it is a classcard?
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+    populate_customers_with_classcards(web2py,3, invoices = True)
+
+
+    url = '/invoices/edit?iID=1'
+    client.get(url)
+    assert client.status == 200
+
+    assert 'Duplicate credit invoice' not in client.text
+
+
+def test_invoice_dont_show_duplicate_button_workshop(client, web2py):
+    """
+    Does the Button not show when it is a workshop order?
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+    populate_workshops_products_customers(web2py,3)
+
+
+    url = '/invoices/edit?iID=1'
+    client.get(url)
+    assert client.status == 200
+
+    assert 'Duplicate credit invoice' not in client.text
+
+
+
+def test_invoice_duplicate_invoice(client, web2py):
+    """
+    Does the Duplicate get generated correctly with all possible connections?
+    """
+    populate_customers(web2py,3)
+
+
+    url = '/customers/invoices?cuID=1001'
+    client.get(url)
+    assert client.status == 200
+
+    populate_invoices(web2py, customers_orders = True)
+    # print 1
+
+    populate_invoices_items(web2py)
+    # print 2
+
+    url = '/invoices/edit?iID=1'
+    client.get(url)
+    assert client.status == 200
+    # print 3
+
+    url = '/invoices/duplicate_credit_invoice?iID=1'
+    client.get(url)
+    assert client.status == 200
+    # print 4
+    oldrow = web2py.db.invoices(id = 1)
+    query = ((web2py.db.invoices.CustomerName == oldrow.CustomerName) &\
+             (web2py.db.invoices.auth_customer_id == oldrow.auth_customer_id) &\
+             (web2py.db.invoices.invoices_groups_id == oldrow.invoices_groups_id) &\
+             (web2py.db.invoices.payment_methods_id == oldrow.payment_methods_id)&\
+             (web2py.db.invoices.id != oldrow.id)&\
+             (web2py.db.invoices.InvoiceID != oldrow.InvoiceID))
+
+    assert web2py.db(query).count() == 1
+
+    newrow = web2py.db(query).select().first()
+
+    cusrow= web2py.db(web2py.db.invoices_customers.invoices_id == newrow.id).select().first()
+
+    oldcusrow = web2py.db(web2py.db.invoices_customers.invoices_id == oldrow.id).select().first()
+
+    assert cusrow.auth_customer_id == oldcusrow.auth_customer_id
+
+    #Are all the items correctly duplicated?
+    query = (web2py.db.invoices_items.invoices_id == oldrow.id)
+    oldrows = web2py.db(query).select()
+    query = (web2py.db.invoices_items.invoices_id == oldrow.id)
+    rows = web2py.db(query).select()
+    for row in oldrows:
+         query = ((web2py.db.invoices_items.invoices_id == newrow.id)&\
+                  (web2py.db.invoices_items.ProductName == row.ProductName) &\
+                  (web2py.db.invoices_items.Description == row.Description) &\
+                  (web2py.db.invoices_items.Quantity == row.Quantity) &\
+                  (web2py.db.invoices_items.Price == row.Price) &\
+                  (web2py.db.invoices_items.tax_rates_id == row.tax_rates_id) &\
+                  (web2py.db.invoices_items.GLAccount == row.GLAccount)
+                  )
+         assert web2py.db(query).count() == 1
+
+    #Is the connection to invoices_customers_order there?
+    oldcusorderrow = web2py.db(web2py.db.invoices_customers_orders.invoices_id == oldrow.id).select().first()
+    if oldcusorderrow:
+        query = ((web2py.db.invoices_customers_orders.invoices_id == newrow.id)&\
+                (web2py.db.invoices_customers_orders.customers_orders_id == oldcusorderrow.customers_orders_id))
+        assert web2py.db(query).count() == 1
 
 
 def test_invoice_item_add(client, web2py):
