@@ -515,7 +515,7 @@ def duplicate_invoice():
         invoices_groups_id= oldinvoice.invoices_groups_id,
         auth_customer_id= oldinvoice.auth_customer_id,
         payment_methods_id = oldinvoice.payment_methods_id,
-        Status = 'Draft',
+        Status = 'draft',
         CustomerCompany= oldinvoice.CustomerCompany,
         CustomerCompanyRegistration = oldinvoice.CustomerCompanyRegistration,
         CustomerCompanyTaxRegistration = oldinvoice.CustomerCompanyTaxRegistration,
