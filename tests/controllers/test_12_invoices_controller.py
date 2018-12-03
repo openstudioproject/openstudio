@@ -405,7 +405,7 @@ def test_invoice_duplicate_invoice(client, web2py):
     assert client.status == 200
     # print 3
 
-    url = '/invoices/duplicate_credit_invoice?iID=1'
+    url = '/invoices/duplicate_invoice?iID=1'
     client.get(url)
     assert client.status == 200
     # print 4

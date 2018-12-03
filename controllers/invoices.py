@@ -441,21 +441,19 @@ def edit_get_tools(iID):
         invoice_tools.append(link)
 
         #Check if invoice is not a subscription, no teacherpayment, no claim, no event, no classcard, no membership
-        query = (((db.invoices.id == iID) &\
-                 (db.invoices.TeacherPayment == False) &\
-                 (db.invoices.EmployeeClaim == False)))
-
-        query &= (db.invoices_customers_subscriptions.invoices_id != iID) |\
-                 (db.invoices_customers_subscriptions.invoices_id == None)
-
-        query &= (db.invoices_customers_memberships.invoices_id != iID) |\
-                 (db.invoices_customers_memberships.invoices_id == None)
-
-        query &= (db.invoices_customers_classcards.invoices_id != iID) |\
-                 (db.invoices_customers_classcards.invoices_id == None)
-
-        query &= (db.invoices_workshops_products_customers.invoices_id != iID) |\
-                 (db.invoices_workshops_products_customers.invoices_id == None)
+        query = (
+            ((db.invoices.id == iID) &
+             (db.invoices.TeacherPayment == False) &
+             (db.invoices.EmployeeClaim == False))
+             ((db.invoices_customers_subscriptions.invoices_id != iID) |
+              (db.invoices_customers_subscriptions.invoices_id == None)) &
+             ((db.invoices_customers_memberships.invoices_id != iID) |
+              (db.invoices_customers_memberships.invoices_id == None)) &
+             ((db.invoices_customers_classcards.invoices_id != iID) |
+              (db.invoices_customers_classcards.invoices_id == None)) &
+             ((db.invoices_workshops_products_customers.invoices_id != iID) |
+              (db.invoices_workshops_products_customers.invoices_id == None))
+        )
         left = [
             db.invoices_customers_subscriptions.on(
                 db.invoices.id ==
@@ -484,9 +482,9 @@ def edit_get_tools(iID):
         # print row
         if row:
             link = A(os_gui.get_fa_icon('fa-clone'),
-                             T("Duplicate credit invoice"),
-                             _href=URL('invoices', 'duplicate_credit_invoice', vars={'iID': iID}),
-                             _title=T('Duplicate Credit invoice'))
+                             T("Duplicate"),
+                             _href=URL('invoices', 'duplicate_invoice', vars={'iID': iID}),
+                             _title=T('Duplicate Invoice'))
             invoice_tools.append(link)
 
 
@@ -500,8 +498,9 @@ def edit_get_tools(iID):
     return tools
 
 
-@auth.requires_login()
-def duplicate_credit_invoice():
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('create', 'invoices'))
+def duplicate_invoice():
     """
         Shows edit page for an invoice
         request.vars['iID'] is expected to be invoices.id
@@ -556,7 +555,6 @@ def duplicate_credit_invoice():
             invoices_id = iID,
             auth_customer_id = row.auth_customer_id
         )
-
 
     redirect(URL('edit', vars= {'iID': iID}))
 
