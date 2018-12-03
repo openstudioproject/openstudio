@@ -559,6 +559,8 @@ def duplicate_invoice():
             auth_customer_id = row.auth_customer_id
         )
 
+    session.flash = T("You are now editing the duplicated invoice")
+
     redirect(URL('edit', vars= {'iID': iID}))
 
 
