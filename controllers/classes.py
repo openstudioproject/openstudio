@@ -1795,14 +1795,14 @@ def schedule_export_excel():
 
                 time = repr_row.classes.Starttime + " - " + repr_row.classes.Endtime
                 if locID is None:
-                    class_data += location + "\n" + \
+                    class_data += location.decode('utf-8') + "\n" + \
                                   time + " \n" + \
-                                  classtype + " \n" + \
+                                  classtype.decode('utf-8') + " \n" + \
                                   teacher.decode('utf-8') + " \n" + \
                                   teacher2.decode('utf-8') + " \n"
                 else:
                     class_data += time + " \n" + \
-                                  classtype + " \n" + \
+                                  classtype.decode('utf-8') + " \n" + \
                                   teacher.decode('utf-8') + " \n" + \
                                   teacher2.decode('utf-8') + " \n"
                 c_id = get_cell_id(col, r)
