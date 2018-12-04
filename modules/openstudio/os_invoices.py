@@ -73,21 +73,6 @@ class Invoices:
         db.invoices.SubscriptionMonth.writable = True
 
 
-    def _add_get_form_enable_membership_fields(self, cmID):
-        """
-        Enable fields required for customer memberships
-
-        :param cmID: db.customers_memberships.id
-        :return: None
-        """
-        from openstudio.os_customer_membership import CustomerMembership
-
-        db = current.db
-
-        cm = CustomerMembership(cmID)
-        db.invoices.payment_methods_id.default = cm.row.payment_methods_id
-
-
     def add_get_form(self, cuID,
                            csID = None,
                            cmID = None,
@@ -108,8 +93,6 @@ class Invoices:
         self._add_get_form_enable_minimal_fields()
         if csID:
             self._add_get_form_enable_subscription_fields(csID)
-        if cmID:
-            self._add_get_form_enable_membership_fields(cmID)
 
         form = SQLFORM(db.invoices, formstyle='bootstrap3_stacked')
 
@@ -131,11 +114,6 @@ class Invoices:
                 invoice.item_add_subscription(
                     form.vars.SubscriptionYear,
                     form.vars.SubscriptionMonth
-                )
-
-            if cmID:
-                invoice.item_add_membership(
-                    cmID,
                 )
 
             redirect(URL('invoices', 'edit', vars={'iID':iID}))
