@@ -1749,12 +1749,14 @@ def schedule_export_excel():
     iso_week = request.vars['week']
     export = request.vars['export']
 
+
     def get_cell_id(col, row):
         """
             Returns cell id for colums / row
         """
         col_letter = openpyxl.utils.get_column_letter(col)
         return col_letter + unicode(row)
+
 
     def writer_location(locID=None):
         """
