@@ -310,7 +310,7 @@ class OSExactOnline:
             tax_rate = db.tax_rates(item.tax_rates_id)
             line = {
                 'AmountFC': item.TotalPrice,
-                'Description': item.Description,
+                'Description': '%s %s' %(item.ProductName, item.Description),
                 'GLAccount': glaccount[0][u'ID'],
                 'Quantity': item.Quantity,
                 'VATCode': tax_rate.VATCodeID
@@ -385,7 +385,7 @@ class OSExactOnline:
             line = {
                 'AmountDC': item.TotalPrice,
                 'AmountFC': item.TotalPrice,
-                'Description': item.Description,
+                'Description': '%s %s' %(item.ProductName, item.Description),
                 'GLAccount': glaccount[0][u'ID'],
                 'Quantity': item.Quantity,
                 'VATCode': tax_rate.VATCodeID,
