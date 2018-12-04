@@ -6394,6 +6394,8 @@ def memberships():
     customers_id = request.vars['cuID']
     response.view = 'customers/edit_general.html'
 
+    session.invoices_edit_back = 'customers_memberships'
+
     row = db.auth_user(customers_id)
     response.title = row.display_name
     response.subtitle = T("Memberships")
