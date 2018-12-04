@@ -6425,13 +6425,16 @@ def memberships():
     ]
 
     query = (db.customers_memberships.auth_customer_id == customers_id)
-    rows = db(query).select(db.customers_memberships.ALL,
-                            db.invoices.id,
-                            db.invoices.Status,
-                            db.invoices.InvoiceID,
-                            db.invoices.payment_methods_id,
-                            left=left,
-                            orderby=~db.customers_memberships.Startdate)
+    rows = db(query).select(
+        db.customers_memberships.ALL,
+        db.invoices.id,
+        db.invoices.Status,
+        db.invoices.InvoiceID,
+        db.invoices.payment_methods_id,
+        left=left,
+        orderby=~db.customers_memberships.Startdate|\
+                ~db.customers_memberships.id
+    )
 
     edit_permission = auth.has_membership(group_id='Admins') or \
                         auth.has_permission('update', 'customers_memberships')
@@ -6580,9 +6583,9 @@ def membership_add():
         db.customers_memberships,
         return_url,
         onaccept = [
+            membership_add_set_enddate,
             membership_add_create_invoice,
             membership_add_set_date_id,
-            membership_add_set_enddate,
             memberships_clear_cache,
         ]
     )

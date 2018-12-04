@@ -160,9 +160,6 @@ class SchoolMembership:
 
         # Check if price exists and > 0:
         if self.get_price_on_date(cm.row.Startdate):
-            period_start = cm.row.Startdate
-            period_end = cm.get_period_enddate(cm.row.Startdate)
-
             igpt = db.invoices_groups_product_types(ProductType='membership')
 
             iID = db.invoices.insert(
@@ -176,8 +173,6 @@ class SchoolMembership:
             invoice.link_to_customer(cm.row.auth_customer_id)
             invoice.item_add_membership(
                 cmID,
-                period_start,
-                period_end
             )
 
             return iID
