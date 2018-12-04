@@ -136,8 +136,6 @@ class Invoices:
             if cmID:
                 invoice.item_add_membership(
                     cmID,
-                    form.vars.MembershipPeriodStart,
-                    form.vars.MembershipPeriodEnd
                 )
 
             redirect(URL('invoices', 'edit', vars={'iID':iID}))

@@ -814,7 +814,7 @@ class Invoice:
         return iiID
 
 
-    def item_add_membership(self, cmID, period_start, period_end):
+    def item_add_membership(self, cmID):
         """
         :param cmID: db.customers_memberships.id
         :return: db.invoices_items.id
@@ -829,7 +829,7 @@ class Invoice:
 
         cm = CustomerMembership(cmID)
         sm = SchoolMembership(cm.row.school_memberships_id)
-        price_rows = sm.get_price_rows_on_date(period_start)
+        price_rows = sm.get_price_rows_on_date(cm.row.Startdate)
 
         if not price_rows:
             return # Don't do anything if we don't have a price
@@ -842,8 +842,8 @@ class Invoice:
             return # Don't do anything if the price is 0
 
         description = cm.get_name() + ' ' + \
-                      period_start.strftime(DATE_FORMAT) + ' - ' + \
-                      period_end.strftime(DATE_FORMAT)
+                      cm.row.Startdate.strftime(DATE_FORMAT) + ' - ' + \
+                      cm.row.Enddate.strftime(DATE_FORMAT)
 
         iiID = db.invoices_items.insert(
             invoices_id = self.invoices_id,
