@@ -573,52 +573,6 @@ def test_membership_add(client, web2py):
     assert invoice_amounts.TotalPriceVAT == smp.Price
 
 
-def test_membership_invoices(client, web2py):
-    """
-    Are invoices for memberships listed correctly?
-    """
-    url = '/default/user/login'
-    client.get(url)
-    assert client.status == 200
-
-    populate_tax_rates(web2py)
-    populate_customers_with_memberships(web2py, invoices=True)
-
-    url = '/customers/membership_invoices?cuID=1001&cmID=1'
-    client.get(url)
-    assert client.status == 200
-
-    invoice = web2py.db.invoices(1)
-    assert invoice.InvoiceID in client.text
-
-
-def test_membership_invoice_add(client, web2py):
-    """
-    Add an invoice for a membership
-    """
-    url = '/default/user/login'
-    client.get(url)
-    assert client.status == 200
-
-    populate_tax_rates(web2py)
-    populate_customers_with_memberships(web2py, invoices=False)
-
-    url = '/customers/membership_invoices?cuID=1001&cmID=1'
-    client.get(url)
-    assert client.status == 200
-
-    data = {
-        'invoices_groups_id': 100,
-        'Description': 'Tropical fruits',
-    }
-
-    client.post(url, data=data)
-    assert client.status == 200
-    assert web2py.db(web2py.db.invoices).count() == 1
-
-    assert web2py.db(web2py.db.invoices_customers_memberships).count() == 1
-
-
 def test_membership_add_no_invoice_when_price_0(client, web2py):
     """
     Are customer memberships added?
@@ -645,7 +599,6 @@ def test_membership_add_no_invoice_when_price_0(client, web2py):
 
     # No invoice when there's no price for a membership
     assert web2py.db(web2py.db.invoices_customers_memberships).count() == 0
-
 
 
 def test_membership_edit(client, web2py):

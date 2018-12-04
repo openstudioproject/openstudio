@@ -21,7 +21,7 @@ class CustomerMembership:
         return self.school_membership.Name
 
 
-    def get_period_enddate(self, startdate):
+    def _get_enddate(self, startdate):
         """
 
         :return:
@@ -37,6 +37,31 @@ class CustomerMembership:
         )
 
         return enddate
+
+
+    def set_enddate(self):
+        """
+        Set enddate
+        """
+        enddate = self._get_enddate(self.row.Startdate)
+
+        self.row.Enddate = enddate
+        self.row.update_record()
+
+
+    def get_linked_invoice(self):
+        """
+        :return: db.invoices.id (Linked invoiceID)
+        """
+        db = current.db
+
+        query = (db.invoices_customers_memberships.customers_memberships_id == self.cmID)
+        rows = db(query).select(db.invoices_customers_memberships.ALL)
+
+        if rows:
+            return rows.first().invoices_id
+        else:
+            return None
 
 
     def _set_date_id_get_next_id(self, digits=5):

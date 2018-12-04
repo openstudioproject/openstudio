@@ -124,8 +124,11 @@ class SchoolMembership:
         """
             :param auth_user_id: Sell membership to customer
         """
+        from os_customer_membership import CustomerMembership
+        from os_cache_manager import OsCacheManager
+
         db = current.db
-        cache_clear_customers_classcards = current.globalenv['cache_clear_customers_classcards']
+        ocm = OsCacheManager()
 
         cmID = db.customers_memberships.insert(
             auth_customer_id = auth_user_id,
@@ -136,7 +139,14 @@ class SchoolMembership:
             payment_methods_id=payment_methods_id
         )
 
-        #cache_clear_customers_classcards(auth_user_id)
+        # Init membership
+        cm = CustomerMembership(cmID)
+        cm.set_enddate()
+        cm.set_date_id_and_barcode()
+
+
+        # Clear memberships cache for this user
+        ocm.clear_customers_memberships(auth_user_id)
 
         if invoice:
             self.sell_to_customer_create_invoice(cmID)
@@ -208,18 +218,18 @@ class SchoolMembership:
         db = current.db
 
         # get info
-        card = db.school_memberships(self.smID)
+        sm = db.school_memberships(self.smID)
 
-        if card.ValidityUnit == 'months':
+        if sm.ValidityUnit == 'months':
             # check for and add months
-            months = card.Validity
+            months = sm.Validity
             if months:
                 enddate = add_months(date_start, months)
         else:
-            if card.ValidityUnit == 'weeks':
-                days = card.Validity * 7
+            if sm.ValidityUnit == 'weeks':
+                days = sm.Validity * 7
             else:
-                days = card.Validity
+                days = sm.Validity
 
             delta_days = datetime.timedelta(days=days)
             enddate = (date_start + delta_days) - datetime.timedelta(days=1)
