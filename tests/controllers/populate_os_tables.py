@@ -434,7 +434,7 @@ def populate_customers_with_memberships(web2py,
                                         created_on=datetime.date.today()):
 
     populate_school_memberships(web2py)
-    populate_payment_methods(web2py)
+    # populate_payment_methods(web2py)
 
     if not customers_populated:
         populate_customers(web2py, nr_of_customers, created_on=created_on)

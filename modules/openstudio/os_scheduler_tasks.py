@@ -261,8 +261,6 @@ class OsSchedulerTasks:
 
             # Ok all good, continue
             print 'still here'
-            query = (db.customers_subscriptions.auth_customer_id == row.auth_customer_id)
-            print db(query).select(db.customers_subscriptions.ALL)
             print  customer.has_subscription_on_date(firstdaynextmonth, from_cache=False)
             if customer.has_subscription_on_date(firstdaynextmonth, from_cache=False):
                 print 'subscription found'
