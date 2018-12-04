@@ -20,6 +20,10 @@ def test_automation_customers_memberships_renew_expired(client, web2py):
     populate_customers_with_subscriptions(web2py, 1)
     populate_customers_with_memberships(web2py, customers_populated=True)
 
+    print 'before'
+    print web2py.db().select(web2py.db.customers_memberships.ALL)
+    print web2py.db().select(web2py.db.customers_subscriptions.ALL)
+
     memberships_count = web2py.db(web2py.db.customers_memberships).count()
 
     url = '/test_automation_customer_memberships/' + \
@@ -27,6 +31,9 @@ def test_automation_customers_memberships_renew_expired(client, web2py):
           '?month=1&year=2014'
     client.get(url)
     assert client.status == 200
+
+    print 'after'
+    print web2py.db().select(web2py.db.customers_memberships.ALL)
 
     # Get membership
     previous_membership = web2py.db.customers_memberships(1)

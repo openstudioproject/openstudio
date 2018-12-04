@@ -463,8 +463,6 @@ def populate_customers_with_memberships(web2py,
                 invoices_groups_id=100,
                 payment_methods_id=1,
                 InvoiceID="INV2018" + unicode(i),
-                MembershipPeriodStart='2014-01-01',
-                MembershipPeriodEnd='2014-01-31',
             )
 
             ciID = web2py.db.invoices_customers.insert(

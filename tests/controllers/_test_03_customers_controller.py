@@ -609,8 +609,6 @@ def test_membership_invoice_add(client, web2py):
 
     data = {
         'invoices_groups_id': 100,
-        'MembershipPeriodStart': '2014-01-01',
-        'MembershipPeriodEnd': '2014-01-31',
         'Description': 'Tropical fruits',
     }
 
@@ -618,9 +616,7 @@ def test_membership_invoice_add(client, web2py):
     assert client.status == 200
     assert web2py.db(web2py.db.invoices).count() == 1
 
-    invoice = web2py.db.invoices(1)
-    assert invoice.MembershipPeriodStart == datetime.date(2014, 1, 1)
-    assert invoice.MembershipPeriodEnd == datetime.date(2014, 1, 31)
+    assert web2py.db(web2py.db.invoices_customers_memberships.count() == 1
 
 
 def test_membership_add_no_invoice_when_price_0(client, web2py):

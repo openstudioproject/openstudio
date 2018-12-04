@@ -86,10 +86,6 @@ class Invoices:
 
         cm = CustomerMembership(cmID)
         db.invoices.payment_methods_id.default = cm.row.payment_methods_id
-        db.invoices.MembershipPeriodStart.readable = True
-        db.invoices.MembershipPeriodStart.writable = True
-        db.invoices.MembershipPeriodEnd.readable = True
-        db.invoices.MembershipPeriodEnd.writable = True
 
 
     def add_get_form(self, cuID,

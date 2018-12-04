@@ -3,7 +3,7 @@
 from openstudio.os_scheduler_tasks import OsSchedulerTasks
 
 
-@auth.requires(auth.user_id == 1)
+@auth.requires(auth.user.id == 1)
 def test_memberships_renew_expired():
     """
     Function to expose class & method used by scheduler task

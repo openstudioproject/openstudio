@@ -168,8 +168,6 @@ class SchoolMembership:
             iID = db.invoices.insert(
                 invoices_groups_id=igpt.invoices_groups_id,
                 Description=cm.get_name(),
-                MembershipPeriodStart=period_start,
-                MembershipPeriodEnd=period_end,
                 Status='sent',
                 payment_methods_id=cm.row.payment_methods_id
             )
