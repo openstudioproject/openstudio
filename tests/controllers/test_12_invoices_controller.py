@@ -201,9 +201,6 @@ def test_invoice_add_from_customer_subscription_with_registration_fee(client, we
     assert web2py.db(web2py.db.invoices.id >0).count()        == 2
 
 
-
-
-
 def test_invoice_edit(client, web2py):
     """
         Can we edit an invoice?
@@ -242,26 +239,24 @@ def test_invoice_show_duplicate_button(client, web2py):
     client.get(url)
     assert client.status == 200
 
-    assert 'Duplicate credit invoice' in client.text
-    #
-    # # web2py.db.invoices[1] = dict(TeacherPayment = True)
-    # web2py.db.invoices[1] = dict(EmployeeClaim = True)
-    # web2py.db.commit
-    #
-    # # assert ((web2py.db.invoices.id== 1) &\
-    # #         (web2py.db.invoices.TeacherPayment==True))
-    #
-    # url = '/default/user/login'
-    # client.get(url)
-    # assert client.status == 200
-    #
-    # url = '/invoices/edit?iID=1'
-    # client.get(url)
-    # assert client.status == 200
+    assert 'Duplicate' in client.text
 
-    # print client.text
 
-    # assert 'Duplicate credit invoice' not in client.text
+def test_invoice_dont_show_duplicate_button_class_attendance_invoice(client, web2py):
+    """
+    DOes the button not show when teacher payment?
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    prepare_classes(web2py, invoices=True)
+
+    url = '/invoices/edit?iID=1'
+    client.get(url)
+    assert client.status == 200
+
+    assert 'Duplicate' not in client.text
 
 
 def test_invoice_dont_show_duplicate_button_teacher_payment(client, web2py):
@@ -282,7 +277,7 @@ def test_invoice_dont_show_duplicate_button_teacher_payment(client, web2py):
     client.get(url)
     assert client.status == 200
 
-    assert 'Duplicate credit invoice' not in client.text
+    assert 'Duplicate' not in client.text
 
 
 def test_invoice_dont_show_duplicate_button_employee_claim(client, web2py):
@@ -303,7 +298,7 @@ def test_invoice_dont_show_duplicate_button_employee_claim(client, web2py):
     client.get(url)
     assert client.status == 200
 
-    assert 'Duplicate credit invoice' not in client.text
+    assert 'Duplicate' not in client.text
 
 
 def test_invoice_dont_show_duplicate_button_subscription(client, web2py):
@@ -316,16 +311,11 @@ def test_invoice_dont_show_duplicate_button_subscription(client, web2py):
 
     populate_customers_with_subscriptions(web2py, 3, invoices=True)
 
-    # url = '/customers/invoices?cuID=1001'
-    # client.get(url)
-    # assert client.status == 200
-    # row = web2py.db(web2py.db.invoices_customers_subscriptions.id >0).select().first()
-
     url = '/invoices/edit?iID=1'
     client.get(url)
     assert client.status == 200
 
-    assert 'Duplicate credit invoice' not in client.text
+    assert 'Duplicate' not in client.text
 
 
 def test_invoice_dont_show_duplicate_button_membership(client, web2py):
@@ -345,7 +335,7 @@ def test_invoice_dont_show_duplicate_button_membership(client, web2py):
     client.get(url)
     assert client.status == 200
 
-    assert 'Duplicate credit invoice' not in client.text
+    assert 'Duplicate' not in client.text
 
 
 def test_invoice_dont_show_duplicate_button_classcards(client, web2py):
@@ -362,7 +352,7 @@ def test_invoice_dont_show_duplicate_button_classcards(client, web2py):
     client.get(url)
     assert client.status == 200
 
-    assert 'Duplicate credit invoice' not in client.text
+    assert 'Duplicate' not in client.text
 
 
 def test_invoice_dont_show_duplicate_button_workshop(client, web2py):
@@ -379,8 +369,7 @@ def test_invoice_dont_show_duplicate_button_workshop(client, web2py):
     client.get(url)
     assert client.status == 200
 
-    assert 'Duplicate credit invoice' not in client.text
-
+    assert 'Duplicate' not in client.text
 
 
 def test_invoice_duplicate_invoice(client, web2py):
