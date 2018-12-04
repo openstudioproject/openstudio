@@ -137,8 +137,10 @@ def populate_payment_methods(web2py):
         if not row is None:
             query = (web2py.db.payment_methods.id == i)
             web2py.db(query).delete()
-        web2py.db.payment_methods.insert(id=i,
-                                  Name=method)
+        web2py.db.payment_methods.insert(
+            id=i,
+            Name=method
+        )
         i += 1
 
 
@@ -1746,10 +1748,6 @@ def populate_invoices(web2py,
         teacher_payment = True
         teacher_payment_month = datetime.date.today().month
         teacher_payment_year = datetime.date.today().year
-
-    if employee_claim:
-        employee_claim = True
-
 
 
     rows = web2py.db().select(web2py.db.auth_user.ALL)

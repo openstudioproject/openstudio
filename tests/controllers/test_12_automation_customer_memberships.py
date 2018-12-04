@@ -10,19 +10,22 @@ def test_automation_customers_memberships_renew_expired(client, web2py):
     """
     from populate_os_tables import populate_customers_with_memberships
     import datetime
+
     # from openstudio/os_customer_membership import CustomerMembership
     # Get random url to initialize OpenStudio environment
     url = '/default/user/login'
-
     client.get(url)
     assert client.status == 200
 
     populate_customers_with_subscriptions(web2py, 1)
+    print 'before'
+    print web2py.db().select(web2py.db.customers_subscriptions.ALL)
+
     populate_customers_with_memberships(web2py, customers_populated=True)
 
-    print 'before'
+
     print web2py.db().select(web2py.db.customers_memberships.ALL)
-    print web2py.db().select(web2py.db.customers_subscriptions.ALL)
+
 
     memberships_count = web2py.db(web2py.db.customers_memberships).count()
 

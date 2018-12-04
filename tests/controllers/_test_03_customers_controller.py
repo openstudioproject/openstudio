@@ -616,7 +616,7 @@ def test_membership_invoice_add(client, web2py):
     assert client.status == 200
     assert web2py.db(web2py.db.invoices).count() == 1
 
-    assert web2py.db(web2py.db.invoices_customers_memberships.count() == 1
+    assert web2py.db(web2py.db.invoices_customers_memberships).count() == 1
 
 
 def test_membership_add_no_invoice_when_price_0(client, web2py):
