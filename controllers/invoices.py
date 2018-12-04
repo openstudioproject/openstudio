@@ -1321,8 +1321,8 @@ def payment_add_get_back(iID, cuID):
         url = URL('customers', 'subscription_invoices',
                   vars={'cuID':cuID},
                   extension='')
-    elif session.invoices_payment_add_back == 'customers_membership_invoices':
-        url = URL('customers', 'membership_invoices',
+    elif session.invoices_payment_add_back == 'customers_memberships':
+        url = URL('customers', 'memberships',
                   vars={'cuID':cuID},
                   extension='')
     elif session.invoices_payment_add_back == 'customers_events':

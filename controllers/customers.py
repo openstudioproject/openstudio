@@ -6395,6 +6395,7 @@ def memberships():
     response.view = 'customers/edit_general.html'
 
     session.invoices_edit_back = 'customers_memberships'
+    session.invoices_payment_add_back = 'customers_memberships'
 
     row = db.auth_user(customers_id)
     response.title = row.display_name

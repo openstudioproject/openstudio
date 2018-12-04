@@ -261,30 +261,17 @@ class Invoices:
                 payments.append(SPAN(T('Direct debit'), _class='grey small_font'))
             else:
                 # show add payment
-                content = LOAD('invoices', 'payment_add.load', ajax=True,
-                                vars={'iID':iID})
 
-                invoice = db.invoices(iID)
-                title = current.T('Add payment for invoice') + ' #' + \
-                        invoice.InvoiceID
+                button = os_gui.get_button(
+                    'credit-card',
+                    URL('invoices', 'payment_add', vars={'iID':iID}),
+                    title=T("Add payment"),
+                    btn_size='btn-xs',
+                    _class='grey'
+                )
 
-                button_text = XML(SPAN(
-                    SPAN(_class='fa fa-credit-card'), ' ',
-                    current.T('Add payment'),
-                    _class='small_font grey'
-                ))
-
-                form_id = 'form_payment_add_' + unicode(iID)
-
-                result = os_gui.get_modal(button_text=button_text,
-                                          button_title=current.T("Add payment"),
-                                          modal_title=title,
-                                          modal_content=content,
-                                          modal_footer_content=os_gui.get_submit_button(form_id),
-                                          modal_class='form_payment_add_' + unicode(iID),
-                                          button_class='btn-xs invoice_list_add_payment')
-
-                payments.append(SPAN(result['button'], result['modal']))
+                # payments.append(SPAN(result['button'], result['modal']))
+                payments.append(button)
 
         return payments
 
