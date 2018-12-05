@@ -7,7 +7,7 @@ import PageTemplate from "../../components/PageTemplate"
 
 class homeComponent extends Component {
     constructor(props) {
-        super(props),
+        super(props)
     }
 
     PropTypes = {

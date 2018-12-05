@@ -467,6 +467,21 @@ def get_customers():
     """
     List not trashed customers
     """
+    def get_thumbnail_url(row_data):
+        if not row_data:
+            return URL(
+                'static', 'images/person.png',
+                scheme=True,
+                host=True
+            )
+        else:
+            return URL(
+                'default', 'download', args=[row_data],
+                extension='',
+                host=True,
+                scheme=True
+            )
+
     set_headers()
 
     query = (db.auth_user.customer == True) & \
@@ -512,18 +527,8 @@ def get_customers():
             'mobile': row.mobile,
             'emergency': row.emergency,
             'company': row.company,
-            'thumbsmall': URL(
-                'default', 'download', args=[row.thumbsmall],
-                extension='',
-                host=True,
-                scheme=True
-            ),
-            'thumblarge': URL(
-                'default', 'download', args=[row.thumblarge],
-                extension='',
-                host=True,
-                scheme=True
-            ),
+            'thumbsmall': get_thumbnail_url(row.thumbsmall),
+            'thumblarge': get_thumbnail_url(row.thumblarge)
         }
 
     return customers
