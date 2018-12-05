@@ -953,17 +953,38 @@ def _school_classcards_get(var=None):
     """
     query = (db.school_classcards.PublicCard == True) & \
             (db.school_classcards.Archived == False)
-    rows = db(query).select(db.school_classcards.Name,
-                            db.school_classcards.Description,
-                            db.school_classcards.Price,
-                            db.school_classcards.Validity,
-                            db.school_classcards.ValidityUnit,
-                            db.school_classcards.Classes,
-                            db.school_classcards.Unlimited,
-                            db.school_classcards.Trialcard,
-                            orderby=db.school_classcards.Name)
+    rows = db(query).select(
+        db.school_classcards.Name,
+        db.school_classcards.Description,
+        db.school_classcards.Price,
+        db.school_classcards.Validity,
+        db.school_classcards.ValidityUnit,
+        db.school_classcards.Classes,
+        db.school_classcards.Unlimited,
+        db.school_classcards.Trialcard,
+        orderby=db.school_classcards.Name
+    )
 
-    return rows.as_list()
+    data = []
+    for row in rows:
+        link_shop = URL('shop', 'classcards',
+                        scheme=True,
+                        host=True,
+                        extension='')
+
+        data.append({
+            'Name': row.Name,
+            'Description': row.Description or '',
+            'Price': row.Price,
+            'Validity': row.Validity,
+            'ValidityUnit': row.ValidityUnit,
+            'Classes': row.Classes,
+            'Unlimited': row.Unlimited,
+            'Trialcard': row.Trialcard,
+            'LinkShop': link_shop
+        })
+
+    return data
 
 
 def school_classcards_get():
