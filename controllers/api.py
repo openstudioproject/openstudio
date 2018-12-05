@@ -846,12 +846,14 @@ def _school_subscriptions_get(var=None):
         Get school subscriptions from the database and return as list sorted by name
     """
     query = """
-        SELECT sc.Name,
+        SELECT sc.id,
+               sc.Name,
                sc.SortOrder,
                sc.Description,
                sc.Classes,
                sc.SubscriptionUnit,
                sc.Unlimited,
+               sc.ShopSubscription,
                scp.Price
         FROM school_subscriptions sc
         LEFT JOIN
@@ -865,18 +867,31 @@ def _school_subscriptions_get(var=None):
         ORDER BY sc.SortOrder DESC, sc.Name
     """.format(today=TODAY_LOCAL)
 
-    fields = [ db.school_subscriptions.Name,
-               db.school_subscriptions.SortOrder,
-               db.school_subscriptions.Description,
-               db.school_subscriptions.Classes,
-               db.school_subscriptions.SubscriptionUnit,
-               db.school_subscriptions.Unlimited,
-               db.school_subscriptions_price.Price ]
+    fields = [
+        db.school_subscriptions.id,
+        db.school_subscriptions.Name,
+        db.school_subscriptions.SortOrder,
+        db.school_subscriptions.Description,
+        db.school_subscriptions.Classes,
+        db.school_subscriptions.SubscriptionUnit,
+        db.school_subscriptions.Unlimited,
+        db.school_subscriptions.ShopSubscription,
+        db.school_subscriptions_price.Price
+
+    ]
 
     rows = db.executesql(query, fields=fields)
 
     data = []
     for row in rows:
+        link_shop = ''
+        if row.school_subscriptions.ShopSubscription:
+            link_shop = URL('shop', 'subscription_terms',
+                            vars={'ssuID': row.school_subscriptions.id},
+                            scheme=True,
+                            host=True,
+                            extension='')
+
         data.append({
             'Name': row.school_subscriptions.Name,
             'SortOrder': row.school_subscriptions.SortOrder,
@@ -884,7 +899,8 @@ def _school_subscriptions_get(var=None):
             'Classes': row.school_subscriptions.Classes,
             'SubscriptionUnit': row.school_subscriptions.SubscriptionUnit,
             'Unlimited': row.school_subscriptions.Unlimited,
-            'Price': row.school_subscriptions_price.Price
+            'Price': row.school_subscriptions_price.Price,
+            'LinkShop': link_shop
         })
 
     return data

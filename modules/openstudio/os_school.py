@@ -268,7 +268,7 @@ class School:
         query = (db.school_subscriptions.id > 0)
 
         if public_only:
-            query &= (db.school_subscriptions.PublicSubscription == True)
+            query &= (db.school_subscriptions.ShopSubscription == True)
 
         rows = db(query).select(db.school_subscriptions.ALL,
                                 orderby=~db.school_subscriptions.SortOrder | db.school_subscriptions.Name)
