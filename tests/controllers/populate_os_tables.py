@@ -1566,6 +1566,7 @@ def populate_school_subscriptions(web2py, membership_required=False):
     # 1
     web2py.db.school_subscriptions.insert(
         Archived    = False,
+        ShopSubscription = True,
         PublicSubscription = True,
         MembershipRequired = membership_required,
         Name = 'one class a week',
