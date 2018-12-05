@@ -100,7 +100,7 @@ class CustomerDisplay extends Component {
                         <h3 className="box-title">Customer</h3>
                     </div>
                     <div className="box-body">
-                        <div className="col-md-6">
+                        <div className="col-md-4">
                             <div className="camera-app">
                                 <button id="start-camera" 
                                         className="visible"
@@ -124,7 +124,7 @@ class CustomerDisplay extends Component {
                                 <canvas ref={this.superSecretPictureCanvas}></canvas>
                             </div>
                         </div>
-                        <div className="col-md-6">
+                        <div className="col-md-8">
                             {customers[customerID].display_name}
                             {customers[customerID].address}
                             <ButtonCustomerEdit onClick={onClickEdit}/>
