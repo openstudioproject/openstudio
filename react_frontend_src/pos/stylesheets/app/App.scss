@@ -3,6 +3,10 @@ html, body, div#app {
     min-height: 100%;
 }
 
+.hidden {
+    display: none;
+}
+
 .info-box-icon {
     overflow: hidden;
 }
@@ -20,7 +24,7 @@ html, body, div#app {
 }
 
 .camera-app canvas {
-    display: none;
+    display: none
 }
 /* Customers display end */
 

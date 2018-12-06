@@ -93,6 +93,11 @@ class CustomerDisplay extends Component {
         const customers_list = this.props.customers.data
         const edit_in_progress = this.props.edit_in_progress
         const onClickEdit = this.props.onClickEdit
+        let videoClass
+        let imgClass
+
+        !(customers.camera_app_snap) ?
+             imgClass = 'hidden' : videoClass = 'hidden'
 
         return (
             <div>
@@ -110,22 +115,36 @@ class CustomerDisplay extends Component {
                                     Start camera
                                 </button>
                                 {/* Shop video stream when no snapshot has been taken from the camera. Otherwise show snapshot image */}
-                                {!(customers.camera_app_snap) ?
-                                    <video id="camera-stream" 
-                                        autoPlay 
-                                        ref={this.videoStream}></video> :
-                                    <img id="snap" 
-                                        src={customers.camera_app_snap} />
-                                }
+                                <video id="camera-stream" 
+                                       className={videoClass}
+                                       autoPlay 
+                                       ref={this.videoStream} />
+                                <img id="snap" 
+                                     className={imgClass}
+                                     src={customers.camera_app_snap} />
 
                                 <p id="error-message"></p>
 
                                 <div className="controls">
-                                    <button id="delete-photo" title="Delete Photo" className="disabled"><i className="fa fa-ban"></i></button>
-                                    <button id="take-photo" onClick={this.onClickTakePhoto.bind(this)} title="Take Photo"><i className="fa fa-camera"></i></button>
-                                    <button id="download-photo" download="selfie.png" title="Save Photo" className="disabled"><i className="fa fa-save"></i></button>  
+                                    {!(customers.camera_app_snap) ?
+                                        <div className="col-md-12">
+                                            <button id="take-photo" 
+                                                    className="btn-block"
+                                                    onClick={this.onClickTakePhoto.bind(this)} 
+                                                    title="Take Photo">
+                                                <i className="fa fa-camera"></i>
+                                            </button>
+                                        </div> : 
+                                        <div>
+                                            <div className="col-md-6">
+                                                <button id="redo-photo" title="redo Photo" className="btn-block"><i className="fa fa-repeat"></i></button>        
+                                            </div>
+                                            <div className="col-md-6">
+                                                <button id="download-photo" download="selfie.png" title="Save Photo" className="btn-block"><i className="fa fa-save"></i></button>          
+                                            </div>
+                                        </div>
+                                    }
                                 </div>
-
                                 {/* <!-- Hidden canvas element. Used for taking snapshot of video. --> */}
                                 <canvas ref={this.superSecretPictureCanvas}></canvas>
                             </div>
