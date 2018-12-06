@@ -14,6 +14,7 @@ const api_urls = {
     'CUSTOMERS_MEMBERSHIPS': '/pos/get_customers_memberships.json',
     'CUSTOMER_CREATE': '/pos/create_customer.json',
     'CUSTOMER_UPDATE': '/pos/update_customer.json',
+    'CUSTOMER_PICTURE_UPDATE': '/pos/update_customer_picture.json',
     'SHOP_PRODUCTS': '/pos/get_products.json',
     'SHOP_SCHOOL_CLASSCARDS': '/pos/get_school_classcards.json',
     'SHOP_SCHOOL_MEMBERSHIPS': '/pos/get_school_memberships.json',

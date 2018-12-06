@@ -36,13 +36,12 @@ export const receiveUpdateCustomer = (data) =>
         data
     })
 
-export const requestSaveCameraAppSnap = (data) =>
+export const requestSaveCameraAppSnap = () =>
     ({
-        type: T.REQUEST_SAVE_CAMERA_APP_SNAP,
-        data
+        type: T.REQUEST_SAVE_CAMERA_APP_SNAP
     })
 
-export const requestSaveCameraAppSnap = (data) =>
+export const receiveSaveCameraAppSnap = (data) =>
     ({
         type: T.RECEIVE_SAVE_CAMERA_APP_SNAP,
         data

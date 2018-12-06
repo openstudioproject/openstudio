@@ -635,6 +635,43 @@ def update_customer():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'auth_user'))
+def update_customer_picture():
+    """
+    :return: dict containing data of new auth_user
+    """
+    set_headers()
+
+    db.auth_user.password.requires = None
+    print request.vars
+
+    cuID = request.vars.pop('id', None)
+
+    print cuID
+    print request.vars
+
+    print db.auth_user.email.requires
+
+    # The default validator returns an error in this case
+    # It says an account already exists for this email
+    # when trying to update the users' own/current email.
+    # This validator works around that.
+    ##
+    query = (db.auth_user.id != cuID)
+
+    if cuID:
+        query = (db.auth_user.id == cuID)
+
+
+        result = 'success'
+        # result = db(query).validate_and_update(**request.vars)
+        # print result
+
+        return dict(result=result,
+                    id=cuID)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'shop_products'))
 def get_products():
     """

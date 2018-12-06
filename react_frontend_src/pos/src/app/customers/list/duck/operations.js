@@ -5,6 +5,8 @@ import {
     receiveCreateCustomer,
     requestUpdateCustomer,
     receiveUpdateCustomer,
+    requestSaveCameraAppSnap,
+    receiveSaveCameraAppSnap,
     setCreateCustomerStatus,
     setUpdateCustomerStatus,
     setSearchTimeout,
@@ -100,10 +102,28 @@ const updateCustomer = (data) => {
     }
 }
 
+const updateCustomerPicture = (data) => {
+    return dispatch => {
+        dispatch(requestSaveCameraAppSnap())
+
+        axios_os.post(OS_API.CUSTOMER_PICTURE_UPDATE, data)
+        .then(function(response) {
+            dispatch(receiveSaveCameraAppSnap(response.data))
+        })
+        .catch(function (error) {
+            console.log(error)
+        })
+        .then(function() {
+            //always executed
+        })
+    }
+}
+
 
 export default {
     createCustomer,
     updateCustomer,
+    updateCustomerPicture,
     fetchCustomers,
     setSearchTimeout,
     clearSearchTimeout,

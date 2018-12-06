@@ -81,6 +81,19 @@ export const listReducer = (state = {}, action={ type: null }) => {
                     update_customer_error_data: action.data.result.errors
                 }
             }
+        case T.REQUEST_SAVE_CAMERA_APP_SNAP:
+            return {
+                ...state,
+                camera_app_snap_saving: true,
+                camera_app_snap_saving: false
+            }
+        case T.RECEIVE_SAVE_CAMERA_APP_SNAP:
+            console.log(action.data)
+            return {
+                ...state,
+                camera_app_snap_saving: false,
+                camera_app_snap_saving: true
+            }
         case T.CLEAR_DISPLAY_CUSTOMER_ID:
             return {
                 ...state,
