@@ -44,7 +44,8 @@ class CustomerDisplay extends Component {
 
     onClickTakePhoto() {
         console.log('say cheese!!')
-        var snap = this.takeSnapshot();
+        var snap = this.takeSnapshot()
+        console.log(snap)
 
         // Show image. 
         this.snap.current.setAttribute('src', snap);
