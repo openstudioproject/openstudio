@@ -53,6 +53,8 @@ class CustomerDisplay extends Component {
             this.props.customers.displayID,
             this.props.customers.camera_app_snap
         )
+
+        document.getElementById("btnCloseModal").click()
     }
 
     onClickTakePhoto() {
@@ -129,7 +131,7 @@ class CustomerDisplay extends Component {
                             </button>
 
                             {/* <!-- Modal --> */}
-                            <div className="modal fade" id="cameraModal" tabIndex="-1" role="dialog" aria-labelledby="myModalLabel">
+                            <div className="modal fade" id="cameraModal" tabIndex="-1" role="dialog" aria-labelledby="myModalLabel" ref={this.modal}>
                                 <div className="modal-dialog" role="document">
                                     <div className="modal-content">
                                         <div className="modal-header">
@@ -189,7 +191,7 @@ class CustomerDisplay extends Component {
                                                             </button>          
                                                     </span>
                                                 }
-                                            <button type="button" className="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                                            <button type="button" id="btnCloseModal" className="btn btn-default pull-left" data-dismiss="modal">Close</button>
                                         </div> 
                                         {/* Close modal footer */}
                                     </div>
