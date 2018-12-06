@@ -116,60 +116,90 @@ class CustomerDisplay extends Component {
                     </div>
                     <div className="box-body">
                         <div className="col-md-4">
-                            <div className="camera-app">
-                                <button id="start-camera" 
-                                        className="visible btn btn-default"
-                                        onClick={this.onClickStartCamera.bind(this)} >
-                                    Start camera
-                                </button>
-                                {/* Shop video stream when no snapshot has been taken from the camera. Otherwise show snapshot image */}
-                                <video id="camera-stream" 
-                                       className={videoClass}
-                                       autoPlay 
-                                       ref={this.videoStream} />
-                                <img id="snap" 
-                                     className={imgClass}
-                                     src={customers.camera_app_snap} />
-
-                                <p id="error-message"></p>
-
-                                <div className="controls">
-                                    {!(customers.camera_app_snap) ?
-                                            <button id="take-photo" 
-                                                    className="btn-block btn btn-primary"
-                                                    onClick={this.onClickTakePhoto.bind(this)} 
-                                                    title="Take Photo">
-                                                <i className="fa fa-camera"></i>
-                                                { ' ' } Take picture
-                                            </button>
-                                        : 
-                                        <div className="row">
-                                            <div className="col-md-6">
-                                                <button id="redo-photo" 
-                                                        title="redo Photo" 
-                                                        className="btn-block btn btn-default"
-                                                        onClick={this.onClickRedoPhoto.bind(this)}>
-                                                    <i className="fa fa-repeat"></i>
-                                                    { ' ' } Redo picture
-                                                </button>        
-                                            </div>
-                                            <div className="col-md-6">
-                                                <button id="download-photo" 
-                                                        download="selfie.png" 
-                                                        title="Save Photo" 
-                                                        className="btn-block btn btn-primary"
-                                                        onClick={this.onClickSavePhoto.bind(this)}>
-                                                    <i className="fa fa-save"></i>
-                                                    { ' ' } Save picture
-                                                </button>          
-                                            </div>
-                                        </div>
-                                    }
-                                </div>
-                                {/* <!-- Hidden canvas element. Used for taking snapshot of video. --> */}
-                                <canvas ref={this.superSecretPictureCanvas}></canvas>
+                            <div className="customer-display-image">
+                                <img src={customers_list[customerID].thumblarge}
+                                     alt={customers_list[customerID].display_name} />
                             </div>
-                        </div>
+                            <button type="button" 
+                                    onClick={this.onClickStartCamera.bind(this)} 
+                                    className="btn btn-default" 
+                                    data-toggle="modal" 
+                                    data-target="#cameraModal">
+                                <i className="fa fa-camera"></i> Take picture
+                            </button>
+
+                            {/* <!-- Modal --> */}
+                            <div className="modal fade" id="cameraModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                                <div className="modal-dialog" role="document">
+                                    <div className="modal-content">
+                                        <div className="modal-header">
+                                            <button type="button" className="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                            <h4 className="modal-title" id="myModalLabel">Take picture for {customers_list[customerID].display_name}</h4>
+                                        </div>
+                                        <div className="modal-body">
+                                            {/* Camera app */}
+                                            <div className="camera-app">
+                                                {/* <button id="start-camera" 
+                                                        className="visible btn btn-default"
+                                                        onClick={this.onClickStartCamera.bind(this)} >
+                                                    Start camera
+                                                </button> */}
+                                                {/* Shop video stream when no snapshot has been taken from the camera. Otherwise show snapshot image */}
+                                                <video id="camera-stream" 
+                                                    className={videoClass}
+                                                    autoPlay 
+                                                    ref={this.videoStream} />
+                                                <img id="snap" 
+                                                    className={imgClass}
+                                                    src={customers.camera_app_snap} />
+
+                                                <p id="error-message"></p>
+
+                                                {/* <!-- Hidden canvas element. Used for taking snapshot of video. --> */}
+                                                <canvas ref={this.superSecretPictureCanvas}></canvas>
+                                            </div>
+                                            {/* Close camera app */}
+                                        </div>
+                                        {/* Close modal body */}
+                                        <div className="modal-footer">
+                                                {!(customers.camera_app_snap) ?
+                                                        <button id="take-photo" 
+                                                                className="btn btn-primary"
+                                                                onClick={this.onClickTakePhoto.bind(this)} 
+                                                                title="Take Photo">
+                                                            <i className="fa fa-camera"></i>
+                                                            { ' ' } Take picture
+                                                        </button>
+                                                    : 
+                                                    <span>
+                                                            <button id="redo-photo" 
+                                                                    title="redo Photo" 
+                                                                    className="btn btn-default"
+                                                                    onClick={this.onClickRedoPhoto.bind(this)}>
+                                                                <i className="fa fa-repeat"></i>
+                                                                { ' ' } Redo picture
+                                                            </button>        
+                                                            <button id="download-photo" 
+                                                                    download="selfie.png" 
+                                                                    title="Save Photo" 
+                                                                    className="btn btn-primary"
+                                                                    onClick={this.onClickSavePhoto.bind(this)}>
+                                                                <i className="fa fa-save"></i>
+                                                                { ' ' } Save picture
+                                                            </button>          
+                                                    </span>
+                                                }
+                                            <button type="button" className="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                                        </div> 
+                                        {/* Close modal footer */}
+                                    </div>
+                                    {/* Close modal content */}
+                                </div>
+                                {/* Close modal-dialog */}
+                            </div> 
+                            {/* Close modal */}
+                        </div> 
+                        {/* Close md-4 */}
                         <div className="col-md-8">
                             {customers_list[customerID].display_name}
                             {customers_list[customerID].address}
