@@ -38,7 +38,10 @@ class CustomerDisplay extends Component {
             console.log(error)
           });
         }
-        
+    }
+
+    onClickRedoPhoto() {
+        console.log("another day, another chance")
     }
 
     onClickTakePhoto() {
@@ -47,12 +50,6 @@ class CustomerDisplay extends Component {
         console.log(snap)
 
         // Show image. 
-        this.snap.current.setAttribute('src', snap);
-        // image.classList.add("visible");
-
-        // Enable delete and save buttons
-        // delete_photo_btn.classList.remove("disabled")
-        // download_photo_btn.classList.remove("disabled")
 
         // Set the href attribute of the download button to the snap url.
         // download_photo_btn.href = snap
@@ -139,7 +136,8 @@ class CustomerDisplay extends Component {
                                             <div className="col-md-6">
                                                 <button id="redo-photo" 
                                                         title="redo Photo" 
-                                                        className="btn-block btn btn-default">
+                                                        className="btn-block btn btn-default"
+                                                        onClick={this.onClickRedoPhoto.bind(this)}>
                                                     <i className="fa fa-repeat"></i>
                                                     { ' ' } Redo picture
                                                 </button>        
