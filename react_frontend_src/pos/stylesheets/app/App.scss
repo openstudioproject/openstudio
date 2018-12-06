@@ -18,6 +18,10 @@ html, body, div#app {
 .camera-app img {
     width: 100%;
 }
+
+.camera-app canvas {
+    display: none;
+}
 /* Customers display end */
 
 /* Customers list begin */

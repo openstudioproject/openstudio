@@ -13,7 +13,6 @@ class CustomerDisplay extends Component {
         console.log("Customer display props:")
         console.log(props)
         this.videoStream = React.createRef()
-        this.snap = React.createRef()
         this.superSecretPictureCanvas = React.createRef()
     }
 
@@ -91,6 +90,7 @@ class CustomerDisplay extends Component {
     render() {
         const customerID = this.props.customerID
         const customers = this.props.customers
+        const customers_list = this.props.customers.data
         const edit_in_progress = this.props.edit_in_progress
         const onClickEdit = this.props.onClickEdit
 
@@ -109,10 +109,14 @@ class CustomerDisplay extends Component {
                                         onClick={this.onClickStartCamera.bind(this)} >
                                     Start camera
                                 </button>
-                                <video id="camera-stream" 
-                                    autoPlay 
-                                    ref={this.videoStream}></video>
-                                <img ref={this.snap} id="snap" />
+                                {/* Shop video stream when no snapshot has been taken from the camera. Otherwise show snapshot image */}
+                                {!(customers.camera_app_snap) ?
+                                    <video id="camera-stream" 
+                                        autoPlay 
+                                        ref={this.videoStream}></video> :
+                                    <img id="snap" 
+                                        src={customers.camera_app_snap} />
+                                }
 
                                 <p id="error-message"></p>
 
@@ -127,8 +131,8 @@ class CustomerDisplay extends Component {
                             </div>
                         </div>
                         <div className="col-md-8">
-                            {customers[customerID].display_name}
-                            {customers[customerID].address}
+                            {customers_list[customerID].display_name}
+                            {customers_list[customerID].address}
                             <ButtonCustomerEdit onClick={onClickEdit}/>
                         </div>
                     </div>

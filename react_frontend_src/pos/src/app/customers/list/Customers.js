@@ -223,7 +223,7 @@ class Customers extends Component {
                                 </ButtonPrimary> : ''   
                             }
                             <CustomerDisplay customerID={customers.displayID}
-                                             customers={customers.data} 
+                                             customers={customers} 
                                              edit_in_progress={customers.update_customer}
                                              onClickEdit={this.onClickEdit.bind(this)}
                                              onSetCameraAppSnap={this.props.setCameraAppSnap} />
