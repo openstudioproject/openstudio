@@ -640,27 +640,26 @@ def update_customer_picture():
     """
     :return: dict containing data of new auth_user
     """
+    import cStringIO
+
     set_headers()
 
-    db.auth_user.password.requires = None
-    print request.vars
-
-    cuID = request.vars.pop('id', None)
-
-    print cuID
-    print request.vars
-
-    print db.auth_user.email.requires
-
-    # The default validator returns an error in this case
-    # It says an account already exists for this email
-    # when trying to update the users' own/current email.
-    # This validator works around that.
-    ##
-    query = (db.auth_user.id != cuID)
+    cuID = request.vars['cuID']
+    picture = request.vars['picture'].split(',')[1] # Remove description from b64 encoded image
 
     if cuID:
+        # start decode into image
+        import base64
+        png_image = base64.b64decode(picture)
+        # Create file stream
+        stream = cStringIO.StringIO(png_image)
+
+        # db.auth_user.picture.insert(image=db.myfile.image.store(stream, filename))
         query = (db.auth_user.id == cuID)
+        result = db(query).update(picture=db.auth_user.picture.store(
+            stream, # file stream
+            'picture_%s.png' % cuID # filename
+        ))
 
 
         result = 'success'

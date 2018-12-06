@@ -47,9 +47,12 @@ class CustomerDisplay extends Component {
     }
 
     onClickSavePhoto() {
-        console.log("saves for eternity")
+        console.log("saved for eternity")
 
-        
+        this.props.onSaveCameraAppSnap(
+            this.props.customers.displayID,
+            this.props.customers.camera_app_snap
+        )
     }
 
     onClickTakePhoto() {

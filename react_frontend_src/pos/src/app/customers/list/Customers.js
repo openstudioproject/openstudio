@@ -227,7 +227,8 @@ class Customers extends Component {
                                              edit_in_progress={customers.update_customer}
                                              onClickEdit={this.onClickEdit.bind(this)}
                                              onSetCameraAppSnap={this.props.setCameraAppSnap}
-                                             onClearCameraAppSnap={this.props.clearCameraAppSnap} />
+                                             onClearCameraAppSnap={this.props.clearCameraAppSnap}
+                                             onSaveCameraAppSnap={this.props.updateCustomerPicture} />
                             { (customers.create_customer) ?
                                 <CustomerFormCreate error_data={customers.create_customer_error_data}
                                                     onSubmit={this.onCreateCustomer.bind(this)}

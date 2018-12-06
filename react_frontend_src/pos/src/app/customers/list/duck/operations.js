@@ -65,7 +65,6 @@ const formDataToObject = (fd_obj) => {
     return data_object
 }
 
-
 // creators
 const createCustomer = (data) => {
     return dispatch => {
@@ -102,11 +101,15 @@ const updateCustomer = (data) => {
     }
 }
 
-const updateCustomerPicture = (data) => {
+const updateCustomerPicture = (cuID, picture) => {
     return dispatch => {
         dispatch(requestSaveCameraAppSnap())
 
-        axios_os.post(OS_API.CUSTOMER_PICTURE_UPDATE, data)
+        let fd = new FormData()
+        fd.append('picture', picture)
+        fd.append('cuID', cuID)
+
+        axios_os.post(OS_API.CUSTOMER_PICTURE_UPDATE, fd)
         .then(function(response) {
             dispatch(receiveSaveCameraAppSnap(response.data))
         })
