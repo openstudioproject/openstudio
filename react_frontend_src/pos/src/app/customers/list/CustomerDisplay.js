@@ -127,15 +127,14 @@ class CustomerDisplay extends Component {
 
                                 <div className="controls">
                                     {!(customers.camera_app_snap) ?
-                                        <div className="col-md-12">
                                             <button id="take-photo" 
                                                     className="btn-block"
                                                     onClick={this.onClickTakePhoto.bind(this)} 
                                                     title="Take Photo">
                                                 <i className="fa fa-camera"></i>
                                             </button>
-                                        </div> : 
-                                        <div>
+                                        : 
+                                        <div className="row">
                                             <div className="col-md-6">
                                                 <button id="redo-photo" title="redo Photo" className="btn-block"><i className="fa fa-repeat"></i></button>        
                                             </div>
