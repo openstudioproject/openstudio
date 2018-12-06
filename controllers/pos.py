@@ -371,7 +371,8 @@ def get_school_subscriptions():
           WHERE Startdate <= '{today}' AND
                 (Enddate >= '{today}' OR Enddate IS NULL) 
         ) scp ON sc.id = scp.school_subscriptions_id
-        WHERE sc.Archived = 'F'
+        WHERE sc.Archived = 'F' 
+            AND (scp.Price > 0 AND scp.Price IS NOT NULL)
         ORDER BY sc.Name
     """.format(today=TODAY_LOCAL)
 
@@ -625,10 +626,7 @@ def update_customer():
 
     if cuID:
         query = (db.auth_user.id == cuID)
-
-
         result = db(query).validate_and_update(**request.vars)
-        print result
 
         return dict(result=result,
                     id=cuID)

@@ -112,14 +112,14 @@ class CustomerDisplay extends Component {
                 { !(customerID) || (edit_in_progress) ? null :
                 <div className="box box-solid"> 
                     <div className="box-header">
-                        <h3 className="box-title">Customer</h3>
+                        <h3 className="box-title">{customers_list[customerID].display_name}</h3>
                     </div>
                     <div className="box-body">
-                        <div className="col-md-4">
+                        <div className="col-md-3">
                             <div className="customer-display-image">
                                 <img src={customers_list[customerID].thumblarge}
                                      alt={customers_list[customerID].display_name} />
-                            </div>
+                            </div><br />
                             <button type="button" 
                                     onClick={this.onClickStartCamera.bind(this)} 
                                     className="btn btn-default" 
@@ -200,7 +200,7 @@ class CustomerDisplay extends Component {
                             {/* Close modal */}
                         </div> 
                         {/* Close md-4 */}
-                        <div className="col-md-8">
+                        <div className="col-md-9">
                             {customers_list[customerID].display_name}
                             {customers_list[customerID].address}
                             <ButtonCustomerEdit onClick={onClickEdit}/>
