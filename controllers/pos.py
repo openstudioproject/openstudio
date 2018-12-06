@@ -462,27 +462,28 @@ def get_school_memberships():
     return dict(data=data)
 
 
+def get_customers_thumbnail_url(row_data):
+    if not row_data:
+        return URL(
+            'static', 'images/person.png',
+            scheme=True,
+            host=True
+        )
+    else:
+        return URL(
+            'default', 'download', args=[row_data],
+            extension='',
+            host=True,
+            scheme=True
+        )
+
+
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'auth_user'))
 def get_customers():
     """
     List not trashed customers
     """
-    def get_thumbnail_url(row_data):
-        if not row_data:
-            return URL(
-                'static', 'images/person.png',
-                scheme=True,
-                host=True
-            )
-        else:
-            return URL(
-                'default', 'download', args=[row_data],
-                extension='',
-                host=True,
-                scheme=True
-            )
-
     set_headers()
 
     query = (db.auth_user.customer == True) & \
@@ -528,8 +529,8 @@ def get_customers():
             'mobile': row.mobile,
             'emergency': row.emergency,
             'company': row.company,
-            'thumbsmall': get_thumbnail_url(row.thumbsmall),
-            'thumblarge': get_thumbnail_url(row.thumblarge)
+            'thumbsmall': get_customers_thumbnail_url(row.thumbsmall),
+            'thumblarge': get_customers_thumbnail_url(row.thumblarge)
         }
 
     return customers
@@ -642,6 +643,9 @@ def update_customer_picture():
 
     set_headers()
 
+    status = 'fail'
+    data = {}
+
     cuID = request.vars['cuID']
     picture = request.vars['picture'].split(',')[1] # Remove description from b64 encoded image
 
@@ -652,20 +656,26 @@ def update_customer_picture():
         # Create file stream
         stream = cStringIO.StringIO(png_image)
 
-        # db.auth_user.picture.insert(image=db.myfile.image.store(stream, filename))
+        # Update picture & generate new thumbnails
         query = (db.auth_user.id == cuID)
         result = db(query).update(picture=db.auth_user.picture.store(
             stream, # file stream
             'picture_%s.png' % cuID # filename
         ))
 
+        # Generate return values
+        row = db.auth_user(cuID)
+        data = {
+            'id': cuID,
+            'thumbsmall': get_customers_thumbnail_url(row.thumbsmall),
+            'thumblarge': get_customers_thumbnail_url(row.thumblarge)
+        }
 
-        result = 'success'
-        # result = db(query).validate_and_update(**request.vars)
-        # print result
+        status = 'success'
 
-        return dict(result=result,
-                    id=cuID)
+
+    return dict(result=status,
+                data=data)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \

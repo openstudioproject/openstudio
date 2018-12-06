@@ -187,9 +187,9 @@ class Customers extends Component {
                 ]
             } else if (customers.search_value && customers.search_value.length > 1) {
             Object.keys(customers.data).map( (key) => {
-                    //console.log('customer:')
-                    //console.log(key)
-                    //console.log(customers.data[key])
+                    // console.log('customer:')
+                    // console.log(key)
+                    // console.log(customers.data[key])
                     if (customers.data[key].search_name.includes(customers.search_value)) {
                         customers_display.push(customers.data[key])
                     }

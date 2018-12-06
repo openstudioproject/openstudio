@@ -89,10 +89,29 @@ export const listReducer = (state = {}, action={ type: null }) => {
             }
         case T.RECEIVE_SAVE_CAMERA_APP_SNAP:
             console.log(action.data)
-            return {
-                ...state,
-                camera_app_snap_saving: false,
-                camera_app_snap_saving: true
+            if (action.data.status == 'fail') {
+                console.log('failed')
+                return {
+                    ...state,
+                    camera_app_snap_saving: false,
+                    camera_app_snap_saving: true
+                }
+            } else {
+                console.log('success')
+                console.log(action.data.data.id)
+                return {
+                    ...state,
+                    data: {
+                        ...state.data,
+                        [action.data.data.id] : {
+                            ...state.data[action.data.data.id],
+                            thumbsmall: action.data.data.thumbsmall,
+                            thumblarge: action.data.data.thumblarge,
+                        }
+                    },
+                    camera_app_snap_saving: false,
+                    camera_app_snap_saving: true
+                }
             }
         case T.CLEAR_DISPLAY_CUSTOMER_ID:
             return {
