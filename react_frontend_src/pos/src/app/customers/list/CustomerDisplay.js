@@ -110,7 +110,7 @@ class CustomerDisplay extends Component {
                         <div className="col-md-4">
                             <div className="camera-app">
                                 <button id="start-camera" 
-                                        className="visible"
+                                        className="visible btn btn-default"
                                         onClick={this.onClickStartCamera.bind(this)} >
                                     Start camera
                                 </button>
@@ -128,18 +128,30 @@ class CustomerDisplay extends Component {
                                 <div className="controls">
                                     {!(customers.camera_app_snap) ?
                                             <button id="take-photo" 
-                                                    className="btn-block"
+                                                    className="btn-block btn btn-primary"
                                                     onClick={this.onClickTakePhoto.bind(this)} 
                                                     title="Take Photo">
                                                 <i className="fa fa-camera"></i>
+                                                { ' ' } Take picture
                                             </button>
                                         : 
                                         <div className="row">
                                             <div className="col-md-6">
-                                                <button id="redo-photo" title="redo Photo" className="btn-block"><i className="fa fa-repeat"></i></button>        
+                                                <button id="redo-photo" 
+                                                        title="redo Photo" 
+                                                        className="btn-block btn btn-default">
+                                                    <i className="fa fa-repeat"></i>
+                                                    { ' ' } Redo picture
+                                                </button>        
                                             </div>
                                             <div className="col-md-6">
-                                                <button id="download-photo" download="selfie.png" title="Save Photo" className="btn-block"><i className="fa fa-save"></i></button>          
+                                                <button id="download-photo" 
+                                                        download="selfie.png" 
+                                                        title="Save Photo" 
+                                                        className="btn-block btn btn-primary">
+                                                    <i className="fa fa-save"></i>
+                                                    { ' ' } Save picture
+                                                </button>          
                                             </div>
                                         </div>
                                     }
