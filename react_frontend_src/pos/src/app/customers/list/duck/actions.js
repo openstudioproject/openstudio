@@ -36,6 +36,18 @@ export const receiveUpdateCustomer = (data) =>
         data
     })
 
+export const requestSaveCameraAppSnap = (data) =>
+    ({
+        type: T.REQUEST_SAVE_CAMERA_APP_SNAP,
+        data
+    })
+
+export const requestSaveCameraAppSnap = (data) =>
+    ({
+        type: T.RECEIVE_SAVE_CAMERA_APP_SNAP,
+        data
+    })
+
 export const clearSearchTimeout = () =>
     ({
         type: T.CLEAR_SEARCH_TIMEOUT

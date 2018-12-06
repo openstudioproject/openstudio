@@ -46,6 +46,12 @@ class CustomerDisplay extends Component {
         this.videoStream.current.play()
     }
 
+    onClickSavePhoto() {
+        console.log("saves for eternity")
+
+        
+    }
+
     onClickTakePhoto() {
         console.log('say cheese!!')
         var snap = this.takeSnapshot()
@@ -148,7 +154,8 @@ class CustomerDisplay extends Component {
                                                 <button id="download-photo" 
                                                         download="selfie.png" 
                                                         title="Save Photo" 
-                                                        className="btn-block btn btn-primary">
+                                                        className="btn-block btn btn-primary"
+                                                        onClick={this.onClickSavePhoto.bind(this)}>
                                                     <i className="fa fa-save"></i>
                                                     { ' ' } Save picture
                                                 </button>          
