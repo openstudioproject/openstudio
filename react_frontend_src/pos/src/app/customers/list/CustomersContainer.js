@@ -61,6 +61,9 @@ const mapDispatchToProps = dispatch =>
         },
         setSelectedCustomerID(id) {
             dispatch(customersListOperations.setSelectedCustomerID(id))
+        },
+        setCameraAppSnap(data) {
+            dispatch(customersListOperations.setCameraAppSnap(data))
         }
     })
 

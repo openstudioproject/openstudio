@@ -18,7 +18,8 @@ import {
     setSelectedCustomerID,
     clearSelectedCustomerID,
     setRedirectNextComponent,
-    clearRedirectNextComponent
+    clearRedirectNextComponent,
+    setCameraAppSnap,
 } from './actions'
 
 import axios_os from '../../../../utils/axios_os'
@@ -117,4 +118,5 @@ export default {
     clearSelectedCustomerID,
     setRedirectNextComponent,
     clearRedirectNextComponent,
+    setCameraAppSnap,
 }

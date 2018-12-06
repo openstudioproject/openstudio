@@ -65,7 +65,8 @@
                 "last_name": "",
                 "email": ""
             },
-            "redirect_next_component": null
+            "redirect_next_component": null,
+            "camera_app_snap": null
         },
         "memberships": {
             "loading": false,
