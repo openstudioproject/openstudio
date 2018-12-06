@@ -119,3 +119,8 @@ export const setCameraAppSnap = (data) =>
         type: T.SET_CAMERA_APP_SNAP,
         data
     })
+
+export const clearCameraAppSnap = () =>
+    ({
+        type: T.CLEAR_CAMERA_APP_SNAP,
+    })

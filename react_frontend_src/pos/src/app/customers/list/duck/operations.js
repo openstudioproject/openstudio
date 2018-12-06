@@ -20,6 +20,7 @@ import {
     setRedirectNextComponent,
     clearRedirectNextComponent,
     setCameraAppSnap,
+    clearCameraAppSnap
 } from './actions'
 
 import axios_os from '../../../../utils/axios_os'
@@ -119,4 +120,5 @@ export default {
     setRedirectNextComponent,
     clearRedirectNextComponent,
     setCameraAppSnap,
+    clearCameraAppSnap
 }

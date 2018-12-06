@@ -142,12 +142,14 @@ export const listReducer = (state = {}, action={ type: null }) => {
                 redirect_next_component: action.component,
             }
         case T.SET_CAMERA_APP_SNAP:
-            console.log('reducer snap data')
-            console.log(action.data)
-
             return {
                 ...state,
                 camera_app_snap: action.data
+            }
+        case T.CLEAR_CAMERA_APP_SNAP:
+            return {
+                ...state,
+                camera_app_snap: null
             }
         default:
             return {

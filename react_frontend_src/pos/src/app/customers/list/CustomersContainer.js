@@ -64,7 +64,10 @@ const mapDispatchToProps = dispatch =>
         },
         setCameraAppSnap(data) {
             dispatch(customersListOperations.setCameraAppSnap(data))
-        }
+        },
+        clearCameraAppSnap() {
+            dispatch(customersListOperations.clearCameraAppSnap())
+        },
     })
 
 

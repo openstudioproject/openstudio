@@ -42,6 +42,8 @@ class CustomerDisplay extends Component {
 
     onClickRedoPhoto() {
         console.log("another day, another chance")
+        this.props.onClearCameraAppSnap()
+        this.videoStream.current.play()
     }
 
     onClickTakePhoto() {
