@@ -1637,7 +1637,11 @@ def define_teachers_payment_classes():
         Field('UpdatedOn', 'datetime',
               readable=False,
               writable=False,
-              compute=lambda row: datetime.datetime.now())
+              compute=lambda row: datetime.datetime.now()),
+        Field('CreatedOn', 'datetime',
+              readable=False,
+              writable=False,
+              default=datetime.datetime.now())
     )
 
 
