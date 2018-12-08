@@ -13,8 +13,8 @@ import CartTools from "./cart/CartToolsContainer"
 
 const ShopTemplate = ({ app_state, children }) =>
     <PageTemplate app_state={app_state}>
-        <div className="row">
-            <div className="col-md-4">
+        <div className="row shop-content-row">
+            <div className="col-md-4 shop-cart">
             <Cart />
             <CartTools />
             </div>

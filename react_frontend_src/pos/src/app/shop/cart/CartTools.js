@@ -6,7 +6,7 @@ import CartToolsPayment from "./CartToolsPaymentContainer"
 
 
 const CartTools = ({customers, deleteSelectedItem, cart_selected_item}) => 
-    <div className="box box-solid">
+    <div className="box box-solid shop-cart-tools">
         <div className="box-body">
             <div className="col-md-6">
                 <CustomerButton customers={customers} />

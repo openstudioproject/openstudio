@@ -35,7 +35,7 @@ class Cart extends Component {
         const total = this.props.total
 
         return (
-            <div className="box box-solid"> 
+            <div className="box box-solid shop-cart-list"> 
                 <div className="box-header">
                     <h3 className="box-title">
                         <i className="fa fa-shopping-cart"></i> Cart
