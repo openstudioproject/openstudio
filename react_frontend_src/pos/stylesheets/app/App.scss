@@ -7,6 +7,14 @@ html, body, div#app {
     display: none;
 }
 
+.bg-purple .text-muted {
+    color: #EAEAEA;
+}
+
+.bg-purple small.text-white {
+    color: #FFF;
+}
+
 .info-box-icon {
     overflow: hidden;
 }
@@ -65,6 +73,10 @@ html, body, div#app {
 }
 
 /* Customers list end*/
+
+/* Shop cart begin */
+
+/* Shop cart end */
 
 /* Shop payment begin */
 
