@@ -55,6 +55,13 @@ class CustomerDisplay extends Component {
         )
 
         document.getElementById("btnCloseModal").click()
+
+        // Stop video playback of stream.
+        var tracks = this.videoStream.current.srcObject.getTracks()
+        var i
+        for (i = 0; i < tracks.length; i++) {
+            tracks[i].stop()
+        }
     }
 
     onClickTakePhoto() {

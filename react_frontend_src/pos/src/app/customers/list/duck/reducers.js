@@ -109,6 +109,7 @@ export const listReducer = (state = {}, action={ type: null }) => {
                             thumblarge: action.data.data.thumblarge,
                         }
                     },
+                    camera_app_snap: null,
                     camera_app_snap_saving: false,
                     camera_app_snap_saving: true
                 }
