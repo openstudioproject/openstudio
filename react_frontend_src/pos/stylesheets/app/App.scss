@@ -112,8 +112,8 @@ html, body, div#app {
     right: 15px;
 }
 
-.shop-cart-list-item {
-    margin-bottom: 6px;
+.shop-cart-list-item > div{
+    padding: 6px;
 }
 
 .shop-cart-total {
