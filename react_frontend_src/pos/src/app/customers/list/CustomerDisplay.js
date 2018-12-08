@@ -26,7 +26,8 @@ class CustomerDisplay extends Component {
 
 
     onClickStartCamera() {
-        console.log('Home component DidMount')
+        console.log('Customer Display component DidMount')
+        this.props.onClearCameraAppSnap()
         // var constraints = { audio: false, video: { facingMode: 'user' } }
         if (navigator.mediaDevices.getUserMedia) {       
             navigator.mediaDevices.getUserMedia({video: true})
