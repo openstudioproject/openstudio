@@ -97,9 +97,19 @@ html, body, div#app {
 .shop-cart {
     height: 100%;
 }
+.shop-cart-list {
+    position: absolute;
+    top: 0px;
+    bottom: 179px;
+    left: 15px;
+    right: 15px;
+    width: calc(100% - 30px);
+    overflow-y: auto;
+}
 
 .shop-cart-tools {
     position: absolute;
+    height: 164px;
     margin: 0;
     bottom: 0;
     width: calc(100% - 30px);
