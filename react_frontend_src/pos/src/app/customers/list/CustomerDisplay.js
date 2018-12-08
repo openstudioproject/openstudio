@@ -211,9 +211,16 @@ class CustomerDisplay extends Component {
                         </div> 
                         {/* Close md-4 */}
                         <div className="col-md-9">
-                            {customers_list[customerID].display_name}
-                            {customers_list[customerID].address}
-                            <ButtonCustomerEdit onClick={onClickEdit}/>
+                            <ButtonCustomerEdit onClick={onClickEdit}
+                                                classAdditional='pull-right'>
+                                { ' ' } Edit
+                            </ButtonCustomerEdit>
+                            <label>Name</label><br/>
+                            {customers_list[customerID].display_name}<br/>
+                            <label>Email</label><br/>
+                            {customers_list[customerID].email}<br/>
+                            {/* <label>Address</label><br/>
+                            {customers_list[customerID].address}<br/> */}
                         </div>
                     </div>
                 </div>
