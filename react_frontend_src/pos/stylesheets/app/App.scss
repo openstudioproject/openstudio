@@ -10,6 +10,7 @@ html, body, div#app {
 
 .content {
     height: 100%;
+    overflow-y: auto;
 }
 
 .bg-purple .text-muted {
