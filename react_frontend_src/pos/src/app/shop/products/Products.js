@@ -55,8 +55,8 @@ class Products extends Component {
         return (
             <ShopTemplate app_state={this.props.app}>
                 { this.props.loaded ? 
-                     <ProductsList products={products}
-                                   onClick={this.onClickProductListItem.bind(this)} />:
+                    <ProductsList products={products}
+                                  onClick={this.onClickProductListItem.bind(this)} /> :
                      "Loading..."
                 }
             </ShopTemplate>

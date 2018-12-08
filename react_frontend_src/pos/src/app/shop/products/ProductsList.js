@@ -36,7 +36,9 @@ class ProductsList extends Component {
         const products = this.props.products
 
         return (
-            this.populateProducts(products)
+            <div className="shop-products-content-products-list">
+                {this.populateProducts(products)}
+            </div>
         )
     }
 }

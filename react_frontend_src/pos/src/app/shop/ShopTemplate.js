@@ -18,9 +18,11 @@ const ShopTemplate = ({ app_state, children }) =>
             <Cart />
             <CartTools />
             </div>
-            <div className="col-md-8">
+            <div className="col-md-8 shop-products">
             <ShopMainMenu>
-                {children}
+                <div className="shop-products-content">
+                    {children}
+                </div>
             </ShopMainMenu>
             </div>
         </div>
