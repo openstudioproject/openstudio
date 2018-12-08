@@ -66,7 +66,8 @@ const CartListSubscription = ({item, selected_item}) =>
 
 
 const CartListItem = injectIntl(({item, selected_item, intl, onClick=f=>f}) => 
-    <div onClick={() => onClick(item.id)}>
+    <div onClick={() => onClick(item.id)}
+         className="shop-cart-list-item">
         { (item.item_type == 'product') ? 
             <CartListProduct item={item}
                              selected_item={selected_item} /> : '' }
