@@ -104,7 +104,11 @@ html, body, div#app {
     left: 15px;
     right: 15px;
     width: calc(100% - 30px);
-    overflow-y: auto;
+}
+
+.shop-cart-list .box-body {
+    height: calc(100% - 40px); // minus header
+    overflow: auto;
 }
 
 .shop-cart-tools {
