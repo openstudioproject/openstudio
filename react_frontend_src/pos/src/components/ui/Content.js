@@ -6,8 +6,7 @@ const initialStyle = {
     // so we're setting the height of the content-wrapper manually
     // 50 is the Height of the navigation header
     // 51 is the height of the footer
-    minHeight: window.innerHeight - 50,
-    height: "auto"
+    minHeight: window.innerHeight - 50
 }
 
 const Content = ({title, children}) =>
