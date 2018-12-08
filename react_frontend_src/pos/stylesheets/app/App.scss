@@ -158,10 +158,23 @@ html, body, div#app {
     height: 100%;
 }
 
+// Shop products
 .shop-products-content .shop-products-content-products-list {
     height: 100%;
-    overflow-y: scroll;
+    overflow-y: auto;
     overflow-x: hidden;
 }
+
+// Shop school products
+.shop-products-content .shop-products-school-container { // role=navigation div
+    height: calc(100% - 44px);
+}
+
+.shop-products-content div .tab-content {
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
 
 /* Shop products end */
