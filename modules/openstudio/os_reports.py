@@ -58,6 +58,54 @@ class Reports:
         return query
 
 
+    def get_query_subscriptions_stopped_in_month(self,
+                                                 date,
+                                                 filter_school_locations_id=None):
+        """
+            Returns query for new subscriptions
+        """
+        firstdaythismonth = datetime.date(date.year, date.month, 1)
+        next_month = date.replace(day=28) + datetime.timedelta(days=4)  # this will never fail
+        lastdaythismonth = next_month - datetime.timedelta(days=next_month.day)
+
+        where_school_locations_id = ''
+        if filter_school_locations_id:
+            where_school_locations_id = " AND cu.school_locations_id = %s" % filter_school_locations_id
+
+        query = """SELECT cu.id,
+                          cu.archived,
+                          cu.thumbsmall,
+                          cu.birthday,
+                          cu.display_name,
+                          cu.date_of_birth,
+                          csu.school_subscriptions_id,
+                          csu.enddate
+                   FROM auth_user cu
+                   LEFT JOIN
+                       (SELECT auth_customer_id,
+                               startdate,
+                               enddate,
+                               school_subscriptions_id
+                        FROM customers_subscriptions) csu
+                   ON cu.id = csu.auth_customer_id
+                   LEFT JOIN school_subscriptions ssu
+                   ON ssu.id = csu.school_subscriptions_id,
+                       (SELECT max(startdate) startdate,
+                               auth_customer_id
+                        FROM customers_subscriptions
+                        GROUP BY auth_customer_id) chk
+                   WHERE chk.startdate = csu.startdate AND
+                         csu.auth_customer_id = chk.auth_customer_id AND
+                         csu.enddate >= %s AND csu.enddate <= %s
+                         AND csu.enddate IS NOT NULL
+                    ORDER BY ssu.Name,
+                             cu.display_name
+                             DESC""".format(firstdaythismonth=firstdaythismonth,
+                                           lastdaythismonth=lastdaythismonth,
+                                           where_school_locations_id=where_school_locations_id)
+        return query
+
+
     def get_class_revenue_summary(self, clsID, date, quick_stats=True):
         """
         :param subscription_quick_stats: Boolean - use db.school_subscriptions.QuickStatsAmount or not

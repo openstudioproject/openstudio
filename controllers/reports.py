@@ -1553,10 +1553,12 @@ def subscriptions_new():
         filter_school_locations_id = filter_school_locations_id
     )
 
-    result = get_form_subtitle(session.reports_subscriptions_month,
-                               session.reports_subscriptions_year,
-                               request.function,
-                               location_filter=location_filter)
+    result = get_form_subtitle(
+        session.reports_subscriptions_month,
+        session.reports_subscriptions_year,
+        request.function,
+        location_filter=location_filter
+    )
     response.subtitle = T('Subscriptions') + ' - ' + result['subtitle']
     form = result['form']
     month_chooser = result['month_chooser']
@@ -1639,9 +1641,25 @@ def subscriptions_stopped():
     next_month = date.replace(day=28) + datetime.timedelta(days=4)  # this will never fail
     lastdaythismonth = next_month - datetime.timedelta(days=next_month.day)
 
-    form_subtitle = get_form_subtitle(session.reports_subscriptions_month,
-                                            session.reports_subscriptions_year,
-                                            request.function)
+    reports = Reports()
+
+    location_filter = False
+    filter_school_locations_id = None
+    if session.show_location:
+        location_filter = True
+        filter_school_locations_id = session.reports_subscriptions_school_locations_id
+
+    query = reports.get_query_subscriptions_new_in_month(
+        date,
+        filter_school_locations_id = filter_school_locations_id
+    )
+
+    form_subtitle = get_form_subtitle(
+        session.reports_subscriptions_month,
+        session.reports_subscriptions_year,
+        request.function,
+        location_filter=location_filter
+    )
     response.subtitle = T('Subscriptions') + ' - ' + form_subtitle['subtitle']
     form = form_subtitle['form']
     month_chooser = form_subtitle['month_chooser']
@@ -1657,36 +1675,7 @@ def subscriptions_stopped():
                db.customers_subscriptions.school_subscriptions_id,
                db.customers_subscriptions.Enddate ]
 
-    rows = db.executesql("""SELECT cu.id,
-                                   cu.archived,
-                                   cu.thumbsmall,
-                                   cu.birthday,
-                                   cu.display_name,
-                                   cu.date_of_birth,
-                                   csu.school_subscriptions_id,
-                                   csu.enddate
-                            FROM auth_user cu
-                            LEFT JOIN
-                                (SELECT auth_customer_id,
-                                        startdate,
-                                        enddate,
-                                        school_subscriptions_id
-                                 FROM customers_subscriptions) csu
-                            ON cu.id = csu.auth_customer_id
-                            LEFT JOIN school_subscriptions ssu
-                            ON ssu.id = csu.school_subscriptions_id,
-                                (SELECT max(startdate) startdate,
-                                        auth_customer_id
-                                 FROM customers_subscriptions
-                                 GROUP BY auth_customer_id) chk
-                            WHERE chk.startdate = csu.startdate AND
-                                  csu.auth_customer_id = chk.auth_customer_id AND
-                                  csu.enddate >= %s AND csu.enddate <= %s
-                                  AND csu.enddate IS NOT NULL
-                            ORDER BY ssu.Name,
-                                     cu.display_name
-                                     DESC""",
-                        (firstdaythismonth, lastdaythismonth), fields=fields)
+    rows = db.executesql(query, fields=fields)
 
     total = T("Total: " + unicode(len(rows)))
 
