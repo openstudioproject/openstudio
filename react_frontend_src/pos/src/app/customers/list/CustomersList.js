@@ -23,7 +23,7 @@ const CustomersList = ({customers, onClick=f=>f}) =>
                 <tbody>
                     {customers.map((customer, i) => 
                         <tr key={v4()} onClick={() => onClick(customer.id)}>
-                            <td><img src={customer.thumbsmall}></img></td>
+                            <td className="customers_list_image"><img src={customer.thumbsmall}></img></td>
                             <td>{customer.display_name}</td>
                             <td>{customer.address}</td>
                         </tr>

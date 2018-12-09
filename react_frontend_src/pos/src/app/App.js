@@ -43,7 +43,6 @@ class App extends Component {
     this.props.fetchShopSchoolSubscriptions()
   }
 
-
   render() {
     return (
       (this.props.app_state.loading) ? 

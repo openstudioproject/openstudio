@@ -81,6 +81,39 @@ export const listReducer = (state = {}, action={ type: null }) => {
                     update_customer_error_data: action.data.result.errors
                 }
             }
+        case T.REQUEST_SAVE_CAMERA_APP_SNAP:
+            return {
+                ...state,
+                camera_app_snap_saving: true,
+                camera_app_snap_saving: false
+            }
+        case T.RECEIVE_SAVE_CAMERA_APP_SNAP:
+            console.log(action.data)
+            if (action.data.status == 'fail') {
+                console.log('failed')
+                return {
+                    ...state,
+                    camera_app_snap_saving: false,
+                    camera_app_snap_saving: true
+                }
+            } else {
+                console.log('success')
+                console.log(action.data.data.id)
+                return {
+                    ...state,
+                    data: {
+                        ...state.data,
+                        [action.data.data.id] : {
+                            ...state.data[action.data.data.id],
+                            thumbsmall: action.data.data.thumbsmall,
+                            thumblarge: action.data.data.thumblarge,
+                        }
+                    },
+                    camera_app_snap: null,
+                    camera_app_snap_saving: false,
+                    camera_app_snap_saving: true
+                }
+            }
         case T.CLEAR_DISPLAY_CUSTOMER_ID:
             return {
                 ...state,
@@ -140,6 +173,16 @@ export const listReducer = (state = {}, action={ type: null }) => {
             return {
                 ...state,
                 redirect_next_component: action.component,
+            }
+        case T.SET_CAMERA_APP_SNAP:
+            return {
+                ...state,
+                camera_app_snap: action.data
+            }
+        case T.CLEAR_CAMERA_APP_SNAP:
+            return {
+                ...state,
+                camera_app_snap: null
             }
         default:
             return {

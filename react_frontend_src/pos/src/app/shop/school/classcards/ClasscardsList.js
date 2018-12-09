@@ -31,7 +31,6 @@ class ClasscardsList extends Component {
     render() {
         const classcards = this.props.classcards
 
-        console.log(classcards.length)
         return (
             this.populateRows(classcards)
         )

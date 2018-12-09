@@ -13,14 +13,16 @@ import CartTools from "./cart/CartToolsContainer"
 
 const ShopTemplate = ({ app_state, children }) =>
     <PageTemplate app_state={app_state}>
-        <div className="row">
-            <div className="col-md-4">
+        <div className="row shop-content-row">
+            <div className="col-md-4 shop-cart">
             <Cart />
             <CartTools />
             </div>
-            <div className="col-md-8">
+            <div className="col-md-8 shop-products">
             <ShopMainMenu>
-                {children}
+                <div className="shop-products-content">
+                    {children}
+                </div>
             </ShopMainMenu>
             </div>
         </div>

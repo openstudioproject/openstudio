@@ -1,4 +1,4 @@
-import React from "react"
+import React, {Component} from "react"
 import ContentHeader from './ContentHeader'
 
 const initialStyle = {
@@ -9,14 +9,44 @@ const initialStyle = {
     minHeight: window.innerHeight - 50
 }
 
-const Content = ({title, children}) =>
-    <div className="content-wrapper" style={initialStyle}>
-        <section className="content">
-            <ContentHeader title={title} />
-            <section className="content">
-                {children} 
-            </section>
-        </section>
-    </div>
+
+class Content extends Component {
+    constructor(props) {
+        super(props)
+        console.log(props)
+    }
+
+    componentWillMount() {
+        this.resize()
+    }
+
+    initialStyle = {minHeight: window.innerHeight - 50}
+
+    resize = () => {
+        this.setState({content_height: window.innerHeight - 93})
+    }
+
+    componentDidMount() {
+        window.addEventListener('resize', this.resize)
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('resize', this.resize)
+    }
+        
+    render() {
+        const title = this.props.title
+        const children = this.props.children
+
+        return (
+            <div className="content-wrapper" style={this.initialStyle}>
+                <ContentHeader title={title} />
+                <section className="content" style={{height: this.state.content_height}}>
+                    {children} 
+                </section>
+            </div>
+        )
+    }
+}
 
 export default Content

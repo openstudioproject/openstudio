@@ -371,7 +371,8 @@ def get_school_subscriptions():
           WHERE Startdate <= '{today}' AND
                 (Enddate >= '{today}' OR Enddate IS NULL) 
         ) scp ON sc.id = scp.school_subscriptions_id
-        WHERE sc.Archived = 'F'
+        WHERE sc.Archived = 'F' 
+            AND (scp.Price > 0 AND scp.Price IS NOT NULL)
         ORDER BY sc.Name
     """.format(today=TODAY_LOCAL)
 
@@ -461,6 +462,22 @@ def get_school_memberships():
     return dict(data=data)
 
 
+def get_customers_thumbnail_url(row_data):
+    if not row_data:
+        return URL(
+            'static', 'images/person.png',
+            scheme=True,
+            host=True
+        )
+    else:
+        return URL(
+            'default', 'download', args=[row_data],
+            extension='',
+            host=True,
+            scheme=True
+        )
+
+
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'auth_user'))
 def get_customers():
@@ -512,18 +529,8 @@ def get_customers():
             'mobile': row.mobile,
             'emergency': row.emergency,
             'company': row.company,
-            'thumbsmall': URL(
-                'default', 'download', args=[row.thumbsmall],
-                extension='',
-                host=True,
-                scheme=True
-            ),
-            'thumblarge': URL(
-                'default', 'download', args=[row.thumblarge],
-                extension='',
-                host=True,
-                scheme=True
-            ),
+            'thumbsmall': get_customers_thumbnail_url(row.thumbsmall),
+            'thumblarge': get_customers_thumbnail_url(row.thumblarge)
         }
 
     return customers
@@ -620,13 +627,55 @@ def update_customer():
 
     if cuID:
         query = (db.auth_user.id == cuID)
-
-
         result = db(query).validate_and_update(**request.vars)
-        print result
 
         return dict(result=result,
                     id=cuID)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'auth_user'))
+def update_customer_picture():
+    """
+    :return: dict containing data of new auth_user
+    """
+    import cStringIO
+
+    set_headers()
+
+    status = 'fail'
+    data = {}
+
+    cuID = request.vars['cuID']
+    picture = request.vars['picture'].split(',')[1] # Remove description from b64 encoded image
+
+    if cuID:
+        # start decode into image
+        import base64
+        png_image = base64.b64decode(picture)
+        # Create file stream
+        stream = cStringIO.StringIO(png_image)
+
+        # Update picture & generate new thumbnails
+        query = (db.auth_user.id == cuID)
+        result = db(query).update(picture=db.auth_user.picture.store(
+            stream, # file stream
+            'picture_%s.png' % cuID # filename
+        ))
+
+        # Generate return values
+        row = db.auth_user(cuID)
+        data = {
+            'id': cuID,
+            'thumbsmall': get_customers_thumbnail_url(row.thumbsmall),
+            'thumblarge': get_customers_thumbnail_url(row.thumblarge)
+        }
+
+        status = 'success'
+
+
+    return dict(result=status,
+                data=data)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \

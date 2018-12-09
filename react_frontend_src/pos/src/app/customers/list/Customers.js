@@ -37,10 +37,6 @@ class Customers extends Component {
         )
     }
 
-    componentDidMount() {
-
-    }
-
     setSearchValue(value) {
         console.log('done something :)!')
         console.log(this.props)
@@ -191,46 +187,59 @@ class Customers extends Component {
                 ]
             } else if (customers.search_value && customers.search_value.length > 1) {
             Object.keys(customers.data).map( (key) => {
-                    //console.log('customer:')
-                    //console.log(key)
-                    //console.log(customers.data[key])
+                    // console.log('customer:')
+                    // console.log(key)
+                    // console.log(customers.data[key])
                     if (customers.data[key].search_name.includes(customers.search_value)) {
                         customers_display.push(customers.data[key])
                     }
                 })
             }
         }
-        console.log(customers_display)
 
         return (
             <PageTemplate app_state={this.props.app}>
                 { 
                     (!customers.loaded || !memberships.loaded) ? 
                         <div>{intl.formatMessage({ id: 'app.pos.customers.loading_message' })}</div> :
-                        <section className="customers_main">
-                            <ButtonBack onClick={this.onClickButtonBack.bind(this)}>
-                                Cancel
-                            </ButtonBack>
-                            <InputGroupSearch placeholder={this.props.intl.formatMessage({ id: 'app.general.placeholders.search' })}
-                                              onChange={this.onChange.bind(this)}
-                                              onClear={this.onClear.bind(this)}
-                                              value={customers.search_value} /> <br />
-                            <ButtonCustomerAdd onClick={this.onClickAdd.bind(this)}/>
-                            
-                            { (customers.displayID) && !(customers.selectedID) ? 
-                                <ButtonPrimary onClick={this.onClickSetCustomer.bind(this)}>
-                                    Select customer
-                                </ButtonPrimary> : ''
-                            }
-                            { (customers.displayID) && (customers.selectedID) ?
-                                <ButtonPrimary onClick={this.onClickDeselectCustomer.bind(this)}>
-                                    Deselect customer
-                                </ButtonPrimary> : ''   
-                            }
+                        <section className="customers-main">
+                            <div className="row customers-main-tools">
+                                <div className="col-md-1">
+                                    <ButtonBack onClick={this.onClickButtonBack.bind(this)}>
+                                        Cancel
+                                    </ButtonBack>
+                                </div>
+                                <div className="col-md-8">
+                                    <InputGroupSearch placeholder={this.props.intl.formatMessage({ id: 'app.general.placeholders.search' })}
+                                                    onChange={this.onChange.bind(this)}
+                                                    onClear={this.onClear.bind(this)}
+                                                    value={customers.search_value} />
+                                </div>
+                                <div className="col-md-3">
+                                    <ButtonCustomerAdd onClick={this.onClickAdd.bind(this)} 
+                                                       classAdditional="pull-right" />
+                                
+                                    { (customers.displayID) && !(customers.selectedID) ? 
+                                        <ButtonPrimary onClick={this.onClickSetCustomer.bind(this)} 
+                                                      classAdditional="pull-right">
+                                            Select customer
+                                        </ButtonPrimary> : ''
+                                    }
+                                    { (customers.displayID) && (customers.selectedID) ?
+                                        <ButtonPrimary onClick={this.onClickDeselectCustomer.bind(this)}
+                                                       classAdditional="pull-right">
+                                            Deselect customer
+                                        </ButtonPrimary> : ''   
+                                    }
+                                </div>
+                            </div>
                             <CustomerDisplay customerID={customers.displayID}
-                                             customers={customers.data} 
+                                             customers={customers} 
                                              edit_in_progress={customers.update_customer}
-                                             onClickEdit={this.onClickEdit.bind(this)} />
+                                             onClickEdit={this.onClickEdit.bind(this)}
+                                             onSetCameraAppSnap={this.props.setCameraAppSnap}
+                                             onClearCameraAppSnap={this.props.clearCameraAppSnap}
+                                             onSaveCameraAppSnap={this.props.updateCustomerPicture} />
                             { (customers.create_customer) ?
                                 <CustomerFormCreate error_data={customers.create_customer_error_data}
                                                     onSubmit={this.onCreateCustomer.bind(this)}

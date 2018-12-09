@@ -11,7 +11,7 @@ const PageTemplate = ({ app_state, children }) =>
     (app_state.error) ?
         <ErrorScreen message={app_state.error_message}
                     data={app_state.error_data}/>:
-        <div>
+        <div style={{height: "auto", minHeight: "100%"}}>
             <MainMenu />
             <Content title={app_state.current_page_title}>
                 {children}
