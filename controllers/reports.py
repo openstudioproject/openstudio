@@ -94,7 +94,11 @@ def get_month_subtitle(month, year):
     return subtitle
 
 
-def get_form_subtitle(month=None, year=None, function=None, _class='col-md-4'):
+def get_form_subtitle(month=None,
+                      year=None,
+                      function=None,
+                      location_filter=False,
+                      _class='col-md-4'):
     months = get_months_list()
     subtitle = ''
     if year and month:
@@ -106,16 +110,38 @@ def get_form_subtitle(month=None, year=None, function=None, _class='col-md-4'):
         year = TODAY_LOCAL.year
         month = TODAY_LOCAL.month
 
-    form = SQLFORM.factory(
-        Field('month',
-               requires=IS_IN_SET(months, zero=None),
-               default=month,
-               label=T("")),
-        Field('year', 'integer',
-              default=year,
-              label=T("")),
-        submit_button=T("Run report")
-        )
+    if not location_filter:
+        form = SQLFORM.factory(
+            Field('month',
+                   requires=IS_IN_SET(months, zero=None),
+                   default=month,
+                   label=T("")),
+            Field('year', 'integer',
+                  default=year,
+                  label=T("")),
+            submit_button=T("Run report")
+            )
+    else:
+        loc_query = (db.school_locations.Archived == False)
+
+        form = SQLFORM.factory(
+            Field('month',
+                   requires=IS_IN_SET(months, zero=None),
+                   default=month,
+                   label=T("")),
+            Field('year', 'integer',
+                  default=year,
+                  label=T("")),
+            Field('school_locations_id', db.school_locations,
+                  requires=IS_IN_DB(db(loc_query),
+                                    'school_locations.id',
+                                    '%(Name)s',
+                                    zero=T("All locations")),
+                  default=session.reports_subscriptions_school_locations_id,
+                  represent=lambda value, row: locations_dict.get(value, T("No location")),
+                  label=T("Location")),
+            submit_button=T("Run report")
+            )
     form.attributes['_name']  = 'form_select_date'
     form.attributes['_class'] = 'overview_form_select_date'
 
@@ -168,10 +194,14 @@ def get_form_subtitle(month=None, year=None, function=None, _class='col-md-4'):
     if not function == 'attendance_classes':
         month_chooser = overview_get_month_chooser(function)
 
+    location = ''
+    if location_filter:
+        location = form.custom.widget.school_locations_id
 
     form = DIV(XML('<form id="MainForm" action="#" enctype="multipart/form-data" method="post">'),
                DIV(form.custom.widget.month,
                    form.custom.widget.year,
+                   location,
                    _class=_class),
                form.custom.end,
                _class='row')
@@ -1504,7 +1534,7 @@ def subscriptions_new():
     response.view = 'reports/subscriptions.html'
 
     # set the session vars for year/month
-    subscriptions_set_date()
+    subscriptions_process_request_vars()
 
     date = datetime.date(session.reports_subscriptions_year,
                          session.reports_subscriptions_month,
@@ -1513,9 +1543,14 @@ def subscriptions_new():
     reports = Reports()
     query = reports.get_query_subscriptions_new_in_month(date)
 
+    location_filter = False
+    if session.show_location:
+        location_filter = True
+
     result = get_form_subtitle(session.reports_subscriptions_month,
                                session.reports_subscriptions_year,
-                               request.function)
+                               request.function,
+                               location_filter=location_filter)
     response.subtitle = T('Subscriptions') + ' - ' + result['subtitle']
     form = result['form']
     month_chooser = result['month_chooser']
@@ -1588,7 +1623,7 @@ def subscriptions_stopped():
     response.view = 'reports/subscriptions.html'
 
     # set the session vars for year/month
-    subscriptions_set_date()
+    subscriptions_process_request_vars()
 
     date = datetime.date(session.reports_subscriptions_year,
                          session.reports_subscriptions_month,
@@ -1697,7 +1732,7 @@ def subscriptions_paused():
     response.view = 'reports/subscriptions.html'
 
     # set the session vars for year/month
-    subscriptions_set_date()
+    subscriptions_process_request_vars()
 
     date = datetime.date(session.reports_subscriptions_year,
                          session.reports_subscriptions_month,
@@ -1764,36 +1799,6 @@ def subscriptions_paused():
                 submit=submit)
 
 
-def subscriptions_get_location_filter(locationID):
-    """
-        Get subscriptions location filter
-    """
-    # check if we need a location filter
-    if not session.show_location:
-        location_filter = ''
-    else:
-        # add location filter form
-        location_filter = SQLFORM.factory(
-            Field('locationID',
-                  requires=IS_IN_DB(db, 'school_locations.id', '%(Name)s',
-                                    zero=T('All locations')),
-                  default=locationID,
-                  label=T('')))
-
-        # submit form on change
-        selects = location_filter.elements('select')
-        for select in selects:
-            select.attributes['_onchange'] = "this.form.submit();"
-
-        location_filter = DIV(DIV(location_filter.custom.begin,
-                                  location_filter.custom.widget.locationID,
-                                  location_filter.custom.end,
-                                  _class='col-md-4'),
-                              _class='row')
-
-    return location_filter
-
-
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('read', 'reports_subscriptions'))
 def subscriptions_overview():
@@ -1804,7 +1809,7 @@ def subscriptions_overview():
     response.view = 'reports/subscriptions.html'
 
     # set the session vars for year/month
-    subscriptions_set_date()
+    subscriptions_process_request_vars()
 
     # get first and last day of this month
     date = datetime.date(session.reports_subscriptions_year,
@@ -1814,23 +1819,19 @@ def subscriptions_overview():
     lastdaythismonth = get_last_day_month(date)
 
     # get month/year selection form and subtitle
+    location_filter = False
+    if session.show_location:
+        location_filter = True
+
     form_subtitle = get_form_subtitle(session.reports_subscriptions_month,
                                       session.reports_subscriptions_year,
-                                      request.function)
+                                      request.function,
+                                      location_filter=location_filter)
     response.subtitle = T('Subscriptions') + ' - ' + form_subtitle['subtitle']
     form = form_subtitle['form']
     month_chooser = form_subtitle['month_chooser']
     current_month = form_subtitle['current_month']
     submit = form_subtitle['submit']
-
-    # add location filter form
-    if 'locationID' in request.vars:
-        locationID = request.vars['locationID']
-        session.reports_subscriptions_overview_locationID = locationID
-    else:
-        locationID = session.reports_subscriptions_overview_locationID
-
-    location_filter = subscriptions_get_location_filter(locationID)
 
 
     count = db.customers_subscriptions.school_subscriptions_id.count()
@@ -1839,8 +1840,9 @@ def subscriptions_overview():
              (db.customers_subscriptions.Enddate == None))
 
     if session.show_location:
-        if locationID:
-            query &= (db.auth_user.school_locations_id == locationID)
+        if session.reports_subscriptions_school_locations_id:
+            query &= (db.auth_user.school_locations_id ==
+                      session.reports_subscriptions_school_locations_id)
 
     rows = db(query).select(db.customers_subscriptions.ALL,
                             db.school_subscriptions.ALL,
@@ -1910,9 +1912,6 @@ def subscriptions_overview():
                     TD(),
                  _class='total'))
 
-    form = DIV(form)
-    if session.show_location:
-        form.append(location_filter)
 
     link_all_customers = A(
         SPAN(os_gui.get_fa_icon('fa-users'), ' ', T("All customers")),
@@ -2197,7 +2196,7 @@ def subscriptions_overview_customers():
         ssuID = session.reports_subscriptions_overview_customers_ssuID
 
     # set the session vars for year/month
-    subscriptions_set_date()
+    subscriptions_process_request_vars()
 
     # Redirect back from customers edit pages
     session.customers_back = request.function
@@ -2359,7 +2358,7 @@ def subscriptions_alt_prices():
     session.invoices_edit_back = 'reports_' + request.function
 
     # set the session vars for year/month
-    subscriptions_set_date()
+    subscriptions_process_request_vars()
 
     # get first and last day of this month
     date = datetime.date(session.reports_subscriptions_year,
@@ -2492,11 +2491,11 @@ def subscriptions_alt_prices():
 
 
 @auth.requires_login()
-def subscriptions_set_date():
+def subscriptions_process_request_vars():
     """
         This function takes the request.vars as a argument and
     """
-    today = datetime.date.today()
+    today = TODAY_LOCAL
     if 'year' in request.vars:
         year = int(request.vars['year'])
     elif not session.reports_subscriptions_year is None:
@@ -2511,6 +2510,14 @@ def subscriptions_set_date():
     else:
         month = today.month
     session.reports_subscriptions_month = month
+
+    if 'school_locations_id' in request.vars:
+        slID = request.vars['school_locations_id']
+    elif not session.reports_subscriptions_school_locations_id is None:
+        slID = session.reports_subscriptions_school_locations_id
+    else:
+        slID = None
+    session.reports_subscriptions_school_locations_id = slID
 
     session.reports_subscriptions = request.function
 
