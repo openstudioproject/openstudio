@@ -404,23 +404,12 @@ def membership_buy_now():
     # check if we have a mollie customer id
     create_mollie_customer(auth.user.id, mollie)
 
-    # add membership to customer
-    cmID = db.customers_memberships.insert(
-        auth_customer_id = auth.user.id,
-        school_memberships_id = smID,
-        Startdate = TODAY_LOCAL,
-        payment_methods_id = 100, # important, 100 is the payment_methods_id for Mollie
-    )
-
-    cm = CustomerMembership(cmID)
-    cm.set_date_id_and_barcode()
-
-    # clear cache to make sure it shows in the back end
-    cache_clear_customers_memberships(auth.user.id)
-
     # Create invoice
     sm = SchoolMembership(smID)
-    iID = sm.sell_to_customer_create_invoice(cmID)
+    cmID = sm.sell_to_customer(auth.user.id, TODAY_LOCAL)
+
+    cm = CustomerMembership(cmID)
+    iID = cm.get_linked_invoice()
 
     # Pay invoice ... SHOW ME THE MONEY!! :)
     redirect(URL('invoice_pay', vars={'iID':iID}))

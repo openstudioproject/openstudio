@@ -1376,7 +1376,7 @@ def test_classcards(client, web2py):
     ## check regular card
     scd = web2py.db.school_classcards(1)
     # Panel type
-    assert 'box-primary' in client.text
+    assert 'box-widget' in client.text
     # Name
     assert scd.Name in client.text
     # Validity
@@ -1388,8 +1388,6 @@ def test_classcards(client, web2py):
 
     ## check trial card
     scd = web2py.db.school_classcards(2)
-    # Panel type
-    assert 'box-success' in client.text
     # Name
     assert scd.Name in client.text
     # Validity

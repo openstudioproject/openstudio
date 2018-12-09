@@ -688,6 +688,10 @@ def validate_cart():
 
     error = False
     message = ''
+    receipt_link = None
+    receipt_items = None
+    receipt_amounts = None
+    receipt_pmID = None
 
 
     #If no customerID; just make receipt and update stock
@@ -704,12 +708,35 @@ def validate_cart():
     print 'validate_cart_items:'
     print items
 
+    # Verify items
     if not items:
         error = True
         message = T("No items were submitted for processing")
 
+    if not error and not pmID:
+        error = True
+        message = T("No payment method was selected")
 
-
+    # Verify customer doesn't already have subscription or membership
+    if cuID and not error:
+        from openstudio.os_customer import Customer
+        customer = Customer(cuID)
+        for item in items:
+            if item['item_type'] == 'subscription':
+                subscription_ids = customer.get_school_subscriptions_ids_on_date(TODAY_LOCAL)
+                print 'validating subscriptions'
+                print subscription_ids
+                if item['data']['id'] in subscription_ids:
+                    error = True
+                    message = T("This customer already has this subscription")
+                        
+            if item['item_type'] == 'membership':
+                membership_ids = customer.get_school_memberships_ids_on_date(TODAY_LOCAL)
+                print 'validating memberhsips'
+                print membership_ids
+                if item['data']['id'] in membership_ids:
+                    error = True
+                    message = T("This customer already has this membership")
     ## IMPORTANT: Get Item price & VAT info from server DB, not from Stuff submitted by Javascript.
     # JS can be manipulated.
     if not error:
@@ -723,20 +750,37 @@ def validate_cart():
             invoice_created = True
 
 
-
         # Always create payment receipt
         print 'create receipt'
-        validate_cart_create_receipt(
+        receipt = validate_cart_create_receipt(
             invoice_created,
             invoice,
             pmID,
             items,
         )
 
+        receipt_link = URL(
+            'finance', 'receipt',
+            vars={'rID':receipt.receipts_id},
+            extension='',
+            scheme=True,
+            host=True
+        )
+
+        receipt_items = receipt.get_receipt_items_rows()
+        print receipt_items
+        receipt_amounts = receipt.get_amounts()
+        receipt_pmID = receipt.row.payment_methods_id
 
 
-
-    return dict(error=error, message=message)
+    return dict(
+        error=error,
+        message=message,
+        receipt_link=receipt_link,
+        receipt_items=receipt_items,
+        receipt_amounts=receipt_amounts,
+        receipt_payment_methods_id=receipt_pmID
+    )
 
 
 def validate_cart_create_order(cuID, pmID, items):
@@ -825,3 +869,4 @@ def validate_cart_create_receipt(
         for item in invoice_items:
             receipt.item_add_from_invoice_item(item)
 
+    return receipt

@@ -75,8 +75,11 @@ class ClassAttendance:
         """
             Set status cancelled
         """
+        from os_cache_manager import OsCacheManager
+
         T = current.T
         db = current.db
+        ocm = OsCacheManager()
         NOW_LOCAL = current.NOW_LOCAL
         return_message = T('Cancelled class')
 
@@ -89,6 +92,11 @@ class ClassAttendance:
             # Remove credits taken from customer for attending a class
             query = (db.customers_subscriptions_credits.classes_attendance_id == self.id)
             db(query).delete()
+
+            # Refresh cache for this customer for both cards & subscriptions
+            ocm.clear_customers_classcards(self.row.auth_customer_id)
+            ocm.clear_customers_subscriptions(self.row.auth_customer_id)
+
         else:
             return_message = T("This class can no longer be cancelled")
 

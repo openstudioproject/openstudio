@@ -102,3 +102,14 @@ export const setUpdateCustomerStatus = (status) =>
         type: T.SET_UPDATE_CUSTOMER_STATUS,
         status
     })
+
+export const setRedirectNextComponent = (component) =>
+    ({
+        type: T.SET_REDIRECT_NEXT_COMPONENT,
+        component
+    })
+
+export const clearRedirectNextComponent = () =>
+    ({
+        type: T.CLEAR_REDIRECT_NEXT_COMPONENT,
+    })

@@ -18,26 +18,20 @@ class ValidationList extends Component {
         intl: intlShape.isRequired,
         setPageTitle: PropTypes.function,
         app: PropTypes.object,
-        items: PropTypes.array,
-        total: PropTypes.int,
-        selected_method: PropTypes.int,
+        data: PropTypes.object
     }
 
     render() {
         const app = this.props.app
-        const items = this.props.items
-        const total = this.props.total
-        const selected_method = this.props.selected_method
-
-        const d = new Date()
+        const data = this.props.data
 
         return (
+            !(app.loaded) || !(app.cart_validated) ? 
+                "Loading" :
             <div>
-                <ValidationListItems items={items} />
-                Date: {d.getDay() + "-" + d.getMonth() + "-" + d.getFullYear()}<br />
-                Cashier: {app.user.profile.id} <br />
-                Payment Method: <PaymentMethodName /> <br />
-                Total: <Currency amount={total} />
+                Payment Method: <PaymentMethodName /> <br /><br />
+                <ValidationListItems items={app.cart_validation_data.receipt_items}
+                                     total={app.cart_validation_data.receipt_amounts.TotalPriceVAT} />
 
             </div>
         )

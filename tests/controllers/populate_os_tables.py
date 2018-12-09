@@ -137,8 +137,10 @@ def populate_payment_methods(web2py):
         if not row is None:
             query = (web2py.db.payment_methods.id == i)
             web2py.db(query).delete()
-        web2py.db.payment_methods.insert(id=i,
-                                  Name=method)
+        web2py.db.payment_methods.insert(
+            id=i,
+            Name=method
+        )
         i += 1
 
 
@@ -432,6 +434,7 @@ def populate_customers_with_memberships(web2py,
                                         created_on=datetime.date.today()):
 
     populate_school_memberships(web2py)
+    # populate_payment_methods(web2py)
 
     if not customers_populated:
         populate_customers(web2py, nr_of_customers, created_on=created_on)
@@ -460,9 +463,8 @@ def populate_customers_with_memberships(web2py,
 
             iID = web2py.db.invoices.insert(
                 invoices_groups_id=100,
+                payment_methods_id=1,
                 InvoiceID="INV2018" + unicode(i),
-                MembershipPeriodStart=startdate,
-                MembershipPeriodEnd=enddate,
             )
 
             ciID = web2py.db.invoices_customers.insert(
@@ -1564,6 +1566,7 @@ def populate_school_subscriptions(web2py, membership_required=False):
     # 1
     web2py.db.school_subscriptions.insert(
         Archived    = False,
+        ShopSubscription = True,
         PublicSubscription = True,
         MembershipRequired = membership_required,
         Name = 'one class a week',
@@ -1725,7 +1728,11 @@ def populate_tax_rates(web2py):
 #
 #     web2py.db.commit()
 
-def populate_invoices(web2py, teacher_fixed_price_invoices=False):
+def populate_invoices(web2py,
+                      teacher_fixed_price_invoices=False,
+                      employee_claim = False,
+                      customers_orders = False
+                      ):
     """
         Adds one invoice for each user found
     """
@@ -1743,6 +1750,7 @@ def populate_invoices(web2py, teacher_fixed_price_invoices=False):
         teacher_payment_month = datetime.date.today().month
         teacher_payment_year = datetime.date.today().year
 
+
     rows = web2py.db().select(web2py.db.auth_user.ALL)
     for row in rows:
         cuID = row.id
@@ -1753,6 +1761,7 @@ def populate_invoices(web2py, teacher_fixed_price_invoices=False):
             TeacherPayment=teacher_payment,
             TeacherPaymentMonth=teacher_payment_month,
             TeacherPaymentYear=teacher_payment_year,
+            EmployeeClaim = employee_claim,
             CustomerName=row.display_name,
             Status = 'sent',
             InvoiceID = 'INV' + unicode(cuID),
@@ -1764,6 +1773,16 @@ def populate_invoices(web2py, teacher_fixed_price_invoices=False):
             auth_customer_id = cuID,
             invoices_id = iID
         )
+        if customers_orders:
+            coID = web2py.db.customers_orders.insert(
+                auth_customer_id=cuID,
+                Status='awaiting_payment',
+                CustomerNote='Order_note_for_' + unicode(cuID)
+            )
+            web2py.db.invoices_customers_orders.insert(
+                invoices_id = iID,
+                customers_orders_id = coID
+            )
 
         web2py.db.invoices_amounts.insert(invoices_id = iID)
 

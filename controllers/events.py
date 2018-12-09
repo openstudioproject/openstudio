@@ -2438,7 +2438,7 @@ def ticket_add():
 
     db.workshops_products.workshops_id.default = wsID
     crud.messages.submit_button = T("Save")
-    crud.messages.record_created = T("Saved product")
+    crud.messages.record_created = T("Saved ticket")
     crud.settings.create_next = next_url
     crud.settings.create_onaccept = [cache_clear_workshops]
     crud.settings.formstyle = 'bootstrap3_stacked'
@@ -2479,7 +2479,7 @@ def ticket_edit():
                      vars={'wsID': wsID})
 
     crud.messages.submit_button = T("Save")
-    crud.messages.record_updated = T("Saved product")
+    crud.messages.record_updated = T("Saved ticket")
     crud.settings.update_next = return_url
     crud.settings.update_onaccept = [cache_clear_workshops]
     crud.settings.update_deletable = False
@@ -2521,7 +2521,7 @@ def ticket_delete():
         # Clear cache
         cache_clear_workshops()
     else:
-        session.flash = T("Can't delete this product")
+        session.flash = T("Can't delete this ticket")
 
     redirect(URL('tickets', vars={'wsID': wsID}))
 

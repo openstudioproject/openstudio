@@ -212,6 +212,11 @@ def my_classes():
                                            URL('cancel_request_sub',
                                                vars={'cotcID': open_class.id}),
                                            title='Cancel', _class='pull-right', btn_class='btn-warning')
+
+
+            # Disable find sub button
+            button = ''
+
             tr = TR(
                 TD(status_marker,
                    _class='td_status_marker'),

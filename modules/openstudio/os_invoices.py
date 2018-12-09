@@ -73,25 +73,6 @@ class Invoices:
         db.invoices.SubscriptionMonth.writable = True
 
 
-    def _add_get_form_enable_membership_fields(self, cmID):
-        """
-        Enable fields required for customer memberships
-
-        :param cmID: db.customers_memberships.id
-        :return: None
-        """
-        from openstudio.os_customer_membership import CustomerMembership
-
-        db = current.db
-
-        cm = CustomerMembership(cmID)
-        db.invoices.payment_methods_id.default = cm.row.payment_methods_id
-        db.invoices.MembershipPeriodStart.readable = True
-        db.invoices.MembershipPeriodStart.writable = True
-        db.invoices.MembershipPeriodEnd.readable = True
-        db.invoices.MembershipPeriodEnd.writable = True
-
-
     def add_get_form(self, cuID,
                            csID = None,
                            cmID = None,
@@ -112,8 +93,6 @@ class Invoices:
         self._add_get_form_enable_minimal_fields()
         if csID:
             self._add_get_form_enable_subscription_fields(csID)
-        if cmID:
-            self._add_get_form_enable_membership_fields(cmID)
 
         form = SQLFORM(db.invoices, formstyle='bootstrap3_stacked')
 
@@ -135,13 +114,6 @@ class Invoices:
                 invoice.item_add_subscription(
                     form.vars.SubscriptionYear,
                     form.vars.SubscriptionMonth
-                )
-
-            if cmID:
-                invoice.item_add_membership(
-                    cmID,
-                    form.vars.MembershipPeriodStart,
-                    form.vars.MembershipPeriodEnd
                 )
 
             redirect(URL('invoices', 'edit', vars={'iID':iID}))
@@ -289,30 +261,17 @@ class Invoices:
                 payments.append(SPAN(T('Direct debit'), _class='grey small_font'))
             else:
                 # show add payment
-                content = LOAD('invoices', 'payment_add.load', ajax=True,
-                                vars={'iID':iID})
 
-                invoice = db.invoices(iID)
-                title = current.T('Add payment for invoice') + ' #' + \
-                        invoice.InvoiceID
+                button = os_gui.get_button(
+                    'credit-card',
+                    URL('invoices', 'payment_add', vars={'iID':iID}),
+                    title=T("Add payment"),
+                    btn_size='btn-xs',
+                    _class='grey'
+                )
 
-                button_text = XML(SPAN(
-                    SPAN(_class='fa fa-credit-card'), ' ',
-                    current.T('Add payment'),
-                    _class='small_font grey'
-                ))
-
-                form_id = 'form_payment_add_' + unicode(iID)
-
-                result = os_gui.get_modal(button_text=button_text,
-                                          button_title=current.T("Add payment"),
-                                          modal_title=title,
-                                          modal_content=content,
-                                          modal_footer_content=os_gui.get_submit_button(form_id),
-                                          modal_class='form_payment_add_' + unicode(iID),
-                                          button_class='btn-xs invoice_list_add_payment')
-
-                payments.append(SPAN(result['button'], result['modal']))
+                # payments.append(SPAN(result['button'], result['modal']))
+                payments.append(button)
 
         return payments
 
@@ -640,6 +599,15 @@ class Invoices:
                                      URL('invoices', 'edit', vars={'iID': iID}, extension=''),
                                      tooltip=T('Edit Invoice'))
             links.append(edit)
+
+
+        # if auth.has_membership(group_id='Admins') or \
+        #         auth.has_permission('create', 'invoices'):
+        #     duplicate = os_gui.get_button('duplicate',
+        #                              URL('invoices', 'duplicate', vars={'iID': iID}, extension=''),
+        #                                   # title= T("Duplicate"),
+        #                              tooltip=T('Duplicate Invoice'))
+        #     links.append(duplicate)
 
         return buttons
 

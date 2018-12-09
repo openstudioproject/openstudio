@@ -1827,6 +1827,7 @@ def classcard_add_classic():
     crud.messages.record_created = T("Added card")
     crud.settings.create_next = return_url
     crud.settings.create_onaccept = functions_onadd
+    crud.settings.formstyle = "bootstrap3_stacked"
     form = crud.create(db.customers_classcards)
 
     form_element = form.element('form')
@@ -1838,11 +1839,14 @@ def classcard_add_classic():
 
     submit = form.element('input[type=submit]')
 
-    back = os_gui.get_button('back_bs', return_url)
+    content = DIV(
+        H4(T("Add new card")),
+        BR(),
+        form
+    )
 
-    content = DIV(back, form)
+    back = os_gui.get_button('back', return_url)
 
-    back = edit_get_back()
 
     menu = customers_get_menu(customers_id, 'classcards')
 
@@ -1939,6 +1943,7 @@ def classcard_edit():
     crud.settings.update_onaccept = [ classcard_edit_update_classes_taken, classcards_clear_cache ]
     crud.settings.update_next = return_url
     crud.settings.update_deletable = False
+    crud.settings.formstyle = "bootstrap3_stacked"
     form = crud.update(db.customers_classcards, classcardID)
 
     form_element = form.element('form')
@@ -1950,11 +1955,14 @@ def classcard_edit():
 
     submit = form.element('input[type=submit]')
 
-    back = os_gui.get_button('back_bs', return_url)
+    back = os_gui.get_button('back', return_url)
 
-    content = DIV(back, form)
+    content = DIV(
+        H4(T("Edit class card")),
+        BR(),
+        form
+   )
 
-    back = edit_get_back()
 
     menu = customers_get_menu(customers_id, 'classcards')
 
@@ -6386,6 +6394,9 @@ def memberships():
     customers_id = request.vars['cuID']
     response.view = 'customers/edit_general.html'
 
+    session.invoices_edit_back = 'customers_memberships'
+    session.invoices_payment_add_back = 'customers_memberships'
+
     row = db.auth_user(customers_id)
     response.title = row.display_name
     response.subtitle = T("Memberships")
@@ -6396,14 +6407,34 @@ def memberships():
                       TH(db.customers_memberships.Enddate.label),
                       TH(db.customers_memberships.payment_methods_id.label),
                       TH(db.customers_memberships.Note.label),
+                      TH(T("Invoice")),
                       TH())  # buttons
                    )
 
     table = TABLE(header, _class='table table-hover table-striped')
 
+    left = [
+        db.invoices_customers_memberships.on(
+            db.invoices_customers_memberships.customers_memberships_id ==
+            db.customers_memberships.id
+        ),
+        db.invoices.on(
+            db.invoices_customers_memberships.invoices_id ==
+            db.invoices.id
+        )
+    ]
+
     query = (db.customers_memberships.auth_customer_id == customers_id)
-    rows = db(query).select(db.customers_memberships.ALL,
-                            orderby=~db.customers_memberships.Startdate)
+    rows = db(query).select(
+        db.customers_memberships.ALL,
+        db.invoices.id,
+        db.invoices.Status,
+        db.invoices.InvoiceID,
+        db.invoices.payment_methods_id,
+        left=left,
+        orderby=~db.customers_memberships.Startdate|\
+                ~db.customers_memberships.id
+    )
 
     edit_permission = auth.has_membership(group_id='Admins') or \
                         auth.has_permission('update', 'customers_memberships')
@@ -6419,19 +6450,20 @@ def memberships():
             onclick_del = "return confirm('" + confirm_msg + "');"
             delete = os_gui.get_button('delete_notext',
                                        URL('membership_delete', vars={'cuID': customers_id,
-                                                                      'cmID': row.id}),
+                                                                      'cmID': row.customers_memberships.id}),
                                        onclick=onclick_del,
                                        _class='pull-right')
         edit = ''
         if edit_permission:
             edit = memberships_get_link_edit(row)
 
-        tr = TR(TD(row.id),
-                TD(repr_row.school_memberships_id),
-                TD(repr_row.Startdate),
-                TD(repr_row.Enddate),
-                TD(repr_row.payment_methods_id),
-                TD(repr_row.Note),
+        tr = TR(TD(row.customers_memberships.id),
+                TD(repr_row.customers_memberships.school_memberships_id),
+                TD(repr_row.customers_memberships.Startdate),
+                TD(repr_row.customers_memberships.Enddate),
+                TD(repr_row.customers_memberships.payment_methods_id),
+                TD(repr_row.customers_memberships.Note),
+                TD(memberships_get_link_invoice(row)),
                 TD(delete, edit))
 
         table.append(tr)
@@ -6460,14 +6492,15 @@ def memberships_get_link_edit(row):
     """
         Returns drop down link for subscriptions
     """
-    vars = {'cuID': row.auth_customer_id,
-            'cmID': row.id}
+    cmID = row.customers_memberships.id
+    vars = {'cuID': row.customers_memberships.auth_customer_id,
+            'cmID': cmID}
 
-    cmID = row.id
+
 
     links = [
         A((os_gui.get_fa_icon('fa-barcode'), ' ', T('Barcode label')),
-          _href=URL('barcode_label_membership', vars={'cmID': row.id}),
+          _href=URL('barcode_label_membership', vars={'cmID': cmID}),
           _target="_blank")
     ]
 
@@ -6478,13 +6511,6 @@ def memberships_get_link_edit(row):
                       _href=URL('membership_edit', vars=vars))
         links.append(link_edit)
 
-    permission = ( auth.has_membership(group_id='Admins') or
-                   auth.has_permission('read', 'invoices') )
-    if permission:
-        link_invoices = A((os_gui.get_fa_icon('fa-file-o'), ' ', T('Invoices')),
-                          _href=URL('membership_invoices', vars=vars))
-
-        links.append(link_invoices)
 
     menu = os_gui.get_dropdown_menu(
         links=links,
@@ -6494,6 +6520,31 @@ def memberships_get_link_edit(row):
         menu_class='btn-group pull-right')
 
     return menu
+
+
+def memberships_get_link_invoice(row):
+    """
+        Returns invoice for classcard in list
+    """
+    if row.invoices.id:
+        invoices = Invoices()
+
+        query = (db.invoices.id == row.invoices.id)
+        rows = db(query).select(db.invoices.ALL)
+        repr_row = rows.render(0)
+
+        invoice_link = invoices.represent_invoice_for_list(
+            row.invoices.id,
+            repr_row.InvoiceID,
+            repr_row.Status,
+            row.invoices.Status,
+            row.invoices.payment_methods_id
+        )
+
+    else:
+        invoice_link = ''
+
+    return invoice_link
 
 
 def memberships_clear_cache(form):
@@ -6532,9 +6583,9 @@ def membership_add():
         db.customers_memberships,
         return_url,
         onaccept = [
+            membership_add_set_enddate,
             membership_add_create_invoice,
             membership_add_set_date_id,
-            membership_add_set_enddate,
             memberships_clear_cache,
         ]
     )
@@ -6706,76 +6757,6 @@ def membership_delete():
 
     session.flash = T('Deleted membership')
     redirect(memberships_get_return_url(cuID))
-
-
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'invoices'))
-def membership_invoices():
-    """
-        Page to list invoices for a subscription
-    """
-    from openstudio.tools import OsSession
-    from openstudio.os_customer_membership import CustomerMembership
-
-    os_session = OsSession()
-    cmID = os_session.get_request_var_or_session(
-        'cmID',
-        None,
-        'customers_membership_invoices_cmID'
-    )
-
-    cuID  = request.vars['cuID']
-    response.view = 'general/tabs_menu.html'
-
-    session.invoices_edit_back = 'customers_membership_invoices'
-    session.invoices_payment_add_back = 'customers_membership_invoices'
-
-    # Always reset filter
-    session.invoices_list_status = None
-
-    customer = Customer(cuID)
-    cm = CustomerMembership(cmID)
-    response.title = customer.get_name()
-    response.subtitle = SPAN(T("Edit membership"), ' ',
-                             cm.get_name())
-
-    # add button
-    invoices = Invoices()
-    form = invoices.add_get_form(cuID, cmID=cmID)
-    result = invoices.add_get_modal(form)
-    add = result['button']
-    modal_class = result['modal_class']
-
-    status_filter = invoices.list_get_status_filter()
-
-    if len(form.errors):
-        response.js = "show_add_modal();"
-
-    list = invoices.list_invoices(cuID=cuID, cmID=cmID)
-
-    # main list
-    content = DIV(DIV(status_filter,list))
-
-    menu = membership_edit_get_menu(cuID, cmID, request.function)
-    back = membership_edit_get_back(cuID)
-
-    return dict(content=content,
-                menu=menu,
-                add=add,
-                back=back,
-                form_add=form,
-                modal_class=modal_class)
-
-
-# def memberships_clear_cache(form):
-#     """
-#         Clear the subscriptions cache for customer
-#     """
-#     csID = form.vars.id
-#     cs = db.customers_memberships(csID)
-#     cuID = cs.auth_customer_id
-#
-#     cache_clear_customers_memberships(cuID)
 
 
 def memberships_get_return_url(customers_id):

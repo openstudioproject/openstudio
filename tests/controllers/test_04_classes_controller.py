@@ -1117,8 +1117,8 @@ def test_classes_open(client, web2py):
     """
         Check if classes appear on the classes_open list
     """
-    populate_classes(web2py)
-    assert web2py.db(web2py.db.classes).count() == 1
+    prepare_classes(web2py)
+    assert web2py.db(web2py.db.classes).count() >= 1
 
     # get 2 mondays later than today
     delta = datetime.timedelta(days=7)
@@ -1129,17 +1129,20 @@ def test_classes_open(client, web2py):
     web2py.db.classes_otc.insert(
         Status = 'open',
         classes_id = 1,
-        ClassDate = next_monday )
+        ClassDate = next_monday
+    )
     web2py.db.classes_otc.insert(
         Status = 'open',
         classes_id = 1,
         ClassDate = monday_after_that,
         school_locations_id = 2,
-        school_classtypes_id = 2)
+        school_classtypes_id = 2
+    )
     web2py.db.classes_otc.insert(
         Status = 'open',
         classes_id = 1,
-        ClassDate = '2014-01-06' )
+        ClassDate = '2014-01-06'
+    )
 
     web2py.db.commit()
 

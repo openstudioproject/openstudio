@@ -74,6 +74,11 @@ def test_membership_buy_now(client, web2py):
     """
     Is the membership buy now function working?
     """
+    # Get random url to init env
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
 
     setup_profile_tests(web2py)
     populate_school_memberships(web2py)

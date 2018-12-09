@@ -10,10 +10,10 @@ def test_automation_customers_memberships_renew_expired(client, web2py):
     """
     from populate_os_tables import populate_customers_with_memberships
     import datetime
+
     # from openstudio/os_customer_membership import CustomerMembership
     # Get random url to initialize OpenStudio environment
     url = '/default/user/login'
-
     client.get(url)
     assert client.status == 200
 

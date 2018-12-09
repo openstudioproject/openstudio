@@ -37,6 +37,7 @@ class CustomerSubscription:
         """
         from os_invoice import Invoice
 
+        T = current.T
         db = current.db
         TODAY_LOCAL = current.TODAY_LOCAL
         DATE_FORMAT = current.DATE_FORMAT
@@ -101,7 +102,7 @@ class CustomerSubscription:
             customers_subscriptions_id=self.csID,
             SubscriptionYear=SubscriptionYear,
             SubscriptionMonth=SubscriptionMonth,
-            Description='',
+            Description=T("Subscription"),
             Status='sent'
         )
 

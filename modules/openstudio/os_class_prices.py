@@ -12,7 +12,8 @@ class ClassPrices:
 
         query = (db.classes_price.classes_id == clsID)
 
-        return db(query).select(db.classes_price.ALL)
+        return db(query).select(db.classes_price.ALL,
+                                orderby=~db.classes_price.Startdate)
 
 
     def get_prices_for_class_display(self, clsID):

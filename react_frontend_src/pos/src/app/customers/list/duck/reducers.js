@@ -131,6 +131,16 @@ export const listReducer = (state = {}, action={ type: null }) => {
                 ...state,
                 selectedID: action.id,
             }
+        case T.CLEAR_REDIRECT_NEXT_COMPONENT:
+            return {
+                ...state,
+                redirect_next_component: null,
+            }
+        case T.SET_REDIRECT_NEXT_COMPONENT:
+            return {
+                ...state,
+                redirect_next_component: action.component,
+            }
         default:
             return {
                 ...state

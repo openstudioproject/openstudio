@@ -29,7 +29,28 @@ const representValidityUnit = ( Validity, ValidityUnit, intl ) => {
 const MembershipsListItem = injectIntl(withRouter(({data, intl, onClick=f=>f}) => 
     <div className="col-md-4"
          onClick={onClick}>
-        <div className="panel panel-default">
+
+        <div className="small-box bg-purple">
+            <div className="inner">
+                <h4>
+                    {data.Name}
+                </h4>
+                <h4>
+                    <b>
+                    {(data.Price) ? 
+                        <Currency amount={data.Price} /> : 
+                    intl.formatMessage({ id:"app.general.strings.not_set"}) }
+                    </b> <small className="text-white">per {representValidityUnit(data.Validity, data.ValidityUnit, intl)}</small>
+                </h4>
+                <p>
+                    {data.Description}
+                </p>
+            </div>
+            <div class="icon">
+              <i class="fa fa-sign-in"></i>
+            </div>
+         </div>
+        {/* <div className="panel panel-default">
             <div className="panel-heading">
                 <h3 className="panel-title">{data.Name}</h3>
             </div>
@@ -37,7 +58,7 @@ const MembershipsListItem = injectIntl(withRouter(({data, intl, onClick=f=>f}) =
                     <tbody>
                         <tr>
                             <td>{intl.formatMessage({ id:"app.general.strings.validity" })}</td>
-                            <td>{representValidityUnit(data.Validity, data.ValidityUnit, intl)}</td>
+                            <td></td>
                         </tr>
                         <tr>
                             <td>{intl.formatMessage({ id:"app.general.strings.price" })}</td>
@@ -51,7 +72,7 @@ const MembershipsListItem = injectIntl(withRouter(({data, intl, onClick=f=>f}) =
                         </tr>
                     </tbody>
                 </table>
-        </div>
+        </div> */}
     </div>
 ))
 

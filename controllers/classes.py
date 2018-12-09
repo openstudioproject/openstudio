@@ -1749,12 +1749,14 @@ def schedule_export_excel():
     iso_week = request.vars['week']
     export = request.vars['export']
 
+
     def get_cell_id(col, row):
         """
             Returns cell id for colums / row
         """
         col_letter = openpyxl.utils.get_column_letter(col)
         return col_letter + unicode(row)
+
 
     def writer_location(locID=None):
         """
@@ -1795,14 +1797,14 @@ def schedule_export_excel():
 
                 time = repr_row.classes.Starttime + " - " + repr_row.classes.Endtime
                 if locID is None:
-                    class_data += location + "\n" + \
+                    class_data += location.decode('utf-8') + "\n" + \
                                   time + " \n" + \
-                                  classtype + " \n" + \
+                                  classtype.decode('utf-8') + " \n" + \
                                   teacher.decode('utf-8') + " \n" + \
                                   teacher2.decode('utf-8') + " \n"
                 else:
                     class_data += time + " \n" + \
-                                  classtype + " \n" + \
+                                  classtype.decode('utf-8') + " \n" + \
                                   teacher.decode('utf-8') + " \n" + \
                                   teacher2.decode('utf-8') + " \n"
                 c_id = get_cell_id(col, r)
@@ -2749,14 +2751,16 @@ def attendance_booking_options():
                                 auth.has_permission('complementary', 'classes_attendance'))
 
     ah = AttendanceHelper()
-    content = ah.get_customer_class_booking_options_formatted(clsID,
-                                                              date,
-                                                              customer,
-                                                              trial=True,
-                                                              request_review=True,
-                                                              complementary=complementary_permission,
-                                                              list_type='attendance',
-                                                              controller='classes')
+    content = ah.get_customer_class_booking_options_formatted(
+        clsID,
+        date,
+        customer,
+        trial=True,
+        request_review=True,
+        complementary=complementary_permission,
+        list_type='attendance',
+        controller='classes'
+    )
     cancel = os_gui.get_button('noicon',
                                URL('attendance', vars={'clsID': clsID, 'date': date_formatted}),
                                title=T('Cancel'),
@@ -3137,6 +3141,9 @@ def attendance_remove():
 
     # Clear cache to refresh subscription credit count
     cache_clear_customers_subscriptions(cuID)
+
+    # Clear cache to refresh subscription credit count
+    cache_clear_customers_classcards(cuID)
 
     # Clear api cache to refresh available spaces
     cache_clear_classschedule_api()

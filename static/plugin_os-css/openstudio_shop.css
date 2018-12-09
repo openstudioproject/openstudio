@@ -18,6 +18,16 @@
     max-width: 198px;
 }
 
+/*
+    Contact page logo
+*/
+.logo_login img {
+    margin-top: 30px;
+    margin-bottom: 30px;
+    max-width: 260px;
+    max-height: 260px;
+}
+
 #to_top {
     position: fixed;
     bottom: 0;
