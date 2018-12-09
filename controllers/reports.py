@@ -1541,11 +1541,17 @@ def subscriptions_new():
                          1)
 
     reports = Reports()
-    query = reports.get_query_subscriptions_new_in_month(date)
 
     location_filter = False
+    filter_school_locations_id = None
     if session.show_location:
         location_filter = True
+        filter_school_locations_id = session.reports_subscriptions_school_locations_id
+
+    query = reports.get_query_subscriptions_new_in_month(
+        date,
+        filter_school_locations_id = filter_school_locations_id
+    )
 
     result = get_form_subtitle(session.reports_subscriptions_month,
                                session.reports_subscriptions_year,

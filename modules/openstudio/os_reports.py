@@ -6,13 +6,19 @@ from gluon import *
 
 
 class Reports:
-    def get_query_subscriptions_new_in_month(self, date):
+    def get_query_subscriptions_new_in_month(self,
+                                             date,
+                                             filter_school_locations_id=None):
         """
             Returns query for new subscriptions
         """
         firstdaythismonth = datetime.date(date.year, date.month, 1)
         next_month = date.replace(day=28) + datetime.timedelta(days=4)  # this will never fail
         lastdaythismonth = next_month - datetime.timedelta(days=next_month.day)
+
+        where_school_locations_id = ''
+        if filter_school_locations_id:
+            where_school_locations_id = " AND cu.school_locations_id = %s" % filter_school_locations_id
 
         query = """SELECT cu.id,
                           cu.archived,
@@ -43,10 +49,12 @@ class Reports:
                    WHERE chk.startdate = csu.startdate AND
                          chk.auth_customer_id = csu.auth_customer_id AND
                          csu.startdate >= '{firstdaythismonth}' AND csu.startdate <= '{lastdaythismonth}'
+                         {where_school_locations_id}
                    ORDER BY ssu.Name,
                             cu.display_name
                             DESC""".format(firstdaythismonth=firstdaythismonth,
-                                           lastdaythismonth=lastdaythismonth)
+                                           lastdaythismonth=lastdaythismonth,
+                                           where_school_locations_id=where_school_locations_id)
         return query
 
 
