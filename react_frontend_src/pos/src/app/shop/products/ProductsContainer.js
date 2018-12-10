@@ -4,7 +4,7 @@ import { withRouter } from 'react-router'
 
 import { appOperations } from '../../duck'
 import { shopCartOperations } from '../cart/duck'
-import { shopProductsOperations } from '../cart/duck'
+import { shopProductsOperations } from './duck'
 import { customersListOperations } from '../../customers/list/duck'
 
 import Products from './Products'

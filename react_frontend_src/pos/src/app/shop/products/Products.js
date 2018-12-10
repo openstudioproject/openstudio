@@ -53,6 +53,7 @@ class Products extends Component {
 
     onSearchClear() {
         console.log('clear clicked')
+        this.props.clearSearchValue()
     }
 
     onSearchChange(e) {
