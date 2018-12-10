@@ -88,7 +88,10 @@
         "products": {
             "data": {},
             "loaded": false,
-            "loading": false
+            "loading": false,
+            "searchTimeout": 0,
+            "searchID": null,
+            "search_value": ""
         },
         "school": {
             "classcards": {

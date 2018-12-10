@@ -50,12 +50,15 @@ class ShopProductsVariants:
             data.append({
                 'id': row.shop_products_variants.id,
                 'variant_name': row.shop_products_variants.Name,
+                'search_variant_name': row.shop_products_variants.Name.lower(),
                 'description': row.shop_products.Description,
                 'product_name': row.shop_products.Name,
+                'search_product_name': row.shop_products.Name.lower(),
                 'price': row.shop_products_variants.Price,
                 'thumbsmall': get_download_url(row.shop_products_variants.thumbsmall),
                 'thumblarge': get_download_url(row.shop_products_variants.thumblarge),
                 'categories': categories,
+                'barcode': row.shop_products_variants.Barcode
             })
 
 

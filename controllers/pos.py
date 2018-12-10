@@ -693,7 +693,6 @@ def get_products():
     pp = pprint.PrettyPrinter(depth=6)
     set_headers()
 
-
     spv = ShopProductsVariants()
 
     data = spv.list_pos()
