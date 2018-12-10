@@ -7,6 +7,7 @@ const InputGroupSearch = ({value, placeholder, onChange=f=>f, onClear=f=>f}) =>
             <i className="fa fa-search"></i>
         </span>
         <input type="text"
+               autoComplete="off"
                id="InputSearch"
                value={value}
                className="form-control"
