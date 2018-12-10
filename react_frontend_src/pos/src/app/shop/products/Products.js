@@ -6,6 +6,8 @@ import { v4 } from "uuid"
 import ShopTemplate from '../ShopTemplate'
 import ProductsList from "./ProductsList"
 
+import InputGroupSearch from "../../../components/ui/InputGroupSearch"
+
 class Products extends Component {
     constructor(props) {
         super(props)
@@ -48,6 +50,12 @@ class Products extends Component {
         
         // this.props.setDisplayCustomerID(id)
     }
+
+    onSearchClear() {
+        console.log('clear clicked')
+    }
+
+
     
     render() {
         const products = this.props.products
@@ -55,8 +63,13 @@ class Products extends Component {
         return (
             <ShopTemplate app_state={this.props.app}>
                 { this.props.loaded ? 
-                    <ProductsList products={products}
-                                  onClick={this.onClickProductListItem.bind(this)} /> :
+                    <div>
+                        <InputGroupSearch placeholder="Scan barcode or search..."
+                                          onClear={this.onSearchClear.bind(this)}
+                        />
+                        <ProductsList products={products}
+                                      onClick={this.onClickProductListItem.bind(this)} />
+                    </div> :
                      "Loading..."
                 }
             </ShopTemplate>
