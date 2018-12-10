@@ -107,8 +107,33 @@ class Products extends Component {
     
     render() {
         const products = this.props.products
-        console.log(products)
         const products_data = this.props.products_data
+
+        let products_list = []
+        if (products.loaded) {
+            if ( products.searchID ) {
+                Object.keys(products.data).map( (key) => {
+                    // console.log('customer:')
+                    // console.log(key)
+                    // console.log(customers.data[key])
+                    if (products.data[key].barcode.includes(products.searchID)) {
+                        products_list.push(products.data[key])
+                    }
+                })
+            } else if (products.search_value && products.search_value.length > 1) {
+                Object.keys(products.data).map( (key) => {
+                    // console.log('customer:')
+                    // console.log(key)
+                    // console.log(customers.data[key])
+                    if ( (products.data[key].search_product_name.includes(products.search_value)) ||  
+                         (products.data[key].search_variant_name.includes(products.search_value)) ) {
+                        products_list.push(products.data[key])
+                    }
+                })
+            } else {
+                products_list = products_data
+            }
+        }
 
         return (
             <ShopTemplate app_state={this.props.app}>
@@ -119,7 +144,7 @@ class Products extends Component {
                                           onChange={this.onSearchChange.bind(this)}
                                           value={products.search_value}
                         />
-                        <ProductsList products={products_data}
+                        <ProductsList products={products_list}
                                       onClick={this.onClickProductListItem.bind(this)} />
                     </div> :
                      "Loading..."
