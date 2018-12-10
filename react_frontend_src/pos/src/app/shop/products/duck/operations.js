@@ -1,6 +1,12 @@
 import {
     requestProducts,
-    receiveProducts
+    receiveProducts,
+    clearSearchTimeout,
+    clearSearchValue,
+    clearSearchProductID,
+    setSearchTimeout,
+    setSearchValue,
+    setSearchProductID
 } from './actions'
 
 import axios_os from '../../../../utils/axios_os'
@@ -32,5 +38,11 @@ const fetchProducts = () => {
 
 
 export default {
-    fetchProducts
+    fetchProducts,
+    clearSearchTimeout,
+    clearSearchValue,
+    clearSearchProductID,
+    setSearchTimeout,
+    setSearchValue,
+    setSearchProductID
 }
