@@ -55,7 +55,27 @@ class Products extends Component {
         console.log('clear clicked')
     }
 
+    onSearchChange(e) {
+        console.log('search value changed')
+        const value = e.target.value
+        const customers = this.props.customers
 
+        this.props.setSearchValue(value)
+
+        console.log("timeout: " + customers.searchTimeout)
+        if ( customers.searchTimeout ) {
+            this.props.clearSearchTimeout()
+            console.log('reset timeout')
+        }
+
+        let timeout
+        this.props.setSearchTimeout(
+            setTimeout(() => this.setSearchValue(value), 
+                (validator.isInt(value)) ? timeout = 225 : timeout = 750)
+        )
+        
+
+    }
     
     render() {
         const products = this.props.products
@@ -64,7 +84,8 @@ class Products extends Component {
             <ShopTemplate app_state={this.props.app}>
                 { this.props.loaded ? 
                     <div>
-                        <InputGroupSearch placeholder="Scan barcode or search..."
+                        <InputGroupSearch value={products.search_value}
+                                          placeholder="Scan barcode or search..."
                                           onClear={this.onSearchClear.bind(this)}
                         />
                         <ProductsList products={products}
