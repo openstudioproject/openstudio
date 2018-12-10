@@ -140,13 +140,24 @@ class Products extends Component {
             <ShopTemplate app_state={this.props.app}>
                 { this.props.loaded ? 
                     <div>
-                        <InputGroupSearch placeholder="Scan barcode or search..."
-                                          onClear={this.onSearchClear.bind(this)}
-                                          onChange={this.onSearchChange.bind(this)}
-                                          value={products.search_value}
-                        />
-                        <ProductsList products={products_list}
-                                      onClick={this.onClickProductListItem.bind(this)} />
+                        <div className="row">
+                            <div className="col-md-6">
+                                Breadcrumb placeholder
+                            </div>
+                            <div className="col-md-6">
+                                <InputGroupSearch placeholder="Scan barcode or search..."
+                                                onClear={this.onSearchClear.bind(this)}
+                                                onChange={this.onSearchChange.bind(this)}
+                                                value={products.search_value}
+                                />
+                            </div>
+                        </div>
+                        <div className="row">
+                            <div className="col-md-12">
+                                <ProductsList products={products_list}
+                                              onClick={this.onClickProductListItem.bind(this)} />
+                            </div>
+                        </div>
                     </div> :
                      "Loading..."
                 }
