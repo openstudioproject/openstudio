@@ -107,16 +107,17 @@ class Products extends Component {
     
     render() {
         const products = this.props.products
+        console.log(products)
         const products_data = this.props.products_data
 
         return (
             <ShopTemplate app_state={this.props.app}>
                 { this.props.loaded ? 
                     <div>
-                        <InputGroupSearch value={products.search_value}
-                                          placeholder="Scan barcode or search..."
+                        <InputGroupSearch placeholder="Scan barcode or search..."
                                           onClear={this.onSearchClear.bind(this)}
                                           onChange={this.onSearchChange.bind(this)}
+                                          value={products.search_value}
                         />
                         <ProductsList products={products_data}
                                       onClick={this.onClickProductListItem.bind(this)} />

@@ -9,12 +9,14 @@ export const shopProductsReducer = (state = {}, action={ type: null }) => {
             }
         case T.REQUEST_PRODUCTS:
             return {
+                ...state,
                 loading: true,
                 loaded: false,
                 data: {}
             }
         case T.RECEIVE_PRODUCTS:
             return {
+                ...state,
                 loading: false,
                 loaded: true,
                 data: action.data.data,

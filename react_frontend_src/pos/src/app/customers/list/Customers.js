@@ -211,9 +211,9 @@ class Customers extends Component {
                                 </div>
                                 <div className="col-md-8">
                                     <InputGroupSearch placeholder={this.props.intl.formatMessage({ id: 'app.general.placeholders.search' })}
-                                                    onChange={this.onChange.bind(this)}
-                                                    onClear={this.onClear.bind(this)}
-                                                    value={customers.search_value} />
+                                                      onChange={this.onChange.bind(this)}
+                                                      onClear={this.onClear.bind(this)}
+                                                      value={customers.search_value} />
                                 </div>
                                 <div className="col-md-3">
                                     <ButtonCustomerAdd onClick={this.onClickAdd.bind(this)} 
