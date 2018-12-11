@@ -8,6 +8,7 @@ import ShopTemplate from '../ShopTemplate'
 import ProductsList from "./ProductsList"
 
 import InputGroupSearch from "../../../components/ui/InputGroupSearch"
+import Breadcrumb from "../../../components/ui/Breadcrumb"
 
 class Products extends Component {
     constructor(props) {
@@ -142,7 +143,9 @@ class Products extends Component {
                     <div>
                         <div className="row">
                             <div className="col-md-6">
-                                Breadcrumb placeholder
+                                <Breadcrumb>
+                                
+                                </Breadcrumb>
                             </div>
                             <div className="col-md-6">
                                 <InputGroupSearch placeholder="Scan barcode or search..."
