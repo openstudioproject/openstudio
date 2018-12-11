@@ -174,7 +174,8 @@ class Products extends Component {
                             <div className="col-md-6">
                                 <Breadcrumb onClickHome={this.onClickBreadcrumbHome.bind(this)} 
                                             category_filter_id={products.category_filter_id}
-                                            categories={product_categories}/>
+                                            categories={product_categories}
+                                            home_title='All products' />
                             </div>
                             <div className="col-md-6">
                                 <InputGroupSearch placeholder="Scan barcode or search..."
