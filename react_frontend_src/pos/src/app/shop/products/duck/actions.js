@@ -44,3 +44,14 @@ export const setSearchValue = (value) =>
         type: T.SET_SEARCH_VALUE,
         value
     })
+
+export const clearCategoryFilterID = () =>
+    ({
+        type: T.CLEAR_CATEGORY_FILTER_ID
+    })
+
+export const setCategoryFilterID = (id) =>
+    ({
+        type: T.SET_CATEGORY_FILTER_ID,
+        id
+    })
