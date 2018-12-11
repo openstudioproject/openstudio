@@ -45,6 +45,8 @@ html, body, div#app {
     box-shadow: none;
     background-color: #fff;
     border: 1px solid transparent;
+    border-top: 1px solid #ecf0f5;
+    border-bottom: 1px solid #ecf0f5;
     padding-left: 0;
     // height: 35px;
 }
@@ -62,7 +64,9 @@ html, body, div#app {
     border-bottom-left-radius: 2px;
     box-shadow: none;
     background-color: #fff;
-    border: 1px solid transparent;
+    border: 1px solid #ecf0f5;
+    border-right: 1px solid transparent;
+    
     // height: 32px;
 }
 
@@ -74,7 +78,8 @@ html, body, div#app {
     border-bottom-right-radius: 2px;
     border-bottom-left-radius: 0;
     box-shadow: none;
-    border: 1px solid transparent;
+    border:  1px solid #ecf0f5;
+    border-left:  1px solid transparent;
     // ￼height: 35px;
 }
 
