@@ -9,6 +9,7 @@ import ProductsList from "./ProductsList"
 
 import InputGroupSearch from "../../../components/ui/InputGroupSearch"
 import Breadcrumb from "../../../components/ui/Breadcrumb"
+import ProductsCategoryFilter from "./ProductsCategoryFilter";
 
 class Products extends Component {
     constructor(props) {
@@ -106,6 +107,12 @@ class Products extends Component {
         console.log(value)
     }
 
+
+    onClickCategory = id => {
+        console.log('clicked category')
+        console.log(id)        
+    }
+    
     
     render() {
         const products = this.props.products
@@ -153,6 +160,12 @@ class Products extends Component {
                                                 onChange={this.onSearchChange.bind(this)}
                                                 value={products.search_value}
                                 />
+                            </div>
+                        </div>
+                        <div className="row">
+                            <div className="col-md-12">
+                                <ProductsCategoryFilter categories={products.categories}
+                                                        onClick={this.onClickCategory.bind(this)} />
                             </div>
                         </div>
                         <div className="row">
