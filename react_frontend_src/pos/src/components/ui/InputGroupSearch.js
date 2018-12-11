@@ -14,8 +14,11 @@ const InputGroupSearch = ({value, placeholder, onChange=f=>f, onClear=f=>f}) =>
                placeholder={placeholder} 
                onChange={onChange}
                ref={input => input && input.focus()} />
-        <span className="input-group-addon" onClick={onClear}>
-            <i className="fa fa-times"></i>
+        
+        <span className="input-group-btn">
+            <button name="search" className="btn btn-flat" onClick={onClear}>
+                <i className="fa fa-times"></i>
+            </button>
         </span>
     </div>
 

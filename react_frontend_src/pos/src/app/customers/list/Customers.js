@@ -203,36 +203,41 @@ class Customers extends Component {
                     (!customers.loaded || !memberships.loaded) ? 
                         <div>{intl.formatMessage({ id: 'app.pos.customers.loading_message' })}</div> :
                         <section className="customers-main">
-                            <div className="row customers-main-tools">
-                                <div className="col-md-1">
-                                    <ButtonBack onClick={this.onClickButtonBack.bind(this)}>
-                                        Cancel
-                                    </ButtonBack>
-                                </div>
-                                <div className="col-md-8">
-                                    <InputGroupSearch placeholder={this.props.intl.formatMessage({ id: 'app.general.placeholders.search' })}
-                                                      onChange={this.onChange.bind(this)}
-                                                      onClear={this.onClear.bind(this)}
-                                                      value={customers.search_value} />
-                                </div>
-                                <div className="col-md-3">
-                                    <ButtonCustomerAdd onClick={this.onClickAdd.bind(this)} 
-                                                       classAdditional="pull-right" />
+                            {/* <div className="customers-main-tools"> */}
+                                {/* <div className="col-md-1"> */}
+
+                                {/* </div>
+                                <div className="col-md-8"> */}
+                               <div className="pull-right"> 
+                                    
                                 
                                     { (customers.displayID) && !(customers.selectedID) ? 
-                                        <ButtonPrimary onClick={this.onClickSetCustomer.bind(this)} 
-                                                      classAdditional="pull-right">
+                                        <ButtonPrimary onClick={this.onClickSetCustomer.bind(this)} >
                                             Select customer
                                         </ButtonPrimary> : ''
                                     }
                                     { (customers.displayID) && (customers.selectedID) ?
-                                        <ButtonPrimary onClick={this.onClickDeselectCustomer.bind(this)}
-                                                       classAdditional="pull-right">
+                                        <ButtonPrimary onClick={this.onClickDeselectCustomer.bind(this)} >
                                             Deselect customer
                                         </ButtonPrimary> : ''   
                                     }
+
+                                    <ButtonCustomerAdd onClick={this.onClickAdd.bind(this)} />
                                 </div>
-                            </div>
+                                <ButtonBack onClick={this.onClickButtonBack.bind(this)} 
+                                            classAdditional="pull-left customers-btn-cancel">
+                                    Cancel
+                                </ButtonBack>
+
+                                <InputGroupSearch placeholder={this.props.intl.formatMessage({ id: 'app.general.placeholders.search' })}
+                                                  onChange={this.onChange.bind(this)}
+                                                  onClear={this.onClear.bind(this)}
+                                                  value={customers.search_value} />
+                                {/* </div>
+                                <div className="col-md-3"> */}
+ 
+                                {/* </div> */}
+                            {/* </div> */}
                             <CustomerDisplay customerID={customers.displayID}
                                              customers={customers} 
                                              edit_in_progress={customers.update_customer}

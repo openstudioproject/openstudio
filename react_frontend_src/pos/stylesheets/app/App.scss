@@ -36,6 +36,46 @@ html, body, div#app {
 
 .input-group-search {
     margin-bottom: 20px;
+    padding-right: 6px;
+}
+
+.input-group-search input.form-control {
+    color: #666;
+    border-radius: 0;
+    box-shadow: none;
+    background-color: #fff;
+    border: 1px solid transparent;
+    padding-left: 0;
+    // height: 35px;
+}
+
+.input-group-search input.form-control:focus+.input-group-btn .btn {
+    color: #666;
+    background-color: #fff;
+}
+
+.input-group-search .input-group-addon {
+    color: #666;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 2px;
+    box-shadow: none;
+    background-color: #fff;
+    border: 1px solid transparent;
+    // height: 32px;
+}
+
+.input-group-search .btn {
+    color: #999;
+    background-color: #fff;
+    border-top-left-radius: 0;
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+    border-bottom-left-radius: 0;
+    box-shadow: none;
+    border: 1px solid transparent;
+    // ￼height: 35px;
 }
 
 /* Check-in list begin */
@@ -52,8 +92,12 @@ html, body, div#app {
 
 .customers-main-tools .btn-primary {
     margin-right: 6px;
-
 }
+
+.customers-btn-cancel {
+    margin-right: 6px;
+}
+
 /* Customers main end */
 
 /* Customers display begin */
