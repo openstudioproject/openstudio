@@ -734,7 +734,8 @@ def get_product_categories():
     query = (db.shop_categories.Archived == False)
 
     rows = db(query).select(
-        db.shop_categories.ALL,
+        db.shop_categories.id,
+        db.shop_categories.Name,
         orderby=db.shop_categories.Name
     )
 

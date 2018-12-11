@@ -21,6 +21,22 @@ export const shopProductsReducer = (state = {}, action={ type: null }) => {
                 loaded: true,
                 data: action.data.data,
             }
+        case T.REQUEST_PRODUCT_CATEGORIES:
+            return {
+                ...state,
+                categories_loading: true,
+                categories_loaded: false
+            }
+        case T.RECEIVE_PRODUCT_CATEGORIES:
+            console.log('receive product categories here')
+            console.log(state)
+
+            return {
+                ...state,
+                categories: action.data.data,
+                categories_loading: false,
+                categories_loaded: true
+            }
         case T.CLEAR_SEARCH_TIMEOUT:
             return {
                 ...state,

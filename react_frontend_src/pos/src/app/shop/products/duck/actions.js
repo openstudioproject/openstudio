@@ -12,6 +12,17 @@ export const receiveProducts = (data) =>
         data
     })
 
+export const requestProductCategories = () =>
+    ({
+        type: T.REQUEST_PRODUCT_CATEGORIES
+    })
+
+export const receiveProductCategories = (data) =>
+    ({
+        type: T.RECEIVE_PRODUCT_CATEGORIES,
+        data
+    })
+
 export const clearSearchTimeout = () =>
     ({
         type: T.CLEAR_SEARCH_TIMEOUT

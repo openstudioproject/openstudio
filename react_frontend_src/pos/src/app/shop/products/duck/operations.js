@@ -1,6 +1,8 @@
 import {
     requestProducts,
     receiveProducts,
+    requestProductCategories,
+    receiveProductCategories,
     clearSearchTimeout,
     clearSearchValue,
     clearSearchProductID,
@@ -38,9 +40,31 @@ const fetchProducts = () => {
       }
   }
 
+  const fetchProductCategories = () => {
+    return dispatch => {
+        dispatch(requestProductCategories)
+  
+        axios_os.get(OS_API.SHOP_PRODUCT_CATEGORIES)
+        .then(function (response) {
+          // handle success
+          console.log('Receive products categories here')
+          dispatch(receiveProductCategories(response.data))    
+        })
+        .catch(function (error) {
+          // handle error
+          console.log(error)
+        })
+        .then(function () {
+          // always executed
+        });
+    }
+  }
+  
+
 
 export default {
     fetchProducts,
+    fetchProductCategories,
     clearSearchTimeout,
     clearSearchValue,
     clearSearchProductID,
