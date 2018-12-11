@@ -44,7 +44,7 @@ export default {
     clearSearchTimeout,
     clearSearchValue,
     clearSearchProductID,
-    clearCategoryFilterID
+    clearCategoryFilterID,
     setSearchTimeout,
     setSearchValue,
     setSearchProductID,

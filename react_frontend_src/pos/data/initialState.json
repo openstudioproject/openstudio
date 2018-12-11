@@ -86,6 +86,9 @@
             "selectedID": ""
         },
         "products": {
+            "categories": {},
+            "categories_loaded": false,
+            "categories_loading": false,
             "data": {},
             "loaded": false,
             "loading": false,
