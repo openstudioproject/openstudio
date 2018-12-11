@@ -82,6 +82,11 @@ class Attendance extends Component {
                 (isInt(value)) ? timeout = 225 : timeout = 750)
         )
     }
+
+    onClickVerifyTeacherPayment() {
+        console.log('clicked verify teacher')
+        this.props.history.push("/checkin/revenue/" + this.props.match.params.clsID)
+    }
     
     render() {
         return (
@@ -91,9 +96,11 @@ class Attendance extends Component {
                         <div>Loading attendance, please wait...</div> :
                         <section className="checkin_attendance">
                             <div className="pull-right">
-                                <NavLink to={"/checkin/revenue/" + this.props.match.params.clsID}>
+                                <button className='btn btn-default'
+                                        onClick={this.onClickVerifyTeacherPayment.bind(this)} >
+                                    <i className="fa fa-graduation-cap"></i> { ' ' }
                                     {this.props.intl.formatMessage({ id: "app.pos.checkin.attendane.verify_teacher_payment"})}
-                                </NavLink>
+                                </button>
                             </div>
                             <InputGroupSearch placeholder={this.props.intl.formatMessage({ id: 'app.general.placeholders.search' })}
                                               onChange={this.onChange.bind(this)} /> <br />
