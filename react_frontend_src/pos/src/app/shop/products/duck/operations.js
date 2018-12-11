@@ -4,9 +4,11 @@ import {
     clearSearchTimeout,
     clearSearchValue,
     clearSearchProductID,
+    clearCategoryFilterID,
     setSearchTimeout,
     setSearchValue,
-    setSearchProductID
+    setSearchProductID,
+    setCategoryFilterID
 } from './actions'
 
 import axios_os from '../../../../utils/axios_os'
@@ -42,7 +44,9 @@ export default {
     clearSearchTimeout,
     clearSearchValue,
     clearSearchProductID,
+    clearCategoryFilterID
     setSearchTimeout,
     setSearchValue,
-    setSearchProductID
+    setSearchProductID,
+    setCategoryFilterID
 }
