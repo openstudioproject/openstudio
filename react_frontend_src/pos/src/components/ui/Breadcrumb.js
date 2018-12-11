@@ -1,8 +1,8 @@
 import React from "react"
 
-const Breadcrumb = ({children, onClick=f=>f}) =>
+const Breadcrumb = ({children, onClickHome=f=>f}) =>
     <ol className="breadcrumb">
-        <li onClick={onClick}>
+        <li onClick={onClickHome}>
             <span><i className="fa fa-home"></i></span>
         </li>
         {children}

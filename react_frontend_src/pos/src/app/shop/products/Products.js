@@ -108,6 +108,10 @@ class Products extends Component {
     }
 
 
+    onClickBreadcrumbHome() {
+        this.props.clearCategoryFilterID()
+    }
+
     onClickCategory = id => {
         console.log('clicked category')
         console.log(id)    
@@ -151,7 +155,7 @@ class Products extends Component {
                     <div>
                         <div className="row">
                             <div className="col-md-6">
-                                <Breadcrumb>
+                                <Breadcrumb onClickHome={this.onClickBreadcrumbHome.bind(this)}>
                                 
                                 </Breadcrumb>
                             </div>
