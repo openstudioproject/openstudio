@@ -51,6 +51,16 @@ export const shopProductsReducer = (state = {}, action={ type: null }) => {
                 ...state,
                 search_value: action.value.toLowerCase(),
             }
+        case T.CLEAR_CATEGORY_FILTER_ID:
+            return {
+                ...state,
+                category_filter_id: null
+            }
+        case T.SET_CATEGORY_FILTER_ID:
+            return {
+                ...state,
+                category_filter_id: action.id
+            }
         default:
             return {
                 ...state
