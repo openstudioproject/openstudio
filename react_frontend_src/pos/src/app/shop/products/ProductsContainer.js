@@ -47,6 +47,13 @@ const mapDispatchToProps = dispatch =>
         setSearchProductID(data) {
             dispatch(shopProductsOperations.setSearchProductID(data))
         },
+        clearCategoryFilterID() {
+            dispatch(shopProductsOperations.clearCategoryFilterID())
+        },
+        setCategoryFilterID(id) {
+            dispatch(shopProductsOperations.setCategoryFilterID(id))
+        },
+
     })
 
 const ProductsContainer = withRouter(injectIntl(connect(

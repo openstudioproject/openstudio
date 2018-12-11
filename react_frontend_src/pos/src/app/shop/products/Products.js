@@ -110,7 +110,8 @@ class Products extends Component {
 
     onClickCategory = id => {
         console.log('clicked category')
-        console.log(id)        
+        console.log(id)    
+        this.props.setCategoryFilterID(id)    
     }
     
     
