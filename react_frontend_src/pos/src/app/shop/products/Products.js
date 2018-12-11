@@ -171,6 +171,7 @@ class Products extends Component {
                         <div className="row">
                             <div className="col-md-12">
                                 <ProductsCategoryFilter categories={products.categories}
+                                                        category_filter_id={products.category_filter_id}
                                                         onClick={this.onClickCategory.bind(this)} />
                             </div>
                         </div>
