@@ -28,9 +28,6 @@ export const shopProductsReducer = (state = {}, action={ type: null }) => {
                 categories_loaded: false
             }
         case T.RECEIVE_PRODUCT_CATEGORIES:
-            console.log('receive product categories here')
-            console.log(state)
-
             return {
                 ...state,
                 categories: action.data.data,
