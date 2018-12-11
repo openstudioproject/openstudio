@@ -722,6 +722,26 @@ def get_payment_methods():
     return dict(data=rows.as_list())
 
 
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'shop_categories'))
+def get_product_categories():
+    """
+
+    :return: dict containing payment methods sorted by name
+    """
+    set_headers()
+
+    query = (db.shop_categories.Archived == False)
+
+    rows = db(query).select(
+        db.shop_categories.id,
+        db.shop_categories.Name,
+        orderby=db.shop_categories.Name
+    )
+
+    return dict(data=rows.as_dict())
+
+
 #TODO make read PoS permission
 # @auth.requires(auth.has_membership(group_id='Admins'))
                # auth.has_permission('read', 'shop_products'))

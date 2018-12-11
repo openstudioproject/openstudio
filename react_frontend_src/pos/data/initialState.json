@@ -86,12 +86,16 @@
             "selectedID": ""
         },
         "products": {
+            "categories": {},
+            "categories_loaded": false,
+            "categories_loading": false,
             "data": {},
             "loaded": false,
             "loading": false,
             "searchTimeout": 0,
             "searchID": null,
-            "search_value": ""
+            "search_value": "",
+            "category_filter_id": null
         },
         "school": {
             "classcards": {

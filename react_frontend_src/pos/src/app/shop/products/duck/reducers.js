@@ -21,6 +21,19 @@ export const shopProductsReducer = (state = {}, action={ type: null }) => {
                 loaded: true,
                 data: action.data.data,
             }
+        case T.REQUEST_PRODUCT_CATEGORIES:
+            return {
+                ...state,
+                categories_loading: true,
+                categories_loaded: false
+            }
+        case T.RECEIVE_PRODUCT_CATEGORIES:
+            return {
+                ...state,
+                categories: action.data.data,
+                categories_loading: false,
+                categories_loaded: true
+            }
         case T.CLEAR_SEARCH_TIMEOUT:
             return {
                 ...state,
@@ -50,6 +63,16 @@ export const shopProductsReducer = (state = {}, action={ type: null }) => {
             return {
                 ...state,
                 search_value: action.value.toLowerCase(),
+            }
+        case T.CLEAR_CATEGORY_FILTER_ID:
+            return {
+                ...state,
+                category_filter_id: null
+            }
+        case T.SET_CATEGORY_FILTER_ID:
+            return {
+                ...state,
+                category_filter_id: action.id
             }
         default:
             return {

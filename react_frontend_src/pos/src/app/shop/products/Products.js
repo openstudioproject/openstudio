@@ -8,6 +8,8 @@ import ShopTemplate from '../ShopTemplate'
 import ProductsList from "./ProductsList"
 
 import InputGroupSearch from "../../../components/ui/InputGroupSearch"
+import Breadcrumb from "../../../components/ui/Breadcrumb"
+import ProductsCategoryFilter from "./ProductsCategoryFilter";
 
 class Products extends Component {
     constructor(props) {
@@ -105,15 +107,42 @@ class Products extends Component {
         console.log(value)
     }
 
+
+    onClickBreadcrumbHome() {
+        this.props.clearCategoryFilterID()
+    }
+
+    onClickCategory = id => {
+        console.log('clicked category')
+        console.log(id)    
+        this.props.setCategoryFilterID(id)    
+    }
+    
     
     render() {
         const products = this.props.products
-        const products_data = this.props.products_data
+        const products_data = this.props.products.data
+        const product_categories = this.props.products.categories
 
         let products_list = []
         if (products.loaded) {
-            if ( products.searchID ) {
+            // Apply filter before searching
+            let filtered_products = []
+            if (products.category_filter_id) {
                 Object.keys(products.data).map( (key) => {
+                    // check if filter id in categories for product variant
+                    if (products.data[key].categories.includes(products.category_filter_id)) {
+                        filtered_products.push(products_data[key])
+                    }
+                })
+            } else {
+                // No need to filter anything
+                filtered_products = products_data
+            }
+
+            // Search barcode
+            if ( products.searchID ) {
+                filtered_products.map( (key) => {
                     // console.log('customer:')
                     // console.log(key)
                     // console.log(customers.data[key])
@@ -122,7 +151,7 @@ class Products extends Component {
                     }
                 })
             } else if (products.search_value && products.search_value.length > 1) {
-                Object.keys(products.data).map( (key) => {
+                filtered_products.map( (key) => {
                     // console.log('customer:')
                     // console.log(key)
                     // console.log(customers.data[key])
@@ -132,7 +161,8 @@ class Products extends Component {
                     }
                 })
             } else {
-                products_list = products_data
+                // show all products in category if no further filters are applied
+                products_list = filtered_products
             }
         }
 
@@ -140,13 +170,34 @@ class Products extends Component {
             <ShopTemplate app_state={this.props.app}>
                 { this.props.loaded ? 
                     <div>
-                        <InputGroupSearch placeholder="Scan barcode or search..."
-                                          onClear={this.onSearchClear.bind(this)}
-                                          onChange={this.onSearchChange.bind(this)}
-                                          value={products.search_value}
-                        />
-                        <ProductsList products={products_list}
-                                      onClick={this.onClickProductListItem.bind(this)} />
+                        <div className="row">
+                            <div className="col-md-6">
+                                <Breadcrumb onClickHome={this.onClickBreadcrumbHome.bind(this)} 
+                                            category_filter_id={products.category_filter_id}
+                                            categories={product_categories}
+                                            home_title='All products' />
+                            </div>
+                            <div className="col-md-6">
+                                <InputGroupSearch placeholder="Scan barcode or search..."
+                                                onClear={this.onSearchClear.bind(this)}
+                                                onChange={this.onSearchChange.bind(this)}
+                                                value={products.search_value}
+                                />
+                            </div>
+                        </div>
+                        <div className="row">
+                            <div className="col-md-12">
+                                <ProductsCategoryFilter categories={products.categories}
+                                                        category_filter_id={products.category_filter_id}
+                                                        onClick={this.onClickCategory.bind(this)} />
+                            </div>
+                        </div>
+                        <div className="row">
+                            <div className="col-md-12">
+                                <ProductsList products={products_list}
+                                              onClick={this.onClickProductListItem.bind(this)} />
+                            </div>
+                        </div>
                     </div> :
                      "Loading..."
                 }

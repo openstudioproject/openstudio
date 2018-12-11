@@ -25,7 +25,7 @@ export const appReducer = (state = {}, action={ type: null }) => {
                 ...state,
             }
         case T.RECEIVE_USER:
-            let u_progress = state.loading_progress + 34
+            let u_progress = state.loading_progress + 33
 
             return {
                 ...state,
@@ -37,7 +37,7 @@ export const appReducer = (state = {}, action={ type: null }) => {
                 ...state,
             }
         case T.RECEIVE_SETTINGS:
-            let s_progress = state.loading_progress + 33
+            let s_progress = state.loading_progress + 34
 
             return {
                 ...state,
