@@ -739,7 +739,7 @@ def get_product_categories():
         orderby=db.shop_categories.Name
     )
 
-    return dict(data=rows.as_list())
+    return dict(data=rows.as_dict())
 
 
 #TODO make read PoS permission

@@ -121,7 +121,8 @@ class Products extends Component {
     
     render() {
         const products = this.props.products
-        const products_data = this.props.products_data
+        const products_data = this.props.products.data
+        const product_categories = this.props.products.categories
 
         let products_list = []
         if (products.loaded) {
@@ -155,9 +156,9 @@ class Products extends Component {
                     <div>
                         <div className="row">
                             <div className="col-md-6">
-                                <Breadcrumb onClickHome={this.onClickBreadcrumbHome.bind(this)}>
-                                
-                                </Breadcrumb>
+                                <Breadcrumb onClickHome={this.onClickBreadcrumbHome.bind(this)} 
+                                            category_filter_id={products.category_filter_id}
+                                            categories={product_categories}/>
                             </div>
                             <div className="col-md-6">
                                 <InputGroupSearch placeholder="Scan barcode or search..."

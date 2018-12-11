@@ -18,7 +18,7 @@ class ProductsCategoryFilter extends Component {
                         <p className="navbar-text">Product categories</p>
                     </div>
                     <ul className="nav navbar-nav">
-                        { categories.map((category, i) => 
+                        { Object.values(categories).map((category, i) => 
                             <li role="presentation" 
                                 key={v4()}
                                 onClick={() => this.props.onClick(category.id)}>
