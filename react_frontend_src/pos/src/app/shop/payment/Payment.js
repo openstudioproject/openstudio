@@ -51,7 +51,7 @@ class Payment extends Component {
 
         return (
             <PageTemplate app_state={this.props.app}>
-                <div className="row shop-payment-tools">
+                <div className="row header-tools">
                     <div className="col-md-12">
                         <ButtonValidate selectedID={selected_method}
                                         total={total}
