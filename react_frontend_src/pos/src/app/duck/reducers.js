@@ -41,7 +41,7 @@ export const appReducer = (state = {}, action={ type: null }) => {
                     ...state.shop,
                     products: {
                         ...state.shop.products,
-                        product_categories = action.data.data,
+                        product_categories: action.data.data,
                         product_categories_loading: false,
                         product_categories_loaded: true
                     }
