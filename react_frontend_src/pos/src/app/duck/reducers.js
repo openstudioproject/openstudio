@@ -13,19 +13,46 @@ export const appReducer = (state = {}, action={ type: null }) => {
                 ...state,
             }
         case T.RECEIVE_PAYMENT_METHODS:
-            let pm_progress = state.loading_progress + 33
+            let pm_progress = state.loading_progress + 20
 
             return {
                 ...state,
                 loading_progress: pm_progress,
                 payment_methods: action.data.data
             }
+        case T.REQUEST_PRODUCT_CATEGORIES:
+            return {
+                ...state,
+                shop: {
+                    ...state.shop,
+                    products: {
+                        ...state.shop.products,
+                        product_categories_loading: true,
+                        product_categories_loaded: false
+                    }
+                }
+            }
+        case T.RECEIVE_PRODUCT_CATEGORIES:
+            let pm_progress = state.loading_progress + 20
+
+            return {
+                ...state,
+                shop: {
+                    ...state.shop,
+                    products: {
+                        ...state.shop.products,
+                        product_categories = action.data.data,
+                        product_categories_loading: false,
+                        product_categories_loaded: true
+                    }
+                }
+            }
         case T.REQUEST_USER:
             return {
                 ...state,
             }
         case T.RECEIVE_USER:
-            let u_progress = state.loading_progress + 34
+            let u_progress = state.loading_progress + 20
 
             return {
                 ...state,
@@ -37,7 +64,7 @@ export const appReducer = (state = {}, action={ type: null }) => {
                 ...state,
             }
         case T.RECEIVE_SETTINGS:
-            let s_progress = state.loading_progress + 33
+            let s_progress = state.loading_progress + 20
 
             return {
                 ...state,
