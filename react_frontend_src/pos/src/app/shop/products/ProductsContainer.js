@@ -36,10 +36,10 @@ const mapDispatchToProps = dispatch =>
             dispatch(shopProductsOperations.setSearchTimeout(timeout))
         },
         clearSearchValue() {
-            dispatch(shopProductsOperations.clearSearchValue())
+            dispatch(shopProductsOperations.clearProductsSearchValue())
         },
         setSearchValue(data) {
-            dispatch(shopProductsOperations.setSearchValue(data))
+            dispatch(shopProductsOperations.setProductsSearchValue(data))
         },
         clearSearchProductID() {
             dispatch(shopProductsOperations.clearSearchProductID())

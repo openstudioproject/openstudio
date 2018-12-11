@@ -203,41 +203,32 @@ class Customers extends Component {
                     (!customers.loaded || !memberships.loaded) ? 
                         <div>{intl.formatMessage({ id: 'app.pos.customers.loading_message' })}</div> :
                         <section className="customers-main">
-                            {/* <div className="customers-main-tools"> */}
-                                {/* <div className="col-md-1"> */}
-
-                                {/* </div>
-                                <div className="col-md-8"> */}
-                               <div className="pull-right"> 
-                                    
+                            <div className="pull-right"> 
                                 
-                                    { (customers.displayID) && !(customers.selectedID) ? 
-                                        <ButtonPrimary onClick={this.onClickSetCustomer.bind(this)} >
-                                            Select customer
-                                        </ButtonPrimary> : ''
-                                    }
-                                    { (customers.displayID) && (customers.selectedID) ?
-                                        <ButtonPrimary onClick={this.onClickDeselectCustomer.bind(this)} >
-                                            Deselect customer
-                                        </ButtonPrimary> : ''   
-                                    }
+                            
+                                { (customers.displayID) && !(customers.selectedID) ? 
+                                    <ButtonPrimary onClick={this.onClickSetCustomer.bind(this)} >
+                                        Select customer
+                                    </ButtonPrimary> : ''
+                                }
+                                { (customers.displayID) && (customers.selectedID) ?
+                                    <ButtonPrimary onClick={this.onClickDeselectCustomer.bind(this)} >
+                                        Deselect customer
+                                    </ButtonPrimary> : ''   
+                                }
 
-                                    <ButtonCustomerAdd onClick={this.onClickAdd.bind(this)} />
-                                </div>
-                                <ButtonBack onClick={this.onClickButtonBack.bind(this)} 
-                                            classAdditional="pull-left customers-btn-cancel">
-                                    Cancel
-                                </ButtonBack>
+                                <ButtonCustomerAdd onClick={this.onClickAdd.bind(this)} />
+                            </div>
+                            <ButtonBack onClick={this.onClickButtonBack.bind(this)} 
+                                        classAdditional="pull-left customers-btn-cancel">
+                                Cancel
+                            </ButtonBack>
 
-                                <InputGroupSearch placeholder={this.props.intl.formatMessage({ id: 'app.general.placeholders.search' })}
-                                                  onChange={this.onChange.bind(this)}
-                                                  onClear={this.onClear.bind(this)}
-                                                  value={customers.search_value} />
-                                {/* </div>
-                                <div className="col-md-3"> */}
- 
-                                {/* </div> */}
-                            {/* </div> */}
+                            <InputGroupSearch placeholder={this.props.intl.formatMessage({ id: 'app.general.placeholders.search' })}
+                                              onChange={this.onChange.bind(this)}
+                                              onClear={this.onClear.bind(this)}
+                                              value={customers.search_value} />
+
                             <CustomerDisplay customerID={customers.displayID}
                                              customers={customers} 
                                              edit_in_progress={customers.update_customer}

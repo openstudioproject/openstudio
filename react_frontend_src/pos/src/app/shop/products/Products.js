@@ -81,30 +81,14 @@ class Products extends Component {
     }
 
     setSearchValue(value) {
-        console.log('done something :)!')
-        console.log(this.props)
         this.props.clearSearchProductID()
 
-        // const barcode_scans = this.props.barcode_scans
-        // const memberships = this.props.memberships.data
-
-        // console.log(barcode_scans)
         let productID
 
         if (validator.isInt(value)) {
-            console.log('This is an int!')
             productID = value
-
             this.props.setSearchProductID(productID)
-
-            console.log('productID')
-            console.log(productID)
-
-        } else {
-            console.log('not an int value')
-
-        }
-        console.log(value)
+        } 
     }
 
 
@@ -152,8 +136,8 @@ class Products extends Component {
                 })
             } else if (products.search_value && products.search_value.length > 1) {
                 filtered_products.map( (product) => {
-                    console.log('product:')
-                    console.log(product)
+                    // console.log('product:')
+                    // console.log(product)
                     // console.log(filtered_products[key])
                     if ( (product.search_product_name.includes(products.search_value)) ||  
                          (product.search_variant_name.includes(products.search_value)) ) {
