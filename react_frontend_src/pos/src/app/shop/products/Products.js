@@ -126,8 +126,23 @@ class Products extends Component {
 
         let products_list = []
         if (products.loaded) {
-            if ( products.searchID ) {
+            // Apply filter before searching
+            let filtered_products = []
+            if (products.category_filter_id) {
                 Object.keys(products.data).map( (key) => {
+                    // check if filter id in categories for product variant
+                    if (products.data[key].categories.includes(products.category_filter_id)) {
+                        filtered_products.push(products_data[key])
+                    }
+                })
+            } else {
+                // No need to filter anything
+                filtered_products = products_data
+            }
+
+            // Search barcode
+            if ( products.searchID ) {
+                filtered_products.map( (key) => {
                     // console.log('customer:')
                     // console.log(key)
                     // console.log(customers.data[key])
@@ -136,7 +151,7 @@ class Products extends Component {
                     }
                 })
             } else if (products.search_value && products.search_value.length > 1) {
-                Object.keys(products.data).map( (key) => {
+                filtered_products.map( (key) => {
                     // console.log('customer:')
                     // console.log(key)
                     // console.log(customers.data[key])
@@ -146,7 +161,8 @@ class Products extends Component {
                     }
                 })
             } else {
-                products_list = products_data
+                // show all products in category if no further filters are applied
+                products_list = filtered_products
             }
         }
 
