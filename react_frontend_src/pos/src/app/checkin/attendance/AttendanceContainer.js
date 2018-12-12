@@ -10,7 +10,7 @@ import { checkinAttendanceOperations } from './duck'
 const mapStateToProps = state => 
     ({
         app: state.app,
-        attendance: state.checkin_attendance
+        attendance: state.checkin.attendance
     })
 
 const mapDispatchToProps = dispatch =>

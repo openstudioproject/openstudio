@@ -9,7 +9,7 @@ import { checkinBookOperations } from './duck'
 const mapStateToProps = state => 
     ({
         app: state.app,
-        options: state.checkin_book
+        options: state.checkin.book
     })
 
 const mapDispatchToProps = dispatch =>
