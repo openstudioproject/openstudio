@@ -10,7 +10,7 @@ import { checkinRevenueOperations } from './duck'
 const mapStateToProps = state => 
     ({
         app: state.app,
-        data: state.checkin_revenue,
+        data: state.checkin.revenue,
         settings: state.app.settings.data
     })
 

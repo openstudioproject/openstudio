@@ -81,30 +81,14 @@ class Products extends Component {
     }
 
     setSearchValue(value) {
-        console.log('done something :)!')
-        console.log(this.props)
         this.props.clearSearchProductID()
 
-        // const barcode_scans = this.props.barcode_scans
-        // const memberships = this.props.memberships.data
-
-        // console.log(barcode_scans)
         let productID
 
         if (validator.isInt(value)) {
-            console.log('This is an int!')
             productID = value
-
             this.props.setSearchProductID(productID)
-
-            console.log('productID')
-            console.log(productID)
-
-        } else {
-            console.log('not an int value')
-
-        }
-        console.log(value)
+        } 
     }
 
 
@@ -125,9 +109,9 @@ class Products extends Component {
         const product_categories = this.props.products.categories
 
         let products_list = []
+        let filtered_products = []
         if (products.loaded) {
             // Apply filter before searching
-            let filtered_products = []
             if (products.category_filter_id) {
                 Object.keys(products.data).map( (key) => {
                     // check if filter id in categories for product variant
@@ -142,22 +126,22 @@ class Products extends Component {
 
             // Search barcode
             if ( products.searchID ) {
-                filtered_products.map( (key) => {
+                filtered_products.map( (product) => {
                     // console.log('customer:')
                     // console.log(key)
                     // console.log(customers.data[key])
-                    if (products.data[key].barcode.includes(products.searchID)) {
-                        products_list.push(products.data[key])
+                    if (product.barcode.includes(products.searchID)) {
+                        products_list.push(product)
                     }
                 })
             } else if (products.search_value && products.search_value.length > 1) {
-                filtered_products.map( (key) => {
-                    // console.log('customer:')
-                    // console.log(key)
-                    // console.log(customers.data[key])
-                    if ( (products.data[key].search_product_name.includes(products.search_value)) ||  
-                         (products.data[key].search_variant_name.includes(products.search_value)) ) {
-                        products_list.push(products.data[key])
+                filtered_products.map( (product) => {
+                    // console.log('product:')
+                    // console.log(product)
+                    // console.log(filtered_products[key])
+                    if ( (product.search_product_name.includes(products.search_value)) ||  
+                         (product.search_variant_name.includes(products.search_value)) ) {
+                        products_list.push(product)
                     }
                 })
             } else {

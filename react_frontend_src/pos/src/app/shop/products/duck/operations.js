@@ -4,11 +4,11 @@ import {
     requestProductCategories,
     receiveProductCategories,
     clearSearchTimeout,
-    clearSearchValue,
+    clearProductsSearchValue,
     clearSearchProductID,
     clearCategoryFilterID,
     setSearchTimeout,
-    setSearchValue,
+    setProductsSearchValue,
     setSearchProductID,
     setCategoryFilterID
 } from './actions'
@@ -66,11 +66,11 @@ export default {
     fetchProducts,
     fetchProductCategories,
     clearSearchTimeout,
-    clearSearchValue,
+    clearProductsSearchValue,
     clearSearchProductID,
     clearCategoryFilterID,
     setSearchTimeout,
-    setSearchValue,
+    setProductsSearchValue,
     setSearchProductID,
     setCategoryFilterID
 }

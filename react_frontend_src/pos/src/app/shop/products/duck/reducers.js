@@ -54,12 +54,12 @@ export const shopProductsReducer = (state = {}, action={ type: null }) => {
                 ...state,
                 searchID: action.id,
             }
-        case T.CLEAR_SEARCH_VALUE:
+        case T.CLEAR_PRODUCTS_SEARCH_VALUE:
             return {
                 ...state,
                 search_value: "",
             }
-        case T.SET_SEARCH_VALUE:
+        case T.SET_PRODUCTS_SEARCH_VALUE:
             return {
                 ...state,
                 search_value: action.value.toLowerCase(),

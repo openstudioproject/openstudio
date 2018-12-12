@@ -6,7 +6,8 @@ const ClassesListClass = withRouter(({data, history}) =>
          className={(data.Cancelled || data.Holiday) ? "checkin_class cancelled" : "checkin_class"}>
         <div className="row">
             <div className="col-md-1">
-                {data.Starttime} -
+                {data.Starttime} 
+                { ' - ' }
                 {data.Endtime}
             </div>
             <div className="col-md-2">

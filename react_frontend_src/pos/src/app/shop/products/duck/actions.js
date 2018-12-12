@@ -45,14 +45,14 @@ export const setSearchProductID = (id) =>
         id
     })
 
-export const clearSearchValue = () =>
+export const clearProductsSearchValue = () =>
     ({
-        type: T.CLEAR_SEARCH_VALUE
+        type: T.CLEAR_PRODUCTS_SEARCH_VALUE
     })
 
-export const setSearchValue = (value) =>
+export const setProductsSearchValue = (value) =>
     ({
-        type: T.SET_SEARCH_VALUE,
+        type: T.SET_PRODUCTS_SEARCH_VALUE,
         value
     })
 
