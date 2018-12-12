@@ -5,7 +5,7 @@ import PropTypes from "prop-types"
 import PageTemplate from "../../../components/PageTemplate"
 import ClassesList from "./ClassesListComponent"
 
-class classesComponent extends Component {
+class Classes extends Component {
     constructor(props) {
         super(props)
     }
@@ -40,4 +40,4 @@ class classesComponent extends Component {
     }
 }
 
-export default classesComponent
+export default Classes
