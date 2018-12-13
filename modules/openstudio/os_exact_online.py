@@ -771,8 +771,22 @@ class OSExactOnline:
 
         :return:
         """
+        T = current.T
+        session = current.globalenv['session']
+        from exactonline.http import HTTPError
+
         api = self.get_api()
-        api.directdebitmandates.delete(mandateID)
+        try:
+            api.directdebitmandates.delete(mandateID)
+        except HTTPError as e:
+            self._log_error(
+                'delete',
+                'direct debit mandate',
+                mandateID,
+                e
+            )
+
+            session.flash = T("Failed to delete this mandate in Exact Online, it's probably in use somewhere.")
 
 
     def _log_error(self, action, object, object_id, result):
