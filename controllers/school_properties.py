@@ -1215,7 +1215,8 @@ def subscription_edit():
     """
     ssuID = request.vars['ssuID']
     response.title = T("Edit subscription")
-    response.subtitle = T('')
+    subscription = db.school_subscriptions(ssuID)
+    response.subtitle = subscription.Name
     response.view = 'general/tabs_menu.html'
 
     return_url = URL('subscriptions')
@@ -1258,7 +1259,8 @@ def subscriptions_prices():
     """
     ssuID = request.vars['ssuID']
     response.title = T("Edit subscription")
-    response.subtitle = T('')
+    subscription = db.school_subscriptions(ssuID)
+    response.subtitle = subscription.Name
     response.view = 'general/tabs_menu.html'
 
     return_url = URL('subscriptions')
@@ -1317,10 +1319,11 @@ def subscription_price_add():
     """
         Add a new price for a subscription
     """
-    response.title = T("New subscription price")
-    response.subtitle = T('')
-    response.view = 'general/only_content.html'
     ssuID = request.vars['ssuID']
+    response.title = T("New subscription price")
+    subscription = db.school_subscriptions(ssuID)
+    response.subtitle = subscription.Name
+    response.view = 'general/only_content.html'
 
     return_url = subscription_price_get_return_url(ssuID)
 
@@ -1328,6 +1331,7 @@ def subscription_price_add():
 
     crud.messages.submit_button = T("Save")
     crud.messages.record_created = T("Saved price")
+    crud.settings.formstyle = "bootstrap3_stacked"
     crud.settings.create_next = return_url
     crud.settings.create_onaccept = [cache_clear_school_subscriptions]
     form = crud.create(db.school_subscriptions_price)
@@ -1352,16 +1356,18 @@ def subscription_price_edit():
     """
         Edit price for a subscription
     """
-    response.title = T("Edit subscription price")
-    response.subtitle = T('')
-    response.view = 'general/only_content.html'
     ssuID = request.vars['ssuID']
     sspID = request.vars['sspID']
+    response.title = T("Edit subscription price")
+    subscription = db.school_subscriptions(ssuID)
+    response.subtitle = subscription.Name
+    response.view = 'general/only_content.html'
 
     return_url = subscription_price_get_return_url(ssuID)
 
     crud.messages.submit_button = T("Save")
     crud.messages.record_updated = T("Saved price")
+    crud.settings.formstyle = "bootstrap3_stacked"
     crud.settings.update_next = return_url
     crud.settings.update_deletable = False
     crud.settings.update_onaccept = [cache_clear_school_subscriptions]
