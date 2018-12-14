@@ -588,6 +588,26 @@ def financial_teacher_payments():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'settings_finance'))
+def financial_costcenters():
+    """
+    List finance costcenters
+    """
+    response.title = T('Financial Settings')
+    response.subtitle = T('Cost centers')
+    response.view = 'general/tabs_menu.html'
+
+
+    content = 'hello world'
+
+    menu = financial_get_menu(request.function)
+
+    return dict(content=content,
+                menu=menu)
+                # save=submit)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
 def financial_currency():
     """
