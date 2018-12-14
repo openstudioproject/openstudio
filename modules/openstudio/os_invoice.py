@@ -656,7 +656,8 @@ class Invoice:
             Price=wsp.Price,
             Sorting=next_sort_nr,
             tax_rates_id=wsp.tax_rates_id,
-            GLAccount=wsp.GLAccount
+            accounting_glaccounts_id=wsp.accounting_glaccounts_id,
+            accounting_costcenters_id=wsp.accounting_costcenters_id
         )
 
         # This calls self.on_update()
