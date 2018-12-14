@@ -800,6 +800,19 @@ def define_sys_api_users():
         )
 
 
+def define_accounting_costcenters():
+    db.define_table('accounting_costcenters',
+        Field('Archived', 'boolean',
+            readable=False,
+            writable=False,
+            default=False,
+            label=T("Archived")),
+        Field('Name',
+            requires=IS_NOT_EMPTY(),
+            label=T("Name")),
+        format='%(Name)s')
+
+
 def define_payment_methods():
     db.define_table('payment_methods',
         Field('Archived', 'boolean',
@@ -6000,7 +6013,7 @@ define_mailing_lists()
 define_integration_exact_online_log()
 define_postcode_groups()
 define_tax_rates()
-
+define_accounting_costcenters()
 
 define_school_memberships()
 define_school_memberships_price()
