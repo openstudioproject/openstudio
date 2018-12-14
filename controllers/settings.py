@@ -689,7 +689,7 @@ def access_get_menu(page):
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('read', 'settings'))
+               auth.has_permission('read', 'auth_group'))
 def access_groups():
     """
         This function shows a page which lists all user groups
@@ -1234,33 +1234,36 @@ def access_group_permissions():
                 ['school_languages-update', T("Edit languages")]]]]],
     ]
 
-    other_permissions = [
-        ['selfcheckin-read', T("Use self check-in")],
-        ['employee_portal-read', T("Use employee portal")],
-        ['automated_tasks-read', T("Use automated tasks (back-end)")],
+    settings_permissions = [
         ['settings-read', T("Settings"), [
-            ['auth_user-create', T("Add users")],
-            ['auth_user-update', T("Edit users")],
-            ['customers_profile_features-update', T("Set which features are available for customers when they login")],
+            ['customers_profile_features-update', T("Set which profile features are available for customers when they login")],
+            ['auth_group-read', T("View groups"), [
+                ['auth_group-create', T("Add groups")],
+                ['auth_group-update', T("Edit groups")],
+                ['auth_group-delete', T("Delete groups")]]],
+
             ['user_group_membership-update', T("Edit users' group")],
-            ['auth_group-create', T("Add groups")],
-            ['auth_group-update', T("Edit groups")],
-            ['auth_group-delete', T("Delete groups")],
             ['auth_group_permissions-update', T("Edit group permissions")],
             ['mailing_lists-create', T('Add mailing lists')],
             ['mailing_lists-update', T('Edit mailing lists')],
             ['mailing_lists-delete', T('Delete mailing lists')]]],
-            ['postcode_groups-read', T("View postcode groups"), [
-                ['postcode_groups-create', T('Add postcode groups')],
-                ['postcode_groups-update', T('Edit postcode groups')],
-                ['postcode_groups-delete', T('Delete postcode groups')],
-            ]],
-            ['sys_organizations-read', T('View organizations'), [
-                 ['sys_organizations-create', T('Add organizations')],
-                 ['sys_organizations-update', T('Edit organizations')],
-                 ['sys_organizations-delete', T('Delete organizations')],
-            ]],
-            ['sys_api_users-delete', T("Delete API users")],
+        ['postcode_groups-read', T("View postcode groups"), [
+            ['postcode_groups-create', T('Add postcode groups')],
+            ['postcode_groups-update', T('Edit postcode groups')],
+            ['postcode_groups-delete', T('Delete postcode groups')],
+        ]],
+        ['sys_organizations-read', T('View organizations'), [
+            ['sys_organizations-create', T('Add organizations')],
+            ['sys_organizations-update', T('Edit organizations')],
+            ['sys_organizations-delete', T('Delete organizations')],
+        ]],
+        ['sys_api_users-delete', T("Delete API users")],
+    ]
+
+    other_permissions = [
+        ['selfcheckin-read', T("Use self check-in")],
+        ['employee_portal-read', T("Use employee portal")],
+        ['automated_tasks-read', T("Use automated tasks (back-end)")],
     ]
 
     permissions_list = [[pinboard_permissions, 'pinboard'],
@@ -1273,6 +1276,7 @@ def access_group_permissions():
                         [reports_permissions, 'reports'],
                         [finance_permisisons, 'finance'],
                         [shop_permissions, 'shop'],
+                        [settings_permissions, 'settings'],
                         [other_permissions, 'other']]
 
     form = FORM(_id="MainForm")
@@ -1336,6 +1340,7 @@ def access_group_permissions():
                   ['reports', T('Reports'), False],
                   ['finance', T('Finance'), False],
                   ['shop', T('Shop'), False],
+                  ['settings', T('Settings'), False],
                   ['other', T('Other'), False],
                   ]
 
