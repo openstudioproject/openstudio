@@ -523,7 +523,7 @@ def financial_get_menu(page=None):
               T('Cost centers'),
               URL('financial_costcenters')],
              ['financial_glaccounts',
-              T('G/L accounts'),
+              T('G/L Accounts'),
               URL('financial_glaccounts')],
              ['financial_dd_categories',
               T('Direct debit extra'),

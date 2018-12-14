@@ -817,7 +817,7 @@ def list_items():
                      # TD(),
                      # TD(),
                      TD(),
-                     TD(form.custom.widget.GLAccount),
+                     TD(form.custom.widget.accounting_glaccounts_id),
                      TD(form.custom.widget.accounting_costcenters_id),
                      TD(DIV(form.custom.submit, _class='pull-right'))),
                   _class='table table-hover table-striped invoice-items small_font',
@@ -882,7 +882,7 @@ def list_items():
                         _title=T("Subtotal: ") + CURRSYM + format(row.TotalPrice, '.2f') + ' ' +\
                                T('VAT: ') + CURRSYM + format(row.VAT, '.2f'),
                         _class='pull-right')),
-                TD(repr_row.GLAccount),
+                TD(repr_row.accounting_glaccounts_id),
                 TD(repr_row.accounting_costcenters_id),
                 TD(btn_delete, buttons))
 
@@ -976,7 +976,7 @@ def item_edit():
                      TD(form.custom.widget.Quantity),
                      TD(form.custom.widget.Price),
                      TD(form.custom.widget.tax_rates_id),
-                     TD(form.custom.widget.GLAccount),
+                     TD(form.custom.widget.accounting_glaccounts_id),
                      TD(form.custom.widget.accounting_costcenters_id),
                      TD(DIV(form.custom.submit, _class='pull-right'))),
                   _class='table table-hover table-striped invoice-items small_font')
