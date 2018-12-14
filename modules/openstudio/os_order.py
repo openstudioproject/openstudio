@@ -189,8 +189,8 @@ class Order:
             Quantity = 1,
             Price = price,
             tax_rates_id = wsp.tax_rates_id,
-            accounting_glaccounts_id = wsp.accounting_glaccounts_id,
-            accounting_costcenters_id = wsp.accounting_costcenters_id
+            accounting_glaccounts_id = wsp.workshop_product.accounting_glaccounts_id,
+            accounting_costcenters_id = wsp.workshop_product.accounting_costcenters_id
         )
 
         self.set_amounts()
