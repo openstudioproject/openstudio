@@ -1247,6 +1247,12 @@ def access_group_permissions():
             ['mailing_lists-create', T('Add mailing lists')],
             ['mailing_lists-update', T('Edit mailing lists')],
             ['mailing_lists-delete', T('Delete mailing lists')]]],
+        ['settings_finance-read', T("View finance settings"), [
+            ['accounting_costcenters-read', T("View Cost centers"), [
+                ['accounting_costcenters-create', T("Add Cost centers")],
+                ['accounting_costcenters-update', T("Edit Cost centers")],
+            ]]
+        ]],
         ['postcode_groups-read', T("View postcode groups"), [
             ['postcode_groups-create', T('Add postcode groups')],
             ['postcode_groups-update', T('Edit postcode groups')],

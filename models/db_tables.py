@@ -810,6 +810,9 @@ def define_accounting_costcenters():
         Field('Name',
             requires=IS_NOT_EMPTY(),
             label=T("Name")),
+        Field('CostCenterCode',
+             label=T("Cost center code"),
+             comment=T("Cost center code in your accounting software")),
         format='%(Name)s')
 
 
