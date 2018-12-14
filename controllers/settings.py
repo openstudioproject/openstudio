@@ -1535,6 +1535,10 @@ def access_group_permissions():
             ['accounting_costcenters-read', T("View Cost centers"), [
                 ['accounting_costcenters-create', T("Add Cost centers")],
                 ['accounting_costcenters-update', T("Edit Cost centers")],
+            ]],
+            ['accounting_glaccounts-read', T("View General ledger accounts"), [
+                ['accounting_glaccounts-create', T("Add General ledger accounts")],
+                ['accounting_glaccounts-update', T("Edit General ledger accounts")],
             ]]
         ]],
         ['postcode_groups-read', T("View postcode groups"), [
