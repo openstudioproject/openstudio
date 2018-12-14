@@ -411,7 +411,8 @@ class Invoice:
             TotalPriceVAT = item.TotalPriceVAT,
             VAT = item.VAT,
             TotalPrice = item.TotalPrice,
-            GLAccount = item.GLAccount
+            accounting_glaccounts_id = item.accounting_glaccounts_id,
+            accounting_costcenters_id = item.accounting_costcenters_id
         )
 
         # This calls self.on_update()
