@@ -1239,6 +1239,14 @@ def define_school_memberships():
             label= T("Name")),
         Field('Description',
              label=T('Description')),
+        Field('Price', 'float', required=True,
+              requires=IS_FLOAT_IN_RANGE(0, 99999999, dot='.',
+                                         error_message=T('Too small or too large')),
+              # represent = lambda value, row: SPAN(CURRSYM , ' ', format(value, '.2f')),
+              represent=represent_float_as_amount,
+              label=T("Price incl. VAT")),
+        Field('tax_rates_id', db.tax_rates,
+              label=T('Tax rate')),
         Field('Validity', 'integer',
               requires=IS_INT_IN_RANGE(1, 2000,
                                        error_message=T('Please enter a number between 0 and 2000')),
@@ -1264,37 +1272,6 @@ def define_school_memberships():
               label=T("Cost center"),
               comment=T("Cost center code in your accounting software")),
         format='%(Name)s'
-        )
-
-
-def define_school_memberships_price():
-    today = TODAY_LOCAL
-
-    db.define_table('school_memberships_price',
-        Field('school_memberships_id', db.school_memberships,
-            required=True,
-            readable=False,
-            writable=False),
-        Field('Startdate', 'date', required=True,
-            requires=IS_DATE_IN_RANGE(format=DATE_FORMAT,
-                       minimum=datetime.date(2000,1,1),
-                       maximum=datetime.date(2999,12,31)),
-            represent=represent_date,
-            default=datetime.date(today.year, today.month, 1),
-            widget=os_datepicker_widget),
-        Field('Enddate', 'date',
-            requires=IS_EMPTY_OR(IS_DATE_IN_RANGE(format=DATE_FORMAT,
-                       minimum=datetime.date(2000,1,1),
-                       maximum=datetime.date(2999,12,31))),
-            represent=represent_date,
-            widget=os_datepicker_widget),
-        Field('Price', 'float', required=True,
-            requires=IS_FLOAT_IN_RANGE(0,99999999, dot='.',
-                error_message=T('Too small or too large')),
-            represent = represent_float_as_amount,
-            label=T("Price")),
-        Field('tax_rates_id', db.tax_rates,
-            label=T('Tax rate')),
         )
 
 
