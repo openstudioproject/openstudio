@@ -1055,6 +1055,7 @@ def define_school_locations():
 
 
 def define_school_classcards():
+    ac_query = (db.accounting_costcenters.Archived == False)
     so_query = (db.sys_organizations.Archived == False)
     format = '%(Name)s'
     # if len(ORGANIZATIONS) > 2:
@@ -1136,6 +1137,13 @@ def define_school_classcards():
               represent=lambda value, row: value or '',
               label=T('G/L Account'),
               comment=T('General ledger account ID in your accounting software')),
+        Field('accounting_costcenters_id', db.accounting_costcenters,
+              requires=IS_EMPTY_OR(IS_IN_DB(db(ac_query),
+                                            'accounting_costcenters.Name',
+                                            '%(Name)s')),
+              represent=represent_accounting_costcenter,
+              label=T("Cost center"),
+              comment=T("Cost center code in your accounting software")),
         format=format)
 
 
@@ -1389,6 +1397,7 @@ def define_school_subscriptions_groups_subscriptions():
 
 def define_school_subscriptions_price():
     today = TODAY_LOCAL
+    ac_query = (db.accounting_costcenters.Archived == False)
 
     db.define_table('school_subscriptions_price',
         Field('school_subscriptions_id', db.school_subscriptions,
@@ -1419,6 +1428,13 @@ def define_school_subscriptions_price():
             represent=lambda value, row: value or '',
             label=T('G/L Account'),
             comment=T('General ledger account ID in your accounting software')),
+        Field('accounting_costcenters_id', db.accounting_costcenters,
+              requires=IS_EMPTY_OR(IS_IN_DB(db(ac_query),
+                                            'accounting_costcenters.Name',
+                                            '%(Name)s')),
+              represent=represent_accounting_costcenter,
+              label=T("Cost center"),
+              comment=T("Cost center code in your accounting software")),
         )
 
 
@@ -1565,6 +1581,7 @@ def define_teachers_payment_travel():
               label=T("Travel Allowance excl. VAT")),
         Field('tax_rates_id', db.tax_rates,
             label=T('Tax rate')),
+
     )
 
 
@@ -1822,7 +1839,6 @@ def define_employee_claims():
                                     IS_LENGTH(maxsize=665600,
                                               error_message=T('650KB or less'))]),  # 650KB
               label=T("Attachment (Max 650KB)")),
-
         Field('Status',
               readable=False,
               writable=False,
@@ -2158,6 +2174,8 @@ def define_classes_price():
     """
         Define prices for a class
     """
+    ac_query = (db.accounting_costcenters.Archived == False)
+
     db.define_table('classes_price',
         Field('classes_id', db.classes, required=True,
             readable=False,
@@ -2182,16 +2200,27 @@ def define_classes_price():
             label=T("Drop-in incl. VAT")),
         Field('tax_rates_id_dropin', db.tax_rates,
             label=T('Drop-in tax rate')),
+        Field('DropinMembership', 'double', required=False,
+              represent=represent_float_as_amount,
+              default=0,
+              label=T("Membership drop-in incl. VAT")),
+        Field('GLAccountDropin',
+              represent=lambda value, row: value or '',
+              label=T('G/L Account Drop-in'),
+              comment=T('General ledger account ID in your accounting software')),
+        Field('accounting_costcenters_id_dropin', db.accounting_costcenters,
+              requires=IS_EMPTY_OR(IS_IN_DB(db(ac_query),
+                                            'accounting_costcenters.Name',
+                                            '%(Name)s')),
+              represent=represent_accounting_costcenter,
+              label=T("Cost center Drop-in"),
+              comment=T("Cost center code in your accounting software")),
         Field('Trial', 'double', required=False,
             represent=represent_float_as_amount,
             default=0,
             label=T("Trial incl. VAT")),
         Field('tax_rates_id_trial', db.tax_rates,
             label=T('Trial tax rate')),
-        Field('DropinMembership', 'double', required=False,
-            represent=represent_float_as_amount,
-            default=0,
-            label=T("Membership drop-in incl. VAT")),
         Field('tax_rates_id_dropin_membership', db.tax_rates,
             label=T('Membership drop-in tax rate')),
         Field('TrialMembership', 'double', required=False,
@@ -2200,14 +2229,18 @@ def define_classes_price():
             label=T("Membership trial incl. VAT")),
         Field('tax_rates_id_trial_membership', db.tax_rates,
             label=T('Membership trial tax rate')),
-        Field('GLAccountDropin',
-            represent=lambda value, row: value or '',
-            label=T('G/L Account Drop-in'),
-            comment=T('General ledger account ID in your accounting software')),
+
         Field('GLAccountTrial',
             represent=lambda value, row: value or '',
             label=T('G/L Account Trial'),
             comment=T('General ledger account ID in your accounting software')),
+        Field('accounting_costcenters_id_trial', db.accounting_costcenters,
+              requires=IS_EMPTY_OR(IS_IN_DB(db(ac_query),
+                                            'accounting_costcenters.Name',
+                                            '%(Name)s')),
+              represent=represent_accounting_costcenter,
+              label=T("Cost center Trial"),
+              comment=T("Cost center code in your accounting software")),
         )
 
 
@@ -3327,6 +3360,8 @@ def define_workshops_activities():
 
 
 def define_workshops_products():
+    ac_query = (db.accounting_costcenters.Archived == False)
+
     db.define_table('workshops_products',
         Field('workshops_id', db.workshops,
             readable=False,
@@ -3400,6 +3435,13 @@ def define_workshops_products():
             represent=lambda value, row: value or '',
             label=T('G/L Account'),
             comment=T('General ledger account id in your accounting software')),
+        Field('accounting_costcenters_id', db.accounting_costcenters,
+              requires=IS_EMPTY_OR(IS_IN_DB(db(ac_query),
+                                            'accounting_costcenters.Name',
+                                            '%(Name)s')),
+              represent=represent_accounting_costcenter,
+              label=T("Cost center"),
+              comment=T("Cost center code in your accounting software")),
         format='%(Name)s')
 
 
@@ -4395,6 +4437,13 @@ def define_receipts_items():
         Field('GLAccount',
             represent=lambda value, row: value or '',
             label=T("G/L Account")),
+        Field('accounting_costcenters_id', db.accounting_costcenters,
+              requires=IS_EMPTY_OR(IS_IN_DB(db(ac_query),
+                                            'accounting_costcenters.Name',
+                                            '%(Name)s')),
+              represent=represent_accounting_costcenter,
+              label=T("Cost center"),
+              comment=T("Cost center code in your accounting software")),
         # How are receipts processed in Exact Online?
     )
 
@@ -4915,7 +4964,17 @@ def define_shop_products():
               requires=IS_EMPTY_OR(IS_IN_DB(db(),
                                             'shop_products_sets.id',
                                             '%(Name)s')),
-              label=T('Product set'))
+              label=T('Product set')),
+        Field('GLAccount',
+              label=T('G/L Account'),
+              comment=T('General ledger account ID in your accounting software')),
+        Field('accounting_costcenters_id', db.accounting_costcenters,
+              requires=IS_EMPTY_OR(IS_IN_DB(db(ac_query),
+                                            'accounting_costcenters.Name',
+                                            '%(Name)s')),
+              represent=represent_accounting_costcenter,
+              label=T("Cost center"),
+              comment=T("Cost center code in your accounting software")),
     )
 
 
@@ -4992,9 +5051,6 @@ def define_shop_products_variants():
         Field('VariantCode',
               readable=False,
               writable=False),
-        Field('GLAccount',
-              label=T('G/L Account'),
-              comment=T('General ledger account ID in your accounting software')),
     )
 
 
@@ -5233,6 +5289,13 @@ def define_customers_orders_items():
               represent=lambda value, row: value or '',
               label=T('G/L Account'),
               comment=T('General ledger account ID in your accounting software')),
+        Field('accounting_costcenters_id', db.accounting_costcenters,
+              requires=IS_EMPTY_OR(IS_IN_DB(db(ac_query),
+                                            'accounting_costcenters.Name',
+                                            '%(Name)s')),
+              represent=represent_accounting_costcenter,
+              label=T("Cost center"),
+              comment=T("Cost center code in your accounting software")),
         )
 
 
