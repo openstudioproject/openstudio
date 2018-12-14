@@ -600,11 +600,73 @@ def financial_costcenters():
 
     content = 'hello world'
 
+    add = os_gui.get_button(
+        'add',
+        URL('financial_costcenter_add')
+    )
     menu = financial_get_menu(request.function)
 
+
     return dict(content=content,
-                menu=menu)
+                menu=menu,
+                tools=add)
                 # save=submit)
+
+
+def financial_costcenter_get_return_url():
+    return URL('settings', 'financial_costcenters')
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('create', 'accounting_costcenters'))
+def financial_costcenter_add():
+    """
+
+    :return:
+    """
+    from openstudio.os_forms import OsForms
+
+    response.title = T('Financial Settings')
+    response.subtitle = T('Cost centers')
+    response.view = 'general/tabs_menu.html'
+
+    return_url = financial_costcenter_get_return_url()
+
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_create(
+        db.accounting_costcenters,
+        return_url,
+        message_record_created=T("Saved")
+    )
+
+    form = result['form']
+    back = os_gui.get_button('back', return_url)
+
+    content = DIV(
+        H4(T('Add cost center')),
+        form
+    )
+
+    menu = financial_get_menu('financial_costcenters')
+
+    return dict(content=content,
+                save=result['submit'],
+                back=back,
+                menu=menu)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('update', 'accounting_costcenters'))
+def financial_costcenter_edit():
+    """
+
+    :return:
+    """
+    response.title = T('Financial Settings')
+    response.subtitle = T('Cost centers')
+    response.view = 'general/tabs_menu.html'
+
+
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
