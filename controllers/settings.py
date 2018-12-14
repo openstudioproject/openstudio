@@ -593,12 +593,16 @@ def financial_costcenters():
     """
     List finance costcenters
     """
+    from openstudio.os_accounting_costcenters import AccountingCostCenters
+
     response.title = T('Financial Settings')
     response.subtitle = T('Cost centers')
     response.view = 'general/tabs_menu.html'
 
 
-    content = 'hello world'
+    acc = AccountingCostCenters()
+    content = acc.list_formatted()
+
 
     add = os_gui.get_button(
         'add',
