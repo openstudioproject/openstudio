@@ -3,28 +3,28 @@
 from gluon import *
 
 class AccountingCostCenters:
-    def list(self):
+    def list(self, archived=False):
         """
 
         :return:
         """
         db = current.db
 
-        query = (db.accounting_costcenters.Archived == False)
+        query = (db.accounting_costcenters.Archived == archived)
         rows = db(query).select(db.accounting_costcenters.ALL,
                                 orderby=db.accounting_costcenters.Name)
 
         return rows
 
 
-    def list_formatted(self):
+    def list_formatted(self, archived=False):
         """
 
         :return: HTML table of Accounting costcenters
         """
         T = current.T
         auth = current.auth
-        rows = self.list()
+        rows = self.list(archived=archived)
 
         permission_edit = auth.has_membership(group_id='Admins') or \
                           auth.has_permission('update', 'accounting_costcenters')

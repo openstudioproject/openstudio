@@ -599,9 +599,20 @@ def financial_costcenters():
     response.subtitle = T('Cost centers')
     response.view = 'general/tabs_menu.html'
 
+    if 'show_archive' in request.vars:
+        show = request.vars['show_archive']
+        session.settings_financial_costcenters_show = show
+
+    archive = False
+    if session.settings_financial_costcenters_show == 'archive':
+        archive = True
+
+    archive_buttons = os_gui.get_archived_radio_buttons(
+        session.settings_financial_costcenters_show or 'current'
+    )
 
     acc = AccountingCostCenters()
-    content = acc.list_formatted()
+    content = DIV(archive_buttons, acc.list_formatted(archive))
 
 
     add = os_gui.get_button(
@@ -697,6 +708,24 @@ def financial_costcenter_edit():
                 save=result['submit'],
                 back=back,
                 menu=menu)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('update', 'accounting_costcenters'))
+def financial_costcenter_archive():
+    """
+
+    :return:
+    """
+    from openstudio.os_accounting_costcenter import AccountingCostCenter
+    acID = request.vars['acID']
+
+    ac = AccountingCostCenter(acID)
+    ac.archive()
+
+    return_url = financial_costcenter_get_return_url()
+
+    redirect(return_url)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
