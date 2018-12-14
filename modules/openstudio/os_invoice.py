@@ -493,6 +493,7 @@ class Invoice:
             price = prices['dropin']
             tax_rates_id = prices['dropin_tax_rates_id']
             glaccount = prices['dropin_glaccount']
+            costcenter = prices['dropin_costcenter']
 
             if has_membership and prices['dropin_membership']:
                 price = prices['dropin_membership']
@@ -504,6 +505,7 @@ class Invoice:
             price = prices['trial']
             tax_rates_id = prices['trial_tax_rates_id']
             glaccount = prices['trial_glaccount']
+            costcenter = prices['trial_costcenter']
 
             if has_membership and prices['trial_membership']:
                 price = prices['trial_membership']
@@ -523,7 +525,8 @@ class Invoice:
             Price=price,
             Sorting=next_sort_nr,
             tax_rates_id=tax_rates_id,
-            GLAccount=glaccount
+            accounting_glaccounts_id=glaccount,
+            accounting_costcenters_id=costcenter
         )
 
         self.link_to_customer(cuID)

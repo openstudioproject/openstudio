@@ -46,14 +46,16 @@ class ClassPrices:
                 TD(repr_row.Enddate),
                 TD(repr_row.Dropin, BR(),
                    repr_row.tax_rates_id_dropin),
+                TD(SPAN(repr_row.DropinMembership, BR(),
+                        repr_row.tax_rates_id_dropin_membership) if row.DropinMembership else ''),
+                TD(repr_row.accounting_glaccounts_id_dropin),
                 TD(repr_row.Trial, BR(),
                    repr_row.tax_rates_id_trial),
-                TD(SPAN(repr_row.DropinMembership, BR(),
-                   repr_row.tax_rates_id_dropin_membership) if row.DropinMembership else ''),
+
                 TD(SPAN(repr_row.TrialMembership, BR(),
                    repr_row.tax_rates_id_trial_membership) if row.TrialMembership else ''),
-                TD(repr_row.GLAccountDropin),
-                TD(repr_row.GLAccountTrial),
+
+                TD(repr_row.accounting_glaccounts_id_trial),
                 TD(self._get_prices_for_class_display_buttons(
                     os_gui,
                     row,
@@ -66,6 +68,27 @@ class ClassPrices:
             table.append(tr)
 
         return table
+
+
+    def _get_prices_for_class_display_header(self):
+        """
+        :return: THEAD header for class prices table
+        """
+        T = current.T
+
+        header = THEAD(TR(
+            TH(T('Start date')),
+            TH(T('End date')),
+            TH(T('Drop-in')),
+            TH(T('Membership Drop-in')),
+            TH(T('G/L Account Drop-in')),
+            TH(T('Trial')),
+            TH(T('Membership Trial')),
+            TH(T('G/L Account Trial')),
+            TH() # buttons
+        ))
+
+        return header
 
 
     def _get_prices_for_class_display_buttons(self, os_gui, row, edit_permission, delete_permission):
@@ -96,23 +119,3 @@ class ClassPrices:
 
         return buttons
 
-
-    def _get_prices_for_class_display_header(self):
-        """
-        :return: THEAD header for class prices table
-        """
-        T = current.T
-
-        header = THEAD(TR(
-            TH(T('Start date')),
-            TH(T('End date')),
-            TH(T('Drop-in')),
-            TH(T('Trial')),
-            TH(T('Membership Drop-in')),
-            TH(T('Membership Trial')),
-            TH(T('G/L Account Drop-in')),
-            TH(T('G/L Account Trial')),
-            TH() # buttons
-        ))
-
-        return header

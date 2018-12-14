@@ -99,8 +99,10 @@ class Class:
             trial  = prices.Trial or 0
             dropin_membership = prices.DropinMembership or 0
             trial_membership = prices.TrialMembership or 0
-            dropin_glaccount = prices.GLAccountDropin
-            trial_glaccount = prices.GLAccountTrial
+            dropin_glaccount = prices.accounting_glaccounts_id_dropin
+            trial_glaccount = prices.accounting_glaccounts_id_trial
+            dropin_costcenter = prices.accounting_costcenters_id_dropin
+            trial_costcenter = prices.accounting_costcenters_id_trial
 
             trial_tax = db.tax_rates(prices.tax_rates_id_trial)
             dropin_tax = db.tax_rates(prices.tax_rates_id_dropin)
@@ -160,7 +162,9 @@ class Class:
             trial_tax_percentage_membership = trial_tax_percentage_membership,
             dropin_tax_percentage_membership = dropin_tax_percentage_membership,
             dropin_glaccount = dropin_glaccount,
-            trial_glaccount = trial_glaccount
+            trial_glaccount = trial_glaccount,
+            dropin_costcenter = dropin_costcenter,
+            trial_costcenter = trial_costcenter,
         )
 
 
