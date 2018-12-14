@@ -394,6 +394,7 @@ class Invoice:
         :param iiID: db.invoices_items.id
         :return: int - ID of newly inserted (duplicated) item
         """
+        T = current.T
         db = current.db
 
         item = db.invoices_items(iiID)
@@ -403,7 +404,7 @@ class Invoice:
             invoices_id = item.invoices_id,
             Sorting = next_sort_nr,
             ProductName = item.ProductName,
-            Description = item.Description,
+            Description = item.Description + ' ' + T("(Copy)"),
             Quantity = item.Quantity,
             Price = item.Price,
             tax_rates_id = item.tax_rates_id,

@@ -800,6 +800,17 @@ def define_sys_api_users():
         )
 
 
+def represent_accounting_costcenter(value, row):
+    """
+        Returns name for a tax rate
+    """
+    name = ''
+    if value:
+        name = db.accounting_costcenters(value).Name
+
+    return name
+
+
 def define_accounting_costcenters():
     db.define_table('accounting_costcenters',
         Field('Archived', 'boolean',
@@ -3988,7 +3999,7 @@ def define_invoices():
             represent=represent_invoices_invoiceid,
             label=T("Invoice #")),
         Field('Description',
-            label=T('Description')),
+            label=T('Summary')),
         Field('DateCreated', 'date',
             default=TODAY_LOCAL,
             requires=IS_DATE_IN_RANGE(format=DATE_FORMAT,
@@ -4188,6 +4199,8 @@ def represent_invoice_status(value, row):
 
 
 def define_invoices_items():
+    ac_query = (db.accounting_costcenters.Archived == False)
+
     db.define_table('invoices_items',
         Field('invoices_id', db.invoices,
             readable=False,
@@ -4227,6 +4240,12 @@ def define_invoices_items():
         Field('GLAccount',
             represent=lambda value, row: value or '',
             label=T("G/L Account")),
+        Field('accounting_costcenters_id', db.accounting_costcenters,
+            requires=IS_EMPTY_OR(IS_IN_DB(db(ac_query),
+                                          'accounting_costcenters.Name',
+                                          '%(Name)s')),
+            represent=represent_accounting_costcenter,
+            label=T("Cost center")),
         Field('ExactOnlineSalesEntryLineID',
             readable=False,
             writable=False),
