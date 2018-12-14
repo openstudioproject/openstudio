@@ -42,7 +42,6 @@ def webhook():
             # Invoice payment instead of order payment
             iID = payment['metadata']['invoice_id']
 
-
         if payment.is_paid():
             #
             # At this point you'd probably want to start the process of delivering the
@@ -101,6 +100,8 @@ def test_webhook_invoice_paid():
     if not web2pytest.is_running_under_test(request, request.application):
         redirect(URL('default', 'user', args=['not_authorized']))
     else:
+        print 'processing payment'
+
         iID = request.vars['iID']
         payment_amount = request.vars['payment_amount']
         payment_date = request.vars['payment_date']
