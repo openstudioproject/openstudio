@@ -48,9 +48,17 @@ class Invoice:
         self._set_updated_at()
 
         # Exact online integration
-        if self.invoice_group.JournalID and eo_authorized == 'True':
+        if eo_authorized == 'True':
             os_eo = OSExactOnline()
-            os_eo.update_sales_entry(self)
+            if not self.invoice_group.JournalID:
+                os_eo._log_error(
+                    'update',
+                    'invoice',
+                    self.invoices_id,
+                    'No JournalID specified for invoice group'
+                )
+            else:
+                os_eo.update_sales_entry(self)
 
 
     def _set_updated_at(self):

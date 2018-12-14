@@ -306,7 +306,11 @@ class OSExactOnline:
         items = os_invoice.get_invoice_items_rows()
 
         for item in items:
-            glaccount = self.get_glaccount(item.GLAccount)
+            os_glaccount = db.accounting_glaccounts(
+                item.accounting_glaccounts_id
+            )
+            glaccount = self.get_glaccount(os_glaccount.AccountingCode)
+
             tax_rate = db.tax_rates(item.tax_rates_id)
             line = {
                 'AmountFC': item.TotalPrice,
@@ -318,6 +322,12 @@ class OSExactOnline:
 
             if is_credit_invoice:
                 line['Type'] = 21
+
+            if item.accounting_costcenters_id:
+                ac = db.accounting_costcenters(
+                    item.accounting_costcenters_id
+                )
+                line['CostCenter'] = ac.AccountingCode
 
             ID = item.ExactOnlineSalesEntryLineID
 
@@ -379,7 +389,11 @@ class OSExactOnline:
 
         lines = []
         for item in items:
-            glaccount = self.get_glaccount(item.GLAccount)
+            os_glaccount = db.accounting_glaccounts(
+                item.accounting_glaccounts_id
+            )
+
+            glaccount = self.get_glaccount(os_glaccount.AccountingCode)
 
             tax_rate = db.tax_rates(item.tax_rates_id)
             line = {
@@ -393,6 +407,12 @@ class OSExactOnline:
 
             if is_credit_invoice:
                 line['Type'] = 21
+
+            if item.accounting_costcenters_id:
+                ac = db.accounting_costcenters(
+                    item.accounting_costcenters_id
+                )
+                line['CostCenter'] = ac.AccountingCode
 
             lines.append(line)
 
