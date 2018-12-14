@@ -1182,6 +1182,8 @@ def define_school_classcards_groups_classcards():
 
 
 def define_school_memberships():
+    ac_query = (db.accounting_costcenters.Archived == False)
+
     db.define_table('school_memberships',
         Field('Archived', 'boolean',
             readable=False,
@@ -1209,6 +1211,13 @@ def define_school_memberships():
         Field('GLAccount',
               label= T('G/L Account'),
               comment= T('General ledger account ID in your accounting software')),
+        Field('accounting_costcenters_id', db.accounting_costcenters,
+              requires=IS_EMPTY_OR(IS_IN_DB(db(ac_query),
+                                            'accounting_costcenters.Name',
+                                            '%(Name)s')),
+              represent=represent_accounting_costcenter,
+              label=T("Cost center"),
+              comment=T("Cost center code in your accounting software")),
         format='%(Name)s'
         )
 

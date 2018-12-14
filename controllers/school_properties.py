@@ -865,7 +865,7 @@ def memberships_get_link_current_price(row):
 
     price = sm.get_price_on_date(TODAY_LOCAL)
     link = A(price,
-             _href=URL('memberships_prices', vars={'smID': smID}),
+             _href=URL('membership_prices', vars={'smID': smID}),
              _title=T("Edit prices"))
 
     return link
