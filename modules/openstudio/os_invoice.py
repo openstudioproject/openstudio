@@ -345,8 +345,8 @@ class Invoice:
         """
         return dict(
             company = self.invoice.CustomerCompany or '',
-            company_registration = self.invoice.CompanyRegistration or '',
-            company_tax_registration = self.invoice.CompanyTaxRegistration or '',
+            company_registration = self.invoice.CustomerCompanyRegistration or '',
+            company_tax_registration = self.invoice.CustomerCompanyTaxRegistration or '',
             name = self.invoice.CustomerName or '',
             list_name = self.invoice.CustomerListName or '',
             address = self.invoice.CustomerAddress or ''
