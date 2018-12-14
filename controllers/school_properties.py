@@ -1774,17 +1774,20 @@ def classcards():
     db.school_classcards.id.readable=False
     db.school_classcards.Description.readable=False
 
-    fields = [db.school_classcards.Name,
-              db.school_classcards.sys_organizations_id,
-              db.school_classcards.Description,
-              db.school_classcards.Price,
-              db.school_classcards.GLAccount,
-              db.school_classcards.Validity,
-              db.school_classcards.ValidityUnit,
-              db.school_classcards.Classes,
-              db.school_classcards.Unlimited,
-              db.school_classcards.Trialcard,
-              db.school_classcards.PublicCard ]
+    fields = [
+        db.school_classcards.Name,
+        db.school_classcards.sys_organizations_id,
+        db.school_classcards.Description,
+        db.school_classcards.Price,
+        db.school_classcards.Validity,
+        db.school_classcards.ValidityUnit,
+        db.school_classcards.Classes,
+        db.school_classcards.Unlimited,
+        db.school_classcards.Trialcard,
+        db.school_classcards.PublicCard,
+        db.school_classcards.accounting_glaccounts_id,
+        db.school_classcards.accounting_costcenters_id,
+    ]
 
     links = [ lambda row: os_gui.get_button('edit',
                                      URL('classcard_edit', args=[row.id]),

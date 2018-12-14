@@ -614,7 +614,8 @@ class Invoice:
             Price=price,
             Sorting=next_sort_nr,
             tax_rates_id=classcard.school_classcard.tax_rates_id,
-            GLAccount=classcard.glaccount
+            accounting_glaccounts_id=classcard.school_classcard.accounting_glaccounts_id,
+            accounting_costcenters_id=classcard.school_classcard.accounting_costcenters_id
         )
 
         # This calls self.on_update()
