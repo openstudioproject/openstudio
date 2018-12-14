@@ -828,6 +828,34 @@ def define_accounting_costcenters():
         format='%(Name)s')
 
 
+def represent_accounting_glaccount(value, row):
+    """
+        Returns name for a tax rate
+    """
+    name = ''
+    if value:
+        name = db.accounting_glaccounts(value).Name
+
+    return name
+
+
+def define_accounting_glaccounts():
+    db.define_table('accounting_glaccounts',
+        Field('Archived', 'boolean',
+            readable=False,
+            writable=False,
+            default=False,
+            label=T("Archived")),
+        Field('Name',
+            requires=IS_NOT_EMPTY(),
+            label=T("Name")),
+        Field('AccountingCode',
+            label=T("Accounting code"),
+            represent=lambda value, row: value or '',
+            comment=T("General ledger account code in your accounting software")),
+        format='%(Name)s')
+
+
 def define_payment_methods():
     db.define_table('payment_methods',
         Field('Archived', 'boolean',
@@ -2229,7 +2257,6 @@ def define_classes_price():
             label=T("Trial membership price incl. VAT")),
         Field('tax_rates_id_trial_membership', db.tax_rates,
             label=T('Trial tax rate membership')),
-
         Field('GLAccountTrial',
             represent=lambda value, row: value or '',
             label=T('Trial G/L Account'),
@@ -6115,6 +6142,7 @@ define_integration_exact_online_log()
 define_postcode_groups()
 define_tax_rates()
 define_accounting_costcenters()
+define_accounting_glaccounts()
 
 define_school_memberships()
 define_school_memberships_price()

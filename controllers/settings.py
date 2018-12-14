@@ -728,6 +728,146 @@ def financial_costcenter_archive():
     redirect(return_url)
 
 
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'settings_finance'))
+def financial_glaccounts():
+    """
+    List finance costcenters
+    """
+    from openstudio.os_accounting_costcenters import AccountingCostCenters
+
+    response.title = T('Financial Settings')
+    response.subtitle = T('General Ledger accounts')
+    response.view = 'general/tabs_menu.html'
+
+    if 'show_archive' in request.vars:
+        show = request.vars['show_archive']
+        session.settings_financial_costcenters_show = show
+
+    archive = False
+    if session.settings_financial_costcenters_show == 'archive':
+        archive = True
+
+    archive_buttons = os_gui.get_archived_radio_buttons(
+        session.settings_financial_costcenters_show or 'current'
+    )
+
+    acc = AccountingCostCenters()
+    content = DIV(archive_buttons, acc.list_formatted(archive))
+
+
+    add = os_gui.get_button(
+        'add',
+        URL('financial_costcenter_add')
+    )
+    menu = financial_get_menu(request.function)
+
+
+    return dict(content=content,
+                menu=menu,
+                tools=add)
+                # save=submit)
+
+
+def financial_glaccount_get_return_url():
+    return URL('settings', 'financial_costcenters')
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('create', 'accounting_glaccounts'))
+def financial_glaccounts_add():
+    """
+
+    :return:
+    """
+    from openstudio.os_forms import OsForms
+
+    response.title = T('Financial Settings')
+    response.subtitle = T('General ledger accounts')
+    response.view = 'general/tabs_menu.html'
+
+    return_url = financial_glaccount_get_return_url()
+
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_create(
+        db.accounting_costcenters,
+        return_url,
+        message_record_created=T("Saved")
+    )
+
+    form = result['form']
+    back = os_gui.get_button('back', return_url)
+
+    content = DIV(
+        H4(T('Add cost center')),
+        form
+    )
+
+    menu = financial_get_menu('financial_costcenters')
+
+    return dict(content=content,
+                save=result['submit'],
+                back=back,
+                menu=menu)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('update', 'accounting_glaccounts'))
+def financial_glaccounts_edit():
+    """
+
+    :return:
+    """
+    from openstudio.os_forms import OsForms
+
+    response.title = T('Financial Settings')
+    response.subtitle = T('General ledger accounts')
+    response.view = 'general/tabs_menu.html'
+
+    acID = request.vars['acID']
+
+    return_url = financial_glaccount_get_return_url()
+
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_update(
+        db.accounting_costcenters,
+        return_url,
+        acID
+    )
+
+    form = result['form']
+    back = os_gui.get_button('back', return_url)
+
+    content = DIV(
+        H4(T('Edit cost center')),
+        form
+    )
+
+    menu = financial_get_menu('financial_costcenters')
+
+    return dict(content=content,
+                save=result['submit'],
+                back=back,
+                menu=menu)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('update', 'accounting_glaccounts'))
+def financial_glaccounts_archive():
+    """
+
+    :return:
+    """
+    from openstudio.os_accounting_costcenter import AccountingCostCenter
+    acID = request.vars['acID']
+
+    ac = AccountingCostCenter(acID)
+    ac.archive()
+
+    redirect(financial_glaccount_get_return_url())
+
+
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
 def financial_currency():
