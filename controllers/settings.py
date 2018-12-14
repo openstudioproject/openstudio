@@ -522,6 +522,9 @@ def financial_get_menu(page=None):
              ['financial_costcenters',
               T('Cost centers'),
               URL('financial_costcenters')],
+             ['financial_glaccounts',
+              T('G/L accounts'),
+              URL('financial_glaccounts')],
              ['financial_dd_categories',
               T('Direct debit extra'),
               URL('financial_dd_categories')],
@@ -735,7 +738,7 @@ def financial_glaccounts():
     """
     List finance costcenters
     """
-    from openstudio.os_accounting_costcenters import AccountingCostCenters
+    from openstudio.os_accounting_glaccounts import AccountingGLAccounts
 
     response.title = T('Financial Settings')
     response.subtitle = T('General Ledger accounts')
@@ -743,23 +746,23 @@ def financial_glaccounts():
 
     if 'show_archive' in request.vars:
         show = request.vars['show_archive']
-        session.settings_financial_costcenters_show = show
+        session.settings_financial_glaccounts_show = show
 
     archive = False
-    if session.settings_financial_costcenters_show == 'archive':
+    if session.settings_financial_glaccounts_show == 'archive':
         archive = True
 
     archive_buttons = os_gui.get_archived_radio_buttons(
-        session.settings_financial_costcenters_show or 'current'
+        session.settings_financial_glaccounts_show or 'current'
     )
 
-    acc = AccountingCostCenters()
-    content = DIV(archive_buttons, acc.list_formatted(archive))
+    acg = AccountingGLAccounts()
+    content = DIV(archive_buttons, acg.list_formatted(archive))
 
 
     add = os_gui.get_button(
         'add',
-        URL('financial_costcenter_add')
+        URL('financial_glaccount_add')
     )
     menu = financial_get_menu(request.function)
 
@@ -771,12 +774,12 @@ def financial_glaccounts():
 
 
 def financial_glaccount_get_return_url():
-    return URL('settings', 'financial_costcenters')
+    return URL('settings', 'financial_glaccounts')
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('create', 'accounting_glaccounts'))
-def financial_glaccounts_add():
+def financial_glaccount_add():
     """
 
     :return:
@@ -791,7 +794,7 @@ def financial_glaccounts_add():
 
     os_forms = OsForms()
     result = os_forms.get_crud_form_create(
-        db.accounting_costcenters,
+        db.accounting_glaccounts,
         return_url,
         message_record_created=T("Saved")
     )
@@ -800,11 +803,11 @@ def financial_glaccounts_add():
     back = os_gui.get_button('back', return_url)
 
     content = DIV(
-        H4(T('Add cost center')),
+        H4(T('Add General ledger account')),
         form
     )
 
-    menu = financial_get_menu('financial_costcenters')
+    menu = financial_get_menu('financial_glaccounts')
 
     return dict(content=content,
                 save=result['submit'],
@@ -814,7 +817,7 @@ def financial_glaccounts_add():
 
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('update', 'accounting_glaccounts'))
-def financial_glaccounts_edit():
+def financial_glaccount_edit():
     """
 
     :return:
@@ -825,26 +828,26 @@ def financial_glaccounts_edit():
     response.subtitle = T('General ledger accounts')
     response.view = 'general/tabs_menu.html'
 
-    acID = request.vars['acID']
+    agID = request.vars['agID']
 
     return_url = financial_glaccount_get_return_url()
 
     os_forms = OsForms()
     result = os_forms.get_crud_form_update(
-        db.accounting_costcenters,
+        db.accounting_glaccounts,
         return_url,
-        acID
+        agID
     )
 
     form = result['form']
     back = os_gui.get_button('back', return_url)
 
     content = DIV(
-        H4(T('Edit cost center')),
+        H4(T('Edit General ledger account')),
         form
     )
 
-    menu = financial_get_menu('financial_costcenters')
+    menu = financial_get_menu('financial_glaccounts')
 
     return dict(content=content,
                 save=result['submit'],
@@ -854,16 +857,16 @@ def financial_glaccounts_edit():
 
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('update', 'accounting_glaccounts'))
-def financial_glaccounts_archive():
+def financial_glaccount_archive():
     """
 
     :return:
     """
-    from openstudio.os_accounting_costcenter import AccountingCostCenter
-    acID = request.vars['acID']
+    from openstudio.os_accounting_glaccount import AccountingGLAccount
+    agID = request.vars['agID']
 
-    ac = AccountingCostCenter(acID)
-    ac.archive()
+    ag = AccountingGLAccount(agID)
+    ag.archive()
 
     redirect(financial_glaccount_get_return_url())
 
