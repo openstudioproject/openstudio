@@ -666,11 +666,37 @@ def financial_costcenter_edit():
 
     :return:
     """
+    from openstudio.os_forms import OsForms
+
     response.title = T('Financial Settings')
     response.subtitle = T('Cost centers')
     response.view = 'general/tabs_menu.html'
 
+    acID = request.vars['acID']
 
+    return_url = financial_costcenter_get_return_url()
+
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_update(
+        db.accounting_costcenters,
+        return_url,
+        acID
+    )
+
+    form = result['form']
+    back = os_gui.get_button('back', return_url)
+
+    content = DIV(
+        H4(T('Edit cost center')),
+        form
+    )
+
+    menu = financial_get_menu('financial_costcenters')
+
+    return dict(content=content,
+                save=result['submit'],
+                back=back,
+                menu=menu)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
