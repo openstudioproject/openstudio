@@ -37,7 +37,7 @@ class CartListTotal extends Component {
         const total = this.props.total
 
         return (
-            <div className="pull-right">
+            <div className="pull-right shop-cart-total">
                 Total:  <Currency amount={total} />
             </div>
         )

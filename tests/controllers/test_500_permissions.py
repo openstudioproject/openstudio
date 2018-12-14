@@ -217,6 +217,7 @@ def test_settings_access_group_delete(client, web2py):
     setup_permission_tests(web2py)
     prepare_classes(web2py)
     web2py.auth.add_permission(200, 'read', 'settings', 0)
+    web2py.auth.add_permission(200, 'read', 'auth_group', 0)
 
     web2py.db.commit()
 

@@ -4,7 +4,9 @@ import { withRouter } from 'react-router'
 
 import { appOperations } from '../../duck'
 import { shopCartOperations } from '../cart/duck'
+import { shopProductsOperations } from './duck'
 import { customersListOperations } from '../../customers/list/duck'
+
 import Products from './Products'
 
 
@@ -12,7 +14,8 @@ const mapStateToProps = state =>
     ({
         app: state.app,
         loaded: state.shop.products.loaded,
-        products: state.shop.products.data
+        products: state.shop.products,
+        products_data: state.shop.products.data
     })
 
 const mapDispatchToProps = dispatch =>
@@ -25,7 +28,32 @@ const mapDispatchToProps = dispatch =>
         },
         setCustomersListRedirectNext(next) {
             dispatch(customersListOperations.setRedirectNextComponent(next))
-        }
+        },
+        clearSearchTimeout() {
+            dispatch(shopProductsOperations.clearSearchTimeout())
+        },
+        setSearchTimeout(timeout) {
+            dispatch(shopProductsOperations.setSearchTimeout(timeout))
+        },
+        clearSearchValue() {
+            dispatch(shopProductsOperations.clearProductsSearchValue())
+        },
+        setSearchValue(data) {
+            dispatch(shopProductsOperations.setProductsSearchValue(data))
+        },
+        clearSearchProductID() {
+            dispatch(shopProductsOperations.clearSearchProductID())
+        },
+        setSearchProductID(data) {
+            dispatch(shopProductsOperations.setSearchProductID(data))
+        },
+        clearCategoryFilterID() {
+            dispatch(shopProductsOperations.clearCategoryFilterID())
+        },
+        setCategoryFilterID(id) {
+            dispatch(shopProductsOperations.setCategoryFilterID(id))
+        },
+
     })
 
 const ProductsContainer = withRouter(injectIntl(connect(

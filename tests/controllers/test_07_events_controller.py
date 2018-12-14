@@ -16,6 +16,8 @@ from populate_os_tables import populate_workshop_activity_overlapping_class
 from populate_os_tables import populate_workshops_for_api_tests
 from populate_os_tables import populate_customers_orders
 from populate_os_tables import populate_customers_orders_items
+from populate_os_tables import populate_accounting_glaccounts
+from populate_os_tables import populate_accounting_costcenters
 
 
 def test_events_index(client, web2py):
@@ -397,6 +399,8 @@ def test_ticket_duplicate(client, web2py):
     assert wsp_1.ExternalShopURL == wsp_2.ExternalShopURL
     assert wsp_1.AddToCartText == wsp_2.AddToCartText
     assert wsp_1.Donation == wsp_2.Donation
+    assert wsp_1.accounting_glaccounts_id == wsp_2.accounting_glaccounts_id
+    assert wsp_1.accounting_costcenters_id == wsp_2.accounting_costcenters_id
 
     # Check some activities have been added for workshop product
     assert web2py.db(web2py.db.workshops_products_activities.workshops_products_id == 2).count() > 0

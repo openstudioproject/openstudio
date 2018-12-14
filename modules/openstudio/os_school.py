@@ -503,7 +503,7 @@ class School:
                 DIV(
                     DIV(self._get_formatted_display_widget_header(
                         name,
-                        sm.get_price_on_date(TODAY_LOCAL)
+                        repr_row.Price
                     )),
                     DIV(DIV(repr_row.Description, _class='col-md-12'),
                             _class='box-body'),

@@ -5,6 +5,8 @@ import {
     receiveCreateCustomer,
     requestUpdateCustomer,
     receiveUpdateCustomer,
+    requestSaveCameraAppSnap,
+    receiveSaveCameraAppSnap,
     setCreateCustomerStatus,
     setUpdateCustomerStatus,
     setSearchTimeout,
@@ -18,7 +20,9 @@ import {
     setSelectedCustomerID,
     clearSelectedCustomerID,
     setRedirectNextComponent,
-    clearRedirectNextComponent
+    clearRedirectNextComponent,
+    setCameraAppSnap,
+    clearCameraAppSnap
 } from './actions'
 
 import axios_os from '../../../../utils/axios_os'
@@ -61,7 +65,6 @@ const formDataToObject = (fd_obj) => {
     return data_object
 }
 
-
 // creators
 const createCustomer = (data) => {
     return dispatch => {
@@ -98,10 +101,32 @@ const updateCustomer = (data) => {
     }
 }
 
+const updateCustomerPicture = (cuID, picture) => {
+    return dispatch => {
+        dispatch(requestSaveCameraAppSnap())
+
+        let fd = new FormData()
+        fd.append('picture', picture)
+        fd.append('cuID', cuID)
+
+        axios_os.post(OS_API.CUSTOMER_PICTURE_UPDATE, fd)
+        .then(function(response) {
+            dispatch(receiveSaveCameraAppSnap(response.data))
+        })
+        .catch(function (error) {
+            console.log(error)
+        })
+        .then(function() {
+            //always executed
+        })
+    }
+}
+
 
 export default {
     createCustomer,
     updateCustomer,
+    updateCustomerPicture,
     fetchCustomers,
     setSearchTimeout,
     clearSearchTimeout,
@@ -117,4 +142,6 @@ export default {
     clearSelectedCustomerID,
     setRedirectNextComponent,
     clearRedirectNextComponent,
+    setCameraAppSnap,
+    clearCameraAppSnap
 }

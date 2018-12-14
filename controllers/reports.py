@@ -1803,7 +1803,7 @@ def subscriptions_overview():
     response.title = T("Reports")
     response.view = 'reports/subscriptions.html'
 
-    # set the session vars for year/month
+    # set the session vars for year/month & optional location filter
     subscriptions_process_request_vars()
 
     # get first and last day of this month
@@ -2175,12 +2175,8 @@ def subscriptions_overview_customers():
     """
         Lists customers for a selected subscription in a month
     """
-    # add location filter form
-    if 'locationID' in request.vars:
-        locationID = request.vars['locationID']
-        session.reports_subscriptions_overview_locationID = locationID
-    else:
-        locationID = session.reports_subscriptions_overview_locationID
+    # set the session vars for year/month & optional location filter
+    subscriptions_process_request_vars()
 
     if 'ssuID' in request.vars:
         ssuID = request.vars['ssuID']
@@ -2190,8 +2186,6 @@ def subscriptions_overview_customers():
     else:
         ssuID = session.reports_subscriptions_overview_customers_ssuID
 
-    # set the session vars for year/month
-    subscriptions_process_request_vars()
 
     # Redirect back from customers edit pages
     session.customers_back = request.function
@@ -2201,17 +2195,23 @@ def subscriptions_overview_customers():
 
     ssu = SchoolSubscription(ssuID)
 
+    # get month/year selection form and subtitle
+    location_filter = False
+    if session.show_location:
+        location_filter = True
+
     form_subtitle = get_form_subtitle(session.reports_subscriptions_month,
                                       session.reports_subscriptions_year,
-                                      request.function)
+                                      request.function,
+                                      location_filter=location_filter)
     response.subtitle = SPAN(form_subtitle['subtitle'], ' - ',
                              T('Customers'), ' - ',
                              ssu.get_name())
 
-
-    location_filter = subscriptions_get_location_filter(locationID)
-
     form = form_subtitle['form']
+    month_chooser = form_subtitle['month_chooser']
+    current_month = form_subtitle['current_month']
+    submit = form_subtitle['submit']
 
     # fill the table
 
@@ -2227,7 +2227,7 @@ def subscriptions_overview_customers():
 
     table.append(header)
 
-    rows = subscriptions_overview_customers_get_rows(ssuID, locationID)
+    rows = subscriptions_overview_customers_get_rows(ssuID, session.reports_subscriptions_school_locations_id)
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i+1].render())[0]
 
@@ -2263,13 +2263,14 @@ def subscriptions_overview_customers():
 
     form = DIV(form, HR(),
                LABEL(T('Subscription')),
-               form_ssuID,
-               LABEL(T('Location')) if location_filter else '',
-               location_filter)
+               form_ssuID)
 
     return dict(content=table,
                 form=form,
-                back=back)
+                back=back,
+                month_chooser=month_chooser,
+                current_month=current_month,
+                run_report=submit)
 
 
 def subscriptions_overview_customers_get_rows(ssuID, locationID=None):

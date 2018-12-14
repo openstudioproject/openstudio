@@ -38,7 +38,7 @@ NavTabs = injectIntl(withRouter(NavTabs));
 const activeClassName= "active"
 
 const SchoolMenu = ({ children }) =>
-    <div role="navigation">
+    <div role="navigation" className="shop-products-school-container">
         <NavTabs />
         <div className="tab-content">
             {children}

@@ -984,7 +984,7 @@ def membership_terms():
         )
 
     sm = SchoolMembership(smID)
-    price = sm.get_price_on_date(TODAY_LOCAL)
+    price = sm.row.Price
 
     response.subtitle += ' '
     response.subtitle += sm.row.Name

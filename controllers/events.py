@@ -1247,8 +1247,9 @@ def tickets():
     table = TABLE(THEAD(TR(TH(T('Name')),
                            TH(T('Description')),
                            TH(T('Price')),
-                           TH(T('G/L Account')),
                            TH(T('Shop')),
+                           TH(T('G/L Account')),
+                           TH(T('Cost center')),
                            TH(),
                            TH(),
                            _class='header')),
@@ -1320,8 +1321,9 @@ def tickets():
         table.append(TR(TD(row.Name),
                         TD(max_string_length(row.Description, 40)),
                         TD(row.Price),
-                        TD(row.GLAccount),
                         TD(shop),
+                        TD(row.accounting_glaccounts_id),
+                        TD(row.accounting_costcenters_id),
                         TD(fws_label),
                         TD(delete, actions)))
 
@@ -1596,7 +1598,9 @@ def ticket_duplicate():
         Description = wsp.Description,
         ExternalShopURL = wsp.ExternalShopURL,
         AddToCartText = wsp.AddToCartText,
-        Donation = wsp.Donation
+        Donation = wsp.Donation,
+        accounting_glaccounts_id = wsp.accounting_glaccounts_id,
+        accounting_costcenters_id = wsp.accounting_costcenters_id,
     )
 
     if wsp.FullWorkshop:

@@ -30,6 +30,8 @@ class ShopProducts:
                           TH(T('Name')),
                           TH(T('Description')),
                           TH(T('Categories')),
+                          TH(T('G/L Account')),
+                          TH(T('Cost center')),
                           TH()))
         table = TABLE(header, _class='table table-striped table-hover')
 
@@ -39,6 +41,8 @@ class ShopProducts:
 
         permission_variants = (auth.has_membership(group_id='Admins') or
                                auth.has_permission('read', 'shop_products_variants'))
+        permission_categories = (auth.has_membership(group_id='Admins') or
+                                 auth.has_permission('create', 'shop_products_categories'))
         permission_edit = (auth.has_membership(group_id='Admins') or
                            auth.has_permission('update', 'shop_products'))
         permission_delete = (auth.has_membership(group_id='Admins') or
@@ -74,6 +78,7 @@ class ShopProducts:
             actions = self._list_formatted_get_actions(
                    permission_edit,
                    permission_variants,
+                   permission_categories,
                    row,
                    os_gui,
                    T
@@ -84,6 +89,8 @@ class ShopProducts:
                 TD(os_gui.max_string_length(row.Name, 30)),
                 TD(os_gui.max_string_length(row.Description, 30)),
                 TD(product_categories),
+                TD(repr_row.accounting_glaccounts_id),
+                TD(repr_row.accounting_costcenters_id),
                 TD(delete, actions)
             )
 
@@ -95,6 +102,7 @@ class ShopProducts:
     def _list_formatted_get_actions(self,
                                     permission_edit,
                                     permission_variants,
+                                    permission_categories,
                                     row,
                                     os_gui,
                                     T):
@@ -109,6 +117,12 @@ class ShopProducts:
             links.append(
                 A(os_gui.get_fa_icon('fa-list'), T('Variants'),
                   _href=URL('shop_manage', 'product_variants',
+                            vars=vars))
+            )
+        if permission_categories:
+            links.append(
+                A(os_gui.get_fa_icon('fa-tags'), T('Categories'),
+                  _href=URL('shop_manage', 'product_categories',
                             vars=vars))
             )
         if permission_edit:

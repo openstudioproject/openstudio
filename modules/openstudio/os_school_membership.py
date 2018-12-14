@@ -19,77 +19,6 @@ class SchoolMembership:
         self.row = db.school_memberships(smID)
 
 
-    def get_price_rows_on_date(self, date):
-        """
-        :param date: datetime.date
-        :return: first db.school_membrships_price row found for date
-        """
-        db = current.db
-
-        query = (db.school_memberships_price.school_memberships_id ==
-                 self.smID) & \
-                (db.school_memberships_price.Startdate <= date) & \
-                ((db.school_memberships_price.Enddate >= date) |
-                 (db.school_memberships_price.Enddate == None))
-
-        rows = db(query).select(db.school_memberships_price.ALL,
-                                orderby=db.school_memberships_price.Startdate)
-
-        return rows
-        
-
-    def get_price_on_date(self, date, formatted=True):
-        """
-            Returns the price for a membership on a given date
-        """
-        db = current.db
-
-        price = ''
-        rows = self.get_price_rows_on_date(date)
-
-        if len(rows):
-            if formatted:
-                repr_row = list(rows[0:1].render())[0] # first row
-                price = repr_row.Price
-            else:
-                row = rows.first()
-                price = row.Price
-
-        if not price:
-            price = 0
-
-        return price
-    
-    
-    def get_tax_rates_on_date(self, date):
-        """
-            Returns tax rates on date
-        """
-        db = current.db
-
-        left = [ db.tax_rates.on(db.school_memberships_price.tax_rates_id ==
-                                 db.tax_rates.id) ]
-
-        query = (db.school_memberships_price.school_memberships_id ==
-                 self.smID) & \
-                (db.school_memberships_price.Startdate <= date) & \
-                ((db.school_memberships_price.Enddate >= date) |
-                 (db.school_memberships_price.Enddate == None))
-
-        rows = db(query).select(db.school_memberships.ALL,
-                                db.school_memberships_price.ALL,
-                                db.tax_rates.ALL,
-                                left=left,
-                                orderby=db.school_memberships_price.Startdate)
-
-        if rows:
-            row = rows.first()
-        else:
-            row = None
-
-        return row
-
-
     def get_validity_formatted(self):
         """
             :return: Validity for school membership
@@ -169,7 +98,7 @@ class SchoolMembership:
         cm = CustomerMembership(cmID)
 
         # Check if price exists and > 0:
-        if self.get_price_on_date(cm.row.Startdate):
+        if self.row.Price:
             igpt = db.invoices_groups_product_types(ProductType='membership')
 
             iID = db.invoices.insert(

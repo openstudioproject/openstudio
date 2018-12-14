@@ -755,9 +755,13 @@ table.invoice-items tr th:first-child {
 }
 
 table.invoice-items th.GLAccount {
-    width: 50px;
+    width: 100px;
 }
 
+
+table.invoice-items th.Costcenter {
+    width: 100px;
+}
 
 table.invoice-items th.ProductName {
     width: 160px;

@@ -11,13 +11,17 @@ const CustomerFormCreate = ({error_data={}, onSubmit=f=>f, onCancel=f=>f}) =>
     <div className="box box-solid"> 
         <div className="box-header">
             <h3 className="box-title">Add customer</h3>
-            <button onClick={onCancel}>Cancel</button>
+            <button className="btn btn-default pull-right"
+                    onClick={onCancel}>
+                Cancel
+            </button>
         </div>
         <div className="box-body">
             <form onSubmit={onSubmit}>
                 <label htmlFor="first_name">First Name</label>
                 <input 
                     id="first_name" 
+                    className="form-control"
                     name="first_name" 
                     type="text" 
                 />
@@ -25,6 +29,7 @@ const CustomerFormCreate = ({error_data={}, onSubmit=f=>f, onCancel=f=>f}) =>
                 <label htmlFor="last_name">Last Name</label>
                 <input 
                     id="last_name" 
+                    className="form-control"
                     name="last_name" 
                     type="text" 
                 />
@@ -32,12 +37,13 @@ const CustomerFormCreate = ({error_data={}, onSubmit=f=>f, onCancel=f=>f}) =>
                 <label htmlFor="email">Email</label>
                 <input 
                     id="email" 
+                    className="form-control"
                     name="email" 
                     type="text" 
                 />
                 <CustomerFormError message={ (error_data.email) ? error_data.email : "" } />
-
-                <button>Save</button>
+                <br />
+                <button className="btn btn-primary">Save</button>
             </form>
         </div>
     </div>

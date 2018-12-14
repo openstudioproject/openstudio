@@ -26,6 +26,9 @@ const mapDispatchToProps = dispatch =>
         updateCustomer(data) {
             dispatch(customersListOperations.updateCustomer(data))
         },
+        updateCustomerPicture(cuID, picture) {
+            dispatch(customersListOperations.updateCustomerPicture(cuID, picture))
+        },
         setCreateCustomerStatus(status) {
             dispatch(customersListOperations.setCreateCustomerStatus(status))
         },
@@ -61,7 +64,13 @@ const mapDispatchToProps = dispatch =>
         },
         setSelectedCustomerID(id) {
             dispatch(customersListOperations.setSelectedCustomerID(id))
-        }
+        },
+        setCameraAppSnap(data) {
+            dispatch(customersListOperations.setCameraAppSnap(data))
+        },
+        clearCameraAppSnap() {
+            dispatch(customersListOperations.clearCameraAppSnap())
+        },
     })
 
 

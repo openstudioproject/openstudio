@@ -36,6 +36,17 @@ export const receiveUpdateCustomer = (data) =>
         data
     })
 
+export const requestSaveCameraAppSnap = () =>
+    ({
+        type: T.REQUEST_SAVE_CAMERA_APP_SNAP
+    })
+
+export const receiveSaveCameraAppSnap = (data) =>
+    ({
+        type: T.RECEIVE_SAVE_CAMERA_APP_SNAP,
+        data
+    })
+
 export const clearSearchTimeout = () =>
     ({
         type: T.CLEAR_SEARCH_TIMEOUT
@@ -112,4 +123,15 @@ export const setRedirectNextComponent = (component) =>
 export const clearRedirectNextComponent = () =>
     ({
         type: T.CLEAR_REDIRECT_NEXT_COMPONENT,
+    })
+
+export const setCameraAppSnap = (data) =>
+    ({
+        type: T.SET_CAMERA_APP_SNAP,
+        data
+    })
+
+export const clearCameraAppSnap = () =>
+    ({
+        type: T.CLEAR_CAMERA_APP_SNAP,
     })

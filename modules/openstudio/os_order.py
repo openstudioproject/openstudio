@@ -62,7 +62,8 @@ class Order:
             Quantity = quantity,
             Price = pv.Price,
             tax_rates_id = pv.tax_rates_id,
-            GLAccount = pv.GLAccount
+            accounting_glaccounts_id = product.accounting_glaccounts_id,
+            accounting_costcenters_id = product.accounting_costcenters_id,
         )
 
         self.set_amounts()
@@ -93,7 +94,9 @@ class Order:
             Description = school_classcard.Name,
             Quantity = 1,
             Price = school_classcard.Price,
-            tax_rates_id = school_classcard.tax_rates_id
+            tax_rates_id = school_classcard.tax_rates_id,
+            accounting_glaccounts_id = school_classcard.accounting_glaccounts_id,
+            accounting_costcenters_id = school_classcard.accounting_costcenters_id
         )
 
         self.set_amounts()
@@ -121,7 +124,9 @@ class Order:
             Description = ssu.get_name(),
             Quantity = 1,
             Price = ssu.get_price_on_date(startdate, formatted=False),
-            tax_rates_id = ssu_tax_rates.tax_rates.id
+            tax_rates_id = ssu_tax_rates.tax_rates.id,
+            accounting_glaccounts_id = ssu.row.accounting_glaccounts_id,
+            accounting_costcenters_id = ssu.row.accounting_costcenters_id,
         )
 
         self.set_amounts()
@@ -149,7 +154,9 @@ class Order:
             Description = sme.row.Name,
             Quantity = 1,
             Price = sme.get_price_on_date(startdate, formatted=False),
-            tax_rates_id = sme_tax_rates.tax_rates.id
+            tax_rates_id = sme_tax_rates.tax_rates.id,
+            accounting_glaccounts_id = sme.row.accounting_glaccounts_id,
+            accounting_costcenters_id = sme.row.accounting_costcenters_id,
         )
 
         self.set_amounts()
@@ -181,7 +188,9 @@ class Order:
             Description = ws.Name + ' - ' + wsp.name,
             Quantity = 1,
             Price = price,
-            tax_rates_id = wsp.tax_rates_id
+            tax_rates_id = wsp.tax_rates_id,
+            accounting_glaccounts_id = wsp.workshop_product.accounting_glaccounts_id,
+            accounting_costcenters_id = wsp.workshop_product.accounting_costcenters_id
         )
 
         self.set_amounts()
@@ -235,9 +244,13 @@ class Order:
         if attendance_type == 1:
             price = prices['trial']
             tax_rates_id = prices['trial_tax_rates_id']
+            glaccount = prices['trial_glaccount']
+            costcenter = prices['trial_costcenter']
         elif attendance_type == 2:
             price = prices['dropin']
             tax_rates_id = prices['dropin_tax_rates_id']
+            glaccount = prices['dropin_glaccount']
+            costcenter = prices['dropin_costcenter']
 
         description = cls.get_invoice_order_description(attendance_type)
 
@@ -251,6 +264,8 @@ class Order:
             Quantity = 1,
             Price = price,
             tax_rates_id = tax_rates_id,
+            accounting_glaccounts_id = glaccount,
+            accounting_costcenters_id = costcenter
         )
 
         self.set_amounts()
@@ -412,7 +427,8 @@ class Order:
                         quantity = row.Quantity,
                         price = row.Price,
                         tax_rates_id = row.tax_rates_id,
-                        glaccount = row.GLAccount
+                        accounting_glaccounts_id = row.accounting_glaccounts_id,
+                        accounting_costcenters_id = row.accounting_costcenters_id
                     )
 
             # Check for classcard

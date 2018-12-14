@@ -20,8 +20,6 @@ class ShopProductsVariants:
 
         shop_categories = ShopCategories()
         product_categories = shop_categories.list_products_categories()
-        print product_categories
-
 
         data = []
 
@@ -50,12 +48,15 @@ class ShopProductsVariants:
             data.append({
                 'id': row.shop_products_variants.id,
                 'variant_name': row.shop_products_variants.Name,
+                'search_variant_name': row.shop_products_variants.Name.lower(),
                 'description': row.shop_products.Description,
                 'product_name': row.shop_products.Name,
+                'search_product_name': row.shop_products.Name.lower(),
                 'price': row.shop_products_variants.Price,
                 'thumbsmall': get_download_url(row.shop_products_variants.thumbsmall),
                 'thumblarge': get_download_url(row.shop_products_variants.thumblarge),
                 'categories': categories,
+                'barcode': row.shop_products_variants.Barcode
             })
 
 
@@ -92,7 +93,6 @@ class ShopProductsVariants:
                           TH(T('Name')),
                           TH(T('Price')),
                           TH(T('Article Code')),
-                          TH(T('G/L Account')),
                           TH(T('Keep stock')),
                           TH(T('Stock shop')),
                           TH(T('Stock warehouse')),
@@ -127,7 +127,6 @@ class ShopProductsVariants:
                 TD(os_gui.max_string_length(row.Name, 50)),
                 TD(repr_row.Price),
                 TD(repr_row.ArticleCode),
-                TD(repr_row.GLAccount),
                 TD(repr_row.KeepStock),
                 TD(row.StockShop),
                 TD(row.StockWarehouse),

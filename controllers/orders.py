@@ -172,6 +172,8 @@ def edit():
     header = THEAD(TR(TH(T('Product')),
                       TH(T('Description')),
                       TH(SPAN(T('Amount incl. VAT'), _class='right')),
+                      TH(T("G/L Account")),
+                      TH(T("Cost center")),
                       TH(),
                         )
                      )
@@ -181,11 +183,14 @@ def edit():
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
-        table.append(TR(TD(repr_row.ProductName),
-                        TD(repr_row.Description),
-                        TD(SPAN(repr_row.TotalPriceVAT, _class='right')),
-                        TD())
-                     )
+        table.append(TR(
+            TD(repr_row.ProductName),
+            TD(repr_row.Description),
+            TD(SPAN(repr_row.TotalPriceVAT, _class='right')),
+            TD(repr_row.accounting_glaccounts_id),
+            TD(repr_row.accounting_costcenters_id),
+            TD(),
+        ))
 
     # Display totals
     amounts = order.get_amounts()

@@ -33,6 +33,7 @@ class App extends Component {
 
   componentWillMount() {
     this.props.fetchPaymentMethods()
+    this.props.fetchProductCategories()
     this.props.fetchUser()    
     this.props.fetchSettings()  
     this.props.fetchCustomers()
@@ -42,7 +43,6 @@ class App extends Component {
     this.props.fetchShopSchoolMemberships()
     this.props.fetchShopSchoolSubscriptions()
   }
-
 
   render() {
     return (

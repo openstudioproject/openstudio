@@ -20,6 +20,9 @@ const mapDispatchToProps = dispatch =>
         fetchPaymentMethods() {
             dispatch(appOperations.fetchPaymentMethods())
         },
+        fetchProductCategories() {
+            dispatch(shopProductsOperations.fetchProductCategories())
+        },
         fetchUser() {
             dispatch(appOperations.fetchUser())
         },

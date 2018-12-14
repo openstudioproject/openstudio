@@ -459,7 +459,7 @@ def populate_customers_with_memberships(web2py,
 
         # Add invoices?
         if invoices:
-            smp = web2py.db.school_memberships_price(1)
+            sm = web2py.db.school_memberships(1)
 
             iID = web2py.db.invoices.insert(
                 invoices_groups_id=100,
@@ -478,19 +478,19 @@ def populate_customers_with_memberships(web2py,
                 ProductName='Membership',
                 Description='First membership in school',
                 Quantity=1,
-                Price=smp.Price,
-                tax_rates_id=smp.tax_rates_id
+                Price=sm.Price,
+                tax_rates_id=sm.tax_rates_id
             )
 
             # tax rates (1) = 21%
-            TotalPrice = round(smp.Price / 1.21, 2)
-            VAT = round(smp.Price - TotalPrice, 2)
+            TotalPrice = round(sm.Price / 1.21, 2)
+            VAT = round(sm.Price - TotalPrice, 2)
 
             web2py.db.invoices_amounts.insert(
                 invoices_id=iID,
                 TotalPrice=TotalPrice,
                 VAT=VAT,
-                TotalPriceVAT=smp.Price,
+                TotalPriceVAT=sm.Price,
 
             )
 
@@ -1307,6 +1307,8 @@ def populate_workshops_with_activity(web2py, teachers=True):
         Calls populate workshops and adds an activity
     """
     populate_tax_rates(web2py)
+    populate_accounting_glaccounts(web2py)
+    populate_accounting_costcenters(web2py)
     populate_workshops(web2py, teachers=teachers)
     workshop = web2py.db.workshops(1)
     web2py.db.workshops_activities.insert(
@@ -1539,22 +1541,20 @@ def populate_school_memberships(web2py, price=True):
     """
     populate_tax_rates(web2py)
 
+    membership_price = 0
+    if price:
+        membership_price = 40
+
     web2py.db.school_memberships.insert(
         Archived = False,
         Name = 'Premium membership',
         Description = 'premium membership',
+        Price = membership_price,
+        tax_rates_id=1,
         Terms = "Mango season",
         Validity = 1,
         ValidityUnit = 'months'
        )
-
-    if price:
-        web2py.db.school_memberships_price.insert(
-            school_memberships_id = 1,
-            Startdate = '1900-01-01',
-            Price = 40,
-            tax_rates_id=1
-        )
 
     web2py.db.commit()
 
@@ -1691,7 +1691,6 @@ def populate_postcode_groups(web2py):
     web2py.db.commit()
 
 
-
 def populate_tax_rates(web2py):
     """
         Populates tax rates table with some dummy data
@@ -1702,8 +1701,32 @@ def populate_tax_rates(web2py):
     )
 
     web2py.db.tax_rates.insert(
-        Name = 'BTW 6%',
-        Percentage = 6
+        Name = 'BTW 9%',
+        Percentage = 9
+    )
+
+    web2py.db.commit()
+
+
+def populate_accounting_glaccounts(web2py):
+    """
+        Populates accounting_glaccounts table with some dummy data
+    """
+    web2py.db.accounting_glaccounts.insert(
+        Name = "Revenue VAT high",
+        AccountingCode = '8000'
+    )
+
+    web2py.db.commit()
+
+
+def populate_accounting_costcenters(web2py):
+    """
+        Populates accounting_costcenters table with some dummy data
+    """
+    web2py.db.accounting_costcenters.insert(
+        Name = "CostCenter1",
+        AccountingCode = 'KP1'
     )
 
     web2py.db.commit()

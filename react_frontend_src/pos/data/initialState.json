@@ -16,30 +16,32 @@
         "cart_validation_error": false,
         "cart_validation_data": {}
     },
-    "checkin_attendance": {
-        "loading": false,
-        "loaded": false,
-        "data": {},
-        "searchTimeout": 0
-    },
-    "checkin_book": {
-        "loading": false,
-        "loaded": false,
-        "data": {}
-    },
-    "checkin_classes": {
-        "loading": false,
-        "loaded": false,
-        "data": {}
-    },
-    "checkin_revenue": {
-        "revenue_loaded": false,
-        "revenue_loading": false,
-        "revenue": {},
-        "teacher_payment_loaded": false,
-        "teacher_payment_loading": false,
-        "teacher_payment_verifying": false,
-        "teacher_payment": {}
+    "checkin": {
+        "attendance": {
+            "loading": false,
+            "loaded": false,
+            "data": {},
+            "searchTimeout": 0
+        },
+        "book": {
+           "loading": false,
+           "loaded": false,
+           "data": {}
+        },
+        "classes": {
+           "loading": false,
+           "loaded": false,
+           "data": {}
+        },
+        "revenue": {
+            "revenue_loaded": false,
+            "revenue_loading": false,
+            "revenue": {},
+            "teacher_payment_loaded": false,
+            "teacher_payment_loading": false,
+            "teacher_payment_verifying": false,
+            "teacher_payment": {}
+        }
     },
     "customers": {
         "list": {
@@ -65,7 +67,10 @@
                 "last_name": "",
                 "email": ""
             },
-            "redirect_next_component": null
+            "redirect_next_component": null,
+            "camera_app_snap": null,
+            "camera_app_snap_saving": false,
+            "camera_app_snap_saved": false
         },
         "memberships": {
             "loading": false,
@@ -83,9 +88,16 @@
             "selectedID": ""
         },
         "products": {
+            "categories": {},
+            "categories_loaded": false,
+            "categories_loading": false,
             "data": {},
             "loaded": false,
-            "loading": false
+            "loading": false,
+            "searchTimeout": 0,
+            "searchID": null,
+            "search_value": "",
+            "category_filter_id": null
         },
         "school": {
             "classcards": {

@@ -1,6 +1,16 @@
 import {
     requestProducts,
-    receiveProducts
+    receiveProducts,
+    requestProductCategories,
+    receiveProductCategories,
+    clearSearchTimeout,
+    clearProductsSearchValue,
+    clearSearchProductID,
+    clearCategoryFilterID,
+    setSearchTimeout,
+    setProductsSearchValue,
+    setSearchProductID,
+    setCategoryFilterID
 } from './actions'
 
 import axios_os from '../../../../utils/axios_os'
@@ -30,7 +40,37 @@ const fetchProducts = () => {
       }
   }
 
+  const fetchProductCategories = () => {
+    return dispatch => {
+        dispatch(requestProductCategories)
+  
+        axios_os.get(OS_API.SHOP_PRODUCT_CATEGORIES)
+        .then(function (response) {
+          // handle success
+          console.log('Receive products categories here')
+          dispatch(receiveProductCategories(response.data))    
+        })
+        .catch(function (error) {
+          // handle error
+          console.log(error)
+        })
+        .then(function () {
+          // always executed
+        });
+    }
+  }
+  
+
 
 export default {
-    fetchProducts
+    fetchProducts,
+    fetchProductCategories,
+    clearSearchTimeout,
+    clearProductsSearchValue,
+    clearSearchProductID,
+    clearCategoryFilterID,
+    setSearchTimeout,
+    setProductsSearchValue,
+    setSearchProductID,
+    setCategoryFilterID
 }
