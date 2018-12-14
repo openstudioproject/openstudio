@@ -4398,6 +4398,8 @@ def define_receipts():
 
 
 def define_receipts_items():
+    ac_query = (db.accounting_costcenters.Archived == False)
+
     db.define_table('receipts_items',
         Field('receipts_id', db.receipts,
             readable=False,
@@ -4909,6 +4911,8 @@ def define_shop_products():
     """
         Define products
     """
+    ac_query = (db.accounting_costcenters.Archived == False)
+
     visibility = [
         ['always', T('Always visible')],
         ['hidden', T('Hidden')],
@@ -5214,6 +5218,8 @@ def define_customers_orders_items():
     """
         Table to hold customers_orders items
     """
+    ac_query = (db.accounting_costcenters.Archived == False)
+
     types = [ (1,T("Trial class")),
               (2,T("Drop In")) ]
 
