@@ -427,7 +427,8 @@ class Order:
                         quantity = row.Quantity,
                         price = row.Price,
                         tax_rates_id = row.tax_rates_id,
-                        glaccount = row.GLAccount
+                        accounting_glaccounts_id = row.accounting_glaccounts_id,
+                        accounting_costcenters_id = row.accounting_costcenters_id
                     )
 
             # Check for classcard

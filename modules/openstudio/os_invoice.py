@@ -579,7 +579,8 @@ class Invoice:
             Price=order_item_row.Price,
             Sorting=next_sort_nr,
             tax_rates_id=order_item_row.tax_rates_id,
-            GLAccount=glaccount
+            accounting_glaccounts_id=order_item_row.accounting_glaccounts_id,
+            accounting_costcenters_id=order_item_row.accounting_costcenters_id,
         )
 
         # This calls self.on_update()
