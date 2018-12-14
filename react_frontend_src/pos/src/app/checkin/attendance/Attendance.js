@@ -6,6 +6,7 @@ import { NavLink } from 'react-router-dom'
 
 import PageTemplate from "../../../components/PageTemplate"
 import InputGroupSearch from "../../../components/ui/InputGroupSearch"
+import ButtonBack from "../../../components/ui/ButtonBack"
 
 import AttendanceList from "./AttendanceList"
 
@@ -88,6 +89,11 @@ class Attendance extends Component {
         console.log('clicked verify teacher')
         this.props.history.push("/checkin/revenue/" + this.props.match.params.clsID)
     }
+
+    onClickButtonBack() {
+        console.log('button back clicked')
+        this.props.history.push("/checkin")
+    }
     
     render() {
         return (
@@ -103,6 +109,10 @@ class Attendance extends Component {
                                     {this.props.intl.formatMessage({ id: "app.pos.checkin.attendane.verify_teacher_payment"})}
                                 </button>
                             </div>
+                            <ButtonBack onClick={this.onClickButtonBack.bind(this)} 
+                                        classAdditional="pull-left btn-margin-right">
+                                    Back
+                                </ButtonBack>
                             <InputGroupSearch placeholder={this.props.intl.formatMessage({ id: 'app.general.placeholders.search' })}
                                               onChange={this.onChange.bind(this)} /> 
                             <AttendanceList attendance_items={this.props.attendance.data} />

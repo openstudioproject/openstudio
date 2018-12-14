@@ -24,6 +24,10 @@ html, body, div#app {
     color: #FFF;
 }
 
+.btn-margin-right {
+    margin-right: 6px;
+}
+
 .info-box-icon {
     overflow: hidden;
 }
@@ -33,6 +37,8 @@ html, body, div#app {
     height: 90px;    
     margin-top: -10px;
 }
+
+/* Input group search begin */
 
 .input-group-search {
     margin-bottom: 20px;
@@ -66,8 +72,6 @@ html, body, div#app {
     background-color: #fff;
     border: 1px solid #ecf0f5;
     border-right: 1px solid transparent;
-    
-    // height: 32px;
 }
 
 .input-group-search .btn {
@@ -80,8 +84,10 @@ html, body, div#app {
     box-shadow: none;
     border:  1px solid #ecf0f5;
     border-left:  1px solid transparent;
-    // ￼height: 35px;
 }
+
+
+/* Input group search end */
 
 /* Check-in list begin */
 
@@ -96,10 +102,6 @@ html, body, div#app {
 /* Customers main begin */
 
 .customers-main-tools .btn-primary {
-    margin-right: 6px;
-}
-
-.customers-btn-cancel {
     margin-right: 6px;
 }
 

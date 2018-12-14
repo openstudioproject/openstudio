@@ -221,8 +221,8 @@ class Customers extends Component {
                                     <ButtonCustomerAdd onClick={this.onClickAdd.bind(this)} />
                                 </div>
                                 <ButtonBack onClick={this.onClickButtonBack.bind(this)} 
-                                            classAdditional="pull-left customers-btn-cancel">
-                                    Cancel
+                                            classAdditional="pull-left btn-margin-right">
+                                    Back
                                 </ButtonBack>
 
                                 <InputGroupSearch placeholder={this.props.intl.formatMessage({ id: 'app.general.placeholders.search' })}
