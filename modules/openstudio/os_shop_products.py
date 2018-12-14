@@ -30,6 +30,8 @@ class ShopProducts:
                           TH(T('Name')),
                           TH(T('Description')),
                           TH(T('Categories')),
+                          TH(T('G/L Account')),
+                          TH(T('Cost center')),
                           TH()))
         table = TABLE(header, _class='table table-striped table-hover')
 
@@ -87,6 +89,8 @@ class ShopProducts:
                 TD(os_gui.max_string_length(row.Name, 30)),
                 TD(os_gui.max_string_length(row.Description, 30)),
                 TD(product_categories),
+                TD(repr_row.accounting_glaccounts_id),
+                TD(repr_row.accounting_costcenters_id),
                 TD(delete, actions)
             )
 

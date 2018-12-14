@@ -671,7 +671,7 @@ def test_reports_subscriptions_overview_customers_location_filter(client, web2py
 
     web2py.db.commit()
 
-    url = '/reports/subscriptions_overview_customers?locationID=2&ssuID=1&year=2014&month=1'
+    url = '/reports/subscriptions_overview_customers?school_locations_id=2&ssuID=1&year=2014&month=1'
     client.get(url)
     assert client.status == 200
 

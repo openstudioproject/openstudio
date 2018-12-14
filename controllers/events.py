@@ -1598,7 +1598,9 @@ def ticket_duplicate():
         Description = wsp.Description,
         ExternalShopURL = wsp.ExternalShopURL,
         AddToCartText = wsp.AddToCartText,
-        Donation = wsp.Donation
+        Donation = wsp.Donation,
+        accounting_glaccounts_id = wsp.accounting_glaccounts_id,
+        accounting_costcenters_id = wsp.accounting_costcenters_id,
     )
 
     if wsp.FullWorkshop:

@@ -399,11 +399,11 @@ def test_invoice_duplicate_invoice(client, web2py):
     assert client.status == 200
     # print 4
     oldrow = web2py.db.invoices(id = 1)
-    query = ((web2py.db.invoices.CustomerName == oldrow.CustomerName) &\
-             (web2py.db.invoices.auth_customer_id == oldrow.auth_customer_id) &\
-             (web2py.db.invoices.invoices_groups_id == oldrow.invoices_groups_id) &\
-             (web2py.db.invoices.payment_methods_id == oldrow.payment_methods_id)&\
-             (web2py.db.invoices.id != oldrow.id)&\
+    query = ((web2py.db.invoices.CustomerName == oldrow.CustomerName) &
+             (web2py.db.invoices.auth_customer_id == oldrow.auth_customer_id) &
+             (web2py.db.invoices.invoices_groups_id == oldrow.invoices_groups_id) &
+             (web2py.db.invoices.payment_methods_id == oldrow.payment_methods_id) &
+             (web2py.db.invoices.id != oldrow.id) &
              (web2py.db.invoices.InvoiceID != oldrow.InvoiceID))
 
     assert web2py.db(query).count() == 1
@@ -422,20 +422,21 @@ def test_invoice_duplicate_invoice(client, web2py):
     query = (web2py.db.invoices_items.invoices_id == oldrow.id)
     rows = web2py.db(query).select()
     for row in oldrows:
-         query = ((web2py.db.invoices_items.invoices_id == newrow.id)&\
-                  (web2py.db.invoices_items.ProductName == row.ProductName) &\
-                  (web2py.db.invoices_items.Description == row.Description) &\
-                  (web2py.db.invoices_items.Quantity == row.Quantity) &\
-                  (web2py.db.invoices_items.Price == row.Price) &\
-                  (web2py.db.invoices_items.tax_rates_id == row.tax_rates_id) &\
-                  (web2py.db.invoices_items.GLAccount == row.GLAccount)
+         query = ((web2py.db.invoices_items.invoices_id == newrow.id) &
+                  (web2py.db.invoices_items.ProductName == row.ProductName) &
+                  (web2py.db.invoices_items.Description == row.Description) &
+                  (web2py.db.invoices_items.Quantity == row.Quantity) &
+                  (web2py.db.invoices_items.Price == row.Price) &
+                  (web2py.db.invoices_items.tax_rates_id == row.tax_rates_id) &
+                  (web2py.db.invoices_items.accounting_glaccounts_id == row.accounting_glaccounts_id) &
+                  (web2py.db.invoices_items.accounting_costcenters_id == row.accounting_costcenters_id)
                   )
          assert web2py.db(query).count() == 1
 
     #Is the connection to invoices_customers_order there?
     oldcusorderrow = web2py.db(web2py.db.invoices_customers_orders.invoices_id == oldrow.id).select().first()
     if oldcusorderrow:
-        query = ((web2py.db.invoices_customers_orders.invoices_id == newrow.id)&\
+        query = ((web2py.db.invoices_customers_orders.invoices_id == newrow.id)&
                 (web2py.db.invoices_customers_orders.customers_orders_id == oldcusorderrow.customers_orders_id))
         assert web2py.db(query).count() == 1
 

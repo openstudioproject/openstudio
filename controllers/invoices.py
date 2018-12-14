@@ -533,8 +533,7 @@ def duplicate_invoice():
         Description= oldinvoice.Description,
         Terms = oldinvoice.Terms,
         Footer= oldinvoice.Footer,
-        Note = oldinvoice.Note,
-        PaymentDates = oldinvoice.PaymentDates,
+        Note = oldinvoice.Note
     )
     query = (db.invoices_items.invoices_id == oldiID)
     rows = db(query).select()
@@ -546,7 +545,8 @@ def duplicate_invoice():
             Quantity = row.Quantity,
             Price = row.Price,
             tax_rates_id = row.tax_rates_id,
-            GLAccount = row.GLAccount,
+            accounting_glaccounts_id = row.accounting_glaccounts_id,
+            accounting_costcenters_id = row.accounting_costcenters_id,
         )
 
     query = (db.invoices_customers_orders.invoices_id == oldiID)
@@ -2105,7 +2105,8 @@ def cancel_and_create_credit_invoice():
             TotalPriceVAT = totalpricevat,
             VAT = vat,
             TotalPrice = totalprice,
-            GLAccount = row.GLAccount
+            accounting_glaccounts_id = row.accounting_glaccounts_id,
+            accounting_costcenters_id = row.accounting_costcenters_id
         )
 
     new_invoice.set_amounts()

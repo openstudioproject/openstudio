@@ -561,16 +561,17 @@ def test_membership_add(client, web2py):
     assert web2py.db(web2py.db.customers_memberships).count() == 1
     assert web2py.db(web2py.db.invoices_customers_memberships).count() == 1
 
-    smp = web2py.db.school_memberships_price(1)
+    sm = web2py.db.school_memberships(1)
     invoice = web2py.db.invoices(1)
     invoice_item = web2py.db.invoices_items(1)
     invoice_amounts = web2py.db.invoices_amounts(1)
 
+
     assert invoice_item.ProductName == "Membership 1"
     assert invoice_item.Description == "Premium membership 2014-01-01 - 2014-01-31"
-    assert invoice_item.TotalPriceVAT == smp.Price
-    assert invoice_item.tax_rates_id == smp.tax_rates_id
-    assert invoice_amounts.TotalPriceVAT == smp.Price
+    assert invoice_item.TotalPriceVAT == sm.Price
+    assert invoice_item.tax_rates_id == sm.tax_rates_id
+    assert invoice_amounts.TotalPriceVAT == sm.Price
 
 
 def test_membership_add_no_invoice_when_price_0(client, web2py):
