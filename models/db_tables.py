@@ -1246,6 +1246,7 @@ def define_school_memberships():
               represent=represent_float_as_amount,
               label=T("Price incl. VAT")),
         Field('tax_rates_id', db.tax_rates,
+              represent=represent_tax_rate,
               label=T('Tax rate')),
         Field('Validity', 'integer',
               requires=IS_INT_IN_RANGE(1, 2000,
@@ -6165,7 +6166,6 @@ define_accounting_costcenters()
 define_accounting_glaccounts()
 
 define_school_memberships()
-define_school_memberships_price()
 define_school_subscriptions()
 #mstypes_dict = create_mstypes_dict()
 define_school_subscriptions_price()

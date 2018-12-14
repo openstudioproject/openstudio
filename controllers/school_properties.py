@@ -707,6 +707,8 @@ def memberships():
     fields = [
         db.school_memberships.Name,
         db.school_memberships.Description,
+        db.school_memberships.Price,
+        db.school_memberships.tax_rates_id,
         db.school_memberships.Validity,
         db.school_memberships.ValidityUnit,
         db.school_memberships.PublicMembership,
@@ -714,13 +716,13 @@ def memberships():
         db.school_memberships.accounting_costcenters_id,
     ]
 
-    links = [dict(header=T('Price'),
-                  body=memberships_get_link_current_price),
-             lambda row: os_gui.get_button('edit',
-                                           URL('membership_edit',
-                                               vars={'smID': row.id}),
-                                           T("Edit this membership type")),
-             memberships_get_link_archive]
+    links = [
+        lambda row: os_gui.get_button('edit',
+                                      URL('membership_edit',
+                                          vars={'smID': row.id}),
+                                      T("Edit this membership type")),
+        memberships_get_link_archive
+    ]
     maxtextlengths = {'school_memberships.Name': 40}
     maxtextlengths = {'school_memberships.Description': 40}
     grid = SQLFORM.grid(query, fields=fields, links=links,
@@ -810,7 +812,7 @@ def membership_edit():
     from openstudio.os_forms import OsForms
     response.title = T("Edit membership")
     response.subtitle = T('')
-    response.view = 'general/tabs_menu.html'
+    response.view = 'general/only_content.html'
 
     smID = request.vars['smID']
 
@@ -825,12 +827,10 @@ def membership_edit():
     )
 
     form = result['form']
-    menu = membership_get_submenu(request.function, smID)
     back = membership_edit_get_back(return_url)
 
     return dict(content=form,
                 save=result['submit'],
-                menu=menu,
                 back=back)
 
 
@@ -839,38 +839,6 @@ def membership_edit_get_back(return_url):
         Returns back button for membership edit pages
     """
     return os_gui.get_button('back', return_url)
-
-
-def membership_get_submenu(page, smID):
-    """
-        Returns submenu for memberships
-    """
-    vars = {'smID': smID}
-    pages = [['membership_edit',
-              T('Edit'),
-              URL('membership_edit', vars=vars)],
-             ['membership_prices',
-              T('Prices'),
-              URL('membership_prices', vars=vars)]]
-
-    return get_submenu(pages, page, horizontal=True, htype='tabs')
-
-
-def memberships_get_link_current_price(row):
-    """
-        Returns the current price for a membership
-    """
-    from openstudio.os_school_membership import SchoolMembership
-
-    smID = row.id
-    sm = SchoolMembership(smID)
-
-    price = sm.get_price_on_date(TODAY_LOCAL)
-    link = A(price,
-             _href=URL('membership_prices', vars={'smID': smID}),
-             _title=T("Edit prices"))
-
-    return link
 
 
 def memberships_get_link_archive(row):
@@ -888,135 +856,6 @@ def memberships_get_link_archive(row):
     return os_gui.get_button('archive',
                              URL('membership_archive', vars={'smID': row.id}),
                              tooltip=tt)
-
-
-@auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('read', 'school_memberships_price'))
-def membership_prices():
-    """
-        Shows list of prices for a membership
-    """
-    smID = request.vars['smID']
-    response.title = T("Edit membership")
-    response.subtitle = T('')
-    response.view = 'general/tabs_menu.html'
-
-    return_url = URL('memberships')
-
-    db.school_memberships_price.id.readable = False
-
-    query = (db.school_memberships_price.school_memberships_id == smID)
-    fields = [db.school_memberships_price.Startdate,
-              db.school_memberships_price.Enddate,
-              db.school_memberships_price.Price,
-              db.school_memberships_price.tax_rates_id]
-    links = [lambda row: os_gui.get_button('edit',
-                                           URL('membership_price_edit',
-                                               vars={'smID': smID,
-                                                     'smpID': row.id}),
-                                           T("Edit this price for this memberships"))]
-
-    delete_permission = (auth.has_membership(group_id='Admins') or
-                         auth.has_permission('delete', 'school_memberships_price'))
-
-    grid = SQLFORM.grid(query, fields=fields, links=links,
-                        create=False,
-                        editable=False,
-                        details=False,
-                        searchable=False,
-                        csv=False,
-                        deletable=delete_permission,
-                        # orderby = db.school_memberships_price.Startdate,
-                        field_id=db.school_memberships_price.id,
-                        ui=grid_ui)
-    grid.element('.web2py_counter', replace=None)  # remove the counter
-    grid.elements('span[title=Delete]', replace=None)  # remove text from delete button
-
-    alert_msg = T("Please make sure the new price starts on the first day of a month and the previous price ends on the last day of the month before. ")
-    alert_msg += T("Otherwise you might see unexpected results in the revenue stats.")
-    alert_icon = SPAN(_class='glyphicon glyphicon-info-sign')
-    alert = os_gui.get_alert('default', SPAN(alert_icon, ' ', alert_msg))
-
-    add = os_gui.get_button('add',
-                            URL('membership_price_add',
-                                vars={'smID': smID}))
-
-    menu = membership_get_submenu(request.function, smID)
-    back = membership_edit_get_back(return_url)
-
-    content = DIV(alert, grid)
-
-    return_url = URL('memberships')
-
-    return dict(content=content,
-                back=back,
-                add=add,
-                menu=menu)
-
-
-@auth.requires_login()
-def membership_price_add():
-    """
-        Add a new price for a membership
-    """
-    from openstudio.os_forms import OsForms
-    response.title = T("New membership price")
-    response.subtitle = T('')
-    response.view = 'general/only_content.html'
-    smID = request.vars['smID']
-
-    return_url = return_url = membership_price_get_return_url(smID)
-
-    db.school_memberships_price.school_memberships_id.default = smID
-
-    os_forms = OsForms()
-    result = os_forms.get_crud_form_create(
-        db.school_memberships_price,
-        return_url,
-    )
-
-    form = result['form']
-    back = membership_edit_get_back(return_url)
-
-    return dict(content=form,
-                save=result['submit'],
-                back=back)
-
-
-@auth.requires_login()
-def membership_price_edit():
-    """
-        Edit price for a membership
-    """
-    from openstudio.os_forms import OsForms
-    response.title = T("Edit membership price")
-    response.subtitle = T('')
-    response.view = 'general/only_content.html'
-    smID = request.vars['smID']
-    smpID = request.vars['smpID']
-
-    return_url = return_url = membership_price_get_return_url(smID)
-
-    os_forms = OsForms()
-    result = os_forms.get_crud_form_update(
-        db.school_memberships_price,
-        return_url,
-        smpID
-    )
-
-    form = result['form']
-    back = membership_edit_get_back(return_url)
-
-    return dict(content=form,
-                save=result['submit'],
-                back=back)
-
-
-def membership_price_get_return_url(smID):
-    """
-        Returns returl url for memberships
-    """
-    return URL('membership_prices', vars={'smID': smID})
 
 
 def subscriptions_get_menu(page=None):
