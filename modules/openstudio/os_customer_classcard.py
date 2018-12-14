@@ -24,7 +24,8 @@ class CustomerClasscard:
         self.classes = self.school_classcard.Classes
         self.unlimited = self.school_classcard.Unlimited
         self.cuID = self.classcard.auth_customer_id
-        self.glaccount = self.school_classcard.GLAccount
+        self.glaccount = self.school_classcard.accounting_glaccounts_id
+        self.costcenter = self.school_classcard.accounting_costcenters_id
 
 
     def get_name(self):

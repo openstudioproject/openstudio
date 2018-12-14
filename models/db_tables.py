@@ -1162,7 +1162,7 @@ def define_school_classcards():
             default=False,
             label=T("Unlimited classes"),
             comment=T('For unlimited cards the number of classes entered is ignored')),
-        Field('accounting_glaccount_id', db.accounting_glaccounts,
+        Field('accounting_glaccounts_id', db.accounting_glaccounts,
               requires=IS_EMPTY_OR(IS_IN_DB(db(ag_query),
                                             'accounting_glaccounts.id',
                                             '%(Name)s')),
