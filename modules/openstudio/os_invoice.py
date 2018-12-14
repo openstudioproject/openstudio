@@ -835,14 +835,9 @@ class Invoice:
 
         cm = CustomerMembership(cmID)
         sm = SchoolMembership(cm.row.school_memberships_id)
-        price_rows = sm.get_price_rows_on_date(cm.row.Startdate)
 
-        if not price_rows:
-            return # Don't do anything if we don't have a price
-
-        price_row = price_rows.first()
-        tax_rates_id = price_row.tax_rates_id
-        price = price_row.Price
+        price = sm.row.Price
+        tax_rates_id = sm.row.tax_rates_id
 
         if price == 0:
             return # Don't do anything if the price is 0
@@ -859,7 +854,8 @@ class Invoice:
             Price = price,
             Sorting = next_sort_nr,
             tax_rates_id = tax_rates_id,
-            GLAccount = sm.row.GLAccount
+            accounting_glaccounts_id = sm.row.accounting_glaccounts_id,
+            accounting_costcenters_id = sm.row.accounting_costcenters_id
         )
 
         self.link_to_customer_membership(cmID)
