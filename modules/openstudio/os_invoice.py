@@ -48,9 +48,17 @@ class Invoice:
         self._set_updated_at()
 
         # Exact online integration
-        if self.invoice_group.JournalID and eo_authorized == 'True':
+        if eo_authorized == 'True':
             os_eo = OSExactOnline()
-            os_eo.update_sales_entry(self)
+            if not self.invoice_group.JournalID:
+                os_eo._log_error(
+                    'update',
+                    'invoice',
+                    self.invoices_id,
+                    'No JournalID specified for invoice group'
+                )
+            else:
+                os_eo.update_sales_entry(self)
 
 
     def _set_updated_at(self):
@@ -345,8 +353,8 @@ class Invoice:
         """
         return dict(
             company = self.invoice.CustomerCompany or '',
-            company_registration = self.invoice.CompanyRegistration or '',
-            company_tax_registration = self.invoice.CompanyTaxRegistration or '',
+            company_registration = self.invoice.CustomerCompanyRegistration or '',
+            company_tax_registration = self.invoice.CustomerCompanyTaxRegistration or '',
             name = self.invoice.CustomerName or '',
             list_name = self.invoice.CustomerListName or '',
             address = self.invoice.CustomerAddress or ''
@@ -394,6 +402,7 @@ class Invoice:
         :param iiID: db.invoices_items.id
         :return: int - ID of newly inserted (duplicated) item
         """
+        T = current.T
         db = current.db
 
         item = db.invoices_items(iiID)
@@ -403,14 +412,15 @@ class Invoice:
             invoices_id = item.invoices_id,
             Sorting = next_sort_nr,
             ProductName = item.ProductName,
-            Description = item.Description,
+            Description = item.Description + ' ' + T("(Copy)"),
             Quantity = item.Quantity,
             Price = item.Price,
             tax_rates_id = item.tax_rates_id,
             TotalPriceVAT = item.TotalPriceVAT,
             VAT = item.VAT,
             TotalPrice = item.TotalPrice,
-            GLAccount = item.GLAccount
+            accounting_glaccounts_id = item.accounting_glaccounts_id,
+            accounting_costcenters_id = item.accounting_costcenters_id
         )
 
         # This calls self.on_update()
@@ -491,6 +501,7 @@ class Invoice:
             price = prices['dropin']
             tax_rates_id = prices['dropin_tax_rates_id']
             glaccount = prices['dropin_glaccount']
+            costcenter = prices['dropin_costcenter']
 
             if has_membership and prices['dropin_membership']:
                 price = prices['dropin_membership']
@@ -502,6 +513,7 @@ class Invoice:
             price = prices['trial']
             tax_rates_id = prices['trial_tax_rates_id']
             glaccount = prices['trial_glaccount']
+            costcenter = prices['trial_costcenter']
 
             if has_membership and prices['trial_membership']:
                 price = prices['trial_membership']
@@ -521,7 +533,8 @@ class Invoice:
             Price=price,
             Sorting=next_sort_nr,
             tax_rates_id=tax_rates_id,
-            GLAccount=glaccount
+            accounting_glaccounts_id=glaccount,
+            accounting_costcenters_id=costcenter
         )
 
         self.link_to_customer(cuID)
@@ -574,7 +587,8 @@ class Invoice:
             Price=order_item_row.Price,
             Sorting=next_sort_nr,
             tax_rates_id=order_item_row.tax_rates_id,
-            GLAccount=glaccount
+            accounting_glaccounts_id=order_item_row.accounting_glaccounts_id,
+            accounting_costcenters_id=order_item_row.accounting_costcenters_id,
         )
 
         # This calls self.on_update()
@@ -612,7 +626,8 @@ class Invoice:
             Price=price,
             Sorting=next_sort_nr,
             tax_rates_id=classcard.school_classcard.tax_rates_id,
-            GLAccount=classcard.glaccount
+            accounting_glaccounts_id=classcard.school_classcard.accounting_glaccounts_id,
+            accounting_costcenters_id=classcard.school_classcard.accounting_costcenters_id
         )
 
         # This calls self.on_update()
@@ -650,7 +665,8 @@ class Invoice:
             Price=wsp.Price,
             Sorting=next_sort_nr,
             tax_rates_id=wsp.tax_rates_id,
-            GLAccount=wsp.GLAccount
+            accounting_glaccounts_id=wsp.accounting_glaccounts_id,
+            accounting_costcenters_id=wsp.accounting_costcenters_id
         )
 
         # This calls self.on_update()
@@ -727,6 +743,7 @@ class Invoice:
         period_start = date
         period_end = get_last_day_month(date)
         glaccount = ssu.get_glaccount_on_date(date)
+        costcenter = ssu.get_costcenter_on_date(date)
         price = 0
 
         # check for alt price
@@ -776,7 +793,9 @@ class Invoice:
             Price = price,
             Sorting = next_sort_nr,
             tax_rates_id = tax_rates_id,
-            GLAccount = glaccount
+            accounting_glaccounts_id = glaccount,
+            accounting_costcenters_id = costcenter
+
         )
 
         ##
@@ -829,14 +848,9 @@ class Invoice:
 
         cm = CustomerMembership(cmID)
         sm = SchoolMembership(cm.row.school_memberships_id)
-        price_rows = sm.get_price_rows_on_date(cm.row.Startdate)
 
-        if not price_rows:
-            return # Don't do anything if we don't have a price
-
-        price_row = price_rows.first()
-        tax_rates_id = price_row.tax_rates_id
-        price = price_row.Price
+        price = sm.row.Price
+        tax_rates_id = sm.row.tax_rates_id
 
         if price == 0:
             return # Don't do anything if the price is 0
@@ -853,7 +867,8 @@ class Invoice:
             Price = price,
             Sorting = next_sort_nr,
             tax_rates_id = tax_rates_id,
-            GLAccount = sm.row.GLAccount
+            accounting_glaccounts_id = sm.row.accounting_glaccounts_id,
+            accounting_costcenters_id = sm.row.accounting_costcenters_id
         )
 
         self.link_to_customer_membership(cmID)

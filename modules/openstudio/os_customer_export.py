@@ -372,22 +372,6 @@ class CustomerExport:
 
         ws.append(header)
 
-        # left = [
-        #     db.workshops_products.on(
-        #         db.customers_shoppingcart.workshops_products_id ==
-        #         db.workshops_products.id),
-        #     db.workshops.on(
-        #         db.workshops_products.workshops_id ==
-        #         db.workshops.id),
-        #     db.school_classcards.on(
-        #         db.customers_shoppingcart.school_classcards_id ==
-        #         db.school_classcards.id),
-        #     db.classes.on(
-        #         db.customers_shoppingcart.classes_id ==
-        #         db.classes
-        #     )
-        # ]
-
         query = (db.customers_shoppingcart.auth_customer_id == self.cuID)
         rows = db(query).select(db.customers_shoppingcart.ALL)
 
@@ -397,7 +381,7 @@ class CustomerExport:
                 row.school_classcards_id,
                 row.classes_id,
                 row.ClassDate,
-                row.AttendanceType,
+                # row.AttendanceType,
                 row.CreatedOn
             ]
 

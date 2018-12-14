@@ -510,18 +510,24 @@ def financial_get_menu(page=None):
     pages = [['financial_currency',
               T('Currency'),
               URL('financial_currency')],
-             ['financial_tax_rates',
-              T('Tax rates'),
-              URL('financial_tax_rates')],
              ['financial_invoices',
               T('Invoices'),
               URL('financial_invoices_groups')],
-             ['financial_dd_categories',
-              T('Direct debit extra'),
-              URL('financial_dd_categories')],
+             ['financial_tax_rates',
+              T('Tax rates'),
+              URL('financial_tax_rates')],
              ['financial_payment_methods',
               T('Payment methods'),
               URL('financial_payment_methods')],
+             ['financial_costcenters',
+              T('Cost centers'),
+              URL('financial_costcenters')],
+             ['financial_glaccounts',
+              T('G/L Accounts'),
+              URL('financial_glaccounts')],
+             ['financial_dd_categories',
+              T('Direct debit extra'),
+              URL('financial_dd_categories')],
              ['financial_teacher_payments',
               T('Teacher payments'),
               URL('financial_teacher_payments')]
@@ -582,6 +588,287 @@ def financial_teacher_payments():
                             _class='row'),
                 menu=menu,
                 save=submit)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'settings_finance'))
+def financial_costcenters():
+    """
+    List finance costcenters
+    """
+    from openstudio.os_accounting_costcenters import AccountingCostCenters
+
+    response.title = T('Financial Settings')
+    response.subtitle = T('Cost centers')
+    response.view = 'general/tabs_menu.html'
+
+    if 'show_archive' in request.vars:
+        show = request.vars['show_archive']
+        session.settings_financial_costcenters_show = show
+
+    archive = False
+    if session.settings_financial_costcenters_show == 'archive':
+        archive = True
+
+    archive_buttons = os_gui.get_archived_radio_buttons(
+        session.settings_financial_costcenters_show or 'current'
+    )
+
+    acc = AccountingCostCenters()
+    content = DIV(archive_buttons, acc.list_formatted(archive))
+
+
+    add = os_gui.get_button(
+        'add',
+        URL('financial_costcenter_add')
+    )
+    menu = financial_get_menu(request.function)
+
+
+    return dict(content=content,
+                menu=menu,
+                tools=add)
+                # save=submit)
+
+
+def financial_costcenter_get_return_url():
+    return URL('settings', 'financial_costcenters')
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('create', 'accounting_costcenters'))
+def financial_costcenter_add():
+    """
+
+    :return:
+    """
+    from openstudio.os_forms import OsForms
+
+    response.title = T('Financial Settings')
+    response.subtitle = T('Cost centers')
+    response.view = 'general/tabs_menu.html'
+
+    return_url = financial_costcenter_get_return_url()
+
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_create(
+        db.accounting_costcenters,
+        return_url,
+        message_record_created=T("Saved")
+    )
+
+    form = result['form']
+    back = os_gui.get_button('back', return_url)
+
+    content = DIV(
+        H4(T('Add cost center')),
+        form
+    )
+
+    menu = financial_get_menu('financial_costcenters')
+
+    return dict(content=content,
+                save=result['submit'],
+                back=back,
+                menu=menu)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('update', 'accounting_costcenters'))
+def financial_costcenter_edit():
+    """
+
+    :return:
+    """
+    from openstudio.os_forms import OsForms
+
+    response.title = T('Financial Settings')
+    response.subtitle = T('Cost centers')
+    response.view = 'general/tabs_menu.html'
+
+    acID = request.vars['acID']
+
+    return_url = financial_costcenter_get_return_url()
+
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_update(
+        db.accounting_costcenters,
+        return_url,
+        acID
+    )
+
+    form = result['form']
+    back = os_gui.get_button('back', return_url)
+
+    content = DIV(
+        H4(T('Edit cost center')),
+        form
+    )
+
+    menu = financial_get_menu('financial_costcenters')
+
+    return dict(content=content,
+                save=result['submit'],
+                back=back,
+                menu=menu)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('update', 'accounting_costcenters'))
+def financial_costcenter_archive():
+    """
+
+    :return:
+    """
+    from openstudio.os_accounting_costcenter import AccountingCostCenter
+    acID = request.vars['acID']
+
+    ac = AccountingCostCenter(acID)
+    ac.archive()
+
+    return_url = financial_costcenter_get_return_url()
+
+    redirect(return_url)
+
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'settings_finance'))
+def financial_glaccounts():
+    """
+    List finance costcenters
+    """
+    from openstudio.os_accounting_glaccounts import AccountingGLAccounts
+
+    response.title = T('Financial Settings')
+    response.subtitle = T('General Ledger accounts')
+    response.view = 'general/tabs_menu.html'
+
+    if 'show_archive' in request.vars:
+        show = request.vars['show_archive']
+        session.settings_financial_glaccounts_show = show
+
+    archive = False
+    if session.settings_financial_glaccounts_show == 'archive':
+        archive = True
+
+    archive_buttons = os_gui.get_archived_radio_buttons(
+        session.settings_financial_glaccounts_show or 'current'
+    )
+
+    acg = AccountingGLAccounts()
+    content = DIV(archive_buttons, acg.list_formatted(archive))
+
+
+    add = os_gui.get_button(
+        'add',
+        URL('financial_glaccount_add')
+    )
+    menu = financial_get_menu(request.function)
+
+
+    return dict(content=content,
+                menu=menu,
+                tools=add)
+                # save=submit)
+
+
+def financial_glaccount_get_return_url():
+    return URL('settings', 'financial_glaccounts')
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('create', 'accounting_glaccounts'))
+def financial_glaccount_add():
+    """
+
+    :return:
+    """
+    from openstudio.os_forms import OsForms
+
+    response.title = T('Financial Settings')
+    response.subtitle = T('General ledger accounts')
+    response.view = 'general/tabs_menu.html'
+
+    return_url = financial_glaccount_get_return_url()
+
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_create(
+        db.accounting_glaccounts,
+        return_url,
+        message_record_created=T("Saved")
+    )
+
+    form = result['form']
+    back = os_gui.get_button('back', return_url)
+
+    content = DIV(
+        H4(T('Add General ledger account')),
+        form
+    )
+
+    menu = financial_get_menu('financial_glaccounts')
+
+    return dict(content=content,
+                save=result['submit'],
+                back=back,
+                menu=menu)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('update', 'accounting_glaccounts'))
+def financial_glaccount_edit():
+    """
+
+    :return:
+    """
+    from openstudio.os_forms import OsForms
+
+    response.title = T('Financial Settings')
+    response.subtitle = T('General ledger accounts')
+    response.view = 'general/tabs_menu.html'
+
+    agID = request.vars['agID']
+
+    return_url = financial_glaccount_get_return_url()
+
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_update(
+        db.accounting_glaccounts,
+        return_url,
+        agID
+    )
+
+    form = result['form']
+    back = os_gui.get_button('back', return_url)
+
+    content = DIV(
+        H4(T('Edit General ledger account')),
+        form
+    )
+
+    menu = financial_get_menu('financial_glaccounts')
+
+    return dict(content=content,
+                save=result['submit'],
+                back=back,
+                menu=menu)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('update', 'accounting_glaccounts'))
+def financial_glaccount_archive():
+    """
+
+    :return:
+    """
+    from openstudio.os_accounting_glaccount import AccountingGLAccount
+    agID = request.vars['agID']
+
+    ag = AccountingGLAccount(agID)
+    ag.archive()
+
+    redirect(financial_glaccount_get_return_url())
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
@@ -689,7 +976,7 @@ def access_get_menu(page):
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('read', 'settings'))
+               auth.has_permission('read', 'auth_group'))
 def access_groups():
     """
         This function shows a page which lists all user groups
@@ -1234,33 +1521,46 @@ def access_group_permissions():
                 ['school_languages-update', T("Edit languages")]]]]],
     ]
 
-    other_permissions = [
-        ['selfcheckin-read', T("Use self check-in")],
-        ['employee_portal-read', T("Use employee portal")],
-        ['automated_tasks-read', T("Use automated tasks (back-end)")],
+    settings_permissions = [
         ['settings-read', T("Settings"), [
-            ['auth_user-create', T("Add users")],
-            ['auth_user-update', T("Edit users")],
-            ['customers_profile_features-update', T("Set which features are available for customers when they login")],
+            ['customers_profile_features-update', T("Set which profile features are available for customers when they login")],
+            ['auth_group-read', T("View groups"), [
+                ['auth_group-create', T("Add groups")],
+                ['auth_group-update', T("Edit groups")],
+                ['auth_group-delete', T("Delete groups")]]],
+
             ['user_group_membership-update', T("Edit users' group")],
-            ['auth_group-create', T("Add groups")],
-            ['auth_group-update', T("Edit groups")],
-            ['auth_group-delete', T("Delete groups")],
             ['auth_group_permissions-update', T("Edit group permissions")],
             ['mailing_lists-create', T('Add mailing lists')],
             ['mailing_lists-update', T('Edit mailing lists')],
             ['mailing_lists-delete', T('Delete mailing lists')]]],
-            ['postcode_groups-read', T("View postcode groups"), [
-                ['postcode_groups-create', T('Add postcode groups')],
-                ['postcode_groups-update', T('Edit postcode groups')],
-                ['postcode_groups-delete', T('Delete postcode groups')],
+        ['settings_finance-read', T("View finance settings"), [
+            ['accounting_costcenters-read', T("View Cost centers"), [
+                ['accounting_costcenters-create', T("Add Cost centers")],
+                ['accounting_costcenters-update', T("Edit Cost centers")],
             ]],
-            ['sys_organizations-read', T('View organizations'), [
-                 ['sys_organizations-create', T('Add organizations')],
-                 ['sys_organizations-update', T('Edit organizations')],
-                 ['sys_organizations-delete', T('Delete organizations')],
-            ]],
-            ['sys_api_users-delete', T("Delete API users")],
+            ['accounting_glaccounts-read', T("View General ledger accounts"), [
+                ['accounting_glaccounts-create', T("Add General ledger accounts")],
+                ['accounting_glaccounts-update', T("Edit General ledger accounts")],
+            ]]
+        ]],
+        ['postcode_groups-read', T("View postcode groups"), [
+            ['postcode_groups-create', T('Add postcode groups')],
+            ['postcode_groups-update', T('Edit postcode groups')],
+            ['postcode_groups-delete', T('Delete postcode groups')],
+        ]],
+        ['sys_organizations-read', T('View organizations'), [
+            ['sys_organizations-create', T('Add organizations')],
+            ['sys_organizations-update', T('Edit organizations')],
+            ['sys_organizations-delete', T('Delete organizations')],
+        ]],
+        ['sys_api_users-delete', T("Delete API users")],
+    ]
+
+    other_permissions = [
+        ['selfcheckin-read', T("Use self check-in")],
+        ['employee_portal-read', T("Use employee portal")],
+        ['automated_tasks-read', T("Use automated tasks (back-end)")],
     ]
 
     permissions_list = [[pinboard_permissions, 'pinboard'],
@@ -1273,6 +1573,7 @@ def access_group_permissions():
                         [reports_permissions, 'reports'],
                         [finance_permisisons, 'finance'],
                         [shop_permissions, 'shop'],
+                        [settings_permissions, 'settings'],
                         [other_permissions, 'other']]
 
     form = FORM(_id="MainForm")
@@ -1336,6 +1637,7 @@ def access_group_permissions():
                   ['reports', T('Reports'), False],
                   ['finance', T('Finance'), False],
                   ['shop', T('Shop'), False],
+                  ['settings', T('Settings'), False],
                   ['other', T('Other'), False],
                   ]
 

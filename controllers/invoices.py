@@ -349,17 +349,50 @@ def edit():
                              message=T("Loading items"))))
 
     form = DIV(
-        XML('<form id="MainForm" action="#" enctype="multipart/form-data" method="post">'),
-        form.custom.end,
-        DIV(DIV(edit_get_studio_info(), _class='col-md-6'),
-            DIV(edit_get_customer_info(invoice, form),
-                _class='col-md-6'),
-            DIV(DIV(DIV(H3(form.custom.label.Description, _class='box-title'),
-                        _class='box-header'),
-                    DIV(form.custom.widget.Description,
-                        _class='box-body'),
-                    _class='box box-primary'),
-                _class='col-md-12'),
+        DIV(
+            XML('<form id="MainForm" action="#" enctype="multipart/form-data" method="post">'),
+            form.custom.end,
+            DIV(
+                DIV(DIV(DIV(H3(form.custom.label.Description, _class='box-title'),
+                            _class='box-header'),
+                        DIV(form.custom.widget.Description,
+                            _class='box-body'),
+                        _class='box box-primary'),
+                    _class='col-md-12'),
+                DIV(edit_get_studio_info(),
+                    _class='col-md-6'),
+                DIV(edit_get_customer_info(invoice, form),
+                    _class='col-md-6'),
+                _class='col-md-10 no-padding-left'),
+            # options container
+            DIV(edit_get_amounts(invoice),
+                DIV(DIV(H3(T('Options'), _class='box-title'),
+                           _class='box-header'),
+                        DIV(DIV(LABEL(form.custom.label.InvoiceID),
+                                form.custom.widget.InvoiceID,
+                                _class='form-group'),
+                            DIV(LABEL(form.custom.label.DateCreated),
+                                form.custom.widget.DateCreated,
+                                _class='form-group'),
+                            DIV(LABEL(form.custom.label.DateDue),
+                                form.custom.widget.DateDue,
+                                _class='form-group'),
+                            DIV(LABEL(form.custom.label.Status),
+                                form.custom.widget.Status,
+                                _class='form-group'),
+                            DIV(LABEL(form.custom.label.payment_methods_id),
+                                form.custom.widget.payment_methods_id,
+                                _class='form-group'),
+                            DIV(LABEL(T("Last updated")), BR(),
+                                represent_datetime(invoice.invoice.Updated_at)
+                                ),
+                            _class='box-body'),
+                        _class='box box-primary'),
+                _class='col-md-2 no-padding-left'),
+            _class="row"
+        ),
+
+        DIV(
             DIV(DIV(DIV(H3(T('Items'), _class='box-title'),
                         _class='box-header'),
                     DIV(items, _class='box-body'),
@@ -372,38 +405,13 @@ def edit():
                     _class='box box-primary'),
                 _class='col-md-12'),
             DIV(DIV(DIV(H3(T('Footer'), _class='box-title'),
-                            _class='box-header'),
-                            DIV(form.custom.widget.Footer,
-                            _class='box-body'),
-                        _class='box box-primary'),
-                    _class='col-md-12'),
-            _class='col-md-10 no-padding-left'),
-        # options container
-        DIV(edit_get_amounts(invoice),
-            DIV(DIV(H3(T('Options'), _class='box-title'),
-                       _class='box-header'),
-                    DIV(DIV(LABEL(form.custom.label.InvoiceID),
-                            form.custom.widget.InvoiceID,
-                            _class='form-group'),
-                        DIV(LABEL(form.custom.label.DateCreated),
-                            form.custom.widget.DateCreated,
-                            _class='form-group'),
-                        DIV(LABEL(form.custom.label.DateDue),
-                            form.custom.widget.DateDue,
-                            _class='form-group'),
-                        DIV(LABEL(form.custom.label.Status),
-                            form.custom.widget.Status,
-                            _class='form-group'),
-                        DIV(LABEL(form.custom.label.payment_methods_id),
-                            form.custom.widget.payment_methods_id,
-                            _class='form-group'),
-                        DIV(LABEL(T("Last updated")), BR(),
-                            represent_datetime(invoice.invoice.Updated_at)
-                            ),
+                        _class='box-header'),
+                    DIV(form.custom.widget.Footer,
                         _class='box-body'),
                     _class='box box-primary'),
-            _class='col-md-2 no-padding-left'),
-    _class='row')
+                _class='col-md-12'),
+        _class='row')
+    )
 
     credit_invoice_for = ''
     if invoice.invoice.credit_invoice_for:
@@ -788,7 +796,6 @@ def list_items():
 
     table = TABLE(THEAD(TR(
                      TH(_class='Sorting'),
-                     TH(T('GLAccount'), _class='GLAccount'),
                      TH(T('Product Name'), _class='ProductName'),
                      TH(T('Description'), _class='Description'),
                      TH(T('Qty'), _class='Quantity'),
@@ -797,10 +804,11 @@ def list_items():
                      # TH(SPAN(T('Subtotal'), _class='pull-right')),
                      # TH(SPAN(T('VAT'), _class='pull-right')),
                      TH(SPAN(T('Total'), _class='pull-right')),
+                     TH(T('GLAccount'), _class='GLAccount'),
+                     TH(T('Cost center'), _class='Costcenter'),
                      TH(),
                      _class='header')),
                   TR(TD(),
-                     TD(form.custom.widget.GLAccount),
                      TD(form.custom.widget.ProductName),
                      TD(form.custom.widget.Description),
                      TD(form.custom.widget.Quantity),
@@ -809,6 +817,8 @@ def list_items():
                      # TD(),
                      # TD(),
                      TD(),
+                     TD(form.custom.widget.accounting_glaccounts_id),
+                     TD(form.custom.widget.accounting_costcenters_id),
                      TD(DIV(form.custom.submit, _class='pull-right'))),
                   _class='table table-hover table-striped invoice-items small_font',
                   _id=iID) # set invoice id as table id, so we can pick it up from js when calling items_update_sorting() using ajaj
@@ -861,7 +871,6 @@ def list_items():
 
 
         tr = TR(TD(sort_handler, _class='sort-handler movable'),
-                TD(repr_row.GLAccount),
                 TD(row.ProductName),
                 TD(row.Description, _class='Description'),
                 TD(row.Quantity),
@@ -873,6 +882,8 @@ def list_items():
                         _title=T("Subtotal: ") + CURRSYM + format(row.TotalPrice, '.2f') + ' ' +\
                                T('VAT: ') + CURRSYM + format(row.VAT, '.2f'),
                         _class='pull-right')),
+                TD(repr_row.accounting_glaccounts_id),
+                TD(repr_row.accounting_costcenters_id),
                 TD(btn_delete, buttons))
 
         table.append(tr)
@@ -897,13 +908,14 @@ def list_items():
                         TD(),
                         TD(),
                         TD(),
-                        TD(),
                         TD(amount[0], _class='bold'),
                         TD(SPAN(CURRSYM, ' ',
                                 format(amount[1], '.2f'),
                                 _class='bold pull-right')),
                         # TD(),
                         # TD(),
+                        TD(),
+                        TD(),
                         TD(),
                         ))
     table.append(tfoot)
@@ -953,6 +965,8 @@ def item_edit():
                      TH(T('Quantity'), _class='Quantity'),
                      TH(T('Price'), _class='Price'),
                      TH(T('Tax rate'), _class='TaxRate'),
+                     TH(T('GLAccount'), _class='GLAccount'),
+                     TH(T('Cost center'), _class='Costcenter'),
                      TH(),
                      _class='header')),
                   TR(TD(),
@@ -962,6 +976,8 @@ def item_edit():
                      TD(form.custom.widget.Quantity),
                      TD(form.custom.widget.Price),
                      TD(form.custom.widget.tax_rates_id),
+                     TD(form.custom.widget.accounting_glaccounts_id),
+                     TD(form.custom.widget.accounting_costcenters_id),
                      TD(DIV(form.custom.submit, _class='pull-right'))),
                   _class='table table-hover table-striped invoice-items small_font')
 
