@@ -95,7 +95,7 @@ class Order:
             Quantity = 1,
             Price = school_classcard.Price,
             tax_rates_id = school_classcard.tax_rates_id,
-            accounting_glaccounts_id = school_classcard.accounting_glacounts_id,
+            accounting_glaccounts_id = school_classcard.accounting_glaccounts_id,
             accounting_costcenters_id = school_classcard.accounting_costcenters_id
         )
 
