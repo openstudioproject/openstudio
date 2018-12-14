@@ -730,6 +730,7 @@ class Invoice:
         period_start = date
         period_end = get_last_day_month(date)
         glaccount = ssu.get_glaccount_on_date(date)
+        costcenter = ssu.get_costcenter_on_date(date)
         price = 0
 
         # check for alt price
@@ -779,7 +780,9 @@ class Invoice:
             Price = price,
             Sorting = next_sort_nr,
             tax_rates_id = tax_rates_id,
-            GLAccount = glaccount
+            accounting_glaccounts_id = glaccount,
+            accounting_costcenters_id = costcenter
+
         )
 
         ##

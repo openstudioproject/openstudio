@@ -1274,7 +1274,8 @@ def subscriptions_prices():
         db.school_subscriptions_price.Enddate,
         db.school_subscriptions_price.Price,
         db.school_subscriptions_price.tax_rates_id,
-        db.school_subscriptions_price.GLAccount
+        db.school_subscriptions_price.accounting_glaccounts_id,
+        db.school_subscriptions_price.accounting_costcenters_id,
     ]
     links = [ lambda row: os_gui.get_button('edit',
                                      URL('subscription_price_edit',

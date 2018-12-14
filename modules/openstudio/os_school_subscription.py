@@ -52,12 +52,38 @@ class SchoolSubscription:
                 ((db.school_subscriptions_price.Enddate >= date) |
                  (db.school_subscriptions_price.Enddate == None))
 
-        rows = db(query).select(db.school_subscriptions_price.GLAccount,
+        rows = db(query).select(db.school_subscriptions_price.accounting_glaccounts_id,
                                 orderby=db.school_subscriptions_price.Startdate)
 
         if len(rows):
             row = rows.first()
-            glaccount = row.GLAccount
+            glaccount = row.accounting_glaccounts_id
+
+        return glaccount
+
+
+    def get_costcenter_on_date(self, date):
+        """
+        Returns glaccount from db.school_subscriptions_price on date
+        :param date: datetime.date
+        :return: string - glaccount
+        """
+        db = current.db
+
+        glaccount = ''
+
+        query = (db.school_subscriptions_price.school_subscriptions_id ==
+                 self.ssuID) & \
+                (db.school_subscriptions_price.Startdate <= date) & \
+                ((db.school_subscriptions_price.Enddate >= date) |
+                 (db.school_subscriptions_price.Enddate == None))
+
+        rows = db(query).select(db.school_subscriptions_price.accounting_costcenters_id,
+                                orderby=db.school_subscriptions_price.Startdate)
+
+        if len(rows):
+            row = rows.first()
+            glaccount = row.accounting_costcenters_id
 
         return glaccount
 
