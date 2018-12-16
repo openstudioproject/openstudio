@@ -3892,7 +3892,6 @@ def class_prices():
     from openstudio.os_class_prices import ClassPrices
 
     clsID = request.vars['clsID']
-    date_formatted = request.vars['date']
     response.title = T("Edit class")
     classname = get_classname(clsID)
     response.subtitle = classname
@@ -3904,15 +3903,14 @@ def class_prices():
     alert_msg = T("Please make sure the new price starts on the first day of a month and the previous price ends on the last day of the month before. ")
     alert_msg += T("Otherwise you might see unexpected results in the stats.")
     alert_icon = SPAN(_class='glyphicon glyphicon-info-sign')
-    alert = os_gui.get_alert('info', SPAN(alert_icon, ' ', alert_msg))
+    alert = DIV(alert_icon, ' ', alert_msg, BR(), BR(), _class='text-muted')
 
 
     add_permission = (auth.has_membership(group_id='Admins') or
                       auth.has_permission('create', 'classes_price'))
     if add_permission:
         add = os_gui.get_button('add', URL('class_price_add',
-                                           vars={'clsID':clsID,
-                                                 'date' :date_formatted}))
+                                           vars={'clsID':clsID}))
     else:
         add = ''
 
