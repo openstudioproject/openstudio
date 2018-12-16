@@ -1949,22 +1949,16 @@ def define_classes():
         Field('Maxstudents', 'integer', required=True,
             requires=IS_INT_IN_RANGE(0, 500),
             label=T("Spaces"),
-            comment=os_gui.get_info_icon(
-                  title=T("Total spaces for this class. Should be greater then online booking and enrollment spaces added up."),
-                  btn_icon='info')),
+            comment=T("Total spaces for this class. Should be greater then online booking and enrollment spaces added up.")),
         Field('MaxOnlineBooking', 'integer',
             requires=IS_INT_IN_RANGE(0, 500),
             label=T('Online booking spaces'),
-            comment=os_gui.get_info_icon(
-                  title=T("Maximum number of online bookings accepted for this class"),
-                  btn_icon='info')),
+            comment=T("Maximum number of online bookings accepted for this class")),
         Field('MaxReservationsRecurring', 'integer', # Used to set max. enrollments
             requires=IS_INT_IN_RANGE(0,500),
             default=0,
             label=T('Enrollment spaces'),
-            comment=os_gui.get_info_icon(
-                  title=T("Maximum number of enrollments for this class"),
-                  btn_icon='info')),
+            comment=T("Maximum number of enrollments for this class")),
         Field('MaxReservationsDT', 'integer', # Depricated from 2017.3
             readable=False,
             writable=False,
@@ -1974,18 +1968,12 @@ def define_classes():
         Field('AllowAPI', 'boolean', required=True,
             default=False,
             label=T("Public"),
-            comment = os_gui.get_info_icon(
-                title=T("When the API is in use, this checkbox defines whether \
-                a class is passed to the website."),
-                btn_icon='info'
-            )),
+            comment=T("When the API is in use, this checkbox defines whether \
+                a class is passed to the website.")),
         Field('AllowShopTrial', 'boolean',
             default=False,
             label=T("Trial class in shop"),
-            comment = os_gui.get_info_icon(
-                title=T("Show trial class booking option in shop."),
-                btn_icon='info'
-            )),
+            comment=T("Show trial class booking option in shop.")),
         Field('CreatedOn', 'datetime',
               readable=False,
               writable=False,

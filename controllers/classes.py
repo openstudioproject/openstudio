@@ -389,6 +389,7 @@ def class_add():
 
     crud.messages.submit_button = T("Next")
     crud.messages.record_created = T("Added class")
+    crud.settings.formstyle = "bootstrap3_stacked"
     crud.settings.create_next = next_url
     crud.settings.create_onaccept = [cache_clear_classschedule]
     form = crud.create(db.classes)
@@ -407,8 +408,11 @@ def class_add_get_menu(page):
     """
         Returns submenu for adding a workshop
     """
-    pages = [ ['class_add', T('1. Class'), "#"],
-              ['class_teacher_add', T('2. Teachers'), "#"] ]
+    pages = [
+        ['class_add', T('1. Class'), "#"],
+        ['class_teacher_add', T('2. Teachers'), "#"],
+        ['class_price_add', T('3. Prices'), "#"]
+    ]
 
     return get_submenu(pages, page, horizontal=True, htype='tabs')
 
@@ -463,6 +467,7 @@ def class_edit():
     crud.messages.submit_button = T("Save")
     crud.messages.record_updated = T("Updated class")
     crud.messages.record_deleted = T('Deleted class') + ': ' + classname
+    crud.settings.formstyle='bootstrap3_stacked'
     crud.settings.update_next = URL(vars=request.vars)
     crud.settings.update_onaccept = [cache_clear_classschedule]
     crud.settings.update_deletable = False
@@ -544,17 +549,16 @@ def class_teachers():
         request.vars[clsID] is required to be classes_id
     """
     clsID = request.vars['clsID']
-    date_formatted = request.vars['date']
 
     response.title = T("Edit class")
     classname = get_classname(clsID)
     response.subtitle = classname
     response.view = 'general/tabs_menu.html'
 
-    links = [lambda row: os_gui.get_button('edit', URL('class_teacher_edit',
-                                                vars={'cltID':row.id,
-                                                      'clsID':clsID,
-                                                      'date' :date_formatted}))]
+    links = [lambda row: os_gui.get_button('edit',
+                                           URL('class_teacher_edit',
+                                               vars={'cltID':row.id,
+                                                     'clsID':clsID}))]
 
     query = (db.classes_teachers.classes_id == clsID)
 
@@ -588,8 +592,7 @@ def class_teachers():
                       auth.has_permission('create', 'classes_teachers'))
     if add_permission:
         add = os_gui.get_button('add', URL('class_teacher_add',
-                                           vars={'clsID':clsID,
-                                                 'date' :date_formatted}))
+                                           vars={'clsID':clsID}))
     else:
         add = ''
 
@@ -614,21 +617,21 @@ def class_teacher_add():
         This function shows an add page for classes_teachers
     """
     clsID = request.vars['clsID']
-    date_formatted = request.vars['date']
     wizzard = True if 'wiz' in request.vars else False
 
     response.title = T("Add teacher")
     classname = get_classname(clsID)
     response.subtitle = classname
 
-    return_url = class_teachers_add_edit_get_return_url(clsID, date_formatted)
-
     if wizzard:
         response.view = 'general/tabs_menu.html'
+        return_url = URL('class_price_add', vars={'clsID': clsID,
+                                                  'wiz': True})
         menu = class_add_get_menu(request.function)
-        back = os_gui.get_button('back', return_url)
+        back = ''
     else:
         response.view = 'general/only_content.html'
+        return_url = class_teachers_add_edit_get_return_url(clsID)
         menu = ''
         back = os_gui.get_button('back', return_url)
 
@@ -644,6 +647,7 @@ def class_teacher_add():
 
     crud.messages.submit_button = T("Save")
     crud.messages.record_created = T("Added teacher")
+    crud.settings.formstyle = 'bootstrap3_stacked'
     crud.settings.create_next = return_url
     crud.settings.create_onaccept = [ class_teachers_check_classtype, cache_clear_classschedule ]
     form = crud.create(db.classes_teachers)
@@ -675,10 +679,11 @@ def class_teacher_edit():
     response.subtitle = classname
     response.view = 'general/only_content.html'
 
-    return_url = class_teachers_add_edit_get_return_url(clsID, date_formatted)
+    return_url = class_teachers_add_edit_get_return_url(clsID)
 
     crud.messages.submit_button = T("Save")
     crud.messages.record_updated = T("Saved")
+    crud.settings.formstyle = 'bootstrap3_stacked'
     crud.settings.update_next = return_url
     crud.settings.update_onaccept = [ class_teachers_check_classtype, cache_clear_classschedule ]
     crud.settings.update_deletable = False
@@ -695,12 +700,11 @@ def class_teacher_edit():
                 back=back)
 
 
-def class_teachers_add_edit_get_return_url(clsID, date_formatted):
+def class_teachers_add_edit_get_return_url(clsID):
     """
         Returns return url for adding or editing a teacher
     """
-    return URL('class_teachers', vars ={'clsID':clsID,
-                                        'date' :date_formatted})
+    return URL('class_teachers', vars ={'clsID':clsID})
 
 
 def class_teachers_check_classtype(form):
@@ -3935,7 +3939,19 @@ def class_price_add():
     classname = get_classname(clsID)
     response.subtitle = classname
 
-    response.view = 'general/only_content.html'
+    wizzard = True if 'wiz' in request.vars else False
+
+    return_url = class_prices_add_edit_get_return_url(clsID)
+
+    if wizzard:
+        response.view = 'general/tabs_menu.html'
+        menu = class_add_get_menu(request.function)
+        back = ''
+    else:
+        response.view = 'general/only_content.html'
+        menu = ''
+        back = os_gui.get_button('back', return_url)
+
 
     # set some default values
     query = (db.classes_price.classes_id == clsID)
@@ -3960,6 +3976,7 @@ def class_price_add():
 
     return dict(content=result['form'],
                 save=result['submit'],
+                menu=menu,
                 back=back)
 
 
