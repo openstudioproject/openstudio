@@ -955,6 +955,9 @@ li.w2p_grid_breadcrumb_elem {
 
 /* Web2py additions begin */
 
+#alert-w2p-flash {
+    display: none;
+}
 
 td .btn-group {
     margin-right: 6px;
