@@ -10,7 +10,7 @@ from openstudio.os_workshop import Workshop
 from openstudio.os_workshop_product import WorkshopProduct
 from openstudio.os_class_schedule import ClassSchedule
 
-cache_15_min = 99
+cache_15_min = 900
 
 
 def do_auth(user, key):
@@ -877,7 +877,6 @@ def _school_subscriptions_get(var=None):
         db.school_subscriptions.Unlimited,
         db.school_subscriptions.ShopSubscription,
         db.school_subscriptions_price.Price
-
     ]
 
     rows = db.executesql(query, fields=fields)
