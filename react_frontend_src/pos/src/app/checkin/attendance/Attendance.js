@@ -145,23 +145,23 @@ class Attendance extends Component {
         const intl = this.props.intl
         const memberships = this.props.memberships
 
-        // let customers_display = []
-        // if (customers.loaded) {
-        //     if ( customers.searchID ) {
-        //         customers_display = [
-        //             customers.data[customers.searchID]
-        //         ]
-        //     } else if (customers.search_value && customers.search_value.length > 1) {
-        //     Object.keys(customers.data).map( (key) => {
-        //             // console.log('customer:')
-        //             // console.log(key)
-        //             // console.log(customers.data[key])
-        //             if (customers.data[key].search_name.includes(customers.search_value)) {
-        //                 customers_display.push(customers.data[key])
-        //             }
-        //         })
-        //     }
-        // }
+        let customers_display = []
+        if (customers.loaded) {
+            if ( attendance.searchCustomerID ) {
+                customers_display = [
+                    customers.data[attendance.searchCustomerID]
+                ]
+            } else if (attendance.searchValue && attendance.searchValue.length > 1) {
+            Object.keys(customers.data).map( (key) => {
+                    // console.log('customer:')
+                    // console.log(key)
+                    // console.log(customers.data[key])
+                    if (customers.data[key].search_name.includes(attendance.searchValue)) {
+                        customers_display.push(customers.data[key])
+                    }
+                })
+            }
+        }
 
         return (
             <PageTemplate app_state={this.props.app}>
