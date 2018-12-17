@@ -12,20 +12,6 @@ import ButtonBack from "../../../components/ui/ButtonBack"
 import AttendanceList from "./AttendanceList"
 
 
-// const InputGroupSearch = ({placeholder, onChange=f=>f}) => 
-//     <div className="input-group">
-//         <span className="input-group-addon">
-//             <i className="fa fa-search"></i>
-//         </span>
-//         <input type="text"
-//                className="form-control"
-//                placeholder={placeholder} 
-//                onChange={onChange}
-//                ref={input => input && input.focus()} />
-//             {/* placeholder="Search..." /> */}
-//     </div>
-
-
 class Attendance extends Component {
     constructor(props) {
         super(props)
@@ -76,7 +62,7 @@ class Attendance extends Component {
 
         let timeout
         this.props.setSearchTimeout(
-            setTimeout(() => this.setSearchValue(value), 
+            setTimeout(() => this.props.setSearchValue(value), 
                 (validator.isInt(value)) ? timeout = 225 : timeout = 750)
         )
         // const value = e.target.value
