@@ -10,7 +10,7 @@ from openstudio.os_workshop import Workshop
 from openstudio.os_workshop_product import WorkshopProduct
 from openstudio.os_class_schedule import ClassSchedule
 
-cache_15_min = 900
+cache_2_min = 120
 
 
 def do_auth(user, key):
@@ -281,7 +281,7 @@ def schedule_get():
                             'LevelID_' + unicode(LevelID)
                 data = cache.ram(cache_key,
                                  lambda: _schedule_get(year, week, sorting, TeacherID, ClassTypeID, LocationID, LevelID),
-                                 time_expire=cache_15_min)
+                                 time_expire=cache_2_min)
 
         except ValueError:
             data = T("Value error")
