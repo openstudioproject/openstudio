@@ -150,6 +150,27 @@ class CustomerClasscard:
         return SPAN(unicode(remaining), ' ', text, ' ', T("remaining"))
 
 
+    def get_classes_taken(self):
+        """
+
+        :return: Count number of classes taken on this card
+        """
+        db = current.db
+
+        query = (db.classes_attendance.customers_classcards_id == self.ccdID) & \
+                (db.classes_attendance.BookingStatus != 'cancelled')
+
+        return db(query).count()
+
+
+    def set_classes_taken(self):
+        """
+        :return: Update the number of classes taken
+        """
+        self.classcard.ClassesTaken = self.get_classes_taken()
+        self.classcard.update_record()
+
+
     def _get_allowed_classes_format(self, class_ids):
         """
             :param class_ids: list of db.classes.id

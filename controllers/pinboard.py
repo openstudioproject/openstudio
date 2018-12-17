@@ -187,7 +187,7 @@ def pinboard_get_announcements(var=None):
                                 _class='box-tools pull-right'),
                             _class='box-header with-border'),
                          body,
-                       _class='box box-danger')
+                       _class='box box-primary')
 
     return announcements
 
