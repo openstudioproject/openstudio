@@ -193,10 +193,13 @@ class Attendance extends Component {
                                               onChange={this.onChangeSearch.bind(this)}
                                               onClear={this.onClearSearch.bind(this)}
                                               value={attendance.searchValue} /> 
-                            <CustomersList customers={customers_display}
-                                           title="Add customers"
-                                           intl={intl}
-                                           onClick={this.onClickCustomersListItem.bind(this)} />
+                            { (attendance.searchCustomerID || attendance.searchValue) ?
+                                <CustomersList customers={customers_display}
+                                            title="Add customers"
+                                            intl={intl}
+                                            onClick={this.onClickCustomersListItem.bind(this)} />
+                                : ''
+                            }
                             <AttendanceList attendance_items={this.props.attendance.data} />
                         </section>
                 }
