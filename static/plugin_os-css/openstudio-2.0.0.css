@@ -255,7 +255,7 @@ td.os-customer_image_td {
     -webkit-border-radius: 50%;
     -o-border-radius: 50%;
     border-radius: 50%;
-    background: #4679BD;
+    background: #298eea;
 }
 
 /* Customer image definitions for list end */
@@ -955,6 +955,9 @@ li.w2p_grid_breadcrumb_elem {
 
 /* Web2py additions begin */
 
+#alert-w2p-flash {
+    display: none;
+}
 
 td .btn-group {
     margin-right: 6px;
@@ -1155,6 +1158,51 @@ div.error {
 /* Automated tasks end */
 
 /* AdminLTE mods begin */
+
+.skin-blue-light .main-header .navbar,
+.skin-blue-light .main-header .logo {
+    background-color: #298eea;
+}
+
+.nav-tabs-custom > .nav-tabs >li.active,
+.box.box-primary {
+    border-top-color: #298eea;
+}
+
+
+.skin-blue-light .main-header li.user-header {
+    background-color: #298eea;
+}
+
+
+.btn-primary {
+    background-color: #298eea;
+}
+
+.btn-primary:hover, 
+.btn-primary:active {
+    background-color: #3085D1;
+    border: 1px solid #3085D1;
+}
+
+a {
+    color: #298eea;
+}
+
+.panel-primary {
+    border-color: #298eea;
+}
+
+.panel-primary>.panel-heading {
+    background-color: #298eea;
+    border-color: #298eea;
+}
+
+.bg-light-blue, .label-primary, 
+.modal-primary .modal-body {
+    background-color: #298eea !important;
+}
+
 
 .datepicker-days table tr td, 
 .datepicker-days table tr th {

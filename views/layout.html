@@ -229,7 +229,7 @@ desired effect
         <!-- Main content -->
     <section class="content">
       {{ if response.flash: }}
-        <div class="alert alert-info alert-dismissible">
+        <div class="alert alert-info alert-dismissible" id="alert-w2p-flash">
             {{=response.flash or ''}}
             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
         </div>
@@ -347,6 +347,19 @@ $doc.on('click', 'input.datepicker', function () {
 });
 
 </script>
-   
+<script>
+    var $flash = $('#alert-w2p-flash')
+    
+    $flash.slideDown();
+    $flash.css({
+        position: 'fixed',
+        bottom: 20,
+        right: 20,
+        "z-index": 1100,
+        "margin-bottom": 0,
+        "max-width": "700px",
+    });
+    setTimeout(function() { $flash.slideUp(); }, 4000 )
+</script>
 </body>
 </html>

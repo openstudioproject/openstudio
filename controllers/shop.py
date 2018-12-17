@@ -607,6 +607,58 @@ def complete():
     return dict(content=content, progress=progress)
 
 
+def _event_check_exists(wsID):
+    """
+    It might happen that a customer bookmarks an event, which is no longer available due to being
+    deleted. It should show a decent message.
+    :return:
+    """
+    wsID = int(wsID)
+    query = (db.workshops.Archived == False) & \
+            (db.workshops.PublicWorkshop == True)
+
+    rows = db(query).select(db.workshops.id)
+    ids = []
+    for row in rows:
+        ids.append(row.id)
+
+    if not wsID in ids:
+        redirect(URL('event_not_found'))
+
+
+def event_not_found():
+    """
+
+    :return:
+    """
+    response.title = T('Shop')
+    response.subtitle = T('Event not found')
+    response.view = 'shop/index.html'
+
+    content = DIV(
+        T("It looks like the event you're looking for is no longer available."), ' ',
+        T("It's most likely in the past."), BR(),
+        T("Please use the button below to view our current and upcoming events."), BR(), BR(),
+        os_gui.get_button(
+            'noicon',
+            URL('events'),
+            title=T("Current events"),
+            btn_size='',
+            btn_class='btn-primary'
+        ),
+        _class='center'
+    )
+
+    back = os_gui.get_button('back', URL('shop', 'events'))
+
+    return dict(content=content,
+                back=back,
+                og_title='',
+                og_description='',
+                og_url='',
+                og_image='')
+
+
 def event():
     """
         Details for an event
@@ -614,6 +666,8 @@ def event():
     from openstudio.os_workshop import Workshop
 
     wsID = request.vars['wsID']
+    _event_check_exists(wsID)
+
     workshop = Workshop(wsID)
     response.title = T('Shop')
     response.subtitle = T('Event')

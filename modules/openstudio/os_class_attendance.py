@@ -93,6 +93,12 @@ class ClassAttendance:
             query = (db.customers_subscriptions_credits.classes_attendance_id == self.id)
             db(query).delete()
 
+            # Update classes taken for class card
+            if self.row.customers_classcards_id:
+                from os_customer_classcard import CustomerClasscard
+                cc = CustomerClasscard(self.row.customers_classcards_id)
+                cc.set_classes_taken()
+
             # Refresh cache for this customer for both cards & subscriptions
             ocm.clear_customers_classcards(self.row.auth_customer_id)
             ocm.clear_customers_subscriptions(self.row.auth_customer_id)

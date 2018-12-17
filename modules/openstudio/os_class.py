@@ -146,6 +146,8 @@ class Class:
             dropin_tax_percentage_membership = None
             dropin_glaccount = None
             trial_glaccount = None
+            dropin_costcenter = None
+            trial_costcenter = None
 
 
         return dict(
@@ -200,8 +202,6 @@ class Class:
                                   orderby=db.classes_price.Startdate)
 
         if prices:
-
-
             prices = prices.first()
 
             dropin_glaccount = prices.accounting_glaccounts_id_dropin
