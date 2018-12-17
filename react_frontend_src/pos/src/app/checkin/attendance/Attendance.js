@@ -11,6 +11,8 @@ import ButtonBack from "../../../components/ui/ButtonBack"
 
 import AttendanceList from "./AttendanceList"
 
+import CustomersList from "../../../components/ui/CustomersList"
+
 
 class Attendance extends Component {
     constructor(props) {
@@ -138,6 +140,10 @@ class Attendance extends Component {
         console.log('button back clicked')
         this.props.history.push("/checkin")
     }
+
+    onClickCustomersListItem() {
+        console.log('list item clicked')
+    }
     
     render() {
         const attendance = this.props.attendance
@@ -178,12 +184,16 @@ class Attendance extends Component {
                             </div>
                             <ButtonBack onClick={this.onClickButtonBack.bind(this)} 
                                         classAdditional="pull-left btn-margin-right">
-                                    Back
-                                </ButtonBack>
+                                Back
+                            </ButtonBack>
                             <InputGroupSearch placeholder={this.props.intl.formatMessage({ id: 'app.general.placeholders.search' })}
                                               onChange={this.onChangeSearch.bind(this)}
                                               onClear={this.onClearSearch.bind(this)}
                                               value={attendance.searchValue} /> 
+                            <CustomersList customers={customers_display}
+                                           title="Add customers"
+                                           intl={intl}
+                                           onClick={this.onClickCustomersListItem.bind(this)} />
                             <AttendanceList attendance_items={this.props.attendance.data} />
                         </section>
                 }

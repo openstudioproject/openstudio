@@ -11,7 +11,7 @@ import ButtonBack from "../../../components/ui/ButtonBack"
 import ButtonPrimary from "../../../components/ui/ButtonPrimary"
 import ButtonCustomerAdd from "../../../components/ui/ButtonCustomerAdd"
 
-import CustomersList from "./CustomersList"
+import CustomersList from "../../../components/ui/CustomersList"
 import CustomerDisplay from "./CustomerDisplay"
 import CustomerFormCreate from "./CustomerFormCreate"
 import CustomerFormUpdate from "./CustomerFormUpdate"
