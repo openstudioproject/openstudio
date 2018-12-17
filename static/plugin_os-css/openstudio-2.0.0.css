@@ -1159,9 +1159,37 @@ div.error {
 
 /* AdminLTE mods begin */
 
+.skin-blue-light .main-header .navbar,
+.skin-blue-light .main-header .logo {
+    background-color: #298eea;
+}
+
+
+.nav-tabs-custom > .nav-tabs >li.active,
+.box.box-primary {
+    border-top-color: #298eea;
+}
+
 .datepicker-days table tr td, 
 .datepicker-days table tr th {
     border: 0;
+}
+
+.btn-primary {
+    background-color: #298eea;
+}
+
+a {
+    color: #298eea;
+}
+
+.panel-primary {
+    border-color: #298eea;
+}
+
+.panel-primary>.panel-heading {
+    background-color: #298eea;
+    border-color: #298eea;
 }
 
 
