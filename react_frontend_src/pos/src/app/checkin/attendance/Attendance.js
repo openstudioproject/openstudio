@@ -141,8 +141,11 @@ class Attendance extends Component {
         this.props.history.push("/checkin")
     }
 
-    onClickCustomersListItem() {
+    onClickCustomersListItem(id) {
         console.log('list item clicked')
+        console.log(id)
+        let clsID = this.props.match.params.clsID
+        this.props.history.push(`/checkin/book/${clsID}/${id}`)
     }
     
     render() {
