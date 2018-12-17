@@ -1164,16 +1164,16 @@ div.error {
     background-color: #298eea;
 }
 
-
 .nav-tabs-custom > .nav-tabs >li.active,
 .box.box-primary {
     border-top-color: #298eea;
 }
 
-.datepicker-days table tr td, 
-.datepicker-days table tr th {
-    border: 0;
+
+.skin-blue-light .main-header li.user-header {
+    background-color: #298eea;
 }
+
 
 .btn-primary {
     background-color: #298eea;
@@ -1190,6 +1190,12 @@ a {
 .panel-primary>.panel-heading {
     background-color: #298eea;
     border-color: #298eea;
+}
+
+
+.datepicker-days table tr td, 
+.datepicker-days table tr th {
+    border: 0;
 }
 
 
