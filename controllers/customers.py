@@ -1232,22 +1232,6 @@ def classcards_count_classes(row):
     ccd = CustomerClasscard(row.customers_classcards.id)
     link_text = ccd.get_classes_remaining_formatted()
 
-
-    # card = db.school_classcards(row.customers_classcards.school_classcards_id)
-    # total = card.Classes
-    # ccdID = row.customers_classcards.id
-    # if card.Unlimited:
-    #     remaining = T('Unlimited')
-    # else:
-    #     query = (db.classes_attendance.customers_classcards_id == ccdID)
-    #     used = db(query).count()
-    #     remaining = total - used
-    #
-    # if remaining != 1:
-    #     link_text = T("Classes")
-    # else:
-    #     link_text = T("Class")
-
     link = A(link_text,
              _href=URL('classcard_classes', vars=dict(ccdID=row.customers_classcards.id)))
 
