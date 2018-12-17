@@ -5306,7 +5306,7 @@ def load_list():
         location = ''
         if show_location:
             repr_row = list(rows[i:i + 1].render())[0]
-            location = TD(os_gui.get_label('info', repr_row.school_locations_id))
+            location = TD(os_gui.get_label('primary', repr_row.school_locations_id))
 
 
         # add everything to the table cell
