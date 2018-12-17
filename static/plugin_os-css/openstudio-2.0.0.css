@@ -1192,6 +1192,11 @@ a {
     border-color: #298eea;
 }
 
+.bg-light-blue, .label-primary, 
+.modal-primary .modal-body {
+    background-color: #298eea !important;
+}
+
 
 .datepicker-days table tr td, 
 .datepicker-days table tr th {
