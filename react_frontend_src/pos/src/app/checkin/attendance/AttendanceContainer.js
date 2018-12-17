@@ -23,12 +23,24 @@ const mapDispatchToProps = dispatch =>
         setPageTitle(title) {
             dispatch(appOperations.setPageTitle(title))
         },
-        clearCheckinSearchTimeout() {
-            dispatch(checkinAttendanceOperations.clearCheckinSearchTimeout())
+        clearSearchTimeout() {
+            dispatch(checkinAttendanceOperations.clearCheckinAttendanceSearchTimeout())
         },
-        setCheckinSearchTimeout(timeout) {
-            dispatch(checkinAttendanceOperations.setCheckinSearchTimeout(timeout))
-        }
+        setSearchTimeout(timeout) {
+            dispatch(checkinAttendanceOperations.setCheckinAttendanceSearchTimeout(timeout))
+        },
+        clearSearchCustomerID() {
+            dispatch(checkinAttendanceOperations.clearCheckinAttendanceSearchCustomerID())
+        },
+        setSearchCustomerID(id) {
+            dispatch(checkinAttendanceOperations.setCheckinAttendanceSearchCustomerID(id))
+        },
+        clearSearchValue() {
+            dispatch(checkinAttendanceOperations.clearCheckinAttendanceSearchValue())
+        },
+        setSearchValue(value) {
+            dispatch(checkinAttendanceOperations.setCheckinAttendanceSearchValue(value))
+        },
     })
 
 
