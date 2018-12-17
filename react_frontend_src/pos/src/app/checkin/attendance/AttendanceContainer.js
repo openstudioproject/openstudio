@@ -11,6 +11,7 @@ const mapStateToProps = state =>
     ({
         app: state.app,
         attendance: state.checkin.attendance,
+        barcode_scans: state.app.settings.data.customers_barcodes,
         customers: state.customers.list,
         memberships: state.customers.memberships
     })

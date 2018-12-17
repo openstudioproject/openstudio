@@ -48,12 +48,12 @@ export const checkinAttendanceReducer = (state = {}, action={ type: null }) => {
         case T.CHECKIN_ATTENDANCE_CLEAR_SEARCH_VALUE:
             return {
                 ...state,
-                search_value: "",
+                searchValue: "",
             }
         case T.CHECKIN_ATTENDANCE_SET_SEARCH_VALUE:
             return {
                 ...state,
-                search_value: action.value.toLowerCase(),
+                searchValue: action.value.toLowerCase(),
             }
         default:
             return {

@@ -48,7 +48,49 @@ class Attendance extends Component {
     //     console.log(isInt(value))
     // }
 
-    onChange(e) {
+    setSearchValue(value) {
+        console.log('done something :)!')
+        console.log(this.props)
+        this.props.clearSearchCustomerID()
+
+        const barcode_scans = this.props.barcode_scans
+        const memberships = this.props.memberships.data
+
+        console.log(barcode_scans)
+        let cuID
+
+        if (validator.isInt(value)) {
+            console.log('This is an int!')
+            if (barcode_scans == 'membership_id') {
+                // find customer ID
+                console.log('looking for cuID in memberships')
+                for (const key of Object.keys(memberships)) {
+                    let m = memberships[key]
+                    console.log(m)
+                    if ( m['date_id'] == value) {
+                        cuID = m['auth_customer_id']
+                    }
+
+                }
+            } else {
+                cuID = value
+            }
+
+            // this.props.setDisplayCustomerID(cuID)
+            this.props.setSearchCustomerID(cuID)
+
+            console.log('customerID')
+            console.log(cuID)
+
+        } else {
+            console.log('not an int value')
+
+        }
+
+        console.log(value)
+    }
+
+    onChangeSearch(e) {
         const value = e.target.value
         const attendance = this.props.attendance
 
@@ -62,7 +104,7 @@ class Attendance extends Component {
 
         let timeout
         this.props.setSearchTimeout(
-            setTimeout(() => this.props.setSearchValue(value), 
+            setTimeout(() => this.setSearchValue(value), 
                 (validator.isInt(value)) ? timeout = 225 : timeout = 750)
         )
         // const value = e.target.value
@@ -82,6 +124,11 @@ class Attendance extends Component {
         // )
     }
 
+    onClearSearch(e) {
+        this.props.clearSearchValue()
+        this.props.clearSearchCustomerID()
+    }
+
     onClickVerifyTeacherPayment() {
         console.log('clicked verify teacher')
         this.props.history.push("/checkin/revenue/" + this.props.match.params.clsID)
@@ -93,6 +140,7 @@ class Attendance extends Component {
     }
     
     render() {
+        const attendance = this.props.attendance
         const customers = this.props.customers
         const intl = this.props.intl
         const memberships = this.props.memberships
@@ -133,7 +181,9 @@ class Attendance extends Component {
                                     Back
                                 </ButtonBack>
                             <InputGroupSearch placeholder={this.props.intl.formatMessage({ id: 'app.general.placeholders.search' })}
-                                              onChange={this.onChange.bind(this)} /> 
+                                              onChange={this.onChangeSearch.bind(this)}
+                                              onClear={this.onClearSearch.bind(this)}
+                                              value={attendance.searchValue} /> 
                             <AttendanceList attendance_items={this.props.attendance.data} />
                         </section>
                 }

@@ -23,7 +23,7 @@
             "data": {},
             "searchTimeout": 0,
             "searchCustomerID": null,
-            "search_value": ""
+            "searchValue": ""
         },
         "book": {
            "loading": false,
