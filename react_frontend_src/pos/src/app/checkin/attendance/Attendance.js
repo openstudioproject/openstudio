@@ -2,6 +2,7 @@ import React, { Component } from "react"
 import { intlShape } from "react-intl"
 import PropTypes from "prop-types"
 import { NavLink } from 'react-router-dom'
+import validator from 'validator'
 
 
 import PageTemplate from "../../../components/PageTemplate"
@@ -24,12 +25,6 @@ import AttendanceList from "./AttendanceList"
 //             {/* placeholder="Search..." /> */}
 //     </div>
 
-
-function isInt(value) {
-    return !isNaN(value) && 
-           parseInt(Number(value)) == value && 
-           !isNaN(parseInt(value, 10));
-  }
 
 class Attendance extends Component {
     constructor(props) {
