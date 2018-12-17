@@ -52,12 +52,12 @@ export const setCheckinAttendanceSearchValue = (value) =>
         value
     })
 
-export const clearCheckinAttendanceSelectedCustomerID = () =>
+export const clearCheckinAttendanceSearchCustomerID = () =>
     ({
         type: T.CHECKIN_ATTENDANCE_CLEAR_SELECTED_CUSTOMER_ID
     })
 
-export const setCheckinAttendanceSelectedCustomerID = (id) =>
+export const setCheckinAttendanceSearchCustomerID = (id) =>
     ({
         type: T.CHECKIN_ATTENDANCE_SET_SELECTED_CUSTOMER_ID,
         id
