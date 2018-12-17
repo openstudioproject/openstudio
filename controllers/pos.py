@@ -424,15 +424,8 @@ def get_school_memberships():
                sm.Description,
                sm.Validity,
                sm.ValidityUnit,
-               smp.Price
+               sm.Price
         FROM school_memberships sm
-        LEFT JOIN
-        ( SELECT school_memberships_id, 
-                 Price
-          FROM school_memberships_price
-          WHERE Startdate <= '{today}' AND
-                (Enddate >= '{today}' OR Enddate IS NULL) 
-        ) smp ON sm.id = smp.school_memberships_id
         WHERE sm.Archived = 'F'
         ORDER BY sm.Name
     """.format(today=TODAY_LOCAL)
@@ -443,7 +436,7 @@ def get_school_memberships():
         db.school_memberships.Description,
         db.school_memberships.Validity,
         db.school_memberships.ValidityUnit,
-        db.school_memberships_price.Price
+        db.school_memberships.Price
     ]
 
     rows = db.executesql(query, fields=fields)
@@ -451,12 +444,12 @@ def get_school_memberships():
     data = []
     for row in rows:
         data.append({
-            'id': row.school_memberships.id,
-            'Name': row.school_memberships.Name,
-            'Description': row.school_memberships.Description or '',
-            'Validity': row.school_memberships.Validity,
-            'ValidityUnit': row.school_memberships.ValidityUnit,
-            'Price': row.school_memberships_price.Price or 0
+            'id': row.id,
+            'Name': row.Name,
+            'Description': row.Description or '',
+            'Validity': row.Validity,
+            'ValidityUnit': row.ValidityUnit,
+            'Price': row.Price or 0
         })
 
     return dict(data=data)

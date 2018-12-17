@@ -21,7 +21,9 @@
             "loading": false,
             "loaded": false,
             "data": {},
-            "searchTimeout": 0
+            "searchTimeout": 0,
+            "searchID": null,
+            "search_value": ""
         },
         "book": {
            "loading": false,

@@ -59,30 +59,46 @@ class Attendance extends Component {
 
     }
 
-    toBookingOptions(clsID, value, history) {
-        if (isInt(value)) {
-            history.push('/checkin/book/' + clsID + '/' + value)
-        }
-        console.log(value)
-        console.log(isInt(value))
-    }
+    // toBookingOptions(clsID, value, history) {
+    //     if (isInt(value)) {
+    //         history.push('/checkin/book/' + clsID + '/' + value)
+    //     }
+    //     console.log(value)
+    //     console.log(isInt(value))
+    // }
 
     onChange(e) {
         const value = e.target.value
-        const state = this.props.attendance
-        console.log("timeout: " + state.searchTimeout)
-        if ( state.searchTimeout ) {
-            this.props.clearCheckinSearchTimeout()
+        const attendance = this.props.attendance
+
+        this.props.setSearchValue(value)
+
+        console.log("timeout: " + attendance.searchTimeout)
+        if ( attendance.searchTimeout ) {
+            this.props.clearSearchTimeout()
             console.log('reset timeout')
         }
 
-        const history = this.props.history
-        const clsID = this.props.match.params.clsID
         let timeout
-        this.props.setCheckinSearchTimeout(
-            setTimeout(() => this.toBookingOptions(clsID, value, history), 
-                (isInt(value)) ? timeout = 225 : timeout = 750)
+        this.props.setSearchTimeout(
+            setTimeout(() => this.setSearchValue(value), 
+                (validator.isInt(value)) ? timeout = 225 : timeout = 750)
         )
+        // const value = e.target.value
+        // const state = this.props.attendance
+        // console.log("timeout: " + state.searchTimeout)
+        // if ( state.searchTimeout ) {
+        //     this.props.clearCheckinSearchTimeout()
+        //     console.log('reset timeout')
+        // }
+
+        // const history = this.props.history
+        // const clsID = this.props.match.params.clsID
+        // let timeout
+        // this.props.setCheckinSearchTimeout(
+        //     setTimeout(() => this.toBookingOptions(clsID, value, history), 
+        //         (isInt(value)) ? timeout = 225 : timeout = 750)
+        // )
     }
 
     onClickVerifyTeacherPayment() {
@@ -96,6 +112,28 @@ class Attendance extends Component {
     }
     
     render() {
+        const customers = this.props.customers
+        const intl = this.props.intl
+        const memberships = this.props.memberships
+
+        // let customers_display = []
+        // if (customers.loaded) {
+        //     if ( customers.searchID ) {
+        //         customers_display = [
+        //             customers.data[customers.searchID]
+        //         ]
+        //     } else if (customers.search_value && customers.search_value.length > 1) {
+        //     Object.keys(customers.data).map( (key) => {
+        //             // console.log('customer:')
+        //             // console.log(key)
+        //             // console.log(customers.data[key])
+        //             if (customers.data[key].search_name.includes(customers.search_value)) {
+        //                 customers_display.push(customers.data[key])
+        //             }
+        //         })
+        //     }
+        // }
+
         return (
             <PageTemplate app_state={this.props.app}>
                 { 
