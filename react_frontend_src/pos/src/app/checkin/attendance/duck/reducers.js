@@ -24,16 +24,36 @@ export const checkinAttendanceReducer = (state = {}, action={ type: null }) => {
                 ...state,
                 search_customer_id: action.search_customer_id,
             }
-        case T.CHECKIN_CLEAR_SEARCH_TIMEOUT:
+        case T.CHECKIN_ATTENDANCE_CLEAR_SEARCH_TIMEOUT:
             return {
                 ...state,
                 searchTimeout: clearTimeout(state.searchTimeout),
                 
             }
-        case T.CHECKIN_SET_SEARCH_TIMEOUT:
+        case T.CHECKIN_ATTENDANCE_SET_SEARCH_TIMEOUT:
             return {
                 ...state,
                 searchTimeout: action.timeout,
+            }
+        case T.CHECKIN_ATTENDANCE_CLEAR_SEARCH_CUSTOMER_ID:
+            return {
+                ...state,
+                searchCustomerID: null,
+            }
+        case T.CHECKIN_ATTENDANCE_SET_SEARCH_CUSTOMER_ID:
+            return {
+                ...state,
+                searchCustomerID: action.id,
+            }
+        case T.CHECKIN_ATTENDANCE_CLEAR_SEARCH_VALUE:
+            return {
+                ...state,
+                search_value: "",
+            }
+        case T.CHECKIN_ATTENDANCE_SET_SEARCH_VALUE:
+            return {
+                ...state,
+                search_value: action.value.toLowerCase(),
             }
         default:
             return {
