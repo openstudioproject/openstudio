@@ -147,6 +147,11 @@ class Attendance extends Component {
         let clsID = this.props.match.params.clsID
         this.props.history.push(`/checkin/book/${clsID}/${id}`)
     }
+
+    onClickAttendanceListItem(id) {
+        console.log('list item clicked')
+        console.log(id)
+    }
     
     render() {
         const attendance = this.props.attendance
@@ -187,7 +192,7 @@ class Attendance extends Component {
                             </div>
                             <ButtonBack onClick={this.onClickButtonBack.bind(this)} 
                                         classAdditional="pull-left btn-margin-right">
-                                Back
+                                Classes
                             </ButtonBack>
                             <InputGroupSearch placeholder={this.props.intl.formatMessage({ id: 'app.general.placeholders.search' })}
                                               onChange={this.onChangeSearch.bind(this)}
@@ -200,7 +205,10 @@ class Attendance extends Component {
                                             onClick={this.onClickCustomersListItem.bind(this)} />
                                 : ''
                             }
-                            <AttendanceList attendance_items={this.props.attendance.data} />
+                            <AttendanceList attendance_items={this.props.attendance.data}
+                                            intl={intl}
+                                            title="Attendance"
+                                            onClick={this.onClickAttendanceListItem.bind(this)} />
                         </section>
                 }
             </PageTemplate>
