@@ -24,4 +24,14 @@ export const setCheckinBookingOptionsLoading = (loading) =>
         loading
     })
 
-    
+export const requestCheckinClass = () =>
+    ({
+        type: T.CHECKIN_REQUEST_CLASS_CHECKIN,
+        loaded
+    })
+
+export const receiveCheckinClass = (data) =>
+    ({
+        type: T.CHECKIN_RECEIVE_CLASS_CHECKIN,
+        loading
+    })
