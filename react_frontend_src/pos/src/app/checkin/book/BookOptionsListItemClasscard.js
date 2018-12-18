@@ -1,6 +1,10 @@
 import React from "react"
 import { injectIntl } from 'react-intl'
 
+import { formatDate } from "../../../utils/date_tools"
+import { isoDateStringToDateObject } from "../../../utils/date_tools"
+
+
 const BookOptionsListItemClasscard = injectIntl(({data, intl, onClick=f=>f}) => 
     <div className="col-md-3"
          onClick={onClick}>
@@ -13,8 +17,8 @@ const BookOptionsListItemClasscard = injectIntl(({data, intl, onClick=f=>f}) =>
                 <p>
                     {(data.Unlimited) ? "Unlimited" : data.ClassesRemaining + " Class(es) remaining"}
                 </p>
-                <p>
-                    Valid until {data.Enddate}
+                <p> 
+                    Valid until {formatDate(isoDateStringToDateObject(data.Enddate))}
                 </p>
             </div>
             <div className="icon">
