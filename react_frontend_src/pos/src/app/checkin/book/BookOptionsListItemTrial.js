@@ -5,7 +5,7 @@ import Currency from "../../../components/ui/Currency"
 
 const BookOptionsListItemTrial = injectIntl(({data, intl, onClick=f=>f}) => 
     <div className="col-md-3"
-         onClick={onClick}>
+         onClick={() => onClick(data)}>
 
         <div className="small-box bg-green">
             <div className="inner">

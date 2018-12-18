@@ -36,6 +36,11 @@ class Book extends Component {
         this.props.history.push(`/checkin/attendance/${this.props.match.params.clsID}`)
     }
 
+    onClickBookOption(option) {
+        console.log('click book option')
+        console.log(option)
+    }
+
     render() {
         const booking_options = this.props.options.data
         
@@ -50,7 +55,8 @@ class Book extends Component {
                                         classAdditional="btn-margin-right">
                                 Attendance
                             </ButtonBack>
-                            <BookOptionsList booking_options={booking_options} />
+                            <BookOptionsList booking_options={booking_options}
+                                             onClick={this.onClickBookOption.bind(this)} />
                             {/* <AttendanceList attendance_items={this.props.attendance.data} /> */}
                         </section>
                 }

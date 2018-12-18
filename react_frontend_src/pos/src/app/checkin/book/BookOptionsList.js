@@ -51,8 +51,10 @@ const BookOptionsList = ({booking_options, onClick=f=>f}) =>
         </div>
         <h4>Drop-in & Trial</h4>
             <div className="row">
-                <BookOptionsListItemDropin data={booking_options.dropin} />
-                <BookOptionsListItemTrial data={booking_options.trial} />
+                <BookOptionsListItemDropin data={booking_options.dropin}
+                                           onClick={onClick} />
+                <BookOptionsListItemTrial data={booking_options.trial}
+                                          onClick={onClick} />
             </div>
     </div>
 
