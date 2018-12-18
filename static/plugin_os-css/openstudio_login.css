@@ -64,6 +64,20 @@ img.logo_os_clouds {
     text-align: center;
 }
 
+.btn-primary {
+    background-color: #298eea;
+}
+
+.btn-primary:hover, 
+.btn-primary:active {
+    background-color: #3085D1;
+    border: 1px solid #3085D1;
+}
+
+a {
+    color: #298eea;
+}
+
 .btn-default {
     text-shadow: none;
 }
@@ -88,6 +102,8 @@ img.logo_os_clouds {
 .btn-create_your_account {
     margin-top: 38px;
 }
+
+
 
 @media only screen and (min-width: 768px) {
 	.login-box {
