@@ -1,5 +1,4 @@
 import React from "react"
-import { v4 } from "uuid"
 import { injectIntl } from 'react-intl'
 
 const BookOptionsListItemSubscription = injectIntl(({data, intl, onClick=f=>f}) => 

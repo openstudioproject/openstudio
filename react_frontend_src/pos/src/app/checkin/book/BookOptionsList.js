@@ -2,6 +2,7 @@ import React from "react"
 import { v4 } from "uuid"
 
 import BookOptionsListItemClasscard from "./BookOptionsListItemClasscard"
+import BookOptionsListItemDropin from "./BookOptionsListItemDropin"
 import BookOptionsListItemSubscription from "./BookOptionsListItemSubscription"
 
 const populateRowsSubscriptions = (subscriptions, onClick=f=>f) => {
@@ -47,6 +48,10 @@ const BookOptionsList = ({booking_options, onClick=f=>f}) =>
         <div>
             { populateRowsClasscards(booking_options.classcards) }
         </div>
+        <h4>Drop-in & Trial</h4>
+            <div className="row">
+                <BookOptionsListItemDropin data={booking_options.dropin} />
+            </div>
     </div>
 
 
