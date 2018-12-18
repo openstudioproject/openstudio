@@ -2,8 +2,10 @@ import React, { Component } from "react"
 import { intlShape } from "react-intl"
 import PropTypes from "prop-types"
 
+import ButtonBack from "../../../components/ui/ButtonBack"
 import PageTemplate from "../../../components/PageTemplate"
 import BookOptionsList from "./BookOptionsList"
+
 
 
 class Book extends Component {
@@ -30,6 +32,10 @@ class Book extends Component {
         this.props.fetchBookingOptions(this.props.match.params.clsID, this.props.match.params.cuID )
     }
 
+    onClickButtonBack() {
+        this.props.history.push(`/checkin/attendance/${this.props.match.params.clsID}`)
+    }
+
     render() {
         const booking_options = this.props.options.data
         
@@ -40,6 +46,10 @@ class Book extends Component {
                     (!this.props.options.loaded) ? 
                         <div>Loading booking options, please wait...</div> :
                         <section className="checkin_attendance">
+                            <ButtonBack onClick={this.onClickButtonBack.bind(this)} 
+                                        classAdditional="btn-margin-right">
+                                Attendance
+                            </ButtonBack>
                             <BookOptionsList booking_options={booking_options} />
                             {/* <AttendanceList attendance_items={this.props.attendance.data} /> */}
                         </section>
