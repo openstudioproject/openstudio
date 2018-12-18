@@ -1094,7 +1094,7 @@ class AttendanceHelper:
                 ccdID = classcard.customers_classcards.id
 
                 ccd = CustomerClasscard(ccdID)
-                classes_remaining = ccd.get_classes_remaining_formatted()
+                classes_remaining = ccd.get_classes_remaining()
 
                 if list_type == 'shop':
                     allowed_classes = ccd.get_allowed_classes_booking()
@@ -1110,7 +1110,7 @@ class AttendanceHelper:
                     'id': ccdID,
                     'auth_customer_id': classcard.customers_classcards.auth_customer_id,
                     'Name': classcard.school_classcards.Name,
-                    'Allowed': allowed_classes,
+                    'Allowed': allowed,
                     'Enddate': classcard.customers_classcards.Enddate,
                     'ClassesRemaining': classes_remaining,
                     'Unlimited': classcard.school_classcards.Unlimited,
@@ -1348,13 +1348,12 @@ class AttendanceHelper:
                     button_book = classes_book_options_get_button_book(url)
 
 
-
                 option = DIV(DIV(T('Class card'),
                                  _class='col-md-3 bold'),
                              DIV(classcard['Name'], ' ',
                                  SPAN(XML(' &bull; '), T('expires'), ' ',
                                       classcard['Enddate'].strftime(DATE_FORMAT),
-                                      XML(' &bull; '), classcard['ClassesRemaining'],
+                                      XML(' &bull; '), classes_remaining,
                                       _class='small_font grey'),
                                  _class='col-md-6'),
                              DIV(button_book,
