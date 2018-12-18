@@ -43,11 +43,11 @@ const BookOptionsList = ({booking_options, onClick=f=>f}) =>
         {console.log(booking_options)}
         <h4>Subscriptions</h4>
         <div>
-            { populateRowsSubscriptions(booking_options.subscriptions) }
+            { populateRowsSubscriptions(booking_options.subscriptions, onClick) }
         </div>
         <h4>Class cards</h4>
         <div>
-            { populateRowsClasscards(booking_options.classcards) }
+            { populateRowsClasscards(booking_options.classcards, onClick) }
         </div>
         <h4>Drop-in & Trial</h4>
             <div className="row">
