@@ -3,6 +3,7 @@ import { intlShape } from "react-intl"
 import PropTypes from "prop-types"
 
 import PageTemplate from "../../../components/PageTemplate"
+import BookOptionsList from "./BookOptionsList"
 
 
 class Book extends Component {
@@ -30,13 +31,16 @@ class Book extends Component {
     }
 
     render() {
+        const booking_options = this.props.options.data
+        
+
         return (
             <PageTemplate app_state={this.props.app}>
                 { 
                     (!this.props.options.loaded) ? 
                         <div>Loading booking options, please wait...</div> :
                         <section className="checkin_attendance">
-                            Loaded... yay!! :)
+                            <BookOptionsList booking_options={booking_options} />
                             {/* <AttendanceList attendance_items={this.props.attendance.data} /> */}
                         </section>
                 }
