@@ -4,6 +4,7 @@ import { v4 } from "uuid"
 import BookOptionsListItemClasscard from "./BookOptionsListItemClasscard"
 import BookOptionsListItemDropin from "./BookOptionsListItemDropin"
 import BookOptionsListItemSubscription from "./BookOptionsListItemSubscription"
+import BookOptionsListItemTrial from "./BookOptionsListItemTrial"
 
 const populateRowsSubscriptions = (subscriptions, onClick=f=>f) => {
     let container = []
@@ -51,6 +52,7 @@ const BookOptionsList = ({booking_options, onClick=f=>f}) =>
         <h4>Drop-in & Trial</h4>
             <div className="row">
                 <BookOptionsListItemDropin data={booking_options.dropin} />
+                <BookOptionsListItemTrial data={booking_options.trial} />
             </div>
     </div>
 
