@@ -320,11 +320,37 @@ def customer_class_booking_create():
                 booking_status='attending'
             )
 
-            if result['status'] == 'fail':
-                error = True
-                message = result['message']
-        # elif type == 'classcard':
+        elif type == 'classcard':
+            result = ah.attendance_sign_in_classcard(
+                cuID,
+                clsID,
+                type_id,
+                date,
+                booking_status='attending'
+            )
+
         # elif type == 'dropin':
+        #     result = ah.attendance_sign_in_dropin(
+        #         cuID,
+        #         clsID,
+        #         date,
+        #         invoice=True,
+        #         booking_status='attending'
+        #     )
+        #
+        # elif type == 'trialclass':
+        #     result = ah.attendance_sign_in_dropin(
+        #         cuID,
+        #         clsID,
+        #         date,
+        #         invoice=True,
+        #         booking_status='attending'
+        #     )
+
+        if result['status'] == 'fail':
+            error = True
+            message = result['message']
+
         # elif type == 'trial':
 
 

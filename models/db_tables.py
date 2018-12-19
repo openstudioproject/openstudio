@@ -1086,6 +1086,7 @@ def define_school_classcards():
     ac_query = (db.accounting_costcenters.Archived == False)
     ag_query = (db.accounting_glaccounts.Archived == False)
     so_query = (db.sys_organizations.Archived == False)
+    sm_query = (db.school_memberships.Archived == False)
     format = '%(Name)s'
     # if len(ORGANIZATIONS) > 2:
     #     format = '%(Name)s - %(sys_organizations_id)s'
@@ -1101,9 +1102,9 @@ def define_school_classcards():
               default=True,
               required=True,
               label=T('Show in shop')),
-        Field('MembershipRequired', 'boolean',
-              default=False,
-              label=T('Requires membership')),
+        # Field('MembershipRequired', 'boolean',
+        #       default=False,
+        #       label=T('Requires membership')),
         Field('Trialcard', 'boolean',
               default=False,
               required=True,
@@ -1162,6 +1163,14 @@ def define_school_classcards():
             default=False,
             label=T("Unlimited classes"),
             comment=T('For unlimited cards the number of classes entered is ignored')),
+        Field('school_memberships_id', db.school_memberships,
+              requires=IS_EMPTY_OR(IS_IN_DB(db(sm_query),
+                                            'school_memberships.id',
+                                            '%(Name)s',
+                                            zero=T("Doesn't require membership"))),
+              label=T("Requires membership"),
+              comment=T(
+                  "Set a required membership for this card. Without this memberships customers won't be able to buy this card or use it to attend classes.")),
         Field('accounting_glaccounts_id', db.accounting_glaccounts,
               requires=IS_EMPTY_OR(IS_IN_DB(db(ag_query),
                                             'accounting_glaccounts.id',
@@ -1278,6 +1287,7 @@ def define_school_memberships():
 
 def define_school_subscriptions():
     so_query = (db.sys_organizations.Archived == False)
+    sm_query = (db.school_memberships.Archived == False)
     format = '%(Name)s'
     # if len(ORGANIZATIONS) > 2:
     #     format = '%(Name)s - %(sys_organizations_id)s'
@@ -1296,10 +1306,6 @@ def define_school_subscriptions():
             default=False,
             label=T('Show on website'),
             comment=T("Show on website when OpenStudio subscriptions are integrated in your website.")),
-        Field('MembershipRequired', 'boolean',
-              default=False,
-              label=T('Requires membership'),
-              comment=T("A membership is required for this subscription")),
         Field('Name', required=True,
               requires=IS_NOT_EMPTY(),
               label=T("Name")),
@@ -1355,6 +1361,14 @@ def define_school_subscriptions():
             label=T('Unlimited classes')),
         Field('Terms', 'text',
             label=T('Terms & conditions')),
+        Field('school_memberships_id', db.school_memberships,
+              requires=IS_EMPTY_OR(IS_IN_DB(db(sm_query),
+                                            'school_memberships.id',
+                                            '%(Name)s',
+                                            zero=T("Doesn't require membership"))),
+              label=T("Requires membership"),
+              comment=T(
+                  "Set a required membership for this card. Without this memberships customers won't be able to get this subscription or use it to attend classes.")),
         Field('QuickStatsAmount', 'double',
               label=T('Quick Stats Amount'),
               default=0,

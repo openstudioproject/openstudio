@@ -42,7 +42,22 @@ class Book extends Component {
 
         const clsID = this.props.match.params.clsID
         const cuID = this.props.match.params.cuID
+
         this.props.checkinCustomer(cuID, clsID, option)
+
+        // Subscription & classcard
+        // if ((option.type === 'subscription' || option.type === 'classcard') ||
+        //    ) {
+        //     this.props.checkinCustomer(cuID, clsID, option)
+        // } else {
+            
+        //     if (option.type === 'trial' && option.Price > 0) {
+
+        //     } else {
+                
+        //     }
+
+        // }
     }
 
     render() {
