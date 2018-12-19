@@ -346,36 +346,26 @@ def edit_remodel_form(form,
                _class='customers_edit_container row')
 
 
-# def index_get_subscription_query(query, mstype, msmonth, msyear):
-#     msstartdate = datetime.date(msyear, msmonth, 1)
-#     next_month = msstartdate.replace(day=28) + datetime.timedelta(days=4)  # this will never fail
-#     msenddate = next_month - datetime.timedelta(days=next_month.day)
-#     if mstype != '':
-#         query &= (db.customers_subscriptions.Startdate <= msenddate) & \
-#                  ((db.customers_subscriptions.Enddate >= msstartdate) | \
-#                   (db.customers_subscriptions.Enddate == None)) & \
-#             (db.customers_subscriptions.auth_customer_id == db.auth_user.id) & \
-#             (db.customers_subscriptions.school_subscriptions_id==mstype)
-#             # inner join for search :
-#             #(db.customers_subscriptions.customers_id == db.customers.id) & \
-#     return query
-
-
 def subscriptions_get_link_membership_check(row):
     """
     :param row: gluon.dal.row object of db.customers_subscriptions
     :return: Warning if membership required for subscription but not found
     """
     ssu = SchoolSubscription(row.school_subscriptions_id, set_db_info=True)
-    membership_required = ssu.MembershipRequired
+    required_membership = ssu.school_memberships_id
 
-    customer = Customer(row.auth_customer_id)
+    customer = Customer(row.customers_classcards.auth_customer_id)
 
-    if membership_required and not customer.has_membership_on_date(TODAY_LOCAL):
+    memberships = customer.get_memberships_on_date(TODAY_LOCAL)
+    ids = []
+    for row in memberships:
+        ids.append(row.id)
+
+    if not required_membership in ids:
         return os_gui.get_label(
             'warning',
             T('No membership'),
-            title=T("A membership is required for this subscription but wasn't found.")
+            title=T("This customer doesn't have the required membership for this subscription.")
         )
     else:
         return ''
@@ -1509,7 +1499,7 @@ def classcards_get_link_membership_check(row):
     :return: Warning if membership required for card but not found
     """
     scd = SchoolClasscard(row.customers_classcards.school_classcards_id, set_db_info=True)
-    required_membership = scd.row.MembershipRequired
+    required_membership = scd.row.school_memberships_id
 
     customer = Customer(row.customers_classcards.auth_customer_id)
 
