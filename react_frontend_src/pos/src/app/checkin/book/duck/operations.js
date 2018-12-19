@@ -53,7 +53,7 @@ const checkinCustomer = (cuID, clsID, data) => {
             fd.append(key, data[key])
           )
   
-          axios_os.post(OS_API.CHECKIN_CUSTOMER, fd)
+          axios_os.post(OS_API.CHECKIN_BOOKING_CREATE, fd)
           .then(function(response) {
               dispatch(receiveCheckinCustomer(response.data))
           })

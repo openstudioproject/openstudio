@@ -288,7 +288,7 @@ def get_class_booking_options():
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('create', 'classes_attendance'))
-def customer_checkin():
+def customer_class_booking_create():
     """
     Check customer in to a class
     :return:
@@ -327,6 +327,18 @@ def customer_checkin():
         # elif type == 'dropin':
         # elif type == 'trial':
 
+
+    return dict(error=error,
+                message=message)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'classes_attendance'))
+def customer_class_booking_manage():
+    """
+    Manage booking for a class
+    :return:
+    """
 
     return dict(error=error,
                 message=message)
