@@ -21,7 +21,7 @@ export const checkinBookReducer = (state = {}, action={ type: null }) => {
                 loaded: true,
                 data: action.data.options,
             }
-        case T.CHECKIN_REQUEST_CLASS:
+        case T.CHECKIN_REQUEST_CHECKIN_CUSTOMER:
             return {
                 ...state,
                 checkin_loading: true,
@@ -29,13 +29,16 @@ export const checkinBookReducer = (state = {}, action={ type: null }) => {
                 checkin_error: false,
                 checkin_error_message: ""
             }
-        case T.CHECKIN_RECEIVE_CLASS:
+        case T.CHECKIN_RECEIVE_CHECKIN_CUSTOMER:
+            console.log('checkin customer receive')
+            console.log(action.data)
+
             return {
                 ...state,
                 checkin_loading: false,
                 checked_loaded: true,
-                checkin_error: false,
-                checkin_error_message: ""
+                checkin_error: action.data.error,
+                checkin_error_message: action.data.message
             }
         default:
             return {

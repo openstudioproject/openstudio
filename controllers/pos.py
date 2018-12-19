@@ -6,6 +6,23 @@ from general_helpers import datestr_to_python
 # auth.settings.on_failed_authorization = URL('return_json_permissions_error')
 
 
+def set_headers(var=None):
+    if request.env.HTTP_ORIGIN == 'http://dev.openstudioproject.com:8080':
+        response.headers["Access-Control-Allow-Origin"] = request.env.HTTP_ORIGIN
+
+    # response.headers["Access-Control-Allow-Credentials"] = "true"
+    # response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, PATCH, POST, DELETE, OPTIONS"
+    # response.headers["Access-Control-Allow-Headers"] = "*"
+    # response.headers["Access-Control-Allow-Origin"] = '*'
+    response.headers['Access-Control-Max-Age'] = 86400
+    # response.headers['Access-Control-Allow-Headers'] = '*'
+    response.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept'
+    response.headers['Access-Control-Allow-Methods'] = '*'
+    response.headers['Access-Control-Allow-Content-Type'] = 'application/json'
+    response.headers['Access-Control-Allow-Credentials'] = 'true'
+
+set_headers()
+
 # print request.env
 #
 # if request.env.http_origin:
@@ -21,22 +38,6 @@ def index():
     # print auth.user
 
     return dict()
-
-
-def set_headers(var=None):
-    if request.env.HTTP_ORIGIN == 'http://dev.openstudioproject.com:8080':
-        response.headers["Access-Control-Allow-Origin"] = request.env.HTTP_ORIGIN
-
-    # response.headers["Access-Control-Allow-Credentials"] = "true"
-    # response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, PATCH, POST, DELETE, OPTIONS"
-    # response.headers["Access-Control-Allow-Headers"] = "*"
-    # response.headers["Access-Control-Allow-Origin"] = '*'
-    response.headers['Access-Control-Max-Age'] = 86400
-    # response.headers['Access-Control-Allow-Headers'] = '*'
-    response.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept'
-    response.headers['Access-Control-Allow-Methods'] = '*'
-    response.headers['Access-Control-Allow-Content-Type'] = 'application/json'
-    response.headers['Access-Control-Allow-Credentials'] = 'true'
 
 
 def return_json_login_error(var=None):
@@ -283,7 +284,7 @@ def get_class_booking_options():
     return dict(options = options)
 
 
-set_headers()
+
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('create', 'classes_attendance'))
@@ -292,12 +293,43 @@ def customer_checkin():
     Check customer in to a class
     :return:
     """
+    from openstudio.os_attendance_helper import AttendanceHelper
+
     # set_headers()
+    type_id = request.vars['id']
+    cuID = request.vars['cuID']
+    clsID = request.vars['clsID']
+    type = request.vars['Type']
+    date = TODAY_LOCAL
 
-    print request.vars
+    error = True
+    message = T("Please make sure that the variables cuID, clsID and Type are included")
+    if cuID and clsID and type:
+        error = False
+        message = ""
 
-    return dict(error=False,
-                message="ok")
+        ah = AttendanceHelper()
+
+        if type == 'subscription':
+            result = ah.attendance_sign_in_subscription(
+                cuID,
+                clsID,
+                type_id,
+                date,
+                credits_hard_limit=True,
+                booking_status='attending'
+            )
+
+            if result['status'] == 'fail':
+                error = True
+                message = result['message']
+        # elif type == 'classcard':
+        # elif type == 'dropin':
+        # elif type == 'trial':
+
+
+    return dict(error=error,
+                message=message)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \

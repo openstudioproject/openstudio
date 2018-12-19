@@ -52,8 +52,6 @@ const checkinCustomer = (cuID, clsID, data) => {
           Object.keys(data).map((key) =>
             fd.append(key, data[key])
           )
-
-          // fd.append('data', data)
   
           axios_os.post(OS_API.CHECKIN_CUSTOMER, fd)
           .then(function(response) {
