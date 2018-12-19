@@ -43,27 +43,55 @@ class Book extends Component {
         const clsID = this.props.match.params.clsID
         const cuID = this.props.match.params.cuID
 
-        this.props.checkinCustomer(cuID, clsID, option)
+        // this.props.checkinCustomer(cuID, clsID, option)
 
-        // Subscription & classcard
-        // if ((option.type === 'subscription' || option.type === 'classcard') ||
-        //    ) {
-        //     this.props.checkinCustomer(cuID, clsID, option)
-        // } else {
-            
-        //     if (option.type === 'trial' && option.Price > 0) {
-
-        //     } else {
+        const customer_has_membership = this.customerHasMembership
+        switch(option.type) {
+            case "dropin": {
+                let price
+                if (customer_has_membership) {
+                    price = option.MembershipPrice
+                } else {
+                    price = option.Price
+                }
+                // Check if price > 0
+                if (price > 0) {
+                    // customer needs to pay
+                    // clear cart
+                    // add item to cart
+                    // set shop selected customer id
+                    // set some value to indicate redirection back to attendance list with notification after validating payment
+                    // redirect to payment
+                    
+                } else {
+                    // check-in
+                    this.props.checkinCustomer(cuID, clsID, option)
+                }
+            }
+            case "trial": {
                 
-        //     }
+            }
+            default: {
+                this.props.checkinCustomer(cuID, clsID, option)
+            }
+        }
+        if (option.type === 'subscription' || option.type === 'classcard') {
+            
+        } else {
+            // Drop-in & trial
+            
+            if (option.type === 'dropin') {
+                // determine price for this customer
 
-        // }
+
+            } else {
+                
+            }
+
+        }
     }
 
-    render() {
-        const cuID = this.props.match.params.cuID
-        const booking_options = this.props.options.data
-        
+    customerHasMembership() {
         let customer_has_membership = false
         const memberships = this.props.memberships.data
             
@@ -73,7 +101,16 @@ class Book extends Component {
                 customer_has_membership = true
             }
         }
+
+        return customer_has_membership
     
+    }
+
+    render() {
+        const cuID = this.props.match.params.cuID
+        const booking_options = this.props.options.data
+        
+        const customer_has_membership = this.customerHasMembership
         
 
         return (
