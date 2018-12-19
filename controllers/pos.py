@@ -289,7 +289,7 @@ def get_class_booking_options():
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('create', 'classes_attendance'))
-def class_checkin():
+def customer_checkin():
     """
     Check customer in to a class
     :return:

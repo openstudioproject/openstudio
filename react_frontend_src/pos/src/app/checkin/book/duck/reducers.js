@@ -4,7 +4,7 @@ export const checkinBookReducer = (state = {}, action={ type: null }) => {
     switch (action.type) {
         case T.CHECKIN_SET_BOOKING_OPTIONS_LOADING:
             return {
-                ...state
+                ...state,
                 loading: action.loading,
             }
         case T.CHECKIN_REQUEST_BOOKING_OPTIONS:

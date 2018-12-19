@@ -1,8 +1,8 @@
 import {
     requestCheckinBookingOptions as request_booking_options,
     receiveCheckinBookingOptions as receive_booking_options,
-    requestCheckinClass,
-    receiveCheckinClass
+    requestCheckinCustomer,
+    receiveCheckinCustomer
 } from './actions'
 
 import axios_os from '../../../../utils/axios_os'
@@ -42,17 +42,17 @@ const fetchBookingOptions = (clsID, cuID) => {
 
 const checkinCustomer = (cuID, clsID, data) => {
       return dispatch => {
-          dispatch(requestCheckinClass())
+          dispatch(requestCheckinCustomer())
 
-          console.log("request class checkin")
+          console.log("request customer checkin")
           let fd = new FormData()
           fd.append('clsID', clsID)
           fd.append('cuID', cuID)
           fd.append('data', data)
   
-          axios_os.post(OS_API.CUSTOMER_PICTURE_UPDATE, fd)
+          axios_os.post(OS_API.CUSTOMER_CHECKIN, fd)
           .then(function(response) {
-              dispatch(receiveSaveCameraAppSnap(response.data))
+              dispatch(receiveCheckinCustomer(response.data))
           })
           .catch(function (error) {
               console.log(error)

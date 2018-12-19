@@ -26,12 +26,11 @@ export const setCheckinBookingOptionsLoading = (loading) =>
 
 export const requestCheckinCustomer = () =>
     ({
-        type: T.CHECKIN_REQUEST_CHECKIN_CUSTOMER,
-        loaded
+        type: T.CHECKIN_REQUEST_CHECKIN_CUSTOMER
     })
 
 export const receiveCheckinCustomer = (data) =>
     ({
         type: T.CHECKIN_RECEIVE_CHECKIN_CUSTOMER,
-        loading
+        data
     })

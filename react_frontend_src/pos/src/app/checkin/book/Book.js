@@ -39,6 +39,10 @@ class Book extends Component {
     onClickBookOption(option) {
         console.log('click book option')
         console.log(option)
+
+        const clsID = this.props.match.params.clsID
+        const cuID = this.props.match.params.cuID
+        this.props.checkinCustomer(cuID, clsID, option)
     }
 
     render() {
