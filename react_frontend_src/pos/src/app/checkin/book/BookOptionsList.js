@@ -38,7 +38,7 @@ const populateRowsClasscards = (classcards, onClick=f=>f) => {
     return container
 }
 
-const BookOptionsList = ({booking_options, onClick=f=>f}) => 
+const BookOptionsList = ({booking_options, customer_has_membership, onClick=f=>f}) => 
     <div className="checkin-booking-options">
         {console.log(booking_options)}
         <h4>Subscriptions</h4>

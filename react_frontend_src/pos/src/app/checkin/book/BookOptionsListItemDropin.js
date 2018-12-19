@@ -20,7 +20,7 @@ const BookOptionsListItemDropin = injectIntl(({data, intl, onClick=f=>f}) =>
                     </p>
                 </div>
                 <div className="icon">
-                <i className="fa fa-id-card-o"></i>
+                <i className="fa fa-arrow-down"></i>
                 </div>
             </div>
             : "Drop-in class price not set for this class"

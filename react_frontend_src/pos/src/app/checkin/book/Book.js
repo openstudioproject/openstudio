@@ -61,13 +61,25 @@ class Book extends Component {
     }
 
     render() {
+        const cuID = this.props.match.params.cuID
         const booking_options = this.props.options.data
+        
+        let customer_has_membership = false
+        const memberships = this.props.memberships.data
+            
+        var i;
+        for (i = 0; i < memberships.length; i++) { 
+            if (memberships[i].auth_customer_id === 3327) {
+                customer_has_membership = true
+            }
+        }
+    
         
 
         return (
             <PageTemplate app_state={this.props.app}>
                 { 
-                    (!this.props.options.loaded) ? 
+                    (!this.props.options.loaded || !this.props.memberships.loaded) ? 
                         <div>Loading booking options, please wait...</div> :
                         <section className="checkin_attendance">
                             <ButtonBack onClick={this.onClickButtonBack.bind(this)} 
@@ -75,6 +87,7 @@ class Book extends Component {
                                 Attendance
                             </ButtonBack>
                             <BookOptionsList booking_options={booking_options}
+                                             customer_has_membership={customer_has_membership}
                                              onClick={this.onClickBookOption.bind(this)} />
                             {/* <AttendanceList attendance_items={this.props.attendance.data} /> */}
                         </section>

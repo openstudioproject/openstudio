@@ -404,7 +404,7 @@ def get_school_classcards():
         db.school_classcards.Classes,
         db.school_classcards.Unlimited,
         db.school_classcards.Trialcard,
-        db.school_classcards.MembershipRequired,
+        db.school_classcards.school_memberships_id,
         orderby=db.school_classcards.Name
     )
 
@@ -421,7 +421,7 @@ def get_school_classcards():
             'Classes': row.Classes,
             'Unlimited': row.Unlimited,
             'Trialcard': row.Trialcard,
-            'MembershipRequired': row.MembershipRequired
+            'school_memberships_id': row.school_memberships_id
         }
 
         data_rows.append(item)
@@ -447,7 +447,7 @@ def get_school_subscriptions():
                sc.SubscriptionUnit,
                sc.Unlimited,
                sc.RegistrationFee,
-               sc.MembershipRequired,
+               sc.school_memberships_id,
                scp.Price
         FROM school_subscriptions sc
         LEFT JOIN
@@ -471,7 +471,7 @@ def get_school_subscriptions():
         db.school_subscriptions.SubscriptionUnit,
         db.school_subscriptions.Unlimited,
         db.school_subscriptions.RegistrationFee,
-        db.school_subscriptions.MembershipRequired,
+        db.school_subscriptions.school_memberships_id,
         db.school_subscriptions_price.Price,
     ]
 
@@ -489,7 +489,7 @@ def get_school_subscriptions():
             'Unlimited': row.school_subscriptions.Unlimited,
             'Price': row.school_subscriptions_price.Price or 0,
             'RegistrationFee': row.school_subscriptions.RegistrationFee or 0,
-            'MembershipRequired': row.school_subscriptions.MembershipRequired,
+            'school_memberships_id': row.school_subscriptions.school_memberships_id
         })
 
     return dict(data=data)

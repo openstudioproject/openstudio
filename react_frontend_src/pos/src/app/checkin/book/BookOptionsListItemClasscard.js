@@ -9,7 +9,7 @@ const BookOptionsListItemClasscard = injectIntl(({data, intl, onClick=f=>f}) =>
     <div className="col-md-3"
          onClick={onClick}>
 
-        <div className="small-box bg-primary">
+        <div className={(data.Allowed) ? "small-box bg-primary" : "small-box bg-gray-active"}>>
             <div className="inner">
                 <h4>
                     {data.Name}
