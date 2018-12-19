@@ -40,34 +40,31 @@ const fetchBookingOptions = (clsID, cuID) => {
       }
   }
 
-const checkinClass = (clsID, cuID) => {
+const checkinCustomer = (cuID, clsID, data) => {
       return dispatch => {
-          dispatch(request_booking_options())
+          dispatch(requestCheckinClass())
 
-          console.log("fetch booking options")
-          console.log(clsID)
-          console.log(cuID)
-          const params = new URLSearchParams()
-          params.append('clsID', clsID)
-          params.append('cuID', cuID)
-          console.log(params)
-          axios_os.post(OS_API.CHECKIN_BOOKING_OPTIONS, params)
-          .then(function (response) {
-            // handle success
-            dispatch(receive_booking_options(response.data))
-            // dispatch(setLoadingProgress(100))
+          console.log("request class checkin")
+          let fd = new FormData()
+          fd.append('clsID', clsID)
+          fd.append('cuID', cuID)
+          fd.append('data', data)
+  
+          axios_os.post(OS_API.CUSTOMER_PICTURE_UPDATE, fd)
+          .then(function(response) {
+              dispatch(receiveSaveCameraAppSnap(response.data))
           })
           .catch(function (error) {
-            // handle error
-            console.log(error)
+              console.log(error)
           })
-          .then(function () {
-            // always executed
-          });
+          .then(function() {
+              //always executed
+          })
       }
   }
 
 
 export default {
+    checkinCustomer,
     fetchBookingOptions
 }
