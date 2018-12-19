@@ -48,9 +48,14 @@ const checkinCustomer = (cuID, clsID, data) => {
           let fd = new FormData()
           fd.append('clsID', clsID)
           fd.append('cuID', cuID)
-          fd.append('data', data)
+          // Add data items
+          Object.keys(data).map((key) =>
+            fd.append(key, data[key])
+          )
+
+          // fd.append('data', data)
   
-          axios_os.post(OS_API.CUSTOMER_CHECKIN, fd)
+          axios_os.post(OS_API.CHECKIN_CUSTOMER, fd)
           .then(function(response) {
               dispatch(receiveCheckinCustomer(response.data))
           })

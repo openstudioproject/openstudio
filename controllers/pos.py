@@ -39,10 +39,6 @@ def set_headers(var=None):
     response.headers['Access-Control-Allow-Credentials'] = 'true'
 
 
-set_headers()
-
-
-
 def return_json_login_error(var=None):
     print 'return_json_login_error'
     print 'cookies:'
@@ -287,6 +283,8 @@ def get_class_booking_options():
     return dict(options = options)
 
 
+set_headers()
+
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('create', 'classes_attendance'))
 def customer_checkin():
@@ -294,14 +292,9 @@ def customer_checkin():
     Check customer in to a class
     :return:
     """
+    # set_headers()
+
     print request.vars
-
-    # if result:
-    #     status = 'success'
-    # else:
-    #     status = 'fail'
-
-    status = 'success'
 
     return dict(error=False,
                 message="ok")
