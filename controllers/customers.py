@@ -1509,16 +1509,20 @@ def classcards_get_link_membership_check(row):
     :return: Warning if membership required for card but not found
     """
     scd = SchoolClasscard(row.customers_classcards.school_classcards_id, set_db_info=True)
-    membership_required = scd.row.MembershipRequired
-
+    required_membership = scd.row.MembershipRequired
 
     customer = Customer(row.customers_classcards.auth_customer_id)
 
-    if membership_required and not customer.has_membership_on_date(TODAY_LOCAL):
+    memberships = customer.get_memberships_on_date(TODAY_LOCAL)
+    ids = []
+    for row in memberships:
+        ids.append(row.id)
+
+    if not required_membership in ids:
         return os_gui.get_label(
             'warning',
             T('No membership'),
-            title=T("A membership is required for this classcard but wasn't found.")
+            title=T("This customer doesn't have the required membership for this card.")
         )
     else:
         return ''
