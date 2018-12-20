@@ -6112,9 +6112,6 @@ auth.settings.extra_fields['auth_user'] = [
     Field('teacher_notes_count_injuries', 'integer', # empty field that can be used to map values into from raw queries
         readable=False,
         writable=False),
-    Field('failed_login_attempts', 'integer',
-        readable=False,
-        writable=False),
     Field('created_on', 'datetime',
           readable=False,
           writable=False,

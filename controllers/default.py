@@ -458,6 +458,14 @@ def user_register_log_acceptance(form):
                                            reg_url)
 
 
+def user_lockout():
+    """
+    Page to display when a user is locked out
+    :return:
+    """
+    return T("Too many invalid login attempts. For security purposes your account has been locked. Please try again in 30 minutes.")
+
+
 def user_register_log_acceptance_terms_and_conditions(customer, organization, reg_url):
     """
     :param customer: Customer object
