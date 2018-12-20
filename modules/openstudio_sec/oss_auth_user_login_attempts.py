@@ -6,6 +6,8 @@ class OSSAULA:
     """
     Class to gather functions for auth_user login attempts
     """
+    def __init__(self):
+        self.expiration = 1200 # 20 minutes
 
     def update_login_attempts(self, var=None):
         """
@@ -19,10 +21,10 @@ class OSSAULA:
         failed_attempts_cache_key = "auth_login_failed_attempts_%s" % request.vars.email
 
         # Get current failed attempts
-        failed_attempts = cache.ram(failed_attempts_cache_key, lambda: 0, time_expire=1800)
+        failed_attempts = cache.ram(failed_attempts_cache_key, lambda: 0, time_expire=self.expiration)
         cache.ram.clear(regex=failed_attempts_cache_key)
         # Update failed attempts
-        failed_attempts = cache.ram(failed_attempts_cache_key, lambda: failed_attempts + 1, time_expire=1800)
+        failed_attempts = cache.ram(failed_attempts_cache_key, lambda: failed_attempts + 1, time_expire=self.expiration)
 
 
     def login_check_lockout(self, form):
@@ -40,7 +42,7 @@ class OSSAULA:
         email = form.vars.email
         failed_attempts_cache_key = "auth_login_failed_attempts_%s" % email
 
-        failed_attempts = cache.ram(failed_attempts_cache_key, lambda: 0, time_expire=1800)
+        failed_attempts = cache.ram(failed_attempts_cache_key, lambda: 0, time_expire=self.expiration)
 
         if failed_attempts >= allowed_attempts:
             redirect(URL('default', 'user_lockout'))

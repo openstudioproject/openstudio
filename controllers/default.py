@@ -451,7 +451,7 @@ def user_lockout():
     content = DIV(
         T("Too many invalid login attempts have been detected."), BR(),
         T("For security purposes your account has been locked."), BR(), BR(),
-        T("Please try again in 30 minutes."), BR(), BR(),
+        T("Please try again in 20 minutes."), BR(), BR(),
         A(T("Back to login"),
           _href=URL('user', args=['login'])),
         BR(), BR(),
