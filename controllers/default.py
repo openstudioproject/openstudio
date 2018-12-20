@@ -213,24 +213,7 @@ def user():
         form_register = form
 
     # set logo
-    branding_logo = os.path.join(request.folder,
-                                 'static',
-                                 'plugin_os-branding',
-                                 'logos',
-                                 'branding_logo_login.png')
-    if os.path.isfile(branding_logo):
-        logo_img = IMG(_src=URL('static',
-                       'plugin_os-branding/logos/branding_logo_login.png'))
-        logo_text = ''
-        logo_class = 'logo_login'
-    else:
-        logo_img = ''
-        logo_text = SPAN(B('Open'), 'Studio')
-
-        logo_class = ''
-
-    logo_login = DIV(logo_img, logo_text,
-                     _class=logo_class)
+    logo_login = user_get_logo_login()
 
 
     if 'logout' in request.args or 'not_authorized' in request.args or 'verify_email' in request.args:
@@ -463,7 +446,44 @@ def user_lockout():
     Page to display when a user is locked out
     :return:
     """
-    return T("Too many invalid login attempts. For security purposes your account has been locked. Please try again in 30 minutes.")
+    response.title = T("Your account has been locked")
+
+    content = DIV(
+        T("Too many invalid login attempts have been detected."), BR(),
+        T("For security purposes your account has been locked."), BR(),
+        T("Please try again in 30 minutes."), BR(), BR(),
+        A(T("Back to login"),
+          _href=URL('user', args=['login'])),
+        BR(), BR(),
+        _class='center'
+    )
+
+    logo_login = user_get_logo_login()
+
+    return dict(
+        content=content,
+        logo_login=logo_login
+    )
+
+
+def user_get_logo_login(var=None):
+    branding_logo = os.path.join(request.folder,
+                                 'static',
+                                 'plugin_os-branding',
+                                 'logos',
+                                 'branding_logo_login.png')
+    if os.path.isfile(branding_logo):
+        logo_img = IMG(_src=URL('static',
+                                'plugin_os-branding/logos/branding_logo_login.png'))
+        logo_text = ''
+        logo_class = 'logo_login'
+    else:
+        logo_img = ''
+        logo_text = SPAN(B('Open'), 'Studio')
+
+        logo_class = ''
+
+    return DIV(logo_img, logo_text, _class=logo_class)
 
 
 def user_register_log_acceptance_terms_and_conditions(customer, organization, reg_url):
