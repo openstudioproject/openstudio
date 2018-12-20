@@ -373,7 +373,7 @@ class School:
                             DIV(
                                 DIV(H5(self._get_subscriptions_formatted_button_to_cart(
                                         row.id,
-                                        row.MembershipRequired,
+                                        row.school_memberships_id,
                                         customer_has_membership,
                                         customer_subscriptions_ids
                                         ),
