@@ -877,7 +877,7 @@ class ClassSchedule:
         rows = self.get_day_rows()
 
         if len(rows) == 0:
-            div_classes=DIV()
+            table = DIV(T("No classes found on this day"))
         else:
             # Get trend column from cache
             trend_data = self._get_day_get_table_class_trend()
