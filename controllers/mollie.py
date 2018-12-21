@@ -159,7 +159,7 @@ def test_webhook_invoice_chargeback():
             iID,
             chargeback_amount,
             chargeback_date,
-            payment_id,
+            mollie_payment_id,
             chargeback_id,
             chargeback_details
         )
