@@ -64,7 +64,7 @@ class Book extends Component {
                 if (price > 0) {
                     // customer needs to pay
                     // clear cart
-                    this.props.clearShopcart()
+                    this.props.clearShopCart()
                     // add item to cart
                     
                     let item = {
@@ -79,7 +79,7 @@ class Book extends Component {
                      // Check if item not yet in cart
                      
                      // If not yet in cart, add as a new pproduct, else increase 
-                     this.props.addToCart(item)
+                     this.props.addShopCartItem(item)
                     // set shop selected customer id
                     // set some value to indicate redirection back to attendance list with notification after validating payment
                     // redirect to payment
