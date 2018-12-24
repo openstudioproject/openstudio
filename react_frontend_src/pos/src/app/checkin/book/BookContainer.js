@@ -30,6 +30,9 @@ const mapDispatchToProps = dispatch =>
         setSelectedCustomerID(id) {
             dispatch(customersListOperations.setSelectedCustomerID(id))
         },
+        setDisplayCustomerID(id) {
+            dispatch(customersListOperations.setDisplayCustomerID(id))
+        },
         clearShopCart() {
             dispatch(shopCartOperations.clearItems())
         },

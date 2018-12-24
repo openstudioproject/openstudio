@@ -67,6 +67,7 @@ class Book extends Component {
                     this.props.clearShopCart()
                     // set shop selected customer id
                     this.props.setSelectedCustomerID(this.props.match.params.cuID)
+                    this.props.setDisplayCustomerID(this.props.match.params.cuID)
                     // add item to cart
                     
                     let item = {
