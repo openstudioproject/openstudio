@@ -4,6 +4,7 @@ import { injectIntl } from 'react-intl';
 import Book from "./Book"
 import { appOperations } from '../../duck'
 import { checkinBookOperations } from './duck'
+import { shopCartOperations } from '../../shop/cart/duck'
 
 
 const mapStateToProps = state => 
@@ -24,6 +25,12 @@ const mapDispatchToProps = dispatch =>
         setPageTitle(title) {
             dispatch(appOperations.setPageTitle(title))
         },
+        clearShopCart() {
+            dispatch(shopCartOperations.clearItems())
+        },
+        addShopCartItem(item) {
+            dispatch(shopCartOperations.addItem(item))
+        }
     })
 
 

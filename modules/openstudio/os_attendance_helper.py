@@ -1077,6 +1077,7 @@ class AttendanceHelper:
                 credits_remaining = credits > (recon_classes * -1)
 
                 options['subscriptions'].append({
+                    'clsID': clsID,
                     'Type': 'subscription',
                     'id': csID,
                     'auth_customer_id': subscription.customers_subscriptions.auth_customer_id,
@@ -1106,6 +1107,7 @@ class AttendanceHelper:
                     allowed = False
 
                 options['classcards'].append({
+                    'clsID': clsID,
                     'Type': 'classcard',
                     'id': ccdID,
                     'auth_customer_id': classcard.customers_classcards.auth_customer_id,
@@ -1128,6 +1130,7 @@ class AttendanceHelper:
 
         if price:
             options['dropin'] = {
+                'clsID': clsID,
                 "Type": "dropin",
                 "Name": T('Drop-in'),
                 "Price": price,
@@ -1144,6 +1147,7 @@ class AttendanceHelper:
                 price = prices['trial_membership']
 
             options['trial'] = {
+                'clsID': clsID,
                 "Type": "trial",
                 "Name": T('Trial'),
                 "Price": price,
@@ -1164,6 +1168,7 @@ class AttendanceHelper:
                 options['under_review'] = True
             else:
                 options['request_review'] = {
+                    'clsID': clsID,
                     "Type": "request_review",
                     "Name": T('Request review'),
                 }
@@ -1171,6 +1176,7 @@ class AttendanceHelper:
         # Complementary
         if complementary:
             options['complementary'] = {
+                'clsID': clsID,
                 "Type": "complementary",
                 "Name": T('Complementary'),
             }

@@ -1,6 +1,7 @@
 import React, { Component } from "react"
 import { intlShape } from "react-intl"
 import PropTypes from "prop-types"
+import { v4 } from "uuid"
 
 import ButtonBack from "../../../components/ui/ButtonBack"
 import PageTemplate from "../../../components/PageTemplate"
@@ -39,65 +40,81 @@ class Book extends Component {
     onClickBookOption(option) {
         console.log('click book option')
         console.log(option)
+        console.log(option.Type)
 
         const clsID = this.props.match.params.clsID
         const cuID = this.props.match.params.cuID
 
         // this.props.checkinCustomer(cuID, clsID, option)
 
-        const customer_has_membership = this.customerHasMembership
-        switch(option.type) {
-            case "dropin": {
+        const customer_has_membership = this.customerHasMembership(this.props.match.params.cuID)
+        console.log(customer_has_membership)
+        switch (option.Type) {
+            case "dropin": 
+                console.log('executing dropin code')
                 let price
                 if (customer_has_membership) {
                     price = option.MembershipPrice
                 } else {
                     price = option.Price
                 }
+                console.log(price)
+
                 // Check if price > 0
                 if (price > 0) {
                     // customer needs to pay
                     // clear cart
+                    this.props.clearShopcart()
                     // add item to cart
+                    
+                    let item = {
+                        id: v4(),
+                        item_type: 'class_dropin',
+                        quantity: 1,
+                        data: option
+                     }
+             
+                     console.log('item')
+                     console.log(item)
+                     // Check if item not yet in cart
+                     
+                     // If not yet in cart, add as a new pproduct, else increase 
+                     this.props.addToCart(item)
                     // set shop selected customer id
                     // set some value to indicate redirection back to attendance list with notification after validating payment
                     // redirect to payment
+                    console.log('customer needs to pay')
                     
                 } else {
-                    // check-in
+                    // check-in, price = 0
                     this.props.checkinCustomer(cuID, clsID, option)
                 }
-            }
-            case "trial": {
-                
-            }
-            default: {
+                break
+            case "trial": 
+                console.log('trial code here')
+            
+                break
+            case "subscription":
                 this.props.checkinCustomer(cuID, clsID, option)
-            }
-        }
-        if (option.type === 'subscription' || option.type === 'classcard') {
+                break
+            case "classcard":
+                this.props.checkinCustomer(cuID, clsID, option)
+                break
+            default: 
+                console.log("Login type not found:")
+                console.log(option)
+                break
             
-        } else {
-            // Drop-in & trial
-            
-            if (option.type === 'dropin') {
-                // determine price for this customer
-
-
-            } else {
-                
-            }
-
         }
     }
 
-    customerHasMembership() {
+    customerHasMembership(cuID) {
         let customer_has_membership = false
         const memberships = this.props.memberships.data
             
         var i;
         for (i = 0; i < memberships.length; i++) { 
-            if (memberships[i].auth_customer_id === 3327) {
+            if (memberships[i].auth_customer_id === cuID) {
                 customer_has_membership = true
             }
         }

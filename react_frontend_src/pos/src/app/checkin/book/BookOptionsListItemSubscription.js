@@ -3,7 +3,7 @@ import { injectIntl } from 'react-intl'
 
 const BookOptionsListItemSubscription = injectIntl(({data, intl, onClick=f=>f}) => 
     <div className="col-md-3"
-         onClick={(data.Allowed) ? onClick: f=>f}>
+         onClick={(data.Allowed) ? () => onClick(data): f=>f}>
 
         
          
