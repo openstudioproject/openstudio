@@ -1,9 +1,11 @@
 import { connect } from 'react-redux'
+import { withRouter } from 'react-router'
 import { injectIntl } from 'react-intl';
 
 import Book from "./Book"
 import { appOperations } from '../../duck'
 import { checkinBookOperations } from './duck'
+import { customersListOperations } from  "../../customers/list/duck"
 import { shopCartOperations } from '../../shop/cart/duck'
 
 
@@ -25,6 +27,9 @@ const mapDispatchToProps = dispatch =>
         setPageTitle(title) {
             dispatch(appOperations.setPageTitle(title))
         },
+        setSelectedCustomerID(id) {
+            dispatch(customersListOperations.setSelectedCustomerID(id))
+        },
         clearShopCart() {
             dispatch(shopCartOperations.clearItems())
         },
@@ -34,9 +39,9 @@ const mapDispatchToProps = dispatch =>
     })
 
 
-const BookContainer = injectIntl(connect(
+const BookContainer = withRouter(injectIntl(connect(
     mapStateToProps,
     mapDispatchToProps
-)(Book))
+)(Book)))
 
 export default BookContainer
