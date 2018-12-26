@@ -89,13 +89,13 @@ export const setPageTitle = (title) =>
         title
     })
 
-export const setPageSubTitle = (subtitle) =>
+export const setPageSubtitle = (subtitle) =>
     ({
         type: T.SET_PAGE_SUBTITLE,
         subtitle
     })
 
-export const clearPageSubTitle = () =>
+export const clearPageSubtitle = () =>
     ({
         type: T.CLEAR_PAGE_SUBTITLE
     })

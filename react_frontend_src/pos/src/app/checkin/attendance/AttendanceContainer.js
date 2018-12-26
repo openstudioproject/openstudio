@@ -12,6 +12,7 @@ const mapStateToProps = state =>
         app: state.app,
         attendance: state.checkin.attendance,
         barcode_scans: state.app.settings.data.customers_barcodes,
+        classes: state.checkin.classes.data,
         customers: state.customers.list,
         memberships: state.customers.memberships
     })
@@ -23,6 +24,9 @@ const mapDispatchToProps = dispatch =>
         },
         setPageTitle(title) {
             dispatch(appOperations.setPageTitle(title))
+        },
+        setPageSubtitle(subtitle) {
+            dispatch(appOperations.setPageSubtitle(subtitle))
         },
         clearSearchTimeout() {
             dispatch(checkinAttendanceOperations.clearCheckinAttendanceSearchTimeout())

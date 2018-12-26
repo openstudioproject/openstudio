@@ -8,6 +8,7 @@ import validator from 'validator'
 import PageTemplate from "../../../components/PageTemplate"
 import InputGroupSearch from "../../../components/ui/InputGroupSearch"
 import ButtonBack from "../../../components/ui/ButtonBack"
+import ClassNameDisplay from "../../../components/ui/ClassNameDisplay"
 
 import AttendanceList from "./AttendanceList"
 
@@ -32,7 +33,10 @@ class Attendance extends Component {
         this.props.setPageTitle(
             this.props.intl.formatMessage({ id: 'app.pos.checkin.page_title' })
         )
-
+        this.props.setPageSubtitle(
+            <ClassNameDisplay classes={this.props.classes}
+                              clsID={this.props.match.params.clsID} />
+        )
         console.log(this.props.match.params.clsID)
         this.props.fetchClassAttendance(this.props.match.params.clsID)
 

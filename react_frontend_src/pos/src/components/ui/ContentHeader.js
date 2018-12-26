@@ -1,6 +1,6 @@
 import React from "react"
 
-const ContentHeader = ({title, subtitle='', children}) =>
+const ContentHeader = ({title, subtitle, children}) =>
     <section className="content-header">
         <h1>
             {title} <small>{subtitle}</small>
