@@ -965,7 +965,13 @@ def validate_cart_create_order(cuID, pmID, items):
             order.order_item_add_class(
                 item['data']['clsID'],
                 TODAY_LOCAL,
-                2 # Attendance Type 2 == drop-in
+                2 # Attendance Type 2 = drop-in
+            )
+        elif item['item_type'] == 'class_trial':
+            order.order_item_add_class(
+                item['data']['clsID'],
+                TODAY_LOCAL,
+                1 # Attendance Type 1 = trial
             )
 
     # update order status

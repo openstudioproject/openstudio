@@ -95,6 +95,46 @@ class Book extends Component {
                 break
             case "trial": 
                 console.log('trial code here')
+                let price
+                if (customer_has_membership) {
+                    price = option.MembershipPrice
+                } else {
+                    price = option.Price
+                }
+                console.log(price)
+
+                // Check if price > 0
+                if (price > 0) {
+                    // customer needs to pay
+                    // clear cart
+                    this.props.clearShopCart()
+                    // set shop selected customer id
+                    this.props.setSelectedCustomerID(this.props.match.params.cuID)
+                    this.props.setDisplayCustomerID(this.props.match.params.cuID)
+                    // add item to cart
+                    
+                    let item = {
+                        id: v4(),
+                        item_type: 'class_trial',
+                        quantity: 1,
+                        data: option
+                     }
+             
+                     console.log('item')
+                     console.log(item)
+                     // Check if item not yet in cart
+                     
+                     // If not yet in cart, add as a new product, else increase 
+                     this.props.addShopCartItem(item)
+                    // set some value to indicate redirection back to attendance list with notification after validating payment
+
+                    // redirect to payment
+                    this.props.history.push('/shop/payment')
+                    
+                } else {
+                    // check-in, price = 0
+                    this.props.checkinCustomer(cuID, clsID, option)
+                }
             
                 break
             case "subscription":
