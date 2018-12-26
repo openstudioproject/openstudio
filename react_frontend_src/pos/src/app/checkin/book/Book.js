@@ -52,16 +52,16 @@ class Book extends Component {
         switch (option.Type) {
             case "dropin": 
                 console.log('executing dropin code')
-                let price
+                let dropin_price
                 if (customer_has_membership) {
-                    price = option.MembershipPrice
+                    dropin_price = option.MembershipPrice
                 } else {
-                    price = option.Price
+                    dropin_price = option.Price
                 }
-                console.log(price)
+                console.log(dropin_price)
 
                 // Check if price > 0
-                if (price > 0) {
+                if (dropin_price > 0) {
                     // customer needs to pay
                     // clear cart
                     this.props.clearShopCart()
@@ -95,16 +95,16 @@ class Book extends Component {
                 break
             case "trial": 
                 console.log('trial code here')
-                let price
+                let trial_price
                 if (customer_has_membership) {
-                    price = option.MembershipPrice
+                    trial_price = option.MembershipPrice
                 } else {
-                    price = option.Price
+                    trial_price = option.Price
                 }
-                console.log(price)
+                console.log(trial_price)
 
                 // Check if price > 0
-                if (price > 0) {
+                if (trial_price > 0) {
                     // customer needs to pay
                     // clear cart
                     this.props.clearShopCart()

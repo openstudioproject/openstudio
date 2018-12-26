@@ -35,6 +35,17 @@ const CartListClassDropin = ({item, selected_item}) =>
     </CartListItemSelected>
 
 
+const CartListClassTrial = ({item, selected_item}) => 
+    <CartListItemSelected item={item}
+                          selected_item={selected_item} >
+        {/* <span className="bold">{}</span> <br/> */}
+        <div className="bold">Class - trial</div>
+        <CartListItemQuantity qty={item.quantity}
+                              price={item.data.Price}
+        />
+    </CartListItemSelected>
+
+
 const CartListProduct = ({item, selected_item}) => 
     <CartListItemSelected item={item}
                           selected_item={selected_item} >
@@ -81,6 +92,9 @@ const CartListItem = injectIntl(({item, selected_item, intl, onClick=f=>f}) =>
          className="shop-cart-list-item">
         { (item.item_type == 'class_dropin') ? 
             <CartListClassDropin item={item}
+                                 selected_item={selected_item} /> : '' }
+        { (item.item_type == 'class_trial') ? 
+            <CartListClassTrial item={item}
                                  selected_item={selected_item} /> : '' }
         { (item.item_type == 'product') ? 
             <CartListProduct item={item}
