@@ -1,10 +1,52 @@
 import React from "react"
 import { withRouter } from 'react-router-dom'
 
+const DisplayCancelled = ({cancelled, description}) => {
+    if (cancelled) {
+        let cancelled_description = ' '
+        if (description) {
+            cancelled_description = ' (' + description  + ') '
+        }
+        return "Cancelled" + cancelled_description
+    } else {
+        return ''
+    }
+}
+
+const DisplayHoliday = ({holiday, description}) => {
+    if (holiday) {
+        let holiday_description = ''
+        if (description) {
+            holiday_description = ' (' + description  + ')'
+        }
+        return "Holiday" + holiday_description
+    } else {
+        return ''
+    }
+}
+
+
+function ClassesListClassOnClick(history, data) {
+    if (data.Cancelled || data.Holliday) {
+        return () => { console.log('this class is cancelled or in a holiday')}
+    } else {
+        return () => { history.push('/checkin/attendance/' + data.ClassesID) }
+    }
+}
+
+function ClassesListClassRowClass(data) {
+    let cls = 'row '
+    if (data.Cancelled || data.Holliday) {
+        cls = cls + 'text-muted'
+    }
+    return cls
+}
+
+
 const ClassesListClass = withRouter(({data, history}) => 
-    <div onClick={() => { history.push('/checkin/attendance/' + data.ClassesID) }}
+    <div onClick={ClassesListClassOnClick(history, data)}
          className={(data.Cancelled || data.Holiday) ? "checkin_class cancelled" : "checkin_class"}>
-        <div className="row">
+        <div className={ClassesListClassRowClass(data)}>
             <div className="col-md-1">
                 {data.Starttime} 
                 { ' - ' }
@@ -28,10 +70,12 @@ const ClassesListClass = withRouter(({data, history}) =>
         </div>
 
         {/* Move this to button? Don't show button when holiday/cancelled and show description on new line */}
-        <div className="row">
+        <div className={ClassesListClassRowClass(data)}>
             <div className="col-md-12">
-                { (data.Cancelled) ? "Cancelled " + data.CancelledDescription : ''}
-                { (data.Holiday) ? "Holiday " + data.holidayDescription : ''}
+                <DisplayCancelled cancelled={data.Cancelled}
+                                  description={data.CancelledDescription} />
+                <DisplayHoliday holiday={data.Holiday}
+                                description={data.HolidayDescription} />
             </div>
         </div>
     </div>
