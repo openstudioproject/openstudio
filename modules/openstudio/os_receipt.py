@@ -261,7 +261,8 @@ class Receipt:
             Quantity=item.Quantity,
             Price=item.Price,
             tax_rates_id=item.tax_rates_id,
-            GLAccount=item.GLAccount
+            accounting_glaccounts_id=item.accounting_glaccounts_id,
+            accounting_costcenters_id=item.accounting_costcenters_id
         )
 
         self.set_amounts()

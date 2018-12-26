@@ -961,6 +961,12 @@ def validate_cart_create_order(cuID, pmID, items):
                 item['data']['id'],
                 TODAY_LOCAL
             )
+        elif item['item_type'] == 'class_dropin':
+            order.order_item_add_class(
+                item['data']['clsID'],
+                TODAY_LOCAL,
+                2 # Attendance Type 2 == drop-in
+            )
 
     # update order status
     order.set_status_awaiting_payment()
