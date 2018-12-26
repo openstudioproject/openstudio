@@ -9,6 +9,7 @@ import Cart from './Cart'
 const mapStateToProps = state => 
     ({
         app: state.app,
+        checkin_classes: state.checkin.classes.data,
         items: state.shop.cart.items,
         selected_item: state.shop.cart.selected_item,
         total: state.shop.cart.total

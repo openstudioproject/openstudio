@@ -24,22 +24,51 @@ const CartListItemQuantity = ({qty, price}) =>
     </span>
 
 
-const CartListClassDropin = ({item, selected_item}) => 
+const CartListClassDisplay = ({classes, clsID}) => {
+    var i
+    var class_data
+    for (i = 0; i < classes.length; i++) { 
+        console.log('#### class #####')
+        console.log(classes[i])
+        console.log(classes[i].ClassesID)
+        console.log(clsID)
+        if ( classes[i].ClassesID == clsID) {
+            class_data = classes[i]
+            break
+        }
+    }
+
+    if (class_data) {
+        return class_data.ClassType + ' in ' + class_data.Location + ' @' + class_data.Starttime
+    } else {
+        return "Class info not found"
+    }
+}
+
+
+const CartListClassDropin = ({classes, item, selected_item}) => 
     <CartListItemSelected item={item}
                           selected_item={selected_item} >
         {/* <span className="bold">{}</span> <br/> */}
-        <div className="bold">Class - drop-in</div>
+
+        <div className="bold">
+            Drop-in class - <CartListClassDisplay classes={classes}
+                                                    clsID={item.data.clsID} />         
+        </div>
         <CartListItemQuantity qty={item.quantity}
                               price={item.data.Price}
         />
     </CartListItemSelected>
 
 
-const CartListClassTrial = ({item, selected_item}) => 
+const CartListClassTrial = ({classes, item, selected_item}) => 
     <CartListItemSelected item={item}
                           selected_item={selected_item} >
         {/* <span className="bold">{}</span> <br/> */}
-        <div className="bold">Class - trial</div>
+        <div className="bold">
+            Trial class - <CartListClassDisplay classes={classes}
+                                                    clsID={item.data.clsID} />         
+        </div>
         <CartListItemQuantity qty={item.quantity}
                               price={item.data.Price}
         />
@@ -87,15 +116,18 @@ const CartListSubscription = ({item, selected_item}) =>
     </CartListItemSelected>
 
 
-const CartListItem = injectIntl(({item, selected_item, intl, onClick=f=>f}) => 
+const CartListItem = injectIntl(({classes, item, selected_item, intl, onClick=f=>f}) => 
     <div onClick={() => onClick(item.id)}
          className="shop-cart-list-item">
+         { console.log(classes) }
         { (item.item_type == 'class_dropin') ? 
-            <CartListClassDropin item={item}
+            <CartListClassDropin classes={classes}
+                                 item={item}
                                  selected_item={selected_item} /> : '' }
         { (item.item_type == 'class_trial') ? 
-            <CartListClassTrial item={item}
-                                 selected_item={selected_item} /> : '' }
+            <CartListClassTrial classes={classes}
+                                item={item}
+                                selected_item={selected_item} /> : '' }
         { (item.item_type == 'product') ? 
             <CartListProduct item={item}
                              selected_item={selected_item} /> : '' }
