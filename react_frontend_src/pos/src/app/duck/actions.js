@@ -89,6 +89,17 @@ export const setPageTitle = (title) =>
         title
     })
 
+export const setPageSubTitle = (subtitle) =>
+    ({
+        type: T.SET_PAGE_SUBTITLE,
+        subtitle
+    })
+
+export const clearPageSubTitle = () =>
+    ({
+        type: T.CLEAR_PAGE_SUBTITLE
+    })
+
 
 export const requestValidateCart = () =>
     ({
