@@ -46,7 +46,7 @@ const checkinCustomer = (cuID, clsID, data) => {
 
           console.log("request customer checkin")
           let fd = new FormData()
-          fd.append('clsID', clsID)
+        //   fd.append('clsID', clsID)
           fd.append('cuID', cuID)
           // Add data items
           Object.keys(data).map((key) =>
