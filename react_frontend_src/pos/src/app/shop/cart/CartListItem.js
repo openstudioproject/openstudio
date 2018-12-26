@@ -5,6 +5,7 @@ import { injectIntl } from 'react-intl'
 // import Label from '../../../components/ui/Label'
 
 import Currency from '../../../components/ui/Currency'
+import ClassNameDisplay from '../../../components/ui/ClassNameDisplay'
 
 
 const CartListItemSelected = ({children, item, selected_item}) => 
@@ -24,36 +25,14 @@ const CartListItemQuantity = ({qty, price}) =>
     </span>
 
 
-const CartListClassDisplay = ({classes, clsID}) => {
-    var i
-    var class_data
-    for (i = 0; i < classes.length; i++) { 
-        console.log('#### class #####')
-        console.log(classes[i])
-        console.log(classes[i].ClassesID)
-        console.log(clsID)
-        if ( classes[i].ClassesID == clsID) {
-            class_data = classes[i]
-            break
-        }
-    }
-
-    if (class_data) {
-        return class_data.ClassType + ' in ' + class_data.Location + ' @' + class_data.Starttime
-    } else {
-        return "Class info not found"
-    }
-}
-
-
 const CartListClassDropin = ({classes, item, selected_item}) => 
     <CartListItemSelected item={item}
                           selected_item={selected_item} >
         {/* <span className="bold">{}</span> <br/> */}
 
         <div className="bold">
-            Drop-in class - <CartListClassDisplay classes={classes}
-                                                    clsID={item.data.clsID} />         
+            Drop-in class - <ClassNameDisplay classes={classes}
+                                              clsID={item.data.clsID} />         
         </div>
         <CartListItemQuantity qty={item.quantity}
                               price={item.data.Price}
@@ -66,8 +45,8 @@ const CartListClassTrial = ({classes, item, selected_item}) =>
                           selected_item={selected_item} >
         {/* <span className="bold">{}</span> <br/> */}
         <div className="bold">
-            Trial class - <CartListClassDisplay classes={classes}
-                                                    clsID={item.data.clsID} />         
+            Trial class - <ClassNameDisplay classes={classes}
+                                            clsID={item.data.clsID} />         
         </div>
         <CartListItemQuantity qty={item.quantity}
                               price={item.data.Price}
