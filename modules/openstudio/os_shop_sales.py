@@ -65,11 +65,15 @@ class ShopSales:
             db.shop_sales.Quantity,
             db.shop_sales.ArticleCode,
             db.shop_sales.Barcode,
-
-
-
-
-
+            db.receipts_shop_sales.receipts_id,
+            db.shop_sales_products_variants.shop_products_variants_id,
+            db.shop_products_variants.shop_products_id,
+        ]
+        links = [
+            dict(header=T("Receipt"),
+                 body=self._list_formatted_link_receipt),
+            dict(header=T("Product"),
+                 body=self._list_formatted_link_product_variant),
         ]
         # links = [lambda row: os_gui.get_button('edit',
         #                                        URL('classtype_edit', args=[row.id]),
@@ -84,7 +88,7 @@ class ShopSales:
             left=left,
             # maxtextlengths=maxtextlengths,
             fields=fields,
-            # links=links,
+            links=links,
             create=False,
             editable=False,
             deletable=False,
@@ -100,3 +104,40 @@ class ShopSales:
 
         return grid
 
+
+    def _list_formatted_link_product_variant(self, row):
+        """
+        Show link to receipt, if any
+        :param row:
+        :return:
+        """
+        T = current.T
+
+        link = ''
+        spID = row.shop_products_variants.shop_products_id
+        spvID = row.shop_sales_products_variants.shop_products_variants_id
+        if spvID:
+            link = A(T("View"),
+                     _href=URL('shop_manage', 'product_variant_edit',
+                               vars={'spID': spID,
+                                     'spvID': spvID}))
+
+        return link
+
+
+    def _list_formatted_link_receipt(self, row):
+        """
+        Show link to receipt, if any
+        :param row:
+        :return:
+        """
+        T = current.T
+
+        link = ''
+        rID = row.receipts_shop_sales.receipts_id
+        if rID:
+            link = A(T("Receipt %s" % rID),
+                     _href=URL('finance', 'receipt', vars={'rID':rID}),
+                     _target="_blank")
+
+        return link

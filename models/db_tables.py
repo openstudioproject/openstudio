@@ -4549,8 +4549,12 @@ def compute_receipts_amounts_balance(row):
 
 def define_receipts_shop_sales():
     db.define_table('receipts_shop_sales',
-        Field('shop_sales_id', db.shop_sales),
-        Field('receipts_id', db.receipts)
+        Field('shop_sales_id', db.shop_sales,
+              readable=False,
+              writable=False),
+        Field('receipts_id', db.receipts,
+              readable=False,
+              writable=False)
     )
 
 
@@ -5136,8 +5140,12 @@ def define_shop_sales():
 
 def define_shop_sales_products_variants():
     db.define_table('shop_sales_products_variants',
-        Field('shop_sales_id', db.shop_sales),
-        Field('shop_products_variants_id', db.shop_products_variants),
+        Field('shop_sales_id', db.shop_sales,
+              readable=False,
+              writable=False),
+        Field('shop_products_variants_id', db.shop_products_variants,
+              readable=False,
+              writable=False),
     )
 
 
