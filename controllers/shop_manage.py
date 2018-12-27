@@ -179,7 +179,7 @@ def catalog_get_menu(page):
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('read', 'shop_products_sets'))
+               auth.has_permission('read', 'shop_products'))
 def products():
     """
         List products
@@ -1267,3 +1267,25 @@ def supplier_archive():
         shop_supplier_get_return_url()
     )
 
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'shop_sales'))
+def sales():
+    """
+        List products
+    """
+    from openstudio.os_shop_sales import ShopSales
+
+    response.title = T('Shop')
+    response.subtitle = T('Catalog')
+    response.view = 'general/tabs_menu.html'
+
+    sales = ShopSales()
+    content = sales.list_formatted()
+
+
+    # add = os_gui.get_button('add', URL('shop_manage', 'product_add'))
+    menu = catalog_get_menu(request.function)
+
+    return dict(content=content,
+                menu=menu)
