@@ -4547,6 +4547,13 @@ def compute_receipts_amounts_balance(row):
     return row.TotalPriceVAT - row.Paid
 
 
+def define_receipts_shop_sales():
+    db.define_table('receipts_shop_sales',
+        Field('shop_sales_id', db.shop_sales),
+        Field('receipts_id', db.receipts)
+    )
+
+
 def represent_tax_rate(value, row):
     """
         Returns name for a tax rate
@@ -5098,6 +5105,31 @@ def define_shop_products_variants():
         Field('VariantCode',
               readable=False,
               writable=False),
+    )
+
+
+def define_shop_sales():
+    """
+    Define shop products sales
+    :return:
+    """
+    db.define_table('shop_sales',
+        Field('CreatedOn', 'datetime',
+              readable=False,
+              writable=False,
+              default=NOW_UTC),
+        Field('ProductName'),
+        Field('VariantName'),
+        Field('ArticleCode'),
+        Field('Barcode'),
+        Field('Quantity'),
+    )
+
+
+def define_shop_sales_products_variants():
+    db.define_table('shop_sales_products_variants',
+        Field('shop_sales_id', db.shop_sales),
+        Field('shop_products_variants_id', db.shop_products_variants),
     )
 
 
@@ -6253,9 +6285,25 @@ define_customers_orders_items()
 define_customers_orders_amounts()
 define_customers_orders_mollie_payment_ids()
 
+# shop tables
+define_shop_links()
+define_shop_brands()
+define_shop_suppliers()
+define_shop_products_sets()
+define_shop_products_sets_options()
+define_shop_products_sets_options_values()
+define_shop_products()
+define_shop_products_variants()
+define_shop_categories()
+define_shop_categories_products()
+define_customers_orders_items_shop_products_variants()
+
 # employee claims definitions
 define_employee_claims()
 
+# shop sales
+define_shop_sales()
+define_shop_sales_products_variants()
 
 # invoice definitions
 define_invoices_groups()
@@ -6279,6 +6327,7 @@ define_invoices_mollie_payment_ids()
 define_receipts()
 define_receipts_items()
 define_receipts_amounts()
+define_receipts_shop_sales()
 
 # payment batches definitions
 define_payment_batches()
@@ -6294,19 +6343,6 @@ define_schedule_staff_status()
 
 # mollie tables
 define_mollie_log_webhook()
-
-# shop tables
-define_shop_links()
-define_shop_brands()
-define_shop_suppliers()
-define_shop_products_sets()
-define_shop_products_sets_options()
-define_shop_products_sets_options_values()
-define_shop_products()
-define_shop_products_variants()
-define_shop_categories()
-define_shop_categories_products()
-define_customers_orders_items_shop_products_variants()
 
 set_preferences_permissions()
 

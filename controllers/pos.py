@@ -1020,7 +1020,30 @@ def validate_cart_create_receipt(
     # Add items
     for item in items:
         if item['item_type'] == 'product':
-            receipt.item_add_product_variant(item['data']['id'], item['quantity'])
+            pvID = item['data']['id']
+            quantity = item['quantity']
+            receipt.item_add_product_variant(pvID, quantity)
+
+            variant = db.shop_products_variants(pvID)
+            product = db.shop_products(variant.shop_products_id)
+            ssaID = db.shop_sales.insert(
+                ProductName=product.Name,
+                VariantName=variant.Name,
+                ArticleCode=variant.ArticleCode,
+                Barcode=variant.Barcode,
+                Quantity=quantity
+            )
+
+
+            db.shop_sales_products_variants.insert(
+                shop_sales_id = ssaID,
+                shop_products_variants_id = pvID
+            )
+
+            db.receipts_shop_sales.insert(
+                shop_sales_id = ssaID,
+                receipts_id = rID
+            )
 
 
     if invoice_created:
