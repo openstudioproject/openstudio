@@ -648,7 +648,7 @@ def product_variant_sales():
 
     sales = ShopSales(spvID)
     content = DIV(
-        H4(T("Variant sales - %s" % variant.row.Name)), BR(),
+        H4(T("Sales history for variant %s" % variant.row.Name)), BR(),
         sales.list_formatted()
     )
 
