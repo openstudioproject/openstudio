@@ -200,6 +200,10 @@ class ShopProductsVariants:
         """
             Return edit drop down
         """
+        sales = A(os_gui.get_fa_icon('fa-shopping-cart'),
+                  T('Sales'),
+                  _href=URL('shop_manage', 'product_variant_sales',
+                            vars=vars))
         edit = A(os_gui.get_fa_icon('fa-pencil'),
                  T('Edit'),
                  _href=URL('shop_manage', 'product_variant_edit',
@@ -211,6 +215,7 @@ class ShopProductsVariants:
                             _href=URL('shop_manage', 'product_variant_set_default',
                                       vars=vars))
         links = [
+            sales,
             edit,
             set_default
         ]
