@@ -164,6 +164,12 @@ def catalog_get_menu(page):
         pages.append(['products_sets',
                        T('Product sets'),
                       URL('shop_manage', 'products_sets')])
+    # Sales
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('read', 'shop_products'):
+        pages.append(['sales',
+                       T('Sales'),
+                      URL('shop_manage', 'sales')])
 
     return os_gui.get_submenu(pages,
                               page,
