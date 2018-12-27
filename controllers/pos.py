@@ -1042,7 +1042,7 @@ def validate_cart_create_receipt(
 
             db.receipts_items_shop_sales.insert(
                 shop_sales_id = ssaID,
-                receipts_items_id = rID
+                receipts_items_id = riID
             )
 
             # Update stock
