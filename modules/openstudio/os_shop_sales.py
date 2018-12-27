@@ -75,18 +75,10 @@ class ShopSales:
             dict(header=T("Product"),
                  body=self._list_formatted_link_product_variant),
         ]
-        # links = [lambda row: os_gui.get_button('edit',
-        #                                        URL('classtype_edit', args=[row.id]),
-        #                                        T("Edit the name of this classtype")),
-        #          classtypes_get_link_archive]
-        # maxtextlengths = {'school_classtypes.Name': 50,
-        #                   'school_classtypes.Link': 120,
-        #                   'school_classtypes.Description': 60}
         query = (db.shop_sales.id > 0)
         grid = SQLFORM.grid(
             query,
             left=left,
-            # maxtextlengths=maxtextlengths,
             fields=fields,
             links=links,
             create=False,
