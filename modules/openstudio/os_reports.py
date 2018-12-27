@@ -24,8 +24,11 @@ class Reports:
                           cu.archived,
                           cu.thumbsmall,
                           cu.birthday,
+                          cu.first_name,
+                          cu.last_name,
                           cu.display_name,
                           cu.date_of_birth,
+                          cu.email,
                           csu.school_subscriptions_id,
                           csu.startdate,
                           csu.payment_methods_id

@@ -6,23 +6,6 @@ from general_helpers import datestr_to_python
 # auth.settings.on_failed_authorization = URL('return_json_permissions_error')
 
 
-# print request.env
-#
-# if request.env.http_origin:
-#     response.headers['Access-Control-Allow-Origin'] = request.env.http_origin;
-#     response.headers['Access-Control-Allow-Methods'] = "POST,GET,OPTIONS";
-#     response.headers['Access-Control-Allow-Credentials'] = "true";
-#     response.headers['Access-Control-Allow-Headers'] = "Accept, Authorization, Content-Type, If-Match, If-Modified-Since, If-None-Match, If-Unmodified-Since, Accept-Encoding";
-#     response.headers['Access-Control-Allow-Content-Type'] = 'application/json'
-#     # response.headers['Access-Control-Allow-Origin'] = "*"
-
-@auth.requires_login()
-def index():
-    # print auth.user
-
-    return dict()
-
-
 def set_headers(var=None):
     if request.env.HTTP_ORIGIN == 'http://dev.openstudioproject.com:8080':
         response.headers["Access-Control-Allow-Origin"] = request.env.HTTP_ORIGIN
@@ -38,6 +21,23 @@ def set_headers(var=None):
     response.headers['Access-Control-Allow-Content-Type'] = 'application/json'
     response.headers['Access-Control-Allow-Credentials'] = 'true'
 
+set_headers()
+
+# print request.env
+#
+# if request.env.http_origin:
+#     response.headers['Access-Control-Allow-Origin'] = request.env.http_origin;
+#     response.headers['Access-Control-Allow-Methods'] = "POST,GET,OPTIONS";
+#     response.headers['Access-Control-Allow-Credentials'] = "true";
+#     response.headers['Access-Control-Allow-Headers'] = "Accept, Authorization, Content-Type, If-Match, If-Modified-Since, If-None-Match, If-Unmodified-Since, Accept-Encoding";
+#     response.headers['Access-Control-Allow-Content-Type'] = 'application/json'
+#     # response.headers['Access-Control-Allow-Origin'] = "*"
+
+@auth.requires_login()
+def index():
+    # print auth.user
+
+    return dict()
 
 
 def return_json_login_error(var=None):
@@ -284,6 +284,92 @@ def get_class_booking_options():
     return dict(options = options)
 
 
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('create', 'classes_attendance'))
+def customer_class_booking_create():
+    """
+    Check customer in to a class
+    :return:
+    """
+    from openstudio.os_attendance_helper import AttendanceHelper
+
+    # set_headers()
+    type_id = request.vars['id']
+    cuID = request.vars['cuID']
+    clsID = request.vars['clsID']
+    type = request.vars['Type']
+    date = TODAY_LOCAL
+
+    error = True
+    message = T("Please make sure that the variables cuID, clsID and Type are included")
+    if cuID and clsID and type:
+        error = False
+        message = ""
+
+        ah = AttendanceHelper()
+
+        if type == 'subscription':
+            result = ah.attendance_sign_in_subscription(
+                cuID,
+                clsID,
+                type_id,
+                date,
+                credits_hard_limit=True,
+                booking_status='attending'
+            )
+
+        elif type == 'classcard':
+            result = ah.attendance_sign_in_classcard(
+                cuID,
+                clsID,
+                type_id,
+                date,
+                booking_status='attending'
+            )
+
+        # elif type == 'dropin':
+        #     result = ah.attendance_sign_in_dropin(
+        #         cuID,
+        #         clsID,
+        #         date,
+        #         invoice=True,
+        #         booking_status='attending'
+        #     )
+        #
+        # elif type == 'trialclass':
+        #     result = ah.attendance_sign_in_dropin(
+        #         cuID,
+        #         clsID,
+        #         date,
+        #         invoice=True,
+        #         booking_status='attending'
+        #     )
+
+        if result['status'] == 'fail':
+            error = True
+            message = result['message']
+
+        # elif type == 'trial':
+
+
+    return dict(error=error,
+                message=message)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'classes_attendance'))
+def customer_class_booking_manage():
+    """
+    Manage booking for a class
+    :return:
+    """
+
+    return dict(error=error,
+                message=message)
+
+
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'school_classcards'))
 def get_school_classcards():
@@ -318,7 +404,7 @@ def get_school_classcards():
         db.school_classcards.Classes,
         db.school_classcards.Unlimited,
         db.school_classcards.Trialcard,
-        db.school_classcards.MembershipRequired,
+        db.school_classcards.school_memberships_id,
         orderby=db.school_classcards.Name
     )
 
@@ -335,7 +421,7 @@ def get_school_classcards():
             'Classes': row.Classes,
             'Unlimited': row.Unlimited,
             'Trialcard': row.Trialcard,
-            'MembershipRequired': row.MembershipRequired
+            'school_memberships_id': row.school_memberships_id
         }
 
         data_rows.append(item)
@@ -361,7 +447,7 @@ def get_school_subscriptions():
                sc.SubscriptionUnit,
                sc.Unlimited,
                sc.RegistrationFee,
-               sc.MembershipRequired,
+               sc.school_memberships_id,
                scp.Price
         FROM school_subscriptions sc
         LEFT JOIN
@@ -385,7 +471,7 @@ def get_school_subscriptions():
         db.school_subscriptions.SubscriptionUnit,
         db.school_subscriptions.Unlimited,
         db.school_subscriptions.RegistrationFee,
-        db.school_subscriptions.MembershipRequired,
+        db.school_subscriptions.school_memberships_id,
         db.school_subscriptions_price.Price,
     ]
 
@@ -403,7 +489,7 @@ def get_school_subscriptions():
             'Unlimited': row.school_subscriptions.Unlimited,
             'Price': row.school_subscriptions_price.Price or 0,
             'RegistrationFee': row.school_subscriptions.RegistrationFee or 0,
-            'MembershipRequired': row.school_subscriptions.MembershipRequired,
+            'school_memberships_id': row.school_subscriptions.school_memberships_id
         })
 
     return dict(data=data)
@@ -424,15 +510,8 @@ def get_school_memberships():
                sm.Description,
                sm.Validity,
                sm.ValidityUnit,
-               smp.Price
+               sm.Price
         FROM school_memberships sm
-        LEFT JOIN
-        ( SELECT school_memberships_id, 
-                 Price
-          FROM school_memberships_price
-          WHERE Startdate <= '{today}' AND
-                (Enddate >= '{today}' OR Enddate IS NULL) 
-        ) smp ON sm.id = smp.school_memberships_id
         WHERE sm.Archived = 'F'
         ORDER BY sm.Name
     """.format(today=TODAY_LOCAL)
@@ -443,7 +522,7 @@ def get_school_memberships():
         db.school_memberships.Description,
         db.school_memberships.Validity,
         db.school_memberships.ValidityUnit,
-        db.school_memberships_price.Price
+        db.school_memberships.Price
     ]
 
     rows = db.executesql(query, fields=fields)
@@ -451,12 +530,12 @@ def get_school_memberships():
     data = []
     for row in rows:
         data.append({
-            'id': row.school_memberships.id,
-            'Name': row.school_memberships.Name,
-            'Description': row.school_memberships.Description or '',
-            'Validity': row.school_memberships.Validity,
-            'ValidityUnit': row.school_memberships.ValidityUnit,
-            'Price': row.school_memberships_price.Price or 0
+            'id': row.id,
+            'Name': row.Name,
+            'Description': row.Description or '',
+            'Validity': row.Validity,
+            'ValidityUnit': row.ValidityUnit,
+            'Price': row.Price or 0
         })
 
     return dict(data=data)
@@ -881,6 +960,18 @@ def validate_cart_create_order(cuID, pmID, items):
             order.order_item_add_membership(
                 item['data']['id'],
                 TODAY_LOCAL
+            )
+        elif item['item_type'] == 'class_dropin':
+            order.order_item_add_class(
+                item['data']['clsID'],
+                TODAY_LOCAL,
+                2 # Attendance Type 2 = drop-in
+            )
+        elif item['item_type'] == 'class_trial':
+            order.order_item_add_class(
+                item['data']['clsID'],
+                TODAY_LOCAL,
+                1 # Attendance Type 1 = trial
             )
 
     # update order status

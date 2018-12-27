@@ -35,14 +35,14 @@ const mapDispatchToProps = dispatch =>
         setUpdateCustomerStatus(status) {
             dispatch(customersListOperations.setUpdateCustomerStatus(status))
         },
-        clearSearchTimeout() {
-            dispatch(customersListOperations.clearSearchTimeout())
-        },
         clearDisplayCustomerID() {
             dispatch(customersListOperations.clearDisplayCustomerID())
         },
         setDisplayCustomerID(id) {
             dispatch(customersListOperations.setDisplayCustomerID(id))
+        },
+        clearSearchTimeout() {
+            dispatch(customersListOperations.clearSearchTimeout())
         },
         setSearchTimeout(timeout) {
             dispatch(customersListOperations.setSearchTimeout(timeout))

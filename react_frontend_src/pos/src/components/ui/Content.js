@@ -36,11 +36,12 @@ class Content extends Component {
         
     render() {
         const title = this.props.title
+        const subtitle = this.props.subtitle
         const children = this.props.children
 
         return (
             <div className="content-wrapper" style={this.initialStyle}>
-                <ContentHeader title={title} />
+                <ContentHeader title={title} subtitle={subtitle} />
                 <section className="content" style={{height: this.state.content_height}}>
                     {children} 
                 </section>

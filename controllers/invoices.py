@@ -363,7 +363,18 @@ def edit():
                     _class='col-md-6'),
                 DIV(edit_get_customer_info(invoice, form),
                     _class='col-md-6'),
+                DIV(DIV(DIV(H3(T("Link to invoice in customer profile"), _class='box-title'),
+                            _class='box-header'),
+                        DIV(URL('profile', 'invoice', vars={'iID': iID}, scheme=True, host=True), BR(),
+                            SPAN(T("This is a direct link to the invoice in the profile of this customer."), BR(),
+                                 T(
+                                     "Please note that only the customer linked to this invoice will be able to view it after logging in."),
+                                 _class="text-muted"),
+                            _class='box-body'),
+                        _class='box box-primary'),
+                    _class='col-md-12'),
                 _class='col-md-10 no-padding-left'),
+
             # options container
             DIV(edit_get_amounts(invoice),
                 DIV(DIV(H3(T('Options'), _class='box-title'),

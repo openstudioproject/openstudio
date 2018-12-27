@@ -1,6 +1,6 @@
 import React from "react"
 import { withRouter } from 'react-router-dom'
-import { injectIntl } from 'react-intl';
+import { injectIntl } from 'react-intl'
 
 import Currency from '../../../../components/ui/Currency'
 
@@ -55,11 +55,11 @@ const SubscriptionsListItem = injectIntl(withRouter(({data, intl, currency_symbo
                     {data.Description}
                 </p>
             </div>
-            <div class="icon">
-              <i class="fa fa-pencil-square-o"></i>
+            <div className="icon">
+              <i classaName="fa fa-pencil-square-o"></i>
             </div>
             { (data.MembershipRequired == true) ?
-                <span class="small-box-footer"><i class="fa fa-exclamation-circle"></i> {representMembershipRequired(data, intl)}</span>
+                <span className="small-box-footer"><i className="fa fa-exclamation-circle"></i> {representMembershipRequired(data, intl)}</span>
                 : ""
             }
          </div>

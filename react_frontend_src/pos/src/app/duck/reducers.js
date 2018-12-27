@@ -101,6 +101,16 @@ export const appReducer = (state = {}, action={ type: null }) => {
                 ...state,
                 current_page_title: action.title
             }
+        case T.SET_PAGE_SUBTITLE:
+            return {
+                ...state,
+                current_page_subtitle: action.subtitle
+            }
+        case T.CLEAR_PAGE_SUBTITLE:
+            return {
+                ...state,
+                current_page_subtitle: ''
+            }
         default:
             return {
                 ...state

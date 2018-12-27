@@ -13,6 +13,17 @@ class OsCacheManager:
         cache.ram.clear()
         cache.disk.clear()
 
+    def clear_auth_user_login_attempts(self, email):
+        """
+        :param email: email address
+        :return:
+        """
+        cache = current.cache
+
+        failed_attempts_cache_key = "auth_login_failed_attempts_%s" % email
+        cache.ram.clear(regex=failed_attempts_cache_key)
+
+
     def clear_customers_memberships(self, cuID):
         """
             Clears memberships cache entries on disk & in ram

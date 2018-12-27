@@ -8,6 +8,7 @@
         "loading_message": "Start loading...",
         "loading_progress": 0,
         "current_page_title": "Welcome",
+        "current_page_subtitle": "",
         "payment_methods": {},
         "settings": {},
         "user": {},
@@ -21,12 +22,18 @@
             "loading": false,
             "loaded": false,
             "data": {},
-            "searchTimeout": 0
+            "searchTimeout": 0,
+            "searchCustomerID": null,
+            "searchValue": ""
         },
         "book": {
            "loading": false,
            "loaded": false,
-           "data": {}
+           "data": {},
+           "checkin_loading": false,
+           "checked_loaded": false,
+           "checkin_error": false,
+           "checkin_error_message": ""
         },
         "classes": {
            "loading": false,

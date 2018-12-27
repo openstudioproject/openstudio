@@ -10,7 +10,11 @@ import { checkinAttendanceOperations } from './duck'
 const mapStateToProps = state => 
     ({
         app: state.app,
-        attendance: state.checkin.attendance
+        attendance: state.checkin.attendance,
+        barcode_scans: state.app.settings.data.customers_barcodes,
+        classes: state.checkin.classes.data,
+        customers: state.customers.list,
+        memberships: state.customers.memberships
     })
 
 const mapDispatchToProps = dispatch =>
@@ -21,12 +25,27 @@ const mapDispatchToProps = dispatch =>
         setPageTitle(title) {
             dispatch(appOperations.setPageTitle(title))
         },
-        clearCheckinSearchTimeout() {
-            dispatch(checkinAttendanceOperations.clearCheckinSearchTimeout())
+        setPageSubtitle(subtitle) {
+            dispatch(appOperations.setPageSubtitle(subtitle))
         },
-        setCheckinSearchTimeout(timeout) {
-            dispatch(checkinAttendanceOperations.setCheckinSearchTimeout(timeout))
-        }
+        clearSearchTimeout() {
+            dispatch(checkinAttendanceOperations.clearCheckinAttendanceSearchTimeout())
+        },
+        setSearchTimeout(timeout) {
+            dispatch(checkinAttendanceOperations.setCheckinAttendanceSearchTimeout(timeout))
+        },
+        clearSearchCustomerID() {
+            dispatch(checkinAttendanceOperations.clearCheckinAttendanceSearchCustomerID())
+        },
+        setSearchCustomerID(id) {
+            dispatch(checkinAttendanceOperations.setCheckinAttendanceSearchCustomerID(id))
+        },
+        clearSearchValue() {
+            dispatch(checkinAttendanceOperations.clearCheckinAttendanceSearchValue())
+        },
+        setSearchValue(value) {
+            dispatch(checkinAttendanceOperations.setCheckinAttendanceSearchValue(value))
+        },
     })
 
 

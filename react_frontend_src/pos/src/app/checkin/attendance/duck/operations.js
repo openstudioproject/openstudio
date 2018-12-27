@@ -1,10 +1,13 @@
 import {
     requestCheckinClassAttendance as request_class_attendance,
     receiveCheckinClassAttendance as receive_class_attendance,
-    setCheckinClassAttendanceSearchCustomerID as set_customer_id,
-    setCheckinSearchTimeout as set_search_timeout,
-    clearCheckinSearchTimeout as clear_search_timeout
-} from './actions'
+    setCheckinAttendanceSearchCustomerID,
+    clearCheckinAttendanceSearchCustomerID,
+    setCheckinAttendanceSearchValue,
+    clearCheckinAttendanceSearchValue,
+    setCheckinAttendanceSearchTimeout,
+    clearCheckinAttendanceSearchTimeout
+  } from './actions'
 
 import axios_os from '../../../../utils/axios_os'
 import OS_API from '../../../../utils/os_api'
@@ -12,9 +15,6 @@ import { toISODate } from '../../../../utils/date_tools'
 
 // just pass these actions as there's nothing else they need to do
 // Put pass-through actions here
-const setCheckinClassAttendanceSearchCustomerID = set_customer_id
-const clearCheckinSearchTimeout = clear_search_timeout
-const setCheckinSearchTimeout = set_search_timeout
 
 // data fetchers
 const fetchClassAttendance = (clsID) => {
@@ -46,7 +46,10 @@ const fetchClassAttendance = (clsID) => {
 
 export default {
     fetchClassAttendance,
-    setCheckinClassAttendanceSearchCustomerID,
-    setCheckinSearchTimeout,
-    clearCheckinSearchTimeout
+    setCheckinAttendanceSearchCustomerID,
+    clearCheckinAttendanceSearchCustomerID,
+    setCheckinAttendanceSearchTimeout,
+    clearCheckinAttendanceSearchTimeout,
+    setCheckinAttendanceSearchValue,
+    clearCheckinAttendanceSearchValue,
 }

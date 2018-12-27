@@ -50,7 +50,7 @@ const AttendanceListItem = injectIntl(withRouter(({data, history, intl, match}) 
                         {intl.formatMessage({ id: 'app.pos.checkin.attendance.label_enrolled' })}
                     </Label> : ''}
                 <br />
-                {(data.classes_attendance.CreatedOn)}
+                <span className="text-muted"><small>{(data.classes_attendance.CreatedOn)}</small></span>
             </div>
             <div className="col-md-3">
                 {(data.invoices.id) ? "invoice" : "no invoice"}

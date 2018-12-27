@@ -545,6 +545,7 @@ class Class:
         Returns amount excl. VAT
         :return: { amount: float, tax_rates_id: db.tax_rates.id }
         """
+        from decimal import Decimal, ROUND_HALF_UP
         from os_teacher import Teacher
 
         T = current.T
@@ -596,6 +597,11 @@ class Class:
                     default_rate = default_rates.first()
                     rate = default_rate.ClassRate
                     tax_rates_id = default_rate.tax_rates_id
+
+                    rate = Decimal(Decimal(rate).quantize(
+                        Decimal('.01'),
+                        rounding=ROUND_HALF_UP
+                    ))
 
                     # Set price and tax rate
                     try:
