@@ -547,11 +547,16 @@ def product_variant_add():
     )
 
     form = result['form']
+    content = DIV(
+        H4(T("Add variant")), BR(),
+        form
+    )
+
     back = os_gui.get_button('back', return_url)
 
     menu = product_edit_get_menu('product_variants', spID)
 
-    return dict(content=form,
+    return dict(content=content,
                 save=result['submit'],
                 back=back,
                 menu=menu)
@@ -602,12 +607,56 @@ def product_variant_edit():
     )
 
     form = result['form']
+    content = DIV(
+        H4(T("Edit variant")), BR(),
+        form
+    )
+
     back = os_gui.get_button('back', return_url)
 
     menu = product_edit_get_menu('product_variants', spID)
 
-    return dict(content=form,
+    return dict(content=content,
                 save=result['submit'],
+                back=back,
+                menu=menu)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'shop_products_variants'))
+def product_variant_sales():
+    """
+        Edit a product variant
+    """
+    from openstudio.os_shop_product import ShopProduct
+    from openstudio.os_shop_products_variant import ShopProductsVariant
+    from openstudio.os_shop_sales import ShopSales
+
+    spID = request.vars['spID']
+    spvID = request.vars['spvID']
+
+    product = ShopProduct(spID)
+    variant = ShopProductsVariant(spvID)
+
+    response.title = T('Shop')
+    response.subtitle = T('Edit product - {product_name}'.format(
+        product_name=product.row.Name)
+    )
+    response.view = 'general/tabs_menu.html'
+
+    return_url = product_variants_get_return_url(spID)
+
+    sales = ShopSales(spvID)
+    content = DIV(
+        H4(T("Variant sales - %s" % variant.row.Name)), BR(),
+        sales.list_formatted()
+    )
+
+    # add = os_gui.get_button('add', URL('shop_manage', 'product_add'))
+    back = os_gui.get_button('back', return_url)
+    menu = product_edit_get_menu('product_variants', spID)
+
+    return dict(content=content,
                 back=back,
                 menu=menu)
 
