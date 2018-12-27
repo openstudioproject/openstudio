@@ -1010,6 +1010,7 @@ def validate_cart_create_receipt(
     :return: int - receipt_id
     """
     from openstudio.os_receipt import Receipt
+    from openstudio.os_shop_products_variant import ShopProductsVariant
 
     rID = db.receipts.insert(
         payment_methods_id = pmID,
@@ -1024,16 +1025,15 @@ def validate_cart_create_receipt(
             quantity = item['quantity']
             receipt.item_add_product_variant(pvID, quantity)
 
-            variant = db.shop_products_variants(pvID)
-            product = db.shop_products(variant.shop_products_id)
+            variant = ShopProductsVariant(pvID)
+            product = db.shop_products(variant.row.shop_products_id)
             ssaID = db.shop_sales.insert(
                 ProductName=product.Name,
-                VariantName=variant.Name,
-                ArticleCode=variant.ArticleCode,
-                Barcode=variant.Barcode,
+                VariantName=variant.row.Name,
+                ArticleCode=variant.row.ArticleCode,
+                Barcode=variant.row.Barcode,
                 Quantity=quantity
             )
-
 
             db.shop_sales_products_variants.insert(
                 shop_sales_id = ssaID,
@@ -1045,6 +1045,8 @@ def validate_cart_create_receipt(
                 receipts_id = rID
             )
 
+            # Update stock
+            variant.stock_reduce(quantity)
 
     if invoice_created:
         invoice_items = invoice.get_invoice_items_rows()

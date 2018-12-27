@@ -4,6 +4,10 @@ from gluon import *
 
 
 class ShopSales:
+    def __init__(self, shop_products_variants_id=None):
+        self.shop_products_variants_id = shop_products_variants_id
+
+
     def list(self):
         """
             :return: List of shop products (gluon.dal.rows)
@@ -25,7 +29,13 @@ class ShopSales:
             )
         ]
 
-        rows = db(db.shop_sales).select(db.shop_sales.ALL,
+        if self.shop_products_variants_id:
+            query = (db.shop_sales_products_variants.shop_products_variants_id ==
+                     self.shop_products_variants_id)
+        else:
+            query = (db.shop_sales.id > 0)
+
+        rows = db(query).select(db.shop_sales.ALL,
                                         db.shop_products_variants.ALL,
                                         db.receipts_shop_sales.receipts_id,
                                         orderby=db.shop_sales.CreatedOn)
@@ -75,7 +85,11 @@ class ShopSales:
             dict(header=T("Product"),
                  body=self._list_formatted_link_product_variant),
         ]
-        query = (db.shop_sales.id > 0)
+        if self.shop_products_variants_id:
+            query = (db.shop_sales_products_variants.shop_products_variants_id ==
+                     self.shop_products_variants_id)
+        else:
+            query = (db.shop_sales.id > 0)
         grid = SQLFORM.grid(
             query,
             left=left,
