@@ -40,3 +40,14 @@ class ShopProductsVariant:
         self.row.Enabled = True
         self.row.update_record()
 
+
+    def stock_reduce(self, amount_sold):
+        """
+        Update stock for this variant
+        :param amount_sold: int
+        :return: None
+        """
+        if self.row.KeepStock:
+            self.row.StockShop = self.row.StockShop - amount_sold
+            self.row.update_record()
+

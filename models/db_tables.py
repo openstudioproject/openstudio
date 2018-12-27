@@ -4547,6 +4547,17 @@ def compute_receipts_amounts_balance(row):
     return row.TotalPriceVAT - row.Paid
 
 
+def define_receipts_shop_sales():
+    db.define_table('receipts_shop_sales',
+        Field('shop_sales_id', db.shop_sales,
+              readable=False,
+              writable=False),
+        Field('receipts_id', db.receipts,
+              readable=False,
+              writable=False)
+    )
+
+
 def represent_tax_rate(value, row):
     """
         Returns name for a tax rate
@@ -5096,6 +5107,43 @@ def define_shop_products_variants():
               writable=False,
               label=T('Default variant for a product')),
         Field('VariantCode',
+              readable=False,
+              writable=False),
+    )
+
+
+def define_shop_sales():
+    """
+    Define shop products sales
+    :return:
+    """
+    db.define_table('shop_sales',
+        Field('CreatedOn', 'datetime',
+              writable=False,
+              default=NOW_UTC,
+              represent=represent_datetime,
+              label=T("Time")),
+        Field('ProductName',
+              label=T("Product")),
+        Field('VariantName',
+              label=T("Variant")),
+        Field('Quantity',
+              label=T("Quantity")),
+        Field('ArticleCode',
+              represent=lambda value, row: value or '',
+              label=T("Article code")),
+        Field('Barcode',
+              represent=lambda value, row: value or '',
+              label=T("Barcode")),
+    )
+
+
+def define_shop_sales_products_variants():
+    db.define_table('shop_sales_products_variants',
+        Field('shop_sales_id', db.shop_sales,
+              readable=False,
+              writable=False),
+        Field('shop_products_variants_id', db.shop_products_variants,
               readable=False,
               writable=False),
     )
@@ -6253,9 +6301,25 @@ define_customers_orders_items()
 define_customers_orders_amounts()
 define_customers_orders_mollie_payment_ids()
 
+# shop tables
+define_shop_links()
+define_shop_brands()
+define_shop_suppliers()
+define_shop_products_sets()
+define_shop_products_sets_options()
+define_shop_products_sets_options_values()
+define_shop_products()
+define_shop_products_variants()
+define_shop_categories()
+define_shop_categories_products()
+define_customers_orders_items_shop_products_variants()
+
 # employee claims definitions
 define_employee_claims()
 
+# shop sales
+define_shop_sales()
+define_shop_sales_products_variants()
 
 # invoice definitions
 define_invoices_groups()
@@ -6279,6 +6343,7 @@ define_invoices_mollie_payment_ids()
 define_receipts()
 define_receipts_items()
 define_receipts_amounts()
+define_receipts_shop_sales()
 
 # payment batches definitions
 define_payment_batches()
@@ -6294,19 +6359,6 @@ define_schedule_staff_status()
 
 # mollie tables
 define_mollie_log_webhook()
-
-# shop tables
-define_shop_links()
-define_shop_brands()
-define_shop_suppliers()
-define_shop_products_sets()
-define_shop_products_sets_options()
-define_shop_products_sets_options_values()
-define_shop_products()
-define_shop_products_variants()
-define_shop_categories()
-define_shop_categories_products()
-define_customers_orders_items_shop_products_variants()
 
 set_preferences_permissions()
 
