@@ -4547,12 +4547,12 @@ def compute_receipts_amounts_balance(row):
     return row.TotalPriceVAT - row.Paid
 
 
-def define_receipts_shop_sales():
-    db.define_table('receipts_shop_sales',
+def define_receipts_items_shop_sales():
+    db.define_table('receipts_items_shop_sales',
         Field('shop_sales_id', db.shop_sales,
               readable=False,
               writable=False),
-        Field('receipts_id', db.receipts,
+        Field('receipts_items_id', db.receipts_items,
               readable=False,
               writable=False)
     )
@@ -6342,8 +6342,8 @@ define_invoices_mollie_payment_ids()
 # receipts definitions
 define_receipts()
 define_receipts_items()
+define_receipts_items_shop_sales()
 define_receipts_amounts()
-define_receipts_shop_sales()
 
 # payment batches definitions
 define_payment_batches()

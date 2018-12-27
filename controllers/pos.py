@@ -1023,7 +1023,7 @@ def validate_cart_create_receipt(
         if item['item_type'] == 'product':
             pvID = item['data']['id']
             quantity = item['quantity']
-            receipt.item_add_product_variant(pvID, quantity)
+            riID = receipt.item_add_product_variant(pvID, quantity)
 
             variant = ShopProductsVariant(pvID)
             product = db.shop_products(variant.row.shop_products_id)
@@ -1040,9 +1040,9 @@ def validate_cart_create_receipt(
                 shop_products_variants_id = pvID
             )
 
-            db.receipts_shop_sales.insert(
+            db.receipts_items_shop_sales.insert(
                 shop_sales_id = ssaID,
-                receipts_id = rID
+                receipts_items_id = rID
             )
 
             # Update stock

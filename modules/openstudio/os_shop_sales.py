@@ -23,9 +23,13 @@ class ShopSales:
                 db.shop_sales_products_variants.shop_products_variants_id ==
                 db.shop_products_variants.id
             ),
-            db.receipts_shop_sales.on(
-                db.receipts_shop_sales.shop_sales_id ==
+            db.receipts_items_shop_sales.on(
+                db.receipts_items_shop_sales.shop_sales_id ==
                 db.shop_sales.id
+            ),
+            db.receipts_items.on(
+                db.receipts_items_shop_sales.receipts_items_id ==
+                db.receipts_items.id
             )
         ]
 
@@ -37,7 +41,7 @@ class ShopSales:
 
         rows = db(query).select(db.shop_sales.ALL,
                                         db.shop_products_variants.ALL,
-                                        db.receipts_shop_sales.receipts_id,
+                                        db.receipts_items.receipts_id,
                                         orderby=db.shop_sales.CreatedOn)
 
         return rows
@@ -61,9 +65,13 @@ class ShopSales:
                 db.shop_sales_products_variants.shop_products_variants_id ==
                 db.shop_products_variants.id
             ),
-            db.receipts_shop_sales.on(
-                db.receipts_shop_sales.shop_sales_id ==
+            db.receipts_items_shop_sales.on(
+                db.receipts_items_shop_sales.shop_sales_id ==
                 db.shop_sales.id
+            ),
+            db.receipts_items.on(
+                db.receipts_items_shop_sales.receipts_items_id ==
+                db.receipts_items.id
             )
         ]
 
@@ -75,7 +83,7 @@ class ShopSales:
             db.shop_sales.Quantity,
             db.shop_sales.ArticleCode,
             db.shop_sales.Barcode,
-            db.receipts_shop_sales.receipts_id,
+            db.receipts_items.receipts_id,
             db.shop_sales_products_variants.shop_products_variants_id,
             db.shop_products_variants.shop_products_id,
         ]
@@ -101,7 +109,7 @@ class ShopSales:
             details=False,
             searchable=False,
             csv=False,
-            orderby=db.shop_sales.CreatedOn,
+            orderby=~db.shop_sales.CreatedOn,
             field_id=db.shop_sales.id,
             ui=grid_ui
         )
@@ -140,7 +148,7 @@ class ShopSales:
         T = current.T
 
         link = ''
-        rID = row.receipts_shop_sales.receipts_id
+        rID = row.receipts_items.receipts_id
         if rID:
             link = A(T("Receipt %s" % rID),
                      _href=URL('finance', 'receipt', vars={'rID':rID}),
