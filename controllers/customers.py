@@ -776,11 +776,8 @@ def add():
 
     submit = form.element('input[type=submit]')
 
-    back = os_gui.get_button(
-        'back',
-        next_url
-    )
-
+    back = add_get_back()
+    
     return dict(content=form,
                 back=back,
                 save=submit)
@@ -794,7 +791,18 @@ def add_oncreate(form):
 
 
 
+def add_get_back(var=None):
+    if 'teacher' in request.vars:
+        url = URL('teachers', 'index')
+    elif 'employee' in request.vars:
+        url = URL('school_properties', 'employees')
+    else:
+        url = URL('customers', 'index')
 
+    return os_gui.get_button(
+        'back',
+        url
+    )
 
 
 
