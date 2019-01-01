@@ -1958,6 +1958,36 @@ def test_event_add_to_cart(client, web2py):
     assert cart_row.workshops_products_id == 1
 
 
+def test_event_add_to_cart_prevent_duplicate_tickets(client, web2py):
+    """
+        We shouldn't be able to add a ticket to the cart twice
+    """
+    setup_profile_tests(web2py)
+
+    # populate workshops table
+    populate_workshops(web2py)
+
+    url = '/shop/event_add_to_cart?wspID=1'
+    client.get(url)
+    assert client.status == 200
+
+    # Verify redirection
+    assert 'Shopping cart' in client.text
+
+    # Check db
+    cart_row = web2py.db.customers_shoppingcart(1)
+    assert cart_row.auth_customer_id == 300
+    assert cart_row.workshops_products_id == 1
+
+    # Ok again
+    url = '/shop/event_add_to_cart?wspID=1'
+    client.get(url)
+    assert client.status == 200
+
+    # Verify redirection
+    assert "This event ticket is already in your cart" in client.text
+
+
 def test_event_add_to_cart_requires_complete_profile(client, web2py):
     """
         Is the required profile check working for workshops?
