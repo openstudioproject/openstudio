@@ -192,38 +192,61 @@ def edit_remodel_form(form,
     # basic info
     div_basic_info = DIV(
         H3(T("Contact")),
-        TABLE(
-            TR( TD(LABEL(form.custom.label.first_name)),
-                TD(form.custom.widget.first_name),
+        DIV(
+            DIV(LABEL(form.custom.label.first_name),
+                form.custom.widget.first_name,
+                _class="col-md-6"
+            ),
+            DIV(LABEL(form.custom.label.last_name),
+                form.custom.widget.last_name,
+                _class="col-md-6"
+            ),
+            _class="row"
+        ),
+        DIV(
+            DIV(LABEL(form.custom.label.date_of_birth),
+                form.custom.widget.date_of_birth,
+                _class="col-md-6"
+            ),
+            DIV(LABEL(form.custom.label.gender),
+                form.custom.widget.gender,
+                _class="col-md-6"
+            ),
+            _class="row"
+        ),
+        DIV(
+            DIV(LABEL(form.custom.label.email),
+                DIV(form.custom.widget.email,
+                    DIV(mail_button, _class='input-group-btn'),
+                    _class='input-group'),
+                _class="col-md-12"
+            ),
+            _class="row"
+        ),
+        DIV(
+            DIV(LABEL(form.custom.label.phone),
+                form.custom.widget.phone,
+                _class="col-md-6"
                 ),
-            TR( TD(LABEL(form.custom.label.last_name)),
-                TD(form.custom.widget.last_name)
+            DIV(LABEL(form.custom.label.mobile),
+                form.custom.widget.mobile,
+                _class="col-md-6"
                 ),
-            TR( TD(LABEL(form.custom.label.date_of_birth)),
-                TD(form.custom.widget.date_of_birth),
+            _class="row"
+        ),
+        DIV(
+            DIV(LABEL(form.custom.label.school_languages_id),
+                form.custom.widget.school_languages_id,
+                _class="col-md-12"
                 ),
-            TR( TD(LABEL(form.custom.label.gender)),
-                TD(form.custom.widget.gender),
+            DIV(LABEL(form.custom.label.emergency),
+                form.custom.widget.emergency,
+                _class="col-md-12"
                 ),
-            TR( TD(LABEL(form.custom.label.email)),
-                TD(DIV(form.custom.widget.email,
-                       DIV(mail_button,
-                            _class='input-group-btn'),
-                       _class='input-group')),
-                ),
-            TR( TD(LABEL(form.custom.label.phone)),
-                TD(form.custom.widget.phone),
-                ),
-            TR( TD(LABEL(form.custom.label.mobile)),
-                TD(form.custom.widget.mobile),
-                ),
-            TR( TD(LABEL(form.custom.label.school_languages_id)),
-                TD(form.custom.widget.school_languages_id)),
-            TR( TD(LABEL(form.custom.label.emergency)),
-                TD(form.custom.widget.emergency),
-                ),
-            _class='full-width'),
-            _class='col-md-6 customers_edit_basic_info os-no_margin_bottom')
+            _class="row"
+        ),
+        _class='col-md-6 customers_edit_basic_info'
+    )
 
 
     # check if we have to separate customers by location
@@ -266,72 +289,66 @@ def edit_remodel_form(form,
     # address info
     div_address = DIV(
             DIV(H3(T('Address')), _class='col-md-12'),
-            DIV(TABLE(
-                    TR( TD(LABEL(form.custom.label.address)),
-                        TD(form.custom.widget.address),
-                        ),
-                    TR( TD(LABEL(form.custom.label.city)),
-                        TD(form.custom.widget.city),
-                        ),
-                    _class='full-width'),
-            _class='col-md-6'),
-            DIV(TABLE(
-                TR( TD(LABEL(form.custom.label.postcode)),
-                    TD(form.custom.widget.postcode)),
-                TR( TD(LABEL(form.custom.label.country)),
-                    TD(form.custom.widget.country)),
-                _class='full-width'),
-                _class='col-md-6'),
+            DIV(DIV(LABEL(form.custom.label.address),
+                    form.custom.widget.address,
+                    _class='col-md-3'),
+                DIV(LABEL(form.custom.label.postcode),
+                    form.custom.widget.postcode,
+                    _class='col-md-3'),
+                DIV(LABEL(form.custom.label.city),
+                    form.custom.widget.city,
+                    _class='col-md-3'),
+                DIV(LABEL(form.custom.label.country),
+                    form.custom.widget.country,
+                    _class='col-md-3'),
+
+            ),
         _class='col-md-12 customers_edit_address_info')
 
     # business info
     div_business = DIV(
         DIV(
-            H3(T("Studio")),
-            TABLE(
-                TR(TD(LABEL(form.custom.label.school_levels_id)),
-                   TD(form.custom.widget.school_levels_id)),
-                TR(TD(LABEL(form.custom.label.school_discovery_id)),
-                   TD(form.custom.widget.school_discovery_id)),
-                TR(TD(LABEL(form.custom.label.keynr)),
-                   TD(form.custom.widget.keynr)),
-                TR(TD(location_label),
-                   TD(location_widget)),
-
-                _class='full-width'),
-            _class='col-md-6'),
+            H3(T("Studio"), _class='col-md-12'),
+            DIV(DIV(LABEL(form.custom.label.school_levels_id),
+                    form.custom.widget.school_levels_id,
+                    _class='col-md-6'),
+                DIV(LABEL(form.custom.label.school_discovery_id),
+                    form.custom.widget.school_discovery_id,
+                    _class='col-md-6'),
+                DIV(LABEL(form.custom.label.keynr),
+                    form.custom.widget.keynr,
+                    _class='col-md-6'),
+                DIV(LABEL(location_label),
+                    location_widget,
+                    _class='col-md-6'),
+            ),
+            _class='col-md-6 no-padding-left no-padding-right'),
         DIV(
-
-
-                H3(T("Business")),
-                TABLE(
-                    TR(TD(LABEL(form.custom.label.business)),
-                       TD(form.custom.widget.business),
-                       ),
-                    TR(TD(LABEL(form.custom.label.company)),
-                       TD(form.custom.widget.company),
-                       ),
-                    TR(TD(LABEL(form.custom.label.company_registration)),
-                       TD(form.custom.widget.company_registration)),
-                    TR(TD(LABEL(form.custom.label.company_tax_registration)),
-                       TD(form.custom.widget.company_tax_registration)),
-            _class='full-width'),
-            _class='col-md-6'),
-        _class='col-md-12 customers_edit_address_info'
+            H3(form.custom.widget.business, ' ', T("Business"), _class='col-md-12'),
+            DIV(DIV(LABEL(T("Company name")),
+                    form.custom.widget.company,
+                    _class='col-md-12'),
+                DIV(LABEL(T("Company registration ID")),
+                    form.custom.widget.company_registration,
+                    _class='col-md-6'),
+                DIV(LABEL(T("Company tax registration ID")),
+                    form.custom.widget.company_tax_registration,
+                    _class='col-md-6'),
+                ),
+            _class='col-md-6 no-padding-left no-padding-right'),
+        _class='col-md-12'
     )
 
 
     notes = DIV(
         DIV(H3(T('Notes')), _class='col-md-12'),
-        DIV(
-            TABLE( TR( TD(bo_label),
-                       TD(bo_note, bo_button)),
-                  _class='full-width'),
+        DIV(DIV(LABEL(bo_label),
+                bo_note, bo_button,
+                _class='col-md-12 no-padding-left no-padding-right'),
             _class='col-md-6'),
-        DIV(
-            TABLE( TR( TD(te_label),
-                        TD(te_note, te_button)),
-                  _class='full-width'),
+        DIV(DIV(LABEL(te_label),
+                    te_note, te_button,
+                    _class='col-md-12 no-padding-left no-padding-right'),
             _class='col-md-6'),
         _class='col-md-12 customers_edit_notes')
 
@@ -919,11 +936,11 @@ def edit():
                               'note_type':'backoffice'})
 
         bo_result = os_gui.get_modal(button_text=T("All notes"),
-                                    modal_title=T('Back office notes'),
-                                    modal_content=bo_notes,
-                                    modal_class='customers_bo_notes',
-                                    button_id='all_bo_notes',
-                                    button_class='btn-xs pull-right')
+                                     modal_title=T('Back office notes'),
+                                     modal_content=bo_notes,
+                                     modal_class='customers_bo_notes',
+                                     button_id='all_bo_notes',
+                                     button_class='btn-sm')
         bo_modal = bo_result['modal']
         bo_button = bo_result['button']
 
@@ -941,7 +958,7 @@ def edit():
                                      modal_title=T('Teacher notes'),
                                      modal_content=te_notes,
                                      modal_class='customers_te_notes',
-                                     button_class='btn-xs pull-right')
+                                     button_class='btn-sm')
         te_modal = te_result['modal']
         te_button = te_result['button']
 

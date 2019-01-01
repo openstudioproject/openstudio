@@ -149,6 +149,10 @@ a.red:visited {
     padding-left: 0;
 }
 
+.no-padding-right {
+    padding-right: 0;
+}
+
 .no-margin-top {
     margin-top: 0;
 }
@@ -307,12 +311,19 @@ td.os-customer_image_td {
 .customers_edit_basic_info {
 	padding-top:3px;
 }
+
+.customers_edit_basic_info .input-group {
+    margin-left: 0px;
+}
+
+/*
 .customers_edit_basic_info input,
 .customers_edit_address_info input,
 .customers_edit_basic_info select,
 .customers_edit_address_info select {
     margin-left: 6px;
 }
+*/
 .customers_edit_notes button {
     margin-top: 10px;
 }
@@ -359,10 +370,11 @@ ul#os-customers_notes li {
 }
 
 div.os-customers_note_latest {
-    margin-bottom: 100px;
     border: 1px solid #CCC;
     padding: 4px 6px 4px 6px;
-    margin: 10px 3px 0 6px;
+/*
+    margin: px 3px 0 0px;
+*/
     min-height: 60px;
     width: 100%;
 }
