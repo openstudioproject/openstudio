@@ -383,6 +383,8 @@ WHERE (au.last_login < '{date}' OR au.last_login IS NULL) AND
     #
     
     def get_add(self,
+                button_text=None,
+                btn_size='btn-sm',
                 redirect_vars={}):
         """
         :return: Returns an html add button for an account
@@ -394,7 +396,9 @@ WHERE (au.last_login < '{date}' OR au.last_login IS NULL) AND
         add = os_gui.get_button(
             'add',
             URL('customers', 'add', vars=redirect_vars),
-            _class='pull-right'
+            _class='pull-right',
+            btn_size=btn_size,
+            title=button_text
         )
         
         return add

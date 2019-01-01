@@ -119,6 +119,10 @@ class Reports:
         cls = Class(clsID, date)
         class_prices = cls.get_prices()
 
+        print class_prices
+        print type(class_prices['trial_membership'])
+        print type(class_prices['trial'])
+
         data = {
             'subscriptions': {},
             'classcards': {},

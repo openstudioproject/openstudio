@@ -807,6 +807,11 @@ def add_get_back(var=None):
         url = URL('teachers', 'index')
     elif 'employee' in request.vars:
         url = URL('school_properties', 'employees')
+    elif 'clsID' in request.vars:
+        url = URL('classes', 'attendance', vars={
+            'clsID': request.vars['clsID'],
+            'date': request.vars['date'],
+        })
     else:
         url = URL('customers', 'index')
 
