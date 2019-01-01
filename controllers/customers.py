@@ -371,14 +371,14 @@ def subscriptions_get_link_membership_check(row):
     ssu = SchoolSubscription(row.school_subscriptions_id, set_db_info=True)
     required_membership = ssu.school_memberships_id
 
-    customer = Customer(row.customers_classcards.auth_customer_id)
+    customer = Customer(row.auth_customer_id)
 
     memberships = customer.get_memberships_on_date(TODAY_LOCAL)
     ids = []
     for row in memberships:
         ids.append(row.id)
 
-    if not required_membership in ids:
+    if required_membership and not required_membership in ids:
         return os_gui.get_label(
             'warning',
             T('No membership'),
