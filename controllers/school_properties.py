@@ -2583,10 +2583,9 @@ def employees():
     # remove text from delete button
     grid.elements('span[title=Delete]', replace=None)
 
-    # modal to add employee
+    # add employee
     customers = Customers()
-    result = customers.get_add_modal(redirect_vars={'employee':True}, button_class='btn-sm pull-right')
-    add = SPAN(result['button'], result['modal'])
+    add = customers.get_add(redirect_vars={'employee':True})
 
     tools = employees_get_tools()
     back = DIV(add, tools)

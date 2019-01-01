@@ -516,14 +516,8 @@ def index_get_add():
     add = ''
     if ( auth.has_membership(group_id='Admins') or
          auth.has_permission('create', 'auth_user') ):
-        add = os_gui.get_button(
-            'add',
-            URL('add'),
-            _class='pull-right'
-        )
-        # customers = Customers()
-        # result = customers.get_add_modal()
-        # add = SPAN(result['button'], result['modal'], _class='pull-right')
+        customers = Customers()
+        add = customers.get_add()
 
     return add
 
@@ -777,7 +771,7 @@ def add():
     submit = form.element('input[type=submit]')
 
     back = add_get_back()
-    
+
     return dict(content=form,
                 back=back,
                 save=submit)

@@ -36,10 +36,9 @@ def index():
     # show back, add and export buttons above teachers list
     back = os_gui.get_button('back', URL('school_properties', 'index'))
 
-    #add = os_gui.get_button('add', URL('teacher_add'))
+    # add employee
     customers = Customers()
-    result = customers.get_add_modal(redirect_vars={'teacher':True}, button_class='btn-sm pull-right')
-    add = SPAN(result['button'], result['modal'])
+    add = customers.get_add(redirect_vars={'teacher':True})
 
     contact_list = A(SPAN(os_gui.get_fa_icon('fa-volume-control-phone'), ' ',
                           T("Contact list")),
