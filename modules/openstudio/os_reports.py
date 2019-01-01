@@ -240,6 +240,7 @@ class Reports:
         """
         from os_class import Class
         from general_helpers import max_string_length
+        from decimal import Decimal, ROUND_HALF_UP
 
         T = current.T
         represent_float_as_amount = current.globalenv['represent_float_as_amount']
