@@ -1545,7 +1545,7 @@ def classcards_get_link_membership_check(row):
     for row in memberships:
         ids.append(row.id)
 
-    if not required_membership in ids:
+    if required_membership and not required_membership in ids:
         return os_gui.get_label(
             'warning',
             T('No membership'),
