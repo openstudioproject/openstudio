@@ -1196,6 +1196,8 @@ def represent_school_classcards_classes(value, row):
     """
     if row.Unlimited:
         return T('Unlimited')
+    elif not row.Unlimited and not row.Classes:
+        return SPAN(T('Invalid'), _title=T("Invalid settings - no classes defined. A card should either have classes or be unlimited."))
     else:
         return value
 
