@@ -516,9 +516,14 @@ def index_get_add():
     add = ''
     if ( auth.has_membership(group_id='Admins') or
          auth.has_permission('create', 'auth_user') ):
-        customers = Customers()
-        result = customers.get_add_modal()
-        add = SPAN(result['button'], result['modal'], _class='pull-right')
+        add = os_gui.get_button(
+            'add',
+            URL('add'),
+            _class='pull-right'
+        )
+        # customers = Customers()
+        # result = customers.get_add_modal()
+        # add = SPAN(result['button'], result['modal'], _class='pull-right')
 
     return add
 
@@ -699,8 +704,12 @@ def add():
         Page to add a new customer, only show the required field and after
         adding redirect to the edit page
     """
-    # call js for styling the form
-    response.js = 'set_form_classes();'
+    response.view = 'general/only_content.html'
+    response.title = T("New account")
+    response.subtitle = T("Add a customer")
+
+    # # call js for styling the form
+    # response.js = 'set_form_classes();'
 
     # enable only required fields
     for field in db.auth_user:
@@ -730,11 +739,13 @@ def add():
     db.auth_user.customer.default = True
 
     if request.vars['teacher'] == 'True':
+        response.subtitle = T("Add a teacher")
         db.auth_user.teacher.default = True
         db.auth_user.login_start.default = 'backend'
         crud.settings.create_onaccept = [cache_clear_school_teachers]
 
     if request.vars['employee'] == 'True':
+        response.subtitle = T("Add an employee")
         db.auth_user.employee.default = True
         db.auth_user.login_start.default  = 'backend'
 
@@ -750,6 +761,7 @@ def add():
 
     crud.messages.submit_button = T("Save")
     crud.messages.record_created = T("Saved")
+    crud.settings.formstyle = "bootstrap3_stacked"
     crud.settings.create_onaccept = [add_oncreate]
     crud.settings.create_next = next_url
     form = crud.create(db.auth_user)
@@ -764,12 +776,14 @@ def add():
 
     submit = form.element('input[type=submit]')
 
-    # Make table inputs full width
-    table = form.element('table')
-    table['_class'] = 'full-width'
+    back = os_gui.get_button(
+        'back',
+        next_url
+    )
 
-    return dict(content=form)
-
+    return dict(content=form,
+                back=back,
+                save=submit)
 
 
 def add_oncreate(form):
@@ -777,6 +791,10 @@ def add_oncreate(form):
 
     customer = Customer(form.vars.id)
     customer.on_create()
+
+
+
+
 
 
 
