@@ -114,7 +114,7 @@ class School:
                             DIV(
                                 DIV(H5(self._get_classcards_formatted_button_to_cart(
                                         row.id,
-                                        row.MembershipRequired,
+                                        row.school_memberships_id,
                                         customer_has_membership
                                         ),
                                         _class="description-header"),
@@ -177,18 +177,31 @@ class School:
 
     def _get_classcards_formatted_button_to_cart(self,
                                                  scdID,
-                                                 membership_required,
+                                                 school_memberships_id,
                                                  customer_has_membership):
         """
             Get button to add card to shopping cart
         """
         from tools import OsTools
+        from os_customer import Customer
 
+        db = current.db
+        auth = current.auth
+        TODAY_LOCAL = current.TODAY_LOCAL
         os_gui = current.globalenv['os_gui']
         T = current.T
 
-        if membership_required and not customer_has_membership:
-            return A(SPAN(T("Membership required"), ' ', os_gui.get_fa_icon('fa-arrow-right')),
+        customer = Customer(auth.user.id)
+        memberships = customer.get_memberships_on_date(TODAY_LOCAL)
+        ids = []
+        for row in memberships:
+            ids.append(row.id)
+
+        if school_memberships_id and not school_memberships_id in ids:
+            sm = db.school_memberships(school_memberships_id)
+            return A(SPAN(T("Membership %s required" % sm.Name), ' ',
+                          os_gui.get_fa_icon('fa-arrow-right'),
+                          _class='smaller_font'),
                      _href=URL('shop', 'memberships'))
 
         link =  A(SPAN(os_gui.get_fa_icon('fa-shopping-cart fa-2x')),
