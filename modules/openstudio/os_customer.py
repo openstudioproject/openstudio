@@ -1261,7 +1261,7 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         """
         db = current.db
 
-        query = (db.customers_notes.auth_customer_id == customers_id)
+        query = (db.customers_notes.auth_customer_id == self.cuID)
 
         if note_type == 'backoffice':
             query &= (db.customers_notes.BackofficeNote == True)

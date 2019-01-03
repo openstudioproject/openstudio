@@ -267,7 +267,7 @@ def edit_remodel_form(form,
         if auth.has_membership(group_id='Admins') or \
            auth.has_permission('read', 'customers_notes_backoffice'):
             bo_label = LABEL(T("Back office"))
-            bo_note = DIV(LOAD('customers', 'notes.load', ajax=True,
+            bo_note = DIV(LOAD('customers', 'note_latest.load', ajax=True,
                                         target='os-bonote_latest',
                                         vars={'cuID':customers_id,
                                               'note_type':'backoffice',
@@ -278,7 +278,7 @@ def edit_remodel_form(form,
         if auth.has_membership(group_id='Admins') or \
            auth.has_permission('read', 'customers_notes_teachers'):
             te_label = LABEL(T("Teachers"))
-            te_note = DIV(LOAD('customers', 'notes.load', ajax=True,
+            te_note = DIV(LOAD('customers', 'note_latest.load', ajax=True,
                                      target='os-tenote_latest',
                                    vars={'cuID':customers_id,
                                          'note_type':'teachers',
@@ -936,10 +936,6 @@ def edit():
     # add notes
     if auth.has_membership(group_id='Admins') or \
        auth.has_permission('read', 'customers_notes_backoffice'):
-        bo_notes = LOAD('customers', 'note_latest.load', ajax=True,
-                        vars={'cuID':customers_id,
-                              'note_type':'backoffice'})
-
         bo_button = os_gui.get_button(
             'noicon',
             URL('notes', vars={'cuID': customers_id,
@@ -952,10 +948,6 @@ def edit():
 
     if auth.has_membership(group_id='Admins') or \
        auth.has_permission('read', 'customers_notes_teachers'):
-        te_notes = LOAD('customers', 'note_latest.load', ajax=True,
-                        vars={'cuID':customers_id,
-                              'note_type':'teachers'})
-
         te_button = os_gui.get_button(
             'noicon',
             URL('notes', vars={'cuID': customers_id,
@@ -966,16 +958,18 @@ def edit():
         )
 
     # get styles form
-    form = edit_remodel_form(form,
-                             picture,
-                             change_picture,
-                             label_id,
-                             customers_id,
-                             bo_button=bo_button,
-                             te_button=te_button,
-                             mail_button=mail_button,
-                             merged=row.merged,
-                             row=row)
+    form = edit_remodel_form(
+        form,
+        picture,
+        change_picture,
+        label_id,
+        customers_id,
+        bo_button=bo_button,
+        te_button=te_button,
+        mail_button=mail_button,
+        merged=row.merged,
+        row=row
+    )
 
     alert = ''
     if row.merged:
@@ -4387,10 +4381,7 @@ def notes():
     response.subtitle = SPAN(T("Notes"), XML(' &bull; '))
 
     active_class = 'web2py-menu-active'
-
     db.auth_user._format = '%(display_name)s'
-
-    query = (db.customers_notes.auth_customer_id == customers_id)
 
     if note_type is None:
         db.customers_notes.BackofficeNote.default = True
@@ -4398,18 +4389,16 @@ def notes():
     if note_type == 'backoffice':
         response.subtitle.append(T("Back office"))
         db.customers_notes.BackofficeNote.default = True
-        query &= (db.customers_notes.BackofficeNote == True)
-
 
     if note_type == 'teachers':
         response.subtitle.append(T("Teachers"))
         db.customers_notes.TeacherNote.default = True
-        query &= (db.customers_notes.TeacherNote == True)
 
+
+    customer = Customer(customers_id)
     notes = UL(_id='os-customers_notes')
-    rows = db(query).select(db.customers_notes.ALL,
-                            orderby=~db.customers_notes.NoteDate|\
-                                    ~db.customers_notes.NoteTime)
+
+    rows = customer.get_notes(note_type=note_type)
     for row in rows.render():
         row_note_type = ''
         if row.BackofficeNote:
@@ -4451,37 +4440,29 @@ def notes():
                             XML(row.Note.replace('\n','<br>')),
                             _id='note_' + unicode(row.id)))
 
-    if latest == 'True':
-        try:
-            return_value = note
-        except:
-            # no rows found
-            return_value = ''
+
+    vars = {'cuID':customers_id}
+    if not note_type or note_type == 'backoffice':
+        vars['note_type'] = 'backoffice'
     else:
-        vars = {'cuID':customers_id}
-        if not note_type or note_type == 'backoffice':
-            vars['note_type'] = 'backoffice'
-        else:
-            vars['note_type'] = 'teachers'
+        vars['note_type'] = 'teachers'
 
-        perm = auth.has_membership(group_id='Admins') or \
-               auth.has_permission('create', 'customers_notes')
-        if perm:
-            add = notes_get_add()
-            add_title = H4(T('Add a new note'))
-        else:
-            add = ''
-            add_title = ''
+    perm = auth.has_membership(group_id='Admins') or \
+           auth.has_permission('create', 'customers_notes')
+    if perm:
+        add = notes_get_add()
+        add_title = H4(T('Add a new note'))
+    else:
+        add = ''
+        add_title = ''
 
-        content = DIV(add_title,
-                      add,
-                      notes)
+    content = DIV(add_title,
+                  add,
+                  notes)
 
-        return_value = dict(content=content)
-
-    response.js = "iconHandlers()"
-
-    return return_value
+    return dict(
+        content=content
+    )
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -4505,11 +4486,14 @@ def note_latest():
     except:
         latest_length = 50 # set default
 
-
     customer = Customer(customers_id)
     rows = customer.get_notes(note_type=note_type)
 
-    latest_note = rows.render()[0]
+    if not rows:
+        return ''
+
+    latest_note = rows.first()
+
     return DIV(XML(max_string_length(latest_note.Note.replace('\n','<br>'),
                                      latest_length)))
 
