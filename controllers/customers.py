@@ -4363,26 +4363,14 @@ def notes():
             'backoffice' for a backoffice note
             'teacher' for a teacher note
     """
-    customers_id = request.vars['cuID']
+    cnID = request.vars['cnID']
+    cuID = request.vars['cuID']
     note_type = request.vars['note_type']
-    latest = request.vars['latest']
-    latest_length = request.vars['latest_length']
-    try:
-        latest_length = int(latest_length)
-    except:
-        latest_length = 50 # set default
 
-    backoffice_class = ''
-    teachers_class = ''
-    all_class = ''
-
-    row = db.auth_user[customers_id]
-    response.title = row.display_name
+    customer = Customer(cuID)
+    response.title = customer.row.display_name
     response.subtitle = T("Profile")
     response.view = 'general/tabs_menu.html'
-
-    active_class = 'web2py-menu-active'
-    db.auth_user._format = '%(display_name)s'
 
     sub_subtitle = SPAN(T("Notes"), XML(' &bull; '))
     if note_type is None:
@@ -4396,7 +4384,6 @@ def notes():
         sub_subtitle.append(T("Teachers"))
         db.customers_notes.TeacherNote.default = True
 
-
     permission_edit = (
             auth.has_membership(group_id='Admins') or
             auth.has_permission('update', 'customers_notes')
@@ -4406,78 +4393,41 @@ def notes():
             auth.has_permission('delete', 'customers_notes')
     )
 
-    customer = Customer(customers_id)
+
     notes = customer.get_notes_formatted(
         note_type,
         permission_edit,
         permission_delete
     )
-    # notes = UL(_id='os-customers_notes')
-    #
-    # rows = customer.get_notes(note_type=note_type)
-    # for row in rows.render():
-    #     row_note_type = ''
-    #     if row.BackofficeNote:
-    #         row_note_type = T('Back office')
-    #     elif row.TeacherNote:
-    #         row_note_type = T('Teachers')
-    #
-    #     buttons = DIV(_class='btn-group pull-right')
-    #     if auth.has_membership(group_id='Admins') or \
-    #        auth.has_permission('update', 'customers_notes'):
-    #         edit = os_gui.get_button('edit_notext',
-    #                           URL('note_edit', args=[row.id]),
-    #                           cid=request.cid)
-    #         buttons.append(edit)
-    #
-    #     if auth.has_membership(group_id='Admins') or \
-    #        auth.has_permission('delete', 'customers_notes'):
-    #         remove = os_gui.get_button('delete_notext', '#')
-    #         buttons.append(remove)
-    #
-    #         # correct time for timezone
-    #         #TODO: Move notedate and notetime fields into notedatetime and then represent using pytz
-    #
-    #
-    #         notes.append(LI(buttons,
-    #                         SPAN(row.NoteDate,
-    #                              ' ',
-    #                              row.NoteTime,
-    #                              _class='bold'),
-    #                         SPAN(' - ',
-    #                              row.auth_user_id,
-    #                              _class='grey'),
-    #                         BR(),
-    #                         XML(row.Note.replace('\n','<br>')),
-    #                         _id='note_' + unicode(row.id)))
 
+    # form
+    form = ''
+    form_title = ''
 
-    vars = {'cuID':customers_id}
-    if not note_type or note_type == 'backoffice':
-        vars['note_type'] = 'backoffice'
+    if not cnID:
+        perm = auth.has_membership(group_id='Admins') or \
+               auth.has_permission('create', 'customers_notes')
+        if perm:
+            form = notes_get_add()
+            form_title = H4(T('Add a new note'))
     else:
-        vars['note_type'] = 'teachers'
-
-    perm = auth.has_membership(group_id='Admins') or \
-           auth.has_permission('create', 'customers_notes')
-    if perm:
-        add = notes_get_add()
-        add_title = H4(T('Add a new note'))
-    else:
-        add = ''
-        add_title = ''
+        perm = auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'customers_notes')
+        if perm:
+            form = notes_get_edit(cnID, cuID, note_type)
+            form_title = H4(T('Edit note'))
 
     content = DIV(
         H4(sub_subtitle),
         notes,
-        add_title,
-        add,
+        form_title,
+        form,
     )
 
-    menu = customers_get_menu(customers_id, 'general')
+    menu = customers_get_menu(cuID, 'general')
     back = os_gui.get_button(
         'back',
-        URL('edit', args=[customers_id])
+        URL('edit', args=[cuID])
     )
 
     return dict(
@@ -4520,48 +4470,48 @@ def note_latest():
                                      latest_length)))
 
 
-@auth.requires_login()
-def note_edit():
-    """
-        Provides an edit page for a note.
-        request.args[0] is expected to be the customers_note_id (cn_id)
-    """
-    cn_id = request.args[0]
-
-    note = db.customers_notes(cn_id)
-    customers_id = note.auth_customer_id
-
-    if note.BackofficeNote:
-        note_type = 'backoffice'
-    elif note.TeacherNote:
-        note_type = 'teachers'
-
-    crud.messages.submit_button = T("Save")
-    crud.messages.record_updated = T('Saved')
-    form = crud.update(db.customers_notes, cn_id)
-
-    form.custom.widget.Note['_class'] += ' form-control'
-
-    form = DIV(form.custom.begin,
-               form.custom.widget.Note,
-               form.custom.submit,
-               form.custom.end,
-               _class='os-customers_notes_edit clear')
-
-    back =  os_gui.get_button('back',
-                      URL('notes', vars={'cuID':customers_id,
-                                         'note_type':note_type}),
-                      _class='left',
-                      cid=request.cid)
-
-    content = DIV(BR(),
-                  back,
-                  BR(),BR(),
-                  form)
-
-    response.js = "setTimeout(function() { $('div.flash').fadeOut(); }, 2500 );"
-
-    return dict(content=content)
+# @auth.requires_login()
+# def note_edit():
+#     """
+#         Provides an edit page for a note.
+#         request.args[0] is expected to be the customers_note_id (cn_id)
+#     """
+#     cn_id = request.args[0]
+#
+#     note = db.customers_notes(cn_id)
+#     customers_id = note.auth_customer_id
+#
+#     if note.BackofficeNote:
+#         note_type = 'backoffice'
+#     elif note.TeacherNote:
+#         note_type = 'teachers'
+#
+#     crud.messages.submit_button = T("Save")
+#     crud.messages.record_updated = T('Saved')
+#     form = crud.update(db.customers_notes, cn_id)
+#
+#     form.custom.widget.Note['_class'] += ' form-control'
+#
+#     form = DIV(form.custom.begin,
+#                form.custom.widget.Note,
+#                form.custom.submit,
+#                form.custom.end,
+#                _class='os-customers_notes_edit clear')
+#
+#     back =  os_gui.get_button('back',
+#                       URL('notes', vars={'cuID':customers_id,
+#                                          'note_type':note_type}),
+#                       _class='left',
+#                       cid=request.cid)
+#
+#     content = DIV(BR(),
+#                   back,
+#                   BR(),BR(),
+#                   form)
+#
+#     response.js = "setTimeout(function() { $('div.flash').fadeOut(); }, 2500 );"
+#
+#     return dict(content=content)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -4586,7 +4536,6 @@ def note_delete():
     redirect(URL('customers', 'notes', vars={'cuID': cuID,
                                              'note_type': note_type}))
 
-
 def notes_get_add(var=None):
     """
         Provides a page to add a note
@@ -4608,7 +4557,6 @@ def notes_get_add(var=None):
     db.customers_notes.auth_customer_id.default = customers_id
     db.customers_notes.auth_user_id.default = auth.user.id
 
-
     crud.messages.submit_button = T("Save")
     crud.messages.record_created = T('')
     crud.settings.create_next = return_url
@@ -4619,6 +4567,43 @@ def notes_get_add(var=None):
     form = DIV(form.custom.begin,
                form.custom.widget.Note,
                form.custom.submit,
+               form.custom.end,
+               _class='os-customers_notes_edit')
+
+    return form
+
+
+def notes_get_edit(cnID, cuID, note_type):
+    """
+        Provides a page to add a note
+        request.vars['note_type'] can be 2 values
+            'backoffice' for a backoffice note
+            'teachers' for a teachers note
+    """
+    if note_type is None:
+        vars = {'cuID': cuID}
+    else:
+        vars = {'cuID': cuID,
+                'note_type': note_type}
+
+    return_url = URL('notes', vars=vars)
+
+    db.customers_notes.auth_customer_id.default = cuID
+    db.customers_notes.auth_user_id.default = auth.user.id
+
+    crud.messages.submit_button = T("Save")
+    crud.messages.record_updated = T("Saved")
+    crud.settings.update_next = return_url
+    form = crud.update(db.customers_notes, cnID)
+
+    form.custom.widget.Note['_class'] += ' form-control'
+
+    form = DIV(form.custom.begin,
+               form.custom.widget.Note,
+               form.custom.submit,
+               A(T('Cancel'),
+                 _href=return_url,
+                 _class='btn btn-link'),
                form.custom.end,
                _class='os-customers_notes_edit')
 

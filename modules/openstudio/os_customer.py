@@ -1303,7 +1303,11 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
                            _class='text-red')
 
             if permission_edit:
-                edit = T("Edit")
+                edit = A(T('Edit'),
+                           _href=URL('customers', 'notes', vars={'cnID': row.id,
+                                                                 'cuID': self.cuID,
+                                                                 'note_type': note_type}),
+                           )
 
             note = DIV(
                 DIV(SPAN(repr_row.auth_user_id,
