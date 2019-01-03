@@ -4494,6 +4494,8 @@ def note_latest():
             'backoffice' for a backoffice note
             'teacher' for a teacher note
     """
+    from openstudio.os_customer import Customer
+
     customers_id = request.vars['cuID']
     note_type = request.vars['note_type']
     latest = request.vars['latest']
@@ -4504,31 +4506,12 @@ def note_latest():
         latest_length = 50 # set default
 
 
-    query = (db.customers_notes.auth_customer_id == customers_id)
-
-    if note_type is None:
-        db.customers_notes.BackofficeNote.default = True
-
-    if note_type == 'backoffice':
-        response.subtitle.append(T("Back office"))
-        db.customers_notes.BackofficeNote.default = True
-        query &= (db.customers_notes.BackofficeNote == True)
-
-
-    if note_type == 'teachers':
-        response.subtitle.append(T("Teachers"))
-        db.customers_notes.TeacherNote.default = True
-        query &= (db.customers_notes.TeacherNote == True)
-
-    notes = UL(_id='os-customers_notes')
-    rows = db(query).select(db.customers_notes.ALL,
-                            orderby=~db.customers_notes.NoteDate|\
-                                    ~db.customers_notes.NoteTime)
+    customer = Customer(customers_id)
+    rows = customer.get_notes(note_type=note_type)
 
     latest_note = rows.render()[0]
     return DIV(XML(max_string_length(latest_note.Note.replace('\n','<br>'),
                                      latest_length)))
-
 
 
 @auth.requires_login()

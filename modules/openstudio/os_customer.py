@@ -1254,3 +1254,25 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         return logo_img
 
 
+    def get_notes(self, note_type=None):
+        """
+
+        :return:
+        """
+        db = current.db
+
+        query = (db.customers_notes.auth_customer_id == customers_id)
+
+        if note_type == 'backoffice':
+            query &= (db.customers_notes.BackofficeNote == True)
+
+        if note_type == 'teachers':
+            query &= (db.customers_notes.TeacherNote == True)
+
+        rows = db(query).select(
+            db.customers_notes.ALL,
+            orderby=~db.customers_notes.NoteDate | \
+                    ~db.customers_notes.NoteTime
+        )
+
+        return rows
