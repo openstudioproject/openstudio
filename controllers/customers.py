@@ -4379,6 +4379,7 @@ def notes():
     row = db.auth_user[customers_id]
     response.title = row.display_name
     response.subtitle = SPAN(T("Notes"), XML(' &bull; '))
+    response.view = 'general/tabs_menu.html'
 
     active_class = 'web2py-menu-active'
     db.auth_user._format = '%(display_name)s'
@@ -4396,49 +4397,45 @@ def notes():
 
 
     customer = Customer(customers_id)
-    notes = UL(_id='os-customers_notes')
-
-    rows = customer.get_notes(note_type=note_type)
-    for row in rows.render():
-        row_note_type = ''
-        if row.BackofficeNote:
-            row_note_type = T('Back office')
-        elif row.TeacherNote:
-            row_note_type = T('Teachers')
-
-        if latest == 'True':
-            note = DIV(XML(max_string_length(row.Note.replace('\n','<br>'),
-                                             latest_length)))
-            break
-        else:
-            buttons = DIV(_class='btn-group pull-right')
-            if auth.has_membership(group_id='Admins') or \
-               auth.has_permission('update', 'customers_notes'):
-                edit = os_gui.get_button('edit_notext',
-                                  URL('note_edit', args=[row.id]),
-                                  cid=request.cid)
-                buttons.append(edit)
-
-            if auth.has_membership(group_id='Admins') or \
-               auth.has_permission('delete', 'customers_notes'):
-                remove = os_gui.get_button('delete_notext', '#')
-                buttons.append(remove)
-
-            # correct time for timezone
-            #TODO: Move notedate and notetime fields into notedatetime and then represent using pytz
-
-
-            notes.append(LI(buttons,
-                            SPAN(row.NoteDate,
-                                 ' ',
-                                 row.NoteTime,
-                                 _class='bold'),
-                            SPAN(' - ',
-                                 row.auth_user_id,
-                                 _class='grey'),
-                            BR(),
-                            XML(row.Note.replace('\n','<br>')),
-                            _id='note_' + unicode(row.id)))
+    notes = customer.get_notes_formatted(note_type)
+    # notes = UL(_id='os-customers_notes')
+    #
+    # rows = customer.get_notes(note_type=note_type)
+    # for row in rows.render():
+    #     row_note_type = ''
+    #     if row.BackofficeNote:
+    #         row_note_type = T('Back office')
+    #     elif row.TeacherNote:
+    #         row_note_type = T('Teachers')
+    #
+    #     buttons = DIV(_class='btn-group pull-right')
+    #     if auth.has_membership(group_id='Admins') or \
+    #        auth.has_permission('update', 'customers_notes'):
+    #         edit = os_gui.get_button('edit_notext',
+    #                           URL('note_edit', args=[row.id]),
+    #                           cid=request.cid)
+    #         buttons.append(edit)
+    #
+    #     if auth.has_membership(group_id='Admins') or \
+    #        auth.has_permission('delete', 'customers_notes'):
+    #         remove = os_gui.get_button('delete_notext', '#')
+    #         buttons.append(remove)
+    #
+    #         # correct time for timezone
+    #         #TODO: Move notedate and notetime fields into notedatetime and then represent using pytz
+    #
+    #
+    #         notes.append(LI(buttons,
+    #                         SPAN(row.NoteDate,
+    #                              ' ',
+    #                              row.NoteTime,
+    #                              _class='bold'),
+    #                         SPAN(' - ',
+    #                              row.auth_user_id,
+    #                              _class='grey'),
+    #                         BR(),
+    #                         XML(row.Note.replace('\n','<br>')),
+    #                         _id='note_' + unicode(row.id)))
 
 
     vars = {'cuID':customers_id}
@@ -4456,12 +4453,23 @@ def notes():
         add = ''
         add_title = ''
 
-    content = DIV(add_title,
-                  add,
-                  notes)
+    content = DIV(
+        H4(response.subtitle), BR(),
+        notes,
+        add_title,
+        add,
+    )
+
+    menu = customers_get_menu(customers_id, 'general')
+    back = os_gui.get_button(
+        'back',
+        URL('edit', args=[customers_id])
+    )
 
     return dict(
-        content=content
+        content=content,
+        menu=menu,
+        back=back,
     )
 
 

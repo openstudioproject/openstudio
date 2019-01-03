@@ -1276,3 +1276,40 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         )
 
         return rows
+
+
+    def get_notes_formatted(self, note_type, permission_edit=False, permission_delete=False):
+        """
+        :param note_type: ['backoffice', 'teachers']
+        :return: HTML formatted notes using AdminLTE chat layout
+        """
+        T = current.T
+
+        rows = self.get_notes(note_type=note_type)
+
+        notes = DIV(_class='direct-chat-messages direct-chat-messages-high')
+        for i, row in enumerate(rows):
+            repr_row = list(rows[i:i + 1].render())[0]
+
+            delete = T("Delete")
+            edit = T("Edit")
+
+            note = DIV(
+                DIV(SPAN(repr_row.auth_user_id,
+                         _class="direct-chat-name pull-left"),
+                    SPAN(delete,
+                         _class="direct-chat-scope pull-right"),
+                    SPAN(edit,
+                         _class="direct-chat-scope pull-right"),
+                    SPAN(repr_row.NoteDate, ' ', repr_row.NoteTime, ' ',
+                         _class="direct-chat-timestamp pull-right"),
+                    _class="direct-chat-info clearfix"
+                    ),
+                IMG(_src=URL('static', 'images/person_inverted_small.png'), _class="direct-chat-img"),
+                DIV(XML(repr_row.Note.replace('\n', '<br>')), _class="direct-chat-text"),
+                _class="direct-chat-msg"
+            )
+
+            notes.append(note)
+
+        return notes
