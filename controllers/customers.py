@@ -4378,26 +4378,40 @@ def notes():
 
     row = db.auth_user[customers_id]
     response.title = row.display_name
-    response.subtitle = SPAN(T("Notes"), XML(' &bull; '))
+    response.subtitle = T("Profile")
     response.view = 'general/tabs_menu.html'
 
     active_class = 'web2py-menu-active'
     db.auth_user._format = '%(display_name)s'
 
+    sub_subtitle = SPAN(T("Notes"), XML(' &bull; '))
     if note_type is None:
         db.customers_notes.BackofficeNote.default = True
 
     if note_type == 'backoffice':
-        response.subtitle.append(T("Back office"))
+        sub_subtitle.append(T("Back office"))
         db.customers_notes.BackofficeNote.default = True
 
     if note_type == 'teachers':
-        response.subtitle.append(T("Teachers"))
+        sub_subtitle.append(T("Teachers"))
         db.customers_notes.TeacherNote.default = True
 
 
+    permission_edit = (
+            auth.has_membership(group_id='Admins') or
+            auth.has_permission('update', 'customers_notes')
+    )
+    permission_delete = (
+            auth.has_membership(group_id='Admins') or
+            auth.has_permission('delete', 'customers_notes')
+    )
+
     customer = Customer(customers_id)
-    notes = customer.get_notes_formatted(note_type)
+    notes = customer.get_notes_formatted(
+        note_type,
+        permission_edit,
+        permission_delete
+    )
     # notes = UL(_id='os-customers_notes')
     #
     # rows = customer.get_notes(note_type=note_type)
@@ -4454,7 +4468,7 @@ def notes():
         add_title = ''
 
     content = DIV(
-        H4(response.subtitle), BR(),
+        H4(sub_subtitle),
         notes,
         add_title,
         add,
@@ -4556,18 +4570,21 @@ def note_delete():
     """
         Called as JSON, used to remove a note
     """
-    response.view = 'generic.json'
-    cn_id = request.vars['id']
+    cuID = request.vars['cuID']
+    cnID = request.vars['cnID']
 
-    status = 'success'
-    message = T('Deleted note')
+    note = db.customers_notes(cnID)
+    if note.TeacherNote:
+        note_type = 'teachers'
+    else:
+        note_type = 'backoffice'
 
-    query = (db.customers_notes.id == cn_id)
-    if not db(query).delete(): # returns 0 when it fails
-        status = 'fail'
-        message = T("Delete failed")
+    query = (db.customers_notes.id == cnID)
+    db(query).delete()
 
-    return dict(status=status, message=message)
+    session.flash = T("Deleted note")
+    redirect(URL('customers', 'notes', vars={'cuID': cuID,
+                                             'note_type': note_type}))
 
 
 def notes_get_add(var=None):

@@ -1284,6 +1284,7 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         :return: HTML formatted notes using AdminLTE chat layout
         """
         T = current.T
+        delete_onclick = "return confirm('" + T('Are you sure you want to delete this note?') + "');"
 
         rows = self.get_notes(note_type=note_type)
 
@@ -1291,8 +1292,18 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         for i, row in enumerate(rows):
             repr_row = list(rows[i:i + 1].render())[0]
 
-            delete = T("Delete")
-            edit = T("Edit")
+            edit = ''
+            delete = ''
+
+            if permission_delete:
+                delete = A(T('Delete'),
+                           _href=URL('customers', 'note_delete', vars={'cnID': row.id,
+                                                                       'cuID': self.cuID}),
+                           _onclick=delete_onclick,
+                           _class='text-red')
+
+            if permission_edit:
+                edit = T("Edit")
 
             note = DIV(
                 DIV(SPAN(repr_row.auth_user_id,

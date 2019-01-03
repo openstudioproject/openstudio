@@ -3476,7 +3476,8 @@ def attendance_teacher_notes_get_content(cuID, clsID, date_formatted):
                                                                          'cuID':cuID,
                                                                          'clsID':clsID,
                                                                          'date':date_formatted}),
-                       _onclick=delete_onclick)
+                       _onclick=delete_onclick,
+                       _class='text-red')
 
 
         injury = ''
