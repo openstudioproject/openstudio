@@ -936,41 +936,35 @@ def edit():
     # add notes
     if auth.has_membership(group_id='Admins') or \
        auth.has_permission('read', 'customers_notes_backoffice'):
-        bo_notes = LOAD('customers', 'notes.load', ajax=True,
+        bo_notes = LOAD('customers', 'note_latest.load', ajax=True,
                         vars={'cuID':customers_id,
                               'note_type':'backoffice'})
 
-        bo_result = os_gui.get_modal(button_text=T("All notes"),
-                                     modal_title=T('Back office notes'),
-                                     modal_content=bo_notes,
-                                     modal_class='customers_bo_notes',
-                                     button_id='all_bo_notes',
-                                     button_class='btn-sm')
-        bo_modal = bo_result['modal']
-        bo_button = bo_result['button']
+        bo_button = os_gui.get_button(
+            'noicon',
+            URL('notes', vars={'cuID': customers_id,
+                               'note_type': 'backoffice'}),
+            title=T("All notes"),
+            btn_class='btn-link',
+            btn_size=''
+        )
 
-    else:
-        bo_button =''
-        bo_modal = ''
 
     if auth.has_membership(group_id='Admins') or \
        auth.has_permission('read', 'customers_notes_teachers'):
-        te_notes = LOAD('customers', 'notes.load', ajax=True,
+        te_notes = LOAD('customers', 'note_latest.load', ajax=True,
                         vars={'cuID':customers_id,
                               'note_type':'teachers'})
 
-        te_result = os_gui.get_modal(button_text=T("All notes"),
-                                     modal_title=T('Teacher notes'),
-                                     modal_content=te_notes,
-                                     modal_class='customers_te_notes',
-                                     button_class='btn-sm')
-        te_modal = te_result['modal']
-        te_button = te_result['button']
-
-    else:
-        te_button =''
-        te_modal = ''
-
+        te_button = os_gui.get_button(
+            'noicon',
+            URL('notes', vars={'cuID': customers_id,
+                               'note_type': 'teachers'}),
+            title=T("All notes"),
+            btn_class='btn-link',
+            btn_size=''
+        )
+        
     # get styles form
     form = edit_remodel_form(form,
                              picture,
@@ -1001,11 +995,10 @@ def edit():
         # Don't show a submit button for merged customers
         submit = ''
 
-    content = DIV(bo_modal,
-                  te_modal,
-                  alert,
-                  form,
-                  _class = 'tab-pane active')
+    content = DIV(
+        alert,
+        form,
+    _class = 'tab-pane active')
 
 
     return dict(content=content,
@@ -4389,6 +4382,10 @@ def notes():
     teachers_class = ''
     all_class = ''
 
+    row = db.auth_user[customers_id]
+    response.title = row.display_name
+    response.subtitle = SPAN(T("Notes"), XML(' &bull; '))
+
     active_class = 'web2py-menu-active'
 
     db.auth_user._format = '%(display_name)s'
@@ -4399,10 +4396,134 @@ def notes():
         db.customers_notes.BackofficeNote.default = True
 
     if note_type == 'backoffice':
+        response.subtitle.append(T("Back office"))
         db.customers_notes.BackofficeNote.default = True
         query &= (db.customers_notes.BackofficeNote == True)
 
+
     if note_type == 'teachers':
+        response.subtitle.append(T("Teachers"))
+        db.customers_notes.TeacherNote.default = True
+        query &= (db.customers_notes.TeacherNote == True)
+
+    notes = UL(_id='os-customers_notes')
+    rows = db(query).select(db.customers_notes.ALL,
+                            orderby=~db.customers_notes.NoteDate|\
+                                    ~db.customers_notes.NoteTime)
+    for row in rows.render():
+        row_note_type = ''
+        if row.BackofficeNote:
+            row_note_type = T('Back office')
+        elif row.TeacherNote:
+            row_note_type = T('Teachers')
+
+        if latest == 'True':
+            note = DIV(XML(max_string_length(row.Note.replace('\n','<br>'),
+                                             latest_length)))
+            break
+        else:
+            buttons = DIV(_class='btn-group pull-right')
+            if auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'customers_notes'):
+                edit = os_gui.get_button('edit_notext',
+                                  URL('note_edit', args=[row.id]),
+                                  cid=request.cid)
+                buttons.append(edit)
+
+            if auth.has_membership(group_id='Admins') or \
+               auth.has_permission('delete', 'customers_notes'):
+                remove = os_gui.get_button('delete_notext', '#')
+                buttons.append(remove)
+
+            # correct time for timezone
+            #TODO: Move notedate and notetime fields into notedatetime and then represent using pytz
+
+
+            notes.append(LI(buttons,
+                            SPAN(row.NoteDate,
+                                 ' ',
+                                 row.NoteTime,
+                                 _class='bold'),
+                            SPAN(' - ',
+                                 row.auth_user_id,
+                                 _class='grey'),
+                            BR(),
+                            XML(row.Note.replace('\n','<br>')),
+                            _id='note_' + unicode(row.id)))
+
+    if latest == 'True':
+        try:
+            return_value = note
+        except:
+            # no rows found
+            return_value = ''
+    else:
+        vars = {'cuID':customers_id}
+        if not note_type or note_type == 'backoffice':
+            vars['note_type'] = 'backoffice'
+        else:
+            vars['note_type'] = 'teachers'
+
+        perm = auth.has_membership(group_id='Admins') or \
+               auth.has_permission('create', 'customers_notes')
+        if perm:
+            add = notes_get_add()
+            add_title = H4(T('Add a new note'))
+        else:
+            add = ''
+            add_title = ''
+
+        content = DIV(add_title,
+                      add,
+                      notes)
+
+        return_value = dict(content=content)
+
+    response.js = "iconHandlers()"
+
+    return return_value
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'customers_notes_backoffice') or \
+               auth.has_permission('read', 'customers_notes_teachers'))
+def note_latest():
+    """
+        Lists all notes for the backoffice
+        request.vars['note_type'] can be 2 values
+            'backoffice' for a backoffice note
+            'teacher' for a teacher note
+    """
+    customers_id = request.vars['cuID']
+    note_type = request.vars['note_type']
+    latest = request.vars['latest']
+    latest_length = request.vars['latest_length']
+    try:
+        latest_length = int(latest_length)
+    except:
+        latest_length = 50 # set default
+
+    backoffice_class = ''
+    teachers_class = ''
+    all_class = ''
+
+    active_class = 'web2py-menu-active'
+
+    db.auth_user._format = '%(display_name)s'
+
+    query = (db.customers_notes.auth_customer_id == customers_id)
+
+    if note_type is None:
+        db.customers_notes.BackofficeNote.default = True
+
+    if note_type == 'backoffice':
+        response.subtitle.append(T("Back office"))
+        db.customers_notes.BackofficeNote.default = True
+        query &= (db.customers_notes.BackofficeNote == True)
+
+
+    if note_type == 'teachers':
+        response.subtitle.append(T("Teachers"))
         db.customers_notes.TeacherNote.default = True
         query &= (db.customers_notes.TeacherNote == True)
 
