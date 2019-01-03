@@ -934,6 +934,9 @@ def edit():
                       _href='mailto:' + email)
 
     # add notes
+    te_button = ''
+    bo_button = ''
+
     if auth.has_membership(group_id='Admins') or \
        auth.has_permission('read', 'customers_notes_backoffice'):
         bo_button = os_gui.get_button(
