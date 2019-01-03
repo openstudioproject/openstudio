@@ -964,7 +964,7 @@ def edit():
             btn_class='btn-link',
             btn_size=''
         )
-        
+
     # get styles form
     form = edit_remodel_form(form,
                              picture,
@@ -4503,13 +4503,6 @@ def note_latest():
     except:
         latest_length = 50 # set default
 
-    backoffice_class = ''
-    teachers_class = ''
-    all_class = ''
-
-    active_class = 'web2py-menu-active'
-
-    db.auth_user._format = '%(display_name)s'
 
     query = (db.customers_notes.auth_customer_id == customers_id)
 
@@ -4531,78 +4524,11 @@ def note_latest():
     rows = db(query).select(db.customers_notes.ALL,
                             orderby=~db.customers_notes.NoteDate|\
                                     ~db.customers_notes.NoteTime)
-    for row in rows.render():
-        row_note_type = ''
-        if row.BackofficeNote:
-            row_note_type = T('Back office')
-        elif row.TeacherNote:
-            row_note_type = T('Teachers')
 
-        if latest == 'True':
-            note = DIV(XML(max_string_length(row.Note.replace('\n','<br>'),
-                                             latest_length)))
-            break
-        else:
-            buttons = DIV(_class='btn-group pull-right')
-            if auth.has_membership(group_id='Admins') or \
-               auth.has_permission('update', 'customers_notes'):
-                edit = os_gui.get_button('edit_notext',
-                                  URL('note_edit', args=[row.id]),
-                                  cid=request.cid)
-                buttons.append(edit)
+    latest_note = rows.render()[0]
+    return DIV(XML(max_string_length(latest_note.Note.replace('\n','<br>'),
+                                     latest_length)))
 
-            if auth.has_membership(group_id='Admins') or \
-               auth.has_permission('delete', 'customers_notes'):
-                remove = os_gui.get_button('delete_notext', '#')
-                buttons.append(remove)
-
-            # correct time for timezone
-            #TODO: Move notedate and notetime fields into notedatetime and then represent using pytz
-
-
-            notes.append(LI(buttons,
-                            SPAN(row.NoteDate,
-                                 ' ',
-                                 row.NoteTime,
-                                 _class='bold'),
-                            SPAN(' - ',
-                                 row.auth_user_id,
-                                 _class='grey'),
-                            BR(),
-                            XML(row.Note.replace('\n','<br>')),
-                            _id='note_' + unicode(row.id)))
-
-    if latest == 'True':
-        try:
-            return_value = note
-        except:
-            # no rows found
-            return_value = ''
-    else:
-        vars = {'cuID':customers_id}
-        if not note_type or note_type == 'backoffice':
-            vars['note_type'] = 'backoffice'
-        else:
-            vars['note_type'] = 'teachers'
-
-        perm = auth.has_membership(group_id='Admins') or \
-               auth.has_permission('create', 'customers_notes')
-        if perm:
-            add = notes_get_add()
-            add_title = H4(T('Add a new note'))
-        else:
-            add = ''
-            add_title = ''
-
-        content = DIV(add_title,
-                      add,
-                      notes)
-
-        return_value = dict(content=content)
-
-    response.js = "iconHandlers()"
-
-    return return_value
 
 
 @auth.requires_login()
