@@ -1627,9 +1627,11 @@ def test_notes(client, web2py):
     assert data['Note'] in client.text
 
     # check delete
-    url = '/customers/note_delete.json'
+    url = '/customers/note_delete'
 
-    data = dict(id='1')
+    data = dict(cnID='1',
+                cuID='1',
+                note_type='backoffice')
     client.post(url, data=data)
     assert client.status == 200
 
