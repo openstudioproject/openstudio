@@ -34,15 +34,14 @@ const ManageBooking = ({clattID, onClick=f=>f, collapseID}) =>
         <div className="collapse" id={collapseID}>
             <br />
             <div className="well">
-                Change booking status to: <br />
-                <button>
+                <button className="btn btn-primary">
                     Booked
                 </button>
-                <button>
-                    Cancel
+                <button className="btn btn-warning">
+                    Cancelled
                 </button>
-                <button>
-                    Delete
+                <button className="btn btn-danger">
+                    Remove
                 </button>
             </div>
         </div>
