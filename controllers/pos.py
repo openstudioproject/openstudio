@@ -658,12 +658,19 @@ def update_class_attendance():
 
     :return:
     """
+    from openstudio.os_class_attendance import ClassAttendance
+
     set_headers()
 
     print request.vars
     clattID = request.vars['id']
+    status = request.vars['status']
 
-    return dict(clattID=clattID)
+    ca = ClassAttendance(clattID)
+    ca.setStatus(status)
+
+
+    return dict(clattID=clattID, status=status)
 
 
 
