@@ -152,8 +152,8 @@ class Attendance extends Component {
         this.props.history.push(`/checkin/book/${clsID}/${id}`)
     }
 
-    onClickAttendanceListItem(id) {
-        console.log('list item clicked')
+    onClickAttendanceButtonCheckIn(id) {
+        console.log('Check in clicked')
         console.log(id)
     }
     
@@ -212,7 +212,7 @@ class Attendance extends Component {
                             <AttendanceList attendance_items={this.props.attendance.data}
                                             intl={intl}
                                             title="Attendance"
-                                            onClick={this.onClickAttendanceListItem.bind(this)} />
+                                            onClickCheckIn={this.onClickAttendanceButtonCheckIn.bind(this)} />
                         </section>
                 }
             </PageTemplate>
