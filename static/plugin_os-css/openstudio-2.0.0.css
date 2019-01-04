@@ -1219,6 +1219,10 @@ input.datepicker {
     height: 110px;
 }
 
+.nav-tabs-custom>.nav-tabs>li.os-header {
+    font-size: 14px;
+}
+
 /* AdminLTE mods end */
 
 

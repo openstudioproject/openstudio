@@ -487,12 +487,13 @@ def class_edit():
                 _href=URL('duplicate_class', args=[clsID]),
                 _title=T("Duplicate this class")) ]
 
-    tools = os_gui.get_dropdown_menu(links,
-                                     '',
-                                     btn_size='',
-                                     btn_icon='wrench',
-                                     menu_class='pull-right' )
-
+    tools = os_gui.get_dropdown_menu(
+        links,
+        '',
+        btn_size='',
+        btn_icon='wrench',
+        menu_class='pull-right'
+    )
 
     # check if number of recurring reservations + dropin/trial reservations <= spaces
     spaces = cls.Maxstudents
@@ -514,8 +515,8 @@ def class_edit():
     return dict(content=content,
                 menu=menu,
                 back=back,
-                header_tools = tools,
-                save=submit)
+                tools=tools,
+                save=SPAN(submit, _class='pull-right'))
 
 
 def class_edit_get_notification_no_access_defined(clsID):
@@ -781,28 +782,30 @@ def duplicate_class():
     clsID = request.args[0]
     row = db.classes[clsID]
 
-    id = db.classes.insert(school_locations_id=row.school_locations_id,
-                           school_classtypes_id=row.school_classtypes_id,
-                           Week_day=row.Week_day,
-                           Starttime=row.Starttime,
-                           Endtime=row.Endtime,
-                           Startdate=row.Startdate,
-                           Enddate=row.Enddate,
-                           Maxstudents=row.Maxstudents,
-                           AllowAPI=row.AllowAPI)
+    id = db.classes.insert(
+        school_locations_id=row.school_locations_id,
+        school_classtypes_id=row.school_classtypes_id,
+        Week_day=row.Week_day,
+        Starttime=row.Starttime,
+        Endtime=row.Endtime,
+        Startdate=row.Startdate,
+        Enddate=row.Enddate,
+        Maxstudents=row.Maxstudents,
+        AllowAPI=row.AllowAPI
+    )
 
     # duplicate teachers
     query = (db.classes_teachers.classes_id == clsID)
     rows = db(query).select(db.classes_teachers.ALL)
     for row in rows:
         db.classes_teachers.insert(
-            classes_id       = id,
-            auth_teacher_id  = row.auth_teacher_id,
-            teacher_role     = row.teacher_role,
+            classes_id = id,
+            auth_teacher_id = row.auth_teacher_id,
+            teacher_role = row.teacher_role,
             auth_teacher_id2 = row.auth_teacher_id2,
-            teacher_role2    = row.teacher_role2,
-            Startdate        = row.Startdate,
-            Enddate          = row.Enddate
+            teacher_role2 = row.teacher_role2,
+            Startdate = row.Startdate,
+            Enddate = row.Enddate
         )
 
     # duplicate prices
@@ -810,13 +813,45 @@ def duplicate_class():
     rows = db(query).select(db.classes_price.ALL)
     for row in rows:
         db.classes_price.insert(
-            classes_id          = id,
-            Startdate           = row.Startdate,
-            Enddate             = row.Enddate,
-            Dropin              = row.Dropin,
+            classes_id = id,
+            Startdate = row.Startdate,
+            Enddate = row.Enddate,
+            Dropin = row.Dropin,
+            DropinMembership = row.DropinMembership,
+            tax_rates_id_dropin_membership = row.tax_rates_id_dropin_membership,
+            accounting_glaccounts_id_dropin = row.accounting_glaccounts_id_dropin,
+            accounting_costcenters_id_dropin = row.accounting_costcenters_id_dropin,
             tax_rates_id_dropin = row.tax_rates_id_dropin,
-            Trial               = row.Trial,
-            tax_rates_id_trial  = row.tax_rates_id_trial
+            Trial = row.Trial,
+            tax_rates_id_trial = row.tax_rates_id_trial,
+            TrialMembership = row.TrialMembership,
+            tax_rates_id_trial_membership = row.tax_rates_id_trial_membership,
+            accounting_glaccounts_id_trial = row.accounting_glaccounts_id_trial,
+            accounting_costcenters_id_trial = row.accounting_costcenters_id_trial,
+        )
+        
+    # duplicate allowed classcards groups
+    query = (db.classes_school_classcards_groups.classes_id == clsID)
+    rows = db(query).select(db.classes_school_classcards_groups.ALL)
+    for row in rows:
+        db.classes_school_classcards_groups.insert(
+            classes_id = id,
+            school_classcards_groups_id = row.school_classcards_groups_id,
+            Enroll = row.Enroll,
+            ShopBook = row.ShopBook,
+            Attend = row.Attend
+        )
+    
+    # duplicate allowed subscriptions groups
+    query = (db.classes_school_subscriptions_groups.classes_id == clsID)
+    rows = db(query).select(db.classes_school_subscriptions_groups.ALL)
+    for row in rows:
+        db.classes_school_subscriptions_groups.insert(
+            classes_id = id,
+            school_subscriptions_groups_id = row.school_subscriptions_groups_id,
+            Enroll = row.Enroll,
+            ShopBook = row.ShopBook,
+            Attend = row.Attend
         )
 
 

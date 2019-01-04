@@ -562,6 +562,14 @@ def index_get_menu(page):
                #    _class='pull-left header'),
               _class='nav nav-tabs pull-right')
 
+    # print session.customers_load_list_search_name
+    #
+    # if session.customers_load_list_search_name and session.customers_load_list_search_name != '%%':
+    #     title = SPAN(os_gui.get_fa_icon('fa-search'), ' ', T("Search results"))
+    # else:
+    #     title = SPAN(os_gui.get_fa_icon('fa-circle-o'), ' ', T("All customers"))
+    # tabs.append(LI(title, _class='header os-header pull-left'))
+
     return tabs
 
 
