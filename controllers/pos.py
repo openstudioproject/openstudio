@@ -661,7 +661,9 @@ def update_class_attendance():
     set_headers()
 
     print request.vars
+    clattID = request.vars['id']
 
+    return dict(clattID=clattID)
 
 
 

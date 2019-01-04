@@ -22,7 +22,6 @@ export const checkinAttendanceReducer = (state = {}, action={ type: null }) => {
                 data: action.data.attendance,
             }
         case T.CHECKIN_CLASS_ATTENDANCE_REQUEST_UPDATE_STATUS:
-            console.log(action)
             // Append classes attendance ID, so we can show it as updating
             return {
                 ...state,
@@ -30,6 +29,12 @@ export const checkinAttendanceReducer = (state = {}, action={ type: null }) => {
                     ...state.attendanceStatusUpdating,
                     action.clattID
                     ]
+            }
+        case T.CHECKIN_CLASS_ATTENDANCE_RECEIVE_UPDATE_STATUS:
+            // Filter classes attendance ID, so we know it's no longer updating
+            return {
+                ...state,
+                attendanceStatusUpdating: state.attendanceStatusUpdating.filter((item, index) => item != action.data.clattID)
             }
         case T.CHECKIN_SET_CLASS_ATTENDANCE_SEARCH_CUSTOMER_ID:
             return {

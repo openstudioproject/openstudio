@@ -26,7 +26,7 @@ const updateClassAttendanceBookingStatus = (clattID, status) => {
           // const date = new Date()
           // const iso_date = toISODate(date)
           const params = new URLSearchParams()
-          params.append('clattID', clattID)
+          params.append('id', clattID)
           params.append('status', status)
           console.log(params)
           axios_os.post(OS_API.CHECKIN_ATTENDANCE_UPDATE, params)
