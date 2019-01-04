@@ -6,6 +6,7 @@ const api_urls = {
     'APP_VALIDATE_CART': '/pos/validate_cart.json',
     'CHECKIN_CLASSES': '/pos/get_classes.json',
     'CHECKIN_ATTENDANCE': '/pos/get_class_attendance.json',
+    'CHECKIN_ATTENDANCE_UPDATE': '/pos/update_class_attendance.json',
     'CHECKIN_BOOKING_OPTIONS': '/pos/get_class_booking_options.json',
     'CHECKIN_BOOKING_CREATE': '/pos/customer_class_booking_create.json',
     'CHECKIN_BOOKING_MANAGE': '/pos/customer_class_booking_manage.json',

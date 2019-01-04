@@ -652,6 +652,20 @@ def get_customers_memberships():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'classes_attendance'))
+def update_class_attendance():
+    """
+
+    :return:
+    """
+    set_headers()
+
+    print request.vars
+
+
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('create', 'auth_user'))
 def create_customer():
     """
@@ -984,7 +998,10 @@ def validate_cart_create_order(cuID, pmID, items):
     amounts = order.get_amounts()
 
     # Deliver order, add stuff to customer's account
-    result = order.deliver()
+    result = order.deliver(
+        class_online_booking=False,
+        class_booking_status='attending'
+    )
     invoice = result['invoice']
 
     # Add payment
