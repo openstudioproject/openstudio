@@ -3211,11 +3211,11 @@ def attendance_set_status():
     status = request.vars['status']
 
     ca = ClassAttendance(clattID)
-    ca.setStatus(status)
+    ca.set_status(status)
 
-    cuID = clatt.row.auth_customer_id
-    clsID = clatt.row.classes_id
-    date_formatted = clatt.ClassDate.strftime(DATE_FORMAT)
+    cuID = ca.row.auth_customer_id
+    clsID = ca.row.classes_id
+    date_formatted = ca.row.ClassDate.strftime(DATE_FORMAT)
 
     redirect(attendance_sign_in_get_returl_url(clsID, date_formatted, cuID))
 

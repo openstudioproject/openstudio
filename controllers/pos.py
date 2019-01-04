@@ -667,8 +667,7 @@ def update_class_attendance():
     status = request.vars['status']
 
     ca = ClassAttendance(clattID)
-    ca.setStatus(status)
-
+    ca.set_status(status)
 
     return dict(clattID=clattID, status=status)
 
