@@ -31,6 +31,7 @@ import operator
 import cStringIO
 import openpyxl
 
+
 def index():
     """
         Main page for reports controller
@@ -1719,9 +1720,11 @@ def subscriptions_stopped():
     # set the session vars for year/month
     subscriptions_process_request_vars()
 
-    date = datetime.date(session.reports_subscriptions_year,
-                         session.reports_subscriptions_month,
-                         1)
+    date = datetime.date(
+        session.reports_subscriptions_year,
+        session.reports_subscriptions_month,
+        1
+    )
 
     firstdaythismonth = date
     next_month = date.replace(day=28) + datetime.timedelta(days=4)  # this will never fail
@@ -1735,7 +1738,7 @@ def subscriptions_stopped():
         location_filter = True
         filter_school_locations_id = session.reports_subscriptions_school_locations_id
 
-    query = reports.get_query_subscriptions_new_in_month(
+    query = reports.get_query_subscriptions_stopped_in_month(
         date,
         filter_school_locations_id = filter_school_locations_id
     )

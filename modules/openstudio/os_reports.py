@@ -99,13 +99,14 @@ class Reports:
                         GROUP BY auth_customer_id) chk
                    WHERE chk.startdate = csu.startdate AND
                          csu.auth_customer_id = chk.auth_customer_id AND
-                         csu.enddate >= %s AND csu.enddate <= %s
+                         csu.enddate >= '{firstdaythismonth}' AND csu.enddate <= '{lastdaythismonth}'
                          AND csu.enddate IS NOT NULL
+                         {where_school_locations_id}
                     ORDER BY ssu.Name,
                              cu.display_name
                              DESC""".format(firstdaythismonth=firstdaythismonth,
-                                           lastdaythismonth=lastdaythismonth,
-                                           where_school_locations_id=where_school_locations_id)
+                                            lastdaythismonth=lastdaythismonth,
+                                            where_school_locations_id=where_school_locations_id)
         return query
 
 
