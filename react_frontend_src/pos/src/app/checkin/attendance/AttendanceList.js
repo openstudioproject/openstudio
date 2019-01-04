@@ -26,6 +26,29 @@ const bookingStatusMessage = (status, intl) => {
 }
 
 
+const ManageBooking = ({clattID, onClick=f=>f, collapseID}) =>
+    <div className="pull-right">
+        <button className="btn btn-default" type="button" data-toggle="collapse" data-target={`#${collapseID}`} aria-expanded="false" aria-controls="collapseExample">
+            Manage booking
+        </button>
+        <div className="collapse" id={collapseID}>
+            <br />
+            <div className="well">
+                Change booking status to: <br />
+                <button>
+                    Booked
+                </button>
+                <button>
+                    Cancel
+                </button>
+                <button>
+                    Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
+
 const ButtonCheckin = ({clattID, onClick=f=>f}) =>
     <button className='btn btn-default pull-right' onClick={() => onClick(clattID)}>
         Check-in
@@ -36,7 +59,9 @@ const CustomerCheckIn = ({clattID, status, onClick=f=>f}) => {
     console.log(status)
     switch (status) {
         case "attending":
-            return <div></div>
+            return <ManageBooking clattID={clattID}
+                                  onClick={onClick}
+                                  collapseID={v4()} />
         case "booked":
             return <ButtonCheckin onClick={onClick}
                                   clattID={clattID} />
