@@ -24,8 +24,11 @@ class Reports:
                           cu.archived,
                           cu.thumbsmall,
                           cu.birthday,
+                          cu.first_name,
+                          cu.last_name,
                           cu.display_name,
                           cu.date_of_birth,
+                          cu.email,
                           csu.school_subscriptions_id,
                           csu.startdate,
                           csu.payment_methods_id
@@ -96,13 +99,14 @@ class Reports:
                         GROUP BY auth_customer_id) chk
                    WHERE chk.startdate = csu.startdate AND
                          csu.auth_customer_id = chk.auth_customer_id AND
-                         csu.enddate >= %s AND csu.enddate <= %s
+                         csu.enddate >= '{firstdaythismonth}' AND csu.enddate <= '{lastdaythismonth}'
                          AND csu.enddate IS NOT NULL
+                         {where_school_locations_id}
                     ORDER BY ssu.Name,
                              cu.display_name
                              DESC""".format(firstdaythismonth=firstdaythismonth,
-                                           lastdaythismonth=lastdaythismonth,
-                                           where_school_locations_id=where_school_locations_id)
+                                            lastdaythismonth=lastdaythismonth,
+                                            where_school_locations_id=where_school_locations_id)
         return query
 
 
@@ -115,6 +119,10 @@ class Reports:
 
         cls = Class(clsID, date)
         class_prices = cls.get_prices()
+
+        print class_prices
+        print type(class_prices['trial_membership'])
+        print type(class_prices['trial'])
 
         data = {
             'subscriptions': {},
@@ -233,6 +241,7 @@ class Reports:
         """
         from os_class import Class
         from general_helpers import max_string_length
+        from decimal import Decimal, ROUND_HALF_UP
 
         T = current.T
         represent_float_as_amount = current.globalenv['represent_float_as_amount']

@@ -1428,13 +1428,16 @@ def test_classcards_membership_required_message(client, web2py):
     web2py.db.commit()
 
     # populate a regular card and a trial card
-    populate_school_classcards(web2py, 1, membership_required=True)
+    populate_school_memberships(web2py)
+    populate_school_classcards(web2py, 1, school_memberships_id=1)
 
     url = '/shop/classcards'
     client.get(url)
     assert client.status == 200
 
-    assert 'Membership required' in client.text
+    sm = web2py.db.school_memberships(1)
+
+    assert '%s required' % sm.Name in client.text
 
 
 def test_classcard_add_to_cart_requires_complete_profile(client, web2py):
@@ -1955,6 +1958,36 @@ def test_event_add_to_cart(client, web2py):
     assert cart_row.workshops_products_id == 1
 
 
+def test_event_add_to_cart_prevent_duplicate_tickets(client, web2py):
+    """
+        We shouldn't be able to add a ticket to the cart twice
+    """
+    setup_profile_tests(web2py)
+
+    # populate workshops table
+    populate_workshops(web2py)
+
+    url = '/shop/event_add_to_cart?wspID=1'
+    client.get(url)
+    assert client.status == 200
+
+    # Verify redirection
+    assert 'Shopping cart' in client.text
+
+    # Check db
+    cart_row = web2py.db.customers_shoppingcart(1)
+    assert cart_row.auth_customer_id == 300
+    assert cart_row.workshops_products_id == 1
+
+    # Ok again
+    url = '/shop/event_add_to_cart?wspID=1'
+    client.get(url)
+    assert client.status == 200
+
+    # Verify redirection
+    assert "This event ticket is already in your cart" in client.text
+
+
 def test_event_add_to_cart_requires_complete_profile(client, web2py):
     """
         Is the required profile check working for workshops?
@@ -2045,7 +2078,7 @@ def test_event_product_external_shop_url_and_alt_btn_text(client, web2py):
     assert wsp.AddToCartText in client.text
 
 
-def test_subscriptions_required_message(client, web2py):
+def test_subscriptions_membership_required_message(client, web2py):
     """
     Is the Membership required link showing like it should?
     """
@@ -2053,13 +2086,15 @@ def test_subscriptions_required_message(client, web2py):
     web2py.db.commit()
 
     # populate a regular card and a trial card
-    populate_school_subscriptions(web2py, membership_required=True)
+    populate_school_memberships(web2py)
+    populate_school_subscriptions(web2py, school_memberships_id=1)
 
     url = '/shop/subscriptions'
     client.get(url)
     assert client.status == 200
 
-    assert 'Membership required' in client.text
+    sm = web2py.db.school_memberships(1)
+    assert '%s required' % sm.Name in client.text
 
 
 def test_subscription_terms(client, web2py):

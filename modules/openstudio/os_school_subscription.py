@@ -28,12 +28,13 @@ class SchoolSubscription:
 
         row = db.school_subscriptions(self.ssuID)
 
-        self.MembershipRequired = row.MembershipRequired
+
         self.Name = row.Name
         self.Classes = row.Classes
         self.SubscriptionUnit = row.SubscriptionUnit
         self.Archived = row.Archived
         self.Terms = row.Terms
+        self.school_memberships_id = row.school_memberships_id
 
 
     def get_glaccount_on_date(self, date):

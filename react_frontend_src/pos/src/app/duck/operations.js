@@ -14,7 +14,9 @@ import {
     setLoading as set_loading,
     setLoadingMessage as set_loading_message,
     setLoadingProgress as set_loading_progress,
-    setPageTitle as set_page_title
+    setPageTitle,
+    setPageSubtitle,
+    clearPageSubtitle
 } from './actions'
 
 import axios_os from '../../utils/axios_os'
@@ -28,7 +30,6 @@ const setLoadingMessage = set_loading_message
 const setLoadingProgress = set_loading_progress
 const setLoaded = set_loaded
 const setLoading = set_loading
-const setPageTitle = set_page_title
 
 
 // data fetchers
@@ -174,4 +175,6 @@ export default {
     setLoadingMessage,
     setLoadingProgress,
     setPageTitle,
+    setPageSubtitle,
+    clearPageSubtitle
 }

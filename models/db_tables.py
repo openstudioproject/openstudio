@@ -1086,6 +1086,7 @@ def define_school_classcards():
     ac_query = (db.accounting_costcenters.Archived == False)
     ag_query = (db.accounting_glaccounts.Archived == False)
     so_query = (db.sys_organizations.Archived == False)
+    sm_query = (db.school_memberships.Archived == False)
     format = '%(Name)s'
     # if len(ORGANIZATIONS) > 2:
     #     format = '%(Name)s - %(sys_organizations_id)s'
@@ -1101,9 +1102,9 @@ def define_school_classcards():
               default=True,
               required=True,
               label=T('Show in shop')),
-        Field('MembershipRequired', 'boolean',
-              default=False,
-              label=T('Requires membership')),
+        # Field('MembershipRequired', 'boolean',
+        #       default=False,
+        #       label=T('Requires membership')),
         Field('Trialcard', 'boolean',
               default=False,
               required=True,
@@ -1162,6 +1163,14 @@ def define_school_classcards():
             default=False,
             label=T("Unlimited classes"),
             comment=T('For unlimited cards the number of classes entered is ignored')),
+        Field('school_memberships_id', db.school_memberships,
+              requires=IS_EMPTY_OR(IS_IN_DB(db(sm_query),
+                                            'school_memberships.id',
+                                            '%(Name)s',
+                                            zero=T("Doesn't require membership"))),
+              label=T("Requires membership"),
+              comment=T(
+                  "Set a required membership for this card. Without this memberships customers won't be able to buy this card or use it to attend classes.")),
         Field('accounting_glaccounts_id', db.accounting_glaccounts,
               requires=IS_EMPTY_OR(IS_IN_DB(db(ag_query),
                                             'accounting_glaccounts.id',
@@ -1187,6 +1196,8 @@ def represent_school_classcards_classes(value, row):
     """
     if row.Unlimited:
         return T('Unlimited')
+    elif not row.Unlimited and not row.Classes:
+        return SPAN(T('Invalid'), _title=T("Invalid settings - no classes defined. A card should either have classes or be unlimited."))
     else:
         return value
 
@@ -1278,6 +1289,7 @@ def define_school_memberships():
 
 def define_school_subscriptions():
     so_query = (db.sys_organizations.Archived == False)
+    sm_query = (db.school_memberships.Archived == False)
     format = '%(Name)s'
     # if len(ORGANIZATIONS) > 2:
     #     format = '%(Name)s - %(sys_organizations_id)s'
@@ -1296,10 +1308,6 @@ def define_school_subscriptions():
             default=False,
             label=T('Show on website'),
             comment=T("Show on website when OpenStudio subscriptions are integrated in your website.")),
-        Field('MembershipRequired', 'boolean',
-              default=False,
-              label=T('Requires membership'),
-              comment=T("A membership is required for this subscription")),
         Field('Name', required=True,
               requires=IS_NOT_EMPTY(),
               label=T("Name")),
@@ -1355,6 +1363,14 @@ def define_school_subscriptions():
             label=T('Unlimited classes')),
         Field('Terms', 'text',
             label=T('Terms & conditions')),
+        Field('school_memberships_id', db.school_memberships,
+              requires=IS_EMPTY_OR(IS_IN_DB(db(sm_query),
+                                            'school_memberships.id',
+                                            '%(Name)s',
+                                            zero=T("Doesn't require membership"))),
+              label=T("Requires membership"),
+              comment=T(
+                  "Set a required membership for this card. Without this memberships customers won't be able to get this subscription or use it to attend classes.")),
         Field('QuickStatsAmount', 'double',
               label=T('Quick Stats Amount'),
               default=0,
@@ -2001,7 +2017,7 @@ def define_classes_otc():
                (db.auth_user.teaches_classes == True)
 
     statuses = [['normal', T('Normal')],
-                ['open', T('Sub teacher wanted')],
+                ['open', T('Open / Sub teacher required')],
                 ['cancelled', T('Cancelled')]]
 
     db.define_table('classes_otc',
@@ -4533,6 +4549,17 @@ def compute_receipts_amounts_balance(row):
     return row.TotalPriceVAT - row.Paid
 
 
+def define_receipts_items_shop_sales():
+    db.define_table('receipts_items_shop_sales',
+        Field('shop_sales_id', db.shop_sales,
+              readable=False,
+              writable=False),
+        Field('receipts_items_id', db.receipts_items,
+              readable=False,
+              writable=False)
+    )
+
+
 def represent_tax_rate(value, row):
     """
         Returns name for a tax rate
@@ -5082,6 +5109,43 @@ def define_shop_products_variants():
               writable=False,
               label=T('Default variant for a product')),
         Field('VariantCode',
+              readable=False,
+              writable=False),
+    )
+
+
+def define_shop_sales():
+    """
+    Define shop products sales
+    :return:
+    """
+    db.define_table('shop_sales',
+        Field('CreatedOn', 'datetime',
+              writable=False,
+              default=NOW_UTC,
+              represent=represent_datetime,
+              label=T("Time")),
+        Field('ProductName',
+              label=T("Product")),
+        Field('VariantName',
+              label=T("Variant")),
+        Field('Quantity',
+              label=T("Quantity")),
+        Field('ArticleCode',
+              represent=lambda value, row: value or '',
+              label=T("Article code")),
+        Field('Barcode',
+              represent=lambda value, row: value or '',
+              label=T("Barcode")),
+    )
+
+
+def define_shop_sales_products_variants():
+    db.define_table('shop_sales_products_variants',
+        Field('shop_sales_id', db.shop_sales,
+              readable=False,
+              writable=False),
+        Field('shop_products_variants_id', db.shop_products_variants,
               readable=False,
               writable=False),
     )
@@ -6239,9 +6303,25 @@ define_customers_orders_items()
 define_customers_orders_amounts()
 define_customers_orders_mollie_payment_ids()
 
+# shop tables
+define_shop_links()
+define_shop_brands()
+define_shop_suppliers()
+define_shop_products_sets()
+define_shop_products_sets_options()
+define_shop_products_sets_options_values()
+define_shop_products()
+define_shop_products_variants()
+define_shop_categories()
+define_shop_categories_products()
+define_customers_orders_items_shop_products_variants()
+
 # employee claims definitions
 define_employee_claims()
 
+# shop sales
+define_shop_sales()
+define_shop_sales_products_variants()
 
 # invoice definitions
 define_invoices_groups()
@@ -6264,6 +6344,7 @@ define_invoices_mollie_payment_ids()
 # receipts definitions
 define_receipts()
 define_receipts_items()
+define_receipts_items_shop_sales()
 define_receipts_amounts()
 
 # payment batches definitions
@@ -6280,19 +6361,6 @@ define_schedule_staff_status()
 
 # mollie tables
 define_mollie_log_webhook()
-
-# shop tables
-define_shop_links()
-define_shop_brands()
-define_shop_suppliers()
-define_shop_products_sets()
-define_shop_products_sets_options()
-define_shop_products_sets_options_values()
-define_shop_products()
-define_shop_products_variants()
-define_shop_categories()
-define_shop_categories_products()
-define_customers_orders_items_shop_products_variants()
 
 set_preferences_permissions()
 

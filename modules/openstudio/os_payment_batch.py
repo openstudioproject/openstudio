@@ -121,7 +121,7 @@ class PaymentBatch:
                 AccountNumber=accountnr,
                 MandateSignatureDate=msdate,
                 MandateReference=row.customers_payment_info_mandates.MandateReference,
-                Amount=amount,
+                Amount=format(amount, '.2f'),
                 Currency=self.currency,
                 Description=description,
                 BankName=row.customers_payment_info.BankName,

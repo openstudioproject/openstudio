@@ -13,7 +13,8 @@ const PageTemplate = ({ app_state, children }) =>
                     data={app_state.error_data}/>:
         <div style={{height: "auto", minHeight: "100%"}}>
             <MainMenu />
-            <Content title={app_state.current_page_title}>
+            <Content title={app_state.current_page_title}
+                     subtitle={app_state.current_page_subtitle}>
                 {children}
             </Content>
             {/* <Footer /> - No footer for now, it looks cleaner and we have OpenStudio branding in the header anyway */}

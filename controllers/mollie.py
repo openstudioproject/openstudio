@@ -52,8 +52,33 @@ def webhook():
                                                       '%Y-%m-%dT%H:%M:%S').date()
 
             if coID == 'invoice':
-                # Add payment to invoice, no delivery required
-                webhook_invoice_paid(iID, payment_amount, payment_date, payment_id)
+                if payment.chargebacks:
+                    # Check if we have a chargeback
+                    if payment.chargebacks[u'count']:
+                        for chargeback in payment.chargebacks[u'_embedded'][u'chargebacks']:
+                            chargeback_amount = float(chargeback['settlementAmount']['value'])
+                            chargeback_date = datetime.datetime.strptime(chargeback[u'createdAt'].split('+')[0],
+                                                          '%Y-%m-%dT%H:%M:%S').date()
+                            try:
+                                chargeback_details = "Failure reason: %s (Bank reason code: %s)" % (
+                                    payment[u'details']['bankReason'],
+                                    payment[u'details']['bankReasonCode']
+                                )
+                            except:
+                                chargeback_details = ''
+
+                            webhook_invoice_chargeback(
+                                iID,
+                                chargeback_amount,
+                                chargeback_date,
+                                payment_id,
+                                chargeback['id'],
+                                chargeback_details
+                            )
+
+                else:
+                    # Add payment to invoice, no delivery required
+                    webhook_invoice_paid(iID, payment_amount, payment_date, payment_id)
             else:
                 # Deliver order
                 webhook_order_paid(coID, payment_amount, payment_date, payment_id)
@@ -76,6 +101,9 @@ def webhook():
             return 'Cancelled'
     except MollieError as e:
         return 'API call failed: {error}'.format(error=e)
+
+
+
 
 
 def test_webhook_order_paid():
@@ -108,6 +136,33 @@ def test_webhook_invoice_paid():
         mollie_payment_id = request.vars['mollie_payment_id']
 
         webhook_invoice_paid(iID, payment_amount, payment_date, mollie_payment_id)
+
+
+def test_webhook_invoice_chargeback():
+    """
+        A test can call this function to check whether everything works after a
+        chargeback payment has been added to a customer payment
+    """
+    if not web2pytest.is_running_under_test(request, request.application):
+        redirect(URL('default', 'user', args=['not_authorized']))
+    else:
+        print 'processing chargeback payment'
+
+        iID = request.vars['iID']
+        chargeback_amount = request.vars['chargeback_amount']
+        chargeback_date = request.vars['chargeback_date']
+        mollie_payment_id = request.vars['mollie_payment_id']
+        chargeback_id = request.vars['chargeback_id']
+        chargeback_details = request.vars['chargeback_details']
+
+        webhook_invoice_chargeback(
+            iID,
+            chargeback_amount,
+            chargeback_date,
+            mollie_payment_id,
+            chargeback_id,
+            chargeback_details
+        )
 
 
 def webhook_order_paid(coID, payment_amount=None, payment_date=None, mollie_payment_id=None, invoice=True):
@@ -156,6 +211,33 @@ def webhook_invoice_paid(iID, payment_amount, payment_date, mollie_payment_id):
     #msgID = os_mail.render_email_template('email_template_payment_received', invoices_payments_id=ipID)
 
     #os_mail.send(msgID, invoice.invoice.auth_customer_id)
+
+
+def webhook_invoice_chargeback(iID,
+                               chargeback_amount,
+                               chargeback_date,
+                               mollie_payment_id,
+                               chargeback_id,
+                               chargeback_details):
+    """
+    Chargebacks happen when a direct debit payment fails due to insufficient funds in the customers' bank account
+    :return:
+    """
+    invoice = Invoice(iID)
+
+    ipID = invoice.payment_add(
+        chargeback_amount,
+        chargeback_date,
+        payment_methods_id=100,  # Static id for Mollie payments
+        mollie_payment_id=mollie_payment_id,
+        note="Mollie Chargeback (%s) - %s" % (chargeback_id, chargeback_details)
+    )
+
+    # Notify customer of chargeback
+    cuID = invoice.get_linked_customer_id()
+    os_mail = OsMail()
+    msgID = os_mail.render_email_template('payment_recurring_failed')
+    os_mail.send(msgID, cuID)
 
 
 @auth.requires_login()

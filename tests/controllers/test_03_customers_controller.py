@@ -658,7 +658,8 @@ def test_subscriptions_membership_required_warning(client, web2py):
     client.get(url)
     assert client.status == 200
 
-    populate_customers_with_subscriptions(web2py, membership_required=True)
+    populate_school_memberships(web2py)
+    populate_customers_with_subscriptions(web2py, school_memberships_id=1)
 
     url = '/customers/subscriptions?cuID=1001'
     client.get(url)
@@ -675,6 +676,7 @@ def test_subscription_add(client, web2py):
     populate_customers(web2py)
     assert web2py.db(web2py.db.school_subscriptions).count() > 0
     assert web2py.db(web2py.db.auth_user).count() > 0
+
 
     url = '/customers/subscription_add/?cuID=1'
 
@@ -1105,7 +1107,8 @@ def test_classcards_membership_required_warning(client, web2py):
     """
         Is the "No membership" warning showing like it should?
     """
-    populate_customers_with_classcards(web2py, membership_required=True)
+    populate_school_memberships(web2py)
+    populate_customers_with_classcards(web2py, school_memberships_id=1)
 
     url = '/customers/classcards?cuID=1001'
     client.get(url)
@@ -1624,9 +1627,11 @@ def test_notes(client, web2py):
     assert data['Note'] in client.text
 
     # check delete
-    url = '/customers/note_delete.json'
+    url = '/customers/note_delete'
 
-    data = dict(id='1')
+    data = dict(cnID='1',
+                cuID='1',
+                note_type='backoffice')
     client.post(url, data=data)
     assert client.status == 200
 

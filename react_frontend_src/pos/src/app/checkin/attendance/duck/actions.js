@@ -30,13 +30,35 @@ export const setCheckinClassAttendanceSearchCustomerID = (search_id) =>
         search_id,
     })
 
-export const clearCheckinSearchTimeout = () =>
+export const clearCheckinAttendanceSearchTimeout = () =>
     ({
-        type: T.CHECKIN_CLEAR_SEARCH_TIMEOUT
+        type: T.CHECKIN_ATTENDANCE_CLEAR_SEARCH_TIMEOUT
     })
 
-export const setCheckinSearchTimeout = (timeout) =>
+export const setCheckinAttendanceSearchTimeout = (timeout) =>
     ({
-        type: T.CHECKIN_SET_SEARCH_TIMEOUT,
+        type: T.CHECKIN_ATTENDANCE_SET_SEARCH_TIMEOUT,
         timeout,
+    })
+
+export const clearCheckinAttendanceSearchValue = () =>
+    ({
+        type: T.CHECKIN_ATTENDANCE_CLEAR_SEARCH_VALUE
+    })
+
+export const setCheckinAttendanceSearchValue = (value) =>
+    ({
+        type: T.CHECKIN_ATTENDANCE_SET_SEARCH_VALUE,
+        value
+    })
+
+export const clearCheckinAttendanceSearchCustomerID = () =>
+    ({
+        type: T.CHECKIN_ATTENDANCE_CLEAR_SEARCH_CUSTOMER_ID
+    })
+
+export const setCheckinAttendanceSearchCustomerID = (id) =>
+    ({
+        type: T.CHECKIN_ATTENDANCE_SET_SEARCH_CUSTOMER_ID,
+        id
     })

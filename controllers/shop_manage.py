@@ -164,6 +164,12 @@ def catalog_get_menu(page):
         pages.append(['products_sets',
                        T('Product sets'),
                       URL('shop_manage', 'products_sets')])
+    # Sales
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('read', 'shop_products'):
+        pages.append(['sales',
+                       T('Sales'),
+                      URL('shop_manage', 'sales')])
 
     return os_gui.get_submenu(pages,
                               page,
@@ -173,7 +179,7 @@ def catalog_get_menu(page):
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('read', 'shop_products_sets'))
+               auth.has_permission('read', 'shop_products'))
 def products():
     """
         List products
@@ -541,11 +547,16 @@ def product_variant_add():
     )
 
     form = result['form']
+    content = DIV(
+        H4(T("Add variant")), BR(),
+        form
+    )
+
     back = os_gui.get_button('back', return_url)
 
     menu = product_edit_get_menu('product_variants', spID)
 
-    return dict(content=form,
+    return dict(content=content,
                 save=result['submit'],
                 back=back,
                 menu=menu)
@@ -596,12 +607,56 @@ def product_variant_edit():
     )
 
     form = result['form']
+    content = DIV(
+        H4(T("Edit variant")), BR(),
+        form
+    )
+
     back = os_gui.get_button('back', return_url)
 
     menu = product_edit_get_menu('product_variants', spID)
 
-    return dict(content=form,
+    return dict(content=content,
                 save=result['submit'],
+                back=back,
+                menu=menu)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'shop_products_variants'))
+def product_variant_sales():
+    """
+        Edit a product variant
+    """
+    from openstudio.os_shop_product import ShopProduct
+    from openstudio.os_shop_products_variant import ShopProductsVariant
+    from openstudio.os_shop_sales import ShopSales
+
+    spID = request.vars['spID']
+    spvID = request.vars['spvID']
+
+    product = ShopProduct(spID)
+    variant = ShopProductsVariant(spvID)
+
+    response.title = T('Shop')
+    response.subtitle = T('Edit product - {product_name}'.format(
+        product_name=product.row.Name)
+    )
+    response.view = 'general/tabs_menu.html'
+
+    return_url = product_variants_get_return_url(spID)
+
+    sales = ShopSales(spvID)
+    content = DIV(
+        H4(T("Sales history for variant %s" % variant.row.Name)), BR(),
+        sales.list_formatted()
+    )
+
+    # add = os_gui.get_button('add', URL('shop_manage', 'product_add'))
+    back = os_gui.get_button('back', return_url)
+    menu = product_edit_get_menu('product_variants', spID)
+
+    return dict(content=content,
                 back=back,
                 menu=menu)
 
@@ -1261,3 +1316,25 @@ def supplier_archive():
         shop_supplier_get_return_url()
     )
 
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'shop_sales'))
+def sales():
+    """
+        List products
+    """
+    from openstudio.os_shop_sales import ShopSales
+
+    response.title = T('Shop')
+    response.subtitle = T('Catalog')
+    response.view = 'general/tabs_menu.html'
+
+    sales = ShopSales()
+    content = sales.list_formatted()
+
+
+    # add = os_gui.get_button('add', URL('shop_manage', 'product_add'))
+    menu = catalog_get_menu(request.function)
+
+    return dict(content=content,
+                menu=menu)

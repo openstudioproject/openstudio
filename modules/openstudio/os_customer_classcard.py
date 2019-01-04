@@ -128,7 +128,7 @@ class CustomerClasscard:
         query = (db.classes_attendance.customers_classcards_id == self.ccdID) & \
                 (db.classes_attendance.BookingStatus != 'cancelled')
         used = db(query).count()
-        return self.classes - used
+        return self.classes or 0 - used
 
 
     def get_classes_remaining_formatted(self):

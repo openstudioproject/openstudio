@@ -192,38 +192,61 @@ def edit_remodel_form(form,
     # basic info
     div_basic_info = DIV(
         H3(T("Contact")),
-        TABLE(
-            TR( TD(LABEL(form.custom.label.first_name)),
-                TD(form.custom.widget.first_name),
+        DIV(
+            DIV(LABEL(form.custom.label.first_name),
+                form.custom.widget.first_name,
+                _class="col-md-6"
+            ),
+            DIV(LABEL(form.custom.label.last_name),
+                form.custom.widget.last_name,
+                _class="col-md-6"
+            ),
+            _class="row"
+        ),
+        DIV(
+            DIV(LABEL(form.custom.label.date_of_birth),
+                form.custom.widget.date_of_birth,
+                _class="col-md-6"
+            ),
+            DIV(LABEL(form.custom.label.gender),
+                form.custom.widget.gender,
+                _class="col-md-6"
+            ),
+            _class="row"
+        ),
+        DIV(
+            DIV(LABEL(form.custom.label.email),
+                DIV(form.custom.widget.email,
+                    DIV(mail_button, _class='input-group-btn'),
+                    _class='input-group'),
+                _class="col-md-12"
+            ),
+            _class="row"
+        ),
+        DIV(
+            DIV(LABEL(form.custom.label.phone),
+                form.custom.widget.phone,
+                _class="col-md-6"
                 ),
-            TR( TD(LABEL(form.custom.label.last_name)),
-                TD(form.custom.widget.last_name)
+            DIV(LABEL(form.custom.label.mobile),
+                form.custom.widget.mobile,
+                _class="col-md-6"
                 ),
-            TR( TD(LABEL(form.custom.label.date_of_birth)),
-                TD(form.custom.widget.date_of_birth),
+            _class="row"
+        ),
+        DIV(
+            DIV(LABEL(form.custom.label.school_languages_id),
+                form.custom.widget.school_languages_id,
+                _class="col-md-12"
                 ),
-            TR( TD(LABEL(form.custom.label.gender)),
-                TD(form.custom.widget.gender),
+            DIV(LABEL(form.custom.label.emergency),
+                form.custom.widget.emergency,
+                _class="col-md-12"
                 ),
-            TR( TD(LABEL(form.custom.label.email)),
-                TD(DIV(form.custom.widget.email,
-                       DIV(mail_button,
-                            _class='input-group-btn'),
-                       _class='input-group')),
-                ),
-            TR( TD(LABEL(form.custom.label.phone)),
-                TD(form.custom.widget.phone),
-                ),
-            TR( TD(LABEL(form.custom.label.mobile)),
-                TD(form.custom.widget.mobile),
-                ),
-            TR( TD(LABEL(form.custom.label.school_languages_id)),
-                TD(form.custom.widget.school_languages_id)),
-            TR( TD(LABEL(form.custom.label.emergency)),
-                TD(form.custom.widget.emergency),
-                ),
-            _class='full-width'),
-            _class='col-md-6 customers_edit_basic_info os-no_margin_bottom')
+            _class="row"
+        ),
+        _class='col-md-6 customers_edit_basic_info'
+    )
 
 
     # check if we have to separate customers by location
@@ -244,7 +267,7 @@ def edit_remodel_form(form,
         if auth.has_membership(group_id='Admins') or \
            auth.has_permission('read', 'customers_notes_backoffice'):
             bo_label = LABEL(T("Back office"))
-            bo_note = DIV(LOAD('customers', 'notes.load', ajax=True,
+            bo_note = DIV(LOAD('customers', 'note_latest.load', ajax=True,
                                         target='os-bonote_latest',
                                         vars={'cuID':customers_id,
                                               'note_type':'backoffice',
@@ -255,7 +278,7 @@ def edit_remodel_form(form,
         if auth.has_membership(group_id='Admins') or \
            auth.has_permission('read', 'customers_notes_teachers'):
             te_label = LABEL(T("Teachers"))
-            te_note = DIV(LOAD('customers', 'notes.load', ajax=True,
+            te_note = DIV(LOAD('customers', 'note_latest.load', ajax=True,
                                      target='os-tenote_latest',
                                    vars={'cuID':customers_id,
                                          'note_type':'teachers',
@@ -266,72 +289,66 @@ def edit_remodel_form(form,
     # address info
     div_address = DIV(
             DIV(H3(T('Address')), _class='col-md-12'),
-            DIV(TABLE(
-                    TR( TD(LABEL(form.custom.label.address)),
-                        TD(form.custom.widget.address),
-                        ),
-                    TR( TD(LABEL(form.custom.label.city)),
-                        TD(form.custom.widget.city),
-                        ),
-                    _class='full-width'),
-            _class='col-md-6'),
-            DIV(TABLE(
-                TR( TD(LABEL(form.custom.label.postcode)),
-                    TD(form.custom.widget.postcode)),
-                TR( TD(LABEL(form.custom.label.country)),
-                    TD(form.custom.widget.country)),
-                _class='full-width'),
-                _class='col-md-6'),
+            DIV(DIV(LABEL(form.custom.label.address),
+                    form.custom.widget.address,
+                    _class='col-md-3'),
+                DIV(LABEL(form.custom.label.postcode),
+                    form.custom.widget.postcode,
+                    _class='col-md-3'),
+                DIV(LABEL(form.custom.label.city),
+                    form.custom.widget.city,
+                    _class='col-md-3'),
+                DIV(LABEL(form.custom.label.country),
+                    form.custom.widget.country,
+                    _class='col-md-3'),
+
+            ),
         _class='col-md-12 customers_edit_address_info')
 
     # business info
     div_business = DIV(
         DIV(
-            H3(T("Studio")),
-            TABLE(
-                TR(TD(LABEL(form.custom.label.school_levels_id)),
-                   TD(form.custom.widget.school_levels_id)),
-                TR(TD(LABEL(form.custom.label.school_discovery_id)),
-                   TD(form.custom.widget.school_discovery_id)),
-                TR(TD(LABEL(form.custom.label.keynr)),
-                   TD(form.custom.widget.keynr)),
-                TR(TD(location_label),
-                   TD(location_widget)),
-
-                _class='full-width'),
-            _class='col-md-6'),
+            H3(T("Studio"), _class='col-md-12'),
+            DIV(DIV(LABEL(form.custom.label.school_levels_id),
+                    form.custom.widget.school_levels_id,
+                    _class='col-md-6'),
+                DIV(LABEL(form.custom.label.school_discovery_id),
+                    form.custom.widget.school_discovery_id,
+                    _class='col-md-6'),
+                DIV(LABEL(form.custom.label.keynr),
+                    form.custom.widget.keynr,
+                    _class='col-md-6'),
+                DIV(LABEL(location_label),
+                    location_widget,
+                    _class='col-md-6'),
+            ),
+            _class='col-md-6 no-padding-left no-padding-right'),
         DIV(
-
-
-                H3(T("Business")),
-                TABLE(
-                    TR(TD(LABEL(form.custom.label.business)),
-                       TD(form.custom.widget.business),
-                       ),
-                    TR(TD(LABEL(form.custom.label.company)),
-                       TD(form.custom.widget.company),
-                       ),
-                    TR(TD(LABEL(form.custom.label.company_registration)),
-                       TD(form.custom.widget.company_registration)),
-                    TR(TD(LABEL(form.custom.label.company_tax_registration)),
-                       TD(form.custom.widget.company_tax_registration)),
-            _class='full-width'),
-            _class='col-md-6'),
-        _class='col-md-12 customers_edit_address_info'
+            H3(form.custom.widget.business, ' ', T("Business"), _class='col-md-12'),
+            DIV(DIV(LABEL(T("Company name")),
+                    form.custom.widget.company,
+                    _class='col-md-12'),
+                DIV(LABEL(T("Company registration ID")),
+                    form.custom.widget.company_registration,
+                    _class='col-md-6'),
+                DIV(LABEL(T("Company tax registration ID")),
+                    form.custom.widget.company_tax_registration,
+                    _class='col-md-6'),
+                ),
+            _class='col-md-6 no-padding-left no-padding-right'),
+        _class='col-md-12'
     )
 
 
     notes = DIV(
         DIV(H3(T('Notes')), _class='col-md-12'),
-        DIV(
-            TABLE( TR( TD(bo_label),
-                       TD(bo_note, bo_button)),
-                  _class='full-width'),
+        DIV(DIV(LABEL(bo_label),
+                bo_note, bo_button,
+                _class='col-md-12 no-padding-left no-padding-right'),
             _class='col-md-6'),
-        DIV(
-            TABLE( TR( TD(te_label),
-                        TD(te_note, te_button)),
-                  _class='full-width'),
+        DIV(DIV(LABEL(te_label),
+                    te_note, te_button,
+                    _class='col-md-12 no-padding-left no-padding-right'),
             _class='col-md-6'),
         _class='col-md-12 customers_edit_notes')
 
@@ -346,36 +363,26 @@ def edit_remodel_form(form,
                _class='customers_edit_container row')
 
 
-# def index_get_subscription_query(query, mstype, msmonth, msyear):
-#     msstartdate = datetime.date(msyear, msmonth, 1)
-#     next_month = msstartdate.replace(day=28) + datetime.timedelta(days=4)  # this will never fail
-#     msenddate = next_month - datetime.timedelta(days=next_month.day)
-#     if mstype != '':
-#         query &= (db.customers_subscriptions.Startdate <= msenddate) & \
-#                  ((db.customers_subscriptions.Enddate >= msstartdate) | \
-#                   (db.customers_subscriptions.Enddate == None)) & \
-#             (db.customers_subscriptions.auth_customer_id == db.auth_user.id) & \
-#             (db.customers_subscriptions.school_subscriptions_id==mstype)
-#             # inner join for search :
-#             #(db.customers_subscriptions.customers_id == db.customers.id) & \
-#     return query
-
-
 def subscriptions_get_link_membership_check(row):
     """
     :param row: gluon.dal.row object of db.customers_subscriptions
     :return: Warning if membership required for subscription but not found
     """
     ssu = SchoolSubscription(row.school_subscriptions_id, set_db_info=True)
-    membership_required = ssu.MembershipRequired
+    required_membership = ssu.school_memberships_id
 
     customer = Customer(row.auth_customer_id)
 
-    if membership_required and not customer.has_membership_on_date(TODAY_LOCAL):
+    memberships = customer.get_memberships_on_date(TODAY_LOCAL)
+    ids = []
+    for row in memberships:
+        ids.append(row.id)
+
+    if required_membership and not required_membership in ids:
         return os_gui.get_label(
             'warning',
             T('No membership'),
-            title=T("A membership is required for this subscription but wasn't found.")
+            title=T("This customer doesn't have the required membership for this subscription.")
         )
     else:
         return ''
@@ -527,8 +534,7 @@ def index_get_add():
     if ( auth.has_membership(group_id='Admins') or
          auth.has_permission('create', 'auth_user') ):
         customers = Customers()
-        result = customers.get_add_modal()
-        add = SPAN(result['button'], result['modal'], _class='pull-right')
+        add = customers.get_add()
 
     return add
 
@@ -555,6 +561,14 @@ def index_get_menu(page):
                # LI(I(_class='fa fa-users'),
                #    _class='pull-left header'),
               _class='nav nav-tabs pull-right')
+
+    # print session.customers_load_list_search_name
+    #
+    # if session.customers_load_list_search_name and session.customers_load_list_search_name != '%%':
+    #     title = SPAN(os_gui.get_fa_icon('fa-search'), ' ', T("Search results"))
+    # else:
+    #     title = SPAN(os_gui.get_fa_icon('fa-circle-o'), ' ', T("All customers"))
+    # tabs.append(LI(title, _class='header os-header pull-left'))
 
     return tabs
 
@@ -709,8 +723,12 @@ def add():
         Page to add a new customer, only show the required field and after
         adding redirect to the edit page
     """
-    # call js for styling the form
-    response.js = 'set_form_classes();'
+    response.view = 'general/only_content.html'
+    response.title = T("New account")
+    response.subtitle = T("Add a customer")
+
+    # # call js for styling the form
+    # response.js = 'set_form_classes();'
 
     # enable only required fields
     for field in db.auth_user:
@@ -740,11 +758,13 @@ def add():
     db.auth_user.customer.default = True
 
     if request.vars['teacher'] == 'True':
+        response.subtitle = T("Add a teacher")
         db.auth_user.teacher.default = True
         db.auth_user.login_start.default = 'backend'
         crud.settings.create_onaccept = [cache_clear_school_teachers]
 
     if request.vars['employee'] == 'True':
+        response.subtitle = T("Add an employee")
         db.auth_user.employee.default = True
         db.auth_user.login_start.default  = 'backend'
 
@@ -760,6 +780,7 @@ def add():
 
     crud.messages.submit_button = T("Save")
     crud.messages.record_created = T("Saved")
+    crud.settings.formstyle = "bootstrap3_stacked"
     crud.settings.create_onaccept = [add_oncreate]
     crud.settings.create_next = next_url
     form = crud.create(db.auth_user)
@@ -774,12 +795,11 @@ def add():
 
     submit = form.element('input[type=submit]')
 
-    # Make table inputs full width
-    table = form.element('table')
-    table['_class'] = 'full-width'
+    back = add_get_back()
 
-    return dict(content=form)
-
+    return dict(content=form,
+                back=back,
+                save=submit)
 
 
 def add_oncreate(form):
@@ -787,6 +807,26 @@ def add_oncreate(form):
 
     customer = Customer(form.vars.id)
     customer.on_create()
+
+
+
+def add_get_back(var=None):
+    if 'teacher' in request.vars:
+        url = URL('teachers', 'index')
+    elif 'employee' in request.vars:
+        url = URL('school_properties', 'employees')
+    elif 'clsID' in request.vars:
+        url = URL('classes', 'attendance', vars={
+            'clsID': request.vars['clsID'],
+            'date': request.vars['date'],
+        })
+    else:
+        url = URL('customers', 'index')
+
+    return os_gui.get_button(
+        'back',
+        url
+    )
 
 
 
@@ -902,54 +942,45 @@ def edit():
                       _href='mailto:' + email)
 
     # add notes
+    te_button = ''
+    bo_button = ''
+
     if auth.has_membership(group_id='Admins') or \
        auth.has_permission('read', 'customers_notes_backoffice'):
-        bo_notes = LOAD('customers', 'notes.load', ajax=True,
-                        vars={'cuID':customers_id,
-                              'note_type':'backoffice'})
+        bo_button = os_gui.get_button(
+            'noicon',
+            URL('notes', vars={'cuID': customers_id,
+                               'note_type': 'backoffice'}),
+            title=T("All notes"),
+            btn_class='btn-link',
+            btn_size=''
+        )
 
-        bo_result = os_gui.get_modal(button_text=T("All notes"),
-                                    modal_title=T('Back office notes'),
-                                    modal_content=bo_notes,
-                                    modal_class='customers_bo_notes',
-                                    button_id='all_bo_notes',
-                                    button_class='btn-xs pull-right')
-        bo_modal = bo_result['modal']
-        bo_button = bo_result['button']
-
-    else:
-        bo_button =''
-        bo_modal = ''
 
     if auth.has_membership(group_id='Admins') or \
        auth.has_permission('read', 'customers_notes_teachers'):
-        te_notes = LOAD('customers', 'notes.load', ajax=True,
-                        vars={'cuID':customers_id,
-                              'note_type':'teachers'})
-
-        te_result = os_gui.get_modal(button_text=T("All notes"),
-                                     modal_title=T('Teacher notes'),
-                                     modal_content=te_notes,
-                                     modal_class='customers_te_notes',
-                                     button_class='btn-xs pull-right')
-        te_modal = te_result['modal']
-        te_button = te_result['button']
-
-    else:
-        te_button =''
-        te_modal = ''
+        te_button = os_gui.get_button(
+            'noicon',
+            URL('notes', vars={'cuID': customers_id,
+                               'note_type': 'teachers'}),
+            title=T("All notes"),
+            btn_class='btn-link',
+            btn_size=''
+        )
 
     # get styles form
-    form = edit_remodel_form(form,
-                             picture,
-                             change_picture,
-                             label_id,
-                             customers_id,
-                             bo_button=bo_button,
-                             te_button=te_button,
-                             mail_button=mail_button,
-                             merged=row.merged,
-                             row=row)
+    form = edit_remodel_form(
+        form,
+        picture,
+        change_picture,
+        label_id,
+        customers_id,
+        bo_button=bo_button,
+        te_button=te_button,
+        mail_button=mail_button,
+        merged=row.merged,
+        row=row
+    )
 
     alert = ''
     if row.merged:
@@ -969,11 +1000,10 @@ def edit():
         # Don't show a submit button for merged customers
         submit = ''
 
-    content = DIV(bo_modal,
-                  te_modal,
-                  alert,
-                  form,
-                  _class = 'tab-pane active')
+    content = DIV(
+        alert,
+        form,
+    _class = 'tab-pane active')
 
 
     return dict(content=content,
@@ -1231,22 +1261,6 @@ def customers_get_menu(customers_id, page=None):
 def classcards_count_classes(row):
     ccd = CustomerClasscard(row.customers_classcards.id)
     link_text = ccd.get_classes_remaining_formatted()
-
-
-    # card = db.school_classcards(row.customers_classcards.school_classcards_id)
-    # total = card.Classes
-    # ccdID = row.customers_classcards.id
-    # if card.Unlimited:
-    #     remaining = T('Unlimited')
-    # else:
-    #     query = (db.classes_attendance.customers_classcards_id == ccdID)
-    #     used = db(query).count()
-    #     remaining = total - used
-    #
-    # if remaining != 1:
-    #     link_text = T("Classes")
-    # else:
-    #     link_text = T("Class")
 
     link = A(link_text,
              _href=URL('classcard_classes', vars=dict(ccdID=row.customers_classcards.id)))
@@ -1525,16 +1539,20 @@ def classcards_get_link_membership_check(row):
     :return: Warning if membership required for card but not found
     """
     scd = SchoolClasscard(row.customers_classcards.school_classcards_id, set_db_info=True)
-    membership_required = scd.row.MembershipRequired
-
+    required_membership = scd.row.school_memberships_id
 
     customer = Customer(row.customers_classcards.auth_customer_id)
 
-    if membership_required and not customer.has_membership_on_date(TODAY_LOCAL):
+    memberships = customer.get_memberships_on_date(TODAY_LOCAL)
+    ids = []
+    for row in memberships:
+        ids.append(row.id)
+
+    if required_membership and not required_membership in ids:
         return os_gui.get_label(
             'warning',
             T('No membership'),
-            title=T("A membership is required for this classcard but wasn't found.")
+            title=T("This customer doesn't have the required membership for this card.")
         )
     else:
         return ''
@@ -4356,6 +4374,92 @@ def notes():
             'backoffice' for a backoffice note
             'teacher' for a teacher note
     """
+    cnID = request.vars['cnID']
+    cuID = request.vars['cuID']
+    note_type = request.vars['note_type']
+
+    customer = Customer(cuID)
+    response.title = customer.row.display_name
+    response.subtitle = T("Profile")
+    response.view = 'general/tabs_menu.html'
+
+    sub_subtitle = SPAN(T("Notes"), XML(' &bull; '))
+    if note_type is None:
+        db.customers_notes.BackofficeNote.default = True
+
+    if note_type == 'backoffice':
+        sub_subtitle.append(T("Back office"))
+        db.customers_notes.BackofficeNote.default = True
+
+    if note_type == 'teachers':
+        sub_subtitle.append(T("Teachers"))
+        db.customers_notes.TeacherNote.default = True
+
+    permission_edit = (
+            auth.has_membership(group_id='Admins') or
+            auth.has_permission('update', 'customers_notes')
+    )
+    permission_delete = (
+            auth.has_membership(group_id='Admins') or
+            auth.has_permission('delete', 'customers_notes')
+    )
+
+
+    notes = customer.get_notes_formatted(
+        note_type,
+        permission_edit,
+        permission_delete
+    )
+
+    # form
+    form = ''
+    form_title = ''
+
+    if not cnID:
+        perm = auth.has_membership(group_id='Admins') or \
+               auth.has_permission('create', 'customers_notes')
+        if perm:
+            form = notes_get_add()
+            form_title = H4(T('Add a new note'))
+    else:
+        perm = auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'customers_notes')
+        if perm:
+            form = notes_get_edit(cnID, cuID, note_type)
+            form_title = H4(T('Edit note'))
+
+    content = DIV(
+        H4(sub_subtitle),
+        notes,
+        form_title,
+        form,
+    )
+
+    menu = customers_get_menu(cuID, 'general')
+    back = os_gui.get_button(
+        'back',
+        URL('edit', args=[cuID])
+    )
+
+    return dict(
+        content=content,
+        menu=menu,
+        back=back,
+    )
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'customers_notes_backoffice') or \
+               auth.has_permission('read', 'customers_notes_teachers'))
+def note_latest():
+    """
+        Lists all notes for the backoffice
+        request.vars['note_type'] can be 2 values
+            'backoffice' for a backoffice note
+            'teacher' for a teacher note
+    """
+    from openstudio.os_customer import Customer
+
     customers_id = request.vars['cuID']
     note_type = request.vars['note_type']
     latest = request.vars['latest']
@@ -4365,147 +4469,60 @@ def notes():
     except:
         latest_length = 50 # set default
 
-    backoffice_class = ''
-    teachers_class = ''
-    all_class = ''
+    customer = Customer(customers_id)
+    rows = customer.get_notes(note_type=note_type)
 
-    active_class = 'web2py-menu-active'
+    if not rows:
+        return ''
 
-    db.auth_user._format = '%(display_name)s'
+    latest_note = rows.first()
 
-    query = (db.customers_notes.auth_customer_id == customers_id)
-
-    if note_type is None:
-        db.customers_notes.BackofficeNote.default = True
-
-    if note_type == 'backoffice':
-        db.customers_notes.BackofficeNote.default = True
-        query &= (db.customers_notes.BackofficeNote == True)
-
-    if note_type == 'teachers':
-        db.customers_notes.TeacherNote.default = True
-        query &= (db.customers_notes.TeacherNote == True)
-
-    notes = UL(_id='os-customers_notes')
-    rows = db(query).select(db.customers_notes.ALL,
-                            orderby=~db.customers_notes.NoteDate|\
-                                    ~db.customers_notes.NoteTime)
-    for row in rows.render():
-        row_note_type = ''
-        if row.BackofficeNote:
-            row_note_type = T('Back office')
-        elif row.TeacherNote:
-            row_note_type = T('Teachers')
-
-        if latest == 'True':
-            note = DIV(XML(max_string_length(row.Note.replace('\n','<br>'),
-                                             latest_length)))
-            break
-        else:
-            buttons = DIV(_class='btn-group pull-right')
-            if auth.has_membership(group_id='Admins') or \
-               auth.has_permission('update', 'customers_notes'):
-                edit = os_gui.get_button('edit_notext',
-                                  URL('note_edit', args=[row.id]),
-                                  cid=request.cid)
-                buttons.append(edit)
-
-            if auth.has_membership(group_id='Admins') or \
-               auth.has_permission('delete', 'customers_notes'):
-                remove = os_gui.get_button('delete_notext', '#')
-                buttons.append(remove)
-
-            # correct time for timezone
-            #TODO: Move notedate and notetime fields into notedatetime and then represent using pytz
+    return DIV(XML(max_string_length(latest_note.Note.replace('\n','<br>'),
+                                     latest_length)))
 
 
-            notes.append(LI(buttons,
-                            SPAN(row.NoteDate,
-                                 ' ',
-                                 row.NoteTime,
-                                 _class='bold'),
-                            SPAN(' - ',
-                                 row.auth_user_id,
-                                 _class='grey'),
-                            BR(),
-                            XML(row.Note.replace('\n','<br>')),
-                            _id='note_' + unicode(row.id)))
-
-    if latest == 'True':
-        try:
-            return_value = note
-        except:
-            # no rows found
-            return_value = ''
-    else:
-        vars = {'cuID':customers_id}
-        if not note_type or note_type == 'backoffice':
-            vars['note_type'] = 'backoffice'
-        else:
-            vars['note_type'] = 'teachers'
-
-        perm = auth.has_membership(group_id='Admins') or \
-               auth.has_permission('create', 'customers_notes')
-        if perm:
-            add = notes_get_add()
-            add_title = H4(T('Add a new note'))
-        else:
-            add = ''
-            add_title = ''
-
-        content = DIV(add_title,
-                      add,
-                      notes)
-
-        return_value = dict(content=content)
-
-    response.js = "iconHandlers()"
-
-    return return_value
-
-
-@auth.requires_login()
-def note_edit():
-    """
-        Provides an edit page for a note.
-        request.args[0] is expected to be the customers_note_id (cn_id)
-    """
-    cn_id = request.args[0]
-
-    note = db.customers_notes(cn_id)
-    customers_id = note.auth_customer_id
-
-    if note.BackofficeNote:
-        note_type = 'backoffice'
-    elif note.TeacherNote:
-        note_type = 'teachers'
-
-    crud.messages.submit_button = T("Save")
-    crud.messages.record_updated = T('Saved')
-    form = crud.update(db.customers_notes, cn_id)
-
-    form.custom.widget.Note['_class'] += ' form-control'
-
-    form = DIV(form.custom.begin,
-               form.custom.widget.Note,
-               form.custom.submit,
-               form.custom.end,
-               _class='os-customers_notes_edit clear')
-
-    back =  os_gui.get_button('back',
-                      URL('notes', vars={'cuID':customers_id,
-                                         'note_type':note_type}),
-                      _class='left',
-                      cid=request.cid)
-
-    content = DIV(BR(),
-                  back,
-                  BR(),BR(),
-                  form)
-
-    response.js = "setTimeout(function() { $('div.flash').fadeOut(); }, 2500 );"
-
-    return dict(content=content)
+# @auth.requires_login()
+# def note_edit():
+#     """
+#         Provides an edit page for a note.
+#         request.args[0] is expected to be the customers_note_id (cn_id)
+#     """
+#     cn_id = request.args[0]
+#
+#     note = db.customers_notes(cn_id)
+#     customers_id = note.auth_customer_id
+#
+#     if note.BackofficeNote:
+#         note_type = 'backoffice'
+#     elif note.TeacherNote:
+#         note_type = 'teachers'
+#
+#     crud.messages.submit_button = T("Save")
+#     crud.messages.record_updated = T('Saved')
+#     form = crud.update(db.customers_notes, cn_id)
+#
+#     form.custom.widget.Note['_class'] += ' form-control'
+#
+#     form = DIV(form.custom.begin,
+#                form.custom.widget.Note,
+#                form.custom.submit,
+#                form.custom.end,
+#                _class='os-customers_notes_edit clear')
+#
+#     back =  os_gui.get_button('back',
+#                       URL('notes', vars={'cuID':customers_id,
+#                                          'note_type':note_type}),
+#                       _class='left',
+#                       cid=request.cid)
+#
+#     content = DIV(BR(),
+#                   back,
+#                   BR(),BR(),
+#                   form)
+#
+#     response.js = "setTimeout(function() { $('div.flash').fadeOut(); }, 2500 );"
+#
+#     return dict(content=content)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -4514,19 +4531,21 @@ def note_delete():
     """
         Called as JSON, used to remove a note
     """
-    response.view = 'generic.json'
-    cn_id = request.vars['id']
+    cuID = request.vars['cuID']
+    cnID = request.vars['cnID']
 
-    status = 'success'
-    message = T('Deleted note')
+    note = db.customers_notes(cnID)
+    if note.TeacherNote:
+        note_type = 'teachers'
+    else:
+        note_type = 'backoffice'
 
-    query = (db.customers_notes.id == cn_id)
-    if not db(query).delete(): # returns 0 when it fails
-        status = 'fail'
-        message = T("Delete failed")
+    query = (db.customers_notes.id == cnID)
+    db(query).delete()
 
-    return dict(status=status, message=message)
-
+    session.flash = T("Deleted note")
+    redirect(URL('customers', 'notes', vars={'cuID': cuID,
+                                             'note_type': note_type}))
 
 def notes_get_add(var=None):
     """
@@ -4549,7 +4568,6 @@ def notes_get_add(var=None):
     db.customers_notes.auth_customer_id.default = customers_id
     db.customers_notes.auth_user_id.default = auth.user.id
 
-
     crud.messages.submit_button = T("Save")
     crud.messages.record_created = T('')
     crud.settings.create_next = return_url
@@ -4560,6 +4578,43 @@ def notes_get_add(var=None):
     form = DIV(form.custom.begin,
                form.custom.widget.Note,
                form.custom.submit,
+               form.custom.end,
+               _class='os-customers_notes_edit')
+
+    return form
+
+
+def notes_get_edit(cnID, cuID, note_type):
+    """
+        Provides a page to add a note
+        request.vars['note_type'] can be 2 values
+            'backoffice' for a backoffice note
+            'teachers' for a teachers note
+    """
+    if note_type is None:
+        vars = {'cuID': cuID}
+    else:
+        vars = {'cuID': cuID,
+                'note_type': note_type}
+
+    return_url = URL('notes', vars=vars)
+
+    db.customers_notes.auth_customer_id.default = cuID
+    db.customers_notes.auth_user_id.default = auth.user.id
+
+    crud.messages.submit_button = T("Save")
+    crud.messages.record_updated = T("Saved")
+    crud.settings.update_next = return_url
+    form = crud.update(db.customers_notes, cnID)
+
+    form.custom.widget.Note['_class'] += ' form-control'
+
+    form = DIV(form.custom.begin,
+               form.custom.widget.Note,
+               form.custom.submit,
+               A(T('Cancel'),
+                 _href=return_url,
+                 _class='btn btn-link'),
                form.custom.end,
                _class='os-customers_notes_edit')
 

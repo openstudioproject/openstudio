@@ -31,6 +31,7 @@ import operator
 import cStringIO
 import openpyxl
 
+
 def index():
     """
         Main page for reports controller
@@ -1570,8 +1571,11 @@ def subscriptions_new():
         db.auth_user.trashed,
         db.auth_user.thumbsmall,
         db.auth_user.birthday,
+        db.auth_user.first_name,
+        db.auth_user.last_name,
         db.auth_user.display_name,
         db.auth_user.date_of_birth,
+        db.auth_user.email,
         db.customers_subscriptions.school_subscriptions_id,
         db.customers_subscriptions.Startdate,
         db.customers_subscriptions.payment_methods_id
@@ -1613,14 +1617,97 @@ def subscriptions_new():
 
     menu = subscriptions_get_menu(request.function)
 
+    link_all_customers = A(
+        SPAN(os_gui.get_fa_icon('fa-envelope-o'), ' ', T("Mailinglist")),
+        _href=URL('subscriptions_new_export_mailinglist'),
+        _class='textalign_left',
+        _title=T('All customers with new subscription this month'))
+
+    links = [ link_all_customers ]
+
+    export = os_gui.get_dropdown_menu(
+            links = links,
+            btn_text = '',
+            btn_icon = 'download',
+            menu_class='pull-right' )
+
     return dict(content=table,
                 total=total,
                 form=form,
                 menu=menu,
                 modals=modals,
+                export=export,
                 month_chooser=month_chooser,
                 current_month=current_month,
                 submit=submit)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+                auth.has_permission('read', 'reports_subscriptions'))
+def subscriptions_new_export_mailinglist():
+    """
+    Mailchimp compatible excel export
+    :return:
+    """
+    from openstudio.os_reports import Reports
+
+    reports = Reports()
+
+    date = datetime.date(
+        session.reports_subscriptions_year,
+        session.reports_subscriptions_month,
+        1
+    )
+
+    location_filter = False
+    filter_school_locations_id = None
+    if session.show_location:
+        location_filter = True
+        filter_school_locations_id = session.reports_subscriptions_school_locations_id
+
+    query = reports.get_query_subscriptions_new_in_month(
+        date,
+        filter_school_locations_id = filter_school_locations_id
+    )
+
+
+    fields = [
+        db.auth_user.id,
+        db.auth_user.trashed,
+        db.auth_user.thumbsmall,
+        db.auth_user.birthday,
+        db.auth_user.first_name,
+        db.auth_user.last_name,
+        db.auth_user.display_name,
+        db.auth_user.date_of_birth,
+        db.auth_user.email,
+        db.customers_subscriptions.school_subscriptions_id,
+        db.customers_subscriptions.Startdate,
+        db.customers_subscriptions.payment_methods_id
+     ]
+    rows = db.executesql(query, fields=fields)
+
+    # create filestream
+    stream = cStringIO.StringIO()
+
+    # Create the workbook
+    wb = openpyxl.workbook.Workbook(write_only=True)
+    ws = wb.create_sheet(title='Mailinglist')
+
+
+    for row in rows:
+        ws.append([row.auth_user.first_name,
+                   row.auth_user.last_name,
+                   row.auth_user.email])
+
+    fname = T("Mailinglist") + '.xlsx'
+    wb.save(stream)
+
+    response.headers['Content-Type']='application/vnd.ms-excel'
+    response.headers['Content-disposition']='attachment; filename=' + fname
+
+    return stream.getvalue()
+
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -1633,9 +1720,11 @@ def subscriptions_stopped():
     # set the session vars for year/month
     subscriptions_process_request_vars()
 
-    date = datetime.date(session.reports_subscriptions_year,
-                         session.reports_subscriptions_month,
-                         1)
+    date = datetime.date(
+        session.reports_subscriptions_year,
+        session.reports_subscriptions_month,
+        1
+    )
 
     firstdaythismonth = date
     next_month = date.replace(day=28) + datetime.timedelta(days=4)  # this will never fail
@@ -1649,7 +1738,7 @@ def subscriptions_stopped():
         location_filter = True
         filter_school_locations_id = session.reports_subscriptions_school_locations_id
 
-    query = reports.get_query_subscriptions_new_in_month(
+    query = reports.get_query_subscriptions_stopped_in_month(
         date,
         filter_school_locations_id = filter_school_locations_id
     )

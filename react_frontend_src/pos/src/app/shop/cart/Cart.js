@@ -30,6 +30,7 @@ class Cart extends Component {
     }
     
     render() {
+        const classes = this.props.checkin_classes
         const items = this.props.items
         const selected_item = this.props.selected_item
         const total = this.props.total
@@ -43,7 +44,8 @@ class Cart extends Component {
                 </div>
                 <div className="box-body">
                 {(items.length) ? 
-                    <CartList items={items}
+                    <CartList classes={classes}
+                              items={items}
                               selected_item={selected_item}
                               total={total}
                               onClick={this.onClickCartItem.bind(this)} />:

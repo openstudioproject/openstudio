@@ -1,6 +1,8 @@
 import {
     requestCheckinBookingOptions as request_booking_options,
-    receiveCheckinBookingOptions as receive_booking_options
+    receiveCheckinBookingOptions as receive_booking_options,
+    requestCheckinCustomer,
+    receiveCheckinCustomer
 } from './actions'
 
 import axios_os from '../../../../utils/axios_os'
@@ -38,7 +40,34 @@ const fetchBookingOptions = (clsID, cuID) => {
       }
   }
 
+const checkinCustomer = (cuID, clsID, data) => {
+      return dispatch => {
+          dispatch(requestCheckinCustomer())
+
+          console.log("request customer checkin")
+          let fd = new FormData()
+        //   fd.append('clsID', clsID)
+          fd.append('cuID', cuID)
+          // Add data items
+          Object.keys(data).map((key) =>
+            fd.append(key, data[key])
+          )
+  
+          axios_os.post(OS_API.CHECKIN_BOOKING_CREATE, fd)
+          .then(function(response) {
+              dispatch(receiveCheckinCustomer(response.data))
+          })
+          .catch(function (error) {
+              console.log(error)
+          })
+          .then(function() {
+              //always executed
+          })
+      }
+  }
+
 
 export default {
+    checkinCustomer,
     fetchBookingOptions
 }

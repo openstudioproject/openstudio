@@ -21,7 +21,7 @@ class CustomerSubscription:
         self.cs = db.customers_subscriptions(csID)
 
         self.ssuID = self.cs.school_subscriptions_id
-        self.ssu   = db.school_subscriptions(self.ssuID)
+        self.ssu = db.school_subscriptions(self.ssuID)
 
         self.name               = self.ssu.Name
         self.auth_customer_id   = self.cs.auth_customer_id

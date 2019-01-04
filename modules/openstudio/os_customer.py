@@ -1254,3 +1254,77 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         return logo_img
 
 
+    def get_notes(self, note_type=None):
+        """
+
+        :return:
+        """
+        db = current.db
+
+        query = (db.customers_notes.auth_customer_id == self.cuID)
+
+        if note_type == 'backoffice':
+            query &= (db.customers_notes.BackofficeNote == True)
+
+        if note_type == 'teachers':
+            query &= (db.customers_notes.TeacherNote == True)
+
+        rows = db(query).select(
+            db.customers_notes.ALL,
+            orderby=~db.customers_notes.NoteDate | \
+                    ~db.customers_notes.NoteTime
+        )
+
+        return rows
+
+
+    def get_notes_formatted(self, note_type, permission_edit=False, permission_delete=False):
+        """
+        :param note_type: ['backoffice', 'teachers']
+        :return: HTML formatted notes using AdminLTE chat layout
+        """
+        T = current.T
+        delete_onclick = "return confirm('" + T('Are you sure you want to delete this note?') + "');"
+
+        rows = self.get_notes(note_type=note_type)
+
+        notes = DIV(_class='direct-chat-messages direct-chat-messages-high')
+        for i, row in enumerate(rows):
+            repr_row = list(rows[i:i + 1].render())[0]
+
+            edit = ''
+            delete = ''
+
+            if permission_delete:
+                delete = A(T('Delete'),
+                           _href=URL('customers', 'note_delete', vars={'cnID': row.id,
+                                                                       'cuID': self.cuID}),
+                           _onclick=delete_onclick,
+                           _class='text-red')
+
+            if permission_edit:
+                edit = A(T('Edit'),
+                           _href=URL('customers', 'notes', vars={'cnID': row.id,
+                                                                 'cuID': self.cuID,
+                                                                 'note_type': note_type}),
+                           )
+
+            note = DIV(
+                DIV(SPAN(repr_row.auth_user_id,
+                         _class="direct-chat-name pull-left"),
+                    SPAN(delete,
+                         _class="direct-chat-scope pull-right"),
+                    SPAN(edit,
+                         _class="direct-chat-scope pull-right"),
+                    SPAN(repr_row.NoteDate, ' ', repr_row.NoteTime, ' ',
+                         _class="direct-chat-timestamp pull-right"),
+                    _class="direct-chat-info clearfix"
+                    ),
+                IMG(_src=URL('static', 'images/person_inverted_small.png'), _class="direct-chat-img"),
+                DIV(XML(repr_row.Note.replace('\n', '<br>')), _class="direct-chat-text"),
+                _class="direct-chat-msg"
+            )
+
+            notes.append(note)
+
+        return notes

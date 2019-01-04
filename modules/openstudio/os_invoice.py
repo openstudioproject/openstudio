@@ -1070,6 +1070,8 @@ class Invoice:
             self.invoice.update_record()
             return True
         else:
+            self.set_status('sent')
+            self.invoice.update_record()
             return False
 
 

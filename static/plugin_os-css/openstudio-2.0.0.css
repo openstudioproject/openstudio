@@ -149,6 +149,10 @@ a.red:visited {
     padding-left: 0;
 }
 
+.no-padding-right {
+    padding-right: 0;
+}
+
 .no-margin-top {
     margin-top: 0;
 }
@@ -307,12 +311,19 @@ td.os-customer_image_td {
 .customers_edit_basic_info {
 	padding-top:3px;
 }
+
+.customers_edit_basic_info .input-group {
+    margin-left: 0px;
+}
+
+/*
 .customers_edit_basic_info input,
 .customers_edit_address_info input,
 .customers_edit_basic_info select,
 .customers_edit_address_info select {
     margin-left: 6px;
 }
+*/
 .customers_edit_notes button {
     margin-top: 10px;
 }
@@ -346,33 +357,14 @@ div#classes_customers_searchform form input[type="text"] {
 
 /* ul #os-customers_notes  begin */
 
-ul#os-customers_notes {
-    list-style-type: none;
-    padding: 0px;
-    margin: 0px;
-}
-
-ul#os-customers_notes li {
-    padding: 20px 20px 20px 20px;
-    border-bottom: 1px solid #EAEAEA;
-    border-radius: 4px;
-}
-
 div.os-customers_note_latest {
-    margin-bottom: 100px;
     border: 1px solid #CCC;
     padding: 4px 6px 4px 6px;
-    margin: 10px 3px 0 6px;
+/*
+    margin: px 3px 0 0px;
+*/
     min-height: 60px;
     width: 100%;
-}
-
-ul#os-customers_notes span.icon-pencil {
-    padding-right: 6px;
-}
-
-ul#os-customers_notes li:hover {
-    background-color: #F5F5F5;
 }
 
 .os-customers_notes_edit form {
@@ -380,18 +372,12 @@ ul#os-customers_notes li:hover {
 }
 
 .os-customers_notes_edit textarea {
-    width: 98%;
+    width: 100%;
     min-height: 110px;
-    max-width: 98%;
+    max-width: 100%;
     height: 50px;
     margin-top: 6px;
     margin-bottom: 10px;
-}
-
-.os-customers_notes_edit input[type='submit'],
-.os-customers_notes_edit .btn-default
- {
-    margin: 0 4px 6px 0;
 }
 
 .os-customers_notes_edit input[type='checkbox'] {
@@ -1231,6 +1217,10 @@ input.datepicker {
 
 .direct-chat-input-form textarea {
     height: 110px;
+}
+
+.nav-tabs-custom>.nav-tabs>li.os-header {
+    font-size: 14px;
 }
 
 /* AdminLTE mods end */

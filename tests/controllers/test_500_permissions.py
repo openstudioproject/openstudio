@@ -1271,8 +1271,7 @@ def test_customer_notes_delete(client, web2py):
     client.get(url)
     assert client.status == 200
 
-    assert 'fa-times' in client.text
-
+    assert 'Delete</a>' in client.text
 
 
 def test_task_delete(client, web2py):

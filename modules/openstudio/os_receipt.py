@@ -235,7 +235,8 @@ class Receipt:
             Quantity = quantity,
             Price = variant.Price,
             tax_rates_id = variant.tax_rates_id,
-            GLAccount = variant.GLAccount
+            accounting_glaccounts_id=product.accounting_glaccounts_id,
+            accounting_costcenters_id=product.accounting_costcenters_id
         )
 
         self.set_amounts()
@@ -261,7 +262,8 @@ class Receipt:
             Quantity=item.Quantity,
             Price=item.Price,
             tax_rates_id=item.tax_rates_id,
-            GLAccount=item.GLAccount
+            accounting_glaccounts_id=item.accounting_glaccounts_id,
+            accounting_costcenters_id=item.accounting_costcenters_id
         )
 
         self.set_amounts()

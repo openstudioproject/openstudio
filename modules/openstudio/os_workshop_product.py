@@ -115,6 +115,23 @@ class WorkshopProduct:
         return rows
 
 
+    def is_in_shoppingcart(self, cuID):
+        """
+        :param cuID: db.auth_user.id
+        :return: True when event ticket is in cart for customer, False when not
+        """
+        db = current.db
+
+        query = (db.customers_shoppingcart.auth_customer_id == cuID) & \
+                (db.customers_shoppingcart.workshops_products_id == self.wspID)
+        count = db(query).count()
+
+        if count:
+            return True
+        else:
+            return False
+
+
     def is_sold_to_customer(self, cuID):
         """
             :param cuID: db.auth_user.id
@@ -126,7 +143,7 @@ class WorkshopProduct:
                 (db.workshops_products_customers.workshops_products_id == self.wspID)
         count = db(query).count()
 
-        if count > 0:
+        if count:
             return True
         else:
             return False

@@ -350,41 +350,66 @@ WHERE (au.last_login < '{date}' OR au.last_login IS NULL) AND
 
         return status
 
-    def get_add_modal(self, button_text='Add',
-                      button_class='btn-sm',
-                      redirect_vars={}):
+
+    # def get_add_modal(self,
+    #                   button_text='Add',
+    #                   button_class='btn-sm',
+    #                   redirect_vars={}):
+    #     """
+    #         Returns button and modal for an add button
+    #     """
+    #     os_gui = current.globalenv['os_gui']
+    #
+    #     add = LOAD('customers', 'add.load', ajax=True, vars=redirect_vars)
+    #
+    #     button_text = XML(SPAN(I(_class='fa fa-plus'), ' ',
+    #                            current.T(button_text)))
+    #
+    #     if 'teacher' in redirect_vars:
+    #         modal_title = current.T('Add teacher')
+    #     elif 'employee' in redirect_vars:
+    #         modal_title = current.T('Add employee')
+    #     else:
+    #         modal_title = current.T('Add customer')
+    #
+    #     result = os_gui.get_modal(button_text=button_text,
+    #                               modal_title=modal_title,
+    #                               modal_content=add,
+    #                               modal_footer_content=os_gui.get_submit_button('customer_add'),
+    #                               modal_class='customers_add_new_modal',
+    #                               button_class=button_class)
+    #
+    #     return result
+    #
+    
+    def get_add(self,
+                button_text=None,
+                btn_size='btn-sm',
+                redirect_vars={}):
         """
-            Returns button and modal for an add button
+        :return: Returns an html add button for an account
         """
-        os_gui = current.globalenv['os_gui']
+        from openstudio.os_gui import OsGui
 
-        add = LOAD('customers', 'add.load', ajax=True, vars=redirect_vars)
+        os_gui = OsGui()
 
-        button_text = XML(SPAN(I(_class='fa fa-plus'), ' ',
-                               current.T(button_text)))
-
-        if 'teacher' in redirect_vars:
-            modal_title = current.T('Add teacher')
-        elif 'employee' in redirect_vars:
-            modal_title = current.T('Add employee')
-        else:
-            modal_title = current.T('Add customer')
-
-        result = os_gui.get_modal(button_text=button_text,
-                                  modal_title=modal_title,
-                                  modal_content=add,
-                                  modal_footer_content=os_gui.get_submit_button('customer_add'),
-                                  modal_class='customers_add_new_modal',
-                                  button_class=button_class)
-
-        return result
+        add = os_gui.get_button(
+            'add',
+            URL('customers', 'add', vars=redirect_vars),
+            _class='pull-right',
+            btn_size=btn_size,
+            title=button_text
+        )
+        
+        return add
+    
 
     def get_credits_balance(self, date, include_reconciliation_classes=False):
-        '''
+        """
         :param date: datetime.date
         :return: Dictionary of customerID's containing current balance and total of reconcilliation credits allowed
         by all subscriptions a customer has on given date
-        '''
+        """
         db = current.db
 
         query = '''SELECT cs.id, 

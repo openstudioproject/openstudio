@@ -100,6 +100,10 @@ def event_add_to_cart():
         session.flash = SPAN(SPAN(T("Unable to add to cart"), _class='bold'), BR(),
                              T("You've already bought this product"))
         redirect(workshop_return_url)
+    elif wsp.is_in_shoppingcart(auth.user.id):
+        session.flash = SPAN(SPAN(T("Unable to add to cart again"), _class='bold'), BR(),
+                             T("This event ticket is already in your cart"))
+        redirect('cart')
     elif wsp.is_sold_out():
         session.flash = SPAN(SPAN(T("Unable to add to cart"), _class='bold'), BR(),
                              T("This product is sold out"))
