@@ -22,6 +22,9 @@ const mapDispatchToProps = dispatch =>
         fetchClassAttendance(clsID) {
             dispatch(checkinAttendanceOperations.fetchClassAttendance(clsID))
         },
+        updateClassAttendanceBookingStatus(clattID, status) {
+            dispatch(checkinAttendanceOperations.updateClassAttendanceBookingStatus(clattID, status))
+        },
         setPageTitle(title) {
             dispatch(appOperations.setPageTitle(title))
         },

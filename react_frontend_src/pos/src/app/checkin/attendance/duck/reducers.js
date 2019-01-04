@@ -9,15 +9,27 @@ export const checkinAttendanceReducer = (state = {}, action={ type: null }) => {
             }
         case T.CHECKIN_REQUEST_CLASS_ATTENDANCE:
             return {
+                ...state,
                 loading: true,
                 loaded: false,
                 data: {}
             }
         case T.CHECKIN_RECEIVE_CLASS_ATTENDANCE:
             return {
+                ...state,
                 loading: false,
                 loaded: true,
                 data: action.data.attendance,
+            }
+        case T.CHECKIN_CLASS_ATTENDANCE_REQUEST_UPDATE_STATUS:
+            console.log(action)
+            // Append classes attendance ID, so we can show it as updating
+            return {
+                ...state,
+                attendanceStatusUpdating: [
+                    ...state.attendanceStatusUpdating,
+                    action.clattID
+                    ]
             }
         case T.CHECKIN_SET_CLASS_ATTENDANCE_SEARCH_CUSTOMER_ID:
             return {

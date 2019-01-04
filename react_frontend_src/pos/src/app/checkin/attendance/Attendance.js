@@ -152,9 +152,11 @@ class Attendance extends Component {
         this.props.history.push(`/checkin/book/${clsID}/${id}`)
     }
 
-    onClickAttendanceButtonCheckIn(id) {
+    onClickAttendanceButtonCheckIn(clattID) {
         console.log('Check in clicked')
-        console.log(id)
+        console.log(clattID)
+        
+        this.props.updateClassAttendanceBookingStatus(clattID, "attending")
     }
     
     render() {
