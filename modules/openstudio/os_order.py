@@ -145,7 +145,6 @@ class Order:
         T  = current.T
 
         sme = SchoolMembership(school_memberships_id)
-        sme_tax_rates = sme.get_tax_rates_on_date(startdate)
 
         coiID = db.customers_orders_items.insert(
             customers_orders_id  = self.coID,
@@ -153,8 +152,8 @@ class Order:
             ProductName = T('membership'),
             Description = sme.row.Name,
             Quantity = 1,
-            Price = sme.get_price_on_date(startdate, formatted=False),
-            tax_rates_id = sme_tax_rates.tax_rates.id,
+            Price = sme.row.Price,
+            tax_rates_id = sme.row.tax_rates_id,
             accounting_glaccounts_id = sme.row.accounting_glaccounts_id,
             accounting_costcenters_id = sme.row.accounting_costcenters_id,
         )
@@ -486,15 +485,8 @@ class Order:
                     cm = CustomerMembership(cmID)
 
                     # Check if price exists and > 0:
-                    if sme.get_price_on_date(membership_start):
-                        period_start = cm.row.Startdate
-                        period_end = cm.get_period_enddate(cm.row.Startdate)
-
-                        invoice.item_add_membership(
-                            cmID,
-                            period_start,
-                            period_end
-                        )
+                    if sme.row.Price:
+                        invoice.item_add_membership(cmID)
 
             # Check for workshop
             if row.workshops_products_id:

@@ -44,6 +44,7 @@ class Book extends Component {
 
         const clsID = this.props.match.params.clsID
         const cuID = this.props.match.params.cuID
+        const school_memberships = this.props.school_memberships
 
         // this.props.checkinCustomer(cuID, clsID, option)
 
@@ -141,7 +142,44 @@ class Book extends Component {
                 this.props.checkinCustomer(cuID, clsID, option, this.props.history)
                 break
             case "classcard":
-                this.props.checkinCustomer(cuID, clsID, option, this.props.history)
+                // Check membership
+                if (option.school_memberships_id) {
+                    if (customer_memberships.includes(option.school_memberships_id)) {
+                        this.props.checkinCustomer(cuID, clsID, option, this.props.history)
+                    } else {
+                        console.log('redirect to cart to buy the required membership')
+                        // customer needs to pay
+                        // clear cart
+                        this.props.clearShopCart()
+                        // set shop selected customer id
+                        this.props.setSelectedCustomerID(this.props.match.params.cuID)
+                        this.props.setDisplayCustomerID(this.props.match.params.cuID)
+
+                        function findMembership(item) {
+                            return item.id == option.school_memberships_id
+                        }
+
+                        console.log(school_memberships)
+                        let cart_item = school_memberships.data.find(findMembership)
+
+                        let item = {
+                            id: v4(),
+                            item_type: 'membership',
+                            quantity: 1,
+                            data: cart_item
+                         }
+                 
+                         console.log('item')
+                         console.log(item)
+                         // Check if item not yet in cart
+                         
+                         // If not yet in cart, add as a new product, else increase 
+                         this.props.addShopCartItem(item)
+
+                         // redirect to payment
+                         this.props.history.push('/shop/payment')
+                    }
+                }
                 break
             default: 
                 console.log("Login type not found:")
