@@ -4,9 +4,7 @@ import { injectIntl } from 'react-intl'
 const BookOptionsListItemSubscription = injectIntl(({data, intl, onClick=f=>f}) => 
     <div className="col-md-3"
          onClick={(data.Allowed) ? () => onClick(data): f=>f}>
-
-        
-         
+         {console.log(data)}
          <div className={(data.Allowed) ? "small-box bg-purple" : "small-box bg-gray-active"}>
             <div className="inner">
                 <h4>

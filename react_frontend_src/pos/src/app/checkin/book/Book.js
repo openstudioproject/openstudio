@@ -151,18 +151,21 @@ class Book extends Component {
         }
     }
 
-    customerHasMembership(cuID) {
-        let customer_has_membership = false
+    customerMemberships(cuID) {
+        let customer_memberships = []
         const memberships = this.props.memberships.data
             
         var i;
         for (i = 0; i < memberships.length; i++) { 
             if (memberships[i].auth_customer_id === cuID) {
-                customer_has_membership = true
+                customer_memberships.push(memberships[i].id)
             }
         }
 
-        return customer_has_membership
+        console.log('customer_memberships')
+        console.log(customer_memberships)
+
+        return customer_memberships
     
     }
 
@@ -170,7 +173,7 @@ class Book extends Component {
         const cuID = this.props.match.params.cuID
         const booking_options = this.props.options.data
         
-        const customer_has_membership = this.customerHasMembership
+        const customer_memberships = this.customerMemberships(cuID)
         
 
         return (
@@ -184,7 +187,7 @@ class Book extends Component {
                                 Attendance
                             </ButtonBack>
                             <BookOptionsList booking_options={booking_options}
-                                             customer_has_membership={customer_has_membership}
+                                             customer_membershisp={customer_memberships}
                                              onClick={this.onClickBookOption.bind(this)} />
                             {/* <AttendanceList attendance_items={this.props.attendance.data} /> */}
                         </section>
