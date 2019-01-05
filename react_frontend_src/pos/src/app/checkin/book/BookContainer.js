@@ -18,8 +18,8 @@ const mapStateToProps = state =>
 
 const mapDispatchToProps = dispatch =>
     ({        
-        checkinCustomer(cuID, clsID, data) {
-            dispatch(checkinBookOperations.checkinCustomer(cuID, clsID, data))
+        checkinCustomer(cuID, clsID, data, history) {
+            dispatch(checkinBookOperations.checkinCustomer(cuID, clsID, data, history))
         },
         fetchBookingOptions(clsID, cuID) {
             dispatch(checkinBookOperations.fetchBookingOptions(clsID, cuID))
