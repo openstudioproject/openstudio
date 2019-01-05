@@ -673,6 +673,26 @@ def update_class_attendance():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('delete', 'classes_attendance'))
+def delete_class_attendance():
+    """
+
+    :return:
+    """
+    from openstudio.os_class_attendance import ClassAttendance
+
+    set_headers()
+
+    print request.vars
+    clattID = request.vars['id']
+
+    query = (db.classes_attendance.id == clattID)
+    db(query).delete()
+
+    return dict(clattID=clattID, error=False)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('create', 'auth_user'))
 def create_customer():
     """
