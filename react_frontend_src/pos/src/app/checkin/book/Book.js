@@ -90,7 +90,7 @@ class Book extends Component {
                     
                 } else {
                     // check-in, price = 0
-                    this.props.checkinCustomer(cuID, clsID, option)
+                    this.props.checkinCustomer(cuID, clsID, option, this.props.history)
                 }
                 break
             case "trial": 
@@ -133,15 +133,15 @@ class Book extends Component {
                     
                 } else {
                     // check-in, price = 0
-                    this.props.checkinCustomer(cuID, clsID, option)
+                    this.props.checkinCustomer(cuID, clsID, option, this.props.history)
                 }
             
                 break
             case "subscription":
-                this.props.checkinCustomer(cuID, clsID, option)
+                this.props.checkinCustomer(cuID, clsID, option, this.props.history)
                 break
             case "classcard":
-                this.props.checkinCustomer(cuID, clsID, option)
+                this.props.checkinCustomer(cuID, clsID, option, this.props.history)
                 break
             default: 
                 console.log("Login type not found:")

@@ -12,6 +12,30 @@ export const receiveCheckinClassAttendance = (data) =>
         data
     })
 
+export const requestCheckinClassAttendanceUpdateStatus = (clattID) =>
+    ({
+        type: T.CHECKIN_CLASS_ATTENDANCE_REQUEST_UPDATE_STATUS,
+        clattID
+    })
+
+export const receiveCheckinClassAttendanceUpdateStatus = (data) =>
+    ({
+        type: T.CHECKIN_CLASS_ATTENDANCE_RECEIVE_UPDATE_STATUS,
+        data
+    })
+
+export const requestCheckinClassAttendanceDelete = (clattID) =>
+    ({
+        type: T.CHECKIN_CLASS_ATTENDANCE_REQUEST_DELETE,
+        clattID
+    })
+
+export const receiveCheckinClassAttendanceDelete = (data) =>
+    ({
+        type: T.CHECKIN_CLASS_ATTENDANCE_RECEIVE_DELETE,
+        data
+    })
+
 export const setCheckinClassAttendanceLoaded = (loaded) =>
     ({
         type: T.CHECKIN_SET_CLASS_ATTENDANCE_LOADED,

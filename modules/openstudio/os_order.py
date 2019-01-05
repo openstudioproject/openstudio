@@ -352,7 +352,7 @@ class Order:
             )
 
 
-    def deliver(self):
+    def deliver(self, class_online_booking=True, class_booking_status='booked'):
         """
             Create invoice for order and deliver goods
         """
@@ -518,17 +518,23 @@ class Order:
                 # Deliver class
                 ah = AttendanceHelper()
                 if row.AttendanceType == 1:
-                    result = ah.attendance_sign_in_trialclass(self.order.auth_customer_id,
-                                                              row.classes_id,
-                                                              row.ClassDate,
-                                                              online_booking=True,
-                                                              invoice=False)
+                    result = ah.attendance_sign_in_trialclass(
+                        self.order.auth_customer_id,
+                        row.classes_id,
+                        row.ClassDate,
+                        online_booking=class_online_booking,
+                        invoice=False,
+                        booking_status=class_booking_status
+                    )
                 elif row.AttendanceType == 2:
-                    result = ah.attendance_sign_in_dropin(self.order.auth_customer_id,
-                                                          row.classes_id,
-                                                          row.ClassDate,
-                                                          online_booking=True,
-                                                          invoice=False)
+                    result = ah.attendance_sign_in_dropin(
+                        self.order.auth_customer_id,
+                        row.classes_id,
+                        row.ClassDate,
+                        online_booking=class_online_booking,
+                        invoice=False,
+                        booking_status=class_booking_status,
+                    )
 
                 if create_invoice:
                     invoice.item_add_class_from_order(row, result['caID'])

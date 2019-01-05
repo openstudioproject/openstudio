@@ -3205,29 +3205,17 @@ def attendance_set_status():
     """
          Set status of class booking
     """
+    from openstudio.os_class_attendance import ClassAttendance
+
     clattID = request.vars['clattID']
     status = request.vars['status']
 
-    clatt = db.classes_attendance(clattID)
-    clatt.BookingStatus = status
-    clatt.update_record()
+    ca = ClassAttendance(clattID)
+    ca.set_status(status)
 
-    cuID = clatt.auth_customer_id
-    clsID = clatt.classes_id
-    date_formatted = clatt.ClassDate.strftime(DATE_FORMAT)
-
-    if status == 'cancelled':
-        ##
-        # Change invoice status to cancelled
-        ##
-        query = (db.invoices_classes_attendance.classes_attendance_id == clattID)
-        rows = db(query).select(db.invoices_classes_attendance.ALL)
-        for row in rows:
-            invoice = Invoice(row.invoices_id)
-            invoice.set_status('cancelled')
-
-    # Clear api cache to refresh available spaces
-    cache_clear_classschedule_api()
+    cuID = ca.row.auth_customer_id
+    clsID = ca.row.classes_id
+    date_formatted = ca.row.ClassDate.strftime(DATE_FORMAT)
 
     redirect(attendance_sign_in_get_returl_url(clsID, date_formatted, cuID))
 

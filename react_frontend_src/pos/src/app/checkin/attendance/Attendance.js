@@ -152,9 +152,26 @@ class Attendance extends Component {
         this.props.history.push(`/checkin/book/${clsID}/${id}`)
     }
 
-    onClickAttendanceListItem(id) {
-        console.log('list item clicked')
-        console.log(id)
+    // onClickAttendanceButtonCheckIn(clattID) {
+    //     console.log('Check in clicked')
+    //     console.log(clattID)
+        
+    //     this.props.updateClassAttendanceBookingStatus(clattID, "attending")
+    // }
+
+    onClickAttendanceButtonManageStatus(clattID, status) {
+        console.log('Manage status button clicked')
+        console.log(clattID)
+        console.log(status)
+        
+        this.props.updateClassAttendanceBookingStatus(clattID, status)
+    }
+
+    onClickAttendanceButtonRemove(clattID) {
+        console.log('Clatt delete button clicked')
+        console.log(clattID)
+        
+        this.props.deleteClassAttendance(clattID)
     }
     
     render() {
@@ -212,7 +229,8 @@ class Attendance extends Component {
                             <AttendanceList attendance_items={this.props.attendance.data}
                                             intl={intl}
                                             title="Attendance"
-                                            onClick={this.onClickAttendanceListItem.bind(this)} />
+                                            onClick={this.onClickAttendanceButtonManageStatus.bind(this)}
+                                            onClickRemove={this.onClickAttendanceButtonRemove.bind(this)} />
                         </section>
                 }
             </PageTemplate>

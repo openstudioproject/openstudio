@@ -652,6 +652,47 @@ def get_customers_memberships():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'classes_attendance'))
+def update_class_attendance():
+    """
+
+    :return:
+    """
+    from openstudio.os_class_attendance import ClassAttendance
+
+    set_headers()
+
+    print request.vars
+    clattID = request.vars['id']
+    status = request.vars['status']
+
+    ca = ClassAttendance(clattID)
+    ca.set_status(status)
+
+    return dict(clattID=clattID, status=status)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('delete', 'classes_attendance'))
+def delete_class_attendance():
+    """
+
+    :return:
+    """
+    from openstudio.os_class_attendance import ClassAttendance
+
+    set_headers()
+
+    print request.vars
+    clattID = request.vars['id']
+
+    query = (db.classes_attendance.id == clattID)
+    db(query).delete()
+
+    return dict(clattID=clattID, error=False)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('create', 'auth_user'))
 def create_customer():
     """
@@ -984,7 +1025,10 @@ def validate_cart_create_order(cuID, pmID, items):
     amounts = order.get_amounts()
 
     # Deliver order, add stuff to customer's account
-    result = order.deliver()
+    result = order.deliver(
+        class_online_booking=False,
+        class_booking_status='attending'
+    )
     invoice = result['invoice']
 
     # Add payment

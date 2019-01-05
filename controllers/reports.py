@@ -4915,7 +4915,7 @@ def revenue_get_data():
 
     total = [ T("Total"), total ]
 
-    workshops_chart_title = H3(T("Workshops revenue"))
+    workshops_chart_title = H3(T("Event revenue"))
 
     workshops_avg_table = get_average_table(total)
     workshops_data_table = TABLE(_class="table table-condensed")

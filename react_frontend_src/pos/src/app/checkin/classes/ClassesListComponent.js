@@ -4,7 +4,7 @@ import { v4 } from "uuid"
 import ClassesListClass from "./ClassesListClassComponent"
 
 const ClassesList = ({classes}) => 
-    <div className="box box-default">
+    <div className="box box-solid">
         <div className="box-body">
             {classes.map((cls) => 
                 <ClassesListClass key={"cls_" + v4()}

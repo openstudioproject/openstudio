@@ -107,3 +107,31 @@ class ClassAttendance:
             return_message = T("This class can no longer be cancelled")
 
         return return_message
+
+
+    def set_status(self, status):
+        """
+        :param status: Set status of class booking
+        :return:
+        """
+        from os_cache_manager import OsCacheManager
+
+        self.row.BookingStatus = status
+        self.row.update_record()
+
+        if status == 'cancelled':
+            ##
+            # Change invoice status to cancelled
+            ##
+            from openstudio.os_invoice import Invoice
+
+            db = current.db
+            query = (db.invoices_classes_attendance.classes_attendance_id == self.id)
+            rows = db(query).select(db.invoices_classes_attendance.ALL)
+            for row in rows:
+                invoice = Invoice(row.invoices_id)
+                invoice.set_status('cancelled')
+
+        # Clear api cache to refresh available spaces
+        ocm = OsCacheManager()
+        ocm.clear_classschedule_api()
