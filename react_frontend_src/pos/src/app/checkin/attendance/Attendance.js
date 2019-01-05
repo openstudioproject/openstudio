@@ -229,7 +229,8 @@ class Attendance extends Component {
                             <AttendanceList attendance_items={this.props.attendance.data}
                                             intl={intl}
                                             title="Attendance"
-                                            onClick={this.onClickAttendanceButtonManageStatus.bind(this)} />
+                                            onClick={this.onClickAttendanceButtonManageStatus.bind(this)}
+                                            onClickRemove={this.onClickAttendanceButtonRemove.bind(this)} />
                         </section>
                 }
             </PageTemplate>

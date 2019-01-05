@@ -25,6 +25,9 @@ const mapDispatchToProps = dispatch =>
         updateClassAttendanceBookingStatus(clattID, status) {
             dispatch(checkinAttendanceOperations.updateClassAttendanceBookingStatus(clattID, status))
         },
+        deleteClassAttendance(clattID) {
+            dispatch(checkinAttendanceOperations.deleteClassAttendance(clattID))
+        },
         setPageTitle(title) {
             dispatch(appOperations.setPageTitle(title))
         },

@@ -105,6 +105,7 @@ const fetchClassAttendance = (clsID) => {
 
 export default {
     fetchClassAttendance,
+    deleteClassAttendance,
     updateClassAttendanceBookingStatus,
     setCheckinAttendanceSearchCustomerID,
     clearCheckinAttendanceSearchCustomerID,

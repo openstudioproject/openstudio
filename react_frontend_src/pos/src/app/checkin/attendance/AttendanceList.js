@@ -26,7 +26,7 @@ const bookingStatusMessage = (status, intl) => {
 }
 
 
-const ManageBooking = ({clattID, status, onClick=f=>f, collapseID}) =>
+const ManageBooking = ({clattID, status, onClick=f=>f, onClickRemove=f=>f, collapseID}) =>
     <div className="pull-right">
         <button className="btn btn-default" type="button" data-toggle="collapse" data-target={`#${collapseID}`} aria-expanded="false" aria-controls="collapseExample">
             Manage booking
@@ -44,7 +44,8 @@ const ManageBooking = ({clattID, status, onClick=f=>f, collapseID}) =>
                         onClick={() => onClick(clattID, "cancelled")}>
                     Cancelled
                 </button>}
-                <button className="btn btn-danger">
+                <button className="btn btn-danger"
+                        onClick={()=> onClickRemove(clattID)}>
                     Remove
                 </button>
             </div>
@@ -58,7 +59,7 @@ const ButtonCheckin = ({clattID, onClick=f=>f}) =>
     </button>
 
 
-const CustomerCheckIn = ({clattID, status, onClick=f=>f}) => {
+const CustomerCheckIn = ({clattID, status, onClick=f=>f, onClickRemove=f=>f}) => {
     console.log(status)
     switch (status) {
         case "booked":
@@ -69,12 +70,13 @@ const CustomerCheckIn = ({clattID, status, onClick=f=>f}) => {
             return <ManageBooking clattID={clattID}
                                   status={status}
                                   onClick={onClick}
+                                  onClickRemove={onClickRemove}
                                   collapseID={v4()} />
     }
 }
 
 
-const AttendanceList = ({attendance_items, intl, title="", onClick=f=>f}) => 
+const AttendanceList = ({attendance_items, intl, title="", onClick=f=>f, onClickRemove=f=>f}) => 
     <div className="box box-default"> 
         <div className="box-header">
             <h3 className="box-title">{title}</h3>
@@ -109,7 +111,8 @@ const AttendanceList = ({attendance_items, intl, title="", onClick=f=>f}) =>
                                 </td>
                                 <td><CustomerCheckIn clattID={item.classes_attendance.id}
                                                      status={item.classes_attendance.BookingStatus}
-                                                     onClick={onClick} /></td>
+                                                     onClick={onClick}
+                                                     onClickRemove={onClickRemove} /></td>
                             </tr>
                         )}
                     </tbody>

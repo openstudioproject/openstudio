@@ -64,7 +64,7 @@ export const checkinAttendanceReducer = (state = {}, action={ type: null }) => {
             return {
                 ...state,
                 attendanceStatusDeleting: [
-                    ...state.attendanceStatusDeleting,
+                    ...state.attendanceDeleting,
                     action.clattID
                     ]
             }
@@ -81,7 +81,6 @@ export const checkinAttendanceReducer = (state = {}, action={ type: null }) => {
             // state.data[index].classes_attendance = action.data.status
             // console.log(state.data.findIndex(findClattID))
 
-
             return {
                 ...state,
                 data: state.data.filter(
@@ -92,7 +91,7 @@ export const checkinAttendanceReducer = (state = {}, action={ type: null }) => {
                     //     } else item 
                     // }
                 ),
-                attendanceStatusDeleting: state.attendanceStatuDeleting.filter(
+                attendanceDeleting: state.attendanceDeleting.filter(
                     (item, index) => item != clattID_delete
                 )
             }
