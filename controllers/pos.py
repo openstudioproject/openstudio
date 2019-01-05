@@ -672,7 +672,6 @@ def update_class_attendance():
     return dict(clattID=clattID, status=status)
 
 
-
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('create', 'auth_user'))
 def create_customer():

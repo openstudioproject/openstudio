@@ -26,7 +26,7 @@ const bookingStatusMessage = (status, intl) => {
 }
 
 
-const ManageBooking = ({clattID, onClick=f=>f, collapseID}) =>
+const ManageBooking = ({clattID, status, onClick=f=>f, collapseID}) =>
     <div className="pull-right">
         <button className="btn btn-default" type="button" data-toggle="collapse" data-target={`#${collapseID}`} aria-expanded="false" aria-controls="collapseExample">
             Manage booking
@@ -34,12 +34,16 @@ const ManageBooking = ({clattID, onClick=f=>f, collapseID}) =>
         <div className="collapse" id={collapseID}>
             <br />
             <div className="well">
-                <button className="btn btn-primary">
+                {(status == "booked") ? "" :
+                <button className="btn btn-primary"
+                        onClick={() => onClick(clattID, "booked")}>
                     Booked
-                </button>
-                <button className="btn btn-warning">
+                </button> }
+                {(status == "cancelled") ? "" :
+                <button className="btn btn-warning"
+                        onClick={() => onClick(clattID, "cancelled")}>
                     Cancelled
-                </button>
+                </button>}
                 <button className="btn btn-danger">
                     Remove
                 </button>
@@ -49,7 +53,7 @@ const ManageBooking = ({clattID, onClick=f=>f, collapseID}) =>
 
 
 const ButtonCheckin = ({clattID, onClick=f=>f}) =>
-    <button className='btn btn-default pull-right' onClick={() => onClick(clattID)}>
+    <button className='btn btn-default pull-right' onClick={() => onClick(clattID, "attending")}>
         Check-in
     </button>
 
@@ -57,21 +61,20 @@ const ButtonCheckin = ({clattID, onClick=f=>f}) =>
 const CustomerCheckIn = ({clattID, status, onClick=f=>f}) => {
     console.log(status)
     switch (status) {
-        case "attending":
-            return <ManageBooking clattID={clattID}
-                                  onClick={onClick}
-                                  collapseID={v4()} />
         case "booked":
             return <ButtonCheckin onClick={onClick}
                                   clattID={clattID} />
         default:
-            console.log(status)
-            return <div></div>
+            // "cancelled" and "checked-in"
+            return <ManageBooking clattID={clattID}
+                                  status={status}
+                                  onClick={onClick}
+                                  collapseID={v4()} />
     }
 }
 
 
-const AttendanceList = ({attendance_items, intl, title="", onClickCheckIn=f=>f}) => 
+const AttendanceList = ({attendance_items, intl, title="", onClick=f=>f}) => 
     <div className="box box-default"> 
         <div className="box-header">
             <h3 className="box-title">{title}</h3>
@@ -106,7 +109,7 @@ const AttendanceList = ({attendance_items, intl, title="", onClickCheckIn=f=>f})
                                 </td>
                                 <td><CustomerCheckIn clattID={item.classes_attendance.id}
                                                      status={item.classes_attendance.BookingStatus}
-                                                     onClick={onClickCheckIn} /></td>
+                                                     onClick={onClick} /></td>
                             </tr>
                         )}
                     </tbody>
