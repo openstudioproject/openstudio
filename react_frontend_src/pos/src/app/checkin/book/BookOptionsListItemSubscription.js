@@ -1,7 +1,7 @@
 import React from "react"
 import { injectIntl } from 'react-intl'
 
-const BookOptionsListItemSubscription = injectIntl(({data, intl, onClick=f=>f}) => 
+const BookOptionsListItemSubscription = injectIntl(({data, customer_memberships, intl, onClick=f=>f}) => 
     <div className="col-md-3"
          onClick={(data.Allowed) ? () => onClick(data): f=>f}>
          {console.log(data)}
@@ -17,6 +17,12 @@ const BookOptionsListItemSubscription = injectIntl(({data, intl, onClick=f=>f}) 
             <div className="icon">
               <i className="fa fa-pencil-square-o"></i>
             </div>
+            { (data.school_memberships_id) ? 
+                (customer_memberships.includes(data.school_memberships_id) ? 
+                    '' : <span className="small-box-footer"><i className="fa fa-exclamation-circle"></i> Membership required</span> )
+                    : ''
+            }
+
             { !(data.Allowed) ?
                 <span className="small-box-footer"><i className="fa fa-exclamation-circle"></i> Not allowed for this class</span>
                 : '' 

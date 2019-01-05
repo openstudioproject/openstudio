@@ -47,13 +47,13 @@ class Book extends Component {
 
         // this.props.checkinCustomer(cuID, clsID, option)
 
-        const customer_has_membership = this.customerHasMembership(this.props.match.params.cuID)
-        console.log(customer_has_membership)
+        const customer_memberships = this.customerMemberships(this.props.match.params.cuID)
+        console.log(customer_memberships)
         switch (option.Type) {
             case "dropin": 
                 console.log('executing dropin code')
                 let dropin_price
-                if (customer_has_membership) {
+                if (customer_memberships.lentgh) {
                     dropin_price = option.MembershipPrice
                 } else {
                     dropin_price = option.Price
@@ -187,7 +187,7 @@ class Book extends Component {
                                 Attendance
                             </ButtonBack>
                             <BookOptionsList booking_options={booking_options}
-                                             customer_membershisp={customer_memberships}
+                                             customer_memberships={customer_memberships}
                                              onClick={this.onClickBookOption.bind(this)} />
                             {/* <AttendanceList attendance_items={this.props.attendance.data} /> */}
                         </section>
