@@ -3,6 +3,8 @@ import {
     receiveCheckinClassAttendance as receive_class_attendance,
     requestCheckinClassAttendanceUpdateStatus,
     receiveCheckinClassAttendanceUpdateStatus,
+    requestCheckinClassAttendanceDelete,
+    receiveCheckinClassAttendanceDelete,
     setCheckinAttendanceSearchCustomerID,
     clearCheckinAttendanceSearchCustomerID,
     setCheckinAttendanceSearchValue,
@@ -44,6 +46,34 @@ const updateClassAttendanceBookingStatus = (clattID, status) => {
           });
       }
   }
+
+const deleteClassAttendance = (clattID) => {
+      return dispatch => {
+          dispatch(requestCheckinClassAttendanceDelete(clattID))
+
+          // const date = new Date()
+          // const iso_date = toISODate(date)
+          const params = new URLSearchParams()
+          params.append('id', clattID)
+          console.log(params)
+          axios_os.post(OS_API.CHECKIN_ATTENDANCE_DELETE, params)
+          .then(function (response) {
+            // handle success
+            dispatch(receiveCheckinClassAttendanceDelete(response.data))
+            // dispatch(setLoadingProgress(100))
+          })
+          .catch(function (error) {
+            // handle error
+            console.log(error)
+          })
+          .then(function () {
+            // always executed
+          });
+      }
+  }
+
+
+
 
 // data fetchers
 const fetchClassAttendance = (clsID) => {

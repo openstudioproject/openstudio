@@ -166,6 +166,13 @@ class Attendance extends Component {
         
         this.props.updateClassAttendanceBookingStatus(clattID, status)
     }
+
+    onClickAttendanceButtonRemove(clattID) {
+        console.log('Clatt delete button clicked')
+        console.log(clattID)
+        
+        this.props.deleteClassAttendance(clattID)
+    }
     
     render() {
         const attendance = this.props.attendance

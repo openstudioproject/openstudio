@@ -59,6 +59,43 @@ export const checkinAttendanceReducer = (state = {}, action={ type: null }) => {
                     (item, index) => item != clattID
                 )
             }
+        case T.CHECKIN_CLASS_ATTENDANCE_REQUEST_DELETE:
+            // Append classes attendance ID, so we can show it as deleting
+            return {
+                ...state,
+                attendanceStatusDeleting: [
+                    ...state.attendanceStatusDeleting,
+                    action.clattID
+                    ]
+            }
+        case T.CHECKIN_CLASS_ATTENDANCE_RECEIVE_DELETE:
+            // Filter classes attendance ID, so we know it's no longer deleting
+            // And update booking status
+            // Find array item
+            console.log(action)
+            let clattID_delete = action.data.clattID
+
+            function findClattID(item) {
+                return item.classes_attendance.id == clattID_delete
+            }
+            // state.data[index].classes_attendance = action.data.status
+            // console.log(state.data.findIndex(findClattID))
+
+
+            return {
+                ...state,
+                data: state.data.filter(
+                    (item, index) => index !== state.data.findIndex(findClattID)
+                    // (item, i) => { 
+                    //     if (i === state.data.findIndex(findClattID)) { 
+                    //         continue 
+                    //     } else item 
+                    // }
+                ),
+                attendanceStatusDeleting: state.attendanceStatuDeleting.filter(
+                    (item, index) => item != clattID_delete
+                )
+            }
         case T.CHECKIN_SET_CLASS_ATTENDANCE_SEARCH_CUSTOMER_ID:
             return {
                 ...state,
