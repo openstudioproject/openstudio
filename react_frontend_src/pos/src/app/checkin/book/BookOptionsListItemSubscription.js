@@ -19,7 +19,7 @@ const BookOptionsListItemSubscription = injectIntl(({data, customer_memberships,
             </div>
             { (data.school_memberships_id) ? 
                 (customer_memberships.includes(data.school_memberships_id) ? 
-                    '' : <span className="small-box-footer"><i className="fa fa-exclamation-circle"></i> Membership required</span> )
+                    '' : <span className="small-box-footer"><i className="fa fa-exclamation-circle"></i> Membership required - buy now</span> )
                     : ''
             }
 
