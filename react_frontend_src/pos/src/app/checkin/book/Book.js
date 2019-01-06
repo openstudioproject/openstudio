@@ -87,7 +87,7 @@ class Book extends Component {
                     // set some value to indicate redirection back to attendance list with notification after validating payment
 
                     // redirect to payment
-                    this.props.history.push('/shop/payment')
+                    this.props.history.push('/shop/products')
                     
                 } else {
                     // check-in, price = 0
@@ -130,7 +130,7 @@ class Book extends Component {
                     // set some value to indicate redirection back to attendance list with notification after validating payment
 
                     // redirect to payment
-                    this.props.history.push('/shop/payment')
+                    this.props.history.push('/shop/products')
                     
                 } else {
                     // check-in, price = 0
@@ -176,8 +176,8 @@ class Book extends Component {
                          // If not yet in cart, add as a new product, else increase 
                          this.props.addShopCartItem(item)
 
-                         // redirect to payment
-                         this.props.history.push('/shop/payment')
+                         // redirect to products
+                         this.props.history.push('/shop/products')
                     }
                 }
                 break
