@@ -1,14 +1,22 @@
 # OpenStudio
 
-OpenStudio is freely distributed web based yoga studio software built upon open source technology. 
-OpenStudio will help you manage customers, subscriptions, class cards, schedule classes, plan events and more. 
+OpenStudio is freely distributed open source web based software built for Yoga, Dance, Karate/Martial Arts, and Fitness Studios/Schools. Here just a sample of the types of businesses OpenStudio serves:
+
+- Yoga            - Dance        - Martial Arts
+- Cycling / Spin  - Fitness      - Circuit Training
+- Pilates         - Barre        - Arial / Silk
+- Kick Boxing     - Schools      - Dog Training / Walking
+
+Any organization or business dealing with subscriptions, classes and/or events could benefit from the use of OpenStudio.
+
+OpenStudio will help you manage customers, subscriptions, class cards, schedule classes, plan events, calculate instructor payments, calculate & report revenue and more.
 
 Online payments are provided through [Mollie](https://www.mollie.com/en). Please refer to their website & support for current rates and questions about availability in your region.
 The OpenStudio Mollie integration handles single payments for classes, class cards, events and invoices. Recurring payments are supported for subscriptions. The web2py scheduler has to be running to process recurring payments.
 
-More information can be found on [www.openstudioproject.com](https://www.openstudioproject.com).
+OpenStudio integrates with Exact Online for accounting [www.exact.com](https://www.exact.com/us/solutions/financial-management/).
 
-Although initially written for yoga studios, OpenStudio is now used by different kinds of organizations as well like dance studios and Buddhist centers. Basically any organization or business dealing with subscriptions, classes or events could benefit from using OpenStudio.
+More information can be found on [www.openstudioproject.com](https://www.openstudioproject.com).
 
 ## Website integration
 
@@ -38,7 +46,7 @@ Professional hosting is available.
 - SSL certificate included
 - Always run the latest version
 - Monitoring
-- Daily backups 
+- Daily backups
 
 [Hosting pricing and conditions](https://openstudioproject.com/pricing)
 
