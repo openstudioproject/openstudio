@@ -701,6 +701,8 @@ class OSExactOnline:
         }
 
         try:
+            # print 'actually updating account'
+            # print os_customer_payment_info.row.exact_online_bankaccount_id
             api.bankaccounts.update(
                 os_customer_payment_info.row.exact_online_bankaccount_id,
                 bank_account_dict
@@ -778,7 +780,7 @@ class OSExactOnline:
             )
 
 
-    def upgrate_dd_mandate(self):
+    def update_dd_mandate(self):
         """
 
         :return:
