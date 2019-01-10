@@ -2235,6 +2235,13 @@ def cashbook_get_day_chooser(date):
     link = 'cashbook_set_date'
     url_prev = URL(link, vars={'date': yesterday})
     url_next = URL(link, vars={'date': tomorrow})
+    url_today = URL(link, vars={'date': TODAY_LOCAL.strftime(DATE_FORMAT)})
+
+    today = ''
+    if date != TODAY_LOCAL:
+        today = A(os_gui.get_fa_icon('fa fa-calendar-o'), ' ', T("system_today"),
+                 _href=url_today,
+                 _class='btn btn-default')
 
     previous = A(I(_class='fa fa-angle-left'),
                  _href=url_prev,
@@ -2243,7 +2250,7 @@ def cashbook_get_day_chooser(date):
             _href=url_next,
             _class='btn btn-default')
 
-    return DIV(previous, nxt, _class='btn-group pull-right')
+    return DIV(previous, today, nxt, _class='btn-group pull-right')
 
 
 def cashbook_opening_balance_get_return_url(var=None):

@@ -120,6 +120,7 @@
 'You can modify this application and adapt it to your needs': 'You can modify this application and adapt it to your needs',
 'You visited the url %s': 'You visited the url %s',
 'system_saved': 'Saved',
+'system_today': 'Today',
 'c_finance_cashbook_get_opening_balance_not_set': 'Not set',
 'c_finance_cashbook_opening_balance': 'Opening balance',
 'c_finance_cashbook_opening_balance_add_subtitle': 'Set opening balance',
