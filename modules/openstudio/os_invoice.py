@@ -608,11 +608,6 @@ class Invoice:
         T  = current.T
 
         classcard = CustomerClasscard(ccdID)
-        # link invoice to classcard sold to customer
-        db.invoices_customers_classcards.insert(
-            invoices_id=self.invoices_id,
-            customers_classcards_id=ccdID
-        )
 
         # add item to invoice
         next_sort_nr = self.get_item_next_sort_nr()
@@ -628,6 +623,12 @@ class Invoice:
             tax_rates_id=classcard.school_classcard.tax_rates_id,
             accounting_glaccounts_id=classcard.school_classcard.accounting_glaccounts_id,
             accounting_costcenters_id=classcard.school_classcard.accounting_costcenters_id
+        )
+
+        # link invoice item to classcard sold to customer
+        db.invoices_items_customers_classcards.insert(
+            invoices_items_id=iiID,
+            customers_classcards_id=ccdID
         )
 
         # This calls self.on_update()
