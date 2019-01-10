@@ -3927,12 +3927,28 @@ def define_invoices_items_customers_classcards():
             writable=False))
 
 
+# Deprecated from 2019.02.x
 def define_invoices_employee_claims():
     """
         Table to link employee claims to invoices
     """
     db.define_table('invoices_employee_claims',
         Field('invoices_id', db.invoices,
+              readable=False,
+              writable=False),
+        Field('employee_claims_id', db.employee_claims,
+              readable= False,
+              writable = False,
+              label=T('Employee Expense'))
+    )
+
+
+def define_invoices_items_employee_claims():
+    """
+        Table to link employee claims to invoices items
+    """
+    db.define_table('invoices_items_employee_claims',
+        Field('invoices_items_id', db.invoices_items,
               readable=False,
               writable=False),
         Field('employee_claims_id', db.employee_claims,
@@ -6364,6 +6380,7 @@ define_invoices()
 define_invoices_amounts()
 define_invoices_items()
 define_invoices_items_customers_classcards()
+define_invoices_items_employee_claims()
 define_invoices_items_customers_memberships()
 define_invoices_items_customers_subscriptions()
 define_invoices_items_workshops_products_customers()
