@@ -85,11 +85,6 @@ export const checkinAttendanceReducer = (state = {}, action={ type: null }) => {
                 ...state,
                 data: state.data.filter(
                     (item, index) => index !== state.data.findIndex(findClattID)
-                    // (item, i) => { 
-                    //     if (i === state.data.findIndex(findClattID)) { 
-                    //         continue 
-                    //     } else item 
-                    // }
                 ),
                 attendanceDeleting: state.attendanceDeleting.filter(
                     (item, index) => item != clattID_delete

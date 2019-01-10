@@ -13,7 +13,8 @@ const mapStateToProps = state =>
     ({
         app: state.app,
         options: state.checkin.book,
-        memberships: state.customers.memberships
+        memberships: state.customers.memberships,
+        school_memberships: state.shop.school.memberships
     })
 
 const mapDispatchToProps = dispatch =>

@@ -152,6 +152,7 @@ class Customer:
             db.school_subscriptions.Name,
             db.school_subscriptions.ReconciliationClasses,
             db.school_subscriptions.Unlimited,
+            db.school_subscriptions.school_memberships_id,
             db.customers_subscriptions.CreditsRemaining,
         ]
 
@@ -165,6 +166,7 @@ class Customer:
                         ssu.Name,
                         ssu.ReconciliationClasses,
                         ssu.Unlimited,
+                        ssu.school_memberships_id,
 (IFNULL(( SELECT SUM(csc.MutationAmount)
  FROM customers_subscriptions_credits csc
  WHERE csc.customers_subscriptions_id = cs.id AND
@@ -390,6 +392,7 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
                                 db.school_classcards.Name,
                                 db.school_classcards.Classes,
                                 db.school_classcards.Unlimited,
+                                db.school_classcards.school_memberships_id,
                                 left=left,
                                 orderby=db.customers_classcards.Enddate)
 

@@ -1085,7 +1085,8 @@ class AttendanceHelper:
                     'Allowed': allowed,
                     'Credits': credits,
                     'CreditsRemaining': credits_remaining,
-                    'Unlimited': subscription.school_subscriptions.Unlimited
+                    'Unlimited': subscription.school_subscriptions.Unlimited,
+                    'school_memberships_id': subscription.school_subscriptions.school_memberships_id,
                 })
 
         # class cards
@@ -1116,6 +1117,7 @@ class AttendanceHelper:
                     'Enddate': classcard.customers_classcards.Enddate,
                     'ClassesRemaining': classes_remaining,
                     'Unlimited': classcard.school_classcards.Unlimited,
+                    'school_memberships_id': classcard.school_classcards.school_memberships_id,
                 })
 
         # Get class prices
