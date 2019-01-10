@@ -892,6 +892,9 @@ def edit():
     customers_id = request.args[0]
     db.auth_user.id.label = T('Customer ID')
 
+    if customers_id == '1' and auth.user.id != 1:
+        redirect(URL('default', 'user', args=['not_authorized']))
+
     row = db.auth_user[customers_id]
     response.title = row.display_name
     response.subtitle = T("Profile")
