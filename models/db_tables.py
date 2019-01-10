@@ -856,6 +856,56 @@ def define_accounting_glaccounts():
         format='%(Name)s')
 
 
+def define_accounting_cashbooks_balance():
+    auth_user_query = (db.auth_user.id > 1) & \
+                      (db.auth_user.trashed == False) & \
+                      ((db.auth_user.teacher == True) |
+                       (db.auth_user.employee == True))
+
+    try:
+        auth_user_id_default = auth.user.id
+    except AttributeError:
+        auth_user_id_default = None  # default to None when not signed in
+
+    db.define_table('accounting_cashbooks_items',
+        Field('BookingDate', 'date'),
+        Field('Type',
+            default='opening',
+            requires=IS_IN_SET([
+              ['opening', T("Opening balance")]
+            ]),
+            label=T("Balance type") ),
+        Field('Note',
+            label=T("Note")),
+        Field('Amount', 'double',
+            represent=represent_float_as_amount,
+            default=0,
+            label=T("Amount")),
+        Field('auth_user_id', db.auth_user,
+              requires=IS_EMPTY_OR(IS_IN_DB(db(auth_user_query),
+                                            'auth_user.id',
+                                            '%(first_name)s %(last_name)s',
+                                            zero=T("Unassigned"))),
+              default=auth_user_id_default),
+    )
+
+
+def define_accounting_cashbooks_items():
+    db.define_table('accounting_cashbooks_items',
+        Field('BookingDate', 'date'),
+        Field('Type',
+            requires=IS_IN_SET([
+              ['debit', T("Debit / In")]
+              ['credit', T("Credit / Out")]
+            ])),
+        Field('Description'),
+        Field('Amount', 'double',
+            represent=represent_float_as_amount,
+            default=0,
+            label=T("Amount")),
+    ),
+
+
 def define_payment_methods():
     db.define_table('payment_methods',
         Field('Archived', 'boolean',
@@ -6280,6 +6330,8 @@ define_postcode_groups()
 define_tax_rates()
 define_accounting_costcenters()
 define_accounting_glaccounts()
+define_accounting_cashbooks_balance()
+define_accounting_cashbooks_items()
 
 define_school_memberships()
 define_school_subscriptions()

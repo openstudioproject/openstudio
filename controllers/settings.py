@@ -1182,10 +1182,6 @@ def access_group_permissions():
 
     finance_permisisons = [
         ['finance-read', T("View finance menu"), [
-            ['payment_batches-read', T('View payment batches'), [
-                ['payment_batches-create', T('Add payment batches')],
-                ['payment_batches-update', T('Edit payment batches')],
-                ['payment_batches-delete', T('Delete payment batches')]]],
             ['invoices-read', T('View invoices'), [
                 ['invoices-create', T('Add invoices')],
                 ['invoices-update', T('Edit invoices')],
@@ -1197,6 +1193,19 @@ def access_group_permissions():
                 ['invoices_payments-update', T('Edit invoice payments')],
                 ['invoices_payments-delete', T('Delete invoice payments')]]],
             ['receipts-read', T("View receipts")],
+            ['accounting_cashbooks-read', T("View cash books"), [
+                ['accounting_cashbooks_balance-create', T("Set cash book opening balance")]
+                ['accounting_cashbooks_balance-update', T("Edit cash book opening balance")]
+            ]],
+            ['accounting_cashbooks_items-read', T("View cash book items"), [
+                ['accounting_cashbooks_items-create', T("Set cash book items")]
+                ['accounting_cashbooks_items-update', T("Edit cash book items")]
+                ['accounting_cashbooks_items-delete', T("Delete cash book items")]
+            ]],
+            ['payment_batches-read', T('View payment batches'), [
+                ['payment_batches-create', T('Add payment batches')],
+                ['payment_batches-update', T('Edit payment batches')],
+                ['payment_batches-delete', T('Delete payment batches')]]],
             ['reports_direct_debit_extra-read', T('View direct debit extra')]],
          ]
     ]

@@ -2087,3 +2087,13 @@ def employee_expenses_process_accepted():
     redirect(URL('employee_expenses_processed'))
 
 
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'accounting_cashbooks'))
+def cashbook():
+    """
+
+    :return:
+    """
+
+
+
