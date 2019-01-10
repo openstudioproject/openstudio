@@ -1456,10 +1456,13 @@ def classcards():
                       'customers_classcards.Note' : 20}
 
     left = [
-        db.invoices_customers_classcards.on(
-            db.invoices_customers_classcards.customers_classcards_id ==
+        db.invoices_items_customers_classcards.on(
+            db.invoices_items_customers_classcards.customers_classcards_id ==
             db.customers_classcards.id),
-        db.invoices.on(db.invoices_customers_classcards.invoices_id ==
+        db.invoices_items.on(
+            db.invoices_items_customers_classcards.invoices_items_id ==
+            db.invoices_items.id),
+        db.invoices.on(db.invoices_items.invoices_id ==
                        db.invoices.id) ]
 
     links = [ dict(header=T('Classes'), body=classcards_count_classes),
