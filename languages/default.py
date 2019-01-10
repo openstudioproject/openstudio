@@ -119,6 +119,7 @@
 'You are successfully running web2py': 'You are successfully running web2py',
 'You can modify this application and adapt it to your needs': 'You can modify this application and adapt it to your needs',
 'You visited the url %s': 'You visited the url %s',
+'c_finance_cashbook_get_opening_balance_not_set': 'Not set',
 'c_finance_cashbook_subtitle': 'Date',
 'c_finance_cashbook_title': 'Cash book',
 'm_openstudio_os_scheduler_tasks_exact_online_sync_invoices_return': 'Synced Invoices (Success / Errors)'

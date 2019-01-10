@@ -2102,10 +2102,18 @@ def cashbook():
         date = TODAY_LOCAL
         session.finance_cashbook_date = date
 
-    response.subtitle = SPAN(T("c_finance_cashbook_subtitle"), ': ', date.strftime(DATE_FORMAT))
+    response.subtitle = SPAN(
+        T("c_finance_cashbook_subtitle"), ': ',
+        date.strftime(DATE_FORMAT)
+    )
     response.view = 'general/only_content_no_box.html'
 
-    content = 'hello world'
+    opening_balance = cashbook_get_opening_balance()
+    content = DIV(
+        opening_balance,
+    )
+
+
 
     header_tools = DIV(
         cashbook_get_day_chooser(date)
@@ -2115,6 +2123,37 @@ def cashbook():
         content=content,
         header_tools=header_tools
     )
+
+
+def cashbook_get_opening_balance(var=None):
+    """
+
+    :return:
+    """
+    note = ''
+    opening_balance = SPAN(CURRSYM, ' ', 0)
+
+    row = db.accounting_cashbooks_balance(
+        BalanceDate = session.finance_cashbook_date,
+        BalanceType = 'opening'
+    )
+
+    if row:
+        note = row.Note
+        opening_balance = represent_float_as_amount(row.Amount)
+
+    box = DIV(
+        DIV(H3(T("Opening balance"), ': ', opening_balance, _class='box-title'),
+            _class='box-header'
+        ),
+        DIV(note,
+            _class='box-body'
+        ),
+        _class='box box-solid'
+    )
+
+    return box
+
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'accounting_cashbooks'))
@@ -2155,5 +2194,13 @@ def cashbook_get_day_chooser(date):
 
     return DIV(previous, nxt, _class='btn-group pull-right')
 
+
+def cashbook_opening_balance_add():
+    """
+    Set opening balance
+    :return:
+    """
+
+    
 
 

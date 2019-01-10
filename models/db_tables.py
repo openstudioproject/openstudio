@@ -868,7 +868,7 @@ def define_accounting_cashbooks_balance():
         auth_user_id_default = None  # default to None when not signed in
 
     db.define_table('accounting_cashbooks_balance',
-        Field('BookingDate', 'date'),
+        Field('BalanceDate', 'date'),
         Field('BalanceType',
             default='opening',
             requires=IS_IN_SET([
