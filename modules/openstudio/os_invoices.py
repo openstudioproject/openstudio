@@ -115,7 +115,7 @@ class Invoices:
                     form.vars.SubscriptionYear,
                     form.vars.SubscriptionMonth
                 )
-                invoice.link_to_customer_subscription(csID, iID)
+                invoice.link_item_to_customer_subscription(csID, iID)
 
             redirect(URL('invoices', 'edit', vars={'iID':iID}))
 

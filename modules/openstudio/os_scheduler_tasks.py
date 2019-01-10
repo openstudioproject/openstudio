@@ -179,7 +179,7 @@ class OsSchedulerTasks:
             invoice = Invoice(iID)
             invoice.link_to_customer(cuID)
             iiID = invoice.item_add_subscription(csID, year, month)
-            invoice.link_to_customer_subscription(csID, iiID)
+            invoice.link_item_to_customer_subscription(csID, iiID)
             invoice.set_amounts()
 
             invoices_created += 1

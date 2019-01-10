@@ -3008,7 +3008,7 @@ def subscription_add_create_invoice(form):
     invoice = Invoice(iID)
     invoice.link_to_customer(request.vars['cuID'])
     iiID = invoice.item_add_subscription(csID, year, month)
-    invoice.link_to_customer_subscription(csID, iiID)
+    invoice.link_item_to_customer_subscription(csID, iiID)
 
 
 @auth.requires_login()

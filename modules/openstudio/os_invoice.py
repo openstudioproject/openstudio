@@ -870,7 +870,7 @@ class Invoice:
             accounting_costcenters_id = sm.row.accounting_costcenters_id
         )
 
-        self.link_to_customer_membership(cmID)
+        self.link_item_to_customer_membership(cmID)
         # This calls self.on_update()
         self.set_amounts()
 
@@ -1137,7 +1137,7 @@ class Invoice:
         self.on_update() # now we know which customer the invoice belongs to
 
 
-    def link_to_customer_subscription(self, csID, iiID):
+    def link_item_to_customer_subscription(self, csID, iiID):
         """
             Link invoice to customer subscription
         """
@@ -1170,13 +1170,13 @@ class Invoice:
         )
 
 
-    def link_to_customer_membership(self, cmID):
+    def link_item_to_customer_membership(self, cmID, iiID):
         """
             Link invoice to customer subscription
         """
         db = current.db
-        db.invoices_customers_memberships.insert(
-            invoices_id=self.invoices_id,
+        db.invoices_items_customers_memberships.insert(
+            invoices_items_id=iiID,
             customers_memberships_id=cmID
         )
 

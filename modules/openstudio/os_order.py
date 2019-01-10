@@ -466,7 +466,7 @@ class Order:
                         TODAY_LOCAL.year,
                         TODAY_LOCAL.month
                     )
-                    invoice.link_to_customer_subscription(csID, iiID)
+                    invoice.link_item_to_customer_subscription(csID, iiID)
 
 
             # Check for membership
@@ -480,7 +480,7 @@ class Order:
                 )
 
                 if create_invoice:
-                    invoice.link_to_customer_membership(cmID)
+                    invoice.link_item_to_customer_membership(cmID)
 
                     # This will also add the registration fee if required.
                     cm = CustomerMembership(cmID)
