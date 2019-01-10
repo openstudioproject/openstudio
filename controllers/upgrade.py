@@ -82,3 +82,16 @@ def upgrade_to_201902():
             customers_classcards_id = row.customers_classcards_id
         )
 
+    # Customer memberships
+    query = (db.invoices_customers_memberships.id > 0)
+    rows = db(query).select(db.invoices_customers_memberships.ALL)
+    for row in rows:
+        query = (db.invoices_items.invoices_id == row.invoices_id)
+        item_rows = db(query).select(db.invoices_items.id)
+        item_row = item_rows.first()
+
+        db.invoices_items_customers_memberships.insert(
+            invoices_items_id = item_row.id,
+            customers_memberships_id = row.customers_memberships_id
+        )
+
