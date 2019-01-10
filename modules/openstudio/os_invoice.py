@@ -922,7 +922,7 @@ class Invoice:
                 tax_rates_id=tax_rates_id,
             )
 
-            self.link_to_teachers_payment_class(tpcID)
+            self.link_item_to_teachers_payment_class(tpcID, iiID)
 
             # This calls self.on_update()
             self.set_amounts()
@@ -1159,13 +1159,13 @@ class Invoice:
         )
 
 
-    def link_to_teachers_payment_class(self, tpcID):
+    def link_item_to_teachers_payment_class(self, tpcID, iiID):
         """
             Link invoice to teachers payment class
         """
         db = current.db
-        db.invoices_teachers_payment_classes.insert(
-            invoices_id = self.invoices_id,
+        db.invoices_items_teachers_payment_classes.insert(
+            invoices_items_id = iiID,
             teachers_payment_classes_id = tpcID
         )
 
