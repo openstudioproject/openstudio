@@ -462,6 +462,7 @@ class Order:
                 if create_invoice:
                     # This will also add the registration fee if required.
                     iiID = invoice.item_add_subscription(
+                        csID,
                         TODAY_LOCAL.year,
                         TODAY_LOCAL.month
                     )

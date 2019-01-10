@@ -178,7 +178,7 @@ class OsSchedulerTasks:
             # create object to set Invoice# and due date
             invoice = Invoice(iID)
             invoice.link_to_customer(cuID)
-            iiID = invoice.item_add_subscription(year, month)
+            iiID = invoice.item_add_subscription(csID, year, month)
             invoice.link_to_customer_subscription(csID, iiID)
             invoice.set_amounts()
 

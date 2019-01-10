@@ -111,6 +111,7 @@ class Invoices:
 
             if csID:
                 iiID = invoice.item_add_subscription(
+                    csID,
                     form.vars.SubscriptionYear,
                     form.vars.SubscriptionMonth
                 )
