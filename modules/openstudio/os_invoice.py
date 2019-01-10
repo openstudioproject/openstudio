@@ -974,8 +974,8 @@ class Invoice:
 
 
     def item_add_employee_claim_credit_payment(self,
-                                                         ecID,
-                                                        ):
+                                               ecID,
+                                               iiID):
         """
         :param clsID: db.classes.id
         :param date: datetime.date class date
@@ -1008,7 +1008,7 @@ class Invoice:
                 Sorting=next_sort_nr,
                 tax_rates_id=tax_rates_id,
             )
-            self.link_to_employee_claim(ecID)
+            self.link_item_to_employee_claim(ecID, iiID)
 
             # This calls self.on_update()
             self.set_amounts()
@@ -1149,13 +1149,13 @@ class Invoice:
         )
 
 
-    def link_to_employee_claim(self, ecID):
+    def link_item_to_employee_claim(self, ecID, iiID):
         """
             Link invoice to employee claim
         """
         db = current.db
-        db.invoices_employee_claims.insert(
-            invoices_id = self.invoices_id,
+        db.invoices_items_employee_claims.insert(
+            invoices_items_id = iiID,
             employee_claims_id = ecID
         )
 

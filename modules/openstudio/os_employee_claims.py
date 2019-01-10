@@ -224,14 +224,14 @@ class EmployeeClaims:
         links.append(['header', T('Actions')])
 
         links.append(A(os_gui.get_fa_icon('fa-check'), T("Accept"),
-                       _href=URL( 'employee_claims_accept',
+                       _href=URL( 'employee_expenses_accept',
                                  vars={'ecID': row.employee_claims.id}),
                        _class='text-green'
                        ))
         links.append('divider')
 
         links.append(A(os_gui.get_fa_icon('fa-ban'), T("Reject"),
-                       _href=URL('employee_claims_reject',
+                       _href=URL('employee_expenses_reject',
                                  vars={'ecID': row.employee_claims.id}),
                        _class='text-red',
                        ))
@@ -262,7 +262,7 @@ class EmployeeClaims:
         links.append(['header', T('Actions')])
 
         links.append(A(os_gui.get_fa_icon('fa-ban'), T("Reject"),
-                       _href=URL( 'employee_claims_reject',
+                       _href=URL( 'employee_expenses_reject',
                                  vars={'ecID': row.employee_claims.id}),
                        _class='text-red'))
         links.append('divider')
@@ -298,7 +298,7 @@ class EmployeeClaims:
         links.append(['header', T('Actions')])
 
         links.append(A(os_gui.get_fa_icon('fa-check'), T("Accept"),
-                       _href=URL( 'employee_claims_accept',
+                       _href=URL( 'employee_expenses_accept',
                                  vars={'ecID': row.employee_claims.id}),
                        _class='text-green'))
         links.append('divider')
