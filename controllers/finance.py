@@ -2158,8 +2158,8 @@ def cashbook_get_opening_balance(var=None):
             T("Set by"), ' ',
             A(au.display_name,
               _href=URL('customers', 'edit', args=[au.id])), ' ',
-            T("@"), ' ',
-            row.CreatedOn.strftime(DATETIME_FORMAT),
+            # T("@"), ' ',
+            # row.CreatedOn.strftime(DATETIME_FORMAT),
             _class="text-muted"
         )
 
