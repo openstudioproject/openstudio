@@ -54,8 +54,21 @@ def upgrade_to_201902():
         Upgrade operations to 2019.02
     """
     ##
-    # clear cache
+    # Update invoice links
     ##
-    cache.ram.clear(regex='.*')
+    # Customer subscriptions
+    query = (db.invoices_customers_subscriptions.id > 0)
+    rows = db(query).select(db.invoices_customers_subscriptions.ALL)
+    for row in rows:
+        query = (db.invoices_items.invoices_id == row.invoices_id)
+        item_rows = db(query).select(db.invoices_items.id)
+        item_row = item_rows.first()
 
-    
+        db.invoices_items_customers_subscriptions.insert(
+            invoices_items_id = item_row.id,
+            customers_subscriptions_id = row.customers_subscriptions_id
+        )
+
+    # Customer class cards
+
+
