@@ -2103,7 +2103,7 @@ def cashbook():
         session.finance_cashbook_date = date
 
     response.subtitle = SPAN(
-        T("c_finance_cashbook_subtitle"), ': ',
+        T('c_finance_cashbook_subtitle'), ': ',
         date.strftime(DATE_FORMAT)
     )
     response.view = 'general/only_content_no_box.html'
@@ -2131,6 +2131,11 @@ def cashbook_get_opening_balance(var=None):
     :return:
     """
     note = ''
+    header_link = A(
+        T("Set opening balance"),
+        _href=URL('cashbook_opening_balance_add'),
+        _class='btn btn-primary'
+    )
     opening_balance = SPAN(CURRSYM, ' ', 0)
 
     row = db.accounting_cashbooks_balance(
@@ -2140,16 +2145,23 @@ def cashbook_get_opening_balance(var=None):
 
     if row:
         note = row.Note
+        header_link = A(
+            T("Set opening balance"),
+            _href=URL('cashbook_opening_balance_edit', vars={'acbID': row.id}),
+            _class='btn btn-primary'
+        )
         opening_balance = represent_float_as_amount(row.Amount)
 
+
     box = DIV(
-        DIV(H3(T("Opening balance"), ': ', opening_balance, _class='box-title'),
+        DIV(H3(T("c_finance_cashbook_opening_balance"), ': ', opening_balance, _class='box-title'),
+            DIV(header_link, _class='box-tools pull-right'),
             _class='box-header'
         ),
         DIV(note,
             _class='box-body'
         ),
-        _class='box box-solid'
+        _class='box box-primary'
     )
 
     return box
@@ -2195,12 +2207,46 @@ def cashbook_get_day_chooser(date):
     return DIV(previous, nxt, _class='btn-group pull-right')
 
 
+def cashbook_opening_balance_get_return_url(var=None):
+    return URL('cashbook')
+
+
+@auth.requires_login()
 def cashbook_opening_balance_add():
     """
     Set opening balance
-    :return:
     """
+    from openstudio.os_forms import OsForms
 
-    
+    date = session.finance_cashbook_date
 
+    response.title = T('c_finance_cashbook_title')
+    response.subtitle = SPAN(
+        T("c_finance_cashbook_subtitle"), ': ',
+        date.strftime(DATE_FORMAT), ' - ',
+        T("c_finance_cashbook_opening_balance_add_subtitle")
+
+    )
+    response.view = 'general/only_content.html'
+
+    return_url = cashbook_opening_balance_get_return_url()
+
+    db.accounting_cashbooks_balance.BalanceDate.default = date
+    db.accounting_cashbooks_balance.BalanceType.default = 'opening'
+
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_create(
+        db.accounting_cashbooks_balance,
+        return_url,
+        message_record_created=T("system_saved")
+    )
+
+    form = result['form']
+    back = os_gui.get_button('back', return_url)
+
+    content = form
+
+    return dict(content=content,
+                save=result['submit'],
+                back=back)
 

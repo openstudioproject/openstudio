@@ -868,25 +868,32 @@ def define_accounting_cashbooks_balance():
         auth_user_id_default = None  # default to None when not signed in
 
     db.define_table('accounting_cashbooks_balance',
-        Field('BalanceDate', 'date'),
+        Field('BalanceDate', 'date',
+            readable=False,
+            writable=False),
         Field('BalanceType',
+            readable=False,
+            writable=False,
             default='opening',
             requires=IS_IN_SET([
               ['opening', T("Opening balance")]
             ]),
             label=T("Balance type") ),
-        Field('Note',
-            label=T("Note")),
         Field('Amount', 'double',
             represent=represent_float_as_amount,
             default=0,
             label=T("Amount")),
+        Field('Note', 'text',
+            label=T("Note")),
         Field('auth_user_id', db.auth_user,
-              requires=IS_EMPTY_OR(IS_IN_DB(db(auth_user_query),
-                                            'auth_user.id',
-                                            '%(first_name)s %(last_name)s',
-                                            zero=T("Unassigned"))),
-              default=auth_user_id_default),
+            readable=False,
+            writable=False,
+            default=auth_user_id_default,
+            requires=IS_EMPTY_OR(IS_IN_DB(db(auth_user_query),
+                                          'auth_user.id',
+                                          '%(first_name)s %(last_name)s',
+                                          zero=T("Unassigned")))
+            ),
     )
 
 
