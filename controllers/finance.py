@@ -2111,6 +2111,8 @@ def cashbook():
     opening_balance = cashbook_get_opening_balance()
     content = DIV(
         opening_balance,
+        cashbook_get_debit(),
+        cashbook_get_credit()
     )
 
 
@@ -2123,6 +2125,32 @@ def cashbook():
         content=content,
         header_tools=header_tools
     )
+
+
+def cashbook_get_debit():
+    debit_display = DIV(
+        DIV(
+            DIV('debit', _class='box-body'),
+            _class='box box-success'
+        ),
+        _class=' col-md-6 no-padding-left'
+
+    )
+
+    return debit_display
+
+def cashbook_get_credit():
+
+    credit_display = DIV(
+        DIV(
+            DIV('credit', _class='box-body'),
+            _class='box box-danger'
+        ),
+        _class=' col-md-6 no-padding-right'
+
+    )
+
+    return credit_display
 
 
 def cashbook_get_opening_balance(var=None):
