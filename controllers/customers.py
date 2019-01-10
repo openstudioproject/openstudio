@@ -892,6 +892,9 @@ def edit():
     customers_id = request.args[0]
     db.auth_user.id.label = T('Customer ID')
 
+    if customers_id == '1' and auth.user.id != 1:
+        redirect(URL('default', 'user', args=['not_authorized']))
+
     row = db.auth_user[customers_id]
     response.title = row.display_name
     response.subtitle = T("Profile")
@@ -1225,7 +1228,7 @@ def customers_get_menu(customers_id, page=None):
         ])
 
     if auth.has_membership(group_id='Admins') or \
-       auth.has_permission('read', 'customers_payments'):
+       auth.has_permission('read', 'customers_payments_info'):
         more.append([
             'bankaccount',
             (os_gui.get_fa_icon('fa-university'), ' ', T("Finance")),
@@ -3948,7 +3951,7 @@ def payments_get_submenu(page, cuID):
     pages = []
 
     if auth.has_membership(group_id='Admins') or \
-       auth.has_permission('read', 'customers_payments'):
+       auth.has_permission('read', 'customers_payments_info'):
         pages.append(
             [
                 'bankaccount',
@@ -3984,7 +3987,7 @@ def payments_delete_payment_info(form):
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'customers_payments'))
+               auth.has_permission('read', 'customers_payments_info'))
 def mollie_mandates():
     """
         Lists mollie mandates for customer
@@ -4013,8 +4016,7 @@ def mollie_mandates():
                 back=back)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('update', 'customers_payments'))
+@auth.requires_login()
 def bankaccount():
     """
         Lists bank account info
@@ -4332,7 +4334,7 @@ def bankaccount_mandate_delete():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'customers_payments'))
+               auth.has_permission('read', 'customers_payments_info'))
 def direct_debit_extra():
     """
         List direct debit extra lines

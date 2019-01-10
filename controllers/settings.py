@@ -1194,13 +1194,13 @@ def access_group_permissions():
                 ['invoices_payments-delete', T('Delete invoice payments')]]],
             ['receipts-read', T("View receipts")],
             ['accounting_cashbooks-read', T("View cash books"), [
-                ['accounting_cashbooks_balance-create', T("Set cash book opening balance")]
+                ['accounting_cashbooks_balance-create', T("Set cash book opening balance")],
                 ['accounting_cashbooks_balance-update', T("Edit cash book opening balance")]
             ]],
             ['accounting_cashbooks_items-read', T("View cash book items"), [
-                ['accounting_cashbooks_items-create', T("Set cash book items")]
-                ['accounting_cashbooks_items-update', T("Edit cash book items")]
-                ['accounting_cashbooks_items-delete', T("Delete cash book items")]
+                ['accounting_cashbooks_items-create', T("Set cash book items")],
+                ['accounting_cashbooks_items-update', T("Edit cash book items")],
+                ['accounting_cashbooks_items-delete', T("Delete cash book items")],
             ]],
             ['payment_batches-read', T('View payment batches'), [
                 ['payment_batches-create', T('Add payment batches')],
@@ -1272,9 +1272,6 @@ def access_group_permissions():
             ['auth_user-update', T("Edit customers' general info"), [
                 ['customers_contact-update', T("View & Update contact info")],
                 ['customers_address-update', T("View & Update address info")],
-                ['customers_payments-read', T('View payments'), [
-                    ['customers_payments-create', T('Add payments')],
-                    ['customers_payments-update', T('Edit payments')]]],
                 ['customers_memberships-read', T("View memberships"), [
                     ['customers_memberships-create', T("Add memberships")],
                     ['customers_memberships-update', T("Edit memberships")],
