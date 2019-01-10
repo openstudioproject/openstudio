@@ -2094,6 +2094,15 @@ def cashbook():
 
     :return:
     """
+    response.title = T('Cash book')
+    response.subtitle = T('Daily')
+    response.view = 'general/only_content_no_box.html'
+
+    content = 'hello world'
+
+    return dict(
+        content=content,
+    )
 
 
 
