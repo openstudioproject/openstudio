@@ -123,6 +123,7 @@
 'c_finance_cashbook_get_opening_balance_not_set': 'Not set',
 'c_finance_cashbook_opening_balance': 'Opening balance',
 'c_finance_cashbook_opening_balance_add_subtitle': 'Set opening balance',
+'c_finance_cashbook_opening_balance_edit_subtitle': 'Edit opening balance',
 'c_finance_cashbook_subtitle': 'Date',
 'c_finance_cashbook_title': 'Cash book',
 'm_openstudio_os_scheduler_tasks_exact_online_sync_invoices_return': 'Synced Invoices (Success / Errors)'

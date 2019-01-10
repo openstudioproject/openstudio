@@ -2250,3 +2250,43 @@ def cashbook_opening_balance_add():
                 save=result['submit'],
                 back=back)
 
+
+@auth.requires_login()
+def cashbook_opening_balance_edit():
+    """
+    Set opening balance
+    """
+    from openstudio.os_forms import OsForms
+
+    acbID = request.vars['acbID']
+
+    date = session.finance_cashbook_date
+
+    response.title = T('c_finance_cashbook_title')
+    response.subtitle = SPAN(
+        T("c_finance_cashbook_subtitle"), ': ',
+        date.strftime(DATE_FORMAT), ' - ',
+        T("c_finance_cashbook_opening_balance_edit_subtitle")
+
+    )
+    response.view = 'general/only_content.html'
+
+    return_url = cashbook_opening_balance_get_return_url()
+
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_update(
+        db.accounting_cashbooks_balance,
+        return_url,
+        acbID,
+        message_record_updated=T("system_saved"),
+    )
+
+    form = result['form']
+    back = os_gui.get_button('back', return_url)
+
+    content = form
+
+    return dict(content=content,
+                save=result['submit'],
+                back=back)
+
