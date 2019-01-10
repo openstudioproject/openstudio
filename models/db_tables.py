@@ -3858,6 +3858,19 @@ def define_invoices_customers_subscriptions():
             writable=False))
 
 
+def define_invoices_items_customers_subscriptions():
+    """
+        Table to link customer subscriptions to invoices
+    """
+    db.define_table('invoices_items_customers_subscriptions',
+        Field('invoices_items_id', db.invoices_items,
+            readable=False,
+            writable=False),
+        Field('customers_subscriptions_id', db.customers_subscriptions,
+            readable=False,
+            writable=False))
+
+
 def define_invoices_customers_classcards():
     """
         Table to link customer classcards to invoices
@@ -6329,6 +6342,7 @@ define_invoices_groups_product_types()
 define_invoices()
 define_invoices_amounts()
 define_invoices_items()
+define_invoices_items_customers_subscriptions()
 define_invoices_payments()
 define_invoices_workshops_products_customers()
 define_invoices_customers_classcards()
