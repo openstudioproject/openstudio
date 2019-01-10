@@ -29,12 +29,16 @@ class EmployeeClaims:
             orderby = db.employee_claims.auth_user_id
 
         left = [
-            db.invoices_employee_claims.on(
-                db.invoices_employee_claims.employee_claims_id ==
+            db.invoices_items_employee_claims.on(
+                db.invoices_items_employee_claims.employee_claims_id ==
                 db.employee_claims.id
             ),
+            db.invoices_items.on(
+              db.invoices_items_employee_claims.invoices_items_id ==
+              db.invoices_items.id
+            ),
             db.invoices.on(
-                db.invoices_employee_claims.invoices_id ==
+                db.invoices_items.invoices_id ==
                 db.invoices.id
             )
         ]
@@ -43,12 +47,14 @@ class EmployeeClaims:
 
         rows = db(query).select(
             db.employee_claims.ALL,
-            db.invoices_employee_claims.ALL,
+            db.invoices_items_employee_claims.ALL,
             db.invoices.ALL,
             left=left,
             orderby=orderby,
             limitby=limitby
         )
+
+        print rows
 
         if not formatted:
             return rows
@@ -164,7 +170,7 @@ class EmployeeClaims:
         """
         Display claim attachments in a modal
         """
-        if not row.invoices_employee_claims.id:
+        if not row.invoices_items_employee_claims.id:
             return ''
 
         T = current.T

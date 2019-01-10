@@ -974,8 +974,7 @@ class Invoice:
 
 
     def item_add_employee_claim_credit_payment(self,
-                                               ecID,
-                                               iiID):
+                                               ecID):
         """
         :param clsID: db.classes.id
         :param date: datetime.date class date
