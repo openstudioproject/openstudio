@@ -4766,7 +4766,6 @@ def events():
     # To redirect back here after sending info mail
     session.workshops_ticket_resend_info_mail = 'customers_events'
 
-
     session.workshops_payment_back = 'customer'
     customer = Customer(cuID)
     response.title = customer.get_name()

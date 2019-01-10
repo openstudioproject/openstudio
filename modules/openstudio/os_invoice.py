@@ -649,11 +649,6 @@ class Invoice:
         wspc = db.workshops_products_customers(wspcID)
         wsp = db.workshops_products(wspc.workshops_products_id)
         ws = db.workshops(wsp.workshops_id)
-        # Link invoice to workshop product sold to customer
-        db.invoices_workshops_products_customers.insert(
-            invoices_id = self.invoices_id,
-            workshops_products_customers_id = wspcID
-        )
 
         # Add item to invoice
         next_sort_nr = self.get_item_next_sort_nr()
@@ -668,6 +663,12 @@ class Invoice:
             tax_rates_id=wsp.tax_rates_id,
             accounting_glaccounts_id=wsp.accounting_glaccounts_id,
             accounting_costcenters_id=wsp.accounting_costcenters_id
+        )
+
+        # Link invoice to workshop product sold to customer
+        db.invoices_items_workshops_products_customers.insert(
+            invoices_items_id = iiID,
+            workshops_products_customers_id = wspcID
         )
 
         # This calls self.on_update()
