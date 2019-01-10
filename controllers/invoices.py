@@ -979,8 +979,6 @@ def list_items_check_row_deletable(row):
     :param row:
     :return:
     """
-    print row
-
     deletable = True
     if row.invoices_items_customers_subscriptions.id:
         deletable = False
@@ -994,9 +992,6 @@ def list_items_check_row_deletable(row):
         deletable = False
     elif row.invoices_items_teachers_payment_classes.id:
         deletable = False
-
-    print 'del allowed'
-    print deletable
 
     return deletable
 
