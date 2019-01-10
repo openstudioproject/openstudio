@@ -189,13 +189,15 @@ class OSExactOnline:
 
         items = os_invoice.get_invoice_items_rows()
         if not len(items):
-            return # Don't do anything for invoices without items
+            return True # Don't do anything for invoices without items, but mark as error
 
         eoseID = os_invoice.invoice.ExactOnlineSalesEntryID
 
         if not eoseID:
-            self.create_sales_entry(os_invoice)
-            return
+            eoseID = self.create_sales_entry(os_invoice)
+            if not eoseID:
+                return True # This returns an error
+            return False # No error, created successfully
 
 
         import pprint
@@ -249,19 +251,21 @@ class OSExactOnline:
             # pp = pprint.PrettyPrinter(depth=6)
             # pp.pprint(result)
 
-            self.update_sales_entry_lines(os_invoice)
+            errors_update_lines = self.update_sales_entry_lines(os_invoice)
+
+            if errors_update_lines:
+                error = True
 
         except HTTPError as e:
             error = True
             self._log_error(
-                'create',
+                'update',
                 'sales_entry',
                 os_invoice.invoice.id,
                 e
             )
 
-        if error:
-            return False
+        return error
 
 
     def create_sales_entry_line(self, line):
@@ -270,8 +274,21 @@ class OSExactOnline:
         :return:
         """
         api = self.get_api()
+        error = False
+        result = ''
 
-        return api.salesentrylines.create(line)
+        try:
+            result = api.salesentrylines.create(line)
+        except HTTPError as e:
+            error = True
+            self._log_error(
+                'create',
+                'sales_entry_line',
+                None,
+                e
+            )
+
+        return dict(error=error, result=result)
 
 
     def update_sales_entry_line(self, ID, line):
@@ -281,7 +298,21 @@ class OSExactOnline:
         """
         api = self.get_api()
 
-        return api.salesentrylines.update(ID, line)
+        error = False
+        result = ''
+
+        try:
+            result = api.salesentrylines.update(ID, line)
+        except HTTPError as e:
+            error = True
+            self._log_error(
+                'update',
+                'sales_entry_line',
+                ID,
+                e
+            )
+
+        return dict(error=error, result=result)
 
 
     def delete_sales_entry_line(self, ID):
@@ -303,15 +334,36 @@ class OSExactOnline:
 
         is_credit_invoice = os_invoice.is_credit_invoice()
 
+        count_errors = 0
         items = os_invoice.get_invoice_items_rows()
 
         for item in items:
+            if not item.accounting_glaccounts_id:
+                self._log_error(
+                    'format',
+                    'invoice_item',
+                    item.id,
+                    "G/L Account Code not set"
+                )
+                continue # Break loop and go to next item. GLAccount is a mandatory field
+
             os_glaccount = db.accounting_glaccounts(
                 item.accounting_glaccounts_id
             )
+
             glaccount = self.get_glaccount(os_glaccount.AccountingCode)
 
+            if not item.tax_rates_id:
+                self._log_error(
+                    'format',
+                    'invoice_item',
+                    item.id,
+                    "Tax rate not set"
+                )
+                continue # Break loop and go to next item. Tax rate is a mandatory field
+
             tax_rate = db.tax_rates(item.tax_rates_id)
+
             line = {
                 'AmountFC': item.TotalPrice,
                 'Description': '%s %s' %(item.ProductName, item.Description),
@@ -336,12 +388,19 @@ class OSExactOnline:
                 line['EntryID'] = os_invoice.invoice.ExactOnlineSalesEntryID
 
                 result = self.create_sales_entry_line(line)
+                if result['error']:
+                    count_errors += 1
 
                 item.ExactOnlineSalesEntryLineID = result['ID']
                 item.update_record()
 
             else: # Update
                 result = self.update_sales_entry_line(ID, line)
+
+                if result['error']:
+                    count_errors += 1
+
+        return count_errors
 
 
     def get_glaccount(self, code):
@@ -389,13 +448,32 @@ class OSExactOnline:
 
         lines = []
         for item in items:
+            if not item.accounting_glaccounts_id:
+                self._log_error(
+                    'format',
+                    'invoice_item',
+                    item.id,
+                    "G/L Account Code not set"
+                )
+                continue # Break loop and go to next item. GLAccount is a mandatory field
+
             os_glaccount = db.accounting_glaccounts(
                 item.accounting_glaccounts_id
             )
 
             glaccount = self.get_glaccount(os_glaccount.AccountingCode)
 
+            if not item.tax_rates_id:
+                self._log_error(
+                    'format',
+                    'invoice_item',
+                    item.id,
+                    "Tax rate not set"
+                )
+                continue # Break loop and go to next item. Tax rate is a mandatory field
+
             tax_rate = db.tax_rates(item.tax_rates_id)
+
             line = {
                 'AmountDC': item.TotalPrice,
                 'AmountFC': item.TotalPrice,
