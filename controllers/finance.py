@@ -2137,6 +2137,7 @@ def cashbook_get_opening_balance(var=None):
         _class='btn btn-primary'
     )
     opening_balance = SPAN(CURRSYM, ' ', 0)
+    info = ''
 
     row = db.accounting_cashbooks_balance(
         BalanceDate = session.finance_cashbook_date,
@@ -2152,13 +2153,23 @@ def cashbook_get_opening_balance(var=None):
         )
         opening_balance = represent_float_as_amount(row.Amount)
 
+        au = db.auth_user(row.auth_user_id)
+        info = SPAN(
+            T("Set by"), ' ',
+            A(au.display_name,
+              _href=URL('customers', 'edit', args=[au.id])), ' ',
+            T("@"), ' ',
+            row.CreatedOn.strftime(DATETIME_FORMAT),
+            _class="text-muted"
+        )
 
     box = DIV(
         DIV(H3(T("c_finance_cashbook_opening_balance"), ': ', opening_balance, _class='box-title'),
             DIV(header_link, _class='box-tools pull-right'),
             _class='box-header'
         ),
-        DIV(note,
+        DIV(DIV(info, _class='pull-right'),
+            note,
             _class='box-body'
         ),
         _class='box box-primary'

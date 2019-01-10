@@ -892,8 +892,11 @@ def define_accounting_cashbooks_balance():
             requires=IS_EMPTY_OR(IS_IN_DB(db(auth_user_query),
                                           'auth_user.id',
                                           '%(first_name)s %(last_name)s',
-                                          zero=T("Unassigned")))
-            ),
+                                          zero=T("Unassigned")))),
+        Field('CreatedOn', 'datetime',
+              readable=False,
+              writable=False,
+              default=datetime.datetime.now()),
     )
 
 
