@@ -3806,12 +3806,26 @@ def define_payment_batches_exports():
     )
 
 
+# Deprecated from 2019.02.x
 def define_invoices_workshops_products_customers():
     """
         Table to link workshop products to invoices
     """
     db.define_table('invoices_workshops_products_customers',
         Field('invoices_id', db.invoices,
+            readable=False,
+            writable=False),
+        Field('workshops_products_customers_id', db.workshops_products_customers,
+            readable=False,
+            writable=False))
+
+
+def define_invoices_items_workshops_products_customers():
+    """
+        Table to link workshop products to invoices
+    """
+    db.define_table('invoices_items_workshops_products_customers',
+        Field('invoices_items_id', db.invoices_items,
             readable=False,
             writable=False),
         Field('workshops_products_customers_id', db.workshops_products_customers,
@@ -6352,6 +6366,7 @@ define_invoices_items()
 define_invoices_items_customers_classcards()
 define_invoices_items_customers_memberships()
 define_invoices_items_customers_subscriptions()
+define_invoices_items_workshops_products_customers()
 define_invoices_payments()
 define_invoices_workshops_products_customers()
 define_invoices_customers_classcards()
