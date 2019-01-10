@@ -834,14 +834,50 @@ def list_items():
                   _class='table table-hover table-striped invoice-items small_font',
                   _id=iID) # set invoice id as table id, so we can pick it up from js when calling items_update_sorting() using ajaj
 
+    left = [
+        db.invoices_items_customers_subscriptions.on(
+            db.invoices_items_customers_subscriptions.invoices_items_id ==
+            db.invoices_items.id
+        ),
+        db.invoices_items_customers_classcards.on(
+            db.invoices_items_customers_classcards.invoices_items_id ==
+            db.invoices_items.id
+        ),
+        db.invoices_items_customers_memberships.on(
+            db.invoices_items_customers_memberships.invoices_items_id ==
+            db.invoices_items.id
+        ),
+        db.invoices_items_workshops_products_customers.on(
+            db.invoices_items_workshops_products_customers.invoices_items_id ==
+            db.invoices_items.id
+        ),
+        db.invoices_items_employee_claims.on(
+            db.invoices_items_employee_claims.invoices_items_id ==
+            db.invoices_items.id
+        ),
+        db.invoices_items_teachers_payment_classes.on(
+            db.invoices_items_teachers_payment_classes.invoices_items_id ==
+            db.invoices_items.id
+        )
+    ]
+
     query = (db.invoices_items.invoices_id == iID)
-    rows = db(query).select(db.invoices_items.ALL,
-                            orderby=db.invoices_items.Sorting)
+    rows = db(query).select(
+        db.invoices_items.ALL,
+        db.invoices_items_customers_subscriptions.id,
+        db.invoices_items_customers_classcards.id,
+        db.invoices_items_customers_memberships.id,
+        db.invoices_items_workshops_products_customers.id,
+        db.invoices_items_employee_claims.id,
+        db.invoices_items_teachers_payment_classes.id,
+        left=left,
+        orderby=db.invoices_items.Sorting
+    )
 
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i+1].render())[0]
 
-        btn_vars = {'iID':iID, 'iiID':row.id}
+        btn_vars = {'iID':iID, 'iiID':row.invoices_items.id}
         btn_size = 'btn-xs'
         buttons = DIV(_class='btn-group btn-group-sm pull-right')
         permission = auth.has_membership(group_id='Admins') or \
@@ -869,7 +905,7 @@ def list_items():
 
         permission = auth.has_membership(group_id='Admins') or \
                      auth.has_permission('delete', 'invoices_items')
-        if permission:
+        if permission and list_items_check_row_deletable(row):
             btn_delete = os_gui.get_button(
                 'delete_notext',
                 URL('item_delete_confirm', vars=btn_vars),
@@ -882,19 +918,17 @@ def list_items():
 
 
         tr = TR(TD(sort_handler, _class='sort-handler movable'),
-                TD(row.ProductName),
-                TD(row.Description, _class='Description'),
-                TD(row.Quantity),
-                TD(SPAN(repr_row.Price, _class='pull-right')),
-                TD(repr_row.tax_rates_id),
-                # TD(SPAN(repr_row.TotalPrice, _class='pull-right')),
-                # TD(SPAN(repr_row.VAT, _class='pull-right')),
-                TD(SPAN(repr_row.TotalPriceVAT,
-                        _title=T("Subtotal: ") + CURRSYM + format(row.TotalPrice, '.2f') + ' ' +\
-                               T('VAT: ') + CURRSYM + format(row.VAT, '.2f'),
+                TD(row.invoices_items.ProductName),
+                TD(row.invoices_items.Description, _class='Description'),
+                TD(row.invoices_items.Quantity),
+                TD(SPAN(repr_row.invoices_items.Price, _class='pull-right')),
+                TD(repr_row.invoices_items.tax_rates_id),
+                TD(SPAN(repr_row.invoices_items.TotalPriceVAT,
+                        _title=T("Subtotal: ") + CURRSYM + format(row.invoices_items.TotalPrice, '.2f') + ' ' +\
+                               T('VAT: ') + CURRSYM + format(row.invoices_items.VAT, '.2f'),
                         _class='pull-right')),
-                TD(repr_row.accounting_glaccounts_id),
-                TD(repr_row.accounting_costcenters_id),
+                TD(repr_row.invoices_items.accounting_glaccounts_id),
+                TD(repr_row.invoices_items.accounting_costcenters_id),
                 TD(btn_delete, buttons))
 
         table.append(tr)
@@ -937,6 +971,34 @@ def list_items():
     content.append(form.custom.end)
 
     return dict(content=content)
+
+
+def list_items_check_row_deletable(row):
+    """
+    Don't allow deleting of row when it's linked to one or more products
+    :param row:
+    :return:
+    """
+    print row
+
+    deletable = True
+    if row.invoices_items_customers_subscriptions.id:
+        deletable = False
+    elif row.invoices_items_customers_classcards.id:
+        deletable = False
+    elif row.invoices_items_customers_memberships.id:
+        deletable = False
+    elif row.invoices_items_workshops_products_customers.id:
+        deletable = False
+    elif row.invoices_items_employee_claims.id:
+        deletable = False
+    elif row.invoices_items_teachers_payment_classes.id:
+        deletable = False
+
+    print 'del allowed'
+    print deletable
+
+    return deletable
 
 
 @auth.requires_login()
