@@ -708,7 +708,7 @@ class Invoice:
         return iiID
 
 
-    def item_add_subscription(self, SubscriptionYear, SubscriptionMonth, description=''):
+    def item_add_subscription(self, csID, SubscriptionYear, SubscriptionMonth, description=''):
         """
             :param SubscriptionYear: Year of subscription
             :param SubscriptionMonth: Month of subscription
@@ -728,8 +728,6 @@ class Invoice:
                              int(SubscriptionMonth),
                              1)
 
-        ics = db.invoices_customers_subscriptions(invoices_id = self.invoices_id)
-        csID = ics.customers_subscriptions_id
         cs = CustomerSubscription(csID)
         ssuID = cs.ssuID
         ssu = SchoolSubscription(ssuID)
@@ -1138,13 +1136,13 @@ class Invoice:
         self.on_update() # now we know which customer the invoice belongs to
 
 
-    def link_to_customer_subscription(self, csID):
+    def link_to_customer_subscription(self, csID, iiID):
         """
             Link invoice to customer subscription
         """
         db = current.db
-        db.invoices_customers_subscriptions.insert(
-            invoices_id = self.invoices_id,
+        db.invoices_items_customers_subscriptions.insert(
+            invoices_items_id = iiID,
             customers_subscriptions_id = csID
         )
 

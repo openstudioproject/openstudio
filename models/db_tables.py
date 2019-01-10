@@ -4023,12 +4023,6 @@ def define_invoices():
                               '%(Name)s',
                               zero=T("Please select...")),
             label=T('Invoice group')),
-        Field('auth_customer_id', db.auth_user, # Deprecated from 2018.2 onwards (only used for migrations)
-            readable=False,
-            writable=False,
-            represent=lambda value, row: A(db.auth_user(value).display_name,
-                                           _href=URL('customers', 'edit', args=value, extension='')) if value else '',
-            label=T('CustomerID')),
         Field('payment_methods_id', db.payment_methods,
             requires=IS_EMPTY_OR(
                      IS_IN_DB(db,'payment_methods.id','%(Name)s',
@@ -4036,22 +4030,6 @@ def define_invoices():
                               zero=T("Not set"))),
             represent=lambda value, row: payment_methods_dict.get(value),
             label=T("Payment method")),
-        Field('customers_subscriptions_id', db.customers_subscriptions, # Deprecated from 2018.2 onwards (only used for migrations)
-            readable=False,
-            writable=False,
-            default=None),
-        Field('customers_classcards_id', db.customers_classcards, # Depricated from 3.03 onwards
-            readable=False,
-            writable=False,
-            default=None),
-        Field('classes_attendance_id', db.classes_attendance, # Depricated from 3.03 onwards
-            readable=False,
-            writable=False,
-            default=None),
-        Field('workshops_products_customers_id', db.workshops_products_customers, # Depricated from 3.03 onwards
-            readable=False,
-            writable=False,
-            default=None),
         Field('SubscriptionMonth', 'integer',
             readable=False,
             writable=False,

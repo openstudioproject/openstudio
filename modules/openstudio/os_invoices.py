@@ -110,11 +110,11 @@ class Invoices:
             self._add_reset_list_status_filter()
 
             if csID:
-                invoice.link_to_customer_subscription(csID)
-                invoice.item_add_subscription(
+                iiID = invoice.item_add_subscription(
                     form.vars.SubscriptionYear,
                     form.vars.SubscriptionMonth
                 )
+                invoice.link_to_customer_subscription(csID, iID)
 
             redirect(URL('invoices', 'edit', vars={'iID':iID}))
 
@@ -310,17 +310,15 @@ class Invoices:
                       body=self._list_invoices_get_balance),
                  lambda row: os_gui.get_label('primary', T('Teacher inv')) if row.invoices.TeacherPayment else '',
                  self._list_invoices_get_buttons]
-        left = [db.invoices_amounts.on(db.invoices_amounts.invoices_id ==
-                                       db.invoices.id),
-                db.invoices_customers.on(
-                    db.invoices_customers.invoices_id == db.invoices.id),
-                db.invoices_customers_subscriptions.on(
-                    db.invoices_customers_subscriptions.invoices_id ==
-                    db.invoices.id),
-                db.invoices_customers_memberships.on(
-                    db.invoices_customers_memberships.invoices_id ==
-                    db.invoices.id)
-                ]
+        left = [
+            db.invoices_amounts.on(db.invoices_amounts.invoices_id ==
+                                   db.invoices.id),
+            db.invoices_customers.on(
+                 db.invoices_customers.invoices_id == db.invoices.id),
+            db.invoices_customers_memberships.on(
+                db.invoices_customers_memberships.invoices_id ==
+                db.invoices.id)
+        ]
 
         fields = [db.invoices.Status,
                   db.invoices.InvoiceID,
@@ -352,7 +350,16 @@ class Invoices:
         if cmID:
             query &= (db.invoices_customers_memberships.customers_memberships_id == cmID)
         if csID:
-            query &= (db.invoices_customers_subscriptions.customers_subscriptions_id == csID)
+            left.extend([
+                db.invoices_items.on(
+                    db.invoices_items.invoices_id ==
+                    db.invoices.id),
+                db.invoices_items_customers_subscriptions.on(
+                    db.invoices_items_customers_subscriptions.invoices_items_id ==
+                    db.invoices_items.id),
+            ])
+
+            query &= (db.invoices_items_customers_subscriptions.customers_subscriptions_id == csID)
             fields.insert(3, db.invoices.SubscriptionMonth)
             fields.insert(4, db.invoices.SubscriptionYear)
 

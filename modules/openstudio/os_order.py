@@ -460,13 +460,13 @@ class Order:
                 )
 
                 if create_invoice:
-                    invoice.link_to_customer_subscription(csID)
-
                     # This will also add the registration fee if required.
-                    invoice.item_add_subscription(
+                    iiID = invoice.item_add_subscription(
                         TODAY_LOCAL.year,
                         TODAY_LOCAL.month
                     )
+                    invoice.link_to_customer_subscription(csID, iiID)
+
 
             # Check for membership
             if row.school_memberships_id:
