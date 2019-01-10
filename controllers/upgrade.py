@@ -108,3 +108,15 @@ def upgrade_to_201902():
             workshops_products_customers_id = row.workshops_products_customers_id
         )
 
+    # Employee claims
+    query = (db.invoices_employee_claims.id > 0)
+    rows = db(query).select(db.invoices_employee_claims.ALL)
+    for row in rows:
+        query = (db.invoices_items.invoices_id == row.invoices_id)
+        item_rows = db(query).select(db.invoices_items.id)
+        item_row = item_rows.first()
+
+        db.invoices_items_employee_claims.insert(
+            invoices_items_id = item_row.id,
+            employee_claims_id = row.employee_claims_id
+        )
