@@ -245,10 +245,7 @@ class OsSchedulerTasks:
 
         renewed = 0
 
-        print db().select(db.customers_subscriptions.ALL)
-
         for row in rows:
-            print row
             new_cm_start = row.Enddate + datetime.timedelta(days=1)
 
             # Check if a subscription will be active next month for customer
@@ -260,10 +257,7 @@ class OsSchedulerTasks:
                 continue
 
             # Ok all good, continue
-            print 'still here'
-            print  customer.has_subscription_on_date(firstdaynextmonth, from_cache=False)
             if customer.has_subscription_on_date(firstdaynextmonth, from_cache=False):
-                print 'subscription found'
                 new_cm_start = row.Enddate + datetime.timedelta(days=1)
 
                 school_membership = SchoolMembership(row.school_memberships_id)
@@ -277,9 +271,10 @@ class OsSchedulerTasks:
                 )
 
                 renewed += 1
-            else:
-                print 'no subscription'
-            print renewed
+            # else:
+            #
+            #     print 'no subscription'
+            # print renewed
 
         ##
         # For scheduled tasks db connection has to be committed manually
@@ -287,3 +282,53 @@ class OsSchedulerTasks:
         db.commit()
 
         return T("Memberships renewed") + ': ' + unicode(renewed)
+
+
+    def exact_online_sync_invoices(self):
+        """
+        Due to a timeout in tokens, sometimes invoices don't sync immediately, as a API request
+        seems to be used to aquire a new token. This function can be run every 15 minutes for
+        example to sync all unsynced invoices
+        :return: None
+        """
+        from tools import OsTools
+        from os_invoice import Invoice
+
+        T = current.T
+        db = current.db
+
+        count_synced = 0
+        count_errors = 0
+
+        os_tools = OsTools()
+        eo_authorized = os_tools.get_sys_property('exact_online_authorized')
+
+
+        if eo_authorized == 'True':
+            from os_exact_online import OSExactOnline
+
+            os_eo = OSExactOnline()
+
+            query = (db.invoices.ExactOnlineSalesEntryID == None)
+            rows = db(query).select(db.invoices.ALL)
+            for row in rows:
+                invoice = Invoice(row.id)
+
+                if not invoice.invoice_group.JournalID:
+                    os_eo._log_error(
+                        'update',
+                        'invoice',
+                        invoice.invoices_id,
+                        'No JournalID specified for invoice group'
+                    )
+                    count_errors += 1
+                else:
+                    error = os_eo.update_sales_entry(invoice)
+                    if error:
+                        count_errors += 1
+                    else:
+                        count_synced += 1
+
+        return T("m_openstudio_os_scheduler_tasks_exact_online_sync_invoices_return") + ': (' + \
+               unicode(count_synced) + ' / ' + \
+               unicode(count_errors) + ')'

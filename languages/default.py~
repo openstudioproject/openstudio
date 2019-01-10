@@ -119,5 +119,4 @@
 'You are successfully running web2py': 'You are successfully running web2py',
 'You can modify this application and adapt it to your needs': 'You can modify this application and adapt it to your needs',
 'You visited the url %s': 'You visited the url %s',
-'m_openstudio_os_scheduler_tasks_exact_online_sync_invoices_return': 'Synced Invoices (Success / Errors)'
 }

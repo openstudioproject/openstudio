@@ -291,6 +291,20 @@ def invoices():
     return 'got it!'
 
 
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'settings'))
+def sync_invoices():
+    """
+
+    :return:
+    """
+    from openstudio.os_scheduler_tasks import OsSchedulerTasks
+
+    osst = OsSchedulerTasks()
+    result = osst.exact_online_sync_invoices()
+
+    return result
+
 # def relation_get():
 #     code = '6929'
 #

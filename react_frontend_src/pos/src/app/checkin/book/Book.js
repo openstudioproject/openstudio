@@ -44,16 +44,17 @@ class Book extends Component {
 
         const clsID = this.props.match.params.clsID
         const cuID = this.props.match.params.cuID
+        const school_memberships = this.props.school_memberships
 
         // this.props.checkinCustomer(cuID, clsID, option)
 
-        const customer_has_membership = this.customerHasMembership(this.props.match.params.cuID)
-        console.log(customer_has_membership)
+        const customer_memberships = this.customerMemberships(this.props.match.params.cuID)
+        console.log(customer_memberships)
         switch (option.Type) {
             case "dropin": 
                 console.log('executing dropin code')
                 let dropin_price
-                if (customer_has_membership) {
+                if (customer_memberships.lentgh) {
                     dropin_price = option.MembershipPrice
                 } else {
                     dropin_price = option.Price
@@ -86,11 +87,11 @@ class Book extends Component {
                     // set some value to indicate redirection back to attendance list with notification after validating payment
 
                     // redirect to payment
-                    this.props.history.push('/shop/payment')
+                    this.props.history.push('/shop/products')
                     
                 } else {
                     // check-in, price = 0
-                    this.props.checkinCustomer(cuID, clsID, option)
+                    this.props.checkinCustomer(cuID, clsID, option, this.props.history)
                 }
                 break
             case "trial": 
@@ -129,19 +130,96 @@ class Book extends Component {
                     // set some value to indicate redirection back to attendance list with notification after validating payment
 
                     // redirect to payment
-                    this.props.history.push('/shop/payment')
+                    this.props.history.push('/shop/products')
                     
                 } else {
                     // check-in, price = 0
-                    this.props.checkinCustomer(cuID, clsID, option)
+                    this.props.checkinCustomer(cuID, clsID, option, this.props.history)
                 }
             
                 break
             case "subscription":
-                this.props.checkinCustomer(cuID, clsID, option)
+                if (option.school_memberships_id) {
+                    if (customer_memberships.includes(option.school_memberships_id)) {
+                        this.props.checkinCustomer(cuID, clsID, option, this.props.history)
+                    } else {
+                        console.log('redirect to cart to buy the required membership')
+                        // customer needs to pay
+                        // clear cart
+                        this.props.clearShopCart()
+                        // set shop selected customer id
+                        this.props.setSelectedCustomerID(this.props.match.params.cuID)
+                        this.props.setDisplayCustomerID(this.props.match.params.cuID)
+
+                        function findMembership(item) {
+                            return item.id == option.school_memberships_id
+                        }
+
+                        console.log(school_memberships)
+                        let cart_item = school_memberships.data.find(findMembership)
+
+                        let item = {
+                            id: v4(),
+                            item_type: 'membership',
+                            quantity: 1,
+                            data: cart_item
+                        }
+                
+                        console.log('item')
+                        console.log(item)
+                        // Check if item not yet in cart
+                        
+                        // If not yet in cart, add as a new product, else increase 
+                        this.props.addShopCartItem(item)
+
+                        // redirect to products
+                        this.props.history.push('/shop/products')
+                    }
+                } else {
+                    this.props.checkinCustomer(cuID, clsID, option, this.props.history)
+                }
                 break
             case "classcard":
-                this.props.checkinCustomer(cuID, clsID, option)
+                // Check membership
+                if (option.school_memberships_id) {
+                    if (customer_memberships.includes(option.school_memberships_id)) {
+                        this.props.checkinCustomer(cuID, clsID, option, this.props.history)
+                    } else {
+                        console.log('redirect to cart to buy the required membership')
+                        // customer needs to pay
+                        // clear cart
+                        this.props.clearShopCart()
+                        // set shop selected customer id
+                        this.props.setSelectedCustomerID(this.props.match.params.cuID)
+                        this.props.setDisplayCustomerID(this.props.match.params.cuID)
+
+                        function findMembership(item) {
+                            return item.id == option.school_memberships_id
+                        }
+
+                        console.log(school_memberships)
+                        let cart_item = school_memberships.data.find(findMembership)
+
+                        let item = {
+                            id: v4(),
+                            item_type: 'membership',
+                            quantity: 1,
+                            data: cart_item
+                         }
+                 
+                         console.log('item')
+                         console.log(item)
+                         // Check if item not yet in cart
+                         
+                         // If not yet in cart, add as a new product, else increase 
+                         this.props.addShopCartItem(item)
+
+                         // redirect to products
+                         this.props.history.push('/shop/products')
+                    }
+                } else {
+                    this.props.checkinCustomer(cuID, clsID, option, this.props.history)
+                }
                 break
             default: 
                 console.log("Login type not found:")
@@ -151,18 +229,21 @@ class Book extends Component {
         }
     }
 
-    customerHasMembership(cuID) {
-        let customer_has_membership = false
+    customerMemberships(cuID) {
+        let customer_memberships = []
         const memberships = this.props.memberships.data
             
         var i;
         for (i = 0; i < memberships.length; i++) { 
             if (memberships[i].auth_customer_id === cuID) {
-                customer_has_membership = true
+                customer_memberships.push(memberships[i].id)
             }
         }
 
-        return customer_has_membership
+        console.log('customer_memberships')
+        console.log(customer_memberships)
+
+        return customer_memberships
     
     }
 
@@ -170,7 +251,7 @@ class Book extends Component {
         const cuID = this.props.match.params.cuID
         const booking_options = this.props.options.data
         
-        const customer_has_membership = this.customerHasMembership
+        const customer_memberships = this.customerMemberships(cuID)
         
 
         return (
@@ -184,7 +265,7 @@ class Book extends Component {
                                 Attendance
                             </ButtonBack>
                             <BookOptionsList booking_options={booking_options}
-                                             customer_has_membership={customer_has_membership}
+                                             customer_memberships={customer_memberships}
                                              onClick={this.onClickBookOption.bind(this)} />
                             {/* <AttendanceList attendance_items={this.props.attendance.data} /> */}
                         </section>

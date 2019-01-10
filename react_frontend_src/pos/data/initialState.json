@@ -24,7 +24,9 @@
             "data": {},
             "searchTimeout": 0,
             "searchCustomerID": null,
-            "searchValue": ""
+            "searchValue": "",
+            "attendanceStatusUpdating": [],
+            "attendanceDeleting": []
         },
         "book": {
            "loading": false,

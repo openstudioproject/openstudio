@@ -145,7 +145,6 @@ class Order:
         T  = current.T
 
         sme = SchoolMembership(school_memberships_id)
-        sme_tax_rates = sme.get_tax_rates_on_date(startdate)
 
         coiID = db.customers_orders_items.insert(
             customers_orders_id  = self.coID,
@@ -153,8 +152,8 @@ class Order:
             ProductName = T('membership'),
             Description = sme.row.Name,
             Quantity = 1,
-            Price = sme.get_price_on_date(startdate, formatted=False),
-            tax_rates_id = sme_tax_rates.tax_rates.id,
+            Price = sme.row.Price,
+            tax_rates_id = sme.row.tax_rates_id,
             accounting_glaccounts_id = sme.row.accounting_glaccounts_id,
             accounting_costcenters_id = sme.row.accounting_costcenters_id,
         )
@@ -352,7 +351,7 @@ class Order:
             )
 
 
-    def deliver(self):
+    def deliver(self, class_online_booking=True, class_booking_status='booked'):
         """
             Create invoice for order and deliver goods
         """
@@ -486,15 +485,8 @@ class Order:
                     cm = CustomerMembership(cmID)
 
                     # Check if price exists and > 0:
-                    if sme.get_price_on_date(membership_start):
-                        period_start = cm.row.Startdate
-                        period_end = cm.get_period_enddate(cm.row.Startdate)
-
-                        invoice.item_add_membership(
-                            cmID,
-                            period_start,
-                            period_end
-                        )
+                    if sme.row.Price:
+                        invoice.item_add_membership(cmID)
 
             # Check for workshop
             if row.workshops_products_id:
@@ -518,17 +510,23 @@ class Order:
                 # Deliver class
                 ah = AttendanceHelper()
                 if row.AttendanceType == 1:
-                    result = ah.attendance_sign_in_trialclass(self.order.auth_customer_id,
-                                                              row.classes_id,
-                                                              row.ClassDate,
-                                                              online_booking=True,
-                                                              invoice=False)
+                    result = ah.attendance_sign_in_trialclass(
+                        self.order.auth_customer_id,
+                        row.classes_id,
+                        row.ClassDate,
+                        online_booking=class_online_booking,
+                        invoice=False,
+                        booking_status=class_booking_status
+                    )
                 elif row.AttendanceType == 2:
-                    result = ah.attendance_sign_in_dropin(self.order.auth_customer_id,
-                                                          row.classes_id,
-                                                          row.ClassDate,
-                                                          online_booking=True,
-                                                          invoice=False)
+                    result = ah.attendance_sign_in_dropin(
+                        self.order.auth_customer_id,
+                        row.classes_id,
+                        row.ClassDate,
+                        online_booking=class_online_booking,
+                        invoice=False,
+                        booking_status=class_booking_status,
+                    )
 
                 if create_invoice:
                     invoice.item_add_class_from_order(row, result['caID'])

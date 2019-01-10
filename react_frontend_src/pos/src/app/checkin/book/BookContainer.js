@@ -13,13 +13,14 @@ const mapStateToProps = state =>
     ({
         app: state.app,
         options: state.checkin.book,
-        memberships: state.customers.memberships
+        memberships: state.customers.memberships,
+        school_memberships: state.shop.school.memberships
     })
 
 const mapDispatchToProps = dispatch =>
     ({        
-        checkinCustomer(cuID, clsID, data) {
-            dispatch(checkinBookOperations.checkinCustomer(cuID, clsID, data))
+        checkinCustomer(cuID, clsID, data, history) {
+            dispatch(checkinBookOperations.checkinCustomer(cuID, clsID, data, history))
         },
         fetchBookingOptions(clsID, cuID) {
             dispatch(checkinBookOperations.fetchBookingOptions(clsID, cuID))

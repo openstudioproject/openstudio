@@ -1,3 +1,5 @@
+import { withRouter } from 'react-router'
+
 import {
     requestCheckinBookingOptions as request_booking_options,
     receiveCheckinBookingOptions as receive_booking_options,
@@ -40,7 +42,7 @@ const fetchBookingOptions = (clsID, cuID) => {
       }
   }
 
-const checkinCustomer = (cuID, clsID, data) => {
+const checkinCustomer = (cuID, clsID, data, history) => {
       return dispatch => {
           dispatch(requestCheckinCustomer())
 
@@ -56,6 +58,9 @@ const checkinCustomer = (cuID, clsID, data) => {
           axios_os.post(OS_API.CHECKIN_BOOKING_CREATE, fd)
           .then(function(response) {
               dispatch(receiveCheckinCustomer(response.data))
+              if (!response.data.error) {
+                  history.push(`/checkin/attendance/${clsID}`)
+              }
           })
           .catch(function (error) {
               console.log(error)
