@@ -245,10 +245,7 @@ class OsSchedulerTasks:
 
         renewed = 0
 
-        print db().select(db.customers_subscriptions.ALL)
-
         for row in rows:
-            print row
             new_cm_start = row.Enddate + datetime.timedelta(days=1)
 
             # Check if a subscription will be active next month for customer
@@ -260,8 +257,6 @@ class OsSchedulerTasks:
                 continue
 
             # Ok all good, continue
-            print 'still here'
-            print  customer.has_subscription_on_date(firstdaynextmonth, from_cache=False)
             if customer.has_subscription_on_date(firstdaynextmonth, from_cache=False):
                 print 'subscription found'
                 new_cm_start = row.Enddate + datetime.timedelta(days=1)
@@ -277,9 +272,10 @@ class OsSchedulerTasks:
                 )
 
                 renewed += 1
-            else:
-                print 'no subscription'
-            print renewed
+            # else:
+            #
+            #     print 'no subscription'
+            # print renewed
 
         ##
         # For scheduled tasks db connection has to be committed manually
