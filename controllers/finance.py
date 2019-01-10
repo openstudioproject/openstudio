@@ -2095,7 +2095,14 @@ def cashbook():
     :return:
     """
     response.title = T('Cash book')
-    response.subtitle = T('Daily')
+
+    if session.finance_cashbook_date:
+        date = session.finance_cashbook_date
+    else:
+        date = TODAY_LOCAL
+        session.finance_cashbook_date = date
+
+    response.subtitle = SPAN(T("c_finance_cashbook_subtitle"), ': ', date.strftime(DATE_FORMAT))
     response.view = 'general/only_content_no_box.html'
 
     content = 'hello world'
