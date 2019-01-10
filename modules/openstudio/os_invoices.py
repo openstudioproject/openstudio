@@ -280,7 +280,6 @@ class Invoices:
     def list_invoices(self,
                       cuID=None,
                       csID=None,
-                      cmID=None,
                       search_enabled=False,
                       group_filter_enabled=False,
                       only_teacher_credit_invoices=False,
@@ -348,8 +347,6 @@ class Invoices:
 
         if cuID:
             query &= (db.invoices_customers.auth_customer_id == cuID)
-        if cmID:
-            query &= (db.invoices_customers_memberships.customers_memberships_id == cmID)
         if csID:
             left.extend([
                 db.invoices_items.on(
