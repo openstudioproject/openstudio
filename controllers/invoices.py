@@ -365,10 +365,10 @@ def edit():
                     _class='col-md-6'),
                 DIV(DIV(DIV(H3(T("Link to invoice in customer profile"), _class='box-title'),
                             _class='box-header'),
-                        DIV(URL('profile', 'invoice', vars={'iID': iID}, scheme=True, host=True), BR(),
+                        DIV(DIV(URL('profile', 'invoice', vars={'iID': iID}, scheme=True, host=True),
+                                _class='well'),
                             SPAN(T("This is a direct link to the invoice in the profile of this customer."), BR(),
-                                 T(
-                                     "Please note that only the customer linked to this invoice will be able to view it after logging in."),
+                                 T("Please note that only the customer linked to this invoice will be able to view it after logging in."),
                                  _class="text-muted"),
                             _class='box-body'),
                         _class='box box-primary'),
