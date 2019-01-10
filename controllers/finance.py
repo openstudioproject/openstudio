@@ -2094,7 +2094,7 @@ def cashbook():
 
     :return:
     """
-    response.title = T('Cash book')
+    response.title = T('c_finance_cashbook_title')
 
     if session.finance_cashbook_date:
         date = session.finance_cashbook_date
