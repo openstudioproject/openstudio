@@ -480,14 +480,12 @@ class Order:
                 )
 
                 if create_invoice:
-                    invoice.link_item_to_customer_membership(cmID)
-
-                    # This will also add the registration fee if required.
                     cm = CustomerMembership(cmID)
 
                     # Check if price exists and > 0:
                     if sme.row.Price:
-                        invoice.item_add_membership(cmID)
+                        iiID = invoice.item_add_membership(cmID)
+                        invoice.link_item_to_customer_membership(cmID, iiID)
 
             # Check for workshop
             if row.workshops_products_id:

@@ -870,7 +870,7 @@ class Invoice:
             accounting_costcenters_id = sm.row.accounting_costcenters_id
         )
 
-        self.link_item_to_customer_membership(cmID)
+        self.link_item_to_customer_membership(cmID, iiID)
         # This calls self.on_update()
         self.set_amounts()
 

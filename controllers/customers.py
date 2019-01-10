@@ -6507,12 +6507,16 @@ def memberships():
     table = TABLE(header, _class='table table-hover table-striped')
 
     left = [
-        db.invoices_customers_memberships.on(
-            db.invoices_customers_memberships.customers_memberships_id ==
+        db.invoices_items_customers_memberships.on(
+            db.invoices_items_customers_memberships.customers_memberships_id ==
             db.customers_memberships.id
         ),
+        db.invoices_items.on(
+            db.invoices_items_customers_memberships.invoices_items_id ==
+            db.invoices_items.id
+        ),
         db.invoices.on(
-            db.invoices_customers_memberships.invoices_id ==
+            db.invoices_items.invoices_id ==
             db.invoices.id
         )
     ]
