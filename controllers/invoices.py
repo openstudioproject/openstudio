@@ -769,7 +769,8 @@ def edit_get_customer_info(invoice, form):
     link_customer = ''
     cuID = invoice.get_linked_customer_id()
     if cuID:
-        link_customer = A(T('Customer profile'),
+        link_customer = A(os_gui.get_fa_icon('fa-external-link'), ' ',
+                          T('Customer profile'),
                           _href=URL('customers', 'edit', args=cuID))
 
 
