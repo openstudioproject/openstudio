@@ -2222,7 +2222,7 @@ def tickets_list_customers_get_list(table,
         Append customers to table
     """
     wh = WorkshopsHelper()
-    db_icwspc = db.invoices_workshops_products_customers
+    db_iicwspc = db.invoices_items_workshops_products_customers
 
     query = (db.workshops_products_customers.workshops_products_id == wspID)
     rows = db(query).select(
@@ -2240,9 +2240,13 @@ def tickets_list_customers_get_list(table,
                               db.auth_user.id),
               # db.invoices.on(db.invoices.workshops_products_customers_id ==
               #                db.workshops_products_customers.id)
-              db.invoices_workshops_products_customers.on(
-                  db_icwspc.workshops_products_customers_id == db.workshops_products_customers.id),
-              db.invoices.on(db_icwspc.invoices_id == db.invoices.id)],
+              db.invoices_items_workshops_products_customers.on(
+                  db_iicwspc.workshops_products_customers_id == db.workshops_products_customers.id),
+              db.invoices_items.on(
+                  db_iicwspc.invoices_items_id ==
+                  db.invoices_items.id
+              ),
+              db.invoices.on(db.invoices_items.invoices_id == db.invoices.id)],
         orderby=db.workshops_products_customers.Cancelled | \
                 db.workshops_products_customers.Waitinglist | \
                 db.auth_user.display_name)

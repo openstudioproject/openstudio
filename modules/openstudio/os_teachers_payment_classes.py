@@ -93,12 +93,16 @@ class TeachersPaymentClasses:
                 db.teachers_payment_classes.classes_id ==
                 db.classes.id
             ),
-            db.invoices_teachers_payment_classes.on(
-                db.invoices_teachers_payment_classes.teachers_payment_classes_id ==
+            db.invoices_items_teachers_payment_classes.on(
+                db.invoices_items_teachers_payment_classes.teachers_payment_classes_id ==
                 db.teachers_payment_classes.id
             ),
+            db.invoices_items.on(
+                db.invoices_items_teachers_payment_classes.invoices_items_id ==
+                db.invoices_items.id
+            ),
             db.invoices.on(
-                db.invoices_teachers_payment_classes.invoices_id ==
+                db.invoices_items.invoices_id ==
                 db.invoices.id
             )
         ]
@@ -123,7 +127,7 @@ class TeachersPaymentClasses:
         rows = db(query).select(
             db.teachers_payment_classes.ALL,
             db.classes.ALL,
-            db.invoices_teachers_payment_classes.ALL,
+            db.invoices_items_teachers_payment_classes.ALL,
             db.invoices.ALL,
             left=left,
             limitby=limitby,
@@ -211,7 +215,7 @@ class TeachersPaymentClasses:
         """
         Display claim attachments in a modal
         """
-        if not row.invoices_teachers_payment_classes.id:
+        if not row.invoices_items_teachers_payment_classes.id:
             return ''
 
         T = current.T

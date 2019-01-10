@@ -1456,10 +1456,13 @@ def classcards():
                       'customers_classcards.Note' : 20}
 
     left = [
-        db.invoices_customers_classcards.on(
-            db.invoices_customers_classcards.customers_classcards_id ==
+        db.invoices_items_customers_classcards.on(
+            db.invoices_items_customers_classcards.customers_classcards_id ==
             db.customers_classcards.id),
-        db.invoices.on(db.invoices_customers_classcards.invoices_id ==
+        db.invoices_items.on(
+            db.invoices_items_customers_classcards.invoices_items_id ==
+            db.invoices_items.id),
+        db.invoices.on(db.invoices_items.invoices_id ==
                        db.invoices.id) ]
 
     links = [ dict(header=T('Classes'), body=classcards_count_classes),
@@ -2939,8 +2942,14 @@ def subscription_add():
 
     crud.messages.submit_button = T("Save")
     crud.messages.record_created = T("Added subscription")
+    crud.settings.formstyle = "bootstrap3_stacked"
     crud.settings.create_next = return_url
-    crud.settings.create_onaccept = [subscriptions_clear_cache, subscription_add_add_credits]
+    crud.settings.create_onaccept = [
+        subscriptions_clear_cache,
+        subscription_add_add_credits,
+        subscription_add_create_invoice
+
+    ]
     form = crud.create(db.customers_subscriptions)
 
     element_form = form.element('form')
@@ -2952,10 +2961,11 @@ def subscription_add():
 
     submit = form.element('input[type=submit]')
 
-    subscr_back = os_gui.get_button('back_bs', URL('subscriptions', vars={'cuID':customers_id}))
-    content = DIV(subscr_back, form)
-
-    back = os_gui.get_button("back", return_url, _class='')
+    back = os_gui.get_button('back', URL('subscriptions', vars={'cuID':customers_id}))
+    content = DIV(
+        H4(T("Add subscription")), BR(),
+        form
+    )
 
     menu = customers_get_menu(customers_id, 'subscriptions')
 
@@ -2971,6 +2981,34 @@ def subscription_add_add_credits(form):
 
     cs = CustomerSubscription(csID)
     cs.add_credits_month(date.year, date.month)
+
+
+def subscription_add_create_invoice(form):
+    """
+    Create invoice when adding a subscription
+    """
+    csID = form.vars.id
+    date = form.vars.Startdate
+    year = date.year
+    month = date.month
+
+    igpt = db.invoices_groups_product_types(ProductType='subscription')
+    igID = igpt.invoices_groups_id
+
+    iID = db.invoices.insert(
+        invoices_groups_id=igID,
+        payment_methods_id=form.vars.payment_methods_id,
+        customers_subscriptions_id=csID,
+        SubscriptionYear=year,
+        SubscriptionMonth=month,
+        Description=T("Subscription"),
+        Status='sent'
+    )
+
+    invoice = Invoice(iID)
+    invoice.link_to_customer(request.vars['cuID'])
+    iiID = invoice.item_add_subscription(csID, year, month)
+    invoice.link_item_to_customer_subscription(csID, iiID)
 
 
 @auth.requires_login()
@@ -4728,7 +4766,6 @@ def events():
     # To redirect back here after sending info mail
     session.workshops_ticket_resend_info_mail = 'customers_events'
 
-
     session.workshops_payment_back = 'customer'
     customer = Customer(cuID)
     response.title = customer.get_name()
@@ -6469,12 +6506,16 @@ def memberships():
     table = TABLE(header, _class='table table-hover table-striped')
 
     left = [
-        db.invoices_customers_memberships.on(
-            db.invoices_customers_memberships.customers_memberships_id ==
+        db.invoices_items_customers_memberships.on(
+            db.invoices_items_customers_memberships.customers_memberships_id ==
             db.customers_memberships.id
         ),
+        db.invoices_items.on(
+            db.invoices_items_customers_memberships.invoices_items_id ==
+            db.invoices_items.id
+        ),
         db.invoices.on(
-            db.invoices_customers_memberships.invoices_id ==
+            db.invoices_items.invoices_id ==
             db.invoices.id
         )
     ]

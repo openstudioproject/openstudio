@@ -2472,6 +2472,7 @@ def financial_invoices_groups_default_edit():
     crud.messages.submit_button = T("Save")
     crud.messages.record_created = T("Saved")
     crud.messages.record_updated = T("Saved")
+    crud.settings.formstyle = 'bootstrap3_stacked'
     crud.settings.create_next = return_url
     crud.settings.update_next = return_url
     crud.settings.update_deletable = False

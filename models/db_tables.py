@@ -3806,12 +3806,26 @@ def define_payment_batches_exports():
     )
 
 
+# Deprecated from 2019.02.x
 def define_invoices_workshops_products_customers():
     """
         Table to link workshop products to invoices
     """
     db.define_table('invoices_workshops_products_customers',
         Field('invoices_id', db.invoices,
+            readable=False,
+            writable=False),
+        Field('workshops_products_customers_id', db.workshops_products_customers,
+            readable=False,
+            writable=False))
+
+
+def define_invoices_items_workshops_products_customers():
+    """
+        Table to link workshop products to invoices
+    """
+    db.define_table('invoices_items_workshops_products_customers',
+        Field('invoices_items_id', db.invoices_items,
             readable=False,
             writable=False),
         Field('workshops_products_customers_id', db.workshops_products_customers,
@@ -3832,6 +3846,7 @@ def define_invoices_customers():
               label=T('Customer')))
 
 
+# Deprecated from 2019.02.x
 def define_invoices_customers_memberships():
     """
         Table to link customer memberships to invoices
@@ -3845,6 +3860,20 @@ def define_invoices_customers_memberships():
             writable=False))
 
 
+def define_invoices_items_customers_memberships():
+    """
+        Table to link customer memberships to invoice items
+    """
+    db.define_table('invoices_items_customers_memberships',
+        Field('invoices_items_id', db.invoices_items,
+            readable=False,
+            writable=False),
+        Field('customers_memberships_id', db.customers_memberships,
+            readable=False,
+            writable=False))
+
+
+# Deprecated from 2019.02.x
 def define_invoices_customers_subscriptions():
     """
         Table to link customer subscriptions to invoices
@@ -3858,6 +3887,20 @@ def define_invoices_customers_subscriptions():
             writable=False))
 
 
+def define_invoices_items_customers_subscriptions():
+    """
+        Table to link customer subscriptions to invoices
+    """
+    db.define_table('invoices_items_customers_subscriptions',
+        Field('invoices_items_id', db.invoices_items,
+            readable=False,
+            writable=False),
+        Field('customers_subscriptions_id', db.customers_subscriptions,
+            readable=False,
+            writable=False))
+
+
+# Deprecated from 2019.02.x
 def define_invoices_customers_classcards():
     """
         Table to link customer classcards to invoices
@@ -3871,6 +3914,20 @@ def define_invoices_customers_classcards():
             writable=False))
 
 
+def define_invoices_items_customers_classcards():
+    """
+        Table to link customer classcards to invoice items
+    """
+    db.define_table('invoices_items_customers_classcards',
+        Field('invoices_items_id', db.invoices_items,
+            readable=False,
+            writable=False),
+        Field('customers_classcards_id', db.customers_classcards,
+            readable=False,
+            writable=False))
+
+
+# Deprecated from 2019.02.x
 def define_invoices_employee_claims():
     """
         Table to link employee claims to invoices
@@ -3886,12 +3943,44 @@ def define_invoices_employee_claims():
     )
 
 
+def define_invoices_items_employee_claims():
+    """
+        Table to link employee claims to invoices items
+    """
+    db.define_table('invoices_items_employee_claims',
+        Field('invoices_items_id', db.invoices_items,
+              readable=False,
+              writable=False),
+        Field('employee_claims_id', db.employee_claims,
+              readable= False,
+              writable = False,
+              label=T('Employee Expense'))
+    )
+
+
+# Deprecated from 2019.02.x
 def define_invoices_teachers_payment_classes():
     """
         Table to link teacher payment classes to invoices
     """
     db.define_table('invoices_teachers_payment_classes',
         Field('invoices_id', db.invoices,
+            readable=False,
+            writable=False),
+        Field('teachers_payment_classes_id', db.teachers_payment_classes,
+              readable= False,
+              writable = False,
+              label=T('Teacher payment class')
+              )
+    )
+
+
+def define_invoices_items_teachers_payment_classes():
+    """
+        Table to link teacher payment classes to invoice items
+    """
+    db.define_table('invoices_items_teachers_payment_classes',
+        Field('invoices_items_id', db.invoices_items,
             readable=False,
             writable=False),
         Field('teachers_payment_classes_id', db.teachers_payment_classes,
@@ -4010,12 +4099,6 @@ def define_invoices():
                               '%(Name)s',
                               zero=T("Please select...")),
             label=T('Invoice group')),
-        Field('auth_customer_id', db.auth_user, # Deprecated from 2018.2 onwards (only used for migrations)
-            readable=False,
-            writable=False,
-            represent=lambda value, row: A(db.auth_user(value).display_name,
-                                           _href=URL('customers', 'edit', args=value, extension='')) if value else '',
-            label=T('CustomerID')),
         Field('payment_methods_id', db.payment_methods,
             requires=IS_EMPTY_OR(
                      IS_IN_DB(db,'payment_methods.id','%(Name)s',
@@ -4023,22 +4106,6 @@ def define_invoices():
                               zero=T("Not set"))),
             represent=lambda value, row: payment_methods_dict.get(value),
             label=T("Payment method")),
-        Field('customers_subscriptions_id', db.customers_subscriptions, # Deprecated from 2018.2 onwards (only used for migrations)
-            readable=False,
-            writable=False,
-            default=None),
-        Field('customers_classcards_id', db.customers_classcards, # Depricated from 3.03 onwards
-            readable=False,
-            writable=False,
-            default=None),
-        Field('classes_attendance_id', db.classes_attendance, # Depricated from 3.03 onwards
-            readable=False,
-            writable=False,
-            default=None),
-        Field('workshops_products_customers_id', db.workshops_products_customers, # Depricated from 3.03 onwards
-            readable=False,
-            writable=False,
-            default=None),
         Field('SubscriptionMonth', 'integer',
             readable=False,
             writable=False,
@@ -6329,6 +6396,12 @@ define_invoices_groups_product_types()
 define_invoices()
 define_invoices_amounts()
 define_invoices_items()
+define_invoices_items_customers_classcards()
+define_invoices_items_employee_claims()
+define_invoices_items_customers_memberships()
+define_invoices_items_customers_subscriptions()
+define_invoices_items_teachers_payment_classes()
+define_invoices_items_workshops_products_customers()
 define_invoices_payments()
 define_invoices_workshops_products_customers()
 define_invoices_customers_classcards()

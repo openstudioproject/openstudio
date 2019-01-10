@@ -562,7 +562,7 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         db = current.db
         TODAY_LOCAL = current.TODAY_LOCAL
 
-        db_icwspc = db.invoices_workshops_products_customers
+        db_iicwspc = db.invoices_items_workshops_products_customers
 
 
         orderby = ~db.workshops.Startdate
@@ -583,10 +583,14 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
                 db.workshops_products_customers.workshops_products_id),
                 db.workshops.on(db.workshops_products.workshops_id == \
                                 db.workshops.id),
-                db.invoices_workshops_products_customers.on(
-                    db_icwspc.workshops_products_customers_id ==
+                db.invoices_items_workshops_products_customers.on(
+                    db_iicwspc.workshops_products_customers_id ==
                     db.workshops_products_customers.id),
-                db.invoices.on(db_icwspc.invoices_id == db.invoices.id)
+                db.invoices_items.on(
+                    db_iicwspc.invoices_items_id ==
+                    db.invoices_items.id
+                ),
+                db.invoices.on(db.invoices_items.invoices_id == db.invoices.id)
             ],
             orderby=~db.workshops.Startdate)
 
