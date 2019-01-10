@@ -3958,12 +3958,29 @@ def define_invoices_items_employee_claims():
     )
 
 
+# Deprecated from 2019.02.x
 def define_invoices_teachers_payment_classes():
     """
         Table to link teacher payment classes to invoices
     """
     db.define_table('invoices_teachers_payment_classes',
         Field('invoices_id', db.invoices,
+            readable=False,
+            writable=False),
+        Field('teachers_payment_classes_id', db.teachers_payment_classes,
+              readable= False,
+              writable = False,
+              label=T('Teacher payment class')
+              )
+    )
+
+
+def define_invoices_items_teachers_payment_classes():
+    """
+        Table to link teacher payment classes to invoice items
+    """
+    db.define_table('invoices_items_teachers_payment_classes',
+        Field('invoices_items_id', db.invoices_items,
             readable=False,
             writable=False),
         Field('teachers_payment_classes_id', db.teachers_payment_classes,
@@ -6383,6 +6400,7 @@ define_invoices_items_customers_classcards()
 define_invoices_items_employee_claims()
 define_invoices_items_customers_memberships()
 define_invoices_items_customers_subscriptions()
+define_invoices_items_teachers_payment_classes()
 define_invoices_items_workshops_products_customers()
 define_invoices_payments()
 define_invoices_workshops_products_customers()
