@@ -867,9 +867,9 @@ def define_accounting_cashbooks_balance():
     except AttributeError:
         auth_user_id_default = None  # default to None when not signed in
 
-    db.define_table('accounting_cashbooks_items',
+    db.define_table('accounting_cashbooks_balance',
         Field('BookingDate', 'date'),
-        Field('Type',
+        Field('BalanceType',
             default='opening',
             requires=IS_IN_SET([
               ['opening', T("Opening balance")]
@@ -893,9 +893,9 @@ def define_accounting_cashbooks_balance():
 def define_accounting_cashbooks_items():
     db.define_table('accounting_cashbooks_items',
         Field('BookingDate', 'date'),
-        Field('Type',
+        Field('ItemType',
             requires=IS_IN_SET([
-              ['debit', T("Debit / In")]
+              ['debit', T("Debit / In")],
               ['credit', T("Credit / Out")]
             ])),
         Field('Description'),
