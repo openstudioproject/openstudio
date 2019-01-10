@@ -2107,9 +2107,53 @@ def cashbook():
 
     content = 'hello world'
 
+    header_tools = DIV(
+        cashbook_get_day_chooser(date)
+    )
+
     return dict(
         content=content,
+        header_tools=header_tools
     )
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'accounting_cashbooks'))
+def cashbook_set_date():
+    """
+    Set date for cashbook
+    :return:
+    """
+    from general_helpers import datestr_to_python
+
+    date_formatted = request.vars['date']
+    date = datestr_to_python(DATE_FORMAT, request.vars['date'])
+
+    session.finance_cashbook_date = date
+
+    redirect(URL('cashbook'))
+
+
+def cashbook_get_day_chooser(date):
+    """
+    Set day for cashbook
+    :param date: datetime.date
+    :return: HTML prev/next buttons
+    """
+    yesterday = (date - datetime.timedelta(days=1)).strftime(DATE_FORMAT)
+    tomorrow = (date + datetime.timedelta(days=1)).strftime(DATE_FORMAT)
+
+    link = 'cashbook_set_date'
+    url_prev = URL(link, vars={'date': yesterday})
+    url_next = URL(link, vars={'date': tomorrow})
+
+    previous = A(I(_class='fa fa-angle-left'),
+                 _href=url_prev,
+                 _class='btn btn-default')
+    nxt = A(I(_class='fa fa-angle-right'),
+            _href=url_next,
+            _class='btn btn-default')
+
+    return DIV(previous, nxt, _class='btn-group pull-right')
 
 
 
