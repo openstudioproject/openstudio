@@ -120,3 +120,16 @@ def upgrade_to_201902():
             invoices_items_id = item_row.id,
             employee_claims_id = row.employee_claims_id
         )
+
+    # Teacher payment classes
+    query = (db.invoices_teachers_payment_classes.id > 0)
+    rows = db(query).select(db.invoices_teachers_payment_classes.ALL)
+    for row in rows:
+        query = (db.invoices_items.invoices_id == row.invoices_id)
+        item_rows = db(query).select(db.invoices_items.id)
+        item_row = item_rows.first()
+
+        db.invoices_items_teachers_payment_classes.insert(
+            invoices_items_id = item_row.id,
+            teachers_payment_classes_id = row.teachers_payment_classes_id
+        )
