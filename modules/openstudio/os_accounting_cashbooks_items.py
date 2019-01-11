@@ -28,6 +28,9 @@ class AccountingCashbooksItems:
         :param date_until: datetime.date
         :return: HTML table
         """
+        from general_helpers import max_string_length
+        represent_float_as_amount = current.globalenv['represent_float_as_amount']
+
         T = current.T
         auth = current.auth
         rows = self.list(date_from, date_until, booking_type)
@@ -50,7 +53,9 @@ class AccountingCashbooksItems:
 
             table.append(TR(
                 TD(repr_row.BookingDate),
-                TD(repr_row.Description),
+                TD(max_string_length(repr_row.Description, 44),
+                   _title=repr_row.Description),
+                TD(repr_row.Amount),
                 TD(self._list_formatted_get_buttons(
                     row,
                     permission_edit,
@@ -58,6 +63,13 @@ class AccountingCashbooksItems:
             ))
 
             total += row.Amount
+
+        table.append(TFOOT(TR(
+            TH(),
+            TH(T("Total")),
+            TH(represent_float_as_amount(total)),
+            TH()
+        )))
 
         return dict(
             table=table,
@@ -81,12 +93,12 @@ class AccountingCashbooksItems:
         if permission_edit:
             edit = os_gui.get_button(
                 'edit',
-                URL('settings', 'financial_costcenter_edit', vars={'acID': row.id})
+                URL('finance', 'cashbook_item_edit', vars={'aciID': row.id})
             )
             buttons.append(edit)
             archive = os_gui.get_button(
-                'archive',
-                URL('settings', 'financial_costcenter_archive', vars={'acID': row.id})
+                'delete_notext',
+                URL('settings', 'financial_costcenter_archive', vars={'acID': row.id}),
             )
             buttons.append(archive)
 

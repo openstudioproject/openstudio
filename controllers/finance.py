@@ -2111,8 +2111,8 @@ def cashbook():
     opening_balance = cashbook_get_opening_balance()
     content = DIV(
         opening_balance,
-        cashbook_get_debit(),
-        cashbook_get_credit()
+        cashbook_get_debit(date),
+        cashbook_get_credit(date)
     )
 
 
@@ -2127,9 +2127,30 @@ def cashbook():
     )
 
 
-def cashbook_get_debit():
+def cashbook_get_debit(date):
+    from openstudio.os_accounting_cashbooks_items import AccountingCashbooksItems
+    aci = AccountingCashbooksItems()
+    result = aci.list_formatted(date, date, 'debit')
+    aci_debit_list = result['table']
+    aci_debit_total = result['total']
+
+    additional_items = DIV(
+       DIV(H3("Additional items", _class='box-title'),
+           DIV(os_gui.get_button(
+               'add',
+                URL('cashbook_item_add', vars={'booking_type': 'debit'})),
+               _class='box-tools pull-right'
+           ),
+           _class='box-header'),
+       DIV(aci_debit_list, _class='box-body no-padding'),
+       _class='box box-success'
+    )
+
+
     debit_display = DIV(
+        additional_items,
         DIV(
+
             DIV('debit', _class='box-body'),
             _class='box box-success'
         ),
@@ -2139,7 +2160,10 @@ def cashbook_get_debit():
 
     return debit_display
 
-def cashbook_get_credit():
+
+
+
+def cashbook_get_credit(date):
 
     credit_display = DIV(
         DIV(
@@ -2345,7 +2369,7 @@ def cashbook_item_add():
     from openstudio.os_forms import OsForms
 
     date = session.finance_cashbook_date
-    db.accounting_items.BookingDate.default = date
+    db.accounting_cashbooks_items.BookingDate.default = date
 
     booking_type = request.vars['booking_type']
     if booking_type == 'credit':
@@ -2359,8 +2383,7 @@ def cashbook_item_add():
     response.subtitle = SPAN(
         T("c_finance_cashbook_subtitle"), ': ',
         date.strftime(DATE_FORMAT), ' - ',
-        T("c_finance_cashbook_item_add_subtitle" % subtitle_type)
-
+        T("c_finance_cashbook_item_add_subtitle") % subtitle_type
     )
     response.view = 'general/only_content.html'
 
@@ -2395,7 +2418,9 @@ def cashbook_item_edit():
 
     date = session.finance_cashbook_date
 
-    booking_type = request.vars['booking_type']
+    item = db.accounting_cashbooks_items(aciID)
+
+    booking_type = item.BookingType
     if booking_type == 'credit':
         subtitle_type = T("system_credit")
     elif booking_type == 'debit':
@@ -2405,7 +2430,7 @@ def cashbook_item_edit():
     response.subtitle = SPAN(
         T("c_finance_cashbook_subtitle"), ': ',
         date.strftime(DATE_FORMAT), ' - ',
-        T("c_finance_cashbook_item_edit_subtitle" % subtitle_type)
+        T("c_finance_cashbook_item_edit_subtitle") % subtitle_type
 
     )
     response.view = 'general/only_content.html'
