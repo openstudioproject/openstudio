@@ -2253,6 +2253,9 @@ def cashbook_get_balance(debit_total=0, credit_total=0):
     info.append(link_set_opening_balance)
 
     balance = (opening_balance + debit_total) - credit_total
+    balance_class = ''
+    if balance < 0:
+        balance_class = 'text-red bold'
 
     box = DIV(
         DIV(
@@ -2276,7 +2279,7 @@ def cashbook_get_balance(debit_total=0, credit_total=0):
                         _class='description-block'),
                     _class='col-md-3 border-right'),
                 DIV(DIV(H5(T("c_finance_cashbook_get_balance_total"), _class='description-header'),
-                        SPAN(represent_float_as_amount(balance), _class='description-text'),
+                        SPAN(represent_float_as_amount(balance), _class='description-text ' + balance_class),
                         _class='description-block'),
                     _class='col-md-3'),
                 _class='row'),
