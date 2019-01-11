@@ -902,17 +902,23 @@ def define_accounting_cashbooks_balance():
 
 def define_accounting_cashbooks_items():
     db.define_table('accounting_cashbooks_items',
-        Field('BookingDate', 'date'),
+        Field('BookingDate', 'date',
+            readable=False,
+            writable=False),
         Field('BookingType',
+            readable=False,
+            writable=False,
             requires=IS_IN_SET([
               ['debit', T("Debit / In")],
               ['credit', T("Credit / Out")]
             ])),
-        Field('Description'),
         Field('Amount', 'double',
             represent=represent_float_as_amount,
             default=0,
             label=T("Amount")),
+        Field('Description',
+              requires=IS_NOT_EMPTY(),
+              label=T("Description")),
     ),
 
 

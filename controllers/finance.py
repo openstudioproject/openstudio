@@ -2336,3 +2336,96 @@ def cashbook_opening_balance_edit():
                 save=result['submit'],
                 back=back)
 
+
+@auth.requires_login()
+def cashbook_item_add():
+    """
+    Set opening balance
+    """
+    from openstudio.os_forms import OsForms
+
+    date = session.finance_cashbook_date
+    db.accounting_items.BookingDate.default = date
+
+    booking_type = request.vars['booking_type']
+    if booking_type == 'credit':
+        db.accounting_cashbooks_items.BookingType.default = 'credit'
+        subtitle_type = T("system_credit")
+    elif booking_type == 'debit':
+        db.accounting_cashbooks_items.BookingType.default = 'debit'
+        subtitle_type = T("system_debit")
+
+    response.title = T('c_finance_cashbook_title')
+    response.subtitle = SPAN(
+        T("c_finance_cashbook_subtitle"), ': ',
+        date.strftime(DATE_FORMAT), ' - ',
+        T("c_finance_cashbook_item_add_subtitle" % subtitle_type)
+
+    )
+    response.view = 'general/only_content.html'
+
+    return_url = cashbook_opening_balance_get_return_url()
+
+
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_create(
+        db.accounting_cashbooks_items,
+        return_url,
+        message_record_created=T("system_saved")
+    )
+
+    form = result['form']
+    back = os_gui.get_button('back', return_url)
+
+    content = form
+
+    return dict(content=content,
+                save=result['submit'],
+                back=back)
+
+
+@auth.requires_login()
+def cashbook_item_edit():
+    """
+    Set opening balance
+    """
+    from openstudio.os_forms import OsForms
+
+    aciID = request.vars['aciID']
+
+    date = session.finance_cashbook_date
+
+    booking_type = request.vars['booking_type']
+    if booking_type == 'credit':
+        subtitle_type = T("system_credit")
+    elif booking_type == 'debit':
+        subtitle_type = T("system_debit")
+
+    response.title = T('c_finance_cashbook_title')
+    response.subtitle = SPAN(
+        T("c_finance_cashbook_subtitle"), ': ',
+        date.strftime(DATE_FORMAT), ' - ',
+        T("c_finance_cashbook_item_edit_subtitle" % subtitle_type)
+
+    )
+    response.view = 'general/only_content.html'
+
+    return_url = cashbook_opening_balance_get_return_url()
+
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_update(
+        db.accounting_cashbooks_items,
+        return_url,
+        aciID,
+        message_record_updated=T("system_saved"),
+    )
+
+    form = result['form']
+    back = os_gui.get_button('back', return_url)
+
+    content = form
+
+    return dict(content=content,
+                save=result['submit'],
+                back=back)
+
