@@ -15,7 +15,7 @@ class AccountingCashbooksItems:
 
         query = (db.accounting_cashbooks_items.BookingType == booking_type) & \
                 (db.accounting_cashbooks_items.BookingDate >= date_from) & \
-                (db.accounting_cashbooks_items.BookingDate <= date_until) 
+                (db.accounting_cashbooks_items.BookingDate <= date_until)
         rows = db(query).select(db.accounting_cashbooks_items.ALL,
                                 orderby=db.accounting_cashbooks_items.BookingDate)
 

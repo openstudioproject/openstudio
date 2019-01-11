@@ -2109,10 +2109,16 @@ def cashbook():
     response.view = 'general/only_content_no_box.html'
 
     opening_balance = cashbook_get_opening_balance()
+    debit = cashbook_get_debit(date)
+    debit_total = debit['total']
+
+    credit = cashbook_get_credit(date)
+    credit_total = credit['total']
+
     content = DIV(
         opening_balance,
-        cashbook_get_debit(date),
-        cashbook_get_credit(date)
+        debit['column_content'],
+        credit['column_content']
     )
 
     header_tools = DIV(
@@ -2126,73 +2132,89 @@ def cashbook():
 
 
 def cashbook_get_debit(date):
-    from openstudio.os_accounting_cashbooks_items import AccountingCashbooksItems
-    aci = AccountingCashbooksItems()
-    result = aci.list_formatted(date, date, 'debit')
-    aci_debit_list = result['table']
-    aci_debit_total = result['total']
+    """
+    Populate the credit column
+    :param date: datetime.date
+    :return: dict['total'] & dict['column_content']
+    """
+    total = 0
 
-    additional_items = DIV(
-       DIV(H3("Additional items", _class='box-title'),
-           DIV(os_gui.get_button(
-               'add',
-                URL('cashbook_item_add', vars={'booking_type': 'debit'})),
-               _class='box-tools pull-right'
-           ),
-           _class='box-header'),
-       DIV(aci_debit_list, _class='box-body no-padding'),
-       _class='box box-success'
-    )
+    additional_items = cashbook_get_additional_items(date, 'debit')
+    total += additional_items['total']
 
 
-    debit_display = DIV(
-        additional_items,
-        DIV(
-
-            DIV('debit', _class='box-body'),
-            _class='box box-success'
-        ),
+    column = DIV(
+        additional_items['box'],
         _class=' col-md-6 no-padding-left'
 
     )
 
-    return debit_display
+    return dict(
+        total = total,
+        column_content = column
+    )
 
 
 def cashbook_get_credit(date):
-    from openstudio.os_accounting_cashbooks_items import AccountingCashbooksItems
-    aci = AccountingCashbooksItems()
-    result = aci.list_formatted(date, date, 'credit')
-    aci_debit_list = result['table']
-    aci_debit_total = result['total']
+    """
+    Populate the credit column
+    :param date: datetime.date
+    :return: dict['total'] & dict['column_content']
+    """
+    total = 0
 
-    box_class = 'box-danger'
+    additional_items = cashbook_get_additional_items(date, 'credit')
+    total += additional_items['total']
 
-    additional_items = DIV(
-       DIV(H3("Additional items", _class='box-title'),
-           DIV(os_gui.get_button(
-               'add',
-                URL('cashbook_item_add', vars={'booking_type': 'credit'})),
-               _class='box-tools pull-right'
-           ),
-           _class='box-header'),
-       DIV(aci_debit_list, _class='box-body no-padding'),
-       _class='box ' + box_class
-    )
-
-
-    debit_display = DIV(
-        additional_items,
-        DIV(
-
-            DIV('credit', _class='box-body'),
-            _class='box ' + box_class
-        ),
+    column = DIV(
+        additional_items['box'],
         _class=' col-md-6 no-padding-left'
 
     )
 
-    return debit_display
+    return dict(
+        total = total,
+        column_content = column
+    )
+
+
+def cashbook_get_additional_items(date, booking_type):
+    """
+
+    :param date:
+    :return: dict
+    """
+    from openstudio.os_accounting_cashbooks_items import AccountingCashbooksItems
+
+    ##
+    # Additional Items
+    ##
+    aci = AccountingCashbooksItems()
+    result = aci.list_formatted(date, date, booking_type)
+    aci_debit_list = result['table']
+    aci_debit_total = result['total']
+
+    if booking_type == 'debit':
+        box_class = 'box-success'
+    elif booking_type == 'credit':
+        box_class = 'box-danger'
+
+    additional_items = DIV(
+        DIV(H3("Additional items", _class='box-title'),
+            DIV(os_gui.get_button(
+                'add',
+                URL('cashbook_item_add', vars={'booking_type': booking_type})),
+                _class='box-tools pull-right'
+            ),
+            _class='box-header'),
+        DIV(aci_debit_list, _class='box-body no-padding'),
+        _class='box ' + box_class
+    )
+
+    return dict(
+        box = additional_items,
+        total = aci_debit_total
+    )
 
 
 def cashbook_get_opening_balance(var=None):
