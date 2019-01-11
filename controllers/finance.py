@@ -2115,8 +2115,6 @@ def cashbook():
         cashbook_get_credit(date)
     )
 
-
-
     header_tools = DIV(
         cashbook_get_day_chooser(date)
     )
@@ -2162,17 +2160,39 @@ def cashbook_get_debit(date):
 
 
 def cashbook_get_credit(date):
+    from openstudio.os_accounting_cashbooks_items import AccountingCashbooksItems
+    aci = AccountingCashbooksItems()
+    result = aci.list_formatted(date, date, 'credit')
+    aci_debit_list = result['table']
+    aci_debit_total = result['total']
 
-    credit_display = DIV(
+    box_class = 'box-danger'
+
+    additional_items = DIV(
+       DIV(H3("Additional items", _class='box-title'),
+           DIV(os_gui.get_button(
+               'add',
+                URL('cashbook_item_add', vars={'booking_type': 'credit'})),
+               _class='box-tools pull-right'
+           ),
+           _class='box-header'),
+       DIV(aci_debit_list, _class='box-body no-padding'),
+       _class='box ' + box_class
+    )
+
+
+    debit_display = DIV(
+        additional_items,
         DIV(
+
             DIV('credit', _class='box-body'),
-            _class='box box-danger'
+            _class='box ' + box_class
         ),
-        _class=' col-md-6 no-padding-right'
+        _class=' col-md-6 no-padding-left'
 
     )
 
-    return credit_display
+    return debit_display
 
 
 def cashbook_get_opening_balance(var=None):
