@@ -2108,15 +2108,16 @@ def cashbook():
     )
     response.view = 'general/only_content_no_box.html'
 
-    opening_balance = cashbook_get_opening_balance()
     debit = cashbook_get_debit(date)
     debit_total = debit['total']
 
     credit = cashbook_get_credit(date)
     credit_total = credit['total']
 
+    balance = cashbook_get_balance(debit_total, credit_total)
+
     content = DIV(
-        opening_balance,
+        balance,
         debit['column_content'],
         credit['column_content']
     )
@@ -2186,9 +2187,6 @@ def cashbook_get_additional_items(date, booking_type):
     """
     from openstudio.os_accounting_cashbooks_items import AccountingCashbooksItems
 
-    ##
-    # Additional Items
-    ##
     aci = AccountingCashbooksItems()
     result = aci.list_formatted(date, date, booking_type)
     aci_debit_list = result['table']
@@ -2217,18 +2215,14 @@ def cashbook_get_additional_items(date, booking_type):
     )
 
 
-def cashbook_get_opening_balance(var=None):
+def cashbook_get_balance(debit_total=0, credit_total=0):
     """
 
     :return:
     """
     note = ''
-    header_link = A(
-        T("Set opening balance"),
-        _href=URL('cashbook_opening_balance_add'),
-        _class='btn btn-primary'
-    )
-    opening_balance = SPAN(CURRSYM, ' ', 0)
+    link_opening=URL('cashbook_opening_balance_add')
+    opening_balance = 0
     info = ''
 
     row = db.accounting_cashbooks_balance(
@@ -2238,16 +2232,12 @@ def cashbook_get_opening_balance(var=None):
 
     if row:
         note = row.Note
-        header_link = A(
-            T("Set opening balance"),
-            _href=URL('cashbook_opening_balance_edit', vars={'acbID': row.id}),
-            _class='btn btn-primary'
-        )
-        opening_balance = represent_float_as_amount(row.Amount)
+        link_opening=URL('cashbook_opening_balance_edit', vars={'acbID': row.id})
+        opening_balance = row.Amount
 
         au = db.auth_user(row.auth_user_id)
         info = SPAN(
-            T("Set by"), ' ',
+            T("c_finance_cashbook_get_balance_opening_balance_set_by"), ' ',
             A(au.display_name,
               _href=URL('customers', 'edit', args=[au.id])), ' ',
             # T("@"), ' ',
@@ -2255,14 +2245,44 @@ def cashbook_get_opening_balance(var=None):
             _class="text-muted"
         )
 
+    link_set_opening_balance = A(
+        T("c_finance_cashbook_get_balance_set_opening_balance"),
+        _href=link_opening,
+        _class='btn btn-link'
+    )
+
+    balance = (row.Amount + debit_total) - credit_total
+
     box = DIV(
-        DIV(H3(T("c_finance_cashbook_opening_balance"), ': ', opening_balance, _class='box-title'),
-            DIV(header_link, _class='box-tools pull-right'),
+        DIV(
+            H3(T("system_summary"), _class='box-title'),
+            DIV(info, _class='box-tools pull-right'),
             _class='box-header'
         ),
-        DIV(DIV(info, _class='pull-right'),
-            note,
+        DIV(note,
             _class='box-body'
+        ),
+        DIV(DIV(DIV(DIV(H5(T("c_finance_cashbook_opening_balance"), _class='description-header'),
+                        DIV(represent_float_as_amount(opening_balance), _class='description-text'),
+                        link_set_opening_balance,
+                        _class='description-block'),
+                    _class='col-md-3 border-right'),
+                DIV(DIV(H5(T("c_finance_cashbook_get_balance_debit"), _class='description-header'),
+                        SPAN(represent_float_as_amount(debit_total), _class='description-text'),
+                        BR(), BR(),
+                        _class='description-block'),
+                    _class='col-md-3 border-right'),
+                DIV(DIV(H5(T("c_finance_cashbook_get_balance_credit"), _class='description-header'),
+                        SPAN(represent_float_as_amount(credit_total), _class='description-text'),
+                        BR(), BR(),
+                        _class='description-block'),
+                    _class='col-md-3 border-right'),
+                DIV(DIV(H5(T("c_finance_cashbook_get_balance_total"), _class='description-header'),
+                        SPAN(represent_float_as_amount(balance), _class='description-text'),
+                        _class='description-block'),
+                    _class='col-md-3'),
+                _class='row'),
+            _class='box-footer'
         ),
         _class='box box-primary'
     )

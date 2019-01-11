@@ -393,7 +393,7 @@ def represent_float_as_amount(value, row=None):
     """
         Takes value and rounds it to a 2 decimal number.
     """
-    if value is None or not isinstance(value, float):
+    if value is None or (not isinstance(value, float) and not isinstance(value, int)):
         return ''
     else:
         return SPAN(CURRSYM, ' ', format(value, '.2f'))
