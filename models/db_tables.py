@@ -903,7 +903,7 @@ def define_accounting_cashbooks_balance():
 def define_accounting_cashbooks_items():
     db.define_table('accounting_cashbooks_items',
         Field('BookingDate', 'date'),
-        Field('ItemType',
+        Field('BookingType',
             requires=IS_IN_SET([
               ['debit', T("Debit / In")],
               ['credit', T("Credit / Out")]
