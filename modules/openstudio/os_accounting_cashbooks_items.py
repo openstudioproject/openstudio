@@ -37,6 +37,8 @@ class AccountingCashbooksItems:
 
         permission_edit = auth.has_membership(group_id='Admins') or \
                           auth.has_permission('update', 'accounting_cashbooks_items')
+        permission_delete = auth.has_membership(group_id='Admins') or \
+                            auth.has_permission('delete', 'accounting_cashbooks_items')
 
         header = THEAD(TR(
             TH(T("Date")),
@@ -59,6 +61,7 @@ class AccountingCashbooksItems:
                 TD(self._list_formatted_get_buttons(
                     row,
                     permission_edit,
+                    permission_delete
                 ))
             ))
 
@@ -79,7 +82,8 @@ class AccountingCashbooksItems:
 
     def _list_formatted_get_buttons(self,
                                     row,
-                                    permission_edit):
+                                    permission_edit,
+                                    permission_delete):
         """
         :param row:
         :param permission_edit:
@@ -87,6 +91,7 @@ class AccountingCashbooksItems:
         """
         from os_gui import OsGui
 
+        T = current.T
         os_gui = OsGui()
         buttons = DIV(_class='pull-right')
 
@@ -96,11 +101,18 @@ class AccountingCashbooksItems:
                 URL('finance', 'cashbook_item_edit', vars={'aciID': row.id})
             )
             buttons.append(edit)
-            archive = os_gui.get_button(
+        if permission_delete:
+            onclick_delete = \
+                "return confirm('" + \
+                T('m_openstudio_os_accounting_cashbooks_items_delete_confirm') + \
+                "');"
+
+            delete = os_gui.get_button(
                 'delete_notext',
-                URL('settings', 'financial_costcenter_archive', vars={'acID': row.id}),
+                URL('finance', 'cashbook_item_delete', vars={'acID': row.id}),
+                onclick=onclick_delete
             )
-            buttons.append(archive)
+            buttons.append(delete)
 
         return buttons
 

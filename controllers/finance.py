@@ -2161,8 +2161,6 @@ def cashbook_get_debit(date):
     return debit_display
 
 
-
-
 def cashbook_get_credit(date):
 
     credit_display = DIV(
@@ -2454,3 +2452,17 @@ def cashbook_item_edit():
                 save=result['submit'],
                 back=back)
 
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('delete', 'accounting_cashbooks_items'))
+def cashbook_item_delete():
+    """
+    Delete cashbook item
+    :return:
+    """
+    aciID = request.vars['aciID']
+
+    query = (db.accounting_cashbooks_items.id == aciID)
+    db(query).delete()
+
+    redirect(cashbook_opening_balance_get_return_url())

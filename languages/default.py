@@ -130,5 +130,6 @@
 'c_finance_cashbook_item_edit_subtitle': 'Edit %s item',
 'c_finance_cashbook_subtitle': 'Date',
 'c_finance_cashbook_title': 'Cash book',
+'m_openstudio_os_accounting_cashbooks_items_delete_confirm':'Do you really want to delete this cash book item?',
 'm_openstudio_os_scheduler_tasks_exact_online_sync_invoices_return': 'Synced Invoices (Success / Errors)'
 }
