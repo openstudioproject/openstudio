@@ -2252,7 +2252,7 @@ def cashbook_get_balance(debit_total=0, credit_total=0):
     )
     info.append(link_set_opening_balance)
 
-    balance = (row.Amount + debit_total) - credit_total
+    balance = (opening_balance + debit_total) - credit_total
 
     box = DIV(
         DIV(
