@@ -2145,6 +2145,7 @@ def cashbook_get_debit(date):
 
 
     column = DIV(
+        H4(T("c_finance_cashbook_get_debit_title")),
         additional_items['box'],
         _class=' col-md-6 no-padding-left'
 
@@ -2168,6 +2169,7 @@ def cashbook_get_credit(date):
     total += additional_items['total']
 
     column = DIV(
+        H4(T("c_finance_cashbook_get_credit_title")),
         additional_items['box'],
         _class=' col-md-6 no-padding-left'
 

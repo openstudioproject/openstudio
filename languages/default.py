@@ -130,6 +130,8 @@
 'c_finance_cashbook_get_balance_set_opening_balance': 'Set opening balance',
 'c_finance_cashbook_get_balance_total': 'Balance',
 'c_finance_cashbook_get_balance_not_set': 'Not set',
+'c_finance_cashbook_get_credit_title': 'Expenses',
+'c_finance_cashbook_get_debit_title': 'Income',
 'c_finance_cashbook_item_add_subtitle': 'Add %s item', 
 'c_finance_cashbook_item_edit_subtitle': 'Edit %s item',
 'c_finance_cashbook_opening_balance': 'Opening balance',
