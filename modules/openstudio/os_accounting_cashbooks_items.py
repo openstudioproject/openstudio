@@ -109,7 +109,7 @@ class AccountingCashbooksItems:
 
             delete = os_gui.get_button(
                 'delete_notext',
-                URL('finance', 'cashbook_item_delete', vars={'acID': row.id}),
+                URL('finance', 'cashbook_item_delete', vars={'aciID': row.id}),
                 onclick=onclick_delete
             )
             buttons.append(delete)
