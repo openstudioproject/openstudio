@@ -279,7 +279,7 @@ def edit_remodel_form(form,
                     form.custom.widget.company_tax_registration,
                     _class='col-md-6'),
                 ),
-            _class='col-md-6 no-padding-left no-padding-right'),
+            _class='col-md-6 no-padding-left no-padding-right')
 
     # business info
     div_studio_and_business = DIV(
