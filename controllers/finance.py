@@ -2187,9 +2187,9 @@ def cashbook_get_additional_items(date, booking_type):
     :param date:
     :return: dict
     """
-    from openstudio.os_accounting_cashbooks_items import AccountingCashbooksItems
+    from openstudio.os_accounting_additional_cashbooks_items import AccountingCashbooksAdditionalItems
 
-    aci = AccountingCashbooksItems()
+    acai = AccountingCashbooksItems()
     result = aci.list_formatted(date, date, booking_type)
     aci_debit_list = result['table']
     aci_debit_total = result['total']
@@ -2425,21 +2425,21 @@ def cashbook_opening_balance_edit():
 
 
 @auth.requires_login()
-def cashbook_item_add():
+def cashbook_additional_item_add():
     """
     Set opening balance
     """
     from openstudio.os_forms import OsForms
 
     date = session.finance_cashbook_date
-    db.accounting_cashbooks_items.BookingDate.default = date
+    db.accounting_cashbooks_additional_items.BookingDate.default = date
 
     booking_type = request.vars['booking_type']
     if booking_type == 'credit':
-        db.accounting_cashbooks_items.BookingType.default = 'credit'
+        db.accounting_cashbooks_additional_items.BookingType.default = 'credit'
         subtitle_type = T("system_credit")
     elif booking_type == 'debit':
-        db.accounting_cashbooks_items.BookingType.default = 'debit'
+        db.accounting_cashbooks_additional_items.BookingType.default = 'debit'
         subtitle_type = T("system_debit")
 
     response.title = T('c_finance_cashbook_title')
@@ -2455,7 +2455,7 @@ def cashbook_item_add():
 
     os_forms = OsForms()
     result = os_forms.get_crud_form_create(
-        db.accounting_cashbooks_items,
+        db.accounting_cashbooks_additional_items,
         return_url,
         message_record_created=T("system_saved")
     )
@@ -2477,11 +2477,11 @@ def cashbook_item_edit():
     """
     from openstudio.os_forms import OsForms
 
-    aciID = request.vars['aciID']
+    acaiID = request.vars['aciID']
 
     date = session.finance_cashbook_date
 
-    item = db.accounting_cashbooks_items(aciID)
+    item = db.accounting_cashbooks_additional_items(aciID)
 
     booking_type = item.BookingType
     if booking_type == 'credit':
@@ -2502,9 +2502,9 @@ def cashbook_item_edit():
 
     os_forms = OsForms()
     result = os_forms.get_crud_form_update(
-        db.accounting_cashbooks_items,
+        db.accounting_cashbooks_additional_items,
         return_url,
-        aciID,
+        acaiID,
         message_record_updated=T("system_saved"),
     )
 
@@ -2519,15 +2519,15 @@ def cashbook_item_edit():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('delete', 'accounting_cashbooks_items'))
+               auth.has_permission('delete', 'accounting_cashbooks_additional_items'))
 def cashbook_item_delete():
     """
     Delete cashbook item
     :return:
     """
-    aciID = request.vars['aciID']
+    aciaID = request.vars['aciaID']
 
-    query = (db.accounting_cashbooks_items.id == aciID)
+    query = (db.accounting_cashbooks_additional_items.id == aciaID)
     db(query).delete()
 
     redirect(cashbook_opening_balance_get_return_url())

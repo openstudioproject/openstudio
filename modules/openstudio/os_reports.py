@@ -110,6 +110,25 @@ class Reports:
         return query
 
 
+    def get_classes_revenue_summary_day(self, date):
+        """
+
+        :param date:
+        :return:
+        """
+        from os_class_schedule import ClassSchedule
+        # Get class schedule for days
+        cs = ClassSchedule(date)
+        schedule = cs.get_day_list()
+
+        for cls in schedule:
+            clsID = cls['ClassesID']
+            # Get revenue for each class
+            result = get_class_revenue_summary(clsID, date)
+
+
+
+
     def get_class_revenue_summary(self, clsID, date, quick_stats=True):
         """
         :param subscription_quick_stats: Boolean - use db.school_subscriptions.QuickStatsAmount or not
@@ -120,9 +139,9 @@ class Reports:
         cls = Class(clsID, date)
         class_prices = cls.get_prices()
 
-        print class_prices
-        print type(class_prices['trial_membership'])
-        print type(class_prices['trial'])
+        # print class_prices
+        # print type(class_prices['trial_membership'])
+        # print type(class_prices['trial'])
 
         data = {
             'subscriptions': {},

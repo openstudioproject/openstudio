@@ -13,11 +13,11 @@ class AccountingCashbooksItems:
         """
         db = current.db
 
-        query = (db.accounting_cashbooks_items.BookingType == booking_type) & \
-                (db.accounting_cashbooks_items.BookingDate >= date_from) & \
-                (db.accounting_cashbooks_items.BookingDate <= date_until)
-        rows = db(query).select(db.accounting_cashbooks_items.ALL,
-                                orderby=db.accounting_cashbooks_items.BookingDate)
+        query = (db.accounting_cashbooks_additional_items.BookingType == booking_type) & \
+                (db.accounting_cashbooks_additional_items.BookingDate >= date_from) & \
+                (db.accounting_cashbooks_additional_items.BookingDate <= date_until)
+        rows = db(query).select(db.accounting_cashbooks_additional_items.ALL,
+                                orderby=db.accounting_cashbooks_additional_items.BookingDate)
 
         return rows
 
@@ -38,9 +38,9 @@ class AccountingCashbooksItems:
         rows = self.list(date_from, date_until, booking_type)
 
         permission_edit = auth.has_membership(group_id='Admins') or \
-                          auth.has_permission('update', 'accounting_cashbooks_items')
+                          auth.has_permission('update', 'accounting_cashbooks_additional_items')
         permission_delete = auth.has_membership(group_id='Admins') or \
-                            auth.has_permission('delete', 'accounting_cashbooks_items')
+                            auth.has_permission('delete', 'accounting_cashbooks_additional_items')
 
         header = THEAD(TR(
             TH(T("Date")),
@@ -106,7 +106,7 @@ class AccountingCashbooksItems:
         if permission_delete:
             onclick_delete = \
                 "return confirm('" + \
-                T('m_openstudio_os_accounting_cashbooks_items_delete_confirm') + \
+                T('m_openstudio_os_accounting_cashbooks_additional_items_delete_confirm') + \
                 "');"
 
             delete = os_gui.get_button(

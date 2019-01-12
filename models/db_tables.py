@@ -900,8 +900,8 @@ def define_accounting_cashbooks_balance():
     )
 
 
-def define_accounting_cashbooks_items():
-    db.define_table('accounting_cashbooks_items',
+def define_accounting_cashbooks_additional_items():
+    db.define_table('accounting_cashbooks_additional_items',
         Field('BookingDate', 'date',
             readable=False,
             writable=False,
@@ -6348,7 +6348,7 @@ define_tax_rates()
 define_accounting_costcenters()
 define_accounting_glaccounts()
 define_accounting_cashbooks_balance()
-define_accounting_cashbooks_items()
+define_accounting_cashbooks_additional_items()
 
 define_school_memberships()
 define_school_subscriptions()

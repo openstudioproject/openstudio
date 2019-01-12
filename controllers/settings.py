@@ -1197,10 +1197,10 @@ def access_group_permissions():
                 ['accounting_cashbooks_balance-create', T("Set cash book opening balance")],
                 ['accounting_cashbooks_balance-update', T("Edit cash book opening balance")]
             ]],
-            ['accounting_cashbooks_items-read', T("View cash book items"), [
-                ['accounting_cashbooks_items-create', T("Set cash book items")],
-                ['accounting_cashbooks_items-update', T("Edit cash book items")],
-                ['accounting_cashbooks_items-delete', T("Delete cash book items")],
+            ['accounting_cashbooks_additional_items-read', T("View cash book additional items"), [
+                ['accounting_cashbooks_additional_items-create', T("Set cash book additional items")],
+                ['accounting_cashbooks_additional_items-update', T("Edit cash book additional items")],
+                ['accounting_cashbooks_additional_items-delete', T("Delete cash book additional items")],
             ]],
             ['payment_batches-read', T('View payment batches'), [
                 ['payment_batches-create', T('Add payment batches')],

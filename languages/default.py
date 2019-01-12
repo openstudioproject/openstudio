@@ -132,13 +132,13 @@
 'c_finance_cashbook_get_balance_not_set': 'Not set',
 'c_finance_cashbook_get_credit_title': 'Expenses',
 'c_finance_cashbook_get_debit_title': 'Income',
-'c_finance_cashbook_item_add_subtitle': 'Add %s item', 
-'c_finance_cashbook_item_edit_subtitle': 'Edit %s item',
+'c_finance_cashbook_additional_item_add_subtitle': 'Add %s item',
+'c_finance_cashbook_additional_item_edit_subtitle': 'Edit %s item',
 'c_finance_cashbook_opening_balance': 'Opening balance',
 'c_finance_cashbook_opening_balance_add_subtitle': 'Set opening balance',
 'c_finance_cashbook_opening_balance_edit_subtitle': 'Edit opening balance', 
 'c_finance_cashbook_subtitle': 'Date',
 'c_finance_cashbook_title': 'Cash book',
-'m_openstudio_os_accounting_cashbooks_items_delete_confirm':'Do you really want to delete this cash book item?',
+'m_openstudio_os_accounting_cashbooks_additional_items_delete_confirm':'Do you really want to delete this cash book item?',
 'm_openstudio_os_scheduler_tasks_exact_online_sync_invoices_return': 'Synced Invoices (Success / Errors)'
 }
