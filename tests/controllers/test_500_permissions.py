@@ -117,7 +117,7 @@ def test_customers_address_info(client, web2py):
     setup_permission_tests(web2py)
     populate_customers(web2py, 1)
 
-    url = '/customers/edit/1'
+    url = '/customers/edit/1001'
     client.get(url)
     assert client.status == 200
     assert "Insufficient privileges" in client.text
@@ -127,7 +127,6 @@ def test_customers_address_info(client, web2py):
     web2py.auth.add_permission(200, 'read', 'auth_user', 0)
     web2py.auth.add_permission(200, 'update', 'auth_user', 0)
     web2py.db.commit()
-
 
     str_check = "<label>Country</label>"
     client.get(url)

@@ -265,7 +265,8 @@ def edit_remodel_form(form,
                         _class='col-md-3'),
 
                 ),
-            _class='col-md-12 customers_edit_address_info')
+            _class='col-md-12 customers_edit_address_info'
+        )
 
         business_info = DIV(
             H3(form.custom.widget.business, ' ', T("Business"), _class='col-md-12'),
@@ -279,7 +280,8 @@ def edit_remodel_form(form,
                     form.custom.widget.company_tax_registration,
                     _class='col-md-6'),
                 ),
-            _class='col-md-6 no-padding-left no-padding-right')
+            _class='col-md-6 no-padding-left no-padding-right'
+        )
 
     # business info
     div_studio_and_business = DIV(

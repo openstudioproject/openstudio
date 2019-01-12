@@ -1581,10 +1581,6 @@ def access_group_permissions():
     for permission in permissions_list:
         form.append(append_table(permission))
 
-    # form.append(append_div(permission_list))
-
-    return_url = URL('access_groups')
-
     if form.process().accepted:
         for key in form.vars:
             (obj, name) = key.split('-')
@@ -1616,13 +1612,13 @@ def access_group_permissions():
 
                 # 0 means all records
                 auth.add_permission(group_id, name, obj, 0)
-        response.flash = T("Updated permissions")
-        session.flash = T("Updated permissions")
+        response.flash = T("Saved permissions")
+        session.flash = T("Saved permissions")
 
         # clear menu backend menu cache
         cache_clear_menu_backend()
         # redirect user
-        redirect(return_url)
+        redirect(URL(args=group_id))
 
     submenu = UL(_class='nav nav-tabs',
                  _id='os-menu-settings-permissions')
@@ -1655,6 +1651,7 @@ def access_group_permissions():
                       _class='nav-tabs-custom'),
                   _id='os-permissions')
 
+    return_url = URL('access_groups')
     back = os_gui.get_button('back', return_url)
 
     return dict(content=content, back=back, save=os_gui.get_submit_button('MainForm'))
