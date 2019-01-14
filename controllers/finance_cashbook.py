@@ -505,7 +505,7 @@ def get_debit_classes(date, list_type='balance'):
         TH(),
         TH(),
         TH(T('general_total')),
-        TH(represent_float_as_amount(revenue['balance']))
+        TH(represent_float_as_amount(total))
     )))
 
     box = DIV(
