@@ -525,7 +525,7 @@ def get_backend_menu():
             if user_helpers.check_read_permission('accounting_cashbooks', user_id):
                 submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Cash book'))),
                                 False,
-                                URL('finance', 'cashbook', extension='')))
+                                URL('finance_cashbook', 'index', extension='')))
 
             if user_helpers.check_read_permission('teachers_payment_classes', user_id):
                 submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Teacher payments'))),
