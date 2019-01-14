@@ -125,7 +125,7 @@ class Reports:
         revenue = {
             'data': [],
             'revenue_total': 0,
-            'teacher_payment_total': 0,
+            'teacher_payments': 0,
             'balance': 0
         }
 
@@ -147,7 +147,7 @@ class Reports:
             cls['Balance'] = (cls['RevenueTotal'] - cls['TeacherPayment'])
 
             revenue['revenue_total'] += cls['RevenueTotal']
-            revenue['teacher_payment_total'] += cls['TeacherPayment']
+            revenue['teacher_payments'] += cls['TeacherPayment']
             revenue['balance'] += cls['Balance']
 
             revenue['data'].append(cls)

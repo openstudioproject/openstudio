@@ -57,14 +57,20 @@ def get_debit(date):
     additional_items = get_additional_items(date, 'debit')
     total += additional_items['total']
 
-    classes = get_debit_classes(date)
-    total += classes['total']
+    # Class balance (total revenue - teacher payments)
+    classes_balance = get_debit_classes(date, 'balance')
+    total += classes_balance['total']
+
+    # Class teacher payments
+    teacher_payments = get_debit_classes(date, 'teacher_payments')
+    total += teacher_payments['total']
 
 
     column = DIV(
         H4(T("c_finance_cashbook_get_debit_title")),
         additional_items['box'],
-        classes['box'],
+        classes_balance['box'],
+        teacher_payments['box'],
         _class=' col-md-6'
 
     )
@@ -451,18 +457,25 @@ def additional_item_delete():
     redirect(index_return_url())
 
 
-def get_debit_classes(date):
+def get_debit_classes(date, list_type='balance'):
     """
-
-    :param date:
+    return a box and total of class profit or class revenue
+    :param list_type: one of 'revenue' or 'teacher_payments'
+    :param date: datetime.date
     :return:
     """
     from general_helpers import max_string_length
     from openstudio.os_reports import Reports
 
-
     reports = Reports()
     revenue = reports.get_classes_revenue_summary_day(session.finance_cashbook_date)
+
+    if list_type == 'balance':
+        total = revenue['revenue_total']
+        box_title = T("Class balance")
+    elif list_type == 'teacher_payments':
+        total = revenue['teacher_payments']
+        box_title = T("Teacher payments")
 
     header = THEAD(TR(
         TH(T("general_time")),
@@ -473,11 +486,16 @@ def get_debit_classes(date):
 
     table = TABLE(header, _class='table table-striped table-hover')
     for cls in revenue['data']:
+        if list_type == 'balance':
+            amount = cls['Balance']
+        elif list_type == 'teacher_payments':
+            amount = cls['TeacherPayment']
+
         tr = TR(
             TD(cls['Starttime']),
             TD(max_string_length(cls['Location'], 18)),
             TD(max_string_length(cls['ClassType'], 18)),
-            TD(represent_float_as_amount(cls['Balance']))
+            TD(represent_float_as_amount(amount))
         )
 
         table.append(tr)
@@ -491,15 +509,13 @@ def get_debit_classes(date):
     )))
 
     box = DIV(
-        DIV(H3(T("Class profit"), _class='box-title'), _class='box-header'),
+        DIV(H3(box_title, _class='box-title'), _class='box-header'),
         DIV(table, _class='box-body no-padding'),
         _class='box box-success',
     )
 
-
-
     return dict(
         box = box,
-        total = revenue['revenue_total']
+        total = total
     )
 
