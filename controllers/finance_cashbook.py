@@ -253,8 +253,8 @@ def get_day_chooser(date):
     return DIV(previous, today, nxt, _class='btn-group pull-right')
 
 
-def opening_balance_get_return_url(var=None):
-    return URL('cashbook')
+def index_return_url(var=None):
+    return URL('index')
 
 
 @auth.requires_login()
@@ -275,7 +275,7 @@ def opening_balance_add():
     )
     response.view = 'general/only_content.html'
 
-    return_url = opening_balance_get_return_url()
+    return_url = index_return_url()
 
     db.accounting_cashbooks_balance.BalanceDate.default = date
     db.accounting_cashbooks_balance.BalanceType.default = 'opening'
@@ -317,7 +317,7 @@ def opening_balance_edit():
     )
     response.view = 'general/only_content.html'
 
-    return_url = opening_balance_get_return_url()
+    return_url = index_return_url()
 
     os_forms = OsForms()
     result = os_forms.get_crud_form_update(
@@ -363,7 +363,7 @@ def additional_item_add():
     )
     response.view = 'general/only_content.html'
 
-    return_url = opening_balance_get_return_url()
+    return_url = index_return_url()
 
 
     os_forms = OsForms()
@@ -411,7 +411,7 @@ def additional_item_edit():
     )
     response.view = 'general/only_content.html'
 
-    return_url = opening_balance_get_return_url()
+    return_url = index_return_url()
 
     os_forms = OsForms()
     result = os_forms.get_crud_form_update(
@@ -443,4 +443,4 @@ def additional_item_delete():
     query = (db.accounting_cashbooks_additional_items.id == aciaID)
     db(query).delete()
 
-    redirect(opening_balance_get_return_url())
+    redirect(index_return_url())
