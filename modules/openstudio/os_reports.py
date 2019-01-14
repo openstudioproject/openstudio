@@ -596,3 +596,33 @@ class Reports:
                     revenue_ex_vat=revenue_ex_vat,
                     revenue_vat=revenue_vat)
 
+
+    def classcards_sold_summary_rows(self, date_from, date_until):
+        """
+
+        :param date_from: datetime.date
+        :param date_until: datetime.date
+        :return:
+        """
+        db = current.db
+
+        left = [
+            db.school_classcards.on(
+                db.customers_classcards.school_classcards_id ==
+                db.school_classcards.id
+            )
+        ]
+
+        count = db.customers_classcards.id.count()
+
+        query = (db.customers_classcards.Startdate >= date_from) & \
+                (db.customers_classcards.Startdate <= date_until)
+
+        rows = db(query).select(db.school_classcards.Name,
+                                db.school_classcards.Price,
+                                count,
+                                left=left,
+                                groupby=db.school_classcards.Name,
+                                orderby=db.school_classcards.Name)
+
+        return rows
