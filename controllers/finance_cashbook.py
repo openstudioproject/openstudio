@@ -16,7 +16,7 @@ def index():
         session.finance_cashbook_date = date
 
     response.subtitle = SPAN(
-        T('c_finance_cashbook_subtitle'), ': ',
+        T('Date'), ': ',
         date.strftime(DATE_FORMAT)
     )
     response.view = 'general/only_content_no_box.html'
@@ -75,7 +75,7 @@ def get_debit(date):
 
 
     column = DIV(
-        H4(T("c_finance_cashbook_get_debit_title")),
+        H4(T("Income")),
         additional_items['box'],
         classes_balance['box'],
         sold_memberships['box'],
@@ -103,7 +103,7 @@ def get_credit(date):
     total += additional_items['total']
 
     column = DIV(
-        H4(T("c_finance_cashbook_get_credit_title")),
+        H4(T("Income")),
         additional_items['box'],
         _class=' col-md-6'
 
@@ -139,7 +139,7 @@ def get_additional_items(date, booking_type):
        auth.has_permission('create', 'accounting_cashbooks_additional_items'):
         link_add = SPAN(
             SPAN(XML(" &bull; "), _class='text-muted'),
-            A(T("c_finance_cashbook_additional_item_add"),
+            A(T("Add item"),
               _href=URL('additional_item_add', vars={'booking_type': booking_type}))
         )
 
@@ -188,7 +188,7 @@ def index_get_balance(debit_total=0, credit_total=0):
 
         au = db.auth_user(row.auth_user_id)
         info = SPAN(
-            T("c_finance_cashbook_get_balance_opening_balance_set_by"), ' ',
+            T("Opening balance set by"), ' ',
             A(au.display_name,
               _href=URL('customers', 'edit', args=[au.id])), ' ',
             # T("@"), ' ',
@@ -198,7 +198,7 @@ def index_get_balance(debit_total=0, credit_total=0):
         )
 
     link_set_opening_balance = A(
-        T("c_finance_cashbook_get_balance_set_opening_balance"),
+        T("Set opening balance"),
         _href=link_opening,
     )
     info.append(link_set_opening_balance)
@@ -210,26 +210,26 @@ def index_get_balance(debit_total=0, credit_total=0):
 
     box = DIV(DIV(
         DIV(
-            H3(T("general_summary"), _class='box-title'),
+            H3(T("Summary"), _class='box-title'),
             DIV(info, _class='box-tools pull-right'),
             _class='box-header'
         ),
         DIV(note,
             _class='box-body'
         ),
-        DIV(DIV(DIV(DIV(H5(T("c_finance_cashbook_opening_balance"), _class='description-header'),
+        DIV(DIV(DIV(DIV(H5(T("Opening balance"), _class='description-header'),
                         DIV(represent_float_as_amount(opening_balance), _class='description-text'),
                         _class='description-block'),
                     _class='col-md-3 border-right'),
-                DIV(DIV(H5(T("c_finance_cashbook_get_balance_debit"), _class='description-header'),
+                DIV(DIV(H5(T("Income"), _class='description-header'),
                         SPAN(represent_float_as_amount(debit_total), _class='description-text'),
                         _class='description-block'),
                     _class='col-md-3 border-right'),
-                DIV(DIV(H5(T("c_finance_cashbook_get_balance_credit"), _class='description-header'),
+                DIV(DIV(H5(T("Expenses"), _class='description-header'),
                         SPAN(represent_float_as_amount(credit_total), _class='description-text'),
                         _class='description-block'),
                     _class='col-md-3 border-right'),
-                DIV(DIV(H5(T("c_finance_cashbook_get_balance_total"), _class='description-header'),
+                DIV(DIV(H5(T("Balance"), _class='description-header'),
                         SPAN(represent_float_as_amount(balance), _class='description-text ' + balance_class),
                         _class='description-block'),
                     _class='col-md-3'),
@@ -302,11 +302,11 @@ def opening_balance_add():
 
     date = session.finance_cashbook_date
 
-    response.title = T('c_finance_cashbook_title')
+    response.title = T('Cash book')
     response.subtitle = SPAN(
-        T("c_finance_cashbook_subtitle"), ': ',
+        T("Date"), ': ',
         date.strftime(DATE_FORMAT), ' - ',
-        T("c_finance_cashbook_opening_balance_add_subtitle")
+        T("Set opening balance")
 
     )
     response.view = 'general/only_content.html'
@@ -320,7 +320,7 @@ def opening_balance_add():
     result = os_forms.get_crud_form_create(
         db.accounting_cashbooks_balance,
         return_url,
-        message_record_created=T("general_saved")
+        message_record_created=T("Saved")
     )
 
     form = result['form']
@@ -344,11 +344,11 @@ def opening_balance_edit():
 
     date = session.finance_cashbook_date
 
-    response.title = T('c_finance_cashbook_title')
+    response.title = T('Cash book')
     response.subtitle = SPAN(
-        T("c_finance_cashbook_subtitle"), ': ',
+        T("Date"), ': ',
         date.strftime(DATE_FORMAT), ' - ',
-        T("c_finance_cashbook_opening_balance_edit_subtitle")
+        T("Edit opening balance")
 
     )
     response.view = 'general/only_content.html'
@@ -386,16 +386,16 @@ def additional_item_add():
     booking_type = request.vars['booking_type']
     if booking_type == 'credit':
         db.accounting_cashbooks_additional_items.BookingType.default = 'credit'
-        subtitle_type = T("general_credit")
+        subtitle_type = T("Income")
     elif booking_type == 'debit':
         db.accounting_cashbooks_additional_items.BookingType.default = 'debit'
-        subtitle_type = T("general_debit")
+        subtitle_type = T("Expense")
 
-    response.title = T('c_finance_cashbook_title')
+    response.title = T('Cash book')
     response.subtitle = SPAN(
-        T("c_finance_cashbook_subtitle"), ': ',
+        T("Date"), ': ',
         date.strftime(DATE_FORMAT), ' - ',
-        T("c_finance_cashbook_additional_item_add_subtitle") % subtitle_type
+        T("Add %s item") % subtitle_type
     )
     response.view = 'general/only_content.html'
 
@@ -406,7 +406,7 @@ def additional_item_add():
     result = os_forms.get_crud_form_create(
         db.accounting_cashbooks_additional_items,
         return_url,
-        message_record_created=T("general_saved")
+        message_record_created=T("Saved")
     )
 
     form = result['form']
@@ -434,15 +434,15 @@ def additional_item_edit():
 
     booking_type = item.BookingType
     if booking_type == 'credit':
-        subtitle_type = T("general_credit")
+        subtitle_type = T("Income")
     elif booking_type == 'debit':
-        subtitle_type = T("general_debit")
+        subtitle_type = T("Expense")
 
-    response.title = T('c_finance_cashbook_title')
+    response.title = T('Cash book')
     response.subtitle = SPAN(
-        T("c_finance_cashbook_subtitle"), ': ',
+        T("Date"), ': ',
         date.strftime(DATE_FORMAT), ' - ',
-        T("c_finance_cashbook_additional_item_edit_subtitle") % subtitle_type
+        T("Edit %s item") % subtitle_type
 
     )
     response.view = 'general/only_content.html'
@@ -454,7 +454,7 @@ def additional_item_edit():
         db.accounting_cashbooks_additional_items,
         return_url,
         acaiID,
-        message_record_updated=T("general_saved"),
+        message_record_updated=T("Saved"),
     )
 
     form = result['form']
@@ -503,10 +503,10 @@ def get_debit_classes(date, list_type='balance'):
         box_title = T("Teacher payments")
 
     header = THEAD(TR(
-        TH(T("general_time")),
-        TH(T("general_location")),
-        TH(T("general_classtype")),
-        TH(T("general_amount")),
+        TH(T("Time")),
+        TH(T("Location")),
+        TH(T("Classtype")),
+        TH(T("Amount")),
     ))
 
     table = TABLE(header, _class='table table-striped table-hover table-condensed')
@@ -529,7 +529,7 @@ def get_debit_classes(date, list_type='balance'):
     table.append(TFOOT(TR(
         TH(),
         TH(),
-        TH(T('general_total')),
+        TH(T('Total')),
         TH(represent_float_as_amount(total))
     )))
 
@@ -591,7 +591,7 @@ def get_debit_classcards(date):
     table.append(TFOOT(TR(
         TH(),
         TH(),
-        TH(T("general_total")),
+        TH(T("Total")),
         TH(represent_float_as_amount(total))
     )))
 
