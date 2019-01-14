@@ -504,7 +504,7 @@ def get_debit_classes(date, list_type='balance'):
         TH(T("general_amount")),
     ))
 
-    table = TABLE(header, _class='table table-striped table-hover')
+    table = TABLE(header, _class='table table-striped table-hover table-condensed')
     for cls in revenue['data']:
         if list_type == 'balance':
             amount = cls['Balance']
@@ -568,7 +568,7 @@ def get_debit_classcards(date):
         TH(T("Total")),
     ))
 
-    table = TABLE(header, _class='table table-striped table-hover')
+    table = TABLE(header, _class='table table-striped table-hover table-condensed')
     for row in rows:
         cards_sold = row[count]
         row_total = row.school_classcards.Price * cards_sold
