@@ -7,7 +7,7 @@ def index():
 
     :return:
     """
-    response.title = T('c_finance_cashbook_title')
+    response.title = T('Cash book')
 
     if session.finance_cashbook_date:
         date = session.finance_cashbook_date
@@ -256,7 +256,7 @@ def set_date():
 
     session.finance_cashbook_date = date
 
-    redirect(URL('cashbook'))
+    redirect(URL('index'))
 
 
 def get_day_chooser(date):
@@ -275,7 +275,7 @@ def get_day_chooser(date):
 
     today = ''
     if date != TODAY_LOCAL:
-        today = A(os_gui.get_fa_icon('fa fa-calendar-o'), ' ', T("general_today"),
+        today = A(os_gui.get_fa_icon('fa fa-calendar-o'), ' ', T("Today"),
                  _href=url_today,
                  _class='btn btn-default')
 
@@ -509,7 +509,7 @@ def get_debit_classes(date, list_type='balance'):
         TH(T("Amount")),
     ))
 
-    table = TABLE(header, _class='table table-striped table-hover table-condensed')
+    table = TABLE(header, _class='table table-striped table-hover')
     for cls in revenue['data']:
         if list_type == 'balance':
             amount = cls['Balance']
@@ -573,7 +573,7 @@ def get_debit_classcards(date):
         TH(T("Total")),
     ))
 
-    table = TABLE(header, _class='table table-striped table-hover table-condensed')
+    table = TABLE(header, _class='table table-striped table-hover')
     for row in rows:
         cards_sold = row[count]
         row_total = row.school_classcards.Price * cards_sold
@@ -635,7 +635,7 @@ def get_debit_memberships(date):
         TH(T("Total")),
     ))
 
-    table = TABLE(header, _class='table table-striped table-hover table-condensed')
+    table = TABLE(header, _class='table table-striped table-hover')
     for row in rows:
         cards_sold = row[count]
         row_total = row.school_memberships.Price * cards_sold

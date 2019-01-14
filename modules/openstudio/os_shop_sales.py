@@ -39,10 +39,13 @@ class ShopSales:
         else:
             query = (db.shop_sales.id > 0)
 
-        rows = db(query).select(db.shop_sales.ALL,
-                                        db.shop_products_variants.ALL,
-                                        db.receipts_items.receipts_id,
-                                        orderby=db.shop_sales.CreatedOn)
+        rows = db(query).select(
+            db.shop_sales.ALL,
+            db.shop_products_variants.ALL,
+            db.receipts_items.receipts_id,
+            left=left,
+            orderby=db.shop_sales.CreatedOn
+        )
 
         return rows
 

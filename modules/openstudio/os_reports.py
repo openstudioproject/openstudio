@@ -657,3 +657,53 @@ class Reports:
                                 orderby=db.school_memberships.Name)
 
         return rows
+
+
+    def shop_sales_summary(self, date_from, date_until):
+        """
+
+        :param date_from: datetime.date
+        :param date_until: datetime.date
+        :return:
+        """
+
+        db = current.db
+
+        left = [
+            db.shop_sales_products_variants.on(
+                db.shop_sales_products_variants.shop_sales_id ==
+                db.shop_sales.id
+            ),
+            db.shop_products_variants.on(
+                db.shop_sales_products_variants.shop_products_variants_id ==
+                db.shop_products_variants.id
+            ),
+            db.shop_products.on(
+                db.shop_sales_products_variants.shop_products_id ==
+                db.shop_products.id,
+            ),
+            # db.receipts_items_shop_sales.on(
+            #     db.receipts_items_shop_sales.shop_sales_id ==
+            #     db.shop_sales.id
+            # ),
+            # db.receipts_items.on(
+            #     db.receipts_items_shop_sales.receipts_items_id ==
+            #     db.receipts_items.id
+            # )
+        ]
+
+        count = db.shop_products_variants.id.count()
+
+        query = (db.shop_sales.CreatedOn >= date_from) & \
+                (db.shop_sales.CreatedOn <= date_until)
+
+        rows = db(query).select(
+            db.shop_products.Name,
+            db.shop_products_variants.Name,
+            db.shop_products_variants.Price,
+            left=left,
+            groupby=db.shop_sales_products_variants.id,
+            orderby=db.shop_sales.CreatedOn)
+
+        return rows
+
