@@ -61,6 +61,10 @@ def get_debit(date):
     classes_balance = get_debit_classes(date, 'balance')
     total += classes_balance['total']
 
+    # Sold memberships
+    sold_memberships = get_debit_memberships(date)
+    total += sold_memberships['total']
+
     # Sold cards
     sold_cards = get_debit_classcards(date)
     total += sold_cards['total']
@@ -74,6 +78,7 @@ def get_debit(date):
         H4(T("c_finance_cashbook_get_debit_title")),
         additional_items['box'],
         classes_balance['box'],
+        sold_memberships['box'],
         sold_cards['box'],
         teacher_payments['box'],
         _class=' col-md-6'
@@ -592,6 +597,68 @@ def get_debit_classcards(date):
 
     box = DIV(
         DIV(H3(T("Cards"), _class='box-title'),
+            DIV(A(I(_class='fa fa-minus'),
+                _href='#',
+                _class='btn btn-box-tool',
+                _title=T("Collapse"),
+                **{'_data-widget': 'collapse'}),
+                _class='box-tools pull-right'),
+            _class='box-header'),
+        DIV(table, _class='box-body no-padding'),
+        _class='box box-success',
+    )
+
+    return dict(
+        box = box,
+        total = total
+    )
+
+
+def get_debit_memberships(date):
+    """
+
+    :param date: datetime.date
+    :return:
+    """
+    from openstudio.os_reports import Reports
+
+    reports = Reports()
+
+    total = 0
+    count = db.customers_memberships.id.count()
+    rows = reports.memberships_sold_summary_rows(date, date)
+
+    header = THEAD(TR(
+        TH(T("Membership")),
+        TH(T("# Sold")),
+        TH(T("Price")),
+        TH(T("Total")),
+    ))
+
+    table = TABLE(header, _class='table table-striped table-hover table-condensed')
+    for row in rows:
+        cards_sold = row[count]
+        row_total = row.school_memberships.Price * cards_sold
+
+        table.append(TR(
+            TD(row.school_memberships.Name),
+            TD(cards_sold),
+            TD(represent_float_as_amount(row.school_memberships.Price)),
+            TD(represent_float_as_amount(row_total))
+        ))
+
+        total += row_total
+
+    # cards sold footer
+    table.append(TFOOT(TR(
+        TH(),
+        TH(),
+        TH(T("general_total")),
+        TH(represent_float_as_amount(total))
+    )))
+
+    box = DIV(
+        DIV(H3(T("Memberships"), _class='box-title'),
             DIV(A(I(_class='fa fa-minus'),
                 _href='#',
                 _class='btn btn-box-tool',
