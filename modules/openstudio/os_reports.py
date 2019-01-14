@@ -626,3 +626,34 @@ class Reports:
                                 orderby=db.school_classcards.Name)
 
         return rows
+
+
+    def memberships_sold_summary_rows(self, date_from, date_until):
+        """
+
+        :param date_from: datetime.date
+        :param date_until: datetime.date
+        :return:
+        """
+        db = current.db
+
+        left = [
+            db.school_memberships.on(
+                db.customers_memberships.school_memberships_id ==
+                db.school_memberships.id
+            )
+        ]
+
+        count = db.customers_memberships.id.count()
+
+        query = (db.customers_memberships.Startdate >= date_from) & \
+                (db.customers_memberships.Startdate <= date_until)
+
+        rows = db(query).select(db.school_memberships.Name,
+                                db.school_memberships.Price,
+                                count,
+                                left=left,
+                                groupby=db.school_memberships.Name,
+                                orderby=db.school_memberships.Name)
+
+        return rows
