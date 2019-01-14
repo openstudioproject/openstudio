@@ -100,7 +100,7 @@ class AccountingCashbooksAdditionalItems:
         if permission_edit:
             edit = os_gui.get_button(
                 'edit',
-                URL('finance_cashbook', 'additional_item_edit', vars={'aciID': row.id})
+                URL('finance_cashbook', 'additional_item_edit', vars={'acaiID': row.id})
             )
             buttons.append(edit)
         if permission_delete:
@@ -111,7 +111,7 @@ class AccountingCashbooksAdditionalItems:
 
             delete = os_gui.get_button(
                 'delete_notext',
-                URL('finance_cashbook', 'additional_item_delete', vars={'aciID': row.id}),
+                URL('finance_cashbook', 'additional_item_delete', vars={'acaiID': row.id}),
                 onclick=onclick_delete
             )
             buttons.append(delete)

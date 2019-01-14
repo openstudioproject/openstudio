@@ -401,11 +401,11 @@ def additional_item_edit():
     """
     from openstudio.os_forms import OsForms
 
-    acaiID = request.vars['aciID']
+    acaiID = request.vars['acaiID']
 
     date = session.finance_cashbook_date
 
-    item = db.accounting_cashbooks_additional_items(aciID)
+    item = db.accounting_cashbooks_additional_items(acaiID)
 
     booking_type = item.BookingType
     if booking_type == 'credit':
@@ -449,9 +449,9 @@ def additional_item_delete():
     Delete cashbook item
     :return:
     """
-    aciaID = request.vars['aciaID']
+    acaiID = request.vars['acaiID']
 
-    query = (db.accounting_cashbooks_additional_items.id == aciaID)
+    query = (db.accounting_cashbooks_additional_items.id == acaiID)
     db(query).delete()
 
     redirect(index_return_url())
