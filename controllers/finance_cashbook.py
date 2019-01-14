@@ -123,11 +123,26 @@ def get_additional_items(date, booking_type):
     elif booking_type == 'credit':
         box_class = 'box-danger'
 
+    link_add = ''
+
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('create', 'accounting_cashbooks_additional_items'):
+        link_add = SPAN(
+            SPAN(XML(" &bull; "), _class='text-muted'),
+            A(T("c_finance_cashbook_additional_item_add"),
+              _href=URL('additional_item_add', vars={'booking_type': booking_type}))
+        )
+
+
     additional_items = DIV(
         DIV(H3("Additional items", _class='box-title'),
-            DIV(os_gui.get_button(
-                'add',
-                URL('additional_item_add', vars={'booking_type': booking_type})),
+            link_add,
+            DIV(
+                A(I(_class='fa fa-minus'),
+                  _href='#',
+                  _class='btn btn-box-tool',
+                  _title=T("Collapse"),
+                  **{'_data-widget': 'collapse'}),
                 _class='box-tools pull-right'
             ),
             _class='box-header'),
@@ -509,7 +524,14 @@ def get_debit_classes(date, list_type='balance'):
     )))
 
     box = DIV(
-        DIV(H3(box_title, _class='box-title'), _class='box-header'),
+        DIV(H3(box_title, _class='box-title'),
+            DIV(A(I(_class='fa fa-minus'),
+                _href='#',
+                _class='btn btn-box-tool',
+                _title=T("Collapse"),
+                **{'_data-widget': 'collapse'}),
+                _class='box-tools pull-right'),
+            _class='box-header'),
         DIV(table, _class='box-body no-padding'),
         _class='box box-success',
     )
