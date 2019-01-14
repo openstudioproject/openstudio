@@ -2,7 +2,7 @@
 
 from gluon import *
 
-class AccountingCashbooksItems:
+class AccountingCashbooksAdditionalItems:
     def list(self, date_from, date_until, booking_type='debit'):
         """
         List cashbook items, debit (in) or credit (out)

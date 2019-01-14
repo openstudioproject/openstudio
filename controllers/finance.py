@@ -2187,12 +2187,12 @@ def cashbook_get_additional_items(date, booking_type):
     :param date:
     :return: dict
     """
-    from openstudio.os_accounting_additional_cashbooks_items import AccountingCashbooksAdditionalItems
+    from openstudio.os_accounting_cashbooks_additional_items import AccountingCashbooksAdditionalItems
 
-    acai = AccountingCashbooksItems()
-    result = aci.list_formatted(date, date, booking_type)
-    aci_debit_list = result['table']
-    aci_debit_total = result['total']
+    acai = AccountingCashbooksAdditionalItems()
+    result = acai.list_formatted(date, date, booking_type)
+    acai_debit_list = result['table']
+    acai_debit_total = result['total']
 
     if booking_type == 'debit':
         box_class = 'box-success'
@@ -2207,13 +2207,13 @@ def cashbook_get_additional_items(date, booking_type):
                 _class='box-tools pull-right'
             ),
             _class='box-header'),
-        DIV(aci_debit_list, _class='box-body no-padding'),
+        DIV(acai_debit_list, _class='box-body no-padding'),
         _class='box ' + box_class
     )
 
     return dict(
         box = additional_items,
-        total = aci_debit_total
+        total = acai_debit_total
     )
 
 
