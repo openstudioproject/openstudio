@@ -116,7 +116,7 @@ def get_additional_items(date, booking_type):
         DIV(H3("Additional items", _class='box-title'),
             DIV(os_gui.get_button(
                 'add',
-                URL('item_add', vars={'booking_type': booking_type})),
+                URL('additional_item_add', vars={'booking_type': booking_type})),
                 _class='box-tools pull-right'
             ),
             _class='box-header'),
@@ -359,7 +359,7 @@ def additional_item_add():
     response.subtitle = SPAN(
         T("c_finance_cashbook_subtitle"), ': ',
         date.strftime(DATE_FORMAT), ' - ',
-        T("c_finance_cashbook_item_add_subtitle") % subtitle_type
+        T("c_finance_cashbook_additional_item_add_subtitle") % subtitle_type
     )
     response.view = 'general/only_content.html'
 
@@ -384,7 +384,7 @@ def additional_item_add():
 
 
 @auth.requires_login()
-def item_edit():
+def additional_item_edit():
     """
     Set opening balance
     """
@@ -406,7 +406,7 @@ def item_edit():
     response.subtitle = SPAN(
         T("c_finance_cashbook_subtitle"), ': ',
         date.strftime(DATE_FORMAT), ' - ',
-        T("c_finance_cashbook_item_edit_subtitle") % subtitle_type
+        T("c_finance_cashbook_additional_item_edit_subtitle") % subtitle_type
 
     )
     response.view = 'general/only_content.html'
@@ -433,7 +433,7 @@ def item_edit():
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('delete', 'accounting_cashbooks_additional_items'))
-def item_delete():
+def additional_item_delete():
     """
     Delete cashbook item
     :return:
