@@ -1,4 +1,4 @@
-
+# -*- coding: utf-8 -*-
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'accounting_cashbooks'))
@@ -27,12 +27,13 @@ def index():
     credit = get_credit(date)
     credit_total = credit['total']
 
-    balance = get_balance(debit_total, credit_total)
+    balance = index_get_balance(debit_total, credit_total)
 
     content = DIV(
         balance,
         debit['column_content'],
-        credit['column_content']
+        credit['column_content'],
+        _class='row'
     )
 
     header_tools = DIV(
@@ -56,11 +57,15 @@ def get_debit(date):
     additional_items = get_additional_items(date, 'debit')
     total += additional_items['total']
 
+    classes = get_debit_classes(date)
+    total += classes['total']
+
 
     column = DIV(
         H4(T("c_finance_cashbook_get_debit_title")),
         additional_items['box'],
-        _class=' col-md-6 no-padding-left'
+        classes['box'],
+        _class=' col-md-6'
 
     )
 
@@ -84,7 +89,7 @@ def get_credit(date):
     column = DIV(
         H4(T("c_finance_cashbook_get_credit_title")),
         additional_items['box'],
-        _class=' col-md-6 no-padding-left'
+        _class=' col-md-6'
 
     )
 
@@ -130,7 +135,7 @@ def get_additional_items(date, booking_type):
     )
 
 
-def get_balance(debit_total=0, credit_total=0):
+def index_get_balance(debit_total=0, credit_total=0):
     """
 
     :return:
@@ -172,9 +177,9 @@ def get_balance(debit_total=0, credit_total=0):
     if balance < 0:
         balance_class = 'text-red bold'
 
-    box = DIV(
+    box = DIV(DIV(
         DIV(
-            H3(T("system_summary"), _class='box-title'),
+            H3(T("general_summary"), _class='box-title'),
             DIV(info, _class='box-tools pull-right'),
             _class='box-header'
         ),
@@ -201,7 +206,7 @@ def get_balance(debit_total=0, credit_total=0):
             _class='box-footer'
         ),
         _class='box box-primary'
-    )
+    ), _class='col-md-12')
 
     return box
 
@@ -239,7 +244,7 @@ def get_day_chooser(date):
 
     today = ''
     if date != TODAY_LOCAL:
-        today = A(os_gui.get_fa_icon('fa fa-calendar-o'), ' ', T("system_today"),
+        today = A(os_gui.get_fa_icon('fa fa-calendar-o'), ' ', T("general_today"),
                  _href=url_today,
                  _class='btn btn-default')
 
@@ -284,7 +289,7 @@ def opening_balance_add():
     result = os_forms.get_crud_form_create(
         db.accounting_cashbooks_balance,
         return_url,
-        message_record_created=T("system_saved")
+        message_record_created=T("general_saved")
     )
 
     form = result['form']
@@ -324,7 +329,7 @@ def opening_balance_edit():
         db.accounting_cashbooks_balance,
         return_url,
         acbID,
-        message_record_updated=T("system_saved"),
+        message_record_updated=T("general_saved"),
     )
 
     form = result['form']
@@ -350,10 +355,10 @@ def additional_item_add():
     booking_type = request.vars['booking_type']
     if booking_type == 'credit':
         db.accounting_cashbooks_additional_items.BookingType.default = 'credit'
-        subtitle_type = T("system_credit")
+        subtitle_type = T("general_credit")
     elif booking_type == 'debit':
         db.accounting_cashbooks_additional_items.BookingType.default = 'debit'
-        subtitle_type = T("system_debit")
+        subtitle_type = T("general_debit")
 
     response.title = T('c_finance_cashbook_title')
     response.subtitle = SPAN(
@@ -370,7 +375,7 @@ def additional_item_add():
     result = os_forms.get_crud_form_create(
         db.accounting_cashbooks_additional_items,
         return_url,
-        message_record_created=T("system_saved")
+        message_record_created=T("general_saved")
     )
 
     form = result['form']
@@ -398,9 +403,9 @@ def additional_item_edit():
 
     booking_type = item.BookingType
     if booking_type == 'credit':
-        subtitle_type = T("system_credit")
+        subtitle_type = T("general_credit")
     elif booking_type == 'debit':
-        subtitle_type = T("system_debit")
+        subtitle_type = T("general_debit")
 
     response.title = T('c_finance_cashbook_title')
     response.subtitle = SPAN(
@@ -418,7 +423,7 @@ def additional_item_edit():
         db.accounting_cashbooks_additional_items,
         return_url,
         acaiID,
-        message_record_updated=T("system_saved"),
+        message_record_updated=T("general_saved"),
     )
 
     form = result['form']
@@ -444,3 +449,57 @@ def additional_item_delete():
     db(query).delete()
 
     redirect(index_return_url())
+
+
+def get_debit_classes(date):
+    """
+
+    :param date:
+    :return:
+    """
+    from general_helpers import max_string_length
+    from openstudio.os_reports import Reports
+
+
+    reports = Reports()
+    revenue = reports.get_classes_revenue_summary_day(session.finance_cashbook_date)
+
+    header = THEAD(TR(
+        TH(T("general_time")),
+        TH(T("general_location")),
+        TH(T("general_classtype")),
+        TH(T("general_amount")),
+    ))
+
+    table = TABLE(header, _class='table table-striped table-hover')
+    for cls in revenue['data']:
+        tr = TR(
+            TD(cls['Starttime']),
+            TD(max_string_length(cls['Location'], 18)),
+            TD(max_string_length(cls['ClassType'], 18)),
+            TD(represent_float_as_amount(cls['Balance']))
+        )
+
+        table.append(tr)
+
+    # Footer total
+    table.append(TFOOT(TR(
+        TH(),
+        TH(),
+        TH(T('general_total')),
+        TH(represent_float_as_amount(revenue['balance']))
+    )))
+
+    box = DIV(
+        DIV(H3(T("Class profit"), _class='box-title'), _class='box-header'),
+        DIV(table, _class='box-body no-padding'),
+        _class='box box-success',
+    )
+
+
+
+    return dict(
+        box = box,
+        total = revenue['revenue_total']
+    )
+

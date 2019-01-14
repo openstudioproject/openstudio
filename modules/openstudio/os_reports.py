@@ -116,17 +116,43 @@ class Reports:
         :param date:
         :return:
         """
+        from os_class import Class
         from os_class_schedule import ClassSchedule
         # Get class schedule for days
         cs = ClassSchedule(date)
         schedule = cs.get_day_list()
 
+        revenue = {
+            'data': [],
+            'revenue_total': 0,
+            'teacher_payment_total': 0,
+            'balance': 0
+        }
+
+
         for cls in schedule:
             clsID = cls['ClassesID']
             # Get revenue for each class
-            result = get_class_revenue_summary(clsID, date)
+            class_revenue = self.get_class_revenue_summary(clsID, date)
 
+            cls_object = Class(clsID, date)
+            teacher_payment = cls_object.get_teacher_payment()
+            if not teacher_payment['error']:
+                tp_amount = teacher_payment['data']['ClassRate']
+            else:
+                tp_amount = 0
 
+            cls['RevenueTotal'] = class_revenue['total']['amount']
+            cls['TeacherPayment'] = tp_amount
+            cls['Balance'] = (cls['RevenueTotal'] - cls['TeacherPayment'])
+
+            revenue['revenue_total'] += cls['RevenueTotal']
+            revenue['teacher_payment_total'] += cls['TeacherPayment']
+            revenue['balance'] += cls['Balance']
+
+            revenue['data'].append(cls)
+
+        return revenue
 
 
     def get_class_revenue_summary(self, clsID, date, quick_stats=True):
