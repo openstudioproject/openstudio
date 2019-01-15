@@ -16,7 +16,7 @@ def index():
         session.finance_cashbook_date = date
 
     response.subtitle = SPAN(
-        T('Date'), ': ',
+        T("Daily summary"), ': ',
         date.strftime(DATE_FORMAT)
     )
     response.view = 'general/only_content_no_box.html'
@@ -69,6 +69,10 @@ def get_debit(date):
     sold_cards = get_debit_classcards(date)
     total += sold_cards['total']
 
+    # Sold products
+    sold_products = get_debit_sales_summary(date)
+    total += sold_products['total']
+
     # Class teacher payments
     teacher_payments = get_debit_classes(date, 'teacher_payments')
     total += teacher_payments['total']
@@ -80,6 +84,7 @@ def get_debit(date):
         classes_balance['box'],
         sold_memberships['box'],
         sold_cards['box'],
+        sold_products['box'],
         teacher_payments['box'],
         _class=' col-md-6'
 
@@ -304,7 +309,7 @@ def opening_balance_add():
 
     response.title = T('Cash book')
     response.subtitle = SPAN(
-        T("Date"), ': ',
+        T("Daily summary"), ': ',
         date.strftime(DATE_FORMAT), ' - ',
         T("Set opening balance")
 
@@ -346,7 +351,7 @@ def opening_balance_edit():
 
     response.title = T('Cash book')
     response.subtitle = SPAN(
-        T("Date"), ': ',
+        T("Daily summary"), ': ',
         date.strftime(DATE_FORMAT), ' - ',
         T("Edit opening balance")
 
@@ -393,7 +398,7 @@ def additional_item_add():
 
     response.title = T('Cash book')
     response.subtitle = SPAN(
-        T("Date"), ': ',
+        T("Daily summary"), ': ',
         date.strftime(DATE_FORMAT), ' - ',
         T("Add %s item") % subtitle_type
     )
@@ -440,7 +445,7 @@ def additional_item_edit():
 
     response.title = T('Cash book')
     response.subtitle = SPAN(
-        T("Date"), ': ',
+        T("Daily summary"), ': ',
         date.strftime(DATE_FORMAT), ' - ',
         T("Edit %s item") % subtitle_type
 
@@ -625,7 +630,7 @@ def get_debit_memberships(date):
     reports = Reports()
 
     total = 0
-    count = db.customers_memberships.id.count()
+    count = db.school_memberships.id.count()
     rows = reports.memberships_sold_summary_rows(date, date)
 
     header = THEAD(TR(
@@ -653,7 +658,7 @@ def get_debit_memberships(date):
     table.append(TFOOT(TR(
         TH(),
         TH(),
-        TH(T("general_total")),
+        TH(T("Total")),
         TH(represent_float_as_amount(total))
     )))
 
@@ -675,3 +680,66 @@ def get_debit_memberships(date):
         total = total
     )
 
+
+def get_debit_sales_summary(date):
+    """
+
+    :param date: datetime.date
+    :return:
+    """
+    from general_helpers import max_string_length
+    from openstudio.os_reports import Reports
+
+    reports = Reports()
+
+    total = 0
+    count = db.shop_sales_products_variants.shop_products_variants_id.count()
+    rows = reports.shop_sales_summary(date, date)
+
+    header = THEAD(TR(
+        TH(T("Product")),
+        TH(T("# Sold")),
+        TH(T("Price")),
+        TH(T("Total")),
+    ))
+
+    table = TABLE(header, _class='table table-striped table-hover')
+    for row in rows:
+        products_sold = row[count]
+        row_total = row.shop_products_variants.Price * products_sold
+
+        table.append(TR(
+            TD(max_string_length(row.shop_sales.ProductName, 46), BR(),
+               SPAN(max_string_length(row.shop_sales.VariantName, 46), _class="text-muted")),
+            TD(products_sold),
+            TD(represent_float_as_amount(row.shop_products_variants.Price)),
+            TD(represent_float_as_amount(row_total))
+        ))
+
+        total += row_total
+
+    # cards sold footer
+    table.append(TFOOT(TR(
+        TH(),
+        TH(),
+        TH(T("Total")),
+        TH(represent_float_as_amount(total))
+    )))
+
+    box = DIV(
+        DIV(H3(T("Shop sales"), _class='box-title'),
+            DIV(A(I(_class='fa fa-minus'),
+                _href='#',
+                _class='btn btn-box-tool',
+                _title=T("Collapse"),
+                **{'_data-widget': 'collapse'}),
+                _class='box-tools pull-right'),
+            _class='box-header'),
+        DIV(table, _class='box-body no-padding'),
+        _class='box box-success',
+    )
+
+    return dict(
+        box = box,
+        total = total
+    )
