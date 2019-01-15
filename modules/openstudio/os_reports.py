@@ -728,9 +728,26 @@ class Reports:
             # For a DT field, the format becomes yyyy-mm-dd 00:00:00 when only supplying a date
             date_until = date_until + datetime.timedelta(days=1)
 
-        query = (db.receipts.CreatedAt >= date_from) & \
-                (db.receipts.CreatedAt <= date_until)
+        sum_not_paid_using_cash = 0
 
+        left = [
+            db.receipts_amounts.on(
+                db.receipts_amounts.receipts_id ==
+                db.receipts.id
+            )
+        ]
+
+        query = (db.receipts.CreatedOn >= date_from) & \
+                (db.receipts.CreatedOn <= date_until) & \
+                (db.receipts.payment_methods_id != 1) # method 1 == cash
+
+        sum = db.receipts_amounts.TotalPriceVAT.sum()
+        rows = db(query).select(sum)
+        if rows:
+            row = rows.first()
+            sum_not_paid_using_cash = row[sum]
+
+        return sum_not_paid_using_cash
 
 
     def classes_attendance_classcards_quickstats_summary(self, date_from, date_until):
