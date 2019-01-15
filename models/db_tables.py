@@ -868,10 +868,10 @@ def define_accounting_cashbooks_cash_count():
         auth_user_id_default = None  # default to None when not signed in
 
     db.define_table('accounting_cashbooks_cash_count',
-        Field('BalanceCount', 'date',
+        Field('CashCount', 'date',
             readable=False,
             writable=False),
-        Field('BalanceType',
+        Field('CountType',
             readable=False,
             writable=False,
             default='opening',

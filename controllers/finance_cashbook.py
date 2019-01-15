@@ -55,7 +55,7 @@ def get_debit(date):
     total = 0
 
     # Additional items
-    additional_items = get_additional_items(date, 'debit')
+    additional_items = additional_items_get(date, 'debit')
     total += additional_items['total']
 
     # Class balance (total revenue - teacher payments)
@@ -106,7 +106,7 @@ def get_credit(date):
     total = 0
 
     # Additional items
-    additional_items = get_additional_items(date, 'credit')
+    additional_items = additional_items_get(date, 'credit')
     total += additional_items['total']
 
     # Classes used on cards
@@ -126,7 +126,7 @@ def get_credit(date):
     )
 
 
-def get_additional_items(date, booking_type):
+def additional_items_get(date, booking_type):
     """
 
     :param date:
@@ -296,19 +296,25 @@ def index_return_url(var=None):
 
 
 @auth.requires_login()
-def opening_balance_add():
+def cash_count_add():
     """
     Set opening balance
     """
     from openstudio.os_forms import OsForms
 
+    count_type = request.vars['count_type']
     date = session.finance_cashbook_date
+
+    if count_type == 'opening':
+        count_type = T("opening")
+    elif count_type == 'closing':
+        count_type = T("closing")
 
     response.title = T('Cash book')
     response.subtitle = SPAN(
         T("Daily summary"), ': ',
         date.strftime(DATE_FORMAT), ' - ',
-        T("Set opening balance")
+        T("Set %s count") % count_type
 
     )
     response.view = 'general/only_content.html'
@@ -336,21 +342,26 @@ def opening_balance_add():
 
 
 @auth.requires_login()
-def opening_balance_edit():
+def cash_count_edit():
     """
     Set opening balance
     """
     from openstudio.os_forms import OsForms
 
-    acbID = request.vars['acbID']
+    ccID = request.vars['acccID']
 
     date = session.finance_cashbook_date
+    cc = db.accounting_cashbooks_cash_count(ccID)
+    if cc.CountType == 'opening':
+        count_type = T("opening")
+    elif cc.CountType == 'closing':
+        count_type = T("closing")
 
     response.title = T('Cash book')
     response.subtitle = SPAN(
         T("Daily summary"), ': ',
         date.strftime(DATE_FORMAT), ' - ',
-        T("Edit opening balance")
+        T("Edit %s count") % count_type
 
     )
     response.view = 'general/only_content.html'
@@ -361,8 +372,8 @@ def opening_balance_edit():
     result = os_forms.get_crud_form_update(
         db.accounting_cashbooks_cash_count,
         return_url,
-        acbID,
-        message_record_updated=T("general_saved"),
+        acccID,
+        message_record_updated=T("Saved"),
     )
 
     form = result['form']
@@ -482,6 +493,45 @@ def additional_item_delete():
     db(query).delete()
 
     redirect(index_return_url())
+
+
+def cash_count_get(date, count_type):
+    """
+
+    :param date: datetime.date
+    :param count_type: 'opening' or 'closing'
+    :return:
+    """
+    # link_opening=URL('cash_count_add')
+    # opening_balance = 0
+    # info = SPAN()
+    #
+    # row = db.accounting_cashbooks_cash_count(
+    #     BalanceCount = session.finance_cashbook_date,
+    #     BalanceType = 'opening'
+    # )
+    #
+    # if row:
+    #     note = row.Note
+    #     link_opening=URL('opening_balance_edit', vars={'acbID': row.id})
+    #     opening_balance = row.Amount
+    #
+    #     au = db.auth_user(row.auth_user_id)
+    #     info = SPAN(
+    #         T("Opening balance set by"), ' ',
+    #         A(au.display_name,
+    #           _href=URL('customers', 'edit', args=[au.id])), ' ',
+    #         # T("@"), ' ',
+    #         # row.CreatedOn.strftime(DATETIME_FORMAT),
+    #         XML(' &bull; '),
+    #         _class="text-muted"
+    #     )
+    #
+    # link_set_opening_balance = A(
+    #     T("Set opening balance"),
+    #     _href=link_opening,
+    # )
+    # info.append(link_set_opening_balance)
 
 
 def get_debit_classes(date, list_type='balance'):
