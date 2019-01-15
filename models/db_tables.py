@@ -4552,15 +4552,15 @@ def define_receipts():
                               zero=T("Not set"))),
             represent=lambda value, row: payment_methods_dict.get(value),
             label=T("Payment method")),
-        Field('Created_by', db.auth_user,
+        Field('CreatedBy', db.auth_user,
             writable=False,
             label=T("Employee")),
-        Field('Created_at', 'datetime',
+        Field('CreatedOn', 'datetime',
             writable=False,
             default=datetime.datetime.now(),
             represent=represent_datetime,
             label=T("Time")),
-        Field('Updated_at', 'datetime',
+        Field('UpdatedOn', 'datetime',
             readable=False,
             writable=False,
             default=datetime.datetime.now(),
@@ -4568,7 +4568,7 @@ def define_receipts():
         )
 
     try:
-        db.receipts.Created_by.default = auth.user.id
+        db.receipts.CreatedBy.default = auth.user.id
     except AttributeError:
         pass
 

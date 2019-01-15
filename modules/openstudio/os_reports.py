@@ -714,6 +714,25 @@ class Reports:
         return rows
 
 
+    def shop_sales_not_paid_with_cash_summary(self, date_from, date_until):
+        """
+
+        :param date_from: datetime.date
+        :param date_until: datetime.date
+        :return:
+        """
+        db = current.db
+
+        if date_from == date_until:
+            # This is required because we're comparing to a date time field
+            # For a DT field, the format becomes yyyy-mm-dd 00:00:00 when only supplying a date
+            date_until = date_until + datetime.timedelta(days=1)
+
+        query = (db.receipts.CreatedAt >= date_from) & \
+                (db.receipts.CreatedAt <= date_until)
+
+
+
     def classes_attendance_classcards_quickstats_summary(self, date_from, date_until):
         """
 
