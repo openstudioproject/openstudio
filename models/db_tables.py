@@ -1238,6 +1238,12 @@ def define_school_classcards():
               label=T("Requires membership"),
               comment=T(
                   "Set a required membership for this card. Without this memberships customers won't be able to buy this card or use it to attend classes.")),
+        Field('QuickStatsAmount', 'double',
+              label=T('Quick Stats Amount'),
+              default=0,
+              comment=T(
+                  "Only used for unlimited cards. As it's impossible to know the exact revenue for each class until the end of the card. This amount will be used to create rough estimates of class revenue.")
+              ),
         Field('accounting_glaccounts_id', db.accounting_glaccounts,
               requires=IS_EMPTY_OR(IS_IN_DB(db(ag_query),
                                             'accounting_glaccounts.id',

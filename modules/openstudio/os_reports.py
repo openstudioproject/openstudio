@@ -599,6 +599,7 @@ class Reports:
 
     def classcards_sold_summary_rows(self, date_from, date_until):
         """
+        List cards sold, grouped by card name
 
         :param date_from: datetime.date
         :param date_until: datetime.date
@@ -630,6 +631,7 @@ class Reports:
 
     def memberships_sold_summary_rows(self, date_from, date_until):
         """
+        List memberships sold, grouped by membership name
 
         :param date_from: datetime.date
         :param date_until: datetime.date
@@ -661,6 +663,7 @@ class Reports:
 
     def shop_sales_summary(self, date_from, date_until):
         """
+        List product sales, grouped by product variant
 
         :param date_from: datetime.date
         :param date_until: datetime.date
@@ -709,3 +712,16 @@ class Reports:
         )
 
         return rows
+
+
+    def classes_attendance_quickstats_summary(self, date_from, date_until):
+        """
+
+        :param date_from: datetime.date
+        :param date_until: datetime.date
+        :return:
+        """
+        db = current.db
+
+
+
