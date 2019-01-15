@@ -109,12 +109,14 @@ def get_credit(date):
     additional_items = get_additional_items(date, 'credit')
     total += additional_items['total']
 
-    # C
-    cards_used_classes = get_credit_classcards_used_classes_summary
+    # Classes used on cards
+    cards_used_classes = get_credit_classcards_used_classes_summary(date)
+    total += cards_used_classes['total']
 
     column = DIV(
         H4(T("Income")),
         additional_items['box'],
+        cards_used_classes['box'],
         _class=' col-md-6'
 
     )
@@ -763,8 +765,52 @@ def get_credit_classcards_used_classes_summary(date):
 
     total = 0
     count = db.school_classcards.id.count()
-    rows = reports.shop_sales_summary(date, date)
+    rows = reports.classes_attendance_classcards_quickstats_summary(date, date)
 
-    rows = reports.classes_attendance_classcards_quickstats_summary()
+    header = THEAD(TR(
+        TH(T("Card")),
+        TH(T("Classes taken")),
+        TH(T("Class price")),
+        TH(T("Total")),
+    ))
 
-    print rows
+    table = TABLE(header, _class='table table-striped table-hover')
+    for row in rows:
+        classes_taken = row[count]
+        class_price = row.school_classcards.Price / row.school_classcards.Classes
+        row_total = class_price * classes_taken
+
+        table.append(TR(
+            TD(max_string_length(row.school_classcards.Name, 46)),
+            TD(classes_taken),
+            TD(represent_float_as_amount(class_price)),
+            TD(represent_float_as_amount(row_total))
+        ))
+
+        total += row_total
+
+    # cards sold footer
+    table.append(TFOOT(TR(
+        TH(),
+        TH(),
+        TH(T("Total")),
+        TH(represent_float_as_amount(total))
+    )))
+
+    box = DIV(
+        DIV(H3(T("Classes taken using cards"), _class='box-title'),
+            DIV(A(I(_class='fa fa-minus'),
+                _href='#',
+                _class='btn btn-box-tool',
+                _title=T("Collapse"),
+                **{'_data-widget': 'collapse'}),
+                _class='box-tools pull-right'),
+            _class='box-header'),
+        DIV(table, _class='box-body no-padding'),
+        _class='box box-danger',
+    )
+
+    return dict(
+        box = box,
+        total = total
+    )

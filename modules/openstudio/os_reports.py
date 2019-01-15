@@ -742,9 +742,10 @@ class Reports:
 
         rows = db(query).select(
             db.school_classcards.id,
-            db.customers_classcards.QuickStatsAmount,
-            db.customers_classcards.Classes,
-            db.customers_classcards.Price,
+            db.school_classcards.Name,
+            db.school_classcards.QuickStatsAmount,
+            db.school_classcards.Classes,
+            db.school_classcards.Price,
             count,
             left=left,
             groupby=db.school_classcards.id,
