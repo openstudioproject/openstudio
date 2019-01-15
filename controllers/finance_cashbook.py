@@ -484,11 +484,11 @@ def cash_count_get(date, count_type):
 
     if count_type == 'opening':
         box_class = 'box-success'
-        box_title = T("Cash count opening")
+        box_title = T("Opening cash count")
         msg_not_set = T("Opening balance not set")
     elif count_type == 'closing':
         box_class = 'box-danger'
-        box_title = T("Cash count closing")
+        box_title = T("Closing cash count")
         msg_not_set = T("closing balance not set")
 
     row = db.accounting_cashbooks_cash_count(
