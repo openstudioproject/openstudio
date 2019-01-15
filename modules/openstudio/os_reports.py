@@ -714,7 +714,7 @@ class Reports:
         return rows
 
 
-    def classes_attendance_quickstats_summary(self, date_from, date_until):
+    def classes_attendance_classcards_quickstats_summary(self, date_from, date_until):
         """
 
         :param date_from: datetime.date
@@ -723,5 +723,32 @@ class Reports:
         """
         db = current.db
 
+        left = [
+            # Cards
+            db.customers_classcards.on(
+                db.classes_attendance.customers_classcards_id ==
+                db.customers_classcards.id
+            ),
+            db.school_classcards.on(
+                db.customers_classcards.school_classcards_id ==
+                db.school_classcards.id
+            )
+        ]
 
+        count = db.school_classcards.id.count()
 
+        query = (db.classes_attendance.ClassDate >= date_from) & \
+                (db.classes_attendance.ClassDate <= date_until)
+
+        rows = db(query).select(
+            db.school_classcards.id,
+            db.customers_classcards.QuickStatsAmount,
+            db.customers_classcards.Classes,
+            db.customers_classcards.Price,
+            count,
+            left=left,
+            groupby=db.school_classcards.id,
+            orderby=db.school_classcards.Name
+        )
+
+        return rows

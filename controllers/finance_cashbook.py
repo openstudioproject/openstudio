@@ -54,6 +54,7 @@ def get_debit(date):
     """
     total = 0
 
+    # Additional items
     additional_items = get_additional_items(date, 'debit')
     total += additional_items['total']
 
@@ -104,8 +105,12 @@ def get_credit(date):
     """
     total = 0
 
+    # Additional items
     additional_items = get_additional_items(date, 'credit')
     total += additional_items['total']
+
+    # C
+    cards_used_classes = get_credit_classcards_used_classes_summary
 
     column = DIV(
         H4(T("Income")),
@@ -743,3 +748,23 @@ def get_debit_sales_summary(date):
         box = box,
         total = total
     )
+
+
+def get_credit_classcards_used_classes_summary(date):
+    """
+
+    :param date: datetime.date
+    :return:
+    """
+    from general_helpers import max_string_length
+    from openstudio.os_reports import Reports
+
+    reports = Reports()
+
+    total = 0
+    count = db.school_classcards.id.count()
+    rows = reports.shop_sales_summary(date, date)
+
+    rows = reports.classes_attendance_classcards_quickstats_summary()
+
+    print rows
