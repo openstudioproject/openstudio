@@ -1194,8 +1194,8 @@ def access_group_permissions():
                 ['invoices_payments-delete', T('Delete invoice payments')]]],
             ['receipts-read', T("View receipts")],
             ['accounting_cashbooks-read', T("View cash books"), [
-                ['accounting_cashbooks_balance-create', T("Set cash book opening balance")],
-                ['accounting_cashbooks_balance-update', T("Edit cash book opening balance")]
+                ['accounting_cashbooks_cash_count-create', T("Set cash book opening balance")],
+                ['accounting_cashbooks_cash_count-update', T("Edit cash book opening balance")]
             ]],
             ['accounting_cashbooks_additional_items-read', T("View cash book additional items"), [
                 ['accounting_cashbooks_additional_items-create', T("Set cash book additional items")],

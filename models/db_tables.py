@@ -856,7 +856,7 @@ def define_accounting_glaccounts():
         format='%(Name)s')
 
 
-def define_accounting_cashbooks_balance():
+def define_accounting_cashbooks_cash_count():
     auth_user_query = (db.auth_user.id > 1) & \
                       (db.auth_user.trashed == False) & \
                       ((db.auth_user.teacher == True) |
@@ -867,8 +867,8 @@ def define_accounting_cashbooks_balance():
     except AttributeError:
         auth_user_id_default = None  # default to None when not signed in
 
-    db.define_table('accounting_cashbooks_balance',
-        Field('BalanceDate', 'date',
+    db.define_table('accounting_cashbooks_cash_count',
+        Field('BalanceCount', 'date',
             readable=False,
             writable=False),
         Field('BalanceType',
@@ -876,7 +876,8 @@ def define_accounting_cashbooks_balance():
             writable=False,
             default='opening',
             requires=IS_IN_SET([
-              ['opening', T("Opening balance")]
+              ['opening', T("Opening balance")],
+              ['closing', T("Closing balance")]
             ]),
             label=T("Balance type") ),
         Field('Amount', 'double',
@@ -6353,7 +6354,7 @@ define_postcode_groups()
 define_tax_rates()
 define_accounting_costcenters()
 define_accounting_glaccounts()
-define_accounting_cashbooks_balance()
+define_accounting_cashbooks_cash_count()
 define_accounting_cashbooks_additional_items()
 
 define_school_memberships()

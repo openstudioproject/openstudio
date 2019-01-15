@@ -188,8 +188,8 @@ def index_get_balance(debit_total=0, credit_total=0):
     opening_balance = 0
     info = SPAN()
 
-    row = db.accounting_cashbooks_balance(
-        BalanceDate = session.finance_cashbook_date,
+    row = db.accounting_cashbooks_cash_count(
+        BalanceCount = session.finance_cashbook_date,
         BalanceType = 'opening'
     )
 
@@ -325,12 +325,12 @@ def opening_balance_add():
 
     return_url = index_return_url()
 
-    db.accounting_cashbooks_balance.BalanceDate.default = date
-    db.accounting_cashbooks_balance.BalanceType.default = 'opening'
+    db.accounting_cashbooks_cash_count.BalanceCount.default = date
+    db.accounting_cashbooks_cash_count.BalanceType.default = 'opening'
 
     os_forms = OsForms()
     result = os_forms.get_crud_form_create(
-        db.accounting_cashbooks_balance,
+        db.accounting_cashbooks_cash_count,
         return_url,
         message_record_created=T("Saved")
     )
@@ -369,7 +369,7 @@ def opening_balance_edit():
 
     os_forms = OsForms()
     result = os_forms.get_crud_form_update(
-        db.accounting_cashbooks_balance,
+        db.accounting_cashbooks_cash_count,
         return_url,
         acbID,
         message_record_updated=T("general_saved"),
