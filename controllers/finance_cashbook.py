@@ -54,6 +54,10 @@ def get_debit(date):
     """
     total = 0
 
+    # Cash count opening balance
+    count_opening = cash_count_get(date, 'opening')
+    total += count_opening['total']
+
     # Additional items
     additional_items = additional_items_get(date, 'debit')
     total += additional_items['total']
@@ -81,6 +85,7 @@ def get_debit(date):
 
     column = DIV(
         H4(T("Income")),
+        count_opening['box'],
         additional_items['box'],
         classes_balance['box'],
         sold_memberships['box'],
@@ -105,6 +110,10 @@ def get_credit(date):
     """
     total = 0
 
+    # Cash count closing balance
+    count_closing = cash_count_get(date, 'closing')
+    total += count_closing['total']
+
     # Additional items
     additional_items = additional_items_get(date, 'credit')
     total += additional_items['total']
@@ -115,6 +124,7 @@ def get_credit(date):
 
     column = DIV(
         H4(T("Expenses")),
+        count_closing['box'],
         additional_items['box'],
         cards_used_classes['box'],
         _class=' col-md-6'
@@ -182,37 +192,6 @@ def index_get_balance(debit_total=0, credit_total=0):
 
     :return:
     """
-    #link_opening=URL('opening_balance_add')
-    # opening_balance = 0
-    # info = SPAN()
-    #
-    # row = db.accounting_cashbooks_cash_count(
-    #     BalanceCount = session.finance_cashbook_date,
-    #     BalanceType = 'opening'
-    # )
-    #
-    # if row:
-    #     note = row.Note
-    #     link_opening=URL('opening_balance_edit', vars={'acbID': row.id})
-    #     opening_balance = row.Amount
-    #
-    #     au = db.auth_user(row.auth_user_id)
-    #     info = SPAN(
-    #         T("Opening balance set by"), ' ',
-    #         A(au.display_name,
-    #           _href=URL('customers', 'edit', args=[au.id])), ' ',
-    #         # T("@"), ' ',
-    #         # row.CreatedOn.strftime(DATETIME_FORMAT),
-    #         XML(' &bull; '),
-    #         _class="text-muted"
-    #     )
-    #
-    # link_set_opening_balance = A(
-    #     T("Set opening balance"),
-    #     _href=link_opening,
-    # )
-    # info.append(link_set_opening_balance)
-
     balance = debit_total - credit_total
     balance_class = ''
     if balance < 0:
@@ -321,8 +300,8 @@ def cash_count_add():
 
     return_url = index_return_url()
 
-    db.accounting_cashbooks_cash_count.BalanceCount.default = date
-    db.accounting_cashbooks_cash_count.BalanceType.default = 'opening'
+    db.accounting_cashbooks_cash_count.CountDate.default = date
+    db.accounting_cashbooks_cash_count.CountType.default = 'opening'
 
     os_forms = OsForms()
     result = os_forms.get_crud_form_create(
@@ -532,6 +511,70 @@ def cash_count_get(date, count_type):
     #     _href=link_opening,
     # )
     # info.append(link_set_opening_balance)
+    from general_helpers import max_string_length
+
+    # query = (db.accounting_cashbooks_cash_count.CountDate == date) & \
+    #         (db.accounting_cashbooks_cash_count.CountType == count_type)
+    # rows = db(query).select(db.accounting_cashbooks_cash_count.ALL)
+
+    rows = False
+    row = False
+    if rows:
+        row = rows.first()
+
+    # row = db.accounting_cashbooks_cash_count(
+    #     CountDate = session.finance_cashbook_date,
+    #     CountType = count_type
+    # )
+    #
+    # print count_type
+
+    if count_type == 'opening':
+        box_class = 'box-success'
+        box_title = T("Cash opening balance")
+        msg_not_set = T("Opening balance not set")
+    elif count_type == 'closing':
+        box_class = 'box-danger'
+        box_title = T("Cash closing balance")
+        msg_not_set = T("closing balance not set")
+
+    if row:
+        total = row.Amount
+        au = db.auth_user(row.auth_user_id)
+        header = THEAD(TR(
+            TH(T("Set by")),
+            TH(T("Amount")),
+        ))
+
+        box_body = DIV(TABLE(
+            header,
+            TR(TD(A(au.display_name,
+                    _href=URL('customers', 'edit', args=[au.id]))),
+               TH(represent_float_as_amount(total))),
+            _class='table table-striped table-hover'
+            ),
+        _class='box-body no-padding')
+    else:
+        total = 0
+        box_body = DIV(msg_not_set, _class='box-body')
+
+    box = DIV(
+        DIV(H3(box_title, _class='box-title'),
+            DIV(A(I(_class='fa fa-minus'),
+                _href='#',
+                _class='btn btn-box-tool',
+                _title=T("Collapse"),
+                **{'_data-widget': 'collapse'}),
+                _class='box-tools pull-right'),
+            _class='box-header'),
+        box_body,
+        _class='box ' + box_class,
+    )
+
+    return dict(
+        box = box,
+        total = total
+    )
 
 
 def get_debit_classes(date, list_type='balance'):
