@@ -480,36 +480,6 @@ def cash_count_get(date, count_type):
     :param count_type: 'opening' or 'closing'
     :return:
     """
-    # link_opening=URL('cash_count_add')
-    # opening_balance = 0
-    # info = SPAN()
-    #
-    # row = db.accounting_cashbooks_cash_count(
-    #     BalanceCount = session.finance_cashbook_date,
-    #     BalanceType = 'opening'
-    # )
-    #
-    # if row:
-    #     note = row.Note
-    #     link_opening=URL('opening_balance_edit', vars={'acbID': row.id})
-    #     opening_balance = row.Amount
-    #
-    #     au = db.auth_user(row.auth_user_id)
-    #     info = SPAN(
-    #         T("Opening balance set by"), ' ',
-    #         A(au.display_name,
-    #           _href=URL('customers', 'edit', args=[au.id])), ' ',
-    #         # T("@"), ' ',
-    #         # row.CreatedOn.strftime(DATETIME_FORMAT),
-    #         XML(' &bull; '),
-    #         _class="text-muted"
-    #     )
-    #
-    # link_set_opening_balance = A(
-    #     T("Set opening balance"),
-    #     _href=link_opening,
-    # )
-    # info.append(link_set_opening_balance)
     from general_helpers import max_string_length
 
     if count_type == 'opening':
@@ -533,17 +503,24 @@ def cash_count_get(date, count_type):
             TH(T("Amount")),
         ))
 
-        box_body = DIV(TABLE(
-            header,
-            TR(TD(A(au.display_name,
-                    _href=URL('customers', 'edit', args=[au.id]))),
-               TH(represent_float_as_amount(total))),
-            _class='table table-striped table-hover'
-            ),
+        box_body = DIV(
+            TABLE(
+                header,
+                TR(TD(A(au.display_name,
+                        _href=URL('customers', 'edit', args=[au.id]))),
+                   TH(represent_float_as_amount(total))),
+                _class='table table-striped table-hover'
+                ),
         _class='box-body no-padding')
+
+        box_footer = DIV(
+            XML(row.Note.replace('\n', '<br>')),
+            _class='box-footer text-muted'
+        )
     else:
         total = 0
         box_body = DIV(msg_not_set, _class='box-body')
+        box_footer = ''
 
 
     link = ''
@@ -576,6 +553,7 @@ def cash_count_get(date, count_type):
                 _class='box-tools pull-right'),
             _class='box-header'),
         box_body,
+        box_footer,
         _class='box ' + box_class,
     )
 
