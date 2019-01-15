@@ -114,11 +114,10 @@ def get_credit(date):
     total += cards_used_classes['total']
 
     column = DIV(
-        H4(T("Income")),
+        H4(T("Expenses")),
         additional_items['box'],
         cards_used_classes['box'],
         _class=' col-md-6'
-
     )
 
     return dict(
@@ -183,39 +182,38 @@ def index_get_balance(debit_total=0, credit_total=0):
 
     :return:
     """
-    note = ''
-    link_opening=URL('opening_balance_add')
-    opening_balance = 0
-    info = SPAN()
+    #link_opening=URL('opening_balance_add')
+    # opening_balance = 0
+    # info = SPAN()
+    #
+    # row = db.accounting_cashbooks_cash_count(
+    #     BalanceCount = session.finance_cashbook_date,
+    #     BalanceType = 'opening'
+    # )
+    #
+    # if row:
+    #     note = row.Note
+    #     link_opening=URL('opening_balance_edit', vars={'acbID': row.id})
+    #     opening_balance = row.Amount
+    #
+    #     au = db.auth_user(row.auth_user_id)
+    #     info = SPAN(
+    #         T("Opening balance set by"), ' ',
+    #         A(au.display_name,
+    #           _href=URL('customers', 'edit', args=[au.id])), ' ',
+    #         # T("@"), ' ',
+    #         # row.CreatedOn.strftime(DATETIME_FORMAT),
+    #         XML(' &bull; '),
+    #         _class="text-muted"
+    #     )
+    #
+    # link_set_opening_balance = A(
+    #     T("Set opening balance"),
+    #     _href=link_opening,
+    # )
+    # info.append(link_set_opening_balance)
 
-    row = db.accounting_cashbooks_cash_count(
-        BalanceCount = session.finance_cashbook_date,
-        BalanceType = 'opening'
-    )
-
-    if row:
-        note = row.Note
-        link_opening=URL('opening_balance_edit', vars={'acbID': row.id})
-        opening_balance = row.Amount
-
-        au = db.auth_user(row.auth_user_id)
-        info = SPAN(
-            T("Opening balance set by"), ' ',
-            A(au.display_name,
-              _href=URL('customers', 'edit', args=[au.id])), ' ',
-            # T("@"), ' ',
-            # row.CreatedOn.strftime(DATETIME_FORMAT),
-            XML(' &bull; '),
-            _class="text-muted"
-        )
-
-    link_set_opening_balance = A(
-        T("Set opening balance"),
-        _href=link_opening,
-    )
-    info.append(link_set_opening_balance)
-
-    balance = (opening_balance + debit_total) - credit_total
+    balance = debit_total - credit_total
     balance_class = ''
     if balance < 0:
         balance_class = 'text-red bold'
@@ -223,28 +221,20 @@ def index_get_balance(debit_total=0, credit_total=0):
     box = DIV(DIV(
         DIV(
             H3(T("Summary"), _class='box-title'),
-            DIV(info, _class='box-tools pull-right'),
             _class='box-header'
         ),
-        DIV(note,
-            _class='box-body'
-        ),
-        DIV(DIV(DIV(DIV(H5(T("Opening balance"), _class='description-header'),
-                        DIV(represent_float_as_amount(opening_balance), _class='description-text'),
-                        _class='description-block'),
-                    _class='col-md-3 border-right'),
-                DIV(DIV(H5(T("Income"), _class='description-header'),
+        DIV(DIV(DIV(DIV(H5(T("Income"), _class='description-header'),
                         SPAN(represent_float_as_amount(debit_total), _class='description-text'),
                         _class='description-block'),
-                    _class='col-md-3 border-right'),
+                    _class='col-md-4 border-right'),
                 DIV(DIV(H5(T("Expenses"), _class='description-header'),
                         SPAN(represent_float_as_amount(credit_total), _class='description-text'),
                         _class='description-block'),
-                    _class='col-md-3 border-right'),
+                    _class='col-md-4 border-right'),
                 DIV(DIV(H5(T("Balance"), _class='description-header'),
                         SPAN(represent_float_as_amount(balance), _class='description-text ' + balance_class),
                         _class='description-block'),
-                    _class='col-md-3'),
+                    _class='col-md-4'),
                 _class='row'),
             _class='box-footer'
         ),
