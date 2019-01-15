@@ -155,7 +155,6 @@ def additional_items_get(date, booking_type):
         box_class = 'box-danger'
 
     link_add = ''
-
     if auth.has_membership(group_id='Admins') or \
        auth.has_permission('create', 'accounting_cashbooks_additional_items'):
         link_add = SPAN(
@@ -301,7 +300,7 @@ def cash_count_add():
     return_url = index_return_url()
 
     db.accounting_cashbooks_cash_count.CountDate.default = date
-    db.accounting_cashbooks_cash_count.CountType.default = 'opening'
+    db.accounting_cashbooks_cash_count.CountType.default = count_type
 
     os_forms = OsForms()
     result = os_forms.get_crud_form_create(
@@ -327,7 +326,7 @@ def cash_count_edit():
     """
     from openstudio.os_forms import OsForms
 
-    ccID = request.vars['acccID']
+    ccID = request.vars['ccID']
 
     date = session.finance_cashbook_date
     cc = db.accounting_cashbooks_cash_count(ccID)
@@ -351,7 +350,7 @@ def cash_count_edit():
     result = os_forms.get_crud_form_update(
         db.accounting_cashbooks_cash_count,
         return_url,
-        acccID,
+        ccID,
         message_record_updated=T("Saved"),
     )
 
@@ -515,11 +514,11 @@ def cash_count_get(date, count_type):
 
     if count_type == 'opening':
         box_class = 'box-success'
-        box_title = T("Cash opening balance")
+        box_title = T("Cash count opening")
         msg_not_set = T("Opening balance not set")
     elif count_type == 'closing':
         box_class = 'box-danger'
-        box_title = T("Cash closing balance")
+        box_title = T("Cash count closing")
         msg_not_set = T("closing balance not set")
 
     row = db.accounting_cashbooks_cash_count(
@@ -546,8 +545,29 @@ def cash_count_get(date, count_type):
         total = 0
         box_body = DIV(msg_not_set, _class='box-body')
 
+
+    link = ''
+    link_vars = {'count_type': count_type}
+    if not row:
+        permission = auth.has_membership(group_id='Admins') or \
+                     auth.has_permission('create', 'accounting_cashbooks_cash_count')
+        link_url = 'cash_count_add'
+    else:
+        permission = auth.has_membership(group_id='Admins') or \
+                     auth.has_permission('update', 'accounting_cashbooks_cash_count')
+        link_url = 'cash_count_edit'
+        link_vars['ccID'] = row.id
+
+    if permission:
+        link = SPAN(
+            SPAN(XML(" &bull; "), _class='text-muted'),
+            A(T("Set balance"),
+              _href=URL(link_url, vars=link_vars))
+        )
+
     box = DIV(
         DIV(H3(box_title, _class='box-title'),
+            link,
             DIV(A(I(_class='fa fa-minus'),
                 _href='#',
                 _class='btn btn-box-tool',
