@@ -513,22 +513,6 @@ def cash_count_get(date, count_type):
     # info.append(link_set_opening_balance)
     from general_helpers import max_string_length
 
-    # query = (db.accounting_cashbooks_cash_count.CountDate == date) & \
-    #         (db.accounting_cashbooks_cash_count.CountType == count_type)
-    # rows = db(query).select(db.accounting_cashbooks_cash_count.ALL)
-
-    rows = False
-    row = False
-    if rows:
-        row = rows.first()
-
-    # row = db.accounting_cashbooks_cash_count(
-    #     CountDate = session.finance_cashbook_date,
-    #     CountType = count_type
-    # )
-    #
-    # print count_type
-
     if count_type == 'opening':
         box_class = 'box-success'
         box_title = T("Cash opening balance")
@@ -538,6 +522,10 @@ def cash_count_get(date, count_type):
         box_title = T("Cash closing balance")
         msg_not_set = T("closing balance not set")
 
+    row = db.accounting_cashbooks_cash_count(
+        CountDate = session.finance_cashbook_date,
+        CountType = count_type
+    )
     if row:
         total = row.Amount
         au = db.auth_user(row.auth_user_id)
