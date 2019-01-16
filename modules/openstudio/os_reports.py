@@ -789,3 +789,46 @@ class Reports:
         )
 
         return rows
+    
+
+    def classes_attendance_subscriptions_quickstats_summary(self, date_from, date_until):
+        """
+
+        :param date_from: datetime.date
+        :param date_until: datetime.date
+        :return:
+        """
+        db = current.db
+
+        left = [
+            # Subscriptions
+            db.customers_subscriptions.on(
+                db.classes_attendance.customers_subscriptions_id ==
+                db.customers_subscriptions.id
+            ),
+            db.school_subscriptions.on(
+                db.customers_subscriptions.school_subscriptions_id ==
+                db.school_subscriptions.id
+            ),
+            db.classes_attendance.on(
+                db.classes_attendance.customers_subscriptions_id ==
+                db.customers_subscriptions.id
+            )
+        ]
+
+        count = db.school_subscriptions.id.count()
+
+        query = (db.classes_attendance.ClassDate >= date_from) & \
+                (db.classes_attendance.ClassDate <= date_until)
+
+        rows = db(query).select(
+            db.school_subscriptions.id,
+            db.school_subscriptions.Name,
+            db.school_subscriptions.QuickStatsAmount,
+            count,
+            left=left,
+            groupby=db.school_subscriptions.id,
+            orderby=db.school_subscriptions.Name
+        )
+
+        return rows
