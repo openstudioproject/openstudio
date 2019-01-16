@@ -774,7 +774,8 @@ class Reports:
         count = db.school_classcards.id.count()
 
         query = (db.classes_attendance.ClassDate >= date_from) & \
-                (db.classes_attendance.ClassDate <= date_until)
+                (db.classes_attendance.ClassDate <= date_until) & \
+                (db.classes_attendance.customers_classcards_id != None)
 
         rows = db(query).select(
             db.school_classcards.id,
@@ -782,6 +783,7 @@ class Reports:
             db.school_classcards.QuickStatsAmount,
             db.school_classcards.Classes,
             db.school_classcards.Price,
+            db.school_classcards.Unlimited,
             count,
             left=left,
             groupby=db.school_classcards.id,
@@ -810,16 +812,13 @@ class Reports:
                 db.customers_subscriptions.school_subscriptions_id ==
                 db.school_subscriptions.id
             ),
-            db.classes_attendance.on(
-                db.classes_attendance.customers_subscriptions_id ==
-                db.customers_subscriptions.id
-            )
         ]
 
         count = db.school_subscriptions.id.count()
 
         query = (db.classes_attendance.ClassDate >= date_from) & \
-                (db.classes_attendance.ClassDate <= date_until)
+                (db.classes_attendance.ClassDate <= date_until) & \
+                (db.classes_attendance.customers_subscriptions_id != None)
 
         rows = db(query).select(
             db.school_subscriptions.id,
