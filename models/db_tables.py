@@ -1455,6 +1455,12 @@ def define_school_subscriptions():
               default = 0,
               comment=T("This Amount will be added to the first invoice for this subscription. Set to 0 for no registration fee."),
               ),
+        Field('CountSold', 'integer',
+            # Field to hold count of grouped sold customer subscriptions
+            # Workaround for not being able to have count = db.school_subscriptions.id.count() in
+            # fields = [] when using execute sql
+            readable=False,
+            writable=False),
         format=format)
 
 

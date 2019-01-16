@@ -614,7 +614,7 @@ class Reports:
             )
         ]
 
-        count = db.customers_classcards.id.count()
+        count = db.school_classcards.id.count()
 
         query = (db.customers_classcards.Startdate >= date_from) & \
                 (db.customers_classcards.Startdate <= date_until)
@@ -639,13 +639,11 @@ class Reports:
         """
         db = current.db
 
-        ount = db.school_subscriptions.id.count()
-
         fields = [
             db.school_subscriptions.id,
             db.school_subscriptions.Name,
             db.school_subscriptions_price.Price,
-            count
+            db.school_subscriptions.CountSold
         ]
 
         sql = '''
@@ -667,6 +665,8 @@ class Reports:
         '''.format(date_from=date_from, date_until=date_until)
 
         rows = db.executesql(sql, fields=fields)
+
+        print rows
 
         return rows
 

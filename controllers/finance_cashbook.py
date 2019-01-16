@@ -70,6 +70,10 @@ def get_debit(date):
     sold_memberships = get_debit_memberships(date)
     total += sold_memberships['total']
 
+    # Sold subscriptions
+    sold_subscriptions = get_debit_subscriptions(date)
+    total += sold_subscriptions['total']
+
     # Sold cards
     sold_cards = get_debit_classcards(date)
     total += sold_cards['total']
@@ -89,6 +93,7 @@ def get_debit(date):
         additional_items['box'],
         classes_balance['box'],
         sold_memberships['box'],
+        sold_subscriptions['box'],
         sold_cards['box'],
         sold_products['box'],
         teacher_payments['box'],
@@ -118,20 +123,20 @@ def get_credit(date):
     additional_items = additional_items_get(date, 'credit')
     total += additional_items['total']
 
-    # Classes used on cards
-    cards_used_classes = get_credit_classcards_used_classes_summary(date)
-    total += cards_used_classes['total']
-
     # Classes used on subscriptions
     subscriptions_used_classes = get_credit_subscriptions_classes_summary(date)
     total += subscriptions_used_classes['total']
+
+    # Classes used on cards
+    cards_used_classes = get_credit_classcards_used_classes_summary(date)
+    total += cards_used_classes['total']
 
     column = DIV(
         H4(T("Expenses")),
         count_closing['box'],
         additional_items['box'],
-        cards_used_classes['box'],
         subscriptions_used_classes['box'],
+        cards_used_classes['box'],
         _class=' col-md-6'
     )
 
@@ -649,7 +654,7 @@ def get_debit_classcards(date):
     reports = Reports()
 
     total = 0
-    count = db.customers_classcards.id.count()
+    count = db.school_classcards.id.count()
     rows = reports.classcards_sold_summary_rows(date, date)
 
     header = THEAD(TR(
@@ -683,6 +688,68 @@ def get_debit_classcards(date):
 
     box = DIV(
         DIV(H3(T("Cards"), _class='box-title'),
+            DIV(A(I(_class='fa fa-minus'),
+                _href='#',
+                _class='btn btn-box-tool',
+                _title=T("Collapse"),
+                **{'_data-widget': 'collapse'}),
+                _class='box-tools pull-right'),
+            _class='box-header'),
+        DIV(table, _class='box-body no-padding'),
+        _class='box box-success',
+    )
+
+    return dict(
+        box = box,
+        total = total
+    )
+
+
+def get_debit_subscriptions(date):
+    """
+
+    :param date: datetime.date
+    :return:
+    """
+    from general_helpers import max_string_length
+    from openstudio.os_reports import Reports
+
+    reports = Reports()
+
+    total = 0
+    rows = reports.subscriptions_sold_summary_rows(date, date)
+
+    header = THEAD(TR(
+        TH(T("Subscription")),
+        TH(T("# Sold")),
+        TH(T("Price")),
+        TH(T("Total")),
+    ))
+
+    table = TABLE(header, _class='table table-striped table-hover')
+    for row in rows:
+        subscriptions_sold = row.school_subscriptions.CountSold
+        row_total = row.school_subscriptions_price.Price * subscriptions_sold
+
+        table.append(TR(
+            TD(max_string_length(row.school_subscriptions.Name, 40)),
+            TD(subscriptions_sold),
+            TD(represent_float_as_amount(row.school_subscriptions_price.Price)),
+            TD(represent_float_as_amount(row_total))
+        ))
+
+        total += row_total
+
+    # cards sold footer
+    table.append(TFOOT(TR(
+        TH(),
+        TH(),
+        TH(T("Total")),
+        TH(represent_float_as_amount(total))
+    )))
+
+    box = DIV(
+        DIV(H3(T("Subscriptions"), _class='box-title'),
             DIV(A(I(_class='fa fa-minus'),
                 _href='#',
                 _class='btn btn-box-tool',
