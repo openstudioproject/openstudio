@@ -629,6 +629,48 @@ class Reports:
         return rows
 
 
+    def subscriptions_sold_summary_rows(self, date_from, date_until):
+        """
+        List school subscriptions sold, grouped by subscription
+
+        :param date_from: datetime.date
+        :param date_until: datetime.date
+        :return:
+        """
+        db = current.db
+
+        ount = db.school_subscriptions.id.count()
+
+        fields = [
+            db.school_subscriptions.id,
+            db.school_subscriptions.Name,
+            db.school_subscriptions_price.Price,
+            count
+        ]
+
+        sql = '''
+            SELECT ssu.id,
+                   ssu.Name,
+                   ssup.Price,
+                   COUNT(ssu.id)
+            FROM customers_subscriptions cs
+            LEFT JOIN school_subscriptions ssu ON cs.school_subscriptions_id = ssu.id
+            LEFT JOIN (
+                SELECT id,
+                       school_subscriptions_id,
+                       Price
+                FROM school_subscriptions_price
+                WHERE Startdate <= '{date_from}' AND (Enddate >= '{date_until}' OR Enddate IS NULL)) ssup
+                ON ssup.school_subscriptions_id = ssu.id
+            WHERE cs.StartDate >= '{date_from}' AND cs.StartDate <= '{date_until}'
+            GROUP BY ssu.id, ssup.Price
+        '''.format(date_from=date_from, date_until=date_until)
+
+        rows = db.executesql(sql, fields=fields)
+
+        return rows
+
+
     def memberships_sold_summary_rows(self, date_from, date_until):
         """
         List memberships sold, grouped by membership name
@@ -791,7 +833,7 @@ class Reports:
         )
 
         return rows
-    
+
 
     def classes_attendance_subscriptions_quickstats_summary(self, date_from, date_until):
         """
