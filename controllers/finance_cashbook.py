@@ -131,12 +131,17 @@ def get_credit(date):
     cards_used_classes = get_credit_classcards_used_classes_summary(date)
     total += cards_used_classes['total']
 
+    # Non-cash payments
+    non_cash_payments = get_credit_shop_sales_not_paid_with_cash(date)
+    total += non_cash_payments['total']
+
     column = DIV(
         H4(T("Expenses")),
         count_closing['box'],
         additional_items['box'],
         subscriptions_used_classes['box'],
         cards_used_classes['box'],
+        non_cash_payments['box'],
         _class=' col-md-6'
     )
 
@@ -1008,6 +1013,53 @@ def get_credit_subscriptions_classes_summary(date):
 
     box = DIV(
         DIV(H3(T("Classes taken using subscriptions"), _class='box-title'),
+            DIV(A(I(_class='fa fa-minus'),
+                _href='#',
+                _class='btn btn-box-tool',
+                _title=T("Collapse"),
+                **{'_data-widget': 'collapse'}),
+                _class='box-tools pull-right'),
+            _class='box-header'),
+        DIV(table, _class='box-body no-padding'),
+        _class='box box-danger',
+    )
+
+    return dict(
+        box = box,
+        total = total
+    )
+
+
+def get_credit_shop_sales_not_paid_with_cash(date):
+    """
+
+    :param date: datetime.date
+    :return:
+    """
+    from general_helpers import max_string_length
+    from openstudio.os_reports import Reports
+
+    reports = Reports()
+
+    total = 0
+    # count = db.school_subscriptions.id.count()
+    amount = reports.shop_sales_not_paid_with_cash_summary(date, date)
+    total += amount
+
+    header = THEAD(TR(
+        TH(T("Sales")),
+        TH(T("Amount")),
+    ))
+
+    table = TABLE(header, _class='table table-striped table-hover')
+    table.append(TR(
+        TD(T("Paid not using cash")),
+        TD(represent_float_as_amount(amount)),
+    ))
+
+
+    box = DIV(
+        DIV(H3(T("Non cash sales payments"), _class='box-title'),
             DIV(A(I(_class='fa fa-minus'),
                 _href='#',
                 _class='btn btn-box-tool',

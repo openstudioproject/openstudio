@@ -789,7 +789,7 @@ class Reports:
             row = rows.first()
             sum_not_paid_using_cash = row[sum]
 
-        return sum_not_paid_using_cash
+        return sum_not_paid_using_cash or 0
 
 
     def classes_attendance_classcards_quickstats_summary(self, date_from, date_until):
