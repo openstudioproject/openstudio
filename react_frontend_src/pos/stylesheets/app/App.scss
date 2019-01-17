@@ -31,9 +31,14 @@ html, body, div#app {
 .btn-primary,
 .btn-primary:hover,
 .btn-primary:focus,
-.btn-primary:active, {
+.btn-primary:active {
     border: 1px solid #605ca8;
     background-color: #605ca8;
+}
+
+.btn-primary:active:hover {
+    border: 1px solid #46428B;
+    background-color: #46428B;
 }
 
 .nav-tabs-custom>.nav-tabs>li.active {
@@ -46,8 +51,6 @@ html, body, div#app {
 .nav.nav-tabs.nav-justified a:active, {
     color: #605ca8;
 }
-
-
 
 .info-box-icon {
     overflow: hidden;
