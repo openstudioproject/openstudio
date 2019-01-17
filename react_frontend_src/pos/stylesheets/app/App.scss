@@ -52,6 +52,8 @@ html, body, div#app {
     color: #605ca8;
 }
 
+/* info box begin */
+
 .info-box-icon {
     overflow: hidden;
 }
@@ -61,6 +63,12 @@ html, body, div#app {
     height: 90px;    
     margin-top: -10px;
 }
+
+.info-box-number {
+    font-size: 14px;
+}
+
+/* info box end */
 
 /* Input group search begin */
 
@@ -247,5 +255,12 @@ html, body, div#app {
     overflow-x: hidden;
 }
 
+/* shop products small box begin */
+
+.shop-products-content .small-box {
+    min-height: 130px;
+}
+
+/* shop products small box end */
 
 // /* Shop products end */
