@@ -43,14 +43,22 @@ const populateRowsClasscards = (classcards, customer_memberships, onClick=f=>f) 
 const BookOptionsList = ({booking_options, customer_memberships, onClick=f=>f}) => 
     <div className="checkin-booking-options">
         {console.log(booking_options)}
-        <h4>Subscriptions</h4>
-        <div>
-            { populateRowsSubscriptions(booking_options.subscriptions, customer_memberships, onClick) }
-        </div>
-        <h4>Class cards</h4>
-        <div>
-            { populateRowsClasscards(booking_options.classcards, customer_memberships, onClick) }
-        </div>
+        {(booking_options.subscriptions.length > 0) ?
+            <div>
+                <h4>Subscriptions</h4>
+                <div>
+                    { populateRowsSubscriptions(booking_options.subscriptions, customer_memberships, onClick) }
+                </div>
+            </div>
+        : '' }
+        {(booking_options.classcards.length > 0) ?
+            <div>
+                <h4>Class cards</h4>
+                <div>
+                    { populateRowsClasscards(booking_options.classcards, customer_memberships, onClick) }
+                </div>
+            </div>
+        : '' }
         <h4>Drop-in & Trial</h4>
             <div className="row">
                 <BookOptionsListItemDropin data={booking_options.dropin}
