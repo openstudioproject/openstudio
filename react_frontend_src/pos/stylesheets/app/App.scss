@@ -28,6 +28,27 @@ html, body, div#app {
     margin-right: 6px;
 }
 
+.btn-primary,
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active, {
+    border: 1px solid #605ca8;
+    background-color: #605ca8;
+}
+
+.nav-tabs-custom>.nav-tabs>li.active {
+    border-top-color: #605ca8;
+}
+
+.nav.nav-tabs.nav-justified a, 
+.nav.nav-tabs.nav-justified a:hover, 
+.nav.nav-tabs.nav-justified a:focus, 
+.nav.nav-tabs.nav-justified a:active, {
+    color: #605ca8;
+}
+
+
+
 .info-box-icon {
     overflow: hidden;
 }

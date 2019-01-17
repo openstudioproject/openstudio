@@ -270,7 +270,7 @@ class WorkshopProduct:
             invoice.link_to_customer(cuID)
             invoice.item_add_workshop_product(wspcID)
             invoice.set_amounts()
-        
+
         ##
         # Send info mail to customer if we have some practical info
         ##
