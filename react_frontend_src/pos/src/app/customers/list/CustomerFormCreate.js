@@ -50,6 +50,14 @@ const CustomerFormCreate = ({error_data={}, onSubmit=f=>f, onCancel=f=>f}) =>
                     type="text" 
                 />
                 <CustomerFormError message={ (error_data.mobile) ? error_data.mobile : "" } />
+                <label htmlFor="email">Date of birth</label>
+                <input 
+                    id="date_of_birth" 
+                    className="form-control"
+                    name="date_of_birth" 
+                    type="text" 
+                />
+                <CustomerFormError message={ (error_data.date_of_birth) ? error_data.date_of_birth : "" } />
                 <br />
                 <button className="btn btn-primary">Save</button>
             </form>
