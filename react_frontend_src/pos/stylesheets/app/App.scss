@@ -28,6 +28,32 @@ html, body, div#app {
     margin-right: 6px;
 }
 
+.btn-primary,
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+    border: 1px solid #605ca8;
+    background-color: #605ca8;
+}
+
+.btn-primary:active:hover {
+    border: 1px solid #46428B;
+    background-color: #46428B;
+}
+
+.nav-tabs-custom>.nav-tabs>li.active {
+    border-top-color: #605ca8;
+}
+
+.nav.nav-tabs.nav-justified a, 
+.nav.nav-tabs.nav-justified a:hover, 
+.nav.nav-tabs.nav-justified a:focus, 
+.nav.nav-tabs.nav-justified a:active, {
+    color: #605ca8;
+}
+
+/* info box begin */
+
 .info-box-icon {
     overflow: hidden;
 }
@@ -37,6 +63,12 @@ html, body, div#app {
     height: 90px;    
     margin-top: -10px;
 }
+
+.info-box-number {
+    font-size: 14px;
+}
+
+/* info box end */
 
 /* Input group search begin */
 
@@ -223,5 +255,20 @@ html, body, div#app {
     overflow-x: hidden;
 }
 
+/* shop products small box begin */
+
+.shop-products-content .small-box {
+    min-height: 130px;
+}
+
+/* shop products small box end */
 
 // /* Shop products end */
+
+/* checkin booking optios begin */
+
+.checkin-booking-options .small-box {
+    min-height: 140px;
+}
+
+/* checkin booking options end */

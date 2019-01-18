@@ -267,9 +267,9 @@ class WorkshopProduct:
 
             # create object to set Invoice# and due date
             invoice = Invoice(iID)
+            invoice.link_to_customer(cuID)
             invoice.item_add_workshop_product(wspcID)
             invoice.set_amounts()
-            invoice.link_to_customer(cuID)
 
         ##
         # Send info mail to customer if we have some practical info

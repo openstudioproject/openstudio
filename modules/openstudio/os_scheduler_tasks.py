@@ -256,8 +256,9 @@ class OsSchedulerTasks:
             if customer.has_membership_on_date(new_cm_start):
                 continue
 
+            day_after_current_membership_end = row.Enddate + datetime.timedelta(days=1)
             # Ok all good, continue
-            if customer.has_subscription_on_date(firstdaynextmonth, from_cache=False):
+            if customer.has_subscription_on_date(day_after_current_membership_end, from_cache=False):
                 new_cm_start = row.Enddate + datetime.timedelta(days=1)
 
                 school_membership = SchoolMembership(row.school_memberships_id)

@@ -1182,10 +1182,6 @@ def access_group_permissions():
 
     finance_permisisons = [
         ['finance-read', T("View finance menu"), [
-            ['payment_batches-read', T('View payment batches'), [
-                ['payment_batches-create', T('Add payment batches')],
-                ['payment_batches-update', T('Edit payment batches')],
-                ['payment_batches-delete', T('Delete payment batches')]]],
             ['invoices-read', T('View invoices'), [
                 ['invoices-create', T('Add invoices')],
                 ['invoices-update', T('Edit invoices')],
@@ -1197,6 +1193,19 @@ def access_group_permissions():
                 ['invoices_payments-update', T('Edit invoice payments')],
                 ['invoices_payments-delete', T('Delete invoice payments')]]],
             ['receipts-read', T("View receipts")],
+            ['accounting_cashbooks-read', T("View cash books"), [
+                ['accounting_cashbooks_cash_count-create', T("Set cash book opening balance")],
+                ['accounting_cashbooks_cash_count-update', T("Edit cash book opening balance")]
+            ]],
+            ['accounting_cashbooks_additional_items-read', T("View cash book additional items"), [
+                ['accounting_cashbooks_additional_items-create', T("Set cash book additional items")],
+                ['accounting_cashbooks_additional_items-update', T("Edit cash book additional items")],
+                ['accounting_cashbooks_additional_items-delete', T("Delete cash book additional items")],
+            ]],
+            ['payment_batches-read', T('View payment batches'), [
+                ['payment_batches-create', T('Add payment batches')],
+                ['payment_batches-update', T('Edit payment batches')],
+                ['payment_batches-delete', T('Delete payment batches')]]],
             ['reports_direct_debit_extra-read', T('View direct debit extra')]],
          ]
     ]
@@ -1263,9 +1272,6 @@ def access_group_permissions():
             ['auth_user-update', T("Edit customers' general info"), [
                 ['customers_contact-update', T("View & Update contact info")],
                 ['customers_address-update', T("View & Update address info")],
-                ['customers_payments-read', T('View payments'), [
-                    ['customers_payments-create', T('Add payments')],
-                    ['customers_payments-update', T('Edit payments')]]],
                 ['customers_memberships-read', T("View memberships"), [
                     ['customers_memberships-create', T("Add memberships")],
                     ['customers_memberships-update', T("Edit memberships")],

@@ -393,7 +393,7 @@ def represent_float_as_amount(value, row=None):
     """
         Takes value and rounds it to a 2 decimal number.
     """
-    if value is None or not isinstance(value, float):
+    if value is None or (not isinstance(value, float) and not isinstance(value, int)):
         return ''
     else:
         return SPAN(CURRSYM, ' ', format(value, '.2f'))
@@ -856,6 +856,74 @@ def define_accounting_glaccounts():
         format='%(Name)s')
 
 
+def define_accounting_cashbooks_cash_count():
+    auth_user_query = (db.auth_user.id > 1) & \
+                      (db.auth_user.trashed == False) & \
+                      ((db.auth_user.teacher == True) |
+                       (db.auth_user.employee == True))
+
+    try:
+        auth_user_id_default = auth.user.id
+    except AttributeError:
+        auth_user_id_default = None  # default to None when not signed in
+
+    db.define_table('accounting_cashbooks_cash_count',
+        Field('CountDate', 'date',
+            readable=False,
+            writable=False),
+        Field('CountType',
+            readable=False,
+            writable=False,
+            default='opening',
+            requires=IS_IN_SET([
+              ['opening', T("Opening balance")],
+              ['closing', T("Closing balance")]
+            ]),
+            label=T("Balance type") ),
+        Field('Amount', 'double',
+            represent=represent_float_as_amount,
+            default=0,
+            label=T("Amount")),
+        Field('Note', 'text',
+            label=T("Note")),
+        Field('auth_user_id', db.auth_user,
+            readable=False,
+            writable=False,
+            default=auth_user_id_default,
+            requires=IS_EMPTY_OR(IS_IN_DB(db(auth_user_query),
+                                          'auth_user.id',
+                                          '%(first_name)s %(last_name)s',
+                                          zero=T("Unassigned")))),
+        Field('CreatedOn', 'datetime',
+              readable=False,
+              writable=False,
+              default=datetime.datetime.now()),
+    )
+
+
+def define_accounting_cashbooks_additional_items():
+    db.define_table('accounting_cashbooks_additional_items',
+        Field('BookingDate', 'date',
+            readable=False,
+            writable=False,
+            represent=represent_date),
+        Field('BookingType',
+            readable=False,
+            writable=False,
+            requires=IS_IN_SET([
+              ['debit', T("Debit / In")],
+              ['credit', T("Credit / Out")]
+            ])),
+        Field('Amount', 'double',
+            represent=represent_float_as_amount,
+            default=0,
+            label=T("Amount")),
+        Field('Description',
+              requires=IS_NOT_EMPTY(),
+              label=T("Description")),
+    ),
+
+
 def define_payment_methods():
     db.define_table('payment_methods',
         Field('Archived', 'boolean',
@@ -1171,6 +1239,12 @@ def define_school_classcards():
               label=T("Requires membership"),
               comment=T(
                   "Set a required membership for this card. Without this memberships customers won't be able to buy this card or use it to attend classes.")),
+        Field('QuickStatsAmount', 'double',
+              label=T('Quick Stats Amount'),
+              default=0,
+              comment=T(
+                  "Only used for unlimited cards. As it's impossible to know the exact revenue for each class until the end of the card. This amount will be used to create rough estimates of class revenue.")
+              ),
         Field('accounting_glaccounts_id', db.accounting_glaccounts,
               requires=IS_EMPTY_OR(IS_IN_DB(db(ag_query),
                                             'accounting_glaccounts.id',
@@ -1381,6 +1455,12 @@ def define_school_subscriptions():
               default = 0,
               comment=T("This Amount will be added to the first invoice for this subscription. Set to 0 for no registration fee."),
               ),
+        Field('CountSold', 'integer',
+            # Field to hold count of grouped sold customer subscriptions
+            # Workaround for not being able to have count = db.school_subscriptions.id.count() in
+            # fields = [] when using execute sql
+            readable=False,
+            writable=False),
         format=format)
 
 
@@ -4478,15 +4558,15 @@ def define_receipts():
                               zero=T("Not set"))),
             represent=lambda value, row: payment_methods_dict.get(value),
             label=T("Payment method")),
-        Field('Created_by', db.auth_user,
+        Field('CreatedBy', db.auth_user,
             writable=False,
             label=T("Employee")),
-        Field('Created_at', 'datetime',
+        Field('CreatedOn', 'datetime',
             writable=False,
             default=datetime.datetime.now(),
             represent=represent_datetime,
             label=T("Time")),
-        Field('Updated_at', 'datetime',
+        Field('UpdatedOn', 'datetime',
             readable=False,
             writable=False,
             default=datetime.datetime.now(),
@@ -4494,7 +4574,7 @@ def define_receipts():
         )
 
     try:
-        db.receipts.Created_by.default = auth.user.id
+        db.receipts.CreatedBy.default = auth.user.id
     except AttributeError:
         pass
 
@@ -6280,6 +6360,8 @@ define_postcode_groups()
 define_tax_rates()
 define_accounting_costcenters()
 define_accounting_glaccounts()
+define_accounting_cashbooks_cash_count()
+define_accounting_cashbooks_additional_items()
 
 define_school_memberships()
 define_school_subscriptions()

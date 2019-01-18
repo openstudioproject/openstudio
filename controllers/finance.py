@@ -2085,5 +2085,3 @@ def employee_expenses_process_accepted():
     )
 
     redirect(URL('employee_expenses_processed'))
-
-
