@@ -139,7 +139,8 @@ def get_settings():
     settings = {
         'currency_symbol': CURRSYM,
         'currency': get_sys_property('Currency'),
-        'customers_barcodes': get_sys_property('pos_customers_barcodes')
+        'customers_barcodes': get_sys_property('pos_customers_barcodes'),
+        'date_format': get_sys_property('DateFormat')
     }
 
     return dict(data = settings)

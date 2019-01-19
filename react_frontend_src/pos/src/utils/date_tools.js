@@ -21,3 +21,16 @@ export function formatDate(date) {
   
     return monthNames[monthIndex] + ' ' + day + ', ' + year
 }
+
+export function python_dateformat_to_input_mask(py_dateformat) {
+    switch (py_dateformat) {
+        case "%d-%m-%Y":
+            return "DD-MM-YYYY"
+            break
+        case "%m-%d-%Y":
+            return "MM-DD-YYYY"
+            break
+        default:
+            return "YYYY-MM-DD"
+    }
+}

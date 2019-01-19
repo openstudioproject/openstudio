@@ -4,6 +4,7 @@ import PropTypes from "prop-types"
 import { NavLink } from 'react-router-dom'
 import validator from 'validator'
 
+import python_dateformat_to_input_mask from "../../../utils/date_tools"
 
 import PageTemplate from "../../../components/PageTemplate"
 import InputGroupSearch from "../../../components/ui/InputGroupSearch"
@@ -178,6 +179,9 @@ class Customers extends Component {
         const customers = this.props.customers
         const intl = this.props.intl
         const memberships = this.props.memberships
+        const settings = this.props.app.settings.data
+        // const date_inputmask = python_dateformat_to_input_mask(this.props.app.settings.data.date_format)
+
 
         let customers_display = []
         if (customers.loaded && memberships.loaded) {
