@@ -3,6 +3,7 @@ import { intlShape } from "react-intl"
 import PropTypes from "prop-types"
 import validator from 'validator'
 import { v4 } from "uuid"
+import Inputmask from "inputmask"
 
 import CustomerFormError from "./CustomerFormError"
 
@@ -13,6 +14,7 @@ class CustomerFormCreate extends Component {
     constructor(props) {
         super(props)
         console.log(props)
+        this.inputDateOfBirth = React.createRef();
     }
 
     PropTypes = {
@@ -23,10 +25,15 @@ class CustomerFormCreate extends Component {
     }
 
     componentDidMount() {
-
+        // const date_of_birth_selector = '#date_of_birth'
+        // const dob = document.getElementById()
+        Inputmask({"mask": "dd-mm-yyyy"}).mask(this.inputDateOfBirth.current)
     }
+
+
     render() {
-        const date_format = this.props.date_format
+        // const date_format = this.props.date_format
+        const date_format = "dd-mm-yyyy"
         const error_data = this.props.error_data
         const onSubmit = this.props.onSubmit
         const onCancel = this.props.onCancel        
@@ -83,6 +90,7 @@ class CustomerFormCreate extends Component {
                             type="text" 
                             date-inputmask="'alias': 'dd-mm-yyyy'"
                             data-mask="true"
+                            ref={this.inputDateOfBirth}
                         />
                         <CustomerFormError message={ (error_data.date_of_birth) ? error_data.date_of_birth : "" } />
                         <br />
