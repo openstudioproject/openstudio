@@ -777,11 +777,17 @@ def update_customer():
         )
     ]
 
+
+
     if cuID:
         query = (db.auth_user.id == cuID)
         result = db(query).validate_and_update(**request.vars)
+        error = False
+        if result.errors:
+            error = True
 
         return dict(result=result,
+                    error=error,
                     id=cuID)
 
 
