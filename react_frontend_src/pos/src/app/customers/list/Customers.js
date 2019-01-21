@@ -182,6 +182,7 @@ class Customers extends Component {
         const intl = this.props.intl
         const memberships = this.props.memberships
         const settings = this.props.app.settings.data
+        const inputmask_date = 'dd-mm-yyyy'
         // const date_inputmask = python_dateformat_to_input_mask(this.props.app.settings.data.date_format)
 
 
@@ -245,12 +246,13 @@ class Customers extends Component {
                                                 onClearCameraAppSnap={this.props.clearCameraAppSnap}
                                                 onSaveCameraAppSnap={this.props.updateCustomerPicture} />
                                 { (customers.create_customer) ?
-                                    <CustomerFormCreate date_format='dd-mm-yyyy'
+                                    <CustomerFormCreate inputmask_date={inputmask_date}
                                                         error_data={customers.create_customer_error_data}
                                                         onSubmit={this.onCreateCustomer.bind(this)}
                                                         onCancel={this.onClickAdd.bind(this)} /> : ''
                                 }
                                 <CustomerFormUpdate display={customers.update_customer}
+                                                    inputmask_date={inputmask_date}
                                                     error_data={customers.update_customer_error_data}
                                                     customerID={customers.displayID}
                                                     customers={customers.data}
