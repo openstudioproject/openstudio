@@ -592,6 +592,10 @@ def get_customers():
     customers = {}
 
     for row in rows:
+        date_of_birth = None
+        if row.date_of_birth:
+            date_of_birth = row.date_of_birth.strftime(DATE_FORMAT)
+
         customers[row.id] = {
             'id': row.id,
             'first_name': row.first_name,
@@ -600,7 +604,7 @@ def get_customers():
             'search_name': row.display_name.lower(),
             'email': row.email,
             'gender': row.gender,
-            'date_of_birth': row.date_of_birth,
+            'date_of_birth': date_of_birth,
             'address': row.address,
             'postcode': row.postcode,
             'city': row.city,
