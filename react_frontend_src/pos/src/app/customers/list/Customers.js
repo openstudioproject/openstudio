@@ -116,6 +116,7 @@ class Customers extends Component {
     }
 
     onClickEdit(e) {
+        this.props.clearUpdateCustomerErrorData()
         this.props.setUpdateCustomerStatus(!this.props.customers.update_customer)
     }
 

@@ -45,21 +45,27 @@ export const listReducer = (state = {}, action={ type: null }) => {
             }
 
         case T.RECEIVE_CREATE_CUSTOMER:       
-            if (action.data.error == true) {
-                console.log('error found')
-            }
-            
-            
-            return {
+            let return_value = {
                 ...state,
                 creating_customer: false,
                  data: {
                      ...state.data,
-                     [action.data.result.id]: state.create_customer_temp_data
+                     [action.data.result.id]: {
+                         ...state.create_customer_temp_data,
+                         search_name: state.create_customer_temp_data.first_name + ' ' + state.create_customer_temp_data.last_name
+                     }
                 },
-                create_customer_error_data: action.data.result.errors
-                
+                create_customer_error_data: action.data.result.errors   
             }
+            
+            if (action.data.error == true) {
+                console.log('error found')
+            } else {
+                return_value['create_customer'] = false
+                return_value['displayID'] = action.data.result.id
+            }
+            
+            return return_value
         case T.CLEAR_CREATE_CUSTOMER_ERROR_DATA:
             return {
                 ...state,
