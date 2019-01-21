@@ -485,6 +485,7 @@ def event_add_set_price():
 
     crud.messages.submit_button = T("Save")
     crud.messages.record_updated = T("Saved")
+    crud.settings.formstyle = 'bootstrap3_stacked'
     crud.settings.update_deletable = False
     crud.settings.update_next = URL('tickets', vars={'wsID': wsID})
     form = crud.update(db.workshops_products, fwspID)
@@ -803,7 +804,7 @@ def activity_add():
     crud.messages.record_created = T("Added activity")
     crud.settings.create_onaccept = [activity_add_edit_update_workshop_datetime_info, cache_clear_workshops]
     crud.settings.create_next = return_url
-    crud.settings.formstyle = 'table3cols'
+    crud.settings.formstyle = 'bootstrap3_stacked'
     form = crud.create(db.workshops_activities)
 
     form_id = "MainForm"
@@ -841,6 +842,7 @@ def activity_edit():
     crud.messages.submit_button = T("Save")
     crud.messages.record_updated = T("Saved")
     crud.messages.record_deleted = T("Deleted activity")
+    crud.settings.formstyle = 'bootstrap3_stacked'
     crud.settings.update_onaccept = [activity_add_edit_update_workshop_datetime_info, cache_clear_workshops]
     crud.settings.update_next = return_url
     crud.settings.update_deletable = False
