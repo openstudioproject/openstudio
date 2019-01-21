@@ -219,8 +219,10 @@ class CustomerDisplay extends Component {
                             {customers_list[customerID].display_name}<br/>
                             <label>Email</label><br/>
                             {customers_list[customerID].email}<br/>
-                            {/* <label>Address</label><br/>
-                            {customers_list[customerID].address}<br/> */}
+                            <label>Phone</label><br/>
+                            {customers_list[customerID].mobile}<br/>
+                            <label>Date of birth</label><br/>
+                            {customers_list[customerID].date_of_birth}<br/>
                         </div>
                     </div>
                 </div>
