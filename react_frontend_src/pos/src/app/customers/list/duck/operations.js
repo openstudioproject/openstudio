@@ -3,6 +3,7 @@ import {
     receiveCustomers,
     requestCreateCustomer,
     receiveCreateCustomer,
+    clearCreateCustomerErrorData,
     requestUpdateCustomer,
     receiveUpdateCustomer,
     requestSaveCameraAppSnap,
@@ -83,9 +84,6 @@ const createCustomer = (data) => {
         .then(function(response) {
             console.log(response)
             dispatch(receiveCreateCustomer(response.data))
-            if (isEmpty(response.data.result.errors)) {
-                console.log("NO ERRORS, YAY!!")
-            }
         })
         .catch(function (error) {
             console.log(error)
@@ -138,6 +136,7 @@ const updateCustomerPicture = (cuID, picture) => {
 
 export default {
     createCustomer,
+    clearCreateCustomerErrorData,
     updateCustomer,
     updateCustomerPicture,
     fetchCustomers,

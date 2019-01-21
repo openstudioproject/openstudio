@@ -44,7 +44,12 @@ export const listReducer = (state = {}, action={ type: null }) => {
                 create_customer_error_data: {}
             }
 
-        case T.RECEIVE_CREATE_CUSTOMER:           
+        case T.RECEIVE_CREATE_CUSTOMER:       
+            if (action.data.error == true) {
+                console.log('error found')
+            }
+            
+            
             return {
                 ...state,
                 creating_customer: false,
@@ -55,6 +60,12 @@ export const listReducer = (state = {}, action={ type: null }) => {
                 create_customer_error_data: action.data.result.errors
                 
             }
+        case T.CLEAR_CREATE_CUSTOMER_ERROR_DATA:
+            return {
+                ...state,
+                create_customer_error_data: {}
+            }
+        
         case T.REQUEST_UPDATE_CUSTOMER:
             return {
                 ...state,

@@ -708,7 +708,12 @@ def create_customer():
     result = db.auth_user.validate_and_insert(**request.vars)
     print result
 
-    return dict(result=result)
+    error = False
+    if result.errors:
+        error = True
+
+    return dict(result=result,
+                error=error)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \

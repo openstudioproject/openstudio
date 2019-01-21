@@ -29,6 +29,9 @@ const mapDispatchToProps = dispatch =>
         updateCustomerPicture(cuID, picture) {
             dispatch(customersListOperations.updateCustomerPicture(cuID, picture))
         },
+        clearCreateCustomerErrorData() {
+            dispatch(customersListOperations.clearCreateCustomerErrorData())
+        },
         setCreateCustomerStatus(status) {
             dispatch(customersListOperations.setCreateCustomerStatus(status))
         },

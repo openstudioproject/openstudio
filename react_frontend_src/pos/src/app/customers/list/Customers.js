@@ -111,6 +111,7 @@ class Customers extends Component {
         this.props.clearSelectedCustomerID()
         this.props.clearSearchValue()
         this.props.setUpdateCustomerStatus(false)
+        this.props.clearCreateCustomerErrorData()
         this.props.setCreateCustomerStatus(!this.props.customers.create_customer)
     }
 

@@ -24,6 +24,11 @@ export const receiveCreateCustomer = (data) =>
         data
     })
 
+export const clearCreateCustomerErrorData = () =>
+    ({
+        type: T.CLEAR_CREATE_CUSTOMER_ERROR_DATA
+    })
+
 export const requestUpdateCustomer = (data) =>
     ({
         type: T.REQUEST_UPDATE_CUSTOMER,
