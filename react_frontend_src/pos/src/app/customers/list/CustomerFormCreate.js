@@ -4,6 +4,7 @@ import PropTypes from "prop-types"
 import validator from 'validator'
 import { v4 } from "uuid"
 import Inputmask from "inputmask"
+// import Inputmask from "inputmask/dist/inputmask/inputmask.date.extensions";
 
 import CustomerFormError from "./CustomerFormError"
 
@@ -25,15 +26,14 @@ class CustomerFormCreate extends Component {
     }
 
     componentDidMount() {
-        // const date_of_birth_selector = '#date_of_birth'
-        // const dob = document.getElementById()
-        Inputmask({"mask": "dd-mm-yyyy"}).mask(this.inputDateOfBirth.current)
+        Inputmask({"placeholder": this.props.date_format}).mask(this.inputDateOfBirth.current)
+        // this.inputDateOfBirth.current.inputmask(this.props.date_format, { 'placeholder': this.props.date_format })
     }
 
 
     render() {
         // const date_format = this.props.date_format
-        const date_format = "dd-mm-yyyy"
+        const date_format = this.props.date_format
         const error_data = this.props.error_data
         const onSubmit = this.props.onSubmit
         const onCancel = this.props.onCancel        
@@ -88,7 +88,7 @@ class CustomerFormCreate extends Component {
                             autoComplete="off"
                             name="date_of_birth" 
                             type="text" 
-                            date-inputmask="'alias': 'dd-mm-yyyy'"
+                            data-inputmask={"'alias': 'datetime', 'inputFormat': '" + date_format + "'"}
                             data-mask="true"
                             ref={this.inputDateOfBirth}
                         />

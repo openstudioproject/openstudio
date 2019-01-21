@@ -243,7 +243,8 @@ class Customers extends Component {
                                                 onClearCameraAppSnap={this.props.clearCameraAppSnap}
                                                 onSaveCameraAppSnap={this.props.updateCustomerPicture} />
                                 { (customers.create_customer) ?
-                                    <CustomerFormCreate error_data={customers.create_customer_error_data}
+                                    <CustomerFormCreate date_format='dd-mm-yyyy'
+                                                        error_data={customers.create_customer_error_data}
                                                         onSubmit={this.onCreateCustomer.bind(this)}
                                                         onCancel={this.onClickAdd.bind(this)} /> : ''
                                 }

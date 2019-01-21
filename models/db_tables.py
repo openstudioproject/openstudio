@@ -6171,7 +6171,7 @@ auth.settings.extra_fields['auth_user'] = [
     Field('date_of_birth', 'date', required=False,
         requires=IS_EMPTY_OR(IS_DATE_IN_RANGE(format=DATE_FORMAT,
                              minimum=datetime.date(1900,1,1),
-                             maximum=datetime.date(2999,1,1))),
+                             maximum=datetime.date(2999,12,31))),
         represent=represent_date, label=T("Date of birth"),
         widget=os_date_widget),
     Field('birthday', 'date',
