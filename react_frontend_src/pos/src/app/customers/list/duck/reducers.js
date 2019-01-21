@@ -40,7 +40,8 @@ export const listReducer = (state = {}, action={ type: null }) => {
             return {
                 ...state,
                 creating_customer: true,
-                create_customer_temp_data: action.data
+                create_customer_temp_data: action.data,
+                create_customer_error_data: {}
             }
 
         case T.RECEIVE_CREATE_CUSTOMER:           
@@ -58,7 +59,8 @@ export const listReducer = (state = {}, action={ type: null }) => {
             return {
                 ...state,
                 updating_customer: true,
-                update_customer_temp_data: action.data
+                update_customer_temp_data: action.data,
+                update_customer_error_data: {}
             }
         case T.RECEIVE_UPDATE_CUSTOMER:
             if (!(isEmpty(action.data.result.errors))) {
