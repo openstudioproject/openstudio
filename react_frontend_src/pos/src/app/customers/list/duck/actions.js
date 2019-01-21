@@ -41,6 +41,11 @@ export const receiveUpdateCustomer = (data) =>
         data
     })
 
+export const clearUpdateCustomerErrorData = () =>
+    ({
+        type: T.CLEAR_UPDATE_CUSTOMER_ERROR_DATA
+    })
+
 export const requestSaveCameraAppSnap = () =>
     ({
         type: T.REQUEST_SAVE_CAMERA_APP_SNAP

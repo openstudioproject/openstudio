@@ -4,6 +4,7 @@ import {
     requestCreateCustomer,
     receiveCreateCustomer,
     clearCreateCustomerErrorData,
+    clearUpdateCustomerErrorData,
     requestUpdateCustomer,
     receiveUpdateCustomer,
     requestSaveCameraAppSnap,
@@ -137,6 +138,7 @@ const updateCustomerPicture = (cuID, picture) => {
 export default {
     createCustomer,
     clearCreateCustomerErrorData,
+    clearUpdateCustomerErrorData,
     updateCustomer,
     updateCustomerPicture,
     fetchCustomers,

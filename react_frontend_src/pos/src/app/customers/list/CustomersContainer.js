@@ -32,6 +32,9 @@ const mapDispatchToProps = dispatch =>
         clearCreateCustomerErrorData() {
             dispatch(customersListOperations.clearCreateCustomerErrorData())
         },
+        clearUpdateCustomerErrorData() {
+            dispatch(customersListOperations.clearUpdateCustomerErrorData())
+        },
         setCreateCustomerStatus(status) {
             dispatch(customersListOperations.setCreateCustomerStatus(status))
         },

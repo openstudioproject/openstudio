@@ -94,6 +94,11 @@ export const listReducer = (state = {}, action={ type: null }) => {
                     update_customer_error_data: action.data.result.errors
                 }
             }
+        case T.CLEAR_UPDATE_CUSTOMER_ERROR_DATA:
+            return {
+                ...state,
+                update_customer_error_data: {}
+            }
         case T.REQUEST_SAVE_CAMERA_APP_SNAP:
             return {
                 ...state,
