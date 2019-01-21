@@ -45,17 +45,12 @@ export const listReducer = (state = {}, action={ type: null }) => {
             }
 
         case T.RECEIVE_CREATE_CUSTOMER:       
-            let display_name = state.create_customer_temp_data.first_name + ' ' + state.create_customer_temp_data.last_name
             let return_value = {
                 ...state,
                 creating_customer: false,
                  data: {
                      ...state.data,
-                     [action.data.result.id]: {
-                         ...state.create_customer_temp_data,
-                         search_name: display_name,
-                         display_name: display_name
-                     }
+                     [action.data.result.id]: action.data.customer_data
                 },
                 create_customer_error_data: action.data.result.errors   
             }
