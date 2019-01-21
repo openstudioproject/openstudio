@@ -27,6 +27,7 @@ import {
 
 import axios_os from '../../../../utils/axios_os'
 import OS_API from '../../../../utils/os_api'
+import { SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS } from 'constants';
 
 // just pass these actions as there's nothing else they need to do
 // Put pass-through actions here
@@ -65,6 +66,14 @@ const formDataToObject = (fd_obj) => {
     return data_object
 }
 
+function isEmpty(obj) {
+    for(var key in obj) {
+        if(obj.hasOwnProperty(key))
+            return false;
+    }
+    return true;
+}
+
 // creators
 const createCustomer = (data) => {
     return dispatch => {
@@ -72,7 +81,11 @@ const createCustomer = (data) => {
 
         axios_os.post(OS_API.CUSTOMER_CREATE, data)
         .then(function(response) {
+            console.log(response)
             dispatch(receiveCreateCustomer(response.data))
+            if (isEmpty(response.data.result.errors)) {
+                console.log("NO ERRORS, YAY!!")
+            }
         })
         .catch(function (error) {
             console.log(error)
