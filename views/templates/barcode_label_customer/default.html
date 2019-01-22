@@ -24,7 +24,7 @@
                 }
                 
                 .logo {
-                    top: 4mm;
+                    top: 8mm;
                 }
                 
                 .tools, button {
@@ -40,29 +40,30 @@
             }
             
             .label {
+                font-size: 10px;
                 position: relative;
                 background-color: #FFF;
 				margin-left: auto;
                 margin-right: auto;
-                width: 96mm;
-                height: 48mm;
-                padding: 4mm;
+                width: 92mm;
+                height: 44mm;
+                padding: 6mm;
 			}
             
             .label > .barcode {
                 position: absolute;
-                bottom: 0;
+                bottom: 3mm;
                 max-height: 36mm;
-                max-width: 82mm;
+                max-width: 86mm;
                 display: block;
-                margin-left: auto;
                 margin-right: 24mm; 
+                margin-left: -4mm;
                 
             }
             
             .logo {
                 position: absolute;
-                top: 4mm;
+                top: 8mm;
                 right: 20mm;
             }
             
@@ -88,6 +89,7 @@
     <body>
         <div class="label">
             <div class="logo">{{=logo}}</div>
+            <h3>Membership card</h3>
             {{=customer.display_name}}
             <img class="barcode" src="{{=barcode_image_url}}">  
         </div>

@@ -625,7 +625,7 @@ def get_customers():
                auth.has_permission('read', 'customers_memberships'))
 def get_customers_memberships():
     """
-    List not trashed customers
+    List customer memberships
     """
     set_headers()
 

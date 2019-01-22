@@ -6876,17 +6876,3 @@ def barcode_label():
     customer = Customer(cuID)
 
     return customer.get_barcode_label()
-
-
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'customers_memberships'))
-def barcode_label_membership():
-    """
-        Preview barcode label
-    """
-    from openstudio.os_customer_membership import CustomerMembership
-
-    cmID = request.vars['cmID']
-    cm = CustomerMembership(cmID)
-
-    return cm.get_barcode_label()
