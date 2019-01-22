@@ -1189,7 +1189,7 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
 
         CODE39 = barcode.get_barcode_class('code39')
         code39_barcode = CODE39(
-            unicode(self.row.barcode_id),
+            unicode(self.row.barcode_id.zfill(14)),
             writer=ImageWriter(),
             add_checksum=False
         )
