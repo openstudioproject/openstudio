@@ -693,6 +693,43 @@ def get_customers_memberships():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'customers_subscriptions'))
+def get_customers_subscriptions():
+    """
+    List customer subscriptions, from the last 400 days
+    """
+    set_headers()
+
+    dont_show_after = TODAY_LOCAL - datetime.timedelta(days=217)
+    query = (db.customers_subscriptions.Startdate <= TODAY_LOCAL) &\
+            ((db.customers_subscriptions.Enddate >= dont_show_after) |\
+             (db.customers_subscriptions.Enddate == None))
+
+
+    rows = db(query).select(
+        db.customers_subscriptions.id,
+        db.customers_subscriptions.auth_customer_id,
+        db.customers_subscriptions.school_subscriptions_id,
+        db.customers_subscriptions.Startdate,
+        db.customers_subscriptions.Enddate,
+    )
+
+    subscriptions = {}
+    for i, row in enumerate(rows):
+        repr_row = list(rows[i:i + 1].render())[0]
+
+        subscriptions[row.auth_customer_id] = {
+            'id': row.id,
+            'auth_customer_id': row.auth_customer_id,
+            'name': repr_row.school_subscriptions_id,
+            'start': row.Startdate,
+            'end': row.Enddate,
+        }
+
+    return subscriptions
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'classes_attendance'))
 def update_class_attendance():
     """
