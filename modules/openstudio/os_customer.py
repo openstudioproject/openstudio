@@ -1166,6 +1166,16 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         )
 
 
+    def set_barcode_id(self):
+        """
+        Set barcode id field for customer
+        """
+        if self.row.barcode_id is None or self.row.barcode_id == '':
+            self.row.barcode_id = unicode(self.cuID).zfill(14)
+
+        self.row.update_record()
+
+
     def set_barcode(self):
         """
             Create barcode file for this customer
