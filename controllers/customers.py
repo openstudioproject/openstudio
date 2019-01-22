@@ -6691,7 +6691,6 @@ def membership_add():
         onaccept = [
             membership_add_set_enddate,
             membership_add_create_invoice,
-            membership_add_set_date_id,
             memberships_clear_cache,
         ]
     )
@@ -6740,17 +6739,6 @@ def membership_add_set_enddate(form):
     row = db.customers_memberships(cmID)
     row.Enddate = enddate
     row.update_record()
-
-
-def membership_add_set_date_id(form):
-    """
-        Set db.customers_memberships.DateID field
-    """
-    from openstudio.os_customer_membership import CustomerMembership
-
-    cmID = form.vars.id
-    cm = CustomerMembership(cmID)
-    cm.set_date_id_and_barcode()
 
 
 def membership_edit_get_subtitle(cmID):

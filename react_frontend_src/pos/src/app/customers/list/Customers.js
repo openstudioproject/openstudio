@@ -169,8 +169,10 @@ class Customers extends Component {
 
     render() {
         const customers = this.props.customers
-        const intl = this.props.intl
         const memberships = this.props.memberships
+        const subscriptions = this.props.subscriptions
+        const classcards = this.props.classcards
+        const intl = this.props.intl
         const settings = this.props.app.settings.data
         const inputmask_date = settings.date_mask
 
@@ -228,6 +230,9 @@ class Customers extends Component {
                             <section className="customers-main">
                                 <CustomerDisplay customerID={customers.displayID}
                                                 customers={customers} 
+                                                memberships={memberships}
+                                                subscriptions={subscriptions}
+                                                classcards={classcards}
                                                 edit_in_progress={customers.update_customer}
                                                 onClickEdit={this.onClickEdit.bind(this)}
                                                 onSetCameraAppSnap={this.props.setCameraAppSnap}

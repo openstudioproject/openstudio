@@ -5,6 +5,7 @@ import validator from 'validator'
 import { v4 } from "uuid"
 
 import ButtonCustomerEdit from "../../../components/ui/ButtonCustomerEdit"
+import CustomerDisplayMemberships from "./CustomerDisplayMemberships"
 
 
 class CustomerDisplay extends Component {
@@ -109,6 +110,9 @@ class CustomerDisplay extends Component {
         const customerID = this.props.customerID
         const customers = this.props.customers
         const customers_list = this.props.customers.data
+        const memberships = this.props.memberships
+        const subscriptions = this.props.subscriptions
+        const classcards = this.props.classcards
         const edit_in_progress = this.props.edit_in_progress
         const onClickEdit = this.props.onClickEdit
         let videoClass
@@ -203,15 +207,24 @@ class CustomerDisplay extends Component {
                         </div> 
                         {/* Close md-4 */}
                         <div className="col-md-8">
-
-                            <label>Name</label><br/>
-                            {customers_list[customerID].display_name}<br/>
-                            <label>Email</label><br/>
-                            {customers_list[customerID].email}<br/>
-                            <label>Phone</label><br/>
-                            {customers_list[customerID].mobile}<br/>
-                            <label>Date of birth</label><br/>
-                            {customers_list[customerID].date_of_birth}<br/>
+                            <div className="col-md-4">
+                                <label>Name</label><br/>
+                                {customers_list[customerID].display_name}<br/>
+                                <label>Email</label><br/>
+                                {customers_list[customerID].email}<br/>
+                                <label>Phone</label><br/>
+                                {customers_list[customerID].mobile}<br/>
+                                <label>Date of birth</label><br/>
+                                {customers_list[customerID].date_of_birth}<br/>
+                            </div>
+                            <div className="col-md-4">
+                                <CustomerDisplayMemberships customerID={customerID}
+                                                            memberships={memberships}/>
+                            </div>
+                            <div className="col-md-4">
+                                <CustomerDisplaySubscriptions customerID={customerID}
+                                                              subscriptions={subscriptions}/>
+                            </div>
                         </div>
                         <div className="col-md-2">
                             <button type="button" 

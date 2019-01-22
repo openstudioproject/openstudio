@@ -646,13 +646,18 @@ def get_customers_memberships_today():
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
-        memberships[row.auth_customer_id] = {
+        try:
+            memberships[row.auth_customer_id]
+        except KeyError:
+            memberships[row.auth_customer_id] = []
+
+        memberships[row.auth_customer_id].append({
             'id': row.id,
             'auth_customer_id': row.auth_customer_id,
             'name': repr_row.school_memberships_id,
-            'start': row.Startdate,
-            'end': row.Enddate,
-        }
+            'start': repr_row.Startdate,
+            'end': repr_row.Enddate,
+        })
 
     return memberships
 
@@ -681,13 +686,18 @@ def get_customers_memberships():
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
-        memberships[row.auth_customer_id] = {
+        try:
+            memberships[row.auth_customer_id]
+        except KeyError:
+            memberships[row.auth_customer_id] = []
+
+        memberships[row.auth_customer_id].append({
             'id': row.id,
             'auth_customer_id': row.auth_customer_id,
             'name': repr_row.school_memberships_id,
             'start': repr_row.Startdate,
             'end': repr_row.Enddate,
-        }
+        })
 
     return memberships
 
@@ -730,7 +740,12 @@ def get_customers_classcards():
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
-        classcards[row.customers_classcards.auth_customer_id] = {
+        try:
+            classcards[row.customers_classcards.auth_customer_id]
+        except KeyError:
+            classcards[row.customers_classcards.auth_customer_id] = []
+
+        classcards[row.customers_classcards.auth_customer_id].append({
             'id': row.customers_classcards.id,
             'auth_customer_id': row.customers_classcards.auth_customer_id,
             'name': row.school_classcards.Name,
@@ -740,7 +755,7 @@ def get_customers_classcards():
             'classes': row.school_classcards.Classes,
             'classes_display': repr_row.school_classcards.Classes,
             'unlimited': row.school_classcards.Unlimited
-        }
+        })
 
     return classcards
 
@@ -772,13 +787,18 @@ def get_customers_subscriptions():
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
-        subscriptions[row.auth_customer_id] = {
+        try:
+            subscriptions[row.auth_customer_id]
+        except KeyError:
+            subscriptions[row.auth_customer_id] = []
+
+        subscriptions[row.auth_customer_id].append({
             'id': row.id,
             'auth_customer_id': row.auth_customer_id,
             'name': repr_row.school_subscriptions_id,
             'start': row.Startdate,
             'end': row.Enddate,
-        }
+        })
 
     return subscriptions
 
