@@ -7,6 +7,7 @@ import { v4 } from "uuid"
 import ButtonCustomerEdit from "../../../components/ui/ButtonCustomerEdit"
 import CustomerDisplayMemberships from "./CustomerDisplayMemberships"
 import CustomerDisplaySubscriptions from "./CustomerDisplaySubscriptions"
+import CustomerDisplayClasscards from "./CustomerDisplayClasscards"
 
 
 class CustomerDisplay extends Component {
@@ -225,9 +226,16 @@ class CustomerDisplay extends Component {
                             <div className="col-md-4">
                                 <CustomerDisplaySubscriptions customerID={customerID}
                                                               subscriptions={subscriptions}/>
+                                <CustomerDisplayClasscards customerID={customerID}
+                                                           classcards={classcards}/>
                             </div>
                         </div>
                         <div className="col-md-2">
+                            <a href={`/customers/barcode_label?cuID=${customerID}`}
+                               className="btn btn-default btn-flat btn-block"
+                               target="_blank">
+                                <i className="fa fa-id-card-o"></i> Print card   
+                            </a>
                             <button type="button" 
                                     onClick={this.onClickStartCamera.bind(this)} 
                                     className="btn btn-default btn-flat btn-block" 
@@ -235,11 +243,6 @@ class CustomerDisplay extends Component {
                                     data-target="#cameraModal">
                                 <i className="fa fa-camera"></i> Take picture
                             </button>
-                            <a href={`/customers/barcode_label?cuID=${customerID}`}
-                               className="btn btn-default btn-flat btn-block"
-                               target="_blank">
-                                <i className="fa fa-barcode"></i> Print card   
-                            </a>
                             <ButtonCustomerEdit onClick={onClickEdit}
                                                 classAdditional='btn-flat btn-block'>
                                 { ' ' } Edit customer
