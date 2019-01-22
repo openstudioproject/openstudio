@@ -6,6 +6,7 @@ import { v4 } from "uuid"
 
 import ButtonCustomerEdit from "../../../components/ui/ButtonCustomerEdit"
 import CustomerDisplayMemberships from "./CustomerDisplayMemberships"
+import CustomerDisplaySubscriptions from "./CustomerDisplaySubscriptions"
 
 
 class CustomerDisplay extends Component {

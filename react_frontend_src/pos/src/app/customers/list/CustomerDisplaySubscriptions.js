@@ -30,18 +30,19 @@ class CustomerDisplaySubscriptions extends Component {
         return (
            <div>
                { (subscriptions.loaded) ?
-                <div>
-                    <b>Subscriptions</b>
-                    {subscriptions.data[customerID].map((subscription, i) => 
-                        <div key={v4()}>
-                            { subscription.name } <br />
-                            <span className="text-muted">
-                                { subscription.start }
-                                { (subscription.end) ? " - " + subscription.end : ''}
-                            </span>
-                        </div>
-                    )}
-                </div>
+                (subscriptions.data[customerID]) ?
+                    <div>     
+                        <b>Subscriptions</b>
+                        {subscriptions.data[customerID].map((subscription, i) => 
+                            <div key={v4()}>
+                                { subscription.name } <br />
+                                <span className="text-muted">
+                                    { subscription.start }
+                                    { (subscription.end) ? " - " + subscription.end : ''}
+                                </span>
+                            </div>
+                        )}
+                    </div> : '' 
                 : "Loading subscriptions, please wait..."
                }
            </div>
