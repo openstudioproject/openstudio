@@ -1416,7 +1416,7 @@ def define_school_subscriptions():
             label=T('Monthly Classes')),
         Field('MinDuration', 'integer',
             default=1,
-            represent=lambda value, row: value or '',
+            represent=lambda value, row: T('%s Months' % value)  or '',
             label=T("Minimum duration"),
             comment=T("Minimum duration of this subscription in months")),
         Field('Classes', 'integer', required=False,

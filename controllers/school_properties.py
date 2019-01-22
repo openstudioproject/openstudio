@@ -906,6 +906,7 @@ def subscriptions():
                db.school_subscriptions.sys_organizations_id,
                db.school_subscriptions.Classes,
                db.school_subscriptions.SubscriptionUnit,
+               db.school_subscriptions.MinDuration,
                db.school_subscriptions.ShopSubscription,
                db.school_subscriptions.PublicSubscription,
                db.school_subscriptions.SortOrder,
