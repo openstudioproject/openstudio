@@ -1414,6 +1414,11 @@ def define_school_subscriptions():
             default=0,
             #represent=lambda value, row:  value or T('Unlimited'),
             label=T('Monthly Classes')),
+        Field('MinDuration', 'integer',
+            default=1,
+            represent=lambda value, row: value or '',
+            label=T("Minimum duration"),
+            comment=T("Minimum duration of this subscription in months")),
         Field('Classes', 'integer', required=False,
             requires=IS_INT_IN_RANGE(1, 201, error_message=T("Please enter a number between 1 and 200")),
             represent=represent_school_subscriptions_classes, # return Unlimited instead of number if row.Unlimited
