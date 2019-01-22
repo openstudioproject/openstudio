@@ -221,6 +221,11 @@ class CustomerDisplay extends Component {
                                     data-target="#cameraModal">
                                 <i className="fa fa-camera"></i> Take picture
                             </button>
+                            <a href={`/customers/barcode_label?cuID=${customerID}`}
+                               className="btn btn-default btn-flat btn-block"
+                               target="_blank">
+                                <i className="fa fa-barcode"></i> Print card   
+                            </a>
                             <ButtonCustomerEdit onClick={onClickEdit}
                                                 classAdditional='btn-flat btn-block'>
                                 { ' ' } Edit
