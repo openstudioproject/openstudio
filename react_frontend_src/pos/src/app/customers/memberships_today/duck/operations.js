@@ -15,7 +15,7 @@ const fetchMemberships = () => {
       return dispatch => {
           dispatch(requestMemberships())
 
-          axios_os.post(OS_API.CUSTOMERS_MEMBERSHIPS)
+          axios_os.post(OS_API.CUSTOMERS_MEMBERSHIPS_TODAY)
           .then(function (response) {
             // handle success
             dispatch(receiveMemberships(response.data))

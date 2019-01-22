@@ -85,7 +85,7 @@
             "camera_app_snap_saving": false,
             "camera_app_snap_saved": false
         },
-        "memberships": {
+        "memberships_today": {
             "loading": false,
             "loaded": false,
             "data": {}

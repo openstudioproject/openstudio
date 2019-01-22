@@ -624,7 +624,7 @@ def get_customers():
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'customers_memberships'))
-def get_customers_memberships():
+def get_customers_memberships_today():
     """
     List customer memberships
     """
