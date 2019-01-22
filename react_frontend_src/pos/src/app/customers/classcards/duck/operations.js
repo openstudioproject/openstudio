@@ -1,6 +1,6 @@
 import {
-    requestSubscriptions,
-    receiveSubscriptions,
+    requestClasscards,
+    receiveClasscards,
 } from './actions'
 
 import axios_os from '../../../../utils/axios_os'
@@ -11,14 +11,14 @@ import OS_API from '../../../../utils/os_api'
 // const setCheckinClassAttendanceSearchCustomerID = set_customer_id
 
 // data fetchers
-const fetchSubscriptions = () => {
+const fetchClasscards = () => {
       return dispatch => {
-          dispatch(requestSubscriptions())
+          dispatch(requestClasscards())
 
-          axios_os.post(OS_API.CUSTOMERS_SUBSCRIPTIONS)
+          axios_os.post(OS_API.CUSTOMERS_CLASSCARDS)
           .then(function (response) {
             // handle success
-            dispatch(receiveSubscriptions(response.data))
+            dispatch(receiveClasscards(response.data))
             // dispatch(setLoadingProgress(100))
           })
           .catch(function (error) {
@@ -33,5 +33,5 @@ const fetchSubscriptions = () => {
 
 
 export default {
-    fetchSubscriptions
+    fetchClasscards
 }

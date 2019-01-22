@@ -1,12 +1,12 @@
 import T from './types'
 
-export const requestSubscriptions = () =>
+export const requestClasscards = () =>
     ({
-        type: T.REQUEST_CUSTOMERS_SUBSCRIPTIONS
+        type: T.REQUEST_CUSTOMERS_CLASSCARDS
     })
 
-export const receiveSubscriptions = (data) =>
+export const receiveClasscards = (data) =>
     ({
-        type: T.RECEIVE_CUSTOMERS_SUBSCRIPTIONS,
+        type: T.RECEIVE_CUSTOMERS_CLASSCARDS,
         data
     })

@@ -685,8 +685,8 @@ def get_customers_memberships():
             'id': row.id,
             'auth_customer_id': row.auth_customer_id,
             'name': repr_row.school_memberships_id,
-            'start': row.Startdate,
-            'end': row.Enddate,
+            'start': repr_row.Startdate,
+            'end': repr_row.Enddate,
         }
 
     return memberships
@@ -706,6 +706,12 @@ def get_customers_classcards():
             ((db.customers_classcards.Enddate >= dont_show_after) |\
              (db.customers_classcards.Enddate == None))
 
+    left = [
+        db.school_classcards.on(
+            db.customers_classcards.school_classcards_id ==
+            db.school_classcards.id
+        )
+    ]
 
     rows = db(query).select(
         db.customers_classcards.id,
@@ -713,18 +719,27 @@ def get_customers_classcards():
         db.customers_classcards.school_classcards_id,
         db.customers_classcards.Startdate,
         db.customers_classcards.Enddate,
+        db.customers_classcards.ClassesTaken,
+        db.school_classcards.Name,
+        db.school_classcards.Classes,
+        db.school_classcards.Unlimited,
+        left=left
     )
 
     classcards = {}
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
-        classcards[row.auth_customer_id] = {
-            'id': row.id,
-            'auth_customer_id': row.auth_customer_id,
-            'name': repr_row.school_classcards_id,
-            'start': row.Startdate,
-            'end': row.Enddate,
+        classcards[row.customers_classcards.auth_customer_id] = {
+            'id': row.customers_classcards.id,
+            'auth_customer_id': row.customers_classcards.auth_customer_id,
+            'name': row.school_classcards.Name,
+            'start': repr_row.customers_classcards.Startdate,
+            'end': repr_row.customers_classcards.Enddate,
+            'classes_remaining': row.school_classcards.Classes - row.customers_classcards.ClassesTaken,
+            'classes': row.school_classcards.Classes,
+            'classes_display': repr_row.school_classcards.Classes,
+            'unlimited': row.school_classcards.Unlimited
         }
 
     return classcards
