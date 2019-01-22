@@ -318,9 +318,12 @@ def edit_remodel_form(form,
                 DIV(LABEL(form.custom.label.keynr),
                     form.custom.widget.keynr,
                     _class='col-md-6'),
+                DIV(LABEL(form.custom.label.barcode_id),
+                    form.custom.widget.barcode_id,
+                    _class='col-md-6'),
                 DIV(LABEL(location_label),
                     location_widget,
-                    _class='col-md-6'),
+                    _class='col-md-12'),
             ),
             _class='col-md-6 no-padding-left no-padding-right'),
         DIV(
@@ -6594,30 +6597,35 @@ def memberships_get_link_edit(row):
     vars = {'cuID': row.customers_memberships.auth_customer_id,
             'cmID': cmID}
 
+    # menu = ''
+    # permission = ( auth.has_membership(group_id='Admins') or
+    #                auth.has_permission('update', 'customers_memberships') )
+    # if permission:
+    #     links = []
+    #     link_edit = A((os_gui.get_fa_icon('fa-pencil'), T('Edit')),
+    #                   _href=URL('membership_edit', vars=vars))
+    #     links.append(link_edit)
+    #
+    #
+    #     menu = os_gui.get_dropdown_menu(
+    #         links=links,
+    #         btn_text='',
+    #         btn_size='btn-sm',
+    #         btn_icon='pencil',
+    #         menu_class='btn-group pull-right')
 
-
-    links = [
-        A((os_gui.get_fa_icon('fa-barcode'), ' ', T('Barcode label')),
-          _href=URL('barcode_label_membership', vars={'cmID': cmID}),
-          _target="_blank")
-    ]
-
+    edit = ''
     permission = ( auth.has_membership(group_id='Admins') or
                    auth.has_permission('update', 'customers_memberships') )
+
     if permission:
-        link_edit = A((os_gui.get_fa_icon('fa-pencil'), T('Edit')),
-                      _href=URL('membership_edit', vars=vars))
-        links.append(link_edit)
+        edit = os_gui.get_button(
+            'edit',
+            URL('membership_edit', vars=vars),
+            _class='pull-right'
+        )
 
-
-    menu = os_gui.get_dropdown_menu(
-        links=links,
-        btn_text='',
-        btn_size='btn-sm',
-        btn_icon='pencil',
-        menu_class='btn-group pull-right')
-
-    return menu
+    return edit
 
 
 def memberships_get_link_invoice(row):
@@ -6683,7 +6691,6 @@ def membership_add():
         onaccept = [
             membership_add_set_enddate,
             membership_add_create_invoice,
-            membership_add_set_date_id,
             memberships_clear_cache,
         ]
     )
@@ -6734,17 +6741,6 @@ def membership_add_set_enddate(form):
     row.update_record()
 
 
-def membership_add_set_date_id(form):
-    """
-        Set db.customers_memberships.DateID field
-    """
-    from openstudio.os_customer_membership import CustomerMembership
-
-    cmID = form.vars.id
-    cm = CustomerMembership(cmID)
-    cm.set_date_id_and_barcode()
-
-
 def membership_edit_get_subtitle(cmID):
     """
         Returns subtitle for subscription edit pages
@@ -6765,30 +6761,6 @@ def membership_edit_get_back(cuID):
         _class='')
 
 
-def membership_edit_get_menu(cuID, cmID, page):
-    """
-        Returns submenu for subscription edit pages
-    """
-    vars = { 'cuID':cuID,
-             'cmID':cmID }
-
-    pages = []
-
-    if auth.has_membership(group_id='Admins') or \
-       auth.has_permission('update', 'customers_memberships'):
-        pages.append(['membership_edit',
-                      SPAN(os_gui.get_fa_icon('fa-edit'), ' ', T("Edit")),
-                      URL('membership_edit', vars=vars)])
-
-    if auth.has_membership(group_id='Admins') or \
-       auth.has_permission('read', 'invoices'):
-        pages.append(['membership_invoices',
-                      SPAN(os_gui.get_fa_icon('fa-file-o'), ' ', T("Invoices")),
-                      URL('membership_invoices', vars=vars)])
-
-    return os_gui.get_submenu(pages, page, horizontal=True, htype='tabs')
-
-
 @auth.requires_login()
 def membership_edit():
     """
@@ -6801,7 +6773,7 @@ def membership_edit():
 
     cuID = request.vars['cuID']
     cmID = request.vars['cmID']
-    response.view = 'general/tabs_menu.html'
+    response.view = 'general/only_content.html'
 
     session.invoices_edit_back = 'customers_membership_invoices'
     session.invoices_payment_add_back = 'customers_membership_invoices'
@@ -6831,12 +6803,10 @@ def membership_edit():
 
     form = result['form']
     back = membership_edit_get_back(cuID)
-    menu = membership_edit_get_menu(cuID, cmID, request.function)
 
     return dict(content=form,
                 save=result['submit'],
-                back=back,
-                menu=menu)
+                back=back)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -6876,17 +6846,3 @@ def barcode_label():
     customer = Customer(cuID)
 
     return customer.get_barcode_label()
-
-
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'customers_memberships'))
-def barcode_label_membership():
-    """
-        Preview barcode label
-    """
-    from openstudio.os_customer_membership import CustomerMembership
-
-    cmID = request.vars['cmID']
-    cm = CustomerMembership(cmID)
-
-    return cm.get_barcode_label()

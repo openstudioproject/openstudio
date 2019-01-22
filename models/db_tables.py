@@ -2738,15 +2738,6 @@ def define_customers_memberships():
         Field('Note', 'text',
               represent=lambda value, row: value or '',
               label=T("Note")),
-        Field('DateID',
-              readable=False,
-              writable=False),
-        Field('Barcode', 'upload', autodelete=True,
-              readable=False,
-              writable=False,
-              represent=lambda value, row: A(T("Download"),
-                                             _href=URL('default', 'download', args=value)),
-              label=T("Barcode")),
         singular=T("Membership"), plural=T("Memberships")
         )
 
@@ -6163,6 +6154,9 @@ auth.settings.extra_fields['auth_user'] = [
     Field('last_login', 'datetime',
         readable=False,
         writable=False),
+    Field('barcode_id', 'integer',
+        represent=lambda value, row: value or "",
+        label=T("Barcode")),
     Field('barcode', 'upload', autodelete=True,
           readable=False,
           writable=False,

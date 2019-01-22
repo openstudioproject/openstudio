@@ -607,9 +607,9 @@ def get_backend_menu():
                             False,
                             URL('settings', 'access_groups', extension='')))
 
-            submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Point of Sale'))),
-                            False,
-                            URL('settings_pos', 'index', extension='')))
+            # submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Point of Sale'))),
+            #                 False,
+            #                 URL('settings_pos', 'index', extension='')))
 
             submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Shop'))),
                             False,

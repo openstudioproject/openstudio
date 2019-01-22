@@ -1166,6 +1166,16 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         )
 
 
+    def set_barcode_id(self):
+        """
+        Set barcode id field for customer
+        """
+        if self.row.barcode_id is None or self.row.barcode_id == '':
+            self.row.barcode_id = unicode(self.cuID).zfill(14)
+
+        self.row.update_record()
+
+
     def set_barcode(self):
         """
             Create barcode file for this customer
@@ -1179,7 +1189,7 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
 
         CODE39 = barcode.get_barcode_class('code39')
         code39_barcode = CODE39(
-            unicode(self.cuID),
+            unicode(self.row.barcode_id).zfill(14),
             writer=ImageWriter(),
             add_checksum=False
         )
@@ -1200,8 +1210,9 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         }
         '''
 
-        code39_barcode.default_writer_options['module_height'] = 5
-        code39_barcode.default_writer_options['font_size'] = 7
+        code39_barcode.default_writer_options['module_width'] = 0.2
+        code39_barcode.default_writer_options['module_height'] = 12
+        code39_barcode.default_writer_options['font_size'] = 10
         code39_barcode.default_writer_options['text_distance'] = 0.5
 
         code39_barcode.write(stream)
@@ -1222,8 +1233,12 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         get_sys_property = current.globalenv['get_sys_property']
         response = current.response
 
-        template = get_sys_property('branding_default_template_barcode_label_customer') or 'barcode_label_customer/default.html'
+        template = get_sys_property('branding_default_template_barcode_label_customer') or \
+                  'barcode_label_customer/default.html'
         template_file = 'templates/' + template
+
+        if not self.row.barcode_id:
+            self.set_barcode_id()
 
         if not self.row.barcode:
             self.set_barcode()

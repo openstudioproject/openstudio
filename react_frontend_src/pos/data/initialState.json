@@ -85,7 +85,22 @@
             "camera_app_snap_saving": false,
             "camera_app_snap_saved": false
         },
+        "memberships_today": {
+            "loading": false,
+            "loaded": false,
+            "data": {}
+        },
         "memberships": {
+            "loading": false,
+            "loaded": false,
+            "data": {}
+        },
+        "subscriptions": {
+            "loading": false,
+            "loaded": false,
+            "data": {}
+        },
+        "classcards": {
             "loading": false,
             "loaded": false,
             "data": {}
