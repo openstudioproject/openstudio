@@ -22,4 +22,3 @@ export const customersMembershipsReducer = (state = {}, action={ type: null }) =
             }
     }
 }
-

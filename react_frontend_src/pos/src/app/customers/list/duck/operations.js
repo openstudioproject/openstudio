@@ -29,7 +29,6 @@ import {
 
 import axios_os from '../../../../utils/axios_os'
 import OS_API from '../../../../utils/os_api'
-import { SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS } from 'constants';
 
 // just pass these actions as there's nothing else they need to do
 // Put pass-through actions here
@@ -66,14 +65,6 @@ const formDataToObject = (fd_obj) => {
     }
 
     return data_object
-}
-
-function isEmpty(obj) {
-    for(var key in obj) {
-        if(obj.hasOwnProperty(key))
-            return false;
-    }
-    return true;
 }
 
 // creators

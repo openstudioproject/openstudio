@@ -139,7 +139,6 @@ def get_settings():
     settings = {
         'currency_symbol': CURRSYM,
         'currency': get_sys_property('Currency'),
-        'customers_barcodes': get_sys_property('pos_customers_barcodes'),
         'date_format': get_sys_property('DateFormat'),
         'date_mask': DATE_MASK
     }
@@ -588,6 +587,7 @@ def get_customers():
         db.auth_user.company,
         db.auth_user.thumbsmall,
         db.auth_user.thumblarge,
+        db.auth_user.barcode_id,
     )
 
     customers = {}
@@ -615,7 +615,8 @@ def get_customers():
             'emergency': row.emergency,
             'company': row.company,
             'thumbsmall': get_customers_thumbnail_url(row.thumbsmall),
-            'thumblarge': get_customers_thumbnail_url(row.thumblarge)
+            'thumblarge': get_customers_thumbnail_url(row.thumblarge),
+            'barcode_id': row.barcode_id
         }
 
     return customers
@@ -731,6 +732,7 @@ def create_customer():
             'last_name': row.last_name,
             'display_name': row.display_name,
             'search_name': row.display_name.lower(),
+            'barcode_id': row.barcode_id,
             'email': row.email,
             'gender': row.gender,
             'date_of_birth': dob,
@@ -807,6 +809,7 @@ def update_customer():
                 'last_name': row.last_name,
                 'display_name': row.display_name,
                 'search_name': row.display_name.lower(),
+                'barcode_id': row.barcode_id,
                 'email': row.email,
                 'gender': row.gender,
                 'date_of_birth': dob,

@@ -29,38 +29,39 @@ def index():
     response.subtitle = T("Point of Sale")
     response.view = 'general/tabs_menu.html'
 
-    pos_barcodes_checkin = get_sys_property('pos_customers_barcodes')
-
-    form = SQLFORM.factory(
-        Field('pos_customers_barcodes',
-              requires=IS_IN_SET([
-                  ['customer_id', T("Customer ID")],
-                  ['membership_id', T("Customer membership ID")],
-                ],
-                zero=None),
-              default=pos_barcodes_checkin,
-              label=T('Checkin barcodes'),
-              comment=T("Does the barcode scanner read customer ids or customer membership ids when checking in customers?")),
-        submit_button=T("Save"),
-        formstyle='bootstrap3_stacked',
-        separator=' ')
-
-    result = set_form_id_and_get_submit_button(form, 'MainForm')
-    form = result['form']
-    submit = result['submit']
-
-    if form.accepts(request.vars, session):
-        pos_barcodes_checkin = request.vars['pos_customers_barcodes']
-        set_sys_property('pos_customers_barcodes', pos_barcodes_checkin)
-
-        # User feedback
-        session.flash = T('Saved')
-        # reload so the user sees how the values are stored in the db now
-        redirect(URL('index'))
+    form = T("Hello world")
+    #
+    # pos_barcodes_checkin = get_sys_property('pos_customers_barcodes')
+    #
+    # form = SQLFORM.factory(
+    #     Field('pos_customers_barcodes',
+    #           requires=IS_IN_SET([
+    #               ['customer_id', T("Customer ID")],
+    #               ['membership_id', T("Customer membership ID")],
+    #             ],
+    #             zero=None),
+    #           default=pos_barcodes_checkin,
+    #           label=T('Checkin barcodes'),
+    #           comment=T("Does the barcode scanner read customer ids or customer membership ids when checking in customers?")),
+    #     submit_button=T("Save"),
+    #     formstyle='bootstrap3_stacked',
+    #     separator=' ')
+    #
+    # result = set_form_id_and_get_submit_button(form, 'MainForm')
+    # form = result['form']
+    # submit = result['submit']
+    #
+    # if form.accepts(request.vars, session):
+    #     pos_barcodes_checkin = request.vars['pos_customers_barcodes']
+    #     set_sys_property('pos_customers_barcodes', pos_barcodes_checkin)
+    #
+    #     # User feedback
+    #     session.flash = T('Saved')
+    #     # reload so the user sees how the values are stored in the db now
+    #     redirect(URL('index'))
 
     menu = pos_get_menu(request.function)
 
     return dict(content=form,
-                menu=menu,
-                save=submit)
+                menu=menu)
 
