@@ -61,6 +61,7 @@ export const listReducer = (state = {}, action={ type: null }) => {
                 return_value['create_customer'] = false
                 return_value['displayID'] = action.data.result.id
                 return_value['search_value'] = action.data.customer_data.first_name.toLowerCase()
+                return_value['create_customer_temp_data'] = {}
             }
             
             return return_value
@@ -78,7 +79,7 @@ export const listReducer = (state = {}, action={ type: null }) => {
                 update_customer_error_data: {}
             }
         case T.RECEIVE_UPDATE_CUSTOMER:
-            if (!(isEmpty(action.data.result.errors))) {
+            if (action.data.error == true) {
                 return {
                     ...state,
                     updating_customer: false,
@@ -88,14 +89,14 @@ export const listReducer = (state = {}, action={ type: null }) => {
                 return {
                     ...state,
                     updating_customer: false,
+                    update_customer: false,
+                    update_customer_temp_data: {},
+                    displayID: action.data.id,
                     data: {
                         ...state.data,
-                        [action.data.id] : {
-                            ...state.data[action.data.id],
-                            ...state.update_customer_temp_data
-                        }
+                        [action.data.id] : action.data.customer_data
                     },
-                    update_customer_error_data: action.data.result.errors
+                    update_customer_error_data: {}
                 }
             }
         case T.CLEAR_UPDATE_CUSTOMER_ERROR_DATA:

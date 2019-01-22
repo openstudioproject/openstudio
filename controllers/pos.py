@@ -721,6 +721,10 @@ def create_customer():
     if not error:
         row = db.auth_user(result['id'])
 
+        dob = ''
+        if row.date_of_birth:
+            dob = row.date_of_birth.strftime(DATE_FORMAT)
+
         customer_data = {
             'id': row.id,
             'first_name': row.first_name,
@@ -729,7 +733,7 @@ def create_customer():
             'search_name': row.display_name.lower(),
             'email': row.email,
             'gender': row.gender,
-            'date_of_birth': row.date_of_birth,
+            'date_of_birth': dob,
             'address': row.address,
             'postcode': row.postcode,
             'city': row.city,
@@ -782,17 +786,45 @@ def update_customer():
         )
     ]
 
-
-
     if cuID:
         query = (db.auth_user.id == cuID)
         result = db(query).validate_and_update(**request.vars)
+        print result
         error = False
         if result.errors:
             error = True
 
+        if not error:
+            row = db.auth_user(cuID)
+
+            dob = ''
+            if row.date_of_birth:
+                dob = row.date_of_birth.strftime(DATE_FORMAT)
+
+            customer_data = {
+                'id': row.id,
+                'first_name': row.first_name,
+                'last_name': row.last_name,
+                'display_name': row.display_name,
+                'search_name': row.display_name.lower(),
+                'email': row.email,
+                'gender': row.gender,
+                'date_of_birth': dob,
+                'address': row.address,
+                'postcode': row.postcode,
+                'city': row.city,
+                'country': row.country,
+                'phone': row.phone,
+                'mobile': row.mobile,
+                'emergency': row.emergency,
+                'company': row.company,
+                'thumbsmall': get_customers_thumbnail_url(row.thumbsmall),
+                'thumblarge': get_customers_thumbnail_url(row.thumblarge)
+            }
+
         return dict(result=result,
                     error=error,
+                    customer_data=customer_data,
                     id=cuID)
 
 

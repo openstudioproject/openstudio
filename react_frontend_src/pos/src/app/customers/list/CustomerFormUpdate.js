@@ -21,23 +21,17 @@ class CustomerFormUpdate extends Component {
         intl: intlShape.isRequired,
     }
 
-    componentWillMount() {
-    }
-
-    componentDidMount() {
+    componentDidUpdate() {
         if (this.props.display) {
-            Inputmask({"placeholder": this.props.date_format}).mask(this.inputDateOfBirth.current)
+            {Inputmask({"placeholder": this.props.inputmask_date}).mask(this.inputDateOfBirth.current)}
         }
-            
-        // this.inputDateOfBirth.current.inputmask(this.props.date_format, { 'placeholder': this.props.date_format })
     }
 
 
     render() {
-        // const date_format = this.props.date_format
         const customers = this.props.customers
         const customerID = this.props.customerID
-        const date_format = this.props.date_format
+        const inputmask_date = this.props.inputmask_date
         const display = this.props.display
         const error_data = this.props.error_data
         const onSubmit = this.props.onSubmit
@@ -99,7 +93,7 @@ class CustomerFormUpdate extends Component {
                                 name="date_of_birth" 
                                 type="text" 
                                 defaultValue={ customers[customerID].date_of_birth }
-                                data-inputmask={"'alias': 'datetime', 'inputFormat': '" + date_format + "'"}
+                                data-inputmask={"'alias': 'datetime', 'inputFormat': '" + inputmask_date + "'"}
                                 data-mask="true"
                                 ref={this.inputDateOfBirth}
                             />
