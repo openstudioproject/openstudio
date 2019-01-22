@@ -6594,30 +6594,35 @@ def memberships_get_link_edit(row):
     vars = {'cuID': row.customers_memberships.auth_customer_id,
             'cmID': cmID}
 
+    # menu = ''
+    # permission = ( auth.has_membership(group_id='Admins') or
+    #                auth.has_permission('update', 'customers_memberships') )
+    # if permission:
+    #     links = []
+    #     link_edit = A((os_gui.get_fa_icon('fa-pencil'), T('Edit')),
+    #                   _href=URL('membership_edit', vars=vars))
+    #     links.append(link_edit)
+    #
+    #
+    #     menu = os_gui.get_dropdown_menu(
+    #         links=links,
+    #         btn_text='',
+    #         btn_size='btn-sm',
+    #         btn_icon='pencil',
+    #         menu_class='btn-group pull-right')
 
-
-    links = [
-        A((os_gui.get_fa_icon('fa-barcode'), ' ', T('Barcode label')),
-          _href=URL('barcode_label_membership', vars={'cmID': cmID}),
-          _target="_blank")
-    ]
-
+    edit = ''
     permission = ( auth.has_membership(group_id='Admins') or
                    auth.has_permission('update', 'customers_memberships') )
+
     if permission:
-        link_edit = A((os_gui.get_fa_icon('fa-pencil'), T('Edit')),
-                      _href=URL('membership_edit', vars=vars))
-        links.append(link_edit)
+        edit = os_gui.get_button(
+            'edit',
+            URL('membership_edit', vars=vars),
+            _class='pull-right'
+        )
 
-
-    menu = os_gui.get_dropdown_menu(
-        links=links,
-        btn_text='',
-        btn_size='btn-sm',
-        btn_icon='pencil',
-        menu_class='btn-group pull-right')
-
-    return menu
+    return edit
 
 
 def memberships_get_link_invoice(row):
@@ -6765,30 +6770,6 @@ def membership_edit_get_back(cuID):
         _class='')
 
 
-def membership_edit_get_menu(cuID, cmID, page):
-    """
-        Returns submenu for subscription edit pages
-    """
-    vars = { 'cuID':cuID,
-             'cmID':cmID }
-
-    pages = []
-
-    if auth.has_membership(group_id='Admins') or \
-       auth.has_permission('update', 'customers_memberships'):
-        pages.append(['membership_edit',
-                      SPAN(os_gui.get_fa_icon('fa-edit'), ' ', T("Edit")),
-                      URL('membership_edit', vars=vars)])
-
-    if auth.has_membership(group_id='Admins') or \
-       auth.has_permission('read', 'invoices'):
-        pages.append(['membership_invoices',
-                      SPAN(os_gui.get_fa_icon('fa-file-o'), ' ', T("Invoices")),
-                      URL('membership_invoices', vars=vars)])
-
-    return os_gui.get_submenu(pages, page, horizontal=True, htype='tabs')
-
-
 @auth.requires_login()
 def membership_edit():
     """
@@ -6801,7 +6782,7 @@ def membership_edit():
 
     cuID = request.vars['cuID']
     cmID = request.vars['cmID']
-    response.view = 'general/tabs_menu.html'
+    response.view = 'general/only_content.html'
 
     session.invoices_edit_back = 'customers_membership_invoices'
     session.invoices_payment_add_back = 'customers_membership_invoices'
@@ -6831,12 +6812,10 @@ def membership_edit():
 
     form = result['form']
     back = membership_edit_get_back(cuID)
-    menu = membership_edit_get_menu(cuID, cmID, request.function)
 
     return dict(content=form,
                 save=result['submit'],
-                back=back,
-                menu=menu)
+                back=back)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
