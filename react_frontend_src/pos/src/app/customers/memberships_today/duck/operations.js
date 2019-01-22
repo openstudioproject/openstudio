@@ -1,6 +1,6 @@
 import {
-    requestMemberships,
-    receiveMemberships,
+    requestMembershipsToday,
+    receiveMembershipsToday,
 } from './actions'
 
 import axios_os from '../../../../utils/axios_os'
@@ -11,14 +11,14 @@ import OS_API from '../../../../utils/os_api'
 // const setCheckinClassAttendanceSearchCustomerID = set_customer_id
 
 // data fetchers
-const fetchMemberships = () => {
+const fetchMembershipsToday = () => {
       return dispatch => {
-          dispatch(requestMemberships())
+          dispatch(requestMembershipsToday())
 
           axios_os.post(OS_API.CUSTOMERS_MEMBERSHIPS_TODAY)
           .then(function (response) {
             // handle success
-            dispatch(receiveMemberships(response.data))
+            dispatch(receiveMembershipsToday(response.data))
             // dispatch(setLoadingProgress(100))
           })
           .catch(function (error) {
@@ -33,5 +33,5 @@ const fetchMemberships = () => {
 
 
 export default {
-    fetchMemberships
+    fetchMembershipsToday
 }
