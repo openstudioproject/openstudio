@@ -1,15 +1,15 @@
 import T from './types'
 
-export const customersMembershipsReducer = (state = {}, action={ type: null }) => {
+export const customersClasscardsReducer = (state = {}, action={ type: null }) => {
     switch (action.type) {
-        case T.REQUEST_CUSTOMERS_MEMBERSHIPS:
+        case T.REQUEST_CUSTOMERS_CLASSCARDS:
             return {
                 ...state,
                 loading: true,
                 loaded: false,
                 loading: action.loading,
             }
-        case T.RECEIVE_CUSTOMERS_MEMBERSHIPS:
+        case T.RECEIVE_CUSTOMERS_CLASSCARDS:
             return {
                 ...state,
                 loading: false,
