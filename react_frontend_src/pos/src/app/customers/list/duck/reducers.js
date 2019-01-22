@@ -60,6 +60,7 @@ export const listReducer = (state = {}, action={ type: null }) => {
             } else {
                 return_value['create_customer'] = false
                 return_value['displayID'] = action.data.result.id
+                return_value['search_value'] = action.data.customer_data.first_name.toLowerCase()
             }
             
             return return_value

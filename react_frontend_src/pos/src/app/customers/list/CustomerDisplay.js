@@ -228,7 +228,7 @@ class CustomerDisplay extends Component {
                             </a>
                             <ButtonCustomerEdit onClick={onClickEdit}
                                                 classAdditional='btn-flat btn-block'>
-                                { ' ' } Edit
+                                { ' ' } Edit customer
                             </ButtonCustomerEdit>
                         </div>
                     </div>
