@@ -89,6 +89,16 @@
             "loading": false,
             "loaded": false,
             "data": {}
+        },
+        "memberships": {
+            "loading": false,
+            "loaded": false,
+            "data": {}
+        },
+        "subscriptions": {
+            "loading": false,
+            "loaded": false,
+            "data": {}
         }
     },
     "shop": {

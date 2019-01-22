@@ -15,6 +15,7 @@ const api_urls = {
     'CHECKIN_TEACHER_PAYMENT': '/pos/get_class_teacher_payment.json',
     'CHECKIN_VERIFY_TEACHER_PAYMENT': '/pos/verify_teacher_payment.json',
     'CUSTOMERS': '/pos/get_customers.json',
+    'CUSTOMERS_SUBSCRIPTIONS': '/pos/get_customers_subscriptions.json',
     'CUSTOMERS_MEMBERSHIPS': '/pos/get_customers_memberships.json',
     'CUSTOMERS_MEMBERSHIPS_TODAY': '/pos/get_customers_memberships_today.json',
     'CUSTOMER_CREATE': '/pos/create_customer.json',

@@ -33,6 +33,9 @@ const mapDispatchToProps = dispatch =>
         fetchCustomers() {
             dispatch(customersListOperations.fetchCustomers())
         },
+        fetchCustomersSubscriptions() {
+            dispatch(customersSubscriptionsOperations.fetchSubscriptions())
+        },
         fetchCustomersMemberships() {
             dispatch(customersMembershipsOperations.fetchMemberships())
         },
