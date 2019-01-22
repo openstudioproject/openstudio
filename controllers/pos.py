@@ -658,6 +658,41 @@ def get_customers_memberships_today():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'customers_memberships'))
+def get_customers_memberships():
+    """
+    List customer memberships, from the last 400 days
+    """
+    set_headers()
+
+    date_from = TODAY_LOCAL - datetime.timedelta(days=400)
+
+    query = (db.customers_memberships.Startdate >= date_from)
+
+    rows = db(query).select(
+        db.customers_memberships.id,
+        db.customers_memberships.auth_customer_id,
+        db.customers_memberships.school_memberships_id,
+        db.customers_memberships.Startdate,
+        db.customers_memberships.Enddate,
+    )
+
+    memberships = {}
+    for i, row in enumerate(rows):
+        repr_row = list(rows[i:i + 1].render())[0]
+
+        memberships[row.auth_customer_id] = {
+            'id': row.id,
+            'auth_customer_id': row.auth_customer_id,
+            'name': repr_row.school_memberships_id,
+            'start': row.Startdate,
+            'end': row.Enddate,
+        }
+
+    return memberships
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'classes_attendance'))
 def update_class_attendance():
     """
