@@ -1416,7 +1416,7 @@ def define_school_subscriptions():
             label=T('Monthly Classes')),
         Field('MinDuration', 'integer',
             default=1,
-            represent=lambda value, row: T('%s Months' % value)  or '',
+            represent=represent_school_subscriptions_minduration,
             label=T("Minimum duration"),
             comment=T("Minimum duration of this subscription in months")),
         Field('Classes', 'integer', required=False,
@@ -1467,6 +1467,19 @@ def define_school_subscriptions():
             readable=False,
             writable=False),
         format=format)
+
+
+def represent_school_subscriptions_minduration(value, row):
+    """
+    :param value: db.school_subscriptions.MinDuration
+    :param row: db.school_subscriptions record
+    :return:
+    """
+    month_str = T("%s Months" % value)
+    if value == 1:
+        month_str = T("%s Month" % value)
+
+    return month_str
 
 
 def represent_school_subscriptions_classes(value, row):
