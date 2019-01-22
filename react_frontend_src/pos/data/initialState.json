@@ -99,6 +99,11 @@
             "loading": false,
             "loaded": false,
             "data": {}
+        },
+        "classcards": {
+            "loading": false,
+            "loaded": false,
+            "data": {}
         }
     },
     "shop": {
