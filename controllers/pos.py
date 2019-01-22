@@ -646,7 +646,8 @@ def get_customers_memberships_today():
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
-        memberships[row.id] = {
+        memberships[row.auth_customer_id] = {
+            'id': row.id,
             'auth_customer_id': row.auth_customer_id,
             'name': repr_row.school_memberships_id,
             'start': row.Startdate,
