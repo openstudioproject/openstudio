@@ -43,27 +43,19 @@ class Customers extends Component {
         this.props.clearSearchCustomerID()
         this.props.clearSelectedCustomerID()
 
-        const barcode_scans = this.props.barcode_scans
-        const memberships = this.props.memberships.data
-
-        console.log(barcode_scans)
+        const customers = this.props.customers.data
         let cuID
 
         if (validator.isInt(value)) {
-            console.log('This is an int!')
-            if (barcode_scans == 'membership_id') {
-                // find customer ID
-                console.log('looking for cuID in memberships')
-                for (const key of Object.keys(memberships)) {
-                    let m = memberships[key]
-                    console.log(m)
-                    if ( m['date_id'] == value) {
-                        cuID = m['auth_customer_id']
-                    }
-
+            // Find customer ID based on barcode ID
+            console.log('looking for cuID in customers using barcode')
+            for (const key of Object.keys(customers)) {
+                let c = customers[key]
+                console.log(c)
+                if ( c['barcode_id'] == value) {
+                    cuID = c['id']
                 }
-            } else {
-                cuID = value
+
             }
 
             this.props.setDisplayCustomerID(cuID)
@@ -183,7 +175,7 @@ class Customers extends Component {
         const inputmask_date = settings.date_mask
 
         let customers_display = []
-        if (customers.loaded && memberships.loaded) {
+        if (customers.loaded) {
             if ( customers.searchID ) {
                 customers_display = [
                     customers.data[customers.searchID]
@@ -203,7 +195,7 @@ class Customers extends Component {
         return (
             <PageTemplate app_state={this.props.app}>
                 { 
-                    (!customers.loaded || !memberships.loaded) ? 
+                    (!customers.loaded) ? 
                         <div>{intl.formatMessage({ id: 'app.pos.customers.loading_message' })}</div> :
                         <div>
                             <section className="customers-main-tools">

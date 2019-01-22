@@ -640,7 +640,6 @@ def get_customers_memberships():
         db.customers_memberships.school_memberships_id,
         db.customers_memberships.Startdate,
         db.customers_memberships.Enddate,
-        db.customers_memberships.DateID
     )
 
     memberships = {}
@@ -652,7 +651,6 @@ def get_customers_memberships():
             'name': repr_row.school_memberships_id,
             'start': row.Startdate,
             'end': row.Enddate,
-            'date_id': row.DateID
         }
 
     return memberships
