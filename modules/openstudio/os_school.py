@@ -379,9 +379,11 @@ class School:
             subscription = DIV(
                     DIV(self._get_formatted_display_widget_header(
                         name,
-                        ssu.get_price_on_date(TODAY_LOCAL)
+                        ssu.get_price_on_date(TODAY_LOCAL),
                     ),
-                    DIV(DIV(repr_row.Description, _class='col-md-12'),
+                    DIV(DIV(T("Minimum duration"), ': ',
+                            repr_row.MinDuration, _class='col-md-12 bold'),
+                        DIV(repr_row.Description, _class='col-md-12'),
                             _class='box-body'),
                     DIV(
                         DIV(
