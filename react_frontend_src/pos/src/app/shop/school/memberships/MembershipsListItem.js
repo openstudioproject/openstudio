@@ -46,33 +46,10 @@ const MembershipsListItem = injectIntl(withRouter(({data, intl, onClick=f=>f}) =
                     {data.Description}
                 </p>
             </div>
-            <div class="icon">
-              <i class="fa fa-sign-in"></i>
+            <div className="icon">
+              <i className="fa fa-sign-in"></i>
             </div>
          </div>
-        {/* <div className="panel panel-default">
-            <div className="panel-heading">
-                <h3 className="panel-title">{data.Name}</h3>
-            </div>
-                <table className="table table-condensed">
-                    <tbody>
-                        <tr>
-                            <td>{intl.formatMessage({ id:"app.general.strings.validity" })}</td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>{intl.formatMessage({ id:"app.general.strings.price" })}</td>
-                            <td>{(data.Price) ? 
-                                    <Currency amount={data.Price} /> : 
-                                    intl.formatMessage({ id:"app.general.strings.not_set"}) }</td>
-                        </tr>
-                        <tr>
-                            <td>{intl.formatMessage({ id:"app.general.strings.description" })}</td>
-                            <td>{data.Description}</td>
-                        </tr>
-                    </tbody>
-                </table>
-        </div> */}
     </div>
 ))
 
