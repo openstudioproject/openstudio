@@ -140,4 +140,3 @@ def upgrade_to_201902():
     ##
     query = (db.school_subscriptions.MinDuration == None)
     db(query).update(MinDuration=1)
-    

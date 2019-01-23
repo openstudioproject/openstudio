@@ -655,6 +655,7 @@ def get_customers_memberships_today():
             'id': row.id,
             'auth_customer_id': row.auth_customer_id,
             'name': repr_row.school_memberships_id,
+            'school_memberships_id': row.school_memberships_id,
             'start': repr_row.Startdate,
             'end': repr_row.Enddate,
         })
@@ -695,6 +696,7 @@ def get_customers_memberships():
             'id': row.id,
             'auth_customer_id': row.auth_customer_id,
             'name': repr_row.school_memberships_id,
+            'school_memberships_id': row.school_memberships_id,
             'start': repr_row.Startdate,
             'end': repr_row.Enddate,
         })

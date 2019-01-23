@@ -229,35 +229,39 @@ class Book extends Component {
         }
     }
 
-    customerMemberships(cuID) {
-        let customer_memberships = []
-        const memberships = this.props.memberships.data
+    // customerMembershipsToday(cuID) {
+    //     let customer_memberships = []
+    //     const memberships = this.props.customer_memberships_today.data
             
-        var i;
-        for (i = 0; i < memberships.length; i++) { 
-            if (memberships[i].auth_customer_id === cuID) {
-                customer_memberships.push(memberships[i].id)
-            }
-        }
+    //     var i;
+    //     for (i = 0; i < memberships.length; i++) { 
+    //         if (memberships[i].auth_customer_id === cuID) {
+    //             customer_memberships.push(memberships[i].id)
+    //         }
+    //     }
 
-        console.log('customer_memberships')
-        console.log(customer_memberships)
+    //     console.log('customer_memberships')
+    //     console.log(customer_memberships)
 
-        return customer_memberships
+    //     return customer_memberships
     
-    }
+    // }
 
     render() {
         const cuID = this.props.match.params.cuID
         const booking_options = this.props.options.data
         
-        const customer_memberships = this.customerMemberships(cuID)
+        // const customer_memberships_today = this.customerMembershipsToday(cuID)
+        const customer_memberships = this.props.customer_memberships_today.data[cuID]
+        console.log('customer_memberships')
+        console.log(customer_memberships)
+
         
 
         return (
             <PageTemplate app_state={this.props.app}>
                 { 
-                    (!this.props.options.loaded || !this.props.memberships.loaded) ? 
+                    (!this.props.options.loaded || !this.props.customer_memberships_today.loaded) ? 
                         <div>Loading booking options, please wait...</div> :
                         <section className="checkin_attendance">
                             <ButtonBack onClick={this.onClickButtonBack.bind(this)} 
