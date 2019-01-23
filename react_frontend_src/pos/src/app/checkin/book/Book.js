@@ -141,7 +141,7 @@ class Book extends Component {
                 break
             case "subscription":
                 if (option.school_memberships_id) {
-                    if (customer_memberships.includes(option.school_memberships_id)) {
+                    if (customerHasRequiredMembership(option.school_memberships_id, customer_memberships)) {
                         this.props.checkinCustomer(cuID, clsID, option, this.props.history)
                     } else {
                         console.log('redirect to cart to buy the required membership')
@@ -183,7 +183,7 @@ class Book extends Component {
             case "classcard":
                 // Check membership
                 if (option.school_memberships_id) {
-                    if (customer_memberships.includes(option.school_memberships_id)) {
+                    if (customerHasRequiredMembership(option.school_memberships_id, customer_memberships)) {
                         this.props.checkinCustomer(cuID, clsID, option, this.props.history)
                     } else {
                         console.log('redirect to cart to buy the required membership')
