@@ -56,7 +56,7 @@ const SubscriptionsListItem = injectIntl(withRouter(({data, intl, currency_symbo
                 </p>
             </div>
             <div className="icon">
-              <i classaName="fa fa-pencil-square-o"></i>
+              <i className="fa fa-pencil-square-o"></i>
             </div>
             { (data.MembershipRequired == true) ?
                 <span className="small-box-footer"><i className="fa fa-exclamation-circle"></i> {representMembershipRequired(data, intl)}</span>

@@ -40,7 +40,7 @@ export const shopCartReducer = (state = {}, action={ type: null }) => {
                 // increate quantity if product, don't do anything for school products
                 if (action.data.item_type === 'product') {
                     new_items = state.items.map((item, index) =>
-                        index === i ? {...item, quantity: item.quantity + 1} : item
+                        (index === i) ? {...item, quantity: item.quantity + 1} : item
                     )
 
                     return {
