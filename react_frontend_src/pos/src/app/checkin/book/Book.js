@@ -7,6 +7,7 @@ import ButtonBack from "../../../components/ui/ButtonBack"
 import PageTemplate from "../../../components/PageTemplate"
 import BookOptionsList from "./BookOptionsList"
 
+import customerHasRequiredMembership from './customerHasRequiredMembership'
 
 
 class Book extends Component {
@@ -48,7 +49,7 @@ class Book extends Component {
 
         // this.props.checkinCustomer(cuID, clsID, option)
 
-        const customer_memberships = this.customerMemberships(this.props.match.params.cuID)
+        const customer_memberships = this.customerMembershipsToday(this.props.match.params.cuID)
         console.log(customer_memberships)
         switch (option.Type) {
             case "dropin": 
@@ -229,34 +230,17 @@ class Book extends Component {
         }
     }
 
-    // customerMembershipsToday(cuID) {
-    //     let customer_memberships = []
-    //     const memberships = this.props.customer_memberships_today.data
-            
-    //     var i;
-    //     for (i = 0; i < memberships.length; i++) { 
-    //         if (memberships[i].auth_customer_id === cuID) {
-    //             customer_memberships.push(memberships[i].id)
-    //         }
-    //     }
-
-    //     console.log('customer_memberships')
-    //     console.log(customer_memberships)
-
-    //     return customer_memberships
-    
-    // }
+    customerMembershipsToday(cuID) {
+        return this.props.customer_memberships_today.data[cuID]
+    }
 
     render() {
         const cuID = this.props.match.params.cuID
         const booking_options = this.props.options.data
         
-        // const customer_memberships_today = this.customerMembershipsToday(cuID)
-        const customer_memberships = this.props.customer_memberships_today.data[cuID]
+        const customer_memberships = this.customerMembershipsToday(cuID)
         console.log('customer_memberships')
         console.log(customer_memberships)
-
-        
 
         return (
             <PageTemplate app_state={this.props.app}>

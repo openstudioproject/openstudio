@@ -1,6 +1,9 @@
 import React from "react"
 import { injectIntl } from 'react-intl'
 
+
+import customerHasRequiredMembership from './customerHasRequiredMembership'
+
 const BookOptionsListItemSubscription = injectIntl(({data, customer_memberships, intl, onClick=f=>f}) => 
     <div className="col-md-3"
          onClick={(data.Allowed) ? () => onClick(data): f=>f}>
@@ -18,8 +21,8 @@ const BookOptionsListItemSubscription = injectIntl(({data, customer_memberships,
               <i className="fa fa-pencil-square-o"></i>
             </div>
             { (data.school_memberships_id) ? 
-                (customer_memberships.includes(data.school_memberships_id) ? 
-                    '' : <span className="small-box-footer"><i className="fa fa-exclamation-circle"></i> Membership required - buy now</span> )
+                customerHasRequiredMembership(data.school_memberships_id, customer_memberships) ? 
+                    '' : <span className="small-box-footer"><i className="fa fa-exclamation-circle"></i> Membership required - buy now</span> 
                     : ''
             }
 
