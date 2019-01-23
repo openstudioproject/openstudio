@@ -133,3 +133,11 @@ def upgrade_to_201902():
             invoices_items_id = item_row.id,
             teachers_payment_classes_id = row.teachers_payment_classes_id
         )
+
+
+    ##
+    # Set default value for db.school_subscriptions.MinDuration
+    ##
+    query = (db.school_subscriptions.MinDuration == None)
+    db(query).update(MinDuration=1)
+    
