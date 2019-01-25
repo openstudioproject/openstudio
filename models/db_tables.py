@@ -939,8 +939,10 @@ def define_accounting_expenses():
 
     db.define_table('accounting_expenses',
         Field('BookingDate', 'date',
-              readable=False,
-              writable=False,
+              default=TODAY_LOCAL,
+              requires=IS_DATE_IN_RANGE(format=DATE_FORMAT,
+                                        minimum=datetime.date(1900, 1, 1),
+                                        maximum=datetime.date(2999, 1, 1)),
               represent=represent_date),
         Field('Amount', 'double',
               represent=represent_float_as_amount,
