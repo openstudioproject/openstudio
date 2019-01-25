@@ -921,7 +921,7 @@ def define_accounting_cashbooks_additional_items():
         Field('Description',
               requires=IS_NOT_EMPTY(),
               label=T("Description")),
-    ),
+    )
 
 
 def define_accounting_expenses():
