@@ -20,10 +20,9 @@ class AccountingExpenses:
         return rows
 
 
-    def list_formatted(self, date_from, date_until):
+    def list_formatted_simple(self, date_from, date_until):
         """
-        List cashbook items, debit (in) or credit (out)
-        :param item_type: one of ['debit', 'credit']
+        List expenses in an HTML table
         :param date_from: datetime.date
         :param date_until: datetime.date
         :return: HTML table
@@ -43,11 +42,7 @@ class AccountingExpenses:
         header = THEAD(TR(
             TH(T("Date")),
             TH(T("Description")),
-            TH(T("Ref.")),
             TH(T("Amount")),
-            TH(T("VAT")),
-            TH(T("G/L Account")),
-            TH(T("Cost center")),
             TH(), # Buttons
         ))
 
@@ -61,8 +56,6 @@ class AccountingExpenses:
                 TD(repr_row.BookingDate),
                 TD(max_string_length(repr_row.Description, 44),
                    _title=repr_row.Description),
-                TD(max_string_length(repr_row.YourReference, 44),
-                   _title=repr_row.YourReference),
                 TD(repr_row.Amount),
                 TD(self._list_formatted_get_buttons(
                     row,
@@ -74,7 +67,6 @@ class AccountingExpenses:
             total += row.Amount
 
         table.append(TFOOT(TR(
-            TH(),
             TH(),
             TH(T("Total")),
             TH(represent_float_as_amount(total)),
