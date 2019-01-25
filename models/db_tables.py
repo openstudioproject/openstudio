@@ -929,6 +929,8 @@ def define_accounting_expenses():
                       (db.auth_user.trashed == False) & \
                       ((db.auth_user.teacher == True) |
                        (db.auth_user.employee == True))
+    ac_query = (db.accounting_costcenters.Archived == False)
+    ag_query = (db.accounting_glaccounts.Archived == False)
 
     try:
         auth_user_id_default = auth.user.id
