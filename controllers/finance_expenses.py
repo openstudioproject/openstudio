@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'accounting_cashbooks'))
+               auth.has_permission('read', 'accounting_expenses'))
 def index():
     """
 
@@ -95,3 +95,18 @@ def edit():
     return dict(content=form,
                 save=result['submit'],
                 back=back)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('delete', 'accounting_expenses'))
+def delete():
+    """
+    Delete record from db.accounting_expenses
+    :return: None
+    """
+    aeID = request.vars['aeID']
+
+    query = (db.accounting_expenses.id == aeID)
+    db(query).delete()
+
+    redirect(add_edit_get_return_url())

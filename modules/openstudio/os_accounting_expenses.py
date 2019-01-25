@@ -108,7 +108,7 @@ class AccountingExpenses:
 
             delete = os_gui.get_button(
                 'delete_notext',
-                URL('finance_expenses', 'delete', vars={'aeiID': row.id}),
+                URL('finance_expenses', 'delete', vars={'aeID': row.id}),
                 onclick=onclick_delete
             )
             buttons.append(delete)
