@@ -752,6 +752,8 @@ def test_add_batch_invoices_without_zero_lines(client, web2py):
     # Customer 8 & 9's subscription don't have an invoice
     # customer10's subscription has price 0, so should be skipped
 
+    print web2py.db().select(web2py.db.payment_batches_items.ALL)
+
     assert web2py.db(web2py.db.payment_batches_items).count() == 6
 
 

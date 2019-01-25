@@ -400,7 +400,6 @@ def test_invoice_duplicate_invoice(client, web2py):
     # print 4
     oldrow = web2py.db.invoices(id = 1)
     query = ((web2py.db.invoices.CustomerName == oldrow.CustomerName) &
-             (web2py.db.invoices.auth_customer_id == oldrow.auth_customer_id) &
              (web2py.db.invoices.invoices_groups_id == oldrow.invoices_groups_id) &
              (web2py.db.invoices.payment_methods_id == oldrow.payment_methods_id) &
              (web2py.db.invoices.id != oldrow.id) &

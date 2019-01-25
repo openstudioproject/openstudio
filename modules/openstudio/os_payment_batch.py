@@ -75,7 +75,6 @@ class PaymentBatch:
 
         for row in rows:
             cuID = row.auth_user.id
-            csID = row.invoices.customers_subscriptions_id
             iID = row.invoices.id
 
             amount = row.invoices_amounts.TotalPriceVAT
@@ -114,7 +113,6 @@ class PaymentBatch:
             db.payment_batches_items.insert(
                 payment_batches_id=self.id,
                 auth_customer_id=cuID,
-                customers_subscriptions_id=csID,
                 invoices_id=iID,
                 AccountHolder=row.customers_payment_info.AccountHolder,
                 BIC=bic,

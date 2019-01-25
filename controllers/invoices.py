@@ -532,7 +532,6 @@ def duplicate_invoice():
 
     iID= db.invoices.insert(
         invoices_groups_id= oldinvoice.invoices_groups_id,
-        auth_customer_id= oldinvoice.auth_customer_id,
         payment_methods_id = oldinvoice.payment_methods_id,
         Status = 'draft',
         CustomerCompany= oldinvoice.CustomerCompany,
@@ -2118,10 +2117,6 @@ def cancel_and_create_credit_invoice():
 
     new_iID = db.invoices.insert(
         invoices_groups_id = invoice.invoices_groups_id,
-        customers_subscriptions_id = invoice.customers_subscriptions_id,
-        customers_classcards_id = invoice.customers_classcards_id,
-        classes_attendance_id = invoice.classes_attendance_id,
-        workshops_products_customers_id = invoice.workshops_products_customers_id,
         CustomerCompany = invoice.CustomerCompany,
         CustomerName = invoice.CustomerName,
         CustomerAddress = invoice.CustomerAddress,
