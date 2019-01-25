@@ -134,12 +134,15 @@ class AccountingExpenses:
         T = current.T
 
         query = (db.accounting_expenses.id > 0)
+        links = [
+            self._list_sqlform_grid_link_edit,
+        ]
 
         delete_permission = auth.has_membership(group_id='Admins') or \
                             auth.has_permission('delete', 'accounting_expenses')
 
         grid = SQLFORM.grid(query,
-                            # links=links,
+                            links=links,
                             # left=left,
                             field_id=db.accounting_expenses.id,
                             # fields=fields,
@@ -156,3 +159,26 @@ class AccountingExpenses:
         grid.elements('span[title=Delete]', replace=None)  # remove text from delete button
 
         return grid
+
+
+    def _list_sqlform_grid_link_edit(self, row):
+        """
+        :param row:
+        :return:
+        """
+        from os_gui import OsGui
+        auth = current.auth
+        os_gui = OsGui()
+        edit = ''
+
+        permission = auth.has_membership(group_id='Admins') or \
+                     auth.has_permission('update', 'accounting_expenses')
+        if permission:
+            edit = os_gui.get_button(
+                'edit',
+                URL('finance_expenses', 'edit', vars={'aeID': row.id})
+            )
+
+        return edit
+
+
