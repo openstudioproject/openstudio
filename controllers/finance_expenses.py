@@ -7,11 +7,14 @@ def index():
 
     :return:
     """
+    from openstudio.os_accounting_expenses import AccountingExpenses
+
     response.title = T('Finance')
     response.subtitle = T('Expenses')
     response.view = 'general/only_content.html'
 
-    content = T("Hello world")
+    ae = AccountingExpenses()
+    content = ae.list_sqlform_grid()
 
     return dict(
         content=content

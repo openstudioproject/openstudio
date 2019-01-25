@@ -114,3 +114,45 @@ class AccountingExpenses:
             buttons.append(delete)
 
         return buttons
+
+
+    def list_sqlform_grid(self, date_from=None, date_until=None):
+        """
+        SQLFORM.grid for accounting_expenses
+        :param date_from:
+        :param date_until:
+        :return:
+        """
+        db = current.db
+        auth = current.auth
+        session = current.session
+        grid_ui = current.globalenv['grid_ui']
+        DATE_FORMAT = current.DATE_FORMAT
+        from general_helpers import datestr_to_python
+        from openstudio.os_gui import OsGui
+        os_gui = OsGui()
+        T = current.T
+
+        query = (db.accounting_expenses.id > 0)
+
+        delete_permission = auth.has_membership(group_id='Admins') or \
+                            auth.has_permission('delete', 'accounting_expenses')
+
+        grid = SQLFORM.grid(query,
+                            # links=links,
+                            # left=left,
+                            field_id=db.accounting_expenses.id,
+                            # fields=fields,
+                            create=False,
+                            editable=False,
+                            details=False,
+                            searchable=False,
+                            deletable=delete_permission,
+                            csv=False,
+                            # maxtextlengths=maxtextlengths,
+                            orderby=~db.accounting_expenses.id,
+                            ui=grid_ui)
+        grid.element('.web2py_counter', replace=None)  # remove the counter
+        grid.elements('span[title=Delete]', replace=None)  # remove text from delete button
+
+        return grid
