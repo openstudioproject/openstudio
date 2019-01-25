@@ -120,8 +120,8 @@ def get_credit(date):
     total += count_closing['total']
 
     # Additional items
-    additional_items = additional_items_get(date, 'credit')
-    total += additional_items['total']
+    expenses = get_credit_expenses(date)
+    total += expenses['total']
 
     # Classes used on subscriptions
     subscriptions_used_classes = get_credit_subscriptions_classes_summary(date)
@@ -138,7 +138,7 @@ def get_credit(date):
     column = DIV(
         H4(T("Expenses")),
         count_closing['box'],
-        additional_items['box'],
+        expenses['box'],
         subscriptions_used_classes['box'],
         cards_used_classes['box'],
         non_cash_payments['box'],
@@ -962,6 +962,51 @@ def get_credit_classcards_used_classes_summary(date):
 
     return dict(
         box = box,
+        total = total
+    )
+
+
+def get_credit_expenses(date):
+    """
+
+    :param date:
+    :return: dict
+    """
+    from openstudio.os_accounting_expenses import AccountingExpenses
+
+    ae = AccountingExpenses()
+    result = ae.list_formatted_simple(date, date)
+    table = result['table']
+    total = result['total']
+
+    link_add = ''
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('create', 'accounting_expenses'):
+        link_add = SPAN(
+            SPAN(XML(" &bull; "), _class='text-muted'),
+            A(T("Add expense"),
+              _href=URL('finance_expenses', 'add'))
+        )
+
+
+    expenses = DIV(
+        DIV(H3("Additional expenses", _class='box-title'),
+            link_add,
+            DIV(
+                A(I(_class='fa fa-minus'),
+                  _href='#',
+                  _class='btn btn-box-tool',
+                  _title=T("Collapse"),
+                  **{'_data-widget': 'collapse'}),
+                _class='box-tools pull-right'
+            ),
+            _class='box-header'),
+        DIV(table, _class='box-body no-padding'),
+        _class='box box-danger'
+    )
+
+    return dict(
+        box = expenses,
         total = total
     )
 
