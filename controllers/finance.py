@@ -1237,8 +1237,8 @@ def receipts():
     """
     from openstudio.os_receipts import Receipts
 
-    response.title = T('Receipts')
-    response.subtitle = T('')
+    response.title = T('Finance')
+    response.subtitle = T('Receipts')
     response.view = 'general/only_content.html'
 
     receipts = Receipts()
