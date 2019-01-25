@@ -37,7 +37,7 @@ def add_edit_get_return_url(var=None):
 @auth.requires_login()
 def add():
     """
-        Add a new category
+        Add a new expense
     """
     from openstudio.os_forms import OsForms
     response.title = T('Finance')
@@ -55,11 +55,6 @@ def add():
     form = result['form']
     back = os_gui.get_button('back', return_url)
 
-    # content = DIV(
-    #     H4(T('Add category')),
-    #     form
-    # )
-
     return dict(content=form,
                 save=result['submit'],
                 back=back)
@@ -68,35 +63,28 @@ def add():
 @auth.requires_login()
 def edit():
     """
-        Edit a category
-        request.vars['scID'] is expected to be db.shop_categories.id
+    Edit expense
+    request.vars['aeID'] is expected to be db.accounting_expenses.id
     """
     from openstudio.os_forms import OsForms
 
-    response.title = T('Shop')
-    response.subtitle = T('Catalog')
-    response.view = 'general/tabs_menu.html'
-    scID = request.vars['scID']
+    response.title = T('Finance')
+    response.subtitle = T('Edit expense')
+    response.view = 'general/only_content.html'
+    aeID = request.vars['aeID']
 
-    return_url = shop_categories_get_return_url()
+    return_url = add_edit_get_return_url()
 
     os_forms = OsForms()
     result = os_forms.get_crud_form_update(
-        db.shop_categories,
+        db.accounting_expenses,
         return_url,
-        scID
+        aeID
     )
 
     form = result['form']
     back = os_gui.get_button('back', return_url)
-    menu = catalog_get_menu('categories')
 
-    content = DIV(
-        H4(T('Edit category')),
-        form
-    )
-
-    return dict(content=content,
+    return dict(content=form,
                 save=result['submit'],
-                back=back,
-                menu=menu)
+                back=back)
