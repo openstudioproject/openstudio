@@ -554,18 +554,13 @@ def test_membership_add(client, web2py):
     client.post(url, data=data)
     assert client.status == 200
 
-    cm = web2py.db.customers_memberships(1)
-    assert cm.DateID == '2014010100001'
-    assert not cm.Barcode == None
-
     assert web2py.db(web2py.db.customers_memberships).count() == 1
-    assert web2py.db(web2py.db.invoices_customers_memberships).count() == 1
+    assert web2py.db(web2py.db.invoices_items_customers_memberships).count() == 1
 
     sm = web2py.db.school_memberships(1)
     invoice = web2py.db.invoices(1)
     invoice_item = web2py.db.invoices_items(1)
     invoice_amounts = web2py.db.invoices_amounts(1)
-
 
     assert invoice_item.ProductName == "Membership 1"
     assert invoice_item.Description == "Premium membership 2014-01-01 - 2014-01-31"
