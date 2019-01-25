@@ -61,8 +61,8 @@ def get_debit(date):
     total += count_opening['total']
 
     # Additional items
-    additional_items = additional_items_get(date, 'debit')
-    total += additional_items['total']
+    # additional_items = additional_items_get(date, 'debit')
+    # total += additional_items['total']
 
     # Class balance (total revenue - teacher payments)
     classes_balance = get_debit_classes(date, 'balance')
@@ -92,7 +92,7 @@ def get_debit(date):
     column = DIV(
         H4(T("Income")),
         count_opening['box'],
-        additional_items['box'],
+        # additional_items['box'],
         classes_balance['box'],
         sold_memberships['box'],
         sold_subscriptions['box'],
@@ -153,54 +153,54 @@ def get_credit(date):
     )
 
 
-def additional_items_get(date, booking_type):
-    """
-
-    :param date:
-    :return: dict
-    """
-    from openstudio.os_accounting_cashbooks_additional_items import AccountingCashbooksAdditionalItems
-
-    acai = AccountingCashbooksAdditionalItems()
-    result = acai.list_formatted(date, date, booking_type)
-    acai_debit_list = result['table']
-    acai_debit_total = result['total']
-
-    if booking_type == 'debit':
-        box_class = 'box-success'
-    elif booking_type == 'credit':
-        box_class = 'box-danger'
-
-    link_add = ''
-    if auth.has_membership(group_id='Admins') or \
-       auth.has_permission('create', 'accounting_cashbooks_additional_items'):
-        link_add = SPAN(
-            SPAN(XML(" &bull; "), _class='text-muted'),
-            A(T("Add item"),
-              _href=URL('additional_item_add', vars={'booking_type': booking_type}))
-        )
-
-
-    additional_items = DIV(
-        DIV(H3("Additional items", _class='box-title'),
-            link_add,
-            DIV(
-                A(I(_class='fa fa-minus'),
-                  _href='#',
-                  _class='btn btn-box-tool',
-                  _title=T("Collapse"),
-                  **{'_data-widget': 'collapse'}),
-                _class='box-tools pull-right'
-            ),
-            _class='box-header'),
-        DIV(acai_debit_list, _class='box-body no-padding'),
-        _class='box ' + box_class
-    )
-
-    return dict(
-        box = additional_items,
-        total = acai_debit_total
-    )
+# def additional_items_get(date, booking_type):
+#     """
+#
+#     :param date:
+#     :return: dict
+#     """
+#     from openstudio.os_accounting_cashbooks_additional_items import AccountingCashbooksAdditionalItems
+#
+#     acai = AccountingCashbooksAdditionalItems()
+#     result = acai.list_formatted(date, date, booking_type)
+#     acai_debit_list = result['table']
+#     acai_debit_total = result['total']
+#
+#     if booking_type == 'debit':
+#         box_class = 'box-success'
+#     elif booking_type == 'credit':
+#         box_class = 'box-danger'
+#
+#     link_add = ''
+#     if auth.has_membership(group_id='Admins') or \
+#        auth.has_permission('create', 'accounting_cashbooks_additional_items'):
+#         link_add = SPAN(
+#             SPAN(XML(" &bull; "), _class='text-muted'),
+#             A(T("Add item"),
+#               _href=URL('additional_item_add', vars={'booking_type': booking_type}))
+#         )
+#
+#
+#     additional_items = DIV(
+#         DIV(H3("Additional items", _class='box-title'),
+#             link_add,
+#             DIV(
+#                 A(I(_class='fa fa-minus'),
+#                   _href='#',
+#                   _class='btn btn-box-tool',
+#                   _title=T("Collapse"),
+#                   **{'_data-widget': 'collapse'}),
+#                 _class='box-tools pull-right'
+#             ),
+#             _class='box-header'),
+#         DIV(acai_debit_list, _class='box-body no-padding'),
+#         _class='box ' + box_class
+#     )
+#
+#     return dict(
+#         box = additional_items,
+#         total = acai_debit_total
+#     )
 
 
 def index_get_balance(debit_total=0, credit_total=0):

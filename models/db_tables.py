@@ -900,28 +900,28 @@ def define_accounting_cashbooks_cash_count():
               default=datetime.datetime.now()),
     )
 
-
-def define_accounting_cashbooks_additional_items():
-    db.define_table('accounting_cashbooks_additional_items',
-        Field('BookingDate', 'date',
-            readable=False,
-            writable=False,
-            represent=represent_date),
-        Field('BookingType',
-            readable=False,
-            writable=False,
-            requires=IS_IN_SET([
-              ['debit', T("Debit / In")],
-              ['credit', T("Credit / Out")]
-            ])),
-        Field('Amount', 'double',
-            represent=represent_float_as_amount,
-            default=0,
-            label=T("Amount")),
-        Field('Description',
-              requires=IS_NOT_EMPTY(),
-              label=T("Description")),
-    )
+#
+# def define_accounting_cashbooks_additional_items():
+#     db.define_table('accounting_cashbooks_additional_items',
+#         Field('BookingDate', 'date',
+#             readable=False,
+#             writable=False,
+#             represent=represent_date),
+#         Field('BookingType',
+#             readable=False,
+#             writable=False,
+#             requires=IS_IN_SET([
+#               ['debit', T("Debit / In")],
+#               ['credit', T("Credit / Out")]
+#             ])),
+#         Field('Amount', 'double',
+#             represent=represent_float_as_amount,
+#             default=0,
+#             label=T("Amount")),
+#         Field('Description',
+#               requires=IS_NOT_EMPTY(),
+#               label=T("Description")),
+#     )
 
 
 def define_accounting_expenses():
@@ -6439,7 +6439,6 @@ define_accounting_costcenters()
 define_accounting_glaccounts()
 define_accounting_expenses()
 define_accounting_cashbooks_cash_count()
-define_accounting_cashbooks_additional_items()
 
 define_school_memberships()
 define_school_subscriptions()
