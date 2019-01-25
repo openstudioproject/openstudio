@@ -141,9 +141,9 @@ def test_invoice_add_from_customer_subscription(client, web2py):
     ic = web2py.db.invoices_customers(1)
     assert ic.invoices_id == 1
     assert ic.auth_customer_id == 1001
-    ics = web2py.db.invoices_customers_subscriptions(1)
-    assert ics.invoices_id == 1
-    assert ics.customers_subscriptions_id == 1
+    iics = web2py.db.invoices_items_customers_subscriptions(1)
+    assert iics.invoices_items_id == 1
+    assert iics.customers_subscriptions_id == 1
     # verify redirection
     assert invoice.InvoiceID in client.text
 
