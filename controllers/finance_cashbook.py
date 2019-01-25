@@ -9,6 +9,8 @@ def index():
     """
     response.title = T('Cash book')
 
+    session.finance_expenses_add_edit_back = 'finance_cashbook_index'
+
     if session.finance_cashbook_date:
         date = session.finance_cashbook_date
     else:

@@ -13,6 +13,8 @@ def index():
     response.subtitle = T('Expenses')
     response.view = 'general/only_content.html'
 
+    session.finance_expenses_add_edit_back = 'finance_expenses_index'
+
     ae = AccountingExpenses()
     content = ae.list_sqlform_grid()
 
@@ -31,7 +33,12 @@ def add_edit_get_return_url(var=None):
     """
         :return: URL to shop categories list page
     """
-    return URL('index')
+    if session.finance_expenses_add_edit_back == 'finance_cashbook_index':
+        return_url = URL('finance_cashbook', 'index')
+    else:
+        return_url = URL('index')
+
+    return return_url
 
 
 @auth.requires_login()
