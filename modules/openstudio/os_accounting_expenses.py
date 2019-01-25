@@ -75,6 +75,7 @@ class AccountingExpenses:
 
         table.append(TFOOT(TR(
             TH(),
+            TH(),
             TH(T("Total")),
             TH(represent_float_as_amount(total)),
             TH()
@@ -104,21 +105,20 @@ class AccountingExpenses:
         if permission_edit:
             edit = os_gui.get_button(
                 'edit',
-                URL('finance_cashbook', 'additional_item_edit', vars={'acaiID': row.id})
+                URL('finance_expenses', 'edit', vars={'aeID': row.id})
             )
             buttons.append(edit)
         if permission_delete:
             onclick_delete = \
                 "return confirm('" + \
-                T('m_openstudio_os_accounting_cashbooks_additional_items_delete_confirm') + \
+                T('Are you sure you want to delete this expense?') + \
                 "');"
 
             delete = os_gui.get_button(
                 'delete_notext',
-                URL('finance_cashbook', 'additional_item_delete', vars={'acaiID': row.id}),
+                URL('finance_expenses', 'delete', vars={'aeiID': row.id}),
                 onclick=onclick_delete
             )
             buttons.append(delete)
 
         return buttons
-
