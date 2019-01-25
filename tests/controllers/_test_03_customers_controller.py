@@ -1151,8 +1151,8 @@ def check_classcard_invoice(web2py):
     invoice = web2py.db.invoices(1)
     assert invoice.invoices_groups_id == 100
 
-    iccd = web2py.db.invoices_customers_classcards(1)
-    assert iccd.customers_classcards_id == 1
+    iiccd = web2py.db.invoices_items_customers_classcards(1)
+    assert iiccd.customers_classcards_id == 1
 
     price = web2py.db.school_classcards(1).Price
     invoice_amount = web2py.db.invoices_amounts(1).TotalPriceVAT
