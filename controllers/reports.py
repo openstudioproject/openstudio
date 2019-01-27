@@ -1278,7 +1278,7 @@ def classcards_current():
                                                           'startdate',
                                                           session_parameter='reports_classcards_current_sort_by')
 
-    today = datetime.date.today()
+    today = TODAY_LOCAL
 
     classes_remaining = (db.school_classcards.Classes - db.customers_classcards.ClassesTaken)
 
@@ -1294,8 +1294,7 @@ def classcards_current():
             (db.school_classcards.Trialcard == False) & \
             ((db.customers_classcards.ClassesTaken <
               db.school_classcards.Classes) |
-             (db.school_classcards.Classes == 0) |
-             (db.school_classcards.Classes == None))
+             (db.school_classcards.Unlimited == True))
 
 
     rows = db(query).select(db.auth_user.id,
@@ -1314,10 +1313,10 @@ def classcards_current():
                             db.school_classcards.Price,
                             db.school_classcards.Unlimited,
                             classes_remaining,
-        left=[db.auth_user.on(db.auth_user.id==\
+        left=[db.auth_user.on(db.auth_user.id==
                               db.customers_classcards.auth_customer_id),
               db.school_classcards.on(
-                db.customers_classcards.school_classcards_id ==\
+                db.customers_classcards.school_classcards_id ==
                 db.school_classcards.id)],
         orderby=orderby)
 

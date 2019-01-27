@@ -1475,7 +1475,7 @@ def tickets_export_excel():
     def add_ticket_sheet(wspID):
         wsp = WorkshopProduct(wspID)
         # add sheet
-        ws = wb.create_sheet(title=wsp.name)
+        ws = wb.create_sheet(title=wsp.name.decode('utf-8'))
         # get db info
         left = [ db.auth_user.on(db.auth_user.id == db.workshops_products_customers.auth_customer_id),
                  db.workshops_products.on(
