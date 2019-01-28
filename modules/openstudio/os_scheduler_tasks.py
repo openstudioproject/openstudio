@@ -48,7 +48,7 @@ class OsSchedulerTasks:
             db.school_subscriptions_price.tax_rates_id,
             db.tax_rates.Percentage,
             db.customers_subscriptions_paused.id,
-            db.invoices.id,
+            db.invoices_items.id,
             csap.id,
             csap.Amount,
             csap.Description
@@ -67,7 +67,7 @@ class OsSchedulerTasks:
                        ssp.tax_rates_id,
                        tr.Percentage,
                        csp.id,
-                       i.invoices_id,
+                       ii.invoices_items_id,
                        csap.id,
                        csap.Amount,
                        csap.Description
@@ -97,13 +97,14 @@ class OsSchedulerTasks:
                         (Enddate >= '{firstdaythismonth}' OR Enddate IS NULL)) csp
                  ON cs.id = csp.customers_subscriptions_id
                 LEFT JOIN
-                 (SELECT ics.id,
-                         ics.invoices_id,
-                         ics.customers_subscriptions_id
-                  FROM invoices_customers_subscriptions ics
-                  LEFT JOIN invoices on ics.invoices_id = invoices.id
-                  WHERE invoices.SubscriptionYear = {year} AND invoices.SubscriptionMonth = {month}) i
-                 ON i.customers_subscriptions_id = cs.id
+                 (SELECT iics.id,
+                         iics.invoices_items_id,
+                         iics.customers_subscriptions_id
+                  FROM invoices_items_customers_subscriptions iics
+                  LEFT JOIN invoices_items ON iics.invoices_items_id = invoices_items.id
+                  LEFT JOIN invoices ON invoices_items.invoices_id = invoices.id
+                  WHERE invoices.SubscriptionYear = {year} AND invoices.SubscriptionMonth = {month}) ii
+                 ON ii.customers_subscriptions_id = cs.id
                 LEFT JOIN
                  (SELECT id,
                          customers_subscriptions_id,
@@ -130,7 +131,7 @@ class OsSchedulerTasks:
 
         # Alright, time to create some invoices
         for row in rows:
-            if row.invoices.id:
+            if row.invoices_items.id:
                 # an invoice already exists, do nothing
                 continue
             if row.customers_subscriptions_paused.id:

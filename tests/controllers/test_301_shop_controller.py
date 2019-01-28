@@ -1724,8 +1724,8 @@ def test_order_paid_delivery_invoice(client, web2py):
     assert not ii_4.tax_rates_id is None
 
     # invoice links
-    assert web2py.db(web2py.db.invoices_customers_classcards).count() == 1
-    assert web2py.db(web2py.db.invoices_workshops_products_customers).count() == 1
+    assert web2py.db(web2py.db.invoices_items_customers_classcards).count() == 1
+    assert web2py.db(web2py.db.invoices_items_workshops_products_customers).count() == 1
 
     # invoice amounts
     amounts = web2py.db.invoices_amounts(1)

@@ -521,9 +521,6 @@ class Invoice:
 
             description = cls.get_invoice_order_description(1) # 1 = trial class
 
-        # link invoice to attendance
-        self.link_to_classes_attendance(caID)
-
         next_sort_nr = self.get_item_next_sort_nr()
         iiID = db.invoices_items.insert(
             invoices_id=self.invoices_id,
@@ -537,6 +534,9 @@ class Invoice:
             accounting_costcenters_id=costcenter
         )
 
+        # link invoice to attendance
+        self.link_item_to_classes_attendance(caID, iiID)
+        # link to customer
         self.link_to_customer(cuID)
         # This calls self.on_update()
         self.set_amounts()
@@ -570,12 +570,6 @@ class Invoice:
             # Drop in
             glaccount = prices['dropin_glaccount']
 
-        # link invoice to attendance
-        db.invoices_classes_attendance.insert(
-            invoices_id=self.invoices_id,
-            classes_attendance_id=caID
-        )
-
         # add item to invoice
         next_sort_nr = self.get_item_next_sort_nr()
 
@@ -589,6 +583,11 @@ class Invoice:
             tax_rates_id=order_item_row.tax_rates_id,
             accounting_glaccounts_id=order_item_row.accounting_glaccounts_id,
             accounting_costcenters_id=order_item_row.accounting_costcenters_id,
+        )
+
+        self.link_item_to_classes_attendance(
+            caID,
+            iiID
         )
 
         # This calls self.on_update()
@@ -1181,15 +1180,15 @@ class Invoice:
         )
 
 
-    def link_to_classes_attendance(self, caID):
+    def link_item_to_classes_attendance(self, caID, iiID):
         """
         Link invoice to classes attendance
         :param caID: db.classes_attendance.id
         :return: None
         """
         db = current.db
-        db.invoices_classes_attendance.insert(
-            invoices_id=self.invoices_id,
+        db.invoices_items_classes_attendance.insert(
+            invoices_items_id=iiID,
             classes_attendance_id=caID
         )
 
@@ -1212,13 +1211,28 @@ class Invoice:
 
     def get_linked_customer_subscription_id(self):
         """
-            Returns auth.user.id of account linked to this invoice
-            :return: auth.user.id
+            Returns db.customers_subscriptions.id of account linked to this invoice
+            :return: db.customers_subscriptions.id
         """
         db = current.db
 
-        query = (db.invoices_customers_subscriptions.invoices_id == self.invoices_id)
-        rows = db(query).select(db.invoices_customers_subscriptions.customers_subscriptions_id)
+        query = (db.invoices_items.invoices_id == self.invoices_id) & \
+                (db.invoices_items_customers_subscriptions.customers_subscriptions_id != None)
+        left = [
+            db.invoices_items.on(
+                db.invoices_items.invoices_id ==
+                db.invoices.id
+            ),
+            db.invoices_items_customers_subscriptions.on(
+                db.invoices_items_customers_subscriptions.invoices_items_id ==
+                db.invoices_items.id
+            )
+        ]
+
+        rows = db(query).select(
+            db.invoices_items_customers_subscriptions.ALL,
+            left=left
+        )
 
         if rows:
             return rows.first().customers_subscriptions_id

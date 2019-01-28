@@ -260,12 +260,7 @@ def populate_customers_with_subscriptions(web2py,
                 invoices_id = iID
             )
 
-            cisID = web2py.db.invoices_customers_subscriptions.insert(
-                customers_subscriptions_id = csID,
-                invoices_id = iID
-            )
-
-            web2py.db.invoices_items.insert(
+            iiID = web2py.db.invoices_items.insert(
                 invoices_id = iID,
                 Sorting = 1,
                 ProductName = 'Subscription',
@@ -273,6 +268,11 @@ def populate_customers_with_subscriptions(web2py,
                 Quantity = 1,
                 Price = ss_one_price,
                 tax_rates_id = 1
+            )
+
+            cisID = web2py.db.invoices_items_customers_subscriptions.insert(
+                customers_subscriptions_id = csID,
+                invoices_items_id = iiID
             )
 
             # tax rates (1) = 21%
@@ -418,8 +418,8 @@ def populate_customers_with_classcards(web2py,
 
             )
 
-            web2py.db.invoices_customers_classcards.insert(
-                invoices_id=iID,
+            web2py.db.invoices_items_customers_classcards.insert(
+                invoices_items_id=iID,
                 customers_classcards_id=ccdID
             )
 
@@ -472,7 +472,7 @@ def populate_customers_with_memberships(web2py,
                 invoices_id = iID
             )
 
-            web2py.db.invoices_items.insert(
+            iiID = web2py.db.invoices_items.insert(
                 invoices_id=iID,
                 Sorting=1,
                 ProductName='Membership',
@@ -494,8 +494,8 @@ def populate_customers_with_memberships(web2py,
 
             )
 
-            web2py.db.invoices_customers_memberships.insert(
-                invoices_id=iID,
+            web2py.db.invoices_items_customers_memberships.insert(
+                invoices_items_id=iiID,
                 customers_memberships_id=cmID
             )
 
@@ -964,7 +964,7 @@ def prepare_classes(web2py,
                 invoices_id = iID
             )
 
-            web2py.db.invoices_items.insert(
+            iiID = web2py.db.invoices_items.insert(
                 invoices_id=iID,
                 Sorting=1,
                 ProductName='Trial class',
@@ -985,9 +985,9 @@ def prepare_classes(web2py,
                 TotalPriceVAT=trial_price,
             )
 
-            web2py.db.invoices_classes_attendance.insert(
+            web2py.db.invoices_items_classes_attendance.insert(
                 classes_attendance_id = clattID,
-                invoices_id = iID
+                invoices_items_id = iiID
             )
 
             web2py.db.commit()
@@ -1009,7 +1009,7 @@ def prepare_classes(web2py,
                 invoices_id = iID
             )
 
-            web2py.db.invoices_items.insert(
+            iiID = web2py.db.invoices_items.insert(
                 invoices_id=iID,
                 Sorting=1,
                 ProductName='Drop in class',
@@ -1030,9 +1030,9 @@ def prepare_classes(web2py,
                 TotalPriceVAT=dropin_price,
             )
 
-            web2py.db.invoices_classes_attendance.insert(
+            web2py.db.invoices_items_classes_attendance.insert(
                 classes_attendance_id = clattID,
-                invoices_id = iID
+                invoices_items_id = iiID
             )
             web2py.db.commit()
 
@@ -1430,18 +1430,24 @@ def populate_workshops_products_customers(web2py, created_on=datetime.date.today
         TotalPriceVAT = web2py.db.workshops_products(1).Price
     )
 
+    populate_invoices_items(
+        web2py,
+        price = web2py.db.workshops_products(1).Price,
+        quantity = 1
+    )
+
     ciID2 = web2py.db.invoices_customers.insert(
         auth_customer_id=1002,
         invoices_id=iID
     )
 
-    web2py.db.invoices_workshops_products_customers.insert(
-        invoices_id = iID,
+    web2py.db.invoices_items_workshops_products_customers.insert(
+        invoices_items_id = iID,
         workshops_products_customers_id = wspcID
     )
 
-    web2py.db.invoices_workshops_products_customers.insert(
-        invoices_id = iID2,
+    web2py.db.invoices_items_workshops_products_customers.insert(
+        invoices_items_id = iID2,
         workshops_products_customers_id = wspcID2
     )
 
@@ -1812,12 +1818,10 @@ def populate_invoices(web2py,
     web2py.db.commit()
 
 
-def populate_invoices_items(web2py, credit_items=False):
+def populate_invoices_items(web2py, price=12, quantity=10, credit_items=False):
     """
         Adds an item for each invoice found
     """
-    quantity = 10
-    price = 12
 
     if credit_items:
         quantity = quantity * -1

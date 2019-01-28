@@ -507,8 +507,8 @@ def test_ticket_sell_to_customer_create_invoice_and_cancel_orders_when_sold_out(
     invoice = web2py.db.invoices(1)
     assert invoice.invoices_groups_id == 100
 
-    inv_wsp = web2py.db.invoices_workshops_products_customers(1)
-    assert inv_wsp.workshops_products_customers_id == 1
+    ii_wsp = web2py.db.invoices_items_workshops_products_customers(1)
+    assert ii_wsp.workshops_products_customers_id == 1
 
     # check invoice amount
     price   = web2py.db.workshops_products(1).Price

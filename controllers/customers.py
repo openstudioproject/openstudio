@@ -154,6 +154,7 @@ def edit_remodel_form(form,
 
     if not contact_permission:
         # hide contact info
+        mail_button = ''
         form.custom.label.phone = ''
         form.custom.widget.phone = ''
         form.custom.label.mobile = ''
@@ -164,21 +165,6 @@ def edit_remodel_form(form,
         form.custom.widget.company = ''
         form.custom.label.emergency = ''
         form.custom.widget.emergency = ''
-
-    # check for address permissions
-    address_permission = auth.has_membership(group_id='Admins') or \
-                         auth.has_permission('update', 'customers_address')
-
-    if not address_permission:
-        # hide contact info
-        form.custom.label.address = ''
-        form.custom.widget.address = ''
-        form.custom.label.postcode = ''
-        form.custom.widget.postcode = ''
-        form.custom.label.city = ''
-        form.custom.widget.city = ''
-        form.custom.label.country = ''
-        form.custom.widget.country = ''
 
     div_picture = DIV(
         H3(T("Picture")),
@@ -287,8 +273,25 @@ def edit_remodel_form(form,
                                 _class='os-customers_note_latest')
 
     # address info
+    # check for address permissions
+    address_permission = auth.has_membership(group_id='Admins') or \
+                         auth.has_permission('update', 'customers_address')
+
+    address_header = DIV(H3(T('Address')), _class='col-md-12')
+    if not address_permission:
+        # hide contact info
+        address_header = ''
+        form.custom.label.address = ''
+        form.custom.widget.address = ''
+        form.custom.label.postcode = ''
+        form.custom.widget.postcode = ''
+        form.custom.label.city = ''
+        form.custom.widget.city = ''
+        form.custom.label.country = ''
+        form.custom.widget.country = ''
+
     div_address = DIV(
-            DIV(H3(T('Address')), _class='col-md-12'),
+            address_header,
             DIV(DIV(LABEL(form.custom.label.address),
                     form.custom.widget.address,
                     _class='col-md-3'),
@@ -3094,7 +3097,7 @@ def subscription_delete():
     cs = CustomerSubscription(csID)
     response.subtitle = SPAN(T("Delete subscription"), ': ', cs.name)
 
-    query = (db.invoices_customers_subscriptions.customers_subscriptions_id == csID)
+    query = (db.invoices_items_customers_subscriptions.customers_subscriptions_id == csID)
     invoice_count = db(query).count()
 
     if invoice_count:
@@ -5831,7 +5834,7 @@ def account_merge():
     cuID = request.vars['cuID']
     customer = Customer(cuID)
     response.title = customer.get_name()
-    response.subtitle = T("Merge account")
+    response.subtitle = T("Account")
 
     warning = ''
     if 'auth_merge_id' in request.vars:

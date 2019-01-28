@@ -900,28 +900,93 @@ def define_accounting_cashbooks_cash_count():
               default=datetime.datetime.now()),
     )
 
+#
+# def define_accounting_cashbooks_additional_items():
+#     db.define_table('accounting_cashbooks_additional_items',
+#         Field('BookingDate', 'date',
+#             readable=False,
+#             writable=False,
+#             represent=represent_date),
+#         Field('BookingType',
+#             readable=False,
+#             writable=False,
+#             requires=IS_IN_SET([
+#               ['debit', T("Debit / In")],
+#               ['credit', T("Credit / Out")]
+#             ])),
+#         Field('Amount', 'double',
+#             represent=represent_float_as_amount,
+#             default=0,
+#             label=T("Amount")),
+#         Field('Description',
+#               requires=IS_NOT_EMPTY(),
+#               label=T("Description")),
+#     )
 
-def define_accounting_cashbooks_additional_items():
-    db.define_table('accounting_cashbooks_additional_items',
+
+def define_accounting_expenses():
+    auth_user_query = (db.auth_user.id > 1) & \
+                      (db.auth_user.trashed == False) & \
+                      ((db.auth_user.teacher == True) |
+                       (db.auth_user.employee == True))
+    ac_query = (db.accounting_costcenters.Archived == False)
+    ag_query = (db.accounting_glaccounts.Archived == False)
+
+    try:
+        auth_user_id_default = auth.user.id
+    except AttributeError:
+        auth_user_id_default = None  # default to None when not signed in
+
+    db.define_table('accounting_expenses',
         Field('BookingDate', 'date',
-            readable=False,
-            writable=False,
-            represent=represent_date),
-        Field('BookingType',
-            readable=False,
-            writable=False,
-            requires=IS_IN_SET([
-              ['debit', T("Debit / In")],
-              ['credit', T("Credit / Out")]
-            ])),
+              default=TODAY_LOCAL,
+              requires=IS_DATE_IN_RANGE(format=DATE_FORMAT,
+                                        minimum=datetime.date(1900, 1, 1),
+                                        maximum=datetime.date(2999, 1, 1)),
+              represent=represent_date,
+              label=T("Booking date")),
         Field('Amount', 'double',
-            represent=represent_float_as_amount,
-            default=0,
-            label=T("Amount")),
+              represent=represent_float_as_amount,
+              default=0,
+              label=T("Amount")),
+        Field('tax_rates_id', db.tax_rates,
+              represent=represent_tax_rate,
+              label=T('Tax rate')),
+        Field('YourReference',
+              label=T("Your reference"),
+              comment=T("eg. The invoice or receipt number of a delivery from your supplier")),
         Field('Description',
               requires=IS_NOT_EMPTY(),
               label=T("Description")),
-    ),
+        Field('accounting_glaccounts_id', db.accounting_glaccounts,
+              requires=IS_EMPTY_OR(IS_IN_DB(db(ag_query),
+                                            'accounting_glaccounts.id',
+                                            '%(Name)s')),
+              represent=represent_accounting_glaccount,
+              label=T('G/L Account'),
+              comment=T('General ledger account ID in your accounting software')),
+        Field('accounting_costcenters_id', db.accounting_costcenters,
+              requires=IS_EMPTY_OR(IS_IN_DB(db(ac_query),
+                                            'accounting_costcenters.id',
+                                            '%(Name)s')),
+              represent=represent_accounting_costcenter,
+              label=T("Cost center"),
+              comment=T("Cost center code in your accounting software")),
+        Field('Note', 'text',
+              label=T("Note")),
+        Field('auth_user_id', db.auth_user,
+              readable=False,
+              writable=False,
+              default=auth_user_id_default,
+              requires=IS_EMPTY_OR(IS_IN_DB(db(auth_user_query),
+                                            'auth_user.id',
+                                            '%(first_name)s %(last_name)s',
+                                            zero=T("Unassigned")))),
+        Field('CreatedOn', 'datetime',
+              readable=False,
+              writable=False,
+              default=datetime.datetime.now()),
+    )
 
 
 def define_payment_methods():
@@ -4080,6 +4145,19 @@ def define_invoices_items_teachers_payment_classes():
     )
 
 
+def define_invoices_items_classes_attendance():
+    """
+        Table to link invoice items to class attendance
+    """
+    db.define_table('invoices_items_classes_attendance',
+        Field('invoices_items_id', db.invoices_items,
+              readable=False,
+              writable=False),
+        Field('classes_attendance_id', db.classes_attendance,
+            readable=False,
+            writable=False))
+
+
 def define_invoices_customers_orders():
     """
         Table to link customers_orders to invoices
@@ -6372,8 +6450,8 @@ define_postcode_groups()
 define_tax_rates()
 define_accounting_costcenters()
 define_accounting_glaccounts()
+define_accounting_expenses()
 define_accounting_cashbooks_cash_count()
-define_accounting_cashbooks_additional_items()
 
 define_school_memberships()
 define_school_subscriptions()
@@ -6490,6 +6568,7 @@ define_invoices_groups_product_types()
 define_invoices()
 define_invoices_amounts()
 define_invoices_items()
+define_invoices_items_classes_attendance()
 define_invoices_items_customers_classcards()
 define_invoices_items_employee_claims()
 define_invoices_items_customers_memberships()
@@ -6497,16 +6576,17 @@ define_invoices_items_customers_subscriptions()
 define_invoices_items_teachers_payment_classes()
 define_invoices_items_workshops_products_customers()
 define_invoices_payments()
-define_invoices_workshops_products_customers()
-define_invoices_customers_classcards()
-define_invoices_classes_attendance()
 define_invoices_customers()
-define_invoices_customers_memberships()
-define_invoices_customers_subscriptions()
 define_invoices_customers_orders()
-define_invoices_employee_claims()
-define_invoices_teachers_payment_classes()
 define_invoices_mollie_payment_ids()
+# define_invoices_classes_attendance()
+# define_invoices_customers_memberships()
+# define_invoices_customers_subscriptions()
+# define_invoices_workshops_products_customers()
+# define_invoices_customers_classcards()
+# define_invoices_employee_claims()
+# define_invoices_teachers_payment_classes()
+
 
 # receipts definitions
 define_receipts()

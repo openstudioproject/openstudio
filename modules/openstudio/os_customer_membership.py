@@ -55,8 +55,18 @@ class CustomerMembership:
         """
         db = current.db
 
-        query = (db.invoices_customers_memberships.customers_memberships_id == self.cmID)
-        rows = db(query).select(db.invoices_customers_memberships.ALL)
+        query = (db.invoices_items_customers_memberships.customers_memberships_id == self.cmID)
+        left = [
+            db.invoices_items.on(
+                db.invoices_items_customers_memberships.invoices_items_id ==
+                db.invoices_items.id
+            )
+        ]
+
+        rows = db(query).select(
+            db.invoices_items.invoices_id,
+            left=left
+        )
 
         if rows:
             return rows.first().invoices_id

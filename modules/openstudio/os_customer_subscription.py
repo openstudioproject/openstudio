@@ -45,13 +45,19 @@ class CustomerSubscription:
         firstdaythismonth = datetime.date(SubscriptionYear, SubscriptionMonth, 1)
         lastdaythismonth = get_last_day_month(firstdaythismonth)
 
-        left = [ db.invoices_customers_subscriptions.on(
-            db.invoices_customers_subscriptions.invoices_id ==
-            db.invoices.id
-        )]
+        left = [
+            db.invoices_items.on(
+                db.invoices_items.invoices_id ==
+                db.invoices.id
+            ),
+            db.invoices_items_customers_subscriptions.on(
+                db.invoices_items_customers_subscriptions.invoices_items_id ==
+                db.invoices_items.id
+            ),
+        ]
 
         # Check if an invoice already exists, if so, return invoice id
-        query = (db.invoices_customers_subscriptions.customers_subscriptions_id == self.csID) & \
+        query = (db.invoices_items_customers_subscriptions.customers_subscriptions_id == self.csID) & \
                 (db.invoices.SubscriptionYear == SubscriptionYear) & \
                 (db.invoices.SubscriptionMonth == SubscriptionMonth)
         rows = db(query).select(db.invoices.ALL,
@@ -109,7 +115,7 @@ class CustomerSubscription:
         # create object to set Invoice# and due date
         invoice = Invoice(iID)
         invoice.link_to_customer(self.auth_customer_id)
-        iiID = invoice.item_add_subscription(csID, SubscriptionYear, SubscriptionMonth)
+        iiID = invoice.item_add_subscription(self.csID, SubscriptionYear, SubscriptionMonth)
         invoice.link_item_to_customer_subscription(self.csID, iiID)
 
         return iID

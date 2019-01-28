@@ -464,41 +464,45 @@ def edit_get_tools(iID):
             (db.invoices.id == iID) &
             (db.invoices.TeacherPayment == False) &
             (db.invoices.EmployeeClaim == False) &
-            (db.invoices_classes_attendance.invoices_id == None) &
-            (db.invoices_customers_subscriptions.invoices_id == None) &
-            (db.invoices_customers_memberships.invoices_id == None) &
-            (db.invoices_customers_classcards.invoices_id == None) &
-            (db.invoices_workshops_products_customers.invoices_id == None)
+            (db.invoices_items_classes_attendance.invoices_items_id == None) &
+            (db.invoices_items_customers_subscriptions.invoices_items_id == None) &
+            (db.invoices_items_customers_memberships.invoices_items_id == None) &
+            (db.invoices_items_customers_classcards.invoices_items_id == None) &
+            (db.invoices_items_workshops_products_customers.invoices_items_id == None)
         )
         left = [
-            db.invoices_classes_attendance.on(
-                db.invoices.id ==
-                db.invoices_classes_attendance.invoices_id
+            db.invoices_items.on(
+                db.invoices_items.invoices_id ==
+                db.invoices.id
             ),
-            db.invoices_customers_subscriptions.on(
-                db.invoices.id ==
-                db.invoices_customers_subscriptions.invoices_id
+            db.invoices_items_classes_attendance.on(
+                db.invoices_items.id ==
+                db.invoices_items_classes_attendance.invoices_items_id
             ),
-            db.invoices_customers_memberships.on(
-                db.invoices.id ==
-                db.invoices_customers_memberships.invoices_id
+            db.invoices_items_customers_subscriptions.on(
+                db.invoices_items.id ==
+                db.invoices_items_customers_subscriptions.invoices_items_id
             ),
-            db.invoices_customers_classcards.on(
-                db.invoices.id ==
-                db.invoices_customers_classcards.invoices_id
+            db.invoices_items_customers_memberships.on(
+                db.invoices_items.id ==
+                db.invoices_items_customers_memberships.invoices_items_id
             ),
-            db.invoices_workshops_products_customers.on(
-                db.invoices.id ==
-                db.invoices_workshops_products_customers.invoices_id
+            db.invoices_items_customers_classcards.on(
+                db.invoices_items.id ==
+                db.invoices_items_customers_classcards.invoices_items_id
+            ),
+            db.invoices_items_workshops_products_customers.on(
+                db.invoices_items.id ==
+                db.invoices_items_workshops_products_customers.invoices_items_id
             )
         ]
 
         row = db(query).select(db.invoices.ALL,
-                               db.invoices_classes_attendance.invoices_id,
-                               db.invoices_customers_memberships.invoices_id,
-                               db.invoices_customers_subscriptions.invoices_id,
-                               db.invoices_customers_classcards.invoices_id,
-                               db.invoices_workshops_products_customers.invoices_id,
+                               db.invoices_items_classes_attendance.invoices_items_id,
+                               db.invoices_items_customers_memberships.invoices_items_id,
+                               db.invoices_items_customers_subscriptions.invoices_items_id,
+                               db.invoices_items_customers_classcards.invoices_items_id,
+                               db.invoices_items_workshops_products_customers.invoices_items_id,
                                left=left
                                ).first()
         # print row
@@ -532,7 +536,6 @@ def duplicate_invoice():
 
     iID= db.invoices.insert(
         invoices_groups_id= oldinvoice.invoices_groups_id,
-        auth_customer_id= oldinvoice.auth_customer_id,
         payment_methods_id = oldinvoice.payment_methods_id,
         Status = 'draft',
         CustomerCompany= oldinvoice.CustomerCompany,
@@ -2118,10 +2121,6 @@ def cancel_and_create_credit_invoice():
 
     new_iID = db.invoices.insert(
         invoices_groups_id = invoice.invoices_groups_id,
-        customers_subscriptions_id = invoice.customers_subscriptions_id,
-        customers_classcards_id = invoice.customers_classcards_id,
-        classes_attendance_id = invoice.classes_attendance_id,
-        workshops_products_customers_id = invoice.workshops_products_customers_id,
         CustomerCompany = invoice.CustomerCompany,
         CustomerName = invoice.CustomerName,
         CustomerAddress = invoice.CustomerAddress,

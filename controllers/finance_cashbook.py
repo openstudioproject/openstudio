@@ -9,6 +9,8 @@ def index():
     """
     response.title = T('Cash book')
 
+    session.finance_expenses_add_edit_back = 'finance_cashbook_index'
+
     if session.finance_cashbook_date:
         date = session.finance_cashbook_date
     else:
@@ -59,8 +61,8 @@ def get_debit(date):
     total += count_opening['total']
 
     # Additional items
-    additional_items = additional_items_get(date, 'debit')
-    total += additional_items['total']
+    # additional_items = additional_items_get(date, 'debit')
+    # total += additional_items['total']
 
     # Class balance (total revenue - teacher payments)
     classes_balance = get_debit_classes(date, 'balance')
@@ -90,7 +92,7 @@ def get_debit(date):
     column = DIV(
         H4(T("Income")),
         count_opening['box'],
-        additional_items['box'],
+        # additional_items['box'],
         classes_balance['box'],
         sold_memberships['box'],
         sold_subscriptions['box'],
@@ -120,8 +122,8 @@ def get_credit(date):
     total += count_closing['total']
 
     # Additional items
-    additional_items = additional_items_get(date, 'credit')
-    total += additional_items['total']
+    expenses = get_credit_expenses(date)
+    total += expenses['total']
 
     # Classes used on subscriptions
     subscriptions_used_classes = get_credit_subscriptions_classes_summary(date)
@@ -138,7 +140,7 @@ def get_credit(date):
     column = DIV(
         H4(T("Expenses")),
         count_closing['box'],
-        additional_items['box'],
+        expenses['box'],
         subscriptions_used_classes['box'],
         cards_used_classes['box'],
         non_cash_payments['box'],
@@ -151,54 +153,54 @@ def get_credit(date):
     )
 
 
-def additional_items_get(date, booking_type):
-    """
-
-    :param date:
-    :return: dict
-    """
-    from openstudio.os_accounting_cashbooks_additional_items import AccountingCashbooksAdditionalItems
-
-    acai = AccountingCashbooksAdditionalItems()
-    result = acai.list_formatted(date, date, booking_type)
-    acai_debit_list = result['table']
-    acai_debit_total = result['total']
-
-    if booking_type == 'debit':
-        box_class = 'box-success'
-    elif booking_type == 'credit':
-        box_class = 'box-danger'
-
-    link_add = ''
-    if auth.has_membership(group_id='Admins') or \
-       auth.has_permission('create', 'accounting_cashbooks_additional_items'):
-        link_add = SPAN(
-            SPAN(XML(" &bull; "), _class='text-muted'),
-            A(T("Add item"),
-              _href=URL('additional_item_add', vars={'booking_type': booking_type}))
-        )
-
-
-    additional_items = DIV(
-        DIV(H3("Additional items", _class='box-title'),
-            link_add,
-            DIV(
-                A(I(_class='fa fa-minus'),
-                  _href='#',
-                  _class='btn btn-box-tool',
-                  _title=T("Collapse"),
-                  **{'_data-widget': 'collapse'}),
-                _class='box-tools pull-right'
-            ),
-            _class='box-header'),
-        DIV(acai_debit_list, _class='box-body no-padding'),
-        _class='box ' + box_class
-    )
-
-    return dict(
-        box = additional_items,
-        total = acai_debit_total
-    )
+# def additional_items_get(date, booking_type):
+#     """
+#
+#     :param date:
+#     :return: dict
+#     """
+#     from openstudio.os_accounting_cashbooks_additional_items import AccountingCashbooksAdditionalItems
+#
+#     acai = AccountingCashbooksAdditionalItems()
+#     result = acai.list_formatted(date, date, booking_type)
+#     acai_debit_list = result['table']
+#     acai_debit_total = result['total']
+#
+#     if booking_type == 'debit':
+#         box_class = 'box-success'
+#     elif booking_type == 'credit':
+#         box_class = 'box-danger'
+#
+#     link_add = ''
+#     if auth.has_membership(group_id='Admins') or \
+#        auth.has_permission('create', 'accounting_cashbooks_additional_items'):
+#         link_add = SPAN(
+#             SPAN(XML(" &bull; "), _class='text-muted'),
+#             A(T("Add item"),
+#               _href=URL('additional_item_add', vars={'booking_type': booking_type}))
+#         )
+#
+#
+#     additional_items = DIV(
+#         DIV(H3("Additional items", _class='box-title'),
+#             link_add,
+#             DIV(
+#                 A(I(_class='fa fa-minus'),
+#                   _href='#',
+#                   _class='btn btn-box-tool',
+#                   _title=T("Collapse"),
+#                   **{'_data-widget': 'collapse'}),
+#                 _class='box-tools pull-right'
+#             ),
+#             _class='box-header'),
+#         DIV(acai_debit_list, _class='box-body no-padding'),
+#         _class='box ' + box_class
+#     )
+#
+#     return dict(
+#         box = additional_items,
+#         total = acai_debit_total
+#     )
 
 
 def index_get_balance(debit_total=0, credit_total=0):
@@ -962,6 +964,51 @@ def get_credit_classcards_used_classes_summary(date):
 
     return dict(
         box = box,
+        total = total
+    )
+
+
+def get_credit_expenses(date):
+    """
+
+    :param date:
+    :return: dict
+    """
+    from openstudio.os_accounting_expenses import AccountingExpenses
+
+    ae = AccountingExpenses()
+    result = ae.list_formatted_simple(date, date)
+    table = result['table']
+    total = result['total']
+
+    link_add = ''
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('create', 'accounting_expenses'):
+        link_add = SPAN(
+            SPAN(XML(" &bull; "), _class='text-muted'),
+            A(T("Add expense"),
+              _href=URL('finance_expenses', 'add'))
+        )
+
+
+    expenses = DIV(
+        DIV(H3("Additional expenses", _class='box-title'),
+            link_add,
+            DIV(
+                A(I(_class='fa fa-minus'),
+                  _href='#',
+                  _class='btn btn-box-tool',
+                  _title=T("Collapse"),
+                  **{'_data-widget': 'collapse'}),
+                _class='box-tools pull-right'
+            ),
+            _class='box-header'),
+        DIV(table, _class='box-body no-padding'),
+        _class='box box-danger'
+    )
+
+    return dict(
+        box = expenses,
         total = total
     )
 

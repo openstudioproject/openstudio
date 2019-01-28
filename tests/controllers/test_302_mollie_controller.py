@@ -101,8 +101,6 @@ def test_membership_buy_now(client, web2py):
     assert cm.auth_customer_id == 300
     assert cm.Startdate == datetime.date.today()
     assert cm.school_memberships_id == 1
-    assert cm.DateID == datetime.date.today().strftime('%Y%m%d') + '00001'
-    assert not cm.Barcode == None
 
 
 def test_webhook_invoice_chargeback(client, web2py):

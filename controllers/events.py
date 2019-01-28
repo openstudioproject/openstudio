@@ -1170,13 +1170,17 @@ def stats_get_revenue(wsID):
 
     # Get invoices
     left = [
+        db.invoices_items.on(
+            db.invoices_items_workshops_products_customers.invoices_items_id ==
+            db.invoices_items.id
+        ),
         db.invoices_amounts.on(
-            db.invoices_workshops_products_customers.invoices_id ==
+            db.invoices_items.invoices_id ==
             db.invoices_amounts.invoices_id
         )
     ]
-    query = (db.invoices_workshops_products_customers.workshops_products_customers_id.belongs(wspc_ids))
-    rows = db(query).select(db.invoices_workshops_products_customers.ALL,
+    query = (db.invoices_items_workshops_products_customers.workshops_products_customers_id.belongs(wspc_ids))
+    rows = db(query).select(db.invoices_items_workshops_products_customers.ALL,
                             db.invoices_amounts.ALL,
                             left=left)
 
@@ -2750,9 +2754,10 @@ def ticket_delete_customer():
     wsp_cuID = request.vars['wsp_cuID']
 
     # Cancel invoice (if any)
-    row = db.invoices_workshops_products_customers(workshops_products_customers_id = wsp_cuID)
+    row = db.invoices_items_workshops_products_customers(workshops_products_customers_id = wsp_cuID)
     if row:
-        iID = row.invoices_id
+        invoice_item = db.invoices_items(row.invoices_items_id)
+        iID = invoice_item.invoices_id
         if iID:
             invoice = Invoice(iID)
             invoice.set_status('cancelled')
@@ -2783,17 +2788,10 @@ def ticket_cancel_customer():
     wsID = request.vars['wsID']
     wsp_cuID = request.vars['wsp_cuID']
 
-    # Cancel invoice (if any)
-    row = db.invoices_workshops_products_customers(workshops_products_customers_id = wsp_cuID)
-    if row:
-        iID = row.invoices_id
-        if iID:
-            invoice = Invoice(iID)
-            invoice.set_status('cancelled')
-
     # get database record for workshop_customers
     row = db.workshops_products_customers(
-        db.workshops_products_customers.id == wsp_cuID)
+        db.workshops_products_customers.id == wsp_cuID
+    )
 
     cuID = row.auth_customer_id
     wspID = row.workshops_products_id
@@ -2801,12 +2799,13 @@ def ticket_cancel_customer():
     row.Cancelled = not row.Cancelled
     row.update_record()
 
-    # update invoice status to cancelled if status == sent
-    query = (db.invoices_workshops_products_customers.workshops_products_customers_id == wsp_cuID)
-    rows = db(query).select(db.invoices_workshops_products_customers.ALL)
+    # update invoice status to cancelled if status
+    query = (db.invoices_items_workshops_products_customers.workshops_products_customers_id == wsp_cuID)
+    rows = db(query).select(db.invoices_items_workshops_products_customers.ALL)
     if len(rows):
         row = rows.first()
-        iID = row.invoices_id
+        invoice_item = db.invoices_items(row.invoices_items_id)
+        iID = invoice_item.invoices_id
 
         invoice = Invoice(iID)
         if invoice.invoice.Status == 'sent':

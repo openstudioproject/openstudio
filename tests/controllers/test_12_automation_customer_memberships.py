@@ -38,8 +38,9 @@ def test_automation_customers_memberships_renew_expired(client, web2py):
     assert new_membership.Note == 'Renewal for membership 1'
 
     # Check invoice
-    invcm = web2py.db.invoices_customers_memberships(customers_memberships_id = new_id)
-    invoice = web2py.db.invoices(invcm.invoices_id)
+    iicm = web2py.db.invoices_items_customers_memberships(customers_memberships_id = new_id)
+    ii = web2py.db.invoices_items(iicm.invoices_items_id)
+    invoice = web2py.db.invoices(ii.invoices_id)
 
     assert invoice.Status == 'sent'
 
