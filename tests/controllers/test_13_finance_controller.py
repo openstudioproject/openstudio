@@ -718,10 +718,6 @@ def test_add_batch_invoices_without_zero_lines(client, web2py):
     client.get(inv_url)
     assert client.status == 200
 
-    data = {'description':'Default invoice description'}
-    client.post(inv_url, data=data)
-    assert client.status == 200
-
     # go back to the page where we have to submit the data for the new batch
     client.get(url)
     assert client.status == 200
@@ -752,11 +748,6 @@ def test_add_batch_invoices_without_zero_lines(client, web2py):
     # Customer 8 & 9's subscription don't have an invoice
     # customer10's subscription has price 0, so should be skipped
 
-    query = (web2py.db.invoices.payment_methods == 3)
-
-
-    print web2py.db().select(web2py.db.payment_batches_items.ALL)
-
     assert web2py.db(web2py.db.payment_batches_items).count() == 6
 
 
@@ -776,10 +767,6 @@ def test_add_batch_invoices_with_zero_lines(client, web2py):
               'test_create_invoices' + \
               '?month=1&year=2014&description=Subscription_Jan'
     client.get(inv_url)
-    assert client.status == 200
-
-    data = {'description':'Default invoice description'}
-    client.post(inv_url, data=data)
     assert client.status == 200
 
     # remove the amount for 1 invoice
@@ -849,10 +836,6 @@ def test_add_batch_invoices_location(client, web2py):
               'test_create_invoices' + \
               '?month=1&year=2014&description=Subscription_Jan'
     client.get(inv_url)
-    assert client.status == 200
-
-    data = {'description':'Default invoice description'}
-    client.post(inv_url, data=data)
     assert client.status == 200
 
     # back to the place where we want to be to create a batch
@@ -998,10 +981,6 @@ def test_invoices_batch_set_status_sent_to_bank_add_payments(client, web2py):
                   'test_create_invoices' + \
                   '?month=1&year=2014&description=Subscription_Jan'
     client.get(inv_url)
-    assert client.status == 200
-
-    data = {'description':'Default invoice description'}
-    client.post(inv_url, data=data)
     assert client.status == 200
 
     # go back to the page where we have to submit the data for the new batch
