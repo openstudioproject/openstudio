@@ -1430,18 +1430,24 @@ def populate_workshops_products_customers(web2py, created_on=datetime.date.today
         TotalPriceVAT = web2py.db.workshops_products(1).Price
     )
 
+    populate_invoices_items(
+        web2py,
+        price = web2py.db.workshops_products(1).Price,
+        quantity = 1
+    )
+
     ciID2 = web2py.db.invoices_customers.insert(
         auth_customer_id=1002,
         invoices_id=iID
     )
 
-    web2py.db.invoices_workshops_products_customers.insert(
-        invoices_id = iID,
+    web2py.db.invoices_items_workshops_products_customers.insert(
+        invoices_items_id = iID,
         workshops_products_customers_id = wspcID
     )
 
-    web2py.db.invoices_workshops_products_customers.insert(
-        invoices_id = iID2,
+    web2py.db.invoices_items_workshops_products_customers.insert(
+        invoices_items_id = iID2,
         workshops_products_customers_id = wspcID2
     )
 
@@ -1812,12 +1818,10 @@ def populate_invoices(web2py,
     web2py.db.commit()
 
 
-def populate_invoices_items(web2py, credit_items=False):
+def populate_invoices_items(web2py, price=12, quantity=10, credit_items=False):
     """
         Adds an item for each invoice found
     """
-    quantity = 10
-    price = 12
 
     if credit_items:
         quantity = quantity * -1

@@ -4145,6 +4145,19 @@ def define_invoices_items_teachers_payment_classes():
     )
 
 
+def define_invoices_items_classes_attendance():
+    """
+        Table to link invoice items to class attendance
+    """
+    db.define_table('invoices_items_classes_attendance',
+        Field('invoices_items_id', db.invoices_items,
+              readable=False,
+              writable=False),
+        Field('classes_attendance_id', db.classes_attendance,
+            readable=False,
+            writable=False))
+
+
 def define_invoices_customers_orders():
     """
         Table to link customers_orders to invoices
@@ -6555,6 +6568,7 @@ define_invoices_groups_product_types()
 define_invoices()
 define_invoices_amounts()
 define_invoices_items()
+define_invoices_items_classes_attendance()
 define_invoices_items_customers_classcards()
 define_invoices_items_employee_claims()
 define_invoices_items_customers_memberships()
@@ -6562,10 +6576,10 @@ define_invoices_items_customers_subscriptions()
 define_invoices_items_teachers_payment_classes()
 define_invoices_items_workshops_products_customers()
 define_invoices_payments()
-define_invoices_classes_attendance()
 define_invoices_customers()
 define_invoices_customers_orders()
 define_invoices_mollie_payment_ids()
+# define_invoices_classes_attendance()
 # define_invoices_customers_memberships()
 # define_invoices_customers_subscriptions()
 # define_invoices_workshops_products_customers()

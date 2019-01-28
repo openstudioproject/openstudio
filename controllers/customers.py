@@ -3097,7 +3097,7 @@ def subscription_delete():
     cs = CustomerSubscription(csID)
     response.subtitle = SPAN(T("Delete subscription"), ': ', cs.name)
 
-    query = (db.invoices_customers_subscriptions.customers_subscriptions_id == csID)
+    query = (db.invoices_items_customers_subscriptions.customers_subscriptions_id == csID)
     invoice_count = db(query).count()
 
     if invoice_count:

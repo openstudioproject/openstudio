@@ -56,12 +56,26 @@ def upgrade_to_201902():
     ##
     # Update invoice links
     ##
+    define_invoices_classes_attendance()
     define_invoices_customers_memberships()
     define_invoices_customers_subscriptions()
     define_invoices_workshops_products_customers()
     define_invoices_customers_classcards()
     define_invoices_employee_claims()
     define_invoices_teachers_payment_classes()
+
+    # Classes attendance
+    query = (db.invoices_classes_attendance.id > 0)
+    rows = db(query).select(db.invoices_classes_attendance.ALL)
+    for row in rows:
+        query = (db.invoices_items.invoices_id == row.invoices_id)
+        item_rows = db(query).select(db.invoices_items.id)
+        item_row = item_rows.first()
+
+        db.invoices_items_classes_attendance.insert(
+            invoices_items_id = item_row.id,
+            classes_attendance_id = row.classes_attendance_id
+        )
 
     # Customer subscriptions
     query = (db.invoices_customers_subscriptions.id > 0)

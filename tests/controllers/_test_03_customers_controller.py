@@ -594,7 +594,7 @@ def test_membership_add_no_invoice_when_price_0(client, web2py):
     assert web2py.db(web2py.db.customers_memberships).count() == 1
 
     # No invoice when there's no price for a membership
-    assert web2py.db(web2py.db.invoices_customers_memberships).count() == 0
+    assert web2py.db(web2py.db.invoices_items_customers_memberships).count() == 0
 
 
 def test_membership_edit(client, web2py):
@@ -779,29 +779,29 @@ def test_subscription_delete(client, web2py):
     client.get(url)
     assert client.status == 200
 
-    populate_customers_with_subscriptions(web2py, 2)
+    populate_customers_with_subscriptions(web2py, 2, invoices=True)
 
-    # insert invoice and check that the subscription isn't deletable anymore
-    csID = 1
-    iID = web2py.db.invoices.insert(
-        invoices_groups_id          = 100,
-        customers_subscriptions_id  = csID,
-        SubscriptionMonth           = 1,
-        SubscriptionYear            = 2014,
-        Status                      = 'sent',
-        DateCreated                 = '2014-01-01',
-        DateDue                     = '2014-01-31',
-    )
-
-    ciID = web2py.db.invoices_customers.insert(
-        auth_customer_id=1001,
-        invoices_id=iID
-    )
-
-    icsID = web2py.db.invoices_customers_subscriptions.insert(
-        customers_subscriptions_id = csID,
-        invoices_id = iID
-    )
+    # # insert invoice and check that the subscription isn't deletable anymore
+    # csID = 1
+    # iID = web2py.db.invoices.insert(
+    #     invoices_groups_id          = 100,
+    #     customers_subscriptions_id  = csID,
+    #     SubscriptionMonth           = 1,
+    #     SubscriptionYear            = 2014,
+    #     Status                      = 'sent',
+    #     DateCreated                 = '2014-01-01',
+    #     DateDue                     = '2014-01-31',
+    # )
+    #
+    # ciID = web2py.db.invoices_customers.insert(
+    #     auth_customer_id=1001,
+    #     invoices_id=iID
+    # )
+    #
+    # icsID = web2py.db.invoices_items_customers_subscriptions.insert(
+    #     customers_subscriptions_id = csID,
+    #     invoices_items_id = 1
+    # )
 
     web2py.db.commit()
 
