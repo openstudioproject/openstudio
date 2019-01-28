@@ -1212,13 +1212,28 @@ class Invoice:
 
     def get_linked_customer_subscription_id(self):
         """
-            Returns auth.user.id of account linked to this invoice
-            :return: auth.user.id
+            Returns db.customers_subscriptions.id of account linked to this invoice
+            :return: db.customers_subscriptions.id
         """
         db = current.db
 
-        query = (db.invoices_customers_subscriptions.invoices_id == self.invoices_id)
-        rows = db(query).select(db.invoices_customers_subscriptions.customers_subscriptions_id)
+        query = (db.invoices_items.invoices_id == self.invoices_id) & \
+                (db.invoices_items_customers_subscriptions.customers_subscriptions_id != None)
+        left = [
+            db.invoices_items.on(
+                db.invoices_items.invoices_id ==
+                db.invoices.id
+            ),
+            db.invoices_items_customers_subscriptions.on(
+                db.invoices_items_customers_subscriptions.invoices_items_id ==
+                db.invoices_items.id
+            )
+        ]
+
+        rows = db(query).select(
+            db.invoices_items_customers_subscriptions.ALL,
+            left=left
+        )
 
         if rows:
             return rows.first().customers_subscriptions_id
