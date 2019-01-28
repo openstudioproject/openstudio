@@ -464,11 +464,11 @@ def edit_get_tools(iID):
             (db.invoices.id == iID) &
             (db.invoices.TeacherPayment == False) &
             (db.invoices.EmployeeClaim == False) &
-            (db.invoices_items_classes_attendance.invoices_id == None) &
-            (db.invoices_items_customers_subscriptions.invoices_id == None) &
-            (db.invoices_items_customers_memberships.invoices_id == None) &
-            (db.invoices_items_customers_classcards.invoices_id == None) &
-            (db.invoices_items_workshops_products_customers.invoices_id == None)
+            (db.invoices_items_classes_attendance.invoices_items_id == None) &
+            (db.invoices_items_customers_subscriptions.invoices_items_id == None) &
+            (db.invoices_items_customers_memberships.invoices_items_id == None) &
+            (db.invoices_items_customers_classcards.invoices_items_id == None) &
+            (db.invoices_items_workshops_products_customers.invoices_items_id == None)
         )
         left = [
             db.invoices_items.on(
@@ -487,22 +487,22 @@ def edit_get_tools(iID):
                 db.invoices_items.id ==
                 db.invoices_items_customers_memberships.invoices_items_id
             ),
-            db.invoices_customers_classcards.on(
+            db.invoices_items_customers_classcards.on(
                 db.invoices_items.id ==
                 db.invoices_items_customers_classcards.invoices_items_id
             ),
-            db.invoices_workshops_products_customers.on(
+            db.invoices_items_workshops_products_customers.on(
                 db.invoices_items.id ==
                 db.invoices_items_workshops_products_customers.invoices_items_id
             )
         ]
 
         row = db(query).select(db.invoices.ALL,
-                               db.invoices_items_classes_attendance.invoices_id,
-                               db.invoices_items_customers_memberships.invoices_id,
-                               db.invoices_items_customers_subscriptions.invoices_id,
-                               db.invoices_items_customers_classcards.invoices_id,
-                               db.invoices_items_workshops_products_customers.invoices_id,
+                               db.invoices_items_classes_attendance.invoices_items_id,
+                               db.invoices_items_customers_memberships.invoices_items_id,
+                               db.invoices_items_customers_subscriptions.invoices_items_id,
+                               db.invoices_items_customers_classcards.invoices_items_id,
+                               db.invoices_items_workshops_products_customers.invoices_items_id,
                                left=left
                                ).first()
         # print row

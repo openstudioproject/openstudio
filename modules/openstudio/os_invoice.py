@@ -521,9 +521,6 @@ class Invoice:
 
             description = cls.get_invoice_order_description(1) # 1 = trial class
 
-        # link invoice to attendance
-        self.link_to_classes_attendance(caID)
-
         next_sort_nr = self.get_item_next_sort_nr()
         iiID = db.invoices_items.insert(
             invoices_id=self.invoices_id,
@@ -537,6 +534,9 @@ class Invoice:
             accounting_costcenters_id=costcenter
         )
 
+        # link invoice to attendance
+        self.link_to_classes_attendance(caID, iiID)
+        # link to customer
         self.link_to_customer(cuID)
         # This calls self.on_update()
         self.set_amounts()
@@ -1181,15 +1181,15 @@ class Invoice:
         )
 
 
-    def link_to_classes_attendance(self, caID):
+    def link_to_classes_attendance(self, caID, iiID):
         """
         Link invoice to classes attendance
         :param caID: db.classes_attendance.id
         :return: None
         """
         db = current.db
-        db.invoices_classes_attendance.insert(
-            invoices_id=self.invoices_id,
+        db.invoices_items_classes_attendance.insert(
+            invoices_items_id=iiID,
             classes_attendance_id=caID
         )
 

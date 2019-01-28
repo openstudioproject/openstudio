@@ -101,10 +101,13 @@ class AttendanceHelper:
                         (Enddate >= '{date}' or Enddate IS NULL)) clr
                 ON clr.auth_customer_id = au.id
             LEFT JOIN
-                invoices_classes_attendance ica
-                ON ica.classes_attendance_id = clatt.id
+                invoices_items_classes_attendance iica
+                ON iica.classes_attendance_id = clatt.id
+            LEFT JOIN 
+                invoices_items ii
+                ON ii.id = iica.invoices_items_id
             LEFT JOIN
-                invoices inv ON ica.invoices_id = inv.id
+                invoices inv ON ii.invoices_id = inv.id
             WHERE clatt.id IS NOT NULL
             ORDER BY au.display_name
         """.format(date  = date,
