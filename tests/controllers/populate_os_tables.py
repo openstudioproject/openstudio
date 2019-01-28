@@ -472,7 +472,7 @@ def populate_customers_with_memberships(web2py,
                 invoices_id = iID
             )
 
-            web2py.db.invoices_items.insert(
+            iiID = web2py.db.invoices_items.insert(
                 invoices_id=iID,
                 Sorting=1,
                 ProductName='Membership',
@@ -494,8 +494,8 @@ def populate_customers_with_memberships(web2py,
 
             )
 
-            web2py.db.invoices_customers_memberships.insert(
-                invoices_id=iID,
+            web2py.db.invoices_items_customers_memberships.insert(
+                invoices_items_id=iiID,
                 customers_memberships_id=cmID
             )
 
@@ -964,7 +964,7 @@ def prepare_classes(web2py,
                 invoices_id = iID
             )
 
-            web2py.db.invoices_items.insert(
+            iiID = web2py.db.invoices_items.insert(
                 invoices_id=iID,
                 Sorting=1,
                 ProductName='Trial class',
@@ -985,9 +985,9 @@ def prepare_classes(web2py,
                 TotalPriceVAT=trial_price,
             )
 
-            web2py.db.invoices_classes_attendance.insert(
+            web2py.db.invoices_items_classes_attendance.insert(
                 classes_attendance_id = clattID,
-                invoices_id = iID
+                invoices_items_id = iiID
             )
 
             web2py.db.commit()
@@ -1009,7 +1009,7 @@ def prepare_classes(web2py,
                 invoices_id = iID
             )
 
-            web2py.db.invoices_items.insert(
+            iiID = web2py.db.invoices_items.insert(
                 invoices_id=iID,
                 Sorting=1,
                 ProductName='Drop in class',
@@ -1030,9 +1030,9 @@ def prepare_classes(web2py,
                 TotalPriceVAT=dropin_price,
             )
 
-            web2py.db.invoices_classes_attendance.insert(
+            web2py.db.invoices_items_classes_attendance.insert(
                 classes_attendance_id = clattID,
-                invoices_id = iID
+                invoices_items_id = iiID
             )
             web2py.db.commit()
 
