@@ -832,10 +832,13 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         LEFT JOIN customers_classcards cd ON cd.id = clatt.customers_classcards_id
         LEFT JOIN school_classcards scd ON scd.id = cd.school_classcards_id
         LEFT JOIN
-            invoices_classes_attendance ica
-            ON ica.classes_attendance_id = clatt.id
+            invoices_items_classes_attendance iica
+            ON iica.classes_attendance_id = clatt.id
         LEFT JOIN
-            invoices inv ON ica.invoices_id = inv.id
+            invoices_items ii 
+            ON iica.invoices_items_id = ii.id
+        LEFT JOIN
+            invoices inv ON ii.invoices_id = inv.id
         LEFT JOIN
             ( SELECT id,
                      classes_id,
