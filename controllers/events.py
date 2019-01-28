@@ -1170,13 +1170,17 @@ def stats_get_revenue(wsID):
 
     # Get invoices
     left = [
+        db.invoices_items.on(
+            db.invoices_items_workshops_products_customers.invoices_items_id ==
+            db.invoices_items.id
+        ),
         db.invoices_amounts.on(
-            db.invoices_workshops_products_customers.invoices_id ==
+            db.invoices_items.invoices_id ==
             db.invoices_amounts.invoices_id
         )
     ]
-    query = (db.invoices_workshops_products_customers.workshops_products_customers_id.belongs(wspc_ids))
-    rows = db(query).select(db.invoices_workshops_products_customers.ALL,
+    query = (db.invoices_items_workshops_products_customers.workshops_products_customers_id.belongs(wspc_ids))
+    rows = db(query).select(db.invoices_items_workshops_products_customers.ALL,
                             db.invoices_amounts.ALL,
                             left=left)
 
