@@ -5529,8 +5529,23 @@ def teacher_classes_get_class_revenue_classcard(row):
     ccdID = row.classes_attendance.customers_classcards_id
     classcard = CustomerClasscard(ccdID)
 
-    query = (db.invoices_customers_classcards.customers_classcards_id == ccdID)
-    rows = db(query).select(db.invoices_customers_classcards.ALL)
+    query = (db.invoices_items_customers_classcards.customers_classcards_id == ccdID)
+    left = [
+        db.invoices_items.on(
+            db.invoices_items.invoices_id ==
+            db.invoices.id
+        ),
+        db.invoices_items_customers_classcards.on(
+            db.invoices_items_customers_classcards.invoices_items_id ==
+            db.invoices_items.id
+        )
+    ]
+
+    rows = db(query).select(
+        db.invoices_items.invoices_id,
+        db.invoices_items_customers_classcards.ALL,
+        left=left
+    )
 
     if not rows:
         revenue_in_vat = 0
@@ -5538,7 +5553,7 @@ def teacher_classes_get_class_revenue_classcard(row):
         revenue_vat = 0
     else:
         row = rows.first()
-        invoice = Invoice(row.invoices_id)
+        invoice = Invoice(row.invoices_items.invoices_id)
 
         amounts = invoice.get_amounts()
 
@@ -5641,15 +5656,24 @@ def teacher_classes_get_class_revenue_subscription(row, date):
     subscr_month = date.month
     subscr_year  = date.year
 
-    query = (db.invoices_customers_subscriptions.customers_subscriptions_id == csID) & \
+    query = (db.invoices_items_customers_subscriptions.customers_subscriptions_id == csID) & \
             (db.invoices.SubscriptionMonth == subscr_month) & \
             (db.invoices.SubscriptionYear == subscr_year)
 
-    left = [ db.invoices_amounts.on(db.invoices_amounts.invoices_id == db.invoices.id),
-             db.invoices_customers_subscriptions.on(
-                 db.invoices_customers_subscriptions.invoices_id ==
-                 db.invoices.id
-             )]
+    left = [
+        db.invoices_amounts.on(
+            db.invoices_amounts.invoices_id ==
+            db.invoices.id
+        ),
+        db.invoices_items.on(
+            db.invoices_items.invoices_id ==
+            db.invoices.id
+        ),
+        db.invoices_items_customers_subscriptions.on(
+             db.invoices_items_customers_subscriptions.invoices_items_id ==
+             db.invoices_items.id
+        )
+    ]
 
     rows = db(query).select(db.invoices.ALL,
                             db.invoices_amounts.ALL,

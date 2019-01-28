@@ -418,8 +418,8 @@ def populate_customers_with_classcards(web2py,
 
             )
 
-            web2py.db.invoices_customers_classcards.insert(
-                invoices_id=iID,
+            web2py.db.invoices_items_customers_classcards.insert(
+                invoices_items_id=iID,
                 customers_classcards_id=ccdID
             )
 
