@@ -5831,7 +5831,7 @@ def account_merge():
     cuID = request.vars['cuID']
     customer = Customer(cuID)
     response.title = customer.get_name()
-    response.subtitle = T("Merge account")
+    response.subtitle = T("Account")
 
     warning = ''
     if 'auth_merge_id' in request.vars:

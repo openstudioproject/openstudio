@@ -138,6 +138,9 @@ def test_customers_address_info(client, web2py):
     web2py.db.commit()
     client.get(url)
     assert client.status == 200
+
+    print client.text
+
     assert str_check in client.text
 
 
