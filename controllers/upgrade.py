@@ -56,6 +56,13 @@ def upgrade_to_201902():
     ##
     # Update invoice links
     ##
+    define_invoices_customers_memberships()
+    define_invoices_customers_subscriptions()
+    define_invoices_workshops_products_customers()
+    define_invoices_customers_classcards()
+    define_invoices_employee_claims()
+    define_invoices_teachers_payment_classes()
+
     # Customer subscriptions
     query = (db.invoices_customers_subscriptions.id > 0)
     rows = db(query).select(db.invoices_customers_subscriptions.ALL)
