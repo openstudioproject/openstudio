@@ -260,12 +260,7 @@ def populate_customers_with_subscriptions(web2py,
                 invoices_id = iID
             )
 
-            cisID = web2py.db.invoices_customers_subscriptions.insert(
-                customers_subscriptions_id = csID,
-                invoices_id = iID
-            )
-
-            web2py.db.invoices_items.insert(
+            iiID = web2py.db.invoices_items.insert(
                 invoices_id = iID,
                 Sorting = 1,
                 ProductName = 'Subscription',
@@ -273,6 +268,11 @@ def populate_customers_with_subscriptions(web2py,
                 Quantity = 1,
                 Price = ss_one_price,
                 tax_rates_id = 1
+            )
+
+            cisID = web2py.db.invoices_items_customers_subscriptions.insert(
+                customers_subscriptions_id = csID,
+                invoices_items_id = iiID
             )
 
             # tax rates (1) = 21%
