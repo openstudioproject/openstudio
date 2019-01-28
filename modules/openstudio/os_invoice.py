@@ -535,7 +535,7 @@ class Invoice:
         )
 
         # link invoice to attendance
-        self.link_to_classes_attendance(caID, iiID)
+        self.link_item_to_classes_attendance(caID, iiID)
         # link to customer
         self.link_to_customer(cuID)
         # This calls self.on_update()
@@ -570,12 +570,6 @@ class Invoice:
             # Drop in
             glaccount = prices['dropin_glaccount']
 
-        # link invoice to attendance
-        db.invoices_classes_attendance.insert(
-            invoices_id=self.invoices_id,
-            classes_attendance_id=caID
-        )
-
         # add item to invoice
         next_sort_nr = self.get_item_next_sort_nr()
 
@@ -589,6 +583,11 @@ class Invoice:
             tax_rates_id=order_item_row.tax_rates_id,
             accounting_glaccounts_id=order_item_row.accounting_glaccounts_id,
             accounting_costcenters_id=order_item_row.accounting_costcenters_id,
+        )
+
+        self.link_item_to_classes_attendance(
+            caID,
+            iiID
         )
 
         # This calls self.on_update()
@@ -1181,7 +1180,7 @@ class Invoice:
         )
 
 
-    def link_to_classes_attendance(self, caID, iiID):
+    def link_item_to_classes_attendance(self, caID, iiID):
         """
         Link invoice to classes attendance
         :param caID: db.classes_attendance.id

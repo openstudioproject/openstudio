@@ -2499,9 +2499,10 @@ def subscriptions_alt_prices():
 										i.InvoiceID,
 										i.SubscriptionYear,
                                         i.SubscriptionMonth,
-                                        ics.customers_subscriptions_id
+                                        iics.customers_subscriptions_id
 									FROM invoices i
-                                    LEFT JOIN invoices_customers_subscriptions ics ON ics.invoices_id = i.id
+									LEFT JOIN invoices_items ii ON ii.invoices_id = i.id 
+                                    LEFT JOIN invoices_items_customers_subscriptions iics ON iics.invoices_items_id = ii.id
                                     WHERE i.SubscriptionYear = '{year}' AND i.SubscriptionMonth = '{month}'
 								) i ON i.customers_subscriptions_id = cs.id
 							LEFT JOIN invoices_amounts inva 
@@ -5586,22 +5587,28 @@ def teacher_classes_get_class_revenue_dropin_trial(row, date):
         :param product_type: 'dropin' or 'trial'
         :return : revenue for a drop in or trial class
     """
-    query = (db.invoices_classes_attendance.classes_attendance_id == row.classes_attendance.id)
-
-    rows = db(query).select(db.invoices_classes_attendance.ALL)
+    query = (db.invoices_items_classes_attendance.classes_attendance_id == row.classes_attendance.id)
+    left = [
+        db.invoices_items.on(
+            db.invoices_items_classes_attendance.invoices_items_id ==
+            db.invoices_items.id
+        )
+    ]
+    rows = db(query).select(
+        db.invoices_items.ALL,
+        left=left
+    )
 
     if not rows:
         price_in_vat = 0
         price_ex_vat = 0
         vat = 0
     else:
-        row = rows.first()
-        invoice = Invoice(row.invoices_id)
+        invoice_item = rows.first()
 
-        amounts = invoice.get_amounts()
-        price_in_vat = amounts.TotalPriceVAT
-        price_ex_vat = amounts.TotalPrice
-        vat = amounts.VAT
+        price_in_vat = invoice_item.TotalPriceVAT
+        price_ex_vat = invoice_item.TotalPrice
+        vat = invoice_item.VAT
 
 
 

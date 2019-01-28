@@ -3165,8 +3165,17 @@ def attendance_remove():
     ##
     # Change invoice status to cancelled (if any)
     ##
-    query = (db.invoices_classes_attendance.classes_attendance_id == clattID)
-    rows = db(query).select(db.invoices_classes_attendance.ALL)
+    query = (db.invoices_items_classes_attendance.classes_attendance_id == clattID)
+    left = [
+        db.invoices_items.on(
+            db.invoices_items_classes_attendance.invoices_items_id ==
+            db.invoices_items.id
+        )
+    ]
+    rows = db(query).select(
+        db.invoices_items.ALL,
+        left=left,
+    )
     for row in rows:
         invoice = Invoice(row.invoices_id)
         invoice.set_status('cancelled')
