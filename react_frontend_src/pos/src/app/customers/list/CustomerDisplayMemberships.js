@@ -29,7 +29,23 @@ class CustomerDisplayMemberships extends Component {
 
         return (
            <div>
-               { (memberships.loaded) ?
+                { (memberships.loaded) ?
+                    (memberships.data[customerID]) ?
+                        <div>     
+                            <b>Memberships</b>
+                            {memberships.data[customerID].map((membership, i) => 
+                                <div key={v4()}>
+                                    { membership.name } <br />
+                                    <span className="text-muted">
+                                        { membership.start }
+                                        { (membership.end) ? " - " + membership.end : ''}
+                                    </span>
+                                </div>
+                            )}
+                        </div> : '' 
+                : "Loading memberships, please wait..."
+               }
+               {/* { (memberships.loaded) ?
                 <div>
                     <b>Memberships</b>
                     {memberships.data[customerID].map((membership, i) => 
@@ -43,7 +59,7 @@ class CustomerDisplayMemberships extends Component {
                     )}
                 </div>
                 : "Loading memberships, please wait..."
-               }
+               } */}
            </div>
         )
     }
