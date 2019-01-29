@@ -201,11 +201,16 @@ def sub_teacher_accept():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'classes_otc_sub_avail'))
 def sub_teacher_decline():
+    """
+    Decline teachers' offer to sub this class
+    :return:
+    """
+    from openstudio.os_classes_otc_sub_available import ClassesOTCSubAvailable
+
     cotcsaID = request.vars['cotcsaID']
 
-    row = db.classes_otc_sub_avail(cotcsaID)
-    row.Accepted = False
-    row.update_record()
+    cotcsa = ClassesOTCSubAvailable(cotcsaID)
+    cotcsa.decline()
 
     session.flash = T("Declined teacher")
 

@@ -13,7 +13,7 @@ class ClassesOTCSubAvailable:
 
     def accept(self):
         """
-        Set status to accepted
+        Set status to accepted and decline all other offers for this class
         :return: None
         """
         db = current.db
@@ -39,6 +39,7 @@ class ClassesOTCSubAvailable:
     def decline(self):
         """
         Set status to declined
-        :return:
+        :return: None
         """
-
+        self.row.Accepted = False
+        self.row.update_record()
