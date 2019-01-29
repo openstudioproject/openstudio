@@ -260,10 +260,8 @@ class Teacher:
                            DIV(table, _class='box-body'),
                            _class='box box-success')
 
-        ## disable for now
-        return ''
 
-        #return sub_requests
+        return sub_requests
 
 
 
