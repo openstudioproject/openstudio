@@ -54,3 +54,13 @@ class ClassesOTCSubAvailable:
         """
         self.row.Accepted = False
         self.row.update_record()
+
+        self._decline_send_mail()
+
+
+    def _decline_send_mail(self):
+        """
+        Notify teacher that he/she won't be subbing this class
+        :return:
+        """
+        print 'send mail'
