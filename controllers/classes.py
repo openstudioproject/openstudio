@@ -1303,18 +1303,6 @@ def schedule_get_schedule_tools(var=None):
                              _title=T('Open classes & shifts in a range of dates'))
         schedule_tools.append(teacher_holidays)
 
-    # List open classes
-    permission = auth.has_membership(group_id='Admins') or \
-                 auth.has_permission('read', 'classes_open')
-
-    if permission:
-        classes_open = A(os_gui.get_fa_icon('fa-bell-o'),
-                              T('All open classes'),
-                        _href=URL('classes_open'),
-                        _title=T('List open classes'))
-        schedule_tools.append(classes_open)
-
-
     # Set default sorting
     permission = auth.has_membership(group_id='Admins') or \
                  auth.has_permission('update', 'schedule_set_default_sort')
