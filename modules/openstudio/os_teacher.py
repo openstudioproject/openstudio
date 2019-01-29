@@ -199,6 +199,10 @@ class Teacher:
             ),
             db.classes_teachers.on(
                 db.classes_teachers.classes_id == db.classes.id
+            ),
+            db.school_locations.on(
+                db.classes.school_locations_id ==
+                db.school_locations.id
             )
         ]
 
@@ -215,7 +219,7 @@ class Teacher:
             db.classes_otc.ALL,
             db.classes.ALL,
             left=left,
-            orderby=db.classes.id
+            orderby=db.classes_otc.ClassDate|db.classes.Starttime|db.school_locations.Name
         )
 
         for i, row in enumerate(rows):
