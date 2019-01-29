@@ -175,13 +175,13 @@ def available():
     )
 
 
-def available_get_return_url(var=None):
-    return URL('available')
+def available_get_return_url(cotcID):
+    return URL('available', vars={'cotcID': cotcID})
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'classes_otc_sub_avail'))
-def available_accept():
+def sub_teacher_accept():
     cotcsaID = request.vars['cotcsaID']
 
     # Accept this offer
@@ -201,15 +201,21 @@ def available_accept():
 
     db.classes_otc[row.classes_otc_id] = dict(Status = None)
 
-    redirect(available_get_return_url())
+    session.flash = T("Accepted teacher")
+
+    redirect(available_get_return_url(row.classes_otc_id))
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'classes_otc_sub_avail'))
-def available_reject():
+def sub_teacher_decline():
     cotcsaID = request.vars['cotcsaID']
 
-    db.classes_otc_sub_avail[cotcsaID] = dict(Accepted = False)
+    row = db.classes_otc_sub_avail(cotcsaID)
+    row.Accepted = False
+    row.update_record()
 
-    redirect(available_get_return_url())
+    session.flash = T("Declined teacher")
+
+    redirect(available_get_return_url(row.classes_otc_id))
 
