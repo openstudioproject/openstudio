@@ -45,7 +45,7 @@ class OsMail:
         :return: boolean: True if send, False if error sending
         """
         T = current.T
-        MAIL = current.globalenv['MAIL']
+        MAIL = current.mail
 
         emails = self._send_notification_get_email_addresses(sys_notification)
         message = self.render_sys_notification(
@@ -58,7 +58,7 @@ class OsMail:
 
         status_report = []
         for email in emails:
-            status_report = MAIL.send(
+            status_report = MAIL.send_and_archive(
                 to=email,
                 subject=msg_subject,
                 message=message
@@ -67,23 +67,23 @@ class OsMail:
         return status_report
 
 
-    def send(self, msgID, cuID): # Used to be 'mail_customer()'
+    def send_and_archive(self, msgID, cuID): # Used to be 'mail_customer()'
         """
             Send a message to a customer
             returns True when a mail is sent and False when it failed
         """
         db = current.db
-        MAIL = current.globalenv['MAIL']
+        MAIL = current.mail
 
         customer = db.auth_user(cuID)
         message = db.messages(msgID)
 
-        check = MAIL.send(
-        to=customer.email,
-        subject=message.msg_subject,
-        # If reply_to is omitted, then mail.settings.sender is used
-        reply_to=None,
-        message=message.msg_content)
+        check = MAIL.send_and_archive(
+            to=customer.email,
+            subject=message.msg_subject,
+            reply_to=None, # If reply_to is omitted, then mail.settings.sender is used
+            message=message.msg_content
+        )
 
         if check:
             status = 'sent'
@@ -96,6 +96,29 @@ class OsMail:
                                      Status           = status)
 
         return rvalue
+
+
+    def send(self, message_html, message_subject, cuID):
+        """
+        Send mail without logging to an account
+
+        :param message_html: message content
+        :param cuID: auth_user.id
+        :return:
+        """
+        db = current.db
+        MAIL = current.mail
+
+        customer = db.auth_user(cuID)
+
+        result = MAIL.send(
+            to=customer.email,
+            subject=message_subject,
+            reply_to=None, # If reply_to is omitted, then mail.settings.sender is used
+            message=message_html
+        )
+
+        return result
 
 
     def _send_notification_get_email_addresses(self, sys_notification):

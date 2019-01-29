@@ -277,7 +277,7 @@ class WorkshopProduct:
         if self.workshop.AutoSendInfoMail:
             osmail = OsMail()
             msgID = osmail.render_email_template('workshops_info_mail', workshops_products_customers_id=wspcID)
-            osmail.send(msgID, cuID)
+            osmail.send_and_archive(msgID, cuID)
 
         if not waitinglist:
             # Check if sold out

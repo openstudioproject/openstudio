@@ -6423,7 +6423,7 @@ auth.define_tables(username=False, signature=False)
 db.auth_user._format = '%(display_name)s'
 
 # set up email
-MAIL = mail
+current.mail = mail
 
 # setup currency symbol
 CURRSYM = get_sys_property('CurrencySymbol')

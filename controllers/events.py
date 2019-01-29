@@ -968,12 +968,13 @@ def mail_activity_attendance():
     if len(to) < 1:
         session.flash = T("Please check the teachers' email address(es).")
     else:
-        check = MAIL.send(
+        check = MAIL.send_and_archive(
             to=to,
             subject=subject,
             # If reply_to is omitted, then mail.settings.sender is used
             reply_to=None,
-            message=message)
+            message=message
+        )
 
         if check:
             session.flash = T("Successfully sent mail")
@@ -2854,7 +2855,7 @@ def ticket_resend_info_mail():
     ##
     osmail = OsMail()
     msgID = osmail.render_email_template('workshops_info_mail', workshops_products_customers_id=wspcID)
-    sent = osmail.send(msgID, cuID)
+    sent = osmail.send_and_archive(msgID, cuID)
 
     ##
     # Check the "Event info" checkbox
