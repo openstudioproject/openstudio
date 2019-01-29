@@ -211,7 +211,7 @@ class OsMail:
              in that case no request, etc. are available
             :param template_content: html template code from db.sys_properties
             :param invoices_id: db.invoices_payments_id
-            :return: mail body for invoice
+            :return: mail body for failed recurring payment
         """
         db = current.db
         T = current.T
@@ -226,6 +226,22 @@ class OsMail:
         # TODO: Add to manual & button on page available variables;
         return XML(template_content.format(
             link_profile_invoices=URL('profile', 'invoices', scheme=True, host=sys_hostname))
+        )
+
+
+    def _render_email_template_teacher_sub_request_declined(self, classes_otc_sub_avail_id):
+        """
+
+        :param classes_otc_sub_avail_id:
+        :return: mail body for declined class sub request
+        """
+        db = current.db
+        T = current.T
+        DATE_FORMAT = current.DATE_FORMAT
+
+        return dict(
+            content = T("Hello world"),
+            description = T("Description here")
         )
 
 
@@ -285,6 +301,7 @@ class OsMail:
                               customers_orders_id=None,
                               invoices_id=None,
                               invoices_payments_id=None,
+                              classes_otc_sub_avail_id=None,
                               workshops_products_customers_id=None,
                               return_html=False):
         """
@@ -335,6 +352,13 @@ class OsMail:
         elif email_template == 'payment_recurring_failed':
             subject = T('Recurring payment failed')
             content = self._render_email_template_payment_recurring_failed(template_content)
+
+        elif email_template == 'teacher_sub_request_declined':
+            print 'here######################'
+            subject = T('Sub request declined')
+            result = self._render_email_template_teacher_sub_request_declined(classes_otc_sub_avail_id)
+            content = result['content']
+            description = result['description']
 
         elif email_template == 'workshops_info_mail':
             wspc = db.workshops_products_customers(workshops_products_customers_id)

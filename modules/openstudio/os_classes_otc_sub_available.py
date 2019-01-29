@@ -69,15 +69,14 @@ class ClassesOTCSubAvailable:
         teacher = Teacher(self.row.auth_teacher_id)
 
         osmail = OsMail()
-        msgID = osmail.render_email_template(
-            'teacher_sub_request_decline',
-            cotcasID=cotcsaID
+        html = osmail.render_email_template(
+            'teacher_sub_request_declined',
+            classes_otc_sub_avail_id=self.id,
+            return_html=True
         )
-        # msgID = db.messages.insert(
-        #     msg_subject='subject test email',
-        #     msg_content='Test Content email'
-        # )
 
-        osmail.send(msgID, teacher.id)
+        print html
+
+        # osmail.send(msgID, teacher.id)
 
         print 'send mail'
