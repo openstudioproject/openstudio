@@ -2265,6 +2265,10 @@ def define_classes_otc():
               comment=os_gui.get_info_icon(
                   title=T("Maximum number of online bookings accepted for this class"),
                   btn_icon='info')),
+        Field('CountSubsAvailable', 'integer',
+              readable=False,
+              writable=False
+              ),
     )
 
 def define_classes_otc_sub_avail():

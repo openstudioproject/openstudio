@@ -20,8 +20,9 @@ def index():
         THEAD(TR(TH(''), # status marker
                  TH(T('Date')),
                  TH(T('Location')),
-                 TH(T('Class type')),
                  TH(T('Time')),
+                 TH(T('Class type')),
+                 TH(T('# Teachers available')),
                  TH())),
               _class='table'
     )
@@ -64,11 +65,21 @@ def index():
                                                'date' :date_formatted}),
                                      _class='pull-right')
 
+        available = ''
+        if auth.has_membership(group_id='Admins') or \
+           auth.has_permission('read', 'classes_otc_sub_avail'):
+            available = A(
+                row.classes_otc.CountSubsAvailable,
+                _href=URL('available', vars={'cotcID':row.classes_otc.id})
+            )
+
+
         row_class = TR(status_marker,
                        TD(date),
                        TD(location),
-                       TD(classtype),
                        TD(time),
+                       TD(classtype),
+                       TD(available),
                        TD(edit),
                        _class='os-schedule_class')
 
@@ -86,6 +97,7 @@ def index_get_rows(from_date):
         db.classes_otc.id,
         db.classes_otc.ClassDate,
         db.classes_otc.Status,
+        db.classes_otc.CountSubsAvailable,
         db.classes.id,
         db.classes.school_locations_id,
         db.classes.school_classtypes_id,
@@ -97,6 +109,7 @@ def index_get_rows(from_date):
     SELECT cotc.id,
            cotc.ClassDate,
            cotc.Status,
+           COUNT(cotcsa.classes_otc_id),
            cla.id,
            CASE WHEN cotc.school_locations_id IS NOT NULL
                 THEN cotc.school_locations_id
@@ -116,11 +129,15 @@ def index_get_rows(from_date):
                 END AS Endtime
     FROM classes_otc cotc
     LEFT JOIN classes cla on cla.id = cotc.classes_id
+    LEFT JOIN classes_otc_sub_avail cotcsa on cotcsa.classes_otc_id = cotc.id
     WHERE cotc.ClassDate >= '{date}' AND cotc.Status = 'open'
+    GROUP BY cotc.id
     ORDER BY cotc.ClassDate, Starttime
     """.format(date=from_date)
 
     rows = db.executesql(query, fields=fields)
+
+    print db._lastsql[0]
 
     return rows
 
@@ -133,62 +150,29 @@ def available():
     Page to accept and decline substitution requests
     :return:
     """
+    from openstudio.os_class import Class
     from openstudio.os_classes_otc_sub_availables import ClassesOTCSubAvailables
 
+    cotcID = request.vars['cotcID']
+    cotc = db.classes_otc(cotcID)
+    cls = Class(cotc.classes_id, cotc.ClassDate)
+
     response.title = T("Available sub teachers")
-    response.subtitle = T("")
+    response.subtitle = cls.get_name()
     response.view = 'general/only_content.html'
 
-    ## Pagination begin
-    if 'page' in request.vars:
-        try:
-            page = int(request.vars['page'])
-        except ValueError:
-            page = 0
-    else:
-        page = 0
-    items_per_page = 11
-    limitby=(page*items_per_page,(page+1)*items_per_page+1)
-    ## Pagination end
-
-    if 'Status' in request.vars:
-        session.classes_subs_manage_status = request.vars['Status']
-    elif not session.classes_subs_manage_status:
-        session.classes_subs_manage_status = 'pending'
-
     subs_avail = ClassesOTCSubAvailables()
-    result = subs_avail.list_formatted(
-        session.classes_subs_manage_status,
-        limitby
-    )
-    table = result['table']
-    rows = result['rows']
+    table = subs_avail.list_formatted(cotcID)
 
-    form = subs_avail.get_form_filter_status(
-        session.classes_subs_manage_status
+    back = os_gui.get_button(
+        'back',
+        URL('index')
     )
 
-    ## Pager begin
-    navigation = ''
-    url_previous = ''
-    url_next = ''
-    if len(rows) > items_per_page or page:
-        previous = SPAN(_class='fa fa-chevron-left grey')
-        if page:
-            url_previous = URL(request.function, vars={'page':page-1})
-            previous = A(SPAN(_class='fa fa-chevron-left'),
-                         _href=url_previous)
-
-        nxt = SPAN(_class='fa fa-chevron-right grey')
-        if len(rows) > items_per_page:
-            url_next = URL(request.function, vars={'page':page+1})
-            nxt = A(SPAN(_class='fa fa-chevron-right'),
-                    _href=url_next)
-
-        navigation = os_gui.get_page_navigation_simple(url_previous, url_next, page + 1, request.cid)
-
-
-    return dict(content=DIV(form, table, navigation))
+    return dict(
+        content=table,
+        back=back
+    )
 
 
 def available_get_return_url(var=None):
@@ -217,15 +201,15 @@ def available_accept():
 
     db.classes_otc[row.classes_otc_id] = dict(Status = None)
 
-    redirect(sub_request_get_return_url())
+    redirect(available_get_return_url())
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'classes_otc_sub_avail'))
-def available():
+def available_reject():
     cotcsaID = request.vars['cotcsaID']
 
     db.classes_otc_sub_avail[cotcsaID] = dict(Accepted = False)
 
-    redirect(sub_request_get_return_url())
+    redirect(available_get_return_url())
 
