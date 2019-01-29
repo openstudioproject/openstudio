@@ -148,8 +148,8 @@ def my_classes():
     creates page that displays the classes tought montlhy
     :return:
     """
-    response.title = T("My classes")
-    response.subtitle = T("")
+    response.title = T("Employee Portal")
+    response.subtitle = SPAN(T("My classes"), XML(' &bull; '))
     response.view = 'ep/only_content.html'
 
     if session.ep_my_classes_month is None or session.ep_my_classes_year is None:
@@ -232,11 +232,10 @@ def my_classes():
                                       session.ep_my_classes_year,
                                       request.function,
                                       _class='col-md-8')
-    response.subtitle = form_subtitle['subtitle']
+    response.subtitle.append(form_subtitle['subtitle'])
     month_chooser = form_subtitle['month_chooser']
     current_month = form_subtitle['current_month']
 
-    response.subtitle = form_subtitle['subtitle']
 
     header_tools = month_chooser + current_month
     return dict(
@@ -457,7 +456,8 @@ def my_payments():
     """
         List staff payments
     """
-    response.title = T('My Payments')
+    response.title = T("Employee Portal")
+    response.subtitle = T('My Payments')
     response.view = 'ep/only_content.html'
 
     if auth.user.teacher == False and auth.user.employee == False:
@@ -523,7 +523,8 @@ def my_expenses():
     Page to view and Add/Edit Employee Expenses
     :return:
     """
-    response.title = T('My Expenses')
+    response.title = T("Employee Portal")
+    response.subtitle = T('My Expenses')
     response.view = 'ep/only_content.html'
 
     if auth.user.teacher == False and auth.user.employee == False:
