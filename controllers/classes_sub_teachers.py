@@ -182,24 +182,16 @@ def available_get_return_url(cotcID):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'classes_otc_sub_avail'))
 def sub_teacher_accept():
+    """
+    Accept teachers' offer to sub class
+    :return:
+    """
+    from openstudio.os_classes_otc_sub_available import ClassesOTCSubAvailable
+
     cotcsaID = request.vars['cotcsaID']
 
-    # Accept this offer
-    row = db.classes_otc_sub_avail(cotcsaID)
-    row.Accepted = True
-    row.update_record()
-
-    # Set teacher as sub
-    cotc = db.classes_otc(row.classes_otc_id)
-    cotc.auth_teacher_id = row.auth_teacher_id
-    cotc.update_record()
-
-    # Reject all others
-    query = (db.classes_otc_sub_avail.classes_otc_id == row.classes_otc_id) & \
-            (db.classes_otc_sub_avail.id != cotcsaID)
-    db(query).update(Accepted = False)
-
-    db.classes_otc[row.classes_otc_id] = dict(Status = None)
+    cotcsa = ClassesOTCSubAvailable(cotcsaID)
+    cotcsa.accept()
 
     session.flash = T("Accepted teacher")
 
