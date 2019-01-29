@@ -13,20 +13,20 @@ def index():
     from general_helpers import class_get_teachers
 
     response.title = T('Open classes')
-    response.subtitle = ''
+    response.subtitle = T('Sub teachers required')
     response.view = 'general/only_content.html'
 
-    table = TABLE(TR(TH(''), # status marker
-                     TH(T('Date')),
-                     TH(T('Location')),
-                     TH(T('Class type')),
-                     TH(T('Time')),
-                     TH(),
-                     _class='os-table_header'),
-                  _class='os-schedule')
+    table = TABLE(
+        THEAD(TR(TH(''), # status marker
+                 TH(T('Date')),
+                 TH(T('Location')),
+                 TH(T('Class type')),
+                 TH(T('Time')),
+                 TH())),
+              _class='table'
+    )
 
     rows = index_get_rows(TODAY_LOCAL)
-
 
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
