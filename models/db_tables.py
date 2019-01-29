@@ -5978,25 +5978,25 @@ def setup_set_email_templates():
     templates = [
         [
             'sys_email_footer',
-            'Email Footer',
+            T('Email Footer'),
              """ """
         ],
         [
             'sys_reset_password',
-            'Reset Password',
+            T('Reset Password'),
             """<h3>Reset password</h3>
             <p>Please click on the <a href="%(link)s">link</a> to reset your password</p>"""
         ],
         [
             'sys_verify_email',
-            'Verify Email',
+            T('Verify Email'),
             """<h3>Verify email</h3>
             <p>Welcome %(first_name)s!</p>
             <p>Please click on the <a href="%(link)s">link</a> to verify your email</p>"""
         ],
         [
             'order_received',
-            'Order received',
+            T('Order received'),
             """<h3>We have received your order with number #{order_id} on {order_date}</h3>
             <p>&nbsp;</p>
             <p>{order_items}</p>
@@ -6005,7 +6005,7 @@ def setup_set_email_templates():
         ],
         [
             'order_delivered',
-            'Order delivered',
+            T('Order delivered'),
             """<h3>Your order&nbsp;with number #{order_id} has been delivered</h3>
             <p>All items listed below have been added to your account</p>
             <p>&nbsp;</p>
@@ -6016,13 +6016,19 @@ def setup_set_email_templates():
         ],
         [
             'payment_recurring_failed',
-            'Recurring payment failed',
+            T('Recurring payment failed'),
             """<h3>Recurring payment failed</h3>
             <p>&nbsp;</p>
             <p>One or more recurring payments failed, please log in to your account and pay any open invoices before the due date.</p>
             <p>&nbsp;</p>
             <p>To view your invoices, please click <a href="{link_profile_invoices}">here</a>.</p>"""
         ],
+        [
+            'teacher_sub_request_declined',
+            T('Teacher sub request declined'),
+            '',
+            ''
+        ]
     ]
     for name, title, template_content in templates:
         db.sys_email_templates.insert(

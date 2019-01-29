@@ -161,3 +161,14 @@ def upgrade_to_201902():
     ##
     query = (db.school_subscriptions.MinDuration == None)
     db(query).update(MinDuration=1)
+
+
+    ##
+    # Insert email templates
+    ##
+    db.sys_email_templates.insert(
+        Name = 'teacher_sub_request_declined',
+        Title = T('Teacher sub request declined'),
+        Description = '',
+        TemplateContent = ''
+    )

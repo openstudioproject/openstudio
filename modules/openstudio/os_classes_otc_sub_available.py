@@ -63,4 +63,21 @@ class ClassesOTCSubAvailable:
         Notify teacher that he/she won't be subbing this class
         :return:
         """
+        from os_mail import OsMail
+        from os_teacher import Teacher
+
+        teacher = Teacher(self.row.auth_teacher_id)
+
+        osmail = OsMail()
+        # msgID = osmail.render_email_template(
+        #     'teacher_reject_sub_request',
+        #
+        # )
+        msgID = db.messages.insert(
+            msg_subject='subject test email',
+            msg_content='Test Content email'
+        )
+
+        osmail.send(msgID, teacher.id)
+
         print 'send mail'
