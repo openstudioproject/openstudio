@@ -9,7 +9,7 @@ class ClassesOTCSubAvailable:
         db = current.db
 
         self.id = cotcsaID
-        self.row = db.define_classes_otc_sub_avail(cotcsaID)
+        self.row = db.classes_otc_sub_avail(cotcsaID)
 
     def accept(self):
         """
@@ -29,11 +29,22 @@ class ClassesOTCSubAvailable:
 
         # Reject all others
         query = (db.classes_otc_sub_avail.classes_otc_id == self.row.classes_otc_id) & \
-                (db.classes_otc_sub_avail.id != cotcsaID)
+                (db.classes_otc_sub_avail.id != self.id)
         db(query).update(Accepted = False)
 
         # Set status to normal for class otc (Remove "open" status)
         db.classes_otc[self.row.classes_otc_id] = dict(Status = None)
+
+        # Notify teachers offering to sub this class
+        self._accept_send_mail()
+
+
+    def _accept_send_mail(self):
+        """
+        Notify all teachers offering to sub class that a substitute has been found
+        :return:
+        """
+        print 'send mail'
 
 
     def decline(self):

@@ -195,6 +195,7 @@ def sub_teacher_accept():
 
     session.flash = T("Accepted teacher")
 
+    row = db.classes_otc_sub_avail(cotcsaID)
     redirect(available_get_return_url(row.classes_otc_id))
 
 
@@ -214,5 +215,6 @@ def sub_teacher_decline():
 
     session.flash = T("Declined teacher")
 
+    row = db.classes_otc_sub_avail(cotcsaID)
     redirect(available_get_return_url(row.classes_otc_id))
 
