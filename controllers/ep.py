@@ -192,26 +192,28 @@ def my_classes():
             result = class_schedule._get_day_row_status(row)
             status_marker = result['marker']
 
-            open_class = db.classes_otc(
-                classes_id=row.classes.id,
-                ClassDate=day,
-                Status='open'
-            )
+            button = ''
+            sub_requested = ''
+            if day >= TODAY_LOCAL:
+                open_class = db.classes_otc(
+                    classes_id=row.classes.id,
+                    ClassDate=day,
+                    Status='open'
+                )
 
-            if not open_class:
-                sub_requested = ""
-                button = os_gui.get_button('noicon',
-                                           URL('request_sub',
-                                               vars={'clsID': row.classes.id,
-                                                     'date': day,
-                                                     'teachers_id': auth.user.id}),
-                                           title='Find sub', _class='pull-right', btn_class='btn-success')
-            else:
-                sub_requested = os_gui.get_label('primary', T("Sub requested"))
-                button = os_gui.get_button('noicon',
-                                           URL('cancel_request_sub',
-                                               vars={'cotcID': open_class.id}),
-                                           title='Cancel', _class='pull-right', btn_class='btn-warning')
+                if not open_class:
+                    button = os_gui.get_button('noicon',
+                                               URL('request_sub',
+                                                   vars={'clsID': row.classes.id,
+                                                         'date': day,
+                                                         'teachers_id': auth.user.id}),
+                                               title='Find sub', _class='pull-right', btn_class='btn-success')
+                else:
+                    sub_requested = os_gui.get_label('primary', T("Sub requested"))
+                    button = os_gui.get_button('noicon',
+                                               URL('cancel_request_sub',
+                                                   vars={'cotcID': open_class.id}),
+                                               title='Cancel', _class='pull-right', btn_class='btn-warning')
 
             tr = TR(
                 TD(status_marker,
