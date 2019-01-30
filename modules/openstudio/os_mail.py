@@ -229,19 +229,34 @@ class OsMail:
         )
 
 
-    def _render_email_template_teacher_sub_offer_declined(self, classes_otc_sub_avail_id):
+    def _render_email_template_teacher_sub_offer_declined(self, template_content, classes_otc_sub_avail_id):
         """
 
         :param classes_otc_sub_avail_id:
         :return: mail body for declined class sub request
         """
+        from openstudio.os_class import Class
+        from openstudio.os_teacher import Teacher
+
         db = current.db
         T = current.T
         DATE_FORMAT = current.DATE_FORMAT
 
+        cotcsa = db.classes_otc_sub_avail(classes_otc_sub_avail_id)
+        teacher = Teacher(cotcsa.auth_teacher_id)
+        cotc = db.classes_otc(cotcsa.classes_otc_id)
+        cls = Class(cotc.classes_id, cotc.ClassDate)
+        name = cls.get_name()
+
+        content = XML(
+            template_content.format(
+                teacher_name = teacher.get_first_name()
+            )
+        )
+
         return dict(
-            content = T("Hello world"),
-            description = T("Description here")
+            content = content,
+            description = SPAN(T("For class"), ' ', name)
         )
 
 
@@ -354,11 +369,15 @@ class OsMail:
             content = self._render_email_template_payment_recurring_failed(template_content)
 
         elif email_template == 'teacher_sub_offer_declined':
-            subject = T('Sub request declined')
-            result = self._render_email_template_teacher_sub_offer_declined(classes_otc_sub_avail_id)
-            title = T("Sub offer")
-            content = result['content']
+            subject = T('Sub offer declined')
+            result = self._render_email_template_teacher_sub_offer_declined(
+                template_content,
+                classes_otc_sub_avail_id
+            )
+            title = T("Sub offer declined")
             description = result['description']
+            content = result['content']
+
 
         elif email_template == 'workshops_info_mail':
             wspc = db.workshops_products_customers(workshops_products_customers_id)

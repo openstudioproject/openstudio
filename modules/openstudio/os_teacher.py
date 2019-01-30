@@ -23,6 +23,18 @@ class Teacher:
         self.row = db.auth_user(auID)
 
 
+    def get_first_name(self):
+        return self.row.first_name
+
+
+    def get_contact_name(self):
+        return self.row.full_name
+
+
+    def get_display_name(self):
+        return self.row.display_name
+
+
     def get_upcoming_classes_formatted(self, days=3):
         """
             Returns upcoming classes for teacher
