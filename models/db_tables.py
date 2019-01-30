@@ -5979,7 +5979,7 @@ def setup_set_email_templates():
         [
             'sys_email_footer',
             T('Email Footer'),
-             """ """
+             """This is an auto generated message."""
         ],
         [
             'sys_reset_password',
@@ -6026,8 +6026,8 @@ def setup_set_email_templates():
         [
             'teacher_sub_offer_declined',
             T('Teacher sub offer declined'),
-            """<p>Dear {teacher_name},</p>
-<p>As we have been able to fill the sub request for the class above, we would like to inform you that we won't be making use of your offer to teach this class.</p>
+            """<p>Dear {teacher_name},<br /><br /></p>
+<p>As we have been able to fill the sub request for the class above, we would like to inform you that we won't be making use of your offer to teach this class.<br /><br /></p>
 <p>We thank you for your offer and hope to be able to use your services again in the future.</p>""",
         ]
     ]
