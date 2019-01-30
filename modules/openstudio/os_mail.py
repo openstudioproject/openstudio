@@ -98,7 +98,7 @@ class OsMail:
         return rvalue
 
 
-    def send(self, message_html, message_subject, cuID):
+    def send(self, message_html, message_subject, auth_user_id):
         """
         Send mail without logging to an account
 
@@ -109,10 +109,10 @@ class OsMail:
         db = current.db
         MAIL = current.mail
 
-        customer = db.auth_user(cuID)
+        account = db.auth_user(auth_user_id)
 
         result = MAIL.send(
-            to=customer.email,
+            to=account.email,
             subject=message_subject,
             reply_to=None, # If reply_to is omitted, then mail.settings.sender is used
             message=message_html
@@ -229,7 +229,7 @@ class OsMail:
         )
 
 
-    def _render_email_template_teacher_sub_request_declined(self, classes_otc_sub_avail_id):
+    def _render_email_template_teacher_sub_offer_declined(self, classes_otc_sub_avail_id):
         """
 
         :param classes_otc_sub_avail_id:
@@ -353,10 +353,10 @@ class OsMail:
             subject = T('Recurring payment failed')
             content = self._render_email_template_payment_recurring_failed(template_content)
 
-        elif email_template == 'teacher_sub_request_declined':
-            print 'here######################'
+        elif email_template == 'teacher_sub_offer_declined':
             subject = T('Sub request declined')
-            result = self._render_email_template_teacher_sub_request_declined(classes_otc_sub_avail_id)
+            result = self._render_email_template_teacher_sub_offer_declined(classes_otc_sub_avail_id)
+            title = T("Sub offer")
             content = result['content']
             description = result['description']
 

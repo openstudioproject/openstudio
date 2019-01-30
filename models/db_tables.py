@@ -6024,8 +6024,8 @@ def setup_set_email_templates():
             <p>To view your invoices, please click <a href="{link_profile_invoices}">here</a>.</p>"""
         ],
         [
-            'teacher_sub_request_declined',
-            T('Teacher sub request declined'),
+            'teacher_sub_offer_declined',
+            T('Teacher sub offer declined'),
             '',
             ''
         ]

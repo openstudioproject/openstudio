@@ -66,17 +66,20 @@ class ClassesOTCSubAvailable:
         from os_mail import OsMail
         from os_teacher import Teacher
 
-        teacher = Teacher(self.row.auth_teacher_id)
+        T = current.T
 
         osmail = OsMail()
         html = osmail.render_email_template(
-            'teacher_sub_request_declined',
+            'teacher_sub_offer_declined',
             classes_otc_sub_avail_id=self.id,
             return_html=True
         )
 
-        print html
+        result = osmail.send(
+            message_html=html,
+            message_subject=T("Sub offer declined"),
+            auth_user_id=self.row.auth_teacher_id
+        )
 
-        # osmail.send(msgID, teacher.id)
-
-        print 'send mail'
+        print result
+        return result

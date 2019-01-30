@@ -167,8 +167,8 @@ def upgrade_to_201902():
     # Insert email templates
     ##
     db.sys_email_templates.insert(
-        Name = 'teacher_sub_request_declined',
-        Title = T('Teacher sub request declined'),
+        Name = 'teacher_sub_offer_declined',
+        Title = T('Teacher sub offer declined'),
         Description = '',
         TemplateContent = ''
     )
