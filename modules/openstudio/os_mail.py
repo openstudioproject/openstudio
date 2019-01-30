@@ -102,9 +102,11 @@ class OsMail:
         """
         Send mail without logging to an account
 
+        returns True if sending mail is successful, False otherwise
+
         :param message_html: message content
         :param cuID: auth_user.id
-        :return:
+        :return: boolean
         """
         db = current.db
         MAIL = current.mail

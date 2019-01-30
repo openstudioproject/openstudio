@@ -48,7 +48,25 @@ class ClassesOTCSubAvailable:
         Notify all teachers offering to sub class that a substitute has been found
         :return:
         """
-        print 'send mail'
+        from os_mail import OsMail
+        from os_teacher import Teacher
+
+        T = current.T
+
+        osmail = OsMail()
+        html = osmail.render_email_template(
+            'teacher_sub_offer_accepted',
+            classes_otc_sub_avail_id=self.id,
+            return_html=True
+        )
+
+        result = osmail.send(
+            message_html=html,
+            message_subject=T("Thank you, we're counting on you!"),
+            auth_user_id=self.row.auth_teacher_id
+        )
+
+        return result
 
 
     def decline(self):
@@ -85,5 +103,4 @@ class ClassesOTCSubAvailable:
             auth_user_id=self.row.auth_teacher_id
         )
 
-        print result
         return result
