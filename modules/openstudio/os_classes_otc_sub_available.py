@@ -30,7 +30,11 @@ class ClassesOTCSubAvailable:
         # Reject all others
         query = (db.classes_otc_sub_avail.classes_otc_id == self.row.classes_otc_id) & \
                 (db.classes_otc_sub_avail.id != self.id)
-        db(query).update(Accepted = False)
+        # db(query).update(Accepted = False)
+        rows = db(query).select(db.classes_otc_sub_avail.ALL)
+        for row in rows:
+            cotcsa = ClassesOTCSubAvailable(row.id)
+            cotcsa.decline()
 
         # Set status to normal for class otc (Remove "open" status)
         db.classes_otc[self.row.classes_otc_id] = dict(Status = None)
