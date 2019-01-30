@@ -12,17 +12,18 @@ def index():
     from general_helpers import max_string_length
     from general_helpers import class_get_teachers
 
-    response.title = T('Open classes')
-    response.subtitle = T('Sub teachers required')
+    response.title = T('Classes')
+    response.subtitle = T('Sub teachers')
     response.view = 'general/only_content.html'
 
     table = TABLE(
-        THEAD(TR(TH(''), # status marker
+        THEAD(TR(TH(T('Status')),
                  TH(T('Date')),
                  TH(T('Location')),
                  TH(T('Time')),
                  TH(T('Class type')),
                  TH(T('# Teachers available')),
+                 TH(T('Sub teacher')),
                  TH())),
               _class='table'
     )
@@ -35,10 +36,18 @@ def index():
         clsID = row.classes.id
         date = row.classes_otc.ClassDate
         date_formatted = repr_row.classes_otc.ClassDate
-        result = classes_get_status(clsID, date)
-        status = result['status']
-        status_marker = TD(result['status_marker'],
-                           _class='td_status_marker')
+        # result = classes_get_status(clsID, date)
+        # status = result['status']
+        # status_marker = TD(result['status_marker'],
+        #                    _class='td_status_marker')
+
+        status_label = os_gui.get_label(
+            'danger', T("Sub requested")
+        )
+        if row.classes_otc.auth_teacher_id:
+            status_label = os_gui.get_label(
+                'success', T("Sub found")
+            )
 
         location = max_string_length(repr_row.classes.school_locations_id, 15)
         classtype = max_string_length(repr_row.classes.school_classtypes_id, 24)
@@ -74,14 +83,17 @@ def index():
             )
 
 
-        row_class = TR(status_marker,
-                       TD(date),
-                       TD(location),
-                       TD(time),
-                       TD(classtype),
-                       TD(available),
-                       TD(edit),
-                       _class='os-schedule_class')
+        row_class = TR(
+            TD(status_label),
+            TD(date),
+            TD(location),
+            TD(time),
+            TD(classtype),
+            TD(available),
+            TD(repr_row.classes_otc.auth_teacher_id),
+            TD(edit),
+            _class='os-schedule_class'
+        )
 
 
         table.append(row_class)
@@ -97,6 +109,7 @@ def index_get_rows(from_date):
         db.classes_otc.id,
         db.classes_otc.ClassDate,
         db.classes_otc.Status,
+        db.classes_otc.auth_teacher_id,
         db.classes_otc.CountSubsAvailable,
         db.classes.id,
         db.classes.school_locations_id,
@@ -109,6 +122,7 @@ def index_get_rows(from_date):
     SELECT cotc.id,
            cotc.ClassDate,
            cotc.Status,
+           cotc.auth_teacher_id,
            COUNT(cotcsa.classes_otc_id),
            cla.id,
            CASE WHEN cotc.school_locations_id IS NOT NULL
@@ -130,7 +144,8 @@ def index_get_rows(from_date):
     FROM classes_otc cotc
     LEFT JOIN classes cla on cla.id = cotc.classes_id
     LEFT JOIN classes_otc_sub_avail cotcsa on cotcsa.classes_otc_id = cotc.id
-    WHERE cotc.ClassDate >= '{date}' AND cotc.Status = 'open'
+    WHERE cotc.ClassDate >= '{date}' 
+        AND (cotc.Status = 'open' OR cotc.auth_teacher_id IS NOT NULL) 
     GROUP BY cotc.id
     ORDER BY cotc.ClassDate, Starttime
     """.format(date=from_date)
