@@ -554,6 +554,7 @@ def duplicate_invoice():
     for row in rows:
         db.invoices_items.insert(
             invoices_id = iID,
+            Sorting = row.Sorting,
             ProductName = row.ProductName,
             Description = row.Description,
             Quantity = row.Quantity,
