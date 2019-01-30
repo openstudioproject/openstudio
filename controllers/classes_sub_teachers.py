@@ -19,8 +19,8 @@ def index():
     table = TABLE(
         THEAD(TR(TH(T('Status')),
                  TH(T('Date')),
-                 TH(T('Location')),
                  TH(T('Time')),
+                 TH(T('Location')),
                  TH(T('Class type')),
                  TH(T('Offers')),
                  TH(T('Sub teacher')),
@@ -86,8 +86,8 @@ def index():
         row_class = TR(
             TD(status_label),
             TD(date),
-            TD(location),
             TD(time),
+            TD(location),
             TD(classtype),
             TD(available),
             TD(repr_row.classes_otc.auth_teacher_id),

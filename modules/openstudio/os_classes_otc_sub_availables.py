@@ -74,8 +74,8 @@ class ClassesOTCSubAvailables:
 
             tr = TR(
                 TD(repr_row.classes_otc.ClassDate),
-                TD(repr_row.classes.school_locations_id),
                 TD(repr_row.classes.Starttime),
+                TD(repr_row.classes.school_locations_id),
                 TD(repr_row.classes.school_classtypes_id),
                 TD(repr_row.classes_otc_sub_avail.auth_teacher_id),
                 TD(status),
