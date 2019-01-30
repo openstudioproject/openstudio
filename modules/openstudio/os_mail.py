@@ -231,7 +231,7 @@ class OsMail:
         )
 
 
-    def _render_email_template_teacher_sub_offer_declined(self, template_content, classes_otc_sub_avail_id):
+    def _render_email_template_teacher_sub_offer(self, template_content, classes_otc_sub_avail_id):
         """
 
         :param classes_otc_sub_avail_id:
@@ -243,12 +243,25 @@ class OsMail:
         db = current.db
         T = current.T
         DATE_FORMAT = current.DATE_FORMAT
+        TIME_FORMAT = current.TIME_FORMAT
 
         cotcsa = db.classes_otc_sub_avail(classes_otc_sub_avail_id)
         teacher = Teacher(cotcsa.auth_teacher_id)
         cotc = db.classes_otc(cotcsa.classes_otc_id)
         cls = Class(cotc.classes_id, cotc.ClassDate)
-        name = cls.get_name()
+
+        class_info = TABLE(
+            TR(TH(T('Date'), _align="right"),
+               TD(cotc.ClassDate.strftime(DATE_FORMAT), _align="left")),
+            TR(TH(T('Time'), _align="right"),
+               TD(cls.cls.Starttime.strftime(TIME_FORMAT), ' - ',
+                  cls.cls.Endtime.strftime(TIME_FORMAT), _align="left")),
+            TR(TH(T('Location'), _align="right"),
+               TD(cls.get_location_name(), _align="left")),
+            TR(TH(T('Class'), _align="right"),
+               TD(cls.get_classtype_name(), _align="left")),
+            _cellspacing="0", _cellpadding='5px', _width='100%', border="0"
+        )
 
         content = XML(
             template_content.format(
@@ -258,7 +271,7 @@ class OsMail:
 
         return dict(
             content = content,
-            description = SPAN(T("For class"), ' ', name)
+            description = class_info
         )
 
 
@@ -371,8 +384,7 @@ class OsMail:
             content = self._render_email_template_payment_recurring_failed(template_content)
 
         elif email_template == 'teacher_sub_offer_declined':
-            subject = T('Sub offer declined')
-            result = self._render_email_template_teacher_sub_offer_declined(
+            result = self._render_email_template_teacher_sub_offer(
                 template_content,
                 classes_otc_sub_avail_id
             )
@@ -380,6 +392,14 @@ class OsMail:
             description = result['description']
             content = result['content']
 
+        elif email_template == 'teacher_sub_offer_accepted':
+            result = self._render_email_template_teacher_sub_offer(
+                template_content,
+                classes_otc_sub_avail_id
+            )
+            title = T("Thank you for teaching this class")
+            description = result['description']
+            content = result['content']
 
         elif email_template == 'workshops_info_mail':
             wspc = db.workshops_products_customers(workshops_products_customers_id)

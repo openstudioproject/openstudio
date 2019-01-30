@@ -42,6 +42,16 @@ class Class:
         return class_name
 
 
+    def get_classtype_name(self):
+        db = current.db
+        return db.school_classtypes[self.cls.school_classtypes_id].Name
+
+
+    def get_location_name(self):
+        db = current.db
+        return db.school_locations[self.cls.school_locations_id].Name
+
+
     def get_name_shop(self):
         """
             Returns class name formatted for use in customer profile and shop

@@ -62,7 +62,7 @@ class ClassesOTCSubAvailable:
 
         result = osmail.send(
             message_html=html,
-            message_subject=T("Thank you, we're counting on you!"),
+            message_subject=T("Sub offer accepted"),
             auth_user_id=self.row.auth_teacher_id
         )
 
