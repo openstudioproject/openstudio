@@ -170,5 +170,8 @@ def upgrade_to_201902():
         Name = 'teacher_sub_offer_declined',
         Title = T('Teacher sub offer declined'),
         Description = '',
-        TemplateContent = ''
+        TemplateContent = """
+<p>Dear {teacher_name},</p>
+<p>As we have been able to fill the sub request for the class above, we would like to inform you that we won't be making use of your offer to teach this class.</p>
+<p>We thank you for your offer and hope to be able to use your services again in the future.</p>"""
     )
