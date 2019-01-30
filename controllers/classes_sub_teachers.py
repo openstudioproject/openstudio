@@ -22,7 +22,7 @@ def index():
                  TH(T('Location')),
                  TH(T('Time')),
                  TH(T('Class type')),
-                 TH(T('# Teachers available')),
+                 TH(T('Offers')),
                  TH(T('Sub teacher')),
                  TH())),
               _class='table'
@@ -79,7 +79,7 @@ def index():
            auth.has_permission('read', 'classes_otc_sub_avail'):
             available = A(
                 row.classes_otc.CountSubsAvailable,
-                _href=URL('available', vars={'cotcID':row.classes_otc.id})
+                _href=URL('offers', vars={'cotcID':row.classes_otc.id})
             )
 
 
@@ -160,7 +160,7 @@ def index_get_rows(from_date):
 
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'classes_otc_sub_avail'))
-def available():
+def offers():
     """
     Page to accept and decline substitution requests
     :return:
@@ -172,7 +172,7 @@ def available():
     cotc = db.classes_otc(cotcID)
     cls = Class(cotc.classes_id, cotc.ClassDate)
 
-    response.title = T("Available sub teachers")
+    response.title = T("Sub offers")
     response.subtitle = cls.get_name()
     response.view = 'general/only_content.html'
 
@@ -191,7 +191,7 @@ def available():
 
 
 def available_get_return_url(cotcID):
-    return URL('available', vars={'cotcID': cotcID})
+    return URL('offers', vars={'cotcID': cotcID})
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
