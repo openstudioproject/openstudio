@@ -1146,14 +1146,17 @@ def item_delete():
     query = (db.invoices_items.id == iiID)
     db(query).delete()
 
+    ##
     # Update sorting so we have a consecutive order (important for rowSorter - Sorting should match with rowSorter index)
-    query = (db.invoices_items.invoices_id == iID) & \
-            (db.invoices_items.Sorting > item.Sorting)
-    rows = db(query).select(db.invoices_items.ALL)
-    for row in rows:
-        row.Sorting = row.Sorting - 1
-        row.update_record()
-
+    # Move Sorting of all invoice items below the deleted one, up by 1
+    ##
+    if item.Sorting:
+        query = (db.invoices_items.invoices_id == iID) & \
+                (db.invoices_items.Sorting > item.Sorting)
+        rows = db(query).select(db.invoices_items.ALL)
+        for row in rows:
+            row.Sorting = row.Sorting - 1
+            row.update_record()
 
     # update invoice amounts (this also calls invoice.on_update() through set_amounts())
     list_items_set_invoice_amounts(iID)
