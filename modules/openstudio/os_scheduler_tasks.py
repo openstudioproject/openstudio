@@ -334,3 +334,45 @@ class OsSchedulerTasks:
         return T("m_openstudio_os_scheduler_tasks_exact_online_sync_invoices_return") + ': (' + \
                unicode(count_synced) + ' / ' + \
                unicode(count_errors) + ')'
+
+
+    def email_teachers_sub_requests_daily_summary(self):
+        """
+        Send a daily summary of open sub requests to each teacher for the classtypes
+        they're allowed to teach
+        :return:
+        """
+        from openstudio.os_mail import OsMail
+        from openstudio.os_teachers import Teachers
+
+        db = current.db
+        T = current.T
+        os_mail = OsMail()
+
+        # Get list of teachers
+        teachers = Teachers()
+        teacher_id_rows = teachers.get_teacher_ids()
+
+        for teID in teacher_id_rows:
+            # For each teacher get list of allowed class types
+            query = (db.teachers_classtypes.auth_teacher_id == row.id)
+            classtype_rows = db(query).select(db.teachers_classtypes.ALL)
+            ct_ids = []
+            for row in classtype_rows:
+                ct_ids.append(row.school_classtypes_id)
+
+            # Get Open classes in the next 45 days
+            query = (db.classes_otc.Status == 'open')
+            left = [
+                db.classes.on(
+                    db.classes_otc.classes_id ==
+                    db.classes.id
+                )
+            ]
+            # db(query).select(db.classes_otc.ALL,
+            #                  db.classes.ALL,
+            #                  db.)
+
+
+            # Create table of classes with "I'm available links".
+

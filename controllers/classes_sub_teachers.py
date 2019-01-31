@@ -101,58 +101,14 @@ def index():
     return dict(content=table)
 
 
-def index_get_rows(from_date):
+def index_get_rows(date_from):
     """
         Return rows for classes_open
     """
-    fields = [
-        db.classes_otc.id,
-        db.classes_otc.ClassDate,
-        db.classes_otc.Status,
-        db.classes_otc.auth_teacher_id,
-        db.classes_otc.CountSubsAvailable,
-        db.classes.id,
-        db.classes.school_locations_id,
-        db.classes.school_classtypes_id,
-        db.classes.Starttime,
-        db.classes.Endtime
-    ]
+    from openstudio.os_classes_otcs import ClassesOTCs
 
-    query = """
-    SELECT cotc.id,
-           cotc.ClassDate,
-           cotc.Status,
-           cotc.auth_teacher_id,
-           COUNT(cotcsa.classes_otc_id),
-           cla.id,
-           CASE WHEN cotc.school_locations_id IS NOT NULL
-                THEN cotc.school_locations_id
-                ELSE cla.school_locations_id
-                END AS school_locations_id,
-           CASE WHEN cotc.school_classtypes_id IS NOT NULL
-                THEN cotc.school_classtypes_id
-                ELSE cla.school_classtypes_id
-                END AS school_classtypes_id,
-           CASE WHEN cotc.Starttime IS NOT NULL
-                THEN cotc.Starttime
-                ELSE cla.Starttime
-                END AS Starttime,
-           CASE WHEN cotc.Endtime IS NOT NULL
-                THEN cotc.Endtime
-                ELSE cla.Endtime
-                END AS Endtime
-    FROM classes_otc cotc
-    LEFT JOIN classes cla on cla.id = cotc.classes_id
-    LEFT JOIN classes_otc_sub_avail cotcsa on cotcsa.classes_otc_id = cotc.id
-    WHERE cotc.ClassDate >= '{date}' 
-        AND (cotc.Status = 'open' OR cotc.auth_teacher_id IS NOT NULL) 
-    GROUP BY cotc.id
-    ORDER BY cotc.ClassDate, Starttime
-    """.format(date=from_date)
-
-    rows = db.executesql(query, fields=fields)
-
-    print db._lastsql[0]
+    cotcs = ClassesOTCs()
+    rows = cotcs.get_sub_teacher_rows(date_from)
 
     return rows
 
