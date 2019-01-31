@@ -344,34 +344,42 @@ class OsSchedulerTasks:
         """
         from openstudio.os_mail import OsMail
         from openstudio.os_teachers import Teachers
+        from openstudio.os_classes_otcs import ClassesOTCs
 
         db = current.db
         T = current.T
         os_mail = OsMail()
+        cotcs = ClassesOTCs()
+        date_from = current.TODAY_LOCAL + datetime.timedelta(days=1)
+        date_until = date_from + datetime.timedelta(days=45)
 
         # Get list of teachers
         teachers = Teachers()
         teacher_id_rows = teachers.get_teacher_ids()
 
-        for teID in teacher_id_rows:
+        for row in teacher_id_rows:
             # For each teacher get list of allowed class types
-            query = (db.teachers_classtypes.auth_teacher_id == row.id)
+            query = (db.teachers_classtypes.auth_user_id == row.id)
             classtype_rows = db(query).select(db.teachers_classtypes.ALL)
             ct_ids = []
             for row in classtype_rows:
-                ct_ids.append(row.school_classtypes_id)
+                ct_ids.append(int(row.school_classtypes_id))
+
+
+            print 'teacher'
+            print row.auth_user_id
+            print 'ct ids:'
+            print ct_ids
 
             # Get Open classes in the next 45 days
-            query = (db.classes_otc.Status == 'open')
-            left = [
-                db.classes.on(
-                    db.classes_otc.classes_id ==
-                    db.classes.id
-                )
-            ]
-            # db(query).select(db.classes_otc.ALL,
-            #                  db.classes.ALL,
-            #                  db.)
+            rows = cotcs.get_sub_teacher_rows(
+                date_from,
+                date_until,
+                school_classtypes_ids = ct_ids,
+                only_open = True
+            )
+
+            print rows
 
 
             # Create table of classes with "I'm available links".

@@ -10,7 +10,7 @@ class ClassesOTCs:
     def get_sub_teacher_rows(self,
                              date_from,
                              date_until=None,
-                             school_classtypes_id=None,
+                             school_classtypes_ids=None,
                              only_open=False):
         """
         Return rows of open classes
@@ -25,15 +25,19 @@ class ClassesOTCs:
 
         where_date_until = ''
         if date_until:
-            where_date_until = " AND cotc.ClassDate <= {date_until}".format(
+            where_date_until = " AND cotc.ClassDate <= '{date_until}'".format(
                 date_until=date_until
             )
 
         where_classtype = ''
-        if school_classtypes_id:
-            where_classtype = " AND school_classtypes_id = {ctID}".format(
-                ctID = school_classtypes_id
-            )
+        if school_classtypes_ids:
+            unicode_ids = [unicode(id) for id in school_classtypes_ids]
+            where_classtype = """ 
+                AND (CASE WHEN cotc.school_classtypes_id IS NOT NULL
+				          THEN cotc.school_classtypes_id
+                          ELSE cla.school_classtypes_id
+                          END) IN({ctIDs})""".format(
+                ctIDs = ",".join(unicode_ids))
 
         where_only_open = " AND (cotc.Status = 'open' OR cotc.auth_teacher_id IS NOT NULL) "
         if only_open:

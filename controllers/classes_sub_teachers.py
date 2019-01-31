@@ -113,7 +113,6 @@ def index_get_rows(date_from):
     return rows
 
 
-
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'classes_otc_sub_avail'))
 def offers():
