@@ -267,10 +267,10 @@ def class_edit_on_date_get_link_remove(cotcID, clsID, date_formatted):
         return ''
 
     onclick = "return confirm('" + \
-        T('Do you really want to remove all changes made to the class on this date?') + "');"
+        T('Do you really want to clear all changes made to the class on this date?') + "');"
 
     link = A(SPAN(SPAN(_class=os_gui.get_icon('remove')), ' ',
-                  T('Remove all changes to this class'),
+                  T('Clear all changes to this class'),
                   _class='pull-right'),
              _href=URL('class_edit_on_date_remove_changes',
                        vars={'cotcID':cotcID, 'clsID':clsID, 'date':date_formatted}),
@@ -357,6 +357,7 @@ def class_edit_on_date_get_form(clsID, date_formatted):
                                                'date':date_formatted})
 
     cotcID = None
+    crud.settings.formstyle = 'bootstrap3_stacked'
     if len(rows):
         cotcID = rows.first().id
 

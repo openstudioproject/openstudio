@@ -2256,15 +2256,11 @@ def define_classes_otc():
         Field('Maxstudents', 'integer',
               requires=IS_EMPTY_OR(IS_INT_IN_RANGE(0, 500)),
               label=T("Spaces"),
-              comment=os_gui.get_info_icon(
-                  title=T("Total spaces for this class"),
-                  btn_icon='info')),
+              comment=T("Total spaces for this class")),
         Field('MaxOnlineBooking', 'integer',
               requires=IS_EMPTY_OR(IS_INT_IN_RANGE(0, 500)),
               label=T('Online booking spaces'),
-              comment=os_gui.get_info_icon(
-                  title=T("Maximum number of online bookings accepted for this class"),
-                  btn_icon='info')),
+              comment=T("Maximum number of online bookings accepted for this class")),
         Field('CountSubsAvailable', 'integer',
               readable=False,
               writable=False
