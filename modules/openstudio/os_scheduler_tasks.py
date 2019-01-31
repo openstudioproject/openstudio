@@ -344,43 +344,39 @@ class OsSchedulerTasks:
         """
         from openstudio.os_mail import OsMail
         from openstudio.os_teachers import Teachers
-        from openstudio.os_classes_otcs import ClassesOTCs
 
         db = current.db
         T = current.T
         os_mail = OsMail()
-        cotcs = ClassesOTCs()
-        date_from = current.TODAY_LOCAL + datetime.timedelta(days=1)
-        date_until = date_from + datetime.timedelta(days=45)
 
         # Get list of teachers
         teachers = Teachers()
         teacher_id_rows = teachers.get_teacher_ids()
 
+        mails_sent = 0
         for row in teacher_id_rows:
-            # For each teacher get list of allowed class types
-            query = (db.teachers_classtypes.auth_user_id == row.id)
-            classtype_rows = db(query).select(db.teachers_classtypes.ALL)
-            ct_ids = []
-            for row in classtype_rows:
-                ct_ids.append(int(row.school_classtypes_id))
-
-
             print 'teacher'
-            print row.auth_user_id
-            print 'ct ids:'
-            print ct_ids
+            print row.id
 
-            # Get Open classes in the next 45 days
-            rows = cotcs.get_sub_teacher_rows(
-                date_from,
-                date_until,
-                school_classtypes_ids = ct_ids,
-                only_open = True
+            os_mail = OsMail()
+            result = os_mail.render_email_template(
+                'teacher_sub_requests_daily_summary',
+                auth_user_id=row.id,
+                return_html=True
             )
 
-            print rows
+            send_result = False
+            if not result['error']:
+                send_result = os_mail.send(
+                    message_html=result['html_message'],
+                    message_subject=T("Daily summary - open classes"),
+                    auth_user_id=row.id
+                )
 
+            if send_result:
+                mails_sent += 1
+
+        return T("Sent mails: %s" % mails_sent)
 
             # Create table of classes with "I'm available links".
 

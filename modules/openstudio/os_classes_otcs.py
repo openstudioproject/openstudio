@@ -80,8 +80,8 @@ class ClassesOTCs:
                     ELSE cla.Endtime
                     END AS Endtime
         FROM classes_otc cotc
-        LEFT JOIN classes cla on cla.id = cotc.classes_id
-        LEFT JOIN classes_otc_sub_avail cotcsa on cotcsa.classes_otc_id = cotc.id
+        LEFT JOIN classes cla ON cla.id = cotc.classes_id
+        LEFT JOIN classes_otc_sub_avail cotcsa ON cotcsa.classes_otc_id = cotc.id                          
         WHERE cotc.ClassDate >= '{date_from}' 
             {where_date_until}
             {where_classtype}

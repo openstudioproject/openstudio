@@ -181,6 +181,7 @@ class Teacher:
         """
         :return: HTML table holding subrequests this teacher can apply for
         """
+        from os_class import Class
         from os_gui import OsGui
 
         os_gui = OsGui()
@@ -209,23 +210,16 @@ class Teacher:
             db.classes.on(
                 db.classes_otc.classes_id == db.classes.id,
             ),
-            db.classes_teachers.on(
-                db.classes_teachers.classes_id == db.classes.id
-            ),
             db.school_locations.on(
                 db.classes.school_locations_id ==
                 db.school_locations.id
             )
         ]
 
-        query = ((db.classes_otc.Status == 'open') &
-                 ((db.classes.school_classtypes_id.belongs(ctIDs)) |
-                  (db.classes_otc.school_classtypes_id.belongs(ctIDs))) &
-                 (db.classes_teachers.Startdate <= db.classes_otc.ClassDate) &
-                 ((db.classes_teachers.Enddate >= db.classes_otc.ClassDate) |
-                  (db.classes_teachers.Enddate == None)) &
+        query = (db.classes_otc.Status == 'open') & \
+                ((db.classes.school_classtypes_id.belongs(ctIDs)) |
+                  (db.classes_otc.school_classtypes_id.belongs(ctIDs))) & \
                  (db.classes_otc.ClassDate >= TODAY_LOCAL)
-                 )
 
         rows = db(query).select(
             db.classes_otc.ALL,
@@ -241,11 +235,19 @@ class Teacher:
                 auth_teacher_id=auth.user.id
             )
 
+            date = row.classes_otc.ClassDate
+            clsID = row.classes.id
+            cls = Class(clsID, date)
+            regular_teachers = cls.get_regular_teacher_ids()
+
+            if regular_teachers['auth_teacher_id'] == self.id:
+                continue
+
             if not row_avail:
                 button = os_gui.get_button('noicon',
                                            URL('ep', 'available_for_sub',
                                                vars={'cotcID': row.classes_otc.id}),
-                                           title=T("I'm available to sub"), _class='pull-right',
+                                           title=T("I'm available"), _class='pull-right',
                                            btn_class='btn-success')
             else:
                 button = os_gui.get_button('noicon',

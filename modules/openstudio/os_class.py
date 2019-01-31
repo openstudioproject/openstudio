@@ -550,6 +550,45 @@ class Class:
         )
 
 
+    def get_regular_teacher_ids(self):
+        """
+        Teachers for class
+        :return:
+        """
+        T = current.T
+        db = current.db
+
+        error = False
+        message = ''
+        auth_teacher_id = None
+        auth_teacher_id2 = None
+
+        query = (db.classes_teachers.classes_id == self.clsID) & \
+                ((db.classes_teachers.Startdate <= self.date) &
+                 ((db.classes_teachers.Enddate >= self.date) |
+                  (db.classes_teachers.Enddate == None)))
+        rows = db(query).select(db.classes_teachers.ALL)
+
+        try:
+            row = rows.first()
+            auth_teacher_id = row.auth_teacher_id
+            auth_teacher_id2 = row.auth_teacher_id2
+
+
+        except AttributeError:
+            # No teacher(s) found for this date
+            error = True
+            message = T("No teachers found for this date (") + unicode(self.date) + ")"
+
+        return dict(
+            error = error,
+            message = message,
+            auth_teacher_id = auth_teacher_id,
+            auth_teacher_id2 = auth_teacher_id2
+        )
+
+
+
     def get_teacher_payment(self):
         """
         Returns amount excl. VAT

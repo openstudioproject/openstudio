@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import datetime
 import os
 
 from gluon import *
@@ -275,6 +276,97 @@ class OsMail:
         )
 
 
+    def _render_email_template_teacher_sub_requests_daily_summary(self, template_content, auth_user_id):
+        """
+        :param template_content:
+        :param auth_user_id:
+        :return:
+        """
+        from openstudio.os_class import Class
+        from openstudio.os_teacher import Teacher
+        from openstudio.tools import OsTools
+        from openstudio.os_classes_otcs import ClassesOTCs
+
+        db = current.db
+        T = current.T
+        os_tools = OsTools()
+        cotcs = ClassesOTCs()
+        teacher = Teacher(auth_user_id)
+        DATE_FORMAT = current.DATE_FORMAT
+        TIME_FORMAT = current.TIME_FORMAT
+        error = False
+        error_msg = ''
+
+        date_from = current.TODAY_LOCAL + datetime.timedelta(days=1)
+        date_until = date_from + datetime.timedelta(days=45)
+
+        # G get list of allowed class types
+        query = (db.teachers_classtypes.auth_user_id == auth_user_id)
+        classtype_rows = db(query).select(db.teachers_classtypes.ALL)
+        ct_ids = []
+        for row in classtype_rows:
+            ct_ids.append(int(row.school_classtypes_id))
+
+        sys_hostname = os_tools.get_sys_property('sys_hostname')
+        description = XML(
+            template_content.format(
+                teacher_name = teacher.get_first_name(),
+                link_employee_portal = URL('ep', 'index', scheme='https', host=sys_hostname)
+            )
+        )
+
+        open_classes = TABLE(THEAD(TR(
+            TH(T("Date"), _align="left"),
+            TH(T("Time"), _align="left"),
+            TH(T("Location"), _align="left"),
+            TH(T("Class"), _align="left"),
+            # TH(),
+        )), _cellspacing="0", _cellpadding='5px', _width='100%', border="0")
+
+        # Get Open classes in the next 45 days
+        rows = cotcs.get_sub_teacher_rows(
+            date_from,
+            date_until,
+            school_classtypes_ids=ct_ids,
+            only_open=True
+        )
+
+        open_classes_for_teacher = 0
+
+        for i, row in enumerate(rows):
+            repr_row = list(rows[i:i + 1].render())[0]
+
+            date = row.classes_otc.ClassDate
+            clsID = row.classes.id
+            cls = Class(clsID, date)
+            regular_teachers = cls.get_regular_teacher_ids()
+
+            if regular_teachers['auth_teacher_id'] == auth_user_id:
+                continue
+
+            open_classes.append(TR(
+                TD(repr_row.classes_otc.ClassDate, _align="left"),
+                TD(repr_row.classes.Starttime, _align="left"),
+                TD(repr_row.classes.school_locations_id, _align="left"),
+                TD(repr_row.classes.school_classtypes_id, _align="left"),
+                # TD('Actions here?'),
+            ))
+
+            open_classes_for_teacher += 1
+
+        if not open_classes_for_teacher:
+            error = True
+            error_msg = T("No upcoming classes with subs required found for this teacher")
+
+
+        return dict(
+            content = open_classes,
+            description = description,
+            error = error,
+            error_msg = error_msg
+        )
+
+
     def _render_email_workshops_info_mail(self, wspc, wsp, ws):
         """
         :param template_content: Mail content
@@ -328,6 +420,7 @@ class OsMail:
                               description='',
                               comments='',
                               template_content=None,
+                              auth_user_id=None,
                               customers_orders_id=None,
                               invoices_id=None,
                               invoices_payments_id=None,
@@ -346,6 +439,8 @@ class OsMail:
         db = current.db
         T = current.T
         DATETIME_FORMAT = current.DATETIME_FORMAT
+        error = False
+        error_msg = ''
 
         get_sys_property = current.globalenv['get_sys_property']
         request = current.request
@@ -382,6 +477,18 @@ class OsMail:
         elif email_template == 'payment_recurring_failed':
             subject = T('Recurring payment failed')
             content = self._render_email_template_payment_recurring_failed(template_content)
+
+
+        elif email_template == 'teacher_sub_requests_daily_summary':
+            result = self._render_email_template_teacher_sub_requests_daily_summary(
+                template_content,
+                auth_user_id
+            )
+            title = T("Daily summary - open classes")
+            description = result['description']
+            content = result['content']
+            error = result['error']
+            error_msg = result['error_msg']
 
         elif email_template == 'teacher_sub_offer_declined':
             result = self._render_email_template_teacher_sub_offer(
@@ -439,17 +546,21 @@ class OsMail:
             request = request
         )
 
-        message = render(
+        html_message = render(
             filename = template,
             path = template_path,
             context = context
         )
 
         if return_html:
-            return message
+            return dict(
+                html_message = html_message,
+                error = error,
+                error_msg = error_msg
+            )
         else:
             msgID = db.messages.insert(
-                msg_content = message,
+                msg_content = html_message,
                 msg_subject = subject
             )
 

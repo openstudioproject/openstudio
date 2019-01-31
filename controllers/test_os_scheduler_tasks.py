@@ -15,4 +15,4 @@ def email_teachers_sub_requests_daily_summary():
 
 
     ost = OsSchedulerTasks()
-    ost.email_teachers_sub_requests_daily_summary()
+    return ost.email_teachers_sub_requests_daily_summary()
