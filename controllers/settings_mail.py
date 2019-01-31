@@ -92,8 +92,8 @@ def mailing_list_edit():
     """
     from openstudio.os_forms import OsForms
 
-    response.title = T('Shop')
-    response.subtitle = T('Catalog')
+    response.title = T('Settings')
+    response.subtitle = T('Mail')
     response.view = 'general/tabs_menu.html'
     mlID = request.vars['mlID']
 
@@ -144,8 +144,8 @@ def templates():
     """
         Templates main
     """
-    response.title = T('System Settings')
-    response.subtitle = T('Email templates')
+    response.title = T('Settings')
+    response.subtitle = T('Mail')
     response.view = 'settings/email_templates.html'
 
     header = THEAD(TR(
@@ -191,8 +191,8 @@ def edit_template():
     """
     from openstudio.os_forms import OsForms
 
-    response.title = T('System Settings')
-    response.subtitle = T('Email Templates')
+    response.title = T('Settings')
+    response.subtitle = T('Mail')
     response.view = 'settings/email_templates.html'
 
     template = request.vars['template']
@@ -246,8 +246,8 @@ def notifications():
     """
         Shows a page with the Notifications options
     """
-    response.title = T('System Settings')
-    response.subtitle = T('Notifications')
+    response.title = T('Settings')
+    response.subtitle = T('Mail')
     response.view = 'general/tabs_menu.html'
 
     header = THEAD(TR(
@@ -336,8 +336,8 @@ def notifications_email_add():
     Subscribe email address to notification
     """
     from openstudio.os_forms import OsForms
-    response.title = T('System Notification')
-    response.subtitle = T('Subscribe email address')
+    response.title = T('Settings')
+    response.subtitle = T('Mail')
     response.view = 'general/tabs_menu.html'
 
     snID = request.vars['snID']
