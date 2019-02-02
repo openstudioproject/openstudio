@@ -5988,7 +5988,7 @@ def setup_set_email_templates():
             T('Verify Email'),
             """<h3>Verify email</h3>
             <p>Welcome %(first_name)s!</p>
-            <p>Please click on the <a href="%(link)s">link</a> to verify your email</p>"""
+            <p>Please click on the <a href="%(link)s">link</a> to verify your email address</p>"""
         ],
         [
             'order_received',
