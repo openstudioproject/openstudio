@@ -564,4 +564,4 @@ class Order:
             customers_orders_id=self.coID
         )
 
-        osmail.send(msgID, self.order.auth_customer_id)
+        osmail.send_and_archive(msgID, self.order.auth_customer_id)

@@ -237,7 +237,7 @@ def webhook_invoice_chargeback(iID,
     cuID = invoice.get_linked_customer_id()
     os_mail = OsMail()
     msgID = os_mail.render_email_template('payment_recurring_failed')
-    os_mail.send(msgID, cuID)
+    os_mail.send_and_archive(msgID, cuID)
 
 
 @auth.requires_login()

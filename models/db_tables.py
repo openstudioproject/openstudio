@@ -2256,15 +2256,15 @@ def define_classes_otc():
         Field('Maxstudents', 'integer',
               requires=IS_EMPTY_OR(IS_INT_IN_RANGE(0, 500)),
               label=T("Spaces"),
-              comment=os_gui.get_info_icon(
-                  title=T("Total spaces for this class"),
-                  btn_icon='info')),
+              comment=T("Total spaces for this class")),
         Field('MaxOnlineBooking', 'integer',
               requires=IS_EMPTY_OR(IS_INT_IN_RANGE(0, 500)),
               label=T('Online booking spaces'),
-              comment=os_gui.get_info_icon(
-                  title=T("Maximum number of online bookings accepted for this class"),
-                  btn_icon='info')),
+              comment=T("Maximum number of online bookings accepted for this class")),
+        Field('CountSubsAvailable', 'integer',
+              readable=False,
+              writable=False
+              ),
     )
 
 def define_classes_otc_sub_avail():
@@ -5974,25 +5974,25 @@ def setup_set_email_templates():
     templates = [
         [
             'sys_email_footer',
-            'Email Footer',
-             """ """
+            T('Email Footer'),
+             """This is an auto generated message."""
         ],
         [
             'sys_reset_password',
-            'Reset Password',
+            T('Reset Password'),
             """<h3>Reset password</h3>
             <p>Please click on the <a href="%(link)s">link</a> to reset your password</p>"""
         ],
         [
             'sys_verify_email',
-            'Verify Email',
+            T('Verify Email'),
             """<h3>Verify email</h3>
             <p>Welcome %(first_name)s!</p>
-            <p>Please click on the <a href="%(link)s">link</a> to verify your email</p>"""
+            <p>Please click on the <a href="%(link)s">link</a> to verify your email address</p>"""
         ],
         [
             'order_received',
-            'Order received',
+            T('Order received'),
             """<h3>We have received your order with number #{order_id} on {order_date}</h3>
             <p>&nbsp;</p>
             <p>{order_items}</p>
@@ -6001,7 +6001,7 @@ def setup_set_email_templates():
         ],
         [
             'order_delivered',
-            'Order delivered',
+            T('Order delivered'),
             """<h3>Your order&nbsp;with number #{order_id} has been delivered</h3>
             <p>All items listed below have been added to your account</p>
             <p>&nbsp;</p>
@@ -6012,13 +6012,32 @@ def setup_set_email_templates():
         ],
         [
             'payment_recurring_failed',
-            'Recurring payment failed',
+            T('Recurring payment failed'),
             """<h3>Recurring payment failed</h3>
             <p>&nbsp;</p>
             <p>One or more recurring payments failed, please log in to your account and pay any open invoices before the due date.</p>
             <p>&nbsp;</p>
             <p>To view your invoices, please click <a href="{link_profile_invoices}">here</a>.</p>"""
         ],
+        [
+            'teacher_sub_offer_declined',
+            T('Teacher sub offer declined'),
+            """<p>Dear {teacher_name},<br /><br /></p>
+<p>As we have been able to fill the sub request for the class above, we would like to inform you that we won't be making use of your offer to teach this class.<br /><br /></p>
+<p>We thank you for your offer and hope to be able to use your services again in the future.</p>""",
+        ],
+        [
+            'teacher_sub_offer_accepted',
+            T('Teacher sub offer accepted'),
+            """<p>Dear {teacher_name},<br /><br /></p>
+<p>Thank you for taking over the class mentioned above. We're counting on you!</p>""",
+        ],
+        [
+            'teacher_sub_requests_daily_summary',
+            T('Teacher sub requests daily summary'),
+            """""",
+        ],
+
     ]
     for name, title, template_content in templates:
         db.sys_email_templates.insert(
@@ -6413,7 +6432,7 @@ auth.define_tables(username=False, signature=False)
 db.auth_user._format = '%(display_name)s'
 
 # set up email
-MAIL = mail
+current.mail = mail
 
 # setup currency symbol
 CURRSYM = get_sys_property('CurrencySymbol')

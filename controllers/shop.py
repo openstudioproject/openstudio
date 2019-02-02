@@ -451,7 +451,7 @@ def order_received_mail_customer(coID):
         customers_orders_id=coID
     )
 
-    osmail.send(msgID, auth.user.id)
+    osmail.send_and_archive(msgID, auth.user.id)
 
 
 def cart_empty(auth_user_id):

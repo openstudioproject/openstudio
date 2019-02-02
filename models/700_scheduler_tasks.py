@@ -39,7 +39,7 @@ def task_mollie_subscription_invoices_and_payments():
         """
         os_mail = OsMail()
         msgID = os_mail.render_email_template('payment_recurring_failed')
-        os_mail.send(msgID, cuID)
+        os_mail.send_and_archive(msgID, cuID)
 
     from openstudio.os_customer import Customer
 

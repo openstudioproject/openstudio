@@ -336,10 +336,10 @@ def get_backend_menu():
                                 False,
                                 URL('classes', 'schedule', extension='')))
             #TODO: enable as soon as find a sub is released
-            # if user_helpers.check_read_permission('classes_otc_sub_avail', user_id):
-            #     submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Available subs'))),
-            #                     False,
-            #                     URL('classes', 'subs_manage', extension='')))
+            if user_helpers.check_read_permission('classes_open', user_id):
+                submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Classes sub teachers'))),
+                                False,
+                                URL('classes_sub_teachers', 'index', extension='')))
 
             if user_helpers.check_read_permission('shifts', user_id):
                 submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Studio staff'))),

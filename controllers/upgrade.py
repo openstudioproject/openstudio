@@ -161,3 +161,34 @@ def upgrade_to_201902():
     ##
     query = (db.school_subscriptions.MinDuration == None)
     db(query).update(MinDuration=1)
+
+
+    ##
+    # Insert email templates
+    ##
+    # Teacher sub offer declined
+    db.sys_email_templates.insert(
+        Name = 'teacher_sub_offer_declined',
+        Title = T('Teacher sub offer declined'),
+        Description = '',
+        TemplateContent = """
+<p>Dear {teacher_name},<br /><br /></p>
+<p>As we have been able to fill the sub request for the class above, we would like to inform you that we won't be making use of your offer to teach this class.<br /><br /></p>
+<p>We thank you for your offer and hope to be able to use your services again in the future.</p>"""
+    )
+    # Teacher sub offer accepted
+    db.sys_email_templates.insert(
+        Name='teacher_sub_offer_accepted',
+        Title=T('Teacher sub offer accepted'),
+        Description='',
+        TemplateContent="""
+<p>Dear {teacher_name},<br /><br /></p>
+<p>Thank you for taking over the class mentioned above. We're counting on you!</p>"""
+    )
+    # Teachers sub requests daily summary
+    db.sys_email_templates.insert(
+        Name = 'teacher_sub_requests_daily_summary',
+        Title = T('Teacher sub requests daily summary'),
+        Description = '',
+        TemplateContent = """"""
+    )

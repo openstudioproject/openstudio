@@ -334,3 +334,49 @@ class OsSchedulerTasks:
         return T("m_openstudio_os_scheduler_tasks_exact_online_sync_invoices_return") + ': (' + \
                unicode(count_synced) + ' / ' + \
                unicode(count_errors) + ')'
+
+
+    def email_teachers_sub_requests_daily_summary(self):
+        """
+        Send a daily summary of open sub requests to each teacher for the classtypes
+        they're allowed to teach
+        :return:
+        """
+        from openstudio.os_mail import OsMail
+        from openstudio.os_teachers import Teachers
+
+        db = current.db
+        T = current.T
+        os_mail = OsMail()
+
+        # Get list of teachers
+        teachers = Teachers()
+        teacher_id_rows = teachers.get_teacher_ids()
+
+        mails_sent = 0
+        for row in teacher_id_rows:
+            print 'teacher'
+            print row.id
+
+            os_mail = OsMail()
+            result = os_mail.render_email_template(
+                'teacher_sub_requests_daily_summary',
+                auth_user_id=row.id,
+                return_html=True
+            )
+
+            send_result = False
+            if not result['error']:
+                send_result = os_mail.send(
+                    message_html=result['html_message'],
+                    message_subject=T("Daily summary - open classes"),
+                    auth_user_id=row.id
+                )
+
+            if send_result:
+                mails_sent += 1
+
+        return T("Sent mails: %s" % mails_sent)
+
+            # Create table of classes with "I'm available links".
+
