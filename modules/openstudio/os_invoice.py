@@ -38,27 +38,8 @@ class Invoice:
         """
         functions to be called when updating an invoice or invoice items
         """
-        from tools import OsTools
-        from os_exact_online import OSExactOnline
-
-        os_tools = OsTools()
-        eo_authorized = os_tools.get_sys_property('exact_online_authorized')
-
         # Set last updated datetime
         self._set_updated_at()
-
-        # Exact online integration
-        if eo_authorized == 'True':
-            os_eo = OSExactOnline()
-            if not self.invoice_group.JournalID:
-                os_eo._log_error(
-                    'update',
-                    'invoice',
-                    self.invoices_id,
-                    'No JournalID specified for invoice group'
-                )
-            else:
-                os_eo.update_sales_entry(self)
 
 
     def _set_updated_at(self):
