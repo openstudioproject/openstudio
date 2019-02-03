@@ -309,9 +309,11 @@ class OsSchedulerTasks:
 
             os_eo = OSExactOnline()
 
-            query = (db.invoices.ExactOnlineSalesEntryID == None) | \
-                    ((db.invoices.Updated_at > db.invoices.Synced_at) &
-                     (db.invoices.ExactOnlineSalesEntryID != None))
+            query = ((db.invoices.ExactOnlineSalesEntryID == None) |
+                     ((db.invoices.Updated_at > db.invoices.Synced_at) &
+                      (db.invoices.ExactOnlineSalesEntryID != None))) & \
+                    ((db.invoices.Status == 'sent') |
+                     (db.invoices.Status == 'paid'))
             rows = db(query).select(db.invoices.ALL)
             for row in rows:
                 invoice = Invoice(row.id)

@@ -50,6 +50,32 @@ class Invoice:
         self.invoice.update_record()
 
 
+    def sync_exact_online(self):
+        """
+        Sync this invoice and all it's items with exact online
+        :return:
+        """
+        from tools import OsTools
+        from os_exact_online import OSExactOnline
+
+        if invoice.row.Status == 'sent' or invoice.row.Status == 'paid':
+            os_tools = OsTools()
+            eo_authorized = os_tools.get_sys_property('exact_online_authorized')
+
+            # Exact online integration
+            if eo_authorized == 'True':
+                os_eo = OSExactOnline()
+                if not self.invoice_group.JournalID:
+                    os_eo._log_error(
+                        'update',
+                        'invoice',
+                        self.invoices_id,
+                        'No JournalID specified for invoice group'
+                    )
+                else:
+                    os_eo.update_sales_entry(self)
+
+
     def _set_updated_at(self):
         """
         Set db.invoices.Updated_at to current time (UTC)
