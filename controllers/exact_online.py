@@ -300,6 +300,8 @@ def sync_invoices():
     """
     from openstudio.os_scheduler_tasks import OsSchedulerTasks
 
+    print 'syncing invoices'
+
     osst = OsSchedulerTasks()
     result = osst.exact_online_sync_invoices()
 

@@ -79,6 +79,16 @@ class OSExactOnline:
         storage = self.get_storage()
         api = self.get_api()
         cuID = os_invoice.get_linked_customer_id()
+        if not cuID:
+            self._log_error(
+                'create',
+                'sales_entry',
+                os_invoice.invoice.id,
+                "No customer linked to this invoice"
+            )
+
+            return
+
         os_customer = Customer(os_invoice.get_linked_customer_id())
         eoID = os_customer.row.exact_online_relation_id
 
