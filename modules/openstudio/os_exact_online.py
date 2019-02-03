@@ -149,6 +149,9 @@ class OSExactOnline:
                         (db.invoices_items.Sorting == i + 1)
                 db(query).update(ExactOnlineSalesEntryLineID = line['ID'])
 
+            if not error:
+                os_invoice.set_synced_at_now()
+
         except HTTPError as e:
             error = True
             self._log_error(
@@ -255,6 +258,9 @@ class OSExactOnline:
 
             if errors_update_lines:
                 error = True
+
+            if not error:
+                os_invoice.set_synced_at_now()
 
         except HTTPError as e:
             error = True
