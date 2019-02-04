@@ -6055,7 +6055,8 @@ def setup_set_email_templates():
         [
             'teacher_sub_request_open_reminder',
             T("Teacher sub request open reminder"),
-            """"""
+            """<p>Dear {teacher_name},<br /><br /></p>
+<p>Using this email we'd like to remind you that a substitute teacher for the class above hasn't been found yet.</p>"""
         ]
 
     ]

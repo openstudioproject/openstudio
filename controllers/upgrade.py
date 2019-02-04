@@ -199,5 +199,6 @@ def upgrade_to_201902():
         Name='teacher_sub_request_open_reminder',
         Title=T('Teacher sub request open reminder'),
         Description='',
-        TemplateContent=""""""
+        TemplateContent="""<p>Dear {teacher_name},<br /><br /></p>
+<p>Using this email we'd like to remind you that a substitute teacher for the class above hasn't been found yet.</p>"""
     )

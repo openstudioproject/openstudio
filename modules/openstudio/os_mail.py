@@ -367,6 +367,45 @@ class OsMail:
         )
 
 
+    def _render_email_teacher_sub_request_open_reminder(self, template_content, cotcID):
+        """
+        Render mail template for teacher no sub found yet reminders
+        :param cotcID: db.classes_otc.id
+        :return: html - mail body for reminder
+        """
+        from openstudio.os_class import Class
+
+        T = current.T
+        db = current.db
+
+        error = False
+        error_msg = ''
+
+        cotc = db.classes_otc(cotcID)
+
+        cls = Class(cotc.classes_id, cotc.ClassDate)
+        regular_teachers = cls.get_regular_teacher_ids()
+        teacher_name = ''
+        if not regular_teachers['error']:
+            auth_teacher_id = regular_teachers['auth_teacher_id']
+            teacher = db.auth_user(auth_teacher_id)
+            teacher_name = teacher.first_name
+
+        description = cls.get_name()
+        content = XML(
+            template_content.format(
+                teacher_name = teacher_name,
+            )
+        )
+
+        return dict(
+            error = error,
+            error_msg = error_msg,
+            content=content,
+            description=description
+        )
+
+
     def _render_email_workshops_info_mail(self, wspc, wsp, ws):
         """
         :param template_content: Mail content
@@ -424,6 +463,7 @@ class OsMail:
                               customers_orders_id=None,
                               invoices_id=None,
                               invoices_payments_id=None,
+                              classes_otc_id=None,
                               classes_otc_sub_avail_id=None,
                               workshops_products_customers_id=None,
                               return_html=False):
@@ -478,13 +518,23 @@ class OsMail:
             subject = T('Recurring payment failed')
             content = self._render_email_template_payment_recurring_failed(template_content)
 
-
         elif email_template == 'teacher_sub_requests_daily_summary':
             result = self._render_email_template_teacher_sub_requests_daily_summary(
                 template_content,
                 auth_user_id
             )
             title = T("Daily summary - open classes")
+            description = result['description']
+            content = result['content']
+            error = result['error']
+            error_msg = result['error_msg']
+
+        elif email_template == 'teacher_sub_request_open_reminder':
+            result = self._render_email_teacher_sub_request_open_reminder(
+                template_content,
+                classes_otc_id
+            )
+            title = T("A friendly reminder")
             description = result['description']
             content = result['content']
             error = result['error']

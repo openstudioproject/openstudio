@@ -355,9 +355,6 @@ class OsSchedulerTasks:
 
         mails_sent = 0
         for row in teacher_id_rows:
-            print 'teacher'
-            print row.id
-
             os_mail = OsMail()
             result = os_mail.render_email_template(
                 'teacher_sub_requests_daily_summary',
@@ -385,6 +382,7 @@ class OsSchedulerTasks:
         :return:
         """
         from openstudio.os_class import Class
+        from openstudio.os_mail import OsMail
         from openstudio.os_sys_email_reminders import SysEmailReminders
 
         T = current.T
@@ -405,19 +403,33 @@ class OsSchedulerTasks:
 
             rows = db(query).select(db.classes_otc.ALL)
             for row in rows:
-                cls = Class(row.classes_id, row.ClassDate)
+                clsID = row.classes_id
+                cls = Class(clsID, row.ClassDate)
                 regular_teachers = cls.get_regular_teacher_ids()
 
                 if not regular_teachers['error']:
                     auth_teacher_id = regular_teachers['auth_teacher_id']
                     teacher = db.auth_user(auth_teacher_id)
 
-                    print 'email to:'
-                    print teacher.email
+                    os_mail = OsMail()
+                    result = os_mail.render_email_template(
+                        'teacher_sub_request_open_reminder',
+                        classes_otc_id=row.id,
+                        return_html=True
+                    )
 
-                    mails_sent += 1
+                    send_result = False
+                    if not result['error']:
+                        send_result = os_mail.send(
+                            message_html=result['html_message'],
+                            message_subject=T("Reminder - open class"),
+                            auth_user_id=auth_teacher_id
+                        )
+
+                    if send_result:
+                        mails_sent += 1
+
             # send reminder to teacher
-
 
         return T("Sent mails: %s" % mails_sent)
 
