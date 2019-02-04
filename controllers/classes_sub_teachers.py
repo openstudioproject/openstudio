@@ -12,7 +12,7 @@ def get_menu(page=None):
     if auth.has_membership(group_id='Admins') or \
        auth.has_permission('read', 'sys_email_reminders'):
         pages.append(['reminders',
-                      T("Reminders"),
+                      T("Teacher reminders"),
                       URL("reminders")])
 
 

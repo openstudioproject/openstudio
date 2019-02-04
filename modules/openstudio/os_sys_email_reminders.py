@@ -50,7 +50,7 @@ class SysEmailReminders:
 
         for row in rows:
             table.append(TR(
-                TD(T("Send email %s days before class date" % row.Days)),
+                TD(T("%s Day(s) before class date, email reminder about open class to teacher." % row.Days)),
                 TD(self._list_formatted_get_delete_button(row.id, permission, os_gui))
             ))
 
