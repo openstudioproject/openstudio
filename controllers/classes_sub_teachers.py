@@ -1,6 +1,28 @@
 # -*- coding: utf-8 -*-
 
 
+
+
+def get_menu(page=None):
+    pages = []
+
+    pages.append(['index',
+                   T('Open classes'),
+                  URL("index")])
+
+
+
+    # if auth.has_membership(group_id='Admins') or \
+    #    auth.has_permission('read', 'customers_memberships'):
+    #     pages.append(['memberships',
+    #                   T("Memberships"),
+    #                   URL("customers","memberships",
+    #                       vars={'cuID':customers_id})])
+
+
+    return os_gui.get_submenu(pages, page, horizontal=True, htype='tabs')
+
+
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'classes_open'))
 def index():
@@ -14,7 +36,7 @@ def index():
 
     response.title = T('Classes')
     response.subtitle = T('Sub teachers')
-    response.view = 'general/only_content.html'
+    response.view = 'general/tabs_menu.html'
 
     table = TABLE(
         THEAD(TR(TH(T('Status')),
@@ -98,7 +120,7 @@ def index():
 
         table.append(row_class)
 
-    return dict(content=table)
+    return dict(content=table, menu=get_menu(request.function))
 
 
 def index_get_rows(date_from):
@@ -127,12 +149,18 @@ def offers():
     cotc = db.classes_otc(cotcID)
     cls = Class(cotc.classes_id, cotc.ClassDate)
 
-    response.title = T("Sub offers")
-    response.subtitle = cls.get_name()
-    response.view = 'general/only_content.html'
+    response.title = T('Classes')
+    response.subtitle = T('Sub teachers')
+    response.view = 'general/tabs_menu.html'
 
     subs_avail = ClassesOTCSubAvailables()
     table = subs_avail.list_formatted(cotcID)
+
+    content = DIV(
+        H4(T('Sub offers')),
+        H5(cls.get_name()),
+        table
+    )
 
     back = os_gui.get_button(
         'back',
@@ -140,7 +168,8 @@ def offers():
     )
 
     return dict(
-        content=table,
+        content=content,
+        menu=get_menu('index'),
         back=back
     )
 
