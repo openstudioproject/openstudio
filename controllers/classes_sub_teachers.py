@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-
-
 def get_menu(page=None):
     pages = []
 
@@ -223,13 +221,13 @@ def reminders():
     List teacher reminders for teacher sub requests
     :return:
     """
+    from openstudio.os_sys_email_reminders import SysEmailReminders
+
     response.title = T('Classes')
     response.subtitle = T('Sub teachers')
     response.view = 'general/tabs_menu.html'
 
-    content = 'hello world'
+    reminders = SysEmailReminders('teachers_sub_request_open')
+    content = reminders.list_formatted()
 
     return dict(content=content, menu=get_menu(request.function))
-
-
-
