@@ -596,10 +596,13 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
     def get_invoices_rows(self,
                           public_group=True,
                           debit_only=False,
-                          payments_only=False,):
+                          payments_only=False,
+                          synced_only=False):
         """
             Returns invoices records for a customer as gluon.dal.rows object
         """
+        from tools import OsTools
+
         db = current.db
 
         left = [
@@ -620,6 +623,14 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         if payments_only:
             query &= ((db.invoices.TeacherPayment == True) |
                       (db.invoices.EmployeeClaim == True))
+
+        if synced_only:
+            # this value can be used to prevent unsynced invoices from appearing
+            # in customer profiles
+            os_tools = OsTools()
+            eo_authorized = os_tools.get_sys_property('exact_online_authorized')
+            if eo_authorized == 'True':
+                query &= (db.invoices.ExactOnlineSalesEntryID != None)
 
         if debit_only:
             query &= (

@@ -79,6 +79,16 @@ class OSExactOnline:
         storage = self.get_storage()
         api = self.get_api()
         cuID = os_invoice.get_linked_customer_id()
+        if not cuID:
+            self._log_error(
+                'create',
+                'sales_entry',
+                os_invoice.invoice.id,
+                "No customer linked to this invoice"
+            )
+
+            return
+
         os_customer = Customer(os_invoice.get_linked_customer_id())
         eoID = os_customer.row.exact_online_relation_id
 
@@ -148,6 +158,9 @@ class OSExactOnline:
                 query = (db.invoices_items.invoices_id == os_invoice.invoice.id) & \
                         (db.invoices_items.Sorting == i + 1)
                 db(query).update(ExactOnlineSalesEntryLineID = line['ID'])
+
+            if not error:
+                os_invoice.set_synced_at_now()
 
         except HTTPError as e:
             error = True
@@ -255,6 +268,9 @@ class OSExactOnline:
 
             if errors_update_lines:
                 error = True
+
+            if not error:
+                os_invoice.set_synced_at_now()
 
         except HTTPError as e:
             error = True

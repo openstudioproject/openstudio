@@ -46,15 +46,19 @@ def exact_online_tools():
     if eo_authorized == 'True':
         authorize = ''
 
+        # links.append(
+        #     A(SPAN(_class="fa fa-list"), " ", T("Logistics / Items"),
+        #       _href=URL('exact_online', 'logistics_items'),
+        #       _title=T("Logistics / Items")),
+        # )
+        # links.append(
+        #     A(SPAN(_class="fa fa-list"), " ", T("Financial / GLAccounts"),
+        #       _href=URL('exact_online', 'financial_glaccounts'),
+        #       _title=T("Financial / GLAccounts")),
+        # )
         links.append(
-            A(SPAN(_class="fa fa-list"), " ", T("Logistics / Items"),
-              _href=URL('exact_online', 'logistics_items'),
-              _title=T("Logistics / Items")),
-        )
-        links.append(
-            A(SPAN(_class="fa fa-list"), " ", T("Financial / GLAccounts"),
-              _href=URL('exact_online', 'financial_glaccounts'),
-              _title=T("Financial / GLAccounts")),
+            A(SPAN(_class='fa fa-list'), ' ', T("Integration log"),
+              _href=URL('exact_online', 'log'))
         )
         links.append(
             A(SPAN(_class="fa fa-repeat"), " ", T("Re-authorize"),
