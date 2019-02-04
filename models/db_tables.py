@@ -780,6 +780,16 @@ def define_sys_notifications_email():
               label= T('Email')))
 
 
+def define_sys_email_reminders():
+    db.define_table('sys_email_reminders',
+        Field('Reminder',
+              label=T("Reminder")),
+        Field('Days', 'integer',
+              label=T("Days"),
+              comment=T("Days before event to send email reminder")),
+    )
+
+
 def define_sys_api_users():
     db.define_table('sys_api_users',
         Field('ActiveUser', 'boolean', required=True,
@@ -6464,6 +6474,7 @@ define_payment_methods()
 payment_methods_dict = create_payment_methods_dict()
 
 define_mailing_lists()
+define_sys_email_reminders()
 define_integration_exact_online_log()
 define_postcode_groups()
 define_tax_rates()

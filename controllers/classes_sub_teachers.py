@@ -11,13 +11,11 @@ def get_menu(page=None):
                   URL("index")])
 
 
-
-    # if auth.has_membership(group_id='Admins') or \
-    #    auth.has_permission('read', 'customers_memberships'):
-    #     pages.append(['memberships',
-    #                   T("Memberships"),
-    #                   URL("customers","memberships",
-    #                       vars={'cuID':customers_id})])
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('read', 'sys_email_reminders'):
+        pages.append(['reminders',
+                      T("Reminders"),
+                      URL("reminders")])
 
 
     return os_gui.get_submenu(pages, page, horizontal=True, htype='tabs')
