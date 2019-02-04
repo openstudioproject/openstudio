@@ -378,28 +378,39 @@ class OsSchedulerTasks:
 
         return T("Sent mails: %s" % mails_sent)
 
-            # Create table of classes with "I'm available links".
-
-
 
     def email_reminders_teachers_sub_request_open(self):
         """
         Send teachers reminders when a sub for their class hasn't been found yet.
         :return:
         """
+        from openstudio.os_class import Class
         from openstudio.os_sys_email_reminders import SysEmailReminders
 
+        db = current.db
         TODAY_LOCAL = current.TODAY_LOCAL
 
         # Check if reminders configured
         sys_reminders = SysEmailReminders('teachers_sub_request_open')
         reminders = sys_reminders.list()
 
-        for row in rows:
+        for reminder in reminders:
+            # Get list of open classes on reminder date
+            reminder_date = TODAY_LOCAL + datetime.timedelta(reminder.Days)
 
-        # Get list of open classes on reminder date
+            query = (db.classes_otc.Status == 'open') & \
+                    (db.classes_otc.ClassDate == reminder_date)
 
-        # IF open class date - reminder date == TODAY_LOCAL
+            rows = db(query).select(db.classes_otc.ALL)
+            cls = Class(row.classes_id, row.ClassDate)
+            regular_teachers = cls.get_regular_teacher_ids()
+
+            if not regular_teachers['error']:
+                auth_teacher_id = regular_teachers['auth_teacher_id']
+                teacher = db.auth_user(auth_teacher_id)
+
+                print 'email to:'
+                print teacher.email
 
             # send reminder to teacher
 
