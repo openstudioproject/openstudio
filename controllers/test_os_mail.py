@@ -55,6 +55,6 @@ def test_osmail_render_sys_notification():
             customers_orders_id=customers_orders_id
         )
 
-    return rendered_message['html_message']
+    return rendered_message
 
 
