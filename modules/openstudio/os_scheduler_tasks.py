@@ -387,6 +387,7 @@ class OsSchedulerTasks:
         from openstudio.os_class import Class
         from openstudio.os_sys_email_reminders import SysEmailReminders
 
+        T = current.T
         db = current.db
         TODAY_LOCAL = current.TODAY_LOCAL
 
@@ -394,6 +395,7 @@ class OsSchedulerTasks:
         sys_reminders = SysEmailReminders('teachers_sub_request_open')
         reminders = sys_reminders.list()
 
+        mails_sent = 0
         for reminder in reminders:
             # Get list of open classes on reminder date
             reminder_date = TODAY_LOCAL + datetime.timedelta(reminder.Days)
@@ -402,16 +404,20 @@ class OsSchedulerTasks:
                     (db.classes_otc.ClassDate == reminder_date)
 
             rows = db(query).select(db.classes_otc.ALL)
-            cls = Class(row.classes_id, row.ClassDate)
-            regular_teachers = cls.get_regular_teacher_ids()
+            for row in rows:
+                cls = Class(row.classes_id, row.ClassDate)
+                regular_teachers = cls.get_regular_teacher_ids()
 
-            if not regular_teachers['error']:
-                auth_teacher_id = regular_teachers['auth_teacher_id']
-                teacher = db.auth_user(auth_teacher_id)
+                if not regular_teachers['error']:
+                    auth_teacher_id = regular_teachers['auth_teacher_id']
+                    teacher = db.auth_user(auth_teacher_id)
 
-                print 'email to:'
-                print teacher.email
+                    print 'email to:'
+                    print teacher.email
 
+                    mails_sent += 1
             # send reminder to teacher
 
+
+        return T("Sent mails: %s" % mails_sent)
 
