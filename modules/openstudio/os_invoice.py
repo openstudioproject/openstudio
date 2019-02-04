@@ -672,10 +672,14 @@ class Invoice:
         # Add item to invoice
         next_sort_nr = self.get_item_next_sort_nr()
 
+        item_date = ''
+        if ws.Startdate:
+            item_date = ' [' + ws.Startdate.strftime(DATE_FORMAT) + ']',
+
         iiID = db.invoices_items.insert(
             invoices_id=self.invoices_id,
             ProductName=T('Event'),
-            Description=ws.Name.decode('utf-8') + u' - ' + wsp.Name.decode('utf-8') + ' [' + ws.Startdate.strftime(DATE_FORMAT) + ']',
+            Description=ws.Name.decode('utf-8') + u' - ' + wsp.Name.decode('utf-8') + item_date,
             Quantity=1,
             Price=wsp.Price,
             Sorting=next_sort_nr,
