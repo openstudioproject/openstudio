@@ -230,4 +230,71 @@ def reminders():
     reminders = SysEmailReminders('teachers_sub_request_open')
     content = reminders.list_formatted()
 
-    return dict(content=content, menu=get_menu(request.function))
+    add = os_gui.get_button(
+        'add',
+        URL('reminder_add')
+    )
+
+    return dict(
+        content=content,
+        add=add,
+        menu=get_menu(request.function)
+    )
+
+
+def reminders_get_return_url(var=None):
+    return URL('reminders')
+
+
+@auth.requires_login()
+def reminder_add():
+    """
+    add a reminder
+    :return:
+    """
+    from openstudio.os_forms import OsForms
+    response.title = T('Classes')
+    response.subtitle = T('Sub teachers')
+    response.view = 'general/tabs_menu.html'
+
+    db.sys_email_reminders.Reminder.default = 'teachers_sub_request_open'
+
+    return_url = reminders_get_return_url()
+
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_create(
+        db.sys_email_reminders,
+        return_url,
+    )
+
+    form = result['form']
+    back = os_gui.get_button('back', return_url)
+    menu = get_menu('reminders')
+
+    content = DIV(
+        H4(T('Add reminder')),
+        form
+    )
+
+    return dict(content=content,
+                save=result['submit'],
+                back=back,
+                menu=menu)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('delete', 'sys_email_reminders'))
+def reminder_delete():
+    """
+    delete a reminder
+    :return:
+    """
+    serID = request.vars['serID']
+
+    query = (db.sys_email_reminders.id == serID)
+    db(query).delete()
+
+    session.flash = T("Deleted reminder")
+
+    redirect(reminders_get_return_url())
+

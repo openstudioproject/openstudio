@@ -783,8 +783,11 @@ def define_sys_notifications_email():
 def define_sys_email_reminders():
     db.define_table('sys_email_reminders',
         Field('Reminder',
+              readable=False,
+              writable=False,
               label=T("Reminder")),
         Field('Days', 'integer',
+              default=1,
               label=T("Days"),
               comment=T("Days before event to send email reminder")),
     )
