@@ -54,11 +54,13 @@ class ClassesOTCSubAvailable:
         T = current.T
 
         osmail = OsMail()
-        html = osmail.render_email_template(
+        result = osmail.render_email_template(
             'teacher_sub_offer_accepted',
             classes_otc_sub_avail_id=self.id,
             return_html=True
         )
+
+        html = result['html_message']
 
         result = osmail.send(
             message_html=html,
@@ -91,11 +93,13 @@ class ClassesOTCSubAvailable:
         T = current.T
 
         osmail = OsMail()
-        html = osmail.render_email_template(
+        result = osmail.render_email_template(
             'teacher_sub_offer_declined',
             classes_otc_sub_avail_id=self.id,
             return_html=True
         )
+
+        html = result['html_message']
 
         result = osmail.send(
             message_html=html,

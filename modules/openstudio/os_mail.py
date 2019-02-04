@@ -79,7 +79,7 @@ class OsMail:
         customer = db.auth_user(cuID)
         message = db.messages(msgID)
 
-        check = MAIL.send_and_archive(
+        check = MAIL.send(
             to=customer.email,
             subject=message.msg_subject,
             reply_to=None, # If reply_to is omitted, then mail.settings.sender is used
