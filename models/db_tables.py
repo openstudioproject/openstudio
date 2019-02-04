@@ -6048,8 +6048,15 @@ def setup_set_email_templates():
         [
             'teacher_sub_requests_daily_summary',
             T('Teacher sub requests daily summary'),
-            """""",
+            """<p>Dear {teacher_name},<br /><br /></p>
+<p>Below you'll find a list of open classes. We would greatly appreciate it if you could have a look at the list and let us know whether you'd be able to teach one or more classes.</p>
+<p>Click <a href="{link_employee_portal}">here</a> to let us know which classes you can teach.</p>""",
         ],
+        [
+            'teacher_sub_request_open_reminder',
+            T("Teacher sub request open reminder"),
+            """"""
+        ]
 
     ]
     for name, title, template_content in templates:
