@@ -215,3 +215,21 @@ def sub_teacher_decline():
     row = db.classes_otc_sub_avail(cotcsaID)
     redirect(available_get_return_url(row.classes_otc_id))
 
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'sys_email_reminders'))
+def reminders():
+    """
+    List teacher reminders for teacher sub requests
+    :return:
+    """
+    response.title = T('Classes')
+    response.subtitle = T('Sub teachers')
+    response.view = 'general/tabs_menu.html'
+
+    content = 'hello world'
+
+    return dict(content=content, menu=get_menu(request.function))
+
+
+
