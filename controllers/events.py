@@ -1,4 +1,4 @@
-# coding: utf8
+# -*- coding: utf-8 -*-
 
 from openstudio.os_workshops_helper import WorkshopsHelper
 
@@ -928,15 +928,15 @@ def mail_activity_attendance():
         message += '<br><br>'
         table = TABLE()
         for fws_row in fws_rows.render():
-            name = fws_row.auth_user.display_name
+            name = fws_row.auth_user.display_name.decode('utf-8')
             table.append(TR(TD(name),
                             TD(unicode(T('Full event')))))
         wsa_rows = activity_list_customers_get_activity_rows(row.id)
         for wsa_row in wsa_rows:
-            name = wsa_row.auth_user.display_name,
+            name = wsa_row.auth_user.display_name.decode('utf-8'),
             table.append(TR(TD(name), TD()))
 
-        message += unicode(table)
+        message += str(table).decode('utf-8')
         message += '<br>'
 
         subject = T("Reservations for") + ' ' + workshop.Name + ', ' + \
