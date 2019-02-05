@@ -307,52 +307,54 @@ class OsMail:
         for row in classtype_rows:
             ct_ids.append(int(row.school_classtypes_id))
 
-        sys_hostname = os_tools.get_sys_property('sys_hostname')
-        description = XML(
-            template_content.format(
-                teacher_name = teacher.get_first_name(),
-                link_employee_portal = URL('ep', 'index', scheme='https', host=sys_hostname)
-            )
-        )
-
-        open_classes = TABLE(THEAD(TR(
-            TH(T("Date"), _align="left"),
-            TH(T("Time"), _align="left"),
-            TH(T("Location"), _align="left"),
-            TH(T("Class"), _align="left"),
-            # TH(),
-        )), _cellspacing="0", _cellpadding='5px', _width='100%', border="0")
-
-        # Get Open classes in the next 45 days
-        rows = cotcs.get_sub_teacher_rows(
-            date_from,
-            date_until,
-            school_classtypes_ids=ct_ids,
-            only_open=True
-        )
-
         open_classes_for_teacher = 0
+        open_classes = ''
+        description = ''
+        if ct_ids:
+            sys_hostname = os_tools.get_sys_property('sys_hostname')
+            description = XML(
+                template_content.format(
+                    teacher_name = teacher.get_first_name(),
+                    link_employee_portal = URL('ep', 'index', scheme='https', host=sys_hostname)
+                )
+            )
 
-        for i, row in enumerate(rows):
-            repr_row = list(rows[i:i + 1].render())[0]
+            open_classes = TABLE(THEAD(TR(
+                TH(T("Date"), _align="left"),
+                TH(T("Time"), _align="left"),
+                TH(T("Location"), _align="left"),
+                TH(T("Class"), _align="left"),
+                # TH(),
+            )), _cellspacing="0", _cellpadding='5px', _width='100%', border="0")
 
-            date = row.classes_otc.ClassDate
-            clsID = row.classes.id
-            cls = Class(clsID, date)
-            regular_teachers = cls.get_regular_teacher_ids()
+            # Get Open classes in the next 45 days
+            rows = cotcs.get_sub_teacher_rows(
+                date_from,
+                date_until,
+                school_classtypes_ids=ct_ids,
+                only_open=True
+            )
 
-            if regular_teachers['auth_teacher_id'] == auth_user_id:
-                continue
+            for i, row in enumerate(rows):
+                repr_row = list(rows[i:i + 1].render())[0]
 
-            open_classes.append(TR(
-                TD(repr_row.classes_otc.ClassDate, _align="left"),
-                TD(repr_row.classes.Starttime, _align="left"),
-                TD(repr_row.classes.school_locations_id, _align="left"),
-                TD(repr_row.classes.school_classtypes_id, _align="left"),
-                # TD('Actions here?'),
-            ))
+                date = row.classes_otc.ClassDate
+                clsID = row.classes.id
+                cls = Class(clsID, date)
+                regular_teachers = cls.get_regular_teacher_ids()
 
-            open_classes_for_teacher += 1
+                if regular_teachers['auth_teacher_id'] == auth_user_id:
+                    continue
+
+                open_classes.append(TR(
+                    TD(repr_row.classes_otc.ClassDate, _align="left"),
+                    TD(repr_row.classes.Starttime, _align="left"),
+                    TD(repr_row.classes.school_locations_id, _align="left"),
+                    TD(repr_row.classes.school_classtypes_id, _align="left"),
+                    # TD('Actions here?'),
+                ))
+
+                open_classes_for_teacher += 1
 
         if not open_classes_for_teacher:
             error = True

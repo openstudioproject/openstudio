@@ -1079,6 +1079,28 @@ def prepare_classes(web2py,
     web2py.db.commit()
 
 
+def prepare_classes_teacher_classtypes(web2py):
+    """
+    Insert all classtypes for all teachers
+    :param web2py:
+    :return:
+    """
+    ct_rows = web2py.db(web2py.db.school_classtypes).select(
+        web2py.db.school_classtypes.ALL
+    )
+
+    query = (web2py.db.auth_user.teacher == True)
+    rows = web2py.db(query).select(web2py.db.auth_user.id)
+    for row in rows:
+        for ct_row in ct_rows:
+            web2py.db.teachers_classtypes.insert(
+                auth_user_id = row.id,
+                school_classtypes_id = ct_row.id
+            )
+
+    web2py.db.commit()
+
+
 
 def prepare_classes_otc_subs_avail(web2py, accepted=None):
     """
@@ -2277,3 +2299,16 @@ def populate_shop_categories(web2py):
     )
 
     web2py.db.commit()
+
+
+def populate_define_sys_email_reminders(web2py):
+    """
+    Populate email reminders
+    """
+    web2py.db.sys_email_reminders.insert(
+        Reminder = 'teachers_sub_request_open',
+        Days = 1
+    )
+
+    web2py.db.commit()
+
