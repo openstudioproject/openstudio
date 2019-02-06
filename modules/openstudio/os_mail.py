@@ -369,7 +369,7 @@ class OsMail:
         )
 
 
-    def _render_email_teacher_sub_request_open_reminder(self, template_content, cotcID):
+    def _render_email_template_teacher_sub_request_open_reminder(self, template_content, cotcID):
         """
         Render mail template for teacher no sub found yet reminders
         :param cotcID: db.classes_otc.id
@@ -379,6 +379,8 @@ class OsMail:
 
         T = current.T
         db = current.db
+        DATE_FORMAT = current.DATE_FORMAT
+        TIME_FORMAT = current.TIME_FORMAT
 
         error = False
         error_msg = ''
@@ -393,7 +395,20 @@ class OsMail:
             teacher = db.auth_user(auth_teacher_id)
             teacher_name = teacher.first_name
 
-        description = cls.get_name()
+        class_info = TABLE(
+            TR(TH(T('Date'), _align="right"),
+               TD(cotc.ClassDate.strftime(DATE_FORMAT), _align="left")),
+            TR(TH(T('Time'), _align="right"),
+               TD(cls.cls.Starttime.strftime(TIME_FORMAT), ' - ',
+                  cls.cls.Endtime.strftime(TIME_FORMAT), _align="left")),
+            TR(TH(T('Location'), _align="right"),
+               TD(cls.get_location_name(), _align="left")),
+            TR(TH(T('Class'), _align="right"),
+               TD(cls.get_classtype_name(), _align="left")),
+            _cellspacing="0", _cellpadding='5px', _width='100%', border="0"
+        )
+
+        description = class_info
         content = XML(
             template_content.format(
                 teacher_name = teacher_name,
@@ -532,7 +547,7 @@ class OsMail:
             error_msg = result['error_msg']
 
         elif email_template == 'teacher_sub_request_open_reminder':
-            result = self._render_email_teacher_sub_request_open_reminder(
+            result = self._render_email_template_teacher_sub_request_open_reminder(
                 template_content,
                 classes_otc_id
             )
