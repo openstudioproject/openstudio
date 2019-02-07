@@ -143,37 +143,6 @@ def test_webhook_invoice_chargeback():
             chargeback_id,
             chargeback_details
         )
-        # Mock mollie payment
-        payment = {
-            {u'status': u'paid',
-             u'description': u'Order #360',
-             u'countryCode': u'NL',
-             u'locale': u'nl_NL',
-             u'settlementAmount': {u'currency': u'EUR', u'value': u'497.50'},
-             u'mode': u'live',
-             u'amountRefunded': {u'currency': u'EUR', u'value': u'110.00'},
-             u'id': u'tr_HnaxnfvqUK',
-             u'createdAt': u'2019-01-15T12:21:44+00:00',
-             u'resource': u'payment',
-             u'settlementId': u'stl_NHKwWq9Bd3',
-             u'amountRemaining': {u'currency': u'EUR', u'value': u'412.50'},
-             u'webhookUrl': u'https://my.phuntsokcholing.org/mollie/webhook',
-             u'paidAt': u'2019-01-15T12:22:41+00:00',
-             u'amount': {u'currency': u'EUR', u'value': u'497.50'},
-             u'_links': {u'self': {u'href': u'https://api.mollie.com/v2/payments/tr_HnaxnfvqUK',
-                                   u'type': u'application/hal+json'},
-                         u'settlement': {u'href': u'https://api.mollie.com/v2/settlements/stl_NHKwWq9Bd3',
-                                         u'type': u'application/hal+json'},
-                         u'refunds': {u'href': u'https://api.mollie.com/v2/payments/tr_HnaxnfvqUK/refunds',
-                                      u'type': u'application/hal+json'},
-                         u'documentation': {u'href': u'https://docs.mollie.com/reference/v2/payments-api/get-payment',
-                                            u'type': u'text/html'}},
-             u'metadata': {u'customers_orders_id': u'invoice',
-                           u'invoice_id': iID}
-             }
-        }
-
-        webhook_payment_is_paid_process_chargeback(coID, iID, payment)
 
 
 def test_webhook_invoice_refund():
@@ -185,19 +154,19 @@ def test_webhook_invoice_refund():
         redirect(URL('default', 'user', args=['not_authorized']))
     else:
         iID = request.vars['iID']
-        chargeback_amount = request.vars['chargeback_amount']
-        chargeback_date = request.vars['chargeback_date']
+        refund_amount = request.vars['refund_amount']
+        refund_date = request.vars['refund_date']
         mollie_payment_id = request.vars['mollie_payment_id']
-        chargeback_id = request.vars['chargeback_id']
-        chargeback_details = request.vars['chargeback_details']
+        refund_id = request.vars['refund_id']
+        refund_details = request.vars['refund_details']
 
         webhook_invoice_refund(
             iID,
-            chargeback_amount,
-            chargeback_date,
+            refund_amount,
+            refund_date,
             mollie_payment_id,
-            chargeback_id,
-            chargeback_details
+            refund_id,
+            refund_details
         )
 
 
@@ -257,8 +226,6 @@ def webook_payment_is_paid_process_refunds(coID, iID, mollie_refunds):
     Process refunds
     :return:
     """
-    from openstudio.os_invoice import Invoice
-
     if coID and coID != 'invoice':
         query = (db.invoices_customers_orders.customers_orders_id == coID)
         row = db(query).select(db.invoices_customers_orders.ALL).first()
@@ -281,16 +248,37 @@ def webook_payment_is_paid_process_refunds(coID, iID, mollie_refunds):
             count = db(query).count()
 
             if not db(query).count() and iID:
-                invoice = Invoice(iID)
-
-                ipID = invoice.payment_add(
+                # Only process the refund if it hasn't been processed already
+                webhook_invoice_refund(
+                    iID,
                     amount,
                     refund_date,
-                    payment_methods_id=100,  # Static id for Mollie payments
-                    mollie_payment_id=refund[u'paymentId'],
-                    mollie_refund_id=refund[u'id'],
-                    note=refund_description
+                    refund[u'paymentId'],
+                    refund[u'id'],
+                    refund_description
                 )
+
+def webhook_invoice_refund(iID,
+                           amount,
+                           date,
+                           mollie_payment_id,
+                           mollie_refund_id,
+                           note):
+    """
+    Actually add refund invoice payment
+    This function is separate for testability
+    """
+    from openstudio.os_invoice import Invoice
+    invoice = Invoice(iID)
+
+    ipID = invoice.payment_add(
+        amount,
+        date,
+        payment_methods_id=100,  # Static id for Mollie payments
+        mollie_payment_id=mollie_payment_id,
+        mollie_refund_id=mollie_refund_id,
+        note=note
+    )
 
 
 def webhook_payment_is_paid_process_chargeback(coID,
