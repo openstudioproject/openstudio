@@ -32,9 +32,6 @@ def webhook():
 
         payment_id = id
         payment = mollie.payments.get(payment_id)
-        
-        
-        print payment
 
         mlw.mollie_payment = unicode(payment)
         mlw.update_record()
@@ -42,10 +39,6 @@ def webhook():
         iID = ''
         coID = payment['metadata']['customers_orders_id'] # customers_orders_id
 
-        print coID
-        print type(coID)
-        if coID == u'360':
-            coID = u'3'
         if coID == 'invoice':
             # Invoice payment instead of order payment
             iID = payment['metadata']['invoice_id']
@@ -64,34 +57,13 @@ def webhook():
             if payment.refunds:
                 webook_payment_is_paid_process_refunds(coID, iID, payment.refunds)
 
+            # Process chargebacks
+            if payment.chargebacks:
+                webhook_payment_is_paid_process_chargeback(coID, iID, payment)
+
             if coID == 'invoice':
-                if payment.chargebacks:
-                    # Check if we have a chargeback
-                    if payment.chargebacks[u'count']:
-                        for chargeback in payment.chargebacks[u'_embedded'][u'chargebacks']:
-                            chargeback_amount = float(chargeback['settlementAmount']['value'])
-                            chargeback_date = datetime.datetime.strptime(chargeback[u'createdAt'].split('+')[0],
-                                                          '%Y-%m-%dT%H:%M:%S').date()
-                            try:
-                                chargeback_details = "Failure reason: %s (Bank reason code: %s)" % (
-                                    payment[u'details']['bankReason'],
-                                    payment[u'details']['bankReasonCode']
-                                )
-                            except:
-                                chargeback_details = ''
-
-                            webhook_invoice_chargeback(
-                                iID,
-                                chargeback_amount,
-                                chargeback_date,
-                                payment_id,
-                                chargeback['id'],
-                                chargeback_details
-                            )
-
-                else:
-                    # Add payment to invoice, no delivery required
-                    webhook_invoice_paid(iID, payment_amount, payment_date, payment_id)
+                # add payment to invoice
+                webhook_invoice_paid(iID, payment_amount, payment_date, payment_id)
             else:
                 # Deliver order
                 webhook_order_paid(coID, payment_amount, payment_date, payment_id)
@@ -231,12 +203,10 @@ def webook_payment_is_paid_process_refunds(coID, iID, mollie_refunds):
     """
     from openstudio.os_invoice import Invoice
 
-    if coID:
+    if coID and coID != 'invoice':
         query = (db.invoices_customers_orders.customers_orders_id == coID)
         row = db(query).select(db.invoices_customers_orders.ALL).first()
         iID = row.invoices_id
-
-    # query = (db.invoices_payments.mollie_refunds_id ==
 
     if mollie_refunds[u'count']:
         for refund in mollie_refunds[u'_embedded'][u'refunds']:
@@ -245,9 +215,11 @@ def webook_payment_is_paid_process_refunds(coID, iID, mollie_refunds):
             refund_date = datetime.datetime.strptime(refund[u'createdAt'].split('+')[0],
                                                      '%Y-%m-%dT%H:%M:%S').date()
             try:
-                refund_description = refund[u'description']
+                description = refund[u'description']
             except:
-                refund_description = ''
+                description = ''
+
+            refund_description = "Mollie refund(%s) - %s" % (refund_id, description)
 
             query = (db.invoices_payments.mollie_refund_id == refund_id)
             count = db(query).count()
@@ -265,35 +237,54 @@ def webook_payment_is_paid_process_refunds(coID, iID, mollie_refunds):
                 )
 
 
-def webhook_invoice_chargeback(iID,
-                               chargeback_amount,
-                               chargeback_date,
-                               mollie_payment_id,
-                               chargeback_id,
-                               chargeback_details):
+def webhook_payment_is_paid_process_chargeback(coID,
+                                               iID,
+                                               mollie_payment):
     """
-    Chargebacks happen when a direct debit payment fails due to insufficient funds in the customers' bank account
+    Chargebacks occur when a direct debit payment fails due to insufficient funds in the customers' bank account
     :return:
     """
-    invoice = Invoice(iID)
+    from openstudio.os_invoice import Invoice
 
-    query = (db.invoices_payments.mollie_chargeback_id == chargeback_id)
-    if not db(query).count():
-        # Only process the chargeback if it hasn't been processed already
-        ipID = invoice.payment_add(
-            chargeback_amount,
-            chargeback_date,
-            payment_methods_id=100,  # Static id for Mollie payments
-            mollie_payment_id=mollie_payment_id,
-            mollie_chargeback_id=chargeback_id,
-            note="Mollie Chargeback (%s) - %s" % (chargeback_id, chargeback_details)
-        )
+    if coID and coID != 'invoice':
+        query = (db.invoices_customers_orders.customers_orders_id == coID)
+        row = db(query).select(db.invoices_customers_orders.ALL).first()
+        iID = row.invoices_id
 
-        # Notify customer of chargeback
-        cuID = invoice.get_linked_customer_id()
-        os_mail = OsMail()
-        msgID = os_mail.render_email_template('payment_recurring_failed')
-        os_mail.send_and_archive(msgID, cuID)
+    # Check if we have a chargeback
+    mollie_chargebacks = mollie_payment.chargebacks
+    if mollie_chargebacks[u'count']:
+        for chargeback in mollie_chargebacks[u'_embedded'][u'chargebacks']:
+            chargeback_id = chargeback[u'id']
+            chargeback_amount = float(chargeback['settlementAmount']['value'])
+            chargeback_date = datetime.datetime.strptime(chargeback[u'createdAt'].split('+')[0],
+                                                         '%Y-%m-%dT%H:%M:%S').date()
+            try:
+                chargeback_details = "Failure reason: %s (Bank reason code: %s)" % (
+                    mollie_payment[u'details']['bankReason'],
+                    mollie_payment[u'details']['bankReasonCode']
+                )
+            except:
+                chargeback_details = ''
+
+            invoice = Invoice(iID)
+            query = (db.invoices_payments.mollie_chargeback_id == chargeback_id)
+            if not db(query).count():
+                # Only process the chargeback if it hasn't been processed already
+                ipID = invoice.payment_add(
+                    chargeback_amount,
+                    chargeback_date,
+                    payment_methods_id=100,  # Static id for Mollie payments
+                    mollie_payment_id=chargeback[u'paymentId'],
+                    mollie_chargeback_id=chargeback_id,
+                    note="Mollie Chargeback (%s) - %s" % (chargeback_id, chargeback_details)
+                )
+
+                # Notify customer of chargeback
+                cuID = invoice.get_linked_customer_id()
+                os_mail = OsMail()
+                msgID = os_mail.render_email_template('payment_recurring_failed')
+                os_mail.send_and_archive(msgID, cuID)
 
 
 @auth.requires_login()
