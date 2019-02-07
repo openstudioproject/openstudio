@@ -120,56 +120,6 @@ def test_webhook_invoice_paid():
         webhook_invoice_paid(iID, payment_amount, payment_date, mollie_payment_id)
 
 
-def test_webhook_invoice_chargeback():
-    """
-        A test can call this function to check whether everything works after a
-        chargeback payment has been added to a customer payment
-    """
-    if not web2pytest.is_running_under_test(request, request.application):
-        redirect(URL('default', 'user', args=['not_authorized']))
-    else:
-        iID = request.vars['iID']
-        chargeback_amount = request.vars['chargeback_amount']
-        chargeback_date = request.vars['chargeback_date']
-        mollie_payment_id = request.vars['mollie_payment_id']
-        chargeback_id = request.vars['chargeback_id']
-        chargeback_details = request.vars['chargeback_details']
-
-        webhook_invoice_chargeback(
-            iID,
-            chargeback_amount,
-            chargeback_date,
-            mollie_payment_id,
-            chargeback_id,
-            chargeback_details
-        )
-
-
-def test_webhook_invoice_refund():
-    """
-        A test can call this function to check whether everything works after a
-        chargeback payment has been added to a customer payment
-    """
-    if not web2pytest.is_running_under_test(request, request.application):
-        redirect(URL('default', 'user', args=['not_authorized']))
-    else:
-        iID = request.vars['iID']
-        refund_amount = request.vars['refund_amount']
-        refund_date = request.vars['refund_date']
-        mollie_payment_id = request.vars['mollie_payment_id']
-        refund_id = request.vars['refund_id']
-        refund_details = request.vars['refund_details']
-
-        webhook_invoice_refund(
-            iID,
-            refund_amount,
-            refund_date,
-            mollie_payment_id,
-            refund_id,
-            refund_details
-        )
-
-
 def webhook_order_paid(coID, payment_amount=None, payment_date=None, mollie_payment_id=None, invoice=True):
     """
         :param coID: db.customers_orders.id
@@ -258,6 +208,7 @@ def webook_payment_is_paid_process_refunds(coID, iID, mollie_refunds):
                     refund_description
                 )
 
+
 def webhook_invoice_refund(iID,
                            amount,
                            date,
@@ -279,6 +230,31 @@ def webhook_invoice_refund(iID,
         mollie_refund_id=mollie_refund_id,
         note=note
     )
+
+
+def test_webhook_invoice_refund():
+    """
+        A test can call this function to check whether everything works after a
+        chargeback payment has been added to a customer payment
+    """
+    if not web2pytest.is_running_under_test(request, request.application):
+        redirect(URL('default', 'user', args=['not_authorized']))
+    else:
+        iID = request.vars['iID']
+        refund_amount = request.vars['refund_amount']
+        refund_date = request.vars['refund_date']
+        mollie_payment_id = request.vars['mollie_payment_id']
+        refund_id = request.vars['refund_id']
+        refund_details = request.vars['refund_details']
+
+        webhook_invoice_refund(
+            iID,
+            refund_amount,
+            refund_date,
+            mollie_payment_id,
+            refund_id,
+            refund_details
+        )
 
 
 def webhook_payment_is_paid_process_chargeback(coID,
@@ -336,6 +312,9 @@ def webhook_invoice_chargeback(iID,
     from openstudio.os_invoice import Invoice
     invoice = Invoice(iID)
 
+    print "note in wic"
+    print note
+
     ipID = invoice.payment_add(
         amount,
         date,
@@ -350,6 +329,35 @@ def webhook_invoice_chargeback(iID,
     os_mail = OsMail()
     msgID = os_mail.render_email_template('payment_recurring_failed')
     os_mail.send_and_archive(msgID, cuID)
+
+
+def test_webhook_invoice_chargeback():
+    """
+        A test can call this function to check whether everything works after a
+        chargeback payment has been added to a customer payment
+    """
+    if not web2pytest.is_running_under_test(request, request.application):
+        redirect(URL('default', 'user', args=['not_authorized']))
+    else:
+        iID = request.vars['iID']
+        chargeback_amount = request.vars['chargeback_amount']
+        chargeback_date = request.vars['chargeback_date']
+        mollie_payment_id = request.vars['mollie_payment_id']
+        chargeback_id = request.vars['chargeback_id']
+        chargeback_details = request.vars['chargeback_details']
+
+        print 'cb_details'
+        print request.vars
+        print chargeback_details
+
+        webhook_invoice_chargeback(
+            iID,
+            chargeback_amount,
+            chargeback_date,
+            mollie_payment_id,
+            chargeback_id,
+            chargeback_details
+        )
 
 
 @auth.requires_login()

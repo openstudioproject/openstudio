@@ -132,17 +132,67 @@ def test_webhook_invoice_chargeback(client, web2py):
           '&chargeback_date=' + date + \
           '&mollie_payment_id=' + mollie_id + \
           '&chargeback_id=' + chargeback_id + \
-          'chargeback_details=Chargeback'
+          '&chargeback_details=Chargeback'
 
     client.get(url)
     assert client.status == 200
 
     payment = web2py.db.invoices_payments(1)
+
     assert payment.Amount == amounts.TotalPriceVAT * -1
     assert payment.mollie_payment_id == mollie_id
+    assert payment.mollie_chargeback_id == chargeback_id
     assert unicode(payment.PaymentDate) == date
-    assert chargeback_id in payment.Note
-    assert 'Chargeback' in payment.Note
+    assert payment.Note == 'Chargeback'
+
+    # Check status changes back to 'sent'
+    invoice = web2py.db.invoices(1)
+    assert invoice.Status == 'sent'
+
+
+def test_webhook_invoice_refund(client, web2py):
+    """
+        Is a payment added when an invoice is paid with chargeback(s)?
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    populate_customers(web2py, 1)
+    populate_invoices(web2py)
+    populate_invoices_items(web2py)
+
+    invoice = web2py.db.invoices(1)
+    invoice.Status = 'paid'
+    invoice.update_record()
+    web2py.db.commit()
+
+    amounts = web2py.db.invoices_amounts(1)
+    price = unicode(amounts.TotalPriceVAT * -1)
+    mollie_id = 'tr_test'
+    refund_id = 're_test'
+    date = '2014-01-01'
+
+    url = '/mollie/test_webhook_invoice_refund?' + \
+          'iID=1' +\
+          '&refund_amount=' + price + \
+          '&refund_date=' + date + \
+          '&mollie_payment_id=' + mollie_id + \
+          '&refund_id=' + refund_id + \
+          '&refund_details=refund'
+
+    client.get(url)
+    assert client.status == 200
+
+    payment = web2py.db.invoices_payments(1)
+
+    print payment
+
+    assert payment.Amount == amounts.TotalPriceVAT * -1
+    assert payment.mollie_payment_id == mollie_id
+    assert payment.mollie_refund_id == refund_id
+    assert unicode(payment.PaymentDate) == date
+    assert payment.Note == 'refund'
 
     # Check status changes back to 'sent'
     invoice = web2py.db.invoices(1)
