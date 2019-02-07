@@ -371,6 +371,9 @@ class Order:
         db = current.db
         T = current.T
 
+        if self.order.Status == 'delivered':
+            return
+
         create_invoice = False
         iID = None
         invoice = None

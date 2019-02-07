@@ -32,6 +32,9 @@ def webhook():
 
         payment_id = id
         payment = mollie.payments.get(payment_id)
+        
+        
+        print payment
 
         mlw.mollie_payment = unicode(payment)
         mlw.update_record()
