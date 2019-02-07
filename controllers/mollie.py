@@ -143,6 +143,62 @@ def test_webhook_invoice_chargeback():
             chargeback_id,
             chargeback_details
         )
+        # Mock mollie payment
+        payment = {
+            {u'status': u'paid',
+             u'description': u'Order #360',
+             u'countryCode': u'NL',
+             u'locale': u'nl_NL',
+             u'settlementAmount': {u'currency': u'EUR', u'value': u'497.50'},
+             u'mode': u'live',
+             u'amountRefunded': {u'currency': u'EUR', u'value': u'110.00'},
+             u'id': u'tr_HnaxnfvqUK',
+             u'createdAt': u'2019-01-15T12:21:44+00:00',
+             u'resource': u'payment',
+             u'settlementId': u'stl_NHKwWq9Bd3',
+             u'amountRemaining': {u'currency': u'EUR', u'value': u'412.50'},
+             u'webhookUrl': u'https://my.phuntsokcholing.org/mollie/webhook',
+             u'paidAt': u'2019-01-15T12:22:41+00:00',
+             u'amount': {u'currency': u'EUR', u'value': u'497.50'},
+             u'_links': {u'self': {u'href': u'https://api.mollie.com/v2/payments/tr_HnaxnfvqUK',
+                                   u'type': u'application/hal+json'},
+                         u'settlement': {u'href': u'https://api.mollie.com/v2/settlements/stl_NHKwWq9Bd3',
+                                         u'type': u'application/hal+json'},
+                         u'refunds': {u'href': u'https://api.mollie.com/v2/payments/tr_HnaxnfvqUK/refunds',
+                                      u'type': u'application/hal+json'},
+                         u'documentation': {u'href': u'https://docs.mollie.com/reference/v2/payments-api/get-payment',
+                                            u'type': u'text/html'}},
+             u'metadata': {u'customers_orders_id': u'invoice',
+                           u'invoice_id': iID}
+             }
+        }
+
+        webhook_payment_is_paid_process_chargeback(coID, iID, payment)
+
+
+def test_webhook_invoice_refund():
+    """
+        A test can call this function to check whether everything works after a
+        chargeback payment has been added to a customer payment
+    """
+    if not web2pytest.is_running_under_test(request, request.application):
+        redirect(URL('default', 'user', args=['not_authorized']))
+    else:
+        iID = request.vars['iID']
+        chargeback_amount = request.vars['chargeback_amount']
+        chargeback_date = request.vars['chargeback_date']
+        mollie_payment_id = request.vars['mollie_payment_id']
+        chargeback_id = request.vars['chargeback_id']
+        chargeback_details = request.vars['chargeback_details']
+
+        webhook_invoice_refund(
+            iID,
+            chargeback_amount,
+            chargeback_date,
+            mollie_payment_id,
+            chargeback_id,
+            chargeback_details
+        )
 
 
 def webhook_order_paid(coID, payment_amount=None, payment_date=None, mollie_payment_id=None, invoice=True):
@@ -244,8 +300,6 @@ def webhook_payment_is_paid_process_chargeback(coID,
     Chargebacks occur when a direct debit payment fails due to insufficient funds in the customers' bank account
     :return:
     """
-    from openstudio.os_invoice import Invoice
-
     if coID and coID != 'invoice':
         query = (db.invoices_customers_orders.customers_orders_id == coID)
         row = db(query).select(db.invoices_customers_orders.ALL).first()
@@ -267,24 +321,47 @@ def webhook_payment_is_paid_process_chargeback(coID,
             except:
                 chargeback_details = ''
 
-            invoice = Invoice(iID)
+
             query = (db.invoices_payments.mollie_chargeback_id == chargeback_id)
             if not db(query).count():
                 # Only process the chargeback if it hasn't been processed already
-                ipID = invoice.payment_add(
+                webhook_invoice_chargeback(
+                    iID,
                     chargeback_amount,
                     chargeback_date,
-                    payment_methods_id=100,  # Static id for Mollie payments
-                    mollie_payment_id=chargeback[u'paymentId'],
-                    mollie_chargeback_id=chargeback_id,
-                    note="Mollie Chargeback (%s) - %s" % (chargeback_id, chargeback_details)
+                    mollie_payment[u'id'],
+                    chargeback_id,
+                    "Mollie Chargeback (%s) - %s" % (chargeback_id, chargeback_details)
                 )
 
-                # Notify customer of chargeback
-                cuID = invoice.get_linked_customer_id()
-                os_mail = OsMail()
-                msgID = os_mail.render_email_template('payment_recurring_failed')
-                os_mail.send_and_archive(msgID, cuID)
+
+def webhook_invoice_chargeback(iID,
+                               amount,
+                               date,
+                               mollie_payment_id,
+                               mollie_chargeback_id,
+                               note):
+    """
+    Actuall add chargeback invoice payment
+    This function is separate for testability
+    """
+    from openstudio.os_invoice import Invoice
+    invoice = Invoice(iID)
+
+    ipID = invoice.payment_add(
+        amount,
+        date,
+        payment_methods_id=100,  # Static id for Mollie payments
+        mollie_payment_id=mollie_payment_id,
+        mollie_chargeback_id=mollie_chargeback_id,
+        note=note
+    )
+
+    # Notify customer of chargeback
+    cuID = invoice.get_linked_customer_id()
+    os_mail = OsMail()
+    msgID = os_mail.render_email_template('payment_recurring_failed')
+    os_mail.send_and_archive(msgID, cuID)
 
 
 @auth.requires_login()
