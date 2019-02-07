@@ -2690,13 +2690,15 @@ def define_classes_attendance_override():
         )
 
 def define_customers_payment_info():
+    pm_query = (db.payment_methods.Archived == False)
+
     db.define_table('customers_payment_info',
         Field('auth_customer_id', db.auth_user, required=True,
             readable=False,
             writable=False,
             label=T('CustomerID')),
         Field('payment_methods_id', db.payment_methods,
-            requires=IS_EMPTY_OR(IS_IN_DB(db,'payment_methods.id','%(Name)s',
+            requires=IS_EMPTY_OR(IS_IN_DB(db(pm_query),'payment_methods.id','%(Name)s',
                                           zero=T("Please select..."))),
             represent=lambda value, row: payment_methods_dict.get(value),
             label=T("Default payment method")),
@@ -4267,6 +4269,7 @@ def define_invoices_groups_product_types():
 
 def define_invoices():
     months = get_months_list()
+    pm_query = (db.payment_methods.Archived == False)
 
     group_query = (db.invoices_groups.Archived == False)
 
@@ -4281,7 +4284,7 @@ def define_invoices():
             label=T('Invoice group')),
         Field('payment_methods_id', db.payment_methods,
             requires=IS_EMPTY_OR(
-                     IS_IN_DB(db,'payment_methods.id','%(Name)s',
+                     IS_IN_DB(db(pm_query),'payment_methods.id','%(Name)s',
                               error_message=T("Please select a payment method"),
                               zero=T("Not set"))),
             represent=lambda value, row: payment_methods_dict.get(value),
@@ -4439,6 +4442,8 @@ def represent_invoices_datedue(date, row):
 
 
 def define_invoices_payments():
+    pm_query = (db.payment_methods.Archived == False)
+
     db.define_table('invoices_payments',
         Field('invoices_id', db.invoices,
             readable=False,
@@ -4458,7 +4463,7 @@ def define_invoices_payments():
             label=T("Payment date"),
             widget=os_datepicker_widget),
         Field('payment_methods_id', db.payment_methods, required=True,
-            requires=IS_IN_DB(db,'payment_methods.id','%(Name)s',
+            requires=IS_IN_DB(db(pm_query),'payment_methods.id','%(Name)s',
                               error_message=T("Please select a payment method"),
                               zero=T("Please select...")),
             represent=lambda value, row: payment_methods_dict.get(value),
