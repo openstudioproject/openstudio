@@ -853,6 +853,11 @@ def generate_batch_items_invoices(pbID,
         except:
             pass
 
+        try:
+            description = description.replace(',', '')
+        except:
+            pass
+
         # set account number
         try:
             accountnr = row.customers_payment_info.AccountNumber.strip()
