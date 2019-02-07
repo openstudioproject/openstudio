@@ -1019,7 +1019,9 @@ class Invoice:
                     date,
                     payment_methods_id,
                     note=None,
-                    mollie_payment_id=None):
+                    mollie_payment_id=None,
+                    mollie_chargeback_id=None,
+                    mollie_refund_id=None):
         """
             Add payment to invoice
         """
@@ -1031,7 +1033,9 @@ class Invoice:
             PaymentDate = date,
             payment_methods_id = payment_methods_id,
             Note = note,
-            mollie_payment_id = mollie_payment_id
+            mollie_payment_id = mollie_payment_id,
+            mollie_chargeback_id = mollie_chargeback_id,
+            mollie_refund_id = mollie_refund_id
         )
 
         self.is_paid()

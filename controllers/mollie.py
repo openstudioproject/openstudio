@@ -41,6 +41,11 @@ def webhook():
 
         iID = ''
         coID = payment['metadata']['customers_orders_id'] # customers_orders_id
+
+        print coID
+        print type(coID)
+        if coID == u'360':
+            coID = u'3'
         if coID == 'invoice':
             # Invoice payment instead of order payment
             iID = payment['metadata']['invoice_id']
@@ -55,8 +60,9 @@ def webhook():
                                                       '%Y-%m-%dT%H:%M:%S').date()
 
 
-            print 'refunds'
-            print payment.refunds
+            # Process refunds
+            if payment.refunds:
+                webook_payment_is_paid_process_refunds(coID, iID, payment.refunds)
 
             if coID == 'invoice':
                 if payment.chargebacks:
@@ -108,13 +114,6 @@ def webhook():
             return 'Cancelled'
     except MollieError as e:
         return 'API call failed: {error}'.format(error=e)
-
-
-def _webook_payment_is_paid_process_refunds(coID, iID):
-    """
-    Process refunds
-    :return:
-    """
 
 
 def test_webhook_order_paid():
@@ -182,7 +181,7 @@ def webhook_order_paid(coID, payment_amount=None, payment_date=None, mollie_paym
     order = Order(coID)
     result = order.deliver()
 
-    if invoice:
+    if result and invoice:
         # Add payment to invoice
         invoice = result['invoice']
 
@@ -206,20 +205,64 @@ def webhook_invoice_paid(iID, payment_amount, payment_date, mollie_payment_id):
         :param iID: db.invoices.id
         :return: None
     """
-    invoice = Invoice(iID)
+    query = (db.invoices_payments.mollie_payment_id == mollie_payment_id)
+    if not db(query).count:
+        # Don't process a payment twice
+        invoice = Invoice(iID)
 
-    ipID = invoice.payment_add(
-        payment_amount,
-        payment_date,
-        payment_methods_id=100,  # Static id for Mollie payments
-        mollie_payment_id=mollie_payment_id
-    )
+        ipID = invoice.payment_add(
+            payment_amount,
+            payment_date,
+            payment_methods_id=100,  # Static id for Mollie payments
+            mollie_payment_id=mollie_payment_id
+        )
 
     # notify customer
     #os_mail = OsMail()
     #msgID = os_mail.render_email_template('email_template_payment_received', invoices_payments_id=ipID)
 
     #os_mail.send(msgID, invoice.invoice.auth_customer_id)
+
+
+def webook_payment_is_paid_process_refunds(coID, iID, mollie_refunds):
+    """
+    Process refunds
+    :return:
+    """
+    from openstudio.os_invoice import Invoice
+
+    if coID:
+        query = (db.invoices_customers_orders.customers_orders_id == coID)
+        row = db(query).select(db.invoices_customers_orders.ALL).first()
+        iID = row.invoices_id
+
+    # query = (db.invoices_payments.mollie_refunds_id ==
+
+    if mollie_refunds[u'count']:
+        for refund in mollie_refunds[u'_embedded'][u'refunds']:
+            refund_id = refund[u'id']
+            amount = float(refund['settlementAmount']['value'])
+            refund_date = datetime.datetime.strptime(refund[u'createdAt'].split('+')[0],
+                                                     '%Y-%m-%dT%H:%M:%S').date()
+            try:
+                refund_description = refund[u'description']
+            except:
+                refund_description = ''
+
+            query = (db.invoices_payments.mollie_refund_id == refund_id)
+            count = db(query).count()
+
+            if not db(query).count() and iID:
+                invoice = Invoice(iID)
+
+                ipID = invoice.payment_add(
+                    amount,
+                    refund_date,
+                    payment_methods_id=100,  # Static id for Mollie payments
+                    mollie_payment_id=refund[u'paymentId'],
+                    mollie_refund_id=refund[u'id'],
+                    note=refund_description
+                )
 
 
 def webhook_invoice_chargeback(iID,
