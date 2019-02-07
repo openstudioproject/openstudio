@@ -4471,9 +4471,15 @@ def define_invoices_payments():
         Field('Note', 'text',
             represent=lambda value, row: value or '',
             label=T("Note")),
+        Field('mollie_chargeback_id',
+            readable=False,
+            writable=False),
         Field('mollie_payment_id',
             readable=False,
-            writable=False)
+            writable=False),
+        Field('mollie_refund_id',
+            readable=False,
+            writable=False),
         )
 
     # sorted_payment_methods = [dict(id='', Name=T("Please select..."))]

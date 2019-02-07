@@ -54,6 +54,10 @@ def webhook():
             payment_date = datetime.datetime.strptime(payment.paid_at.split('+')[0],
                                                       '%Y-%m-%dT%H:%M:%S').date()
 
+
+            print 'refunds'
+            print payment.refunds
+
             if coID == 'invoice':
                 if payment.chargebacks:
                     # Check if we have a chargeback
@@ -106,7 +110,11 @@ def webhook():
         return 'API call failed: {error}'.format(error=e)
 
 
-
+def _webook_payment_is_paid_process_refunds(coID, iID):
+    """
+    Process refunds
+    :return:
+    """
 
 
 def test_webhook_order_paid():
@@ -149,8 +157,6 @@ def test_webhook_invoice_chargeback():
     if not web2pytest.is_running_under_test(request, request.application):
         redirect(URL('default', 'user', args=['not_authorized']))
     else:
-        print 'processing chargeback payment'
-
         iID = request.vars['iID']
         chargeback_amount = request.vars['chargeback_amount']
         chargeback_date = request.vars['chargeback_date']
@@ -228,19 +234,23 @@ def webhook_invoice_chargeback(iID,
     """
     invoice = Invoice(iID)
 
-    ipID = invoice.payment_add(
-        chargeback_amount,
-        chargeback_date,
-        payment_methods_id=100,  # Static id for Mollie payments
-        mollie_payment_id=mollie_payment_id,
-        note="Mollie Chargeback (%s) - %s" % (chargeback_id, chargeback_details)
-    )
+    query = (db.invoices_payments.mollie_chargeback_id == chargeback_id)
+    if not db(query).count():
+        # Only process the chargeback if it hasn't been processed already
+        ipID = invoice.payment_add(
+            chargeback_amount,
+            chargeback_date,
+            payment_methods_id=100,  # Static id for Mollie payments
+            mollie_payment_id=mollie_payment_id,
+            mollie_chargeback_id=chargeback_id,
+            note="Mollie Chargeback (%s) - %s" % (chargeback_id, chargeback_details)
+        )
 
-    # Notify customer of chargeback
-    cuID = invoice.get_linked_customer_id()
-    os_mail = OsMail()
-    msgID = os_mail.render_email_template('payment_recurring_failed')
-    os_mail.send_and_archive(msgID, cuID)
+        # Notify customer of chargeback
+        cuID = invoice.get_linked_customer_id()
+        os_mail = OsMail()
+        msgID = os_mail.render_email_template('payment_recurring_failed')
+        os_mail.send_and_archive(msgID, cuID)
 
 
 @auth.requires_login()
