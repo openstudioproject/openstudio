@@ -110,8 +110,6 @@ def test_webhook_invoice_paid():
     if not web2pytest.is_running_under_test(request, request.application):
         redirect(URL('default', 'user', args=['not_authorized']))
     else:
-        print 'processing payment'
-
         iID = request.vars['iID']
         payment_amount = request.vars['payment_amount']
         payment_date = request.vars['payment_date']
@@ -153,7 +151,7 @@ def webhook_invoice_paid(iID, payment_amount, payment_date, mollie_payment_id):
         :return: None
     """
     query = (db.invoices_payments.mollie_payment_id == mollie_payment_id)
-    if not db(query).count:
+    if not db(query).count():
         # Don't process a payment twice
         invoice = Invoice(iID)
 
