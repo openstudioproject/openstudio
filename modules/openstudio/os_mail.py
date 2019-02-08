@@ -562,7 +562,7 @@ class OsMail:
                 template_content,
                 classes_otc_sub_avail_id
             )
-            title = T("Offer declined")
+            title = T("Substitute offer declined")
             description = result['description']
             content = result['content']
 
