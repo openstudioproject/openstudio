@@ -1223,6 +1223,11 @@ input.datepicker {
     font-size: 14px;
 }
 
+.skin-blue-light .main-header .logo:hover,
+.skin-blue-light .main-header .navbar .sidebar-toggle:hover {
+    background-color: #1D71BE;
+}
+
 /* AdminLTE mods end */
 
 

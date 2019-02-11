@@ -67,21 +67,40 @@
             "create_customer_error_data": {
                 "first_name": "",
                 "last_name": "",
-                "email": ""
+                "email": "",
+                "date_of_birth": "",
+                "mobile": ""
             },
             "update_customer": false,
             "update_customer_temp_data": {},
             "update_customer_error_data": {
                 "first_name": "",
                 "last_name": "",
-                "email": ""
+                "email": "",
+                "date_of_birth": "",
+                "mobile": ""
             },
             "redirect_next_component": null,
             "camera_app_snap": null,
             "camera_app_snap_saving": false,
             "camera_app_snap_saved": false
         },
+        "memberships_today": {
+            "loading": false,
+            "loaded": false,
+            "data": {}
+        },
         "memberships": {
+            "loading": false,
+            "loaded": false,
+            "data": {}
+        },
+        "subscriptions": {
+            "loading": false,
+            "loaded": false,
+            "data": {}
+        },
+        "classcards": {
             "loading": false,
             "loaded": false,
             "data": {}

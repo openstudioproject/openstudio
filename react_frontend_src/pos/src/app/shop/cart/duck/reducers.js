@@ -24,23 +24,35 @@ export const shopCartReducer = (state = {}, action={ type: null }) => {
             //TODO Find item, if item already in items, increase qty; ELSE add item
             let new_items
             let item_exists = false
-            let i = 0
+            let cart_item_index = 0
 
-            for (i = 0; i < state.items.length; i++) {
-                let item = state.items[i]
-                if ((item.product_type === action.data.product_type) && (item.data.id === action.data.data.id)) {
+            // console.log('DEBUG ADD ITEM BEGIN')
+            // console.log(action.data)
+
+            for (cart_item_index = 0; cart_item_index < state.items.length; cart_item_index++) {
+                let item = state.items[cart_item_index]
+                // console.log(item)
+
+                if ((item.item_type === action.data.item_type) && (item.data.id === action.data.data.id)) {
+                    // console.log('found match')
+                    // console.log(item.product_type)
+                    // console.log(action.data.product_type)
+                    // console.log(item.data.id)
+                    // console.log(action.data.data.id)
                     item_exists = true
                     break
                 }
             }
 
-            console.log(action.data)
+            
+            // console.log('item_exists')
+            // console.log(item_exists)
             
             if (item_exists) {
                 // increate quantity if product, don't do anything for school products
                 if (action.data.item_type === 'product') {
                     new_items = state.items.map((item, index) =>
-                        index === i ? {...item, quantity: item.quantity + 1} : item
+                        (index === cart_item_index) ? {...item, quantity: item.quantity + 1} : item
                     )
 
                     return {

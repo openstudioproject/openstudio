@@ -371,6 +371,9 @@ class Order:
         db = current.db
         T = current.T
 
+        if self.order.Status == 'delivered':
+            return
+
         create_invoice = False
         iID = None
         invoice = None
@@ -460,13 +463,14 @@ class Order:
                 )
 
                 if create_invoice:
-                    invoice.link_to_customer_subscription(csID)
-
                     # This will also add the registration fee if required.
-                    invoice.item_add_subscription(
+                    iiID = invoice.item_add_subscription(
+                        csID,
                         TODAY_LOCAL.year,
                         TODAY_LOCAL.month
                     )
+                    invoice.link_item_to_customer_subscription(csID, iiID)
+
 
             # Check for membership
             if row.school_memberships_id:
@@ -479,14 +483,12 @@ class Order:
                 )
 
                 if create_invoice:
-                    invoice.link_to_customer_membership(cmID)
-
-                    # This will also add the registration fee if required.
                     cm = CustomerMembership(cmID)
 
                     # Check if price exists and > 0:
                     if sme.row.Price:
-                        invoice.item_add_membership(cmID)
+                        iiID = invoice.item_add_membership(cmID)
+                        invoice.link_item_to_customer_membership(cmID, iiID)
 
             # Check for workshop
             if row.workshops_products_id:
@@ -565,4 +567,4 @@ class Order:
             customers_orders_id=self.coID
         )
 
-        osmail.send(msgID, self.order.auth_customer_id)
+        osmail.send_and_archive(msgID, self.order.auth_customer_id)

@@ -48,7 +48,7 @@ class OsSchedulerTasks:
             db.school_subscriptions_price.tax_rates_id,
             db.tax_rates.Percentage,
             db.customers_subscriptions_paused.id,
-            db.invoices.id,
+            db.invoices_items.id,
             csap.id,
             csap.Amount,
             csap.Description
@@ -67,7 +67,7 @@ class OsSchedulerTasks:
                        ssp.tax_rates_id,
                        tr.Percentage,
                        csp.id,
-                       i.invoices_id,
+                       ii.invoices_items_id,
                        csap.id,
                        csap.Amount,
                        csap.Description
@@ -97,13 +97,14 @@ class OsSchedulerTasks:
                         (Enddate >= '{firstdaythismonth}' OR Enddate IS NULL)) csp
                  ON cs.id = csp.customers_subscriptions_id
                 LEFT JOIN
-                 (SELECT ics.id,
-                         ics.invoices_id,
-                         ics.customers_subscriptions_id
-                  FROM invoices_customers_subscriptions ics
-                  LEFT JOIN invoices on ics.invoices_id = invoices.id
-                  WHERE invoices.SubscriptionYear = {year} AND invoices.SubscriptionMonth = {month}) i
-                 ON i.customers_subscriptions_id = cs.id
+                 (SELECT iics.id,
+                         iics.invoices_items_id,
+                         iics.customers_subscriptions_id
+                  FROM invoices_items_customers_subscriptions iics
+                  LEFT JOIN invoices_items ON iics.invoices_items_id = invoices_items.id
+                  LEFT JOIN invoices ON invoices_items.invoices_id = invoices.id
+                  WHERE invoices.SubscriptionYear = {year} AND invoices.SubscriptionMonth = {month}) ii
+                 ON ii.customers_subscriptions_id = cs.id
                 LEFT JOIN
                  (SELECT id,
                          customers_subscriptions_id,
@@ -130,7 +131,7 @@ class OsSchedulerTasks:
 
         # Alright, time to create some invoices
         for row in rows:
-            if row.invoices.id:
+            if row.invoices_items.id:
                 # an invoice already exists, do nothing
                 continue
             if row.customers_subscriptions_paused.id:
@@ -178,8 +179,8 @@ class OsSchedulerTasks:
             # create object to set Invoice# and due date
             invoice = Invoice(iID)
             invoice.link_to_customer(cuID)
-            invoice.link_to_customer_subscription(csID)
-            invoice.item_add_subscription(year, month)
+            iiID = invoice.item_add_subscription(csID, year, month)
+            invoice.link_item_to_customer_subscription(csID, iiID)
             invoice.set_amounts()
 
             invoices_created += 1
@@ -256,8 +257,9 @@ class OsSchedulerTasks:
             if customer.has_membership_on_date(new_cm_start):
                 continue
 
+            day_after_current_membership_end = row.Enddate + datetime.timedelta(days=1)
             # Ok all good, continue
-            if customer.has_subscription_on_date(firstdaynextmonth, from_cache=False):
+            if customer.has_subscription_on_date(day_after_current_membership_end, from_cache=False):
                 new_cm_start = row.Enddate + datetime.timedelta(days=1)
 
                 school_membership = SchoolMembership(row.school_memberships_id)
@@ -335,3 +337,102 @@ class OsSchedulerTasks:
         return T("m_openstudio_os_scheduler_tasks_exact_online_sync_invoices_return") + ': (' + \
                unicode(count_synced) + ' / ' + \
                unicode(count_errors) + ')'
+
+
+    def email_teachers_sub_requests_daily_summary(self):
+        """
+        Send a daily summary of open sub requests to each teacher for the classtypes
+        they're allowed to teach
+        :return:
+        """
+        from openstudio.os_mail import OsMail
+        from openstudio.os_teachers import Teachers
+
+        db = current.db
+        T = current.T
+        os_mail = OsMail()
+
+        # Get list of teachers
+        teachers = Teachers()
+        teacher_id_rows = teachers.get_teacher_ids()
+
+        mails_sent = 0
+        for row in teacher_id_rows:
+            os_mail = OsMail()
+            result = os_mail.render_email_template(
+                'teacher_sub_requests_daily_summary',
+                auth_user_id=row.id,
+                return_html=True
+            )
+
+            send_result = False
+            if not result['error']:
+                send_result = os_mail.send(
+                    message_html=result['html_message'],
+                    message_subject=T("Daily summary - open classes"),
+                    auth_user_id=row.id
+                )
+
+            if send_result:
+                mails_sent += 1
+
+        return T("Sent mails: %s" % mails_sent)
+
+
+    def email_reminders_teachers_sub_request_open(self):
+        """
+        Send teachers reminders when a sub for their class hasn't been found yet.
+        :return:
+        """
+        from openstudio.os_class import Class
+        from openstudio.os_mail import OsMail
+        from openstudio.os_sys_email_reminders import SysEmailReminders
+
+        T = current.T
+        db = current.db
+        TODAY_LOCAL = current.TODAY_LOCAL
+
+        # Check if reminders configured
+        sys_reminders = SysEmailReminders('teachers_sub_request_open')
+        reminders = sys_reminders.list()
+
+        mails_sent = 0
+        for reminder in reminders:
+            # Get list of open classes on reminder date
+            reminder_date = TODAY_LOCAL + datetime.timedelta(reminder.Days)
+
+            query = (db.classes_otc.Status == 'open') & \
+                    (db.classes_otc.ClassDate == reminder_date)
+
+            rows = db(query).select(db.classes_otc.ALL)
+            for row in rows:
+                clsID = row.classes_id
+                cls = Class(clsID, row.ClassDate)
+                regular_teachers = cls.get_regular_teacher_ids()
+
+                if not regular_teachers['error']:
+                    auth_teacher_id = regular_teachers['auth_teacher_id']
+                    teacher = db.auth_user(auth_teacher_id)
+
+                    os_mail = OsMail()
+                    result = os_mail.render_email_template(
+                        'teacher_sub_request_open_reminder',
+                        classes_otc_id=row.id,
+                        return_html=True
+                    )
+
+                    send_result = False
+                    if not result['error']:
+                        send_result = os_mail.send(
+                            message_html=result['html_message'],
+                            message_subject=T("Reminder - open class"),
+                            auth_user_id=auth_teacher_id
+                        )
+
+                    if send_result:
+                        mails_sent += 1
+
+            # send reminder to teacher
+
+        return T("Sent mails: %s" % mails_sent)
+

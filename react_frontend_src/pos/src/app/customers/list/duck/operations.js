@@ -3,6 +3,8 @@ import {
     receiveCustomers,
     requestCreateCustomer,
     receiveCreateCustomer,
+    clearCreateCustomerErrorData,
+    clearUpdateCustomerErrorData,
     requestUpdateCustomer,
     receiveUpdateCustomer,
     requestSaveCameraAppSnap,
@@ -72,6 +74,7 @@ const createCustomer = (data) => {
 
         axios_os.post(OS_API.CUSTOMER_CREATE, data)
         .then(function(response) {
+            console.log(response)
             dispatch(receiveCreateCustomer(response.data))
         })
         .catch(function (error) {
@@ -125,6 +128,8 @@ const updateCustomerPicture = (cuID, picture) => {
 
 export default {
     createCustomer,
+    clearCreateCustomerErrorData,
+    clearUpdateCustomerErrorData,
     updateCustomer,
     updateCustomerPicture,
     fetchCustomers,

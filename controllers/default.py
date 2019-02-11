@@ -72,12 +72,12 @@ def user():
     auth.messages.verify_email = osmail.render_email_template(
         'sys_verify_email',
         return_html=True
-    )
+    )['html_message']
     # auth.messages.reset_password = 'Click on the link %(link)s to reset your password'
     auth.messages.reset_password = osmail.render_email_template(
         'sys_reset_password',
         return_html=True
-    )
+    )['html_message']
     # Log registration accepted terms (if any)
 
     auth.settings.register_onaccept.append(user_register_log_acceptance)

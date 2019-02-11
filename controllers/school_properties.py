@@ -906,6 +906,7 @@ def subscriptions():
                db.school_subscriptions.sys_organizations_id,
                db.school_subscriptions.Classes,
                db.school_subscriptions.SubscriptionUnit,
+               db.school_subscriptions.MinDuration,
                db.school_subscriptions.ShopSubscription,
                db.school_subscriptions.PublicSubscription,
                db.school_subscriptions.SortOrder,
@@ -929,7 +930,7 @@ def subscriptions():
         details=False,
         searchable=False,
         csv=False,
-        orderby = ~db.school_subscriptions.SortOrder|db.school_subscriptions.Name,
+        orderby = db.school_subscriptions.SortOrder|db.school_subscriptions.Name,
         ui = grid_ui)
     grid.element('.web2py_counter', replace=None) # remove the counter
     grid.elements('span[title=Delete]', replace=None) # remove text from delete button

@@ -972,8 +972,8 @@ def invoice():
                         ))
     items.append(tfoot)
 
-    invoice_terms = XML(invoice.invoice.Terms.replace('\n', '<br>'))
-    invoice_footer = XML(invoice.invoice.Footer.replace('\n', '<br>'))
+    invoice_terms = XML(invoice.invoice.Terms.replace('\n', '<br>') if invoice.invoice.Terms else '')
+    invoice_footer = XML(invoice.invoice.Footer.replace('\n', '<br>') if invoice.invoice.Footer else '')
 
     header_tools = DIV(
         os_gui.get_button(

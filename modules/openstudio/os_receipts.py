@@ -53,9 +53,9 @@ class Receipts:
 
         fields = [
             db.receipts.id,
-            db.receipts.Created_by,
+            db.receipts.CreatedBy,
             db.receipts.payment_methods_id,
-            db.receipts.Created_at,
+            db.receipts.CreatedOn,
         ]
 
         links = [

@@ -163,6 +163,7 @@ def edit_remodel_form(form,
         )
     if not contact_permission:
         # hide contact info
+        mail_button = ''
         form.custom.label.phone = ''
         form.custom.widget.phone = ''
         form.custom.label.mobile = ''
@@ -345,11 +346,78 @@ def edit_remodel_form(form,
                                          'latest_length':140}),
                                 _class='os-customers_note_latest')
 
-            te_notes = DIV(
-                DIV(LABEL(te_label),
-                    te_note, te_button,
-                    _class='col-md-12 no-padding-left no-padding-right'),
-                _class='col-md-6')
+    # address info
+    # check for address permissions
+    address_permission = auth.has_membership(group_id='Admins') or \
+                         auth.has_permission('update', 'customers_address')
+
+    address_header = DIV(H3(T('Address')), _class='col-md-12')
+    if not address_permission:
+        # hide contact info
+        address_header = ''
+        form.custom.label.address = ''
+        form.custom.widget.address = ''
+        form.custom.label.postcode = ''
+        form.custom.widget.postcode = ''
+        form.custom.label.city = ''
+        form.custom.widget.city = ''
+        form.custom.label.country = ''
+        form.custom.widget.country = ''
+
+    div_address = DIV(
+            address_header,
+            DIV(DIV(LABEL(form.custom.label.address),
+                    form.custom.widget.address,
+                    _class='col-md-3'),
+                DIV(LABEL(form.custom.label.postcode),
+                    form.custom.widget.postcode,
+                    _class='col-md-3'),
+                DIV(LABEL(form.custom.label.city),
+                    form.custom.widget.city,
+                    _class='col-md-3'),
+                DIV(LABEL(form.custom.label.country),
+                    form.custom.widget.country,
+                    _class='col-md-3'),
+
+            ),
+        _class='col-md-12 customers_edit_address_info')
+
+    # business info
+    div_business = DIV(
+        DIV(
+            H3(T("Studio"), _class='col-md-12'),
+            DIV(DIV(LABEL(form.custom.label.school_levels_id),
+                    form.custom.widget.school_levels_id,
+                    _class='col-md-6'),
+                DIV(LABEL(form.custom.label.school_discovery_id),
+                    form.custom.widget.school_discovery_id,
+                    _class='col-md-6'),
+                DIV(LABEL(form.custom.label.keynr),
+                    form.custom.widget.keynr,
+                    _class='col-md-6'),
+                DIV(LABEL(form.custom.label.barcode_id),
+                    form.custom.widget.barcode_id,
+                    _class='col-md-6'),
+                DIV(LABEL(location_label),
+                    location_widget,
+                    _class='col-md-12'),
+            ),
+            _class='col-md-6 no-padding-left no-padding-right'),
+        DIV(
+            H3(form.custom.widget.business, ' ', T("Business"), _class='col-md-12'),
+            DIV(DIV(LABEL(T("Company name")),
+                    form.custom.widget.company,
+                    _class='col-md-12'),
+                DIV(LABEL(T("Company registration ID")),
+                    form.custom.widget.company_registration,
+                    _class='col-md-6'),
+                DIV(LABEL(T("Company tax registration ID")),
+                    form.custom.widget.company_tax_registration,
+                    _class='col-md-6'),
+                ),
+            _class='col-md-6 no-padding-left no-padding-right'),
+        _class='col-md-12'
+    )
 
     notes = DIV(
         DIV(H3(T('Notes')), _class='col-md-12'),
@@ -1233,7 +1301,7 @@ def customers_get_menu(customers_id, page=None):
         ])
 
     if auth.has_membership(group_id='Admins') or \
-       auth.has_permission('read', 'customers_payments'):
+       auth.has_permission('read', 'customers_payments_info'):
         more.append([
             'bankaccount',
             (os_gui.get_fa_icon('fa-university'), ' ', T("Finance")),
@@ -1464,10 +1532,13 @@ def classcards():
                       'customers_classcards.Note' : 20}
 
     left = [
-        db.invoices_customers_classcards.on(
-            db.invoices_customers_classcards.customers_classcards_id ==
+        db.invoices_items_customers_classcards.on(
+            db.invoices_items_customers_classcards.customers_classcards_id ==
             db.customers_classcards.id),
-        db.invoices.on(db.invoices_customers_classcards.invoices_id ==
+        db.invoices_items.on(
+            db.invoices_items_customers_classcards.invoices_items_id ==
+            db.invoices_items.id),
+        db.invoices.on(db.invoices_items.invoices_id ==
                        db.invoices.id) ]
 
     links = [ dict(header=T('Classes'), body=classcards_count_classes),
@@ -2947,8 +3018,14 @@ def subscription_add():
 
     crud.messages.submit_button = T("Save")
     crud.messages.record_created = T("Added subscription")
+    crud.settings.formstyle = "bootstrap3_stacked"
     crud.settings.create_next = return_url
-    crud.settings.create_onaccept = [subscriptions_clear_cache, subscription_add_add_credits]
+    crud.settings.create_onaccept = [
+        subscriptions_clear_cache,
+        subscription_add_add_credits,
+        subscription_add_create_invoice
+
+    ]
     form = crud.create(db.customers_subscriptions)
 
     element_form = form.element('form')
@@ -2960,10 +3037,11 @@ def subscription_add():
 
     submit = form.element('input[type=submit]')
 
-    subscr_back = os_gui.get_button('back_bs', URL('subscriptions', vars={'cuID':customers_id}))
-    content = DIV(subscr_back, form)
-
-    back = os_gui.get_button("back", return_url, _class='')
+    back = os_gui.get_button('back', URL('subscriptions', vars={'cuID':customers_id}))
+    content = DIV(
+        H4(T("Add subscription")), BR(),
+        form
+    )
 
     menu = customers_get_menu(customers_id, 'subscriptions')
 
@@ -2979,6 +3057,34 @@ def subscription_add_add_credits(form):
 
     cs = CustomerSubscription(csID)
     cs.add_credits_month(date.year, date.month)
+
+
+def subscription_add_create_invoice(form):
+    """
+    Create invoice when adding a subscription
+    """
+    csID = form.vars.id
+    date = form.vars.Startdate
+    year = date.year
+    month = date.month
+
+    igpt = db.invoices_groups_product_types(ProductType='subscription')
+    igID = igpt.invoices_groups_id
+
+    iID = db.invoices.insert(
+        invoices_groups_id=igID,
+        payment_methods_id=form.vars.payment_methods_id,
+        customers_subscriptions_id=csID,
+        SubscriptionYear=year,
+        SubscriptionMonth=month,
+        Description=T("Subscription"),
+        Status='sent'
+    )
+
+    invoice = Invoice(iID)
+    invoice.link_to_customer(request.vars['cuID'])
+    iiID = invoice.item_add_subscription(csID, year, month)
+    invoice.link_item_to_customer_subscription(csID, iiID)
 
 
 @auth.requires_login()
@@ -3058,7 +3164,7 @@ def subscription_delete():
     cs = CustomerSubscription(csID)
     response.subtitle = SPAN(T("Delete subscription"), ': ', cs.name)
 
-    query = (db.invoices_customers_subscriptions.customers_subscriptions_id == csID)
+    query = (db.invoices_items_customers_subscriptions.customers_subscriptions_id == csID)
     invoice_count = db(query).count()
 
     if invoice_count:
@@ -3918,7 +4024,7 @@ def payments_get_submenu(page, cuID):
     pages = []
 
     if auth.has_membership(group_id='Admins') or \
-       auth.has_permission('read', 'customers_payments'):
+       auth.has_permission('read', 'customers_payments_info'):
         pages.append(
             [
                 'bankaccount',
@@ -3954,7 +4060,7 @@ def payments_delete_payment_info(form):
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'customers_payments'))
+               auth.has_permission('read', 'customers_payments_info'))
 def mollie_mandates():
     """
         Lists mollie mandates for customer
@@ -3983,8 +4089,7 @@ def mollie_mandates():
                 back=back)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('update', 'customers_payments'))
+@auth.requires_login()
 def bankaccount():
     """
         Lists bank account info
@@ -4302,7 +4407,7 @@ def bankaccount_mandate_delete():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'customers_payments'))
+               auth.has_permission('read', 'customers_payments_info'))
 def direct_debit_extra():
     """
         List direct debit extra lines
@@ -4735,7 +4840,6 @@ def events():
     session.invoices_payment_add_back = 'customers_events'
     # To redirect back here after sending info mail
     session.workshops_ticket_resend_info_mail = 'customers_events'
-
 
     session.workshops_payment_back = 'customer'
     customer = Customer(cuID)
@@ -5797,7 +5901,7 @@ def account_merge():
     cuID = request.vars['cuID']
     customer = Customer(cuID)
     response.title = customer.get_name()
-    response.subtitle = T("Merge account")
+    response.subtitle = T("Account")
 
     warning = ''
     if 'auth_merge_id' in request.vars:
@@ -6477,12 +6581,16 @@ def memberships():
     table = TABLE(header, _class='table table-hover table-striped')
 
     left = [
-        db.invoices_customers_memberships.on(
-            db.invoices_customers_memberships.customers_memberships_id ==
+        db.invoices_items_customers_memberships.on(
+            db.invoices_items_customers_memberships.customers_memberships_id ==
             db.customers_memberships.id
         ),
+        db.invoices_items.on(
+            db.invoices_items_customers_memberships.invoices_items_id ==
+            db.invoices_items.id
+        ),
         db.invoices.on(
-            db.invoices_customers_memberships.invoices_id ==
+            db.invoices_items.invoices_id ==
             db.invoices.id
         )
     ]
@@ -6559,30 +6667,35 @@ def memberships_get_link_edit(row):
     vars = {'cuID': row.customers_memberships.auth_customer_id,
             'cmID': cmID}
 
+    # menu = ''
+    # permission = ( auth.has_membership(group_id='Admins') or
+    #                auth.has_permission('update', 'customers_memberships') )
+    # if permission:
+    #     links = []
+    #     link_edit = A((os_gui.get_fa_icon('fa-pencil'), T('Edit')),
+    #                   _href=URL('membership_edit', vars=vars))
+    #     links.append(link_edit)
+    #
+    #
+    #     menu = os_gui.get_dropdown_menu(
+    #         links=links,
+    #         btn_text='',
+    #         btn_size='btn-sm',
+    #         btn_icon='pencil',
+    #         menu_class='btn-group pull-right')
 
-
-    links = [
-        A((os_gui.get_fa_icon('fa-barcode'), ' ', T('Barcode label')),
-          _href=URL('barcode_label_membership', vars={'cmID': cmID}),
-          _target="_blank")
-    ]
-
+    edit = ''
     permission = ( auth.has_membership(group_id='Admins') or
                    auth.has_permission('update', 'customers_memberships') )
+
     if permission:
-        link_edit = A((os_gui.get_fa_icon('fa-pencil'), T('Edit')),
-                      _href=URL('membership_edit', vars=vars))
-        links.append(link_edit)
+        edit = os_gui.get_button(
+            'edit',
+            URL('membership_edit', vars=vars),
+            _class='pull-right'
+        )
 
-
-    menu = os_gui.get_dropdown_menu(
-        links=links,
-        btn_text='',
-        btn_size='btn-sm',
-        btn_icon='pencil',
-        menu_class='btn-group pull-right')
-
-    return menu
+    return edit
 
 
 def memberships_get_link_invoice(row):
@@ -6648,7 +6761,6 @@ def membership_add():
         onaccept = [
             membership_add_set_enddate,
             membership_add_create_invoice,
-            membership_add_set_date_id,
             memberships_clear_cache,
         ]
     )
@@ -6699,17 +6811,6 @@ def membership_add_set_enddate(form):
     row.update_record()
 
 
-def membership_add_set_date_id(form):
-    """
-        Set db.customers_memberships.DateID field
-    """
-    from openstudio.os_customer_membership import CustomerMembership
-
-    cmID = form.vars.id
-    cm = CustomerMembership(cmID)
-    cm.set_date_id_and_barcode()
-
-
 def membership_edit_get_subtitle(cmID):
     """
         Returns subtitle for subscription edit pages
@@ -6730,30 +6831,6 @@ def membership_edit_get_back(cuID):
         _class='')
 
 
-def membership_edit_get_menu(cuID, cmID, page):
-    """
-        Returns submenu for subscription edit pages
-    """
-    vars = { 'cuID':cuID,
-             'cmID':cmID }
-
-    pages = []
-
-    if auth.has_membership(group_id='Admins') or \
-       auth.has_permission('update', 'customers_memberships'):
-        pages.append(['membership_edit',
-                      SPAN(os_gui.get_fa_icon('fa-edit'), ' ', T("Edit")),
-                      URL('membership_edit', vars=vars)])
-
-    if auth.has_membership(group_id='Admins') or \
-       auth.has_permission('read', 'invoices'):
-        pages.append(['membership_invoices',
-                      SPAN(os_gui.get_fa_icon('fa-file-o'), ' ', T("Invoices")),
-                      URL('membership_invoices', vars=vars)])
-
-    return os_gui.get_submenu(pages, page, horizontal=True, htype='tabs')
-
-
 @auth.requires_login()
 def membership_edit():
     """
@@ -6766,7 +6843,7 @@ def membership_edit():
 
     cuID = request.vars['cuID']
     cmID = request.vars['cmID']
-    response.view = 'general/tabs_menu.html'
+    response.view = 'general/only_content.html'
 
     session.invoices_edit_back = 'customers_membership_invoices'
     session.invoices_payment_add_back = 'customers_membership_invoices'
@@ -6796,12 +6873,10 @@ def membership_edit():
 
     form = result['form']
     back = membership_edit_get_back(cuID)
-    menu = membership_edit_get_menu(cuID, cmID, request.function)
 
     return dict(content=form,
                 save=result['submit'],
-                back=back,
-                menu=menu)
+                back=back)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -6841,17 +6916,3 @@ def barcode_label():
     customer = Customer(cuID)
 
     return customer.get_barcode_label()
-
-
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'customers_memberships'))
-def barcode_label_membership():
-    """
-        Preview barcode label
-    """
-    from openstudio.os_customer_membership import CustomerMembership
-
-    cmID = request.vars['cmID']
-    cm = CustomerMembership(cmID)
-
-    return cm.get_barcode_label()

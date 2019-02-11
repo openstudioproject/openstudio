@@ -122,8 +122,6 @@ def test_customers_address_info(client, web2py):
     assert client.status == 200
     assert "Insufficient privileges" in client.text
 
-    gid = 2
-
     web2py.auth.add_permission(200, 'read', 'auth_user', 0)
     web2py.auth.add_permission(200, 'update', 'auth_user', 0)
     web2py.db.commit()
@@ -131,12 +129,14 @@ def test_customers_address_info(client, web2py):
     str_check = "<label>Country</label>"
     client.get(url)
     assert client.status == 200
+    assert "Insufficient privileges" not in client.text
     assert not str_check in client.text
 
     web2py.auth.add_permission(200, 'update', 'customers_address', 0)
     web2py.db.commit()
     client.get(url)
     assert client.status == 200
+
     assert str_check in client.text
 
 
@@ -1185,7 +1185,7 @@ def test_customer_direct_debit_extra_delete(client, web2py):
         Amount             = 100,
         Description        = 'test')
 
-    web2py.auth.add_permission(200, 'read', 'customers_payments', 0)
+    web2py.auth.add_permission(200, 'read', 'customers_payments_info', 0)
     web2py.auth.add_permission(200, 'read', 'alternativepayments', 0)
     web2py.db.commit()
 

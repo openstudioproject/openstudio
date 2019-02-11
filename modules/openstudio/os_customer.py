@@ -562,7 +562,7 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         db = current.db
         TODAY_LOCAL = current.TODAY_LOCAL
 
-        db_icwspc = db.invoices_workshops_products_customers
+        db_iicwspc = db.invoices_items_workshops_products_customers
 
 
         orderby = ~db.workshops.Startdate
@@ -583,10 +583,14 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
                 db.workshops_products_customers.workshops_products_id),
                 db.workshops.on(db.workshops_products.workshops_id == \
                                 db.workshops.id),
-                db.invoices_workshops_products_customers.on(
-                    db_icwspc.workshops_products_customers_id ==
+                db.invoices_items_workshops_products_customers.on(
+                    db_iicwspc.workshops_products_customers_id ==
                     db.workshops_products_customers.id),
-                db.invoices.on(db_icwspc.invoices_id == db.invoices.id)
+                db.invoices_items.on(
+                    db_iicwspc.invoices_items_id ==
+                    db.invoices_items.id
+                ),
+                db.invoices.on(db.invoices_items.invoices_id == db.invoices.id)
             ],
             orderby=~db.workshops.Startdate)
 
@@ -839,10 +843,13 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         LEFT JOIN customers_classcards cd ON cd.id = clatt.customers_classcards_id
         LEFT JOIN school_classcards scd ON scd.id = cd.school_classcards_id
         LEFT JOIN
-            invoices_classes_attendance ica
-            ON ica.classes_attendance_id = clatt.id
+            invoices_items_classes_attendance iica
+            ON iica.classes_attendance_id = clatt.id
         LEFT JOIN
-            invoices inv ON ica.invoices_id = inv.id
+            invoices_items ii 
+            ON iica.invoices_items_id = ii.id
+        LEFT JOIN
+            invoices inv ON ii.invoices_id = inv.id
         LEFT JOIN
             ( SELECT id,
                      classes_id,
@@ -1173,6 +1180,16 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         )
 
 
+    def set_barcode_id(self):
+        """
+        Set barcode id field for customer
+        """
+        if self.row.barcode_id is None or self.row.barcode_id == '':
+            self.row.barcode_id = unicode(self.cuID).zfill(14)
+
+        self.row.update_record()
+
+
     def set_barcode(self):
         """
             Create barcode file for this customer
@@ -1186,7 +1203,7 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
 
         CODE39 = barcode.get_barcode_class('code39')
         code39_barcode = CODE39(
-            unicode(self.cuID),
+            unicode(self.row.barcode_id).zfill(14),
             writer=ImageWriter(),
             add_checksum=False
         )
@@ -1207,8 +1224,9 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         }
         '''
 
-        code39_barcode.default_writer_options['module_height'] = 5
-        code39_barcode.default_writer_options['font_size'] = 7
+        code39_barcode.default_writer_options['module_width'] = 0.2
+        code39_barcode.default_writer_options['module_height'] = 12
+        code39_barcode.default_writer_options['font_size'] = 10
         code39_barcode.default_writer_options['text_distance'] = 0.5
 
         code39_barcode.write(stream)
@@ -1229,8 +1247,12 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         get_sys_property = current.globalenv['get_sys_property']
         response = current.response
 
-        template = get_sys_property('branding_default_template_barcode_label_customer') or 'barcode_label_customer/default.html'
+        template = get_sys_property('branding_default_template_barcode_label_customer') or \
+                  'barcode_label_customer/default.html'
         template_file = 'templates/' + template
+
+        if not self.row.barcode_id:
+            self.set_barcode_id()
 
         if not self.row.barcode:
             self.set_barcode()

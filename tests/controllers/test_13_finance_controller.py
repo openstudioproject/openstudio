@@ -158,7 +158,7 @@ def test_employee_expenses_accepted_page(client, web2py):
     assert 'Accepted Expense' in client.text
 
 
-def test_employee_claims_process_accepted(client, web2py):
+def test_employee_expenses_process_accepted(client, web2py):
     """Check if a claim can be moved to accepted"""
     from populate_os_tables import populate_employee_claims
 
@@ -176,36 +176,23 @@ def test_employee_claims_process_accepted(client, web2py):
     assert web2py.db(web2py.db.employee_claims.Status == 'processed').count() == 2
     assert web2py.db(web2py.db.invoices).count() >= 1
 
-    # assert ((web2py.db.invoices.Description == 'Expenses'))
+    # Get first invoice with employee claim set to true and check description
+    query = (web2py.db.invoices.EmployeeClaim == True)
+    invoice = web2py.db(query).select().first()
+    assert invoice.Description == 'Expenses'
 
-    query = ((web2py.db.invoices.Description == 'Expenses')&\
-             (web2py.db.invoices.EmployeeClaim == True))
-    row = web2py.db(query).select().first()
-    assert query
-    InECquery = (web2py.db.invoices_employee_claims.invoices_id == row.id)
-    InECrows = web2py.db(InECquery).select()
+    # Check invoice items
+    query = (web2py.db.invoices_items_employee_claims.id > 0)
+    rows = web2py.db(query).select(web2py.db.invoices_items_employee_claims.ALL)
 
-    for i, row in enumerate(InECrows):
+    for i, row in enumerate(rows):
+        claim = web2py.db.employee_claims(row.employee_claims_id)
+        invoice_item = web2py.db.invoices_items(row.invoices_items_id)
 
-        ECquery= (web2py.db.employee_claims.id == row.employee_claims_id)
-        ECrow= web2py.db(ECquery).select().first()
-
-        assert ((web2py.db.invoices_items.invoices_id == row.id) & \
-                (web2py.db.invoices_items.Description == ECrow.Description) & \
-                (web2py.db.invoices_items.Quantity == ECrow.Quantity) &\
-                (web2py.db.invoices_items.Price == ECrow.Amount * -1) &\
-                (web2py.db.invoices_items.TotalPrice == (ECrow.Amount * -1 * ECrow.Quantity))
-                )
-
-
-    assert ((web2py.db.invoices.Description == 'Expenses'))
-
-    assert ((web2py.db.invoices_items.invoices_id==1)&\
-            (web2py.db.invoices_items.Description == 'Accepted Expense')&\
-            (web2py.db.invoices_items.TotalPrice == -15 ))
-
-
-
+        assert invoice_item.Description == claim.Description
+        assert invoice_item.Quantity == claim.Quantity
+        assert invoice_item.Price == claim.Amount * -1
+        assert invoice_item.TotalPriceVAT == (claim.Amount * -1) * claim.Quantity
 
 
 def test_employee_expenses_processed_page(client, web2py):
@@ -718,10 +705,6 @@ def test_add_batch_invoices_without_zero_lines(client, web2py):
     client.get(inv_url)
     assert client.status == 200
 
-    data = {'description':'Default invoice description'}
-    client.post(inv_url, data=data)
-    assert client.status == 200
-
     # go back to the page where we have to submit the data for the new batch
     client.get(url)
     assert client.status == 200
@@ -771,10 +754,6 @@ def test_add_batch_invoices_with_zero_lines(client, web2py):
               'test_create_invoices' + \
               '?month=1&year=2014&description=Subscription_Jan'
     client.get(inv_url)
-    assert client.status == 200
-
-    data = {'description':'Default invoice description'}
-    client.post(inv_url, data=data)
     assert client.status == 200
 
     # remove the amount for 1 invoice
@@ -844,10 +823,6 @@ def test_add_batch_invoices_location(client, web2py):
               'test_create_invoices' + \
               '?month=1&year=2014&description=Subscription_Jan'
     client.get(inv_url)
-    assert client.status == 200
-
-    data = {'description':'Default invoice description'}
-    client.post(inv_url, data=data)
     assert client.status == 200
 
     # back to the place where we want to be to create a batch
@@ -993,10 +968,6 @@ def test_invoices_batch_set_status_sent_to_bank_add_payments(client, web2py):
                   'test_create_invoices' + \
                   '?month=1&year=2014&description=Subscription_Jan'
     client.get(inv_url)
-    assert client.status == 200
-
-    data = {'description':'Default invoice description'}
-    client.post(inv_url, data=data)
     assert client.status == 200
 
     # go back to the page where we have to submit the data for the new batch

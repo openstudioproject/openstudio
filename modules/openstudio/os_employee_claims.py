@@ -29,12 +29,16 @@ class EmployeeClaims:
             orderby = db.employee_claims.auth_user_id
 
         left = [
-            db.invoices_employee_claims.on(
-                db.invoices_employee_claims.employee_claims_id ==
+            db.invoices_items_employee_claims.on(
+                db.invoices_items_employee_claims.employee_claims_id ==
                 db.employee_claims.id
             ),
+            db.invoices_items.on(
+              db.invoices_items_employee_claims.invoices_items_id ==
+              db.invoices_items.id
+            ),
             db.invoices.on(
-                db.invoices_employee_claims.invoices_id ==
+                db.invoices_items.invoices_id ==
                 db.invoices.id
             )
         ]
@@ -43,12 +47,14 @@ class EmployeeClaims:
 
         rows = db(query).select(
             db.employee_claims.ALL,
-            db.invoices_employee_claims.ALL,
+            db.invoices_items_employee_claims.ALL,
             db.invoices.ALL,
             left=left,
             orderby=orderby,
             limitby=limitby
         )
+
+        print rows
 
         if not formatted:
             return rows
@@ -164,7 +170,7 @@ class EmployeeClaims:
         """
         Display claim attachments in a modal
         """
-        if not row.invoices_employee_claims.id:
+        if not row.invoices_items_employee_claims.id:
             return ''
 
         T = current.T
@@ -224,14 +230,14 @@ class EmployeeClaims:
         links.append(['header', T('Actions')])
 
         links.append(A(os_gui.get_fa_icon('fa-check'), T("Accept"),
-                       _href=URL( 'employee_claims_accept',
+                       _href=URL( 'employee_expenses_accept',
                                  vars={'ecID': row.employee_claims.id}),
                        _class='text-green'
                        ))
         links.append('divider')
 
         links.append(A(os_gui.get_fa_icon('fa-ban'), T("Reject"),
-                       _href=URL('employee_claims_reject',
+                       _href=URL('employee_expenses_reject',
                                  vars={'ecID': row.employee_claims.id}),
                        _class='text-red',
                        ))
@@ -262,7 +268,7 @@ class EmployeeClaims:
         links.append(['header', T('Actions')])
 
         links.append(A(os_gui.get_fa_icon('fa-ban'), T("Reject"),
-                       _href=URL( 'employee_claims_reject',
+                       _href=URL( 'employee_expenses_reject',
                                  vars={'ecID': row.employee_claims.id}),
                        _class='text-red'))
         links.append('divider')
@@ -298,7 +304,7 @@ class EmployeeClaims:
         links.append(['header', T('Actions')])
 
         links.append(A(os_gui.get_fa_icon('fa-check'), T("Accept"),
-                       _href=URL( 'employee_claims_accept',
+                       _href=URL( 'employee_expenses_accept',
                                  vars={'ecID': row.employee_claims.id}),
                        _class='text-green'))
         links.append('divider')

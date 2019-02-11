@@ -545,9 +545,6 @@ class Invoice:
 
             description = cls.get_invoice_order_description(1) # 1 = trial class
 
-        # link invoice to attendance
-        self.link_to_classes_attendance(caID)
-
         next_sort_nr = self.get_item_next_sort_nr()
         iiID = db.invoices_items.insert(
             invoices_id=self.invoices_id,
@@ -561,6 +558,9 @@ class Invoice:
             accounting_costcenters_id=costcenter
         )
 
+        # link invoice to attendance
+        self.link_item_to_classes_attendance(caID, iiID)
+        # link to customer
         self.link_to_customer(cuID)
         # This calls self.on_update()
         self.set_amounts()
@@ -594,12 +594,6 @@ class Invoice:
             # Drop in
             glaccount = prices['dropin_glaccount']
 
-        # link invoice to attendance
-        db.invoices_classes_attendance.insert(
-            invoices_id=self.invoices_id,
-            classes_attendance_id=caID
-        )
-
         # add item to invoice
         next_sort_nr = self.get_item_next_sort_nr()
 
@@ -613,6 +607,11 @@ class Invoice:
             tax_rates_id=order_item_row.tax_rates_id,
             accounting_glaccounts_id=order_item_row.accounting_glaccounts_id,
             accounting_costcenters_id=order_item_row.accounting_costcenters_id,
+        )
+
+        self.link_item_to_classes_attendance(
+            caID,
+            iiID
         )
 
         # This calls self.on_update()
@@ -632,11 +631,6 @@ class Invoice:
         T  = current.T
 
         classcard = CustomerClasscard(ccdID)
-        # link invoice to classcard sold to customer
-        db.invoices_customers_classcards.insert(
-            invoices_id=self.invoices_id,
-            customers_classcards_id=ccdID
-        )
 
         # add item to invoice
         next_sort_nr = self.get_item_next_sort_nr()
@@ -652,6 +646,12 @@ class Invoice:
             tax_rates_id=classcard.school_classcard.tax_rates_id,
             accounting_glaccounts_id=classcard.school_classcard.accounting_glaccounts_id,
             accounting_costcenters_id=classcard.school_classcard.accounting_costcenters_id
+        )
+
+        # link invoice item to classcard sold to customer
+        db.invoices_items_customers_classcards.insert(
+            invoices_items_id=iiID,
+            customers_classcards_id=ccdID
         )
 
         # This calls self.on_update()
@@ -672,11 +672,6 @@ class Invoice:
         wspc = db.workshops_products_customers(wspcID)
         wsp = db.workshops_products(wspc.workshops_products_id)
         ws = db.workshops(wsp.workshops_id)
-        # Link invoice to workshop product sold to customer
-        db.invoices_workshops_products_customers.insert(
-            invoices_id = self.invoices_id,
-            workshops_products_customers_id = wspcID
-        )
 
         # Add item to invoice
         next_sort_nr = self.get_item_next_sort_nr()
@@ -695,6 +690,12 @@ class Invoice:
             tax_rates_id=wsp.tax_rates_id,
             accounting_glaccounts_id=wsp.accounting_glaccounts_id,
             accounting_costcenters_id=wsp.accounting_costcenters_id
+        )
+
+        # Link invoice to workshop product sold to customer
+        db.invoices_items_workshops_products_customers.insert(
+            invoices_items_id = iiID,
+            workshops_products_customers_id = wspcID
         )
 
         # This calls self.on_update()
@@ -736,7 +737,7 @@ class Invoice:
         return iiID
 
 
-    def item_add_subscription(self, SubscriptionYear, SubscriptionMonth, description=''):
+    def item_add_subscription(self, csID, SubscriptionYear, SubscriptionMonth, description=''):
         """
             :param SubscriptionYear: Year of subscription
             :param SubscriptionMonth: Month of subscription
@@ -756,8 +757,6 @@ class Invoice:
                              int(SubscriptionMonth),
                              1)
 
-        ics = db.invoices_customers_subscriptions(invoices_id = self.invoices_id)
-        csID = ics.customers_subscriptions_id
         cs = CustomerSubscription(csID)
         ssuID = cs.ssuID
         ssu = SchoolSubscription(ssuID)
@@ -899,7 +898,7 @@ class Invoice:
             accounting_costcenters_id = sm.row.accounting_costcenters_id
         )
 
-        self.link_to_customer_membership(cmID)
+        self.link_item_to_customer_membership(cmID, iiID)
         # This calls self.on_update()
         self.set_amounts()
 
@@ -950,7 +949,7 @@ class Invoice:
                 tax_rates_id=tax_rates_id,
             )
 
-            self.link_to_teachers_payment_class(tpcID)
+            self.link_item_to_teachers_payment_class(tpcID, iiID)
 
             # This calls self.on_update()
             self.set_amounts()
@@ -1002,8 +1001,7 @@ class Invoice:
 
 
     def item_add_employee_claim_credit_payment(self,
-                                                         ecID,
-                                                        ):
+                                               ecID):
         """
         :param clsID: db.classes.id
         :param date: datetime.date class date
@@ -1036,7 +1034,7 @@ class Invoice:
                 Sorting=next_sort_nr,
                 tax_rates_id=tax_rates_id,
             )
-            self.link_to_employee_claim(ecID)
+            self.link_item_to_employee_claim(ecID, iiID)
 
             # This calls self.on_update()
             self.set_amounts()
@@ -1049,7 +1047,9 @@ class Invoice:
                     date,
                     payment_methods_id,
                     note=None,
-                    mollie_payment_id=None):
+                    mollie_payment_id=None,
+                    mollie_chargeback_id=None,
+                    mollie_refund_id=None):
         """
             Add payment to invoice
         """
@@ -1061,7 +1061,9 @@ class Invoice:
             PaymentDate = date,
             payment_methods_id = payment_methods_id,
             Note = note,
-            mollie_payment_id = mollie_payment_id
+            mollie_payment_id = mollie_payment_id,
+            mollie_chargeback_id = mollie_chargeback_id,
+            mollie_refund_id = mollie_refund_id
         )
 
         self.is_paid()
@@ -1166,59 +1168,59 @@ class Invoice:
         self.on_update() # now we know which customer the invoice belongs to
 
 
-    def link_to_customer_subscription(self, csID):
+    def link_item_to_customer_subscription(self, csID, iiID):
         """
             Link invoice to customer subscription
         """
         db = current.db
-        db.invoices_customers_subscriptions.insert(
-            invoices_id = self.invoices_id,
+        db.invoices_items_customers_subscriptions.insert(
+            invoices_items_id = iiID,
             customers_subscriptions_id = csID
         )
 
 
-    def link_to_employee_claim(self, ecID):
+    def link_item_to_employee_claim(self, ecID, iiID):
         """
             Link invoice to employee claim
         """
         db = current.db
-        db.invoices_employee_claims.insert(
-            invoices_id = self.invoices_id,
+        db.invoices_items_employee_claims.insert(
+            invoices_items_id = iiID,
             employee_claims_id = ecID
         )
 
 
-    def link_to_teachers_payment_class(self, tpcID):
+    def link_item_to_teachers_payment_class(self, tpcID, iiID):
         """
             Link invoice to teachers payment class
         """
         db = current.db
-        db.invoices_teachers_payment_classes.insert(
-            invoices_id = self.invoices_id,
+        db.invoices_items_teachers_payment_classes.insert(
+            invoices_items_id = iiID,
             teachers_payment_classes_id = tpcID
         )
 
 
-    def link_to_customer_membership(self, cmID):
+    def link_item_to_customer_membership(self, cmID, iiID):
         """
             Link invoice to customer subscription
         """
         db = current.db
-        db.invoices_customers_memberships.insert(
-            invoices_id=self.invoices_id,
+        db.invoices_items_customers_memberships.insert(
+            invoices_items_id=iiID,
             customers_memberships_id=cmID
         )
 
 
-    def link_to_classes_attendance(self, caID):
+    def link_item_to_classes_attendance(self, caID, iiID):
         """
         Link invoice to classes attendance
         :param caID: db.classes_attendance.id
         :return: None
         """
         db = current.db
-        db.invoices_classes_attendance.insert(
-            invoices_id=self.invoices_id,
+        db.invoices_items_classes_attendance.insert(
+            invoices_items_id=iiID,
             classes_attendance_id=caID
         )
 
@@ -1241,13 +1243,28 @@ class Invoice:
 
     def get_linked_customer_subscription_id(self):
         """
-            Returns auth.user.id of account linked to this invoice
-            :return: auth.user.id
+            Returns db.customers_subscriptions.id of account linked to this invoice
+            :return: db.customers_subscriptions.id
         """
         db = current.db
 
-        query = (db.invoices_customers_subscriptions.invoices_id == self.invoices_id)
-        rows = db(query).select(db.invoices_customers_subscriptions.customers_subscriptions_id)
+        query = (db.invoices_items.invoices_id == self.invoices_id) & \
+                (db.invoices_items_customers_subscriptions.customers_subscriptions_id != None)
+        left = [
+            db.invoices_items.on(
+                db.invoices_items.invoices_id ==
+                db.invoices.id
+            ),
+            db.invoices_items_customers_subscriptions.on(
+                db.invoices_items_customers_subscriptions.invoices_items_id ==
+                db.invoices_items.id
+            )
+        ]
+
+        rows = db(query).select(
+            db.invoices_items_customers_subscriptions.ALL,
+            left=left
+        )
 
         if rows:
             return rows.first().customers_subscriptions_id

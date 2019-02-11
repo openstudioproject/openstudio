@@ -41,9 +41,9 @@ class Receipt:
 
     def _set_updated_at(self):
         """
-        Set db.receipts.Updated_at to current time (UTC)
+        Set db.receipts.UpdatedOn to current time (UTC)
         """
-        self.row.Updated_at = datetime.datetime.now()
+        self.row.UpdatedOn = datetime.datetime.now()
         self.row.update_record()
 
 
@@ -312,9 +312,9 @@ class Receipt:
         ))
 
         data = TR(
-            TD(self.row.Created_by or ''),
+            TD(self.row.CreatedBy or ''),
             TD(self.row.id),
-            TD(self.row.Created_at.strftime(DATETIME_FORMAT)),
+            TD(self.row.CreatedOn.strftime(DATETIME_FORMAT)),
         )
 
         table = TABLE(

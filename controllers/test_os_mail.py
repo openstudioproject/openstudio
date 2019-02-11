@@ -32,7 +32,7 @@ def test_osmail_render_template():
         rendered_message = os_mail.render_email_template(email_template,
                                                          return_html = True)
 
-    return rendered_message
+    return rendered_message['html_message']
 
 
 def test_osmail_render_sys_notification():

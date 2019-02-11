@@ -71,8 +71,6 @@ class SchoolMembership:
         # Init membership
         cm = CustomerMembership(cmID)
         cm.set_enddate()
-        cm.set_date_id_and_barcode()
-
 
         # Clear memberships cache for this user
         ocm.clear_customers_memberships(auth_user_id)

@@ -5,32 +5,7 @@ import datetime
 from gluon import *
 
 class ClassesOTCSubAvailables:
-
-    def get_form_filter_status(self, status):
-        """
-
-        :return:
-        """
-        T = current.T
-
-        form = SQLFORM.factory(
-            Field('Status',
-                  default=status,
-                  requires=IS_IN_SET(
-                      [ ['pending', T("Pending")],
-                        ['processed', T("Processed")] ],
-                      zero=None,
-                  )),
-            formstyle="bootstrap3_stacked"
-        )
-
-        select_status = form.element('#no_table_Status')
-        select_status['_onchange'] = "this.form.submit();"
-
-        return DIV(form, _class='col-md-3 no-padding-left')
-
-
-    def list_formatted(self, status, limitby):
+    def list_formatted(self, cotcID):
         """
 
         :return: HTML table of available sub teachers
@@ -62,18 +37,13 @@ class ClassesOTCSubAvailables:
             )
         ]
 
-        if status == 'pending':
-            query = (db.classes_otc_sub_avail.Accepted == None)
-        else:
-            query = ((db.classes_otc_sub_avail.Accepted == True) |
-                     (db.classes_otc_sub_avail.Accepted == False))
+        query = (db.classes_otc_sub_avail.classes_otc_id == cotcID)
 
         rows = db(query).select(
             db.classes_otc_sub_avail.ALL,
             db.classes_otc.ALL,
             db.classes.ALL,
             left=left,
-            limitby=limitby,
             orderby=db.classes_otc.ClassDate | db.classes_otc.Starttime
         )
 
@@ -86,18 +56,21 @@ class ClassesOTCSubAvailables:
                 status = os_gui.get_label('danger', T("Declined"))
             else:
                 status = os_gui.get_label('primary', T("Pending"))
-            button = os_gui.get_button('ok_notext',
-                                       URL('sub_avail_accept',
-                                           vars={
-                                               'cotcsaID': row.classes_otc_sub_avail.id
-                                           }),
-                                       title='Accept', _class='pull-right', btn_class='btn-success')
 
-            button += os_gui.get_button('cancel_notext',
-                                        URL('sub_avail_decline',
-                                            vars={
-                                                'cotcsaID': row.classes_otc_sub_avail.id}),
-                                        title='Decline', _class='pull-right', btn_class='btn-danger')
+            buttons = DIV(_class='pull-right')
+            buttons.append(os_gui.get_button(
+               'ok_notext',
+               URL('classes_sub_teachers', 'sub_teacher_accept',
+                   vars={'cotcsaID': row.classes_otc_sub_avail.id}),
+               title='Accept', btn_class='btn-success'
+            ))
+
+            buttons.append(os_gui.get_button(
+                'cancel_notext',
+                URL('classes_sub_teachers', 'sub_teacher_decline',
+                    vars={'cotcsaID': row.classes_otc_sub_avail.id}),
+                title='Decline', _class='pull-right', btn_class='btn-danger'
+            ))
 
             tr = TR(
                 TD(repr_row.classes_otc.ClassDate),
@@ -106,12 +79,9 @@ class ClassesOTCSubAvailables:
                 TD(repr_row.classes.school_classtypes_id),
                 TD(repr_row.classes_otc_sub_avail.auth_teacher_id),
                 TD(status),
-                TD(button)
+                TD(buttons)
             )
 
             table.append(tr)
 
-        return dict(
-            table=table,
-            rows=rows
-        )
+        return table

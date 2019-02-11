@@ -5,6 +5,9 @@ import validator from 'validator'
 import { v4 } from "uuid"
 
 import ButtonCustomerEdit from "../../../components/ui/ButtonCustomerEdit"
+import CustomerDisplayMemberships from "./CustomerDisplayMemberships"
+import CustomerDisplaySubscriptions from "./CustomerDisplaySubscriptions"
+import CustomerDisplayClasscards from "./CustomerDisplayClasscards"
 
 
 class CustomerDisplay extends Component {
@@ -109,6 +112,9 @@ class CustomerDisplay extends Component {
         const customerID = this.props.customerID
         const customers = this.props.customers
         const customers_list = this.props.customers.data
+        const memberships = this.props.memberships
+        const subscriptions = this.props.subscriptions
+        const classcards = this.props.classcards
         const edit_in_progress = this.props.edit_in_progress
         const onClickEdit = this.props.onClickEdit
         let videoClass
@@ -125,19 +131,11 @@ class CustomerDisplay extends Component {
                         <h3 className="box-title">{customers_list[customerID].display_name}</h3>
                     </div>
                     <div className="box-body">
-                        <div className="col-md-3">
+                        <div className="col-md-2">
                             <div className="customer-display-image">
                                 <img src={customers_list[customerID].thumblarge}
                                      alt={customers_list[customerID].display_name} />
                             </div><br />
-                            <button type="button" 
-                                    onClick={this.onClickStartCamera.bind(this)} 
-                                    className="btn btn-default" 
-                                    data-toggle="modal" 
-                                    data-target="#cameraModal">
-                                <i className="fa fa-camera"></i> Take picture
-                            </button>
-
                             {/* <!-- Modal --> */}
                             <div className="modal fade" id="cameraModal" tabIndex="-1" role="dialog" aria-labelledby="myModalLabel" ref={this.modal}>
                                 <div className="modal-dialog" role="document">
@@ -210,17 +208,45 @@ class CustomerDisplay extends Component {
                             {/* Close modal */}
                         </div> 
                         {/* Close md-4 */}
-                        <div className="col-md-9">
+                        <div className="col-md-8">
+                            <div className="col-md-4">
+                                <label>Name</label><br/>
+                                {customers_list[customerID].display_name}<br/>
+                                <label>Email</label><br/>
+                                {customers_list[customerID].email}<br/>
+                                <label>Phone</label><br/>
+                                {customers_list[customerID].mobile}<br/>
+                                <label>Date of birth</label><br/>
+                                {customers_list[customerID].date_of_birth}<br/>
+                            </div>
+                            <div className="col-md-4">
+                                <CustomerDisplayMemberships customerID={customerID}
+                                                            memberships={memberships}/>
+                            </div>
+                            <div className="col-md-4">
+                                <CustomerDisplaySubscriptions customerID={customerID}
+                                                              subscriptions={subscriptions}/>
+                                <CustomerDisplayClasscards customerID={customerID}
+                                                           classcards={classcards}/>
+                            </div>
+                        </div>
+                        <div className="col-md-2">
+                            <a href={`/customers/barcode_label?cuID=${customerID}`}
+                               className="btn btn-default btn-flat btn-block"
+                               target="_blank">
+                                <i className="fa fa-id-card-o"></i> Print card   
+                            </a>
+                            <button type="button" 
+                                    onClick={this.onClickStartCamera.bind(this)} 
+                                    className="btn btn-default btn-flat btn-block" 
+                                    data-toggle="modal" 
+                                    data-target="#cameraModal">
+                                <i className="fa fa-camera"></i> Take picture
+                            </button>
                             <ButtonCustomerEdit onClick={onClickEdit}
-                                                classAdditional='pull-right'>
-                                { ' ' } Edit
+                                                classAdditional='btn-flat btn-block'>
+                                { ' ' } Edit customer
                             </ButtonCustomerEdit>
-                            <label>Name</label><br/>
-                            {customers_list[customerID].display_name}<br/>
-                            <label>Email</label><br/>
-                            {customers_list[customerID].email}<br/>
-                            {/* <label>Address</label><br/>
-                            {customers_list[customerID].address}<br/> */}
                         </div>
                     </div>
                 </div>

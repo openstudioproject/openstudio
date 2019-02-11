@@ -42,6 +42,16 @@ class Class:
         return class_name
 
 
+    def get_classtype_name(self):
+        db = current.db
+        return db.school_classtypes[self.cls.school_classtypes_id].Name
+
+
+    def get_location_name(self):
+        db = current.db
+        return db.school_locations[self.cls.school_locations_id].Name
+
+
     def get_name_shop(self):
         """
             Returns class name formatted for use in customer profile and shop
@@ -538,6 +548,45 @@ class Class:
             teacher = teacher,
             teacher2 = teacher2
         )
+
+
+    def get_regular_teacher_ids(self):
+        """
+        Teachers for class
+        :return:
+        """
+        T = current.T
+        db = current.db
+
+        error = False
+        message = ''
+        auth_teacher_id = None
+        auth_teacher_id2 = None
+
+        query = (db.classes_teachers.classes_id == self.clsID) & \
+                ((db.classes_teachers.Startdate <= self.date) &
+                 ((db.classes_teachers.Enddate >= self.date) |
+                  (db.classes_teachers.Enddate == None)))
+        rows = db(query).select(db.classes_teachers.ALL)
+
+        try:
+            row = rows.first()
+            auth_teacher_id = row.auth_teacher_id
+            auth_teacher_id2 = row.auth_teacher_id2
+
+
+        except AttributeError:
+            # No teacher(s) found for this date
+            error = True
+            message = T("No teachers found for this date (") + unicode(self.date) + ")"
+
+        return dict(
+            error = error,
+            message = message,
+            auth_teacher_id = auth_teacher_id,
+            auth_teacher_id2 = auth_teacher_id2
+        )
+
 
 
     def get_teacher_payment(self):

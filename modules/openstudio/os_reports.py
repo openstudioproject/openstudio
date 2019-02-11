@@ -110,6 +110,51 @@ class Reports:
         return query
 
 
+    def get_classes_revenue_summary_day(self, date):
+        """
+
+        :param date:
+        :return:
+        """
+        from os_class import Class
+        from os_class_schedule import ClassSchedule
+        # Get class schedule for days
+        cs = ClassSchedule(date)
+        schedule = cs.get_day_list()
+
+        revenue = {
+            'data': [],
+            'revenue_total': 0,
+            'teacher_payments': 0,
+            'balance': 0
+        }
+
+
+        for cls in schedule:
+            clsID = cls['ClassesID']
+            # Get revenue for each class
+            class_revenue = self.get_class_revenue_summary(clsID, date)
+
+            cls_object = Class(clsID, date)
+            teacher_payment = cls_object.get_teacher_payment()
+            if not teacher_payment['error']:
+                tp_amount = teacher_payment['data']['ClassRate']
+            else:
+                tp_amount = 0
+
+            cls['RevenueTotal'] = class_revenue['total']['amount']
+            cls['TeacherPayment'] = tp_amount
+            cls['Balance'] = (cls['RevenueTotal'] - cls['TeacherPayment'])
+
+            revenue['revenue_total'] += cls['RevenueTotal']
+            revenue['teacher_payments'] += cls['TeacherPayment']
+            revenue['balance'] += cls['Balance']
+
+            revenue['data'].append(cls)
+
+        return revenue
+
+
     def get_class_revenue_summary(self, clsID, date, quick_stats=True):
         """
         :param subscription_quick_stats: Boolean - use db.school_subscriptions.QuickStatsAmount or not
@@ -120,9 +165,9 @@ class Reports:
         cls = Class(clsID, date)
         class_prices = cls.get_prices()
 
-        print class_prices
-        print type(class_prices['trial_membership'])
-        print type(class_prices['trial'])
+        # print class_prices
+        # print type(class_prices['trial_membership'])
+        # print type(class_prices['trial'])
 
         data = {
             'subscriptions': {},
@@ -551,3 +596,280 @@ class Reports:
                     revenue_ex_vat=revenue_ex_vat,
                     revenue_vat=revenue_vat)
 
+
+    def classcards_sold_summary_rows(self, date_from, date_until):
+        """
+        List cards sold, grouped by card name
+
+        :param date_from: datetime.date
+        :param date_until: datetime.date
+        :return:
+        """
+        db = current.db
+
+        left = [
+            db.school_classcards.on(
+                db.customers_classcards.school_classcards_id ==
+                db.school_classcards.id
+            )
+        ]
+
+        count = db.school_classcards.id.count()
+
+        query = (db.customers_classcards.Startdate >= date_from) & \
+                (db.customers_classcards.Startdate <= date_until)
+
+        rows = db(query).select(db.school_classcards.Name,
+                                db.school_classcards.Price,
+                                count,
+                                left=left,
+                                groupby=db.school_classcards.Name,
+                                orderby=db.school_classcards.Name)
+
+        return rows
+
+
+    def subscriptions_sold_summary_rows(self, date_from, date_until):
+        """
+        List school subscriptions sold, grouped by subscription
+
+        :param date_from: datetime.date
+        :param date_until: datetime.date
+        :return:
+        """
+        db = current.db
+
+        fields = [
+            db.school_subscriptions.id,
+            db.school_subscriptions.Name,
+            db.school_subscriptions_price.Price,
+            db.school_subscriptions.CountSold
+        ]
+
+        sql = '''
+            SELECT ssu.id,
+                   ssu.Name,
+                   ssup.Price,
+                   COUNT(ssu.id)
+            FROM customers_subscriptions cs
+            LEFT JOIN school_subscriptions ssu ON cs.school_subscriptions_id = ssu.id
+            LEFT JOIN (
+                SELECT id,
+                       school_subscriptions_id,
+                       Price
+                FROM school_subscriptions_price
+                WHERE Startdate <= '{date_from}' AND (Enddate >= '{date_until}' OR Enddate IS NULL)) ssup
+                ON ssup.school_subscriptions_id = ssu.id
+            WHERE cs.StartDate >= '{date_from}' AND cs.StartDate <= '{date_until}'
+            GROUP BY ssu.id, ssup.Price
+        '''.format(date_from=date_from, date_until=date_until)
+
+        rows = db.executesql(sql, fields=fields)
+
+        print rows
+
+        return rows
+
+
+    def memberships_sold_summary_rows(self, date_from, date_until):
+        """
+        List memberships sold, grouped by membership name
+
+        :param date_from: datetime.date
+        :param date_until: datetime.date
+        :return:
+        """
+        db = current.db
+
+        left = [
+            db.school_memberships.on(
+                db.customers_memberships.school_memberships_id ==
+                db.school_memberships.id
+            )
+        ]
+
+        count = db.school_memberships.id.count()
+
+        query = (db.customers_memberships.Startdate >= date_from) & \
+                (db.customers_memberships.Startdate <= date_until)
+
+        rows = db(query).select(db.school_memberships.Name,
+                                db.school_memberships.Price,
+                                count,
+                                left=left,
+                                groupby=db.school_memberships.Name,
+                                orderby=db.school_memberships.Name)
+
+        return rows
+
+
+    def shop_sales_summary(self, date_from, date_until):
+        """
+        List product sales, grouped by product variant
+
+        :param date_from: datetime.date
+        :param date_until: datetime.date
+        :return:
+        """
+        db = current.db
+
+        if date_from == date_until:
+            # This is required because we're comparing to a date time field
+            # For a DT field, the format becomes yyyy-mm-dd 00:00:00 when only supplying a date
+            date_until = date_until + datetime.timedelta(days=1)
+
+        left = [
+            db.shop_sales_products_variants.on(
+                db.shop_sales_products_variants.shop_sales_id ==
+                db.shop_sales.id
+            ),
+            db.shop_products_variants.on(
+                db.shop_sales_products_variants.shop_products_variants_id ==
+                db.shop_products_variants.id
+            ),
+            db.shop_products.on(
+                db.shop_products_variants.shop_products_id ==
+                db.shop_products.id,
+            ),
+        ]
+
+        count = db.shop_sales_products_variants.shop_products_variants_id.count()
+
+        query = (db.shop_sales.CreatedOn >= date_from) & \
+                (db.shop_sales.CreatedOn < date_until)
+
+        rows = db(query).select(
+            db.shop_products_variants.id,
+            db.shop_sales.ProductName,
+            db.shop_sales.VariantName,
+            db.shop_products_variants.Price,
+            count,
+            left=left,
+            groupby=db.shop_products_variants.id|\
+                    db.shop_sales.ProductName|\
+                    db.shop_sales.VariantName|\
+                    db.shop_products_variants.Price,
+            orderby=db.shop_products.Name|\
+                    db.shop_products_variants.Name,
+        )
+
+        return rows
+
+
+    def shop_sales_not_paid_with_cash_summary(self, date_from, date_until):
+        """
+
+        :param date_from: datetime.date
+        :param date_until: datetime.date
+        :return:
+        """
+        db = current.db
+
+        if date_from == date_until:
+            # This is required because we're comparing to a date time field
+            # For a DT field, the format becomes yyyy-mm-dd 00:00:00 when only supplying a date
+            date_until = date_until + datetime.timedelta(days=1)
+
+        sum_not_paid_using_cash = 0
+
+        left = [
+            db.receipts_amounts.on(
+                db.receipts_amounts.receipts_id ==
+                db.receipts.id
+            )
+        ]
+
+        query = (db.receipts.CreatedOn >= date_from) & \
+                (db.receipts.CreatedOn <= date_until) & \
+                (db.receipts.payment_methods_id != 1) # method 1 == cash
+
+        sum = db.receipts_amounts.TotalPriceVAT.sum()
+        rows = db(query).select(sum)
+        if rows:
+            row = rows.first()
+            sum_not_paid_using_cash = row[sum]
+
+        return sum_not_paid_using_cash or 0
+
+
+    def classes_attendance_classcards_quickstats_summary(self, date_from, date_until):
+        """
+
+        :param date_from: datetime.date
+        :param date_until: datetime.date
+        :return:
+        """
+        db = current.db
+
+        left = [
+            # Cards
+            db.customers_classcards.on(
+                db.classes_attendance.customers_classcards_id ==
+                db.customers_classcards.id
+            ),
+            db.school_classcards.on(
+                db.customers_classcards.school_classcards_id ==
+                db.school_classcards.id
+            )
+        ]
+
+        count = db.school_classcards.id.count()
+
+        query = (db.classes_attendance.ClassDate >= date_from) & \
+                (db.classes_attendance.ClassDate <= date_until) & \
+                (db.classes_attendance.customers_classcards_id != None)
+
+        rows = db(query).select(
+            db.school_classcards.id,
+            db.school_classcards.Name,
+            db.school_classcards.QuickStatsAmount,
+            db.school_classcards.Classes,
+            db.school_classcards.Price,
+            db.school_classcards.Unlimited,
+            count,
+            left=left,
+            groupby=db.school_classcards.id,
+            orderby=db.school_classcards.Name
+        )
+
+        return rows
+
+
+    def classes_attendance_subscriptions_quickstats_summary(self, date_from, date_until):
+        """
+
+        :param date_from: datetime.date
+        :param date_until: datetime.date
+        :return:
+        """
+        db = current.db
+
+        left = [
+            # Subscriptions
+            db.customers_subscriptions.on(
+                db.classes_attendance.customers_subscriptions_id ==
+                db.customers_subscriptions.id
+            ),
+            db.school_subscriptions.on(
+                db.customers_subscriptions.school_subscriptions_id ==
+                db.school_subscriptions.id
+            ),
+        ]
+
+        count = db.school_subscriptions.id.count()
+
+        query = (db.classes_attendance.ClassDate >= date_from) & \
+                (db.classes_attendance.ClassDate <= date_until) & \
+                (db.classes_attendance.customers_subscriptions_id != None)
+
+        rows = db(query).select(
+            db.school_subscriptions.id,
+            db.school_subscriptions.Name,
+            db.school_subscriptions.QuickStatsAmount,
+            count,
+            left=left,
+            groupby=db.school_subscriptions.id,
+            orderby=db.school_subscriptions.Name
+        )
+
+        return rows

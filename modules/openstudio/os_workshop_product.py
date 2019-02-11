@@ -267,9 +267,9 @@ class WorkshopProduct:
 
             # create object to set Invoice# and due date
             invoice = Invoice(iID)
+            invoice.link_to_customer(cuID)
             invoice.item_add_workshop_product(wspcID)
             invoice.set_amounts()
-            invoice.link_to_customer(cuID)
 
         ##
         # Send info mail to customer if we have some practical info
@@ -277,7 +277,7 @@ class WorkshopProduct:
         if self.workshop.AutoSendInfoMail:
             osmail = OsMail()
             msgID = osmail.render_email_template('workshops_info_mail', workshops_products_customers_id=wspcID)
-            osmail.send(msgID, cuID)
+            osmail.send_and_archive(msgID, cuID)
 
         if not waitinglist:
             # Check if sold out

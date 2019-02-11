@@ -393,7 +393,7 @@ def represent_float_as_amount(value, row=None):
     """
         Takes value and rounds it to a 2 decimal number.
     """
-    if value is None or not isinstance(value, float):
+    if value is None or (not isinstance(value, float) and not isinstance(value, int)):
         return ''
     else:
         return SPAN(CURRSYM, ' ', format(value, '.2f'))
@@ -780,6 +780,19 @@ def define_sys_notifications_email():
               label= T('Email')))
 
 
+def define_sys_email_reminders():
+    db.define_table('sys_email_reminders',
+        Field('Reminder',
+              readable=False,
+              writable=False,
+              label=T("Reminder")),
+        Field('Days', 'integer',
+              default=1,
+              label=T("Days"),
+              comment=T("Days before event to send email reminder")),
+    )
+
+
 def define_sys_api_users():
     db.define_table('sys_api_users',
         Field('ActiveUser', 'boolean', required=True,
@@ -854,6 +867,139 @@ def define_accounting_glaccounts():
             represent=lambda value, row: value or '',
             comment=T("General ledger account code in your accounting software")),
         format='%(Name)s')
+
+
+def define_accounting_cashbooks_cash_count():
+    auth_user_query = (db.auth_user.id > 1) & \
+                      (db.auth_user.trashed == False) & \
+                      ((db.auth_user.teacher == True) |
+                       (db.auth_user.employee == True))
+
+    try:
+        auth_user_id_default = auth.user.id
+    except AttributeError:
+        auth_user_id_default = None  # default to None when not signed in
+
+    db.define_table('accounting_cashbooks_cash_count',
+        Field('CountDate', 'date',
+            readable=False,
+            writable=False),
+        Field('CountType',
+            readable=False,
+            writable=False,
+            default='opening',
+            requires=IS_IN_SET([
+              ['opening', T("Opening balance")],
+              ['closing', T("Closing balance")]
+            ]),
+            label=T("Balance type") ),
+        Field('Amount', 'double',
+            represent=represent_float_as_amount,
+            default=0,
+            label=T("Amount")),
+        Field('Note', 'text',
+            label=T("Note")),
+        Field('auth_user_id', db.auth_user,
+            readable=False,
+            writable=False,
+            default=auth_user_id_default,
+            requires=IS_EMPTY_OR(IS_IN_DB(db(auth_user_query),
+                                          'auth_user.id',
+                                          '%(first_name)s %(last_name)s',
+                                          zero=T("Unassigned")))),
+        Field('CreatedOn', 'datetime',
+              readable=False,
+              writable=False,
+              default=datetime.datetime.now()),
+    )
+
+#
+# def define_accounting_cashbooks_additional_items():
+#     db.define_table('accounting_cashbooks_additional_items',
+#         Field('BookingDate', 'date',
+#             readable=False,
+#             writable=False,
+#             represent=represent_date),
+#         Field('BookingType',
+#             readable=False,
+#             writable=False,
+#             requires=IS_IN_SET([
+#               ['debit', T("Debit / In")],
+#               ['credit', T("Credit / Out")]
+#             ])),
+#         Field('Amount', 'double',
+#             represent=represent_float_as_amount,
+#             default=0,
+#             label=T("Amount")),
+#         Field('Description',
+#               requires=IS_NOT_EMPTY(),
+#               label=T("Description")),
+#     )
+
+
+def define_accounting_expenses():
+    auth_user_query = (db.auth_user.id > 1) & \
+                      (db.auth_user.trashed == False) & \
+                      ((db.auth_user.teacher == True) |
+                       (db.auth_user.employee == True))
+    ac_query = (db.accounting_costcenters.Archived == False)
+    ag_query = (db.accounting_glaccounts.Archived == False)
+
+    try:
+        auth_user_id_default = auth.user.id
+    except AttributeError:
+        auth_user_id_default = None  # default to None when not signed in
+
+    db.define_table('accounting_expenses',
+        Field('BookingDate', 'date',
+              default=TODAY_LOCAL,
+              requires=IS_DATE_IN_RANGE(format=DATE_FORMAT,
+                                        minimum=datetime.date(1900, 1, 1),
+                                        maximum=datetime.date(2999, 1, 1)),
+              represent=represent_date,
+              label=T("Booking date")),
+        Field('Amount', 'double',
+              represent=represent_float_as_amount,
+              default=0,
+              label=T("Amount")),
+        Field('tax_rates_id', db.tax_rates,
+              represent=represent_tax_rate,
+              label=T('Tax rate')),
+        Field('YourReference',
+              label=T("Your reference"),
+              comment=T("eg. The invoice or receipt number of a delivery from your supplier")),
+        Field('Description',
+              requires=IS_NOT_EMPTY(),
+              label=T("Description")),
+        Field('accounting_glaccounts_id', db.accounting_glaccounts,
+              requires=IS_EMPTY_OR(IS_IN_DB(db(ag_query),
+                                            'accounting_glaccounts.id',
+                                            '%(Name)s')),
+              represent=represent_accounting_glaccount,
+              label=T('G/L Account'),
+              comment=T('General ledger account ID in your accounting software')),
+        Field('accounting_costcenters_id', db.accounting_costcenters,
+              requires=IS_EMPTY_OR(IS_IN_DB(db(ac_query),
+                                            'accounting_costcenters.id',
+                                            '%(Name)s')),
+              represent=represent_accounting_costcenter,
+              label=T("Cost center"),
+              comment=T("Cost center code in your accounting software")),
+        Field('Note', 'text',
+              label=T("Note")),
+        Field('auth_user_id', db.auth_user,
+              readable=False,
+              writable=False,
+              default=auth_user_id_default,
+              requires=IS_EMPTY_OR(IS_IN_DB(db(auth_user_query),
+                                            'auth_user.id',
+                                            '%(first_name)s %(last_name)s',
+                                            zero=T("Unassigned")))),
+        Field('CreatedOn', 'datetime',
+              readable=False,
+              writable=False,
+              default=datetime.datetime.now()),
+    )
 
 
 def define_payment_methods():
@@ -1171,6 +1317,12 @@ def define_school_classcards():
               label=T("Requires membership"),
               comment=T(
                   "Set a required membership for this card. Without this memberships customers won't be able to buy this card or use it to attend classes.")),
+        Field('QuickStatsAmount', 'double',
+              label=T('Quick Stats Amount'),
+              default=0,
+              comment=T(
+                  "Only used for unlimited cards. As it's impossible to know the exact revenue for each class until the end of the card. This amount will be used to create rough estimates of class revenue.")
+              ),
         Field('accounting_glaccounts_id', db.accounting_glaccounts,
               requires=IS_EMPTY_OR(IS_IN_DB(db(ag_query),
                                             'accounting_glaccounts.id',
@@ -1340,6 +1492,11 @@ def define_school_subscriptions():
             default=0,
             #represent=lambda value, row:  value or T('Unlimited'),
             label=T('Monthly Classes')),
+        Field('MinDuration', 'integer',
+            default=1,
+            represent=represent_school_subscriptions_minduration,
+            label=T("Minimum duration"),
+            comment=T("Minimum duration of this subscription in months")),
         Field('Classes', 'integer', required=False,
             requires=IS_INT_IN_RANGE(1, 201, error_message=T("Please enter a number between 1 and 200")),
             represent=represent_school_subscriptions_classes, # return Unlimited instead of number if row.Unlimited
@@ -1381,7 +1538,26 @@ def define_school_subscriptions():
               default = 0,
               comment=T("This Amount will be added to the first invoice for this subscription. Set to 0 for no registration fee."),
               ),
+        Field('CountSold', 'integer',
+            # Field to hold count of grouped sold customer subscriptions
+            # Workaround for not being able to have count = db.school_subscriptions.id.count() in
+            # fields = [] when using execute sql
+            readable=False,
+            writable=False),
         format=format)
+
+
+def represent_school_subscriptions_minduration(value, row):
+    """
+    :param value: db.school_subscriptions.MinDuration
+    :param row: db.school_subscriptions record
+    :return:
+    """
+    month_str = T("%s Months" % value)
+    if value == 1:
+        month_str = T("%s Month" % value)
+
+    return month_str
 
 
 def represent_school_subscriptions_classes(value, row):
@@ -2093,15 +2269,15 @@ def define_classes_otc():
         Field('Maxstudents', 'integer',
               requires=IS_EMPTY_OR(IS_INT_IN_RANGE(0, 500)),
               label=T("Spaces"),
-              comment=os_gui.get_info_icon(
-                  title=T("Total spaces for this class"),
-                  btn_icon='info')),
+              comment=T("Total spaces for this class")),
         Field('MaxOnlineBooking', 'integer',
               requires=IS_EMPTY_OR(IS_INT_IN_RANGE(0, 500)),
               label=T('Online booking spaces'),
-              comment=os_gui.get_info_icon(
-                  title=T("Maximum number of online bookings accepted for this class"),
-                  btn_icon='info')),
+              comment=T("Maximum number of online bookings accepted for this class")),
+        Field('CountSubsAvailable', 'integer',
+              readable=False,
+              writable=False
+              ),
     )
 
 def define_classes_otc_sub_avail():
@@ -2514,13 +2690,15 @@ def define_classes_attendance_override():
         )
 
 def define_customers_payment_info():
+    pm_query = (db.payment_methods.Archived == False)
+
     db.define_table('customers_payment_info',
         Field('auth_customer_id', db.auth_user, required=True,
             readable=False,
             writable=False,
             label=T('CustomerID')),
         Field('payment_methods_id', db.payment_methods,
-            requires=IS_EMPTY_OR(IS_IN_DB(db,'payment_methods.id','%(Name)s',
+            requires=IS_EMPTY_OR(IS_IN_DB(db(pm_query),'payment_methods.id','%(Name)s',
                                           zero=T("Please select..."))),
             represent=lambda value, row: payment_methods_dict.get(value),
             label=T("Default payment method")),
@@ -2653,15 +2831,6 @@ def define_customers_memberships():
         Field('Note', 'text',
               represent=lambda value, row: value or '',
               label=T("Note")),
-        Field('DateID',
-              readable=False,
-              writable=False),
-        Field('Barcode', 'upload', autodelete=True,
-              readable=False,
-              writable=False,
-              represent=lambda value, row: A(T("Download"),
-                                             _href=URL('default', 'download', args=value)),
-              label=T("Barcode")),
         singular=T("Membership"), plural=T("Memberships")
         )
 
@@ -3806,12 +3975,26 @@ def define_payment_batches_exports():
     )
 
 
+# Deprecated from 2019.02.x
 def define_invoices_workshops_products_customers():
     """
         Table to link workshop products to invoices
     """
     db.define_table('invoices_workshops_products_customers',
         Field('invoices_id', db.invoices,
+            readable=False,
+            writable=False),
+        Field('workshops_products_customers_id', db.workshops_products_customers,
+            readable=False,
+            writable=False))
+
+
+def define_invoices_items_workshops_products_customers():
+    """
+        Table to link workshop products to invoices
+    """
+    db.define_table('invoices_items_workshops_products_customers',
+        Field('invoices_items_id', db.invoices_items,
             readable=False,
             writable=False),
         Field('workshops_products_customers_id', db.workshops_products_customers,
@@ -3832,6 +4015,7 @@ def define_invoices_customers():
               label=T('Customer')))
 
 
+# Deprecated from 2019.02.x
 def define_invoices_customers_memberships():
     """
         Table to link customer memberships to invoices
@@ -3845,6 +4029,20 @@ def define_invoices_customers_memberships():
             writable=False))
 
 
+def define_invoices_items_customers_memberships():
+    """
+        Table to link customer memberships to invoice items
+    """
+    db.define_table('invoices_items_customers_memberships',
+        Field('invoices_items_id', db.invoices_items,
+            readable=False,
+            writable=False),
+        Field('customers_memberships_id', db.customers_memberships,
+            readable=False,
+            writable=False))
+
+
+# Deprecated from 2019.02.x
 def define_invoices_customers_subscriptions():
     """
         Table to link customer subscriptions to invoices
@@ -3858,6 +4056,20 @@ def define_invoices_customers_subscriptions():
             writable=False))
 
 
+def define_invoices_items_customers_subscriptions():
+    """
+        Table to link customer subscriptions to invoices
+    """
+    db.define_table('invoices_items_customers_subscriptions',
+        Field('invoices_items_id', db.invoices_items,
+            readable=False,
+            writable=False),
+        Field('customers_subscriptions_id', db.customers_subscriptions,
+            readable=False,
+            writable=False))
+
+
+# Deprecated from 2019.02.x
 def define_invoices_customers_classcards():
     """
         Table to link customer classcards to invoices
@@ -3871,6 +4083,20 @@ def define_invoices_customers_classcards():
             writable=False))
 
 
+def define_invoices_items_customers_classcards():
+    """
+        Table to link customer classcards to invoice items
+    """
+    db.define_table('invoices_items_customers_classcards',
+        Field('invoices_items_id', db.invoices_items,
+            readable=False,
+            writable=False),
+        Field('customers_classcards_id', db.customers_classcards,
+            readable=False,
+            writable=False))
+
+
+# Deprecated from 2019.02.x
 def define_invoices_employee_claims():
     """
         Table to link employee claims to invoices
@@ -3886,6 +4112,22 @@ def define_invoices_employee_claims():
     )
 
 
+def define_invoices_items_employee_claims():
+    """
+        Table to link employee claims to invoices items
+    """
+    db.define_table('invoices_items_employee_claims',
+        Field('invoices_items_id', db.invoices_items,
+              readable=False,
+              writable=False),
+        Field('employee_claims_id', db.employee_claims,
+              readable= False,
+              writable = False,
+              label=T('Employee Expense'))
+    )
+
+
+# Deprecated from 2019.02.x
 def define_invoices_teachers_payment_classes():
     """
         Table to link teacher payment classes to invoices
@@ -3900,6 +4142,35 @@ def define_invoices_teachers_payment_classes():
               label=T('Teacher payment class')
               )
     )
+
+
+def define_invoices_items_teachers_payment_classes():
+    """
+        Table to link teacher payment classes to invoice items
+    """
+    db.define_table('invoices_items_teachers_payment_classes',
+        Field('invoices_items_id', db.invoices_items,
+            readable=False,
+            writable=False),
+        Field('teachers_payment_classes_id', db.teachers_payment_classes,
+              readable= False,
+              writable = False,
+              label=T('Teacher payment class')
+              )
+    )
+
+
+def define_invoices_items_classes_attendance():
+    """
+        Table to link invoice items to class attendance
+    """
+    db.define_table('invoices_items_classes_attendance',
+        Field('invoices_items_id', db.invoices_items,
+              readable=False,
+              writable=False),
+        Field('classes_attendance_id', db.classes_attendance,
+            readable=False,
+            writable=False))
 
 
 def define_invoices_customers_orders():
@@ -3998,6 +4269,7 @@ def define_invoices_groups_product_types():
 
 def define_invoices():
     months = get_months_list()
+    pm_query = (db.payment_methods.Archived == False)
 
     group_query = (db.invoices_groups.Archived == False)
 
@@ -4010,35 +4282,13 @@ def define_invoices():
                               '%(Name)s',
                               zero=T("Please select...")),
             label=T('Invoice group')),
-        Field('auth_customer_id', db.auth_user, # Deprecated from 2018.2 onwards (only used for migrations)
-            readable=False,
-            writable=False,
-            represent=lambda value, row: A(db.auth_user(value).display_name,
-                                           _href=URL('customers', 'edit', args=value, extension='')) if value else '',
-            label=T('CustomerID')),
         Field('payment_methods_id', db.payment_methods,
             requires=IS_EMPTY_OR(
-                     IS_IN_DB(db,'payment_methods.id','%(Name)s',
+                     IS_IN_DB(db(pm_query),'payment_methods.id','%(Name)s',
                               error_message=T("Please select a payment method"),
                               zero=T("Not set"))),
             represent=lambda value, row: payment_methods_dict.get(value),
             label=T("Payment method")),
-        Field('customers_subscriptions_id', db.customers_subscriptions, # Deprecated from 2018.2 onwards (only used for migrations)
-            readable=False,
-            writable=False,
-            default=None),
-        Field('customers_classcards_id', db.customers_classcards, # Depricated from 3.03 onwards
-            readable=False,
-            writable=False,
-            default=None),
-        Field('classes_attendance_id', db.classes_attendance, # Depricated from 3.03 onwards
-            readable=False,
-            writable=False,
-            default=None),
-        Field('workshops_products_customers_id', db.workshops_products_customers, # Depricated from 3.03 onwards
-            readable=False,
-            writable=False,
-            default=None),
         Field('SubscriptionMonth', 'integer',
             readable=False,
             writable=False,
@@ -4196,6 +4446,8 @@ def represent_invoices_datedue(date, row):
 
 
 def define_invoices_payments():
+    pm_query = (db.payment_methods.Archived == False)
+
     db.define_table('invoices_payments',
         Field('invoices_id', db.invoices,
             readable=False,
@@ -4215,7 +4467,7 @@ def define_invoices_payments():
             label=T("Payment date"),
             widget=os_datepicker_widget),
         Field('payment_methods_id', db.payment_methods, required=True,
-            requires=IS_IN_DB(db,'payment_methods.id','%(Name)s',
+            requires=IS_IN_DB(db(pm_query),'payment_methods.id','%(Name)s',
                               error_message=T("Please select a payment method"),
                               zero=T("Please select...")),
             represent=lambda value, row: payment_methods_dict.get(value),
@@ -4223,9 +4475,15 @@ def define_invoices_payments():
         Field('Note', 'text',
             represent=lambda value, row: value or '',
             label=T("Note")),
+        Field('mollie_chargeback_id',
+            readable=False,
+            writable=False),
         Field('mollie_payment_id',
             readable=False,
-            writable=False)
+            writable=False),
+        Field('mollie_refund_id',
+            readable=False,
+            writable=False),
         )
 
     # sorted_payment_methods = [dict(id='', Name=T("Please select..."))]
@@ -4415,15 +4673,15 @@ def define_receipts():
                               zero=T("Not set"))),
             represent=lambda value, row: payment_methods_dict.get(value),
             label=T("Payment method")),
-        Field('Created_by', db.auth_user,
+        Field('CreatedBy', db.auth_user,
             writable=False,
             label=T("Employee")),
-        Field('Created_at', 'datetime',
+        Field('CreatedOn', 'datetime',
             writable=False,
             default=datetime.datetime.now(),
             represent=represent_datetime,
             label=T("Time")),
-        Field('Updated_at', 'datetime',
+        Field('UpdatedOn', 'datetime',
             readable=False,
             writable=False,
             default=datetime.datetime.now(),
@@ -4431,7 +4689,7 @@ def define_receipts():
         )
 
     try:
-        db.receipts.Created_by.default = auth.user.id
+        db.receipts.CreatedBy.default = auth.user.id
     except AttributeError:
         pass
 
@@ -5744,25 +6002,25 @@ def setup_set_email_templates():
     templates = [
         [
             'sys_email_footer',
-            'Email Footer',
-             """ """
+            T('Email Footer'),
+             """This is an auto generated message."""
         ],
         [
             'sys_reset_password',
-            'Reset Password',
+            T('Reset Password'),
             """<h3>Reset password</h3>
             <p>Please click on the <a href="%(link)s">link</a> to reset your password</p>"""
         ],
         [
             'sys_verify_email',
-            'Verify Email',
+            T('Verify Email'),
             """<h3>Verify email</h3>
             <p>Welcome %(first_name)s!</p>
-            <p>Please click on the <a href="%(link)s">link</a> to verify your email</p>"""
+            <p>Please click on the <a href="%(link)s">link</a> to verify your email address</p>"""
         ],
         [
             'order_received',
-            'Order received',
+            T('Order received'),
             """<h3>We have received your order with number #{order_id} on {order_date}</h3>
             <p>&nbsp;</p>
             <p>{order_items}</p>
@@ -5771,7 +6029,7 @@ def setup_set_email_templates():
         ],
         [
             'order_delivered',
-            'Order delivered',
+            T('Order delivered'),
             """<h3>Your order&nbsp;with number #{order_id} has been delivered</h3>
             <p>All items listed below have been added to your account</p>
             <p>&nbsp;</p>
@@ -5782,13 +6040,40 @@ def setup_set_email_templates():
         ],
         [
             'payment_recurring_failed',
-            'Recurring payment failed',
+            T('Recurring payment failed'),
             """<h3>Recurring payment failed</h3>
             <p>&nbsp;</p>
             <p>One or more recurring payments failed, please log in to your account and pay any open invoices before the due date.</p>
             <p>&nbsp;</p>
             <p>To view your invoices, please click <a href="{link_profile_invoices}">here</a>.</p>"""
         ],
+        [
+            'teacher_sub_offer_declined',
+            T('Teacher sub offer declined'),
+            """<p>Dear {teacher_name},<br /><br /></p>
+<p>As we have been able to fill the sub request for the class above, we would like to inform you that we won't be making use of your offer to teach this class.<br /><br /></p>
+<p>We thank you for your offer and hope to be able to use your services again in the future.</p>""",
+        ],
+        [
+            'teacher_sub_offer_accepted',
+            T('Teacher sub offer accepted'),
+            """<p>Dear {teacher_name},<br /><br /></p>
+<p>Thank you for taking over the class mentioned above. We're counting on you!</p>""",
+        ],
+        [
+            'teacher_sub_requests_daily_summary',
+            T('Teacher sub requests daily summary'),
+            """<p>Dear {teacher_name},<br /><br /></p>
+<p>Below you'll find a list of open classes. We would greatly appreciate it if you could have a look at the list and let us know whether you'd be able to teach one or more classes.</p>
+<p>Click <a href="{link_employee_portal}">here</a> to let us know which classes you can teach.</p>""",
+        ],
+        [
+            'teacher_sub_request_open_reminder',
+            T("Teacher sub request open reminder"),
+            """<p>Dear {teacher_name},<br /><br /></p>
+<p>Using this email we'd like to remind you that a substitute teacher for the class above hasn't been found yet.</p>"""
+        ]
+
     ]
     for name, title, template_content in templates:
         db.sys_email_templates.insert(
@@ -6015,6 +6300,9 @@ auth.settings.extra_fields['auth_user'] = [
     Field('last_login', 'datetime',
         readable=False,
         writable=False),
+    Field('barcode_id', 'integer',
+        represent=lambda value, row: value or "",
+        label=T("Barcode")),
     Field('barcode', 'upload', autodelete=True,
           readable=False,
           writable=False,
@@ -6028,7 +6316,7 @@ auth.settings.extra_fields['auth_user'] = [
     Field('date_of_birth', 'date', required=False,
         requires=IS_EMPTY_OR(IS_DATE_IN_RANGE(format=DATE_FORMAT,
                              minimum=datetime.date(1900,1,1),
-                             maximum=datetime.date(2999,1,1))),
+                             maximum=datetime.date(2999,12,31))),
         represent=represent_date, label=T("Date of birth"),
         widget=os_date_widget),
     Field('birthday', 'date',
@@ -6180,7 +6468,7 @@ auth.define_tables(username=False, signature=False)
 db.auth_user._format = '%(display_name)s'
 
 # set up email
-MAIL = mail
+current.mail = mail
 
 # setup currency symbol
 CURRSYM = get_sys_property('CurrencySymbol')
@@ -6212,11 +6500,14 @@ define_payment_methods()
 payment_methods_dict = create_payment_methods_dict()
 
 define_mailing_lists()
+define_sys_email_reminders()
 define_integration_exact_online_log()
 define_postcode_groups()
 define_tax_rates()
 define_accounting_costcenters()
 define_accounting_glaccounts()
+define_accounting_expenses()
+define_accounting_cashbooks_cash_count()
 
 define_school_memberships()
 define_school_subscriptions()
@@ -6333,17 +6624,25 @@ define_invoices_groups_product_types()
 define_invoices()
 define_invoices_amounts()
 define_invoices_items()
+define_invoices_items_classes_attendance()
+define_invoices_items_customers_classcards()
+define_invoices_items_employee_claims()
+define_invoices_items_customers_memberships()
+define_invoices_items_customers_subscriptions()
+define_invoices_items_teachers_payment_classes()
+define_invoices_items_workshops_products_customers()
 define_invoices_payments()
-define_invoices_workshops_products_customers()
-define_invoices_customers_classcards()
-define_invoices_classes_attendance()
 define_invoices_customers()
-define_invoices_customers_memberships()
-define_invoices_customers_subscriptions()
 define_invoices_customers_orders()
-define_invoices_employee_claims()
-define_invoices_teachers_payment_classes()
 define_invoices_mollie_payment_ids()
+# define_invoices_classes_attendance()
+# define_invoices_customers_memberships()
+# define_invoices_customers_subscriptions()
+# define_invoices_workshops_products_customers()
+# define_invoices_customers_classcards()
+# define_invoices_employee_claims()
+# define_invoices_teachers_payment_classes()
+
 
 # receipts definitions
 define_receipts()

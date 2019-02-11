@@ -70,7 +70,7 @@ class ShopProductsSetsOptions:
             if permission_delete:
                 delete = os_gui.get_button('delete_notext',
                     URL('shop_manage',
-                        'shop_products_sets_options_delete',
+                        'products_sets_options_delete',
                         vars=vars),
                     onclick=onclick_delete,
                     _class='pull-right')

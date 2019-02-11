@@ -4,7 +4,6 @@ import PropTypes from "prop-types"
 import { NavLink } from 'react-router-dom'
 import validator from 'validator'
 
-
 import PageTemplate from "../../../components/PageTemplate"
 import InputGroupSearch from "../../../components/ui/InputGroupSearch"
 import ButtonBack from "../../../components/ui/ButtonBack"
@@ -44,27 +43,19 @@ class Customers extends Component {
         this.props.clearSearchCustomerID()
         this.props.clearSelectedCustomerID()
 
-        const barcode_scans = this.props.barcode_scans
-        const memberships = this.props.memberships.data
-
-        console.log(barcode_scans)
+        const customers = this.props.customers.data
         let cuID
 
         if (validator.isInt(value)) {
-            console.log('This is an int!')
-            if (barcode_scans == 'membership_id') {
-                // find customer ID
-                console.log('looking for cuID in memberships')
-                for (const key of Object.keys(memberships)) {
-                    let m = memberships[key]
-                    console.log(m)
-                    if ( m['date_id'] == value) {
-                        cuID = m['auth_customer_id']
-                    }
-
+            // Find customer ID based on barcode ID
+            console.log('looking for cuID in customers using barcode')
+            for (const key of Object.keys(customers)) {
+                let c = customers[key]
+                console.log(c)
+                if ( c['barcode_id'] == value) {
+                    cuID = c['id']
                 }
-            } else {
-                cuID = value
+
             }
 
             this.props.setDisplayCustomerID(cuID)
@@ -110,10 +101,12 @@ class Customers extends Component {
         this.props.clearSelectedCustomerID()
         this.props.clearSearchValue()
         this.props.setUpdateCustomerStatus(false)
+        this.props.clearCreateCustomerErrorData()
         this.props.setCreateCustomerStatus(!this.props.customers.create_customer)
     }
 
     onClickEdit(e) {
+        this.props.clearUpdateCustomerErrorData()
         this.props.setUpdateCustomerStatus(!this.props.customers.update_customer)
     }
 
@@ -176,11 +169,15 @@ class Customers extends Component {
 
     render() {
         const customers = this.props.customers
-        const intl = this.props.intl
         const memberships = this.props.memberships
+        const subscriptions = this.props.subscriptions
+        const classcards = this.props.classcards
+        const intl = this.props.intl
+        const settings = this.props.app.settings.data
+        const inputmask_date = settings.date_mask
 
         let customers_display = []
-        if (customers.loaded && memberships.loaded) {
+        if (customers.loaded) {
             if ( customers.searchID ) {
                 customers_display = [
                     customers.data[customers.searchID]
@@ -200,7 +197,7 @@ class Customers extends Component {
         return (
             <PageTemplate app_state={this.props.app}>
                 { 
-                    (!customers.loaded || !memberships.loaded) ? 
+                    (!customers.loaded) ? 
                         <div>{intl.formatMessage({ id: 'app.pos.customers.loading_message' })}</div> :
                         <div>
                             <section className="customers-main-tools">
@@ -233,17 +230,22 @@ class Customers extends Component {
                             <section className="customers-main">
                                 <CustomerDisplay customerID={customers.displayID}
                                                 customers={customers} 
+                                                memberships={memberships}
+                                                subscriptions={subscriptions}
+                                                classcards={classcards}
                                                 edit_in_progress={customers.update_customer}
                                                 onClickEdit={this.onClickEdit.bind(this)}
                                                 onSetCameraAppSnap={this.props.setCameraAppSnap}
                                                 onClearCameraAppSnap={this.props.clearCameraAppSnap}
                                                 onSaveCameraAppSnap={this.props.updateCustomerPicture} />
                                 { (customers.create_customer) ?
-                                    <CustomerFormCreate error_data={customers.create_customer_error_data}
+                                    <CustomerFormCreate inputmask_date={inputmask_date}
+                                                        error_data={customers.create_customer_error_data}
                                                         onSubmit={this.onCreateCustomer.bind(this)}
                                                         onCancel={this.onClickAdd.bind(this)} /> : ''
                                 }
                                 <CustomerFormUpdate display={customers.update_customer}
+                                                    inputmask_date={inputmask_date}
                                                     error_data={customers.update_customer_error_data}
                                                     customerID={customers.displayID}
                                                     customers={customers.data}

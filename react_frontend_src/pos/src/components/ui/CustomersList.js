@@ -17,7 +17,7 @@ const CustomersList = ({customers, title="", onClick=f=>f}) =>
                     <tr>
                         <th></th>
                         <th>Customer</th>
-                        <th>Address</th>
+                        <th>Email</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -25,7 +25,7 @@ const CustomersList = ({customers, title="", onClick=f=>f}) =>
                         <tr key={v4()} onClick={() => onClick(customer.id)}>
                             <td className="customers_list_image"><img src={customer.thumbsmall}></img></td>
                             <td>{customer.display_name}</td>
-                            <td>{customer.address}</td>
+                            <td>{customer.email}</td>
                         </tr>
                     )}
                 </tbody>

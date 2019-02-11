@@ -3,7 +3,7 @@ import { injectIntl } from 'react-intl'
 
 import { formatDate } from "../../../utils/date_tools"
 import { isoDateStringToDateObject } from "../../../utils/date_tools"
-
+import customerHasRequiredMembership from './customerHasRequiredMembership'
 
 const BookOptionsListItemClasscard = injectIntl(({data, customer_memberships, intl, onClick=f=>f}) => 
     <div className="col-md-3"
@@ -25,8 +25,8 @@ const BookOptionsListItemClasscard = injectIntl(({data, customer_memberships, in
               <i className="fa fa-id-card-o"></i>
             </div>
             { (data.school_memberships_id) ? 
-                (customer_memberships.includes(data.school_memberships_id) ? 
-                    '' : <span className="small-box-footer"><i className="fa fa-exclamation-circle"></i> Membership required - buy now</span> )
+                customerHasRequiredMembership(data.school_memberships_id, customer_memberships) ? 
+                    '' : <span className="small-box-footer"><i className="fa fa-exclamation-circle"></i> Membership required - buy now</span> 
                     : ''
             }
             { !(data.Allowed) ?

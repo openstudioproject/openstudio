@@ -12,6 +12,8 @@ const mapStateToProps = state =>
         app: state.app,
         barcode_scans: state.app.settings.data.customers_barcodes,
         customers: state.customers.list,
+        classcards: state.customers.classcards,
+        subscriptions: state.customers.subscriptions,
         memberships: state.customers.memberships
     })
 
@@ -28,6 +30,12 @@ const mapDispatchToProps = dispatch =>
         },
         updateCustomerPicture(cuID, picture) {
             dispatch(customersListOperations.updateCustomerPicture(cuID, picture))
+        },
+        clearCreateCustomerErrorData() {
+            dispatch(customersListOperations.clearCreateCustomerErrorData())
+        },
+        clearUpdateCustomerErrorData() {
+            dispatch(customersListOperations.clearUpdateCustomerErrorData())
         },
         setCreateCustomerStatus(status) {
             dispatch(customersListOperations.setCreateCustomerStatus(status))

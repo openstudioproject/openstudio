@@ -1,4 +1,4 @@
-# coding: utf8
+# -*- coding: utf-8 -*-
 
 from openstudio.os_workshops_helper import WorkshopsHelper
 
@@ -485,6 +485,7 @@ def event_add_set_price():
 
     crud.messages.submit_button = T("Save")
     crud.messages.record_updated = T("Saved")
+    crud.settings.formstyle = 'bootstrap3_stacked'
     crud.settings.update_deletable = False
     crud.settings.update_next = URL('tickets', vars={'wsID': wsID})
     form = crud.update(db.workshops_products, fwspID)
@@ -803,7 +804,7 @@ def activity_add():
     crud.messages.record_created = T("Added activity")
     crud.settings.create_onaccept = [activity_add_edit_update_workshop_datetime_info, cache_clear_workshops]
     crud.settings.create_next = return_url
-    crud.settings.formstyle = 'table3cols'
+    crud.settings.formstyle = 'bootstrap3_stacked'
     form = crud.create(db.workshops_activities)
 
     form_id = "MainForm"
@@ -841,6 +842,7 @@ def activity_edit():
     crud.messages.submit_button = T("Save")
     crud.messages.record_updated = T("Saved")
     crud.messages.record_deleted = T("Deleted activity")
+    crud.settings.formstyle = 'bootstrap3_stacked'
     crud.settings.update_onaccept = [activity_add_edit_update_workshop_datetime_info, cache_clear_workshops]
     crud.settings.update_next = return_url
     crud.settings.update_deletable = False
@@ -926,15 +928,15 @@ def mail_activity_attendance():
         message += '<br><br>'
         table = TABLE()
         for fws_row in fws_rows.render():
-            name = fws_row.auth_user.display_name
+            name = fws_row.auth_user.display_name.decode('utf-8')
             table.append(TR(TD(name),
                             TD(unicode(T('Full event')))))
         wsa_rows = activity_list_customers_get_activity_rows(row.id)
         for wsa_row in wsa_rows:
-            name = wsa_row.auth_user.display_name,
+            name = wsa_row.auth_user.display_name.decode('utf-8'),
             table.append(TR(TD(name), TD()))
 
-        message += unicode(table)
+        message += str(table).decode('utf-8')
         message += '<br>'
 
         subject = T("Reservations for") + ' ' + workshop.Name + ', ' + \
@@ -966,12 +968,13 @@ def mail_activity_attendance():
     if len(to) < 1:
         session.flash = T("Please check the teachers' email address(es).")
     else:
-        check = MAIL.send(
+        check = MAIL.send_and_archive(
             to=to,
             subject=subject,
             # If reply_to is omitted, then mail.settings.sender is used
             reply_to=None,
-            message=message)
+            message=message
+        )
 
         if check:
             session.flash = T("Successfully sent mail")
@@ -1168,13 +1171,17 @@ def stats_get_revenue(wsID):
 
     # Get invoices
     left = [
+        db.invoices_items.on(
+            db.invoices_items_workshops_products_customers.invoices_items_id ==
+            db.invoices_items.id
+        ),
         db.invoices_amounts.on(
-            db.invoices_workshops_products_customers.invoices_id ==
+            db.invoices_items.invoices_id ==
             db.invoices_amounts.invoices_id
         )
     ]
-    query = (db.invoices_workshops_products_customers.workshops_products_customers_id.belongs(wspc_ids))
-    rows = db(query).select(db.invoices_workshops_products_customers.ALL,
+    query = (db.invoices_items_workshops_products_customers.workshops_products_customers_id.belongs(wspc_ids))
+    rows = db(query).select(db.invoices_items_workshops_products_customers.ALL,
                             db.invoices_amounts.ALL,
                             left=left)
 
@@ -1473,7 +1480,7 @@ def tickets_export_excel():
     def add_ticket_sheet(wspID):
         wsp = WorkshopProduct(wspID)
         # add sheet
-        ws = wb.create_sheet(title=wsp.name)
+        ws = wb.create_sheet(title=wsp.name.decode('utf-8'))
         # get db info
         left = [ db.auth_user.on(db.auth_user.id == db.workshops_products_customers.auth_customer_id),
                  db.workshops_products.on(
@@ -2222,7 +2229,7 @@ def tickets_list_customers_get_list(table,
         Append customers to table
     """
     wh = WorkshopsHelper()
-    db_icwspc = db.invoices_workshops_products_customers
+    db_iicwspc = db.invoices_items_workshops_products_customers
 
     query = (db.workshops_products_customers.workshops_products_id == wspID)
     rows = db(query).select(
@@ -2240,9 +2247,13 @@ def tickets_list_customers_get_list(table,
                               db.auth_user.id),
               # db.invoices.on(db.invoices.workshops_products_customers_id ==
               #                db.workshops_products_customers.id)
-              db.invoices_workshops_products_customers.on(
-                  db_icwspc.workshops_products_customers_id == db.workshops_products_customers.id),
-              db.invoices.on(db_icwspc.invoices_id == db.invoices.id)],
+              db.invoices_items_workshops_products_customers.on(
+                  db_iicwspc.workshops_products_customers_id == db.workshops_products_customers.id),
+              db.invoices_items.on(
+                  db_iicwspc.invoices_items_id ==
+                  db.invoices_items.id
+              ),
+              db.invoices.on(db.invoices_items.invoices_id == db.invoices.id)],
         orderby=db.workshops_products_customers.Cancelled | \
                 db.workshops_products_customers.Waitinglist | \
                 db.auth_user.display_name)
@@ -2744,9 +2755,10 @@ def ticket_delete_customer():
     wsp_cuID = request.vars['wsp_cuID']
 
     # Cancel invoice (if any)
-    row = db.invoices_workshops_products_customers(workshops_products_customers_id = wsp_cuID)
+    row = db.invoices_items_workshops_products_customers(workshops_products_customers_id = wsp_cuID)
     if row:
-        iID = row.invoices_id
+        invoice_item = db.invoices_items(row.invoices_items_id)
+        iID = invoice_item.invoices_id
         if iID:
             invoice = Invoice(iID)
             invoice.set_status('cancelled')
@@ -2777,17 +2789,10 @@ def ticket_cancel_customer():
     wsID = request.vars['wsID']
     wsp_cuID = request.vars['wsp_cuID']
 
-    # Cancel invoice (if any)
-    row = db.invoices_workshops_products_customers(workshops_products_customers_id = wsp_cuID)
-    if row:
-        iID = row.invoices_id
-        if iID:
-            invoice = Invoice(iID)
-            invoice.set_status('cancelled')
-
     # get database record for workshop_customers
     row = db.workshops_products_customers(
-        db.workshops_products_customers.id == wsp_cuID)
+        db.workshops_products_customers.id == wsp_cuID
+    )
 
     cuID = row.auth_customer_id
     wspID = row.workshops_products_id
@@ -2795,12 +2800,13 @@ def ticket_cancel_customer():
     row.Cancelled = not row.Cancelled
     row.update_record()
 
-    # update invoice status to cancelled if status == sent
-    query = (db.invoices_workshops_products_customers.workshops_products_customers_id == wsp_cuID)
-    rows = db(query).select(db.invoices_workshops_products_customers.ALL)
+    # update invoice status to cancelled if status
+    query = (db.invoices_items_workshops_products_customers.workshops_products_customers_id == wsp_cuID)
+    rows = db(query).select(db.invoices_items_workshops_products_customers.ALL)
     if len(rows):
         row = rows.first()
-        iID = row.invoices_id
+        invoice_item = db.invoices_items(row.invoices_items_id)
+        iID = invoice_item.invoices_id
 
         invoice = Invoice(iID)
         if invoice.invoice.Status == 'sent':
@@ -2849,7 +2855,7 @@ def ticket_resend_info_mail():
     ##
     osmail = OsMail()
     msgID = osmail.render_email_template('workshops_info_mail', workshops_products_customers_id=wspcID)
-    sent = osmail.send(msgID, cuID)
+    sent = osmail.send_and_archive(msgID, cuID)
 
     ##
     # Check the "Event info" checkbox

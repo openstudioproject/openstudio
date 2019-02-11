@@ -59,6 +59,7 @@ class OsGui:
             title = current.T("Delete")
             icon = "fa fa-times"
         elif button_type == 'delete_notext':
+            btn_class='btn-danger'
             title = current.T("")
             icon = "fa fa-times"
         elif button_type == 'cancel':

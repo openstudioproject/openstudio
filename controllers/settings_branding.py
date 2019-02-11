@@ -183,12 +183,10 @@ def default_templates():
 
     sprop_t_class_revenue = 'branding_default_template_class_revenue'
     sprop_t_barcode_label_customer = 'branding_default_template_barcode_label_customer'
-    sprop_t_barcode_label_membership = 'branding_default_template_barcode_label_membership'
     sprop_t_email = 'branding_default_template_email'
     sprop_t_receipts = 'branding_default_template_receipts'
     sprop_t_events = 'branding_default_template_events'
     t_barcode_label_customer = get_sys_property(sprop_t_barcode_label_customer)
-    t_barcode_label_membership = get_sys_property(sprop_t_barcode_label_membership)
     t_class_revenue = get_sys_property(sprop_t_class_revenue)
     t_email = get_sys_property(sprop_t_email)
     t_receipts = get_sys_property(sprop_t_receipts)
@@ -199,10 +197,6 @@ def default_templates():
               default=t_barcode_label_customer,
               requires=IS_IN_SET(default_templates_list_templates('barcode_label_customer')),
               label=T('Barcode label template for customers')),
-        Field('t_barcode_label_membership',
-              default=t_barcode_label_membership,
-              requires=IS_IN_SET(default_templates_list_templates('barcode_label_membership')),
-              label=T('Barcode label template for memberships')),
         Field('t_class_revenue',
               default=t_class_revenue,
               requires=IS_IN_SET(default_templates_list_templates('class_revenue')),
@@ -238,10 +232,6 @@ def default_templates():
         # Check barcode label customer
         t_barcode_label_customer = request.vars['t_barcode_label_customer']
         set_sys_property(sprop_t_barcode_label_customer, t_barcode_label_customer)
-
-        # Check barcode label membership
-        t_barcode_label_membership = request.vars['t_barcode_label_membership']
-        set_sys_property(sprop_t_barcode_label_membership, t_barcode_label_membership)
 
         # Check class revenue
         t_class_revenue = request.vars['t_class_revenue']
@@ -282,7 +272,6 @@ def default_templates_list_templates(template_type):
     """
     template_types = [
         'barcode_label_customer',
-        'barcode_label_membership',
         'class_revenue',
         'email',
         'invoices',
