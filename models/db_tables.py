@@ -2991,6 +2991,37 @@ def define_customers_subscriptions_paused():
         )
 
 
+def define_customers_subscriptions_blocked():
+    today = TODAY_LOCAL
+    startdate_default = datetime.date(today.year, today.month, 1)
+    enddate_default = get_last_day_month(startdate_default)
+
+    db.define_table('customers_subscriptions_bocked',
+        Field('customers_subscriptions_id', db.customers_subscriptions, required=True,
+              readable=False,
+              writable=False,
+              represent=represent_customer_subscription_as_name,
+              label=T("Subscription")),
+        Field('Startdate', 'date', required=True,
+            requires=IS_DATE_IN_RANGE(format=DATE_FORMAT,
+                                      minimum=datetime.date(1900,1,1),
+                                      maximum=datetime.date(2999,1,1)),
+            default=TODAY_LOCAL,
+            label=T("Prevent check-in from"),
+            widget=os_datepicker_widget),
+        Field('Enddate', 'date',
+            requires=IS_EMPTY_OR(IS_DATE_IN_RANGE(format=DATE_FORMAT,
+                                      minimum=datetime.date(1900,1,1),
+                                      maximum=datetime.date(2999,1,1))),
+            default=enddate_default,
+            label=T("Prevent check-in until"),
+            widget=os_datepicker_widget),
+        Field('Description',
+            represent=lambda value, row: value or "",
+            label=T("Description")),
+        )
+
+
 def define_customers_subscriptions_alt_prices():
     months = get_months_list()
 
@@ -6543,6 +6574,7 @@ define_customers_messages()
 define_customers_memberships()
 define_customers_subscriptions()
 define_customers_subscriptions_paused()
+define_customers_subscriptions_blocked()
 define_customers_subscriptions_alt_prices()
 define_customers_profile_features()
 define_customers_profile_announcements()
