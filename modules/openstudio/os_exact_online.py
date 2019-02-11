@@ -79,6 +79,16 @@ class OSExactOnline:
         storage = self.get_storage()
         api = self.get_api()
         cuID = os_invoice.get_linked_customer_id()
+        if not cuID:
+            self._log_error(
+                'create',
+                'sales_entry',
+                os_invoice.invoice.id,
+                "No customer linked to this invoice"
+            )
+
+            return
+
         os_customer = Customer(os_invoice.get_linked_customer_id())
         eoID = os_customer.row.exact_online_relation_id
 
@@ -149,6 +159,9 @@ class OSExactOnline:
                         (db.invoices_items.Sorting == i + 1)
                 db(query).update(ExactOnlineSalesEntryLineID = line['ID'])
 
+            if not error:
+                os_invoice.set_synced_at_now()
+
         except HTTPError as e:
             error = True
             self._log_error(
@@ -158,10 +171,7 @@ class OSExactOnline:
                 e
             )
 
-        if error:
-            return False
-
-        return eoseID
+        return error
 
 
     def update_sales_entry(self, os_invoice):
@@ -194,11 +204,16 @@ class OSExactOnline:
         eoseID = os_invoice.invoice.ExactOnlineSalesEntryID
 
         if not eoseID:
-            eoseID = self.create_sales_entry(os_invoice)
-            if not eoseID:
-                return True # This returns an error
-            return False # No error, created successfully
-
+            self._log_error(
+                'update',
+                'sales_entry',
+                os_invoice.invoice.id,
+                "Can't update this invoice, no Exact Online ID found"
+            )
+            # eoseID = self.create_sales_entry(os_invoice)
+            # if not eoseID:
+            #     return True # This returns an error
+            # return False # No error, created successfully
 
         import pprint
 
@@ -255,6 +270,9 @@ class OSExactOnline:
 
             if errors_update_lines:
                 error = True
+
+            if not error:
+                os_invoice.set_synced_at_now()
 
         except HTTPError as e:
             error = True
@@ -391,7 +409,7 @@ class OSExactOnline:
                 if result['error']:
                     count_errors += 1
 
-                item.ExactOnlineSalesEntryLineID = result['ID']
+                item.ExactOnlineSalesEntryLineID = result['result']['ID']
                 item.update_record()
 
             else: # Update

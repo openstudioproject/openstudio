@@ -236,6 +236,70 @@ def logistics_items():
 
 @auth.requires(auth.has_membership(group_id='Admins') or
                auth.has_permission('read', 'settings'))
+def log():
+    """
+    List items
+    """
+    from openstudio.os_forms import OsForms
+
+    response.title = T("Exact online")
+    response.subtitle = T("Log")
+    response.view = 'general/only_content.html'
+
+    query = (db.integration_exact_online_log.id > 0)
+
+    if 'object_id' in request.vars:
+        session.exact_online_log_object_id = request.vars['object_id']
+
+    if session.exact_online_log_object_id:
+        query &= (db.integration_exact_online_log.ObjectID == session.exact_online_log_object_id)
+
+    maxtextlengths = {
+        'integration_exact_online_log.ActionResult': 40
+    }
+
+    os_forms = OsForms()
+    form = SQLFORM.factory(
+        Field('object_id', requires=IS_NOT_EMPTY(),
+              label=T("ObjectID")),
+        submit_button = T("Filter"),
+        formstyle = 'bootstrap3_stacked'
+    )
+
+    result = os_forms.set_form_id_and_get_submit_button(form, 'MainForm')
+    form = result['form']
+
+    grid = SQLFORM.grid(query,
+                        # links=links,
+                        # left=left,
+                        field_id=db.integration_exact_online_log.id,
+                        # fields=fields,
+                        paginate=20,
+                        create=False,
+                        editable=False,
+                        details=True,
+                        formstyle='bootstrap3_stacked',
+                        searchable=False,
+                        deletable=False,
+                        csv=False,
+                        maxtextlengths=maxtextlengths,
+                        orderby=~db.integration_exact_online_log.id,
+                        ui=grid_ui)
+    grid.element('.web2py_counter', replace=None)  # remove the counter
+    grid.elements('span[title=Delete]', replace=None)  # remove text from delete button
+
+    back = os_gui.get_button(
+        'back',
+        URL('settings_integration', 'exact_online')
+    )
+
+    return dict(content=DIV(form, BR(), grid),
+                save=result['submit'],
+                back=back)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'settings'))
 def division_set_default():
     """
     Set default division
@@ -299,6 +363,8 @@ def sync_invoices():
     :return:
     """
     from openstudio.os_scheduler_tasks import OsSchedulerTasks
+
+    print 'syncing invoices'
 
     osst = OsSchedulerTasks()
     result = osst.exact_online_sync_invoices()

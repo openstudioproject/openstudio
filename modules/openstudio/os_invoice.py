@@ -38,27 +38,51 @@ class Invoice:
         """
         functions to be called when updating an invoice or invoice items
         """
-        from tools import OsTools
-        from os_exact_online import OSExactOnline
-
-        os_tools = OsTools()
-        eo_authorized = os_tools.get_sys_property('exact_online_authorized')
-
         # Set last updated datetime
         self._set_updated_at()
 
-        # Exact online integration
-        if eo_authorized == 'True':
-            os_eo = OSExactOnline()
-            if not self.invoice_group.JournalID:
-                os_eo._log_error(
-                    'update',
-                    'invoice',
-                    self.invoices_id,
-                    'No JournalID specified for invoice group'
-                )
-            else:
-                os_eo.update_sales_entry(self)
+
+    def set_synced_at_now(self):
+        """
+        Set db.invoices.Updated_at to current time (UTC)
+        """
+        self.invoice.Synced_at = datetime.datetime.now()
+        self.invoice.update_record()
+
+
+    def sync_exact_online(self):
+        """
+        Sync this invoice and all it's items with exact online
+        :return:
+        """
+        from tools import OsTools
+        from os_exact_online import OSExactOnline
+
+        error = False
+
+        if self.invoice.Status != 'draft':
+            os_tools = OsTools()
+            eo_authorized = os_tools.get_sys_property('exact_online_authorized')
+
+            # Exact online integration
+            if eo_authorized == 'True':
+                os_eo = OSExactOnline()
+                if not self.invoice_group.JournalID:
+                    os_eo._log_error(
+                        'update',
+                        'invoice',
+                        self.invoices_id,
+                        'No JournalID specified for invoice group'
+                    )
+                else:
+                    if not self.invoice.ExactOnlineSalesEntryID:
+                        # Not synced yet, so create sales entry
+                        error = os_eo.create_sales_entry(self)
+                    else:
+                        # Update
+                        error = os_eo.update_sales_entry(self)
+
+        return error
 
 
     def _set_updated_at(self):
@@ -652,10 +676,14 @@ class Invoice:
         # Add item to invoice
         next_sort_nr = self.get_item_next_sort_nr()
 
+        item_date = ''
+        if ws.Startdate:
+            item_date = ' [' + ws.Startdate.strftime(DATE_FORMAT) + ']',
+
         iiID = db.invoices_items.insert(
             invoices_id=self.invoices_id,
             ProductName=T('Event'),
-            Description=ws.Name.decode('utf-8') + u' - ' + wsp.Name.decode('utf-8') + ' [' + ws.Startdate.strftime(DATE_FORMAT) + ']',
+            Description=ws.Name.decode('utf-8') + u' - ' + wsp.Name.decode('utf-8') + item_date,
             Quantity=1,
             Price=wsp.Price,
             Sorting=next_sort_nr,

@@ -1024,7 +1024,7 @@ def invoices():
         redirect(URL('profile', 'index'))
 
     customer = Customer(auth.user.id)
-    rows = customer.get_invoices_rows(debit_only=True)
+    rows = customer.get_invoices_rows(debit_only=True, synced_only=True)
     back = os_gui.get_button('back', URL('profile', 'orders'), _class='btn-link')
 
     return dict(rows = rows, back=back)
