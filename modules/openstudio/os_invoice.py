@@ -58,6 +58,8 @@ class Invoice:
         from tools import OsTools
         from os_exact_online import OSExactOnline
 
+        error = False
+
         if self.invoice.Status != 'draft':
             os_tools = OsTools()
             eo_authorized = os_tools.get_sys_property('exact_online_authorized')
@@ -73,7 +75,14 @@ class Invoice:
                         'No JournalID specified for invoice group'
                     )
                 else:
-                    os_eo.update_sales_entry(self)
+                    if not self.invoice.ExactOnlineSalesEntryID:
+                        # Not synced yet, so create sales entry
+                        error = os_eo.create_sales_entry(self)
+                    else:
+                        # Update
+                        error = os_eo.update_sales_entry(self)
+
+        return error
 
 
     def _set_updated_at(self):

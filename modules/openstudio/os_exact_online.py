@@ -171,10 +171,7 @@ class OSExactOnline:
                 e
             )
 
-        if error:
-            return False
-
-        return eoseID
+        return error
 
 
     def update_sales_entry(self, os_invoice):
@@ -207,11 +204,16 @@ class OSExactOnline:
         eoseID = os_invoice.invoice.ExactOnlineSalesEntryID
 
         if not eoseID:
-            eoseID = self.create_sales_entry(os_invoice)
-            if not eoseID:
-                return True # This returns an error
-            return False # No error, created successfully
-
+            self._log_error(
+                'update',
+                'sales_entry',
+                os_invoice.invoice.id,
+                "Can't update this invoice, no Exact Online ID found"
+            )
+            # eoseID = self.create_sales_entry(os_invoice)
+            # if not eoseID:
+            #     return True # This returns an error
+            # return False # No error, created successfully
 
         import pprint
 
@@ -407,7 +409,7 @@ class OSExactOnline:
                 if result['error']:
                     count_errors += 1
 
-                item.ExactOnlineSalesEntryLineID = result['ID']
+                item.ExactOnlineSalesEntryLineID = result['result']['ID']
                 item.update_record()
 
             else: # Update
