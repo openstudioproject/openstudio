@@ -58,7 +58,7 @@ class Invoice:
         from tools import OsTools
         from os_exact_online import OSExactOnline
 
-        if self.invoice.Status == 'sent' or self.invoice.Status == 'paid':
+        if self.invoice.Status != 'draft':
             os_tools = OsTools()
             eo_authorized = os_tools.get_sys_property('exact_online_authorized')
 
