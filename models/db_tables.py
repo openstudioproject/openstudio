@@ -2996,7 +2996,7 @@ def define_customers_subscriptions_blocked():
     startdate_default = datetime.date(today.year, today.month, 1)
     enddate_default = get_last_day_month(startdate_default)
 
-    db.define_table('customers_subscriptions_bocked',
+    db.define_table('customers_subscriptions_blocked',
         Field('customers_subscriptions_id', db.customers_subscriptions, required=True,
               readable=False,
               writable=False,

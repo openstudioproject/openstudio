@@ -488,6 +488,33 @@ def subscriptions_get_link_latest_pauses(row):
     return pause_list
 
 
+def subscriptions_get_link_latest_blocks(row):
+    """
+        Returns latest pauses for a subscription
+    """
+    csID = row.id
+    cuID = row.auth_customer_id
+    query = (db.customers_subscriptions_blocked.customers_subscriptions_id == row.id)
+    rows = db(query).select(db.customers_subscriptions_blocked.ALL,
+                            orderby=~db.customers_subscriptions_blocked.Startdate,
+                            limitby=(0,3))
+
+    blocked_list = DIV()
+    for row in rows:
+        item = SPAN(row.Startdate, ' - ', row.Enddate, ' ',
+                    _title=row.Description,
+                    _class='grey small_font')
+        blocked_list.append(item)
+        blocked_list.append(BR())
+
+    blocked_list.append(A(SPAN(T("Edit blocks"), _class='small_font'),
+                   _href=URL('subscription_blocks', vars={'cuID':cuID,
+                                                          'csID':csID}),
+                   _title=T("View all blocks and add new")))
+
+    return blocked_list
+
+
 def subscriptions_get_link_credits(row):
     """
         Returns total number of credits for a subscription
@@ -3513,6 +3540,7 @@ def subscriptions():
                       TH(db.customers_subscriptions.payment_methods_id.label),
                       TH(db.customers_subscriptions.Note.label),
                       TH(T('Pauses')),
+                      TH(T('Blocks')),
                       TH(T('Credits')),
                       TH(), # membership warning (if any)
                       TH()) # buttons
@@ -3556,6 +3584,7 @@ def subscriptions():
                 TD(repr_row.payment_methods_id),
                 TD(repr_row.Note),
                 TD(subscriptions_get_link_latest_pauses(row)),
+                TD(subscriptions_get_link_latest_blocks(row)),
                 TD(subscriptions_get_link_credits(row)),
                 TD(subscriptions_get_link_membership_check(row)),
                 TD(delete, edit))
