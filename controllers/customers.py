@@ -3132,6 +3132,7 @@ def subscription_edit():
 
     crud.messages.submit_button = T("Save")
     crud.messages.record_updated = T("Updated subscription")
+    crud.settings.formstyle = "bootstrap3_stacked"
     crud.settings.update_next = return_url
     crud.settings.update_onaccept = [subscriptions_clear_cache, subscription_edit_onaccept]
     crud.settings.update_deletable = False
@@ -3493,9 +3494,17 @@ def subscription_edit_get_menu(cuID, csID, page):
                       SPAN(os_gui.get_fa_icon('fa-edit'), ' ', T("Edit")),
                       URL('subscription_edit', vars=vars)])
 
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('update', 'customers_subscriptions_paused'):
         pages.append(['subscription_pauses',
                       SPAN(os_gui.get_fa_icon('fa-pause'), ' ', T("Pauses")),
                       URL('subscription_pauses', vars=vars)])
+
+    if auth.has_membership(group_id='Admins') or \
+            auth.has_permission('update', 'customers_subscriptions_blocked'):
+        pages.append(['subscription_blocks',
+                      SPAN(os_gui.get_fa_icon('fa-ban'), ' ', T("Blocks")),
+                      URL('subscription_blocks', vars=vars)])
 
     if auth.has_membership(group_id='Admins') or \
        auth.has_permission('read', 'invoices'):
@@ -3623,12 +3632,21 @@ def subscriptions_get_link_edit(row):
 
     permission = ( auth.has_membership(group_id='Admins') or
                    auth.has_permission('update', 'customers_subscriptions_paused') )
-
     if permission:
         link_pauses = A((os_gui.get_fa_icon('fa-pause'), T('Pauses')),
                         _href=URL('subscription_pauses', vars=vars))
         links.append(link_pauses)
 
+    # Blocked subscriptions
+    permission = (auth.has_membership(group_id='Admins') or
+                  auth.has_permission('update', 'customers_subscriptions_blocked'))
+
+    if permission:
+        link_blocks = A((os_gui.get_fa_icon('fa-ban'), T('Blocks')),
+                        _href=URL('subscription_blocks', vars=vars))
+        links.append(link_blocks)
+
+    # Invoices
     permission = ( auth.has_membership(group_id='Admins') or
                    auth.has_permission('read', 'invoices') )
     if permission:
