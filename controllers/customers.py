@@ -3032,9 +3032,12 @@ def subscription_blocks():
     if db(query).count() == 0:
         grid = DIV(BR(), T("This subscription hasn't been blocked before."))
     else:
-
+        links = [
+            subscription_blocks_get_link_edit
+        ]
         maxtextlengths = {'customers_subscriptions_blocked.Description': 60}
         grid = SQLFORM.grid(query,
+            links=links,
             create=False,
             details=False,
             editable=False,
@@ -3058,6 +3061,29 @@ def subscription_blocks():
     menu = subscription_edit_get_menu(cuID, csID, request.function)
 
     return dict(content=grid, menu=menu, back=back, add=add)
+
+
+def subscription_blocks_get_link_edit(row):
+    """
+    Return HTML edit button for subscription blocks if the user
+    has update permissions
+    """
+    if not (auth.has_membership(group_id='Admins') or
+            auth.has_permission('update', 'customers_subscriptions_blocked')):
+        return ''
+
+    cs = db.customers_subscriptions(row.customers_subscriptions_id)
+    cuID = cs.auth_customer_id
+
+    return os_gui.get_button(
+        'edit',
+        URL('subscription_block_edit', vars={
+            'cuID': cuID,
+            'csID': row.customers_subscriptions_id,
+            'csbID': row.id
+        })
+    )
+
 
 
 @auth.requires_login()
@@ -3088,7 +3114,49 @@ def subscription_block_add():
     back = os_gui.get_button('back', return_url)
 
     content = DIV(
-        H4(T('Add block')),
+        H4(T('Add check-in block')),
+        form
+    )
+
+    menu = subscription_edit_get_menu(cuID, csID, 'subscription_blocks')
+
+    return dict(content=content,
+                save=result['submit'],
+                back=back,
+                menu=menu)
+
+
+@auth.requires_login()
+def subscription_block_edit():
+    """
+        Add a new product
+    """
+    from openstudio.os_forms import OsForms
+
+    response.view = 'general/tabs_menu.html'
+    cuID = request.vars['cuID']
+    csID = request.vars['csID']
+    csbID = request.vars['csbID']
+    customer = Customer(cuID)
+    response.title = customer.get_name()
+    response.subtitle = subscription_edit_get_subtitle(csID)
+
+    return_url = subscription_block_get_return_url(cuID, csID)
+
+    db.customers_subscriptions_blocked.customers_subscriptions_id.default = csID
+
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_update(
+        db.customers_subscriptions_blocked,
+        return_url,
+        csbID
+    )
+
+    form = result['form']
+    back = os_gui.get_button('back', return_url)
+
+    content = DIV(
+        H4(T('Edit check-in block')),
         form
     )
 
