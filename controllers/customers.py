@@ -3045,12 +3045,61 @@ def subscription_blocks():
         grid.element('.web2py_counter', replace=None) # remove the counter
         grid.elements('span[title=Delete]', replace=None) # remove text from delete button
 
-    add = os_gui.get_button('add', URL('subscription_block_add', vars={'csID':csID}), btn_size='btn-sm')
+    add = os_gui.get_button(
+        'add',
+        URL('subscription_block_add', vars={'csID':csID, 'cuID': cuID}),
+        btn_size='btn-sm'
+    )
 
     back = subscription_edit_get_back(cuID)
     menu = subscription_edit_get_menu(cuID, csID, request.function)
 
     return dict(content=grid, menu=menu, back=back, add=add)
+
+
+@auth.requires_login()
+def subscription_block_add():
+    """
+        Add a new product
+    """
+    from openstudio.os_forms import OsForms
+
+    response.view = 'general/tabs_menu.html'
+    cuID = request.vars['cuID']
+    csID = request.vars['csID']
+    customer = Customer(cuID)
+    response.title = customer.get_name()
+    response.subtitle = subscription_edit_get_subtitle(csID)
+
+    return_url = subscription_block_get_return_url(cuID, csID)
+
+    db.customers_subscriptions_blocked.customers_subscriptions_id.default = csID
+
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_create(
+        db.customers_subscriptions_blocked,
+        return_url,
+    )
+
+    form = result['form']
+    back = os_gui.get_button('back', return_url)
+
+    content = DIV(
+        H4(T('Add block')),
+        form
+    )
+
+    menu = subscription_edit_get_menu(cuID, csID, 'subscription_blocks')
+
+    return dict(content=content,
+                save=result['submit'],
+                back=back,
+                menu=menu)
+
+
+def subscription_block_get_return_url(cuID, csID):
+    return URL('subscription_blocks', vars={'cuID':cuID, 'csID': csID})
+
 
 
 def subscriptions_get_return_url(customers_id):

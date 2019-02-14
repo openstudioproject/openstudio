@@ -3006,7 +3006,7 @@ def define_customers_subscriptions_blocked():
             requires=IS_DATE_IN_RANGE(format=DATE_FORMAT,
                                       minimum=datetime.date(1900,1,1),
                                       maximum=datetime.date(2999,1,1)),
-            default=TODAY_LOCAL,
+            default=startdate_default,
             label=T("Prevent check-in from"),
             widget=os_datepicker_widget),
         Field('Enddate', 'date',
