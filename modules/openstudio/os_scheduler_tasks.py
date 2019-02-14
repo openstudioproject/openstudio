@@ -334,6 +334,11 @@ class OsSchedulerTasks:
                     else:
                         count_synced += 1
 
+        ##
+        # For scheduled tasks db connection has to be committed manually
+        ##
+        db.commit()
+
         return T("m_openstudio_os_scheduler_tasks_exact_online_sync_invoices_return") + ': (' + \
                unicode(count_synced) + ' / ' + \
                unicode(count_errors) + ')'
