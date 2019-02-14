@@ -2878,7 +2878,7 @@ def subscription_credits_delete():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('update', 'customers_subscriptions'))
+               auth.has_permission('read', 'customers_subscriptions_pauses'))
 def subscription_pauses():
     """
         This function shows a page which lists all pauses for a subscription
@@ -2920,7 +2920,7 @@ def subscription_pauses():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('update', 'customers_subscriptions'))
+               auth.has_permission('update', 'customers_subscriptions_paused'))
 def subscription_pause_add():
     """
         This function shows a page to allow a user to pause a subscription for multiple months
@@ -3007,6 +3007,50 @@ def subscription_pause_add():
     menu = subscription_edit_get_menu(cuID, csID, 'subscription_pauses')
 
     return dict(content=content, menu=menu, back=back, save=submit)
+
+
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'customers_subscriptions_blocked'))
+def subscription_blocks():
+    """
+        This function shows a page which lists all pauses for a subscription
+        request.vars['csID'] is expected to be the subscription ID
+    """
+    response.view = 'general/tabs_menu.html'
+    cuID = request.vars['cuID']
+    csID = request.vars['csID']
+    customer = Customer(cuID)
+    response.title = customer.get_name()
+    response.subtitle = subscription_edit_get_subtitle(csID)
+
+    row = db.customers_subscriptions(csID)
+    db.customers_subscriptions_blocked.id.readable = False
+
+    query = (db.customers_subscriptions_blocked.customers_subscriptions_id == csID)
+    if db(query).count() == 0:
+        grid = DIV(BR(), T("This subscription hasn't been blocked before."))
+    else:
+        grid = SQLFORM.grid(query,
+            create=False,
+            details=False,
+            editable=False,
+            searchable=False,
+            csv=False,
+            paginate=50,
+            orderby=db.customers_subscriptions_blocked.Startdate,
+            field_id=db.customers_subscriptions_blocked.id,
+            ui = grid_ui)
+        grid.element('.web2py_counter', replace=None) # remove the counter
+        grid.elements('span[title=Delete]', replace=None) # remove text from delete button
+
+    add = os_gui.get_button('add', URL('subscription_block_add', vars={'csID':csID}), btn_size='btn-sm')
+
+    back = subscription_edit_get_back(cuID)
+    menu = subscription_edit_get_menu(cuID, csID, request.function)
+
+    return dict(content=grid, menu=menu, back=back, add=add)
 
 
 def subscriptions_get_return_url(customers_id):
