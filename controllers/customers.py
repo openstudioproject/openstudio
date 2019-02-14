@@ -3032,6 +3032,8 @@ def subscription_blocks():
     if db(query).count() == 0:
         grid = DIV(BR(), T("This subscription hasn't been blocked before."))
     else:
+
+        maxtextlengths = {'customers_subscriptions_blocked.Description': 60}
         grid = SQLFORM.grid(query,
             create=False,
             details=False,
@@ -3039,6 +3041,7 @@ def subscription_blocks():
             searchable=False,
             csv=False,
             paginate=50,
+            maxtextlengths=maxtextlengths,
             orderby=db.customers_subscriptions_blocked.Startdate,
             field_id=db.customers_subscriptions_blocked.id,
             ui = grid_ui)
