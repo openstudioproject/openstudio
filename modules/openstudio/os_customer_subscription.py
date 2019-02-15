@@ -457,3 +457,25 @@ class CustomerSubscription:
         else:
             return self._get_class_permissions_format(permissions)
         
+        
+    def get_blocked(self, date):
+        """
+            Returns whether a subscription is blocked on provided date
+        """
+        db = current.db
+        DATE_FORMAT = current.DATE_FORMAT
+
+        query = (db.customers_subscriptions_blocked.customers_subscriptions_id ==
+                 self.csID) & \
+                (db.customers_subscriptions_blocked.Startdate <= date) & \
+                ((db.customers_subscriptions_blocked.Enddate >= date) |
+                 (db.customers_subscriptions_blocked.Enddate == None))
+        row = db(query).select(db.customers_subscriptions_blocked.ALL).first()
+        if row:
+            return_value = SPAN(current.T('Blocked until'), ' ',
+                                row.Enddate.strftime(DATE_FORMAT))
+        else:
+            return_value = False
+
+        return return_value
+        

@@ -1688,6 +1688,7 @@ class AttendanceHelper:
         # check credits remaining
 
         paused = self._attedance_sign_in_subscription_check_paused(csID, date)
+        blocked = self._attedance_sign_in_subscription_check_blocked(csID, date)
         credits_remaining = self._attendance_sign_in_subscription_credits_remaining(csID)
         message_no_credits = T('No credits remaining on this subscription')
 
@@ -1709,6 +1710,9 @@ class AttendanceHelper:
         elif paused: # check for paused subscription
             # return message, don't sign in
             message = paused
+        elif blocked: # check for blocked subscription
+            # return message, don't sign in
+            message = blocked
         else:
             if signed_in:
                 if signed_in.AttendanceType == 5:
@@ -1768,6 +1772,24 @@ class AttendanceHelper:
         paused = cs.get_paused(date)
         if paused:
             message = T("Subscription is paused on this date")
+
+        return message
+
+
+    def _attedance_sign_in_subscription_check_blocked(self, csID, date):
+        """
+            Check if the subscription if blocked on given date, if so, display
+            a message for the user
+        """
+        from openstudio.os_customer_subscription import CustomerSubscription
+
+        T = current.T
+        message = ''
+
+        cs = CustomerSubscription(csID)
+        blocked = cs.get_blocked(date)
+        if blocked:
+            message = T("Subscription is blocked on this date")
 
         return message
 
