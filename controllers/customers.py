@@ -501,9 +501,13 @@ def subscriptions_get_link_latest_blocks(row):
 
     blocked_list = DIV()
     for row in rows:
-        item = SPAN(row.Startdate, ' - ', row.Enddate, ' ',
+        item = SPAN(row.Startdate,
                     _title=row.Description,
                     _class='grey small_font')
+        if row.Enddate:
+            item.append(' - ')
+            item.append(row.Enddate)
+            item.append(' ')
         blocked_list.append(item)
         blocked_list.append(BR())
 
