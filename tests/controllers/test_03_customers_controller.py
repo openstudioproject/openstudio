@@ -85,17 +85,16 @@ def test_subscriptions_block_add(client, web2py):
     client.get(url)
     assert client.status == 200
 
-    populate_customer_subscriptions(client, web2py)
+    populate_customers_with_subscriptions(web2py)
+    assert web2py.db(web2py.db.customers_subscriptions).count() > 1
 
-    url = '/customers/subscription_pause_add?csID=1'
+    url = '/customers/subscription_block_add?csID=1&cuID=1001'
     client.get(url)
     assert client.status == 200
 
-    data = {'from_month'   : '1',
-            'from_year'    : '2014',
-            'until_month'  : '2',
-            'until_year'   : '2',
-            'description'  : 'Custard apple'}
+    data = {'Startdate': '2014-01-01',
+            'Enddate': '2014-01-31',
+            'Description': 'Custard apple'}
     client.post(url, data=data)
     assert client.status == 200
 
@@ -103,16 +102,43 @@ def test_subscriptions_block_add(client, web2py):
     assert 'Subscriptions' in client.text
 
     # verify display
-    assert data['description'] in client.text
+    assert data['Description'] in client.text
 
     # verify database
-    assert web2py.db(web2py.db.customers_subscriptions_paused).count() == 1
+    assert web2py.db(web2py.db.customers_subscriptions_blocked).count() == 1
 
 
+def test_subscriptions_block_edit(client, web2py):
+    """
+        Test adding of a pause
+    """
+    # get random url to initialize payment methods in db
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
 
+    populate_customers_with_subscriptions(web2py)
+    populate_customers_subscriptions_blocked(web2py)
 
+    assert web2py.db(web2py.db.customers_subscriptions).count() > 1
+    assert web2py.db(web2py.db.customers_subscriptions_blocked).count() > 1
 
+    url = '/customers/subscription_block_edit?csID=1&cuID=1001&csbID=1'
+    client.get(url)
+    assert client.status == 200
 
+    data = {'id': 1,
+            'Startdate': '2014-01-01',
+            'Enddate': '2014-01-31',
+            'Description': 'Custard apple'}
+    client.post(url, data=data)
+    assert client.status == 200
+
+    # verify redirection
+    assert 'Subscriptions' in client.text
+
+    # verify display
+    assert data['Description'] in client.text
 
 
 def test_add(client, web2py):
