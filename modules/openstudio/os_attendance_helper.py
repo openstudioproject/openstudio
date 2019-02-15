@@ -1090,6 +1090,7 @@ class AttendanceHelper:
                     'CreditsRemaining': credits_remaining,
                     'Unlimited': subscription.school_subscriptions.Unlimited,
                     'school_memberships_id': subscription.school_subscriptions.school_memberships_id,
+                    'Blocked': cs.get_blocked(date)
                 })
 
         # class cards
@@ -1277,7 +1278,15 @@ class AttendanceHelper:
                                                     btn_class='btn-link',
                                                     _class='disabled pull-right grey')
                 else:
-                    if subscription['CreditsRemaining']:
+                    print subscription
+
+                    if subscription['Blocked']:
+                        button_book = os_gui.get_button('noicon',
+                                                        URL('#'),
+                                                        title=SPAN(T('Blocked')),
+                                                        btn_class='btn-link',
+                                                        _class='disabled pull-right grey')
+                    elif subscription['CreditsRemaining']:
                         url = URL(controller, 'class_book', vars={'clsID': clsID,
                                                       'csID': csID,
                                                       'cuID': customer.row.id,
