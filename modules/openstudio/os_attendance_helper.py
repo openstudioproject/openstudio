@@ -1278,8 +1278,6 @@ class AttendanceHelper:
                                                     btn_class='btn-link',
                                                     _class='disabled pull-right grey')
                 else:
-                    print subscription
-
                     if subscription['Blocked']:
                         button_book = os_gui.get_button('noicon',
                                                         URL('#'),
