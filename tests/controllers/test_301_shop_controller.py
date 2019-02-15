@@ -355,6 +355,56 @@ def test_classes_book_options(client, web2py):
     assert 'Request review' not in client.text
 
 
+def test_classes_book_options_subscription_blocked(client, web2py):
+    """
+        Is the page listing the booking options showing a blocked
+        message for a blocked subscription
+    """
+    url = '/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    setup_profile_tests(web2py)
+    prepare_classes(web2py, credits=True)
+    populate_school_subscriptions(web2py)
+    populate_school_classcards(web2py, nr=2)
+
+    csID = web2py.db.customers_subscriptions.insert(
+        auth_customer_id = 300,
+        school_subscriptions_id = 1,
+        Startdate = '2014-01-01',
+        payment_methods_id = 1
+    )
+
+    web2py.db.customers_subscriptions_credits.insert(
+        customers_subscriptions_id = csID,
+        MutationDateTime = '2014-01-01 00:00:00',
+        MutationType = 'add',
+        MutationAmount = '20',
+        Description = 'test',
+        SubscriptionYear = '2014',
+        SubscriptionMonth = '1',
+    )
+
+    web2py.db.customers_subscriptions_blocked.insert(
+        customers_subscriptions_id = csID,
+        Startdate = '2014-01-01',
+        Enddate = '2099-12-31',
+        Description = 'Test'
+    )
+
+    web2py.db.commit()
+
+    next_monday = next_weekday(datetime.date.today(), 0)
+    client.get('/shop/classes_book_options?clsID=1&date=' + unicode(next_monday))
+    assert client.status == 200
+
+    assert 'Blocked' in client.text
+
+    # Check request review check-in option not available
+    assert 'Request review' not in client.text
+
+
 def test_classes_book_options_dropin_trial_membership_prices(client, web2py):
     """
         Is the page listing the booking options showing everything?

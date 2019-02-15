@@ -12,6 +12,7 @@ from populate_os_tables import prepare_classes
 from populate_os_tables import populate_classes
 from populate_os_tables import populate_customers
 from populate_os_tables import populate_customers_with_subscriptions
+from populate_os_tables import populate_customers_subscriptions_blocked
 from populate_os_tables import populate_customers_with_classcards
 from populate_os_tables import populate_customers_with_memberships
 from populate_os_tables import populate_customers_payment_info
@@ -21,6 +22,10 @@ from populate_os_tables import populate_school_memberships
 from populate_os_tables import populate_school_subscriptions
 from populate_os_tables import populate_school_classcards
 from populate_os_tables import populate_tax_rates
+
+
+
+
 
 def test_add(client, web2py):
     """
@@ -820,6 +825,119 @@ def test_subscription_delete(client, web2py):
     assert client.status == 200
 
     assert 'Deleted subscription' in client.text
+
+
+
+def test_subscriptions_list_recent_blockss(client, web2py):
+    """
+        Is the list of paused subscriptions showing?
+    """
+    # get random url to initialize payment methods in db
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    populate_customers_with_subscriptions(web2py)
+    populate_customers_subscriptions_blocked(web2py)
+
+    assert web2py.db(web2py.db.customers_subscriptions).count() > 1
+    assert web2py.db(web2py.db.customers_subscriptions_blocked).count() > 1
+
+    client.get('/customers/subscriptions?cuID=1001')
+    assert client.status == 200
+    assert 'Blocks' in client.text
+
+    # check recent blocks
+    assert '2014-01-01 - 2014-01-31' in client.text
+
+
+def test_subscriptions_blocks(client, web2py):
+    """
+        Is the list of pauzed showing?
+    """
+    # get random url to initialize payment methods in db
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    populate_customers_with_subscriptions(web2py)
+    populate_customers_subscriptions_blocked(web2py)
+
+    assert web2py.db(web2py.db.customers_subscriptions).count() > 1
+    assert web2py.db(web2py.db.customers_subscriptions_blocked).count() > 1
+
+    client.get('/customers/subscription_blocks?csID=1&cuID=1001')
+    assert client.status == 200
+    assert 'Blocks' in client.text
+
+    # check listing
+    block = web2py.db.customers_subscriptions_blocked(1)
+    assert block.Description[0:20] in client.text
+
+
+def test_subscriptions_block_add(client, web2py):
+    """
+        Test adding of a pause
+    """
+    # get random url to initialize payment methods in db
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    populate_customers_with_subscriptions(web2py)
+    assert web2py.db(web2py.db.customers_subscriptions).count() > 1
+
+    url = '/customers/subscription_block_add?csID=1&cuID=1001'
+    client.get(url)
+    assert client.status == 200
+
+    data = {'Startdate': '2014-01-01',
+            'Enddate': '2014-01-31',
+            'Description': 'Custard apple'}
+    client.post(url, data=data)
+    assert client.status == 200
+
+    # verify redirection
+    assert 'Subscriptions' in client.text
+
+    # verify display
+    assert data['Description'] in client.text
+
+    # verify database
+    assert web2py.db(web2py.db.customers_subscriptions_blocked).count() == 1
+
+
+def test_subscriptions_block_edit(client, web2py):
+    """
+        Test adding of a pause
+    """
+    # get random url to initialize payment methods in db
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    populate_customers_with_subscriptions(web2py)
+    populate_customers_subscriptions_blocked(web2py)
+
+    assert web2py.db(web2py.db.customers_subscriptions).count() > 1
+    assert web2py.db(web2py.db.customers_subscriptions_blocked).count() > 1
+
+    url = '/customers/subscription_block_edit?csID=1&cuID=1001&csbID=1'
+    client.get(url)
+    assert client.status == 200
+
+    data = {'id': 1,
+            'Startdate': '2014-01-01',
+            'Enddate': '2014-01-31',
+            'Description': 'Custard apple'}
+    client.post(url, data=data)
+    assert client.status == 200
+
+    # verify redirection
+    assert 'Subscriptions' in client.text
+
+    # verify display
+    assert data['Description'] in client.text
 
 
 def test_subscriptions_list_recent_pauses(client, web2py):

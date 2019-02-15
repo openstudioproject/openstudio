@@ -2312,3 +2312,20 @@ def populate_define_sys_email_reminders(web2py):
 
     web2py.db.commit()
 
+
+def populate_customers_subscriptions_blocked(web2py):
+    """
+    Populate customers_subscriptions_blocked
+    """
+    query = (web2py.db.customers_subscriptions.id > 0)
+    rows = web2py.db(query).select(web2py.db.customers_subscriptions.ALL)
+    for row in rows:
+        web2py.db.customers_subscriptions_blocked.insert(
+            customers_subscriptions_id = row.id,
+            Startdate = '2014-01-01',
+            Enddate = '2014-01-31',
+            Description = 'Blocked... too bad... you should have paid your subscription on time.'
+
+        )
+
+    web2py.db.commit()
