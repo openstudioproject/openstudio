@@ -678,7 +678,7 @@ class Invoice:
 
         item_date = ''
         if ws.Startdate:
-            item_date = ' [' + ws.Startdate.strftime(DATE_FORMAT) + ']',
+            item_date = ' [' + ws.Startdate.strftime(DATE_FORMAT) + ']'
 
         iiID = db.invoices_items.insert(
             invoices_id=self.invoices_id,
