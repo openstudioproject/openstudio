@@ -5729,6 +5729,7 @@ def define_integration_exact_online_log():
         Field('ObjectName'),
         Field('ObjectID'),
         Field('ActionResult', 'text'),
+        Field('SentData', 'text'),
         Field('Status',
             requires=IS_IN_SET(
                 ['success', T("Success")],
