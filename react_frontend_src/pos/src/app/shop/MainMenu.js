@@ -22,6 +22,9 @@ class NavTabs extends Component {
             <li className={this.getNavLinkClass("/shop/school")} role="presetation">
                 <NavLink to="/shop/school/classcards" activeClassName={activeClassName}>School</NavLink>
             </li>
+            <li className={this.getNavLinkClass("/shop/custom")} role="presetation">
+                <NavLink to="/shop/custom" activeClassName={activeClassName}>Custom</NavLink>
+            </li>
          </ul>
      )}
    }
