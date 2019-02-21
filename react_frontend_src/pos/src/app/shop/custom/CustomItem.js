@@ -63,7 +63,7 @@ class CustomItem extends Component {
                             {({ isSubmitting }) => (
                                 <Form>
                                     <div className="form-group">
-                                        <label>Product</label>
+                                        <label>Product name</label>
                                         <Field className="form-control" type="text" name="product" autoComplete="off" />
                                         <ErrorMessage name="product" component="div" />
                                     </div>
