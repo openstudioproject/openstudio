@@ -1336,7 +1336,15 @@ def validate_cart_create_receipt(
             # Update stock
             variant.stock_reduce(quantity)
         elif item['item_type'] == 'custom':
-            riID = receipt.item_add_custom()
+            data = item['data']
+
+            riID = receipt.item_add_custom(
+                product_name = data['product_name'],
+                description = data['description'],
+                quantity = item['quantity'],
+                price = data['price'],
+                tax_rates_id = data['tax_rates_id']
+            )
 
 
     if invoice_created:
