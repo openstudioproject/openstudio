@@ -34,6 +34,7 @@ class App extends Component {
 
   componentWillMount() {
     this.props.fetchPaymentMethods()
+    this.props.fetchTaxRates()
     this.props.fetchProductCategories()
     this.props.fetchUser()    
     this.props.fetchSettings()  

@@ -13,7 +13,7 @@ export const appReducer = (state = {}, action={ type: null }) => {
                 ...state,
             }
         case T.RECEIVE_PAYMENT_METHODS:
-            let pm_progress = state.loading_progress + 20
+            let pm_progress = state.loading_progress + 25
 
             return {
                 ...state,
@@ -25,7 +25,7 @@ export const appReducer = (state = {}, action={ type: null }) => {
                 ...state,
             }
         case T.RECEIVE_TAX_RATES:
-            let tr_progress = state.loading_progress + 20
+            let tr_progress = state.loading_progress + 25
 
             return {
                 ...state,
@@ -37,7 +37,7 @@ export const appReducer = (state = {}, action={ type: null }) => {
                 ...state,
             }
         case T.RECEIVE_USER:
-            let u_progress = state.loading_progress + 20
+            let u_progress = state.loading_progress + 25
 
             return {
                 ...state,
@@ -49,7 +49,7 @@ export const appReducer = (state = {}, action={ type: null }) => {
                 ...state,
             }
         case T.RECEIVE_SETTINGS:
-            let s_progress = state.loading_progress + 20
+            let s_progress = state.loading_progress + 25
 
             return {
                 ...state,
