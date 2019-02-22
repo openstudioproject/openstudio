@@ -1047,7 +1047,7 @@ def get_products():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'shop_products'))
+               auth.has_permission('read', 'payment_methods'))
 def get_payment_methods():
     """
 
@@ -1062,6 +1062,25 @@ def get_payment_methods():
     rows = db(query).select(
         db.payment_methods.ALL,
         orderby=~db.payment_methods.SystemMethod|db.payment_methods.Name
+    )
+
+    return dict(data=rows.as_list())
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'tax_rates'))
+def get_tax_rates():
+    """
+
+    :return: dict containing payment methods sorted by name
+    """
+    set_headers()
+
+    query = (db.tax_rates.Archived == False)
+
+    rows = db(query).select(
+        db.tax_rates.ALL,
+        orderby=~db.tax_rates.Name
     )
 
     return dict(data=rows.as_list())
@@ -1316,6 +1335,9 @@ def validate_cart_create_receipt(
 
             # Update stock
             variant.stock_reduce(quantity)
+        elif item['item_type'] == 'custom':
+            riID = receipt.item_add_custom()
+
 
     if invoice_created:
         invoice_items = invoice.get_invoice_items_rows()

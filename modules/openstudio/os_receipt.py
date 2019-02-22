@@ -214,7 +214,41 @@ class Receipt:
             return db.payment_methods(self.receipt.payment_methods_id)
         else:
             return None
-        
+
+
+    def item_add_custom(self,
+                        product_name,
+                        description,
+                        quantity,
+                        price,
+                        tax_rates_id):
+        """
+        Add receipt item from custom item
+        :param product_name:
+        :param description:
+        :param quantity:
+        :return:
+        """
+        db = current.db
+
+        sorting = self.get_item_next_sort_nr()
+
+        riID = db.receipts_items.insert(
+            receipts_id=self.receipts_id,
+            Sorting=sorting,
+            ProductName=product_name,
+            Description=description,
+            Quantity=quantity,
+            Price=price,
+            # tax_rates_id=variant.tax_rates_id,
+            # accounting_glaccounts_id=product.accounting_glaccounts_id,
+            # accounting_costcenters_id=product.accounting_costcenters_id
+        )
+
+        self.set_amounts()
+
+        return riID
+
         
     def item_add_product_variant(self, pvID, quantity):
         """
