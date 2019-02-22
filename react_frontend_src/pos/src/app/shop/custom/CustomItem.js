@@ -28,6 +28,27 @@ class CustomItem extends Component {
         this.props.setCustomersListRedirectNext('/shop/custom')
     }
    
+
+    onSubmit(custom_item) {
+        console.log('submitted custom item:')
+        console.log(custom_item)
+
+        let item = {
+           id: v4(),
+           item_type: 'custom',
+           quantity: 1,
+           data: custom_item
+        }
+
+        console.log('item')
+        console.log(item)
+        // Check if item not yet in cart
+        
+        // If not yet in cart, add as a new pproduct, else increase 
+        this.props.addToCart(item)
+        
+        // this.props.setDisplayCustomerID(id)
+    }
     
     render() {
 
@@ -76,11 +97,6 @@ class CustomItem extends Component {
                                         <label>Price</label>
                                         <Field className="form-control" type="text" name="price" autoComplete="off" />
                                         <ErrorMessage name="price" component="div" />
-                                    </div>
-                                    <div className="form-group">
-                                        <label>Quantity</label>
-                                        <Field className="form-control" type="number" name="quantity" autoComplete="off" />
-                                        <ErrorMessage name="quantity" component="div" />
                                     </div>
                                     <button className="btn btn-primary" type="submit" disabled={isSubmitting}>
                                         Add to cart
