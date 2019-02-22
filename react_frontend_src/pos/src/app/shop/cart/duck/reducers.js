@@ -3,7 +3,7 @@ import T from './types'
 const calculateCartTotal = (items) => {
     let total = 0
     items.map((item, i) => {
-        if (item.item_type == 'product') {
+        if ((item.item_type == 'product') || (item.item_type == 'custom')) {
             if (item.data.price) {
                 total = total + (item.data.price * item.quantity)
             }
@@ -34,11 +34,11 @@ export const shopCartReducer = (state = {}, action={ type: null }) => {
                 // console.log(item)
 
                 if ((item.item_type === action.data.item_type) && (item.data.id === action.data.data.id)) {
-                    // console.log('found match')
-                    // console.log(item.product_type)
-                    // console.log(action.data.product_type)
-                    // console.log(item.data.id)
-                    // console.log(action.data.data.id)
+                    console.log('found match')
+                    console.log(item.item_type)
+                    console.log(action.data.item_type)
+                    console.log(item.data.id)
+                    console.log(action.data.data.id)
                     item_exists = true
                     break
                 }
