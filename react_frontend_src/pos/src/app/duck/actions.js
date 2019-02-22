@@ -13,6 +13,17 @@ export const receivePaymentMethods = (data) =>
         data
     })
 
+export const requestTaxRates = () =>
+    ({
+        type: T.REQUEST_TAX_RATES
+    })
+
+export const receiveTaxRates = (data) =>
+    ({
+        type: T.RECEIVE_TAX_RATES,
+        data
+    })
+
 export const requestUser = () =>
     ({
         type: T.REQUEST_USER
