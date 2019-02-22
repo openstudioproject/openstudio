@@ -1,6 +1,8 @@
 import {
     requestPaymentMethods,
     receivePaymentMethods,
+    requestTaxRates,
+    receiveTaxRates,
     requestValidateCart,
     receiveValidateCart,
     requestUser as request_user,
@@ -53,6 +55,35 @@ const fetchPaymentMethods = () => {
         console.log(error)
         dispatch(setError(true))
         dispatch(setErrorMessage("Error loading payment methods"))
+        if (error.config) {
+          dispatch(setErrorData(error.config.url))
+        } 
+      })
+      .then(function () {
+        // always executed
+      });
+  }
+}
+
+const fetchTaxRates = () => {
+  return dispatch => {
+      dispatch(requestTaxRates)
+      dispatch(setLoading())
+
+      dispatch(set_loading_message("Tax rates"))
+      axios_os.get(OS_API.APP_TAX_RATES)
+      .then(function (response) {
+        // handle success
+        console.log('receive payment methods here')
+        dispatch(receiveTaxRates(response.data))
+        dispatch(setLoaded())  
+        dispatch(setLoading())        
+      })
+      .catch(function (error) {
+        // handle error
+        console.log(error)
+        dispatch(setError(true))
+        dispatch(setErrorMessage("Error loading tax rates"))
         if (error.config) {
           dispatch(setErrorData(error.config.url))
         } 
@@ -164,6 +195,7 @@ const validateCart = (state) => {
 
 export default {
     fetchPaymentMethods,
+    fetchTaxRates,
     fetchUser,
     fetchSettings,
     validateCart,
