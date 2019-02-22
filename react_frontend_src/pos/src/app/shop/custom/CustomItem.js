@@ -112,9 +112,14 @@ class CustomItem extends Component {
                             }}
                             onSubmit={(values, { setSubmitting }) => {
                                 setTimeout(() => {
-                                alert(JSON.stringify(values, null, 2));
-                                setSubmitting(false);
-                                }, 40);
+                                    this.onSubmitCustomItem(values)
+                                    setSubmitting(false)
+                                }, 400)
+                                
+                                // setTimeout(() => {
+                                // alert(JSON.stringify(values, null, 2));
+                                // setSubmitting(false);
+                                // }, 40);
                             }}
                             >
                             {({ isSubmitting }) => (
