@@ -111,6 +111,8 @@ class CustomItem extends Component {
                                 return errors;
                             }}
                             onSubmit={(values, { setSubmitting }) => {
+                                values.price = parseFloat(values.price)
+
                                 setTimeout(() => {
                                     this.onSubmitCustomItem(values)
                                     setSubmitting(false)
