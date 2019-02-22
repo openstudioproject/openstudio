@@ -3,9 +3,10 @@ import { intlShape } from "react-intl"
 import PropTypes from "prop-types"
 import { v4 } from "uuid"
 import validator from 'validator'
-import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { Formik, Form, Field, ErrorMessage, validateYupSchema } from 'formik';
 
 import ShopTemplate from '../ShopTemplate'
+import ErrorScreen from "../../../components/ui/ErrorScreen";
 
 class CustomItem extends Component {
     constructor(props) {
@@ -29,7 +30,7 @@ class CustomItem extends Component {
     }
    
 
-    onSubmit(custom_item) {
+    onSubmitCustomItem(custom_item) {
         console.log('submitted custom item:')
         console.log(custom_item)
 
@@ -56,20 +57,55 @@ class CustomItem extends Component {
             <ShopTemplate app_state={this.props.app}>
                 { this.props.loaded ? 
                     <div>
+                        {/* <Formik
+                            initialValues={{ email: '', password: '' }}
+                            validate={values => {
+                            let errors = {};
+                            if (!values.email) {
+                                errors.email = 'Required';
+                            } else if (
+                                !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)
+                            ) {
+                                errors.email = 'Invalid email address';
+                            }
+                            return errors;
+                            }}
+                            onSubmit={(values, { setSubmitting }) => {
+                            setTimeout(() => {
+                                alert(JSON.stringify(values, null, 2));
+                                setSubmitting(false);
+                            }, 400);
+                            }}
+                        >
+                            {({ isSubmitting }) => (
+                            <Form>
+                                <Field type="email" name="email" />
+                                <ErrorMessage name="email" component="div" />
+                                <Field type="password" name="password" />
+                                <ErrorMessage name="password" component="div" />
+                                <button type="submit" disabled={isSubmitting}>
+                                Submit
+                                </button>
+                            </Form>
+                            )}
+                        </Formik> */}
                         <Formik
-                            initialValues={{ product: '', description: '', price: 0, quantity: 1 }}
+                            initialValues={{ product: '', description: '', price: '0' }}
                             validate={values => {
                                 let errors = {};
-                                if (!values.product) {
-                                    errors.product = 'Required';
+                                // Validate product
+                                if ((!values.product) || (validator.isEmpty(values.product))) {
+                                    errors.product = 'Required'
                                 } 
-                                // else if (
-                                // !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)
-                                // ) {
-                                // errors.email = 'Invalid email address';
-                                // }
-                                if (!values.description) {
+                                // Validate description
+                                if ((!values.description) || (validator.isEmpty(values.description))) {
                                     errors.description = 'Required'
+                                }
+                                // Validate price
+                                if (!values.price) {
+                                    errors.price = 'Required'
+                                } else if (!validator.isFloat(values.price)) {
+                                    errors.price = 'Please input an amount, use "." as a decimal separator.'
                                 }
 
                                 return errors;
@@ -78,7 +114,7 @@ class CustomItem extends Component {
                                 setTimeout(() => {
                                 alert(JSON.stringify(values, null, 2));
                                 setSubmitting(false);
-                                }, 400);
+                                }, 40);
                             }}
                             >
                             {({ isSubmitting }) => (
@@ -95,7 +131,7 @@ class CustomItem extends Component {
                                     </div>
                                     <div className="form-group">
                                         <label>Price</label>
-                                        <Field className="form-control" type="text" name="price" autoComplete="off" />
+                                        <Field className="form-control" type="" name="price" autoComplete="off" />
                                         <ErrorMessage name="price" component="div" />
                                     </div>
                                     <button className="btn btn-primary" type="submit" disabled={isSubmitting}>
