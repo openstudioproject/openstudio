@@ -52,6 +52,7 @@ class CustomItem extends Component {
     }
     
     render() {
+        const taxRates = this.props.app.tax_rates
 
         return (
             <ShopTemplate app_state={this.props.app}>
@@ -90,7 +91,7 @@ class CustomItem extends Component {
                             )}
                         </Formik> */}
                         <Formik
-                            initialValues={{ product: '', description: '', price: '0' }}
+                            initialValues={{ product: '', description: '', price: '0', tax_rates_id: "" }}
                             validate={values => {
                                 let errors = {};
                                 // Validate product
@@ -127,7 +128,7 @@ class CustomItem extends Component {
                                 // }, 40);
                             }}
                             >
-                            {({ isSubmitting }) => (
+                            {({ values, handleBlur, handleChange, isSubmitting }) => (
                                 <Form>
                                     <div className="form-group">
                                         <label>Product name</label>
@@ -143,6 +144,22 @@ class CustomItem extends Component {
                                         <label>Price</label>
                                         <Field className="form-control" type="" name="price" autoComplete="off" />
                                         <ErrorMessage name="price" component="div" />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Taxes</label>
+                                        <select
+                                            name="tax_rates_id"
+                                            value={values.tax_rates_id}
+                                            onChange={handleChange}
+                                            onBlur={handleBlur}
+                                            className="form-control"
+                                        >
+                                            <option value="" label="Select tax..." />
+                                            <option value="1" label="0%" />
+                                            <option value="2" label="9%" />
+                                            <option value="3" label="21%" />
+                                        </select>
+                                        <ErrorMessage name="tax_rates_id" component="div" />
                                     </div>
                                     <button className="btn btn-primary" type="submit" disabled={isSubmitting}>
                                         Add to cart
