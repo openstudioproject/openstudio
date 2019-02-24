@@ -154,7 +154,6 @@ class CustomItem extends Component {
                                             onBlur={handleBlur}
                                             className="form-control"
                                         >
-                                            {/* Add items here using a loop through tax rates */}
                                             <option key={v4()} value="" label="Select tax..." />
                                             {taxRates.map((rate, i) => {
                                                 return <option key={v4()} value={rate.id}>{rate.Name}</option>

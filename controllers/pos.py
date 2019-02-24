@@ -1339,7 +1339,7 @@ def validate_cart_create_receipt(
             data = item['data']
 
             riID = receipt.item_add_custom(
-                product_name = data['product_name'],
+                product_name = data['product'],
                 description = data['description'],
                 quantity = item['quantity'],
                 price = data['price'],
