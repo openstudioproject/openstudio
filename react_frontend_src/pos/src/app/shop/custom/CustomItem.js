@@ -155,10 +155,10 @@ class CustomItem extends Component {
                                             className="form-control"
                                         >
                                             {/* Add items here using a loop through tax rates */}
-                                            <option value="" label="Select tax..." />
-                                            <option value="1" label="0%" />
-                                            <option value="2" label="9%" />
-                                            <option value="3" label="21%" />
+                                            <option key={v4()} value="" label="Select tax..." />
+                                            {taxRates.map((rate, i) => {
+                                                return <option key={v4()} value={rate.id}>{rate.Name}</option>
+                                            })}
                                         </select>
                                         <ErrorMessage name="tax_rates_id" component="div" />
                                     </div>
