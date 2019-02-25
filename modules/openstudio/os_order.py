@@ -277,7 +277,9 @@ class Order:
                               description,
                               quantity,
                               price,
-                              tax_rates_id):
+                              tax_rates_id,
+                              glaccount=None,
+                              costcenter=None):
         """
             :param workshops_products_id: db.workshops_products.id
             :return: db.customers_orders_items.id of inserted item
@@ -289,11 +291,14 @@ class Order:
 
         coiID = db.customers_orders_items.insert(
             customers_orders_id = self.coID,
+            Custom = True,
             ProductName = product_name,
             Description = description,
             Quantity = quantity,
             Price = price,
-            tax_rates_id = tax_rates_id
+            tax_rates_id = tax_rates_id,
+            accounting_glaccounts_id = glaccount,
+            accounting_costcenters_id = costcenter
         )
 
         self.set_amounts()
@@ -570,6 +575,9 @@ class Order:
                 # Add donation line to invoice
                 if create_invoice and create_invoice_for_donations:
                     invoice.item_add_donation(row.TotalPriceVAT, row.Description)
+
+            # Check for custom item
+
 
 
         # Notify customer of new invoice
