@@ -1258,6 +1258,14 @@ def validate_cart_create_order(cuID, pmID, items):
                 TODAY_LOCAL,
                 1 # Attendance Type 1 = trial
             )
+        elif item['item_type'] == 'custom':
+            order.order_item_add_custom(
+                product_name = item['data']['product'],
+                description = item['data']['description'],
+                quantity = item['quantity'],
+                price = item['data']['price'],
+                tax_rates_id = item['data']['tax_rates_id']
+            )
 
     # update order status
     order.set_status_awaiting_payment()
