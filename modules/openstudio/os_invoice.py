@@ -620,6 +620,31 @@ class Invoice:
         return iiID
 
 
+    def item_add_custom_from_order(self, order_item_row):
+        """
+        Add custom item to invoice from order.deliver()
+
+        :param order_item_row: Gluon.dal.row object of db.orders_items
+        :return: db.invoices_items.id
+        """
+        iiID = db.invoices_items.insert(
+            invoices_id=self.invoices_id,
+            ProductName=order_item_row.ProductName,
+            Description=order_item_row.Description,
+            Quantity=order_item_row.Quantity,
+            Price=order_item_row.Price,
+            Sorting=next_sort_nr,
+            tax_rates_id=order_item_row.tax_rates_id,
+            accounting_glaccounts_id=order_item_row.accounting_glaccounts_id,
+            accounting_costcenters_id=order_item_row.accounting_costcenters_id,
+        )
+
+        # This calls self.on_update()
+        self.set_amounts()
+
+        return iiID
+
+
     def item_add_classcard(self, ccdID):
         """
             :param ccdID: Add customer classcard to invoice
