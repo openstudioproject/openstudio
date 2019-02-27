@@ -627,6 +627,11 @@ class Invoice:
         :param order_item_row: Gluon.dal.row object of db.orders_items
         :return: db.invoices_items.id
         """
+        db = current.db
+
+        # add item to invoice
+        next_sort_nr = self.get_item_next_sort_nr()
+
         iiID = db.invoices_items.insert(
             invoices_id=self.invoices_id,
             ProductName=order_item_row.ProductName,

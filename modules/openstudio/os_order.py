@@ -577,7 +577,10 @@ class Order:
                     invoice.item_add_donation(row.TotalPriceVAT, row.Description)
 
             # Check for custom item
-
+            if row.Custom:
+                # Add custom line to invoice
+                if create_invoice:
+                    invoice.item_add_custom_from_order(row)
 
 
         # Notify customer of new invoice

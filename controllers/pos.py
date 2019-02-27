@@ -1343,7 +1343,11 @@ def validate_cart_create_receipt(
 
             # Update stock
             variant.stock_reduce(quantity)
-        elif item['item_type'] == 'custom':
+        elif item['item_type'] == 'custom' and not invoice_created:
+            """
+                Only add custom items to receipt here if no if no invoice is created
+                otherwise, get data from invoice
+            """
             data = item['data']
 
             riID = receipt.item_add_custom(

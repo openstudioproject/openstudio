@@ -141,7 +141,7 @@ class CustomItem extends Component {
                                         <ErrorMessage name="description" component="div" />
                                     </div>
                                     <div className="form-group">
-                                        <label>Price</label>
+                                        <label>Price (incl. Taxes)</label>
                                         <Field className="form-control" type="" name="price" autoComplete="off" />
                                         <ErrorMessage name="price" component="div" />
                                     </div>
