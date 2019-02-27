@@ -208,4 +208,3 @@ def upgrade_to_201902():
     ##
     query = (db.school_classcards.TrialTimes == None)
     db(query).update(TrialTimes = 1)
-    

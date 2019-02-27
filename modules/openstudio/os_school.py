@@ -85,13 +85,29 @@ class School:
             card_name = max_string_length(row.Name, 37)
             validity = get_validity(row)
 
+            over_trial_times = self._get_classcards_formatted_trialcard_over_times_available(row)
+
+            description = repr_row.Description
+            btn_cart = self._get_classcards_formatted_button_to_cart(
+                row.id,
+                row.school_memberships_id,
+                customer_has_membership
+            )
+            if over_trial_times:
+                description = T("You've reached the maximum number of times you can purchase this card.")
+                btn_cart = SPAN(
+                    os_gui.get_fa_icon('fa-ban fa-2x'),
+                    _class='grey'
+                )
+
+
             card = DIV(
                 DIV(
                     DIV(self._get_formatted_display_widget_header(
                         card_name,
                         repr_row.Price
                     )),
-                    DIV(DIV(repr_row.Description, _class='col-md-12'),
+                    DIV(DIV(description, _class='col-md-12'),
                             _class='box-body'),
                     DIV(
                         DIV(
@@ -112,12 +128,7 @@ class School:
                                 _class="col-sm-4 border-right"
                             ),
                             DIV(
-                                DIV(H5(self._get_classcards_formatted_button_to_cart(
-                                        row.id,
-                                        row.school_memberships_id,
-                                        customer_has_membership
-                                        ),
-                                        _class="description-header"),
+                                DIV(H5(btn_cart, _class="description-header"),
                                     SPAN(T(""), _class="description-text"),
                                     _class="description-block"
                                 ),
@@ -180,6 +191,29 @@ class School:
                  _href=URL('classcard_add_to_cart', vars={'scdID': scdID}))
 
         return self._get_formatted_button_apply_accent_color(link)
+
+
+    def _get_classcards_formatted_trialcard_over_times_available(self, row):
+        """
+
+        :param row: gluon.dal.row object of db.school_classcards
+        :return:
+        """
+        auth = current.auth
+        db = current.db
+
+        if not auth.user or not row.Trialcard:
+            # Don't do anything when this card is not a trial card or no user is logged in
+            return False
+        else:
+            query = (db.customers_classcards.auth_customer_id == auth.user.id) & \
+                    (db.customers_classcards.school_classcards_id == row.id)
+            times_bought = db(query).count()
+
+            if times_bought >= row.TrialTimes:
+                return True
+            else:
+                return False
 
 
     def _get_subscriptions_formatted_button_to_cart(self,
