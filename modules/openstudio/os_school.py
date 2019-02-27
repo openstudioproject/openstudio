@@ -132,35 +132,6 @@ class School:
                 _class=card_class
             )
 
-            # card_content = TABLE(TR(TD(T('Validity')),
-            #                         TD(validity)),
-            #                      TR(TD(T('Classes')),
-            #                         TD(repr_row.Classes)),
-            #                      TR(TD(T('Price')),
-            #                         TD(repr_row.Price)),
-            #                      TR(TD(T('Description')),
-            #                         TD(repr_row.Description or '')),
-            #                      _class='table')
-            #
-            # if row.Trialcard:
-            #     panel_class = 'box-success'
-            # else:
-            #     panel_class = 'box-primary'
-            #
-            # footer_content = ''
-            # if link_type == 'shop':
-            #     footer_content = self._get_classcards_formatted_button_to_cart(
-            #         row.id,
-            #         row.MembershipRequired,
-            #         customer_has_membership
-            #     )
-            #
-            # card = DIV(os_gui.get_box_table(card_name,
-            #                                 card_content,
-            #                                 panel_class,
-            #                                 show_footer=True,
-            #                                 footer_content=footer_content),
-            #            _class=card_class)
 
             display_row.append(card)
 
