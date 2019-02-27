@@ -1719,24 +1719,6 @@ def classcards_clear_cache(form):
     cache_clear_customers_classcards(cuID)
 
 
-@auth.requires_login()
-def classcard_add():
-    """
-        Determine whether to use the classic or new style classcards add page
-        > 6 cards = classic
-        request.vars['cuID'] is expected to be the customers_id
-    """
-    vars = request.vars
-
-    query = (db.school_classcards.Archived == False)
-    count_cards = db(query).count()
-
-    if count_cards < 9:
-        redirect(URL('classcard_add_modern', vars=vars))
-    else:
-        redirect(URL('classcard_add_classic', vars=vars))
-
-
 def classcard_add_check_trialcard(cuID):
     """
         Check whether a customer has already had a trialcard
@@ -1752,7 +1734,7 @@ def classcard_add_check_trialcard(cuID):
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('create', 'customers_classcards'))
-def classcard_add_modern():
+def classcard_add():
     """
         Add a new classcard for a customer in more graphic way than
         a drop down menu
@@ -1924,63 +1906,63 @@ def classcard_add_modern_add_card_redirect_classcards():
     redirect_url = classcards_get_return_url(cuID, clsID, date_formatted)
     redirect(redirect_url, client_side=True)
 
-
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('create', 'customers_classcards'))
-def classcard_add_classic():
-    """
-        This function shows an add page for a classcard
-        request.vars['cuID'] is expected to be the customers_id
-    """
-    customers_id   = request.vars['cuID']
-    clsID          = request.vars['clsID'] # for redirect to classes attendance_list_classcards
-    date_formatted = request.vars['date'] # for redirect to classes attendance_list_classcards
-    customer = Customer(customers_id)
-    response.title = customer.get_name()
-    response.subtitle = T("New Class card")
-    response.view = 'general/tabs_menu.html'
-
-    db.customers_classcards.auth_customer_id.default = customers_id
-
-    classcard_add_check_trialcard_set_query(customers_id)
-
-    return_url = classcards_get_return_url(customers_id, clsID, date_formatted)
-
-    functions_onadd = classcard_add_get_functions()
-
-    db.customers_classcards.Enddate.readable = False
-    db.customers_classcards.Enddate.writable = False
-
-    crud.messages.submit_button = T("Save")
-    crud.messages.record_created = T("Added card")
-    crud.settings.create_next = return_url
-    crud.settings.create_onaccept = functions_onadd
-    crud.settings.formstyle = "bootstrap3_stacked"
-    form = crud.create(db.customers_classcards)
-
-    form_element = form.element('form')
-    form['_id'] = 'MainForm'
-
-    elements = form.elements('input, select, textarea')
-    for element in elements:
-        element['_form'] = "MainForm"
-
-    submit = form.element('input[type=submit]')
-
-    content = DIV(
-        H4(T("Add new card")),
-        BR(),
-        form
-    )
-
-    back = os_gui.get_button('back', return_url)
-
-
-    menu = customers_get_menu(customers_id, 'classcards')
-
-    return dict(content=content, back=back, menu=menu, save=submit)
-
-
+#
+# @auth.requires(auth.has_membership(group_id='Admins') or \
+#                auth.has_permission('create', 'customers_classcards'))
+# def classcard_add_classic():
+#     """
+#         This function shows an add page for a classcard
+#         request.vars['cuID'] is expected to be the customers_id
+#     """
+#     customers_id   = request.vars['cuID']
+#     clsID          = request.vars['clsID'] # for redirect to classes attendance_list_classcards
+#     date_formatted = request.vars['date'] # for redirect to classes attendance_list_classcards
+#     customer = Customer(customers_id)
+#     response.title = customer.get_name()
+#     response.subtitle = T("New Class card")
+#     response.view = 'general/tabs_menu.html'
+#
+#     db.customers_classcards.auth_customer_id.default = customers_id
+#
+#     classcard_add_check_trialcard_set_query(customers_id)
+#
+#     return_url = classcards_get_return_url(customers_id, clsID, date_formatted)
+#
+#     functions_onadd = classcard_add_get_functions()
+#
+#     db.customers_classcards.Enddate.readable = False
+#     db.customers_classcards.Enddate.writable = False
+#
+#     crud.messages.submit_button = T("Save")
+#     crud.messages.record_created = T("Added card")
+#     crud.settings.create_next = return_url
+#     crud.settings.create_onaccept = functions_onadd
+#     crud.settings.formstyle = "bootstrap3_stacked"
+#     form = crud.create(db.customers_classcards)
+#
+#     form_element = form.element('form')
+#     form['_id'] = 'MainForm'
+#
+#     elements = form.elements('input, select, textarea')
+#     for element in elements:
+#         element['_form'] = "MainForm"
+#
+#     submit = form.element('input[type=submit]')
+#
+#     content = DIV(
+#         H4(T("Add new card")),
+#         BR(),
+#         form
+#     )
+#
+#     back = os_gui.get_button('back', return_url)
+#
+#
+#     menu = customers_get_menu(customers_id, 'classcards')
+#
+#     return dict(content=content, back=back, menu=menu, save=submit)
+#
+#
 
 def classcard_add_check_trialcard_set_query(customers_id):
     """
