@@ -202,3 +202,10 @@ def upgrade_to_201902():
         TemplateContent="""<p>Dear {teacher_name},<br /><br /></p>
 <p>Using this email we'd like to remind you that a substitute teacher for the class above hasn't been found yet.</p>"""
     )
+
+    ##
+    # Set default values for trial times
+    ##
+    query = (db.school_classcards.TrialTimes == None)
+    db(query).update(TrialTimes = 1)
+    
