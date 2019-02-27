@@ -23,6 +23,9 @@ const mapDispatchToProps = dispatch =>
         fetchPaymentMethods() {
             dispatch(appOperations.fetchPaymentMethods())
         },
+        fetchTaxRates() {
+            dispatch(appOperations.fetchTaxRates())
+        },
         fetchProductCategories() {
             dispatch(shopProductsOperations.fetchProductCategories())
         },
