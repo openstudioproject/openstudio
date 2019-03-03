@@ -1047,7 +1047,7 @@ def get_products():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'shop_products'))
+               auth.has_permission('read', 'payment_methods'))
 def get_payment_methods():
     """
 
@@ -1062,6 +1062,25 @@ def get_payment_methods():
     rows = db(query).select(
         db.payment_methods.ALL,
         orderby=~db.payment_methods.SystemMethod|db.payment_methods.Name
+    )
+
+    return dict(data=rows.as_list())
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'tax_rates'))
+def get_tax_rates():
+    """
+
+    :return: dict containing payment methods sorted by name
+    """
+    set_headers()
+
+    query = (db.tax_rates.Archived == False)
+
+    rows = db(query).select(
+        db.tax_rates.ALL,
+        orderby=~db.tax_rates.Name
     )
 
     return dict(data=rows.as_list())
@@ -1239,6 +1258,14 @@ def validate_cart_create_order(cuID, pmID, items):
                 TODAY_LOCAL,
                 1 # Attendance Type 1 = trial
             )
+        elif item['item_type'] == 'custom':
+            order.order_item_add_custom(
+                product_name = item['data']['product'],
+                description = item['data']['description'],
+                quantity = item['quantity'],
+                price = item['data']['price'],
+                tax_rates_id = item['data']['tax_rates_id']
+            )
 
     # update order status
     order.set_status_awaiting_payment()
@@ -1316,6 +1343,21 @@ def validate_cart_create_receipt(
 
             # Update stock
             variant.stock_reduce(quantity)
+        elif item['item_type'] == 'custom' and not invoice_created:
+            """
+                Only add custom items to receipt here if no if no invoice is created
+                otherwise, get data from invoice
+            """
+            data = item['data']
+
+            riID = receipt.item_add_custom(
+                product_name = data['product'],
+                description = data['description'],
+                quantity = item['quantity'],
+                price = data['price'],
+                tax_rates_id = data['tax_rates_id']
+            )
+
 
     if invoice_created:
         invoice_items = invoice.get_invoice_items_rows()

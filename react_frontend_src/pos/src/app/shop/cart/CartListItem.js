@@ -95,6 +95,16 @@ const CartListSubscription = ({item, selected_item}) =>
     </CartListItemSelected>
 
 
+const CartListCustom = ({item, selected_item}) => 
+    <CartListItemSelected item={item}
+                          selected_item={selected_item} >
+        <div className="bold">{item.data.product} - {item.data.description}</div>
+        <CartListItemQuantity qty={item.quantity}
+                              price={item.data.price}
+        />
+    </CartListItemSelected>
+
+
 const CartListItem = injectIntl(({classes, item, selected_item, intl, onClick=f=>f}) => 
     <div onClick={() => onClick(item.id)}
          className="shop-cart-list-item">
@@ -119,6 +129,9 @@ const CartListItem = injectIntl(({classes, item, selected_item, intl, onClick=f=
         { (item.item_type == 'subscription') ?
             <CartListSubscription item={item}
                                   selected_item={selected_item} /> : '' }
+        { (item.item_type == 'custom') ?
+            <CartListCustom item={item}
+                            selected_item={selected_item} /> : '' }
     </div>
 )
 

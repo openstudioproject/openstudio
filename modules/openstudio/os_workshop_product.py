@@ -274,7 +274,7 @@ class WorkshopProduct:
         ##
         # Send info mail to customer if we have some practical info
         ##
-        if self.workshop.AutoSendInfoMail:
+        if self.workshop.AutoSendInfoMail and not waitinglist:
             osmail = OsMail()
             msgID = osmail.render_email_template('workshops_info_mail', workshops_products_customers_id=wspcID)
             osmail.send_and_archive(msgID, cuID)

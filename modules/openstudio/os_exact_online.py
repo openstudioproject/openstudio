@@ -135,7 +135,6 @@ class OSExactOnline:
         if is_credit_invoice:
             invoice_data['Type'] = 21
 
-
         error = False
 
         try:
@@ -162,13 +161,22 @@ class OSExactOnline:
             if not error:
                 os_invoice.set_synced_at_now()
 
+            self._log_success(
+                action='create',
+                object='sales_entry',
+                object_id=os_invoice.invoice.id,
+                result=result,
+                sent_data=unicode(invoice_data)
+            )
+
         except HTTPError as e:
             error = True
             self._log_error(
                 'create',
                 'sales_entry',
                 os_invoice.invoice.id,
-                e
+                e,
+                sent_data=unicode(invoice_data)
             )
 
         return error
@@ -254,7 +262,7 @@ class OSExactOnline:
 
         if payment_method and payment_method.AccountingCode:
             invoice_data['PaymentCondition'] = payment_method.AccountingCode
-            
+
         if is_credit_invoice:
             invoice_data['Type'] = 21
 
@@ -274,13 +282,22 @@ class OSExactOnline:
             if not error:
                 os_invoice.set_synced_at_now()
 
+            self._log_success(
+                action='update',
+                object='sales_entry',
+                object_id=os_invoice.invoice.id,
+                result=result,
+                sent_data=unicode(invoice_data)
+            )
+
         except HTTPError as e:
             error = True
             self._log_error(
                 'update',
                 'sales_entry',
                 os_invoice.invoice.id,
-                e
+                e,
+                sent_data=unicode(invoice_data)
             )
 
         return error
@@ -327,7 +344,8 @@ class OSExactOnline:
                 'update',
                 'sales_entry_line',
                 ID,
-                e
+                e,
+                sent_data=unicode(line)
             )
 
         return dict(error=error, result=result)
@@ -582,7 +600,8 @@ class OSExactOnline:
                     'create',
                     'relation',
                     os_customer.row.id,
-                    e
+                    e,
+                    sent_data=unicode(relation_dict)
                 )
 
             if error:
@@ -658,7 +677,8 @@ class OSExactOnline:
                 'update',
                 'relation',
                 os_customer.row.id,
-                e
+                e,
+                sent_data=unicode(relation_dict)
             )
 
 
@@ -755,7 +775,8 @@ class OSExactOnline:
                 'create',
                 'bankaccount',
                 os_customer_payment_info.row.id,
-                e
+                e,
+                sent_data=unicode(bank_account_dict)
             )
 
         return eo_bankaccount_id
@@ -809,7 +830,8 @@ class OSExactOnline:
                 'update',
                 'bankaccount',
                 os_customer.row.id,
-                e
+                e,
+                sent_data=unicode(bank_account_dict)
             )
 
 
@@ -872,7 +894,8 @@ class OSExactOnline:
                 'create',
                 'mandate',
                 os_customer_payment_info.cpiID,
-                e
+                e,
+                sent_data=unicode(mandate_dict)
             )
 
 
@@ -907,7 +930,7 @@ class OSExactOnline:
             session.flash = T("Failed to delete this mandate in Exact Online, it's probably in use somewhere.")
 
 
-    def _log_error(self, action, object, object_id, result):
+    def _log_error(self, action, object, object_id, result, sent_data=None):
         """
         :param action: should be in ['create', 'read', 'update', 'delete']
         :param object: object name
@@ -922,7 +945,28 @@ class OSExactOnline:
             ObjectName = object,
             ObjectID = object_id,
             ActionResult = result,
+            SentData=sent_data,
             Status = 'fail'
+        )
+
+
+    def _log_success(self, action, object, object_id, result, sent_data=None):
+        """
+        :param action: should be in ['create', 'read', 'update', 'delete']
+        :param object: object name
+        :param object_id: object id
+        :param message: string
+        :return: None
+        """
+        db = current.db
+
+        db.integration_exact_online_log.insert(
+            ActionName = action,
+            ObjectName = object,
+            ObjectID = object_id,
+            ActionResult = result,
+            SentData = sent_data,
+            Status = 'success'
         )
 
 

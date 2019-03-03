@@ -13,6 +13,7 @@ import Attendance from './checkin/attendance/AttendanceContainer'
 import Book from './checkin/book/BookContainer'
 import Revenue from './checkin/revenue/RevenueContainer'
 import Home from './home/HomeContainer'
+import CustomItem from './shop/custom/CustomItemContainer'
 import Payment from './shop/payment/PaymentContainer'
 import Products from './shop/products/ProductsContainer'
 import Classcards from './shop/school/classcards/ClasscardsContainer'
@@ -33,6 +34,7 @@ class App extends Component {
 
   componentWillMount() {
     this.props.fetchPaymentMethods()
+    this.props.fetchTaxRates()
     this.props.fetchProductCategories()
     this.props.fetchUser()    
     this.props.fetchSettings()  
@@ -66,6 +68,7 @@ class App extends Component {
             <Route path='/shop/school/classcards' component={Classcards} />
             <Route path='/shop/school/memberships' component={Memberships} />
             <Route path='/shop/school/subscriptions' component={Subscriptions} />
+            <Route path='/shop/custom' component={CustomItem} />
             <Route path='/permissions_error' component={PermissionsError} />
             {/* Add all your remaining routes here, like /trending, /about, etc. */}
             <Route component={Whoops404} />

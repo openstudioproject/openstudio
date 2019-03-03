@@ -15,7 +15,7 @@ const PaymentDisabled = (cart_items, customers) => {
         var i;
         var has_school_product = false
         for (i = 0; i < cart_items.length; i++) { 
-            if (cart_items[i].item_type !== 'product') {
+            if ((cart_items[i].item_type !== 'product') && (cart_items[i].item_type !== 'custom')) {
                 has_school_product = true
                 break
             }

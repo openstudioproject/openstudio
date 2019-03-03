@@ -1292,7 +1292,17 @@ def access_group_permissions():
                         ['customers_subscriptions_credits-create', T("Add credits")],
                         ['customers_subscriptions_credits-update', T("Edit credits")],
                         ['customers_subscriptions_credits-delete', T("Delete credits")],
-                    ]]
+                    ]],                    
+                    ['customers_subscriptions_pauses-read', T("View pauses"), [
+                        ['customers_subscriptions_pauses-create', T("Add pauses")],
+                        ['customers_subscriptions_pauses-update', T("Edit pauses")],
+                        ['customers_subscriptions_pauses-delete', T("Delete pauses")],
+                    ]],
+                    ['customers_subscriptions_blocks-read', T("View class check-in blocks"), [
+                        ['customers_subscriptions_blocks-create', T("Add class check-in blocks")],
+                        ['customers_subscriptions_blocks-update', T("Edit class check-in blocks")],
+                        ['customers_subscriptions_blocks-delete', T("Delete class check-in blocks")],
+                    ]],
                 ]],
                 ['customers_classcards-read', T("View class cards"), [
                     ['customers_classcards-create', T("Add class cards")],

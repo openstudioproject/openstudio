@@ -390,6 +390,8 @@ def schedule_get_days():
     data = {}
     data['schedule'] = []
     while current_date <= date_end:
+        classes = []
+
         class_schedule = ClassSchedule(
             current_date,
             filter_id_school_classtype = ClassTypeID,
@@ -404,8 +406,7 @@ def schedule_get_days():
         if web2pytest.is_running_under_test(request, request.application) or current_date == TODAY_LOCAL:
             classes = class_schedule.get_day_list()
         else:
-            cache_key = 'openstudio_api_schedule_get_days_' + unicode(date_start) + '_' + \
-                        unicode(date_end) + '_' + \
+            cache_key = 'openstudio_api_schedule_get_days_' + unicode(current_date) + '_' + \
                         'sorting_' + sorting + '_' + \
                         'TeacherID_' + unicode(TeacherID) + '_' + \
                         'ClassTypeID_' + unicode(ClassTypeID) + '_' + \
