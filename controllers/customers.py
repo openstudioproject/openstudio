@@ -1740,6 +1740,16 @@ def classcard_add():
         a drop down menu
         request.vars['cuID'] is expected to be the customers_id
     """
+    def over_times_bought(row):
+        query = (db.customers_classcards.auth_customer_id == customers_id) & \
+                (db.customers_classcards.school_classcards_id == row.id)
+        times_bought = db(query).count()
+
+        if times_bought >= row.TrialTimes:
+            return True
+        else:
+            return False
+
     customers_id   = request.vars['cuID']
     clsID          = request.vars['clsID'] # for redirect to classes attendance_list_classcards
     date_formatted = request.vars['date'] # for redirect to classes attendance_list_classcards
@@ -1798,13 +1808,22 @@ def classcard_add():
                                    modal_footer_content=os_gui.get_submit_button(form_id),
                                    modal_class='modal_card_' + unicode(row.id))
         modals.append(result['modal'])
+        max_bought = ''
+        if over_times_bought(row):
+            max_bought = DIV(
+                os_gui.get_fa_icon('fa-info-circle'), ' ',
+                T("Maximum cards bought"),
+                _class='text-muted center'
+            )
+
 
         card_content = DIV(
             TABLE(TR(TD(T("Validity"), TD(validity))),
                   TR(TD(T("Classes"), TD(repr_row.Classes))),
                   TR(TD(T("Price"), TD(repr_row.Price))),
                   _class='table'),
-            result['button']
+            max_bought,
+            result['button'],
             )
 
 
