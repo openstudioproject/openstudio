@@ -1719,19 +1719,6 @@ def classcards_clear_cache(form):
     cache_clear_customers_classcards(cuID)
 
 
-def classcard_add_check_trialcard(cuID):
-    """
-        Check whether a customer has already had a trialcard
-    """
-    tc_query = (db.school_classcards.id ==
-                db.customers_classcards.school_classcards_id) & \
-               (db.school_classcards.Trialcard == True) & \
-               (db.customers_classcards.auth_customer_id == cuID)
-    tc_count = db(tc_query).count()
-
-    return tc_count
-
-
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('create', 'customers_classcards'))
 def classcard_add():
@@ -1741,6 +1728,9 @@ def classcard_add():
         request.vars['cuID'] is expected to be the customers_id
     """
     def over_times_bought(row):
+        if not row.Trialcard:
+            return False
+
         query = (db.customers_classcards.auth_customer_id == customers_id) & \
                 (db.customers_classcards.school_classcards_id == row.id)
         times_bought = db(query).count()
@@ -1762,18 +1752,12 @@ def classcard_add():
     return_url = classcards_get_return_url(customers_id, clsID, date_formatted)
 
     query = (db.school_classcards.Archived == False)
-
-    if classcard_add_check_trialcard(customers_id):
-        query &= (db.school_classcards.Trialcard == False)
-
     rows = db(query).select(db.school_classcards.ALL,
                             orderby=db.school_classcards.Trialcard|\
                                     db.school_classcards.Name)
 
     # check for no class cards
-    query = (db.school_classcards.Archived == False)
-    count_cards = db(query).count()
-
+    count_cards = len(rows)
 
     back = DIV(os_gui.get_button('back_bs', return_url), BR(), BR(), _class='col-md-12')
     if count_cards < 1:
@@ -1882,7 +1866,6 @@ def classcard_add_modern_add_card():
     return_url = URL('classcard_add_modern_add_card_redirect_classcards',
                      vars=request.vars, extension='')
 
-    classcard_add_check_trialcard_set_query(cuID)
     db.customers_classcards.school_classcards_id.default = scdID
     db.customers_classcards.school_classcards_id.readable = False
     db.customers_classcards.school_classcards_id.writable = False
@@ -1894,6 +1877,7 @@ def classcard_add_modern_add_card():
     functions_onadd = classcard_add_get_functions()
     crud.messages.submit_button = T("Save")
     crud.messages.record_created = T("Added card")
+    crud.settings.formstyle = 'bootstrap3_stacked'
     crud.settings.create_next = return_url
     crud.settings.create_onaccept = functions_onadd
     form = crud.create(db.customers_classcards)
@@ -1982,19 +1966,6 @@ def classcard_add_modern_add_card_redirect_classcards():
 #     return dict(content=content, back=back, menu=menu, save=submit)
 #
 #
-
-def classcard_add_check_trialcard_set_query(customers_id):
-    """
-        Don't allow adding trialcard when one has already been added
-    """
-    if classcard_add_check_trialcard(customers_id):
-        scd_query = (db.school_classcards.Archived == False) & \
-                    (db.school_classcards.Trialcard == False)
-        db.customers_classcards.school_classcards_id.requires=\
-            IS_IN_DB(db(scd_query),
-                     'school_classcards.id',
-                     '%(Name)s',
-                     zero=(T('Please select...')))
 
 
 def classcard_add_get_functions(var=None):
