@@ -848,41 +848,31 @@ def get_debit_sales_summary(date):
     reports = Reports()
 
     total = 0
-    count = db.shop_sales_products_variants.shop_products_variants_id.count()
-    rows = reports.shop_sales_summary(date, date)
+    records = reports.shop_sales_summary(date, date)
 
     header = THEAD(TR(
-        TH(T("Product")),
-        TH(T("# Sold")),
-        TH(T("Price")),
+        TH(T("G/L Account")),
         TH(T("Total")),
     ))
 
     table = TABLE(header, _class='table table-striped table-hover')
-    for row in rows:
-        products_sold = row[count]
-        row_total = row.shop_products_variants.Price * products_sold
+    for record in records:
 
         table.append(TR(
-            TD(max_string_length(row.shop_sales.ProductName, 46), BR(),
-               SPAN(max_string_length(row.shop_sales.VariantName, 46), _class="text-muted")),
-            TD(products_sold),
-            TD(represent_float_as_amount(row.shop_products_variants.Price)),
-            TD(represent_float_as_amount(row_total))
+            TD(record[1]),
+            TD(represent_float_as_amount(record[0])),
         ))
 
-        total += row_total
+        total += record[0]
 
     # cards sold footer
     table.append(TFOOT(TR(
-        TH(),
-        TH(),
         TH(T("Total")),
         TH(represent_float_as_amount(total))
     )))
 
     box = DIV(
-        DIV(H3(T("Shop sales"), _class='box-title'),
+        DIV(H3(T("Shop sales by G/L Account"), _class='box-title'),
             DIV(A(I(_class='fa fa-minus'),
                 _href='#',
                 _class='btn btn-box-tool',
