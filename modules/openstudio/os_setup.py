@@ -11,9 +11,17 @@ class OsSetup:
         Run setup
         :return:
         """
+        self._setup_system_worksflow()
         self._setup_shop_subscriptions_payment_method()
         self._setup_sys_notifications()
         self._setup_teachers_payment_rate_type()
+
+
+    def _setup_system_worksflow(self):
+        self.set_sys_property(
+            'system_enable_class_checkin_trialclass',
+            'on'
+        )
 
 
     def _setup_shop_subscriptions_payment_method(self):

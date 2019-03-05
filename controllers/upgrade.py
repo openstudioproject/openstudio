@@ -208,3 +208,12 @@ def upgrade_to_201902():
     ##
     query = (db.school_classcards.TrialTimes == None)
     db(query).update(TrialTimes = 1)
+
+    ##
+    # Set default value for system_enable_class_checkin_trialclass to "on"
+    # to keep the current default behavior
+    ##
+    set_sys_property(
+        'system_enable_class_checkin_trialclass',
+        'on'
+    )
