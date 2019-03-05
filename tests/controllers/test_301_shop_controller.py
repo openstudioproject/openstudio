@@ -1448,6 +1448,31 @@ def test_classcards(client, web2py):
     assert '/shop/classcard_add_to_cart?scdID=2' in client.text
 
 
+def test_classcards_display_message_trial_over_times_bought(client, web2py):
+    """
+        Is the message telling a customer they've reached the max nr of times
+        they can buy a trial card showing?
+    """
+    setup_profile_tests(web2py)
+
+    # populate a regular card and a trial card
+    populate_school_classcards(web2py, 1)
+
+    web2py.db.customers_classcards.insert(
+        auth_customer_id = 300,
+        school_classcards_id = 2, # this is the trial card
+        Startdate = datetime.date.today(),
+        Enddate = datetime.date.today() + datetime.timedelta(days=31)
+    )
+    web2py.db.commit()
+
+    url = '/shop/classcards'
+    client.get(url)
+    assert client.status == 200
+
+    assert "You've reached the maximum number of times you can purchase this card." in client.text
+
+
 def test_classcard_add_to_cart(client, web2py):
     """
         Are classcards added to the shopping cart as expected?
