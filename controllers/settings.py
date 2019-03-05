@@ -30,16 +30,20 @@ def system_get_menu(page):
     """
         Menu for system settings pages
     """
-    pages = [['system_general',
-              T('General'),
-              URL('system_general')],
-             ['system_storage',
-              T('Storage'),
-              URL('system_storage')],
-             ['system_organizations',
-              T('Organizations'),
-              URL('system_organizations')]
-             ]
+    pages = [
+        ['system_general',
+        T('General'),
+        URL('system_general')],
+        ['system_storage',
+        T('Storage'),
+        URL('system_storage')],
+        ['system_organizations',
+        T('Organizations'),
+        URL('system_organizations')],
+        ['system_workflow',
+        T('Workflow'),
+        URL('system_workflow')]
+    ]
 
     return os_gui.get_submenu(pages, page, horizontal=True, htype='tabs')
 
