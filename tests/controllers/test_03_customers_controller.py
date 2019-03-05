@@ -26,7 +26,6 @@ from populate_os_tables import populate_tax_rates
 
 
 
-
 def test_add(client, web2py):
     """
         Created a customer?
@@ -1230,36 +1229,6 @@ def test_classcards_membership_required_warning(client, web2py):
     assert "No membership" in client.text
 
 
-def test_classcard_add_classic(client, web2py):
-    """
-        Add a classcard using a drop down menu
-    """
-    populate_school_classcards(web2py, 8, trialcard = True)
-    populate_customers(web2py, 1)
-
-    # check redirection of add_classcard
-    url = '/customers/classcard_add?cuID=1'
-    client.get(url)
-    assert client.status == 200
-    assert not 'panel-primary' in client.text
-
-    # check automatic calculating of enddate
-    url = '/customers/classcard_add_classic?cuID=1'
-    data = {'school_classcards_id' :  1,
-            'Startdate'            : '2014-01-01',
-            'Note'                 : 'Bananas'}
-    client.post(url, data=data)
-    assert client.status == 200
-
-    # check db
-    assert web2py.db(web2py.db.customers_classcards).count() == 1
-    # check automatich adding of enddate
-    assert web2py.db.customers_classcards(1).Enddate == datetime.date(2014, 3, 31)
-
-    # check classcard invoice
-    check_classcard_invoice(web2py)
-
-
 def check_classcard_invoice(web2py):
     """
         Check if an invoice is created correctly after adding a classcard
@@ -1280,34 +1249,6 @@ def check_classcard_invoice(web2py):
     ig_100 = web2py.db.invoices_groups(100)
     assert ig_100.Terms == invoice.Terms
     assert ig_100.Footer == invoice.Footer
-
-
-def test_classcard_add_classic_trialcard_removed_after_getting_one(client, web2py):
-    """
-        Check that the trialcard options are no longer listed
-    """
-    nr_cards = 10
-    populate_school_classcards(web2py, nr_cards, trialcard = True)
-    populate_customers(web2py, 1)
-
-    trialcard_id = nr_cards + 1
-
-    web2py.db.customers_classcards.insert(
-        auth_customer_id = 1001,
-        school_classcards_id = trialcard_id,
-        Startdate = '2014-01-01',
-        Enddate = '2014-01-31',
-        Note = 'Cherries' )
-
-    web2py.db.commit()
-    # check db
-    assert web2py.db(web2py.db.customers_classcards).count() == 1
-
-    # check automatic calculating of enddate
-    url = '/customers/classcard_add_classic?cuID=1001'
-    client.get(url)
-    assert client.status == 200
-    assert web2py.db.school_classcards(trialcard_id).Name not in client.text
 
 
 def test_classcard_add_modern(client, web2py):
@@ -1341,32 +1282,24 @@ def test_classcard_add_modern(client, web2py):
     check_classcard_invoice(web2py)
 
 
-def test_classcard_add_modern_trialcard_removed_after_getting_one(client, web2py):
+def test_trialcard_max_times_bought_message(client, web2py):
     """
-        Check that the trialcard options are no longer listed
+    Display message when a trialcard classcard has been bought max times
     """
-    nr_cards = 5
-    populate_school_classcards(web2py, nr_cards, trialcard = True)
-    populate_customers(web2py, 1)
+    populate_customers_with_classcards(web2py)
 
-    trialcard_id = nr_cards + 1
-
-    web2py.db.customers_classcards.insert(
-        auth_customer_id = 1001,
-        school_classcards_id = trialcard_id,
-        Startdate = '2014-01-01',
-        Enddate = '2014-01-31',
-        Note = 'Cherries' )
+    # Change card of 1st customer to the trialcard
+    card = web2py.db.customers_classcards(1)
+    card.school_classcards_id = 2
+    card.update_record()
 
     web2py.db.commit()
-    # check db
-    assert web2py.db(web2py.db.customers_classcards).count() == 1
 
-    # check that the trialcard isn't listed
-    url = '/customers/classcard_add_modern?cuID=1001'
+    url = '/customers/classcard_add?cuID=1001'
     client.get(url)
     assert client.status == 200
-    assert not web2py.db.school_classcards(trialcard_id).Name in client.text
+
+    assert "Maximum cards bought" in client.text
 
 
 def test_classcard_edit(client, web2py):
