@@ -3100,6 +3100,8 @@ def define_log_customers_accepted_documents():
         Field('DocumentURL',
               requires=IS_URL(),
               label=T('Document accepted on URL')),
+        Field('DocumentContent', 'text',
+              label=T("Accepted document content")),
         Field('OpenStudioVersion',
               represent=lambda value, row: value or '',
               label=T('OpenStudio version')),
