@@ -549,6 +549,9 @@ def subscription_buy_now():
     """
         Get a subscription
     """
+    from openstudio.os_customer import Customer
+    from openstudio.os_school_subscription import SchoolSubscription
+
     ssuID = request.vars['ssuID']
 
     # init mollie
@@ -575,6 +578,22 @@ def subscription_buy_now():
     # Add credits for the first month
     cs = CustomerSubscription(csID)
     cs.add_credits_month(startdate.year, startdate.month)
+
+    # Add accepted terms
+    customer = Customer(auth.user.id)
+    ssu = SchoolSubscription(ssuID, set_db_info=True)
+
+    terms = [
+        get_sys_property('shop_subscriptions_terms'), # general terms
+        ssu.Terms # Subscription specific terms
+    ]
+    full_terms = '\n'.join(terms)
+
+    customer.log_document_acceptance(
+        document_name=T("Subscription terms"),
+        document_description=T("Terms for all susbcriptions and subscription specific terms"),
+        document_content=full_terms
+    )
 
     # clear cache to make sure it shows in the back end
     cache_clear_customers_subscriptions(auth.user.id)
