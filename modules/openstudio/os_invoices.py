@@ -353,9 +353,6 @@ class Invoices:
             query &= (db.invoices_customers.auth_customer_id == cuID)
         if csID:
             left.extend([
-                db.invoices_items.on(
-                    db.invoices_items.invoices_id ==
-                    db.invoices.id),
                 db.invoices_items_customers_subscriptions.on(
                     db.invoices_items_customers_subscriptions.invoices_items_id ==
                     db.invoices_items.id),

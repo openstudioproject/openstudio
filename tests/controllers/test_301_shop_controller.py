@@ -10,6 +10,7 @@ import datetime
 from gluon.contrib.populate import populate
 
 from populate_os_tables import populate_customers
+from populate_os_tables import populate_customers_payment_info
 from populate_os_tables import populate_customers_with_subscriptions
 from populate_os_tables import populate_customers_with_memberships
 from populate_os_tables import prepare_classes
@@ -19,6 +20,7 @@ from populate_os_tables import populate_school_memberships
 from populate_os_tables import populate_customers_shoppingcart
 from populate_os_tables import populate_customers_orders
 from populate_os_tables import populate_customers_orders_items
+from populate_os_tables import populate_payment_methods
 from populate_os_tables import populate_sys_organizations
 from populate_os_tables import populate_workshops
 from populate_os_tables import populate_workshops_for_api_tests
@@ -2143,6 +2145,38 @@ def test_subscription_terms_requires_complete_profile(client, web2py):
     # Check general terms
     assert "best service possible" in client.text
 
+
+def test_subscription_direct_debit_log_terms(client, web2py):
+    """
+        Are accepted terms logged for a subscription
+    """
+    url = "/default/user/login"
+    client.get(url)
+    assert client.status == 200
+
+    setup_profile_tests(web2py)
+    populate_school_subscriptions(web2py)
+    populate_payment_methods(web2py)
+
+    web2py.db.customers_payment_info.insert(
+        auth_customer_id=300,
+        payment_methods_id=3,
+        AccountNumber="Account300",
+        AccountHolder="HolderName300",
+        BIC="BIC300")
+    web2py.db.commit()
+
+    url = '/shop/subscription_direct_debit?ssuID=1'
+    client.get(url)
+    assert client.status == 200
+
+    cs = web2py.db.customers_subscriptions(1)
+    assert cs.auth_customer_id == 300
+    assert cs.Startdate == datetime.date.today()
+    assert cs.school_subscriptions_id == 1
+
+    query = (web2py.db.log_customers_accepted_documents.id > 0)
+    assert web2py.db(query).count > 0
 
 
 def test_membership_terms(client, web2py):

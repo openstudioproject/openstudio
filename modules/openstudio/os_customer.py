@@ -1161,7 +1161,8 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
                                 document_name,
                                 document_description='',
                                 document_version='',
-                                document_url=''):
+                                document_url='',
+                                document_content=''):
         """
             :return:
         """
@@ -1176,6 +1177,7 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
             DocumentDescription = document_description,
             DocumentVersion = document_version,
             DocumentURL = document_url,
+            DocumentContent = document_content,
             OpenStudioVersion = '.'.join([version, release])
         )
 
