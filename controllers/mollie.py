@@ -584,8 +584,8 @@ def subscription_buy_now():
     ssu = SchoolSubscription(ssuID, set_db_info=True)
 
     terms = [
-        get_sys_property('shop_subscriptions_terms'), # general terms
-        ssu.Terms # Subscription specific terms
+        get_sys_property('shop_subscriptions_terms') or '', # general terms
+        ssu.Terms or '' # Subscription specific terms
     ]
     full_terms = '\n'.join(terms)
 
