@@ -355,6 +355,39 @@ def test_classes_book_options(client, web2py):
     assert 'Request review' not in client.text
 
 
+def test_classes_book_options_trial_disabled_from_system_settings(client, web2py):
+    """
+        Is the trial option disabled?
+    """
+    url = '/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    setup_profile_tests(web2py)
+    prepare_classes(web2py, credits=True)
+
+    sprop = web2py.db.sys_properties(Property='system_enable_class_checkin_trialclass')
+    sprop.PropertyValue = ''
+    sprop.update_record()
+
+    web2py.db.commit()
+
+    next_monday = next_weekday(datetime.date.today(), 0)
+    client.get('/shop/classes_book_options?clsID=1&date=' + unicode(next_monday))
+    assert client.status == 200
+
+    assert '<div class="col-md-3 bold">Drop in</div>' in client.text
+    assert '<div class="col-md-3 bold">Trial</div>' not in client.text
+
+    # check drop in and trial price listing
+    class_prices = web2py.db.classes_price(1)
+    assert format(class_prices.Dropin, '.2f') in client.text
+    assert format(class_prices.Trial, '.2f') not in client.text
+
+    # Check request review check-in option not available
+    assert 'Request review' not in client.text
+
+
 def test_classes_book_options_subscription_blocked(client, web2py):
     """
         Is the page listing the booking options showing a blocked
