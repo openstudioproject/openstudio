@@ -13,9 +13,9 @@ import pytz
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'selfcheckin'))
 def index():
-    '''
+    """
         Lists announcements
-    '''
+    """
     response.title = T("Where are you now?")
     response.logout = get_logout()
 
@@ -30,9 +30,9 @@ def index():
 
 
 def index_get_locations(var=None):
-    '''
+    """
         Returns a list of all locations that aren't archived
-    '''
+    """
     query = (db.school_locations.Archived == False)
 
     rows = db(query).select(db.school_locations.ALL,
@@ -52,9 +52,9 @@ def index_get_locations(var=None):
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'classes'))
 def classes():
-    '''
+    """
         Function returns a list of classes today
-    '''
+    """
     locID = request.vars['locID']
 
     # Set today while looking at configured timezone
@@ -116,9 +116,9 @@ def classes():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'classes_attendance'))
 def checkin():
-    '''
+    """
         Checkin page for self checkin
-    '''
+    """
     clsID          = request.vars['clsID']
     date_formatted = request.vars['date']
     date = datestr_to_python(DATE_FORMAT, date_formatted)
@@ -201,9 +201,9 @@ def checkin():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'classes_attendance'))
 def checkin_booking_options():
-    '''
+    """
         List booking options for a customer
-    '''
+    """
     cuID = request.vars['cuID']
     clsID = request.vars['clsID']
     date_formatted = request.vars['date']
@@ -253,9 +253,9 @@ def checkin_booking_options():
 
 
 def checkin_get_search_form(clsID, date, name, function):
-    '''
+    """
         Form to search for customers
-    '''
+    """
     date_formatted = date.strftime(DATE_FORMAT)
     form = SQLFORM.factory(
         Field('name', default=name, label=T("")),
@@ -277,9 +277,9 @@ def checkin_get_search_form(clsID, date, name, function):
 
 @auth.requires_login()
 def get_logout(var=None):
-    '''
+    """
         Returns logout button
-    '''
+    """
     logout = A(SPAN(_class='glyphicon glyphicon-off'), ' ',
                    T('Log Out'),
                    _href=URL('default', 'user', args=['logout']))
@@ -288,9 +288,9 @@ def get_logout(var=None):
 
 
 def get_logo(var=None):
-    '''
+    """
         Returns logo for self check-in
-    '''
+    """
     branding_logo = os.path.join(request.folder,
                                  'static',
                                  'plugin_os-branding',
