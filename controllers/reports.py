@@ -1291,7 +1291,6 @@ def classcards_current():
 
     query = ((db.customers_classcards.Enddate >= today) |
              (db.customers_classcards.Enddate == None)) & \
-            (db.school_classcards.Trialcard == False) & \
             ((db.customers_classcards.ClassesTaken <
               db.school_classcards.Classes) |
              (db.school_classcards.Unlimited == True))
@@ -1312,6 +1311,7 @@ def classcards_current():
                             db.school_classcards.Classes,
                             db.school_classcards.Price,
                             db.school_classcards.Unlimited,
+                            db.school_classcards.Trialcard,
                             classes_remaining,
         left=[db.auth_user.on(db.auth_user.id==
                               db.customers_classcards.auth_customer_id),
@@ -1336,8 +1336,8 @@ def classcards_current():
                     _class='header')))
 
     ccdh = ClasscardsHelper()
-    for row in rows.render():
-
+    for i, row in enumerate(rows):
+        repr_row = list(rows[i:i + 1].render())[0]
 
         edit = os_gui.get_button('edit_notext', URL('customers', 'classcards',
                                              vars={'cuID' : row.auth_user.id}))
@@ -1345,6 +1345,17 @@ def classcards_current():
         mail = A(SPAN(_class='glyphicon glyphicon-envelope'),
                       _class="btn btn-default btn-sm",
                       _href='mailto:' + row.auth_user.email)
+
+        trial_label = ''
+        if row.school_classcards.Trialcard:
+            trial_label = SPAN(
+                BR(),
+                os_gui.get_label(
+                    'success',
+                    T("Trial card")
+                )
+            )
+
 
         ccdID = row.customers_classcards.id
         classes_remaining = ccdh.get_classes_remaining(ccdID)
@@ -1355,7 +1366,7 @@ def classcards_current():
             classes_remaining = SPAN(classes_remaining, ' ',
                          T('Class remaining'))
 
-        table.append(TR(TD(row.auth_user.thumbsmall,
+        table.append(TR(TD(repr_row.auth_user.thumbsmall,
                            _class='os-customer_image_td'),
                         TD(DIV(row.auth_user.display_name),
                            SPAN(T("Card"), ' ',
@@ -1363,10 +1374,11 @@ def classcards_current():
                                  B(classes_remaining),
                                  _class='small_font grey'),
                            _class="os-customer_name"),
-                        TD(row.customers_classcards.school_classcards_id),
-                        TD(row.customers_classcards.Startdate),
-                        TD(row.customers_classcards.Enddate),
-                        TD(row.school_classcards.Price),
+                        TD(repr_row.customers_classcards.school_classcards_id,
+                           trial_label),
+                        TD(repr_row.customers_classcards.Startdate),
+                        TD(repr_row.customers_classcards.Enddate),
+                        TD(repr_row.school_classcards.Price),
                         TD(DIV(mail, edit,
                                _class='btn-group pull-right'),
                            _class='td-icons table-vertical-align-middle'),
