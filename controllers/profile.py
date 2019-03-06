@@ -1033,7 +1033,7 @@ def invoices():
     header = DIV(
         DIV(T("Invoice #"), _class="col-md-2"),
         DIV(T("Date"), _class="col-md-2"),
-        DIV(T("Due"), _class="col-md-2"),
+        DIV(T("Due"), _class="col-md-2 hidden-xs hidden-sm"),
         DIV(T("Amount"), _class="col-md-2"),
         DIV(T("Status"), _class="col-md-2"),
         DIV(XML('&nbsp;'), _class="col-md-2"),
@@ -1061,7 +1061,7 @@ def invoices():
             DIV(A(repr_row.invoices.InvoiceID, _href=URL('invoice', vars={'iID': row.invoices.id})),
                 _class='col-md-2'),
             DIV(repr_row.invoices.DateCreated, _class='col-md-2'),
-            DIV(repr_row.invoices.DateDue, _class='col-md-2'),
+            DIV(repr_row.invoices.DateDue, _class='col-md-2 hidden-xs hidden-sm'),
             DIV(repr_row.invoices_amounts.TotalPriceVAT, _class='col-md-2'),
             DIV(repr_row.invoices.Status, _class='col-md-2'),
             DIV(DIV(os_gui.get_button('print', URL('invoices', 'pdf', vars={'iID': row.invoices.id}),
