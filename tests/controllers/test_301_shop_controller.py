@@ -355,6 +355,39 @@ def test_classes_book_options(client, web2py):
     assert 'Request review' not in client.text
 
 
+def test_classes_book_options_trial_disabled_from_system_settings(client, web2py):
+    """
+        Is the trial option disabled?
+    """
+    url = '/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    setup_profile_tests(web2py)
+    prepare_classes(web2py, credits=True)
+
+    sprop = web2py.db.sys_properties(Property='system_enable_class_checkin_trialclass')
+    sprop.PropertyValue = ''
+    sprop.update_record()
+
+    web2py.db.commit()
+
+    next_monday = next_weekday(datetime.date.today(), 0)
+    client.get('/shop/classes_book_options?clsID=1&date=' + unicode(next_monday))
+    assert client.status == 200
+
+    assert '<div class="col-md-3 bold">Drop in</div>' in client.text
+    assert '<div class="col-md-3 bold">Trial</div>' not in client.text
+
+    # check drop in and trial price listing
+    class_prices = web2py.db.classes_price(1)
+    assert format(class_prices.Dropin, '.2f') in client.text
+    assert format(class_prices.Trial, '.2f') not in client.text
+
+    # Check request review check-in option not available
+    assert 'Request review' not in client.text
+
+
 def test_classes_book_options_subscription_blocked(client, web2py):
     """
         Is the page listing the booking options showing a blocked
@@ -1446,6 +1479,31 @@ def test_classcards(client, web2py):
     assert u'€ 15.00' in client.text.decode('utf-8')
     # Add to cart link
     assert '/shop/classcard_add_to_cart?scdID=2' in client.text
+
+
+def test_classcards_display_message_trial_over_times_bought(client, web2py):
+    """
+        Is the message telling a customer they've reached the max nr of times
+        they can buy a trial card showing?
+    """
+    setup_profile_tests(web2py)
+
+    # populate a regular card and a trial card
+    populate_school_classcards(web2py, 1)
+
+    web2py.db.customers_classcards.insert(
+        auth_customer_id = 300,
+        school_classcards_id = 2, # this is the trial card
+        Startdate = datetime.date.today(),
+        Enddate = datetime.date.today() + datetime.timedelta(days=31)
+    )
+    web2py.db.commit()
+
+    url = '/shop/classcards'
+    client.get(url)
+    assert client.status == 200
+
+    assert "You've reached the maximum number of times you can purchase this card." in client.text
 
 
 def test_classcard_add_to_cart(client, web2py):

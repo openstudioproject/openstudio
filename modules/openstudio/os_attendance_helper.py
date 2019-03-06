@@ -1146,7 +1146,9 @@ class AttendanceHelper:
 
         # Trial
         # get trial class price
-        if trial:
+        system_enable_class_checkin_trialclass = get_sys_property('system_enable_class_checkin_trialclass')
+
+        if trial and system_enable_class_checkin_trialclass:
             price = prices['trial'] or 0
             membership_price = has_membership and prices['trial_membership']
             if membership_price:

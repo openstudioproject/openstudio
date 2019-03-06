@@ -30,16 +30,20 @@ def system_get_menu(page):
     """
         Menu for system settings pages
     """
-    pages = [['system_general',
-              T('General'),
-              URL('system_general')],
-             ['system_storage',
-              T('Storage'),
-              URL('system_storage')],
-             ['system_organizations',
-              T('Organizations'),
-              URL('system_organizations')]
-             ]
+    pages = [
+        ['system_general',
+        T('General'),
+        URL('system_general')],
+        ['system_storage',
+        T('Storage'),
+        URL('system_storage')],
+        ['system_organizations',
+        T('Organizations'),
+        URL('system_organizations')],
+        ['system_workflow',
+        T('Workflow'),
+        URL('system_workflow')]
+    ]
 
     return os_gui.get_submenu(pages, page, horizontal=True, htype='tabs')
 
@@ -164,6 +168,66 @@ def system_general():
         session.flash = T('Saved')
         # reload so the user sees how the values are stored in the db now
         redirect(URL('system_general'))
+
+    content = DIV(DIV(form, _class='col-md-6'),
+                  _class='row')
+
+    menu = system_get_menu(request.function)
+
+    return dict(content=content,
+                menu=menu,
+                save=submit)
+
+
+def system_workflow():
+    """
+        General OpenStudio settings
+    """
+    response.title = T('System Settings')
+    response.subtitle = T('General')
+    response.view = 'general/tabs_menu.html'
+
+
+    system_enable_class_checkin_trialclass = get_sys_property('system_enable_class_checkin_trialclass')
+
+
+    form = SQLFORM.factory(
+        Field('system_enable_class_checkin_trialclass', 'boolean',
+              default=system_enable_class_checkin_trialclass,
+              label=T('Enable trial class booking option'),
+              comment=T('Show or hide the trial class booking option in the back-end')),
+        submit_button=T("Save"),
+        separator=' ',
+        formstyle='bootstrap3_stacked'
+    )
+
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
+    form = result['form']
+    submit = result['submit']
+
+    if form.process().accepted:
+        form_vars = [
+            'system_enable_class_checkin_trialclass',
+        ]
+
+        for fvar in form_vars:
+            if fvar in request.vars:
+                set_sys_property(
+                    fvar,
+                    request.vars[fvar]
+                )
+            else:
+                set_sys_property(
+                    fvar,
+                    None
+                )
+
+        # Clear cache
+        cache_clear_sys_properties()
+        # User feedback
+        session.flash = T('Saved')
+        # reload so the user sees how the values are stored in the db now
+        redirect(URL('system_workflow'))
 
     content = DIV(DIV(form, _class='col-md-6'),
                   _class='row')
