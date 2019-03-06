@@ -591,7 +591,7 @@ def subscription_buy_now():
 
     customer.log_document_acceptance(
         document_name=T("Subscription terms"),
-        document_description=T("Terms for all susbcriptions and subscription specific terms"),
+        document_description=T("Terms for all subscriptions and subscription specific terms"),
         document_content=full_terms
     )
 

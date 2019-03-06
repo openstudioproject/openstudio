@@ -1237,6 +1237,9 @@ def subscription_direct_debit():
     """
        Get a subscription
     """
+    from openstudio.os_customer import Customer
+    from openstudio.os_school_subscription import SchoolSubscription
+
     ssuID = request.vars['ssuID']
 
     # Check for mandate
@@ -1267,6 +1270,22 @@ def subscription_direct_debit():
         school_subscriptions_id=ssuID,
         Startdate=startdate,
         payment_methods_id=3,  # important, 3 = Direct Debit
+    )
+
+    # Add accepted terms
+    customer = Customer(auth.user.id)
+    ssu = SchoolSubscription(ssuID, set_db_info=True)
+
+    terms = [
+        get_sys_property('shop_subscriptions_terms') or '', # general terms
+        ssu.Terms or '' # Subscription specific terms
+    ]
+    full_terms = '\n'.join(terms)
+
+    customer.log_document_acceptance(
+        document_name=T("Subscription terms"),
+        document_description=T("Terms for all subscriptions and subscription specific terms"),
+        document_content=full_terms
     )
 
     # Add credits for the first month
