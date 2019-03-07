@@ -1037,13 +1037,13 @@ def invoices():
         DIV(T("Amount"), _class="col-md-2"),
         DIV(T("Status"), _class="col-md-2"),
         DIV(XML('&nbsp;'), _class="col-md-2"),
-        _class="row bold hidden-xs hidden-sm"
+        _class="row bold hidden-xs hidden-sm os-shop-invoices-header"
     )
 
     content = DIV(
-        header
+        header,
+        _class='os-shop-invoices'
     )
-
 
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
@@ -1058,7 +1058,8 @@ def invoices():
                             _class='btn btn-success')
 
         content.append(DIV(
-            DIV(A(repr_row.invoices.InvoiceID, _href=URL('invoice', vars={'iID': row.invoices.id})),
+            DIV(SPAN("Invoice", " ", _class='bold hidden-md hidden-lg'),
+                A(repr_row.invoices.InvoiceID, _href=URL('invoice', vars={'iID': row.invoices.id})),
                 _class='col-md-2'),
             DIV(repr_row.invoices.DateCreated, _class='col-md-2'),
             DIV(repr_row.invoices.DateDue, _class='col-md-2 hidden-xs hidden-sm'),
@@ -1069,7 +1070,7 @@ def invoices():
                                  _class='btn-group pull-right'),
                 DIV(pay_now, _class='pull-right'),
                 _class='col-md-2'),
-            _class='row'
+            _class='row os-shop-invoices-list-item'
         ))
 
     back = os_gui.get_button('back', URL('profile', 'orders'), _class='btn-link')
