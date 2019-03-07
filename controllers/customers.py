@@ -1044,9 +1044,11 @@ def edit():
 
     # set mail button
     email = row.email
-    mail_button = A(I(_class='fa fa-envelope-o'),
-                      _class="btn btn-default",
-                      _href='mailto:' + email)
+    mail_button = ''
+    if row.email:
+        mail_button = A(I(_class='fa fa-envelope-o'),
+                          _class="btn btn-default",
+                          _href='mailto:' + email)
 
     # add notes
     te_button = ''
@@ -1092,7 +1094,7 @@ def edit():
     alert = ''
     if row.merged:
         merged_into = db.auth_user(row.merged_into)
-        merged_link = A(SPAN(merged_into.display_name,
+        merged_link = A(SPAN(merged_into.display_name, ' ',
                              T('ID'), ': ',
                              row.merged_into),
                         _title=T("link to account merged into"),
