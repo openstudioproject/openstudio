@@ -718,42 +718,25 @@ class Reports:
             # For a DT field, the format becomes yyyy-mm-dd 00:00:00 when only supplying a date
             date_until = date_until + datetime.timedelta(days=1)
 
-        left = [
-            db.shop_sales_products_variants.on(
-                db.shop_sales_products_variants.shop_sales_id ==
-                db.shop_sales.id
-            ),
-            db.shop_products_variants.on(
-                db.shop_sales_products_variants.shop_products_variants_id ==
-                db.shop_products_variants.id
-            ),
-            db.shop_products.on(
-                db.shop_products_variants.shop_products_id ==
-                db.shop_products.id,
-            ),
-        ]
-
-        count = db.shop_sales_products_variants.shop_products_variants_id.count()
-
-        query = (db.shop_sales.CreatedOn >= date_from) & \
-                (db.shop_sales.CreatedOn < date_until)
-
-        rows = db(query).select(
-            db.shop_products_variants.id,
-            db.shop_sales.ProductName,
-            db.shop_sales.VariantName,
-            db.shop_products_variants.Price,
-            count,
-            left=left,
-            groupby=db.shop_products_variants.id|\
-                    db.shop_sales.ProductName|\
-                    db.shop_sales.VariantName|\
-                    db.shop_products_variants.Price,
-            orderby=db.shop_products.Name|\
-                    db.shop_products_variants.Name,
+        query = '''
+SELECT SUM(spv.Price * shs.Quantity),
+       ag.Name
+FROM shop_sales shs
+LEFT JOIN shop_sales_products_variants shspv ON shspv.shop_sales_id = shs.id
+LEFT JOIN shop_products_variants spv ON shspv.shop_products_variants_id = spv.id
+LEFT JOIN shop_products sp ON spv.shop_products_id = sp.id
+LEFT JOIN accounting_glaccounts ag ON sp.accounting_glaccounts_id = ag.id
+WHERE shs.CreatedOn >= '{date_from}' AND shs.CreatedOn < '{date_until}'
+GROUP BY ag.Name
+ORDER BY ag.Name
+        '''.format(
+            date_from=date_from,
+            date_until=date_until
         )
 
-        return rows
+        records = db.executesql(query)
+
+        return records
 
 
     def shop_sales_not_paid_with_cash_summary(self, date_from, date_until):

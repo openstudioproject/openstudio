@@ -169,6 +169,9 @@ def test_subscription_buy_now(client, web2py):
     assert cs.Startdate == datetime.date.today()
     assert cs.school_subscriptions_id == 1
 
+    query = (web2py.db.log_customers_accepted_documents.id > 0)
+    assert web2py.db(query).count > 0
+
 
 def test_subscription_buy_now_start_first_day_of_next_month(client, web2py):
     """
@@ -318,8 +321,6 @@ def test_webhook_invoice_refund(client, web2py):
     assert client.status == 200
 
     payment = web2py.db.invoices_payments(1)
-
-    print payment
 
     assert payment.Amount == amounts.TotalPriceVAT * -1
     assert payment.mollie_payment_id == mollie_id

@@ -371,18 +371,14 @@ img.workshop_image {
 
 /* Workshops end */
 
-/* Staff payments begin */
+/* Invoices begin */
 
-.web2py_table {
-    padding: 10px 0;
+.os-shop-invoices .row {
+    border-bottom: 1px solid #EAEAEA;
+    padding: 6px;
 }
 
-.web2py_table table {
-    width: 100%;
-    height: 100%;
-}
-
-/* Staff payments end */
+/* Invoices end */
 
 #cart_total {
     margin-top: 20px;

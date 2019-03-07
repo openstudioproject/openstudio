@@ -1044,9 +1044,11 @@ def edit():
 
     # set mail button
     email = row.email
-    mail_button = A(I(_class='fa fa-envelope-o'),
-                      _class="btn btn-default",
-                      _href='mailto:' + email)
+    mail_button = ''
+    if row.email:
+        mail_button = A(I(_class='fa fa-envelope-o'),
+                          _class="btn btn-default",
+                          _href='mailto:' + email)
 
     # add notes
     te_button = ''
@@ -1092,7 +1094,7 @@ def edit():
     alert = ''
     if row.merged:
         merged_into = db.auth_user(row.merged_into)
-        merged_link = A(SPAN(merged_into.display_name,
+        merged_link = A(SPAN(merged_into.display_name, ' ',
                              T('ID'), ': ',
                              row.merged_into),
                         _title=T("link to account merged into"),
@@ -1719,45 +1721,27 @@ def classcards_clear_cache(form):
     cache_clear_customers_classcards(cuID)
 
 
-@auth.requires_login()
-def classcard_add():
-    """
-        Determine whether to use the classic or new style classcards add page
-        > 6 cards = classic
-        request.vars['cuID'] is expected to be the customers_id
-    """
-    vars = request.vars
-
-    query = (db.school_classcards.Archived == False)
-    count_cards = db(query).count()
-
-    if count_cards < 9:
-        redirect(URL('classcard_add_modern', vars=vars))
-    else:
-        redirect(URL('classcard_add_classic', vars=vars))
-
-
-def classcard_add_check_trialcard(cuID):
-    """
-        Check whether a customer has already had a trialcard
-    """
-    tc_query = (db.school_classcards.id ==
-                db.customers_classcards.school_classcards_id) & \
-               (db.school_classcards.Trialcard == True) & \
-               (db.customers_classcards.auth_customer_id == cuID)
-    tc_count = db(tc_query).count()
-
-    return tc_count
-
-
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('create', 'customers_classcards'))
-def classcard_add_modern():
+def classcard_add():
     """
         Add a new classcard for a customer in more graphic way than
         a drop down menu
         request.vars['cuID'] is expected to be the customers_id
     """
+    def over_times_bought(row):
+        if not row.Trialcard:
+            return False
+
+        query = (db.customers_classcards.auth_customer_id == customers_id) & \
+                (db.customers_classcards.school_classcards_id == row.id)
+        times_bought = db(query).count()
+
+        if times_bought >= row.TrialTimes:
+            return True
+        else:
+            return False
+
     customers_id   = request.vars['cuID']
     clsID          = request.vars['clsID'] # for redirect to classes attendance_list_classcards
     date_formatted = request.vars['date'] # for redirect to classes attendance_list_classcards
@@ -1770,18 +1754,12 @@ def classcard_add_modern():
     return_url = classcards_get_return_url(customers_id, clsID, date_formatted)
 
     query = (db.school_classcards.Archived == False)
-
-    if classcard_add_check_trialcard(customers_id):
-        query &= (db.school_classcards.Trialcard == False)
-
     rows = db(query).select(db.school_classcards.ALL,
                             orderby=db.school_classcards.Trialcard|\
                                     db.school_classcards.Name)
 
     # check for no class cards
-    query = (db.school_classcards.Archived == False)
-    count_cards = db(query).count()
-
+    count_cards = len(rows)
 
     back = DIV(os_gui.get_button('back_bs', return_url), BR(), BR(), _class='col-md-12')
     if count_cards < 1:
@@ -1816,13 +1794,22 @@ def classcard_add_modern():
                                    modal_footer_content=os_gui.get_submit_button(form_id),
                                    modal_class='modal_card_' + unicode(row.id))
         modals.append(result['modal'])
+        max_bought = ''
+        if over_times_bought(row):
+            max_bought = DIV(
+                os_gui.get_fa_icon('fa-info-circle'), ' ',
+                T("Maximum cards bought"),
+                _class='text-muted center'
+            )
+
 
         card_content = DIV(
             TABLE(TR(TD(T("Validity"), TD(validity))),
                   TR(TD(T("Classes"), TD(repr_row.Classes))),
                   TR(TD(T("Price"), TD(repr_row.Price))),
                   _class='table'),
-            result['button']
+            max_bought,
+            result['button'],
             )
 
 
@@ -1881,7 +1868,6 @@ def classcard_add_modern_add_card():
     return_url = URL('classcard_add_modern_add_card_redirect_classcards',
                      vars=request.vars, extension='')
 
-    classcard_add_check_trialcard_set_query(cuID)
     db.customers_classcards.school_classcards_id.default = scdID
     db.customers_classcards.school_classcards_id.readable = False
     db.customers_classcards.school_classcards_id.writable = False
@@ -1893,6 +1879,7 @@ def classcard_add_modern_add_card():
     functions_onadd = classcard_add_get_functions()
     crud.messages.submit_button = T("Save")
     crud.messages.record_created = T("Added card")
+    crud.settings.formstyle = 'bootstrap3_stacked'
     crud.settings.create_next = return_url
     crud.settings.create_onaccept = functions_onadd
     form = crud.create(db.customers_classcards)
@@ -1924,76 +1911,63 @@ def classcard_add_modern_add_card_redirect_classcards():
     redirect_url = classcards_get_return_url(cuID, clsID, date_formatted)
     redirect(redirect_url, client_side=True)
 
-
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('create', 'customers_classcards'))
-def classcard_add_classic():
-    """
-        This function shows an add page for a classcard
-        request.vars['cuID'] is expected to be the customers_id
-    """
-    customers_id   = request.vars['cuID']
-    clsID          = request.vars['clsID'] # for redirect to classes attendance_list_classcards
-    date_formatted = request.vars['date'] # for redirect to classes attendance_list_classcards
-    customer = Customer(customers_id)
-    response.title = customer.get_name()
-    response.subtitle = T("New Class card")
-    response.view = 'general/tabs_menu.html'
-
-    db.customers_classcards.auth_customer_id.default = customers_id
-
-    classcard_add_check_trialcard_set_query(customers_id)
-
-    return_url = classcards_get_return_url(customers_id, clsID, date_formatted)
-
-    functions_onadd = classcard_add_get_functions()
-
-    db.customers_classcards.Enddate.readable = False
-    db.customers_classcards.Enddate.writable = False
-
-    crud.messages.submit_button = T("Save")
-    crud.messages.record_created = T("Added card")
-    crud.settings.create_next = return_url
-    crud.settings.create_onaccept = functions_onadd
-    crud.settings.formstyle = "bootstrap3_stacked"
-    form = crud.create(db.customers_classcards)
-
-    form_element = form.element('form')
-    form['_id'] = 'MainForm'
-
-    elements = form.elements('input, select, textarea')
-    for element in elements:
-        element['_form'] = "MainForm"
-
-    submit = form.element('input[type=submit]')
-
-    content = DIV(
-        H4(T("Add new card")),
-        BR(),
-        form
-    )
-
-    back = os_gui.get_button('back', return_url)
-
-
-    menu = customers_get_menu(customers_id, 'classcards')
-
-    return dict(content=content, back=back, menu=menu, save=submit)
-
-
-
-def classcard_add_check_trialcard_set_query(customers_id):
-    """
-        Don't allow adding trialcard when one has already been added
-    """
-    if classcard_add_check_trialcard(customers_id):
-        scd_query = (db.school_classcards.Archived == False) & \
-                    (db.school_classcards.Trialcard == False)
-        db.customers_classcards.school_classcards_id.requires=\
-            IS_IN_DB(db(scd_query),
-                     'school_classcards.id',
-                     '%(Name)s',
-                     zero=(T('Please select...')))
+#
+# @auth.requires(auth.has_membership(group_id='Admins') or \
+#                auth.has_permission('create', 'customers_classcards'))
+# def classcard_add_classic():
+#     """
+#         This function shows an add page for a classcard
+#         request.vars['cuID'] is expected to be the customers_id
+#     """
+#     customers_id   = request.vars['cuID']
+#     clsID          = request.vars['clsID'] # for redirect to classes attendance_list_classcards
+#     date_formatted = request.vars['date'] # for redirect to classes attendance_list_classcards
+#     customer = Customer(customers_id)
+#     response.title = customer.get_name()
+#     response.subtitle = T("New Class card")
+#     response.view = 'general/tabs_menu.html'
+#
+#     db.customers_classcards.auth_customer_id.default = customers_id
+#
+#     classcard_add_check_trialcard_set_query(customers_id)
+#
+#     return_url = classcards_get_return_url(customers_id, clsID, date_formatted)
+#
+#     functions_onadd = classcard_add_get_functions()
+#
+#     db.customers_classcards.Enddate.readable = False
+#     db.customers_classcards.Enddate.writable = False
+#
+#     crud.messages.submit_button = T("Save")
+#     crud.messages.record_created = T("Added card")
+#     crud.settings.create_next = return_url
+#     crud.settings.create_onaccept = functions_onadd
+#     crud.settings.formstyle = "bootstrap3_stacked"
+#     form = crud.create(db.customers_classcards)
+#
+#     form_element = form.element('form')
+#     form['_id'] = 'MainForm'
+#
+#     elements = form.elements('input, select, textarea')
+#     for element in elements:
+#         element['_form'] = "MainForm"
+#
+#     submit = form.element('input[type=submit]')
+#
+#     content = DIV(
+#         H4(T("Add new card")),
+#         BR(),
+#         form
+#     )
+#
+#     back = os_gui.get_button('back', return_url)
+#
+#
+#     menu = customers_get_menu(customers_id, 'classcards')
+#
+#     return dict(content=content, back=back, menu=menu, save=submit)
+#
+#
 
 
 def classcard_add_get_functions(var=None):
@@ -5813,7 +5787,7 @@ def load_list_get_customer_index_buttons(row):
     contact_permission = ( auth.has_membership(group_id='Admins') or
                            auth.has_permission('update', 'customers_contact') )
 
-    if contact_permission:
+    if contact_permission and row.email:
         btn_mail = A(I(_class="fa fa-envelope"), " ",
                      _class="btn btn-default btn-sm",
                      _href='mailto:' + row.email or '',
