@@ -5785,7 +5785,7 @@ def load_list_get_customer_index_buttons(row):
     contact_permission = ( auth.has_membership(group_id='Admins') or
                            auth.has_permission('update', 'customers_contact') )
 
-    if contact_permission:
+    if contact_permission and row.email:
         btn_mail = A(I(_class="fa fa-envelope"), " ",
                      _class="btn btn-default btn-sm",
                      _href='mailto:' + row.email or '',
