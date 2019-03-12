@@ -1097,6 +1097,7 @@ class Invoice:
         )
 
         self.is_paid()
+        self.set_amounts()
         self.on_update()
 
         return ipID
@@ -1124,6 +1125,9 @@ class Invoice:
         invoice_amount = Decimal(invoice_amounts.TotalPriceVAT)
         invoice_total = Decimal(invoice_amount.quantize(Decimal('.01'),
                                                         rounding=ROUND_HALF_UP))
+
+
+        self.set_amounts()
 
         if amount_paid >= invoice_total:
             self.set_status('paid')
