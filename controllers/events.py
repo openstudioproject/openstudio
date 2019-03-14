@@ -1487,10 +1487,14 @@ def tickets_export_excel():
         left = [ db.auth_user.on(db.auth_user.id == db.workshops_products_customers.auth_customer_id),
                  db.workshops_products.on(
                      db.workshops_products_customers.workshops_products_id == db.workshops_products.id),
-                 db.invoices_workshops_products_customers.on(
-                     db.invoices_workshops_products_customers.workshops_products_customers_id ==
+                 db.invoices_items_workshops_products_customers.on(
+                     db.invoices_items_workshops_products_customers.workshops_products_customers_id ==
                      db.workshops_products_customers.id),
-                 db.invoices.on(db.invoices_workshops_products_customers.invoices_id == db.invoices.id)
+                 db.invoices_items.on(
+                     db.invoices_items_workshops_products_customers.invoices_items_id ==
+                     db.invoices_items.id
+                 ),
+                 db.invoices.on(db.invoices_items.invoices_id == db.invoices.id)
                  ]
         query = ((db.workshops_products_customers.workshops_products_id == wspID) &
                  (db.workshops_products_customers.Cancelled == False))
@@ -1534,10 +1538,14 @@ def tickets_export_excel():
 
     left = [ db.auth_user.on(db.auth_user.id == db.workshops_products_customers.auth_customer_id),
              db.workshops_products.on(db.workshops_products_customers.workshops_products_id == db.workshops_products.id),
-             db.invoices_workshops_products_customers.on(
-                 db.invoices_workshops_products_customers.workshops_products_customers_id ==
+             db.invoices_items_workshops_products_customers.on(
+                 db.invoices_items_workshops_products_customers.workshops_products_customers_id ==
                  db.workshops_products_customers.id),
-             db.invoices.on(db.invoices_workshops_products_customers.invoices_id == db.invoices.id),
+             db.invoices_items.on(
+                 db.invoices_items_workshops_products_customers.invoices_items_id ==
+                 db.invoices_items.id
+             ),
+             db.invoices.on(db.invoices_items.invoices_id == db.invoices.id),
              ]
     query = ((db.workshops_products_customers.workshops_products_id.belongs(product_ids)) &
              (db.workshops_products_customers.Cancelled == False))
