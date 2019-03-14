@@ -59,7 +59,7 @@ class OsMail:
 
         status_report = []
         for email in emails:
-            status_report = MAIL.send_and_archive(
+            status_report = MAIL.send(
                 to=email,
                 subject=msg_subject,
                 message=message

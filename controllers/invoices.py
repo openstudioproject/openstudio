@@ -1466,7 +1466,7 @@ def payment_delete():
     db(query).delete()
 
     # update invoice amounts
-    invoice.set_amounts()
+    invoice.is_paid()
 
     redirect(URL('invoice_payments', vars={'iID':payment.invoices_id}))
 
@@ -1490,7 +1490,6 @@ def payment_add_update_status(form):
     invoice = Invoice(payment.invoices_id)
     # check if the status should be changed
     invoice.is_paid()
-    invoice.set_amounts()
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
