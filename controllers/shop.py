@@ -1123,7 +1123,7 @@ def subscription_terms():
     from openstudio.os_school_subscription import SchoolSubscription
 
     response.title= T('Shop')
-    response.subtitle = T('Subscription')
+    response.subtitle = T('Subscription confirmation')
     response.view = 'shop/index.html'
 
     features = db.customers_shop_features(1)
@@ -1183,9 +1183,6 @@ def subscription_terms():
         price = ssu.get_price_on_date(TODAY_LOCAL)
         classes = ssu.get_classes_formatted()
 
-        response.subtitle += ' '
-        response.subtitle += ssu.Name
-
         general_terms = get_sys_property('shop_subscriptions_terms')
         specific_terms = ssu.Terms
 
@@ -1223,11 +1220,55 @@ def subscription_terms():
                    _href=URL('subscriptions'),
                    _class='btn btn-default')
 
-        content = DIV(H4(T('Terms & conditions')),
-                      subscription_conditions,
-                      direct_debit_mandate,
-                      confirm,
-                      cancel)
+        months_text = T("months")
+        if ssu.MinDuration == 1:
+            months_text = T("month")
+
+        classes = ''
+        classes_unit = ''
+        classes_text = T("Classes")
+        if ssu.Unlimited:
+            classes = T('Unlimited')
+            classes_unit = T("Classes")
+        elif ssu.SubscriptionUnit == 'week':
+            if ssu.Classes == 1:
+                classes_text = T("Class")
+            classes = SPAN(unicode(Classes) + ' ' + classes_text)
+            classes_unit = T("Per week")
+        elif ssu.SubscriptionUnit == 'month':
+            if ssu.Classes == 1:
+                classes_text = T("Class")
+            classes = SPAN(unicode(ssu.Classes) + ' ' + classes_text)
+            classes_unit = T("Per month")
+
+        description = ""
+        if ssu.Description:
+            description = LI(B(T("Additional info")), BR(), ssu.Description)
+
+        content = DIV(
+            DIV(H4(T("Selected subscription")), BR(),
+                UL(
+                    LI(B(T("Subscription")), BR(), ssu.Name),
+                    LI(B(T("Classes")), BR(), classes, ' ', classes_unit),
+                    LI(B(T("Payment")), BR(), T("Monthly")),
+                    LI(B(T("Minimum dutation")), BR(), ssu.MinDuration, ' ', months_text),
+                    description,
+                ),
+
+                BR(),
+                _class='col-md-6'
+            ),
+            DIV(H4(T('Terms & conditions')), BR(),
+                subscription_conditions,
+                direct_debit_mandate,
+                _class='col-md-6'
+            ),
+            DIV(H4((os_gui.get_fa_icon('fa-exclamation-circle')), " ", T("Your subscription is almost active")),
+                T("By clicking 'I agree' you agree to the terms and conditions and will activate this subscription with a payment oblication."),
+                BR(), BR(), BR(),
+                _class="col-md-12"),
+            DIV(confirm, cancel, _class='col-md-12'),
+        _class="row")
 
     return dict(content=content)
 
