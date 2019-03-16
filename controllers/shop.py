@@ -1263,7 +1263,7 @@ def subscription_terms():
                 direct_debit_mandate,
                 _class='col-md-6'
             ),
-            DIV(H4((os_gui.get_fa_icon('fa-exclamation-circle')), " ", T("Your subscription is almost active")),
+            DIV(B((os_gui.get_fa_icon('fa-exclamation-circle')), " ", T("Your subscription is almost activated")), BR(),
                 T("By clicking 'I agree' you agree to the terms and conditions and will activate this subscription with a payment oblication."),
                 BR(), BR(), BR(),
                 _class="col-md-12"),
