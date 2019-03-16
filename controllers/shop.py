@@ -1380,17 +1380,33 @@ def subscription_activated():
     csID = request.vars['csID']
     print csID
 
+    msg_activated = get_sys_property('shop_subscriptions_message_activated')
+    msg_activated_display = ''
+    if msg_activated:
+        msg_activated_display = DIV(
+            XML(msg_activated), BR(),
+            _class='col-md-8 col-md-offset-2'
+        )
+
+
     content = DIV(
-        H3(T("Thank you!")),
-        H4(T("Your subscription has been activated and added to your account.")),
-        H4(T("We are happy to welcome you at the studio!")), BR(),
-        A(T("Continue"),
-          _class='btn btn-success',
-          _href=URL("profile", "index")),
-        BR(), BR(), BR(),
-        T("In case you have any questions, please "),
-        A(T('contact us'), _href=URL('shop', 'contact')), '. ',
-        _class='center'
+        DIV(
+            H3(T("Thank you!")),
+            H4(T("Your subscription has been activated and added to your account.")),
+            H4(T("We are happy to welcome you at the studio!")), BR(),
+            _class='col-md-12'
+        ),
+        msg_activated_display, BR(), BR(),
+        DIV(
+            A(T("Continue"), ' ', os_gui.get_fa_icon('fa-angle-double-right'),
+              _class='btn btn-success',
+              _href=URL("profile", "index")),
+            BR(), BR(), BR(),
+            T("In case you have any questions, please "),
+            A(T('contact us'), _href=URL('shop', 'contact')), '. ',
+            _class='col-md-12'
+        ),
+        _class='center row'
     )
 
     # msg_fail = DIV(H3(T('Looks like something went wrong with your payment...')),
