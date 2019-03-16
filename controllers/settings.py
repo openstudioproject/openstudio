@@ -3096,7 +3096,7 @@ def shop_subscriptions():
         Field("subscription_activated", 'text',
               default=message_activated,
               label=T("Subscription activated message"),
-              comment=T('Message shown in shop after customer activates a subscription.')),
+              comment=T('Message shown to customers in shop after a customer activates a subscription when using the "direct debit" workflow. This message is not shown when using Mollie as a payment provider for subscriptions.')),
         submit_button=T("Save"),
         separator=' ',
         formstyle='bootstrap3_stacked')
