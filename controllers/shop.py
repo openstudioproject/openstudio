@@ -1378,7 +1378,6 @@ def subscription_activated():
     response.view = 'shop/index.html'
 
     csID = request.vars['csID']
-    print csID
 
     msg_activated = get_sys_property('shop_subscriptions_message_activated')
     msg_activated_display = ''
