@@ -3076,16 +3076,12 @@ def shop_subscriptions():
     response.view = 'general/tabs_menu.html'
 
     sprop_terms = 'shop_subscriptions_terms'
+    sprop_message_activated = 'shop_subscriptions_message_activated'
     sprop_mandate = 'shop_direct_debit_mandate_text'
 
     terms = get_sys_property(sprop_terms)
     mandate = get_sys_property(sprop_mandate)
-
-    print 't'
-    print terms
-    print 'm'
-    print mandate
-    print '#'
+    message_activated = get_sys_property(sprop_message_activated)
 
     form = SQLFORM.factory(
         Field("subscriptions_terms", 'text',
@@ -3097,6 +3093,10 @@ def shop_subscriptions():
               comment=T(
                   'This has to be filled with a text to make clear to your customer, that he is agreeing to a direct debit Mandate, by accepting these terms. '
                   'This text will be added under the terms and conditions box when buying a subscription over the shop ')),
+        Field("subscription_activated", 'text',
+              default=message_activated,
+              label=T("Subscription activated message"),
+              comment=T('Message shown in shop after customer activates a subscription.')),
         submit_button=T("Save"),
         separator=' ',
         formstyle='bootstrap3_stacked')
@@ -3111,17 +3111,21 @@ def shop_subscriptions():
 
     if form.accepts(request.vars, session):
         # check subscription terms
-        # subscription_terms = request.vars['subscriptions_terms']
         set_sys_property(
             sprop_terms,
             request.vars['subscriptions_terms']
         )
 
         # check mandate
-        # direct_debit_mandate_text = request.vars['direct_debit_mandate_text']
         set_sys_property(
             sprop_mandate,
             request.vars['direct_debit_mandate_text']
+        )
+
+        # check message activated
+        set_sys_property(
+            sprop_message_activated,
+            request.vars['subscription_activated']
         )
 
         # Clear cache
