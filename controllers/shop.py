@@ -1241,20 +1241,20 @@ def subscription_terms():
             classes = SPAN(unicode(ssu.Classes) + ' ' + classes_text)
             classes_unit = T("Per month")
 
-        description = ""
+        subscription_info = UL(
+            LI(B(T("Subscription")), BR(), ssu.Name),
+            LI(B(T("Classes")), BR(), classes, ' ', classes_unit),
+            LI(B(T("Payment")), BR(), T("Monthly")),
+            LI(B(T("Minimum dutation")), BR(), ssu.MinDuration, ' ', months_text),
+        )
         if ssu.Description:
-            description = LI(B(T("Additional info")), BR(), ssu.Description)
+            subscription_info.append(
+                LI(B(T("Additional info")), BR(), ssu.Description)
+            )
 
         content = DIV(
             DIV(H4(T("Selected subscription")), BR(),
-                UL(
-                    LI(B(T("Subscription")), BR(), ssu.Name),
-                    LI(B(T("Classes")), BR(), classes, ' ', classes_unit),
-                    LI(B(T("Payment")), BR(), T("Monthly")),
-                    LI(B(T("Minimum dutation")), BR(), ssu.MinDuration, ' ', months_text),
-                    description,
-                ),
-
+                subscription_info,
                 BR(),
                 _class='col-md-6'
             ),
@@ -1340,9 +1340,7 @@ def subscription_direct_debit():
     cs = CustomerSubscription(csID)
     iID = cs.create_invoice_for_month(TODAY_LOCAL.year, TODAY_LOCAL.month)
     # iID.payment_method_id = 3
-    # Come back to the shop
-    session.flash=T('Subscription has been added to your Account!')
-    redirect(URL('profile','index'))
+    redirect(URL('subscription_activated', vars={'csID': csID}))
 
 
 @auth.requires_login()
@@ -1369,6 +1367,40 @@ def subscription_add_bankaccount():
         ))
 
     session.profile_me_bankaccount_next = URL('shop', 'subscription_terms', vars={'ssuID': ssuID})
+
+    return dict(content = content)
+
+
+@auth.requires_login()
+def subscription_activated():
+    response.title = T('Shop')
+    response.subtitle = T('Subscription activated')
+    response.view = 'shop/index.html'
+
+    csID = request.vars['csID']
+    print csID
+
+    content = DIV(
+        H3(T("Thank you!")),
+        H4(T("Your subscription has been activated and added to your account.")),
+        H4(T("We are happy to welcome you at the studio!")), BR(),
+        A(T("Continue"),
+          _class='btn btn-success',
+          _href=URL("profile", "index")),
+        BR(), BR(), BR(),
+        T("In case you have any questions, please "),
+        A(T('contact us'), _href=URL('shop', 'contact')), '. ',
+        _class='center'
+    )
+
+    # msg_fail = DIV(H3(T('Looks like something went wrong with your payment...')),
+    #                SPAN(T("Believe this is a mistake? Please"), ' ',
+    #                     A(T('contact'), _href=URL('shop', 'contact')), ' ',
+    #                     T('us.'),
+    #                     _class='grey'),
+    #                _class='center')
+
+    # Add button to here: URL('profile','index')
 
     return dict(content = content)
 
