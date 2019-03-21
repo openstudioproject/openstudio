@@ -1233,7 +1233,7 @@ def subscription_terms():
         elif ssu.SubscriptionUnit == 'week':
             if ssu.Classes == 1:
                 classes_text = T("Class")
-            classes = SPAN(unicode(Classes) + ' ' + classes_text)
+            classes = SPAN(unicode(ssu.Classes) + ' ' + classes_text)
             classes_unit = T("Per week")
         elif ssu.SubscriptionUnit == 'month':
             if ssu.Classes == 1:
