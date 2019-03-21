@@ -31,6 +31,7 @@ class MainMenu extends Component {
                     <li className={this.getNavLinkClass('/')}><NavLink to="/" activeClassName={activeClassName}>Home</NavLink></li>
                     <li className={this.getNavLinkClass('/checkin')}><NavLink to="/checkin" activeClassName={activeClassName}>Check-in</NavLink></li>
                     <li className={this.getNavLinkClass('/shop')}><NavLink to="/shop/products" activeClassName={activeClassName}>Shop</NavLink></li>
+                    <li className={this.getNavLinkClass('/expenses')}><NavLink to="/expenses" activeClassName={activeClassName}>Expenses</NavLink></li>
                 </NavbarNav>                
             </NavbarCollapse>
             <NavbarCustomMenu>
