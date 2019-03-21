@@ -1123,7 +1123,7 @@ def subscription_terms():
     from openstudio.os_school_subscription import SchoolSubscription
 
     response.title= T('Shop')
-    response.subtitle = T('Subscription')
+    response.subtitle = T('Subscription confirmation')
     response.view = 'shop/index.html'
 
     features = db.customers_shop_features(1)
@@ -1183,9 +1183,6 @@ def subscription_terms():
         price = ssu.get_price_on_date(TODAY_LOCAL)
         classes = ssu.get_classes_formatted()
 
-        response.subtitle += ' '
-        response.subtitle += ssu.Name
-
         general_terms = get_sys_property('shop_subscriptions_terms')
         specific_terms = ssu.Terms
 
@@ -1223,11 +1220,55 @@ def subscription_terms():
                    _href=URL('subscriptions'),
                    _class='btn btn-default')
 
-        content = DIV(H4(T('Terms & conditions')),
-                      subscription_conditions,
-                      direct_debit_mandate,
-                      confirm,
-                      cancel)
+        months_text = T("months")
+        if ssu.MinDuration == 1:
+            months_text = T("month")
+
+        classes = ''
+        classes_unit = ''
+        classes_text = T("Classes")
+        if ssu.Unlimited:
+            classes = T('Unlimited')
+            classes_unit = T("Classes")
+        elif ssu.SubscriptionUnit == 'week':
+            if ssu.Classes == 1:
+                classes_text = T("Class")
+            classes = SPAN(unicode(Classes) + ' ' + classes_text)
+            classes_unit = T("Per week")
+        elif ssu.SubscriptionUnit == 'month':
+            if ssu.Classes == 1:
+                classes_text = T("Class")
+            classes = SPAN(unicode(ssu.Classes) + ' ' + classes_text)
+            classes_unit = T("Per month")
+
+        subscription_info = UL(
+            LI(B(T("Subscription")), BR(), ssu.Name),
+            LI(B(T("Classes")), BR(), classes, ' ', classes_unit),
+            LI(B(T("Payment")), BR(), T("Monthly")),
+            LI(B(T("Minimum dutation")), BR(), ssu.MinDuration, ' ', months_text),
+        )
+        if ssu.Description:
+            subscription_info.append(
+                LI(B(T("Additional info")), BR(), ssu.Description)
+            )
+
+        content = DIV(
+            DIV(H4(T("Selected subscription")), BR(),
+                subscription_info,
+                BR(),
+                _class='col-md-6'
+            ),
+            DIV(H4(T('Terms & conditions')), BR(),
+                subscription_conditions,
+                direct_debit_mandate,
+                _class='col-md-6'
+            ),
+            DIV(B((os_gui.get_fa_icon('fa-exclamation-circle')), " ", T("Your subscription is almost activated")), BR(),
+                T("By clicking 'I agree' you agree to the terms and conditions and will activate this subscription with a payment oblication."),
+                BR(), BR(), BR(),
+                _class="col-md-12"),
+            DIV(confirm, cancel, _class='col-md-12'),
+        _class="row")
 
     return dict(content=content)
 
@@ -1299,9 +1340,7 @@ def subscription_direct_debit():
     cs = CustomerSubscription(csID)
     iID = cs.create_invoice_for_month(TODAY_LOCAL.year, TODAY_LOCAL.month)
     # iID.payment_method_id = 3
-    # Come back to the shop
-    session.flash=T('Subscription has been added to your Account!')
-    redirect(URL('profile','index'))
+    redirect(URL('subscription_activated', vars={'csID': csID}))
 
 
 @auth.requires_login()
@@ -1328,6 +1367,55 @@ def subscription_add_bankaccount():
         ))
 
     session.profile_me_bankaccount_next = URL('shop', 'subscription_terms', vars={'ssuID': ssuID})
+
+    return dict(content = content)
+
+
+@auth.requires_login()
+def subscription_activated():
+    response.title = T('Shop')
+    response.subtitle = T('Subscription activated')
+    response.view = 'shop/index.html'
+
+    csID = request.vars['csID']
+
+    msg_activated = get_sys_property('shop_subscriptions_message_activated')
+    msg_activated_display = ''
+    if msg_activated:
+        msg_activated_display = DIV(
+            XML(msg_activated), BR(),
+            _class='col-md-8 col-md-offset-2'
+        )
+
+
+    content = DIV(
+        DIV(
+            H3(T("Thank you!")),
+            H4(T("Your subscription has been activated and added to your account.")),
+            H4(T("We are happy to welcome you at the studio!")), BR(),
+            _class='col-md-12'
+        ),
+        msg_activated_display, BR(), BR(),
+        DIV(
+            A(T("Continue"), ' ', os_gui.get_fa_icon('fa-angle-double-right'),
+              _class='btn btn-success',
+              _href=URL("profile", "index")),
+            BR(), BR(), BR(),
+            T("In case you have any questions, please "),
+            A(T('contact us'), _href=URL('shop', 'contact')), '. ',
+            _class='col-md-12'
+        ),
+        _class='center row'
+    )
+
+    # msg_fail = DIV(H3(T('Looks like something went wrong with your payment...')),
+    #                SPAN(T("Believe this is a mistake? Please"), ' ',
+    #                     A(T('contact'), _href=URL('shop', 'contact')), ' ',
+    #                     T('us.'),
+    #                     _class='grey'),
+    #                _class='center')
+
+    # Add button to here: URL('profile','index')
 
     return dict(content = content)
 
