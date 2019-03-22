@@ -3,7 +3,7 @@ import { intlShape } from "react-intl"
 import PropTypes from "prop-types"
 import { NavLink } from 'react-router-dom'
 
-import PageTemplate from "../../../components/PageTemplate"
+import PageTemplate from "../../components/PageTemplate"
 
 
 class Expenses extends Component {
