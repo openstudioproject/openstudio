@@ -1373,4 +1373,30 @@ def get_expenses():
     """
     :return: List of expenses
     """
-    pass
+    set_headers()
+
+    query = (db.accounting_expenses.BookingDate == TODAY_LOCAL)
+
+    rows = db(query).select(
+        db.accounting_expenses.BookingDate,
+        db.accounting_expenses.Amount,
+        db.accounting_expenses.tax_rates_id,
+        db.accounting_expenses.YourReference,
+        db.accounting_expenses.Description,
+        db.accounting_expenses.Note,
+    )
+
+    expenses = {}
+
+    for row in rows:
+        customers[row.id] = {
+            'id': row.id,
+            'booking_date': row.BookingDate,
+            'amount': row.amount,
+            'tax_rates_id': row.tax_rates_id,
+            'your_reference': row.YourReference,
+            'Description': row.Description,
+            'Note': row.Note
+        }
+
+    return expenses
