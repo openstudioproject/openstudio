@@ -1378,6 +1378,7 @@ def get_expenses():
     query = (db.accounting_expenses.BookingDate == TODAY_LOCAL)
 
     rows = db(query).select(
+        db.accounting_expenses.id,
         db.accounting_expenses.BookingDate,
         db.accounting_expenses.Amount,
         db.accounting_expenses.tax_rates_id,
@@ -1389,10 +1390,10 @@ def get_expenses():
     expenses = {}
 
     for row in rows:
-        customers[row.id] = {
+        expenses[row.id] = {
             'id': row.id,
             'booking_date': row.BookingDate,
-            'amount': row.amount,
+            'amount': row.Amount,
             'tax_rates_id': row.tax_rates_id,
             'your_reference': row.YourReference,
             'Description': row.Description,

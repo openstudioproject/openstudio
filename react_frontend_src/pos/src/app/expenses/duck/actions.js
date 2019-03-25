@@ -1,7 +1,7 @@
 import T from './types'
 
 
-export const requestExpensess = () =>
+export const requestExpenses = () =>
     ({
         type: T.REQUEST_EXPENSES
     })

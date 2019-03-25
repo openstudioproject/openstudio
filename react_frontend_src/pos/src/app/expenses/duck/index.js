@@ -1,5 +1,5 @@
 // index.js
-import { listReducer } from './reducers'
-export { default as customersListOperations } from './operations'
-export { default as customersTypes } from './types'
-export default listReducer
+import { expensesReducer } from './reducers'
+export { default as expensesOperations } from './operations'
+export { default as expensesTypes } from './types'
+export default expensesReducer
