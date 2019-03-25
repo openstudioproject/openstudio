@@ -1365,3 +1365,12 @@ def validate_cart_create_receipt(
             receipt.item_add_from_invoice_item(item)
 
     return receipt
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'accounting_expenses'))
+def get_expenses():
+    """
+    :return: List of expenses
+    """
+    pass

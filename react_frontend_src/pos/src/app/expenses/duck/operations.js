@@ -1,30 +1,6 @@
 import {
-    requestCustomers,
-    receiveCustomers,
-    requestCreateCustomer,
-    receiveCreateCustomer,
-    clearCreateCustomerErrorData,
-    clearUpdateCustomerErrorData,
-    requestUpdateCustomer,
-    receiveUpdateCustomer,
-    requestSaveCameraAppSnap,
-    receiveSaveCameraAppSnap,
-    setCreateCustomerStatus,
-    setUpdateCustomerStatus,
-    setSearchTimeout,
-    clearSearchTimeout,
-    setDisplayCustomerID,
-    clearDisplayCustomerID,
-    setSearchCustomerID,
-    clearSearchCustomerID,
-    setSearchValue,
-    clearSearchValue,
-    setSelectedCustomerID,
-    clearSelectedCustomerID,
-    setRedirectNextComponent,
-    clearRedirectNextComponent,
-    setCameraAppSnap,
-    clearCameraAppSnap
+    requestExpenses,
+    receiveExpenses
 } from './actions'
 
 import axios_os from '../../../../utils/axios_os'
@@ -35,14 +11,14 @@ import OS_API from '../../../../utils/os_api'
 // const setCheckinClassAttendanceSearchCustomerID = set_customer_id
 
 // data fetchers
-const fetchCustomers = () => {
+const fetchExpenses = () => {
       return dispatch => {
-          dispatch(requestCustomers())
+          dispatch(requestExpenses())
 
-          axios_os.get(OS_API.CUSTOMERS)
+          axios_os.get(OS_API.EXPENSESS)
           .then(function (response) {
             // handle success
-            dispatch(receiveCustomers(response.data))
+            dispatch(receiveExpenses(response.data))
             // dispatch(setLoadingProgress(100))
           })
           .catch(function (error) {
@@ -104,49 +80,13 @@ const updateCustomer = (data) => {
     }
 }
 
-const updateCustomerPicture = (cuID, picture) => {
-    return dispatch => {
-        dispatch(requestSaveCameraAppSnap())
-
-        let fd = new FormData()
-        fd.append('picture', picture)
-        fd.append('cuID', cuID)
-
-        axios_os.post(OS_API.CUSTOMER_PICTURE_UPDATE, fd)
-        .then(function(response) {
-            dispatch(receiveSaveCameraAppSnap(response.data))
-        })
-        .catch(function (error) {
-            console.log(error)
-        })
-        .then(function() {
-            //always executed
-        })
-    }
-}
 
 
 export default {
-    createCustomer,
-    clearCreateCustomerErrorData,
-    clearUpdateCustomerErrorData,
-    updateCustomer,
-    updateCustomerPicture,
-    fetchCustomers,
-    setSearchTimeout,
-    clearSearchTimeout,
-    setCreateCustomerStatus,
-    setUpdateCustomerStatus,
-    setDisplayCustomerID,
-    clearDisplayCustomerID,
-    setSearchCustomerID,
-    clearSearchCustomerID,
-    setSearchValue,
-    clearSearchValue,
-    setSelectedCustomerID,
-    clearSelectedCustomerID,
-    setRedirectNextComponent,
-    clearRedirectNextComponent,
-    setCameraAppSnap,
-    clearCameraAppSnap
+    // createCustomer,
+    // clearCreateCustomerErrorData,
+    // clearUpdateCustomerErrorData,
+    // updateCustomer,
+    // updateCustomerPicture,
+    fetchExpenses,
 }
