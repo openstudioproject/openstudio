@@ -15,7 +15,7 @@ const fetchExpenses = () => {
       return dispatch => {
           dispatch(requestExpenses())
 
-          axios_os.get(OS_API.EXPENSESS)
+          axios_os.get(OS_API.EXPENSES)
           .then(function (response) {
             // handle success
             dispatch(receiveExpenses(response.data))
