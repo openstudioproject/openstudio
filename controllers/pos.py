@@ -1396,8 +1396,8 @@ def get_expenses():
             'amount': row.Amount,
             'tax_rates_id': row.tax_rates_id,
             'your_reference': row.YourReference,
-            'Description': row.Description,
-            'Note': row.Note
+            'description': row.Description,
+            'note': row.Note
         }
 
     return expenses

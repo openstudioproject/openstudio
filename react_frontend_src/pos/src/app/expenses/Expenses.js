@@ -27,16 +27,20 @@ class Expenses extends Component {
     }
 
     render() {
-
+        const data = this.props.expenses.data
 
         return (
             <PageTemplate app_state={this.props.app}>
-                <div className="col-md-4">
-                    <ExpensesList />
-                </div>
-                <div className="col-md-6">
-                    Form here?
-                </div>
+                {(!this.props.expenses.loaded) ? "Loading expenses..." :
+                    <div className="row">
+                        <div className="col-md-4">
+                            <ExpensesList items={data}/>
+                        </div>
+                        <div className="col-md-6">
+                            Form here?
+                        </div>
+                    </div>
+                }
             </PageTemplate>
         )
     }

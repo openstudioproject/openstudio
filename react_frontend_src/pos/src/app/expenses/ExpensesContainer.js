@@ -9,6 +9,7 @@ import { appOperations } from '../duck'
 const mapStateToProps = state => 
     ({
         app: state.app,
+        expenses: state.expenses
     })
 
 const mapDispatchToProps = dispatch =>
