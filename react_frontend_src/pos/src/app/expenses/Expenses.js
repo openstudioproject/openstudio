@@ -4,6 +4,7 @@ import PropTypes from "prop-types"
 import { NavLink } from 'react-router-dom'
 
 import PageTemplate from "../../components/PageTemplate"
+import ExpensesList from "./ExpensesList"
 
 
 class Expenses extends Component {
@@ -30,7 +31,12 @@ class Expenses extends Component {
 
         return (
             <PageTemplate app_state={this.props.app}>
-                Hello world
+                <div className="col-md-4">
+                    <ExpensesList />
+                </div>
+                <div className="col-md-6">
+                    Form here?
+                </div>
             </PageTemplate>
         )
     }
