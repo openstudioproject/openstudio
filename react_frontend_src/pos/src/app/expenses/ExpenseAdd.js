@@ -57,6 +57,9 @@ class ExpenseAdd extends Component {
                     >
                     {({ isSubmitting, errors }) => (
                         <div className="box box-solid">
+                            <div className='box-header'>
+                                <h3 className="box-title">Add expense</h3>
+                            </div>
                             <Form>
                                 <div className="box-body">
                                     <label>Amount</label>
@@ -65,6 +68,32 @@ class ExpenseAdd extends Component {
                                         className={(errors.amount) ? "form-control is-invalid" : "form-control"} 
                                         autoComplete="off" />
                                     <ErrorMessage name="amount" component="span" className="invalid-feedback" />
+                                    <label>Tax rate</label>
+                                    <Field component="select" 
+                                           name="tax_rates_id" 
+                                           className={(errors.tax_rates_id) ? "form-control is-invalid" : "form-control"} 
+                                           autoComplete="off">
+                                        {/* <option value="IN">{t('finance.taxrates.including')}</option>
+                                        <option value="EX">{t('finance.taxrates.excluding')}</option> */}
+                                    </Field>
+                                    <label>Reference</label>
+                                    <Field type="text" 
+                                           name="your_reference" 
+                                           className={(errors.your_reference) ? "form-control is-invalid" : "form-control"} 
+                                           autoComplete="off" />
+                                    <ErrorMessage name="your_reference" component="span" className="invalid-feedback" />
+                                    <label>Description</label>
+                                    <Field type="text" 
+                                           name="description" 
+                                           className={(errors.description) ? "form-control is-invalid" : "form-control"} 
+                                           autoComplete="off" />
+                                    <ErrorMessage name="description" component="span" className="invalid-feedback" />
+                                    <label>Note</label>
+                                    <Field type="textarea" 
+                                           name="note" 
+                                           className={(errors.note) ? "form-control is-invalid" : "form-control"} 
+                                           autoComplete="off" />
+                                    <ErrorMessage name="note" component="span" className="invalid-feedback" />
                                     {/* <Form.Group label={t('finance.costcenters.code')}>
                                         <Field type="text" 
                                                 name="code" 
