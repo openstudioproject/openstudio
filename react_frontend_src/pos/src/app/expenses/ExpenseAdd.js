@@ -1,6 +1,7 @@
 import React, { Component } from "react"
 import { intlShape } from "react-intl"
 import PropTypes from "prop-types"
+import { withRouter } from 'react-router'
 import { NavLink } from 'react-router-dom'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 
@@ -20,6 +21,7 @@ class ExpenseAdd extends Component {
     }
 
     render() {
+        const history = this.props.history
         const return_url = '/expenses'
 
         return (
@@ -72,6 +74,18 @@ class ExpenseAdd extends Component {
                                     </Form.Group> */}
                                 </div>
                                 <div className="box-footer">
+                                    <button className="btn btn-primary"
+                                            type="submit"
+                                            disabled={isSubmitting}
+                                            >
+                                        Save
+                                    </button>
+                                    <button className="btn btn-link" 
+                                            type="button"
+                                            onClick={() => history.push(return_url)}
+                                            disabled={isSubmitting}>
+                                        Cancel
+                                    </button>
                                     {/* <Button 
                                         color="primary"
                                         className="pull-right" 
@@ -93,4 +107,4 @@ class ExpenseAdd extends Component {
     }
 }
 
-export default ExpenseAdd
+export default withRouter(ExpenseAdd)
