@@ -4,7 +4,7 @@ import PropTypes from "prop-types"
 import { NavLink } from 'react-router-dom'
 
 import PageTemplate from "../../components/PageTemplate"
-import ExpensesList from "./ExpensesList"
+import ExpensesTemplate from "./ExpensesTemplate"
 
 
 class Expenses extends Component {
@@ -16,32 +16,16 @@ class Expenses extends Component {
 
     PropTypes = {
         intl: intlShape.isRequired,
-        setPageTitle: PropTypes.function,
         app: PropTypes.object,
-    }
-
-    componentWillMount() {
-        this.props.setPageTitle(
-            this.props.intl.formatMessage({ id: 'app.pos.expenses.page_title' })
-        )
+        expenses: PropTypes.object
     }
 
     render() {
-        const data = this.props.expenses.data
 
         return (
-            <PageTemplate app_state={this.props.app}>
-                {(!this.props.expenses.loaded) ? "Loading expenses..." :
-                    <div className="row">
-                        <div className="col-md-4">
-                            <ExpensesList items={data}/>
-                        </div>
-                        <div className="col-md-6">
-                            Form here?
-                        </div>
-                    </div>
-                }
-            </PageTemplate>
+            <ExpensesTemplate app={this.props.app} expenses={this.props.expenses} setPageTitle={this.props.setPageTitle}>
+                Hello world!
+            </ExpensesTemplate>
         )
     }
 }

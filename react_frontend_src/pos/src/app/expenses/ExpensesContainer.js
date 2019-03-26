@@ -1,5 +1,5 @@
 import { connect } from 'react-redux'
-import { injectIntl } from 'react-intl';
+import { injectIntl } from 'react-intl'
 import { withRouter } from 'react-router'
 
 import Expenses from './Expenses'
