@@ -7,7 +7,8 @@ import {
 } from 'react-router-dom';
 
 
-import Expenses from './expenses/ExpensesContainer'
+import Expenses from './expenses/Expenses'
+import ExpenseAdd from './expenses/ExpenseAdd'
 import Customers from './customers/list/CustomersContainer'
 import Classes from './checkin/classes/ClassesContainer'
 import Attendance from './checkin/attendance/AttendanceContainer'
@@ -64,7 +65,8 @@ class App extends Component {
             <Route path='/checkin/book/:clsID/:cuID' component={Book} />
             <Route path='/checkin/revenue/:clsID' component={Revenue} />
             <Route path='/customers' component={Customers} />
-            <Route path='/expenses' component={Expenses} />
+            <Route exact path='/expenses' component={Expenses} />
+            <Route path='/expenses/add' component={ExpenseAdd} />
             <Route path="/shop/payment" component={Payment} />
             <Route path="/shop/validation" component={Validation} />
             <Route exact path='/shop/products' component={Products} />

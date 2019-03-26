@@ -37,7 +37,7 @@ class ExpensesTemplate extends Component {
                         <div className="col-md-4">
                             <ExpensesList items={data}/>
                         </div>
-                        <div className="col-md-6">
+                        <div className="col-md-8">
                             {this.props.children}
                         </div>
                     </div>

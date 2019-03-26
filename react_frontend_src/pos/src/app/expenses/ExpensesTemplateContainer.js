@@ -2,7 +2,7 @@ import { connect } from 'react-redux'
 import { injectIntl } from 'react-intl'
 import { withRouter } from 'react-router'
 
-import Expenses from './Expenses'
+import ExpensesTemplate from './ExpensesTemplate'
 import { appOperations } from '../duck'
 
 
@@ -20,9 +20,9 @@ const mapDispatchToProps = dispatch =>
     })
 
 
-const ExpensesContainer = withRouter(injectIntl(connect(
+const ExpensesTemplateContainer = withRouter(injectIntl(connect(
     mapStateToProps,
     mapDispatchToProps
-)(Expenses)))
+)(ExpensesTemplate)))
 
-export default ExpensesContainer
+export default ExpensesTemplateContainer

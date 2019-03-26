@@ -3,8 +3,7 @@ import { intlShape } from "react-intl"
 import PropTypes from "prop-types"
 import { NavLink } from 'react-router-dom'
 
-import PageTemplate from "../../components/PageTemplate"
-import ExpensesTemplate from "./ExpensesTemplate"
+import ExpensesTemplate from "./ExpensesTemplateContainer"
 
 
 class Expenses extends Component {
@@ -21,10 +20,16 @@ class Expenses extends Component {
     }
 
     render() {
+        const history = this.props.history
 
         return (
-            <ExpensesTemplate app={this.props.app} expenses={this.props.expenses} setPageTitle={this.props.setPageTitle}>
-                Select an expense from the list to edit it and click the add button to add a new one.
+            <ExpensesTemplate>
+                <button onClick={() => history.push('expenses/add')}
+                        className="btn btn-primary pull-right">
+                    <i className="fa fa-plus" /> Add expense
+                </button>
+                Select an expense from the list to edit it and click the add button to add a new one. 
+
             </ExpensesTemplate>
         )
     }
