@@ -10,20 +10,20 @@ function isEmpty(obj) {
 }
 
 
-export const expensesReducer = (state = {}, action={ type: null }) => {
+export const cashbookReducer = (state = {}, action={ type: null }) => {
     switch (action.type) {
         case T.REQUEST_EXPENSES:
             return {
                 ...state,
-                loading: true,
-                loaded: false,
+                expenses_loading: true,
+                expenses_loaded: false,
             }
         case T.RECEIVE_EXPENSES:
             return {
                 ...state,
-                loading: false,
-                loaded: true,
-                data: action.data
+                expenses_loading: false,
+                expenses_loaded: true,
+                expenses_data: action.data
             }
         default:
             return {

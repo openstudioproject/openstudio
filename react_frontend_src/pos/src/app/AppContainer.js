@@ -7,7 +7,7 @@ import { customersClasscardsOperations } from './customers/classcards/duck'
 import { customersSubscriptionsOperations } from './customers/subscriptions/duck'
 import { customersMembershipsOperations } from './customers/memberships/duck'
 import { customersMembershipsTodayOperations } from './customers/memberships_today/duck'
-import { expensesOperations } from './expenses/duck'
+import { cashbookOperations } from './cashbook/duck'
 import { shopProductsOperations } from './shop/products/duck'
 import { shopSchoolClasscardsOperations } from './shop/school/classcards/duck'
 import { shopSchoolMembershipsOperations } from './shop/school/memberships/duck'
@@ -52,7 +52,7 @@ const mapDispatchToProps = dispatch =>
             dispatch(customersMembershipsTodayOperations.fetchMembershipsToday())
         },
         fetchExpenses() {
-            dispatch(expensesOperations.fetchExpenses())
+            dispatch(cashbookOperations.fetchExpenses())
         },
         fetchShopProducts() {
             dispatch(shopProductsOperations.fetchProducts())

@@ -106,10 +106,10 @@
             "data": {}
         }
     },
-    "expenses": {
-        "loading": false,
-        "loaded": false,
-        "data": {}
+    "cashbook": {
+        "expenses_loading": false,
+        "expenses_loaded": false,
+        "expenses_data": {}
     },
     "shop": {
         "cart": {

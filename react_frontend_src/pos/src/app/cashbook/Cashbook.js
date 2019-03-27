@@ -3,10 +3,10 @@ import { intlShape } from "react-intl"
 import PropTypes from "prop-types"
 import { NavLink } from 'react-router-dom'
 
-import ExpensesTemplate from "./ExpensesTemplateContainer"
+import CashbookTemplate from "./CashbookTemplateContainer"
 
 
-class Expenses extends Component {
+class Cashbook extends Component {
     constructor(props) {
         super(props)
         console.log("Expenses props:")
@@ -23,16 +23,16 @@ class Expenses extends Component {
         const history = this.props.history
 
         return (
-            <ExpensesTemplate>
+            <CashbookTemplate>
                 <button onClick={() => history.push('expenses/add')}
                         className="btn btn-primary pull-right">
                     <i className="fa fa-plus" /> Add expense
                 </button>
                 Select an expense from the list to edit it and click the add button to add a new one. 
 
-            </ExpensesTemplate>
+            </CashbookTemplate>
         )
     }
 }
 
-export default Expenses
+export default Cashbook

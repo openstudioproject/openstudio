@@ -6,7 +6,7 @@ import {
 
 import checkinReducer from '../app/checkin/reducers'
 import customersReducer from '../app/customers/reducers'
-import expensesReducer from '../app/expenses/duck'
+import cashbookReducer from '../app/cashbook/duck'
 import shopReducer from '../app/shop/reducers'
 
 const rootReducer = combineReducers({
@@ -14,7 +14,7 @@ const rootReducer = combineReducers({
   locale: localeReducer,
   checkin: checkinReducer,
   customers: customersReducer,
-  expenses: expensesReducer,
+  cashbook: cashbookReducer,
   shop: shopReducer
   // home: homeReducer
 });

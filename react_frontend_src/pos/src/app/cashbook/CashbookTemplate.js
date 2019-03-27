@@ -8,10 +8,10 @@ import PageTemplate from "../../components/PageTemplate"
 import ExpensesList from "./ExpensesList"
 
 
-class ExpensesTemplate extends Component {
+class CashbookTemplate extends Component {
     constructor(props) {
         super(props)
-        console.log("Expenses template props:")
+        console.log("Cashbook template props:")
         console.log(props)
     }
 
@@ -28,14 +28,14 @@ class ExpensesTemplate extends Component {
     }
 
     render() {
-        const data = this.props.expenses.data
+        const expenses_data = this.props.cashbook.expenses_data
 
         return (
             <PageTemplate app_state={this.props.app}>
-                {(!this.props.expenses.loaded) ? "Loading expenses..." :
+                {(!this.props.cashbook.expenses_loaded) ? "Loading expenses..." :
                     <div className="row">
                         <div className="col-md-4">
-                            <ExpensesList items={data}/>
+                            <ExpensesList items={expenses_data}/>
                         </div>
                         <div className="col-md-8">
                             {this.props.children}
@@ -47,4 +47,4 @@ class ExpensesTemplate extends Component {
     }
 }
 
-export default injectIntl(ExpensesTemplate)
+export default injectIntl(CashbookTemplate)

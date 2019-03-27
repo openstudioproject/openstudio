@@ -5,7 +5,7 @@ import { withRouter } from 'react-router'
 import { NavLink } from 'react-router-dom'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 
-import ExpensesTemplate from "./ExpensesTemplateContainer"
+import CashbookTemplate from "./CashbookTemplateContainer"
 import FormError from "./FormError"
 
 class ExpenseAdd extends Component {
@@ -26,7 +26,7 @@ class ExpenseAdd extends Component {
         const return_url = '/expenses'
 
         return (
-            <ExpensesTemplate app={this.props.app} expenses={this.props.expenses} setPageTitle={this.props.setPageTitle}>
+            <CashbookTemplate app={this.props.app} expenses={this.props.expenses} setPageTitle={this.props.setPageTitle}>
                 <div className="box box-solid">
                     <div className='box-header'>
                         <h3 className="box-title">Add expense</h3>
@@ -55,7 +55,7 @@ class ExpenseAdd extends Component {
                         </div>
                     </form>
                 </div>
-            </ExpensesTemplate>
+            </CashbookTemplate>
         )
     }
 }

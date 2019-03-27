@@ -7,8 +7,8 @@ import {
 } from 'react-router-dom';
 
 
-import Expenses from './expenses/Expenses'
-import ExpenseAdd from './expenses/ExpenseAdd'
+import Cashbook from './cashbook/Cashbook'
+import ExpenseAdd from './cashbook/ExpenseAdd'
 import Customers from './customers/list/CustomersContainer'
 import Classes from './checkin/classes/ClassesContainer'
 import Attendance from './checkin/attendance/AttendanceContainer'
@@ -65,8 +65,8 @@ class App extends Component {
             <Route path='/checkin/book/:clsID/:cuID' component={Book} />
             <Route path='/checkin/revenue/:clsID' component={Revenue} />
             <Route path='/customers' component={Customers} />
-            <Route exact path='/expenses' component={Expenses} />
-            <Route path='/expenses/add' component={ExpenseAdd} />
+            <Route exact path='/cashbook' component={Cashbook} />
+            <Route path='/cashbook/expenses/add' component={ExpenseAdd} />
             <Route path="/shop/payment" component={Payment} />
             <Route path="/shop/validation" component={Validation} />
             <Route exact path='/shop/products' component={Products} />
