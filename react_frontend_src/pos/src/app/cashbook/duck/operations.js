@@ -1,4 +1,6 @@
 import {
+    requestCashCounts,
+    receiveCashCounts,
     requestExpenses,
     receiveExpenses
 } from './actions'
@@ -19,6 +21,27 @@ const fetchExpenses = () => {
           .then(function (response) {
             // handle success
             dispatch(receiveExpenses(response.data))
+            // dispatch(setLoadingProgress(100))
+          })
+          .catch(function (error) {
+            // handle error
+            console.log(error)
+          })
+          .then(function () {
+            // always executed
+          });
+      }
+  }
+
+
+const fetchCashCounts = () => {
+      return dispatch => {
+          dispatch(requestCashCounts())
+
+          axios_os.get(OS_API.CASH_COUNTS)
+          .then(function (response) {
+            // handle success
+            dispatch(receiveCashCounts(response.data))
             // dispatch(setLoadingProgress(100))
           })
           .catch(function (error) {
@@ -88,5 +111,6 @@ export default {
     // clearUpdateCustomerErrorData,
     // updateCustomer,
     // updateCustomerPicture,
+    fetchCashCounts,
     fetchExpenses,
 }

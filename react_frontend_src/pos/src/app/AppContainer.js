@@ -51,6 +51,9 @@ const mapDispatchToProps = dispatch =>
         fetchCustomersMembershipsToday() {
             dispatch(customersMembershipsTodayOperations.fetchMembershipsToday())
         },
+        fetchCashCounts() {
+            dispatch(cashbookOperations.fetchCashCounts())
+        },
         fetchExpenses() {
             dispatch(cashbookOperations.fetchExpenses())
         },

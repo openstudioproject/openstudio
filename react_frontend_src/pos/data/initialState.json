@@ -107,6 +107,9 @@
         }
     },
     "cashbook": {
+        "cash_counts_loading": false,
+        "cash_counts_loaded": false,
+        "cash_counts_data": {},
         "expenses_loading": false,
         "expenses_loaded": false,
         "expenses_data": {}

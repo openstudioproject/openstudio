@@ -1423,10 +1423,12 @@ def get_cash_counts():
 
     cash_counts = {
         'opening': {
-            'Amount': opening_row.Amount
+            'id': opening_row.id if opening_row else None,
+            'Amount': opening_row.Amount if opening_row else 0
         },
         'closing': {
-            'Amount': closing_row.Amount
+            'id': closing_row.id if closing_row else None,
+            'Amount': closing_row.Amount if closing_row else 0
         }
     }
 
