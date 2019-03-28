@@ -12,6 +12,17 @@ export const receiveExpenses = (data) =>
         data
     })
 
+export const requestCashCounts = () =>
+    ({
+        type: T.REQUEST_CASH_COUNTS
+    })
+
+export const receiveCashCounts = (data) =>
+    ({
+        type: T.RECEIVE_CASH_COUNTS,
+        data
+    })
+
 // export const requestCreateCustomer = (data) =>
 //     ({
 //         type: T.REQUEST_CREATE_CUSTOMER,
