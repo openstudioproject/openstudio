@@ -8,6 +8,7 @@ import { withRouter } from 'react-router'
 import PageTemplate from "../../components/PageTemplate"
 import Currency from "../../components/ui/Currency"
 import CashbookTemplate from "./CashbookTemplateContainer"
+import FormError from "./FormError"
 
 
 class CashCountSet extends Component {
@@ -33,15 +34,13 @@ class CashCountSet extends Component {
         const type = this.props.match.params.type
         const data = new FormData(e.target)
         data.append('type', type)
-        this.props.setCashCount(data)
-
-
-        console.log(data.values())
+        this.props.setCashCount(data, this.props.history)
     }
 
     render() {
         const history = this.props.history
         const type = this.props.match.params.type
+        const error_data = this.props.cashbook.cash_count_set_error_data
 
         return (
             <CashbookTemplate>
@@ -53,14 +52,14 @@ class CashCountSet extends Component {
                     </div>
                     <form onSubmit={this.onSubmit.bind(this)}>
                         <div className="box-body">
-                            <label htmlFor="Amount">Count</label>
+                            <label htmlFor="amount">Count</label>
                             <input 
-                                id="Amount" 
+                                id="amount" 
                                 className="form-control"
-                                name="Amount" 
+                                name="amount" 
                                 type="text" 
                             />
-                            {/* <CustomerFormError message={ (error_data.first_name) ? error_data.first_name : "" } /> */}
+                            <FormError message={ (error_data.amount) ? error_data.amount : "" } />
                         
                         </div>
                         <div className="box-footer">

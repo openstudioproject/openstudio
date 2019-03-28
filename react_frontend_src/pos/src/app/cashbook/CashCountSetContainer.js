@@ -14,8 +14,8 @@ const mapStateToProps = state =>
 
 const mapDispatchToProps = dispatch =>
     ({
-        setCashCount(data) {
-            dispatch(cashbookOperations.setCashCount(data))
+        setCashCount(data, history) {
+            dispatch(cashbookOperations.setCashCount(data, history))
         },
     })
 

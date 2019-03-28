@@ -33,7 +33,8 @@ export const cashbookReducer = (state = {}, action={ type: null }) => {
         case T.RECEIVE_SET_CASH_COUNT:
             return {
                 ...state,
-                set_cash_count: false
+                set_cash_count: false,
+                cash_counts_data: action.data.cash_counts_data,
             }
         case T.REQUEST_EXPENSES:
             return {

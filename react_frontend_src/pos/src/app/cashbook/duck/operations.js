@@ -89,13 +89,16 @@ const createCustomer = (data) => {
 
 // updaters
 
-const setCashCount = (data, type) => {
+const setCashCount = (data, history) => {
     return dispatch => {
         dispatch(requestSetCashCount(formDataToObject(data)))
 
         axios_os.post(OS_API.CASH_COUNT_SET, data)
         .then(function(response) {
             dispatch(receiveSetCashCount(response.data))
+            if (!response.data.error) {
+                history.push('/cashbook')
+            }
         })
         .catch(function (error) {
             console.log(error)

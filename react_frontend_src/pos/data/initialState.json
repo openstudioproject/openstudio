@@ -111,6 +111,9 @@
         "cash_counts_loaded": false,
         "cash_counts_data": {},
         "cash_count_set": false,
+        "cash_count_set_error_data": {
+            "amount": ""
+        },
         "expenses_loading": false,
         "expenses_loaded": false,
         "expenses_data": {}

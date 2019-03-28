@@ -1439,4 +1439,43 @@ def get_cash_counts():
 def set_cash_count():
     set_headers()
 
+    print "###"
     print request.vars
+
+    if 'amount' in request.vars:
+        if ',' in request.vars['amount']:
+            request.vars['amount'] = request.vars['amount'].replace(',', '.')
+
+    print request.vars
+
+    row = db.accounting_cashbooks_cash_count(
+        CountDate = TODAY_LOCAL,
+        CountType = request.vars['type']
+    )
+
+    if not row:
+        result = db.accounting_cashbooks_cash_count.validate_and_insert(
+            CountDate = TODAY_LOCAL,
+            CountType = request.vars['type'],
+            Amount = request.vars['amount']
+        )
+    else:
+        query = (db.accounting_cashbooks_cash_count.id == row.id)
+        result = db(query).validate_and_update(
+            id = row.id,
+            CountDate = TODAY_LOCAL,
+            CountType = request.vars['type'],
+            Amount = request.vars['amount']
+        )
+
+    error = False
+    if result.errors:
+        error = True
+
+    print result
+
+
+    return dict(result=result,
+                cash_counts_data=get_cash_counts(),
+                error=error)
+
