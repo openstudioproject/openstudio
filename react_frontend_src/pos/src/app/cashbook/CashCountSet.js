@@ -26,6 +26,7 @@ class CashCountSet extends Component {
     }
 
     render() {
+        const history = this.props.history
         const type = this.props.match.params.type
 
 
@@ -43,7 +44,15 @@ class CashCountSet extends Component {
                         
                         </div>
                         <div className="box-footer">
-                            form buttons here
+                            <button type="submit"
+                                    className="btn btn-primary">
+                                Save
+                            </button>
+                            <button type="button"
+                                    className="btn btn-link"
+                                    onClick={() => history.push('/cashbook')}>
+                                Cancel
+                            </button>
                         </div>
                     </form>
                 </div>
