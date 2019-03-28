@@ -4749,12 +4749,16 @@ def revenue_get_data():
 
         left = [db.invoices_amounts.on(db.invoices.id ==
                                        db.invoices_amounts.invoices_id),
-                db.invoices_customers_subscriptions.on(
-                    db.invoices_customers_subscriptions.invoices_id ==
-                    db.invoices.id)
+                db.invoices_items.on(
+                    db.invoices_items.invoices_id ==
+                    db.invoices.id
+                ),
+                db.invoices_items_customers_subscriptions.on(
+                    db.invoices_items_customers_subscriptions.invoices_items_id ==
+                    db.invoices_items.id)
                 ]
 
-        query = (db.invoices_customers_subscriptions.id != None) & \
+        query = (db.invoices_items_customers_subscriptions.id != None) & \
                 (db.invoices.SubscriptionMonth == date.month) & \
                 (db.invoices.SubscriptionYear == date.year)
         rows = db(query).select(db.invoices_amounts.ALL,
@@ -4780,11 +4784,22 @@ def revenue_get_data():
         firstdaythismonth = date
         lastdaythismonth = get_last_day_month(date)
 
-        left = [ db.invoices_amounts.on(db.invoices_amounts.invoices_id == db.invoices.id),
-                 db.invoices_customers_classcards.on(db.invoices_customers_classcards.invoices_id == db.invoices.id)
-                ]
+        left = [
+            db.invoices_amounts.on(
+                db.invoices_amounts.invoices_id ==
+                db.invoices.id
+            ),
+            db.invoices_items.on(
+                db.invoices_items.invoices_id ==
+                db.invoices.id
+            ),
+            db.invoices_items_customers_classcards.on(
+                db.invoices_items_customers_classcards.invoices_items_id ==
+                db.invoices_items.id
+            )
+        ]
 
-        query = (db.invoices_customers_classcards.id != None) & \
+        query = (db.invoices_items_customers_classcards.id != None) & \
                 (db.invoices.DateCreated >= firstdaythismonth) & \
                 (db.invoices.DateCreated <= lastdaythismonth)
         sum = db.invoices_amounts.TotalPriceVAT.sum()
@@ -4810,11 +4825,19 @@ def revenue_get_data():
         firstdaythismonth = date
         lastdaythismonth = get_last_day_month(date)
 
-        left = [ db.invoices_amounts.on(db.invoices_amounts.invoices_id == db.invoices.id),
-                 db.invoices_workshops_products_customers.on(db.invoices_workshops_products_customers.invoices_id ==
-                                                             db.invoices.id)]
+        left = [
+            db.invoices_amounts.on(db.invoices_amounts.invoices_id == db.invoices.id),
+            db.invoices_items.on(
+                db.invoices_items.invoices_id ==
+                db.invoices.id
+            ),
+            db.invoices_items_workshops_products_customers.on(
+                db.invoices_items_workshops_products_customers.invoices_items_id ==
+                db.invoices_items.id
+            )
+        ]
 
-        query = (db.invoices_workshops_products_customers.id != None) & \
+        query = (db.invoices_items_workshops_products_customers.id != None) & \
                 (db.invoices.DateCreated >= firstdaythismonth) & \
                 (db.invoices.DateCreated <= lastdaythismonth)
         sum = db.invoices_amounts.TotalPriceVAT.sum()
@@ -4839,11 +4862,21 @@ def revenue_get_data():
         firstdaythismonth = date
         lastdaythismonth = get_last_day_month(date)
 
-        left = [ db.invoices_amounts.on(db.invoices_amounts.invoices_id == db.invoices.id),
-                 db.invoices_classes_attendance.on(db.invoices_classes_attendance.invoices_id == db.invoices.id),
-                 db.classes_attendance.on(db.invoices_classes_attendance.classes_attendance_id ==
-                                          db.classes_attendance.id),
-                 ]
+        left = [
+            db.invoices_amounts.on(db.invoices_amounts.invoices_id == db.invoices.id),
+            db.invoices_items.on(
+                db.invoices_items.invoices_id ==
+                db.invoices.id
+            ),
+            db.invoices_items_classes_attendance.on(
+                db.invoices_items_classes_attendance.invoices_items_id ==
+                db.invoices_items.id
+            ),
+            db.classes_attendance.on(
+                db.invoices_items_classes_attendance.classes_attendance_id ==
+                db.classes_attendance.id
+            ),
+        ]
 
         if attendance_type == 'dropin':
             query = (db.classes_attendance.AttendanceType==2)

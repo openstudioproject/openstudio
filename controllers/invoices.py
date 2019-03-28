@@ -889,7 +889,10 @@ def list_items():
         db.invoices_items_employee_claims.id,
         db.invoices_items_teachers_payment_classes.id,
         left=left,
-        orderby=db.invoices_items.Sorting
+        orderby=db.invoices_items.Sorting,
+        groupby=db.invoices_items.id # workaround for update to 2019.02 where references were linked to invoice items instead of invoices.
+        # For teacher payments, the only option was to link all payments of in an entire invoice to the first item.
+
     )
 
     for i, row in enumerate(rows):
