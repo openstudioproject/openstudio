@@ -23,7 +23,7 @@ class ExpenseAdd extends Component {
     render() {
         const history = this.props.history
         const error_data = this.props.error_data || {}
-        const return_url = '/expenses'
+        const return_url = '/cashbook'
 
         return (
             <CashbookTemplate app={this.props.app} expenses={this.props.expenses} setPageTitle={this.props.setPageTitle}>

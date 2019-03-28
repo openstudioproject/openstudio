@@ -24,13 +24,14 @@ class CashbookTemplate extends Component {
 
     componentWillMount() {
         this.props.setPageTitle(
-            this.props.intl.formatMessage({ id: 'app.pos.expenses.page_title' })
+            this.props.intl.formatMessage({ id: 'app.pos.cashbook.page_title' })
         )
     }
 
     render() {
         const cashbook = this.props.cashbook
         const expenses_data = this.props.cashbook.expenses_data
+        const history = this.props.history
 
         return (
             <PageTemplate app_state={this.props.app}>
@@ -41,7 +42,27 @@ class CashbookTemplate extends Component {
                             <ExpensesList items={expenses_data} />
                         </div>
                         <div className="col-md-8">
-                            {this.props.children}
+                            <div className="row">
+                                <div className="col-md-8">
+                                    {this.props.children}
+                                </div>
+                                <div className="col-md-4">
+                                    <h4>Cash count</h4>
+                                    <button onClick={() => history.push('/cashbook/cashcount/set/opening')}
+                                            className="btn btn-primary btn-block">
+                                        <i className="fa fa-check-circle-o" /> Set opening balance
+                                    </button>
+                                    <button onClick={() => history.push('/cashbook/cashcount/set/closing')}
+                                            className="btn btn-primary btn-block">
+                                        <i className="fa fa-check-circle-o" /> Set closing balance
+                                    </button>
+                                    <h4>Expenses</h4>
+                                    <button onClick={() => history.push('/cashbook/expenses/add')}
+                                            className="btn btn-primary btn-block">
+                                        <i className="fa fa-plus" /> Add expense
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 }

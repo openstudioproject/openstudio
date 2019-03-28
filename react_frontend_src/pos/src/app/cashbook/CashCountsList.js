@@ -8,7 +8,7 @@ import PageTemplate from "../../components/PageTemplate"
 import Currency from "../../components/ui/Currency"
 
 
-class BalanceList extends Component {
+class CashCountList extends Component {
     constructor(props) {
         super(props)
         console.log("Balance list props:")
@@ -56,4 +56,4 @@ class BalanceList extends Component {
     }
 }
 
-export default BalanceList
+export default CashCountList

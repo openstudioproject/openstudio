@@ -20,17 +20,8 @@ class Cashbook extends Component {
     }
 
     render() {
-        const history = this.props.history
-
         return (
-            <CashbookTemplate>
-                <button onClick={() => history.push('expenses/add')}
-                        className="btn btn-primary pull-right">
-                    <i className="fa fa-plus" /> Add expense
-                </button>
-                Select an expense from the list to edit it and click the add button to add a new one. 
-
-            </CashbookTemplate>
+            <CashbookTemplate />
         )
     }
 }
