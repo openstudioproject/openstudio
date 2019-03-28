@@ -1401,3 +1401,34 @@ def get_expenses():
         }
 
     return expenses
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'accounting_expenses'))
+def get_cash_counts():
+    """
+    :return: List of expenses
+    """
+    set_headers()
+
+    opening_row = db.accounting_cashbooks_cash_count(
+        CountDate = TODAY_LOCAL,
+        CountType = 'opening'
+    )
+
+    closing_row = db.accounting_cashbooks_cash_count(
+        CountDate = TODAY_LOCAL,
+        CountType = 'closing'
+    )
+
+
+    cash_counts = {
+        'opening': {
+            'Amount': opening_row.Amount
+        },
+        'closing': {
+            'Amount': closing_row.Amount
+        }
+    }
+
+
+    return cash_counts

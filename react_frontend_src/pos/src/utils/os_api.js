@@ -5,6 +5,7 @@ const api_urls = {
     'APP_USER_LOGGED_IN': '/pos/get_logged_in.json',
     'APP_SETTINGS': '/pos/get_settings.json',
     'APP_VALIDATE_CART': '/pos/validate_cart.json',
+    'CASH_COUNTS': '/pos/get_cash_counts.json',
     'CHECKIN_CLASSES': '/pos/get_classes.json',
     'CHECKIN_ATTENDANCE': '/pos/get_class_attendance.json',
     'CHECKIN_ATTENDANCE_UPDATE': '/pos/update_class_attendance.json',
