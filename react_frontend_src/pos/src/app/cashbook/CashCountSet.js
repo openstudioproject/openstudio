@@ -26,6 +26,7 @@ class CashCountSet extends Component {
     }
 
     render() {
+        const type = this.props.match.params.type
 
 
         return (
@@ -33,12 +34,12 @@ class CashCountSet extends Component {
                 <div className="box box-solid expenses-list"> 
                     <div className="box-header">
                         <h3 className="box-title">
-                            <i className="fa fa-money"></i> Set cash count
+                            Set {type} count
                         </h3>
                     </div>
                     <form onSubmit={() => this.onSubmit}>
                         <div className="box-body">
-                            form here
+                            
                         
                         </div>
                         <div className="box-footer">

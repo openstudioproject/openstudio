@@ -50,11 +50,11 @@ class CashbookTemplate extends Component {
                                     <h4>Cash count</h4>
                                     <button onClick={() => history.push('/cashbook/cashcount/set/opening')}
                                             className="btn btn-primary btn-block">
-                                        <i className="fa fa-check-circle-o" /> Set opening balance
+                                        <i className="fa fa-check-circle-o" /> Set opening count
                                     </button>
                                     <button onClick={() => history.push('/cashbook/cashcount/set/closing')}
                                             className="btn btn-primary btn-block">
-                                        <i className="fa fa-check-circle-o" /> Set closing balance
+                                        <i className="fa fa-check-circle-o" /> Set closing count
                                     </button>
                                     <h4>Expenses</h4>
                                     <button onClick={() => history.push('/cashbook/expenses/add')}
