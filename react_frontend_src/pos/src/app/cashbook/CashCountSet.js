@@ -25,10 +25,23 @@ class CashCountSet extends Component {
     componentWillMount() {
     }
 
+    onSubmit(e) {
+        e.preventDefault()
+        console.log('submit cash count')
+        
+
+        const type = this.props.match.params.type
+        const data = new FormData(e.target)
+        data.append('type', type)
+        this.props.setCashCount(data)
+
+
+        console.log(data.values())
+    }
+
     render() {
         const history = this.props.history
         const type = this.props.match.params.type
-
 
         return (
             <CashbookTemplate>
@@ -38,14 +51,22 @@ class CashCountSet extends Component {
                             Set {type} count
                         </h3>
                     </div>
-                    <form onSubmit={() => this.onSubmit}>
+                    <form onSubmit={this.onSubmit.bind(this)}>
                         <div className="box-body">
-                            
+                            <label htmlFor="Amount">Count</label>
+                            <input 
+                                id="Amount" 
+                                className="form-control"
+                                name="Amount" 
+                                type="text" 
+                            />
+                            {/* <CustomerFormError message={ (error_data.first_name) ? error_data.first_name : "" } /> */}
                         
                         </div>
                         <div className="box-footer">
                             <button type="submit"
-                                    className="btn btn-primary">
+                                    className="btn btn-primary"
+                                    disabled={this.props.cashbook.set_cash_count}>
                                 Save
                             </button>
                             <button type="button"

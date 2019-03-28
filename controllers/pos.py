@@ -1432,3 +1432,11 @@ def get_cash_counts():
 
 
     return cash_counts
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'accounting_expenses'))
+def set_cash_count():
+    set_headers()
+
+    print request.vars

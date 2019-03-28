@@ -3,7 +3,7 @@ import { injectIntl } from 'react-intl'
 import { withRouter } from 'react-router'
 
 import CashCountSet from './CashCountSet'
-import { appOperations } from '../duck'
+import { cashbookOperations } from './duck'
 
 
 const mapStateToProps = state => 
@@ -14,9 +14,9 @@ const mapStateToProps = state =>
 
 const mapDispatchToProps = dispatch =>
     ({
-        // setPageTitle(title) {
-        //     dispatch(appOperations.setPageTitle(title))
-        // },
+        setCashCount(data) {
+            dispatch(cashbookOperations.setCashCount(data))
+        },
     })
 
 

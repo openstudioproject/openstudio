@@ -1,8 +1,10 @@
 import {
     requestCashCounts,
     receiveCashCounts,
+    requestSetCashCount,
+    receiveSetCashCount,
     requestExpenses,
-    receiveExpenses
+    receiveExpenses, 
 } from './actions'
 
 import axios_os from '../../../utils/axios_os'
@@ -86,6 +88,24 @@ const createCustomer = (data) => {
 }
 
 // updaters
+
+const setCashCount = (data, type) => {
+    return dispatch => {
+        dispatch(requestSetCashCount(formDataToObject(data)))
+
+        axios_os.post(OS_API.CASH_COUNT_SET, data)
+        .then(function(response) {
+            dispatch(receiveSetCashCount(response.data))
+        })
+        .catch(function (error) {
+            console.log(error)
+        })
+        .then(function() {
+            //always executed
+        })
+    }
+}
+
 const updateCustomer = (data) => {
     return dispatch => {
         dispatch(requestUpdateCustomer(formDataToObject(data)))
@@ -113,4 +133,5 @@ export default {
     // updateCustomerPicture,
     fetchCashCounts,
     fetchExpenses,
+    setCashCount,
 }
