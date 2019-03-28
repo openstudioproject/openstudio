@@ -1439,14 +1439,10 @@ def get_cash_counts():
 def set_cash_count():
     set_headers()
 
-    print "###"
-    print request.vars
-
+    # Clean up input of amount
     if 'amount' in request.vars:
         if ',' in request.vars['amount']:
             request.vars['amount'] = request.vars['amount'].replace(',', '.')
-
-    print request.vars
 
     row = db.accounting_cashbooks_cash_count(
         CountDate = TODAY_LOCAL,
@@ -1471,8 +1467,6 @@ def set_cash_count():
     error = False
     if result.errors:
         error = True
-
-    print result
 
 
     return dict(result=result,
