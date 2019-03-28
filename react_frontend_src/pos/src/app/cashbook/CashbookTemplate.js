@@ -6,7 +6,7 @@ import { NavLink } from 'react-router-dom'
 
 import PageTemplate from "../../components/PageTemplate"
 import ExpensesList from "./ExpensesList"
-import BalanceList from "./BalanceList";
+import CashCountsList from "./CashCountsList";
 
 
 class CashbookTemplate extends Component {
@@ -29,6 +29,7 @@ class CashbookTemplate extends Component {
     }
 
     render() {
+        const cashbook = this.props.cashbook
         const expenses_data = this.props.cashbook.expenses_data
 
         return (
@@ -36,7 +37,7 @@ class CashbookTemplate extends Component {
                 {(!this.props.cashbook.expenses_loaded) ? "Loading expenses..." :
                     <div className="row">
                         <div className="col-md-4">
-                            <BalanceList  />
+                            <CashCountsList cashbook={cashbook} />
                             <ExpensesList items={expenses_data} />
                         </div>
                         <div className="col-md-8">

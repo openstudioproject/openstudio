@@ -26,10 +26,9 @@ class BalanceList extends Component {
 
     render() {
         const render_items = []
-        // for (const key of Object.keys(this.props.items)) {
-        //     let item = this.props.items[key]
-        //     render_items.push(item)
-        // }
+        const loading = this.props.cashbook.cash_counts_loading
+        const loaded = this.props.cashbook.cash_counts_loaded
+
 
         return (
             <div className="box box-solid expenses-list"> 
@@ -39,7 +38,18 @@ class BalanceList extends Component {
                     </h3>
                 </div>
                 <div className="box-body">
-                    Cash count
+                    {(!loaded) ? "Loading counts..." :
+                        <div>
+                            <div>
+                                <span className="bold">Opening: </span> 
+                                <Currency amount={this.props.cashbook.cash_counts_data.opening.Amount} />
+                            </div>
+                            <div>
+                                <span className="bold">Closing: </span> 
+                                <Currency amount={this.props.cashbook.cash_counts_data.closing.Amount} />
+                            </div>
+                        </div>
+                    }
                     {/* {(!render_items.length) ? 'No expensed filed yet': 
                         <div className="expenses-list">
                             {render_items.map((item, i) => 
