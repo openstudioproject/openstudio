@@ -69,14 +69,14 @@ const formDataToObject = (fd_obj) => {
 }
 
 // creators
-const createCustomer = (data) => {
+const createExpense = (data, history) => {
     return dispatch => {
-        dispatch(requestCreateCustomer(formDataToObject(data)))
+        dispatch(requestCreateExpense(formDataToObject(data)))
 
-        axios_os.post(OS_API.CUSTOMER_CREATE, data)
+        axios_os.post(OS_API.EXPENSE_CREATE, data)
         .then(function(response) {
             console.log(response)
-            dispatch(receiveCreateCustomer(response.data))
+            dispatch(receiveCreateExpense(response.data))
         })
         .catch(function (error) {
             console.log(error)

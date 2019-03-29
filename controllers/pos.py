@@ -1435,7 +1435,7 @@ def get_cash_counts():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('update', 'accounting_expenses'))
+               auth.has_permission('update', 'accounting_cashbooks_cash_count'))
 def set_cash_count():
     set_headers()
 
@@ -1473,3 +1473,56 @@ def set_cash_count():
                 cash_counts_data=get_cash_counts(),
                 error=error)
 
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('create', 'accounting_expenses'))
+def create_expense():
+    """
+    :return: dict containing data of new auth_user
+    """
+    set_headers()
+
+
+    db.auth_user.password.requires = None
+    print request.vars
+
+    result = db.auth_user.validate_and_insert(**request.vars)
+    print result
+
+    customer_data = ''
+    error = False
+    if result.errors:
+        error = True
+
+    if not error:
+        row = db.auth_user(result['id'])
+
+        dob = ''
+        if row.date_of_birth:
+            dob = row.date_of_birth.strftime(DATE_FORMAT)
+
+        customer_data = {
+            'id': row.id,
+            'first_name': row.first_name,
+            'last_name': row.last_name,
+            'display_name': row.display_name,
+            'search_name': row.display_name.lower(),
+            'barcode_id': row.barcode_id,
+            'email': row.email,
+            'gender': row.gender,
+            'date_of_birth': dob,
+            'address': row.address,
+            'postcode': row.postcode,
+            'city': row.city,
+            'country': row.country,
+            'phone': row.phone,
+            'mobile': row.mobile,
+            'emergency': row.emergency,
+            'company': row.company,
+            'thumbsmall': get_customers_thumbnail_url(row.thumbsmall),
+            'thumblarge': get_customers_thumbnail_url(row.thumblarge)
+        }
+
+    return dict(result=result,
+                customer_data=customer_data,
+                error=error)
