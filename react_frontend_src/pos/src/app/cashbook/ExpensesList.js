@@ -44,8 +44,8 @@ class ExpensesList extends Component {
                         <div className="expenses-list">
                             {render_items.map((item, i) => 
                                 <div className="expensed-list-item" key={v4()} onClick={() => onClick(item.id)}>
-                                    <div className="pull-right"><Currency amount={item.amount} /></div>
-                                    <div className="bold">{item.description}</div>
+                                    <div className="pull-right"><Currency amount={item.Amount} /></div>
+                                    <div className="bold">{item.Description}</div>
                                 </div>                       
                             )}
                         </div>

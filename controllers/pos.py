@@ -1390,15 +1390,7 @@ def get_expenses():
     expenses = {}
 
     for row in rows:
-        expenses[row.id] = {
-            'id': row.id,
-            'booking_date': row.BookingDate,
-            'amount': row.Amount,
-            'tax_rates_id': row.tax_rates_id,
-            'your_reference': row.YourReference,
-            'description': row.Description,
-            'note': row.Note
-        }
+        expenses[row.id] = row.as_dict()
 
     return expenses
 
@@ -1502,27 +1494,6 @@ def create_expense():
         row = db.accounting_expenses(result['id'])
 
         expense_data = row.as_dict()
-        # expense_data = {
-        #     'id': row.id,
-        #     'first_name': row.first_name,
-        #     'last_name': row.last_name,
-        #     'display_name': row.display_name,
-        #     'search_name': row.display_name.lower(),
-        #     'barcode_id': row.barcode_id,
-        #     'email': row.email,
-        #     'gender': row.gender,
-        #     'date_of_birth': dob,
-        #     'address': row.address,
-        #     'postcode': row.postcode,
-        #     'city': row.city,
-        #     'country': row.country,
-        #     'phone': row.phone,
-        #     'mobile': row.mobile,
-        #     'emergency': row.emergency,
-        #     'company': row.company,
-        #     'thumbsmall': get_customers_thumbnail_url(row.thumbsmall),
-        #     'thumblarge': get_customers_thumbnail_url(row.thumblarge)
-        # }
 
     return dict(result=result,
                 expense_data=expense_data,

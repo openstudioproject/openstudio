@@ -55,11 +55,31 @@ export const cashbookReducer = (state = {}, action={ type: null }) => {
                 expense_create: true,
             }
         case T.RECEIVE_CREATE_EXPENSE:
-            return {
+            // return {
+            //     ...state,
+            //     expense_create: false,
+            //     expense_create_error_data: action.data.result.errors,
+            //     expenses_data: {
+            //         ...expenses_data
+            //     }
+            // }
+
+
+            let return_value = {
                 ...state,
                 expense_create: false,
-                expense_create_error_data: action.data.result.errors
+                expense_create_error_data: action.data.result.errors,
             }
+            
+            if (action.data.error == false) {
+                return_value['expenses_data'] = {
+                    ...state.expenses_data,
+                    [action.data.result.id]: action.data.expense_data
+               }
+            }
+            
+            
+            return return_value
         default:
             return {
                 ...state

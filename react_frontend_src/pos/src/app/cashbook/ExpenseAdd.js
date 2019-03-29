@@ -45,9 +45,9 @@ class ExpenseAdd extends Component {
                     </div>
                     <form onSubmit={this.onSubmit.bind(this)}>
                         <div className="box-body">
-                            <label htmlFor="amount">Description</label>
+                            <label htmlFor="Description">Description</label>
                             <input 
-                                id="Description" 
+                                id="description" 
                                 className="form-control"
                                 name="Description" 
                                 type="text" 
@@ -61,7 +61,7 @@ class ExpenseAdd extends Component {
                                 type="text" 
                             />
                             <FormError message={ (error_data.Amount) ? error_data.Amount : "" } />
-                            <label htmlFor="amount">Tax rate</label>
+                            <label htmlFor="tax_rates_id">Tax rate</label>
                             <select 
                                 id="tax_rates_id" 
                                 className="form-control"
@@ -74,7 +74,7 @@ class ExpenseAdd extends Component {
                             }
                             </select>
                             <FormError message={ (error_data.tax_rates_id) ? error_data.tax_rates_id : "" } />
-                            <label htmlFor="amount">Reference</label>
+                            <label htmlFor="YourReference">Reference</label>
                             <input 
                                 id="YourReference" 
                                 className="form-control"
@@ -83,7 +83,7 @@ class ExpenseAdd extends Component {
                             />
                             <span className="help-block">eg. The invoice or receipt number of a delivery from a supplier</span>
                             <FormError message={ (error_data.YourReference) ? error_data.YourReference : "" } />
-                            <label htmlFor="amount">Note</label>
+                            <label htmlFor="Note">Note</label>
                             <textarea 
                                 id="Note" 
                                 className="form-control"
