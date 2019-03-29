@@ -26,6 +26,8 @@ class ExpenseAdd extends Component {
 
         console.log("submitted expense add")
         const data = new FormData(e.target)
+
+        this.props.createExpense(data, this.props.history)
     }
 
     render() {
@@ -40,7 +42,7 @@ class ExpenseAdd extends Component {
                     <div className='box-header'>
                         <h3 className="box-title">Add expense</h3>
                     </div>
-                    <form onSubmit={() => this.props.onSubmit}>
+                    <form onSubmit={this.onSubmit.bind(this)}>
                         <div className="box-body">
                             <label htmlFor="amount">Description</label>
                             <input 

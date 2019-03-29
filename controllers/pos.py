@@ -602,7 +602,7 @@ def get_customers():
             'first_name': row.first_name,
             'last_name': row.last_name,
             'display_name': row.display_name,
-            'search_name': row.display_name.lower(),
+            'search_name': row.display_name.lower() if row.display_name else "",
             'email': row.email,
             'gender': row.gender,
             'date_of_birth': date_of_birth,
@@ -1481,6 +1481,8 @@ def create_expense():
     :return: dict containing data of new auth_user
     """
     set_headers()
+
+    print request.vars
 
 
     result = db.accounting_expenses.validate_and_insert(**request.vars)

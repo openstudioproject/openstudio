@@ -4,7 +4,9 @@ import {
     requestSetCashCount,
     receiveSetCashCount,
     requestExpenses,
-    receiveExpenses, 
+    receiveExpenses,
+    requestCreateExpense,
+    receiveCreateExpense 
 } from './actions'
 
 import axios_os from '../../../utils/axios_os'
@@ -77,6 +79,9 @@ const createExpense = (data, history) => {
         .then(function(response) {
             console.log(response)
             dispatch(receiveCreateExpense(response.data))
+            if (!response.data.error) {
+                history.push('/cashbook')
+            }
         })
         .catch(function (error) {
             console.log(error)
@@ -134,6 +139,7 @@ export default {
     // clearUpdateCustomerErrorData,
     // updateCustomer,
     // updateCustomerPicture,
+    createExpense,
     fetchCashCounts,
     fetchExpenses,
     setCashCount,
