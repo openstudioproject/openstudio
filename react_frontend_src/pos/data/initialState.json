@@ -119,11 +119,11 @@
         "expenses_data": {},
         "expense_create": false,
         "expense_create_error_data": {
-            "amount": "",
-            "description": "",
-            "note": "",
+            "Amount": "",
+            "Description": "",
+            "Note": "",
             "tax_rates_id": "",
-            "your_reference": ""
+            "YourReference": ""
         }
     },
     "shop": {

@@ -44,20 +44,20 @@ class ExpenseAdd extends Component {
                         <div className="box-body">
                             <label htmlFor="amount">Description</label>
                             <input 
-                                id="description" 
+                                id="Description" 
                                 className="form-control"
-                                name="description" 
+                                name="Description" 
                                 type="text" 
                             />
-                            <FormError message={ (error_data.description) ? error_data.description : "" } />
+                            <FormError message={ (error_data.Description) ? error_data.Description : "" } />
                             <label htmlFor="amount">Amount</label>
                             <input 
-                                id="amount" 
+                                id="Amount" 
                                 className="form-control"
-                                name="amount" 
+                                name="Amount" 
                                 type="text" 
                             />
-                            <FormError message={ (error_data.amount) ? error_data.amount : "" } />
+                            <FormError message={ (error_data.Amount) ? error_data.Amount : "" } />
                             <label htmlFor="amount">Tax rate</label>
                             <select 
                                 id="tax_rates_id" 
@@ -73,21 +73,21 @@ class ExpenseAdd extends Component {
                             <FormError message={ (error_data.tax_rates_id) ? error_data.tax_rates_id : "" } />
                             <label htmlFor="amount">Reference</label>
                             <input 
-                                id="your_reference" 
+                                id="YourReference" 
                                 className="form-control"
-                                name="your_reference" 
+                                name="YourReference" 
                                 type="text" 
                             />
                             <span className="help-block">eg. The invoice or receipt number of a delivery from a supplier</span>
-                            <FormError message={ (error_data.your_reference) ? error_data.your_reference : "" } />
+                            <FormError message={ (error_data.YourReference) ? error_data.YourReference : "" } />
                             <label htmlFor="amount">Note</label>
                             <textarea 
-                                id="note" 
+                                id="Note" 
                                 className="form-control"
-                                name="note" 
+                                name="Note" 
                                 type="text" 
                             />
-                            <FormError message={ (error_data.note) ? error_data.note : "" } />
+                            <FormError message={ (error_data.Note) ? error_data.Note : "" } />
                         </div>
                         <div className="box-footer">
                             <button className="btn btn-primary"

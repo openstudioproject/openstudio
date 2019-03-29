@@ -49,6 +49,17 @@ export const cashbookReducer = (state = {}, action={ type: null }) => {
                 expenses_loaded: true,
                 expenses_data: action.data
             }
+        case T.REQUEST_CREATE_EXPENSE:
+            return {
+                ...state,
+                expense_create: true,
+            }
+        case T.RECEIVE_EXPENSES:
+            return {
+                ...state,
+                expense_create: false,
+                expense_create_error_data: action.data.result.errors
+            }
         default:
             return {
                 ...state
