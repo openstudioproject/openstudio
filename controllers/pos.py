@@ -1484,6 +1484,11 @@ def create_expense():
 
     print request.vars
 
+    # Clean up input of amount
+    if 'Amount' in request.vars:
+        if ',' in request.vars['Amount']:
+            request.vars['Amount'] = request.vars['Amount'].replace(',', '.')
+
 
     result = db.accounting_expenses.validate_and_insert(**request.vars)
     print result

@@ -32,7 +32,8 @@ class ExpenseAdd extends Component {
 
     render() {
         const history = this.props.history
-        const error_data = this.props.error_data || {}
+        const error_data = this.props.error_data
+        console.log(error_data)
         const return_url = '/cashbook'
         const tax_rates = this.props.app.tax_rates
 

@@ -9,7 +9,8 @@ import { cashbookOperations } from './duck'
 const mapStateToProps = state => 
     ({
         app: state.app,
-        cashbook: state.cashbook
+        cashbook: state.cashbook,
+        error_data: state.cashbook.expense_create_error_data
     })
 
 const mapDispatchToProps = dispatch =>
