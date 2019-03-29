@@ -8,7 +8,7 @@ import {
 
 
 import Cashbook from './cashbook/Cashbook'
-import ExpenseAdd from './cashbook/ExpenseAdd'
+import ExpenseAdd from './cashbook/ExpenseAddContainer'
 import CashCountSet from './cashbook/CashCountSetContainer'
 import Customers from './customers/list/CustomersContainer'
 import Classes from './checkin/classes/ClassesContainer'

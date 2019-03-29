@@ -7,6 +7,7 @@ import { Formik, Form, Field, ErrorMessage } from 'formik'
 
 import CashbookTemplate from "./CashbookTemplateContainer"
 import FormError from "./FormError"
+import { v4 } from "uuid"
 
 class ExpenseAdd extends Component {
     constructor(props) {
@@ -24,6 +25,7 @@ class ExpenseAdd extends Component {
         const history = this.props.history
         const error_data = this.props.error_data || {}
         const return_url = '/cashbook'
+        const tax_rates = this.props.app.tax_rates
 
         return (
             <CashbookTemplate app={this.props.app} expenses={this.props.expenses} setPageTitle={this.props.setPageTitle}>
@@ -33,6 +35,14 @@ class ExpenseAdd extends Component {
                     </div>
                     <form onSubmit={() => this.props.onSubmit}>
                         <div className="box-body">
+                            <label htmlFor="amount">Description</label>
+                            <input 
+                                id="description" 
+                                className="form-control"
+                                name="description" 
+                                type="text" 
+                            />
+                            <FormError message={ (error_data.description) ? error_data.description : "" } />
                             <label htmlFor="amount">Amount</label>
                             <input 
                                 id="amount" 
@@ -41,6 +51,28 @@ class ExpenseAdd extends Component {
                                 type="text" 
                             />
                             <FormError message={ (error_data.amount) ? error_data.amount : "" } />
+                            <label htmlFor="amount">Tax rate</label>
+                            <select 
+                                id="tax_rates_id" 
+                                className="form-control"
+                                name="tax_rates_id" 
+                            >
+                            {
+                                tax_rates.map((rate, i) => 
+                                    <option value={rate.id} key={v4()}>{rate.Name}</option>
+                                )
+                            }
+                            </select>
+                            <FormError message={ (error_data.tax_rates_id) ? error_data.tax_rates_id : "" } />
+                            <label htmlFor="amount">Reference</label>
+                            <input 
+                                id="your_reference" 
+                                className="form-control"
+                                name="your_reference" 
+                                type="text" 
+                            />
+                            <span className="help-block">eg. The invoice or receipt number of a delivery from your supplier</span>
+                            <FormError message={ (error_data.your_reference) ? error_data.your_reference : "" } />
                         </div>
                         <div className="box-footer">
                             <button className="btn btn-primary"
