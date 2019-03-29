@@ -21,6 +21,13 @@ class ExpenseAdd extends Component {
         app: PropTypes.object,
     }
 
+    onSubmit(e) {
+        e.preventDefault()
+
+        console.log("submitted expense add")
+        const data = new FormData(e.target)
+    }
+
     render() {
         const history = this.props.history
         const error_data = this.props.error_data || {}
@@ -71,7 +78,7 @@ class ExpenseAdd extends Component {
                                 name="your_reference" 
                                 type="text" 
                             />
-                            <span className="help-block">eg. The invoice or receipt number of a delivery from your supplier</span>
+                            <span className="help-block">eg. The invoice or receipt number of a delivery from a supplier</span>
                             <FormError message={ (error_data.your_reference) ? error_data.your_reference : "" } />
                             <label htmlFor="amount">Note</label>
                             <textarea 

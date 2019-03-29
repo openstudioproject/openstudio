@@ -116,7 +116,15 @@
         },
         "expenses_loading": false,
         "expenses_loaded": false,
-        "expenses_data": {}
+        "expenses_data": {},
+        "expense_create": false,
+        "expense_create_error_data": {
+            "amount": "",
+            "description": "",
+            "note": "",
+            "tax_rates_id": "",
+            "your_reference": ""
+        }
     },
     "shop": {
         "cart": {
