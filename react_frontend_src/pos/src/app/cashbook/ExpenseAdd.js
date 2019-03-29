@@ -73,6 +73,14 @@ class ExpenseAdd extends Component {
                             />
                             <span className="help-block">eg. The invoice or receipt number of a delivery from your supplier</span>
                             <FormError message={ (error_data.your_reference) ? error_data.your_reference : "" } />
+                            <label htmlFor="amount">Note</label>
+                            <textarea 
+                                id="note" 
+                                className="form-control"
+                                name="note" 
+                                type="text" 
+                            />
+                            <FormError message={ (error_data.note) ? error_data.note : "" } />
                         </div>
                         <div className="box-footer">
                             <button className="btn btn-primary"
