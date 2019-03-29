@@ -1453,7 +1453,7 @@ def set_cash_count():
         result = db.accounting_cashbooks_cash_count.validate_and_insert(
             CountDate = TODAY_LOCAL,
             CountType = request.vars['type'],
-            Amount = request.vars['amount']
+            Amount = request.vars['amount'],
         )
     else:
         query = (db.accounting_cashbooks_cash_count.id == row.id)

@@ -870,8 +870,7 @@ def define_accounting_glaccounts():
 
 
 def define_accounting_cashbooks_cash_count():
-    auth_user_query = (db.auth_user.id > 1) & \
-                      (db.auth_user.trashed == False) & \
+    auth_user_query = (db.auth_user.trashed == False) & \
                       ((db.auth_user.teacher == True) |
                        (db.auth_user.employee == True))
 
