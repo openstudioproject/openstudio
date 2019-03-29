@@ -54,7 +54,7 @@ export const cashbookReducer = (state = {}, action={ type: null }) => {
                 ...state,
                 expense_create: true,
             }
-        case T.RECEIVE_EXPENSES:
+        case T.RECEIVE_CREATE_EXPENSE:
             return {
                 ...state,
                 expense_create: false,
