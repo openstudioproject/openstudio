@@ -1385,6 +1385,7 @@ def get_expenses():
         db.accounting_expenses.YourReference,
         db.accounting_expenses.Description,
         db.accounting_expenses.Note,
+        orderby=db.accounting_expenses.Description
     )
 
     expenses = {}
