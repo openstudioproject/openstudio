@@ -2,7 +2,7 @@ import { connect } from 'react-redux'
 import { injectIntl } from 'react-intl'
 import { withRouter } from 'react-router'
 
-import ExpenseAdd from './ExpenseAdd'
+import ExpenseEdit from './ExpenseEdit'
 import { cashbookOperations } from './duck'
 
 
@@ -24,6 +24,6 @@ const mapDispatchToProps = dispatch =>
 const ExpenseEditContainer = withRouter(injectIntl(connect(
     mapStateToProps,
     mapDispatchToProps
-)(ExpenseAdd)))
+)(ExpenseEdit)))
 
 export default ExpenseEditContainer
