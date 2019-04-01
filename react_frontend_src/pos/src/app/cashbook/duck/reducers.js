@@ -49,6 +49,16 @@ export const cashbookReducer = (state = {}, action={ type: null }) => {
                 expenses_loaded: true,
                 expenses_data: action.data
             }
+        case T.SET_EXPENSES_SELECTED_ID:
+            return {
+                ...state,
+                expenses_selectedID: action.id
+            }
+        case T.CLEAR_EXPENSES_SELECTED_ID:
+            return {
+                ...state,
+                expenses_selectedID: null
+            }
         case T.REQUEST_CREATE_EXPENSE:
             return {
                 ...state,
