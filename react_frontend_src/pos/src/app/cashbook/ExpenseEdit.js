@@ -9,7 +9,7 @@ import CashbookTemplate from "./CashbookTemplateContainer"
 import FormError from "./FormError"
 import { v4 } from "uuid"
 
-class ExpenseAdd extends Component {
+class ExpenseEdit extends Component {
     constructor(props) {
         super(props)
         console.log("Expense Add props:")
@@ -110,5 +110,5 @@ class ExpenseAdd extends Component {
     }
 }
 
-export default withRouter(ExpenseAdd)
+export default withRouter(ExpenseEdit)
 

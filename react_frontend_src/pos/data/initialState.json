@@ -125,6 +125,13 @@
             "Note": "",
             "tax_rates_id": "",
             "YourReference": ""
+        },
+        "expense_update_error_data": {
+            "Amount": "",
+            "Description": "",
+            "Note": "",
+            "tax_rates_id": "",
+            "YourReference": ""
         }
     },
     "shop": {

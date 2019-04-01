@@ -9,6 +9,7 @@ import {
 
 import Cashbook from './cashbook/Cashbook'
 import ExpenseAdd from './cashbook/ExpenseAddContainer'
+import ExpenseEdit from './cashbook/ExpenseEditContainer'
 import CashCountSet from './cashbook/CashCountSetContainer'
 import Customers from './customers/list/CustomersContainer'
 import Classes from './checkin/classes/ClassesContainer'
@@ -69,6 +70,7 @@ class App extends Component {
             <Route path='/customers' component={Customers} />
             <Route exact path='/cashbook' component={Cashbook} />
             <Route path='/cashbook/expenses/add' component={ExpenseAdd} />
+            <Route path='/cashbook/expenses/edit/:eID' component={ExpenseEdit} />
             <Route path='/cashbook/cashcount/set/:type' component={CashCountSet} />
             <Route path="/shop/payment" component={Payment} />
             <Route path="/shop/validation" component={Validation} />

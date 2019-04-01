@@ -4,6 +4,7 @@ import PropTypes from "prop-types"
 import { v4 } from "uuid"
 import { NavLink } from 'react-router-dom'
 
+
 import PageTemplate from "../../components/PageTemplate"
 import Currency from "../../components/ui/Currency"
 
@@ -43,11 +44,13 @@ class ExpensesList extends Component {
                     {(!render_items.length) ? 'No expensed filed yet': 
                         <div className="expenses-list">
                             {render_items.map((item, i) => 
-                                <div className="expensed-list-item" key={v4()} onClick={() => this.props.onClick(item.id)}>
-                                    <div className="pull-right"><Currency amount={item.Amount} /></div>
-                                    <div className="bold">{item.Description}</div>
-                                    <div className="text-muted">Reference: {item.YourReference}</div>
-                                </div>                       
+                                <NavLink  key={v4()} to={"/cashbook/expenses/edit/" + item.id}>
+                                    <div className="expensed-list-item" onClick={() => this.props.onClick(item.id)}>
+                                        <div className="pull-right"><Currency amount={item.Amount} /></div>
+                                        <div className="bold">{item.Description}</div>
+                                        <div className="text-muted">Reference: {item.YourReference}</div>
+                                    </div>                       
+                                </NavLink>
                             )}
                         </div>
                     }                    
