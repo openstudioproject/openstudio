@@ -116,7 +116,7 @@
         },
         "expenses_loading": false,
         "expenses_loaded": false,
-        "expense_selectedID": null,
+        "expenses_selectedID": null,
         "expenses_data": {},
         "expense_create": false,
         "expense_create_error_data": {

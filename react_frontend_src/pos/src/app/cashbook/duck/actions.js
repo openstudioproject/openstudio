@@ -34,6 +34,17 @@ export const receiveExpenses = (data) =>
         data
     })
 
+export const setExpensesSelectedID = (id) =>
+    ({
+        type: T.SET_EXPENSES_SELECTED_ID,
+        id
+    })
+
+export const clearExpensesSelectedID = () =>
+    ({
+        type: T.CLEAR_EXPENSES_SELECTED_ID,
+    })
+
 export const requestCreateExpense = () =>
     ({
         type: T.REQUEST_CREATE_EXPENSE
