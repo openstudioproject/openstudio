@@ -5,6 +5,8 @@ import {
     receiveSetCashCount,
     requestExpenses,
     receiveExpenses,
+    setExpensesSelectedID,
+    clearExpensesSelectedID,
     requestCreateExpense,
     receiveCreateExpense 
 } from './actions'
@@ -143,4 +145,6 @@ export default {
     fetchCashCounts,
     fetchExpenses,
     setCashCount,
+    setExpensesSelectedID,
+    clearExpensesSelectedID
 }
