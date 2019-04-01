@@ -43,7 +43,7 @@ class ExpensesList extends Component {
                     {(!render_items.length) ? 'No expensed filed yet': 
                         <div className="expenses-list">
                             {render_items.map((item, i) => 
-                                <div className="expensed-list-item" key={v4()} onClick={() => onClick(item.id)}>
+                                <div className="expensed-list-item" key={v4()} onClick={() => this.props.onClick(item.id)}>
                                     <div className="pull-right"><Currency amount={item.Amount} /></div>
                                     <div className="bold">{item.Description}</div>
                                     <div className="text-muted">Reference: {item.YourReference}</div>

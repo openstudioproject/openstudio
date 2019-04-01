@@ -39,7 +39,7 @@ class CashbookTemplate extends Component {
                     <div className="row">
                         <div className="col-md-4">
                             <CashCountsList cashbook={cashbook} />
-                            <ExpensesList items={expenses_data} />
+                            <ExpensesList items={expenses_data} onClick={this.props.onClickExpensesList.bind(this)} />
                         </div>
                         <div className="col-md-8">
                             <div className="row">

@@ -4,6 +4,7 @@ import { withRouter } from 'react-router'
 
 import CashbookTemplate from './CashbookTemplate'
 import { appOperations } from '../duck'
+import { cashbookOperations } from './duck'
 
 
 const mapStateToProps = state => 
@@ -17,6 +18,9 @@ const mapDispatchToProps = dispatch =>
         setPageTitle(title) {
             dispatch(appOperations.setPageTitle(title))
         },
+        onClickExpensesList(id) {
+            dispatch(cashbookOperations.setExpensesSelectedID(id))
+        }
     })
 
 
