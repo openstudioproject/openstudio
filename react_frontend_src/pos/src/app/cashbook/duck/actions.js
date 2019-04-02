@@ -66,3 +66,14 @@ export const receiveUpdateExpense = (data) =>
         type: T.RECEIVE_UPDATE_EXPENSE,
         data
     })
+
+export const requestDeleteExpense = () =>
+    ({
+        type: T.REQUEST_DELETE_EXPENSE
+    })
+
+export const receiveDeleteExpense = (data) =>
+    ({
+        type: T.RECEIVE_DELETE_EXPENSE,
+        data
+    })
