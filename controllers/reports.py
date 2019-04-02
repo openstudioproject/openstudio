@@ -4789,11 +4789,22 @@ def revenue_get_data():
         firstdaythismonth = date
         lastdaythismonth = get_last_day_month(date)
 
-        left = [ db.invoices_amounts.on(db.invoices_amounts.invoices_id == db.invoices.id),
-                 db.invoices_customers_classcards.on(db.invoices_customers_classcards.invoices_id == db.invoices.id)
+        left = [
+            db.invoices.on(
+                db.invoices_amounts.invoices_id ==
+                db.invoices.id
+            ),
+            db.invoices_items.on(
+                db.invoices_items.invoices_id ==
+                db.invoices.id
+            ),
+            db.invoices_items_customers_classcards.on(
+                db.invoices_items_customers_classcards.invoices_items_id ==
+                db.invoices_items.id
+            )
                 ]
 
-        query = (db.invoices_customers_classcards.id != None) & \
+        query = (db.invoices_items_customers_classcards.id != None) & \
                 (db.invoices.DateCreated >= firstdaythismonth) & \
                 (db.invoices.DateCreated <= lastdaythismonth)
         sum = db.invoices_amounts.TotalPriceVAT.sum()
