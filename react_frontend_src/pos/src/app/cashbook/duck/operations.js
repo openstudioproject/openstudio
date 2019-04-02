@@ -8,7 +8,9 @@ import {
     setExpensesSelectedID,
     clearExpensesSelectedID,
     requestCreateExpense,
-    receiveCreateExpense 
+    receiveCreateExpense,
+    requestUpdateExpense,
+    receiveUpdateExpense 
 } from './actions'
 
 import axios_os from '../../../utils/axios_os'
@@ -116,13 +118,17 @@ const setCashCount = (data, history) => {
     }
 }
 
-const updateCustomer = (data) => {
+const updateExpense = (id, data, history) => {
     return dispatch => {
-        dispatch(requestUpdateCustomer(formDataToObject(data)))
+        dispatch(requestUpdateExpense())
 
-        axios_os.post(OS_API.CUSTOMER_UPDATE, data)
+        axios_os.post(OS_API.EXPENSE_UPDATE, data)
         .then(function(response) {
-            dispatch(receiveUpdateCustomer(response.data))
+            console.log(response)
+            dispatch(receiveCreateExpense(response.data))
+            if (!response.data.error) {
+                history.push('/cashbook')
+            }
         })
         .catch(function (error) {
             console.log(error)
