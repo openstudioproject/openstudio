@@ -77,7 +77,7 @@ const formDataToObject = (fd_obj) => {
 // creators
 const createExpense = (data, history) => {
     return dispatch => {
-        dispatch(requestCreateExpense(formDataToObject(data)))
+        dispatch(requestCreateExpense())
 
         axios_os.post(OS_API.EXPENSE_CREATE, data)
         .then(function(response) {
