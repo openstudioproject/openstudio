@@ -133,7 +133,8 @@
             "Note": "",
             "tax_rates_id": "",
             "YourReference": ""
-        }
+        },
+        "expense_delete": false
     },
     "shop": {
         "cart": {
