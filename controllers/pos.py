@@ -1537,79 +1537,19 @@ def update_expense():
                 id=aeID)
 
 
-# @auth.requires(auth.has_membership(group_id='Admins') or \
-#                auth.has_permission('update', 'auth_user'))
-# def update_customer():
-#     """
-#     :return: dict containing data of new auth_user
-#     """
-#     set_headers()
-#
-#     db.auth_user.password.requires = None
-#     print request.vars
-#
-#     cuID = request.vars.pop('id', None)
-#
-#     print cuID
-#     print request.vars
-#
-#     print db.auth_user.email.requires
-#
-#     # The default validator returns an error in this case
-#     # It says an account already exists for this email
-#     # when trying to update the users' own/current email.
-#     # This validator works around that.
-#     ##
-#     query = (db.auth_user.id != cuID)
-#
-#     db.auth_user.email.requires = [
-#         IS_EMAIL(),
-#         IS_LOWER(),
-#         IS_NOT_IN_DB(
-#             db(query),
-#             'auth_user.email',
-#             error_message=T("This email already has an account")
-#         )
-#     ]
-#
-#     if cuID:
-#         query = (db.auth_user.id == cuID)
-#         result = db(query).validate_and_update(**request.vars)
-#         print result
-#         error = False
-#         if result.errors:
-#             error = True
-#
-#         if not error:
-#             row = db.auth_user(cuID)
-#
-#             dob = ''
-#             if row.date_of_birth:
-#                 dob = row.date_of_birth.strftime(DATE_FORMAT)
-#
-#             customer_data = {
-#                 'id': row.id,
-#                 'first_name': row.first_name,
-#                 'last_name': row.last_name,
-#                 'display_name': row.display_name,
-#                 'search_name': row.display_name.lower(),
-#                 'barcode_id': row.barcode_id,
-#                 'email': row.email,
-#                 'gender': row.gender,
-#                 'date_of_birth': dob,
-#                 'address': row.address,
-#                 'postcode': row.postcode,
-#                 'city': row.city,
-#                 'country': row.country,
-#                 'phone': row.phone,
-#                 'mobile': row.mobile,
-#                 'emergency': row.emergency,
-#                 'company': row.company,
-#                 'thumbsmall': get_customers_thumbnail_url(row.thumbsmall),
-#                 'thumblarge': get_customers_thumbnail_url(row.thumblarge)
-#             }
-#
-#         return dict(result=result,
-#                     error=error,
-#                     customer_data=customer_data,
-#                     id=cuID)
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('delete', 'accounting_expenses'))
+def delete_expense():
+    """
+
+    :return:
+    """
+    set_headers()
+
+    print request.vars
+    aeID = request.vars['id']
+
+    query = (db.accounting_expenses.id == aeID)
+    db(query).delete()
+
+    return dict(id=aeID, error=False)

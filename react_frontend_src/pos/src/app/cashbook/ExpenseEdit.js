@@ -30,6 +30,10 @@ class ExpenseEdit extends Component {
         this.props.updateExpense(id, data, this.props.history)
     }
 
+    onDelete(e) {
+        console.log('delete expense clicked')
+    }
+
     render() {
         const history = this.props.history
         const data = this.props.cashbook.expenses_data[this.props.match.params.eID]
