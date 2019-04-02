@@ -1851,7 +1851,7 @@ def export_invoices_get_export(from_date, until_date, invoices_groups_id, filety
         LEFT JOIN (SELECT invoices_id, GROUP_CONCAT(PaymentDate SEPARATOR ', ') AS payment_dates
                    FROM invoices_payments GROUP BY invoices_id) ip ON ip.invoices_id = i.id
         LEFT JOIN invoices_customers ic ON ic.invoices_id = i.id
-        LEFT JOIN invoices_customers_subscriptions ics ON ics.invoices_id = i.id
+        LEFT JOIN invoices_items_customers_subscriptions iics ON iics.invoices_items_id = ii.id
         LEFT JOIN customers_subscriptions cs ON ics.customers_subscriptions_id = cs.id
         LEFT JOIN school_subscriptions ssu ON cs.school_subscriptions_id = ssu.id
         LEFT JOIN auth_user au ON ic.auth_customer_id = au.id

@@ -4839,11 +4839,24 @@ def revenue_get_data():
         firstdaythismonth = date
         lastdaythismonth = get_last_day_month(date)
 
-        left = [ db.invoices_amounts.on(db.invoices_amounts.invoices_id == db.invoices.id),
-                 db.invoices_classes_attendance.on(db.invoices_classes_attendance.invoices_id == db.invoices.id),
-                 db.classes_attendance.on(db.invoices_classes_attendance.classes_attendance_id ==
-                                          db.classes_attendance.id),
-                 ]
+        left = [
+            db.invoices_amounts.on(
+                db.invoices_amounts.invoices_id ==
+                db.invoices.id
+            ),
+            db.invoices_items_classes_attendance.on(
+                db.invoices_items_classes_attendance.invoices_id ==
+                db.invoices.id
+            ),
+            db.invoices_items.on(
+                db.invoices_items_classes_attendance.invoices_items_id ==
+                db.invoices_items.id
+            ),
+            db.classes_attendance.on(
+                db.invoices_classes_attendance.classes_attendance_id ==
+                db.classes_attendance.id
+            ),
+        ]
 
         if attendance_type == 'dropin':
             query = (db.classes_attendance.AttendanceType==2)

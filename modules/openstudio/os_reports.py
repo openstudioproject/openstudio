@@ -563,8 +563,15 @@ class Reports:
         ccdID = row.classes_attendance.customers_classcards_id
         classcard = CustomerClasscard(ccdID)
 
-        query = (db.invoices_customers_classcards.customers_classcards_id == ccdID)
-        rows = db(query).select(db.invoices_customers_classcards.ALL)
+        left = [
+            db.invoices_items.on(
+                db.invoices_items_customers_classcards.invoices_items_id ==
+                db.invoices_items.id
+            )
+        ]
+        query = (db.invoices_items_customers_classcards.customers_classcards_id == ccdID)
+        rows = db(query).select(db.invoices_items.ALL,
+                                left=left)
 
         if not rows:
             revenue_in_vat = 0
