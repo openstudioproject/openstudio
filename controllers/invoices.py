@@ -292,6 +292,7 @@ def edit():
     except AttributeError:
         cuID = None
 
+    # TODO update for invoices_items
     try:
         csID = db.invoices_customers_subscriptions(invoices_id = iID).customers_subscriptions_id
     except AttributeError:
