@@ -4830,11 +4830,22 @@ def revenue_get_data():
         firstdaythismonth = date
         lastdaythismonth = get_last_day_month(date)
 
-        left = [ db.invoices_amounts.on(db.invoices_amounts.invoices_id == db.invoices.id),
-                 db.invoices_workshops_products_customers.on(db.invoices_workshops_products_customers.invoices_id ==
-                                                             db.invoices.id)]
+        left = [
+            db.invoices.on(
+                db.invoices_amounts.invoices_id ==
+                db.invoices.id
+            ),
+            db.invoices_items.on(
+                db.invoices_items.invoices_id ==
+                db.invoices.id
+            ),
+            db.invoices_items_workshops_products_customers.on(
+                db.invoices_items_workshops_products_customers.invoices_items_id ==
+                db.invoices_items.id
+            )
+        ]
 
-        query = (db.invoices_workshops_products_customers.id != None) & \
+        query = (db.invoices_items_workshops_products_customers.id != None) & \
                 (db.invoices.DateCreated >= firstdaythismonth) & \
                 (db.invoices.DateCreated <= lastdaythismonth)
         sum = db.invoices_amounts.TotalPriceVAT.sum()
@@ -4864,16 +4875,16 @@ def revenue_get_data():
                 db.invoices_amounts.invoices_id ==
                 db.invoices.id
             ),
-            db.invoices_items_classes_attendance.on(
-                db.invoices_items_classes_attendance.invoices_id ==
+            db.invoices_items.on(
+                db.invoices_items.invoices_id ==
                 db.invoices.id
             ),
-            db.invoices_items.on(
+            db.invoices_items_classes_attendance.on(
                 db.invoices_items_classes_attendance.invoices_items_id ==
-                db.invoices_items.id
+                db.invoices.id
             ),
             db.classes_attendance.on(
-                db.invoices_classes_attendance.classes_attendance_id ==
+                db.invoices_items_classes_attendance.classes_attendance_id ==
                 db.classes_attendance.id
             ),
         ]
