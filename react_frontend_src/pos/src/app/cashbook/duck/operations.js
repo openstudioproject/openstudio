@@ -10,7 +10,9 @@ import {
     requestCreateExpense,
     receiveCreateExpense,
     requestUpdateExpense,
-    receiveUpdateExpense 
+    receiveUpdateExpense,
+    requestDeleteExpense,
+    receiveDeleteExpense
 } from './actions'
 
 import axios_os from '../../../utils/axios_os'
@@ -141,6 +143,31 @@ const updateExpense = (id, data, history) => {
     }
 }
 
+const deleteExpense = (id, history) => {
+    return dispatch => {
+        dispatch(requestDeleteExpense())
+
+        // add id to formdata
+        let fd = new FormData()
+        fd.append('id', id)
+
+        axios_os.post(OS_API.EXPENSE_DELETE, fd)
+        .then(function(response) {
+            console.log(response)
+            dispatch(receiveDeleteExpense(response.data))
+            if (!response.data.error) {
+                history.push('/cashbook')
+            }
+        })
+        .catch(function (error) {
+            console.log(error)
+        })
+        .then(function() {
+            //always executed
+        })
+    }
+}
+
 
 
 export default {
@@ -151,6 +178,7 @@ export default {
     // updateCustomerPicture,
     createExpense,
     updateExpense,
+    deleteExpense,
     fetchCashCounts,
     fetchExpenses,
     setCashCount,
