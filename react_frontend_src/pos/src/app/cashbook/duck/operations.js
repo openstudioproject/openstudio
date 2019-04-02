@@ -122,10 +122,12 @@ const updateExpense = (id, data, history) => {
     return dispatch => {
         dispatch(requestUpdateExpense())
 
+        // add id to formdata
+        data.append('id', id)
         axios_os.post(OS_API.EXPENSE_UPDATE, data)
         .then(function(response) {
             console.log(response)
-            dispatch(receiveCreateExpense(response.data))
+            dispatch(receiveUpdateExpense(response.data))
             if (!response.data.error) {
                 history.push('/cashbook')
             }
@@ -148,6 +150,7 @@ export default {
     // updateCustomer,
     // updateCustomerPicture,
     createExpense,
+    updateExpense,
     fetchCashCounts,
     fetchExpenses,
     setCashCount,

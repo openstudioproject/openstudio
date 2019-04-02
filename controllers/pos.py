@@ -1518,7 +1518,7 @@ def update_expense():
         if ',' in request.vars['Amount']:
             request.vars['Amount'] = request.vars['Amount'].replace(',', '.')
 
-    query = (db.accounting_expenses.id == cuID)
+    query = (db.accounting_expenses.id == aeID)
     result = db(query).validate_and_update(**request.vars)
     print result
 

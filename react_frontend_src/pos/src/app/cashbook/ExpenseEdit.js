@@ -3,7 +3,6 @@ import { intlShape } from "react-intl"
 import PropTypes from "prop-types"
 import { withRouter } from 'react-router'
 import { NavLink } from 'react-router-dom'
-import { Formik, Form, Field, ErrorMessage } from 'formik'
 
 import CashbookTemplate from "./CashbookTemplateContainer"
 import FormError from "./FormError"
@@ -24,7 +23,7 @@ class ExpenseEdit extends Component {
     onSubmit(e) {
         e.preventDefault()
 
-        console.log("submitted expense add")
+        console.log("submitted expense edit")
         const data = new FormData(e.target)
         const id = this.props.match.params.eID
 
@@ -101,6 +100,7 @@ class ExpenseEdit extends Component {
                             </div>
                             <div className="box-footer">
                                 <button className="btn btn-primary"
+                                        disabled={this.props.cashbook.expense_update}
                                         type="submit">
                                     Save
                                 </button>
