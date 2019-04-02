@@ -55,3 +55,14 @@ export const receiveCreateExpense = (data) =>
         type: T.RECEIVE_CREATE_EXPENSE,
         data
     })
+
+export const requestUpdateExpense = () =>
+    ({
+        type: T.REQUEST_UPDATE_EXPENSE
+    })
+
+export const receiveUpdateExpense = (data) =>
+    ({
+        type: T.RECEIVE_UPDATE_EXPENSE,
+        data
+    })

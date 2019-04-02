@@ -27,6 +27,7 @@ const api_urls = {
     'CUSTOMER_PICTURE_UPDATE': '/pos/update_customer_picture.json',
     'EXPENSES': '/pos/get_expenses.json',
     'EXPENSE_CREATE': '/pos/create_expense.json',
+    'EXPENSE_UPDATE': '/pos/update_expense.json',
     'SHOP_PRODUCTS': '/pos/get_products.json',
     'SHOP_PRODUCT_CATEGORIES': '/pos/get_product_categories.json',
     'SHOP_SCHOOL_CLASSCARDS': '/pos/get_school_classcards.json',
