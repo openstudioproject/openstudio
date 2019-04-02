@@ -18,6 +18,9 @@ const mapDispatchToProps = dispatch =>
         updateExpense(id, data, history) {
             dispatch(cashbookOperations.updateExpense(id, data, history))
         },
+        deleteExpense(id, history) {
+            dispatch(cashbookOperations.deleteExpense(id, history))
+        }
     })
 
 

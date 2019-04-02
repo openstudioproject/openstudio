@@ -77,6 +77,8 @@ export const cashbookReducer = (state = {}, action={ type: null }) => {
                     [action.data.result.id]: action.data.expense_data
                }
             }
+
+            return return_value
         case T.REQUEST_UPDATE_EXPENSE:
             return {
                 ...state,
@@ -106,19 +108,16 @@ export const cashbookReducer = (state = {}, action={ type: null }) => {
                 expense_delete: true
             }
         case T.RECEIVE_DELETE_EXPENSE:
-            let filtered_expenses_data
-            if (action.data.error == true) {
-                filtered_expenses_data = state.expenses_data
-            } else {
-                filtered_expenses_data = state.expense_data
-                delete filtered_expenses_data[action.data.id]
-            }
-
-            return {
+            const newState = {
                 ...state,
                 expense_delete: false,
-                expense_data: filtered_expenses_data
             }
+            if (action.data.error == false) {
+                console.log('removing item from state')
+                delete newState.expenses_data[action.data.id]
+            }
+
+            return newState
         default:
             return {
                 ...state

@@ -32,6 +32,7 @@ class ExpenseEdit extends Component {
 
     onDelete(e) {
         console.log('delete expense clicked')
+        this.props.deleteExpense(this.props.match.params.eID, this.props.history)
     }
 
     render() {
@@ -47,6 +48,13 @@ class ExpenseEdit extends Component {
                     <div className="box box-solid">
                         <div className='box-header'>
                             <h3 className="box-title">Edit expense</h3>
+                            <div className="box-tools pull-right">
+                                <button className="btn btn-box-tool text-red" 
+                                        // onClick={this.onDelete.bind(this)}>
+                                        onClick={() => { if (window.confirm('Are you sure you wish to delete this item?')) this.onDelete() }} >
+                                    Delete
+                                </button>
+                            </div>
                         </div>
                         <form onSubmit={this.onSubmit.bind(this)}>
                             <div className="box-body">

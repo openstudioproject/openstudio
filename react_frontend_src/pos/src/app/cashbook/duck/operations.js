@@ -106,10 +106,10 @@ const setCashCount = (data, history) => {
 
         axios_os.post(OS_API.CASH_COUNT_SET, data)
         .then(function(response) {
-            dispatch(receiveSetCashCount(response.data))
             if (!response.data.error) {
                 history.push('/cashbook')
             }
+            dispatch(receiveSetCashCount(response.data))
         })
         .catch(function (error) {
             console.log(error)
@@ -154,10 +154,10 @@ const deleteExpense = (id, history) => {
         axios_os.post(OS_API.EXPENSE_DELETE, fd)
         .then(function(response) {
             console.log(response)
-            dispatch(receiveDeleteExpense(response.data))
             if (!response.data.error) {
                 history.push('/cashbook')
             }
+            dispatch(receiveDeleteExpense(response.data))
         })
         .catch(function (error) {
             console.log(error)
