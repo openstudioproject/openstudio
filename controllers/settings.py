@@ -1261,10 +1261,10 @@ def access_group_permissions():
                 ['accounting_cashbooks_cash_count-create', T("Set cash book opening balance")],
                 ['accounting_cashbooks_cash_count-update', T("Edit cash book opening balance")]
             ]],
-            ['accounting_cashbooks_expenses-read', T("View Expenses"), [
+            ['accounting_expenses-read', T("View Expenses"), [
                 ['accounting_expenses-create', T("Set expenses")],
                 ['accounting_expenses-update', T("Edit expenses")],
-                ['accounting_expenses-delete', T("Delete expensess")],
+                ['accounting_expenses-delete', T("Delete expenses")],
             ]],
             ['payment_batches-read', T('View payment batches'), [
                 ['payment_batches-create', T('Add payment batches')],

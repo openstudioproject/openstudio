@@ -4747,22 +4747,27 @@ def revenue_get_data():
         year = unicode(date.year)
         month = date.month
 
-        left = [db.invoices_amounts.on(db.invoices.id ==
-                                       db.invoices_amounts.invoices_id),
-                db.invoices_items.on(
-                    db.invoices_items.invoices_id ==
-                    db.invoices.id
-                ),
-                db.invoices_items_customers_subscriptions.on(
-                    db.invoices_items_customers_subscriptions.invoices_items_id ==
-                    db.invoices_items.id)
-                ]
+        left = [
+            db.invoices.on(
+                db.invoices_amounts.invoices_id ==
+                db.invoices.id
+            ),
+            db.invoices_items.on(
+                db.invoices_items.invoices_id ==
+                db.invoices.id
+            ),
+            db.invoices_items_customers_subscriptions.on(
+                db.invoices_items_customers_subscriptions.invoices_items_id ==
+                db.invoices_items.id
+            ),
+        ]
 
         query = (db.invoices_items_customers_subscriptions.id != None) & \
                 (db.invoices.SubscriptionMonth == date.month) & \
                 (db.invoices.SubscriptionYear == date.year)
         rows = db(query).select(db.invoices_amounts.ALL,
                                 left=left)
+
 
         total = 0
         for row in rows:
@@ -4785,7 +4790,7 @@ def revenue_get_data():
         lastdaythismonth = get_last_day_month(date)
 
         left = [
-            db.invoices_amounts.on(
+            db.invoices.on(
                 db.invoices_amounts.invoices_id ==
                 db.invoices.id
             ),
@@ -4826,7 +4831,10 @@ def revenue_get_data():
         lastdaythismonth = get_last_day_month(date)
 
         left = [
-            db.invoices_amounts.on(db.invoices_amounts.invoices_id == db.invoices.id),
+            db.invoices.on(
+                db.invoices_amounts.invoices_id ==
+                db.invoices.id
+            ),
             db.invoices_items.on(
                 db.invoices_items.invoices_id ==
                 db.invoices.id
@@ -4863,7 +4871,10 @@ def revenue_get_data():
         lastdaythismonth = get_last_day_month(date)
 
         left = [
-            db.invoices_amounts.on(db.invoices_amounts.invoices_id == db.invoices.id),
+            db.invoices_amounts.on(
+                db.invoices_amounts.invoices_id ==
+                db.invoices.id
+            ),
             db.invoices_items.on(
                 db.invoices_items.invoices_id ==
                 db.invoices.id

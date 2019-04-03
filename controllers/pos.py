@@ -602,7 +602,7 @@ def get_customers():
             'first_name': row.first_name,
             'last_name': row.last_name,
             'display_name': row.display_name,
-            'search_name': row.display_name.lower(),
+            'search_name': row.display_name.lower() if row.display_name else "",
             'email': row.email,
             'gender': row.gender,
             'date_of_birth': date_of_birth,
@@ -1365,3 +1365,191 @@ def validate_cart_create_receipt(
             receipt.item_add_from_invoice_item(item)
 
     return receipt
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'accounting_expenses'))
+def get_expenses():
+    """
+    :return: List of expenses
+    """
+    set_headers()
+
+    query = (db.accounting_expenses.BookingDate == TODAY_LOCAL)
+
+    rows = db(query).select(
+        db.accounting_expenses.id,
+        db.accounting_expenses.BookingDate,
+        db.accounting_expenses.Amount,
+        db.accounting_expenses.tax_rates_id,
+        db.accounting_expenses.YourReference,
+        db.accounting_expenses.Description,
+        db.accounting_expenses.Note,
+        orderby=db.accounting_expenses.Description
+    )
+
+    expenses = {}
+
+    for row in rows:
+        expenses[row.id] = row.as_dict()
+
+    return expenses
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'accounting_expenses'))
+def get_cash_counts():
+    """
+    :return: List of expenses
+    """
+    set_headers()
+
+    opening_row = db.accounting_cashbooks_cash_count(
+        CountDate = TODAY_LOCAL,
+        CountType = 'opening'
+    )
+
+    closing_row = db.accounting_cashbooks_cash_count(
+        CountDate = TODAY_LOCAL,
+        CountType = 'closing'
+    )
+
+
+    cash_counts = {
+        'opening': {
+            'Amount': opening_row.Amount if opening_row else 0
+        },
+        'closing': {
+            'Amount': closing_row.Amount if closing_row else 0
+        }
+    }
+
+
+    return cash_counts
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'accounting_cashbooks_cash_count'))
+def set_cash_count():
+    set_headers()
+
+    # Clean up input of amount
+    if 'amount' in request.vars:
+        if ',' in request.vars['amount']:
+            request.vars['amount'] = request.vars['amount'].replace(',', '.')
+
+    row = db.accounting_cashbooks_cash_count(
+        CountDate = TODAY_LOCAL,
+        CountType = request.vars['type']
+    )
+
+    if not row:
+        result = db.accounting_cashbooks_cash_count.validate_and_insert(
+            CountDate = TODAY_LOCAL,
+            CountType = request.vars['type'],
+            Amount = request.vars['amount'],
+        )
+    else:
+        query = (db.accounting_cashbooks_cash_count.id == row.id)
+        result = db(query).validate_and_update(
+            id = row.id,
+            CountDate = TODAY_LOCAL,
+            CountType = request.vars['type'],
+            Amount = request.vars['amount']
+        )
+
+    error = False
+    if result.errors:
+        error = True
+
+
+    return dict(result=result,
+                cash_counts_data=get_cash_counts(),
+                error=error)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('create', 'accounting_expenses'))
+def create_expense():
+    """
+    :return: dict containing data of new auth_user
+    """
+    set_headers()
+
+    print request.vars
+
+    # Clean up input of amount
+    if 'Amount' in request.vars:
+        if ',' in request.vars['Amount']:
+            request.vars['Amount'] = request.vars['Amount'].replace(',', '.')
+
+
+    result = db.accounting_expenses.validate_and_insert(**request.vars)
+    print result
+
+    expense_data = ''
+    error = False
+    if result.errors:
+        error = True
+
+    if not error:
+        row = db.accounting_expenses(result['id'])
+
+        expense_data = row.as_dict()
+
+    return dict(result=result,
+                expense_data=expense_data,
+                error=error)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'accounting_expenses'))
+def update_expense():
+    """
+    :return: dict containing data of new auth_user
+    """
+    set_headers()
+
+    print request.vars
+    aeID = request.vars.pop('id', None)
+    print aeID
+
+    # Clean up input of amount
+    if 'Amount' in request.vars:
+        if ',' in request.vars['Amount']:
+            request.vars['Amount'] = request.vars['Amount'].replace(',', '.')
+
+    query = (db.accounting_expenses.id == aeID)
+    result = db(query).validate_and_update(**request.vars)
+    print result
+
+    expense_data = ''
+    error = False
+    if result.errors:
+        error = True
+
+    if not error:
+        row = db.accounting_expenses(aeID)
+        expense_data = row.as_dict()
+
+    return dict(result=result,
+                expense_data=expense_data,
+                error=error,
+                id=aeID)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('delete', 'accounting_expenses'))
+def delete_expense():
+    """
+
+    :return:
+    """
+    set_headers()
+
+    print request.vars
+    aeID = request.vars['id']
+
+    query = (db.accounting_expenses.id == aeID)
+    db(query).delete()
+
+    return dict(id=aeID, error=False)

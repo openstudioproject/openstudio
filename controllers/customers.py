@@ -1635,10 +1635,12 @@ def classcards_ondelete(table, record_id):
     cuID = ccd.auth_customer_id
 
     # Cancel invoice(s) for this classcard
-    query = (db.invoices_customers_classcards.customers_classcards_id == record_id)
-    rows = db(query).select(db.invoices_customers_classcards.ALL)
+    query = (db.invoices_items_customers_classcards.customers_classcards_id == record_id)
+    rows = db(query).select(db.invoices_items_customers_classcards.ALL)
     for row in rows:
-        invoice_query = (db.invoices.id == row.invoices_id)
+        invoice_item = db.invoices_items(row.invoices_items_id)
+
+        invoice_query = (db.invoices.id == invoice_item.invoices_id)
         db(invoice_query).update(Status='cancelled')
 
     # Clear cache
