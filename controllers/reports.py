@@ -4802,7 +4802,7 @@ def revenue_get_data():
                 db.invoices_items_customers_classcards.invoices_items_id ==
                 db.invoices_items.id
             )
-                ]
+        ]
 
         query = (db.invoices_items_customers_classcards.id != None) & \
                 (db.invoices.DateCreated >= firstdaythismonth) & \
@@ -4881,7 +4881,7 @@ def revenue_get_data():
             ),
             db.invoices_items_classes_attendance.on(
                 db.invoices_items_classes_attendance.invoices_items_id ==
-                db.invoices.id
+                db.invoices_items.id
             ),
             db.classes_attendance.on(
                 db.invoices_items_classes_attendance.classes_attendance_id ==
