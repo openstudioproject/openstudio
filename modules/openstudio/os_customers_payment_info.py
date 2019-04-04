@@ -77,10 +77,12 @@ class OsCustomersPaymentInfo:
         if len(rows):
             row = rows.first()
 
+            au_row = db.auth_user(row.auth_customer_id)
+
             message = SPAN(
                 B(T("Unable to update Exact Online bank account link.")),
                 T("This Exact Online bank account is already linked to "),
-                A(row.display_name,
+                A(au_row.display_name,
                   _href=URL('customers', 'bankaccount', vars={'cpiID': row.id,
                                                               'cuID': row.auth_customer_id}),
                   _target="_blank"),
