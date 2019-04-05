@@ -1121,6 +1121,7 @@ def subscription_terms():
     """
     from openstudio.os_customer import Customer
     from openstudio.os_school_subscription import SchoolSubscription
+    from openstudio.os_school_membership import SchoolMembership
 
     response.title= T('Shop')
     response.subtitle = T('Subscription confirmation')
@@ -1222,37 +1223,7 @@ def subscription_terms():
                    _href=URL('subscriptions'),
                    _class='btn btn-default')
 
-        months_text = T("months")
-        if ssu.MinDuration == 1:
-            months_text = T("month")
-
-        classes = ''
-        classes_unit = ''
-        classes_text = T("Classes")
-        if ssu.Unlimited:
-            classes = T('Unlimited')
-            classes_unit = T("Classes")
-        elif ssu.SubscriptionUnit == 'week':
-            if ssu.Classes == 1:
-                classes_text = T("Class")
-            classes = SPAN(unicode(ssu.Classes) + ' ' + classes_text)
-            classes_unit = T("Per week")
-        elif ssu.SubscriptionUnit == 'month':
-            if ssu.Classes == 1:
-                classes_text = T("Class")
-            classes = SPAN(unicode(ssu.Classes) + ' ' + classes_text)
-            classes_unit = T("Per month")
-
-        subscription_info = UL(
-            LI(B(T("Subscription")), BR(), ssu.Name),
-            LI(B(T("Classes")), BR(), classes, ' ', classes_unit),
-            LI(B(T("Payment")), BR(), T("Monthly")),
-            LI(B(T("Minimum dutation")), BR(), ssu.MinDuration, ' ', months_text),
-        )
-        if ssu.Description:
-            subscription_info.append(
-                LI(B(T("Additional info")), BR(), ssu.Description)
-            )
+        subscription_info = subscription_terms_get_info(ssu)
 
         ## Membership check
         customer = Customer(auth.user.id)
@@ -1261,9 +1232,14 @@ def subscription_terms():
         for row in memberships:
             ids.append(row.id)
 
+        m_required = ''
         if ssu.school_memberships_id and not ssu.school_memberships_id in ids:
+            membership = SchoolMembership(ssu.school_memberships_id)
             m_required = DIV(
-                DIV(H4(T("Membership required")), _class='col-md-6'),
+                DIV(H4(T("Membership required")),
+                    T("To take this subscription the following membership is required"), BR(), BR(),
+                    subscription_terms_get_membership_info(membership),
+                    _class='col-md-6'),
                 DIV(_class='col-md-6'),
                 _class='col-md-12'
             )
@@ -1294,6 +1270,70 @@ def subscription_terms():
         _class="row")
 
     return dict(content=content)
+
+
+def subscription_terms_get_info(ssu):
+    """
+    :param ssu: SchoolSubscription object
+    :return: UL with subscription info
+    """
+
+    months_text = T("months")
+    if ssu.MinDuration == 1:
+        months_text = T("month")
+
+    classes = ''
+    classes_unit = ''
+    classes_text = T("Classes")
+    if ssu.Unlimited:
+        classes = T('Unlimited')
+        classes_unit = T("Classes")
+    elif ssu.SubscriptionUnit == 'week':
+        if ssu.Classes == 1:
+            classes_text = T("Class")
+        classes = SPAN(unicode(ssu.Classes) + ' ' + classes_text)
+        classes_unit = T("Per week")
+    elif ssu.SubscriptionUnit == 'month':
+        if ssu.Classes == 1:
+            classes_text = T("Class")
+        classes = SPAN(unicode(ssu.Classes) + ' ' + classes_text)
+        classes_unit = T("Per month")
+
+    subscription_info = UL(
+        LI(B(T("Subscription")), BR(), ssu.Name),
+        LI(B(T("Classes")), BR(), classes, ' ', classes_unit),
+        LI(B(T("Payment")), BR(), T("Monthly")),
+        LI(B(T("Minimum duration")), BR(), ssu.MinDuration, ' ', months_text),
+        LI(B(T("Monthly fee")), BR(), ssu.get_price_on_date(TODAY_LOCAL)),
+    )
+    if ssu.Description:
+        subscription_info.append(
+            LI(B(T("Additional info")), BR(), ssu.Description)
+        )
+
+    return subscription_info
+
+
+def subscription_terms_get_membership_info(sm):
+    """
+
+    :param sm: SchoolMembership object
+    :return: UL with membership info
+    """
+
+    info = UL(
+        LI(B(T("Membership")), BR(), sm.row.Name),
+        LI(B(T("Validity")), BR(), sm.get_validity_formatted()),
+        LI(B(T("Price")), BR(), represent_float_as_amount(sm.row.Price)),
+    )
+
+    if sm.row.Description:
+        info.append(
+            LI(B(T("Additional info")), BR(), sm.row.Description)
+        )
+
+
+    return info
 
 
 @auth.requires_login()
