@@ -1178,8 +1178,10 @@ def subscription_terms():
     else:
         # buy now
         # part terms
+        # membership check & display if required
         # automatic payment
         ssu = SchoolSubscription(ssuID)
+        ssu._set_dbinfo()
         price = ssu.get_price_on_date(TODAY_LOCAL)
         classes = ssu.get_classes_formatted()
 
@@ -1252,6 +1254,16 @@ def subscription_terms():
                 LI(B(T("Additional info")), BR(), ssu.Description)
             )
 
+        ## Membership check
+        customer = Customer(auth.user.id)
+        memberships = customer.get_memberships_on_date(TODAY_LOCAL)
+        ids = []
+        for row in memberships:
+            ids.append(row.id)
+
+        if ssu.school_memberships_id and not ssu.school_memberships_id in ids:
+            m_required = "Membership required!"
+
         content = DIV(
             DIV(H4(T("Selected subscription")), BR(),
                 subscription_info,
@@ -1263,6 +1275,7 @@ def subscription_terms():
                 direct_debit_mandate,
                 _class='col-md-6'
             ),
+            m_required,
             DIV(B((os_gui.get_fa_icon('fa-exclamation-circle')), " ", T("Your subscription is almost activated")), BR(),
                 T("By clicking 'I agree' you agree to the terms and conditions and will activate this subscription with a payment oblication."),
                 BR(), BR(), BR(),
