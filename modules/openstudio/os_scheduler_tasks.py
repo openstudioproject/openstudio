@@ -350,8 +350,8 @@ class OsSchedulerTasks:
         they're allowed to teach
         :return:
         """
-        from openstudio.os_mail import OsMail
-        from openstudio.os_teachers import Teachers
+        from os_mail import OsMail
+        from os_teachers import Teachers
 
         db = current.db
         T = current.T
@@ -381,7 +381,7 @@ class OsSchedulerTasks:
             if send_result:
                 mails_sent += 1
 
-        return T("Sent mails: %s" % mails_sent)
+        return "Sent mails: %s" % mails_sent
 
 
     def email_reminders_teachers_sub_request_open(self):
@@ -439,5 +439,5 @@ class OsSchedulerTasks:
 
             # send reminder to teacher
 
-        return T("Sent mails: %s" % mails_sent)
+        return "Sent mails: %s" % mails_sent
 
