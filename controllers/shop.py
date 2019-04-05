@@ -1262,25 +1262,35 @@ def subscription_terms():
             ids.append(row.id)
 
         if ssu.school_memberships_id and not ssu.school_memberships_id in ids:
-            m_required = "Membership required!"
+            m_required = DIV(
+                DIV(H4(T("Membership required")), _class='col-md-6'),
+                DIV(_class='col-md-6'),
+                _class='col-md-12'
+            )
 
         content = DIV(
-            DIV(H4(T("Selected subscription")), BR(),
-                subscription_info,
-                BR(),
-                _class='col-md-6'
-            ),
-            DIV(H4(T('Terms & conditions')), BR(),
-                subscription_conditions,
-                direct_debit_mandate,
-                _class='col-md-6'
+            DIV(
+                DIV(H4(T("Selected subscription")), BR(),
+                    subscription_info,
+                    BR(),
+                    _class='col-md-6'
+                ),
+                DIV(H4(T('Terms & conditions')), BR(),
+                    subscription_conditions,
+                    direct_debit_mandate,
+                    _class='col-md-6'
+                ),
+                _class="col-md-12"
             ),
             m_required,
-            DIV(B((os_gui.get_fa_icon('fa-exclamation-circle')), " ", T("Your subscription is almost activated")), BR(),
-                T("By clicking 'I agree' you agree to the terms and conditions and will activate this subscription with a payment oblication."),
-                BR(), BR(), BR(),
-                _class="col-md-12"),
-            DIV(confirm, cancel, _class='col-md-12'),
+            DIV(
+                DIV(B((os_gui.get_fa_icon('fa-exclamation-circle')), " ", T("Your subscription is almost activated")), BR(),
+                    T("By clicking 'I agree' you agree to the terms and conditions and will activate this subscription with a payment oblication."),
+                    BR(), BR(), BR(),
+                    _class="col-md-12"),
+                DIV(confirm, cancel, _class='col-md-12'),
+                _class='col-md-12'
+            ),
         _class="row")
 
     return dict(content=content)
