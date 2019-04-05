@@ -126,10 +126,12 @@ class ClassAttendance:
             from openstudio.os_invoice import Invoice
 
             db = current.db
-            query = (db.invoices_classes_attendance.classes_attendance_id == self.id)
-            rows = db(query).select(db.invoices_classes_attendance.ALL)
+            query = (db.invoices_items_classes_attendance.classes_attendance_id == self.id)
+            rows = db(query).select(db.invoices_items_classes_attendance.ALL)
             for row in rows:
-                invoice = Invoice(row.invoices_id)
+                item = db.invoices_items(row.invoices_items_id)
+
+                invoice = Invoice(item.invoices_id)
                 invoice.set_status('cancelled')
 
         # Clear api cache to refresh available spaces

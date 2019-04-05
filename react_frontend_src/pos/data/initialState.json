@@ -106,6 +106,36 @@
             "data": {}
         }
     },
+    "cashbook": {
+        "cash_counts_loading": false,
+        "cash_counts_loaded": false,
+        "cash_counts_data": {},
+        "cash_count_set": false,
+        "cash_count_set_error_data": {
+            "amount": ""
+        },
+        "expenses_loading": false,
+        "expenses_loaded": false,
+        "expenses_selectedID": null,
+        "expenses_data": {},
+        "expense_create": false,
+        "expense_create_error_data": {
+            "Amount": "",
+            "Description": "",
+            "Note": "",
+            "tax_rates_id": "",
+            "YourReference": ""
+        },
+        "expense_update": false,
+        "expense_update_error_data": {
+            "Amount": "",
+            "Description": "",
+            "Note": "",
+            "tax_rates_id": "",
+            "YourReference": ""
+        },
+        "expense_delete": false
+    },
     "shop": {
         "cart": {
             "items": [],

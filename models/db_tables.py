@@ -870,8 +870,7 @@ def define_accounting_glaccounts():
 
 
 def define_accounting_cashbooks_cash_count():
-    auth_user_query = (db.auth_user.id > 1) & \
-                      (db.auth_user.trashed == False) & \
+    auth_user_query = (db.auth_user.trashed == False) & \
                       ((db.auth_user.teacher == True) |
                        (db.auth_user.employee == True))
 
@@ -938,8 +937,7 @@ def define_accounting_cashbooks_cash_count():
 
 
 def define_accounting_expenses():
-    auth_user_query = (db.auth_user.id > 1) & \
-                      (db.auth_user.trashed == False) & \
+    auth_user_query = (db.auth_user.trashed == False) & \
                       ((db.auth_user.teacher == True) |
                        (db.auth_user.employee == True))
     ac_query = (db.accounting_costcenters.Archived == False)
@@ -959,6 +957,8 @@ def define_accounting_expenses():
               represent=represent_date,
               label=T("Booking date")),
         Field('Amount', 'double',
+              requires=IS_FLOAT_IN_RANGE(0, 100000, dot=".",
+                error_message='Please enter an amount between 0 and 100000.00'),
               represent=represent_float_as_amount,
               default=0,
               label=T("Amount")),

@@ -33,7 +33,8 @@ if myconf.get('cache.cache') == 'redis':
 
     redis_host = str(myconf.get('cache.redis_host'))
     redis_port = str(myconf.get('cache.redis_port'))
-    rconn = RConn(redis_host, redis_port)
+    # rconn = RConn(redis_host, redis_port)
+    rconn = RConn()
     cache.redis = RedisCache(redis_conn=rconn, debug=True)
     # use redis as cache
     cache.ram = cache.disk = cache.redis

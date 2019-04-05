@@ -1028,7 +1028,7 @@ def get_credit_subscriptions_classes_summary(date):
     table = TABLE(header, _class='table table-striped table-hover')
     for row in rows:
         classes_taken = row[count]
-        class_price = row.school_subscriptions.QuickStatsAmount
+        class_price = row.school_subscriptions.QuickStatsAmount or 0
         row_total = class_price * classes_taken
 
         table.append(TR(
