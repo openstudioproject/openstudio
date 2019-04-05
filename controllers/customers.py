@@ -346,6 +346,13 @@ def edit_remodel_form(form,
                                          'latest_length':140}),
                                 _class='os-customers_note_latest')
 
+            te_notes = DIV(
+                DIV(LABEL(te_label),
+                    te_note, te_button,
+                    _class='col-md-12 no-padding-left no-padding-right'),
+                _class='col-md-6'
+            )
+
     # address info
     # check for address permissions
     address_permission = auth.has_membership(group_id='Admins') or \
