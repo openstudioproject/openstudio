@@ -1240,7 +1240,7 @@ def subscription_terms():
                     T("To take this subscription the following membership is required"), BR(), BR(),
                     subscription_terms_get_membership_info(membership),
                     _class='col-md-6'),
-                DIV(_class='col-md-6'),
+                DIV(H4(T("Membership terms & conditions")), _class='col-md-6'),
                 _class='col-md-12'
             )
 
@@ -1251,7 +1251,7 @@ def subscription_terms():
                     BR(),
                     _class='col-md-6'
                 ),
-                DIV(H4(T('Terms & conditions')), BR(),
+                DIV(H4(T('Subscription terms & conditions')), BR(),
                     subscription_conditions,
                     direct_debit_mandate,
                     _class='col-md-6'
