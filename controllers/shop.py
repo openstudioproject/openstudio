@@ -1185,19 +1185,7 @@ def subscription_terms():
         ssu._set_dbinfo()
         price = ssu.get_price_on_date(TODAY_LOCAL)
         classes = ssu.get_classes_formatted()
-
-        general_terms = get_sys_property('shop_subscriptions_terms')
-        specific_terms = ssu.Terms
-
-        terms = DIV()
-        if general_terms:
-            terms.append(B(T('General terms & conditions')))
-            terms.append(XML(general_terms))
-        if specific_terms:
-            terms.append(B(T('Subscription specific terms & conditions')))
-            terms.append(XML(specific_terms))
-
-        subscription_conditions = DIV(terms, _class='well')
+        subscription_conditions = subscription_terms_get_terms(ssu)
 
         direct_debit_mandate = ''
         confirm = ''
@@ -1240,7 +1228,9 @@ def subscription_terms():
                     T("To take this subscription the following membership is required"), BR(), BR(),
                     subscription_terms_get_membership_info(membership),
                     _class='col-md-6'),
-                DIV(H4(T("Membership terms & conditions")), _class='col-md-6'),
+                DIV(H4(T("Membership terms & conditions")),
+
+                    _class='col-md-6'),
                 _class='col-md-12'
             )
 
@@ -1270,6 +1260,25 @@ def subscription_terms():
         _class="row")
 
     return dict(content=content)
+
+
+def subscription_terms_get_terms(ssu):
+    """
+    :param ssu: SchoolSubscription object
+    :return:
+    """
+    general_terms = get_sys_property('shop_subscriptions_terms')
+    specific_terms = ssu.Terms
+
+    terms = DIV()
+    if general_terms:
+        terms.append(B(T('General terms & conditions')))
+        terms.append(XML(general_terms))
+    if specific_terms:
+        terms.append(B(T('Subscription specific terms & conditions')))
+        terms.append(XML(specific_terms))
+
+    return DIV(terms, _class='well')
 
 
 def subscription_terms_get_info(ssu):
