@@ -1124,7 +1124,7 @@ def subscription_terms():
     from openstudio.os_school_membership import SchoolMembership
 
     response.title= T('Shop')
-    response.subtitle = T('Subscription confirmation')
+    response.subtitle = T('Subscription')
     response.view = 'shop/index.html'
 
     features = db.customers_shop_features(1)
@@ -1517,7 +1517,7 @@ def classcard_terms():
     from openstudio.os_school_membership import SchoolMembership
 
     response.title= T('Shop')
-    response.subtitle = T('Classcard confirmation')
+    response.subtitle = T('Classcard')
     response.view = 'shop/index.html'
 
     features = db.customers_shop_features(1)
@@ -1576,7 +1576,7 @@ def classcard_terms():
             BR(),
             B((os_gui.get_fa_icon('fa-exclamation-circle')), " ",
               T("By ordering this card you agree to the terms and conditions for the required membership")), BR(),
-            BR(),  
+            BR(),
             _class="col-md-12"
         )
 
@@ -1618,6 +1618,16 @@ def classcard_terms_get_info(scd):
         )
 
     return info
+
+
+@auth.requires_login()
+def classcard_order():
+    """
+    Classcard order confirmation and link to payment or complete without payment
+    """
+    response.title= T('Shop')
+    response.subtitle = T('Order confirmation')
+    response.view = 'shop/index.html'
 
 
 
