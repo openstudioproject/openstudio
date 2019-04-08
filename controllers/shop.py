@@ -1507,6 +1507,150 @@ def subscription_activated():
     return dict(content = content)
 
 
+@auth.requires_login()
+def classcard_terms():
+    """
+        Buy classcard confirmation page
+    """
+    from openstudio.os_customer import Customer
+    from openstudio.os_school_classcard import SchoolClasscard
+    from openstudio.os_school_membership import SchoolMembership
+
+    response.title= T('Shop')
+    response.subtitle = T('Classcard confirmation')
+    response.view = 'shop/index.html'
+
+    features = db.customers_shop_features(1)
+    if not features.Classcards:
+        return T('This feature is disabled')
+
+    scdID = request.vars['scdID']
+    scd = SchoolClasscard(scdID)
+
+    # check if we require a complete profile
+    shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile_subscriptions')
+    if shop_requires_complete_profile:
+        check_add_to_cart_requires_complete_profile(
+            auth.user.id,
+            _next=URL(request.controller, request.function, vars={'ssuID': ssuID})
+        )
+
+    ##
+    # Check for valid bank details
+    ##
+    payment_method = get_sys_property('shop_subscriptions_payment_method')
+    subscription_terms_check_valid_bankdetails(payment_method, ssuID)
+
+    ##
+    # Check startdate of subscription
+    ##
+    startdate = TODAY_LOCAL
+    shop_subscriptions_start = get_sys_property('shop_subscriptions_start')
+    if not shop_subscriptions_start == None:
+        if shop_subscriptions_start == 'next_month':
+            startdate = get_last_day_month(TODAY_LOCAL) + datetime.timedelta(days=1)
+
+    ##
+    # Check if customer already has this subscription
+    ##
+    customer = Customer(auth.user.id)
+    customer_has_membership = customer.has_membership_on_date(startdate)
+    customer_subscriptions_ids = customer.get_school_subscriptions_ids_on_date(startdate)
+
+    if int(ssuID) in customer_subscriptions_ids:
+        content =  SPAN(
+            H3(ssu.Name),
+            SPAN(T("You have this subscription"), _class='bold'), ' ', XML('&bull;'), ' ',
+            SPAN(T("Please proceed to the invoices page in case you haven't paid yet.")), BR(), BR(),
+            os_gui.get_button(
+                'noicon',
+                URL('profile', 'invoices'),
+                title=T("View invoices"),
+                btn_class='btn-primary'
+            )
+        )
+    else:
+        # buy now
+        # part terms
+        # membership check & display if required
+        # automatic payment
+        ssu = SchoolSubscription(ssuID)
+        ssu._set_dbinfo()
+        price = ssu.get_price_on_date(TODAY_LOCAL)
+        classes = ssu.get_classes_formatted()
+        subscription_conditions = subscription_terms_get_terms(ssu)
+
+        direct_debit_mandate = ''
+        confirm = ''
+        if payment_method == 'mollie':
+            direct_debit_mandate= DIV()
+            confirm = A(B(T('I agree')),
+                        _href=URL('mollie', 'subscription_buy_now', vars={'ssuID':ssuID}),
+                        _class='btn btn-primary')
+        else:
+            confirm =  A(B(T('I agree')),
+                        _href=URL('subscription_direct_debit', vars={'ssuID': ssuID}),
+                        _class='btn btn-primary')
+
+            if not customer.has_payment_info_mandate():
+                mandate_text = get_sys_property('shop_direct_debit_mandate_text')
+                if mandate_text:
+                    direct_debit_mandate = DIV(
+                        H4(T('Direct Debit Mandate')),
+                        DIV(XML(mandate_text), _class='well')
+                    )
+
+        cancel = A(B(T('Cancel')),
+                   _href=URL('subscriptions'),
+                   _class='btn btn-default')
+
+        subscription_info = subscription_terms_get_info(ssu)
+
+        ## Membership check
+        customer = Customer(auth.user.id)
+
+        m_required = ''
+        if ssu.school_memberships_id and not customer.has_given_membership_on_date(ssu.school_memberships_id, TODAY_LOCAL):
+            membership = SchoolMembership(ssu.school_memberships_id)
+            m_required = DIV(
+                DIV(H4(T("Membership required")),
+                    T("To take this subscription the following membership is required"), BR(), BR(),
+                    subscription_terms_get_membership_info(membership),
+                    _class='col-md-6'),
+                DIV(H4(T("Membership terms & conditions")),
+                    subscription_terms_get_membership_terms(membership),
+                    _class='col-md-6'),
+                _class='col-md-12'
+            )
+
+        content = DIV(
+            DIV(
+                DIV(H4(T("Selected subscription")), BR(),
+                    subscription_info,
+                    BR(),
+                    _class='col-md-6'
+                ),
+                DIV(H4(T('Subscription terms & conditions')), BR(),
+                    subscription_conditions,
+                    direct_debit_mandate,
+                    _class='col-md-6'
+                ),
+                _class="col-md-12"
+            ),
+            m_required,
+            DIV(
+                DIV(B((os_gui.get_fa_icon('fa-exclamation-circle')), " ", T("Your subscription is almost activated")), BR(),
+                    T("By clicking 'I agree' you agree to the terms and conditions and will activate this subscription with a payment oblication."),
+                    BR(), BR(), BR(),
+                    _class="col-md-12"),
+                DIV(confirm, cancel, _class='col-md-12'),
+                _class='col-md-12'
+            ),
+        _class="row")
+
+    return dict(content=content)
+
+
 def classes():
     """
         List classes in shop

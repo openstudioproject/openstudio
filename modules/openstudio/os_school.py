@@ -172,7 +172,7 @@ class School:
         T = current.T
 
         link =  A(SPAN(os_gui.get_fa_icon('fa-shopping-cart fa-2x')),
-                 _href=URL('classcard_add_to_cart', vars={'scdID': scdID}))
+                 _href=URL('shop', 'classcard_terms', vars={'scdID': scdID}))
 
         return self._get_formatted_button_apply_accent_color(link)
 
