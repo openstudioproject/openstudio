@@ -149,7 +149,7 @@ class Order:
         coiID = db.customers_orders_items.insert(
             customers_orders_id  = self.coID,
             school_memberships_id = school_memberships_id,
-            ProductName = T('membership'),
+            ProductName = T('Membership'),
             Description = sme.row.Name,
             Quantity = 1,
             Price = sme.row.Price,

@@ -462,6 +462,13 @@ def cart_empty(auth_user_id):
     db(query).delete()
 
 
+def checkout_order_membership(smID, order):
+    """
+        Add class card to order
+    """
+    order.order_item_add_membership(smID, TODAY_LOCAL)
+
+
 def checkout_order_classcard(scdID, order):
     """
         Add class card to order
@@ -1508,7 +1515,7 @@ def subscription_activated():
 
 
 @auth.requires_login()
-def classcard_terms():
+def classcard():
     """
         Buy classcard confirmation page
     """
@@ -1553,7 +1560,17 @@ def classcard_terms():
                _href=URL('classcards'),
                _class='btn btn-default')
 
-    classcard_info = classcard_terms_get_info(scd)
+    classcard_info = classcard_get_info(scd)
+
+
+    form = checkout_get_form_order()
+    if form.process().accepted:
+        # response.flash = T('Accepted order')
+        redirect(URL('shop', 'classcard_order',
+                     vars={'coID': form.vars.id,
+                           'scdID': scdID}))
+
+    checkout_message = get_sys_property('shop_checkout_message') or ''
 
     ## Membership check
     customer = Customer(auth.user.id)
@@ -1592,15 +1609,20 @@ def classcard_terms():
         m_required,
         DIV(
             m_required_message,
-            DIV(confirm, cancel, _class='col-md-12'),
+            DIV(form, _class='col-md-12'),
             _class='col-md-12'
         ),
     _class="row")
 
-    return dict(content=content)
+    back = os_gui.get_button(
+        'back',
+        URL('classcards')
+    )
+
+    return dict(content=content, back=back)
 
 
-def classcard_terms_get_info(scd):
+def classcard_get_info(scd):
     """
     :param scd: SchoolClasscard object
     :return: UL with subscription info
@@ -1625,9 +1647,45 @@ def classcard_order():
     """
     Classcard order confirmation and link to payment or complete without payment
     """
+    from openstudio.os_customer import Customer
+    from openstudio.os_order import Order
+    from openstudio.os_school_classcard import SchoolClasscard
+
     response.title= T('Shop')
     response.subtitle = T('Order confirmation')
     response.view = 'shop/index.html'
+
+    scdID = request.vars['scdID']
+    coID = request.vars['coID']
+    scd = SchoolClasscard(scdID, set_db_info=True)
+    order = Order(coID)
+
+
+    # Add items to order
+    customer = Customer(auth.user.id)
+    checkout_order_classcard(scdID, order)
+
+    if scd.row.school_memberships_id and not customer.has_given_membership_on_date(scd.row.school_memberships_id, TODAY_LOCAL):
+        checkout_order_membership(scd.row.school_memberships_id, order)
+
+
+
+
+    # # process cart, add products to customer and add items to invoice
+    # for row in rows:
+    #     # process classcards
+    #     if row.school_classcards.id:
+    #
+    #     # process workshops
+    #     if row.workshops_products.id:
+    #         checkout_order_workshop_product(row.workshops_products.id, order)
+    #     # process classes
+    #     if row.classes.id:
+    #         checkout_order_class(row.classes.id,
+    #                              row.customers_shoppingcart.ClassDate,
+    #                              row.customers_shoppingcart.AttendanceType,
+    #                              order)
+
 
 
 
