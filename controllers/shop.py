@@ -1545,13 +1545,6 @@ def classcard_terms():
     # membership check & display if required
     # automatic payment
     scd = SchoolClasscard(scdID, set_db_info=True)
-
-    # ssu = SchoolSubscription(ssuID)
-    # ssu._set_dbinfo()
-    # price = ssu.get_price_on_date(TODAY_LOCAL)
-    # classes = ssu.get_classes_formatted()
-    # subscription_conditions = subscription_terms_get_terms(ssu)
-
     confirm = A(B(T('Order')),
                 _href=URL('shop', 'classcard_order', vars={'scdID':scdID}),
                 _class='btn btn-primary')
@@ -1566,6 +1559,7 @@ def classcard_terms():
     customer = Customer(auth.user.id)
 
     m_required = ''
+    m_required_message = ''
     if scd.row.school_memberships_id and not customer.has_given_membership_on_date(scd.row.school_memberships_id, TODAY_LOCAL):
         membership = SchoolMembership(scd.row.school_memberships_id)
         m_required = DIV(
@@ -1578,6 +1572,13 @@ def classcard_terms():
                 _class='col-md-6'),
             _class='col-md-12'
         )
+        m_required_message = DIV(
+            BR(),
+            B((os_gui.get_fa_icon('fa-exclamation-circle')), " ",
+              T("By ordering this card you agree to the terms and conditions for the required membership")), BR(),
+            BR(),  
+            _class="col-md-12"
+        )
 
     content = DIV(
         DIV(
@@ -1586,18 +1587,11 @@ def classcard_terms():
                 BR(),
                 _class='col-md-6'
             ),
-            # DIV(H4(T('Card terms & conditions')), BR(),
-            #     # card_conditions,
-            #     _class='col-md-6'
-            # ),
             _class="col-md-12"
         ),
         m_required,
         DIV(
-            # DIV(B((os_gui.get_fa_icon('fa-exclamation-circle')), " ", T("Your classcard is almost activated")), BR(),
-            #     T("By clicking 'I agree' you agree to the terms and conditions and will activate this subscription with a payment obligation."),
-            #     BR(), BR(), BR(),
-            #     _class="col-md-12"),
+            m_required_message,
             DIV(confirm, cancel, _class='col-md-12'),
             _class='col-md-12'
         ),
@@ -1612,32 +1606,11 @@ def classcard_terms_get_info(scd):
     :return: UL with subscription info
     """
 
-    # classes = ''
-    # classes_unit = ''
-    # classes_text = T("Classes")
-    # if ssu.Unlimited:
-    #     classes = T('Unlimited')
-    #     classes_unit = T("Classes")
-    # elif ssu.SubscriptionUnit == 'week':
-    #     if ssu.Classes == 1:
-    #         classes_text = T("Class")
-    #     classes = SPAN(unicode(ssu.Classes) + ' ' + classes_text)
-    #     classes_unit = T("Per week")
-    # elif ssu.SubscriptionUnit == 'month':
-    #     if ssu.Classes == 1:
-    #         classes_text = T("Class")
-    #     classes = SPAN(unicode(ssu.Classes) + ' ' + classes_text)
-    #     classes_unit = T("Per month")
-
     info = UL(
         LI(B(T("Card")), BR(), scd.row.Name),
         LI(B(T("Classes")), BR(), scd.row.Classes),
         LI(B(T("Price")), BR(), represent_float_as_amount(scd.row.Price)),
         LI(B(T("Validity")), BR(), scd.get_validity_formatted()),
-
-        # LI(B(T("Payment")), BR(), T("Monthly")),
-        # LI(B(T("Minimum duration")), BR(), ssu.MinDuration, ' ', months_text),
-        # LI(B(T("Monthly fee")), BR(), ssu.get_price_on_date(TODAY_LOCAL)),
     )
     if scd.row.Description:
         info.append(
