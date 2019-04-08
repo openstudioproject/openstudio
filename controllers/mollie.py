@@ -550,7 +550,9 @@ def subscription_buy_now():
         Get a subscription
     """
     from openstudio.os_customer import Customer
+    from openstudio.os_invoice import Invoice
     from openstudio.os_school_subscription import SchoolSubscription
+    from openstudio.os_school_membership import SchoolMembership
 
     ssuID = request.vars['ssuID']
 
@@ -581,26 +583,33 @@ def subscription_buy_now():
 
     # Add accepted terms
     customer = Customer(auth.user.id)
+    customer.log_subscription_terms_acceptance(ssuID)
     ssu = SchoolSubscription(ssuID, set_db_info=True)
-
-    terms = [
-        get_sys_property('shop_subscriptions_terms') or '', # general terms
-        ssu.Terms or '' # Subscription specific terms
-    ]
-    full_terms = '\n'.join(terms)
-
-    customer.log_document_acceptance(
-        document_name=T("Subscription terms"),
-        document_description=T("Terms for all subscriptions and subscription specific terms"),
-        document_content=full_terms
-    )
-
-    # clear cache to make sure it shows in the back end
-    cache_clear_customers_subscriptions(auth.user.id)
 
     # Create invoice
     cs = CustomerSubscription(csID)
     iID = cs.create_invoice_for_month(startdate.year, startdate.month)
+
+    # check membership requirements and sell if required
+    if ssu.school_memberships_id and not customer.has_given_membership_on_date(ssu.school_memberships_id, TODAY_LOCAL):
+        sm = SchoolMembership(ssu.school_memberships_id)
+        cmID = sm.sell_to_customer(
+            auth.user.id,
+            TODAY_LOCAL,
+            invoice=False,
+            payment_methods_id=100,
+        )
+
+        # Add membership to invoice
+        invoice = Invoice(iID)
+        invoice.item_add_membership(cmID)
+
+        # Log acceptance of terms
+        customer.log_membership_terms_acceptance(ssu.school_memberships_id)
+
+
+    # clear cache to make sure it shows in the back end
+    cache_clear_customers_subscriptions(auth.user.id)
 
     # Pay invoice ... SHOW ME THE MONEY!! :)
     redirect(URL('invoice_pay', vars={'iID':iID}))

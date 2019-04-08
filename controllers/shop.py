@@ -1121,6 +1121,7 @@ def subscription_terms():
     """
     from openstudio.os_customer import Customer
     from openstudio.os_school_subscription import SchoolSubscription
+    from openstudio.os_school_membership import SchoolMembership
 
     response.title= T('Shop')
     response.subtitle = T('Subscription confirmation')
@@ -1178,23 +1179,13 @@ def subscription_terms():
     else:
         # buy now
         # part terms
+        # membership check & display if required
         # automatic payment
         ssu = SchoolSubscription(ssuID)
+        ssu._set_dbinfo()
         price = ssu.get_price_on_date(TODAY_LOCAL)
         classes = ssu.get_classes_formatted()
-
-        general_terms = get_sys_property('shop_subscriptions_terms')
-        specific_terms = ssu.Terms
-
-        terms = DIV()
-        if general_terms:
-            terms.append(B(T('General terms & conditions')))
-            terms.append(XML(general_terms))
-        if specific_terms:
-            terms.append(B(T('Subscription specific terms & conditions')))
-            terms.append(XML(specific_terms))
-
-        subscription_conditions = DIV(terms, _class='well')
+        subscription_conditions = subscription_terms_get_terms(ssu)
 
         direct_debit_mandate = ''
         confirm = ''
@@ -1220,57 +1211,153 @@ def subscription_terms():
                    _href=URL('subscriptions'),
                    _class='btn btn-default')
 
-        months_text = T("months")
-        if ssu.MinDuration == 1:
-            months_text = T("month")
+        subscription_info = subscription_terms_get_info(ssu)
 
-        classes = ''
-        classes_unit = ''
-        classes_text = T("Classes")
-        if ssu.Unlimited:
-            classes = T('Unlimited')
-            classes_unit = T("Classes")
-        elif ssu.SubscriptionUnit == 'week':
-            if ssu.Classes == 1:
-                classes_text = T("Class")
-            classes = SPAN(unicode(ssu.Classes) + ' ' + classes_text)
-            classes_unit = T("Per week")
-        elif ssu.SubscriptionUnit == 'month':
-            if ssu.Classes == 1:
-                classes_text = T("Class")
-            classes = SPAN(unicode(ssu.Classes) + ' ' + classes_text)
-            classes_unit = T("Per month")
+        ## Membership check
+        customer = Customer(auth.user.id)
 
-        subscription_info = UL(
-            LI(B(T("Subscription")), BR(), ssu.Name),
-            LI(B(T("Classes")), BR(), classes, ' ', classes_unit),
-            LI(B(T("Payment")), BR(), T("Monthly")),
-            LI(B(T("Minimum dutation")), BR(), ssu.MinDuration, ' ', months_text),
-        )
-        if ssu.Description:
-            subscription_info.append(
-                LI(B(T("Additional info")), BR(), ssu.Description)
+        m_required = ''
+        if ssu.school_memberships_id and not customer.has_given_membership_on_date(ssu.school_memberships_id, TODAY_LOCAL):
+            membership = SchoolMembership(ssu.school_memberships_id)
+            m_required = DIV(
+                DIV(H4(T("Membership required")),
+                    T("To take this subscription the following membership is required"), BR(), BR(),
+                    subscription_terms_get_membership_info(membership),
+                    _class='col-md-6'),
+                DIV(H4(T("Membership terms & conditions")),
+                    subscription_terms_get_membership_terms(membership),
+                    _class='col-md-6'),
+                _class='col-md-12'
             )
 
         content = DIV(
-            DIV(H4(T("Selected subscription")), BR(),
-                subscription_info,
-                BR(),
-                _class='col-md-6'
+            DIV(
+                DIV(H4(T("Selected subscription")), BR(),
+                    subscription_info,
+                    BR(),
+                    _class='col-md-6'
+                ),
+                DIV(H4(T('Subscription terms & conditions')), BR(),
+                    subscription_conditions,
+                    direct_debit_mandate,
+                    _class='col-md-6'
+                ),
+                _class="col-md-12"
             ),
-            DIV(H4(T('Terms & conditions')), BR(),
-                subscription_conditions,
-                direct_debit_mandate,
-                _class='col-md-6'
+            m_required,
+            DIV(
+                DIV(B((os_gui.get_fa_icon('fa-exclamation-circle')), " ", T("Your subscription is almost activated")), BR(),
+                    T("By clicking 'I agree' you agree to the terms and conditions and will activate this subscription with a payment oblication."),
+                    BR(), BR(), BR(),
+                    _class="col-md-12"),
+                DIV(confirm, cancel, _class='col-md-12'),
+                _class='col-md-12'
             ),
-            DIV(B((os_gui.get_fa_icon('fa-exclamation-circle')), " ", T("Your subscription is almost activated")), BR(),
-                T("By clicking 'I agree' you agree to the terms and conditions and will activate this subscription with a payment oblication."),
-                BR(), BR(), BR(),
-                _class="col-md-12"),
-            DIV(confirm, cancel, _class='col-md-12'),
         _class="row")
 
     return dict(content=content)
+
+
+def subscription_terms_get_terms(ssu):
+    """
+    :param ssu: SchoolSubscription object
+    :return:
+    """
+    general_terms = get_sys_property('shop_subscriptions_terms')
+    specific_terms = ssu.Terms
+
+    terms = DIV()
+    if general_terms:
+        terms.append(B(T('General terms & conditions')))
+        terms.append(XML(general_terms))
+    if specific_terms:
+        terms.append(B(T('Subscription specific terms & conditions')))
+        terms.append(XML(specific_terms))
+
+    return DIV(terms, _class='well')
+
+
+def subscription_terms_get_info(ssu):
+    """
+    :param ssu: SchoolSubscription object
+    :return: UL with subscription info
+    """
+
+    months_text = T("months")
+    if ssu.MinDuration == 1:
+        months_text = T("month")
+
+    classes = ''
+    classes_unit = ''
+    classes_text = T("Classes")
+    if ssu.Unlimited:
+        classes = T('Unlimited')
+        classes_unit = T("Classes")
+    elif ssu.SubscriptionUnit == 'week':
+        if ssu.Classes == 1:
+            classes_text = T("Class")
+        classes = SPAN(unicode(ssu.Classes) + ' ' + classes_text)
+        classes_unit = T("Per week")
+    elif ssu.SubscriptionUnit == 'month':
+        if ssu.Classes == 1:
+            classes_text = T("Class")
+        classes = SPAN(unicode(ssu.Classes) + ' ' + classes_text)
+        classes_unit = T("Per month")
+
+    subscription_info = UL(
+        LI(B(T("Subscription")), BR(), ssu.Name),
+        LI(B(T("Classes")), BR(), classes, ' ', classes_unit),
+        LI(B(T("Payment")), BR(), T("Monthly")),
+        LI(B(T("Minimum duration")), BR(), ssu.MinDuration, ' ', months_text),
+        LI(B(T("Monthly fee")), BR(), ssu.get_price_on_date(TODAY_LOCAL)),
+    )
+    if ssu.Description:
+        subscription_info.append(
+            LI(B(T("Additional info")), BR(), ssu.Description)
+        )
+
+    return subscription_info
+
+
+def subscription_terms_get_membership_info(sm):
+    """
+
+    :param sm: SchoolMembership object
+    :return: UL with membership info
+    """
+
+    info = UL(
+        LI(B(T("Membership")), BR(), sm.row.Name),
+        LI(B(T("Validity")), BR(), sm.get_validity_formatted()),
+        LI(B(T("Price")), BR(), represent_float_as_amount(sm.row.Price)),
+    )
+
+    if sm.row.Description:
+        info.append(
+            LI(B(T("Additional info")), BR(), sm.row.Description)
+        )
+
+
+    return info
+
+
+def subscription_terms_get_membership_terms(sm):
+    """
+    :param sm: SchoolMembership object
+    :return:
+    """
+    general_terms = get_sys_property('shop_memberships_terms')
+    specific_terms = sm.row.Terms
+
+    terms = DIV()
+    if general_terms:
+        terms.append(B(T('General terms & conditions')))
+        terms.append(XML(general_terms))
+    if specific_terms:
+        terms.append(B(T('Membership specific terms & conditions')))
+        terms.append(XML(specific_terms))
+
+    return DIV(terms, _class='well')
 
 
 @auth.requires_login()

@@ -219,7 +219,6 @@ class School:
     def _get_subscriptions_formatted_button_to_cart(self,
                                                     ssuID,
                                                     school_memberships_id,
-                                                    customer_has_membership,
                                                     customer_subscriptions_ids):
         """
             Get button to add card to shopping cart
@@ -234,19 +233,6 @@ class School:
         T = current.T
 
         if auth.user:
-            customer = Customer(auth.user.id)
-            memberships = customer.get_memberships_on_date(TODAY_LOCAL)
-            ids = []
-            for row in memberships:
-                ids.append(row.id)
-
-            if school_memberships_id and not school_memberships_id in ids:
-                sm = db.school_memberships(school_memberships_id)
-                return A(SPAN(T("Membership %s required" % sm.Name), ' ',
-                              os_gui.get_fa_icon('fa-arrow-right'),
-                              _class='smaller_font'),
-                         _href=URL('shop', 'memberships'))
-
             if ssuID in customer_subscriptions_ids:
                 return SPAN(
                     SPAN(T("You have this subscription"), _class='bold'), BR(),
@@ -412,7 +398,6 @@ class School:
                                 DIV(H5(self._get_subscriptions_formatted_button_to_cart(
                                         row.id,
                                         row.school_memberships_id,
-                                        customer_has_membership,
                                         customer_subscriptions_ids
                                         ),
                                         _class="description-header"),
