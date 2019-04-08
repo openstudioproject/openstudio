@@ -1229,7 +1229,7 @@ def subscription_terms():
                     subscription_terms_get_membership_info(membership),
                     _class='col-md-6'),
                 DIV(H4(T("Membership terms & conditions")),
-
+                    subscription_terms_get_membership_terms(membership),
                     _class='col-md-6'),
                 _class='col-md-12'
             )
@@ -1343,6 +1343,25 @@ def subscription_terms_get_membership_info(sm):
 
 
     return info
+
+
+def subscription_terms_get_membership_terms(sm):
+    """
+    :param sm: SchoolMembership object
+    :return:
+    """
+    general_terms = get_sys_property('shop_memberships_terms')
+    specific_terms = sm.row.Terms
+
+    terms = DIV()
+    if general_terms:
+        terms.append(B(T('General terms & conditions')))
+        terms.append(XML(general_terms))
+    if specific_terms:
+        terms.append(B(T('Membership specific terms & conditions')))
+        terms.append(XML(specific_terms))
+
+    return DIV(terms, _class='well')
 
 
 @auth.requires_login()
