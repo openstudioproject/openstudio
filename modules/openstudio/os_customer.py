@@ -368,6 +368,22 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
             return False
 
 
+    def has_given_membership_on_date(self, school_memberships_id, date):
+        """
+        :param school_memberships_id: db.school_memberships.id
+        :param date: datetime.date
+        :return: Boolean
+        """
+        ids = []
+        for row in self.get_memberships_on_date(date):
+            ids.append(row.id)
+
+        if school_memberships_id in ids:
+            return True
+        else:
+            return False
+
+
     def _get_classcards(self, date):
         """
             Returns classcards for customer(cuID) on date

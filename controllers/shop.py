@@ -1215,13 +1215,9 @@ def subscription_terms():
 
         ## Membership check
         customer = Customer(auth.user.id)
-        memberships = customer.get_memberships_on_date(TODAY_LOCAL)
-        ids = []
-        for row in memberships:
-            ids.append(row.id)
 
         m_required = ''
-        if ssu.school_memberships_id and not ssu.school_memberships_id in ids:
+        if ssu.school_memberships_id and not customer.has_given_membership_on_date(ssu.school_memberships_id, TODAY_LOCAL):
             membership = SchoolMembership(ssu.school_memberships_id)
             m_required = DIV(
                 DIV(H4(T("Membership required")),
