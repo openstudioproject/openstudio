@@ -168,24 +168,8 @@ class School:
         from os_customer import Customer
 
         db = current.db
-        auth = current.auth
-        TODAY_LOCAL = current.TODAY_LOCAL
         os_gui = current.globalenv['os_gui']
         T = current.T
-
-        if auth.user:
-            customer = Customer(auth.user.id)
-            memberships = customer.get_memberships_on_date(TODAY_LOCAL)
-            ids = []
-            for row in memberships:
-                ids.append(row.id)
-
-            if school_memberships_id and not school_memberships_id in ids:
-                sm = db.school_memberships(school_memberships_id)
-                return A(SPAN(T("Membership %s required" % sm.Name), ' ',
-                              os_gui.get_fa_icon('fa-arrow-right'),
-                              _class='smaller_font'),
-                         _href=URL('shop', 'memberships'))
 
         link =  A(SPAN(os_gui.get_fa_icon('fa-shopping-cart fa-2x')),
                  _href=URL('classcard_add_to_cart', vars={'scdID': scdID}))
