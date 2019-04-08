@@ -1205,7 +1205,8 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         """
         from os_school_subscription import SchoolSubscription
         from tools import OsTools
-        
+
+        T = current.T
         os_tools = OsTools()
         ssu = SchoolSubscription(school_subscriptions_id, set_db_info=True)
 
@@ -1227,20 +1228,21 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         :param school_memberships_id: db.school_memberships.id
         :return: None
         """
-        from os_school_membership import Schoolmembership
+        from os_school_membership import SchoolMembership
         from tools import OsTools
-        
+
+        T = current.T
         os_tools = OsTools()
-        ssu = Schoolmembership(school_memberships_id, set_db_info=True)
+        sm = SchoolMembership(school_memberships_id)
 
         terms = [
             os_tools.get_sys_property('shop_memberships_terms') or '',  # general terms
-            ssu.Terms or ''  # membership specific terms
+            sm.row.Terms or ''  # membership specific terms
         ]
         full_terms = '\n'.join(terms)
 
         self.log_document_acceptance(
-            document_name=T("membership terms"),
+            document_name=T("Membership terms"),
             document_description=T("Terms for all memberships and membership specific terms"),
             document_content=full_terms
         )
