@@ -1198,6 +1198,54 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         )
 
 
+    def log_subscription_terms_acceptance(self, school_subscriptions_id):
+        """
+        :param school_subscriptions_id: db.school_subscriptions.id
+        :return: None
+        """
+        from os_school_subscription import SchoolSubscription
+        from tools import OsTools
+        
+        os_tools = OsTools()
+        ssu = SchoolSubscription(school_subscriptions_id, set_db_info=True)
+
+        terms = [
+            os_tools.get_sys_property('shop_subscriptions_terms') or '',  # general terms
+            ssu.Terms or ''  # Subscription specific terms
+        ]
+        full_terms = '\n'.join(terms)
+
+        self.log_document_acceptance(
+            document_name=T("Subscription terms"),
+            document_description=T("Terms for all subscriptions and subscription specific terms"),
+            document_content=full_terms
+        )
+
+
+    def log_membership_terms_acceptance(self, school_memberships_id):
+        """
+        :param school_memberships_id: db.school_memberships.id
+        :return: None
+        """
+        from os_school_membership import Schoolmembership
+        from tools import OsTools
+        
+        os_tools = OsTools()
+        ssu = Schoolmembership(school_memberships_id, set_db_info=True)
+
+        terms = [
+            os_tools.get_sys_property('shop_memberships_terms') or '',  # general terms
+            ssu.Terms or ''  # membership specific terms
+        ]
+        full_terms = '\n'.join(terms)
+
+        self.log_document_acceptance(
+            document_name=T("membership terms"),
+            document_description=T("Terms for all memberships and membership specific terms"),
+            document_content=full_terms
+        )
+
+
     def set_barcode_id(self):
         """
         Set barcode id field for customer
