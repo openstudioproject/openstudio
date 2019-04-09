@@ -545,6 +545,7 @@ class Order:
                 cmID = sme.sell_to_customer(
                     self.order.auth_customer_id,
                     membership_start,
+                    invoice=False, # Don't create a separate invoice
                 )
 
                 if create_invoice:
