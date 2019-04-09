@@ -427,6 +427,9 @@ def invoice_pay():
     # Do a regular payment or first recurring payment
     try:
         webhook_url = 'https://' + request.env.http_host + '/mollie/webhook'
+
+        redirect_url = 'https://' + request.env.http_host + '/shop/complete?iID=' + unicode(iID)
+
         payment = mollie.payments.create({
             'amount': {
                 'currency': CURRENCY,
@@ -435,7 +438,7 @@ def invoice_pay():
             'description': description,
             'sequenceType': recurring_type,
             'customerId': mollie_customer_id,
-            'redirectUrl': 'https://' + request.env.http_host + '/shop/complete?iID=' + unicode(iID),
+            'redirectUrl': redirect_url,
             'webhookUrl': webhook_url,
             'metadata': {
                 'invoice_id': invoice.invoice.id,
@@ -485,13 +488,15 @@ def order_pay():
     description = T('Order') + ' #' + unicode(coID)
 
     try:
+        redirect_url = 'https://' + request.env.http_host + '/shop/complete?coID=' + unicode(coID)
+
         payment = mollie.payments.create({
             'amount': {
                 'currency': CURRENCY,
                 'value': amount
             },
             'description': description,
-            'redirectUrl': 'https://' + request.env.http_host + '/shop/complete?coID=' + unicode(coID),
+            'redirectUrl': redirect_url,
             'webhookUrl': 'https://' + request.env.http_host + '/mollie/webhook',
             'metadata': {
                 'customers_orders_id': coID
@@ -564,75 +569,6 @@ def subscription_buy_now():
     create_mollie_customer(auth.user.id, mollie)
 
     # add subscription to customer
-    startdate = TODAY_LOCAL
-    shop_subscriptions_start = get_sys_property('shop_subscriptions_start')
-    if not shop_subscriptions_start == None:
-        if shop_subscriptions_start == 'next_month':
-            startdate = get_last_day_month(TODAY_LOCAL) + datetime.timedelta(days=1)
-
-    csID = db.customers_subscriptions.insert(
-        auth_customer_id = auth.user.id,
-        school_subscriptions_id = ssuID,
-        Startdate = startdate,
-        payment_methods_id = 100, # important, 100 is the payment_methods_id for Mollie
-    )
-
-    # Add credits for the first month
-    cs = CustomerSubscription(csID)
-    cs.add_credits_month(startdate.year, startdate.month)
-
-    # Add accepted terms
-    customer = Customer(auth.user.id)
-    customer.log_subscription_terms_acceptance(ssuID)
-    ssu = SchoolSubscription(ssuID, set_db_info=True)
-
-    # Create invoice
-    cs = CustomerSubscription(csID)
-    iID = cs.create_invoice_for_month(startdate.year, startdate.month)
-
-    # check membership requirements and sell if required
-    if ssu.school_memberships_id and not customer.has_given_membership_on_date(ssu.school_memberships_id, TODAY_LOCAL):
-        sm = SchoolMembership(ssu.school_memberships_id)
-        cmID = sm.sell_to_customer(
-            auth.user.id,
-            TODAY_LOCAL,
-            invoice=False,
-            payment_methods_id=100,
-        )
-
-        # Add membership to invoice
-        invoice = Invoice(iID)
-        invoice.item_add_membership(cmID)
-
-        # Log acceptance of terms
-        customer.log_membership_terms_acceptance(ssu.school_memberships_id)
-
-
-    # clear cache to make sure it shows in the back end
-    cache_clear_customers_subscriptions(auth.user.id)
-
-    # Pay invoice ... SHOW ME THE MONEY!! :)
-    redirect(URL('invoice_pay', vars={'iID':iID}))
-
-
-@auth.requires_login()
-def classcard_buy_now():
-    """
-        Get a subscription
-    """
-    from openstudio.os_customer import Customer
-    from openstudio.os_invoice import Invoice
-    from openstudio.os_school_classcard import SchoolClasscard
-    from openstudio.os_school_membership import SchoolMembership
-
-    scdID = request.vars['scdID']
-
-    # init mollie
-    mollie = Client()
-    mollie_api_key = get_sys_property('mollie_website_profile')
-    mollie.set_api_key(mollie_api_key)
-
-    # add classcard to customer
     startdate = TODAY_LOCAL
     shop_subscriptions_start = get_sys_property('shop_subscriptions_start')
     if not shop_subscriptions_start == None:

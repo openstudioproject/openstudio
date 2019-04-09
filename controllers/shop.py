@@ -255,13 +255,13 @@ def checkout_get_progress(function):
     received_class = ''
     complete_class = ''
 
-    if function == 'checkout':
+    if function == 'checkout' or function == 'classcard':
         checkout_class = active_class
 
     checkout_progress.append(SPAN(T('Order'), _class=checkout_class))
     checkout_progress.append(spacer)
 
-    if function == 'order_received':
+    if function == 'order_received' or function == 'classcard_order':
         received_class = active_class
 
     checkout_progress.append(SPAN(T('Payment'), _class=received_class))
@@ -626,7 +626,6 @@ def complete():
         else:
             response.subtitle = T('No payment received')
             content = msg_fail
-
 
 
     # What would you like to do next? Continue shopping or go to your profile?
@@ -1635,7 +1634,7 @@ def classcard():
         URL('classcards')
     )
 
-    return dict(content=content, back=back)
+    return dict(content=content, back=back, progress=checkout_get_progress(request.function))
 
 
 def classcard_get_info(scd):
@@ -1675,37 +1674,75 @@ def classcard_order():
     coID = request.vars['coID']
     scd = SchoolClasscard(scdID, set_db_info=True)
     order = Order(coID)
+    # Set status awaiting payment
     order.set_status_awaiting_payment()
 
     # Add items to order
     customer = Customer(auth.user.id)
-
-    # Check to prevent duplicate items
     checkout_order_classcard(scdID, order)
-
-
     if scd.row.school_memberships_id and not customer.has_given_membership_on_date(scd.row.school_memberships_id, TODAY_LOCAL):
         checkout_order_membership(scd.row.school_memberships_id, order)
 
 
+    # mail order to customer
+    order_received_mail_customer(coID)
+
+    # check if this order needs to be paid or it's free and can be added to the customers' account straight away
+    amounts = order.get_amounts()
+
+    if not amounts:
+        order_received_redirect_complete(coID)
+    elif amounts.TotalPriceVAT == 0:
+        order_received_redirect_complete(coID)
+
+    # Check if an online payment provider is enabled:
+    online_payment_provider = get_sys_property('online_payment_provider')
+    if online_payment_provider == 'disabled':
+        # no payment provider, deliver order and redirect to complete.
+        order.deliver()
+        redirect(URL('classcard_order_complete', vars={'coID':coID}))
 
 
-    # # process cart, add products to customer and add items to invoice
-    # for row in rows:
-    #     # process classcards
-    #     if row.school_classcards.id:
-    #
-    #     # process workshops
-    #     if row.workshops_products.id:
-    #         checkout_order_workshop_product(row.workshops_products.id, order)
-    #     # process classes
-    #     if row.classes.id:
-    #         checkout_order_class(row.classes.id,
-    #                              row.customers_shoppingcart.ClassDate,
-    #                              row.customers_shoppingcart.AttendanceType,
-    #                              order)
+    rows = order.get_order_items_rows()
+    order_items = TABLE(THEAD(TR(
+        TH(T("Item")),
+        TH(T("Price")),
+    )), _class='table table-striped')
 
+    for row in rows.render():
+        order_items.append(TR(
+            TD(row.ProductName, BR(),
+               SPAN(row.Description, _class='text-muted')),
+            TD(row.TotalPriceVAT)
+        ))
 
+    # We have a payment provider, lets show a pay now page!
+    pay_now = A(T("Pay now"), ' ',
+                os_gui.get_fa_icon('fa-angle-right'),
+                _href=URL('mollie', 'order_pay', vars={'coID': coID}),
+                _class='btn btn-success bold')
+
+    content = DIV(
+        DIV(H4(T('We have received your order')),
+            T("The items in your order will be delivered as soon as we've received the payment for this order."), BR(),
+            T("Click 'Pay now' to complete the payment."), BR(),
+            BR(), BR(),
+            pay_now,
+            _class='col-md-6'
+        ),
+        DIV(H4(T("Order summary")),
+            order_items,
+            _class="col-md-6"),
+        _class='row')
+
+    # Send sys notification
+    os_mail = OsMail()
+    os_mail.send_notification(
+        'order_created',
+        customers_orders_id=coID
+    )
+
+    return dict(content=content, progress=checkout_get_progress(request.function))
 
 
 def classes():
