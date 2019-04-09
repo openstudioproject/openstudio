@@ -1659,7 +1659,7 @@ def classcard_order():
     coID = request.vars['coID']
     scd = SchoolClasscard(scdID, set_db_info=True)
     order = Order(coID)
-
+    order.set_status_awaiting_payment()
 
     # Add items to order
     customer = Customer(auth.user.id)
