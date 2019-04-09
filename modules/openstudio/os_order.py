@@ -318,6 +318,37 @@ class Order:
         return rows
 
 
+    def get_order_items_summary_display(self):
+        """
+
+        :return: html table with simple order summary
+        """
+        represent_float_as_amount = current.globalenv['represent_float_as_amount']
+        T = current.T
+
+        rows = self.get_order_items_rows()
+        table = TABLE(THEAD(TR(
+            TH(T("Item")),
+            TH(SPAN(T("Price"), _class='pull-right')),
+        )), _class='table table-striped')
+
+        for row in rows.render():
+            table.append(TR(
+                TD(row.ProductName, BR(),
+                   SPAN(row.Description, _class='text-muted')),
+                TD(SPAN(row.TotalPriceVAT, _class='pull-right'))
+            ))
+
+        amounts = self.get_amounts()
+        table.append(TFOOT(TR(
+            TH(T("Total")),
+            TH(SPAN(represent_float_as_amount(amounts.TotalPriceVAT),
+                    _class='pull-right'))
+        )))
+
+        return table
+
+
     def get_amounts(self):
         """
             Get subtotal, vat and total incl vat

@@ -333,7 +333,6 @@ def checkout_get_form_order(var=None):
     return form
 
 
-
 @auth.requires_login()
 def order_received():
     """
@@ -1703,18 +1702,7 @@ def classcard_order():
         redirect(URL('classcard_order_complete', vars={'coID':coID}))
 
 
-    rows = order.get_order_items_rows()
-    order_items = TABLE(THEAD(TR(
-        TH(T("Item")),
-        TH(T("Price")),
-    )), _class='table table-striped')
 
-    for row in rows.render():
-        order_items.append(TR(
-            TD(row.ProductName, BR(),
-               SPAN(row.Description, _class='text-muted')),
-            TD(row.TotalPriceVAT)
-        ))
 
     # We have a payment provider, lets show a pay now page!
     pay_now = A(T("Pay now"), ' ',
@@ -1731,7 +1719,7 @@ def classcard_order():
             _class='col-md-6'
         ),
         DIV(H4(T("Order summary")),
-            order_items,
+            order.get_order_items_summary_display(),
             _class="col-md-6"),
         _class='row')
 
