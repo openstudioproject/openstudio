@@ -466,14 +466,30 @@ def checkout_order_membership(smID, order):
     """
         Add class card to order
     """
-    order.order_item_add_membership(smID, TODAY_LOCAL)
+    items = order.get_order_items_rows()
+    membership_already_ordered = False
+    for item in items:
+        if item.school_memberships_id == int(smID):
+            membership_already_ordered = True
+            break
+
+    if not membership_already_ordered:
+        order.order_item_add_membership(smID, TODAY_LOCAL)
 
 
 def checkout_order_classcard(scdID, order):
     """
         Add class card to order
     """
-    order.order_item_add_classcard(scdID)
+    items = order.get_order_items_rows()
+    card_already_ordered = False
+    for item in items:
+        if item.school_classcards_id == int(scdID):
+            card_already_ordered = True
+            break
+
+    if not card_already_ordered:
+        order.order_item_add_classcard(scdID)
 
 
 def checkout_order_workshop_product(wspID, order):
@@ -1663,7 +1679,10 @@ def classcard_order():
 
     # Add items to order
     customer = Customer(auth.user.id)
+
+    # Check to prevent duplicate items
     checkout_order_classcard(scdID, order)
+
 
     if scd.row.school_memberships_id and not customer.has_given_membership_on_date(scd.row.school_memberships_id, TODAY_LOCAL):
         checkout_order_membership(scd.row.school_memberships_id, order)
