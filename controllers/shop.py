@@ -1601,6 +1601,11 @@ def classcard():
 
     m_required = ''
     m_required_message = ''
+
+    print 'ms test'
+    print TODAY_LOCAL
+    print customer.has_given_membership_on_date(scd.row.school_memberships_id, TODAY_LOCAL)
+
     if scd.row.school_memberships_id and not customer.has_given_membership_on_date(scd.row.school_memberships_id, TODAY_LOCAL):
         membership = SchoolMembership(scd.row.school_memberships_id)
         m_required = DIV(
