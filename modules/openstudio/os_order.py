@@ -149,7 +149,7 @@ class Order:
         coiID = db.customers_orders_items.insert(
             customers_orders_id  = self.coID,
             school_memberships_id = school_memberships_id,
-            ProductName = T('membership'),
+            ProductName = T('Membership'),
             Description = sme.row.Name,
             Quantity = 1,
             Price = sme.row.Price,
@@ -318,6 +318,37 @@ class Order:
         return rows
 
 
+    def get_order_items_summary_display(self):
+        """
+
+        :return: html table with simple order summary
+        """
+        represent_float_as_amount = current.globalenv['represent_float_as_amount']
+        T = current.T
+
+        rows = self.get_order_items_rows()
+        table = TABLE(THEAD(TR(
+            TH(T("Item")),
+            TH(SPAN(T("Price"), _class='pull-right')),
+        )), _class='table table-striped')
+
+        for row in rows.render():
+            table.append(TR(
+                TD(row.ProductName, BR(),
+                   SPAN(row.Description, _class='text-muted')),
+                TD(SPAN(row.TotalPriceVAT, _class='pull-right'))
+            ))
+
+        amounts = self.get_amounts()
+        table.append(TFOOT(TR(
+            TH(T("Total")),
+            TH(SPAN(represent_float_as_amount(amounts.TotalPriceVAT),
+                    _class='pull-right'))
+        )))
+
+        return table
+
+
     def get_amounts(self):
         """
             Get subtotal, vat and total incl vat
@@ -390,6 +421,7 @@ class Order:
             Create invoice for order and deliver goods
         """
         from os_attendance_helper import AttendanceHelper
+        from os_cache_manager import  OsCacheManager
         from os_invoice import Invoice
         from os_school_classcard import SchoolClasscard
         from os_school_subscription import SchoolSubscription
@@ -402,6 +434,7 @@ class Order:
         cache_clear_classschedule_api = current.globalenv['cache_clear_classschedule_api']
         get_sys_property = current.globalenv['get_sys_property']
         TODAY_LOCAL = current.TODAY_LOCAL
+        ocm = OsCacheManager()
         db = current.db
         T = current.T
 
@@ -475,6 +508,10 @@ class Order:
                 ccdID = scd.sell_to_customer(self.order.auth_customer_id,
                                              card_start,
                                              invoice=False)
+
+                # clear cache
+                ocm.clear_customers_classcards(self.order.auth_customer_id)
+
                 # Add card to invoice
                 if create_invoice:
                     invoice.item_add_classcard(ccdID)
@@ -496,6 +533,9 @@ class Order:
                     subscription_start.month
                 )
 
+                # clear cache
+                ocm.clear_customers_subscriptions(self.order.auth_customer_id)
+
                 if create_invoice:
                     # This will also add the registration fee if required.
                     iiID = invoice.item_add_subscription(
@@ -514,7 +554,11 @@ class Order:
                 cmID = sme.sell_to_customer(
                     self.order.auth_customer_id,
                     membership_start,
+                    invoice=False, # Don't create a separate invoice
                 )
+
+                # clear cache
+                ocm.clear_customers_memberships(self.order.auth_customer_id)
 
                 if create_invoice:
                     cm = CustomerMembership(cmID)
@@ -522,7 +566,6 @@ class Order:
                     # Check if price exists and > 0:
                     if sme.row.Price:
                         iiID = invoice.item_add_membership(cmID)
-                        invoice.link_item_to_customer_membership(cmID, iiID)
 
             # Check for workshop
             if row.workshops_products_id:

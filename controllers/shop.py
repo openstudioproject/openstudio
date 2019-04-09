@@ -255,13 +255,13 @@ def checkout_get_progress(function):
     received_class = ''
     complete_class = ''
 
-    if function == 'checkout':
+    if function == 'checkout' or function == 'classcard':
         checkout_class = active_class
 
     checkout_progress.append(SPAN(T('Order'), _class=checkout_class))
     checkout_progress.append(spacer)
 
-    if function == 'order_received':
+    if function == 'order_received' or function == 'classcard_order':
         received_class = active_class
 
     checkout_progress.append(SPAN(T('Payment'), _class=received_class))
@@ -331,7 +331,6 @@ def checkout_get_form_order(var=None):
     )
 
     return form
-
 
 
 @auth.requires_login()
@@ -462,11 +461,34 @@ def cart_empty(auth_user_id):
     db(query).delete()
 
 
+def checkout_order_membership(smID, order):
+    """
+        Add class card to order
+    """
+    items = order.get_order_items_rows()
+    membership_already_ordered = False
+    for item in items:
+        if item.school_memberships_id == int(smID):
+            membership_already_ordered = True
+            break
+
+    if not membership_already_ordered:
+        order.order_item_add_membership(smID, TODAY_LOCAL)
+
+
 def checkout_order_classcard(scdID, order):
     """
         Add class card to order
     """
-    order.order_item_add_classcard(scdID)
+    items = order.get_order_items_rows()
+    card_already_ordered = False
+    for item in items:
+        if item.school_classcards_id == int(scdID):
+            card_already_ordered = True
+            break
+
+    if not card_already_ordered:
+        order.order_item_add_classcard(scdID)
 
 
 def checkout_order_workshop_product(wspID, order):
@@ -519,7 +541,7 @@ def complete():
     iID = request.vars['iID']
     coID = request.vars['coID']
 
-    content = ''
+    content_body = ''
     progress = ''
     donation = False
     # Check if the order belongs to the currently logged in user
@@ -529,7 +551,7 @@ def complete():
         # Does this order belong to this customer?
         if not order.order.auth_customer_id == auth.user.id:
             session.flash = T("Unable to show order")
-            redirect(URL('cart'))
+            redirect(URL('profile', 'index'))
 
         # Do we have a donation?
         if order.order.Donation:
@@ -537,31 +559,29 @@ def complete():
 
         if not donation:
             progress = checkout_get_progress(request.function)
-            success_header = T('Thank you for your order')
+            success_header = T('Thank you!')
             online_payment_provider = get_sys_property('online_payment_provider')
             if online_payment_provider == 'disabled':
                 success_msg = T('All items from the order have been added to your profile and an invoice has been \
                                 added to your account.')
             else:
-                success_msg = T('We have received the payment and have processed your order. \
-                                 All items from the order have been added to your profile.')
+                success_msg = SPAN(
+                    T('We have received your payment and processed your order.'), BR(),
+                    T('All items from the order have been added to your profile.'))
         else:
             success_header = T('Thank you for your donation!')
             success_msg = T("You're awesome! Please click below to continue...")
 
 
-
-        msg_success = DIV(H3(success_header),
-                          SPAN(success_msg,
-                               _class='grey'),
+        msg_success = DIV(H4(success_header),
+                          success_msg,
                           BR(), BR(),
-                          DIV(A(T('Continue'),
+                          DIV(A(T('Continue'), " ", os_gui.get_fa_icon('fa-angle-double-right'),
                                 _href=URL('profile', 'index'),
-                                _class='btn btn-default'),
-                              _class='row'),
-                          _class='center')
+                                _class='btn btn-default')),
+                          _class='')
 
-        msg_fail = DIV(H3(T('Looks like something went wrong with your payment...')),
+        msg_fail = DIV(H4(T('Looks like something went wrong with your payment...')),
                        SPAN(T("Believe this is a mistake? Please"), ' ',
                             A(T('contact'), _href=URL('shop', 'contact')), ' ',
                             T('us.'),
@@ -573,10 +593,10 @@ def complete():
                 response.subtitle = T('Donation received')
             else:
                 response.subtitle = T('Payment received')
-            content = msg_success
+            content_body = msg_success
         else:
             response.subtitle = T('No payment received')
-            content = msg_fail
+            content_body = msg_fail
 
     # Check if the invoice belongs to the currently logged in user
     if iID:
@@ -587,7 +607,7 @@ def complete():
             redirect(URL('profile', 'index'))
 
 
-        msg_fail = DIV(H3(T('Looks like something went wrong with your payment...')),
+        msg_fail = DIV(H4(T('Looks like something went wrong with your payment...')),
                        SPAN(T("Believe this is a mistake? Please"), ' ',
                             A(T('contact'), _href=URL('shop', 'contact')), ' ',
                             T('us.'),
@@ -602,8 +622,19 @@ def complete():
             #content = msg_success
         else:
             response.subtitle = T('No payment received')
-            content = msg_fail
+            content_body = msg_fail
 
+    order_summary = ""
+    if coID:
+        order_summary = order.get_order_items_summary_display()
+
+    content = DIV(
+        DIV(content_body, _class='col-md-6'),
+        DIV(H4(T("Summary")),
+            order_summary,
+            _class='col-md-6'),
+        _class="row"
+    )
 
 
     # What would you like to do next? Continue shopping or go to your profile?
@@ -1124,7 +1155,7 @@ def subscription_terms():
     from openstudio.os_school_membership import SchoolMembership
 
     response.title= T('Shop')
-    response.subtitle = T('Subscription confirmation')
+    response.subtitle = T('Subscription')
     response.view = 'shop/index.html'
 
     features = db.customers_shop_features(1)
@@ -1247,7 +1278,7 @@ def subscription_terms():
             m_required,
             DIV(
                 DIV(B((os_gui.get_fa_icon('fa-exclamation-circle')), " ", T("Your subscription is almost activated")), BR(),
-                    T("By clicking 'I agree' you agree to the terms and conditions and will activate this subscription with a payment oblication."),
+                    T("By clicking 'I agree' you agree to the terms and conditions and will activate this subscription with a payment obligation."),
                     BR(), BR(), BR(),
                     _class="col-md-12"),
                 DIV(confirm, cancel, _class='col-md-12'),
@@ -1505,6 +1536,212 @@ def subscription_activated():
     # Add button to here: URL('profile','index')
 
     return dict(content = content)
+
+
+@auth.requires_login()
+def classcard():
+    """
+        Buy classcard confirmation page
+    """
+    from openstudio.os_customer import Customer
+    from openstudio.os_school_classcard import SchoolClasscard
+    from openstudio.os_school_membership import SchoolMembership
+
+    response.title= T('Shop')
+    response.subtitle = T('Classcard')
+    response.view = 'shop/index.html'
+
+    features = db.customers_shop_features(1)
+    if not features.Classcards:
+        return T('This feature is disabled')
+
+    scdID = request.vars['scdID']
+    scd = SchoolClasscard(scdID)
+
+    # check if we require a complete profile
+    shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile_classcards')
+    if shop_requires_complete_profile:
+        check_add_to_cart_requires_complete_profile(
+            auth.user.id,
+            _next=URL(request.controller, request.function, vars={'sdcID': scdID})
+        )
+
+    ##
+    # Check startdate of card
+    ##
+    startdate = TODAY_LOCAL
+
+    # buy now
+    # part terms
+    # membership check & display if required
+    # automatic payment
+    scd = SchoolClasscard(scdID, set_db_info=True)
+    confirm = A(B(T('Order')),
+                _href=URL('shop', 'classcard_order', vars={'scdID':scdID}),
+                _class='btn btn-primary')
+
+    cancel = A(B(T('Cancel')),
+               _href=URL('classcards'),
+               _class='btn btn-default')
+
+    classcard_info = classcard_get_info(scd)
+
+
+    form = checkout_get_form_order()
+    if form.process().accepted:
+        # response.flash = T('Accepted order')
+        redirect(URL('shop', 'classcard_order',
+                     vars={'coID': form.vars.id,
+                           'scdID': scdID}))
+
+    checkout_message = get_sys_property('shop_checkout_message') or ''
+
+    ## Membership check
+    customer = Customer(auth.user.id)
+
+    m_required = ''
+    m_required_message = ''
+
+    if scd.row.school_memberships_id and not customer.has_given_membership_on_date(scd.row.school_memberships_id, TODAY_LOCAL):
+        membership = SchoolMembership(scd.row.school_memberships_id)
+        m_required = DIV(
+            DIV(H4(T("Membership required")),
+                T("To take this classcard the following membership is required. It will be added to your order."), BR(), BR(),
+                subscription_terms_get_membership_info(membership),
+                _class='col-md-6'),
+            DIV(H4(T("Membership terms & conditions")),
+                subscription_terms_get_membership_terms(membership),
+                _class='col-md-6'),
+            _class='col-md-12'
+        )
+        m_required_message = DIV(
+            BR(),
+            B((os_gui.get_fa_icon('fa-exclamation-circle')), " ",
+              T("By ordering this card you agree to the terms and conditions for the required membership")), BR(),
+            BR(),
+            _class="col-md-12"
+        )
+
+    content = DIV(
+        DIV(
+            DIV(H4(T("Selected card")), BR(),
+                classcard_info,
+                BR(),
+                _class='col-md-6'
+            ),
+            _class="col-md-12"
+        ),
+        m_required,
+        DIV(
+            m_required_message,
+            DIV(form, _class='col-md-12'),
+            _class='col-md-12'
+        ),
+    _class="row")
+
+    back = os_gui.get_button(
+        'back',
+        URL('classcards')
+    )
+
+    return dict(content=content, back=back, progress=checkout_get_progress(request.function))
+
+
+def classcard_get_info(scd):
+    """
+    :param scd: SchoolClasscard object
+    :return: UL with subscription info
+    """
+
+    info = UL(
+        LI(B(T("Card")), BR(), scd.row.Name),
+        LI(B(T("Classes")), BR(), scd.row.Classes),
+        LI(B(T("Price")), BR(), represent_float_as_amount(scd.row.Price)),
+        LI(B(T("Validity")), BR(), scd.get_validity_formatted()),
+    )
+    if scd.row.Description:
+        info.append(
+            LI(B(T("Additional info")), BR(), scd.row.Description)
+        )
+
+    return info
+
+
+@auth.requires_login()
+def classcard_order():
+    """
+    Classcard order confirmation and link to payment or complete without payment
+    """
+    from openstudio.os_customer import Customer
+    from openstudio.os_order import Order
+    from openstudio.os_school_classcard import SchoolClasscard
+
+    response.title= T('Shop')
+    response.subtitle = T('Order confirmation')
+    response.view = 'shop/index.html'
+
+    scdID = request.vars['scdID']
+    coID = request.vars['coID']
+    scd = SchoolClasscard(scdID, set_db_info=True)
+    order = Order(coID)
+    # Set status awaiting payment
+    order.set_status_awaiting_payment()
+
+    # Add items to order
+    customer = Customer(auth.user.id)
+    checkout_order_classcard(scdID, order)
+    if scd.row.school_memberships_id and not customer.has_given_membership_on_date(scd.row.school_memberships_id, TODAY_LOCAL):
+        checkout_order_membership(scd.row.school_memberships_id, order)
+
+
+    # mail order to customer
+    order_received_mail_customer(coID)
+
+    # check if this order needs to be paid or it's free and can be added to the customers' account straight away
+    amounts = order.get_amounts()
+
+    if not amounts:
+        order_received_redirect_complete(coID)
+    elif amounts.TotalPriceVAT == 0:
+        order_received_redirect_complete(coID)
+
+    # Check if an online payment provider is enabled:
+    online_payment_provider = get_sys_property('online_payment_provider')
+    if online_payment_provider == 'disabled':
+        # no payment provider, deliver order and redirect to complete.
+        order.deliver()
+        redirect(URL('classcard_order_complete', vars={'coID':coID}))
+
+
+
+
+    # We have a payment provider, lets show a pay now page!
+    pay_now = A(T("Pay now"), ' ',
+                os_gui.get_fa_icon('fa-angle-right'),
+                _href=URL('mollie', 'order_pay', vars={'coID': coID}),
+                _class='btn btn-success bold')
+
+    content = DIV(
+        DIV(H4(T('We have received your order')),
+            T("The items in your order will be delivered as soon as we've received the payment for this order."), BR(),
+            T("Click 'Pay now' to complete the payment."), BR(),
+            BR(), BR(),
+            pay_now,
+            _class='col-md-6'
+        ),
+        DIV(H4(T("Order summary")),
+            order.get_order_items_summary_display(),
+            _class="col-md-6"),
+        _class='row')
+
+    # Send sys notification
+    os_mail = OsMail()
+    os_mail.send_notification(
+        'order_created',
+        customers_orders_id=coID
+    )
+
+    return dict(content=content, progress=checkout_get_progress(request.function))
 
 
 def classes():

@@ -376,9 +376,9 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         """
         ids = []
         for row in self.get_memberships_on_date(date):
-            ids.append(row.id)
+            ids.append(int(row.school_memberships_id))
 
-        if school_memberships_id in ids:
+        if int(school_memberships_id) in ids:
             return True
         else:
             return False

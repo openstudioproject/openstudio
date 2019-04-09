@@ -24,3 +24,5 @@ tests/controllers/__pycache__/
 *.ini~
 
 *.py~
+
+*.html~

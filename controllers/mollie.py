@@ -427,6 +427,9 @@ def invoice_pay():
     # Do a regular payment or first recurring payment
     try:
         webhook_url = 'https://' + request.env.http_host + '/mollie/webhook'
+
+        redirect_url = 'https://' + request.env.http_host + '/shop/complete?iID=' + unicode(iID)
+
         payment = mollie.payments.create({
             'amount': {
                 'currency': CURRENCY,
@@ -435,7 +438,7 @@ def invoice_pay():
             'description': description,
             'sequenceType': recurring_type,
             'customerId': mollie_customer_id,
-            'redirectUrl': 'https://' + request.env.http_host + '/shop/complete?iID=' + unicode(iID),
+            'redirectUrl': redirect_url,
             'webhookUrl': webhook_url,
             'metadata': {
                 'invoice_id': invoice.invoice.id,
@@ -485,13 +488,15 @@ def order_pay():
     description = T('Order') + ' #' + unicode(coID)
 
     try:
+        redirect_url = 'https://' + request.env.http_host + '/shop/complete?coID=' + unicode(coID)
+
         payment = mollie.payments.create({
             'amount': {
                 'currency': CURRENCY,
                 'value': amount
             },
             'description': description,
-            'redirectUrl': 'https://' + request.env.http_host + '/shop/complete?coID=' + unicode(coID),
+            'redirectUrl': redirect_url,
             'webhookUrl': 'https://' + request.env.http_host + '/mollie/webhook',
             'metadata': {
                 'customers_orders_id': coID
