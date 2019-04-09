@@ -421,6 +421,7 @@ class Order:
             Create invoice for order and deliver goods
         """
         from os_attendance_helper import AttendanceHelper
+        from os_cache_manager import  OsCacheManager
         from os_invoice import Invoice
         from os_school_classcard import SchoolClasscard
         from os_school_subscription import SchoolSubscription
@@ -433,6 +434,7 @@ class Order:
         cache_clear_classschedule_api = current.globalenv['cache_clear_classschedule_api']
         get_sys_property = current.globalenv['get_sys_property']
         TODAY_LOCAL = current.TODAY_LOCAL
+        ocm = OsCacheManager()
         db = current.db
         T = current.T
 
@@ -506,6 +508,10 @@ class Order:
                 ccdID = scd.sell_to_customer(self.order.auth_customer_id,
                                              card_start,
                                              invoice=False)
+
+                # clear cache
+                ocm.clear_customers_classcards(self.order.auth_customer_id)
+
                 # Add card to invoice
                 if create_invoice:
                     invoice.item_add_classcard(ccdID)
@@ -527,6 +533,9 @@ class Order:
                     subscription_start.month
                 )
 
+                # clear cache
+                ocm.clear_customers_subscriptions(self.order.auth_customer_id)
+
                 if create_invoice:
                     # This will also add the registration fee if required.
                     iiID = invoice.item_add_subscription(
@@ -547,6 +556,9 @@ class Order:
                     membership_start,
                     invoice=False, # Don't create a separate invoice
                 )
+
+                # clear cache
+                ocm.clear_customers_memberships(self.order.auth_customer_id)
 
                 if create_invoice:
                     cm = CustomerMembership(cmID)
