@@ -1469,7 +1469,7 @@ def test_classcards(client, web2py):
     # Price
     assert u'€ 125.00' in client.text.decode('utf-8')
     # Add to cart link
-    assert '/shop/classcard_add_to_cart?scdID=1' in client.text
+    assert '/shop/classcard?scdID=1' in client.text
 
     ## check trial card
     scd = web2py.db.school_classcards(2)
@@ -1480,7 +1480,7 @@ def test_classcards(client, web2py):
     # Price
     assert u'€ 15.00' in client.text.decode('utf-8')
     # Add to cart link
-    assert '/shop/classcard_add_to_cart?scdID=2' in client.text
+    assert '/shop/classcard?scdID=2' in client.text
 
 
 def test_classcards_display_message_trial_over_times_bought(client, web2py):
@@ -1508,29 +1508,29 @@ def test_classcards_display_message_trial_over_times_bought(client, web2py):
     assert "You've reached the maximum number of times you can purchase this card." in client.text
 
 
-def test_classcard_add_to_cart(client, web2py):
-    """
-        Are classcards added to the shopping cart as expected?
-    """
-    setup_profile_tests(web2py)
+# def test_classcard_add_to_cart(client, web2py):
+#     """
+#         Are classcards added to the shopping cart as expected?
+#     """
+#     setup_profile_tests(web2py)
+#
+#     # populate a regular card and a trial card
+#     populate_school_classcards(web2py, 1)
+#
+#     url = '/shop/classcard_add_to_cart?scdID=1'
+#     client.get(url)
+#     assert client.status == 200
+#
+#     # Verify redirection
+#     assert 'Shopping cart' in client.text
+#
+#     # Check db
+#     cart_row = web2py.db.customers_shoppingcart(1)
+#     assert cart_row.auth_customer_id == 300
+#     assert cart_row.school_classcards_id == 1
 
-    # populate a regular card and a trial card
-    populate_school_classcards(web2py, 1)
 
-    url = '/shop/classcard_add_to_cart?scdID=1'
-    client.get(url)
-    assert client.status == 200
-
-    # Verify redirection
-    assert 'Shopping cart' in client.text
-
-    # Check db
-    cart_row = web2py.db.customers_shoppingcart(1)
-    assert cart_row.auth_customer_id == 300
-    assert cart_row.school_classcards_id == 1
-
-
-def test_classcards_membership_required_message(client, web2py):
+def test_classcard_membership_required_message(client, web2py):
     """
     Is the Membership required link showing like it should?
     """
@@ -1539,15 +1539,14 @@ def test_classcards_membership_required_message(client, web2py):
 
     # populate a regular card and a trial card
     populate_school_memberships(web2py)
-    populate_school_classcards(web2py, 1, school_memberships_id=1)
+    populate_school_classcards(web2py, school_memberships_id=1)
 
-    url = '/shop/classcards'
+    url = '/shop/classcard?scdID=1'
     client.get(url)
     assert client.status == 200
 
     sm = web2py.db.school_memberships(1)
-
-    assert '%s required' % sm.Name in client.text
+    assert sm.Name in client.text
 
 
 def test_classcard_add_to_cart_requires_complete_profile(client, web2py):
@@ -2071,12 +2070,12 @@ def test_subscriptions_membership_required_message(client, web2py):
     populate_school_memberships(web2py)
     populate_school_subscriptions(web2py, school_memberships_id=1)
 
-    url = '/shop/subscriptions'
+    url = '/shop/subscription_terms?ssuID=1'
     client.get(url)
     assert client.status == 200
 
     sm = web2py.db.school_memberships(1)
-    assert '%s required' % sm.Name in client.text
+    assert sm.Name in client.text
 
 
 def test_subscription_terms(client, web2py):
