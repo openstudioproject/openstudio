@@ -541,7 +541,7 @@ def complete():
     iID = request.vars['iID']
     coID = request.vars['coID']
 
-    content = ''
+    content_body = ''
     progress = ''
     donation = False
     # Check if the order belongs to the currently logged in user
@@ -551,7 +551,7 @@ def complete():
         # Does this order belong to this customer?
         if not order.order.auth_customer_id == auth.user.id:
             session.flash = T("Unable to show order")
-            redirect(URL('cart'))
+            redirect(URL('profile', 'index'))
 
         # Do we have a donation?
         if order.order.Donation:
@@ -559,31 +559,29 @@ def complete():
 
         if not donation:
             progress = checkout_get_progress(request.function)
-            success_header = T('Thank you for your order')
+            success_header = T('Thank you!')
             online_payment_provider = get_sys_property('online_payment_provider')
             if online_payment_provider == 'disabled':
                 success_msg = T('All items from the order have been added to your profile and an invoice has been \
                                 added to your account.')
             else:
-                success_msg = T('We have received the payment and have processed your order. \
-                                 All items from the order have been added to your profile.')
+                success_msg = SPAN(
+                    T('We have received your payment and processed your order.'), BR(),
+                    T('All items from the order have been added to your profile.'))
         else:
             success_header = T('Thank you for your donation!')
             success_msg = T("You're awesome! Please click below to continue...")
 
 
-
-        msg_success = DIV(H3(success_header),
-                          SPAN(success_msg,
-                               _class='grey'),
+        msg_success = DIV(H4(success_header),
+                          success_msg,
                           BR(), BR(),
-                          DIV(A(T('Continue'),
+                          DIV(A(T('Continue'), " ", os_gui.get_fa_icon('fa-angle-double-right'),
                                 _href=URL('profile', 'index'),
-                                _class='btn btn-default'),
-                              _class='row'),
-                          _class='center')
+                                _class='btn btn-default')),
+                          _class='')
 
-        msg_fail = DIV(H3(T('Looks like something went wrong with your payment...')),
+        msg_fail = DIV(H4(T('Looks like something went wrong with your payment...')),
                        SPAN(T("Believe this is a mistake? Please"), ' ',
                             A(T('contact'), _href=URL('shop', 'contact')), ' ',
                             T('us.'),
@@ -595,10 +593,10 @@ def complete():
                 response.subtitle = T('Donation received')
             else:
                 response.subtitle = T('Payment received')
-            content = msg_success
+            content_body = msg_success
         else:
             response.subtitle = T('No payment received')
-            content = msg_fail
+            content_body = msg_fail
 
     # Check if the invoice belongs to the currently logged in user
     if iID:
@@ -609,7 +607,7 @@ def complete():
             redirect(URL('profile', 'index'))
 
 
-        msg_fail = DIV(H3(T('Looks like something went wrong with your payment...')),
+        msg_fail = DIV(H4(T('Looks like something went wrong with your payment...')),
                        SPAN(T("Believe this is a mistake? Please"), ' ',
                             A(T('contact'), _href=URL('shop', 'contact')), ' ',
                             T('us.'),
@@ -624,7 +622,19 @@ def complete():
             #content = msg_success
         else:
             response.subtitle = T('No payment received')
-            content = msg_fail
+            content_body = msg_fail
+
+    order_summary = ""
+    if coID:
+        order_summary = order.get_order_items_summary_display()
+
+    content = DIV(
+        DIV(content_body, _class='col-md-6'),
+        DIV(H4(T("Summary")),
+            order_summary,
+            _class='col-md-6'),
+        _class="row"
+    )
 
 
     # What would you like to do next? Continue shopping or go to your profile?
