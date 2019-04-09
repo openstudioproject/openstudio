@@ -452,13 +452,7 @@ def subscriptions_get_link_membership_check(row):
     required_membership = ssu.school_memberships_id
 
     customer = Customer(row.auth_customer_id)
-
-    memberships = customer.get_memberships_on_date(TODAY_LOCAL)
-    ids = []
-    for row in memberships:
-        ids.append(row.id)
-
-    if required_membership and not required_membership in ids:
+    if required_membership and not customer.has_given_membership_on_date(required_membership, TODAY_LOCAL):
         return os_gui.get_label(
             'warning',
             T('No membership'),
@@ -1665,7 +1659,7 @@ def classcards_get_link_membership_check(row):
     required_membership = scd.row.school_memberships_id
 
     customer = Customer(row.customers_classcards.auth_customer_id)
-    if not customer.has_given_membership_on_date(required_membership, TODAY_LOCAL):
+    if required_membership and not customer.has_given_membership_on_date(required_membership, TODAY_LOCAL):
         return os_gui.get_label(
             'warning',
             T('No membership'),
