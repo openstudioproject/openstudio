@@ -1565,7 +1565,6 @@ def classcards():
     session.invoices_edit_back = 'customers_classcards'
 
     query = (db.customers_classcards.auth_customer_id == customers_id)
-    db.customers_classcards.id.label = T("Pass number")
     db.customers_classcards.Enddate.readable = True
 
     maxtextlengths = {'customers_classcards.school_classcards_id' : 32,
@@ -1579,7 +1578,8 @@ def classcards():
             db.invoices_items_customers_classcards.invoices_items_id ==
             db.invoices_items.id),
         db.invoices.on(db.invoices_items.invoices_id ==
-                       db.invoices.id) ]
+                       db.invoices.id)
+    ]
 
     links = [ dict(header=T('Classes'), body=classcards_count_classes),
               dict(header=T('Invoices'), body=classcards_get_link_invoice),
@@ -1604,22 +1604,24 @@ def classcards():
     db.invoices.id.readable = False
     db.invoices.Status.readable = False
 
-    grid = SQLFORM.grid(query,
-                        fields=fields,
-                        headers=headers,
-                        field_id=db.customers_classcards.id,
-                        left=left,
-                        links=links,
-                        maxtextlengths=maxtextlengths,
-                        create=False,
-                        details=False,
-                        csv=False,
-                        searchable=False,
-                        editable=False,
-                        deletable = delete_permission,
-                        ondelete=classcards_ondelete,
-                        orderby=~db.customers_classcards.id,
-                        ui=grid_ui)
+    grid = SQLFORM.grid(
+        query,
+        fields=fields,
+        headers=headers,
+        field_id=db.customers_classcards.id,
+        left=left,
+        links=links,
+        maxtextlengths=maxtextlengths,
+        create=False,
+        details=False,
+        csv=False,
+        searchable=False,
+        editable=False,
+        deletable = delete_permission,
+        ondelete=classcards_ondelete,
+        orderby=~db.customers_classcards.id,
+        ui=grid_ui
+    )
     grid.element('.web2py_counter', replace=None) # remove the counter
     grid.elements('span[title=Delete]', replace=None) # remove text from delete button
 

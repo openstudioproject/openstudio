@@ -553,7 +553,6 @@ class Order:
                     # Check if price exists and > 0:
                     if sme.row.Price:
                         iiID = invoice.item_add_membership(cmID)
-                        invoice.link_item_to_customer_membership(cmID, iiID)
 
             # Check for workshop
             if row.workshops_products_id:
