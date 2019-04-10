@@ -333,29 +333,71 @@ def index_get_subscriptions(customer):
                        _href=URL('shop', 'subscriptions')), ' ',
                      T("to get a subscription."))
     else:
-        header = THEAD(TR(TH(T('#')),
-                          TH(T('Subscription')),
-                          TH(T('Start')),
-                          TH(T('Credits')),
-                          TH(),
-                          ))
-        table = TABLE(header, _class='table table-condensed')
+        header = DIV(
+            DIV(T("#"), _class='col-md-1'),
+            DIV(T("Subscription"), _class='col-md-4'),
+            DIV(T("Credits"), _class='col-md-3'),
+            DIV(T(""), _class='col-md-4'), # Actions
+            _class="row bold hidden-sm hidden-xs"
+        )
+
+        content = DIV(header)
+
         for i, row in enumerate(rows):
             repr_row = list(rows[i:i+1].render())[0]
 
             credits = subscription_get_link_credits(row)
             info = subscription_get_link_info(row)
 
-            tr = TR(TD(row.customers_subscriptions.id),
-                    TD(row.school_subscriptions.Name),
-                    TD(repr_row.customers_subscriptions.Startdate),
-                    TD(credits),
-                    TD(info))
+            row = DIV(
+                DIV(SPAN('# ', _class="bold hidden-md hidden-lg"),
+                    row.customers_subscriptions.id,
+                    _class='col-md-1 mobile-bold'),
+                DIV(row.school_subscriptions.Name, BR(),
+                    SPAN(T("Started on"), ": ",
+                         repr_row.customers_subscriptions.Startdate,
+                         _class="text-muted"),
+                    _class='col-md-4'),
+                DIV(credits, SPAN(' ', T("credit(s)"), _class="hidden-md text-muted hidden-lg"),
+                    _class='col-md-3'),
+                DIV(info,
+                    _class='col-md-4'),
+                _class='row'
+            )
 
-            table.append(tr)
+            content.append(row)
+
+            # tr = TR(TD(row.customers_subscriptions.id),
+            #         TD(row.school_subscriptions.Name),
+            #         TD(repr_row.customers_subscriptions.Startdate),
+            #         TD(credits),
+            #         TD(info))
+            #
+            # table.append(tr)
+
+        # header = THEAD(TR(TH(T('#')),
+        #                   TH(T('Subscription')),
+        #                   TH(T('Start')),
+        #                   TH(T('Credits')),
+        #                   TH(),
+        #                   ))
+        # table = TABLE(header, _class='table table-condensed')
+        # for i, row in enumerate(rows):
+        #     repr_row = list(rows[i:i+1].render())[0]
+        #
+        #     credits = subscription_get_link_credits(row)
+        #     info = subscription_get_link_info(row)
+        #
+        #     tr = TR(TD(row.customers_subscriptions.id),
+        #             TD(row.school_subscriptions.Name),
+        #             TD(repr_row.customers_subscriptions.Startdate),
+        #             TD(credits),
+        #             TD(info))
+        #
+        #     table.append(tr)
 
     return os_gui.get_box(T('My Subscriptions'),
-                          table,
+                          content,
                           box_class='box-solid',
                           with_border=False,
                           show_footer=True,
@@ -415,7 +457,7 @@ def subscription_get_link_credits(row):
     """
     cs = CustomerSubscription(row.customers_subscriptions.id)
     if cs.ssu.Unlimited == True:
-        link = SPAN(T("Unlimited"), _class='grey')
+        link = SPAN(T("Unlimited"), _class='text-muted')
 
     else:
         credits = cs.get_credits_balance()
