@@ -348,6 +348,7 @@ def index_get_subscriptions(customer):
 
             credits = subscription_get_link_credits(row)
             info = subscription_get_link_info(row)
+            invoices = subscription_get_link_invoices(row)
 
             row = DIV(
                 DIV(SPAN('# ', _class="bold hidden-md hidden-lg"),
@@ -360,7 +361,8 @@ def index_get_subscriptions(customer):
                     _class='col-md-4'),
                 DIV(credits, SPAN(' ', T("credit(s)"), _class="hidden-md text-muted hidden-lg"),
                     _class='col-md-3'),
-                DIV(info,
+                DIV(invoices,
+                    info,
                     _class='col-md-4'),
                 _class='row'
             )
@@ -472,10 +474,22 @@ def subscription_get_link_info(row):
     """
     csID = row.customers_subscriptions.id
 
-    return A(os_gui.get_fa_icon('fa-info-circle'),
+    return A(os_gui.get_fa_icon('fa-check'), ' ', T("Access"),
              _href=URL('subscription_info', vars={'csID':csID}),
              _title=T('Subscription details'),
-             _class='grey pull-right')
+             _class='btn btn-sm btn-link pull-right')
+
+
+def subscription_get_link_invoices(row):
+    """
+        Returns invoices link for a subscription
+    """
+    csID = row.customers_subscriptions.id
+
+    return A(os_gui.get_fa_icon('fa-file-text-o'), ' ', T("Invoices"),
+             _href=URL('subscription_invoices', vars={'csID':csID}),
+             _title=T('Invoices for this subscription'),
+             _class='btn btn-sm btn-link')
 
 
 def me_requires_complete_profile(auID):
@@ -1603,6 +1617,23 @@ def subscription_info():
 
     content = DIV(H4(T('Class access'), ' ', cs.name),
                   cs.get_class_permissions(formatted=True))
+
+    back = os_gui.get_button('back', URL('profile', 'index'))
+
+    return dict(content=content, back=back)
+
+
+@auth.requires_login()
+def subscription_invoices():
+    """
+    Page to list invoices for a subscription
+    """
+    csID = request.vars['csID']
+    response.title = T('Profile')
+    response.subtitle = T('Subscription invoices')
+    response.view = 'shop/index.html'
+
+    content = 'hello world'
 
     back = os_gui.get_button('back', URL('profile', 'index'))
 
