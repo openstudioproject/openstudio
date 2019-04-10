@@ -16,12 +16,25 @@ def test_user_register_phone_mandatory(client, web2py):
         Property="registration_requires_mobile",
         PropertyValue="on"
     )
+    web2py.db.commit()
 
     url ='/default/user/register'
     client.get(url)
     assert client.status == 200
 
-    assert
+    assert "Phone..." in client.text
+
+
+def test_user_register_phone_not_mandatory(client, web2py):
+    """
+    Is mobile required when the setting is set
+    """
+
+    url ='/default/user/register'
+    client.get(url)
+    assert client.status == 200
+
+    assert "Phone..." not in client.text
 
 
 def test_user_register_log_acceptance_documents(client, web2py):
