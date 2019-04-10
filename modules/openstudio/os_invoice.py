@@ -1113,7 +1113,7 @@ class Invoice:
         sum_payments = db.invoices_payments.Amount.sum()
         query = (db.invoices_payments.invoices_id == self.invoices_id)
         # sum
-        amount_paid = db(query).select(sum_payments).first()[sum_payments]
+        amount_paid = db(query).select(sum_payments).first()[sum_payments] or 0
         # Decimal
         amount_paid = Decimal(amount_paid)
         # Rounded to 2 decimals
