@@ -91,6 +91,12 @@ def user():
                                                              '%(Name)s',
                                                              error_message=T('Please select a location'),
                                                              zero=T('Please select a location...'))
+
+    if get_sys_property('registration_requires_mobile') == "on":
+        db.auth_user.mobile.requires=IS_LENGTH(
+            minsize=8, error_message=T("Please enter a valid phone number")
+        )
+
     # actually create auth form
     # Set nicer error messages for name fields
     db.auth_user.first_name.requires = IS_NOT_EMPTY(
@@ -156,11 +162,18 @@ def user():
         submit = form.element('input[type=submit]')
         submit['_value'] = T('Create account')
 
+
         location = ''
         if session.show_location:
             location = DIV(LABEL(form.custom.label.school_locations_id),
                            form.custom.widget.school_locations_id,
                            _class='form-group')
+
+        phone = ''
+        if get_sys_property('registration_requires_mobile') == "on":
+            phone = DIV(LABEL(T("Phone")),
+                        form.custom.widget.mobile,
+                        _class='form-group')
 
         accept_ul = UL(_id='accept_ul')
         accept_ul.append(
@@ -193,6 +206,7 @@ def user():
             DIV(LABEL(form.custom.label.email),
                 form.custom.widget.email,
                 _class='form-group'),
+            phone,
             DIV(LABEL(form.custom.label.password),
                 form.custom.widget.password,
                 _class='form-group'),
