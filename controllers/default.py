@@ -171,6 +171,9 @@ def user():
 
         phone = ''
         if get_sys_property('registration_requires_mobile') == "on":
+            mobile = form.element('#auth_user_mobile')
+            mobile['_placeholder'] = T("Phone...")
+
             phone = DIV(LABEL(T("Phone")),
                         form.custom.widget.mobile,
                         _class='form-group')
