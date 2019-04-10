@@ -1656,7 +1656,7 @@ def subscription_invoices():
     cs = CustomerSubscription(csID)
     rows = cs.get_invoices()
     if not rows:
-        table = T("No invoices found")
+        invoices = T("No invoices found")
     else:
         header = DIV(
             DIV(T("Invoice #"), _class="col-md-2"),
