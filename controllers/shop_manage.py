@@ -12,6 +12,7 @@ def workflow():
     response.subtitle = T('Workflow')
     response.view = 'general/only_content.html'
 
+    registration_requires_mobile = get_sys_property('registration_requires_mobile')
     shop_requires_complete_profile_classes = get_sys_property('shop_requires_complete_profile_classes')
     shop_requires_complete_profile_memberships = get_sys_property('shop_requires_complete_profile_memberships')
     shop_requires_complete_profile_classcards = get_sys_property('shop_requires_complete_profile_classcards')
@@ -24,6 +25,10 @@ def workflow():
     shop_subscriptions_payment_method = get_sys_property('shop_subscriptions_payment_method')
 
     form = SQLFORM.factory(
+        Field('registration_requires_mobile', 'boolean',
+              default=registration_requires_mobile,
+              label=T('Phone number is required when registering'),
+              comment=T('Customers will have to enter a phone number when creating an account')),
         Field('shop_requires_complete_profile_classes', 'boolean',
               default=shop_requires_complete_profile_classes,
               label=T('Booking classes require complete profiles'),
@@ -81,6 +86,7 @@ def workflow():
 
     if form.process().accepted:
         form_vars = [
+            'registration_requires_mobile',
             'shop_requires_complete_profile_classes',
             'shop_requires_complete_profile_memberships',
             'shop_requires_complete_profile_classcards',
