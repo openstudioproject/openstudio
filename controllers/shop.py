@@ -1191,6 +1191,10 @@ def membership_order():
     response.subtitle = T('Order confirmation')
     response.view = 'shop/index.html'
 
+    features = db.customers_shop_features(1)
+    if not features.Memberships:
+        return T("This feature is disabled")
+
     smID = request.vars['smID']
     coID = request.vars['coID']
     scd = SchoolMembership(smID)
@@ -1816,6 +1820,10 @@ def classcard_order():
     response.title= T('Shop')
     response.subtitle = T('Order confirmation')
     response.view = 'shop/index.html'
+
+    features = db.customers_shop_features(1)
+    if not features.Classcards:
+        return T("This feature is disabled")
 
     scdID = request.vars['scdID']
     coID = request.vars['coID']
