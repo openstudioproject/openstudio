@@ -720,7 +720,7 @@ def event():
         XML(workshop.Description)
     )
 
-    result = event_get_products_filter_prices_add_to_cart_buttons(workshop)
+    result = event_get_products_filter_prices_book_buttons(workshop)
     products_filter = result['products_filter']
     products_prices = result['products_prices']
     add_to_cart_buttons = result['add_to_cart_buttons']
@@ -817,7 +817,7 @@ def event_get_pictures(workshop):
     return pictures
 
 
-def event_get_products_filter_prices_add_to_cart_buttons(workshop):
+def event_get_products_filter_prices_book_buttons(workshop):
     """
         :param workshop: Workshop object
         :return: div button group for products filter
@@ -897,7 +897,7 @@ def event_get_products_filter_prices_add_to_cart_buttons(workshop):
                                    _style='display: none;'))
 
         # add to cart buttons
-        btn_text = T('Add to cart')
+        btn_text = T('Buy ticket')
         btn_class = 'btn-success'
         _target = ''
 
@@ -913,8 +913,8 @@ def event_get_products_filter_prices_add_to_cart_buttons(workshop):
             if product.AddToCartText:
                 btn_text = product.AddToCartText
         else:
-            url = URL('shop', 'event_add_to_cart', vars={'wspID':product.id})
-            button_icon = 'shopping-cart'
+            url = URL('shop', 'event_ticket', vars={'wspID':product.id})
+            button_icon = 'ticket'
 
         add_to_cart = os_gui.get_button(button_icon,
                 url,

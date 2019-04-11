@@ -130,6 +130,9 @@ class OsGui:
         elif button_type == 'shopping-cart':
             title = title
             icon = self.get_icon('shopping-cart')
+        elif button_type == 'ticket':
+            title = title
+            icon = 'fa fa-ticket'
         elif button_type == 'noicon':
             title = title
             icon = ''
