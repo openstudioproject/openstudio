@@ -86,7 +86,7 @@ def test_customers_shop_features(client, web2py):
     assert client.status == 200
     assert 'No cards available' in client.text
 
-    url = '/shop/classcard_add_to_cart'
+    url = '/shop/classcard_order'
     client.get(url)
     assert client.status == 200
     assert 'This feature is disabled' in client.text
@@ -1563,7 +1563,7 @@ def test_classcard_add_to_cart_requires_complete_profile(client, web2py):
     # populate a regular card and a trial card
     populate_school_classcards(web2py, 1)
 
-    url = '/shop/classcard_add_to_cart?scdID=1'
+    url = '/shop/classcard?scdID=1'
     client.get(url)
     assert client.status == 200
 

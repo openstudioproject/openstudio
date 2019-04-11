@@ -148,33 +148,6 @@ def classcards():
     return dict(content=cards)
 
 
-@auth.requires_login()
-def classcard_add_to_cart():
-    """
-        Add classcard to cart for customer
-    """
-    from openstudio.os_school_classcard import SchoolClasscard
-
-    scdID = request.vars['scdID']
-
-    features = db.customers_shop_features(1)
-    if features.Classcards:
-        shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile_classcards')
-        if shop_requires_complete_profile:
-            check_add_to_cart_requires_complete_profile(
-                auth.user.id,
-                _next=URL(request.controller, request.function, vars={'scdID': scdID})
-            )
-
-        scd = SchoolClasscard(scdID)
-        scd.add_to_shoppingcart(auth.user.id)
-
-        redirect(URL('cart'))
-    else:
-        return T('This feature is disabled')
-
-
-
 def cart_get_price_total(rows):
     """
         @return: total price for items in shopping cart
