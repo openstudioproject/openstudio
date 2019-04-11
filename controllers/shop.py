@@ -231,7 +231,8 @@ def checkout_get_progress(function):
     step_order = [
         'checkout',
         'classcard',
-        'membership'
+        'membership',
+        'subscription'
     ]
 
     if function in step_order :
@@ -240,7 +241,14 @@ def checkout_get_progress(function):
     checkout_progress.append(SPAN(T('Order'), _class=checkout_class))
     checkout_progress.append(spacer)
 
-    if function == 'order_received' or function == 'classcard_order':
+    step_received = [
+        'order_received',
+        'classcard_order',
+        'membership_order',
+        'subscription_order'
+    ]
+
+    if function in step_received:
         received_class = active_class
 
     checkout_progress.append(SPAN(T('Payment'), _class=received_class))
@@ -1339,17 +1347,24 @@ def subscription():
         classes = ssu.get_classes_formatted()
         subscription_conditions = subscription_get_terms(ssu)
 
+        form = ''
         direct_debit_mandate = ''
         confirm = ''
         if payment_method == 'mollie':
-            direct_debit_mandate= DIV()
-            confirm = A(B(T('I agree')),
-                        _href=URL('mollie', 'subscription_buy_now', vars={'ssuID':ssuID}),
-                        _class='btn btn-primary')
+            form = checkout_get_form_order()
+            if form.process().accepted:
+                # response.flash = T('Accepted order')
+                redirect(URL('shop', 'classcard_order',
+                             vars={'coID': form.vars.id,
+                                   'scdID': scdID}))
+
+            # confirm = A(B(T('I agree')),
+            #             _href=URL('mollie', 'subscription_buy_now', vars={'ssuID':ssuID}),
+            #             _class='btn btn-primary')
         else:
-            confirm =  A(B(T('I agree')),
-                        _href=URL('subscription_direct_debit', vars={'ssuID': ssuID}),
-                        _class='btn btn-primary')
+            form =  A(B(T('I agree')),
+                      _href=URL('subscription_direct_debit', vars={'ssuID': ssuID}),
+                      _class='btn btn-primary')
 
             if not customer.has_payment_info_mandate():
                 mandate_text = get_sys_property('shop_direct_debit_mandate_text')
@@ -1358,10 +1373,6 @@ def subscription():
                         H4(T('Direct Debit Mandate')),
                         DIV(XML(mandate_text), _class='well')
                     )
-
-        cancel = A(B(T('Cancel')),
-                   _href=URL('subscriptions'),
-                   _class='btn btn-default')
 
         subscription_info = subscription_get_info(ssu)
 
@@ -1399,15 +1410,17 @@ def subscription():
             m_required,
             DIV(
                 DIV(B((os_gui.get_fa_icon('fa-exclamation-circle')), " ", T("Your subscription is almost activated")), BR(),
-                    T("By clicking 'I agree' you agree to the terms and conditions and will activate this subscription with a payment obligation."),
+                    T("By continuing you agree to the terms and conditions and will activate this subscription with a payment obligation."),
                     BR(), BR(), BR(),
                     _class="col-md-12"),
-                DIV(confirm, cancel, _class='col-md-12'),
+                DIV(form, _class='col-md-12'),
                 _class='col-md-12'
             ),
         _class="row")
 
-    return dict(content=content)
+    back = os_gui.get_button('back', URL('subscriptions'))
+
+    return dict(content=content, back=back, progress=checkout_get_progress(request.function))
 
 
 def subscription_get_terms(ssu):
