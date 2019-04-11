@@ -501,7 +501,15 @@ def checkout_order_workshop_product(wspID, order):
         :param order: Order object
         :return: None
     """
-    order.order_item_add_workshop_product(wspID)
+    items = order.get_order_items_rows()
+    already_ordered = False
+    for item in items:
+        if item.workshops_products_id == int(wspID):
+            already_ordered = True
+            break
+
+    if not already_ordered:
+        order.order_item_add_workshop_product(wspID)
 
 
 def checkout_order_class(clsID, class_date, attendance_type, order):
@@ -1093,6 +1101,81 @@ def event_ticket_get_info(wsp):
     )
 
     return info
+
+
+@auth.requires_login()
+def event_ticket_order():
+    """
+    Event ticket order confirmation and link to payment or complete without payment
+    """
+    from openstudio.os_customer import Customer
+    from openstudio.os_order import Order
+    from openstudio.os_workshop_product import WorkshopProduct
+
+    response.title= T('Shop')
+    response.subtitle = T('Order confirmation')
+    response.view = 'shop/index.html'
+
+    features = db.customers_shop_features(1)
+    if not features.Workshops:
+        return T("This feature is disabled")
+
+    wspID = request.vars['wspID']
+    coID = request.vars['coID']
+    wsp = WorkshopProduct(wspID)
+    order = Order(coID)
+    # Set status awaiting payment
+    order.set_status_awaiting_payment()
+
+    # Add items to order
+    customer = Customer(auth.user.id)
+    checkout_order_workshop_product(scdID, order)
+
+    # mail order to customer
+    order_received_mail_customer(coID)
+
+    # check if this order needs to be paid or it's free and can be added to the customers' account straight away
+    amounts = order.get_amounts()
+
+    if not amounts:
+        order_received_redirect_complete(coID)
+    elif amounts.TotalPriceVAT == 0:
+        order_received_redirect_complete(coID)
+
+    # Check if an online payment provider is enabled:
+    online_payment_provider = get_sys_property('online_payment_provider')
+    if online_payment_provider == 'disabled':
+        # no payment provider, deliver order and redirect to complete.
+        order.deliver()
+        redirect(URL('complete', vars={'coID':coID}))
+
+    # We have a payment provider, lets show a pay now page!
+    pay_now = A(T("Pay now"), ' ',
+                os_gui.get_fa_icon('fa-angle-right'),
+                _href=URL('mollie', 'order_pay', vars={'coID': coID}),
+                _class='btn btn-success bold')
+
+    content = DIV(
+        DIV(H4(T('We have received your order')),
+            T("The items in your order will be delivered as soon as we've received the payment for this order."), BR(),
+            T("Click 'Pay now' to complete the payment."), BR(),
+            BR(), BR(),
+            pay_now,
+            _class='col-md-6'
+        ),
+        DIV(H4(T("Order summary")),
+            order.get_order_items_summary_display(),
+            _class="col-md-6"),
+        _class='row')
+
+    # Send sys notification
+    os_mail = OsMail()
+    os_mail.send_notification(
+        'order_created',
+        customers_orders_id=coID
+    )
+
+    return dict(content=content, progress=checkout_get_progress(request.function))
 
 
 def events():
