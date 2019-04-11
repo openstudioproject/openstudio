@@ -1048,7 +1048,7 @@ def memberships():
     return dict(content = content)
 
 
-def membership_terms():
+def membership():
     """
         Buy membership confirmation page
     """

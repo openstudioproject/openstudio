@@ -445,7 +445,7 @@ class School:
         T = current.T
 
         link =  A(SPAN(os_gui.get_fa_icon('fa-shopping-cart fa-2x')),
-                 _href=URL('membership_terms', vars={'smID': smID}))
+                 _href=URL('membership', vars={'smID': smID}))
 
         return self._get_formatted_button_apply_accent_color(link)
 
