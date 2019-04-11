@@ -113,6 +113,7 @@ class Order:
 
         db = current.db
         T  = current.T
+        TODAY_LOCAL = current.TODAY_LOCAL
 
         ssu = SchoolSubscription(school_subscriptions_id)
         ssu_tax_rates = ssu.get_tax_rates_on_date(startdate)
@@ -125,8 +126,8 @@ class Order:
             Quantity = 1,
             Price = ssu.get_price_on_date(startdate, formatted=False),
             tax_rates_id = ssu_tax_rates.tax_rates.id,
-            accounting_glaccounts_id = ssu.row.accounting_glaccounts_id,
-            accounting_costcenters_id = ssu.row.accounting_costcenters_id,
+            accounting_glaccounts_id = ssu.get_glaccount_on_date(TODAY_LOCAL),
+            accounting_costcenters_id = ssu.get_costcenter_on_date(TODAY_LOCAL),
         )
 
         self.set_amounts()

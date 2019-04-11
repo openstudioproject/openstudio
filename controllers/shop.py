@@ -490,7 +490,7 @@ def checkout_order_subscription(ssuID, order):
             break
 
     if not already_ordered:
-        order.order_item_add_subscription(scdID)
+        order.order_item_add_subscription(ssuID, TODAY_LOCAL)
 
 
 def checkout_order_workshop_product(wspID, order):
@@ -1369,9 +1369,9 @@ def subscription():
             form = checkout_get_form_order()
             if form.process().accepted:
                 # response.flash = T('Accepted order')
-                redirect(URL('shop', 'classcard_order',
+                redirect(URL('shop', 'subscription_order',
                              vars={'coID': form.vars.id,
-                                   'scdID': scdID}))
+                                   'ssuID': ssuID}))
 
             # confirm = A(B(T('I agree')),
             #             _href=URL('mollie', 'subscription_buy_now', vars={'ssuID':ssuID}),
@@ -1559,14 +1559,14 @@ def subscription_order():
 
     ssuID = request.vars['ssuID']
     coID = request.vars['coID']
-    ssu = SchoolSubscription(scdID, set_db_info=True)
+    ssu = SchoolSubscription(ssuID, set_db_info=True)
     order = Order(coID)
     # Set status awaiting payment
     order.set_status_awaiting_payment()
 
     # Add items to order
     customer = Customer(auth.user.id)
-    checkout_order_subscription(scdID, order)
+    checkout_order_subscription(ssuID, order)
     if ssu.school_memberships_id and not customer.has_given_membership_on_date(ssu.school_memberships_id, TODAY_LOCAL):
         checkout_order_membership(ssu.school_memberships_id, order)
 

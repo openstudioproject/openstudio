@@ -28,7 +28,6 @@ class SchoolSubscription:
 
         row = db.school_subscriptions(self.ssuID)
 
-
         self.Name = row.Name
         self.MinDuration = row.MinDuration
         self.Classes = row.Classes
