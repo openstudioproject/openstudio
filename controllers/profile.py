@@ -424,21 +424,6 @@ def index_get_memberships(customer):
             )
 
             content.append(row)
-        # header = THEAD(TR(TH(T('#')),
-        #                   TH(T('Membership')),
-        #                   TH(T('Start')),
-        #                   TH(),
-        #                   ))
-        # table = TABLE(header, _class='table table-condensed')
-        # for i, row in enumerate(rows):
-        #     repr_row = list(rows[i:i+1].render())[0]
-        #
-        #     tr = TR(TD(row.id),
-        #             TD(repr_row.school_memberships_id),
-        #             TD(repr_row.Startdate),
-        #             TD())
-        #
-        #     table.append(tr)
 
     return os_gui.get_box(T('My Memberships'),
                           content,
