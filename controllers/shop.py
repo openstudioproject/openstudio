@@ -568,8 +568,8 @@ def complete():
                                 added to your account.')
             else:
                 success_msg = SPAN(
-                    T('We have received your payment and processed your order.'), BR(),
-                    T('All items from the order have been added to your profile.'))
+                    T('We have received the payment for your order.'), BR(),
+                    T('All items listed have been added to your account.'))
         else:
             success_header = T('Thank you for your donation!')
             success_msg = T("You're awesome! Please click below to continue...")
