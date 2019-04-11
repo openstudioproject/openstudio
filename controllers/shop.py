@@ -232,7 +232,8 @@ def checkout_get_progress(function):
         'checkout',
         'classcard',
         'membership',
-        'subscription'
+        'subscription',
+        'event_ticket'
     ]
 
     if function in step_order :
@@ -245,7 +246,8 @@ def checkout_get_progress(function):
         'order_received',
         'classcard_order',
         'membership_order',
-        'subscription_order'
+        'subscription_order',
+        'event_order'
     ]
 
     if function in step_received:
@@ -1009,6 +1011,88 @@ def event_get_activities_get_products(wsaID):
         product_ids.append(row.workshops_products_id)
 
     return product_ids
+
+
+@auth.requires_login()
+def event_ticket():
+    """
+    Ticket order page
+    :return:
+    """
+    from openstudio.os_customer import Customer
+    from openstudio.os_workshop_product import WorkshopProduct
+
+    response.title= T('Shop')
+    response.subtitle = T('Event')
+    response.view = 'shop/index.html'
+
+    features = db.customers_shop_features(1)
+    if not features.Workshops:
+        return T('This feature is disabled')
+
+    wspID = request.vars['wspID']
+    wsp = WorkshopProduct(wspID)
+
+    # check if we require a complete profile
+    shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile_events')
+    if shop_requires_complete_profile:
+        check_add_to_cart_requires_complete_profile(
+            auth.user.id,
+            _next=URL(request.controller, request.function, vars={'wspID': wspID})
+        )
+
+
+    ticket_info = event_ticket_get_info(wsp)
+    form = checkout_get_form_order()
+    if form.process().accepted:
+        redirect(URL('shop', 'event_ticket_order',
+                     vars={'coID': form.vars.id,
+                           'wspID': wspID}))
+
+    checkout_message = get_sys_property('shop_checkout_message') or ''
+
+    ## Membership check
+    customer = Customer(auth.user.id)
+
+    m_required = ''
+    m_required_message = ''
+
+    content = DIV(
+        DIV(
+            DIV(H4(T("Selected ticket")), BR(),
+                ticket_info,
+                BR(),
+                _class='col-md-6'
+            ),
+            _class="col-md-12"
+        ),
+        DIV(
+            DIV(form, _class='col-md-12'),
+            _class='col-md-12'
+        ),
+    _class="row")
+
+    back = os_gui.get_button(
+        'back',
+        URL('classcards')
+    )
+
+    return dict(content=content, back=back, progress=checkout_get_progress(request.function))
+
+
+def event_ticket_get_info(wsp):
+    """
+    Get workshop product info
+    :param wsp: WorkshopProduct object
+    :return:
+    """
+    info = UL(
+        LI(B(T("Workshop")), BR(), wsp.workshop_name),
+        LI(B(T("Ticket")), BR(), wsp.name),
+        LI(B(T("Price")), BR(), represent_float_as_amount(wsp.price)),
+    )
+
+    return info
 
 
 def events():
@@ -1795,7 +1879,7 @@ def classcard():
     if shop_requires_complete_profile:
         check_add_to_cart_requires_complete_profile(
             auth.user.id,
-            _next=URL(request.controller, request.function, vars={'sdcID': scdID})
+            _next=URL(request.controller, request.function, vars={'scdID': scdID})
         )
 
     ##

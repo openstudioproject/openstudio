@@ -3654,8 +3654,8 @@ def define_workshops_products():
         Field('ExternalShopURL',
             label=T("Link external shop"),
             comment=T(
-                    "Add an url here starting with 'http://, https:// or mailto:' to change the link of the 'buy ticket' button " + \
-                    "for this poduct")),
+                "Add an url here starting with 'http://, https:// or mailto:' to change the link of the 'buy ticket' button " + \
+                "for this poduct")),
         Field('AddToCartText',
             label=T("Buy ticket button text"),
             default=T('Buy ticket'),
