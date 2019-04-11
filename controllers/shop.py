@@ -636,7 +636,7 @@ def complete():
 
     content = DIV(
         DIV(content_body, _class='col-md-6'),
-        DIV(H4(T("Summary")),
+        DIV(H4(T("Order summary")),
             order_summary,
             _class='col-md-6'),
         _class="row"
