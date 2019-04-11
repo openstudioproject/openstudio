@@ -967,7 +967,8 @@ def _school_classcards_get(var=None):
 
     data = []
     for row in rows:
-        link_shop = URL('shop', 'classcards',
+        link_shop = URL('shop', 'classcard',
+                        vars={'scdID': row.id},
                         scheme=True,
                         host=True,
                         extension='')
