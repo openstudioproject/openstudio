@@ -620,33 +620,33 @@ def subscription_buy_now():
     redirect(URL('invoice_pay', vars={'iID':iID}))
 
 
-@auth.requires_login()
-def membership_buy_now():
-    """
-        Get a membership
-    """
-    from openstudio.os_customer_membership import CustomerMembership
-    from openstudio.os_school_membership import SchoolMembership
-
-    smID = request.vars['smID']
-
-    # init mollie
-    mollie = Client()
-    mollie_api_key = get_sys_property('mollie_website_profile')
-    mollie.set_api_key(mollie_api_key)
-
-    # check if we have a mollie customer id
-    create_mollie_customer(auth.user.id, mollie)
-
-    # Create invoice
-    sm = SchoolMembership(smID)
-    cmID = sm.sell_to_customer(auth.user.id, TODAY_LOCAL)
-
-    cm = CustomerMembership(cmID)
-    iID = cm.get_linked_invoice()
-
-    # Pay invoice ... SHOW ME THE MONEY!! :)
-    redirect(URL('invoice_pay', vars={'iID':iID}))
+# @auth.requires_login()
+# def membership_buy_now():
+#     """
+#         Get a membership
+#     """
+#     from openstudio.os_customer_membership import CustomerMembership
+#     from openstudio.os_school_membership import SchoolMembership
+#
+#     smID = request.vars['smID']
+#
+#     # init mollie
+#     mollie = Client()
+#     mollie_api_key = get_sys_property('mollie_website_profile')
+#     mollie.set_api_key(mollie_api_key)
+#
+#     # check if we have a mollie customer id
+#     create_mollie_customer(auth.user.id, mollie)
+#
+#     # Create invoice
+#     sm = SchoolMembership(smID)
+#     cmID = sm.sell_to_customer(auth.user.id, TODAY_LOCAL)
+#
+#     cm = CustomerMembership(cmID)
+#     iID = cm.get_linked_invoice()
+#
+#     # Pay invoice ... SHOW ME THE MONEY!! :)
+#     redirect(URL('invoice_pay', vars={'iID':iID}))
 
 
 @auth.requires_login()
