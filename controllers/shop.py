@@ -1185,7 +1185,7 @@ def membership_order():
     """
     from openstudio.os_customer import Customer
     from openstudio.os_order import Order
-    from openstudio.os_school_classcard import SchoolClasscard
+    from openstudio.os_school_membership import SchoolMembership
 
     response.title= T('Shop')
     response.subtitle = T('Order confirmation')
@@ -1193,17 +1193,14 @@ def membership_order():
 
     smID = request.vars['smID']
     coID = request.vars['coID']
-    scd = SchoolClasscard(scdID, set_db_info=True)
+    scd = SchoolMembership(smID)
     order = Order(coID)
     # Set status awaiting payment
     order.set_status_awaiting_payment()
 
     # Add items to order
     customer = Customer(auth.user.id)
-    checkout_order_classcard(scdID, order)
-    if scd.row.school_memberships_id and not customer.has_given_membership_on_date(scd.row.school_memberships_id, TODAY_LOCAL):
-        checkout_order_membership(scd.row.school_memberships_id, order)
-
+    checkout_order_membership(smID, order)
 
     # mail order to customer
     order_received_mail_customer(coID)
@@ -1222,8 +1219,6 @@ def membership_order():
         # no payment provider, deliver order and redirect to complete.
         order.deliver()
         redirect(URL('classcard_order_complete', vars={'coID':coID}))
-
-
 
 
     # We have a payment provider, lets show a pay now page!
