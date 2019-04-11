@@ -369,35 +369,6 @@ def index_get_subscriptions(customer):
 
             content.append(row)
 
-            # tr = TR(TD(row.customers_subscriptions.id),
-            #         TD(row.school_subscriptions.Name),
-            #         TD(repr_row.customers_subscriptions.Startdate),
-            #         TD(credits),
-            #         TD(info))
-            #
-            # table.append(tr)
-
-        # header = THEAD(TR(TH(T('#')),
-        #                   TH(T('Subscription')),
-        #                   TH(T('Start')),
-        #                   TH(T('Credits')),
-        #                   TH(),
-        #                   ))
-        # table = TABLE(header, _class='table table-condensed')
-        # for i, row in enumerate(rows):
-        #     repr_row = list(rows[i:i+1].render())[0]
-        #
-        #     credits = subscription_get_link_credits(row)
-        #     info = subscription_get_link_info(row)
-        #
-        #     tr = TR(TD(row.customers_subscriptions.id),
-        #             TD(row.school_subscriptions.Name),
-        #             TD(repr_row.customers_subscriptions.Startdate),
-        #             TD(credits),
-        #             TD(info))
-        #
-        #     table.append(tr)
-
     return os_gui.get_box(T('My Subscriptions'),
                           content,
                           box_class='box-solid',
@@ -424,24 +395,53 @@ def index_get_memberships(customer):
                        _href=URL('shop', 'memberships')), ' ',
                      T("to get a membership."))
     else:
-        header = THEAD(TR(TH(T('#')),
-                          TH(T('Membership')),
-                          TH(T('Start')),
-                          TH(),
-                          ))
-        table = TABLE(header, _class='table table-condensed')
+        header = DIV(
+            DIV(T("#"), _class='col-md-1'),
+            DIV(T("Membership"), _class='col-md-6'),
+            DIV(T("Valid until"), _class='col-md-5'),
+            _class="row bold hidden-sm hidden-xs"
+        )
+
+        content = DIV(header)
+
         for i, row in enumerate(rows):
             repr_row = list(rows[i:i+1].render())[0]
 
-            tr = TR(TD(row.id),
-                    TD(repr_row.school_memberships_id),
-                    TD(repr_row.Startdate),
-                    TD())
+            row = DIV(
+                DIV(SPAN('# ', _class="bold hidden-md hidden-lg"),
+                    row.id,
+                    _class='col-md-1 mobile-bold'),
+                DIV(repr_row.school_memberships_id, BR(),
+                    SPAN(T("Started on"), ": ",
+                         repr_row.Startdate,
+                         _class="text-muted"),
+                    _class='col-md-6'),
+                DIV(SPAN(T("Valid until: "), repr_row.Enddate,
+                         _class="hidden-md text-muted hidden-lg"),
+                    SPAN(repr_row.Enddate, _class="hidden-sm hidden-xs"),
+                    _class='col-md-5'),
+                _class='row'
+            )
 
-            table.append(tr)
+            content.append(row)
+        # header = THEAD(TR(TH(T('#')),
+        #                   TH(T('Membership')),
+        #                   TH(T('Start')),
+        #                   TH(),
+        #                   ))
+        # table = TABLE(header, _class='table table-condensed')
+        # for i, row in enumerate(rows):
+        #     repr_row = list(rows[i:i+1].render())[0]
+        #
+        #     tr = TR(TD(row.id),
+        #             TD(repr_row.school_memberships_id),
+        #             TD(repr_row.Startdate),
+        #             TD())
+        #
+        #     table.append(tr)
 
     return os_gui.get_box(T('My Memberships'),
-                          table,
+                          content,
                           box_class='box-solid',
                           with_border=False,
                           show_footer=True,
