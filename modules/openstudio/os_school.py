@@ -226,7 +226,7 @@ class School:
                 )
 
         link = A(SPAN(os_gui.get_fa_icon('fa-shopping-cart fa-2x')),
-                 _href=URL('subscription_terms', vars={'ssuID': ssuID}))
+                 _href=URL('subscription', vars={'ssuID': ssuID}))
 
         return self._get_formatted_button_apply_accent_color(link)
 

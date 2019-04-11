@@ -886,7 +886,7 @@ def _school_subscriptions_get(var=None):
     for row in rows:
         link_shop = ''
         if row.school_subscriptions.ShopSubscription:
-            link_shop = URL('shop', 'subscription_terms',
+            link_shop = URL('shop', 'subscription',
                             vars={'ssuID': row.school_subscriptions.id},
                             scheme=True,
                             host=True,

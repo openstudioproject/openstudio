@@ -1099,7 +1099,7 @@ def membership():
                 _class='col-md-6'
             ),
             DIV(H4(T("Terms & Conditions")),
-                subscription_terms_get_membership_terms(membership),
+                subscription_get_membership_terms(membership),
                 _class='col-md-6'
             ),
             _class="col-md-12"
@@ -1250,7 +1250,7 @@ def subscriptions():
     return dict(content = content)
 
 
-def subscription_terms_check_valid_bankdetails(payment_method, ssuID):
+def subscription_check_valid_bankdetails(payment_method, ssuID):
     """
 
     :param var:
@@ -1267,7 +1267,7 @@ def subscription_terms_check_valid_bankdetails(payment_method, ssuID):
 
 
 @auth.requires_login()
-def subscription_terms():
+def subscription():
     """
         Buy subscription confirmation page
     """
@@ -1298,7 +1298,7 @@ def subscription_terms():
     # Check for valid bank details
     ##
     payment_method = get_sys_property('shop_subscriptions_payment_method')
-    subscription_terms_check_valid_bankdetails(payment_method, ssuID)
+    subscription_check_valid_bankdetails(payment_method, ssuID)
 
     ##
     # Check startdate of subscription
@@ -1337,7 +1337,7 @@ def subscription_terms():
         ssu._set_dbinfo()
         price = ssu.get_price_on_date(TODAY_LOCAL)
         classes = ssu.get_classes_formatted()
-        subscription_conditions = subscription_terms_get_terms(ssu)
+        subscription_conditions = subscription_get_terms(ssu)
 
         direct_debit_mandate = ''
         confirm = ''
@@ -1363,7 +1363,7 @@ def subscription_terms():
                    _href=URL('subscriptions'),
                    _class='btn btn-default')
 
-        subscription_info = subscription_terms_get_info(ssu)
+        subscription_info = subscription_get_info(ssu)
 
         ## Membership check
         customer = Customer(auth.user.id)
@@ -1374,10 +1374,10 @@ def subscription_terms():
             m_required = DIV(
                 DIV(H4(T("Membership required")),
                     T("To take this subscription the following membership is required"), BR(), BR(),
-                    subscription_terms_get_membership_info(membership),
+                    subscription_get_membership_info(membership),
                     _class='col-md-6'),
                 DIV(H4(T("Membership terms & conditions")),
-                    subscription_terms_get_membership_terms(membership),
+                    subscription_get_membership_terms(membership),
                     _class='col-md-6'),
                 _class='col-md-12'
             )
@@ -1410,7 +1410,7 @@ def subscription_terms():
     return dict(content=content)
 
 
-def subscription_terms_get_terms(ssu):
+def subscription_get_terms(ssu):
     """
     :param ssu: SchoolSubscription object
     :return:
@@ -1429,7 +1429,7 @@ def subscription_terms_get_terms(ssu):
     return DIV(terms, _class='well')
 
 
-def subscription_terms_get_info(ssu):
+def subscription_get_info(ssu):
     """
     :param ssu: SchoolSubscription object
     :return: UL with subscription info
@@ -1471,7 +1471,7 @@ def subscription_terms_get_info(ssu):
     return subscription_info
 
 
-def subscription_terms_get_membership_info(sm):
+def subscription_get_membership_info(sm):
     """
 
     :param sm: SchoolMembership object
@@ -1493,7 +1493,7 @@ def subscription_terms_get_membership_info(sm):
     return info
 
 
-def subscription_terms_get_membership_terms(sm):
+def subscription_get_membership_terms(sm):
     """
     :param sm: SchoolMembership object
     :return:
@@ -1605,7 +1605,7 @@ def subscription_add_bankaccount():
             btn_class='btn-primary'
         ))
 
-    session.profile_me_bankaccount_next = URL('shop', 'subscription_terms', vars={'ssuID': ssuID})
+    session.profile_me_bankaccount_next = URL('shop', 'subscription', vars={'ssuID': ssuID})
 
     return dict(content = content)
 
@@ -1721,10 +1721,10 @@ def classcard():
         m_required = DIV(
             DIV(H4(T("Membership required")),
                 T("To take this classcard the following membership is required. It will be added to your order."), BR(), BR(),
-                subscription_terms_get_membership_info(membership),
+                subscription_get_membership_info(membership),
                 _class='col-md-6'),
             DIV(H4(T("Membership terms & conditions")),
-                subscription_terms_get_membership_terms(membership),
+                subscription_get_membership_terms(membership),
                 _class='col-md-6'),
             _class='col-md-12'
         )

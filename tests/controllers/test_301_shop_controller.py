@@ -108,7 +108,7 @@ def test_customers_shop_features(client, web2py):
     assert client.status == 200
     assert 'No subscriptions available' in client.text
 
-    url = '/shop/subscription_terms'
+    url = '/shop/subscription'
     client.get(url)
     assert client.status == 200
     assert 'This feature is disabled' in client.text
@@ -2070,7 +2070,7 @@ def test_subscriptions_membership_required_message(client, web2py):
     populate_school_memberships(web2py)
     populate_school_subscriptions(web2py, school_memberships_id=1)
 
-    url = '/shop/subscription_terms?ssuID=1'
+    url = '/shop/subscription?ssuID=1'
     client.get(url)
     assert client.status == 200
 
@@ -2078,7 +2078,7 @@ def test_subscriptions_membership_required_message(client, web2py):
     assert sm.Name in client.text
 
 
-def test_subscription_terms(client, web2py):
+def test_subscription(client, web2py):
     """
         Are the terms for a subscription showing correctly?
          ( First the general terms defined in settings and below the specific terms from the subscription in school )
@@ -2100,7 +2100,7 @@ def test_subscription_terms(client, web2py):
 
     web2py.db.commit()
 
-    url = '/shop/subscription_terms?ssuID=1'
+    url = '/shop/subscription?ssuID=1'
     client.get(url)
     assert client.status == 200
 
@@ -2111,7 +2111,7 @@ def test_subscription_terms(client, web2py):
     assert ssu.Terms in client.text
 
 
-def test_subscription_terms_requires_complete_profile(client, web2py):
+def test_subscription_requires_complete_profile(client, web2py):
     """
         Are the terms for a subscription showing correctly?
          ( First the general terms defined in settings and below the specific terms from the subscription in school )
@@ -2137,7 +2137,7 @@ def test_subscription_terms_requires_complete_profile(client, web2py):
 
     web2py.db.commit()
 
-    url = '/shop/subscription_terms?ssuID=1'
+    url = '/shop/subscription?ssuID=1'
     client.get(url)
     assert client.status == 200
 
