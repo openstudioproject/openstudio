@@ -247,7 +247,7 @@ def checkout_get_progress(function):
         'classcard_order',
         'membership_order',
         'subscription_order',
-        'event_order'
+        'event_ticket_order'
     ]
 
     if function in step_received:
@@ -1129,7 +1129,7 @@ def event_ticket_order():
 
     # Add items to order
     customer = Customer(auth.user.id)
-    checkout_order_workshop_product(scdID, order)
+    checkout_order_workshop_product(wspID, order)
 
     # mail order to customer
     order_received_mail_customer(coID)
