@@ -289,26 +289,39 @@ def index_get_classcards(customer):
                        _href=URL('shop', 'classcards')), ' ',
                      T("to buy a class card."))
     else:
-        header = THEAD(TR(TH(T('Card')),
-                          TH(T('Expires')),
-                          TH(T('Classes')),
-                          ))
+        header = DIV(
+            DIV(T("Card"), _class='col-md-1'),
+            DIV(T("Expires"), _class='col-md-5'),
+            DIV(T("Classes"), _class='col-md-4'),
+            DIV(T(""), _class='col-md-2'), # Actions
+            _class="row bold hidden-sm hidden-xs"
+        )
 
-        table = TABLE(header, _class='table table-condensed')
+        content = DIV(header)
+
         for i, row in enumerate(rows):
             repr_row = list(rows[i:i+1].render())[0]
 
             remaining = classcard_get_remaining(row)
+            info = classcard_get_link_info(row)
 
-            tr = TR(TD(row.school_classcards.Name),
-                    TD(row.customers_classcards.Enddate),
-                    TD(remaining),
-                    TD(classcard_get_link_info(row)))
+            row = DIV(
+                DIV(SPAN('# ', _class="bold hidden-md hidden-lg"),
+                    row.customers_classcards.id,
+                    _class='col-md-1 mobile-bold'),
+                DIV(row.school_classcards.Name,
+                    _class='col-md-5'),
+                DIV(classcard_get_remaining(row),
+                    _class='col-md-4'),
+                DIV(info,
+                    _class='col-md-2'),
+                _class='row'
+            )
 
-            table.append(tr)
+            content.append(row)
 
     return os_gui.get_box(T('My Classcards'),
-                          table,
+                          content,
                           box_class='box-solid',
                           with_border=False,
                           show_footer=True,
@@ -868,10 +881,10 @@ def classcard_get_link_info(row):
     """
     ccdID = row.customers_classcards.id
 
-    return A(os_gui.get_fa_icon('fa-info-circle'),
+    return A(os_gui.get_fa_icon('fa-check'), ' ', T("Access"),
              _href=URL('classcard_info', vars={'ccdID':ccdID}),
              _title=T('Class card details'),
-             _class='grey pull-right')
+             _class='btn btn-link btn-sm pull-right')
 
 
 @auth.requires_login()
