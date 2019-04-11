@@ -490,7 +490,7 @@ def checkout_order_subscription(ssuID, order):
             break
 
     if not already_ordered:
-        order.order_item_add_subscription(ssuID, TODAY_LOCAL)
+        order.order_item_add_subscription(ssuID)
 
 
 def checkout_order_workshop_product(wspID, order):
@@ -1545,6 +1545,8 @@ def subscription_order():
     """
     Subscription order confirmation and link to payment or complete without payment
     """
+    from general_helpers import get_last_day_month
+
     from openstudio.os_customer import Customer
     from openstudio.os_order import Order
     from openstudio.os_school_subscription import SchoolSubscription
@@ -1597,7 +1599,11 @@ def subscription_order():
     content = DIV(
         DIV(H4(T('We have received your order')),
             T("The items in your order will be delivered as soon as we've received the payment for this order."), BR(),
-            T("Click 'Pay now' to complete the payment."), BR(),
+            T("Click 'Pay now' to complete the payment."), BR(), BR(),
+            T("The first payment will be for the period of"), ' ', TODAY_LOCAL.strftime(DATE_FORMAT), ' ',
+            T("until"), ' ', get_last_day_month(TODAY_LOCAL).strftime(DATE_FORMAT), '.', BR(),
+            T("This is the regular monthly fee :"), ' ',
+            SPAN(ssu.get_price_on_date(TODAY_LOCAL, formatted=True), _class='bold'), BR(),
             BR(), BR(),
             pay_now,
             _class='col-md-6'

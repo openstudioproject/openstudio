@@ -120,6 +120,33 @@ class SchoolSubscription:
         return price
 
 
+    def get_price_today(self, formatted=True):
+        """
+        Return calculated price for a subscription, assuming TODAY_LOCAL
+        is the startdate
+        """
+        from general_helpers import get_last_day_month
+        db = current.db
+        TODAY_LOCAL = current.TODAY_LOCAL
+        CURRSYM = current.globalenv['CURRSYM']
+
+        price = self.get_price_on_date(TODAY_LOCAL, False)
+
+        period_start = TODAY_LOCAL
+        period_end = get_last_day_month(period_start)
+
+        delta = period_end - period_start
+        days = delta.days + 1
+        total_days = period_end.day
+        price = round(float(days) / float(total_days) * float(price), 2)
+
+
+        if formatted:
+            return SPAN(CURRSYM, ' ', format(price, '.2f'))
+        else:
+            return price
+
+
     def get_tax_rates_on_date(self, date):
         """
             Returns tax rates on date
