@@ -80,46 +80,6 @@ def contact():
                 logo_login=logo_login)
 
 
-@auth.requires_login()
-def event_add_to_cart():
-    """
-        Actually book a workshop & create an invoice for customer
-    """
-    from openstudio.os_workshop_product import WorkshopProduct
-
-    wspID = request.vars['wspID']
-
-    features = db.customers_shop_features(1)
-    if not features.Workshops:
-        return T('This feature is disabled')
-
-    wsp = WorkshopProduct(wspID)
-    workshop_return_url = URL('event', vars={'wsID':wsp.workshop.id})
-
-    if wsp.is_sold_to_customer(auth.user.id):
-        session.flash = SPAN(SPAN(T("Unable to add to cart"), _class='bold'), BR(),
-                             T("You've already bought this product"))
-        redirect(workshop_return_url)
-    elif wsp.is_in_shoppingcart(auth.user.id):
-        session.flash = SPAN(SPAN(T("Unable to add to cart again"), _class='bold'), BR(),
-                             T("This event ticket is already in your cart"))
-        redirect('cart')
-    elif wsp.is_sold_out():
-        session.flash = SPAN(SPAN(T("Unable to add to cart"), _class='bold'), BR(),
-                             T("This product is sold out"))
-        redirect(workshop_return_url)
-    else:
-        shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile_events')
-        if shop_requires_complete_profile:
-            check_add_to_cart_requires_complete_profile(
-                auth.user.id,
-                _next=URL(request.controller, request.function, vars={'wspID': wspID})
-            )
-
-        wsp.add_to_shoppingcart(auth.user.id)
-        redirect(URL('cart'))
-
-
 def classcards():
     """
         List available classcards
@@ -147,72 +107,72 @@ def classcards():
 
     return dict(content=cards)
 
-
-def cart_get_price_total(rows):
-    """
-        @return: total price for items in shopping cart
-    """
-    from openstudio.os_class import Class
-    from openstudio.os_workshop_product import WorkshopProduct
-
-    cuID = auth.user.id
-
-    total = 0
-    for row in rows:
-        if row.customers_shoppingcart.workshops_products_id:
-            wsp = WorkshopProduct(row.customers_shoppingcart.workshops_products_id)
-            total += wsp.get_price_for_customer(row.customers_shoppingcart.auth_customer_id) or 0
-
-        if row.customers_shoppingcart.school_classcards_id:
-            total += row.school_classcards.Price or 0
-
-        if row.customers_shoppingcart.classes_id:
-            cls = Class(row.customers_shoppingcart.classes_id,
-                        row.customers_shoppingcart.ClassDate)
-            prices = cls.get_prices_customer(cuID)
-
-            if row.customers_shoppingcart.AttendanceType == 1:
-                total += prices['trial']
-            elif row.customers_shoppingcart.AttendanceType == 2:
-                total += prices['dropin']
-
-
-    return total
-
-
-@auth.requires_login()
-def cart():
-    """
-        Page showing shopping cart for customer
-    """
-    from openstudio.os_customer import Customer
-
-    response.title = T('Shopping cart')
-    response.subtitle = ''
-
-    customer = Customer(auth.user.id)
-    messages = customer.shoppingcart_maintenance()
-    alert = ''
-    if len(messages):
-        alert_content = SPAN()
-        for m in messages:
-            alert_content.append(m)
-            alert_content.append(BR())
-
-        alert = os_gui.get_alert('info', alert_content, dismissable=True)
-
-    rows = customer.get_shoppingcart_rows()
-
-    total = SPAN(CURRSYM, ' ', format(cart_get_price_total(rows), '.2f'))
-
-
-    order = ''
-    if len(rows):
-        order = A(B(T('Proceed to Checkout')),
-                  _href=URL('checkout'),
-                  _class='btn btn-primary pull-right')
-
-    return dict(rows=rows, total=total, order=order, progress='', messages=alert)
+#
+# def cart_get_price_total(rows):
+#     """
+#         @return: total price for items in shopping cart
+#     """
+#     from openstudio.os_class import Class
+#     from openstudio.os_workshop_product import WorkshopProduct
+#
+#     cuID = auth.user.id
+#
+#     total = 0
+#     for row in rows:
+#         if row.customers_shoppingcart.workshops_products_id:
+#             wsp = WorkshopProduct(row.customers_shoppingcart.workshops_products_id)
+#             total += wsp.get_price_for_customer(row.customers_shoppingcart.auth_customer_id) or 0
+#
+#         if row.customers_shoppingcart.school_classcards_id:
+#             total += row.school_classcards.Price or 0
+#
+#         if row.customers_shoppingcart.classes_id:
+#             cls = Class(row.customers_shoppingcart.classes_id,
+#                         row.customers_shoppingcart.ClassDate)
+#             prices = cls.get_prices_customer(cuID)
+#
+#             if row.customers_shoppingcart.AttendanceType == 1:
+#                 total += prices['trial']
+#             elif row.customers_shoppingcart.AttendanceType == 2:
+#                 total += prices['dropin']
+#
+#
+#     return total
+#
+#
+# @auth.requires_login()
+# def cart():
+#     """
+#         Page showing shopping cart for customer
+#     """
+#     from openstudio.os_customer import Customer
+#
+#     response.title = T('Shopping cart')
+#     response.subtitle = ''
+#
+#     customer = Customer(auth.user.id)
+#     messages = customer.shoppingcart_maintenance()
+#     alert = ''
+#     if len(messages):
+#         alert_content = SPAN()
+#         for m in messages:
+#             alert_content.append(m)
+#             alert_content.append(BR())
+#
+#         alert = os_gui.get_alert('info', alert_content, dismissable=True)
+#
+#     rows = customer.get_shoppingcart_rows()
+#
+#     total = SPAN(CURRSYM, ' ', format(cart_get_price_total(rows), '.2f'))
+#
+#
+#     order = ''
+#     if len(rows):
+#         order = A(B(T('Proceed to Checkout')),
+#                   _href=URL('checkout'),
+#                   _class='btn btn-primary pull-right')
+#
+#     return dict(rows=rows, total=total, order=order, progress='', messages=alert)
 
 
 def checkout_get_progress(function):
@@ -267,39 +227,39 @@ def checkout_get_progress(function):
 
     return checkout_progress
 
-
-@auth.requires_login()
-def checkout():
-    """
-        Page showing review page for shopping cart
-    """
-    from openstudio.os_customer import Customer
-
-    response.title = T('Check out')
-    response.subtitle = ''
-
-    customer = Customer(auth.user.id)
-    rows = customer.get_shoppingcart_rows()
-
-    total = SPAN(CURRSYM, ' ', format(cart_get_price_total(rows), '.2f'))
-
-    form = ''
-    if len(rows):
-        form = checkout_get_form_order()
-        if form.process().accepted:
-            # response.flash = T('Accepted order')
-            redirect(URL('shop', 'order_received',
-                         vars={'coID': form.vars.id}))
-
-    checkout_message = get_sys_property('shop_checkout_message') or ''
-
-    return dict(
-        rows=rows,
-        total=total,
-        checkout_message=checkout_message,
-        progress=checkout_get_progress(request.function),
-        form=form
-    )
+#
+# @auth.requires_login()
+# def checkout():
+#     """
+#         Page showing review page for shopping cart
+#     """
+#     from openstudio.os_customer import Customer
+#
+#     response.title = T('Check out')
+#     response.subtitle = ''
+#
+#     customer = Customer(auth.user.id)
+#     rows = customer.get_shoppingcart_rows()
+#
+#     total = SPAN(CURRSYM, ' ', format(cart_get_price_total(rows), '.2f'))
+#
+#     form = ''
+#     if len(rows):
+#         form = checkout_get_form_order()
+#         if form.process().accepted:
+#             # response.flash = T('Accepted order')
+#             redirect(URL('shop', 'order_received',
+#                          vars={'coID': form.vars.id}))
+#
+#     checkout_message = get_sys_property('shop_checkout_message') or ''
+#
+#     return dict(
+#         rows=rows,
+#         total=total,
+#         checkout_message=checkout_message,
+#         progress=checkout_get_progress(request.function),
+#         form=form
+#     )
 
 
 def checkout_get_form_order(var=None):
@@ -3146,41 +3106,6 @@ def class_book_classcard_recurring_get_form(ccd):
     )
 
     return form
-
-
-@auth.requires_login()
-def class_add_to_cart():
-    """
-        Add a drop in class to the shopping cart 
-    """
-    from openstudio.os_class import Class
-
-    clsID = request.vars['clsID']
-    dropin = request.vars['dropin']
-    trial = request.vars['trial']
-    date_formatted = request.vars['date']
-    date = datestr_to_python(DATE_FORMAT, request.vars['date'])
-
-    features = db.customers_shop_features(1)
-    if not features.Classes:
-        return T('This feature is disabled')
-
-    shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile_classes')
-    if shop_requires_complete_profile:
-        check_add_to_cart_requires_complete_profile(
-            auth.user.id,
-            _next=URL(request.controller, request.function, vars=request.vars)
-        )
-
-    cls = Class(clsID, date)
-    # Drop in
-    if dropin == 'true':
-        cls.add_to_shoppingcart(auth.user.id, attendance_type=2)
-    # Trial
-    if trial == 'true':
-        cls.add_to_shoppingcart(auth.user.id, attendance_type=1)
-
-    redirect(URL('cart'))
 
 
 @auth.requires_login()
