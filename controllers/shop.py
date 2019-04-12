@@ -233,7 +233,8 @@ def checkout_get_progress(function):
         'classcard',
         'membership',
         'subscription',
-        'event_ticket'
+        'event_ticket',
+        'class_checkout',
     ]
 
     if function in step_order :
@@ -247,7 +248,8 @@ def checkout_get_progress(function):
         'classcard_order',
         'membership_order',
         'subscription_order',
-        'event_ticket_order'
+        'event_ticket_order',
+        'class_order'
     ]
 
     if function in step_received:
@@ -2843,13 +2845,108 @@ def class_book():
     trial = request.vars['trial']
     if dropin == 'true' or trial =='true':
         # Add drop in class to shopping cart
-        redirect(URL('class_add_to_cart', vars={'clsID':clsID,
-                                                'date':date_formatted,
-                                                'dropin':dropin,
-                                                'trial':trial}))
+        redirect(URL('class_checkout', vars={'clsID':clsID,
+                                             'date':date_formatted,
+                                             'dropin':dropin,
+                                             'trial':trial}))
 
 
     redirect(URL('profile', 'classes'))
+
+
+@auth.requires_login()
+def class_checkout():
+    """
+        Buy class confirmation page
+    """
+    from general_helpers import datestr_to_python
+    from openstudio.os_customer import Customer
+    from openstudio.os_class import Class
+
+    response.title= T('Shop')
+    response.subtitle = T('Class')
+    response.view = 'shop/index.html'
+
+    features = db.customers_shop_features(1)
+    if not features.Classes:
+        return T('This feature is disabled')
+
+    clsID = request.vars['clsID']
+    date_formatted = request.vars['date']
+    date = datestr_to_python(DATE_FORMAT, date_formatted)
+    dropin = request.vars['dropin']
+    trial = request.vars['trial']
+    cls = Class(clsID, date)
+
+    # check if we require a complete profile
+    shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile_classes')
+    if shop_requires_complete_profile:
+        check_add_to_cart_requires_complete_profile(
+            auth.user.id,
+            _next=URL(request.controller, request.function, vars=request.vars)
+        )
+
+    # automatic payment
+    class_info = class_checkout_get_info(cls, dropin, trial)
+
+
+    form = checkout_get_form_order()
+    if form.process().accepted:
+        # response.flash = T('Accepted order')
+        redirect(URL('shop', 'class_order',
+                     vars={'coID': form.vars.id,
+                           'clsID': clsID,
+                           'date': date_formatted,
+                           'dropin': dropin,
+                           'trial': trial}))
+
+    checkout_message = get_sys_property('shop_checkout_message') or ''
+
+    customer = Customer(auth.user.id)
+
+    content = DIV(
+        DIV(
+            DIV(H4(T("Selected class")), BR(),
+                class_info,
+                BR(),
+                _class='col-md-6'
+            ),
+            _class="col-md-12"
+        ),
+        DIV(
+            DIV(form, _class='col-md-12'),
+            _class='col-md-12'
+        ),
+    _class="row")
+
+    back = os_gui.get_button(
+        'back',
+        URL('classcards')
+    )
+
+    return dict(content=content, back=back, progress=checkout_get_progress(request.function))
+
+
+def class_checkout_get_info(cls, dropin, trial):
+    """
+    :param scd: SchoolClasscard object
+    :return: UL with subscription info
+    """
+
+    prices = cls.get_prices_customer(auth.user.id)
+
+
+    info = UL(
+        LI(B(T("Date")), BR(), cls.date.strftime(DATE_FORMAT), ' ',
+           cls.cls.Starttime.strftime(TIME_FORMAT)),
+        LI(B(T("Class")), BR(), cls.get_classtype_name()),
+        LI(B(T("Location")), BR(), cls.get_location_name()),
+        LI(B(T("Type")), BR(), T("Drop in") if dropin else T("Trial")),
+        LI(B(T("Price")), BR(),
+           represent_float_as_amount(prices['dropin'] if dropin else prices['trial'])),
+    )
+
+    return info
 
 
 @auth.requires_login()
