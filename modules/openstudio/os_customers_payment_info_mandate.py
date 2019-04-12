@@ -17,9 +17,7 @@ class OsCustomersPaymentInfoMandate:
         :return:
         """
         from os_customers_payment_info import OsCustomersPaymentInfo
-        from os_exact_online import OSExactOnline
-
-        print 'Syncing mandate to Exact!'
+        from os_exact_online import OSExactOnlin
 
         os_customer_payment_info = OsCustomersPaymentInfo(self.row.customers_payment_info_id)
 
