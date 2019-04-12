@@ -520,7 +520,15 @@ def checkout_order_class(clsID, class_date, attendance_type, order):
         :param order: Order object
         :return: None
     """
-    order.order_item_add_class(clsID, class_date, attendance_type)
+    items = order.get_order_items_rows()
+    already_ordered = False
+    for item in items:
+        if item.classes_id == int(clsID) and item.ClassDate == class_date:
+            already_ordered = True
+            break
+
+    if not already_ordered:
+        order.order_item_add_class(clsID, class_date, attendance_type)
 
 
 @auth.requires_login()
@@ -2947,6 +2955,89 @@ def class_checkout_get_info(cls, dropin, trial):
     )
 
     return info
+
+
+@auth.requires_login()
+def class_order():
+    """
+    Class order confirmation and link to payment or complete without payment
+    """
+    from openstudio.os_customer import Customer
+    from openstudio.os_class import Class
+    from openstudio.os_order import Order
+
+    response.title= T('Shop')
+    response.subtitle = T('Order confirmation')
+    response.view = 'shop/index.html'
+
+    features = db.customers_shop_features(1)
+    if not features.Classes:
+        return T("This feature is disabled")
+
+    coID = request.vars['coID']
+    clsID = request.vars['clsID']
+    date_formatted = request.vars['date']
+    date = datestr_to_python(DATE_FORMAT, date_formatted)
+    dropin = request.vars['dropin']
+    trial = request.vars['trial']
+    cls = Class(clsID, date)
+    order = Order(coID)
+    # Set status awaiting payment
+    order.set_status_awaiting_payment()
+
+    # Add items to order
+    customer = Customer(auth.user.id)
+
+    attendance_type = 2 # dropin
+    if trial:
+        attendance_type = 1
+    checkout_order_class(clsID, date, attendance_type, order)
+
+    # mail order to customer
+    order_received_mail_customer(coID)
+
+    # check if this order needs to be paid or it's free and can be added to the customers' account straight away
+    amounts = order.get_amounts()
+
+    if not amounts:
+        order_received_redirect_complete(coID)
+    elif amounts.TotalPriceVAT == 0:
+        order_received_redirect_complete(coID)
+
+    # Check if an online payment provider is enabled:
+    online_payment_provider = get_sys_property('online_payment_provider')
+    if online_payment_provider == 'disabled':
+        # no payment provider, deliver order and redirect to complete.
+        order.deliver()
+        redirect(URL('complete', vars={'coID':coID}))
+
+    # We have a payment provider, lets show a pay now page!
+    pay_now = A(T("Pay now"), ' ',
+                os_gui.get_fa_icon('fa-angle-right'),
+                _href=URL('mollie', 'order_pay', vars={'coID': coID}),
+                _class='btn btn-success bold')
+
+    content = DIV(
+        DIV(H4(T('We have received your order')),
+            T("Your class will be booked as soon as we've received the payment for this order."), BR(),
+            T("Click 'Pay now' to complete the payment."), BR(),
+            BR(), BR(),
+            pay_now,
+            _class='col-md-6'
+        ),
+        DIV(H4(T("Order summary")),
+            order.get_order_items_summary_display(),
+            _class="col-md-6"),
+        _class='row')
+
+    # Send sys notification
+    os_mail = OsMail()
+    os_mail.send_notification(
+        'order_created',
+        customers_orders_id=coID
+    )
+
+    return dict(content=content, progress=checkout_get_progress(request.function))
 
 
 @auth.requires_login()
