@@ -319,7 +319,7 @@ class Order:
         return rows
 
 
-    def get_order_items_summary_display(self):
+    def get_order_items_summary_display(self, with_customer_message=True):
         """
 
         :return: html table with simple order summary
@@ -347,7 +347,16 @@ class Order:
                     _class='pull-right'))
         )))
 
-        return table
+
+        message = ''
+        if with_customer_message and self.order.CustomerNote:
+            message = DIV(
+                B(T("We received the following message with your order"), ':'), BR(), BR(),
+                XML(self.order.CustomerNote.replace('\n', '<br>')),
+                _class='well'
+            )
+
+        return DIV(table, BR(), message)
 
 
     def get_amounts(self):
