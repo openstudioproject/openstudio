@@ -104,7 +104,7 @@ class Order:
         return coiID
 
 
-    def order_item_add_subscription(self, school_subscriptions_id, startdate):
+    def order_item_add_subscription(self, school_subscriptions_id):
         """
             :param school_subscriptions_id: db.school_subscriptions.id
             :return : db.customers_orders_items.id of inserted item
@@ -113,9 +113,10 @@ class Order:
 
         db = current.db
         T  = current.T
+        TODAY_LOCAL = current.TODAY_LOCAL
 
         ssu = SchoolSubscription(school_subscriptions_id)
-        ssu_tax_rates = ssu.get_tax_rates_on_date(startdate)
+        ssu_tax_rates = ssu.get_tax_rates_on_date(TODAY_LOCAL)
 
         coiID = db.customers_orders_items.insert(
             customers_orders_id  = self.coID,
@@ -123,10 +124,10 @@ class Order:
             ProductName = T('Subscription'),
             Description = ssu.get_name(),
             Quantity = 1,
-            Price = ssu.get_price_on_date(startdate, formatted=False),
+            Price = ssu.get_price_today(formatted=False),
             tax_rates_id = ssu_tax_rates.tax_rates.id,
-            accounting_glaccounts_id = ssu.row.accounting_glaccounts_id,
-            accounting_costcenters_id = ssu.row.accounting_costcenters_id,
+            accounting_glaccounts_id = ssu.get_glaccount_on_date(TODAY_LOCAL),
+            accounting_costcenters_id = ssu.get_costcenter_on_date(TODAY_LOCAL),
         )
 
         self.set_amounts()
@@ -318,7 +319,7 @@ class Order:
         return rows
 
 
-    def get_order_items_summary_display(self):
+    def get_order_items_summary_display(self, with_customer_message=True):
         """
 
         :return: html table with simple order summary
@@ -346,7 +347,16 @@ class Order:
                     _class='pull-right'))
         )))
 
-        return table
+
+        message = ''
+        if with_customer_message and self.order.CustomerNote:
+            message = DIV(
+                B(T("We received the following message with your order"), ':'), BR(), BR(),
+                XML(self.order.CustomerNote.replace('\n', '<br>')),
+                _class='well'
+            )
+
+        return DIV(table, BR(), message)
 
 
     def get_amounts(self):

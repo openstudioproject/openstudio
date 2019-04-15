@@ -42,6 +42,173 @@ def next_weekday(d, weekday):
     return d + datetime.timedelta(days_ahead)
 
 
+def test_class_checkout(client, web2py):
+    """
+    Test class checkout
+    """
+    setup_profile_tests(web2py)
+    prepare_classes(web2py)
+    today = datetime.date.today()
+
+    next_monday = next_weekday(today, 0)
+
+    url = '/shop/class_checkout?clsID=1&dropin=true&date=' + unicode(next_monday)
+    client.get(url)
+    assert client.status == 200
+
+    location = web2py.db.school_locations(1)
+    classtype = web2py.db.school_classtypes(1)
+
+    assert location.Name in client.text
+    assert classtype.Name in client.text
+
+    assert "Anything you'd like" in client.text
+
+
+    # Test /shop/class_order, we should be redirected after submitting
+    data = {
+        'CustomerNote': "my message"
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+    assert "Order summary" in client.text
+    assert unicode(next_monday) in client.text.decode('utf-8')
+    assert "Pay now" in client.text
+    assert data['CustomerNote'] in client.text
+
+    assert web2py.db(web2py.db.customers_orders).count() > 0
+
+
+def test_classcard(client, web2py):
+    """
+    Test classcard info page
+    """
+    setup_profile_tests(web2py)
+    populate_school_memberships(web2py)
+    populate_school_classcards(web2py, school_memberships_id=1)
+
+    url = '/shop/classcard?scdID=1'
+    client.get(url)
+    assert client.status == 200
+
+    scd = web2py.db.school_classcards(1)
+    assert scd.Name in client.text
+    ms = web2py.db.school_memberships(1)
+    assert ms.Name in client.text
+
+    # Test order
+    data = {
+        'CustomerNote': "my message"
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+    assert "Order summary" in client.text
+    assert "Pay now" in client.text
+    assert data['CustomerNote'] in client.text
+
+    assert web2py.db(web2py.db.customers_orders).count() > 0
+
+
+
+def test_subscription(client, web2py):
+    """
+    Test classcard info page
+    """
+    setup_profile_tests(web2py)
+    populate_school_memberships(web2py)
+    populate_school_subscriptions(web2py, school_memberships_id=1)
+
+    url = '/shop/subscription?ssuID=1'
+    client.get(url)
+    assert client.status == 200
+
+    ssu = web2py.db.school_subscriptions(1)
+    assert ssu.Name in client.text
+    ms = web2py.db.school_memberships(1)
+    assert ms.Name in client.text
+
+    # Test order
+    data = {
+        'CustomerNote': "my message"
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+    assert "Order summary" in client.text
+    assert "Pay now" in client.text
+    assert data['CustomerNote'] in client.text
+
+    assert web2py.db(web2py.db.customers_orders).count() > 0
+
+
+def test_membership(client, web2py):
+    """
+    Test classcard info page
+    """
+    setup_profile_tests(web2py)
+    populate_school_memberships(web2py)
+
+    url = '/shop/membership?smID=1'
+    client.get(url)
+    assert client.status == 200
+
+    ms = web2py.db.school_memberships(1)
+    assert ms.Name in client.text
+
+    # Test order
+    data = {
+        'CustomerNote': "my message"
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+    assert "Order summary" in client.text
+    assert "Pay now" in client.text
+    assert data['CustomerNote'] in client.text
+
+    assert web2py.db(web2py.db.customers_orders).count() > 0
+
+
+def test_event_ticket(client, web2py):
+    """
+    Test event ticket order creation page
+    """
+    setup_profile_tests(web2py)
+
+    # populate workshops table
+    populate_workshops(web2py)
+
+    url = '/shop/event_ticket?wspID=1'
+    client.get(url)
+    assert client.status == 200
+
+    wsp = web2py.db.workshops_products(1)
+    ws = web2py.db.workshops(1)
+
+    assert wsp.Name in client.text
+    assert ws.Name in client.text
+
+    # Test order
+    data = {
+        'CustomerNote': "my message"
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+    assert "Order summary" in client.text
+    assert "Pay now" in client.text
+    assert data['CustomerNote'] in client.text
+
+    assert web2py.db(web2py.db.customers_orders).count() > 0
+
+
 def test_customers_shop_features(client, web2py):
     """
         Are the settings to control of which pages to show in the shop working?
@@ -71,11 +238,18 @@ def test_customers_shop_features(client, web2py):
     assert client.status == 200
     assert not 'No subscriptions available' in client.text
 
+    # Check memberships
+    url = '/shop/memberships'
+    client.get(url)
+    assert client.status == 200
+    assert not 'No memberships available at this time' in client.text
+
     ## Change settings
     features = web2py.db.customers_shop_features(1)
     features.Classcards = False
     features.Workshops = False
     features.Subscriptions = False
+    features.Memberships = False
     features.update_record()
     web2py.db.commit()
     # and check again
@@ -86,7 +260,12 @@ def test_customers_shop_features(client, web2py):
     assert client.status == 200
     assert 'No cards available' in client.text
 
-    url = '/shop/classcard_add_to_cart'
+    url = '/shop/classcard'
+    client.get(url)
+    assert client.status == 200
+    assert 'This feature is disabled' in client.text
+
+    url = '/shop/classcard_order'
     client.get(url)
     assert client.status == 200
     assert 'This feature is disabled' in client.text
@@ -97,18 +276,24 @@ def test_customers_shop_features(client, web2py):
     assert client.status == 200
     assert 'No workshops available' in client.text
 
-    url = '/shop/event_add_to_cart'
+    url = '/shop/event_ticket_order'
     client.get(url)
     assert client.status == 200
     assert 'This feature is disabled' in client.text
 
     # Check subscriptions
-    url = '/shop/subscriptions'
+    url = '/shop/subscription'
     client.get(url)
     assert client.status == 200
-    assert 'No subscriptions available' in client.text
+    assert 'This feature is disabled' in client.text
 
-    url = '/shop/subscription_terms'
+    # Check memberships
+    url = '/shop/memberships'
+    client.get(url)
+    assert client.status == 200
+    assert 'No memberships available at this time' in client.text
+
+    url = '/shop/membership'
     client.get(url)
     assert client.status == 200
     assert 'This feature is disabled' in client.text
@@ -898,52 +1083,6 @@ def test_class_book_subscription_no_shopbook_permission(client, web2py):
     assert "Booking options for this class" in client.text
 
 
-def test_class_book_trial(client, web2py):
-    """
-        Can we book a trial class from the shop?
-    """
-    url = '/user/login'
-    client.get(url)
-    assert client.status == 200
-
-    setup_profile_tests(web2py)
-    prepare_classes(web2py)
-
-    next_monday = next_weekday(datetime.date.today(), 0)
-    # check class card booking
-    url = '/shop/class_book?clsID=1&date=' + unicode(next_monday) + '&trial=true'
-    client.get(url)
-    assert client.status == 200
-
-    cart = web2py.db.customers_shoppingcart(1)
-    assert cart.AttendanceType == 1
-
-    url = '/shop/cart'
-    client.get(url)
-    assert '(Trial)' in client.text
-
-
-def test_class_book_dropin(client, web2py):
-    """
-        Can we book a drop in class from the shop?
-    """
-    url = '/user/login'
-    client.get(url)
-    assert client.status == 200
-
-    setup_profile_tests(web2py)
-    prepare_classes(web2py)
-
-    next_monday = next_weekday(datetime.date.today(), 0)
-    # check class card booking
-    url = '/shop/class_book?clsID=1&date=' + unicode(next_monday) + '&dropin=true'
-    client.get(url)
-    assert client.status == 200
-
-    cart = web2py.db.customers_shoppingcart(1)
-    assert cart.AttendanceType == 2
-
-
 def test_class_book_classcard(client, web2py):
     """
         Can we book a class on a class card from the shop?
@@ -1395,28 +1534,6 @@ def test_class_enroll(client, web2py):
     assert web2py.db(query).count() == 1
 
 
-def test_class_add_to_cart(client, web2py):
-    """
-        Can we add a drop in class to the shopping cart? 
-    """
-    url = '/user/login'
-    client.get(url)
-    assert client.status == 200
-
-    setup_profile_tests(web2py)
-    prepare_classes(web2py)
-
-    # check drop in booking
-    future_monday = next_weekday(datetime.date(2999, 1, 1), 0)
-    url = '/shop/class_book?clsID=1&date=' + unicode(future_monday) + '&dropin=true'
-    client.get(url)
-    assert client.status == 200
-
-    query = (web2py.db.customers_shoppingcart.auth_customer_id == 300) & \
-            (web2py.db.customers_shoppingcart.classes_id == 1)
-    assert web2py.db(query).count() == 1
-
-
 def test_class_add_to_cart_requires_complete_profile(client, web2py):
     """
         Can we add a drop in class to the shopping cart?
@@ -1508,28 +1625,6 @@ def test_classcards_display_message_trial_over_times_bought(client, web2py):
     assert "You've reached the maximum number of times you can purchase this card." in client.text
 
 
-# def test_classcard_add_to_cart(client, web2py):
-#     """
-#         Are classcards added to the shopping cart as expected?
-#     """
-#     setup_profile_tests(web2py)
-#
-#     # populate a regular card and a trial card
-#     populate_school_classcards(web2py, 1)
-#
-#     url = '/shop/classcard_add_to_cart?scdID=1'
-#     client.get(url)
-#     assert client.status == 200
-#
-#     # Verify redirection
-#     assert 'Shopping cart' in client.text
-#
-#     # Check db
-#     cart_row = web2py.db.customers_shoppingcart(1)
-#     assert cart_row.auth_customer_id == 300
-#     assert cart_row.school_classcards_id == 1
-
-
 def test_classcard_membership_required_message(client, web2py):
     """
     Is the Membership required link showing like it should?
@@ -1563,193 +1658,12 @@ def test_classcard_add_to_cart_requires_complete_profile(client, web2py):
     # populate a regular card and a trial card
     populate_school_classcards(web2py, 1)
 
-    url = '/shop/classcard_add_to_cart?scdID=1'
+    url = '/shop/classcard?scdID=1'
     client.get(url)
     assert client.status == 200
 
     # Verify redirection
     assert 'best service possible' in client.text
-
-
-def test_cart(client, web2py):
-    """
-        Is the shoppingcart page displaying things as expected?
-    """
-    populate_customers_shoppingcart(web2py)
-
-    url = '/shop/cart'
-    client.get(url)
-    assert client.status == 200
-
-    ## Check listing for classcards
-    # Check product name
-    assert 'Class card' in client.text
-    # Check card description
-    scd = web2py.db.school_classcards(1)
-    assert scd.Name in client.text
-    assert str(scd.Classes) + ' Classes' in client.text
-    assert '3 Months' in client.text
-    assert u'€ ' + unicode(scd.Price) in client.text.decode('utf-8')
-
-    # Check total price
-    total = 0
-    total += scd.Price
-    assert str(total) in client.text
-
-    # Check order link
-    assert '/shop/checkout' in client.text
-
-
-def test_cart_item_remove(client, web2py):
-    """
-        Can we remove items from the shopping cart?
-    """
-    # put two items in the cart and check we only have one left after removing one
-    populate_customers_shoppingcart(web2py)
-
-    url = '/shop/cart_item_remove?cscID=1'
-    client.get(url)
-    assert client.status == 200
-
-    assert web2py.db(web2py.db.customers_shoppingcart).count() == 2
-
-
-def test_cart_remove_past_classes(client, web2py):
-    """
-        Is a class in the past removed from the shopping cart?
-    """
-    setup_profile_tests(web2py)
-
-    # populate classes
-    prepare_classes(web2py)
-
-    # Add class to shopping cart
-    web2py.db.customers_shoppingcart.insert(
-        auth_customer_id = 300,
-        classes_id = 1,
-        ClassDate = '2014-01-06', # definitely in the past
-        AttendanceType = 2,
-    )
-
-    web2py.db.commit()
-
-    # visit cart page and check message
-    url = '/shop/cart'
-    client.get(url)
-    assert client.status == 200
-
-    assert 'One past class was removed from your shopping cart' in client.text
-
-
-def test_checkout(client, web2py):
-    """
-        Is the checkout page listing all items from the cart?
-    """
-    populate_customers_shoppingcart(web2py)
-
-    checkout_message = '123kljfdskj4958'
-
-    web2py.db.sys_properties.insert(
-        Property='shop_checkout_message',
-        PropertyValue=checkout_message
-    )
-
-    web2py.db.commit()
-
-    url = '/shop/checkout'
-    client.get(url)
-    assert client.status == 200
-
-    ## Check listing for classcards
-    # Check product name
-    assert 'Class card' in client.text
-    # Check card description
-    scd = web2py.db.school_classcards(1)
-    assert scd.Name in client.text
-    assert str(scd.Classes) + ' Classes' in client.text
-    assert '3 Months' in client.text
-    assert u'€ ' + unicode(scd.Price) in client.text.decode('utf-8')
-
-    # Check total price
-    total = 0
-    total += scd.Price
-    assert str(total) in client.text
-
-    # Check message
-    assert checkout_message in client.text
-
-    # Check order creation and redirect
-    data = {
-        'CustomerNote': '009356sdjflkj18329u'
-    }
-
-    client.post(url, data=data)
-    assert client.status == 200
-
-    assert web2py.db(web2py.db.customers_orders).count() == 1
-    order = web2py.db.customers_orders(1)
-    assert order.CustomerNote == data['CustomerNote']
-    assert order.auth_customer_id == 300
-
-
-def test_order_received(client, web2py):
-    """
-        Is the cart processed correctly after ordering?
-    """
-    populate_customers_shoppingcart(web2py)
-
-    web2py.db.customers_orders.insert(
-        auth_customer_id = 300,
-    )
-    web2py.db.commit()
-
-    url = '/shop/order_received?coID=1'
-    client.get(url)
-    assert client.status == 200
-    assert 'Thank you' in client.text
-
-    ## Check order
-    assert web2py.db(web2py.db.customers_orders).count() == 1
-    order = web2py.db.customers_orders(1)
-    assert order.Status == 'awaiting_payment'
-    ## check order items
-    assert web2py.db(web2py.db.customers_orders_items).count() == 3
-    # check classcard item
-    item = web2py.db.customers_orders_items(1)
-    scd = web2py.db.school_classcards(1)
-    assert item.TotalPriceVAT == scd.Price
-    assert item.ProductName == 'Classcard'
-    assert item.Description == scd.Name
-    assert item.school_classcards_id == 1
-    assert item.Quantity == 1
-    # check drop in class item
-    cls_price = web2py.db.classes_price(1)
-    item = web2py.db.customers_orders_items(2)
-    assert item.TotalPriceVAT == cls_price.Dropin
-    assert item.ProductName == 'Class'
-    assert item.Description == '2099-01-01 06:00 classtype_1 location_1 (Drop in)'
-    assert item.classes_id == 1
-    assert item.ClassDate == datetime.date(2099, 1, 1)
-    assert item.AttendanceType == 2
-    # check trial in class item
-    cls_price = web2py.db.classes_price(1)
-    item = web2py.db.customers_orders_items(3)
-    assert item.TotalPriceVAT == cls_price.Trial
-    assert item.ProductName == 'Class'
-    assert item.Description == '2099-01-01 06:00 classtype_1 location_1 (Trial)'
-    assert item.classes_id == 1
-    assert item.ClassDate == datetime.date(2099, 1, 1)
-    assert item.AttendanceType == 1
-
-    # check order amounts
-    amounts = web2py.db.customers_orders_amounts(1)
-    assert amounts.TotalPriceVAT == scd.Price + cls_price.Dropin + cls_price.Trial
-
-    # Check mollie link
-    assert '/mollie/order_pay?coID=1' in client.text
-
-    # Check cart emptied
-    assert web2py.db(web2py.db.customers_shoppingcart).count() == 0
 
 
 def test_complete(client, web2py):
@@ -1917,59 +1831,7 @@ def test_event_price_subscription_earlybird(client, web2py):
     assert format(wsp.PriceSubscriptionEarlybird, '.2f') + '</span>' in client.text.decode('utf-8')
 
 
-def test_event_add_to_cart(client, web2py):
-    """
-        Can we add a workshop to the shopping cart?
-    """
-    setup_profile_tests(web2py)
-
-    # populate workshops table
-    populate_workshops(web2py)
-
-    url = '/shop/event_add_to_cart?wspID=1'
-    client.get(url)
-    assert client.status == 200
-
-    # Verify redirection
-    assert 'Shopping cart' in client.text
-
-    # Check db
-    cart_row = web2py.db.customers_shoppingcart(1)
-    assert cart_row.auth_customer_id == 300
-    assert cart_row.workshops_products_id == 1
-
-
-def test_event_add_to_cart_prevent_duplicate_tickets(client, web2py):
-    """
-        We shouldn't be able to add a ticket to the cart twice
-    """
-    setup_profile_tests(web2py)
-
-    # populate workshops table
-    populate_workshops(web2py)
-
-    url = '/shop/event_add_to_cart?wspID=1'
-    client.get(url)
-    assert client.status == 200
-
-    # Verify redirection
-    assert 'Shopping cart' in client.text
-
-    # Check db
-    cart_row = web2py.db.customers_shoppingcart(1)
-    assert cart_row.auth_customer_id == 300
-    assert cart_row.workshops_products_id == 1
-
-    # Ok again
-    url = '/shop/event_add_to_cart?wspID=1'
-    client.get(url)
-    assert client.status == 200
-
-    # Verify redirection
-    assert "This event ticket is already in your cart" in client.text
-
-
-def test_event_add_to_cart_requires_complete_profile(client, web2py):
+def test_event_ticket_requires_complete_profile(client, web2py):
     """
         Is the required profile check working for workshops?
     """
@@ -1984,7 +1846,7 @@ def test_event_add_to_cart_requires_complete_profile(client, web2py):
     )
     web2py.db.commit()
 
-    url = '/shop/event_add_to_cart?wspID=1'
+    url = '/shop/event_ticket?wspID=1'
     client.get(url)
     assert client.status == 200
 
@@ -2029,20 +1891,6 @@ def test_event_product_price_donation(client, web2py):
     assert "Donation based" in client.text
 
 
-def test_event_product_already_purchased(client, web2py):
-    """
-        Is the error message showing when a customer has already bought a product
-    """
-    setup_profile_tests(web2py)
-    populate_workshops_for_api_tests(web2py, auth_customer_id=300)
-
-    url = '/shop/event_add_to_cart?wspID=1'
-    client.get(url)
-    assert client.status == 200
-
-    assert 'Unable to add to cart' in client.text
-
-
 def test_event_product_external_shop_url_and_alt_btn_text(client, web2py):
     """
         Are the fields to link to an external shop from the workshops page working? 
@@ -2070,7 +1918,7 @@ def test_subscriptions_membership_required_message(client, web2py):
     populate_school_memberships(web2py)
     populate_school_subscriptions(web2py, school_memberships_id=1)
 
-    url = '/shop/subscription_terms?ssuID=1'
+    url = '/shop/subscription?ssuID=1'
     client.get(url)
     assert client.status == 200
 
@@ -2078,7 +1926,7 @@ def test_subscriptions_membership_required_message(client, web2py):
     assert sm.Name in client.text
 
 
-def test_subscription_terms(client, web2py):
+def test_subscription(client, web2py):
     """
         Are the terms for a subscription showing correctly?
          ( First the general terms defined in settings and below the specific terms from the subscription in school )
@@ -2100,7 +1948,7 @@ def test_subscription_terms(client, web2py):
 
     web2py.db.commit()
 
-    url = '/shop/subscription_terms?ssuID=1'
+    url = '/shop/subscription?ssuID=1'
     client.get(url)
     assert client.status == 200
 
@@ -2111,7 +1959,7 @@ def test_subscription_terms(client, web2py):
     assert ssu.Terms in client.text
 
 
-def test_subscription_terms_requires_complete_profile(client, web2py):
+def test_subscription_requires_complete_profile(client, web2py):
     """
         Are the terms for a subscription showing correctly?
          ( First the general terms defined in settings and below the specific terms from the subscription in school )
@@ -2131,13 +1979,13 @@ def test_subscription_terms_requires_complete_profile(client, web2py):
 
     terms = 'GeneralTerms'
     web2py.db.sys_properties.insert(
-        Property = 'shop_subscriptions_terms',
+        Property = 'shop_subscription',
         PropertyValue = terms
     )
 
     web2py.db.commit()
 
-    url = '/shop/subscription_terms?ssuID=1'
+    url = '/shop/subscription?ssuID=1'
     client.get(url)
     assert client.status == 200
 
@@ -2200,7 +2048,7 @@ def test_membership_terms(client, web2py):
 
     web2py.db.commit()
 
-    url = '/shop/membership_terms?smID=1'
+    url = '/shop/membership?smID=1'
     client.get(url)
     assert client.status == 200
 
@@ -2211,7 +2059,7 @@ def test_membership_terms(client, web2py):
     assert sm.Terms in client.text
 
 
-def test_membership_terms_requires_complete_profile(client, web2py):
+def test_membership_requires_complete_profile(client, web2py):
     """
         Are the terms for a membership showing correctly?
          ( First the general terms defined in settings and below the specific terms from the membership in school )
@@ -2237,7 +2085,7 @@ def test_membership_terms_requires_complete_profile(client, web2py):
 
     web2py.db.commit()
 
-    url = '/shop/membership_terms?smID=1'
+    url = '/shop/membership?smID=1'
     client.get(url)
     assert client.status == 200
 

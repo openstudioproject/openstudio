@@ -886,7 +886,7 @@ def _school_subscriptions_get(var=None):
     for row in rows:
         link_shop = ''
         if row.school_subscriptions.ShopSubscription:
-            link_shop = URL('shop', 'subscription_terms',
+            link_shop = URL('shop', 'subscription',
                             vars={'ssuID': row.school_subscriptions.id},
                             scheme=True,
                             host=True,
@@ -954,6 +954,7 @@ def _school_classcards_get(var=None):
     query = (db.school_classcards.PublicCard == True) & \
             (db.school_classcards.Archived == False)
     rows = db(query).select(
+        db.school_classcards.id,
         db.school_classcards.Name,
         db.school_classcards.Description,
         db.school_classcards.Price,
@@ -967,7 +968,8 @@ def _school_classcards_get(var=None):
 
     data = []
     for row in rows:
-        link_shop = URL('shop', 'classcards',
+        link_shop = URL('shop', 'classcard',
+                        vars={'scdID': row.id},
                         scheme=True,
                         host=True,
                         extension='')

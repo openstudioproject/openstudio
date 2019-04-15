@@ -1895,6 +1895,8 @@ def populate_customers_orders(web2py):
 
 def populate_customers_orders_items(web2py,
                                     classcards=False,
+                                    subscriptions=False,
+                                    memberships=False,
                                     workshops_products=False,
                                     classes=False,
                                     donation=False):
@@ -1915,6 +1917,16 @@ def populate_customers_orders_items(web2py,
         scd = web2py.db.school_classcards(1)
         Price = scd.Price
         Quantity = 1
+    if memberships:
+        populate_school_memberships(web2py, 32)
+        sm = web2py.db.school_memberships(1)
+        Price = sm.Price
+        Quantity = 1
+    if subscriptions:
+        populate_school_subscriptions(web2py)
+        ssu_price = web2py.db.school_subscriptions_price(1)
+        Price = ssu_price.Price
+        Quantity = 1
     if workshops_products:
         populate_workshops_with_activity(web2py)
         populate_workshops_products(web2py, 1)
@@ -1933,6 +1945,14 @@ def populate_customers_orders_items(web2py,
         school_classcards_id = None
         if classcards:
             school_classcards_id = 1
+
+        school_subscriptions_id = None
+        if subscriptions:
+            school_subscriptions_id = 1
+
+        school_memberships_id = None
+        if memberships:
+            school_memberships_id = 1
 
         workshops_products_id = None
         if workshops_products:
@@ -1954,6 +1974,8 @@ def populate_customers_orders_items(web2py,
             Quantity              = Quantity,
             Price                 = Price,
             school_classcards_id  = school_classcards_id,
+            school_subscriptions_id = school_subscriptions_id,
+            school_memberships_id = school_memberships_id,
             workshops_products_id = workshops_products_id,
             classes_id            = classes_id,
             ClassDate             = class_date,

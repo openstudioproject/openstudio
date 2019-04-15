@@ -226,7 +226,7 @@ class School:
                 )
 
         link = A(SPAN(os_gui.get_fa_icon('fa-shopping-cart fa-2x')),
-                 _href=URL('subscription_terms', vars={'ssuID': ssuID}))
+                 _href=URL('subscription', vars={'ssuID': ssuID}))
 
         return self._get_formatted_button_apply_accent_color(link)
 
@@ -445,7 +445,7 @@ class School:
         T = current.T
 
         link =  A(SPAN(os_gui.get_fa_icon('fa-shopping-cart fa-2x')),
-                 _href=URL('membership_terms', vars={'smID': smID}))
+                 _href=URL('membership', vars={'smID': smID}))
 
         return self._get_formatted_button_apply_accent_color(link)
 
@@ -524,14 +524,6 @@ class School:
                                 ),
                                 _class="col-sm-6 border-right"
                             ),
-                            # DIV(
-                            #     DIV(H5(repr_row.Classes,
-                            #             _class="description-header"),
-                            #         SPAN(T("Classes"), _class="description-text"),
-                            #         _class="description-block"
-                            #     ),
-                            #     _class="col-sm-4 border-right"
-                            # ),
                             DIV(
                                 DIV(H5(self._get_memberships_formatted_button_to_cart(row.id),
                                         _class="description-header"),
@@ -548,29 +540,6 @@ class School:
                 ),
                 _class=card_class
             )
-
-
-            # membership_content = TABLE(TR(TD(T('Validity')),
-            #                               TD(validity)),
-            #                            TR(TD(T('Price')),
-            #                               TD(sm.get_price_on_date(datetime.date.today()))),
-            #                            TR(TD(T('Description')),
-            #                               TD(row.Description or '')),
-            #                            _class='table')
-            #
-            # panel_class = 'box-primary'
-            #
-            # footer_content = ''
-            # if link_type == 'shop':
-            #     footer_content = self._get_memberships_formatted_button_to_cart(row.id)
-            #
-            # membership = DIV(os_gui.get_box_table(
-            #     name,
-            #     membership_content,
-            #     panel_class,
-            #     show_footer=True,
-            #     footer_content=footer_content),
-            #     _class=card_class)
 
             display_row.append(membership)
 

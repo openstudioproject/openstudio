@@ -511,4 +511,3 @@ class CustomerSubscription:
             return_value = False
 
         return return_value
-        

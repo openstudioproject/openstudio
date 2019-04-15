@@ -80,46 +80,6 @@ def contact():
                 logo_login=logo_login)
 
 
-@auth.requires_login()
-def event_add_to_cart():
-    """
-        Actually book a workshop & create an invoice for customer
-    """
-    from openstudio.os_workshop_product import WorkshopProduct
-
-    wspID = request.vars['wspID']
-
-    features = db.customers_shop_features(1)
-    if not features.Workshops:
-        return T('This feature is disabled')
-
-    wsp = WorkshopProduct(wspID)
-    workshop_return_url = URL('event', vars={'wsID':wsp.workshop.id})
-
-    if wsp.is_sold_to_customer(auth.user.id):
-        session.flash = SPAN(SPAN(T("Unable to add to cart"), _class='bold'), BR(),
-                             T("You've already bought this product"))
-        redirect(workshop_return_url)
-    elif wsp.is_in_shoppingcart(auth.user.id):
-        session.flash = SPAN(SPAN(T("Unable to add to cart again"), _class='bold'), BR(),
-                             T("This event ticket is already in your cart"))
-        redirect('cart')
-    elif wsp.is_sold_out():
-        session.flash = SPAN(SPAN(T("Unable to add to cart"), _class='bold'), BR(),
-                             T("This product is sold out"))
-        redirect(workshop_return_url)
-    else:
-        shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile_events')
-        if shop_requires_complete_profile:
-            check_add_to_cart_requires_complete_profile(
-                auth.user.id,
-                _next=URL(request.controller, request.function, vars={'wspID': wspID})
-            )
-
-        wsp.add_to_shoppingcart(auth.user.id)
-        redirect(URL('cart'))
-
-
 def classcards():
     """
         List available classcards
@@ -147,99 +107,72 @@ def classcards():
 
     return dict(content=cards)
 
-
-@auth.requires_login()
-def classcard_add_to_cart():
-    """
-        Add classcard to cart for customer
-    """
-    from openstudio.os_school_classcard import SchoolClasscard
-
-    scdID = request.vars['scdID']
-
-    features = db.customers_shop_features(1)
-    if features.Classcards:
-        shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile_classcards')
-        if shop_requires_complete_profile:
-            check_add_to_cart_requires_complete_profile(
-                auth.user.id,
-                _next=URL(request.controller, request.function, vars={'scdID': scdID})
-            )
-
-        scd = SchoolClasscard(scdID)
-        scd.add_to_shoppingcart(auth.user.id)
-
-        redirect(URL('cart'))
-    else:
-        return T('This feature is disabled')
-
-
-
-def cart_get_price_total(rows):
-    """
-        @return: total price for items in shopping cart
-    """
-    from openstudio.os_class import Class
-    from openstudio.os_workshop_product import WorkshopProduct
-
-    cuID = auth.user.id
-
-    total = 0
-    for row in rows:
-        if row.customers_shoppingcart.workshops_products_id:
-            wsp = WorkshopProduct(row.customers_shoppingcart.workshops_products_id)
-            total += wsp.get_price_for_customer(row.customers_shoppingcart.auth_customer_id) or 0
-
-        if row.customers_shoppingcart.school_classcards_id:
-            total += row.school_classcards.Price or 0
-
-        if row.customers_shoppingcart.classes_id:
-            cls = Class(row.customers_shoppingcart.classes_id,
-                        row.customers_shoppingcart.ClassDate)
-            prices = cls.get_prices_customer(cuID)
-
-            if row.customers_shoppingcart.AttendanceType == 1:
-                total += prices['trial']
-            elif row.customers_shoppingcart.AttendanceType == 2:
-                total += prices['dropin']
-
-
-    return total
-
-
-@auth.requires_login()
-def cart():
-    """
-        Page showing shopping cart for customer
-    """
-    from openstudio.os_customer import Customer
-
-    response.title = T('Shopping cart')
-    response.subtitle = ''
-
-    customer = Customer(auth.user.id)
-    messages = customer.shoppingcart_maintenance()
-    alert = ''
-    if len(messages):
-        alert_content = SPAN()
-        for m in messages:
-            alert_content.append(m)
-            alert_content.append(BR())
-
-        alert = os_gui.get_alert('info', alert_content, dismissable=True)
-
-    rows = customer.get_shoppingcart_rows()
-
-    total = SPAN(CURRSYM, ' ', format(cart_get_price_total(rows), '.2f'))
-
-
-    order = ''
-    if len(rows):
-        order = A(B(T('Proceed to Checkout')),
-                  _href=URL('checkout'),
-                  _class='btn btn-primary pull-right')
-
-    return dict(rows=rows, total=total, order=order, progress='', messages=alert)
+#
+# def cart_get_price_total(rows):
+#     """
+#         @return: total price for items in shopping cart
+#     """
+#     from openstudio.os_class import Class
+#     from openstudio.os_workshop_product import WorkshopProduct
+#
+#     cuID = auth.user.id
+#
+#     total = 0
+#     for row in rows:
+#         if row.customers_shoppingcart.workshops_products_id:
+#             wsp = WorkshopProduct(row.customers_shoppingcart.workshops_products_id)
+#             total += wsp.get_price_for_customer(row.customers_shoppingcart.auth_customer_id) or 0
+#
+#         if row.customers_shoppingcart.school_classcards_id:
+#             total += row.school_classcards.Price or 0
+#
+#         if row.customers_shoppingcart.classes_id:
+#             cls = Class(row.customers_shoppingcart.classes_id,
+#                         row.customers_shoppingcart.ClassDate)
+#             prices = cls.get_prices_customer(cuID)
+#
+#             if row.customers_shoppingcart.AttendanceType == 1:
+#                 total += prices['trial']
+#             elif row.customers_shoppingcart.AttendanceType == 2:
+#                 total += prices['dropin']
+#
+#
+#     return total
+#
+#
+# @auth.requires_login()
+# def cart():
+#     """
+#         Page showing shopping cart for customer
+#     """
+#     from openstudio.os_customer import Customer
+#
+#     response.title = T('Shopping cart')
+#     response.subtitle = ''
+#
+#     customer = Customer(auth.user.id)
+#     messages = customer.shoppingcart_maintenance()
+#     alert = ''
+#     if len(messages):
+#         alert_content = SPAN()
+#         for m in messages:
+#             alert_content.append(m)
+#             alert_content.append(BR())
+#
+#         alert = os_gui.get_alert('info', alert_content, dismissable=True)
+#
+#     rows = customer.get_shoppingcart_rows()
+#
+#     total = SPAN(CURRSYM, ' ', format(cart_get_price_total(rows), '.2f'))
+#
+#
+#     order = ''
+#     if len(rows):
+#         order = A(B(T('Proceed to Checkout')),
+#                   _href=URL('checkout'),
+#                   _class='btn btn-primary pull-right')
+#
+#     return dict(rows=rows, total=total, order=order, progress='', messages=alert)
 
 
 def checkout_get_progress(function):
@@ -255,13 +188,29 @@ def checkout_get_progress(function):
     received_class = ''
     complete_class = ''
 
-    if function == 'checkout' or function == 'classcard':
+    step_order = [
+        'classcard',
+        'membership',
+        'subscription',
+        'event_ticket',
+        'class_checkout',
+    ]
+
+    if function in step_order :
         checkout_class = active_class
 
     checkout_progress.append(SPAN(T('Order'), _class=checkout_class))
     checkout_progress.append(spacer)
 
-    if function == 'order_received' or function == 'classcard_order':
+    step_received = [
+        'classcard_order',
+        'membership_order',
+        'subscription_order',
+        'event_ticket_order',
+        'class_order'
+    ]
+
+    if function in step_received:
         received_class = active_class
 
     checkout_progress.append(SPAN(T('Payment'), _class=received_class))
@@ -277,41 +226,7 @@ def checkout_get_progress(function):
     return checkout_progress
 
 
-@auth.requires_login()
-def checkout():
-    """
-        Page showing review page for shopping cart
-    """
-    from openstudio.os_customer import Customer
-
-    response.title = T('Check out')
-    response.subtitle = ''
-
-    customer = Customer(auth.user.id)
-    rows = customer.get_shoppingcart_rows()
-
-    total = SPAN(CURRSYM, ' ', format(cart_get_price_total(rows), '.2f'))
-
-    form = ''
-    if len(rows):
-        form = checkout_get_form_order()
-        if form.process().accepted:
-            # response.flash = T('Accepted order')
-            redirect(URL('shop', 'order_received',
-                         vars={'coID': form.vars.id}))
-
-    checkout_message = get_sys_property('shop_checkout_message') or ''
-
-    return dict(
-        rows=rows,
-        total=total,
-        checkout_message=checkout_message,
-        progress=checkout_get_progress(request.function),
-        form=form
-    )
-
-
-def checkout_get_form_order(var=None):
+def checkout_get_form_order(submit_button="Place order"):
     """
     :return: SQLForm to create an order
     """
@@ -327,100 +242,10 @@ def checkout_get_form_order(var=None):
     form = SQLFORM(
         db.customers_orders,
         formstyle="bootstrap3_stacked",
-        submit_button=T("Place order")
+        submit_button=T(submit_button)
     )
 
     return form
-
-
-@auth.requires_login()
-def order_received():
-    """
-        Page to thank customer for placing order
-    """
-    from openstudio.os_customer import Customer
-    from openstudio.os_mail import OsMail
-    from openstudio.os_order import Order
-
-    response.title = T('Thank you')
-    coID = request.vars['coID']
-    order = Order(coID)
-
-    # get cart
-    customer = Customer(auth.user.id)
-    rows = customer.get_shoppingcart_rows()
-
-    if not rows:
-        redirect(URL('profile', 'orders'))
-
-
-    # process cart, add products to customer and add items to invoice
-    for row in rows:
-        # process classcards
-        if row.school_classcards.id:
-            checkout_order_classcard(row.school_classcards.id, order)
-        # process workshops
-        if row.workshops_products.id:
-            checkout_order_workshop_product(row.workshops_products.id, order)
-        # process classes
-        if row.classes.id:
-            checkout_order_class(row.classes.id,
-                                 row.customers_shoppingcart.ClassDate,
-                                 row.customers_shoppingcart.AttendanceType,
-                                 order)
-
-
-    # update order status
-    order.set_status_awaiting_payment()
-
-    # remove all items from cart
-    cart_empty(auth.user.id)
-
-    # mail order to customer
-    order_received_mail_customer(coID)
-
-    # check if this order needs to be paid or it's free and can be added to the customers' account straight away
-    amounts = order.get_amounts()
-
-    if not amounts:
-        order_received_redirect_complete(coID)
-    elif amounts.TotalPriceVAT == 0:
-        order_received_redirect_complete(coID)
-
-
-    # Check if an online payment provider is enabled:
-    online_payment_provider = get_sys_property('online_payment_provider')
-    if online_payment_provider == 'disabled':
-        # no payment provider, deliver order and redirect to complete.
-        order.deliver()
-        redirect(URL('complete', vars={'coID':coID}))
-
-
-    # We have a payment provider, lets show a pay now page!
-    pay_now = A(T("Pay now"), ' ',
-                os_gui.get_fa_icon('fa-angle-right'),
-                _href=URL('mollie', 'order_pay', vars={'coID': coID}),
-                _class='btn btn-success bold')
-
-    content = DIV(H3(T('We have received your order'),
-                     _class='grey'),
-                  T("The items in your order will be delivered as soon as we've received the payment for this order."),
-                  BR(),
-                  T("Click 'Pay now' to complete the payment."), BR(),
-                  BR(), BR(),
-                  pay_now,
-                  _class='grey center')
-
-    # Send sys notification
-    os_mail = OsMail()
-    os_mail.send_notification(
-        'order_created',
-        customers_orders_id=coID
-    )
-
-    #TODO: add code to go around mollie, just deliver and notify customer that they're expected to pay an invoice
-
-    return dict(content=content, progress=checkout_get_progress(request.function))
 
 
 def order_received_redirect_complete(coID):
@@ -453,14 +278,6 @@ def order_received_mail_customer(coID):
     osmail.send_and_archive(msgID, auth.user.id)
 
 
-def cart_empty(auth_user_id):
-    """
-        :param auth_user_id: db.auth_user.id
-    """
-    query = (db.customers_shoppingcart.auth_customer_id == auth_user_id)
-    db(query).delete()
-
-
 def checkout_order_membership(smID, order):
     """
         Add class card to order
@@ -491,13 +308,36 @@ def checkout_order_classcard(scdID, order):
         order.order_item_add_classcard(scdID)
 
 
+def checkout_order_subscription(ssuID, order):
+    """
+        Add subscription to order
+    """
+    items = order.get_order_items_rows()
+    already_ordered = False
+    for item in items:
+        if item.school_subscriptions_id == int(ssuID):
+            already_ordered = True
+            break
+
+    if not already_ordered:
+        order.order_item_add_subscription(ssuID)
+
+
 def checkout_order_workshop_product(wspID, order):
     """
         :param wspID: db.workshops_products.id
         :param order: Order object
         :return: None
     """
-    order.order_item_add_workshop_product(wspID)
+    items = order.get_order_items_rows()
+    already_ordered = False
+    for item in items:
+        if item.workshops_products_id == int(wspID):
+            already_ordered = True
+            break
+
+    if not already_ordered:
+        order.order_item_add_workshop_product(wspID)
 
 
 def checkout_order_class(clsID, class_date, attendance_type, order):
@@ -506,26 +346,15 @@ def checkout_order_class(clsID, class_date, attendance_type, order):
         :param order: Order object
         :return: None
     """
-    order.order_item_add_class(clsID, class_date, attendance_type)
+    items = order.get_order_items_rows()
+    already_ordered = False
+    for item in items:
+        if item.classes_id == int(clsID) and item.ClassDate == class_date:
+            already_ordered = True
+            break
 
-
-@auth.requires_login()
-def cart_item_remove():
-    """
-       Page to remove an item from the shopping cart
-    """
-    cscID = request.vars['cscID']
-
-    item = db.customers_shoppingcart(cscID)
-
-    if not item.auth_customer_id == auth.user.id:
-        session.flash = T("What are you doing? That item doesn't belong to your cart...")
-        redirect(URL('cart'))
-
-    query = (db.customers_shoppingcart.id == cscID)
-    db(query).delete()
-
-    redirect(URL('cart'))
+    if not already_ordered:
+        order.order_item_add_class(clsID, class_date, attendance_type)
 
 
 @auth.requires_login()
@@ -566,8 +395,8 @@ def complete():
                                 added to your account.')
             else:
                 success_msg = SPAN(
-                    T('We have received your payment and processed your order.'), BR(),
-                    T('All items from the order have been added to your profile.'))
+                    T('We have received the payment for your order.'), BR(),
+                    T('All items listed have been added to your account.'))
         else:
             success_header = T('Thank you for your donation!')
             success_msg = T("You're awesome! Please click below to continue...")
@@ -630,7 +459,7 @@ def complete():
 
     content = DIV(
         DIV(content_body, _class='col-md-6'),
-        DIV(H4(T("Summary")),
+        DIV(H4(T("Order summary")),
             order_summary,
             _class='col-md-6'),
         _class="row"
@@ -718,7 +547,7 @@ def event():
         XML(workshop.Description)
     )
 
-    result = event_get_products_filter_prices_add_to_cart_buttons(workshop)
+    result = event_get_products_filter_prices_book_buttons(workshop)
     products_filter = result['products_filter']
     products_prices = result['products_prices']
     add_to_cart_buttons = result['add_to_cart_buttons']
@@ -815,7 +644,7 @@ def event_get_pictures(workshop):
     return pictures
 
 
-def event_get_products_filter_prices_add_to_cart_buttons(workshop):
+def event_get_products_filter_prices_book_buttons(workshop):
     """
         :param workshop: Workshop object
         :return: div button group for products filter
@@ -895,7 +724,7 @@ def event_get_products_filter_prices_add_to_cart_buttons(workshop):
                                    _style='display: none;'))
 
         # add to cart buttons
-        btn_text = T('Add to cart')
+        btn_text = T('Buy ticket')
         btn_class = 'btn-success'
         _target = ''
 
@@ -911,8 +740,8 @@ def event_get_products_filter_prices_add_to_cart_buttons(workshop):
             if product.AddToCartText:
                 btn_text = product.AddToCartText
         else:
-            url = URL('shop', 'event_add_to_cart', vars={'wspID':product.id})
-            button_icon = 'shopping-cart'
+            url = URL('shop', 'event_ticket', vars={'wspID':product.id})
+            button_icon = 'ticket'
 
         add_to_cart = os_gui.get_button(button_icon,
                 url,
@@ -1009,6 +838,162 @@ def event_get_activities_get_products(wsaID):
     return product_ids
 
 
+@auth.requires_login()
+def event_ticket():
+    """
+    Ticket order page
+    :return:
+    """
+    from openstudio.os_customer import Customer
+    from openstudio.os_workshop_product import WorkshopProduct
+
+    response.title= T('Shop')
+    response.subtitle = T('Event')
+    response.view = 'shop/index.html'
+
+    features = db.customers_shop_features(1)
+    if not features.Workshops:
+        return T('This feature is disabled')
+
+    wspID = request.vars['wspID']
+    wsp = WorkshopProduct(wspID)
+
+    # check if we require a complete profile
+    shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile_events')
+    if shop_requires_complete_profile:
+        check_add_to_cart_requires_complete_profile(
+            auth.user.id,
+            _next=URL(request.controller, request.function, vars={'wspID': wspID})
+        )
+
+    ticket_info = event_ticket_get_info(wsp)
+    form = checkout_get_form_order()
+    if form.process().accepted:
+        redirect(URL('shop', 'event_ticket_order',
+                     vars={'coID': form.vars.id,
+                           'wspID': wspID}))
+
+    checkout_message = get_sys_property('shop_checkout_message') or ''
+
+    ## Membership check
+    customer = Customer(auth.user.id)
+
+    m_required = ''
+    m_required_message = ''
+
+    content = DIV(
+        DIV(
+            DIV(H4(T("Selected ticket")), BR(),
+                ticket_info,
+                BR(),
+                _class='col-md-6'
+            ),
+            _class="col-md-12"
+        ),
+        DIV(
+            DIV(form, _class='col-md-12'),
+            _class='col-md-12'
+        ),
+    _class="row")
+
+    back = os_gui.get_button(
+        'back',
+        URL('classcards')
+    )
+
+    return dict(content=content, back=back, progress=checkout_get_progress(request.function))
+
+
+def event_ticket_get_info(wsp):
+    """
+    Get workshop product info
+    :param wsp: WorkshopProduct object
+    :return:
+    """
+    info = UL(
+        LI(B(T("Workshop")), BR(), wsp.workshop_name),
+        LI(B(T("Ticket")), BR(), wsp.name),
+        LI(B(T("Price")), BR(), represent_float_as_amount(wsp.price)),
+    )
+
+    return info
+
+
+@auth.requires_login()
+def event_ticket_order():
+    """
+    Event ticket order confirmation and link to payment or complete without payment
+    """
+    from openstudio.os_customer import Customer
+    from openstudio.os_order import Order
+    from openstudio.os_workshop_product import WorkshopProduct
+
+    response.title= T('Shop')
+    response.subtitle = T('Order confirmation')
+    response.view = 'shop/index.html'
+
+    features = db.customers_shop_features(1)
+    if not features.Workshops:
+        return T("This feature is disabled")
+
+    wspID = request.vars['wspID']
+    coID = request.vars['coID']
+    wsp = WorkshopProduct(wspID)
+    order = Order(coID)
+    # Set status awaiting payment
+    order.set_status_awaiting_payment()
+
+    # Add items to order
+    customer = Customer(auth.user.id)
+    checkout_order_workshop_product(wspID, order)
+
+    # mail order to customer
+    order_received_mail_customer(coID)
+
+    # check if this order needs to be paid or it's free and can be added to the customers' account straight away
+    amounts = order.get_amounts()
+
+    if not amounts:
+        order_received_redirect_complete(coID)
+    elif amounts.TotalPriceVAT == 0:
+        order_received_redirect_complete(coID)
+
+    # Check if an online payment provider is enabled:
+    online_payment_provider = get_sys_property('online_payment_provider')
+    if online_payment_provider == 'disabled':
+        # no payment provider, deliver order and redirect to complete.
+        order.deliver()
+        redirect(URL('complete', vars={'coID':coID}))
+
+    # We have a payment provider, lets show a pay now page!
+    pay_now = A(T("Pay now"), ' ',
+                os_gui.get_fa_icon('fa-angle-right'),
+                _href=URL('mollie', 'order_pay', vars={'coID': coID}),
+                _class='btn btn-success bold')
+
+    content = DIV(
+        DIV(H4(T('We have received your order')),
+            T("The items in your order will be delivered as soon as we've received the payment for this order."), BR(),
+            T("Click 'Pay now' to complete the payment."), BR(),
+            BR(), BR(),
+            pay_now,
+            _class='col-md-6'
+        ),
+        DIV(H4(T("Order summary")),
+            order.get_order_items_summary_display(),
+            _class="col-md-6"),
+        _class='row')
+
+    # Send sys notification
+    os_mail = OsMail()
+    os_mail.send_notification(
+        'order_created',
+        customers_orders_id=coID
+    )
+
+    return dict(content=content, progress=checkout_get_progress(request.function))
+
+
 def events():
     """
         Events list for shop
@@ -1048,10 +1033,11 @@ def memberships():
     return dict(content = content)
 
 
-def membership_terms():
+def membership():
     """
         Buy membership confirmation page
     """
+    from openstudio.os_customer import Customer
     from openstudio.os_school_membership import SchoolMembership
 
     response.title= T('Shop')
@@ -1091,19 +1077,160 @@ def membership_terms():
 
     conditions = DIV(terms, _class='well')
 
-    confirm = A(B(T('I agree')),
-                _href=URL('mollie', 'membership_buy_now', vars={'smID':smID}),
-                _class='btn btn-primary')
-    cancel = A(B(T('Cancel')),
-               _href=URL('memberships'),
-               _class='btn btn-default')
+    form = checkout_get_form_order()
+    if form.process().accepted:
+        redirect(URL('shop', 'membership_order',
+                     vars={'coID': form.vars.id,
+                           'smID': smID}))
 
-    content = DIV(H4(T('Terms & conditions')),
-                  conditions,
-                  confirm,
-                  cancel)
+    checkout_message = get_sys_property('shop_checkout_message') or ''
+
+    ## Membership check
+    customer = Customer(auth.user.id)
+
+    membership = SchoolMembership(smID)
+    message_agree = DIV(
+        BR(),
+        B((os_gui.get_fa_icon('fa-exclamation-circle')), " ",
+          T("By ordering this card you agree to the terms and conditions for the required membership")), BR(),
+        BR(),
+        _class="col-md-12"
+    )
+
+    content = DIV(
+        DIV(
+            DIV(H4(T("Selected membership")), BR(),
+                membership_get_info(membership),
+                BR(),
+                _class='col-md-6'
+            ),
+            DIV(H4(T("Terms & Conditions")),
+                subscription_get_membership_terms(membership),
+                _class='col-md-6'
+            ),
+            _class="col-md-12"
+        ),
+        DIV(
+            message_agree,
+            DIV(form, _class='col-md-12'),
+            _class='col-md-12'
+        ),
+    _class="row")
+
+    back = os_gui.get_button(
+        'back',
+        URL('classcards')
+    )
+
+    return dict(content=content, back=back, progress=checkout_get_progress(request.function))
+
+    # confirm = A(B(T('I agree')),
+    #             _href=URL('mollie', 'membership_buy_now', vars={'smID':smID}),
+    #             _class='btn btn-primary')
+    # cancel = A(B(T('Cancel')),
+    #            _href=URL('memberships'),
+    #            _class='btn btn-default')
+    #
+    # content = DIV(H4(T('Terms & conditions')),
+    #               conditions,
+    #               confirm,
+    #               cancel)
 
     return dict(content=content)
+
+
+def membership_get_info(sm):
+    """
+    :param sm: SchoolMembership object
+    :return: UL with subscription info
+    """
+    info = UL(
+        LI(B(T("Membership")), BR(), sm.row.Name),
+        LI(B(T("Price")), BR(), represent_float_as_amount(sm.row.Price)),
+        LI(B(T("Validity")), BR(), sm.get_validity_formatted()),
+    )
+    if sm.row.Description:
+        info.append(
+            LI(B(T("Additional info")), BR(), sm.row.Description)
+        )
+
+    return info
+
+
+@auth.requires_login()
+def membership_order():
+    """
+    Membership order confirmation and link to payment or complete without payment
+    """
+    from openstudio.os_customer import Customer
+    from openstudio.os_order import Order
+    from openstudio.os_school_membership import SchoolMembership
+
+    response.title= T('Shop')
+    response.subtitle = T('Order confirmation')
+    response.view = 'shop/index.html'
+
+    features = db.customers_shop_features(1)
+    if not features.Memberships:
+        return T("This feature is disabled")
+
+    smID = request.vars['smID']
+    coID = request.vars['coID']
+    scd = SchoolMembership(smID)
+    order = Order(coID)
+    # Set status awaiting payment
+    order.set_status_awaiting_payment()
+
+    # Add items to order
+    customer = Customer(auth.user.id)
+    checkout_order_membership(smID, order)
+
+    # mail order to customer
+    order_received_mail_customer(coID)
+
+    # check if this order needs to be paid or it's free and can be added to the customers' account straight away
+    amounts = order.get_amounts()
+
+    if not amounts:
+        order_received_redirect_complete(coID)
+    elif amounts.TotalPriceVAT == 0:
+        order_received_redirect_complete(coID)
+
+    # Check if an online payment provider is enabled:
+    online_payment_provider = get_sys_property('online_payment_provider')
+    if online_payment_provider == 'disabled':
+        # no payment provider, deliver order and redirect to complete.
+        order.deliver()
+        redirect(URL('classcard_order_complete', vars={'coID':coID}))
+
+
+    # We have a payment provider, lets show a pay now page!
+    pay_now = A(T("Pay now"), ' ',
+                os_gui.get_fa_icon('fa-angle-right'),
+                _href=URL('mollie', 'order_pay', vars={'coID': coID}),
+                _class='btn btn-success bold')
+
+    content = DIV(
+        DIV(H4(T('We have received your order')),
+            T("The items in your order will be delivered as soon as we've received the payment for this order."), BR(),
+            T("Click 'Pay now' to complete the payment."), BR(),
+            BR(), BR(),
+            pay_now,
+            _class='col-md-6'
+        ),
+        DIV(H4(T("Order summary")),
+            order.get_order_items_summary_display(),
+            _class="col-md-6"),
+        _class='row')
+
+    # Send sys notification
+    os_mail = OsMail()
+    os_mail.send_notification(
+        'order_created',
+        customers_orders_id=coID
+    )
+
+    return dict(content=content, progress=checkout_get_progress(request.function))
 
 
 def subscriptions():
@@ -1129,7 +1256,7 @@ def subscriptions():
     return dict(content = content)
 
 
-def subscription_terms_check_valid_bankdetails(payment_method, ssuID):
+def subscription_check_valid_bankdetails(payment_method, ssuID):
     """
 
     :param var:
@@ -1146,7 +1273,7 @@ def subscription_terms_check_valid_bankdetails(payment_method, ssuID):
 
 
 @auth.requires_login()
-def subscription_terms():
+def subscription():
     """
         Buy subscription confirmation page
     """
@@ -1177,7 +1304,7 @@ def subscription_terms():
     # Check for valid bank details
     ##
     payment_method = get_sys_property('shop_subscriptions_payment_method')
-    subscription_terms_check_valid_bankdetails(payment_method, ssuID)
+    subscription_check_valid_bankdetails(payment_method, ssuID)
 
     ##
     # Check startdate of subscription
@@ -1216,19 +1343,26 @@ def subscription_terms():
         ssu._set_dbinfo()
         price = ssu.get_price_on_date(TODAY_LOCAL)
         classes = ssu.get_classes_formatted()
-        subscription_conditions = subscription_terms_get_terms(ssu)
+        subscription_conditions = subscription_get_terms(ssu)
 
+        form = ''
         direct_debit_mandate = ''
         confirm = ''
         if payment_method == 'mollie':
-            direct_debit_mandate= DIV()
-            confirm = A(B(T('I agree')),
-                        _href=URL('mollie', 'subscription_buy_now', vars={'ssuID':ssuID}),
-                        _class='btn btn-primary')
+            form = checkout_get_form_order()
+            if form.process().accepted:
+                # response.flash = T('Accepted order')
+                redirect(URL('shop', 'subscription_order',
+                             vars={'coID': form.vars.id,
+                                   'ssuID': ssuID}))
+
+            # confirm = A(B(T('I agree')),
+            #             _href=URL('mollie', 'subscription_buy_now', vars={'ssuID':ssuID}),
+            #             _class='btn btn-primary')
         else:
-            confirm =  A(B(T('I agree')),
-                        _href=URL('subscription_direct_debit', vars={'ssuID': ssuID}),
-                        _class='btn btn-primary')
+            form =  A(B(T('I agree')),
+                      _href=URL('subscription_direct_debit', vars={'ssuID': ssuID}),
+                      _class='btn btn-primary')
 
             if not customer.has_payment_info_mandate():
                 mandate_text = get_sys_property('shop_direct_debit_mandate_text')
@@ -1238,11 +1372,7 @@ def subscription_terms():
                         DIV(XML(mandate_text), _class='well')
                     )
 
-        cancel = A(B(T('Cancel')),
-                   _href=URL('subscriptions'),
-                   _class='btn btn-default')
-
-        subscription_info = subscription_terms_get_info(ssu)
+        subscription_info = subscription_get_info(ssu)
 
         ## Membership check
         customer = Customer(auth.user.id)
@@ -1253,10 +1383,10 @@ def subscription_terms():
             m_required = DIV(
                 DIV(H4(T("Membership required")),
                     T("To take this subscription the following membership is required"), BR(), BR(),
-                    subscription_terms_get_membership_info(membership),
+                    subscription_get_membership_info(membership),
                     _class='col-md-6'),
                 DIV(H4(T("Membership terms & conditions")),
-                    subscription_terms_get_membership_terms(membership),
+                    subscription_get_membership_terms(membership),
                     _class='col-md-6'),
                 _class='col-md-12'
             )
@@ -1278,18 +1408,20 @@ def subscription_terms():
             m_required,
             DIV(
                 DIV(B((os_gui.get_fa_icon('fa-exclamation-circle')), " ", T("Your subscription is almost activated")), BR(),
-                    T("By clicking 'I agree' you agree to the terms and conditions and will activate this subscription with a payment obligation."),
+                    T("By continuing you agree to the terms and conditions and will activate this subscription with a payment obligation."),
                     BR(), BR(), BR(),
                     _class="col-md-12"),
-                DIV(confirm, cancel, _class='col-md-12'),
+                DIV(form, _class='col-md-12'),
                 _class='col-md-12'
             ),
         _class="row")
 
-    return dict(content=content)
+    back = os_gui.get_button('back', URL('subscriptions'))
+
+    return dict(content=content, back=back, progress=checkout_get_progress(request.function))
 
 
-def subscription_terms_get_terms(ssu):
+def subscription_get_terms(ssu):
     """
     :param ssu: SchoolSubscription object
     :return:
@@ -1308,7 +1440,7 @@ def subscription_terms_get_terms(ssu):
     return DIV(terms, _class='well')
 
 
-def subscription_terms_get_info(ssu):
+def subscription_get_info(ssu):
     """
     :param ssu: SchoolSubscription object
     :return: UL with subscription info
@@ -1350,7 +1482,7 @@ def subscription_terms_get_info(ssu):
     return subscription_info
 
 
-def subscription_terms_get_membership_info(sm):
+def subscription_get_membership_info(sm):
     """
 
     :param sm: SchoolMembership object
@@ -1372,7 +1504,7 @@ def subscription_terms_get_membership_info(sm):
     return info
 
 
-def subscription_terms_get_membership_terms(sm):
+def subscription_get_membership_terms(sm):
     """
     :param sm: SchoolMembership object
     :return:
@@ -1389,6 +1521,89 @@ def subscription_terms_get_membership_terms(sm):
         terms.append(XML(specific_terms))
 
     return DIV(terms, _class='well')
+
+
+@auth.requires_login()
+def subscription_order():
+    """
+    Subscription order confirmation and link to payment or complete without payment
+    """
+    from general_helpers import get_last_day_month
+
+    from openstudio.os_customer import Customer
+    from openstudio.os_order import Order
+    from openstudio.os_school_subscription import SchoolSubscription
+
+    response.title= T('Shop')
+    response.subtitle = T('Order confirmation')
+    response.view = 'shop/index.html'
+
+    features = db.customers_shop_features(1)
+    if not features.Subscriptions:
+        return T("This feature is disabled")
+
+    ssuID = request.vars['ssuID']
+    coID = request.vars['coID']
+    ssu = SchoolSubscription(ssuID, set_db_info=True)
+    order = Order(coID)
+    # Set status awaiting payment
+    order.set_status_awaiting_payment()
+
+    # Add items to order
+    customer = Customer(auth.user.id)
+    checkout_order_subscription(ssuID, order)
+    if ssu.school_memberships_id and not customer.has_given_membership_on_date(ssu.school_memberships_id, TODAY_LOCAL):
+        checkout_order_membership(ssu.school_memberships_id, order)
+
+    # mail order to customer
+    order_received_mail_customer(coID)
+
+    # check if this order needs to be paid or it's free and can be added to the customers' account straight away
+    amounts = order.get_amounts()
+
+    if not amounts:
+        order_received_redirect_complete(coID)
+    elif amounts.TotalPriceVAT == 0:
+        order_received_redirect_complete(coID)
+
+    # Check if an online payment provider is enabled:
+    online_payment_provider = get_sys_property('online_payment_provider')
+    if online_payment_provider == 'disabled':
+        # no payment provider, deliver order and redirect to complete.
+        order.deliver()
+        redirect(URL('complete', vars={'coID':coID}))
+
+    # We have a payment provider, lets show a pay now page!
+    pay_now = A(T("Pay now"), ' ',
+                os_gui.get_fa_icon('fa-angle-right'),
+                _href=URL('mollie', 'order_pay', vars={'coID': coID}),
+                _class='btn btn-success bold')
+
+    content = DIV(
+        DIV(H4(T('We have received your order')),
+            T("The items in your order will be delivered as soon as we've received the payment for this order."), BR(),
+            T("Click 'Pay now' to complete the payment."), BR(), BR(),
+            T("The first payment will be for the period of"), ' ', TODAY_LOCAL.strftime(DATE_FORMAT), ' ',
+            T("until"), ' ', get_last_day_month(TODAY_LOCAL).strftime(DATE_FORMAT), '.', BR(),
+            T("This is the regular monthly fee :"), ' ',
+            SPAN(ssu.get_price_on_date(TODAY_LOCAL, formatted=True), _class='bold'), BR(),
+            BR(), BR(),
+            pay_now,
+            _class='col-md-6'
+        ),
+        DIV(H4(T("Order summary")),
+            order.get_order_items_summary_display(),
+            _class="col-md-6"),
+        _class='row')
+
+    # Send sys notification
+    os_mail = OsMail()
+    os_mail.send_notification(
+        'order_created',
+        customers_orders_id=coID
+    )
+
+    return dict(content=content, progress=checkout_get_progress(request.function))
 
 
 @auth.requires_login()
@@ -1484,7 +1699,7 @@ def subscription_add_bankaccount():
             btn_class='btn-primary'
         ))
 
-    session.profile_me_bankaccount_next = URL('shop', 'subscription_terms', vars={'ssuID': ssuID})
+    session.profile_me_bankaccount_next = URL('shop', 'subscription', vars={'ssuID': ssuID})
 
     return dict(content = content)
 
@@ -1563,7 +1778,7 @@ def classcard():
     if shop_requires_complete_profile:
         check_add_to_cart_requires_complete_profile(
             auth.user.id,
-            _next=URL(request.controller, request.function, vars={'sdcID': scdID})
+            _next=URL(request.controller, request.function, vars={'scdID': scdID})
         )
 
     ##
@@ -1576,18 +1791,11 @@ def classcard():
     # membership check & display if required
     # automatic payment
     scd = SchoolClasscard(scdID, set_db_info=True)
-    confirm = A(B(T('Order')),
-                _href=URL('shop', 'classcard_order', vars={'scdID':scdID}),
-                _class='btn btn-primary')
-
-    cancel = A(B(T('Cancel')),
-               _href=URL('classcards'),
-               _class='btn btn-default')
 
     classcard_info = classcard_get_info(scd)
 
 
-    form = checkout_get_form_order()
+    form = checkout_get_form_order("Order class card")
     if form.process().accepted:
         # response.flash = T('Accepted order')
         redirect(URL('shop', 'classcard_order',
@@ -1607,10 +1815,10 @@ def classcard():
         m_required = DIV(
             DIV(H4(T("Membership required")),
                 T("To take this classcard the following membership is required. It will be added to your order."), BR(), BR(),
-                subscription_terms_get_membership_info(membership),
+                subscription_get_membership_info(membership),
                 _class='col-md-6'),
             DIV(H4(T("Membership terms & conditions")),
-                subscription_terms_get_membership_terms(membership),
+                subscription_get_membership_terms(membership),
                 _class='col-md-6'),
             _class='col-md-12'
         )
@@ -1680,6 +1888,10 @@ def classcard_order():
     response.subtitle = T('Order confirmation')
     response.view = 'shop/index.html'
 
+    features = db.customers_shop_features(1)
+    if not features.Classcards:
+        return T("This feature is disabled")
+
     scdID = request.vars['scdID']
     coID = request.vars['coID']
     scd = SchoolClasscard(scdID, set_db_info=True)
@@ -1710,10 +1922,7 @@ def classcard_order():
     if online_payment_provider == 'disabled':
         # no payment provider, deliver order and redirect to complete.
         order.deliver()
-        redirect(URL('classcard_order_complete', vars={'coID':coID}))
-
-
-
+        redirect(URL('complete', vars={'coID':coID}))
 
     # We have a payment provider, lets show a pay now page!
     pay_now = A(T("Pay now"), ' ',
@@ -2389,7 +2598,6 @@ def class_book():
     # Actually book class
     ah = AttendanceHelper()
 
-    session.flash = T('Class booked')
     if csID:
         # Redirect back to book options in case booking this class isn't allowed on this subscription
         cs = CustomerSubscription(csID)
@@ -2450,13 +2658,190 @@ def class_book():
     trial = request.vars['trial']
     if dropin == 'true' or trial =='true':
         # Add drop in class to shopping cart
-        redirect(URL('class_add_to_cart', vars={'clsID':clsID,
-                                                'date':date_formatted,
-                                                'dropin':dropin,
-                                                'trial':trial}))
-
+        redirect(URL('class_checkout', vars={'clsID':clsID,
+                                             'date':date_formatted,
+                                             'dropin':dropin,
+                                             'trial':trial}))
 
     redirect(URL('profile', 'classes'))
+
+
+@auth.requires_login()
+def class_checkout():
+    """
+        Buy class confirmation page
+    """
+    from general_helpers import datestr_to_python
+    from openstudio.os_customer import Customer
+    from openstudio.os_class import Class
+
+    response.title= T('Shop')
+    response.subtitle = T('Class')
+    response.view = 'shop/index.html'
+
+    features = db.customers_shop_features(1)
+    if not features.Classes:
+        return T('This feature is disabled')
+
+    clsID = request.vars['clsID']
+    date_formatted = request.vars['date']
+    date = datestr_to_python(DATE_FORMAT, date_formatted)
+    dropin = request.vars['dropin']
+    trial = request.vars['trial']
+    cls = Class(clsID, date)
+
+    # check if we require a complete profile
+    shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile_classes')
+    if shop_requires_complete_profile:
+        check_add_to_cart_requires_complete_profile(
+            auth.user.id,
+            _next=URL(request.controller, request.function, vars=request.vars)
+        )
+
+    # automatic payment
+    class_info = class_checkout_get_info(cls, dropin, trial)
+    form = checkout_get_form_order(submit_button="Book class")
+
+    if form.process().accepted:
+        print form.vars
+
+        redirect(URL('shop', 'class_order',
+                     vars={'coID': form.vars.id,
+                           'clsID': clsID,
+                           'date': date_formatted,
+                           'dropin': dropin,
+                           'trial': trial}))
+
+    checkout_message = get_sys_property('shop_checkout_message') or ''
+
+    customer = Customer(auth.user.id)
+
+    content = DIV(
+        DIV(
+            DIV(H4(T("Selected class")), BR(),
+                class_info,
+                BR(),
+                _class='col-md-6'
+            ),
+            _class="col-md-12"
+        ),
+        DIV(
+            DIV(form, _class='col-md-12'),
+            _class='col-md-12'
+        ),
+    _class="row")
+
+    back = os_gui.get_button(
+        'back',
+        URL('classcards')
+    )
+
+    return dict(content=content, back=back, progress=checkout_get_progress(request.function))
+
+
+def class_checkout_get_info(cls, dropin, trial):
+    """
+    :param scd: SchoolClasscard object
+    :return: UL with subscription info
+    """
+
+    prices = cls.get_prices_customer(auth.user.id)
+
+
+    info = UL(
+        LI(B(T("Date & time")), BR(), cls.date.strftime(DATE_FORMAT), ' ',
+           cls.cls.Starttime.strftime(TIME_FORMAT)),
+        LI(B(T("Class")), BR(), cls.get_classtype_name()),
+        LI(B(T("Location")), BR(), cls.get_location_name()),
+        LI(B(T("Type")), BR(), T("Drop in") if dropin else T("Trial")),
+        LI(B(T("Price")), BR(),
+           represent_float_as_amount(prices['dropin'] if dropin else prices['trial'])),
+    )
+
+    return info
+
+
+@auth.requires_login()
+def class_order():
+    """
+    Class order confirmation and link to payment or complete without payment
+    """
+    from openstudio.os_customer import Customer
+    from openstudio.os_class import Class
+    from openstudio.os_order import Order
+
+    response.title= T('Shop')
+    response.subtitle = T('Order confirmation')
+    response.view = 'shop/index.html'
+
+    features = db.customers_shop_features(1)
+    if not features.Classes:
+        return T("This feature is disabled")
+
+    coID = request.vars['coID']
+    clsID = request.vars['clsID']
+    date_formatted = request.vars['date']
+    date = datestr_to_python(DATE_FORMAT, date_formatted)
+    dropin = request.vars['dropin']
+    trial = request.vars['trial']
+    cls = Class(clsID, date)
+    order = Order(coID)
+    # Set status awaiting payment
+    order.set_status_awaiting_payment()
+
+    # Add items to order
+    customer = Customer(auth.user.id)
+
+    attendance_type = 2 # dropin
+    if trial:
+        attendance_type = 1
+    checkout_order_class(clsID, date, attendance_type, order)
+
+    # mail order to customer
+    order_received_mail_customer(coID)
+
+    # check if this order needs to be paid or it's free and can be added to the customers' account straight away
+    amounts = order.get_amounts()
+
+    if not amounts:
+        order_received_redirect_complete(coID)
+    elif amounts.TotalPriceVAT == 0:
+        order_received_redirect_complete(coID)
+
+    # Check if an online payment provider is enabled:
+    online_payment_provider = get_sys_property('online_payment_provider')
+    if online_payment_provider == 'disabled':
+        # no payment provider, deliver order and redirect to complete.
+        order.deliver()
+        redirect(URL('complete', vars={'coID':coID}))
+
+    # We have a payment provider, lets show a pay now page!
+    pay_now = A(T("Pay now"), ' ',
+                os_gui.get_fa_icon('fa-angle-right'),
+                _href=URL('mollie', 'order_pay', vars={'coID': coID}),
+                _class='btn btn-success bold')
+
+    content = DIV(
+        DIV(H4(T('We have received your order')),
+            T("Your class will be booked as soon as we've received the payment for this order."), BR(),
+            T("Click 'Pay now' to complete the payment."), BR(),
+            BR(), BR(),
+            pay_now,
+            _class='col-md-6'
+        ),
+        DIV(H4(T("Order summary")),
+            order.get_order_items_summary_display(),
+            _class="col-md-6"),
+        _class='row')
+
+    # Send sys notification
+    os_mail = OsMail()
+    os_mail.send_notification(
+        'order_created',
+        customers_orders_id=coID
+    )
+
+    return dict(content=content, progress=checkout_get_progress(request.function))
 
 
 @auth.requires_login()
@@ -2565,41 +2950,6 @@ def class_book_classcard_recurring_get_form(ccd):
     )
 
     return form
-
-
-@auth.requires_login()
-def class_add_to_cart():
-    """
-        Add a drop in class to the shopping cart 
-    """
-    from openstudio.os_class import Class
-
-    clsID = request.vars['clsID']
-    dropin = request.vars['dropin']
-    trial = request.vars['trial']
-    date_formatted = request.vars['date']
-    date = datestr_to_python(DATE_FORMAT, request.vars['date'])
-
-    features = db.customers_shop_features(1)
-    if not features.Classes:
-        return T('This feature is disabled')
-
-    shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile_classes')
-    if shop_requires_complete_profile:
-        check_add_to_cart_requires_complete_profile(
-            auth.user.id,
-            _next=URL(request.controller, request.function, vars=request.vars)
-        )
-
-    cls = Class(clsID, date)
-    # Drop in
-    if dropin == 'true':
-        cls.add_to_shoppingcart(auth.user.id, attendance_type=2)
-    # Trial
-    if trial == 'true':
-        cls.add_to_shoppingcart(auth.user.id, attendance_type=1)
-
-    redirect(URL('cart'))
 
 
 @auth.requires_login()

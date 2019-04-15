@@ -898,6 +898,22 @@ class OSExactOnline:
                 sent_data=unicode(mandate_dict)
             )
 
+            # Try again on code 401, refresh might not be working as expected
+            if e.code == 401:
+                try:
+                    result = api.directdebitmandates.create(mandate_dict)
+                    os_cpim.row.exact_online_directdebitmandates_id = result['ID']
+                    os_cpim.row.update_record()
+                except:
+                    error = True
+                    self._log_error(
+                        'create',
+                        'mandate',
+                        os_customer_payment_info.cpiID,
+                        e,
+                        sent_data=unicode(mandate_dict)
+                    )
+
 
     def update_dd_mandate(self):
         """
