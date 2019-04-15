@@ -118,8 +118,33 @@ def test_subscription(client, web2py):
     """
     Test classcard info page
     """
-    pass
+    setup_profile_tests(web2py)
+    populate_school_memberships(web2py)
+    populate_school_subscriptions(web2py, school_memberships_id=1)
 
+    url = '/shop/subscription?ssuID=1'
+    client.get(url)
+    assert client.status == 200
+
+    ssu = web2py.db.school_subscriptions(1)
+    assert ssu.Name in client.text
+    ms = web2py.db.school_memberships(1)
+    assert ms.Name in client.text
+
+    # Test order
+    data = {
+        'CustomerNote': "my message"
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+    assert "Order summary" in client.text
+    assert "Pay now" in client.text
+    assert data['CustomerNote'] in client.text
+
+    assert web2py.db(web2py.db.customers_orders).count() > 0
+    
 
 def test_subscription_order(client, web2py):
     """
