@@ -45,6 +45,7 @@ def test_invoice_paid(client, web2py):
     assert unicode(payment.PaymentDate) == date
 
 
+#TODO Update test for susbcriptions and memberships
 def test_order_paid_delivery_invoice(client, web2py):
     """
         Is the order delivered after it's paid and is an invoice created?
