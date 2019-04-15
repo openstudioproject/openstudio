@@ -1796,7 +1796,7 @@ def classcard():
     classcard_info = classcard_get_info(scd)
 
 
-    form = checkout_get_form_order()
+    form = checkout_get_form_order("Order class card")
     if form.process().accepted:
         # response.flash = T('Accepted order')
         redirect(URL('shop', 'classcard_order',
