@@ -404,14 +404,6 @@ def order_received_mail_customer(coID):
     osmail.send_and_archive(msgID, auth.user.id)
 
 
-def cart_empty(auth_user_id):
-    """
-        :param auth_user_id: db.auth_user.id
-    """
-    query = (db.customers_shoppingcart.auth_customer_id == auth_user_id)
-    db(query).delete()
-
-
 def checkout_order_membership(smID, order):
     """
         Add class card to order
@@ -489,25 +481,6 @@ def checkout_order_class(clsID, class_date, attendance_type, order):
 
     if not already_ordered:
         order.order_item_add_class(clsID, class_date, attendance_type)
-
-
-@auth.requires_login()
-def cart_item_remove():
-    """
-       Page to remove an item from the shopping cart
-    """
-    cscID = request.vars['cscID']
-
-    item = db.customers_shoppingcart(cscID)
-
-    if not item.auth_customer_id == auth.user.id:
-        session.flash = T("What are you doing? That item doesn't belong to your cart...")
-        redirect(URL('cart'))
-
-    query = (db.customers_shoppingcart.id == cscID)
-    db(query).delete()
-
-    redirect(URL('cart'))
 
 
 @auth.requires_login()
