@@ -2701,11 +2701,11 @@ def class_checkout():
 
     # automatic payment
     class_info = class_checkout_get_info(cls, dropin, trial)
-
-
     form = checkout_get_form_order(submit_button="Book class")
+
     if form.process().accepted:
-        # response.flash = T('Accepted order')
+        print form.vars
+
         redirect(URL('shop', 'class_order',
                      vars={'coID': form.vars.id,
                            'clsID': clsID,

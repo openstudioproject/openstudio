@@ -46,6 +46,7 @@ def test_class_checkout(client, web2py):
     """
     Test class checkout
     """
+    setup_profile_tests(web2py)
     prepare_classes(web2py)
     today = datetime.date.today()
 
@@ -64,11 +65,20 @@ def test_class_checkout(client, web2py):
     assert "Anything you'd like" in client.text
 
 
-def test_class_order(client, web2py):
-    """
-    Test class checkout
-    """
-    pass
+    # Test /shop/class_order, we should be redirected after submitting
+    data = {
+        'CustomerNote': "my message"
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+    assert "Order summary" in client.text
+    assert unicode(next_monday) in client.text.decode('utf-8')
+    assert "Pay now" in client.text
+    assert data['CustomerNote'] in client.text
+
+    assert web2py.db(web2py.db.customers_orders).count() > 0
 
 
 def test_classcard(client, web2py):
