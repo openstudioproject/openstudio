@@ -144,41 +144,56 @@ def test_subscription(client, web2py):
     assert data['CustomerNote'] in client.text
 
     assert web2py.db(web2py.db.customers_orders).count() > 0
-    
-
-def test_subscription_order(client, web2py):
-    """
-    Test classcard order page
-    """
-    pass
 
 
 def test_membership(client, web2py):
     """
     Test classcard info page
     """
-    pass
+    setup_profile_tests(web2py)
+    populate_school_memberships(web2py)
 
+    url = '/shop/membership?smID=1'
+    client.get(url)
+    assert client.status == 200
 
-def test_membership_order(client, web2py):
-    """
-    Test classcard order page
-    """
-    pass
+    ms = web2py.db.school_memberships(1)
+    assert ms.Name in client.text
+
+    # Test order
+    data = {
+        'CustomerNote': "my message"
+    }
+
+    client.post(url, data=data)
+    assert client.status == 200
+
+    assert "Order summary" in client.text
+    assert "Pay now" in client.text
+    assert data['CustomerNote'] in client.text
+
+    assert web2py.db(web2py.db.customers_orders).count() > 0
 
 
 def test_event_ticket(client, web2py):
     """
     Test event ticket order creation page
     """
-    pass
+    setup_profile_tests(web2py)
+
+    # populate workshops table
+    populate_workshops(web2py)
+
+    url = '/shop/event_ticket?wsID=1'
+    client.get(url)
+    assert client.status == 200
+
+    # Verify regular price
+    wsp = web2py.db.workshops_products(1)
+    assert format(wsp.Price, '.2f') + '</span>' in client.text.decode('utf-8')
 
 
-def test_event_ticket_order(client, web2py):
-    """
-    Test event ticket order
-    """
-    pass
+
 
 
 #TODO update order deliver tests (also delivers subscriptions now)
@@ -1056,52 +1071,6 @@ def test_class_book_subscription_no_shopbook_permission(client, web2py):
 
     # We should be redirected back to booking options page
     assert "Booking options for this class" in client.text
-
-
-def test_class_book_trial(client, web2py):
-    """
-        Can we book a trial class from the shop?
-    """
-    url = '/user/login'
-    client.get(url)
-    assert client.status == 200
-
-    setup_profile_tests(web2py)
-    prepare_classes(web2py)
-
-    next_monday = next_weekday(datetime.date.today(), 0)
-    # check class card booking
-    url = '/shop/class_book?clsID=1&date=' + unicode(next_monday) + '&trial=true'
-    client.get(url)
-    assert client.status == 200
-
-    cart = web2py.db.customers_shoppingcart(1)
-    assert cart.AttendanceType == 1
-
-    url = '/shop/cart'
-    client.get(url)
-    assert '(Trial)' in client.text
-
-
-def test_class_book_dropin(client, web2py):
-    """
-        Can we book a drop in class from the shop?
-    """
-    url = '/user/login'
-    client.get(url)
-    assert client.status == 200
-
-    setup_profile_tests(web2py)
-    prepare_classes(web2py)
-
-    next_monday = next_weekday(datetime.date.today(), 0)
-    # check class card booking
-    url = '/shop/class_book?clsID=1&date=' + unicode(next_monday) + '&dropin=true'
-    client.get(url)
-    assert client.status == 200
-
-    cart = web2py.db.customers_shoppingcart(1)
-    assert cart.AttendanceType == 2
 
 
 def test_class_book_classcard(client, web2py):
