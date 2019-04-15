@@ -184,19 +184,29 @@ def test_event_ticket(client, web2py):
     # populate workshops table
     populate_workshops(web2py)
 
-    url = '/shop/event_ticket?wsID=1'
+    url = '/shop/event_ticket?wspID=1'
     client.get(url)
     assert client.status == 200
 
-    # Verify regular price
     wsp = web2py.db.workshops_products(1)
-    assert format(wsp.Price, '.2f') + '</span>' in client.text.decode('utf-8')
+    ws = web2py.db.workshops(1)
 
+    assert wsp.Name in client.text
+    assert ws.Name in client.text
 
+    # Test order
+    data = {
+        'CustomerNote': "my message"
+    }
 
+    client.post(url, data=data)
+    assert client.status == 200
 
+    assert "Order summary" in client.text
+    assert "Pay now" in client.text
+    assert data['CustomerNote'] in client.text
 
-#TODO update order deliver tests (also delivers subscriptions now)
+    assert web2py.db(web2py.db.customers_orders).count() > 0
 
 
 def test_customers_shop_features(client, web2py):
