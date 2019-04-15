@@ -71,11 +71,18 @@ def test_customers_shop_features(client, web2py):
     assert client.status == 200
     assert not 'No subscriptions available' in client.text
 
+    # Check memberships
+    url = '/shop/memberships'
+    client.get(url)
+    assert client.status == 200
+    assert not 'No memberships available at this time' in client.text
+
     ## Change settings
     features = web2py.db.customers_shop_features(1)
     features.Classcards = False
     features.Workshops = False
     features.Subscriptions = False
+    features.Memberships = False
     features.update_record()
     web2py.db.commit()
     # and check again
@@ -85,6 +92,11 @@ def test_customers_shop_features(client, web2py):
     client.get(url)
     assert client.status == 200
     assert 'No cards available' in client.text
+
+    url = '/shop/classcard'
+    client.get(url)
+    assert client.status == 200
+    assert 'This feature is disabled' in client.text
 
     url = '/shop/classcard_order'
     client.get(url)
@@ -97,18 +109,24 @@ def test_customers_shop_features(client, web2py):
     assert client.status == 200
     assert 'No workshops available' in client.text
 
-    url = '/shop/event_add_to_cart'
+    url = '/shop/event_ticket_order'
     client.get(url)
     assert client.status == 200
     assert 'This feature is disabled' in client.text
 
     # Check subscriptions
-    url = '/shop/subscriptions'
+    url = '/shop/subscription'
     client.get(url)
     assert client.status == 200
-    assert 'No subscriptions available' in client.text
+    assert 'This feature is disabled' in client.text
 
-    url = '/shop/subscription'
+    # Check memberships
+    url = '/shop/memberships'
+    client.get(url)
+    assert client.status == 200
+    assert 'No memberships available at this time' in client.text
+
+    url = '/shop/membership'
     client.get(url)
     assert client.status == 200
     assert 'This feature is disabled' in client.text

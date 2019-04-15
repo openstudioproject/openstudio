@@ -6030,7 +6030,9 @@ def setup_set_customers_shop_features():
         id=1,
         Classcards=True,
         Subscriptions=True,
-        Workshops=True
+        Workshops=True,
+        Classes=True,
+        Membberships=True
     )
 
 
