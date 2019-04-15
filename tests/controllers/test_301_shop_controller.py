@@ -42,6 +42,79 @@ def next_weekday(d, weekday):
     return d + datetime.timedelta(days_ahead)
 
 
+def test_class_checkout(client, web2py):
+    """
+    Test class checkout
+    """
+    pass
+
+
+def test_class_order(client, web2py):
+    """
+    Test class checkout
+    """
+    pass
+
+
+def test_classcard(client, web2py):
+    """
+    Test classcard info page
+    """
+    pass
+
+
+def test_classcard_order(client, web2py):
+    """
+    Test classcard order page
+    """
+    pass
+
+
+def test_subscription(client, web2py):
+    """
+    Test classcard info page
+    """
+    pass
+
+
+def test_subscription_order(client, web2py):
+    """
+    Test classcard order page
+    """
+    pass
+
+
+def test_membership(client, web2py):
+    """
+    Test classcard info page
+    """
+    pass
+
+
+def test_membership_order(client, web2py):
+    """
+    Test classcard order page
+    """
+    pass
+
+
+def test_event_ticket(client, web2py):
+    """
+    Test event ticket order creation page
+    """
+    pass
+
+
+def test_event_ticket_order(client, web2py):
+    """
+    Test event ticket order
+    """
+    pass
+
+
+#TODO update order deliver tests (also delivers subscriptions now)
+
+
 def test_customers_shop_features(client, web2py):
     """
         Are the settings to control of which pages to show in the shop working?

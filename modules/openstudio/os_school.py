@@ -524,14 +524,6 @@ class School:
                                 ),
                                 _class="col-sm-6 border-right"
                             ),
-                            # DIV(
-                            #     DIV(H5(repr_row.Classes,
-                            #             _class="description-header"),
-                            #         SPAN(T("Classes"), _class="description-text"),
-                            #         _class="description-block"
-                            #     ),
-                            #     _class="col-sm-4 border-right"
-                            # ),
                             DIV(
                                 DIV(H5(self._get_memberships_formatted_button_to_cart(row.id),
                                         _class="description-header"),
