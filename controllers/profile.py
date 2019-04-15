@@ -283,7 +283,7 @@ def index_get_classcards(customer):
     rows = customer.get_classcards(TODAY_LOCAL, from_cache=False)
 
     if not rows:
-        table = SPAN(T("No current class cards."), BR(), BR(),
+        content = SPAN(T("No current class cards."), BR(), BR(),
                      T("Click "),
                      A(T("here"),
                        _href=URL('shop', 'classcards')), ' ',
@@ -340,7 +340,7 @@ def index_get_subscriptions(customer):
     rows = customer.get_subscriptions_on_date(TODAY_LOCAL, from_cache=False)
 
     if not rows:
-        table = SPAN(T('No current subscriptions.'), BR(), BR(),
+        content = SPAN(T('No current subscriptions.'), BR(), BR(),
                      T("Click "),
                      A(T("here"),
                        _href=URL('shop', 'subscriptions')), ' ',
@@ -402,7 +402,7 @@ def index_get_memberships(customer):
     rows = customer.get_memberships_on_date(TODAY_LOCAL, from_cache=False)
 
     if not rows:
-        table = SPAN(T('No current memberships.'), BR(), BR(),
+        content = SPAN(T('No current memberships.'), BR(), BR(),
                      T("Click "),
                      A(T("here"),
                        _href=URL('shop', 'memberships')), ' ',

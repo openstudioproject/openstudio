@@ -226,7 +226,7 @@ def checkout_get_progress(function):
     return checkout_progress
 
 
-def checkout_get_form_order(var=None):
+def checkout_get_form_order(submit_button="Place order"):
     """
     :return: SQLForm to create an order
     """
@@ -242,7 +242,7 @@ def checkout_get_form_order(var=None):
     form = SQLFORM(
         db.customers_orders,
         formstyle="bootstrap3_stacked",
-        submit_button=T("Place order")
+        submit_button=T(submit_button)
     )
 
     return form
@@ -2599,7 +2599,6 @@ def class_book():
     # Actually book class
     ah = AttendanceHelper()
 
-    session.flash = T('Class booked')
     if csID:
         # Redirect back to book options in case booking this class isn't allowed on this subscription
         cs = CustomerSubscription(csID)
@@ -2665,7 +2664,6 @@ def class_book():
                                              'dropin':dropin,
                                              'trial':trial}))
 
-
     redirect(URL('profile', 'classes'))
 
 
@@ -2705,7 +2703,7 @@ def class_checkout():
     class_info = class_checkout_get_info(cls, dropin, trial)
 
 
-    form = checkout_get_form_order()
+    form = checkout_get_form_order(submit_button="Book class")
     if form.process().accepted:
         # response.flash = T('Accepted order')
         redirect(URL('shop', 'class_order',
@@ -2752,7 +2750,7 @@ def class_checkout_get_info(cls, dropin, trial):
 
 
     info = UL(
-        LI(B(T("Date")), BR(), cls.date.strftime(DATE_FORMAT), ' ',
+        LI(B(T("Date & time")), BR(), cls.date.strftime(DATE_FORMAT), ' ',
            cls.cls.Starttime.strftime(TIME_FORMAT)),
         LI(B(T("Class")), BR(), cls.get_classtype_name()),
         LI(B(T("Location")), BR(), cls.get_location_name()),

@@ -46,7 +46,22 @@ def test_class_checkout(client, web2py):
     """
     Test class checkout
     """
-    pass
+    prepare_classes(web2py)
+    today = datetime.date.today()
+
+    next_monday = next_weekday(today, 0)
+
+    url = '/shop/class_checkout?clsID=1&dropin=true&date=' + unicode(next_monday)
+    client.get(url)
+    assert client.status == 200
+
+    location = web2py.db.school_locations(1)
+    classtype = web2py.db.school_classtypes(1)
+
+    assert location.Name in client.text
+    assert classtype.Name in client.text
+
+    assert "Anything you'd like" in client.text
 
 
 def test_class_order(client, web2py):
