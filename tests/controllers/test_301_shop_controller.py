@@ -1831,7 +1831,7 @@ def test_event_price_subscription_earlybird(client, web2py):
     assert format(wsp.PriceSubscriptionEarlybird, '.2f') + '</span>' in client.text.decode('utf-8')
 
 
-def test_event_add_to_cart_requires_complete_profile(client, web2py):
+def test_event_ticket_requires_complete_profile(client, web2py):
     """
         Is the required profile check working for workshops?
     """
@@ -1846,7 +1846,7 @@ def test_event_add_to_cart_requires_complete_profile(client, web2py):
     )
     web2py.db.commit()
 
-    url = '/shop/event_add_to_cart?wspID=1'
+    url = '/shop/event_ticket?wspID=1'
     client.get(url)
     assert client.status == 200
 
@@ -1979,7 +1979,7 @@ def test_subscription_requires_complete_profile(client, web2py):
 
     terms = 'GeneralTerms'
     web2py.db.sys_properties.insert(
-        Property = 'shop_subscriptions_terms',
+        Property = 'shop_subscription',
         PropertyValue = terms
     )
 
@@ -2048,7 +2048,7 @@ def test_membership_terms(client, web2py):
 
     web2py.db.commit()
 
-    url = '/shop/membership_terms?smID=1'
+    url = '/shop/membership?smID=1'
     client.get(url)
     assert client.status == 200
 
@@ -2059,7 +2059,7 @@ def test_membership_terms(client, web2py):
     assert sm.Terms in client.text
 
 
-def test_membership_terms_requires_complete_profile(client, web2py):
+def test_membership_requires_complete_profile(client, web2py):
     """
         Are the terms for a membership showing correctly?
          ( First the general terms defined in settings and below the specific terms from the membership in school )
@@ -2085,7 +2085,7 @@ def test_membership_terms_requires_complete_profile(client, web2py):
 
     web2py.db.commit()
 
-    url = '/shop/membership_terms?smID=1'
+    url = '/shop/membership?smID=1'
     client.get(url)
     assert client.status == 200
 

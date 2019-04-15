@@ -866,7 +866,6 @@ def event_ticket():
             _next=URL(request.controller, request.function, vars={'wspID': wspID})
         )
 
-
     ticket_info = event_ticket_get_info(wsp)
     form = checkout_get_form_order()
     if form.process().accepted:

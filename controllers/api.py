@@ -954,6 +954,7 @@ def _school_classcards_get(var=None):
     query = (db.school_classcards.PublicCard == True) & \
             (db.school_classcards.Archived == False)
     rows = db(query).select(
+        db.school_classcards.id,
         db.school_classcards.Name,
         db.school_classcards.Description,
         db.school_classcards.Price,
