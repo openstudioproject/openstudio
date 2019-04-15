@@ -189,7 +189,6 @@ def checkout_get_progress(function):
     complete_class = ''
 
     step_order = [
-        'checkout',
         'classcard',
         'membership',
         'subscription',
@@ -204,7 +203,6 @@ def checkout_get_progress(function):
     checkout_progress.append(spacer)
 
     step_received = [
-        'order_received',
         'classcard_order',
         'membership_order',
         'subscription_order',
@@ -227,40 +225,6 @@ def checkout_get_progress(function):
 
     return checkout_progress
 
-#
-# @auth.requires_login()
-# def checkout():
-#     """
-#         Page showing review page for shopping cart
-#     """
-#     from openstudio.os_customer import Customer
-#
-#     response.title = T('Check out')
-#     response.subtitle = ''
-#
-#     customer = Customer(auth.user.id)
-#     rows = customer.get_shoppingcart_rows()
-#
-#     total = SPAN(CURRSYM, ' ', format(cart_get_price_total(rows), '.2f'))
-#
-#     form = ''
-#     if len(rows):
-#         form = checkout_get_form_order()
-#         if form.process().accepted:
-#             # response.flash = T('Accepted order')
-#             redirect(URL('shop', 'order_received',
-#                          vars={'coID': form.vars.id}))
-#
-#     checkout_message = get_sys_property('shop_checkout_message') or ''
-#
-#     return dict(
-#         rows=rows,
-#         total=total,
-#         checkout_message=checkout_message,
-#         progress=checkout_get_progress(request.function),
-#         form=form
-#     )
-
 
 def checkout_get_form_order(var=None):
     """
@@ -282,96 +246,6 @@ def checkout_get_form_order(var=None):
     )
 
     return form
-
-
-@auth.requires_login()
-def order_received():
-    """
-        Page to thank customer for placing order
-    """
-    from openstudio.os_customer import Customer
-    from openstudio.os_mail import OsMail
-    from openstudio.os_order import Order
-
-    response.title = T('Thank you')
-    coID = request.vars['coID']
-    order = Order(coID)
-
-    # get cart
-    customer = Customer(auth.user.id)
-    rows = customer.get_shoppingcart_rows()
-
-    if not rows:
-        redirect(URL('profile', 'orders'))
-
-
-    # process cart, add products to customer and add items to invoice
-    for row in rows:
-        # process classcards
-        if row.school_classcards.id:
-            checkout_order_classcard(row.school_classcards.id, order)
-        # process workshops
-        if row.workshops_products.id:
-            checkout_order_workshop_product(row.workshops_products.id, order)
-        # process classes
-        if row.classes.id:
-            checkout_order_class(row.classes.id,
-                                 row.customers_shoppingcart.ClassDate,
-                                 row.customers_shoppingcart.AttendanceType,
-                                 order)
-
-
-    # update order status
-    order.set_status_awaiting_payment()
-
-    # remove all items from cart
-    cart_empty(auth.user.id)
-
-    # mail order to customer
-    order_received_mail_customer(coID)
-
-    # check if this order needs to be paid or it's free and can be added to the customers' account straight away
-    amounts = order.get_amounts()
-
-    if not amounts:
-        order_received_redirect_complete(coID)
-    elif amounts.TotalPriceVAT == 0:
-        order_received_redirect_complete(coID)
-
-
-    # Check if an online payment provider is enabled:
-    online_payment_provider = get_sys_property('online_payment_provider')
-    if online_payment_provider == 'disabled':
-        # no payment provider, deliver order and redirect to complete.
-        order.deliver()
-        redirect(URL('complete', vars={'coID':coID}))
-
-
-    # We have a payment provider, lets show a pay now page!
-    pay_now = A(T("Pay now"), ' ',
-                os_gui.get_fa_icon('fa-angle-right'),
-                _href=URL('mollie', 'order_pay', vars={'coID': coID}),
-                _class='btn btn-success bold')
-
-    content = DIV(H3(T('We have received your order'),
-                     _class='grey'),
-                  T("The items in your order will be delivered as soon as we've received the payment for this order."),
-                  BR(),
-                  T("Click 'Pay now' to complete the payment."), BR(),
-                  BR(), BR(),
-                  pay_now,
-                  _class='grey center')
-
-    # Send sys notification
-    os_mail = OsMail()
-    os_mail.send_notification(
-        'order_created',
-        customers_orders_id=coID
-    )
-
-    #TODO: add code to go around mollie, just deliver and notify customer that they're expected to pay an invoice
-
-    return dict(content=content, progress=checkout_get_progress(request.function))
 
 
 def order_received_redirect_complete(coID):
