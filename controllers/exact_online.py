@@ -371,6 +371,20 @@ def sync_invoices():
 
     return result
 
+
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'settings'))
+def refresh_tokens():
+    """
+    Refresh EO tokens
+    """
+    from openstudio.os_exact_online import OSExactOnline
+
+    os_eo = OSExactOnline()
+    api = os_eo.get_api()
+    api.refresh_token()
+
+
 # def relation_get():
 #     code = '6929'
 #

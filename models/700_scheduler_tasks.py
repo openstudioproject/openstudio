@@ -170,5 +170,6 @@ scheduler_tasks = {
     'email_reminders_teachers_sub_request_open': os_scheduler_tasks.email_reminders_teachers_sub_request_open,
     'email_teachers_sub_requests_daily_summary': os_scheduler_tasks.email_teachers_sub_requests_daily_summary,
     'exact_online_sync_invoices': os_scheduler_tasks.exact_online_sync_invoices,
+    'exact_online_refresh_tokens': os_scheduler_tasks.exact_online_refresh_tokens,
     'openstudio_test_task': task_openstudio_test
 }

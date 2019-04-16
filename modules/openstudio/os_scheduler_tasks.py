@@ -286,6 +286,21 @@ class OsSchedulerTasks:
         return T("Memberships renewed") + ': ' + unicode(renewed)
 
 
+    def exact_online_refresh_tokens(self):
+        """
+        Refresh tokens
+        :return:
+        """
+        from os_exact_online import OSExactOnline
+
+        os_eo = OSExactOnline()
+
+        api = os_eo.get_api()
+        api.refresh_token()
+
+        return 'refreshed exact online tokens'
+
+
     def exact_online_sync_invoices(self):
         """
         Due to a timeout in tokens, sometimes invoices don't sync immediately, as a API request
