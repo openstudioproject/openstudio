@@ -1600,6 +1600,52 @@ def test_classcards(client, web2py):
     assert '/shop/classcard?scdID=2' in client.text
 
 
+def test_classcards_shop_allow_trial_cards_for_existing_customers(client, web2py):
+    """
+    If the sys property 'shop_allow_trial_cards_for_existing_customers' is not
+    'on' and the customer has or had a card or subscription, it shouldn't show
+    trial cards in the list.
+    """
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    setup_profile_tests(web2py)
+
+    # populate a regular card and a trial card
+    populate_school_classcards(web2py, 1)
+    populate_customers_with_subscriptions(web2py)
+    subscription = web2py.db.customers_subscriptions(1)
+    subscription.auth_customer_id = 300
+    subscription.update_record()
+
+    web2py.db.commit()
+
+    url = '/shop/classcards'
+    client.get(url)
+    assert client.status == 200
+
+    ## check regular card
+    scd = web2py.db.school_classcards(1)
+    # Panel type
+    assert 'box-widget' in client.text
+    # Name
+    assert scd.Name in client.text
+    # Validity
+    assert '3 Months' in client.text
+    # Price
+    assert u'€ 125.00' in client.text.decode('utf-8')
+    # Add to cart link
+    assert '/shop/classcard?scdID=1' in client.text
+
+    ## check trial card (this shouldn't be in the client text
+    scd = web2py.db.school_classcards(2)
+    # Name
+    assert scd.Name not in client.text
+    # Add to cart link
+    assert '/shop/classcard?scdID=2' not in client.text
+
+
 def test_classcards_display_message_trial_over_times_bought(client, web2py):
     """
         Is the message telling a customer they've reached the max nr of times

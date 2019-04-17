@@ -18,8 +18,8 @@ class School:
         from tools import OsTools
 
         db = current.db
-        auth = current.auth
         os_tools = OsTools()
+
 
         allow_trial_for_existing_customers = os_tools.get_sys_property(
             'shop_allow_trial_cards_for_existing_customers'
