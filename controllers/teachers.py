@@ -25,11 +25,15 @@ def account_get_tools_link_groups(var=None):
 def index():
     response.title = T("School")
     response.subtitle = T("Teachers")
+    # response.view = 'general/tabs_menu.html'
     response.search_available = True
-    try:
-        response.q = session.customers_load_list_search_name.replace('%', '')
-    except AttributeError:
-        response.q = ''
+
+    print request.vars
+
+    if 'q' in request.vars:
+        session.teachers_index_q = request.vars['q']
+
+    response.q = session.teachers_index_q or ""
 
     session.customers_back = 'teachers'
     session.customers_add_back = 'teachers'
@@ -56,7 +60,7 @@ def index():
     tools = index_get_tools()
     header_tools = ''
 
-    content = index_get_content()
+    content = index_get_content(response.q)
 
     menu = index_get_menu(request.function)
 
@@ -68,7 +72,7 @@ def index():
                 content=content)
 
 
-def index_get_content(var=None):
+def index_get_content(search_name):
     """
     :param var: dummy to prevent this being a public function
     :return: HTML table containing teachers
@@ -77,7 +81,7 @@ def index_get_content(var=None):
 
     teachers = Teachers()
 
-    return teachers.list(formatted=True)
+    return teachers.list(search_name, formatted=True)
 
 
 def index_get_tools(var=None):

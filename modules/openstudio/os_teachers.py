@@ -61,7 +61,7 @@ class Teachers:
         return data
 
 
-    def list(self, formatted=False):
+    def list(self, search_name=None, formatted=False):
         """
         :param formatted: Boolean - return as gluon.dal.rows or html table
         :return: gluon.dal.rows object containing auth_user rows with teacher=True
@@ -71,6 +71,11 @@ class Teachers:
         query = (db.auth_user.trashed == False) & \
                 (db.auth_user.teacher == True) & \
                 (db.auth_user.id > 1)
+
+        if search_name:
+            search_name = '%' + search_name.strip() + '%'
+            query &= ((db.auth_user.display_name.like(search_name)) |
+                      (db.auth_user.email == search_name.replace('%', '')))
 
         rows = db(query).select(db.auth_user.ALL,
                                 orderby=db.auth_user.display_name)

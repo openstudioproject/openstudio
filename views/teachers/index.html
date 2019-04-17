@@ -22,7 +22,38 @@
 	</div>
 </div>
 
-<script src={{=URL('static', 'plugin_os-js/general/customers_set_list_search.js')}}></script>
-{{ import os }}
-{{ include os.path.join(request.folder,'static','plugin_os-js/customers/index.html')}}
+{{try:}}
+    {{ import os }}
+    {{ include os.path.join(request.folder,'static','plugin_os-js/general/show_add_modal_if_form_contains_errors.html')}}
+{{except: pass}}{{pass}}
 
+
+<script>
+	var $input = $("#sidebar-search");
+	var $content = $('.tab-content');
+	var $sidebar_form = $('.sidebar-form')
+	var $sidebar_search_btn_icon = $('#search-btn i.fa')
+	
+	$sidebar_search_btn_icon.removeClass('fa-search');
+    $sidebar_search_btn_icon.addClass('fa-times');
+
+	var typingTimer = null;
+	var doneTypingInterval = 500;
+	/* A timer is used to prevent submitting for each keystroke while the user is typing */
+	$input.keyup(function() {
+	    if (typingTimer) clearTimeout(typingTimer);
+	    $content.html('{{=os_gui.get_ajax_loader(message=T("Searching..."))}}');
+	    typingTimer = setTimeout(function() { 
+		    $sidebar_form.submit()
+	    }, doneTypingInterval);
+	}); // end input keyup
+
+	$('#search-btn').click(function(event) {
+	    event.preventDefault()
+	    $input.val("")
+        $sidebar_form.submit()
+    });
+
+    
+    $input.focus();
+</script>
