@@ -59,7 +59,7 @@ class Validation extends Component {
                     <div className="row">
                         <div className="col-md-4 col-md-offset-4">
                             <Box>
-                                <BoxBody>
+                                <BoxBody className="center">
                                     <div className='text-muted'>
                                         <i className="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
                                     </div>
@@ -79,7 +79,7 @@ class Validation extends Component {
                             <div className="row">
                                 <div className="col-md-4 col-md-offset-4">
                                     <Box>
-                                        <BoxBody>
+                                        <BoxBody className="center">
                                             <div className="text-orange">
                                                 <i className="fa fa-exclamation-triangle fa-5x"></i>
                                             </div>
