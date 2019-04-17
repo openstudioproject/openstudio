@@ -28,8 +28,6 @@ def index():
     # response.view = 'general/tabs_menu.html'
     response.search_available = True
 
-    print request.vars
-
     if 'q' in request.vars:
         session.teachers_index_q = request.vars['q']
 
