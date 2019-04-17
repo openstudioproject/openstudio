@@ -64,8 +64,8 @@ class Validation extends Component {
                                         <i className="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
                                     </div>
                                     <br /><br />
-                                    Please wait... <br />
-                                    Validating cart...
+                                    <span className="bold">Validating cart...</span><br /><br />
+                                    Please wait... 
                                 </BoxBody>
                             </Box>
                         </div>
@@ -105,10 +105,13 @@ class Validation extends Component {
                                 <div className="col-md-4 col-md-offset-4">
                                     <Box>
                                         <BoxBody>
-                                            <div className='text-green'>
+                                            <div className='text-green center'>
                                                 <i className="fa fa-check fa-5x"></i>
                                             </div>
-                                            Success!<br />
+                                            <br />
+                                            <div className="center">
+                                                <span className="bold text-green">SUCCESS!<br /><br /></span>
+                                            </div>
                                             <ValidationList app={app}
                                                             data={app.cart_validation_data} />
                                             <span className="text-green">
