@@ -63,6 +63,7 @@ class Validation extends Component {
                                     <div className='text-muted'>
                                         <i className="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
                                     </div>
+                                    <br /><br />
                                     Please wait... <br />
                                     Validating cart...
                                 </BoxBody>
@@ -83,6 +84,7 @@ class Validation extends Component {
                                             <div className="text-orange">
                                                 <i className="fa fa-exclamation-triangle fa-5x"></i>
                                             </div>
+                                            <br /><br />
                                             Hmm... I seem to have found something that needs your attention while validating this shopping cart. <br /><br />
                                             <div className="text-orange bold">
                                                 {app.cart_validation_data.message}
