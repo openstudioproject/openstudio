@@ -18,6 +18,7 @@ def workflow():
     shop_requires_complete_profile_classcards = get_sys_property('shop_requires_complete_profile_classcards')
     shop_requires_complete_profile_events = get_sys_property('shop_requires_complete_profile_events')
     shop_requires_complete_profile_subscriptions = get_sys_property('shop_requires_complete_profile_subscriptions')
+    shop_allow_trial_cards_for_existing_customers = get_sys_property('shop_allow_trial_cards_for_existing_customers')
     shop_classes_advance_booking_limit = get_sys_property('shop_classes_advance_booking_limit')
     shop_classes_cancellation_limit = get_sys_property('shop_classes_cancellation_limit')
     shop_subscriptions_start = get_sys_property('shop_subscriptions_start')
@@ -49,6 +50,10 @@ def workflow():
               default=shop_requires_complete_profile_subscriptions,
               label=T('Subscriptions require complete profiles'),
               comment=T('Require complete profiles before customers can sign up for a subscription')),
+        Field('shop_allow_trial_cards_for_existing_customers', 'boolean',
+              default=shop_allow_trial_cards_for_existing_customers,
+              label=T('Allow existing customers to buy a trial card'),
+              comment=T('Disable to prevent trial products from showing in shop for any customers who have or have had a subscription or card.')),
         Field('shop_classes_advance_booking_limit', 'integer',
               default=shop_classes_advance_booking_limit,
               requires=IS_INT_IN_RANGE(0, 1099),
@@ -92,6 +97,7 @@ def workflow():
             'shop_requires_complete_profile_classcards',
             'shop_requires_complete_profile_events',
             'shop_requires_complete_profile_subscriptions',
+            'shop_allow_trial_cards_for_existing_customers',
             'shop_classes_advance_booking_limit',
             'shop_classes_cancellation_limit',
             'shop_subscriptions_start',

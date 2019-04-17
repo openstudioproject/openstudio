@@ -9,17 +9,35 @@ from general_helpers import represent_validity_units
 
 
 class School:
-    def get_classcards(self, public_only=True):
+    def get_classcards(self, auth_user_id=None, public_only=True):
         """
             :param public_only: Defines whether or not to show only public classcards, True by default
                                 False means all cards are returned
             Returns classcards for school
         """
+        from tools import OsTools
+
         db = current.db
+        os_tools = OsTools()
+
+
+        allow_trial_for_existing_customers = os_tools.get_sys_property(
+            'shop_allow_trial_cards_for_existing_customers'
+        )
 
         query = (db.school_classcards.Archived == False)
         if public_only:
             query &= (db.school_classcards.PublicCard == True)
+
+        if auth_user_id and allow_trial_for_existing_customers != 'on':
+            from os_customer import Customer
+
+            customer = Customer(auth_user_id)
+            has_or_had_subscription = customer.get_has_or_had_subscription()
+            has_or_had_card = customer.get_has_or_had_classcard()
+
+            if has_or_had_card or has_or_had_subscription:
+                query &= (db.school_classcards.Trialcard == False)
 
         return db(query).select(db.school_classcards.ALL,
                                 orderby=db.school_classcards.Trialcard |
@@ -73,7 +91,10 @@ class School:
         else:
             raise ValueError('Incompatible value: per_row has to be 3 or 4')
 
-        rows = self.get_classcards(public_only=public_only)
+        rows = self.get_classcards(
+            auth_user_id=auth_user_id,
+            public_only=public_only
+        )
 
         cards = DIV()
         display_row = DIV(_class='row')
