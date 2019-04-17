@@ -25,10 +25,11 @@ def account_get_tools_link_groups(var=None):
 def index():
     response.title = T("School")
     response.subtitle = T("Teachers")
-
-    # response.view = 'general/tabs_menu.html'
     response.search_available = True
-    # response.view = 'general/only_content.html'
+    try:
+        response.q = session.customers_load_list_search_name.replace('%', '')
+    except AttributeError:
+        response.q = ''
 
     session.customers_back = 'teachers'
     session.customers_add_back = 'teachers'

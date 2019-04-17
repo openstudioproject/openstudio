@@ -22,7 +22,7 @@
 	</div>
 </div>
 
-{{try:}}
-    {{ import os }}
-    {{ include os.path.join(request.folder,'static','plugin_os-js/general/show_add_modal_if_form_contains_errors.html')}}
-{{except: pass}}{{pass}}
+<script src={{=URL('static', 'plugin_os-js/general/customers_set_list_search.js')}}></script>
+{{ import os }}
+{{ include os.path.join(request.folder,'static','plugin_os-js/customers/index.html')}}
+
