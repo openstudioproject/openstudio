@@ -80,7 +80,9 @@ def populate_school_classcards(
             Price = 15,
             Validity = 7,
             ValidityUnit = 'days',
-            Trialcard = True)
+            Trialcard = True,
+            TrialTimes = 1,
+        )
 
     web2py.db.commit()
 

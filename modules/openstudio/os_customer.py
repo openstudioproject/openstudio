@@ -590,8 +590,17 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         """
         db = current.db
 
-        query = (db.customers_classcards.auth_customer_id == self.cuID)
-        if db(query).count():
+        left = [
+            db.school_classcards.on(
+                db.customers_classcards.school_classcards_id ==
+                db.school_classcards.id
+            )
+        ]
+
+        query = (db.customers_classcards.auth_customer_id == self.cuID) & \
+                (db.school_classcards.Trialcard == False)
+        rows = db(query).select(db.customers_classcards.id)
+        if len(rows):
             return True
         else:
             return False

@@ -1653,6 +1653,13 @@ def test_classcards_display_message_trial_over_times_bought(client, web2py):
     """
     setup_profile_tests(web2py)
 
+
+    web2py.db.sys_properties.insert(
+        Property='shop_allow_trial_cards_for_existing_customers',
+        PropertyValue='on'
+    )
+    web2py.db.commit()
+
     # populate a regular card and a trial card
     populate_school_classcards(web2py, 1)
 
