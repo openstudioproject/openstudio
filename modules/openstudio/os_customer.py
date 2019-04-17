@@ -571,6 +571,32 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         return had_trial
 
 
+    def get_has_or_had_subscription(self):
+        """
+        Returns True if customer has or had a subscription
+        """
+        db = current.db
+
+        query = (db.customers_subscriptions.auth_customer_id == self.cuID)
+        if db(query).count():
+            return True
+        else:
+            return False
+
+
+    def get_has_or_had_classcard(self):
+        """
+        Returns True if customer has or had a subscription
+        """
+        db = current.db
+
+        query = (db.customers_classcards.auth_customer_id == self.cuID)
+        if db(query).count():
+            return True
+        else:
+            return False
+
+
     def get_workshops_rows(self, upcoming=False):
         """
             Returns workshops for a customer
