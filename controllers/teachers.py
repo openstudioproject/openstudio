@@ -26,7 +26,7 @@ def index():
     response.title = T("School")
     response.subtitle = T("Teachers")
 
-    response.view = 'general/tabs_menu.html'
+    # response.view = 'general/tabs_menu.html'
     response.search_available = True
     # response.view = 'general/only_content.html'
 

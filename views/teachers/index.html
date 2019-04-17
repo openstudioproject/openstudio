@@ -1,11 +1,28 @@
 {{extend 'layout.html'}}
-{{try:}}{{=back}}{{except:}}{{pass}}
-{{=content}}
-
-{{block right_sidebar}}
-{{=sidebar_content}}
-{{end}}
-
 {{block header}}
-    {{=export}}
+    {{try:}}{{=back}}{{except:}}{{pass}}{{pass}}    
+    {{try:}}{{=save}}{{except:}}{{pass}}{{pass}}    
+    {{try:}}{{=tools}}{{except:}}{{pass}}{{pass}}
+    {{try:}}{{=add}}{{except:}}{{pass}}{{pass}}
 {{end}}
+
+<div class='row'>
+    <div class='col-md-12'>
+        <div class="nav-tabs-custom">
+            {{=menu}}
+        <div class="tab-content">
+            {{=content}}
+        </div>
+    </div>
+</div>
+
+<div class='row'>
+	<div class='col-md-12'>
+		{{try:}}{{=content_extra}}{{except:}}{{pass}}{{pass}}
+	</div>
+</div>
+
+{{try:}}
+    {{ import os }}
+    {{ include os.path.join(request.folder,'static','plugin_os-js/general/show_add_modal_if_form_contains_errors.html')}}
+{{except: pass}}{{pass}}
