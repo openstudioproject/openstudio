@@ -376,6 +376,8 @@ def complete():
     # Check if the order belongs to the currently logged in user
     if coID:
         order = Order(coID)
+        amounts = order.get_amounts()
+
 
         # Does this order belong to this customer?
         if not order.order.auth_customer_id == auth.user.id:
@@ -394,9 +396,11 @@ def complete():
                 success_msg = T('All items from the order have been added to your profile and an invoice has been \
                                 added to your account.')
             else:
-                success_msg = SPAN(
-                    T('We have received the payment for your order.'), BR(),
-                    T('All items listed have been added to your account.'))
+                success_msg = SPAN()
+                if amounts.TotalPriceVAT:
+                    success_msg.append(T('We have received the payment for your order.'))
+                    success_msg.append(BR())
+                success_msg.append(T('All items listed have been added to your account.'))
         else:
             success_header = T('Thank you for your donation!')
             success_msg = T("You're awesome! Please click below to continue...")
@@ -2686,8 +2690,8 @@ def class_checkout():
     clsID = request.vars['clsID']
     date_formatted = request.vars['date']
     date = datestr_to_python(DATE_FORMAT, date_formatted)
-    dropin = request.vars['dropin']
-    trial = request.vars['trial']
+    dropin = True if request.vars['dropin'] == 'true' else False
+    trial = True if request.vars['trial'] == 'true' else False
     cls = Class(clsID, date)
 
     # check if we require a complete profile
@@ -2703,8 +2707,6 @@ def class_checkout():
     form = checkout_get_form_order(submit_button="Book class")
 
     if form.process().accepted:
-        print form.vars
-
         redirect(URL('shop', 'class_order',
                      vars={'coID': form.vars.id,
                            'clsID': clsID,
@@ -2744,7 +2746,6 @@ def class_checkout_get_info(cls, dropin, trial):
     :param scd: SchoolClasscard object
     :return: UL with subscription info
     """
-
     prices = cls.get_prices_customer(auth.user.id)
 
 
