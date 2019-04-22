@@ -31,23 +31,23 @@ response.google_analytics_id = None
 ## this is the main application menu add/remove items as required
 #########################################################################
 
-
-def shoppingcart_menu_item():
-    """
-        @return: shopping cart menu link
-    """
-    # check login
-    try:
-        query = (db.customers_shoppingcart.auth_customer_id == auth.user.id)
-        count = db(query).count()
-    except AttributeError:
-        # auth.user.id doesn't exist when not logged in
-        count = 0
-
-    return A(I(_class=os_gui.get_icon('shopping-cart')), ' ',
-                      os_gui.get_badge(count),
-                _href=URL('shop', 'cart', extension=''),
-                _title=T('Shopping cart'))
+#
+# def shoppingcart_menu_item():
+#     """
+#         @return: shopping cart menu link
+#     """
+#     # check login
+#     try:
+#         query = (db.customers_shoppingcart.auth_customer_id == auth.user.id)
+#         count = db(query).count()
+#     except AttributeError:
+#         # auth.user.id doesn't exist when not logged in
+#         count = 0
+#
+#     return A(I(_class=os_gui.get_icon('shopping-cart')), ' ',
+#                       os_gui.get_badge(count),
+#                 _href=URL('shop', 'cart', extension=''),
+#                 _title=T('Shopping cart'))
 
 
 def ep_menu():
@@ -718,7 +718,7 @@ if request.controller == 'shop' or request.controller == 'profile':
     #response.menu_profile = profile_menu()
     response.menu_shop = shop_menu()
     response.menu_shop_about = shop_menu_about()
-    response.menu_shopping_cart = shoppingcart_menu_item()
+    # response.menu_shopping_cart = shoppingcart_menu_item()
     response.menu_links = shop_links()
     response.menu_profile = profile_menu()
 

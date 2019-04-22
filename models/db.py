@@ -132,9 +132,9 @@ crud.messages.submit_button = T('Save')
 # configure email
 # -------------------------------------------------------------------------
 mail = auth.settings.mailer
-#mail.settings.server = 'logging' if request.is_local else myconf.get('smtp.server')
 
 mail.settings.server = myconf.get('smtp.server')
+# mail.settings.server = 'logging'
 mail.settings.sender = myconf.get('smtp.sender')
 if myconf.get('smtp.login'):
     mail.settings.login = myconf.get('smtp.login')

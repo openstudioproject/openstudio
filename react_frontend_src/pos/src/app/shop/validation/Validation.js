@@ -59,12 +59,13 @@ class Validation extends Component {
                     <div className="row">
                         <div className="col-md-4 col-md-offset-4">
                             <Box>
-                                <BoxBody>
+                                <BoxBody className="center">
                                     <div className='text-muted'>
                                         <i className="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
                                     </div>
-                                    Please wait... <br />
-                                    Validating cart...
+                                    <br /><br />
+                                    <span className="bold">Validating cart...</span><br /><br />
+                                    Please wait... 
                                 </BoxBody>
                             </Box>
                         </div>
@@ -79,10 +80,11 @@ class Validation extends Component {
                             <div className="row">
                                 <div className="col-md-4 col-md-offset-4">
                                     <Box>
-                                        <BoxBody>
+                                        <BoxBody className="center">
                                             <div className="text-orange">
                                                 <i className="fa fa-exclamation-triangle fa-5x"></i>
                                             </div>
+                                            <br /><br />
                                             Hmm... I seem to have found something that needs your attention while validating this shopping cart. <br /><br />
                                             <div className="text-orange bold">
                                                 {app.cart_validation_data.message}
@@ -103,10 +105,13 @@ class Validation extends Component {
                                 <div className="col-md-4 col-md-offset-4">
                                     <Box>
                                         <BoxBody>
-                                            <div className='text-green'>
+                                            <div className='text-green center'>
                                                 <i className="fa fa-check fa-5x"></i>
                                             </div>
-                                            Success!<br />
+                                            <br />
+                                            <div className="center">
+                                                <span className="bold text-green">SUCCESS!<br /><br /></span>
+                                            </div>
                                             <ValidationList app={app}
                                                             data={app.cart_validation_data} />
                                             <span className="text-green">

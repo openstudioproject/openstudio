@@ -499,7 +499,6 @@ class OsMail:
         error = False
         error_msg = ''
 
-        get_sys_property = current.globalenv['get_sys_property']
         request = current.request
 
         logo = self._render_email_template_get_logo()

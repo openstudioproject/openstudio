@@ -283,32 +283,45 @@ def index_get_classcards(customer):
     rows = customer.get_classcards(TODAY_LOCAL, from_cache=False)
 
     if not rows:
-        table = SPAN(T("No current class cards."), BR(), BR(),
+        content = SPAN(T("No current class cards."), BR(), BR(),
                      T("Click "),
                      A(T("here"),
                        _href=URL('shop', 'classcards')), ' ',
                      T("to buy a class card."))
     else:
-        header = THEAD(TR(TH(T('Card')),
-                          TH(T('Expires')),
-                          TH(T('Classes')),
-                          ))
+        header = DIV(
+            DIV(T("Card"), _class='col-md-1'),
+            DIV(T("Expires"), _class='col-md-5'),
+            DIV(T("Classes"), _class='col-md-4'),
+            DIV(T(""), _class='col-md-2'), # Actions
+            _class="row bold hidden-sm hidden-xs"
+        )
 
-        table = TABLE(header, _class='table table-condensed')
+        content = DIV(header)
+
         for i, row in enumerate(rows):
             repr_row = list(rows[i:i+1].render())[0]
 
             remaining = classcard_get_remaining(row)
+            info = classcard_get_link_info(row)
 
-            tr = TR(TD(row.school_classcards.Name),
-                    TD(row.customers_classcards.Enddate),
-                    TD(remaining),
-                    TD(classcard_get_link_info(row)))
+            row = DIV(
+                DIV(SPAN('# ', _class="bold hidden-md hidden-lg"),
+                    row.customers_classcards.id,
+                    _class='col-md-1 mobile-bold'),
+                DIV(row.school_classcards.Name,
+                    _class='col-md-5'),
+                DIV(classcard_get_remaining(row),
+                    _class='col-md-4'),
+                DIV(info,
+                    _class='col-md-2'),
+                _class='row'
+            )
 
-            table.append(tr)
+            content.append(row)
 
     return os_gui.get_box(T('My Classcards'),
-                          table,
+                          content,
                           box_class='box-solid',
                           with_border=False,
                           show_footer=True,
@@ -327,35 +340,50 @@ def index_get_subscriptions(customer):
     rows = customer.get_subscriptions_on_date(TODAY_LOCAL, from_cache=False)
 
     if not rows:
-        table = SPAN(T('No current subscriptions.'), BR(), BR(),
+        content = SPAN(T('No current subscriptions.'), BR(), BR(),
                      T("Click "),
                      A(T("here"),
                        _href=URL('shop', 'subscriptions')), ' ',
                      T("to get a subscription."))
     else:
-        header = THEAD(TR(TH(T('#')),
-                          TH(T('Subscription')),
-                          TH(T('Start')),
-                          TH(T('Credits')),
-                          TH(),
-                          ))
-        table = TABLE(header, _class='table table-condensed')
+        header = DIV(
+            DIV(T("#"), _class='col-md-1'),
+            DIV(T("Subscription"), _class='col-md-4'),
+            DIV(T("Credits"), _class='col-md-3'),
+            DIV(T(""), _class='col-md-4'), # Actions
+            _class="row bold hidden-sm hidden-xs"
+        )
+
+        content = DIV(header)
+
         for i, row in enumerate(rows):
             repr_row = list(rows[i:i+1].render())[0]
 
             credits = subscription_get_link_credits(row)
             info = subscription_get_link_info(row)
+            invoices = subscription_get_link_invoices(row)
 
-            tr = TR(TD(row.customers_subscriptions.id),
-                    TD(row.school_subscriptions.Name),
-                    TD(repr_row.customers_subscriptions.Startdate),
-                    TD(credits),
-                    TD(info))
+            row = DIV(
+                DIV(SPAN('# ', _class="bold hidden-md hidden-lg"),
+                    row.customers_subscriptions.id,
+                    _class='col-md-1 mobile-bold'),
+                DIV(row.school_subscriptions.Name, BR(),
+                    SPAN(T("Started on"), ": ",
+                         repr_row.customers_subscriptions.Startdate,
+                         _class="text-muted"),
+                    _class='col-md-4'),
+                DIV(credits, SPAN(' ', T("credit(s)"), _class="hidden-md text-muted hidden-lg"),
+                    _class='col-md-3'),
+                DIV(invoices,
+                    info,
+                    _class='col-md-4'),
+                _class='row'
+            )
 
-            table.append(tr)
+            content.append(row)
 
     return os_gui.get_box(T('My Subscriptions'),
-                          table,
+                          content,
                           box_class='box-solid',
                           with_border=False,
                           show_footer=True,
@@ -374,30 +402,44 @@ def index_get_memberships(customer):
     rows = customer.get_memberships_on_date(TODAY_LOCAL, from_cache=False)
 
     if not rows:
-        table = SPAN(T('No current memberships.'), BR(), BR(),
+        content = SPAN(T('No current memberships.'), BR(), BR(),
                      T("Click "),
                      A(T("here"),
                        _href=URL('shop', 'memberships')), ' ',
                      T("to get a membership."))
     else:
-        header = THEAD(TR(TH(T('#')),
-                          TH(T('Membership')),
-                          TH(T('Start')),
-                          TH(),
-                          ))
-        table = TABLE(header, _class='table table-condensed')
+        header = DIV(
+            DIV(T("#"), _class='col-md-1'),
+            DIV(T("Membership"), _class='col-md-6'),
+            DIV(T("Valid until"), _class='col-md-5'),
+            _class="row bold hidden-sm hidden-xs"
+        )
+
+        content = DIV(header)
+
         for i, row in enumerate(rows):
             repr_row = list(rows[i:i+1].render())[0]
 
-            tr = TR(TD(row.id),
-                    TD(repr_row.school_memberships_id),
-                    TD(repr_row.Startdate),
-                    TD())
+            row = DIV(
+                DIV(SPAN('# ', _class="bold hidden-md hidden-lg"),
+                    row.id,
+                    _class='col-md-1 mobile-bold'),
+                DIV(repr_row.school_memberships_id, BR(),
+                    SPAN(T("Started on"), ": ",
+                         repr_row.Startdate,
+                         _class="text-muted"),
+                    _class='col-md-6'),
+                DIV(SPAN(T("Valid until: "), repr_row.Enddate,
+                         _class="hidden-md text-muted hidden-lg"),
+                    SPAN(repr_row.Enddate, _class="hidden-sm hidden-xs"),
+                    _class='col-md-5'),
+                _class='row'
+            )
 
-            table.append(tr)
+            content.append(row)
 
     return os_gui.get_box(T('My Memberships'),
-                          table,
+                          content,
                           box_class='box-solid',
                           with_border=False,
                           show_footer=True,
@@ -415,7 +457,7 @@ def subscription_get_link_credits(row):
     """
     cs = CustomerSubscription(row.customers_subscriptions.id)
     if cs.ssu.Unlimited == True:
-        link = SPAN(T("Unlimited"), _class='grey')
+        link = SPAN(T("Unlimited"), _class='text-muted')
 
     else:
         credits = cs.get_credits_balance()
@@ -430,10 +472,22 @@ def subscription_get_link_info(row):
     """
     csID = row.customers_subscriptions.id
 
-    return A(os_gui.get_fa_icon('fa-info-circle'),
+    return A(os_gui.get_fa_icon('fa-check'), ' ', T("Access"),
              _href=URL('subscription_info', vars={'csID':csID}),
              _title=T('Subscription details'),
-             _class='grey pull-right')
+             _class='btn btn-sm btn-link pull-right')
+
+
+def subscription_get_link_invoices(row):
+    """
+        Returns invoices link for a subscription
+    """
+    csID = row.customers_subscriptions.id
+
+    return A(os_gui.get_fa_icon('fa-file-text-o'), ' ', T("Invoices"),
+             _href=URL('subscription_invoices', vars={'csID':csID}),
+             _title=T('Invoices for this subscription'),
+             _class='btn btn-sm btn-link')
 
 
 def me_requires_complete_profile(auID):
@@ -827,10 +881,10 @@ def classcard_get_link_info(row):
     """
     ccdID = row.customers_classcards.id
 
-    return A(os_gui.get_fa_icon('fa-info-circle'),
+    return A(os_gui.get_fa_icon('fa-check'), ' ', T("Access"),
              _href=URL('classcard_info', vars={'ccdID':ccdID}),
              _title=T('Class card details'),
-             _class='grey pull-right')
+             _class='btn btn-link btn-sm pull-right')
 
 
 @auth.requires_login()
@@ -995,7 +1049,7 @@ def invoice():
 
     back = os_gui.get_button(
         'back',
-        URL('profile', 'invoices')
+        invoice_get_back()
     )
 
     return dict(studio_info = studio_info,
@@ -1006,6 +1060,15 @@ def invoice():
                 invoice_footer = invoice_footer,
                 header_tools = header_tools,
                 back=back)
+
+
+def invoice_get_back():
+    url = URL('profile', 'invoices')
+    if session.profile_invoice_back == "profile_subscription_invoices":
+        url = URL('profile', 'subscription_invoices',
+                  vars={'csID': session.profile_invoice_back_csID})
+
+    return url
 
 
 @auth.requires_login()
@@ -1023,12 +1086,12 @@ def invoices():
     if not features.Invoices:
         redirect(URL('profile', 'index'))
 
+    session.profile_invoice_back = None
+
     customer = Customer(auth.user.id)
     rows = customer.get_invoices_rows(debit_only=True, synced_only=True)
 
     # content = "hello world"
-
-    #TODO: migrate this to a responsive layout
 
     header = DIV(
         DIV(T("Invoice #"), _class="col-md-2"),
@@ -1561,6 +1624,85 @@ def subscription_info():
 
     content = DIV(H4(T('Class access'), ' ', cs.name),
                   cs.get_class_permissions(formatted=True))
+
+    back = os_gui.get_button('back', URL('profile', 'index'))
+
+    return dict(content=content, back=back)
+
+
+@auth.requires_login()
+def subscription_invoices():
+    """
+    Page to list invoices for a subscription
+    """
+    from openstudio.os_customer_subscription import CustomerSubscription
+
+    csID = request.vars['csID']
+    response.title = T('Profile')
+    response.subtitle = T('Subscription invoices')
+    response.view = 'shop/index.html'
+
+    # Check if this subscription belongs to the currently signed in user
+    cs = CustomerSubscription(csID)
+    if cs.cs.auth_customer_id != auth.user.id:
+        session.flash = T("That subscription doesn't belong to this user")
+        return URL('profile', 'index')
+
+    session.profile_invoice_back = request.controller + '_' + request.function
+    session.profile_invoice_back_csID = csID
+
+    cs = CustomerSubscription(csID)
+    rows = cs.get_invoices()
+    if not rows:
+        invoices = T("No invoices found")
+    else:
+        header = DIV(
+            DIV(T("Invoice #"), _class="col-md-2"),
+            DIV(T("Date"), _class="col-md-2"),
+            DIV(T("Due"), _class="col-md-2 hidden-xs hidden-sm"),
+            DIV(T("Amount"), _class="col-md-2"),
+            DIV(T("Status"), _class="col-md-2"),
+            DIV(XML('&nbsp;'), _class="col-md-2"),
+            _class="row bold hidden-xs hidden-sm os-shop-invoices-header"
+        )
+
+        invoices = DIV(
+            header,
+            _class='os-shop-invoices'
+        )
+
+        for i, row in enumerate(rows):
+            repr_row = list(rows[i:i + 1].render())[0]
+            pay_now = ''
+            online_payment_provider = get_sys_property('online_payment_provider')
+
+            pay_now = ''
+            if not online_payment_provider == 'disabled':
+                if row.invoices.Status == 'sent':
+                    pay_now = A(T('Pay now'),
+                                _href=URL('mollie', 'invoice_pay', vars={'iID': row.invoices.id}),
+                                _class='btn btn-success')
+
+            invoices.append(DIV(
+                DIV(SPAN("Invoice", " ", _class='bold hidden-md hidden-lg'),
+                    A(repr_row.invoices.InvoiceID, _href=URL('invoice', vars={'iID': row.invoices.id})),
+                    _class='col-md-2'),
+                DIV(repr_row.invoices.DateCreated, _class='col-md-2'),
+                DIV(repr_row.invoices.DateDue, _class='col-md-2 hidden-xs hidden-sm'),
+                DIV(repr_row.invoices_amounts.TotalPriceVAT, _class='col-md-2'),
+                DIV(repr_row.invoices.Status, _class='col-md-2'),
+                DIV(DIV(os_gui.get_button('print', URL('invoices', 'pdf', vars={'iID': row.invoices.id}),
+                                          btn_size=''),
+                        _class='btn-group pull-right'),
+                    DIV(pay_now, _class='pull-right'),
+                    _class='col-md-2'),
+                _class='row os-shop-invoices-list-item'
+            ))
+
+    content = DIV(
+        H4(T("Invoices for"), ' ', cs.name),
+        invoices
+    )
 
     back = os_gui.get_button('back', URL('profile', 'index'))
 

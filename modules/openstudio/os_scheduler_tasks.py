@@ -286,6 +286,21 @@ class OsSchedulerTasks:
         return T("Memberships renewed") + ': ' + unicode(renewed)
 
 
+    def exact_online_refresh_tokens(self):
+        """
+        Refresh tokens
+        :return:
+        """
+        from os_exact_online import OSExactOnline
+
+        os_eo = OSExactOnline()
+
+        api = os_eo.get_api()
+        api.refresh_token()
+
+        return 'refreshed exact online tokens'
+
+
     def exact_online_sync_invoices(self):
         """
         Due to a timeout in tokens, sometimes invoices don't sync immediately, as a API request
@@ -350,8 +365,8 @@ class OsSchedulerTasks:
         they're allowed to teach
         :return:
         """
-        from openstudio.os_mail import OsMail
-        from openstudio.os_teachers import Teachers
+        from os_mail import OsMail
+        from os_teachers import Teachers
 
         db = current.db
         T = current.T
@@ -381,7 +396,7 @@ class OsSchedulerTasks:
             if send_result:
                 mails_sent += 1
 
-        return T("Sent mails: %s" % mails_sent)
+        return "Sent mails: %s" % mails_sent
 
 
     def email_reminders_teachers_sub_request_open(self):
@@ -439,5 +454,5 @@ class OsSchedulerTasks:
 
             # send reminder to teacher
 
-        return T("Sent mails: %s" % mails_sent)
+        return "Sent mails: %s" % mails_sent
 

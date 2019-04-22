@@ -487,6 +487,7 @@ def test_school_classcards_get_json(client, web2py):
 
     url = base_url + '/api/school_classcards_get.json?user=test&key=test'
     page = urllib.urlopen(url).read()
+    print page
     json = sj.loads(page)
 
     classcard = web2py.db.school_classcards(1)

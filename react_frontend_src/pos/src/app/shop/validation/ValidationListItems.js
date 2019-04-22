@@ -28,7 +28,7 @@ class ValidationListItems extends Component {
                     <tr>
                         <th>ITEM</th>
                         <th>QTY</th>
-                        <th>PRICE</th>
+                        <th><span className="pull-right">PRICE</span></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -42,8 +42,10 @@ class ValidationListItems extends Component {
                             <td>
                                 { item.Quantity }
                             </td>
-                            <td>
-                                <Currency amount={ item.TotalPriceVAT } />
+                            <td className="validation-list-amount">
+                                <span className="pull-right">
+                                    <Currency amount={ item.TotalPriceVAT } />
+                                </span>
                             </td>
                         </tr>
                     )
@@ -52,7 +54,11 @@ class ValidationListItems extends Component {
                 <tfoot>
                     <th></th>
                     <th></th>
-                    <th><Currency amount={total} /></th>
+                    <th className="validation-list-amount">
+                        <span className="pull-right">
+                            <Currency amount={total} />
+                        </span>
+                    </th>
                 </tfoot>
             </table>
         )

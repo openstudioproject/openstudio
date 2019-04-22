@@ -7,6 +7,36 @@
 
 from populate_os_tables import populate_sys_organizations
 
+
+def test_user_register_phone_mandatory(client, web2py):
+    """
+    Is mobile required when the setting is set
+    """
+    web2py.db.sys_properties.insert(
+        Property="registration_requires_mobile",
+        PropertyValue="on"
+    )
+    web2py.db.commit()
+
+    url ='/default/user/register'
+    client.get(url)
+    assert client.status == 200
+
+    assert "Phone..." in client.text
+
+
+def test_user_register_phone_not_mandatory(client, web2py):
+    """
+    Is mobile required when the setting is set
+    """
+
+    url ='/default/user/register'
+    client.get(url)
+    assert client.status == 200
+
+    assert "Phone..." not in client.text
+
+
 def test_user_register_log_acceptance_documents(client, web2py):
     """
         Is acceptance of terms and conditions logged like it should?

@@ -368,6 +368,22 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
             return False
 
 
+    def has_given_membership_on_date(self, school_memberships_id, date):
+        """
+        :param school_memberships_id: db.school_memberships.id
+        :param date: datetime.date
+        :return: Boolean
+        """
+        ids = []
+        for row in self.get_memberships_on_date(date):
+            ids.append(int(row.school_memberships_id))
+
+        if int(school_memberships_id) in ids:
+            return True
+        else:
+            return False
+
+
     def _get_classcards(self, date):
         """
             Returns classcards for customer(cuID) on date
@@ -553,6 +569,41 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
             had_trial = False
 
         return had_trial
+
+
+    def get_has_or_had_subscription(self):
+        """
+        Returns True if customer has or had a subscription
+        """
+        db = current.db
+
+        query = (db.customers_subscriptions.auth_customer_id == self.cuID)
+        if db(query).count():
+            return True
+        else:
+            return False
+
+
+    def get_has_or_had_classcard(self):
+        """
+        Returns True if customer has or had a subscription
+        """
+        db = current.db
+
+        left = [
+            db.school_classcards.on(
+                db.customers_classcards.school_classcards_id ==
+                db.school_classcards.id
+            )
+        ]
+
+        query = (db.customers_classcards.auth_customer_id == self.cuID) & \
+                (db.school_classcards.Trialcard == False)
+        rows = db(query).select(db.customers_classcards.id)
+        if len(rows):
+            return True
+        else:
+            return False
 
 
     def get_workshops_rows(self, upcoming=False):
@@ -1179,6 +1230,56 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
             DocumentURL = document_url,
             DocumentContent = document_content,
             OpenStudioVersion = '.'.join([version, release])
+        )
+
+
+    def log_subscription_terms_acceptance(self, school_subscriptions_id):
+        """
+        :param school_subscriptions_id: db.school_subscriptions.id
+        :return: None
+        """
+        from os_school_subscription import SchoolSubscription
+        from tools import OsTools
+
+        T = current.T
+        os_tools = OsTools()
+        ssu = SchoolSubscription(school_subscriptions_id, set_db_info=True)
+
+        terms = [
+            os_tools.get_sys_property('shop_subscriptions_terms') or '',  # general terms
+            ssu.Terms or ''  # Subscription specific terms
+        ]
+        full_terms = '\n'.join(terms)
+
+        self.log_document_acceptance(
+            document_name=T("Subscription terms"),
+            document_description=T("Terms for all subscriptions and subscription specific terms"),
+            document_content=full_terms
+        )
+
+
+    def log_membership_terms_acceptance(self, school_memberships_id):
+        """
+        :param school_memberships_id: db.school_memberships.id
+        :return: None
+        """
+        from os_school_membership import SchoolMembership
+        from tools import OsTools
+
+        T = current.T
+        os_tools = OsTools()
+        sm = SchoolMembership(school_memberships_id)
+
+        terms = [
+            os_tools.get_sys_property('shop_memberships_terms') or '',  # general terms
+            sm.row.Terms or ''  # membership specific terms
+        ]
+        full_terms = '\n'.join(terms)
+
+        self.log_document_acceptance(
+            document_name=T("Membership terms"),
+            document_description=T("Terms for all memberships and membership specific terms"),
+            document_content=full_terms
         )
 
 

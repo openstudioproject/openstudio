@@ -3,6 +3,10 @@ html, body, div#app {
     min-height: 100%;
 }
 
+.center {
+    text-align: center;
+}
+
 .bold {
     font-weight: bold;
 }
@@ -281,3 +285,10 @@ div.error {
 }
 
 /* checkin booking options end */
+
+/* validation list begin */
+.validation-list-amount {
+    min-width: 75px;
+}
+
+/* validation list end */

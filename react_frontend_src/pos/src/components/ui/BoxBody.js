@@ -1,7 +1,7 @@
 import React from "react"
 
-const BoxBody = ({children}) =>
-    <div className="box-body">
+const BoxBody = ({children, className=""}) =>
+    <div className={"box-body " + className}>
         {children}
     </div>
 

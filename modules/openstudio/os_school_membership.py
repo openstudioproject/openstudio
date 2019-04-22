@@ -23,6 +23,8 @@ class SchoolMembership:
         """
             :return: Validity for school membership
         """
+        from general_helpers import represent_validity_units
+
         T  = current.T
         db = current.db
 

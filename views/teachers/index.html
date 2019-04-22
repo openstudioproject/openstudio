@@ -1,11 +1,59 @@
 {{extend 'layout.html'}}
-{{try:}}{{=back}}{{except:}}{{pass}}
-{{=content}}
-
-{{block right_sidebar}}
-{{=sidebar_content}}
-{{end}}
-
 {{block header}}
-    {{=export}}
+    {{try:}}{{=back}}{{except:}}{{pass}}{{pass}}    
+    {{try:}}{{=save}}{{except:}}{{pass}}{{pass}}    
+    {{try:}}{{=tools}}{{except:}}{{pass}}{{pass}}
+    {{try:}}{{=add}}{{except:}}{{pass}}{{pass}}
 {{end}}
+
+<div class='row'>
+    <div class='col-md-12'>
+        <div class="nav-tabs-custom">
+            {{=menu}}
+        <div class="tab-content">
+            {{=content}}
+        </div>
+    </div>
+</div>
+
+<div class='row'>
+	<div class='col-md-12'>
+		{{try:}}{{=content_extra}}{{except:}}{{pass}}{{pass}}
+	</div>
+</div>
+
+{{try:}}
+    {{ import os }}
+    {{ include os.path.join(request.folder,'static','plugin_os-js/general/show_add_modal_if_form_contains_errors.html')}}
+{{except: pass}}{{pass}}
+
+
+<script>
+	var $input = $("#sidebar-search");
+	var $content = $('.tab-content');
+	var $sidebar_form = $('.sidebar-form')
+	var $sidebar_search_btn_icon = $('#search-btn i.fa')
+	
+	$sidebar_search_btn_icon.removeClass('fa-search');
+    $sidebar_search_btn_icon.addClass('fa-times');
+
+	var typingTimer = null;
+	var doneTypingInterval = 500;
+	/* A timer is used to prevent submitting for each keystroke while the user is typing */
+	$input.keyup(function() {
+	    if (typingTimer) clearTimeout(typingTimer);
+	    $content.html('{{=os_gui.get_ajax_loader(message=T("Searching..."))}}');
+	    typingTimer = setTimeout(function() { 
+		    $sidebar_form.submit()
+	    }, doneTypingInterval);
+	}); // end input keyup
+
+	$('#search-btn').click(function(event) {
+	    event.preventDefault()
+	    $input.val("")
+        $sidebar_form.submit()
+    });
+
+    
+    $input.focus();
+</script>

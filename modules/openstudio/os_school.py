@@ -9,17 +9,35 @@ from general_helpers import represent_validity_units
 
 
 class School:
-    def get_classcards(self, public_only=True):
+    def get_classcards(self, auth_user_id=None, public_only=True):
         """
             :param public_only: Defines whether or not to show only public classcards, True by default
                                 False means all cards are returned
             Returns classcards for school
         """
+        from tools import OsTools
+
         db = current.db
+        os_tools = OsTools()
+
+
+        allow_trial_for_existing_customers = os_tools.get_sys_property(
+            'shop_allow_trial_cards_for_existing_customers'
+        )
 
         query = (db.school_classcards.Archived == False)
         if public_only:
             query &= (db.school_classcards.PublicCard == True)
+
+        if auth_user_id and allow_trial_for_existing_customers != 'on':
+            from os_customer import Customer
+
+            customer = Customer(auth_user_id)
+            has_or_had_subscription = customer.get_has_or_had_subscription()
+            has_or_had_card = customer.get_has_or_had_classcard()
+
+            if has_or_had_card or has_or_had_subscription:
+                query &= (db.school_classcards.Trialcard == False)
 
         return db(query).select(db.school_classcards.ALL,
                                 orderby=db.school_classcards.Trialcard |
@@ -73,7 +91,10 @@ class School:
         else:
             raise ValueError('Incompatible value: per_row has to be 3 or 4')
 
-        rows = self.get_classcards(public_only=public_only)
+        rows = self.get_classcards(
+            auth_user_id=auth_user_id,
+            public_only=public_only
+        )
 
         cards = DIV()
         display_row = DIV(_class='row')
@@ -168,27 +189,11 @@ class School:
         from os_customer import Customer
 
         db = current.db
-        auth = current.auth
-        TODAY_LOCAL = current.TODAY_LOCAL
         os_gui = current.globalenv['os_gui']
         T = current.T
 
-        if auth.user:
-            customer = Customer(auth.user.id)
-            memberships = customer.get_memberships_on_date(TODAY_LOCAL)
-            ids = []
-            for row in memberships:
-                ids.append(row.id)
-
-            if school_memberships_id and not school_memberships_id in ids:
-                sm = db.school_memberships(school_memberships_id)
-                return A(SPAN(T("Membership %s required" % sm.Name), ' ',
-                              os_gui.get_fa_icon('fa-arrow-right'),
-                              _class='smaller_font'),
-                         _href=URL('shop', 'memberships'))
-
         link =  A(SPAN(os_gui.get_fa_icon('fa-shopping-cart fa-2x')),
-                 _href=URL('classcard_add_to_cart', vars={'scdID': scdID}))
+                 _href=URL('shop', 'classcard', vars={'scdID': scdID}))
 
         return self._get_formatted_button_apply_accent_color(link)
 
@@ -219,7 +224,6 @@ class School:
     def _get_subscriptions_formatted_button_to_cart(self,
                                                     ssuID,
                                                     school_memberships_id,
-                                                    customer_has_membership,
                                                     customer_subscriptions_ids):
         """
             Get button to add card to shopping cart
@@ -234,19 +238,6 @@ class School:
         T = current.T
 
         if auth.user:
-            customer = Customer(auth.user.id)
-            memberships = customer.get_memberships_on_date(TODAY_LOCAL)
-            ids = []
-            for row in memberships:
-                ids.append(row.id)
-
-            if school_memberships_id and not school_memberships_id in ids:
-                sm = db.school_memberships(school_memberships_id)
-                return A(SPAN(T("Membership %s required" % sm.Name), ' ',
-                              os_gui.get_fa_icon('fa-arrow-right'),
-                              _class='smaller_font'),
-                         _href=URL('shop', 'memberships'))
-
             if ssuID in customer_subscriptions_ids:
                 return SPAN(
                     SPAN(T("You have this subscription"), _class='bold'), BR(),
@@ -256,7 +247,7 @@ class School:
                 )
 
         link = A(SPAN(os_gui.get_fa_icon('fa-shopping-cart fa-2x')),
-                 _href=URL('subscription_terms', vars={'ssuID': ssuID}))
+                 _href=URL('subscription', vars={'ssuID': ssuID}))
 
         return self._get_formatted_button_apply_accent_color(link)
 
@@ -412,7 +403,6 @@ class School:
                                 DIV(H5(self._get_subscriptions_formatted_button_to_cart(
                                         row.id,
                                         row.school_memberships_id,
-                                        customer_has_membership,
                                         customer_subscriptions_ids
                                         ),
                                         _class="description-header"),
@@ -476,7 +466,7 @@ class School:
         T = current.T
 
         link =  A(SPAN(os_gui.get_fa_icon('fa-shopping-cart fa-2x')),
-                 _href=URL('membership_terms', vars={'smID': smID}))
+                 _href=URL('membership', vars={'smID': smID}))
 
         return self._get_formatted_button_apply_accent_color(link)
 
@@ -555,14 +545,6 @@ class School:
                                 ),
                                 _class="col-sm-6 border-right"
                             ),
-                            # DIV(
-                            #     DIV(H5(repr_row.Classes,
-                            #             _class="description-header"),
-                            #         SPAN(T("Classes"), _class="description-text"),
-                            #         _class="description-block"
-                            #     ),
-                            #     _class="col-sm-4 border-right"
-                            # ),
                             DIV(
                                 DIV(H5(self._get_memberships_formatted_button_to_cart(row.id),
                                         _class="description-header"),
@@ -579,29 +561,6 @@ class School:
                 ),
                 _class=card_class
             )
-
-
-            # membership_content = TABLE(TR(TD(T('Validity')),
-            #                               TD(validity)),
-            #                            TR(TD(T('Price')),
-            #                               TD(sm.get_price_on_date(datetime.date.today()))),
-            #                            TR(TD(T('Description')),
-            #                               TD(row.Description or '')),
-            #                            _class='table')
-            #
-            # panel_class = 'box-primary'
-            #
-            # footer_content = ''
-            # if link_type == 'shop':
-            #     footer_content = self._get_memberships_formatted_button_to_cart(row.id)
-            #
-            # membership = DIV(os_gui.get_box_table(
-            #     name,
-            #     membership_content,
-            #     panel_class,
-            #     show_footer=True,
-            #     footer_content=footer_content),
-            #     _class=card_class)
 
             display_row.append(membership)
 

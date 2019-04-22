@@ -121,6 +121,36 @@ class CustomerSubscription:
         return iID
 
 
+    def get_invoices(self):
+        """
+        List invoices for Subscription
+        """
+        db = current.db
+
+        query = (db.invoices_items_customers_subscriptions.customers_subscriptions_id == self.csID)
+
+        left = [
+            db.invoices_items.on(
+                db.invoices_items_customers_subscriptions.invoices_items_id ==
+                db.invoices_items.id
+            ),
+            db.invoices.on(
+                db.invoices_items.invoices_id ==
+                db.invoices.id
+            ),
+            db.invoices_amounts.on(
+                db.invoices_amounts.invoices_id ==
+                db.invoices.id
+            )
+        ]
+
+        rows = db(query).select(db.invoices.ALL,
+                                db.invoices_amounts.ALL,
+                                left=left)
+
+        return rows
+
+
     def get_credits_balance(self):
         """
             Calculate total credits remaining for a subscription
@@ -481,4 +511,3 @@ class CustomerSubscription:
             return_value = False
 
         return return_value
-        

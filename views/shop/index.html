@@ -9,6 +9,7 @@
     <div class="col-md-12">
         <div class="box box-solid">
             <div class="box-body">
+                {{try:}}{{=progress}}{{except:}}{{pass}}{{pass}}
                 {{=content}}
             </div>
         </div>
