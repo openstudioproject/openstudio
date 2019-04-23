@@ -1,6 +1,7 @@
 import React, { Component } from "react"
 import { intlShape } from "react-intl"
 import PropTypes from "prop-types"
+import { Link } from 'react-router-dom'
 
 import PageTemplate from "../../../components/PageTemplate"
 import ClassesList from "./ClassesList"
@@ -29,9 +30,11 @@ class Classes extends Component {
         const customerID = this.props.match.params.customerID
         console.log('classes customerID')
         console.log(customerID)
+
+        const back = <Link to="/" className="btn btn-default"><i className="fa fa-angle-double-left"></i> Back</Link>
         
         return (
-            <PageTemplate app_state={this.props.app}>
+            <PageTemplate app_state={this.props.app} tools={back}>
                 { 
                     (!this.props.classes.loaded) ? 
                         <div>Loading classes, please wait...</div> :
