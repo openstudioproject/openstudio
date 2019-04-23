@@ -26,7 +26,7 @@ class Book extends Component {
 
     componentWillMount() {
         this.props.setPageTitle(
-            this.props.intl.formatMessage({ id: 'app.pos.classes.page_title' })
+            this.props.intl.formatMessage({ id: 'app.pos.classes.book_title' })
         )
 
         console.log(this.props.match.params.classID)
@@ -35,7 +35,7 @@ class Book extends Component {
     }
 
     onClickButtonBack() {
-        this.props.history.push(`/`)
+        this.props.history.push(`/classes/${this.props.match.params.customerID}`)
         // this.props.history.push(`/classes/attendance/${this.props.match.params.classID}`)
     }
 
@@ -251,7 +251,7 @@ class Book extends Component {
                         <section className="classes_attendance">
                             <ButtonBack onClick={this.onClickButtonBack.bind(this)} 
                                         classAdditional="btn-margin-right">
-                                Attendance
+                                Classes
                             </ButtonBack>
                             <BookOptionsList booking_options={booking_options}
                                              customer_memberships={customer_memberships}

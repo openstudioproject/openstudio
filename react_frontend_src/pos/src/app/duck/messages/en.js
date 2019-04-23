@@ -31,6 +31,7 @@ export const ENGLISH_TRANSLATION = {
         "app.user.profile": "Profile",
         "app.user.sign_out": "Sign out",
         "app.pos.classes.page_title": "Classes",
+        "app.pos.classes.book_title": "Book",
         "app.pos.classes.attendance.label_enrolled": "Enrolled",
         "app.pos.classes.attendance.status.attending": "Attending",
         "app.pos.classes.attendance.status.booked": "Booked",

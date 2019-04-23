@@ -7,6 +7,10 @@ import MainMenu from "./MainMenu"
 import Content from "./ui/Content";
 import ErrorScreen from "./ui/ErrorScreen";
 
+// Import toast
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'
+
 const PageTemplate = ({ app_state, children }) => 
     (app_state.error) ?
         <ErrorScreen message={app_state.error_message}
@@ -17,6 +21,7 @@ const PageTemplate = ({ app_state, children }) =>
                      subtitle={app_state.current_page_subtitle}>
                 {children}
             </Content>
+            <ToastContainer autoClose={5000} />
             {/* <Footer /> - No footer for now, it looks cleaner and we have OpenStudio branding in the header anyway */}
         </div>
 

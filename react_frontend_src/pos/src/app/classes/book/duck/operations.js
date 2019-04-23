@@ -7,6 +7,8 @@ import {
     receiveClassesCustomer
 } from './actions'
 
+import { toast } from 'react-toastify'
+
 import axios_os from '../../../../utils/axios_os'
 import OS_API from '../../../../utils/os_api'
 
@@ -60,6 +62,10 @@ const classesCustomer = (cuID, clsID, data, history) => {
               dispatch(receiveClassesCustomer(response.data))
               if (!response.data.error) {
                   history.push(`/classes/attendance/${clsID}`)
+              } else {
+                toast.info("Customer is already checked-in to this class", {
+                  position: toast.POSITION.BOTTOM_RIGHT
+                });
               }
           })
           .catch(function (error) {
