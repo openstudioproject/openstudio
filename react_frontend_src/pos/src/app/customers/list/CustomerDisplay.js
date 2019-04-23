@@ -3,6 +3,7 @@ import { intlShape } from "react-intl"
 import PropTypes from "prop-types"
 import validator from 'validator'
 import { v4 } from "uuid"
+import { Link } from 'react-router-dom'
 
 import ButtonCustomerEdit from "../../../components/ui/ButtonCustomerEdit"
 import CustomerDisplayMemberships from "./CustomerDisplayMemberships"
@@ -243,6 +244,10 @@ class CustomerDisplay extends Component {
                                     data-target="#cameraModal">
                                 <i className="fa fa-camera"></i> Take picture
                             </button>
+                            <Link to={"/classes/" + customerID}
+                                  className="btn btn-default btn-flat btn-block">
+                                <i className="fa fa-check-square-o"></i> Class check-in
+                            </Link>
                             <ButtonCustomerEdit onClick={onClickEdit}
                                                 classAdditional='btn-flat btn-block'>
                                 { ' ' } Edit customer
