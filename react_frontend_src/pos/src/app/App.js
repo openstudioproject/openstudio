@@ -62,7 +62,7 @@ class App extends Component {
         message={this.props.app_state.loading_message}/> :
       <Router>
           <Switch>
-            <Route exact path='/' component={Home} />
+            <Route exact path='/' component={Customers} />
             <Route exact path='/checkin' component={Classes} />
             <Route path='/checkin/attendance/:clsID' component={Attendance} />
             <Route path='/checkin/book/:clsID/:cuID' component={Book} />
