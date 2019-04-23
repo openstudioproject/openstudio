@@ -29,13 +29,14 @@ class Book extends Component {
             this.props.intl.formatMessage({ id: 'app.pos.classes.page_title' })
         )
 
-        console.log(this.props.match.params.classesID)
+        console.log(this.props.match.params.classID)
         console.log(this.props.match.params.customerID)
-        this.props.fetchBookingOptions(this.props.match.params.classesID, this.props.match.params.customerID )
+        this.props.fetchBookingOptions(this.props.match.params.classID, this.props.match.params.customerID )
     }
 
     onClickButtonBack() {
-        this.props.history.push(`/classes/attendance/${this.props.match.params.clsID}`)
+        this.props.history.push(`/`)
+        // this.props.history.push(`/classes/attendance/${this.props.match.params.classID}`)
     }
 
     onClickBookOption(option) {
@@ -43,11 +44,11 @@ class Book extends Component {
         console.log(option)
         console.log(option.Type)
 
-        const classesID = this.props.match.params.classesID
+        const classID = this.props.match.params.classID
         const customerID = this.props.match.params.customerID
         const school_memberships = this.props.school_memberships
 
-        // this.props.classesCustomer(customerID, classesID, option)
+        // this.props.classesCustomer(customerID, classID, option)
 
         const customer_memberships = this.customerMembershipsToday(customerID)
         console.log(customer_memberships)
@@ -92,7 +93,7 @@ class Book extends Component {
                     
                 } else {
                     // check-in, price = 0
-                    this.props.classesCustomer(customerID, classesID, option, this.props.history)
+                    this.props.classesCustomer(customerID, classID, option, this.props.history)
                 }
                 break
             case "trial": 
@@ -135,14 +136,14 @@ class Book extends Component {
                     
                 } else {
                     // check-in, price = 0
-                    this.props.classesCustomer(customerID, classesID, option, this.props.history)
+                    this.props.classesCustomer(customerID, classID, option, this.props.history)
                 }
             
                 break
             case "subscription":
                 if (option.school_memberships_id) {
                     if (customerHasRequiredMembership(option.school_memberships_id, customer_memberships)) {
-                        this.props.classesCustomer(customerID, classesID, option, this.props.history)
+                        this.props.classesCustomer(customerID, classID, option, this.props.history)
                     } else {
                         console.log('redirect to cart to buy the required membership')
                         // customer needs to pay
@@ -177,14 +178,14 @@ class Book extends Component {
                         this.props.history.push('/shop/products')
                     }
                 } else {
-                    this.props.classesCustomer(customerID, classesID, option, this.props.history)
+                    this.props.classesCustomer(customerID, classID, option, this.props.history)
                 }
                 break
             case "classcard":
                 // Check membership
                 if (option.school_memberships_id) {
                     if (customerHasRequiredMembership(option.school_memberships_id, customer_memberships)) {
-                        this.props.classesCustomer(customerID, classesID, option, this.props.history)
+                        this.props.classesCustomer(customerID, classID, option, this.props.history)
                     } else {
                         console.log('redirect to cart to buy the required membership')
                         // customer needs to pay
@@ -219,7 +220,7 @@ class Book extends Component {
                          this.props.history.push('/shop/products')
                     }
                 } else {
-                    this.props.classesCustomer(customerID, classesID, option, this.props.history)
+                    this.props.classesCustomer(customerID, classID, option, this.props.history)
                 }
                 break
             default: 
