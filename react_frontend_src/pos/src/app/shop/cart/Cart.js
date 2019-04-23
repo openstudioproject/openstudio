@@ -30,7 +30,7 @@ class Cart extends Component {
     }
     
     render() {
-        const classes = this.props.checkin_classes
+        const classes = this.props.classes_classes
         const items = this.props.items
         const selected_item = this.props.selected_item
         const total = this.props.total

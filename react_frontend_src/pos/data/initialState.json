@@ -17,7 +17,7 @@
         "cart_validation_error": false,
         "cart_validation_data": {}
     },
-    "checkin": {
+    "classes": {
         "attendance": {
             "loading": false,
             "loaded": false,
@@ -32,10 +32,10 @@
            "loading": false,
            "loaded": false,
            "data": {},
-           "checkin_loading": false,
+           "classes_loading": false,
            "checked_loaded": false,
-           "checkin_error": false,
-           "checkin_error_message": ""
+           "classes_error": false,
+           "classes_error_message": ""
         },
         "classes": {
            "loading": false,

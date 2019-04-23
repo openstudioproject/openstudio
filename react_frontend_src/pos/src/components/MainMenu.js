@@ -29,7 +29,7 @@ class MainMenu extends Component {
             <NavbarCollapse>
                 <NavbarNav>
                     <li className={this.getNavLinkClass('/')}><NavLink to="/" activeClassName={activeClassName}>Customers</NavLink></li>
-                    <li className={this.getNavLinkClass('/checkin')}><NavLink to="/checkin" activeClassName={activeClassName}>Classes</NavLink></li>
+                    <li className={this.getNavLinkClass('/classes')}><NavLink to="/classes" activeClassName={activeClassName}>Classes</NavLink></li>
                     <li className={this.getNavLinkClass('/shop')}><NavLink to="/shop/products" activeClassName={activeClassName}>Shop</NavLink></li>
                     <li className={this.getNavLinkClass('/cashbook')}><NavLink to="/cashbook" activeClassName={activeClassName}>Cash book</NavLink></li>
                 </NavbarNav>                

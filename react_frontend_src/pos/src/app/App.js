@@ -12,10 +12,10 @@ import ExpenseAdd from './cashbook/ExpenseAddContainer'
 import ExpenseEdit from './cashbook/ExpenseEditContainer'
 import CashCountSet from './cashbook/CashCountSetContainer'
 import Customers from './customers/list/CustomersContainer'
-import Classes from './checkin/classes/ClassesContainer'
-import Attendance from './checkin/attendance/AttendanceContainer'
-import Book from './checkin/book/BookContainer'
-import Revenue from './checkin/revenue/RevenueContainer'
+import Classes from './classes/classes/ClassesContainer'
+import Attendance from './classes/attendance/AttendanceContainer'
+import Book from './classes/book/BookContainer'
+import Revenue from './classes/revenue/RevenueContainer'
 import Home from './home/HomeContainer'
 import CustomItem from './shop/custom/CustomItemContainer'
 import Payment from './shop/payment/PaymentContainer'
@@ -63,10 +63,10 @@ class App extends Component {
       <Router>
           <Switch>
             <Route exact path='/' component={Customers} />
-            <Route exact path='/checkin' component={Classes} />
-            <Route path='/checkin/attendance/:clsID' component={Attendance} />
-            <Route path='/checkin/book/:clsID/:cuID' component={Book} />
-            <Route path='/checkin/revenue/:clsID' component={Revenue} />
+            <Route exact path='/classes' component={Classes} />
+            <Route path='/classes/attendance/:clsID' component={Attendance} />
+            <Route path='/classes/book/:clsID/:cuID' component={Book} />
+            <Route path='/classes/revenue/:clsID' component={Revenue} />
             <Route path='/customers' component={Customers} />
             <Route exact path='/cashbook' component={Cashbook} />
             <Route path='/cashbook/expenses/add' component={ExpenseAdd} />
