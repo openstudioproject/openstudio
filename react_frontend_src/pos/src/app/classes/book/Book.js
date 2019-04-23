@@ -29,9 +29,9 @@ class Book extends Component {
             this.props.intl.formatMessage({ id: 'app.pos.classes.page_title' })
         )
 
-        console.log(this.props.match.params.clsID)
-        console.log(this.props.match.params.cuID)
-        this.props.fetchBookingOptions(this.props.match.params.clsID, this.props.match.params.cuID )
+        console.log(this.props.match.params.classesID)
+        console.log(this.props.match.params.customerID)
+        this.props.fetchBookingOptions(this.props.match.params.classesID, this.props.match.params.customerID )
     }
 
     onClickButtonBack() {
@@ -43,13 +43,13 @@ class Book extends Component {
         console.log(option)
         console.log(option.Type)
 
-        const clsID = this.props.match.params.clsID
-        const cuID = this.props.match.params.cuID
+        const classesID = this.props.match.params.classesID
+        const customerID = this.props.match.params.customerID
         const school_memberships = this.props.school_memberships
 
-        // this.props.classesCustomer(cuID, clsID, option)
+        // this.props.classesCustomer(customerID, classesID, option)
 
-        const customer_memberships = this.customerMembershipsToday(this.props.match.params.cuID)
+        const customer_memberships = this.customerMembershipsToday(customerID)
         console.log(customer_memberships)
         switch (option.Type) {
             case "dropin": 
@@ -68,8 +68,8 @@ class Book extends Component {
                     // clear cart
                     this.props.clearShopCart()
                     // set shop selected customer id
-                    this.props.setSelectedCustomerID(this.props.match.params.cuID)
-                    this.props.setDisplayCustomerID(this.props.match.params.cuID)
+                    this.props.setSelectedCustomerID(customerID)
+                    this.props.setDisplayCustomerID(customerID)
                     // add item to cart
                     
                     let item = {
@@ -92,7 +92,7 @@ class Book extends Component {
                     
                 } else {
                     // check-in, price = 0
-                    this.props.classesCustomer(cuID, clsID, option, this.props.history)
+                    this.props.classesCustomer(customerID, classesID, option, this.props.history)
                 }
                 break
             case "trial": 
@@ -111,8 +111,8 @@ class Book extends Component {
                     // clear cart
                     this.props.clearShopCart()
                     // set shop selected customer id
-                    this.props.setSelectedCustomerID(this.props.match.params.cuID)
-                    this.props.setDisplayCustomerID(this.props.match.params.cuID)
+                    this.props.setSelectedCustomerID(customerID)
+                    this.props.setDisplayCustomerID(customerID)
                     // add item to cart
                     
                     let item = {
@@ -135,22 +135,22 @@ class Book extends Component {
                     
                 } else {
                     // check-in, price = 0
-                    this.props.classesCustomer(cuID, clsID, option, this.props.history)
+                    this.props.classesCustomer(customerID, classesID, option, this.props.history)
                 }
             
                 break
             case "subscription":
                 if (option.school_memberships_id) {
                     if (customerHasRequiredMembership(option.school_memberships_id, customer_memberships)) {
-                        this.props.classesCustomer(cuID, clsID, option, this.props.history)
+                        this.props.classesCustomer(customerID, classesID, option, this.props.history)
                     } else {
                         console.log('redirect to cart to buy the required membership')
                         // customer needs to pay
                         // clear cart
                         this.props.clearShopCart()
                         // set shop selected customer id
-                        this.props.setSelectedCustomerID(this.props.match.params.cuID)
-                        this.props.setDisplayCustomerID(this.props.match.params.cuID)
+                        this.props.setSelectedCustomerID(customerID)
+                        this.props.setDisplayCustomerID(customerID)
 
                         function findMembership(item) {
                             return item.id == option.school_memberships_id
@@ -177,22 +177,22 @@ class Book extends Component {
                         this.props.history.push('/shop/products')
                     }
                 } else {
-                    this.props.classesCustomer(cuID, clsID, option, this.props.history)
+                    this.props.classesCustomer(customerID, classesID, option, this.props.history)
                 }
                 break
             case "classcard":
                 // Check membership
                 if (option.school_memberships_id) {
                     if (customerHasRequiredMembership(option.school_memberships_id, customer_memberships)) {
-                        this.props.classesCustomer(cuID, clsID, option, this.props.history)
+                        this.props.classesCustomer(customerID, classesID, option, this.props.history)
                     } else {
                         console.log('redirect to cart to buy the required membership')
                         // customer needs to pay
                         // clear cart
                         this.props.clearShopCart()
                         // set shop selected customer id
-                        this.props.setSelectedCustomerID(this.props.match.params.cuID)
-                        this.props.setDisplayCustomerID(this.props.match.params.cuID)
+                        this.props.setSelectedCustomerID(customerID)
+                        this.props.setDisplayCustomerID(customerID)
 
                         function findMembership(item) {
                             return item.id == option.school_memberships_id
@@ -219,7 +219,7 @@ class Book extends Component {
                          this.props.history.push('/shop/products')
                     }
                 } else {
-                    this.props.classesCustomer(cuID, clsID, option, this.props.history)
+                    this.props.classesCustomer(customerID, classesID, option, this.props.history)
                 }
                 break
             default: 
@@ -230,15 +230,15 @@ class Book extends Component {
         }
     }
 
-    customerMembershipsToday(cuID) {
-        return this.props.customer_memberships_today.data[cuID]
+    customerMembershipsToday(customerID) {
+        return this.props.customer_memberships_today.data[customerID]
     }
 
     render() {
-        const cuID = this.props.match.params.cuID
+        const customerID = customerID
         const booking_options = this.props.options.data
         
-        const customer_memberships = this.customerMembershipsToday(cuID)
+        const customer_memberships = this.customerMembershipsToday(customerID)
         console.log('customer_memberships')
         console.log(customer_memberships)
 

@@ -26,11 +26,13 @@ const DisplayHoliday = ({holiday, description}) => {
 }
 
 
-function ClassesListClassOnClick(history, data) {
+function ClassesListClassOnClick(history, data, customerID) {
     if (data.Cancelled || data.Holliday) {
         return () => { console.log('this class is cancelled or in a holiday')}
     } else {
-        return () => { history.push('/classes/attendance/' + data.ClassesID) }
+        console.log("on click data")
+        console.log(data)
+        return () => { history.push('/classes/book/' + customerID + '/' + data.ClassesID) }
     }
 }
 
@@ -43,8 +45,8 @@ function ClassesListClassRowClass(data) {
 }
 
 
-const ClassesListClass = withRouter(({data, history}) => 
-    <div onClick={ClassesListClassOnClick(history, data)}
+const ClassesListClass = withRouter(({data, customerID, history}) => 
+    <div onClick={ClassesListClassOnClick(history, data, customerID)}
          className={(data.Cancelled || data.Holiday) ? "classes_class cancelled" : "classes_class"}>
         <div className={ClassesListClassRowClass(data)}>
             <div className="col-md-1">

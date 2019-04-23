@@ -3,10 +3,11 @@ import { intlShape } from "react-intl"
 import PropTypes from "prop-types"
 
 import PageTemplate from "../../../components/PageTemplate"
-import ClassesList from "./ClassesListComponent"
+import ClassesList from "./ClassesList"
 
 class Classes extends Component {
     constructor(props) {
+        console.log(props)
         super(props)
     }
 
@@ -26,13 +27,20 @@ class Classes extends Component {
     }
 
     render() {
+        const customerID = this.props.match.params.customerID
+        console.log('classes customerID')
+        console.log(customerID)
+        
         return (
             <PageTemplate app_state={this.props.app}>
                 { 
                     (!this.props.classes.loaded) ? 
                         <div>Loading classes, please wait...</div> :
                         <section className="classes_classes">
-                            <ClassesList classes={this.props.classes.data} />
+                            <ClassesList 
+                                classes={this.props.classes.data} 
+                                customerID={customerID}
+                            />
                         </section>
                 }
             </PageTemplate>

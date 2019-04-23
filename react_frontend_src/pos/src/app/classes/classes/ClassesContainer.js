@@ -1,5 +1,6 @@
 import { connect } from 'react-redux'
-import { injectIntl } from 'react-intl';
+import { injectIntl } from 'react-intl'
+import { withRouter } from "react-router"
 
 import Classes from "./Classes"
 import { appOperations } from '../../duck'
@@ -23,9 +24,9 @@ const mapDispatchToProps = dispatch =>
     })
 
 
-const ClassesContainer = injectIntl(connect(
+const ClassesContainer = withRouter(injectIntl(connect(
     mapStateToProps,
     mapDispatchToProps
-)(Classes))
+)(Classes)))
 
 export default ClassesContainer
