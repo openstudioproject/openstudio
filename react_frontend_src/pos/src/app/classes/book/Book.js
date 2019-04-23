@@ -4,6 +4,7 @@ import PropTypes from "prop-types"
 import { v4 } from "uuid"
 
 import ButtonBack from "../../../components/ui/ButtonBack"
+import ClassNameDisplay from "../../../components/ui/ClassNameDisplay"
 import PageTemplate from "../../../components/PageTemplate"
 import BookOptionsList from "./BookOptionsList"
 
@@ -28,6 +29,11 @@ class Book extends Component {
         this.props.setPageTitle(
             this.props.intl.formatMessage({ id: 'app.pos.classes.book_title' })
         )
+        this.props.setPageSubtitle(
+            <ClassNameDisplay classes={this.props.classes}
+                              clsID={this.props.match.params.classID} />
+        )
+        
 
         console.log(this.props.match.params.classID)
         console.log(this.props.match.params.customerID)

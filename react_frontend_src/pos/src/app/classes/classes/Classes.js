@@ -13,7 +13,6 @@ class Classes extends Component {
 
     PropTypes = {
         intl: intlShape.isRequired,
-        fetchClasses: PropTypes.function,
         setPageTitle: PropTypes.function,
         app: PropTypes.object,
         classes: PropTypes.object,
@@ -23,7 +22,7 @@ class Classes extends Component {
         this.props.setPageTitle(
             this.props.intl.formatMessage({ id: 'app.pos.classes.page_title' })
         )
-        this.props.fetchClasses()
+        this.props.setPageSubtitle("")
     }
 
     render() {

@@ -14,7 +14,8 @@ const mapStateToProps = state =>
         app: state.app,
         options: state.classes.book,
         customer_memberships_today: state.customers.memberships_today,
-        school_memberships: state.shop.school.memberships
+        school_memberships: state.shop.school.memberships,
+        classes: state.classes.classes.data,
     })
 
 const mapDispatchToProps = dispatch =>
@@ -27,6 +28,9 @@ const mapDispatchToProps = dispatch =>
         },
         setPageTitle(title) {
             dispatch(appOperations.setPageTitle(title))
+        },
+        setPageSubtitle(title) {
+            dispatch(appOperations.setPageSubtitle(title))
         },
         setSelectedCustomerID(id) {
             dispatch(customersListOperations.setSelectedCustomerID(id))
