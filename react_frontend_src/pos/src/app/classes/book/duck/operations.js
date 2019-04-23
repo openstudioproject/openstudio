@@ -61,11 +61,14 @@ const classesCustomer = (cuID, clsID, data, history) => {
           .then(function(response) {
               dispatch(receiveClassesCustomer(response.data))
               if (!response.data.error) {
-                  history.push(`/classes/attendance/${clsID}`)
-              } else {
-                toast.info("Customer is already checked-in to this class", {
+                history.push(`/`)
+                toast.success("Customer checked in to class", {
                   position: toast.POSITION.BOTTOM_RIGHT
-                });
+                })
+              } else {
+                toast.info(response.data.message, {
+                  position: toast.POSITION.BOTTOM_RIGHT
+                })
               }
           })
           .catch(function (error) {
