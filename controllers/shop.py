@@ -1825,7 +1825,14 @@ def classcard():
                      vars={'coID': form.vars.id,
                            'scdID': scdID}))
 
-    checkout_message = get_sys_property('shop_checkout_message') or ''
+    checkout_message_classcards = get_sys_property('shop_checkout_message_classcards') or ''
+    checkout_message = ''
+    if checkout_message_classcards:
+        checkout_message = DIV(
+            H4(T("Order info")),
+            XML(checkout_message_classcards), BR(),
+            _class='col-md-6'
+        )
 
     ## Membership check
     customer = Customer(auth.user.id)
@@ -1860,6 +1867,7 @@ def classcard():
                 BR(),
                 _class='col-md-6'
             ),
+            checkout_message,
             _class="col-md-12"
         ),
         m_required,
