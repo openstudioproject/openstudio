@@ -877,7 +877,14 @@ def event_ticket():
                      vars={'coID': form.vars.id,
                            'wspID': wspID}))
 
-    checkout_message = get_sys_property('shop_checkout_message') or ''
+    checkout_message_events = get_sys_property('shop_checkout_message_events') or ''
+    checkout_message = ''
+    if checkout_message_events:
+        checkout_message = DIV(
+            H4(T("Order info")),
+            XML(checkout_message_events), BR(),
+            _class='col-md-6'
+        )
 
     ## Membership check
     customer = Customer(auth.user.id)
@@ -892,6 +899,7 @@ def event_ticket():
                 BR(),
                 _class='col-md-6'
             ),
+            checkout_message,
             _class="col-md-12"
         ),
         DIV(
@@ -1087,7 +1095,15 @@ def membership():
                      vars={'coID': form.vars.id,
                            'smID': smID}))
 
-    checkout_message = get_sys_property('shop_checkout_message') or ''
+    checkout_message_memberships = get_sys_property('shop_checkout_message_memberships') or ''
+    checkout_message = ''
+    if checkout_message_memberships:
+        checkout_message = DIV(
+            H4(T("Order info")),
+            XML(checkout_message_memberships), BR(),
+            _class='col-md-6'
+        )
+
 
     ## Membership check
     customer = Customer(auth.user.id)
@@ -1112,6 +1128,7 @@ def membership():
                 subscription_get_membership_terms(membership),
                 _class='col-md-6'
             ),
+            checkout_message,
             _class="col-md-12"
         ),
         DIV(
@@ -1378,6 +1395,15 @@ def subscription():
 
         subscription_info = subscription_get_info(ssu)
 
+        checkout_message_subscriptions = get_sys_property('shop_checkout_message_subscriptions') or ''
+        checkout_message = ''
+        if checkout_message_subscriptions:
+            checkout_message = DIV(
+                H4(T("Order info")),
+                XML(checkout_message_subscriptions), BR(),
+                _class='col-md-6'
+            )
+
         ## Membership check
         customer = Customer(auth.user.id)
 
@@ -1407,6 +1433,7 @@ def subscription():
                     direct_debit_mandate,
                     _class='col-md-6'
                 ),
+                checkout_message,
                 _class="col-md-12"
             ),
             m_required,
@@ -1806,7 +1833,14 @@ def classcard():
                      vars={'coID': form.vars.id,
                            'scdID': scdID}))
 
-    checkout_message = get_sys_property('shop_checkout_message') or ''
+    checkout_message_classcards = get_sys_property('shop_checkout_message_classcards') or ''
+    checkout_message = ''
+    if checkout_message_classcards:
+        checkout_message = DIV(
+            H4(T("Order info")),
+            XML(checkout_message_classcards), BR(),
+            _class='col-md-6'
+        )
 
     ## Membership check
     customer = Customer(auth.user.id)
@@ -1841,6 +1875,7 @@ def classcard():
                 BR(),
                 _class='col-md-6'
             ),
+            checkout_message,
             _class="col-md-12"
         ),
         m_required,
@@ -2714,7 +2749,14 @@ def class_checkout():
                            'dropin': dropin,
                            'trial': trial}))
 
-    checkout_message = get_sys_property('shop_checkout_message') or ''
+    checkout_message_classes = get_sys_property('shop_checkout_message_classes') or ''
+    checkout_message = ''
+    if checkout_message_classes:
+        checkout_message = DIV(
+            H4(T("Order info")),
+            XML(checkout_message_classes), BR(),
+            _class='col-md-6'
+        )
 
     customer = Customer(auth.user.id)
 
@@ -2725,6 +2767,7 @@ def class_checkout():
                 BR(),
                 _class='col-md-6'
             ),
+            checkout_message,
             _class="col-md-12"
         ),
         DIV(
