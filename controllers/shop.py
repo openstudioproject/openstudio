@@ -877,7 +877,14 @@ def event_ticket():
                      vars={'coID': form.vars.id,
                            'wspID': wspID}))
 
-    checkout_message = get_sys_property('shop_checkout_message') or ''
+    checkout_message_events = get_sys_property('shop_checkout_message_events') or ''
+    checkout_message = ''
+    if checkout_message_events:
+        checkout_message = DIV(
+            H4(T("Order info")),
+            XML(checkout_message_events), BR(),
+            _class='col-md-6'
+        )
 
     ## Membership check
     customer = Customer(auth.user.id)
@@ -892,6 +899,7 @@ def event_ticket():
                 BR(),
                 _class='col-md-6'
             ),
+            checkout_message,
             _class="col-md-12"
         ),
         DIV(
