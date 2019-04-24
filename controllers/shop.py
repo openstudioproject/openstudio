@@ -2714,7 +2714,14 @@ def class_checkout():
                            'dropin': dropin,
                            'trial': trial}))
 
-    checkout_message = get_sys_property('shop_checkout_message') or ''
+    checkout_message_classes = get_sys_property('shop_checkout_message_classes') or ''
+    checkout_message = ''
+    if checkout_message_classes:
+        checkout_message = DIV(
+            H4(T("Info")),
+            XML(checkout_message_classes), BR(),
+            _class='col-md-6'
+        )
 
     customer = Customer(auth.user.id)
 
@@ -2725,6 +2732,7 @@ def class_checkout():
                 BR(),
                 _class='col-md-6'
             ),
+            checkout_message,
             _class="col-md-12"
         ),
         DIV(
