@@ -1087,7 +1087,15 @@ def membership():
                      vars={'coID': form.vars.id,
                            'smID': smID}))
 
-    checkout_message = get_sys_property('shop_checkout_message') or ''
+    checkout_message_memberships = get_sys_property('shop_checkout_message_memberships') or ''
+    checkout_message = ''
+    if checkout_message_memberships:
+        checkout_message = DIV(
+            H4(T("Order info")),
+            XML(checkout_message_memberships), BR(),
+            _class='col-md-6'
+        )
+
 
     ## Membership check
     customer = Customer(auth.user.id)
@@ -1112,6 +1120,7 @@ def membership():
                 subscription_get_membership_terms(membership),
                 _class='col-md-6'
             ),
+            checkout_message,
             _class="col-md-12"
         ),
         DIV(
@@ -2718,7 +2727,7 @@ def class_checkout():
     checkout_message = ''
     if checkout_message_classes:
         checkout_message = DIV(
-            H4(T("Info")),
+            H4(T("Order info")),
             XML(checkout_message_classes), BR(),
             _class='col-md-6'
         )
