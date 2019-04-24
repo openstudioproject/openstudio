@@ -1387,6 +1387,15 @@ def subscription():
 
         subscription_info = subscription_get_info(ssu)
 
+        checkout_message_subscriptions = get_sys_property('shop_checkout_message_subscriptions') or ''
+        checkout_message = ''
+        if checkout_message_subscriptions:
+            checkout_message = DIV(
+                H4(T("Order info")),
+                XML(checkout_message_subscriptions), BR(),
+                _class='col-md-6'
+            )
+
         ## Membership check
         customer = Customer(auth.user.id)
 
@@ -1416,6 +1425,7 @@ def subscription():
                     direct_debit_mandate,
                     _class='col-md-6'
                 ),
+                checkout_message,
                 _class="col-md-12"
             ),
             m_required,
