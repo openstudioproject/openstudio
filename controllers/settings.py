@@ -3531,7 +3531,12 @@ def shop_settings():
     shop_header_logo_url = get_sys_property('shop_header_logo_url')
     shop_classes_dropin_message = get_sys_property('shop_classes_dropin_message')
     shop_classes_trial_message = get_sys_property('shop_classes_trial_message')
-    shop_checkout_message = get_sys_property('shop_checkout_message')
+    shop_checkout_message_classes = get_sys_property('shop_checkout_message_classes')
+    shop_checkout_message_memberships = get_sys_property('shop_checkout_message_memberships')
+    shop_checkout_message_subscriptions = get_sys_property('shop_checkout_message_subscriptions')
+    shop_checkout_message_classcards = get_sys_property('shop_checkout_message_classcards')
+    shop_checkout_message_events = get_sys_property('shop_checkout_message_events')
+
 
     form = SQLFORM.factory(
         Field('shop_header_logo_url',
@@ -3546,10 +3551,26 @@ def shop_settings():
               default=shop_classes_trial_message,
               label=T('Trial class booking options message'),
               comment=T('Message shown on the trial class option on the class booking options pages')),
-        Field('shop_checkout_message', 'text',
-              default=shop_checkout_message,
-              label=T('Check out message'),
-              comment=T('Message shown on the check out page')),
+        Field('shop_checkout_message_classes', 'text',
+              default=shop_checkout_message_classes,
+              label=T('Check out message classes'),
+              comment=T('Message shown on the classes check out page')),
+        Field('shop_checkout_message_memberships', 'text',
+              default=shop_checkout_message_memberships,
+              label=T('Check out message memberships'),
+              comment=T('Message shown on the memberships check out page')),
+        Field('shop_checkout_message_subscriptions', 'text',
+              default=shop_checkout_message_subscriptions,
+              label=T('Check out message subscriptions'),
+              comment=T('Message shown on the subscriptions check out page')),
+        Field('shop_checkout_message_classcards', 'text',
+              default=shop_checkout_message_classcards,
+              label=T('Check out message classcards'),
+              comment=T('Message shown on the classcards check out page')),
+        Field('shop_checkout_message_events', 'text',
+              default=shop_checkout_message_events,
+              label=T('Check out message events'),
+              comment=T('Message shown on the events check out page')),
         submit_button=T("Save"),
         separator=' ',
         formstyle='bootstrap3_stacked'
@@ -3568,7 +3589,11 @@ def shop_settings():
             'shop_header_logo_url',
             'shop_classes_dropin_message',
             'shop_classes_trial_message',
-            'shop_checkout_message'
+            'shop_checkout_message_classes',
+            'shop_checkout_message_memberships',
+            'shop_checkout_message_subscriptions',
+            'shop_checkout_message_classcards',
+            'shop_checkout_message_events',
         ]
 
         # process vars
