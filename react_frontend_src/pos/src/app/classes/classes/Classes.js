@@ -23,7 +23,6 @@ class Classes extends Component {
         this.props.setPageTitle(
             this.props.intl.formatMessage({ id: 'app.pos.classes.page_title' })
         )
-        this.props.setPageSubtitle("")
     }
 
     render() {

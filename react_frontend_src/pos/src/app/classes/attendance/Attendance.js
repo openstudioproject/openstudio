@@ -42,6 +42,10 @@ class Attendance extends Component {
 
     }
 
+    componentWillUnmount() {
+        this.props.setPageSubtitle("")
+    }
+
     componentDidMount() {
 
     }

@@ -42,6 +42,10 @@ class Book extends Component {
         this.props.fetchBookingOptions(this.props.match.params.classID, this.props.match.params.customerID )
     }
 
+    componentWillUnmount() {
+        this.props.setPageSubtitle("")
+    }
+
     onClickButtonBack() {
         this.props.history.push(`/classes/${this.props.match.params.customerID}`)
         // this.props.history.push(`/classes/attendance/${this.props.match.params.classID}`)
