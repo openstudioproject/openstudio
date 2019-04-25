@@ -32,7 +32,12 @@ function ClassesListClassOnClick(history, data, customerID) {
     } else {
         console.log("on click data")
         console.log(data)
-        return () => { history.push('/classes/book/' + customerID + '/' + data.ClassesID) }
+        return () => { 
+            (customerID) ?
+                history.push('/classes/book/' + customerID + '/' + data.ClassesID) :
+                history.push('/classes/attendance/' + data.ClassesID)
+
+        }
     }
 }
 

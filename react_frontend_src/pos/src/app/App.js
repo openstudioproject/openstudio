@@ -64,7 +64,9 @@ class App extends Component {
       <Router>
           <Switch>
             <Route exact path='/' component={Customers} />
+            <Route exact path='/classes' component={Classes} />
             <Route exact path='/classes/:customerID' component={Classes} />
+            <Route path='/classes/attendance/:clsID' component={Attendance} />
             <Route path='/classes/book/:customerID/:classID' component={Book} />
             {/* <Route path='/classes/attendance/:clsID' component={Attendance} />
             <Route path='/classes/book/:clsID/:cuID' component={Book} />
