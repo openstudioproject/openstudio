@@ -34,16 +34,17 @@ const ManageBooking = ({clattID, status, onClick=f=>f, onClickRemove=f=>f, colla
         <div className="collapse" id={collapseID}>
             <br />
             <div className="well">
+                <div>Change booking status</div> <br />
                 {(status == "booked") ? "" :
                 <button className="btn btn-primary"
                         onClick={() => onClick(clattID, "booked")}>
                     Booked
-                </button> }
+                </button> } { ' ' }
                 {(status == "cancelled") ? "" :
                 <button className="btn btn-warning"
                         onClick={() => onClick(clattID, "cancelled")}>
                     Cancelled
-                </button>}
+                </button>}  { ' ' }
                 <button className="btn btn-danger"
                         onClick={()=> onClickRemove(clattID)}>
                     Remove
