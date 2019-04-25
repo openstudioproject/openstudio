@@ -44,7 +44,7 @@ const fetchBookingOptions = (clsID, cuID) => {
       }
   }
 
-const classesCustomer = (cuID, clsID, data, history) => {
+const checkinCustomer = (cuID, clsID, data, history) => {
       return dispatch => {
           dispatch(requestClassesCustomer())
 
@@ -82,6 +82,6 @@ const classesCustomer = (cuID, clsID, data, history) => {
 
 
 export default {
-    classesCustomer,
+    checkinCustomer,
     fetchBookingOptions
 }

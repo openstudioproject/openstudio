@@ -54,9 +54,10 @@ class Book extends Component {
         const customerID = this.props.match.params.customerID
         const school_memberships = this.props.school_memberships
 
-        // this.props.classesCustomer(customerID, classID, option)
+        // this.props.checkinCustomer(customerID, classID, option)
 
         const customer_memberships = this.customerMembershipsToday(customerID)
+        console.log('customer_memberships')
         console.log(customer_memberships)
         switch (option.Type) {
             case "dropin": 
@@ -99,7 +100,7 @@ class Book extends Component {
                     
                 } else {
                     // check-in, price = 0
-                    this.props.classesCustomer(customerID, classID, option, this.props.history)
+                    this.props.checkinCustomer(customerID, classID, option, this.props.history)
                 }
                 break
             case "trial": 
@@ -142,14 +143,15 @@ class Book extends Component {
                     
                 } else {
                     // check-in, price = 0
-                    this.props.classesCustomer(customerID, classID, option, this.props.history)
+                    this.props.checkinCustomer(customerID, classID, option, this.props.history)
                 }
             
                 break
             case "subscription":
                 if (option.school_memberships_id) {
                     if (customerHasRequiredMembership(option.school_memberships_id, customer_memberships)) {
-                        this.props.classesCustomer(customerID, classID, option, this.props.history)
+                        
+                        this.props.checkinCustomer(customerID, classID, option, this.props.history)
                     } else {
                         console.log('redirect to cart to buy the required membership')
                         // customer needs to pay
@@ -184,14 +186,14 @@ class Book extends Component {
                         this.props.history.push('/shop/products')
                     }
                 } else {
-                    this.props.classesCustomer(customerID, classID, option, this.props.history)
+                    this.props.checkinCustomer(customerID, classID, option, this.props.history)
                 }
                 break
             case "classcard":
                 // Check membership
                 if (option.school_memberships_id) {
                     if (customerHasRequiredMembership(option.school_memberships_id, customer_memberships)) {
-                        this.props.classesCustomer(customerID, classID, option, this.props.history)
+                        this.props.checkinCustomer(customerID, classID, option, this.props.history)
                     } else {
                         console.log('redirect to cart to buy the required membership')
                         // customer needs to pay
@@ -226,7 +228,7 @@ class Book extends Component {
                          this.props.history.push('/shop/products')
                     }
                 } else {
-                    this.props.classesCustomer(customerID, classID, option, this.props.history)
+                    this.props.checkinCustomer(customerID, classID, option, this.props.history)
                 }
                 break
             default: 
