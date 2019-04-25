@@ -68,9 +68,7 @@ class App extends Component {
             <Route exact path='/classes/:customerID' component={Classes} />
             <Route path='/classes/attendance/:clsID' component={Attendance} />
             <Route path='/classes/book/:customerID/:classID' component={Book} />
-            {/* <Route path='/classes/attendance/:clsID' component={Attendance} />
-            <Route path='/classes/book/:clsID/:cuID' component={Book} />
-            <Route path='/classes/revenue/:clsID' component={Revenue} /> */}
+            <Route path='/classes/revenue/:clsID' component={Revenue} />
             <Route path='/customers' component={Customers} />
             <Route exact path='/cashbook' component={Cashbook} />
             <Route path='/cashbook/expenses/add' component={ExpenseAdd} />

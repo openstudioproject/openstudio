@@ -48,7 +48,7 @@ class Revenue extends Component {
                             <div className="row header-tools">
                                 <div className="col-md-12">
                                     <ButtonBack onClick={this.onClickBtnCancel.bind(this)}>
-                                        Cancel
+                                        Back
                                     </ButtonBack>    
                                 </div>
                             </div>
