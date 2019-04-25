@@ -2,6 +2,8 @@ import React, { Component } from "react"
 import { intlShape } from "react-intl"
 import PropTypes from "prop-types"
 import { v4 } from "uuid"
+import { toast } from 'react-toastify'
+
 
 import ButtonBack from "../../../components/ui/ButtonBack"
 import ClassNameDisplay from "../../../components/ui/ClassNameDisplay"
@@ -66,7 +68,7 @@ class Book extends Component {
             case "dropin": 
                 console.log('executing dropin code')
                 let dropin_price
-                if (customer_memberships.lentgh) {
+                if (customer_memberships) {
                     dropin_price = option.MembershipPrice
                 } else {
                     dropin_price = option.Price
@@ -109,7 +111,7 @@ class Book extends Component {
             case "trial": 
                 console.log('trial code here')
                 let trial_price
-                if (customer_has_membership) {
+                if (customer_memberships) {
                     trial_price = option.MembershipPrice
                 } else {
                     trial_price = option.Price
