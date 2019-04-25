@@ -7,7 +7,10 @@ import customerHasRequiredMembership from './customerHasRequiredMembership'
 const BookOptionsListItemSubscription = injectIntl(({data, customer_memberships, intl, onClick=f=>f}) => 
     <div className="col-md-3"
          onClick={(data.Allowed) ? () => onClick(data): f=>f}>
+
+         {console.log('subscription list item')}
          {console.log(data)}
+         {console.log(customer_memberships)}
          <div className={(data.Allowed) ? "small-box bg-purple" : "small-box bg-gray-active"}>
             <div className="inner">
                 <h4>

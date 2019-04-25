@@ -54,6 +54,9 @@ class Book extends Component {
         const customerID = this.props.match.params.customerID
         const school_memberships = this.props.school_memberships
 
+        console.log(classID)
+        console.log(customerID)
+
         // this.props.checkinCustomer(customerID, classID, option)
 
         const customer_memberships = this.customerMembershipsToday(customerID)
@@ -149,8 +152,8 @@ class Book extends Component {
                 break
             case "subscription":
                 if (option.school_memberships_id) {
+                    console.log('membership required')
                     if (customerHasRequiredMembership(option.school_memberships_id, customer_memberships)) {
-                        
                         this.props.checkinCustomer(customerID, classID, option, this.props.history)
                     } else {
                         console.log('redirect to cart to buy the required membership')
@@ -244,12 +247,8 @@ class Book extends Component {
     }
 
     render() {
-        const customerID = customerID
+        const customerID = this.props.match.params.customerID
         const booking_options = this.props.options.data
-        
-        const customer_memberships = this.customerMembershipsToday(customerID)
-        console.log('customer_memberships')
-        console.log(customer_memberships)
 
         return (
             <PageTemplate app_state={this.props.app}>
@@ -262,7 +261,7 @@ class Book extends Component {
                                 Classes
                             </ButtonBack>
                             <BookOptionsList booking_options={booking_options}
-                                             customer_memberships={customer_memberships}
+                                             customer_memberships={this.customerMembershipsToday(customerID)}
                                              onClick={this.onClickBookOption.bind(this)} />
                             {/* <AttendanceList attendance_items={this.props.attendance.data} /> */}
                         </section>

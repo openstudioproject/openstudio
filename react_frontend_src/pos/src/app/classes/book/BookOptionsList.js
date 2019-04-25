@@ -42,7 +42,9 @@ const populateRowsClasscards = (classcards, customer_memberships, onClick=f=>f) 
 
 const BookOptionsList = ({booking_options, customer_memberships, onClick=f=>f}) => 
     <div className="classes-booking-options">
+        {console.log('booking options list props')}
         {console.log(booking_options)}
+        {console.log(customer_memberships)}
         {(booking_options.subscriptions.length > 0) ?
             <div>
                 <h4>Subscriptions</h4>

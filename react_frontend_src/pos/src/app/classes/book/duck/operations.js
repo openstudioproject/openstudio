@@ -47,7 +47,6 @@ const fetchBookingOptions = (clsID, cuID) => {
 const checkinCustomer = (cuID, clsID, data, history) => {
       return dispatch => {
           dispatch(requestClassesCustomer())
-
           console.log("request customer classes")
           let fd = new FormData()
         //   fd.append('clsID', clsID)
