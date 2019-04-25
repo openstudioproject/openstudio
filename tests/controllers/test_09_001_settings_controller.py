@@ -94,7 +94,11 @@ def test_shop_settings_general(client, web2py):
         'shop_header_logo_url':'http://www.groningen.nl',
         'shop_classes_dropin_message': '23498798fjsdfksd',
         'shop_classes_trial_message': '23498798fjsdfksd',
-        'shop_checkout_message': 'blablabla and blah!'
+        'shop_checkout_message_classes': 'blablabla and blah!1',
+        'shop_checkout_message_subscriptions': 'blablabla and blah!2',
+        'shop_checkout_message_memberships': 'blablabla and blah!3',
+        'shop_checkout_message_classcards': 'blablabla and blah!4',
+        'shop_checkout_message_events': 'blablabla and blah!5,'
     }
     client.post(url, data=data)
     assert client.status == 200
@@ -102,12 +106,20 @@ def test_shop_settings_general(client, web2py):
     assert data['shop_header_logo_url'] in client.text
     assert data['shop_classes_dropin_message'] in client.text
     assert data['shop_classes_trial_message'] in client.text
-    assert data['shop_checkout_message'] in client.text
+    assert data['shop_checkout_message_classes'] in client.text
+    assert data['shop_checkout_message_subscriptions'] in client.text
+    assert data['shop_checkout_message_memberships'] in client.text
+    assert data['shop_checkout_message_classcards'] in client.text
+    assert data['shop_checkout_message_events'] in client.text
 
     assert web2py.db(web2py.db.sys_properties.Property == 'shop_header_logo_url').count() == 1
     assert web2py.db(web2py.db.sys_properties.Property == 'shop_classes_dropin_message').count() == 1
     assert web2py.db(web2py.db.sys_properties.Property == 'shop_classes_trial_message').count() == 1
-    assert web2py.db(web2py.db.sys_properties.Property == 'shop_checkout_message').count() == 1
+    assert web2py.db(web2py.db.sys_properties.Property == 'shop_checkout_message_classes').count() == 1
+    assert web2py.db(web2py.db.sys_properties.Property == 'shop_checkout_message_subscriptions').count() == 1
+    assert web2py.db(web2py.db.sys_properties.Property == 'shop_checkout_message_memberships').count() == 1
+    assert web2py.db(web2py.db.sys_properties.Property == 'shop_checkout_message_classcards').count() == 1
+    assert web2py.db(web2py.db.sys_properties.Property == 'shop_checkout_message_events').count() == 1
 
     url = '/shop/index'
     client.get(url)
