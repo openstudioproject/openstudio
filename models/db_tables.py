@@ -6343,7 +6343,7 @@ auth.settings.extra_fields['auth_user'] = [
         writable=False),
     Field('barcode_id', 'integer',
         represent=lambda value, row: value or "",
-        label=T("Barcode")),
+        label=T("Barcode number")),
     Field('barcode', 'upload', autodelete=True,
           readable=False,
           writable=False,
