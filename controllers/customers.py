@@ -2899,7 +2899,7 @@ def subscription_pauses():
         grid.elements('span[title=Delete]', replace=None) # remove text from delete button
 
     warning_max_pauses = ''
-    print cs.get_pauses_count_gt_max_pauses_in_year(TODAY_LOCAL.year)
+
     if cs.get_pauses_count_gt_max_pauses_in_year(TODAY_LOCAL.year):
         warning_max_pauses = os_gui.get_alert(
             'warning',

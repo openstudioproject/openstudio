@@ -536,8 +536,6 @@ class CustomerSubscription:
 
         count = db(query).count()
 
-        print db._lastsql[0]
-
         return count
 
 
@@ -549,8 +547,6 @@ class CustomerSubscription:
         """
         from tools import OsTools
 
-        print '##########'
-
         os_tools = OsTools()
         max_pauses_in_year = os_tools.get_sys_property('subscription_max_pauses')
 
@@ -558,12 +554,7 @@ class CustomerSubscription:
             # Return False by default when setting is not defined
             return False
 
-        print max_pauses_in_year
-
         count_pauses_in_year = self.get_pauses_count_in_year(year)
-
-        print count_pauses_in_year
-
         if count_pauses_in_year > int(max_pauses_in_year):
             return True
         else:
