@@ -2899,6 +2899,11 @@ def subscription_pauses():
     return dict(content=grid, menu=menu, back=back, add=add)
 
 
+def get_subscription_pause_return_url(csID, cuID):
+    return URL('subscription_pauses', vars={'cuID':cuID, 'csID':csID})
+
+
+
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'customers_subscriptions_paused'))
 def subscription_pause_add():
@@ -2919,8 +2924,7 @@ def subscription_pause_add():
                              cs.name)
 
     today = datetime.date.today()
-    return_url = URL('subscription_pauses', vars={'cuID':cuID,
-                                                  'csID':csID})
+    return_url = get_subscription_pause_return_url(csID, cuID)
 
 
     db.customers_subscriptions_paused.customers_subscriptions_id.default = csID
@@ -2944,75 +2948,47 @@ def subscription_pause_add():
                 back=back,
                 menu=menu)
 
-    # months = get_months_list()
-    #
-    # form = SQLFORM.factory(
-    #     Field('from_month', 'integer',
-    #         requires=IS_IN_SET(months),
-    #         default=today.month),
-    #     Field('from_year', 'integer',
-    #         default=today.year),
-    #     Field('until_month', 'integer',
-    #         requires=IS_IN_SET(months),
-    #         default=today.month),
-    #     Field('until_year', 'integer',
-    #         default=today.year),
-    #     Field('description'),
-    #     separator = '',
-    #     submit_button = T("Save")
-    #     )
-    #
-    # result = set_form_id_and_get_submit_button(form, 'MainForm')
-    # form = result['form']
-    # submit = result['submit']
-    #
-    # # change type to number from the default text
-    # form.element('#no_table_from_year').attributes['_type'] = 'number'
-    # form.element('#no_table_from_year').attributes['_class'] += ' os-input_year'
-    # form.element('#no_table_from_month').attributes['_class'] += ' os-input_month'
-    # form.element('#no_table_until_year').attributes['_type'] = 'number'
-    # form.element('#no_table_until_year').attributes['_class'] += ' os-input_year'
-    # form.element('#no_table_until_month').attributes['_class'] += ' os-input_month'
-    # form.element('#no_table_description').attributes['_placeholder'] = T("Description")
-    #
-    #
-    # if form.process().accepted:
-    #     start = datetime.date(int(form.vars.from_year), int(form.vars.from_month), 1)
-    #     end = get_last_day_month(datetime.date(int(form.vars.until_year), int(form.vars.until_month), 1))
-    #     description = form.vars.description
-    #     db.customers_subscriptions_paused.insert(customers_subscriptions_id = csID,
-    #                                              Startdate = start,
-    #                                              Enddate = end,
-    #                                              Description = description)
-    #     redirect(return_url)
-    #
-    #
-    # back = os_gui.get_button('back_bs', return_url)
-    # content = DIV(
-    #     DIV(back,
-    #         XML('<form action="#" enctype="multipart/form-data" id="MainForm" method="post">'),
-    #         TABLE(
-    #             TR(TD(LABEL(T("From the start of "))),
-    #                TD(form.custom.widget.from_month),
-    #                TD(form.custom.widget.from_year)),
-    #             TR(TD(LABEL(T("Until the end of "))),
-    #                TD(form.custom.widget.until_month),
-    #                TD(form.custom.widget.until_year)),
-    #             TR(TD(),
-    #                TD(form.custom.widget.description, _colspan='2')),
-    #             _id='customer_subscription_pause_add'),
-    #         BR(),
-    #         form.custom.end,
-    #         _class="col-md-12"),
-    #     _class='row')
-    #
-    #
-    # back = subscription_edit_get_back(cuID)
-    # menu = subscription_edit_get_menu(cuID, csID, 'subscription_pauses')
-    #
-    # return dict(content=content, menu=menu, back=back, save=submit)
 
+@auth.requires_login()
+def subscription_pause_edit():
+    """
+        Edit a product
+    """
+    from openstudio.os_forms import OsForms
 
+    response.view = 'general/tabs_menu.html'
+    csID = request.vars['csID']
+    cspID = request.vars['cspID']
+    cs   = CustomerSubscription(csID)
+    cuID = cs.auth_customer_id
+    customer = Customer(cuID)
+
+    response.title = customer.get_name()
+    response.subtitle = SPAN(T("Pause subscription"), ' ',
+                             cs.name)
+
+    response.view = 'general/tabs_menu.html'
+
+    return_url = get_subscription_pause_return_url(csID, cuID)
+
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_update(
+        db.customers_subscriptions_paused,
+        return_url,
+        cspID,
+    )
+
+    form = result['form']
+    back = os_gui.get_button('back', return_url)
+
+    content = form
+
+    menu = subscription_edit_get_menu(cuID, csID, 'subscription_pauses')
+
+    return dict(content=content,
+                save=result['submit'],
+                back=back,
+                menu=menu)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
