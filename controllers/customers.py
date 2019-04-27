@@ -2868,6 +2868,7 @@ def subscription_pauses():
     cuID = request.vars['cuID']
     csID = request.vars['csID']
     customer = Customer(cuID)
+    cs = CustomerSubscription(csID)
     response.title = customer.get_name()
     response.subtitle = subscription_edit_get_subtitle(csID)
 
@@ -2891,18 +2892,31 @@ def subscription_pauses():
             searchable=False,
             csv=False,
             paginate=50,
-            orderby=db.customers_subscriptions_paused.Startdate,
+            orderby=~db.customers_subscriptions_paused.Startdate,
             field_id=db.customers_subscriptions_paused.id,
             ui = grid_ui)
         grid.element('.web2py_counter', replace=None) # remove the counter
         grid.elements('span[title=Delete]', replace=None) # remove text from delete button
+
+    warning_max_pauses = ''
+    print cs.get_pauses_count_gt_max_pauses_in_year(TODAY_LOCAL.year)
+    if cs.get_pauses_count_gt_max_pauses_in_year(TODAY_LOCAL.year):
+        warning_max_pauses = os_gui.get_alert(
+            'warning',
+            SPAN(B(T("Warning")), ' ', T("Too many pauses this year."))
+        )
+
+    content = DIV(
+        warning_max_pauses,
+        grid
+    )
 
     add = os_gui.get_button('add', URL('subscription_pause_add', vars={'csID':csID}), btn_size='btn-sm')
 
     back = subscription_edit_get_back(cuID)
     menu = subscription_edit_get_menu(cuID, csID, request.function)
 
-    return dict(content=grid, menu=menu, back=back, add=add)
+    return dict(content=content, menu=menu, back=back, add=add)
 
 
 def subscription_pauses_get_link_edit(row):

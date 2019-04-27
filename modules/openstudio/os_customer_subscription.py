@@ -511,3 +511,60 @@ class CustomerSubscription:
             return_value = False
 
         return return_value
+
+
+    def get_pauses_count_in_year(self, year):
+        """
+        Return count of pauses in a year
+        :param year: int YYYY
+        :return: int count
+        """
+        db = current.db
+
+        year_start = datetime.date(year, 1, 1)
+        year_end = datetime.date(year, 12, 31)
+
+        query = (db.customers_subscriptions_paused.customers_subscriptions_id == self.csID) & \
+                (
+                  ((db.customers_subscriptions_paused.Startdate <= year_start) &
+                   ((db.customers_subscriptions_paused.Enddate >= year_start) |
+                    (db.customers_subscriptions_paused.Enddate == None))) |
+                  ((db.customers_subscriptions_paused.Startdate <= year_end) &
+                   ((db.customers_subscriptions_paused.Enddate >= year_start) |
+                    (db.customers_subscriptions_paused.Enddate == None)))
+                 )
+
+        count = db(query).count()
+
+        print db._lastsql[0]
+
+        return count
+
+
+    def get_pauses_count_gt_max_pauses_in_year(self, year):
+        """
+
+        :param year: int
+        :return:
+        """
+        from tools import OsTools
+
+        print '##########'
+
+        os_tools = OsTools()
+        max_pauses_in_year = os_tools.get_sys_property('subscription_max_pauses')
+
+        if not max_pauses_in_year:
+            # Return False by default when setting is not defined
+            return False
+
+        print max_pauses_in_year
+
+        count_pauses_in_year = self.get_pauses_count_in_year(year)
+
+        print count_pauses_in_year
+
+        if count_pauses_in_year > int(max_pauses_in_year):
+            return True
+        else:
+            return False
