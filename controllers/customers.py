@@ -2874,11 +2874,16 @@ def subscription_pauses():
     row = db.customers_subscriptions(csID)
     db.customers_subscriptions_paused.id.readable = False
 
+    links = [
+        subscription_pauses_get_link_edit
+    ]
+
     query = (db.customers_subscriptions_paused.customers_subscriptions_id == csID)
     if db(query).count() == 0:
         grid = DIV(BR(), T("This subscription hasn't been paused before."))
     else:
         grid = SQLFORM.grid(query,
+            links=links,
             create=False,
             details=False,
             editable=False,
@@ -2897,6 +2902,26 @@ def subscription_pauses():
     menu = subscription_edit_get_menu(cuID, csID, request.function)
 
     return dict(content=grid, menu=menu, back=back, add=add)
+
+
+def subscription_pauses_get_link_edit(row):
+    """
+    Returns html edit button to edit a subscription pause
+    """
+    permission = auth.has_membership(group_id='Admins') or \
+                 auth.has_permission('read', 'customers_subscriptions_pauses')
+
+    if not permission:
+        return ''
+
+    return os_gui.get_button(
+        'edit',
+        URL('subscription_pause_edit', vars={
+            'csID': row.customers_subscriptions_id,
+            'cuID': request.vars['cuID'],
+            'cspID': row.id
+        })
+    )
 
 
 def get_subscription_pause_return_url(csID, cuID):
