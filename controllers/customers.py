@@ -2875,6 +2875,7 @@ def subscription_pauses():
     db.customers_subscriptions_paused.id.readable = False
 
     links = [
+        subscription_pauses_get_link_min_duration_warning,
         subscription_pauses_get_link_edit
     ]
 
@@ -2922,6 +2923,26 @@ def subscription_pauses_get_link_edit(row):
             'cspID': row.id
         })
     )
+
+
+def subscription_pauses_get_link_min_duration_warning(row):
+    """
+    If min duration is set in system settings, return a warning if the pause
+    is shorter then min duration
+    """
+    from openstudio.os_customer_subscription_pause import CustomerSubscriptionPause
+
+    warning = ''
+
+    csp = CustomerSubscriptionPause(row.id)
+    if not csp.get_pause_gte_min_duration():
+        warning = os_gui.get_label(
+            'warning',
+            T('Pause shorter then min duration')
+        )
+
+    return warning
+
 
 
 def get_subscription_pause_return_url(csID, cuID):
@@ -3704,6 +3725,8 @@ def subscriptions():
         Lists subscriptions for a customer
         request.vars['cuID'] is expected to be the customersID
     """
+    from general_helpers import max_string_length
+
     customers_id = request.vars['cuID']
     response.view = 'customers/edit_general.html'
 
@@ -3754,7 +3777,8 @@ def subscriptions():
 
 
         tr = TR(TD(row.id),
-                TD(repr_row.school_subscriptions_id),
+                TD(max_string_length(repr_row.school_subscriptions_id, 30),
+                   _title=repr_row.school_subscriptions_id),
                 TD(repr_row.Startdate),
                 TD(repr_row.Enddate),
                 TD(repr_row.payment_methods_id),
