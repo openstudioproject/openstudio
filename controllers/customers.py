@@ -3716,7 +3716,6 @@ def subscriptions():
                       TH(db.customers_subscriptions.Startdate.label),
                       TH(db.customers_subscriptions.Enddate.label),
                       TH(db.customers_subscriptions.payment_methods_id.label),
-                      TH(db.customers_subscriptions.Note.label),
                       TH(T('Pauses')),
                       TH(T('Blocks')),
                       TH(T('Credits')),
@@ -3733,7 +3732,6 @@ def subscriptions():
                             db.customers_subscriptions.Startdate,
                             db.customers_subscriptions.Enddate,
                             db.customers_subscriptions.payment_methods_id,
-                            db.customers_subscriptions.Note,
                             orderby=~db.customers_subscriptions.Startdate)
 
     for i, row in enumerate(rows):
@@ -3760,7 +3758,6 @@ def subscriptions():
                 TD(repr_row.Startdate),
                 TD(repr_row.Enddate),
                 TD(repr_row.payment_methods_id),
-                TD(repr_row.Note),
                 TD(subscriptions_get_link_latest_pauses(row)),
                 TD(subscriptions_get_link_latest_blocks(row)),
                 TD(subscriptions_get_link_credits(row)),
