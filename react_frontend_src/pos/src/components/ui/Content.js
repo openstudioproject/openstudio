@@ -38,11 +38,14 @@ class Content extends Component {
         const title = this.props.title
         const subtitle = this.props.subtitle
         const children = this.props.children
+        const tools = this.props.tools || ""
 
         return (
             <div className="content-wrapper" style={this.initialStyle}>
-                <ContentHeader title={title} subtitle={subtitle} />
-                <section className="content" style={{height: this.state.content_height}}>
+                <ContentHeader title={title} subtitle={subtitle}>
+                    {tools}
+                </ContentHeader>
+                <section className="content clear" style={{height: this.state.content_height}}>
                     {children} 
                 </section>
             </div>
