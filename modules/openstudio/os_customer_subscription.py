@@ -30,7 +30,7 @@ class CustomerSubscription:
         self.enddate            = self.cs.Enddate
 
 
-    def create_invoice_for_month(self, SubscriptionYear, SubscriptionMonth):
+    def create_invoice_for_month(self, SubscriptionYear, SubscriptionMonth, description=None):
         """
             :param SubscriptionYear: Year of subscription
             :param SubscriptionMonth: Month of subscription
@@ -70,8 +70,20 @@ class CustomerSubscription:
                 (db.customers_subscriptions_paused.Startdate <= lastdaythismonth) & \
                 ((db.customers_subscriptions_paused.Enddate >= firstdaythismonth) |
                  (db.customers_subscriptions_paused.Enddate == None))
-        if db(query).count():
-            return
+        rows = db(query).select(db.customers_subscriptions_paused.ALL)
+        if rows:
+
+            # If
+            #     pause_start >= month_start and pause_start <= month_end:
+            #     period_start = pause_start
+            # else:
+            #     period_start = month_start
+            #
+            # if pause_end >= month_start & pause_end < month_end:
+            #     period_end = pause_end
+            # else:
+            #     period_end = month
+            #     end
 
         # Check if an alt. price with amount 0 has been defined
         csap = db.customers_subscriptions_alt_prices
@@ -102,13 +114,17 @@ class CustomerSubscription:
         item_description = period_begin.strftime(DATE_FORMAT) + ' - ' + \
                            period_end.strftime(DATE_FORMAT)
 
+        if not description:
+            description = T("Subscription")
+
+
         iID = db.invoices.insert(
             invoices_groups_id=igID,
             payment_methods_id=self.payment_methods_id,
             customers_subscriptions_id=self.csID,
             SubscriptionYear=SubscriptionYear,
             SubscriptionMonth=SubscriptionMonth,
-            Description=T("Subscription"),
+            Description=description,
             Status='sent'
         )
 
