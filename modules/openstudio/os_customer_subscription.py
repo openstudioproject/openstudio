@@ -65,25 +65,14 @@ class CustomerSubscription:
         if len(rows):
             return rows.first().id
 
-        # Check if the subscription is paused
+        # Check if the subscription is paused the full month
         query = (db.customers_subscriptions_paused.customers_subscriptions_id == self.csID) & \
-                (db.customers_subscriptions_paused.Startdate <= lastdaythismonth) & \
-                ((db.customers_subscriptions_paused.Enddate >= firstdaythismonth) |
+                (db.customers_subscriptions_paused.Startdate <= firstdaythismonth) & \
+                ((db.customers_subscriptions_paused.Enddate >= lastdaythismonth) |
                  (db.customers_subscriptions_paused.Enddate == None))
-        rows = db(query).select(db.customers_subscriptions_paused.ALL)
-        if rows:
-
-            # If
-            #     pause_start >= month_start and pause_start <= month_end:
-            #     period_start = pause_start
-            # else:
-            #     period_start = month_start
-            #
-            # if pause_end >= month_start & pause_end < month_end:
-            #     period_end = pause_end
-            # else:
-            #     period_end = month
-            #     end
+        if db(query).count():
+            # This subscription is paused the full month, nothing to do
+            return
 
         # Check if an alt. price with amount 0 has been defined
         csap = db.customers_subscriptions_alt_prices
