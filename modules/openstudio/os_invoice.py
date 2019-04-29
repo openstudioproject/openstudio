@@ -787,18 +787,20 @@ class Invoice:
                              int(SubscriptionMonth),
                              1)
 
+
         cs = CustomerSubscription(csID)
         ssuID = cs.ssuID
         ssu = SchoolSubscription(ssuID)
         row = ssu.get_tax_rates_on_date(date)
-
         if row:
             tax_rates_id = row.school_subscriptions_price.tax_rates_id
         else:
             tax_rates_id = None
 
         period_start = date
-        period_end = get_last_day_month(date)
+        first_day_month = date
+        last_day_month = get_last_day_month(date)
+        period_end = last_day_month
         glaccount = ssu.get_glaccount_on_date(date)
         costcenter = ssu.get_costcenter_on_date(date)
         price = 0
@@ -810,6 +812,7 @@ class Invoice:
                 (csap.SubscriptionMonth == SubscriptionMonth)
         csap_rows = db(query).select(csap.ALL)
         if csap_rows:
+            # alt. price overrides broken period
             csap_row = csap_rows.first()
             price    = csap_row.Amount
             description = csap_row.Description
@@ -817,6 +820,35 @@ class Invoice:
             price = ssu.get_price_on_date(date, False)
 
             broken_period = False
+
+            # Check pause
+            query = (db.customers_subscriptions_paused.customers_subscriptions_id == self.csID) & \
+                    (db.customers_subscriptions_paused.Startdate <= lastdaythismonth) & \
+                    ((db.customers_subscriptions_paused.Enddate >= firstdaythismonth) |
+                     (db.customers_subscriptions_paused.Enddate == None))
+            rows = db(query).select(db.customers_subscriptions_paused.ALL)
+            if rows:
+                pause = rows.first()
+
+                if pause.Startdate >= first_day_month and pause_start <= last_day_month:
+                    period_start = pause.Startdate
+
+
+
+                # If
+                #     pause_start >= month_start and pause_start <= month_end:
+                #     period_start = pause_start
+                # else:
+                #     period_start = month_start
+                #
+                # if pause_end >= month_start & pause_end < month_end:
+                #     period_end = pause_end
+                # else:
+                #     period_end = month
+                #     end
+
+
+            # Broken period because of subscription start / end overrides pause broken period
             if cs.startdate > date and cs.startdate <= period_end:
                 # Start later in month
                 broken_period = True
