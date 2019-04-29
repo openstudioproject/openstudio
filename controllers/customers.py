@@ -2958,7 +2958,6 @@ def subscription_pauses_get_link_min_duration_warning(row):
     return warning
 
 
-
 def get_subscription_pause_return_url(csID, cuID):
     return URL('subscription_pauses', vars={'cuID':cuID, 'csID':csID})
 
