@@ -394,11 +394,15 @@ def get_backend_menu():
                                 False,
                                 URL('school_properties', 'classtypes', extension='')))
 
+            if user_helpers.check_read_permission('school_appointment_categories', user_id):
+                submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Appointments')), ),
+                                False,
+                                URL('school_appointment_categories', 'index', extension='')))
+
             if user_helpers.check_read_permission('school_locations', user_id):
                 submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Locations')), ),
                                 False,
                                 URL('school_properties', 'locations', extension='')))
-
 
             if user_helpers.check_read_permission('school_shifts', user_id):
                 submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Shifts')), ),
