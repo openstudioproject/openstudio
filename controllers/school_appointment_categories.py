@@ -4,7 +4,7 @@
                auth.has_permission('read', 'school_appointment_categories'))
 def index():
     response.title = T("School")
-    response.subtitle = T("Appointments")
+    response.subtitle = T("Appointment categories")
     response.view = 'general/only_content.html'
 
     show = 'current'
@@ -48,7 +48,7 @@ def index():
     grid.element('.web2py_counter', replace=None) # remove the counter
     grid.elements('span[title=Delete]', replace=None) # remove text from delete button
 
-    add_url = URL('ladd')
+    add_url = URL('add')
     add = os_gui.get_button('add', add_url, T("Add a category"), _class="pull-right")
 
     archive_buttons = os_gui.get_archived_radio_buttons(
@@ -98,3 +98,36 @@ def locations_archive():
         row.update_record()
 
     redirect(URL('index'))
+
+
+def index_get_return_url():
+    return URL('index')
+
+
+@auth.requires_login()
+def add():
+    """
+        Add a new category
+    """
+    from openstudio.os_forms import OsForms
+    response.title = T('School')
+    response.subtitle = T('Add appointment category')
+    response.view = 'general/only_content.html'
+
+    return_url = index_get_return_url()
+
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_create(
+        db.school_appointment_categories,
+        '/school_appointment_categories/edit?sacID=[id]',
+        message_record_created=T("Added category, you can now add appointment types")
+    )
+
+    form = result['form']
+    back = os_gui.get_button('back', return_url)
+
+    content = form
+
+    return dict(content=content,
+                save=result['submit'],
+                back=back)
