@@ -23,8 +23,9 @@ def index():
         session.school_appointment_categories_show = show
 
     db.school_appointment_categories.id.readable=False
-    fields = [db.school_appointment_categories.Name,
-              db.school_appointment_categories.AllowAPI]
+    fields = [
+        db.school_appointment_categories.Name
+    ]
     links = [ 
         lambda row: os_gui.get_button('edit',
             URL('edit', vars={'sacID': row.id}),
