@@ -1575,6 +1575,11 @@ def access_group_permissions():
                      ['school_classcards_groups_classcards-create', T('Add classcard group classcards')],
                      ['school_classcards_groups_classcards-delete', T('Delete classcard group classcards')]]]
                  ]],
+            ['school_appointment_categories-read', T("Appointment categories"), [
+                ['school_appointment_categories-create', T("Add appointment categories")],
+                ['school_appointment_categories-update', T("Edit appointment categories")],
+                ['school_appointment_categories-delete', T("Archive appointment categories")],
+            ]],
             ['school_levels-read', T("Practice levels"), [
                 ['school_levels-create', T("Add practice levels")],
                 ['school_levels-update', T("Edit practice levels")]]],
