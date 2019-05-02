@@ -1228,6 +1228,19 @@ def define_school_locations():
     )
 
 
+def define_school_appointment_categories():
+    db.define_table('school_appointment_categories',
+        Field('Archived', 'boolean',
+            readable=False,
+            writable=False,
+            default=False,
+            label=T("Archived")),
+        Field('Name', required=True,
+            requires=IS_NOT_EMPTY(),
+            label=T("Name"))
+    )
+
+
 def define_school_classcards():
     ac_query = (db.accounting_costcenters.Archived == False)
     ag_query = (db.accounting_glaccounts.Archived == False)
@@ -6550,6 +6563,7 @@ define_accounting_glaccounts()
 define_accounting_expenses()
 define_accounting_cashbooks_cash_count()
 
+define_school_appointment_categories()
 define_school_memberships()
 define_school_subscriptions()
 #mstypes_dict = create_mstypes_dict()
