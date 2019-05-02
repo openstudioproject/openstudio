@@ -32,6 +32,10 @@ def index():
             T("Edit this category")),
         index_get_link_archive
     ]
+
+    maxtextlengths = {
+        'school_appointment_categories.Name': 40
+    }
     
     grid = SQLFORM.grid(
         query, 
@@ -43,6 +47,7 @@ def index():
         deletable=False,
         details=False,
         searchable=False,
+        maxtextlengths=maxtextlengths,
         csv=False,
         ui = grid_ui)
     grid.element('.web2py_counter', replace=None) # remove the counter
@@ -121,6 +126,38 @@ def add():
         db.school_appointment_categories,
         '/school_appointment_categories/edit?sacID=[id]',
         message_record_created=T("Added category, you can now add appointment types")
+    )
+
+    form = result['form']
+    back = os_gui.get_button('back', return_url)
+
+    content = form
+
+    return dict(content=content,
+                save=result['submit'],
+                back=back)
+
+
+@auth.requires_login()
+def edit():
+    """
+        Edit a category
+    """
+    from openstudio.os_forms import OsForms
+    response.title = T('School')
+    response.subtitle = T('Edit appointment category')
+    response.view = 'general/only_content.html'
+
+    sacID = request.vars['sacID']
+
+    return_url = index_get_return_url()
+
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_update(
+        db.school_appointment_categories,
+        URL(vars={'sacID': sacID}),
+        sacID,
+        message_record_updated=T("Saved")
     )
 
     form = result['form']
