@@ -83,7 +83,7 @@ def index_get_link_archive(row):
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('delete', 'school_appointment_categories'))
-def locations_archive():
+def category_archive():
     """
         This function archives a category
         request.vars[sacID] is expected to be db.school_appointments.id
@@ -92,7 +92,7 @@ def locations_archive():
     if not sacID:
         session.flash = T('Unable to (un)archive category')
     else:
-        row = db.school_locations(sacID)
+        row = db.school_appointment_categories(sacID)
 
         if row.Archived:
             session.flash = T('Moved to current')
