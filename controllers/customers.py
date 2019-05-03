@@ -3438,6 +3438,8 @@ def subscription_invoices():
     response.view = 'general/tabs_menu.html'
 
     session.invoices_edit_back = 'customers_subscription_invoices'
+    session.invoices_edit_back_csID = csID
+
     session.invoices_payment_add_back = 'customers_subscription_invoices'
 
     # Always reset filter

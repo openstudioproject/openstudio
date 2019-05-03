@@ -89,19 +89,18 @@ class CustomerSubscription:
         igpt = db.invoices_groups_product_types(ProductType='subscription')
         igID = igpt.invoices_groups_id
 
-        if TODAY_LOCAL > firstdaythismonth:
-            period_begin = TODAY_LOCAL
-        else:
-            period_begin = firstdaythismonth
+        # # First determine the days to be billed this month
+        # if self.startdate > firstdaythismonth:
+        #     period_begin = self.startdate
+        # else:
+        #     period_begin = firstdaythismonth
+        #
+        # period_end = lastdaythismonth
+        # if self.enddate:
+        #     if self.startdate >= firstdaythismonth and \
+        #        self.enddate < lastdaythismonth:
+        #         period_end = self.enddate
 
-        period_end = lastdaythismonth
-        if self.enddate:
-            if self.startdate >= firstdaythismonth and \
-               self.enddate < lastdaythismonth:
-                period_end = self.enddate
-
-        item_description = period_begin.strftime(DATE_FORMAT) + ' - ' + \
-                           period_end.strftime(DATE_FORMAT)
 
         if not description:
             description = T("Subscription")

@@ -293,6 +293,7 @@ def edit():
         cuID = None
 
     # TODO update for invoices_items
+
     try:
         csID = db.invoices_customers_subscriptions(invoices_id = iID).customers_subscriptions_id
     except AttributeError:
@@ -670,7 +671,7 @@ def edit_get_back(cuID, csID=None, cmID=None):
                                                             'cmID':cmID})
     elif session.invoices_edit_back == 'customers_subscription_invoices':
         url = URL('customers', 'subscription_invoices', vars={'cuID':cuID,
-                                                              'csID':csID})
+                                                              'csID':session.invoices_edit_back_csID})
     elif session.invoices_edit_back == 'customer_events':
         url = URL('customers', 'events', vars={'cuID':cuID})
     elif session.invoices_edit_back == 'events_tickets_list_customers':

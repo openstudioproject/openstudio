@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import datetime
+from collections import namedtuple
 from decimal import Decimal, ROUND_HALF_UP
 
 from gluon import *
@@ -773,6 +774,8 @@ class Invoice:
             :param SubscriptionMonth: Month of subscription
             :return: db.invoices_items.id
         """
+        T = current.T
+
         from general_helpers import get_last_day_month
 
         from os_customer_subscription import CustomerSubscription
@@ -820,59 +823,72 @@ class Invoice:
             price = ssu.get_price_on_date(date, False)
 
             broken_period = False
+            pause = False
 
             # Check pause
-            query = (db.customers_subscriptions_paused.customers_subscriptions_id == self.csID) & \
-                    (db.customers_subscriptions_paused.Startdate <= lastdaythismonth) & \
-                    ((db.customers_subscriptions_paused.Enddate >= firstdaythismonth) |
+            query = (db.customers_subscriptions_paused.customers_subscriptions_id == csID) & \
+                    (db.customers_subscriptions_paused.Startdate <= last_day_month) & \
+                    ((db.customers_subscriptions_paused.Enddate >= first_day_month) |
                      (db.customers_subscriptions_paused.Enddate == None))
             rows = db(query).select(db.customers_subscriptions_paused.ALL)
             if rows:
                 pause = rows.first()
 
-                if pause.Startdate >= first_day_month and pause_start <= last_day_month:
-                    period_start = pause.Startdate
-
-
-
-                # If
-                #     pause_start >= month_start and pause_start <= month_end:
-                #     period_start = pause_start
-                # else:
-                #     period_start = month_start
-                #
-                # if pause_end >= month_start & pause_end < month_end:
-                #     period_end = pause_end
-                # else:
-                #     period_end = month
-                #     end
-
-
-            # Broken period because of subscription start / end overrides pause broken period
-            if cs.startdate > date and cs.startdate <= period_end:
+            # Calculate days to be paid
+            if cs.startdate > first_day_month and cs.startdate <= last_day_month:
                 # Start later in month
                 broken_period = True
                 period_start = cs.startdate
-                delta = period_end - cs.startdate
-                cs_days = delta.days + 1
-                total_days = period_end.day
+
 
             if cs.enddate:
-                if cs.enddate >= date and cs.enddate < period_end:
+                if cs.enddate >= first_day_month and cs.enddate < last_day_month:
                     # End somewhere in month
                     broken_period = True
-
-                    delta = cs.enddate - date
-                    cs_days = delta.days + 1
-                    total_days = period_end.day
-
                     period_end = cs.enddate
 
-            if broken_period:
-                price = round(float(cs_days) / float(total_days) * float(price), 2)
+
+            Range = namedtuple('Range', ['start', 'end'])
+            period_range = Range(start=period_start, end=period_end)
+            print '### ranges:'
+            print period_range
+            period_days = (period_range.end - period_range.start).days + 1
+            print period_days
+
+            if pause:
+                pause_range = Range(start=pause.Startdate, end=pause.Enddate)
+                print pause_range
+                latest_start = max(period_range.start, pause_range.start)
+                earliest_end = min(pause_range.end, pause_range.end)
+                delta = (earliest_end - latest_start).days + 1
+                print 'delta'
+                print delta
+                overlap = max(0, delta)
+                print 'overlap'
+                print overlap
+
+                # Subtract pause overlap from period to be paid
+                print 'period days pause'
+                period_days = period_days - overlap
+
+            month_days = (last_day_month - first_day_month).days + 1
+
+            print 'month & period days'
+            print month_days
+            print period_days
+
+            price = round(((float(period_days) / float(month_days)) * float(price)), 2)
 
             if not description:
                 description = cs.name.decode('utf-8') + u' ' + period_start.strftime(DATE_FORMAT) + u' - ' + period_end.strftime(DATE_FORMAT)
+                if pause:
+                    description += u'\n'
+                    description += u"(" + T("Pause") + u": "
+                    description += pause.Startdate.strftime(DATE_FORMAT) + u" - "
+                    description += pause.Enddate.strftime(DATE_FORMAT) + u" | "
+                    description += T("Days paid this period: ")
+                    description += unicode(period_days)
+                    description += u")"
 
         iiID = db.invoices_items.insert(
             invoices_id = self.invoices_id,
@@ -916,6 +932,8 @@ class Invoice:
         ##
         # Always call these
         ##
+        # Link invoice item to subscription
+        self.link_item_to_customer_subscription(csID, iiID)
         # This calls self.on_update()
         self.set_amounts()
 
