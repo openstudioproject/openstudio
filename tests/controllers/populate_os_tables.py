@@ -332,11 +332,12 @@ def populate_customers_with_subscriptions(web2py,
         Note                            = 'Hi there, this is a test note',
     )
 
-    # add pause to 2nd customer to be able to check if NO invoice is created
+    # add pause to 2nd customer to be able to check if a broken period invoice item is created
+    # Customer should pay 2 days (last 2 only)
     web2py.db.customers_subscriptions_paused.insert(
         customers_subscriptions_id      = 2,
         Startdate                       = '2014-01-01',
-        Enddate                         = '2014-01-31',
+        Enddate                         = '2014-01-29',
         Description                     = 'Cherries'
     )
 
