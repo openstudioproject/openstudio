@@ -553,7 +553,6 @@ class Order:
                         TODAY_LOCAL.year,
                         TODAY_LOCAL.month
                     )
-                    invoice.link_item_to_customer_subscription(csID, iiID)
 
 
             # Check for membership

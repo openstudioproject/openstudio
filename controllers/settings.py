@@ -188,6 +188,8 @@ def system_workflow():
     response.view = 'general/tabs_menu.html'
 
 
+    subscription_pauses_min_duration = get_sys_property('subscription_pauses_min_duration')
+    subscription_max_pauses = get_sys_property('subscription_max_pauses')
     system_enable_class_checkin_trialclass = get_sys_property('system_enable_class_checkin_trialclass')
 
 
@@ -196,6 +198,14 @@ def system_workflow():
               default=system_enable_class_checkin_trialclass,
               label=T('Enable trial class booking option'),
               comment=T('Show or hide the trial class booking option in the back-end')),
+        Field('subscription_pauses_min_duration',
+              default=subscription_pauses_min_duration,
+              label=T('Min. duration of subscription pauses'),
+              comment=T('Minimum length for subscription pauses in days. A warning will be shown if a pause is shorter than this length')),
+        Field('subscription_max_pauses',
+              default=subscription_max_pauses,
+              label=T('Max. pauses for each subscription in a year'),
+              comment=T('Maximum number of subscription pauses in a year. A warning will be shown if a subscription is paused more.')),
         submit_button=T("Save"),
         separator=' ',
         formstyle='bootstrap3_stacked'
@@ -208,6 +218,8 @@ def system_workflow():
     if form.process().accepted:
         form_vars = [
             'system_enable_class_checkin_trialclass',
+            'subscription_pauses_min_duration',
+            'subscription_max_pauses'
         ]
 
         for fvar in form_vars:
@@ -229,7 +241,7 @@ def system_workflow():
         # reload so the user sees how the values are stored in the db now
         redirect(URL('system_workflow'))
 
-    content = DIV(DIV(form, _class='col-md-6'),
+    content = DIV(DIV(form, _class='col-md-12'),
                   _class='row')
 
     menu = system_get_menu(request.function)
