@@ -735,7 +735,7 @@ def test_add_batch_invoices_without_zero_lines(client, web2py):
     # Customer 8 & 9's subscription don't have an invoice
     # customer10's subscription has price 0, so should be skipped
 
-    assert web2py.db(web2py.db.payment_batches_items).count() == 6
+    assert web2py.db(web2py.db.payment_batches_items).count() == 7
 
 
 def test_add_batch_invoices_with_zero_lines(client, web2py):
@@ -789,10 +789,7 @@ def test_add_batch_invoices_with_zero_lines(client, web2py):
     assert acc_holder in client.text
 
     ## check batch total items
-    # customer2's subscription is paused
-    # customer10's subscription has price 0, so no invoice was created
-
-    assert web2py.db(web2py.db.payment_batches_items).count() == 6
+    assert web2py.db(web2py.db.payment_batches_items).count() == 11
     
 
 def test_add_batch_invoices_location(client, web2py):
@@ -846,7 +843,7 @@ def test_add_batch_invoices_location(client, web2py):
 
     # count customers
     query = (web2py.db.auth_user.school_locations_id == school_locations_id)
-    customers_count = web2py.db(query).count() - 1 # one subscription is paused
+    customers_count = web2py.db(query).count() # all customers should have an invoice
     # check amount total
     left = [ web2py.db.invoices.on(web2py.db.invoices.id ==
                 web2py.db.invoices_amounts.invoices_id),
@@ -873,7 +870,6 @@ def test_add_batch_invoices_location(client, web2py):
 
     items_count = web2py.db(web2py.db.payment_batches_items).count()
     assert customers_count == items_count
-
 
 
 def test_add_batch_category_without_zero_lines(client, web2py):
@@ -992,7 +988,7 @@ def test_invoices_batch_set_status_sent_to_bank_add_payments(client, web2py):
     assert client.status == 200
 
     # check if 6 payments have been added
-    assert web2py.db(web2py.db.invoices_payments.id > 0).count() == 6
+    assert web2py.db(web2py.db.invoices_payments.id > 0).count() == 7
 
     ip = web2py.db.invoices_payments(1)
     assert ip.payment_methods_id == 3

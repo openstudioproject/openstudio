@@ -30,7 +30,7 @@ class CustomerSubscription:
         self.enddate            = self.cs.Enddate
 
 
-    def create_invoice_for_month(self, SubscriptionYear, SubscriptionMonth):
+    def create_invoice_for_month(self, SubscriptionYear, SubscriptionMonth, description=None):
         """
             :param SubscriptionYear: Year of subscription
             :param SubscriptionMonth: Month of subscription
@@ -65,12 +65,13 @@ class CustomerSubscription:
         if len(rows):
             return rows.first().id
 
-        # Check if the subscription is paused
+        # Check if the subscription is paused the full month
         query = (db.customers_subscriptions_paused.customers_subscriptions_id == self.csID) & \
-                (db.customers_subscriptions_paused.Startdate <= lastdaythismonth) & \
-                ((db.customers_subscriptions_paused.Enddate >= firstdaythismonth) |
+                (db.customers_subscriptions_paused.Startdate <= firstdaythismonth) & \
+                ((db.customers_subscriptions_paused.Enddate >= lastdaythismonth) |
                  (db.customers_subscriptions_paused.Enddate == None))
         if db(query).count():
+            # This subscription is paused the full month, nothing to do
             return
 
         # Check if an alt. price with amount 0 has been defined
@@ -88,19 +89,22 @@ class CustomerSubscription:
         igpt = db.invoices_groups_product_types(ProductType='subscription')
         igID = igpt.invoices_groups_id
 
-        if TODAY_LOCAL > firstdaythismonth:
-            period_begin = TODAY_LOCAL
-        else:
-            period_begin = firstdaythismonth
+        # # First determine the days to be billed this month
+        # if self.startdate > firstdaythismonth:
+        #     period_begin = self.startdate
+        # else:
+        #     period_begin = firstdaythismonth
+        #
+        # period_end = lastdaythismonth
+        # if self.enddate:
+        #     if self.startdate >= firstdaythismonth and \
+        #        self.enddate < lastdaythismonth:
+        #         period_end = self.enddate
 
-        period_end = lastdaythismonth
-        if self.enddate:
-            if self.startdate >= firstdaythismonth and \
-               self.enddate < lastdaythismonth:
-                period_end = self.enddate
 
-        item_description = period_begin.strftime(DATE_FORMAT) + ' - ' + \
-                           period_end.strftime(DATE_FORMAT)
+        if not description:
+            description = T("Subscription")
+
 
         iID = db.invoices.insert(
             invoices_groups_id=igID,
@@ -108,7 +112,7 @@ class CustomerSubscription:
             customers_subscriptions_id=self.csID,
             SubscriptionYear=SubscriptionYear,
             SubscriptionMonth=SubscriptionMonth,
-            Description=T("Subscription"),
+            Description=description,
             Status='sent'
         )
 
@@ -116,7 +120,6 @@ class CustomerSubscription:
         invoice = Invoice(iID)
         invoice.link_to_customer(self.auth_customer_id)
         iiID = invoice.item_add_subscription(self.csID, SubscriptionYear, SubscriptionMonth)
-        invoice.link_item_to_customer_subscription(self.csID, iiID)
 
         return iID
 
@@ -511,3 +514,51 @@ class CustomerSubscription:
             return_value = False
 
         return return_value
+
+
+    def get_pauses_count_in_year(self, year):
+        """
+        Return count of pauses in a year
+        :param year: int YYYY
+        :return: int count
+        """
+        db = current.db
+
+        year_start = datetime.date(year, 1, 1)
+        year_end = datetime.date(year, 12, 31)
+
+        query = (db.customers_subscriptions_paused.customers_subscriptions_id == self.csID) & \
+                (
+                  ((db.customers_subscriptions_paused.Startdate <= year_start) &
+                   ((db.customers_subscriptions_paused.Enddate >= year_start) |
+                    (db.customers_subscriptions_paused.Enddate == None))) |
+                  ((db.customers_subscriptions_paused.Startdate <= year_end) &
+                   ((db.customers_subscriptions_paused.Enddate >= year_start) |
+                    (db.customers_subscriptions_paused.Enddate == None)))
+                 )
+
+        count = db(query).count()
+
+        return count
+
+
+    def get_pauses_count_gt_max_pauses_in_year(self, year):
+        """
+
+        :param year: int
+        :return:
+        """
+        from tools import OsTools
+
+        os_tools = OsTools()
+        max_pauses_in_year = os_tools.get_sys_property('subscription_max_pauses')
+
+        if not max_pauses_in_year:
+            # Return False by default when setting is not defined
+            return False
+
+        count_pauses_in_year = self.get_pauses_count_in_year(year)
+        if count_pauses_in_year > int(max_pauses_in_year):
+            return True
+        else:
+            return False

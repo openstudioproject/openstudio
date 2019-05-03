@@ -528,6 +528,7 @@ def os_datepicker_widget_small(field, value):
 #             DIV(os_gui.get_fa_icon('fa-clock-o'), _class='input-group-addon'),
 #         _class='input-group bootstrap-timepicker timepicker full-width')
 
+
 def os_time_widget(field, value):
     return DIV(
         INPUT(_name=field.name,

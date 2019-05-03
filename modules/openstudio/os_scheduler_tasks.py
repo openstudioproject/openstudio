@@ -20,6 +20,7 @@ class OsSchedulerTasks:
         """
             Actually create invoices for subscriptions for a given month
         """
+        from os_customer_subscription import CustomerSubscription
         from general_helpers import get_last_day_month
         from os_invoice import Invoice
 
@@ -34,163 +35,184 @@ class OsSchedulerTasks:
         firstdaythismonth = datetime.date(year, month, 1)
         lastdaythismonth  = get_last_day_month(firstdaythismonth)
 
-        csap = db.customers_subscriptions_alt_prices
+        invoices_count = 0
 
-        fields = [
-            db.customers_subscriptions.id,
-            db.customers_subscriptions.auth_customer_id,
-            db.customers_subscriptions.school_subscriptions_id,
-            db.customers_subscriptions.Startdate,
-            db.customers_subscriptions.Enddate,
-            db.customers_subscriptions.payment_methods_id,
-            db.school_subscriptions.Name,
-            db.school_subscriptions_price.Price,
-            db.school_subscriptions_price.tax_rates_id,
-            db.tax_rates.Percentage,
-            db.customers_subscriptions_paused.id,
-            db.invoices_items.id,
-            csap.id,
-            csap.Amount,
-            csap.Description
-        ]
+        # get all active subscriptions in month
+        query = (db.customers_subscriptions.Startdate <= lastdaythismonth) & \
+                ((db.customers_subscriptions.Enddate >= firstdaythismonth) |
+                 (db.customers_subscriptions.Enddate == None))
 
-        rows = db.executesql(
-            """
-                SELECT cs.id,
-                       cs.auth_customer_id,
-                       cs.school_subscriptions_id,
-                       cs.Startdate,
-                       cs.Enddate,
-                       cs.payment_methods_id,
-                       ssu.Name,
-                       ssp.Price,
-                       ssp.tax_rates_id,
-                       tr.Percentage,
-                       csp.id,
-                       ii.invoices_items_id,
-                       csap.id,
-                       csap.Amount,
-                       csap.Description
-                FROM customers_subscriptions cs
-                LEFT JOIN auth_user au
-                 ON au.id = cs.auth_customer_id
-                LEFT JOIN school_subscriptions ssu
-                 ON cs.school_subscriptions_id = ssu.id
-                LEFT JOIN
-                 (SELECT id,
-                         school_subscriptions_id,
-                         Startdate,
-                         Enddate,
-                         Price,
-                         tax_rates_id
-                  FROM school_subscriptions_price
-                  WHERE Startdate <= '{firstdaythismonth}' AND
-                        (Enddate >= '{firstdaythismonth}' OR Enddate IS NULL)) ssp
-                 ON ssp.school_subscriptions_id = ssu.id
-                LEFT JOIN tax_rates tr
-                 ON ssp.tax_rates_id = tr.id
-                LEFT JOIN
-                 (SELECT id,
-                         customers_subscriptions_id
-                  FROM customers_subscriptions_paused
-                  WHERE Startdate <= '{firstdaythismonth}' AND
-                        (Enddate >= '{firstdaythismonth}' OR Enddate IS NULL)) csp
-                 ON cs.id = csp.customers_subscriptions_id
-                LEFT JOIN
-                 (SELECT iics.id,
-                         iics.invoices_items_id,
-                         iics.customers_subscriptions_id
-                  FROM invoices_items_customers_subscriptions iics
-                  LEFT JOIN invoices_items ON iics.invoices_items_id = invoices_items.id
-                  LEFT JOIN invoices ON invoices_items.invoices_id = invoices.id
-                  WHERE invoices.SubscriptionYear = {year} AND invoices.SubscriptionMonth = {month}) ii
-                 ON ii.customers_subscriptions_id = cs.id
-                LEFT JOIN
-                 (SELECT id,
-                         customers_subscriptions_id,
-                         Amount,
-                         Description
-                  FROM customers_subscriptions_alt_prices
-                  WHERE SubscriptionYear = {year} AND SubscriptionMonth = {month}) csap
-                 ON csap.customers_subscriptions_id = cs.id
-                WHERE cs.Startdate <= '{lastdaythismonth}' AND
-                      (cs.Enddate >= '{firstdaythismonth}' OR cs.Enddate IS NULL) AND
-                      ssp.Price <> 0 AND
-                      ssp.Price IS NOT NULL AND
-                      au.trashed = 'F'
-            """.format(firstdaythismonth=firstdaythismonth,
-                       lastdaythismonth =lastdaythismonth,
-                       year=year,
-                       month=month),
-          fields=fields)
-
-        igpt = db.invoices_groups_product_types(ProductType = 'subscription')
-        igID = igpt.invoices_groups_id
-
-        invoices_created = 0
-
-        # Alright, time to create some invoices
+        rows = db(query).select(db.customers_subscriptions.ALL)
         for row in rows:
-            if row.invoices_items.id:
-                # an invoice already exists, do nothing
-                continue
-            if row.customers_subscriptions_paused.id:
-                # the subscription is paused, don't create an invoice
-                continue
-            if row.customers_subscriptions_alt_prices.Amount == 0:
-                # Don't create an invoice if there's an alt price for the subscription with amount 0.
-                continue
+            cs = CustomerSubscription(row.id)
+            cs.create_invoice_for_month(year, month, description)
 
-            csID = row.customers_subscriptions.id
-            cuID = row.customers_subscriptions.auth_customer_id
-            pmID = row.customers_subscriptions.payment_methods_id
-
-            subscr_name = row.school_subscriptions.Name
-
-            if row.customers_subscriptions_alt_prices.Description:
-                inv_description = row.customers_subscriptions_alt_prices.Description
-            else:
-                inv_description = description
-
-            if row.customers_subscriptions.Startdate > firstdaythismonth:
-                period_begin = row.customers_subscriptions.Startdate
-            else:
-                period_begin = firstdaythismonth
-
-            period_end = lastdaythismonth
-            if row.customers_subscriptions.Enddate:
-                if row.customers_subscriptions.Enddate >= firstdaythismonth and \
-                   row.customers_subscriptions.Enddate < lastdaythismonth:
-                    period_end = row.customers_subscriptions.Enddate
-
-
-            item_description = period_begin.strftime(DATE_FORMAT) + ' - ' + \
-                               period_end.strftime(DATE_FORMAT)
-
-            iID = db.invoices.insert(
-                invoices_groups_id = igID,
-                payment_methods_id = pmID,
-                SubscriptionYear = year,
-                SubscriptionMonth = month,
-                Description = inv_description,
-                Status = 'sent'
-            )
-
-            # create object to set Invoice# and due date
-            invoice = Invoice(iID)
-            invoice.link_to_customer(cuID)
-            iiID = invoice.item_add_subscription(csID, year, month)
-            invoice.link_item_to_customer_subscription(csID, iiID)
-            invoice.set_amounts()
-
-            invoices_created += 1
+            invoices_count += 1
 
         ##
         # For scheduled tasks db connection has to be committed manually
         ##
         db.commit()
 
-        return T("Invoices created") + ': ' + unicode(invoices_created)
+        return T("Invoices in month") + ': ' + unicode(invoices_count)
+
+        # csap = db.customers_subscriptions_alt_prices
+        #
+        # fields = [
+        #     db.customers_subscriptions.id,
+        #     db.customers_subscriptions.auth_customer_id,
+        #     db.customers_subscriptions.school_subscriptions_id,
+        #     db.customers_subscriptions.Startdate,
+        #     db.customers_subscriptions.Enddate,
+        #     db.customers_subscriptions.payment_methods_id,
+        #     db.school_subscriptions.Name,
+        #     db.school_subscriptions_price.Price,
+        #     db.school_subscriptions_price.tax_rates_id,
+        #     db.tax_rates.Percentage,
+        #     db.customers_subscriptions_paused.id,
+        #     db.invoices_items.id,
+        #     csap.id,
+        #     csap.Amount,
+        #     csap.Description
+        # ]
+        #
+        # rows = db.executesql(
+        #     """
+        #         SELECT cs.id,
+        #                cs.auth_customer_id,
+        #                cs.school_subscriptions_id,
+        #                cs.Startdate,
+        #                cs.Enddate,
+        #                cs.payment_methods_id,
+        #                ssu.Name,
+        #                ssp.Price,
+        #                ssp.tax_rates_id,
+        #                tr.Percentage,
+        #                csp.id,
+        #                ii.invoices_items_id,
+        #                csap.id,
+        #                csap.Amount,
+        #                csap.Description
+        #         FROM customers_subscriptions cs
+        #         LEFT JOIN auth_user au
+        #          ON au.id = cs.auth_customer_id
+        #         LEFT JOIN school_subscriptions ssu
+        #          ON cs.school_subscriptions_id = ssu.id
+        #         LEFT JOIN
+        #          (SELECT id,
+        #                  school_subscriptions_id,
+        #                  Startdate,
+        #                  Enddate,
+        #                  Price,
+        #                  tax_rates_id
+        #           FROM school_subscriptions_price
+        #           WHERE Startdate <= '{firstdaythismonth}' AND
+        #                 (Enddate >= '{firstdaythismonth}' OR Enddate IS NULL)) ssp
+        #          ON ssp.school_subscriptions_id = ssu.id
+        #         LEFT JOIN tax_rates tr
+        #          ON ssp.tax_rates_id = tr.id
+        #         LEFT JOIN
+        #          (SELECT id,
+        #                  customers_subscriptions_id
+        #           FROM customers_subscriptions_paused
+        #           WHERE Startdate <= '{firstdaythismonth}' AND
+        #                 (Enddate >= '{firstdaythismonth}' OR Enddate IS NULL)) csp
+        #          ON cs.id = csp.customers_subscriptions_id
+        #         LEFT JOIN
+        #          (SELECT iics.id,
+        #                  iics.invoices_items_id,
+        #                  iics.customers_subscriptions_id
+        #           FROM invoices_items_customers_subscriptions iics
+        #           LEFT JOIN invoices_items ON iics.invoices_items_id = invoices_items.id
+        #           LEFT JOIN invoices ON invoices_items.invoices_id = invoices.id
+        #           WHERE invoices.SubscriptionYear = {year} AND invoices.SubscriptionMonth = {month}) ii
+        #          ON ii.customers_subscriptions_id = cs.id
+        #         LEFT JOIN
+        #          (SELECT id,
+        #                  customers_subscriptions_id,
+        #                  Amount,
+        #                  Description
+        #           FROM customers_subscriptions_alt_prices
+        #           WHERE SubscriptionYear = {year} AND SubscriptionMonth = {month}) csap
+        #          ON csap.customers_subscriptions_id = cs.id
+        #         WHERE cs.Startdate <= '{lastdaythismonth}' AND
+        #               (cs.Enddate >= '{firstdaythismonth}' OR cs.Enddate IS NULL) AND
+        #               ssp.Price <> 0 AND
+        #               ssp.Price IS NOT NULL AND
+        #               au.trashed = 'F'
+        #     """.format(firstdaythismonth=firstdaythismonth,
+        #                lastdaythismonth =lastdaythismonth,
+        #                year=year,
+        #                month=month),
+        #   fields=fields)
+        #
+        # igpt = db.invoices_groups_product_types(ProductType = 'subscription')
+        # igID = igpt.invoices_groups_id
+        #
+        # invoices_created = 0
+        #
+        # # Alright, time to create some invoices
+        # for row in rows:
+        #     if row.invoices_items.id:
+        #         # an invoice already exists, do nothing
+        #         continue
+        #     if row.customers_subscriptions_paused.id:
+        #         # the subscription is paused, don't create an invoice
+        #         continue
+        #     if row.customers_subscriptions_alt_prices.Amount == 0:
+        #         # Don't create an invoice if there's an alt price for the subscription with amount 0.
+        #         continue
+        #
+        #     csID = row.customers_subscriptions.id
+        #     cuID = row.customers_subscriptions.auth_customer_id
+        #     pmID = row.customers_subscriptions.payment_methods_id
+        #
+        #     subscr_name = row.school_subscriptions.Name
+        #
+        #     if row.customers_subscriptions_alt_prices.Description:
+        #         inv_description = row.customers_subscriptions_alt_prices.Description
+        #     else:
+        #         inv_description = description
+        #
+        #     if row.customers_subscriptions.Startdate > firstdaythismonth:
+        #         period_begin = row.customers_subscriptions.Startdate
+        #     else:
+        #         period_begin = firstdaythismonth
+        #
+        #     period_end = lastdaythismonth
+        #     if row.customers_subscriptions.Enddate:
+        #         if row.customers_subscriptions.Enddate >= firstdaythismonth and \
+        #            row.customers_subscriptions.Enddate < lastdaythismonth:
+        #             period_end = row.customers_subscriptions.Enddate
+        #
+        #
+        #     item_description = period_begin.strftime(DATE_FORMAT) + ' - ' + \
+        #                        period_end.strftime(DATE_FORMAT)
+        #
+        #     iID = db.invoices.insert(
+        #         invoices_groups_id = igID,
+        #         payment_methods_id = pmID,
+        #         SubscriptionYear = year,
+        #         SubscriptionMonth = month,
+        #         Description = inv_description,
+        #         Status = 'sent'
+        #     )
+        #
+        #     # create object to set Invoice# and due date
+        #     invoice = Invoice(iID)
+        #     invoice.link_to_customer(cuID)
+        #     iiID = invoice.item_add_subscription(csID, year, month)
+        #     invoice.link_item_to_customer_subscription(csID, iiID)
+        #     invoice.set_amounts()
+        #
+        #     invoices_created += 1
+
+        # ##
+        # # For scheduled tasks db connection has to be committed manually
+        # ##
+        # db.commit()
+        #
+        # return T("Invoices created") + ': ' + unicode(invoices_created)
 
 
     def customers_subscriptions_add_credits_for_month(self, year, month):

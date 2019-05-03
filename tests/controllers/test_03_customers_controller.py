@@ -997,11 +997,9 @@ def test_subscriptions_pause_add(client, web2py):
     client.get(url)
     assert client.status == 200
 
-    data = {'from_month'   : '1',
-            'from_year'    : '2014',
-            'until_month'  : '2',
-            'until_year'   : '2',
-            'description'  : 'Custard apple'}
+    data = {'Startdate': '2014-01-01',
+            'Enddate': '2014-01-31',
+            'Description': 'Custard apple'}
     client.post(url, data=data)
     assert client.status == 200
 
@@ -1009,7 +1007,7 @@ def test_subscriptions_pause_add(client, web2py):
     assert 'Subscriptions' in client.text
 
     # verify display
-    assert data['description'] in client.text
+    assert data['Description'] in client.text
 
     # verify database
     assert web2py.db(web2py.db.customers_subscriptions_paused).count() == 1

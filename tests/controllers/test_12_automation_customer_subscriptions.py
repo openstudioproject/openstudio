@@ -17,11 +17,16 @@ def test_create_monthly_invoices(client, web2py):
 
     populate_customers_with_subscriptions(web2py, 10)
 
+
     url = '/test_automation_customer_subscriptions/' + \
           'test_create_invoices' + \
           '?month=1&year=2014&description=Subscription_Jan'
     client.get(url)
     assert client.status == 200
+
+
+    print web2py.db().select(web2py.db.invoices_items.ALL)
+    print web2py.db().select(web2py.db.invoices_items_customers_subscriptions.ALL)
 
 
     # check the created invoices
@@ -36,19 +41,27 @@ def test_create_monthly_invoices(client, web2py):
     assert iics.invoices_items_id == 1
     assert iics.customers_subscriptions_id == 1
 
-    # make sure the 2nd customer (1002) doesn't have an invoice, the subscription is paused
-    assert web2py.db(web2py.db.invoices_customers.auth_customer_id==1002).count() == 0
+    # Check that an invoice is created for the paused subscription
+    iics = web2py.db.invoices_items_customers_subscriptions(2)
+    print iics
+    assert iics.invoices_items_id == 2
+    assert iics.customers_subscriptions_id == 2
+
 
     ## check created invoice items
+    ssup = web2py.db.school_subscriptions_price(1)
     # alt. Price subscription item (first subscription gets a different price)
     altp = web2py.db.customers_subscriptions_alt_prices(1)
     item = web2py.db.invoices_items(1)
     assert altp.Amount == item.Price
     assert altp.Description == item.Description
 
-    # regular item
-    ssup = web2py.db.school_subscriptions_price(1)
+    # paused item
     item = web2py.db.invoices_items(2)
+    assert item.Price < ssup.Price
+
+    # regular item
+    item = web2py.db.invoices_items(3)
     assert item.Price == ssup.Price
 
 
