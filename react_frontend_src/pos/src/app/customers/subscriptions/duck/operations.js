@@ -8,7 +8,6 @@ import OS_API from '../../../../utils/os_api'
 
 // just pass these actions as there's nothing else they need to do
 // Put pass-through actions here
-// const setCheckinClassAttendanceSearchCustomerID = set_customer_id
 
 // data fetchers
 const fetchSubscriptions = () => {

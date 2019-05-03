@@ -2,6 +2,7 @@ import { connect } from 'react-redux'
 
 import App from './App'
 import { appOperations } from './duck'
+import { classesClassesOperations } from './classes/classes/duck'
 import { customersListOperations } from './customers/list/duck'
 import { customersClasscardsOperations } from './customers/classcards/duck'
 import { customersSubscriptionsOperations } from './customers/subscriptions/duck'
@@ -14,6 +15,7 @@ import { shopSchoolMembershipsOperations } from './shop/school/memberships/duck'
 import { shopSchoolSubscriptionsOperations } from './shop/school/subscriptions/duck'
 
 
+
 const mapStateToProps = state => 
     ({
         app_state: state.app
@@ -21,6 +23,9 @@ const mapStateToProps = state =>
 
 const mapDispatchToProps = dispatch =>
     ({  
+        fetchClasses() {
+            dispatch(classesClassesOperations.fetchClasses())
+        },
         fetchPaymentMethods() {
             dispatch(appOperations.fetchPaymentMethods())
         },
