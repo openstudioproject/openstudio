@@ -1856,7 +1856,7 @@ def export_invoices_get_export(from_date, until_date, invoices_groups_id, filety
                    FROM invoices_payments GROUP BY invoices_id) ip ON ip.invoices_id = i.id
         LEFT JOIN invoices_customers ic ON ic.invoices_id = i.id
         LEFT JOIN invoices_items_customers_subscriptions iics ON iics.invoices_items_id = ii.id
-        LEFT JOIN customers_subscriptions cs ON ics.customers_subscriptions_id = cs.id
+        LEFT JOIN customers_subscriptions cs ON iics.customers_subscriptions_id = cs.id
         LEFT JOIN school_subscriptions ssu ON cs.school_subscriptions_id = ssu.id
         LEFT JOIN auth_user au ON ic.auth_customer_id = au.id
         LEFT JOIN tax_rates tr ON ii.tax_rates_id = tr.id
