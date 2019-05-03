@@ -850,32 +850,19 @@ class Invoice:
 
             Range = namedtuple('Range', ['start', 'end'])
             period_range = Range(start=period_start, end=period_end)
-            print '### ranges:'
-            print period_range
             period_days = (period_range.end - period_range.start).days + 1
-            print period_days
 
             if pause:
                 pause_range = Range(start=pause.Startdate, end=pause.Enddate)
-                print pause_range
                 latest_start = max(period_range.start, pause_range.start)
                 earliest_end = min(pause_range.end, pause_range.end)
                 delta = (earliest_end - latest_start).days + 1
-                print 'delta'
-                print delta
                 overlap = max(0, delta)
-                print 'overlap'
-                print overlap
 
                 # Subtract pause overlap from period to be paid
-                print 'period days pause'
                 period_days = period_days - overlap
 
             month_days = (last_day_month - first_day_month).days + 1
-
-            print 'month & period days'
-            print month_days
-            print period_days
 
             price = round(((float(period_days) / float(month_days)) * float(price)), 2)
 
