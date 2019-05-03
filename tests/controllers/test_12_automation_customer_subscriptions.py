@@ -25,6 +25,10 @@ def test_create_monthly_invoices(client, web2py):
     assert client.status == 200
 
 
+    print web2py.db().select(web2py.db.invoices_items.ALL)
+    print web2py.db().select(web2py.db.invoices_items_customers_subscriptions.ALL)
+
+
     # check the created invoices
     ig_100 = web2py.db.invoices_groups(100)
     invoice = web2py.db.invoices(1)
@@ -37,8 +41,9 @@ def test_create_monthly_invoices(client, web2py):
     assert iics.invoices_items_id == 1
     assert iics.customers_subscriptions_id == 1
 
-    # make sure the 2nd customer (1002) doesn't have an invoice, the subscription is paused
+    # Check that an invoice is created for the paused subscription
     iics = web2py.db.invoices_items_customers_subscriptions(2)
+    print iics
     assert iics.invoices_items_id == 2
     assert iics.customers_subscriptions_id == 2
 

@@ -38,9 +38,9 @@ class OsSchedulerTasks:
         invoices_count = 0
 
         # get all active subscriptions in month
-        query = (db.customers_subscriptions.startdate <= lastdaythismonth) &\
-                ((db.customers_subscriptions.enddate >= firstdaythismonth) |
-                 (db.customers_subscriptions.enddate == None))
+        query = (db.customers_subscriptions.Startdate <= lastdaythismonth) & \
+                ((db.customers_subscriptions.Enddate >= firstdaythismonth) |
+                 (db.customers_subscriptions.Enddate == None))
 
         rows = db(query).select(db.customers_subscriptions.ALL)
         for row in rows:
