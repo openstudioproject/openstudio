@@ -16,7 +16,7 @@ def SMARTHUMB(image, box, fit=True, name="thumb"):
     """
     if image:
         request = current.request
-        img = Image.open(request.folder + 'uploads/' + image)
+        img = Image.open(request.folder + '/uploads/' + image)
         #preresize image with factor 2, 4, 8 and fast algorithm
         factor = 1
         while img.size[0] / factor > 2 * box[0] and img.size[1] * 2 / factor > 2 * box[1]:
@@ -44,5 +44,5 @@ def SMARTHUMB(image, box, fit=True, name="thumb"):
         root, ext = os.path.splitext(image)
         thumb = '%s_%s%s' % (root, name, ext)
 
-        img.save(request.folder + 'uploads/' + thumb)
+        img.save(request.folder + '/uploads/' + thumb)
         return thumb
