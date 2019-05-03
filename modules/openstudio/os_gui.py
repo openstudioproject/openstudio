@@ -223,7 +223,11 @@ class OsGui:
         if button_title:
             button_xml += ' title="' + button_title + '" '
         button_xml += 'data-toggle="modal" data-target=".' + modal_class + '"> '
-        button_xml += button_text.decode('utf-8')
+        try:
+            button_xml += button_text.decode('utf-8')
+        except AttributeError:
+            # button_xml might be XML() or other object that doesn't have a decode method
+            button_xml += button_text
         button_xml += '</button>'
         return XML(button_xml)
 
