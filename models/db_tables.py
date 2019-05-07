@@ -1270,8 +1270,8 @@ def define_school_appointments():
     )
 
 
-def define_school_appointment_categories():
-    db.define_table('school_appointment_categories',
+def define_school_appointments_categories():
+    db.define_table('school_appointments_categories',
         Field('Archived', 'boolean',
             readable=False,
             writable=False,
@@ -1281,6 +1281,17 @@ def define_school_appointment_categories():
             requires=IS_NOT_EMPTY(),
             label=T("Name"))
     )
+
+
+def define_school_appointments_categories_appointments():
+    """
+        Define shop categories products
+    """
+    db.define_table('school_appointments_categories_appointments',
+        Field('school_appointments_categories_id', db.school_appointments_categories),
+        Field('school_appointment', db.school_appointments),
+    )
+
 
 
 def define_school_classcards():
@@ -6606,7 +6617,8 @@ define_accounting_expenses()
 define_accounting_cashbooks_cash_count()
 
 define_school_appointments()
-define_school_appointment_categories()
+define_school_appointments_categories()
+define_school_appointments_categories_appointments()
 define_school_memberships()
 define_school_subscriptions()
 #mstypes_dict = create_mstypes_dict()

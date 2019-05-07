@@ -222,31 +222,116 @@ def edit_get_menu(page):
                               htype='tabs')
 
 
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'school_appointments_categories'))
+def edit_categories():
+    """
+
+    :return:
+    """
+    from general_helpers import set_form_id_and_get_submit_button
+    from openstudio.os_shop_product import ShopProduct
+
+    spID = request.vars['spID']
+    product = ShopProduct(spID)
+
+    response.title = T('Shop')
+    response.subtitle = T('Edit product - {product_name}'.format(
+        product_name=product.row.Name)
+    )
+    response.view = 'general/tabs_menu.html'
+
+    header = THEAD(TR(
+        TH(),
+        TH(T("Category"))
+    ))
+
+    table = TABLE(header, _class='table table-hover')
+    query = (db.shop_categories_products.shop_products_id == spID)
+    # rows = db(query).select(db.teachers_classtypes.school_classtypes_id)
+    rows = db(query).select(db.shop_categories_products.shop_categories_id)
+    selected_ids = []
+    for row in rows:
+        selected_ids.append(unicode(row.shop_categories_id))
+
+    query = (db.shop_categories.Archived == False)
+    rows = db(query).select(
+        db.shop_categories.id,
+        db.shop_categories.Name,
+        orderby=db.shop_categories.Name
+    )
+
+    for row in rows:
+        if unicode(row.id) in selected_ids:
+            # check the row
+            table.append(TR(TD(INPUT(_type='checkbox',
+                                     _name=row.id,
+                                     _value="on",
+                                     value="on"),
+                                     _class='td_status_marker'),
+                            TD(row.Name)))
+        else:
+            table.append(TR(TD(INPUT(_type='checkbox',
+                                     _name=row.id,
+                                     _value="on"),
+                                     _class='td_status_marker'),
+                            TD(row.Name)))
+    form = FORM(table, _id='MainForm')
+
+    return_url = URL(vars={'spID':spID})
+    # After submitting, check which categories are 'on'
+    if form.accepts(request,session):
+        # Remove all current records
+        query = (db.shop_categories_products.shop_products_id == spID)
+        db(query).delete()
+        # insert new records for product
+        for row in rows:
+            if request.vars[unicode(row.id)] == 'on':
+                db.shop_categories_products.insert(
+                    shop_categories_id = row.id,
+                    shop_products_id = spID
+                )
+
+        # Clear teachers (API) cache
+        cache_clear_school_teachers()
+
+        session.flash = T('Saved')
+        redirect(return_url)
+
+
+    back = os_gui.get_button('back', shop_products_get_return_url())
+    menu = product_edit_get_menu(request.function, spID)
+
+    return dict(content=form,
+                save=os_gui.get_submit_button('MainForm'),
+                back=back,
+
+
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'school_appointment_categories'))
+               auth.has_permission('read', 'school_appointments_categories'))
 def categories():
     response.title = T("School")
     response.subtitle = T("Appointments")
     response.view = 'general/tabs_menu.html'
 
     show = 'current'
-    query = (db.school_appointment_categories.Archived == False)
+    query = (db.school_appointments_categories.Archived == False)
 
     if 'show_archive' in request.vars:
         show = request.vars['show_archive']
-        session.school_appointment_categories_show = show
+        session.school_appointments_categories_show = show
         if show == 'current':
-            query = (db.school_appointment_categories.Archived == False)
+            query = (db.school_appointments_categories.Archived == False)
         elif show == 'archive':
-            query = (db.school_appointment_categories.Archived == True)
-    elif session.school_appointment_categories_show == 'archive':
-            query = (db.school_appointment_categories.Archived == True)
+            query = (db.school_appointments_categories.Archived == True)
+    elif session.school_appointments_categories_show == 'archive':
+            query = (db.school_appointments_categories.Archived == True)
     else:
-        session.school_appointment_categories_show = show
+        session.school_appointments_categories_show = show
 
-    db.school_appointment_categories.id.readable=False
+    db.school_appointments_categories.id.readable=False
     fields = [
-        db.school_appointment_categories.Name
+        db.school_appointments_categories.Name
     ]
     links = [ 
         lambda row: os_gui.get_button('edit',
@@ -256,14 +341,14 @@ def categories():
     ]
 
     maxtextlengths = {
-        'school_appointment_categories.Name': 40
+        'school_appointments_categories.Name': 40
     }
     
     grid = SQLFORM.grid(
         query, 
         fields=fields, 
         links=links,
-        field_id=db.school_appointment_categories.id,
+        field_id=db.school_appointments_categories.id,
         create=False,
         editable=False,
         deletable=False,
@@ -279,7 +364,7 @@ def categories():
     add = os_gui.get_button('add', add_url, T("Add a category"), _class="pull-right")
 
     archive_buttons = os_gui.get_archived_radio_buttons(
-        session.school_appointment_categories_show)
+        session.school_appointments_categories_show)
 
     back = DIV(add, archive_buttons)
     menu = get_menu(request.function)
@@ -292,7 +377,7 @@ def categories_get_link_archive(row):
         Called from the categories function. Changes title of archive button
         depending on whether a category is archived or not
     """
-    row = db.school_appointment_categories(row.id)
+    row = db.school_appointments_categories(row.id)
 
     if row.Archived:
         tt = T("Move to current")
@@ -305,7 +390,7 @@ def categories_get_link_archive(row):
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('delete', 'school_appointment_categories'))
+               auth.has_permission('delete', 'school_appointments_categories'))
 def category_archive():
     """
         This function archives a category
@@ -315,7 +400,7 @@ def category_archive():
     if not sacID:
         session.flash = T('Unable to (un)archive category')
     else:
-        row = db.school_appointment_categories(sacID)
+        row = db.school_appointments_categories(sacID)
 
         if row.Archived:
             session.flash = T('Moved to current')
@@ -346,7 +431,7 @@ def category_add():
 
     os_forms = OsForms()
     result = os_forms.get_crud_form_create(
-        db.school_appointment_categories,
+        db.school_appointments_categories,
         return_url,
         message_record_created=T("Added category ")
     )
@@ -382,7 +467,7 @@ def category_edit():
 
     os_forms = OsForms()
     result = os_forms.get_crud_form_update(
-        db.school_appointment_categories,
+        db.school_appointments_categories,
         URL(vars={'sacID': sacID}),
         sacID,
         message_record_updated=T("Saved")
