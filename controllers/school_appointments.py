@@ -147,7 +147,7 @@ def category_add():
     from openstudio.os_forms import OsForms
     response.title = T('School')
     response.subtitle = T('Add appointment category')
-    response.view = 'general/only_content.html'
+    response.view = 'general/tabs_menu.html'
 
     return_url = categories_get_return_url()
 
@@ -161,10 +161,15 @@ def category_add():
     form = result['form']
     back = os_gui.get_button('back', return_url)
 
-    content = form
+    content = DIV(
+        H4(T('Add category')),
+        form
+    )
+    menu = get_menu('categories')
 
     return dict(content=content,
                 save=result['submit'],
+                menu=menu,
                 back=back)
 
 
@@ -176,7 +181,7 @@ def category_edit():
     from openstudio.os_forms import OsForms
     response.title = T('School')
     response.subtitle = T('Edit appointment category')
-    response.view = 'general/only_content.html'
+    response.view = 'general/tabs_menu.html'
 
     sacID = request.vars['sacID']
 
@@ -193,8 +198,14 @@ def category_edit():
     form = result['form']
     back = os_gui.get_button('back', return_url)
 
-    content = form
+    content = DIV(
+        H4(T('Edit category')),
+        form
+    )
+
+    menu = get_menu('categories')
 
     return dict(content=content,
                 save=result['submit'],
-                back=back)
+                back=back,
+                menu=menu)
