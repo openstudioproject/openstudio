@@ -3,7 +3,7 @@
 
 def get_menu(page):
     """
-        Returns menu for shop catalog pages
+        Returns menu for school appointments
     """
     pages = []
 
@@ -55,10 +55,18 @@ def index():
     fields = [
         db.school_appointments.Name
     ]
+
+    permission_edit = auth.has_membership(group_id='Admins') or \
+                      auth.has_permission('update', 'school_appointments')
+    permission_edit_categories = True
+
     links = [
         lambda row: os_gui.get_button('edit',
-                                      URL('appointment_edit', vars={'saID': row.id}),
-                                      T("Edit this appointment")),
+                                      URL('edit', vars={'saID': row.id}),
+                                      T("Edit this appointment")) if permission_edit else "",
+        lambda row: os_gui.get_button('edit_categories',
+                                      URL('edit_categories', vars={'saID': row.id}),
+                                      T("Assign categories to this appointment type")) if permission_edit_categories else "",
         index_get_link_archive
     ]
 
@@ -109,6 +117,109 @@ def index_get_link_archive(row):
     return os_gui.get_button('archive',
                              URL('archive', vars={'saID':row.id}),
                              tooltip=tt)
+
+
+
+def index_get_return_url():
+    return URL('index')
+
+
+@auth.requires_login()
+def add():
+    """
+        Add a new appointment type
+    """
+    from openstudio.os_forms import OsForms
+    response.title = T('School')
+    response.subtitle = T("Appointments")
+    response.view = 'general/tabs_menu.html'
+
+    return_url = index_get_return_url()
+
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_create(
+        db.school_appointments,
+        '/school_appointments/edit?saID=[id]',
+        message_record_created=T("Added appointment type, you can now edit it and assign it to categories")
+    )
+
+    form = result['form']
+    back = os_gui.get_button('back', return_url)
+
+    content = DIV(
+        H4(T('Add appointment type')),
+        form
+    )
+    menu = get_menu('index')
+
+    return dict(content=content,
+                save=result['submit'],
+                menu=menu,
+                back=back)
+
+
+@auth.requires_login()
+def edit():
+    """
+        Edit an appointment type
+    """
+    from openstudio.os_forms import OsForms
+    response.title = T('School')
+    response.subtitle = T("Edit appointment type")
+    response.view = 'general/tabs_menu.html'
+
+    saID = request.vars['saID']
+
+    return_url = index_get_return_url()
+
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_update(
+        db.school_appointments,
+        URL(vars={'saID': saID}),
+        saID,
+        message_record_updated=T("Saved")
+    )
+
+    form = result['form']
+    back = os_gui.get_button('back', return_url)
+
+    content = form
+
+    menu = edit_get_menu(request.function)
+
+    return dict(content=content,
+                save=result['submit'],
+                back=back,
+                menu=menu)
+
+
+
+def edit_get_menu(page):
+    """
+        Returns menu for school appointment edit page
+    """
+    pages = []
+
+    # Edit appointment
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('update', 'school_appointments'):
+        pages.append(['edit',
+                       T('Edit'),
+                      URL('school_appointments', 'edit')])
+
+    # Edit appointment type categories
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('update', 'school_appointments_categories'):
+        pages.append(['categories',
+                      T('Categories'),
+                      URL('school_appointments', 'edit_categories')])
+
+
+    return os_gui.get_submenu(pages,
+                              page,
+                              _id='os-customers_edit_menu',
+                              horizontal=True,
+                              htype='tabs')
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \

@@ -55,6 +55,9 @@ class OsGui:
         elif button_type == 'edit_custom':
             title = current.T(title)
             icon = "fa fa-pencil"
+        elif button_type == 'edit_categories':
+            title = title
+            icon = "fa fa-tags"
         elif button_type == 'delete':
             title = current.T("Delete")
             icon = "fa fa-times"
