@@ -57,7 +57,7 @@ def index():
     ]
     links = [ 
         lambda row: os_gui.get_button('edit',
-            URL('edit', vars={'sacID': row.id}),
+            URL('category_edit', vars={'sacID': row.id}),
             T("Edit this category")),
         categories_get_link_archive
     ]
@@ -168,7 +168,7 @@ def category_add():
 
 
 @auth.requires_login()
-def edit():
+def category_edit():
     """
         Edit a category
     """
