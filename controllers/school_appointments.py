@@ -30,10 +30,75 @@ def get_menu(page):
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'school_appointments'))
+def index():
+    response.title = T("School")
+    response.subtitle = T("Appointments")
+    response.view = 'general/tabs_menu.html'
+
+    show = 'current'
+    query = (db.school_appointments.Archived == False)
+
+    if 'show_archive' in request.vars:
+        show = request.vars['show_archive']
+        session.school_appointments_show = show
+        if show == 'current':
+            query = (db.school_appointments.Archived == False)
+        elif show == 'archive':
+            query = (db.school_appointments.Archived == True)
+    elif session.school_appointments_show == 'archive':
+        query = (db.school_appointments.Archived == True)
+    else:
+        session.school_appointments_show = show
+
+    db.school_appointments.id.readable = False
+    fields = [
+        db.school_appointments.Name
+    ]
+    links = [
+        lambda row: os_gui.get_button('edit',
+                                      URL('appointment_edit', vars={'saID': row.id}),
+                                      T("Edit this appointment")),
+        index_get_link_archive
+    ]
+
+    maxtextlengths = {
+        'school_appointments.Name': 40
+    }
+
+    grid = SQLFORM.grid(
+        query,
+        fields=fields,
+        links=links,
+        field_id=db.school_appointments.id,
+        create=False,
+        editable=False,
+        deletable=False,
+        details=False,
+        searchable=False,
+        maxtextlengths=maxtextlengths,
+        csv=False,
+        ui=grid_ui)
+    grid.element('.web2py_counter', replace=None)  # remove the counter
+    grid.elements('span[title=Delete]', replace=None)  # remove text from delete button
+
+    add_url = URL('add')
+    add = os_gui.get_button('add', add_url, T("Add an appoiment type"), _class="pull-right")
+
+    archive_buttons = os_gui.get_archived_radio_buttons(
+        session.school_appointments_show)
+
+    back = DIV(add, archive_buttons)
+    menu = get_menu(request.function)
+
+    return dict(content=grid, back=back, menu=menu)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'school_appointment_categories'))
 def categories():
     response.title = T("School")
-    response.subtitle = T("Appointment categories")
+    response.subtitle = T("Appointments")
     response.view = 'general/tabs_menu.html'
 
     show = 'current'
@@ -146,7 +211,7 @@ def category_add():
     """
     from openstudio.os_forms import OsForms
     response.title = T('School')
-    response.subtitle = T('Add appointment category')
+    response.subtitle = T("Appointments")
     response.view = 'general/tabs_menu.html'
 
     return_url = categories_get_return_url()
@@ -180,7 +245,7 @@ def category_edit():
     """
     from openstudio.os_forms import OsForms
     response.title = T('School')
-    response.subtitle = T('Edit appointment category')
+    response.subtitle = T("Appointments")
     response.view = 'general/tabs_menu.html'
 
     sacID = request.vars['sacID']
