@@ -1289,7 +1289,7 @@ def define_school_appointments_categories_appointments():
     """
     db.define_table('school_appointments_categories_appointments',
         Field('school_appointments_categories_id', db.school_appointments_categories),
-        Field('school_appointment', db.school_appointments),
+        Field('school_appointments_id', db.school_appointments),
     )
 
 

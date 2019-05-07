@@ -185,7 +185,7 @@ def edit():
 
     content = form
 
-    menu = edit_get_menu(request.function)
+    menu = edit_get_menu(request.function, saID)
 
     return dict(content=content,
                 save=result['submit'],
@@ -194,25 +194,27 @@ def edit():
 
 
 
-def edit_get_menu(page):
+def edit_get_menu(page, saID):
     """
         Returns menu for school appointment edit page
     """
     pages = []
+
+    vars = {'saID': saID}
 
     # Edit appointment
     if auth.has_membership(group_id='Admins') or \
        auth.has_permission('update', 'school_appointments'):
         pages.append(['edit',
                        T('Edit'),
-                      URL('school_appointments', 'edit')])
+                      URL('school_appointments', 'edit', vars=vars)])
 
     # Edit appointment type categories
     if auth.has_membership(group_id='Admins') or \
        auth.has_permission('update', 'school_appointments_categories'):
-        pages.append(['categories',
+        pages.append(['edit_categories',
                       T('Categories'),
-                      URL('school_appointments', 'edit_categories')])
+                      URL('school_appointments', 'edit_categories', vars=vars)])
 
 
     return os_gui.get_submenu(pages,
@@ -232,13 +234,15 @@ def edit_categories():
     from general_helpers import set_form_id_and_get_submit_button
     from openstudio.os_shop_product import ShopProduct
 
-    spID = request.vars['spID']
-    product = ShopProduct(spID)
+    saID = request.vars['saID']
+    sa = db.school_appointments(saID)
+    # product = ShopProduct(spID)
 
     response.title = T('Shop')
-    response.subtitle = T('Edit product - {product_name}'.format(
-        product_name=product.row.Name)
-    )
+    response.subtitle = T("Edit appointment type")
+    # response.subtitle = T('Edit product - {product_name}'.format(
+    #     school=product.row.Name)
+    # )
     response.view = 'general/tabs_menu.html'
 
     header = THEAD(TR(
@@ -247,18 +251,17 @@ def edit_categories():
     ))
 
     table = TABLE(header, _class='table table-hover')
-    query = (db.shop_categories_products.shop_products_id == spID)
-    # rows = db(query).select(db.teachers_classtypes.school_classtypes_id)
-    rows = db(query).select(db.shop_categories_products.shop_categories_id)
+    query = (db.school_appointments_categories_appointments.school_appointments_id == saID)
+    rows = db(query).select(db.school_appointments_categories_appointments.school_appointments_categories_id)
     selected_ids = []
     for row in rows:
-        selected_ids.append(unicode(row.shop_categories_id))
+        selected_ids.append(unicode(row.school_appointments_categories_id))
 
-    query = (db.shop_categories.Archived == False)
+    query = (db.school_appointments_categories.Archived == False)
     rows = db(query).select(
-        db.shop_categories.id,
-        db.shop_categories.Name,
-        orderby=db.shop_categories.Name
+        db.school_appointments_categories.id,
+        db.school_appointments_categories.Name,
+        orderby=db.school_appointments_categories.Name
     )
 
     for row in rows:
@@ -278,33 +281,32 @@ def edit_categories():
                             TD(row.Name)))
     form = FORM(table, _id='MainForm')
 
-    return_url = URL(vars={'spID':spID})
+    return_url = URL(vars={'saID':saID})
     # After submitting, check which categories are 'on'
     if form.accepts(request,session):
         # Remove all current records
-        query = (db.shop_categories_products.shop_products_id == spID)
+        # query = (db.shop_categories_products.shop_products_id == spID)
+        query = (db.school_appointments_categories_appointments.school_appointments_id == saID)
         db(query).delete()
         # insert new records for product
         for row in rows:
             if request.vars[unicode(row.id)] == 'on':
-                db.shop_categories_products.insert(
-                    shop_categories_id = row.id,
-                    shop_products_id = spID
+                db.school_appointments_categories_appointments.insert(
+                    school_appointments_categories_id = row.id,
+                    school_appointments_id = saID
                 )
-
-        # Clear teachers (API) cache
-        cache_clear_school_teachers()
 
         session.flash = T('Saved')
         redirect(return_url)
 
 
-    back = os_gui.get_button('back', shop_products_get_return_url())
-    menu = product_edit_get_menu(request.function, spID)
+    back = os_gui.get_button('back', index_get_return_url())
+    menu = edit_get_menu(request.function, saID)
 
     return dict(content=form,
                 save=os_gui.get_submit_button('MainForm'),
                 back=back,
+                menu=menu)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \

@@ -470,9 +470,6 @@ def product_categories():
                     shop_products_id = spID
                 )
 
-        # Clear teachers (API) cache
-        cache_clear_school_teachers()
-
         session.flash = T('Saved')
         redirect(return_url)
 
