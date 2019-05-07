@@ -1,5 +1,34 @@
 # coding=utf-8
 
+
+def index_get_menu(page):
+    """
+        Returns menu for shop catalog pages
+    """
+    pages = []
+
+    # Appointments
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('read', 'shop_products'):
+        pages.append(['school_appointments',
+                       T('Products'),
+                      URL('shop_manage', 'products')])
+
+    # Categories
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('read', 'shop_categories'):
+        pages.append(['categories',
+                       T('Categories'),
+                      URL('shop_manage', 'categories')])
+
+
+    return os_gui.get_submenu(pages,
+                              page,
+                              _id='os-customers_edit_menu',
+                              horizontal=True,
+                              htype='tabs')
+
+
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'school_appointment_categories'))
 def index():
@@ -30,7 +59,7 @@ def index():
         lambda row: os_gui.get_button('edit',
             URL('edit', vars={'sacID': row.id}),
             T("Edit this category")),
-        index_get_link_archive
+        categories_get_link_archive
     ]
 
     maxtextlengths = {
@@ -53,7 +82,7 @@ def index():
     grid.element('.web2py_counter', replace=None) # remove the counter
     grid.elements('span[title=Delete]', replace=None) # remove text from delete button
 
-    add_url = URL('add')
+    add_url = URL('category_add')
     add = os_gui.get_button('add', add_url, T("Add a category"), _class="pull-right")
 
     archive_buttons = os_gui.get_archived_radio_buttons(
@@ -64,9 +93,9 @@ def index():
     return dict(content=grid, back=back)
 
 
-def index_get_link_archive(row):
+def categories_get_link_archive(row):
     """
-        Called from the index function. Changes title of archive button
+        Called from the categories function. Changes title of archive button
         depending on whether a category is archived or not
     """
     row = db.school_appointment_categories(row.id)
@@ -102,15 +131,15 @@ def category_archive():
         row.Archived = not row.Archived
         row.update_record()
 
-    redirect(URL('index'))
+    redirect(URL('categories'))
 
 
-def index_get_return_url():
-    return URL('index')
+def categories_get_return_url():
+    return URL('categories')
 
 
 @auth.requires_login()
-def add():
+def category_add():
     """
         Add a new category
     """
@@ -119,13 +148,13 @@ def add():
     response.subtitle = T('Add appointment category')
     response.view = 'general/only_content.html'
 
-    return_url = index_get_return_url()
+    return_url = categories_get_return_url()
 
     os_forms = OsForms()
     result = os_forms.get_crud_form_create(
         db.school_appointment_categories,
-        '/school_appointment_categories/edit?sacID=[id]',
-        message_record_created=T("Added category, you can now add appointment types")
+        return_url,
+        message_record_created=T("Added category ")
     )
 
     form = result['form']
@@ -150,7 +179,7 @@ def edit():
 
     sacID = request.vars['sacID']
 
-    return_url = index_get_return_url()
+    return_url = categories_get_return_url()
 
     os_forms = OsForms()
     result = os_forms.get_crud_form_update(
