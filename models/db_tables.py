@@ -1178,7 +1178,8 @@ def define_school_classtypes():
         Field('Description', 'text',
             represent=lambda value, row: value or '',
             label=T("Description")),
-        format='%(Name)s')
+        format='%(Name)s'
+    )
 
 
 def define_school_shifts():
@@ -1224,6 +1225,47 @@ def define_school_locations():
             comment = T("When the API is in use, this checkbox defines whether a \
                     location is available over the API."),
                  ),
+        format='%(Name)s'
+    )
+
+
+def define_school_appointments():
+    db.define_table('school_appoints',
+        Field('Archived', 'boolean',
+            readable=False,
+            writable=False,
+            default=False,
+            label=T("Archived")),
+        Field('AllowAPI', 'boolean',
+              default=True,
+              required=True,
+              label=T('Public')),
+        Field('picture', 'upload', autodelete=True,
+            requires=IS_EMPTY_OR([IS_IMAGE(extensions=('jpeg', 'jpg', 'png')),
+                                           IS_LENGTH(maxsize=4194304)]),
+            label=T("Image")),
+        Field('thumbsmall', 'upload', # generate 50*50 for list view
+            autodelete=True, writable=False,
+            compute = lambda row: SMARTHUMB(row.picture,
+                                            (50, 50),
+                                             name="Small"),
+            represent = represent_classtype_thumbsmall,
+            label=T("Image")),
+        Field('thumblarge', 'upload', # generate 400*400 for edit view
+            autodelete=True, writable=False,
+            compute = lambda row: SMARTHUMB(row.picture,
+                                             (400, 400),
+                                             name="Large")),
+        Field('Name', required=True,
+            requires=IS_NOT_EMPTY(),
+            label=T("Name")),
+        Field('Link',
+            represent=lambda value, row: value or '',
+            label=T("Link to Description"),
+            comment=T("Link to description on your website. Start with 'http:// or https://'")),
+        Field('Description', 'text',
+            represent=lambda value, row: value or '',
+            label=T("Description")),
         format='%(Name)s'
     )
 
@@ -6563,6 +6605,7 @@ define_accounting_glaccounts()
 define_accounting_expenses()
 define_accounting_cashbooks_cash_count()
 
+define_school_appointments()
 define_school_appointment_categories()
 define_school_memberships()
 define_school_subscriptions()
