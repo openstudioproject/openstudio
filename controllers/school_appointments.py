@@ -10,9 +10,9 @@ def get_menu(page):
     # Appointments
     if auth.has_membership(group_id='Admins') or \
        auth.has_permission('read', 'school_appointments'):
-        pages.append(['school_appointments',
+        pages.append(['index',
                        T('Appointments'),
-                      URL('school_appointments', 'appointments')])
+                      URL('school_appointments', 'index')])
 
     # Categories
     if auth.has_membership(group_id='Admins') or \
@@ -92,6 +92,23 @@ def index():
     menu = get_menu(request.function)
 
     return dict(content=grid, back=back, menu=menu)
+
+
+def index_get_link_archive(row):
+    """
+        Called from the index function. Changes title of archive button
+        depending on whether a category is archived or not
+    """
+    row = db.school_appointments(row.id)
+
+    if row.Archived:
+        tt = T("Move to current")
+    else:
+        tt = T("Archive")
+
+    return os_gui.get_button('archive',
+                             URL('archive', vars={'saID':row.id}),
+                             tooltip=tt)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \

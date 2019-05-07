@@ -1230,7 +1230,7 @@ def define_school_locations():
 
 
 def define_school_appointments():
-    db.define_table('school_appoints',
+    db.define_table('school_appointments',
         Field('Archived', 'boolean',
             readable=False,
             writable=False,
