@@ -1,7 +1,7 @@
 # coding=utf-8
 
 
-def index_get_menu(page):
+def get_menu(page):
     """
         Returns menu for shop catalog pages
     """
@@ -9,17 +9,17 @@ def index_get_menu(page):
 
     # Appointments
     if auth.has_membership(group_id='Admins') or \
-       auth.has_permission('read', 'shop_products'):
+       auth.has_permission('read', 'school_appointments'):
         pages.append(['school_appointments',
-                       T('Products'),
-                      URL('shop_manage', 'products')])
+                       T('Appointments'),
+                      URL('school_appointments', 'appointments')])
 
     # Categories
     if auth.has_membership(group_id='Admins') or \
-       auth.has_permission('read', 'shop_categories'):
+       auth.has_permission('read', 'school_appointments_categories'):
         pages.append(['categories',
                        T('Categories'),
-                      URL('shop_manage', 'categories')])
+                      URL('school_appointments', 'categories')])
 
 
     return os_gui.get_submenu(pages,
@@ -31,10 +31,10 @@ def index_get_menu(page):
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'school_appointment_categories'))
-def index():
+def categories():
     response.title = T("School")
     response.subtitle = T("Appointment categories")
-    response.view = 'general/only_content.html'
+    response.view = 'general/tabs_menu.html'
 
     show = 'current'
     query = (db.school_appointment_categories.Archived == False)
@@ -89,8 +89,9 @@ def index():
         session.school_appointment_categories_show)
 
     back = DIV(add, archive_buttons)
+    menu = get_menu(request.function)
 
-    return dict(content=grid, back=back)
+    return dict(content=grid, back=back, menu=menu)
 
 
 def categories_get_link_archive(row):
