@@ -6817,6 +6817,7 @@ define_schedule_classes_status()
 
 
 define_schedule()
+define_schedule_otc()
 
 # teacher payment definitions (depend on classes and auth_user)
 define_teachers_payment_fixed_rate_default()
