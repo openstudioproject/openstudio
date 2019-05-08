@@ -89,10 +89,10 @@ class AppointmentSchedule:
         """
         status = 'normal'
         status_marker = DIV(_class='status_marker bg_green')
-        if row.classes_otc.Status == 'cancelled' or row.school_holidays.id:
+        if row.schedule_otc.Status == 'cancelled' or row.school_holidays.id:
             status = 'cancelled'
             status_marker = DIV(_class='status_marker bg_orange')
-        elif row.classes_otc.Status == 'open':
+        elif row.schedule_otc.Status == 'open':
             status = 'open'
             status_marker = DIV(_class='status_marker bg_red')
         elif row.classes_teachers.teacher_role == 1:
@@ -100,255 +100,6 @@ class AppointmentSchedule:
             status_marker = DIV(_class='status_marker bg_blue')
 
         return dict(status=status, marker=status_marker)
-
-
-    def _get_day_row_teacher_roles(self, row, repr_row):
-        """
-            @return: dict with {teacher_role} and {teacher_role2} as keys
-             teacher_role and teacher_role2 are names of teacher with labels
-              applied
-        """
-        os_gui = current.globalenv['os_gui']
-        T = current.T
-
-        teacher_id = row.classes_teachers.auth_teacher_id
-        teacher_id2 = row.classes_teachers.auth_teacher_id2
-        teacher = repr_row.classes_teachers.auth_teacher_id
-        teacher2 = repr_row.classes_teachers.auth_teacher_id2
-        teacher_role = row.classes_teachers.teacher_role
-        teacher_role2 = row.classes_teachers.teacher_role2
-
-        # set label for teacher role
-        if teacher_role == 1:  # sub
-            teacher_role = SPAN(os_gui.get_os_label('blue', teacher),
-                                _title=T('Sub teacher'))
-        elif teacher_role == 2:  # assist
-            teacher_role = SPAN(os_gui.get_os_label('yellow', teacher),
-                                _title=T("Assistant"))
-        elif teacher_role == 3:  # karma
-            teacher_role = SPAN(os_gui.get_os_label('purple', teacher),
-                                _title=T('Karma teacher'))
-        else:
-            teacher_role = teacher
-
-        # set label for teacher role 2
-        if teacher_role2 == 1:  # sub
-            teacher_role2 = SPAN(os_gui.get_os_label('blue', teacher2),
-                                 _title=T("Sub teacher"))
-        elif teacher_role2 == 2:  # assist
-            teacher_role2 = SPAN(os_gui.get_os_label('yellow', teacher2),
-                                 _title=T("Assistant"))
-        elif teacher_role2 == 3:  # karma
-            teacher_role2 = SPAN(os_gui.get_os_label('purple', teacher2),
-                                 _title=T('Karma teacher'))
-        else:
-            teacher_role2 = teacher2
-
-        return dict(teacher_role=teacher_role,
-                    teacher_role2=teacher_role2)
-
-
-    def _get_day_get_table_class_trend_data(self):
-        """
-            dict containing trend divs for self.date
-        """
-        def average(total, classes_counted):
-            try:
-                average = float(total / classes_counted)
-            except ZeroDivisionError:
-                average = float(0)
-
-            return average
-
-        DATE_FORMAT = current.DATE_FORMAT
-        db = current.db
-        T = current.T
-        weekday = self.date.isoweekday()
-
-        date_formatted = self.date.strftime(DATE_FORMAT)
-
-        delta = datetime.timedelta(days=28)
-        one_month_ago = self.date - delta
-        two_months_ago = one_month_ago - delta
-
-        fields = [
-            db.classes.id,
-            db.classes.Maxstudents,
-            db.classes_schedule_count.Attendance4WeeksAgo,
-            db.classes_schedule_count.NRClasses4WeeksAgo,
-            db.classes_schedule_count.Attendance8WeeksAgo,
-            db.classes_schedule_count.NRClasses8WeeksAgo
-        ]
-
-        query = """
-            SELECT cla.id,
-                   CASE WHEN sotc.Maxstudents IS NOT NULL
-                        THEN sotc.Maxstudents
-                        ELSE cla.Maxstudents
-                        END AS Maxstudents, 
-                   clatt_4w_ago.att_4w,
-                   clatt_4w_nrclasses.att_4w_nrclasses,
-                   clatt_8w_ago.att_8w,
-                   clatt_8w_nrclasses.att_8w_nrclasses
-            FROM classes cla
-            LEFT JOIN
-                ( SELECT id,
-                         classes_id,
-                         ClassDate,
-                         Status,
-                         Description,
-                         school_locations_id,
-                         school_appointments_id,
-                         Starttime,
-                         Endtime,
-                         auth_teacher_id,
-                         teacher_role,
-                         auth_teacher_id2,
-                         teacher_role2,
-                         Maxstudents,
-                         MaxOnlinebooking
-                  FROM classes_otc
-                  WHERE ClassDate = '{class_date}' ) sotc
-            ON cla.id = sotc.classes_id            
-            LEFT JOIN
-                    ( SELECT classes_id, COUNT(*) as att_4w
-                      FROM classes_attendance
-                      WHERE classes_attendance.Classdate <  '{class_date}' AND
-                            classes_attendance.Classdate >= '{one_month_ago}'
-                      GROUP BY classes_id
-                    ) clatt_4w_ago
-                    ON clatt_4w_ago.classes_id = cla.id
-                LEFT JOIN
-                    ( SELECT classes_id, COUNT(DISTINCT ClassDate) as att_4w_nrclasses
-                      FROM classes_attendance
-                      WHERE classes_attendance.Classdate <  '{class_date}' AND
-                            classes_attendance.Classdate >= '{one_month_ago}'
-                      GROUP BY classes_id
-                    ) clatt_4w_nrclasses
-                    ON clatt_4w_nrclasses.classes_id = cla.id
-                LEFT JOIN
-                    ( SELECT classes_id, COUNT(*) as att_8w
-                      FROM classes_attendance
-                      WHERE classes_attendance.Classdate <  '{one_month_ago}' AND
-                            classes_attendance.Classdate >= '{two_months_ago}'
-                      GROUP BY classes_id
-                    ) clatt_8w_ago
-                    ON clatt_8w_ago.classes_id = cla.id
-                LEFT JOIN
-                    ( SELECT classes_id, COUNT(DISTINCT ClassDate) as att_8w_nrclasses
-                      FROM classes_attendance
-                      WHERE classes_attendance.Classdate <  '{one_month_ago}' AND
-                            classes_attendance.Classdate >= '{two_months_ago}'
-                      GROUP BY classes_id
-                    ) clatt_8w_nrclasses
-                    ON clatt_8w_nrclasses.classes_id = cla.id
-            WHERE cla.Week_day = '{week_day}' AND
-                  cla.Startdate <= '{class_date}' AND
-                  (cla.Enddate >= '{class_date}' OR cla.Enddate IS NULL)
-            """.format(class_date=self.date,
-                       week_day=weekday,
-                       one_month_ago=one_month_ago,
-                       two_months_ago=two_months_ago)
-
-        rows = db.executesql(query, fields=fields)
-
-        data = {}
-
-        trend_medium = self.trend_medium
-        trend_high = self.trend_high
-
-        for row in rows:
-            classes_4w = row.classes_schedule_count.NRClasses4WeeksAgo or 0
-            attendance_4w = row.classes_schedule_count.Attendance4WeeksAgo or 0
-            avg_4w_ago = average(attendance_4w, classes_4w)
-            classes_8w = row.classes_schedule_count.NRClasses8WeeksAgo or 0
-            attendance_8w = row.classes_schedule_count.Attendance8WeeksAgo or 0
-            avg_8w_ago = average(attendance_8w, classes_8w)
-
-            div = DIV()
-
-            display_class = ''
-            capacity = ''
-
-            try:
-                avg_att_4w_percentage = (avg_4w_ago / row.classes.Maxstudents) * 100
-            except ZeroDivisionError:
-                avg_att_4w_percentage = 0
-            avg_att_4w_percentage_display = round(avg_att_4w_percentage, 2)
-
-            class_trend_text_color = 'grey'
-            if trend_medium:
-                capacity = ' - ' + T('Capacity filled: ') + unicode(avg_att_4w_percentage_display) + '%'
-                if avg_att_4w_percentage < trend_medium:
-                    class_trend_text_color = 'text-red'
-                else:
-                    class_trend_text_color = 'text-yellow'
-            if trend_high:
-                capacity = ' - ' + T('Capacity filled: ') + unicode(avg_att_4w_percentage_display) + '%'
-                if avg_att_4w_percentage >= trend_high:
-                    class_trend_text_color = 'text-green'
-
-            avg_4w_ago_display = DIV(SPAN(int(avg_4w_ago), '/', row.classes.Maxstudents),
-                                     _title=T("Average attendance past 4 weeks") + ' ' + capacity,
-                                     _class='os-trend_avg_4_weeks inline-block ' + class_trend_text_color)
-            try:
-                if avg_4w_ago >= avg_8w_ago:
-                    # calculate percentual increase
-                    increase = avg_4w_ago - avg_8w_ago
-                    value = int(round(float(increase / avg_8w_ago) * 100))
-                    value = unicode(value) + '%'
-                    div = DIV(avg_4w_ago_display, ' ',
-                              DIV(_class='os-trend_arrow_up'),
-                              SPAN(value, _title=T('Increase during past 4 weeks, compared to 8 weeks ago')),
-                              ' ',
-                              SPAN(_class='icon user icon-user'))
-                else:
-                    # calculate percentual decrease
-                    decrease = avg_8w_ago - avg_4w_ago
-                    value = int(round(float(decrease / avg_8w_ago) * 100))
-                    value = unicode(value) + '%'
-                    div = DIV(avg_4w_ago_display, ' ',
-                              DIV(_class='os-trend_arrow_down'),
-                              SPAN(value, _title=T('Decrease during past 4 weeks, compared to 8 weeks ago')),
-                              ' ',
-                              SPAN(_class='icon user icon-user'))
-
-            except ZeroDivisionError:
-                div = ''
-
-            data[row.classes.id] = div
-
-        return data
-
-
-    def _get_day_get_table_class_trend(self):
-        """
-            Generates a div that contains the trend for a class.
-            Look at past 4 weeks and compare to the classes before it.
-            Take cancelled classes & into account by not counting a class
-            when it's date doesn't appear in classes_attendance
-        """
-        web2pytest = current.globalenv['web2pytest']
-        request = current.request
-        auth = current.auth
-        T = current.T
-
-        # get attendance data from cache or db
-
-        # Don't cache when running tests
-        if web2pytest.is_running_under_test(request, request.application):
-            data = self._get_day_get_table_class_trend_data()
-        else:
-            twelve_hours = 12*60*60
-            cache = current.cache
-            DATE_FORMAT = current.DATE_FORMAT
-            # A key that isn't cleared when schedule changes occur.
-            cache_key = 'openstudio_classschedule_trend_get_day_table_' + \
-                        self.date.strftime(DATE_FORMAT)
-
-            data = cache.ram(cache_key , lambda: self._get_day_get_table_class_trend_data(), time_expire=twelve_hours)
-
-        return data
 
 
     def _get_day_get_table_get_permissions(self):
@@ -374,8 +125,8 @@ class AppointmentSchedule:
            auth.has_permission('read', 'classes_revenue'):
             permissions['classes_revenue'] = True
         if auth.has_membership(group_id='Admins') or \
-           auth.has_permission('create', 'classes_otc'):
-            permissions['classes_otc'] = True
+           auth.has_permission('create', 'schedule_otc'):
+            permissions['schedule_otc'] = True
         if auth.has_membership(group_id='Admins') or \
            auth.has_permission('update', 'classes'):
             permissions['classes'] = True
@@ -426,7 +177,7 @@ class AppointmentSchedule:
                 A(os_gui.get_fa_icon('fa-usd'), T('Revenue'),
                   _href=URL('revenue', vars=vars)))
         # check permissions to change this class
-        if permissions.get('classes_otc', False):
+        if permissions.get('schedule_otc', False):
             links.append(A(os_gui.get_fa_icon('fa-pencil'),
                            T('Edit'),
                            _href=URL('class_edit_on_date', vars=vars)))
@@ -512,15 +263,15 @@ class AppointmentSchedule:
         if row.classes_teachers.teacher_role == 1:
             class_messages.append(T('Subteacher'))
 
-        if row.classes_otc.Status == 'cancelled':
+        if row.schedule_otc.Status == 'cancelled':
             class_messages.append(T('Cancelled'))
 
-        if row.classes_otc.Status == 'open':
+        if row.schedule_otc.Status == 'open':
             class_messages.append(T('Open'))
 
-        classes_otc_update_permission = auth.has_membership(group_id='Admins') or \
-                                        auth.has_permission('update', 'classes_otc')
-        if row.classes_otc.id and classes_otc_update_permission:
+        schedule_otc_update_permission = auth.has_membership(group_id='Admins') or \
+                                        auth.has_permission('update', 'schedule_otc')
+        if row.schedule_otc.id and schedule_otc_update_permission:
             _class = os_gui.get_icon('pencil') + ' grey'
             class_messages.append(
                 A(SPAN(SPAN(_class=_class), ' ', T('Edited')),
@@ -528,8 +279,8 @@ class AppointmentSchedule:
                             vars={'clsID': clsID,
                                   'date': date_formatted})))
 
-            if row.classes_otc.Description:
-                class_messages.append(row.classes_otc.Description)
+            if row.schedule_otc.Description:
+                class_messages.append(row.schedule_otc.Description)
 
         num_messages = len(class_messages)
         msgs = SPAN()
@@ -568,7 +319,7 @@ class AppointmentSchedule:
         dt_end = local_tz.localize(dt_end)
 
         status = 'finished'
-        if row.classes_otc.Status == 'cancelled' or row.school_holidays.id:
+        if row.schedule_otc.Status == 'cancelled' or row.school_holidays.id:
             status = 'cancelled'
         elif dt_start <= NOW_LOCAL and dt_end >= NOW_LOCAL:
             # check start time
@@ -637,8 +388,8 @@ class AppointmentSchedule:
 
         fields = [
             db.classes.id,
-            db.classes_otc.Status,
-            db.classes_otc.Description,
+            db.schedule_otc.Status,
+            db.schedule_otc.Description,
             db.classes.school_locations_id,
             db.school_locations.Name,
             db.classes.school_appointments_id,
@@ -653,7 +404,7 @@ class AppointmentSchedule:
             db.classes.MaxReservationsRecurring,
             db.classes.AllowAPI,
             db.classes.sys_organizations_id,
-            db.classes_otc.id,
+            db.schedule_otc.id,
             db.classes_teachers.id,
             db.classes_teachers.auth_teacher_id,
             db.classes_teachers.teacher_role,
@@ -768,7 +519,7 @@ class AppointmentSchedule:
                      teacher_role2,
                      Maxstudents,
                      MaxOnlinebooking
-              FROM classes_otc
+              FROM schedule_otc
               WHERE ClassDate = '{class_date}' ) sotc
             ON cla.id = sotc.classes_id
         LEFT JOIN school_locations sl
@@ -1028,7 +779,7 @@ class AppointmentSchedule:
             cancelled_description = ''
             if status == 'cancelled':
                 cancelled = True
-                cancelled_description = row.classes_otc.Description
+                cancelled_description = row.schedule_otc.Description
 
             subteacher = False
             if ( row.classes_teachers.teacher_role == 1 or
