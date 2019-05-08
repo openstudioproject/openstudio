@@ -2195,6 +2195,11 @@ def define_schedule():
               represent=lambda value, row: value.strftime('%H:%M') if value else '',
               widget=os_time_widget,
               label=T("End")),
+        Field('AllowAPI', 'boolean',
+            default=False,
+            label=T("Public"),
+            comment=T("When the API is in use, this checkbox defines whether \
+                an item is passed to the website.")),
     )
 
 
