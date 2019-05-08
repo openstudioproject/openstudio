@@ -110,9 +110,6 @@ class AppointmentSchedule:
         permissions = {}
 
         if auth.has_membership(group_id='Admins') or \
-           auth.has_permission('read', 'classes_attendance'):
-            permissions['classes_attendance'] = True
-        if auth.has_membership(group_id='Admins') or \
            auth.has_permission('read', 'classes_reservation'):
             permissions['classes_reservation'] = True
         if auth.has_membership(group_id='Admins') or \
@@ -131,8 +128,8 @@ class AppointmentSchedule:
            auth.has_permission('update', 'classes'):
             permissions['classes'] = True
         if auth.has_membership(group_id='Admins') or \
-           auth.has_permission('delete', 'classes'):
-            permissions['classes_delete'] = True
+           auth.has_permission('delete', 'appointments'):
+            permissions['appointments_delete'] = True
 
         return permissions
 
