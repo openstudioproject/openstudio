@@ -52,35 +52,32 @@ class AppointmentSchedule:
         where = ''
 
         if self.filter_id_teacher:
-            where += 'AND ((CASE WHEN cotc.auth_teacher_id IS NULL \
+            where += 'AND ((CASE WHEN sotc.auth_teacher_id IS NULL \
                             THEN clt.auth_teacher_id  \
-                            ELSE cotc.auth_teacher_id END) = '
+                            ELSE sotc.auth_teacher_id END) = '
             where += unicode(self.filter_id_teacher) + ' '
-            where += 'OR (CASE WHEN cotc.auth_teacher_id2 IS NULL \
+            where += 'OR (CASE WHEN sotc.auth_teacher_id2 IS NULL \
                           THEN clt.auth_teacher_id2  \
-                          ELSE cotc.auth_teacher_id2 END) = '
+                          ELSE sotc.auth_teacher_id2 END) = '
             where += unicode(self.filter_id_teacher) + ') '
         if self.filter_id_school_appointment:
-            where += 'AND (CASE WHEN cotc.school_classtypes_id IS NULL \
-                           THEN cla.school_classtypes_id  \
-                           ELSE cotc.school_classtypes_id END) = '
+            where += 'AND (CASE WHEN sotc.school_appointments_id IS NULL \
+                           THEN cla.school_appointments_id  \
+                           ELSE sotc.school_appointments_id END) = '
             where += unicode(self.filter_id_school_appointment) + ' '
         if self.filter_id_school_location:
-            where += 'AND (CASE WHEN cotc.school_locations_id IS NULL \
+            where += 'AND (CASE WHEN sotc.school_locations_id IS NULL \
                            THEN cla.school_locations_id  \
-                           ELSE cotc.school_locations_id END) = '
+                           ELSE sotc.school_locations_id END) = '
             where += unicode(self.filter_id_school_location) + ' '
-        if self.filter_id_school_level:
-            where += 'AND cla.school_levels_id = '
-            where += unicode(self.filter_id_school_level) + ' '
         if self.filter_public:
-            where += "AND cla.AllowAPI = 'T' "
+            where += "AND s.AllowAPI = 'T' "
             where += "AND sl.AllowAPI = 'T' "
             where += "AND sct.AllowAPI = 'T' "
         if self.filter_starttime_from:
-            where += 'AND ((CASE WHEN cotc.Starttime IS NULL \
+            where += 'AND ((CASE WHEN sotc.Starttime IS NULL \
                             THEN cla.Starttime  \
-                            ELSE cotc.Starttime END) >= '
+                            ELSE sotc.Starttime END) >= '
             where += "'" + unicode(self.filter_starttime_from) + "') "
 
         return where
@@ -185,8 +182,8 @@ class AppointmentSchedule:
 
         query = """
             SELECT cla.id,
-                   CASE WHEN cotc.Maxstudents IS NOT NULL
-                        THEN cotc.Maxstudents
+                   CASE WHEN sotc.Maxstudents IS NOT NULL
+                        THEN sotc.Maxstudents
                         ELSE cla.Maxstudents
                         END AS Maxstudents, 
                    clatt_4w_ago.att_4w,
@@ -201,7 +198,7 @@ class AppointmentSchedule:
                          Status,
                          Description,
                          school_locations_id,
-                         school_classtypes_id,
+                         school_appointments_id,
                          Starttime,
                          Endtime,
                          auth_teacher_id,
@@ -211,8 +208,8 @@ class AppointmentSchedule:
                          Maxstudents,
                          MaxOnlinebooking
                   FROM classes_otc
-                  WHERE ClassDate = '{class_date}' ) cotc
-            ON cla.id = cotc.classes_id            
+                  WHERE ClassDate = '{class_date}' ) sotc
+            ON cla.id = sotc.classes_id            
             LEFT JOIN
                     ( SELECT classes_id, COUNT(*) as att_4w
                       FROM classes_attendance
@@ -644,7 +641,7 @@ class AppointmentSchedule:
             db.classes_otc.Description,
             db.classes.school_locations_id,
             db.school_locations.Name,
-            db.classes.school_classtypes_id,
+            db.classes.school_appointments_id,
             db.classes.school_levels_id,
             db.classes.Week_day,
             db.classes.Starttime,
@@ -673,62 +670,62 @@ class AppointmentSchedule:
 
         query = """
         SELECT cla.id,
-               CASE WHEN cotc.Status IS NOT NULL
-                    THEN cotc.Status
+               CASE WHEN sotc.Status IS NOT NULL
+                    THEN sotc.Status
                     ELSE 'normal'
                     END AS Status,
-               cotc.Description,
-               CASE WHEN cotc.school_locations_id IS NOT NULL
-                    THEN cotc.school_locations_id
+               sotc.Description,
+               CASE WHEN sotc.school_locations_id IS NOT NULL
+                    THEN sotc.school_locations_id
                     ELSE cla.school_locations_id
                     END AS school_locations_id,
-               CASE WHEN cotc.school_locations_id IS NOT NULL
-                    THEN slcotc.Name
+               CASE WHEN sotc.school_locations_id IS NOT NULL
+                    THEN slsotc.Name
                     ELSE sl.Name
                     END AS location_name,
-               CASE WHEN cotc.school_classtypes_id IS NOT NULL
-                    THEN cotc.school_classtypes_id
-                    ELSE cla.school_classtypes_id
-                    END AS school_classtypes_id,
+               CASE WHEN sotc.school_appointments_id IS NOT NULL
+                    THEN sotc.school_appointments_id
+                    ELSE cla.school_appointments_id
+                    END AS school_appointments_id,
                cla.school_levels_id,
                cla.Week_day,
-               CASE WHEN cotc.Starttime IS NOT NULL
-                    THEN cotc.Starttime
+               CASE WHEN sotc.Starttime IS NOT NULL
+                    THEN sotc.Starttime
                     ELSE cla.Starttime
                     END AS Starttime,
-               CASE WHEN cotc.Endtime IS NOT NULL
-                    THEN cotc.Endtime
+               CASE WHEN sotc.Endtime IS NOT NULL
+                    THEN sotc.Endtime
                     ELSE cla.Endtime
                     END AS Endtime,
                cla.Startdate,
                cla.Enddate,
-               CASE WHEN cotc.Maxstudents IS NOT NULL
-                    THEN cotc.Maxstudents
+               CASE WHEN sotc.Maxstudents IS NOT NULL
+                    THEN sotc.Maxstudents
                     ELSE cla.Maxstudents
                     END AS Maxstudents, 
-               CASE WHEN cotc.MaxOnlineBooking IS NOT NULL
-                    THEN cotc.MaxOnlineBooking
+               CASE WHEN sotc.MaxOnlineBooking IS NOT NULL
+                    THEN sotc.MaxOnlineBooking
                     ELSE cla.MaxOnlineBooking
                     END AS MaxOnlineBooking,
                cla.MaxReservationsRecurring,             
                cla.AllowAPI,
                cla.sys_organizations_id,
-               cotc.id,
+               sotc.id,
                clt.id,
-               CASE WHEN cotc.auth_teacher_id IS NOT NULL
-                    THEN cotc.auth_teacher_id
+               CASE WHEN sotc.auth_teacher_id IS NOT NULL
+                    THEN sotc.auth_teacher_id
                     ELSE clt.auth_teacher_id
                     END AS auth_teacher_id,
-               CASE WHEN cotc.auth_teacher_id IS NOT NULL
-                    THEN cotc.teacher_role
+               CASE WHEN sotc.auth_teacher_id IS NOT NULL
+                    THEN sotc.teacher_role
                     ELSE clt.teacher_role
                     END AS teacher_role,
-               CASE WHEN cotc.auth_teacher_id2 IS NOT NULL
-                    THEN cotc.auth_teacher_id2
+               CASE WHEN sotc.auth_teacher_id2 IS NOT NULL
+                    THEN sotc.auth_teacher_id2
                     ELSE clt.auth_teacher_id2
                     END AS auth_teacher_id2,
-               CASE WHEN cotc.auth_teacher_id2 IS NOT NULL
-                    THEN cotc.teacher_role2
+               CASE WHEN sotc.auth_teacher_id2 IS NOT NULL
+                    THEN sotc.teacher_role2
                     ELSE clt.teacher_role2
                     END AS teacher_role2,
                sho.id,
@@ -762,7 +759,7 @@ class AppointmentSchedule:
                      Status,
                      Description,
                      school_locations_id,
-                     school_classtypes_id,
+                     school_appointments_id,
                      Starttime,
                      Endtime,
                      auth_teacher_id,
@@ -772,14 +769,14 @@ class AppointmentSchedule:
                      Maxstudents,
                      MaxOnlinebooking
               FROM classes_otc
-              WHERE ClassDate = '{class_date}' ) cotc
-            ON cla.id = cotc.classes_id
+              WHERE ClassDate = '{class_date}' ) sotc
+            ON cla.id = sotc.classes_id
         LEFT JOIN school_locations sl
             ON sl.id = cla.school_locations_id
-        LEFT JOIN school_classtypes sct
-            ON sct.id = cla.school_classtypes_id
-		LEFT JOIN school_locations slcotc
-			ON slcotc.id = cotc.school_locations_id
+        LEFT JOIN school_appointments sct
+            ON sct.id = cla.school_appointments_id
+		LEFT JOIN school_locations slsotc
+			ON slsotc.id = sotc.school_locations_id
         LEFT JOIN
             ( SELECT id,
                      classes_id,
@@ -919,7 +916,7 @@ class AppointmentSchedule:
                 row_class = TR(
                     TD(status_marker),
                     TD(max_string_length(repr_row.classes.school_locations_id, 16)),
-                    TD(max_string_length(repr_row.classes.school_classtypes_id, 24)),
+                    TD(max_string_length(repr_row.classes.school_appointments_id, 24)),
                     TD(SPAN(repr_row.classes.Starttime, ' - ', repr_row.classes.Endtime)),
                     TD(teacher if (not status == 'open' and
                                    not row.classes_teachers.auth_teacher_id is None) \
@@ -1054,8 +1051,8 @@ class AppointmentSchedule:
             data['time_starttime'] = row.classes.Starttime
             data['Endtime'] = repr_row.classes.Endtime
             data['time_endtime'] = row.classes.Endtime
-            data['ClassTypeID'] = row.classes.school_classtypes_id
-            data['ClassType'] = repr_row.classes.school_classtypes_id
+            data['ClassTypeID'] = row.classes.school_appointments_id
+            data['ClassType'] = repr_row.classes.school_appointments_id
             data['TeacherID'] = teacher_id
             data['TeacherID2'] = teacher_id2
             data['Teacher'] = teacher

@@ -2203,6 +2203,55 @@ def define_schedule():
     )
 
 
+def define_schedule_otc():
+    """
+        Define one time change table for schedule
+    """
+    loc_query = (db.school_locations.Archived == False)
+
+    statuses = [['normal', T('Normal')],
+                ['cancelled', T('Cancelled')]]
+
+    db.define_table('schedule_otc',
+        Field('schedule_id', db.schedule,
+            readable=False,
+            writable=False),
+        Field('ScheduleDate', 'date', required=True,
+            readable=False,
+            writable=False,
+            requires=IS_DATE_IN_RANGE(format=DATE_FORMAT,
+                                      minimum=datetime.date(1900, 1, 1),
+                                      maximum=datetime.date(2999, 1, 1)),
+            represent=represent_date,
+            label=T("Schedule date"),
+            widget=os_datepicker_widget),
+        Field('Status',
+            requires=IS_EMPTY_OR(IS_IN_SET(statuses)),
+            label=T('Status')),
+        Field('Description',
+            label=T('Description')),
+        Field('school_locations_id', db.school_locations,
+            requires=IS_EMPTY_OR(
+                IS_IN_DB(db(loc_query),
+                         'school_locations.id',
+                         '%(Name)s',
+                         zero=T(""))),
+            represent=lambda value, row: locations_dict.get(value, T("No location")),
+            label=T("Location")),
+        Field('Starttime', 'time',
+            requires=IS_EMPTY_OR(IS_TIME(error_message='please insert as HH:MM')),
+            represent=lambda value, row: value.strftime('%H:%M') if value else '',
+            widget=os_time_widget,
+            label=T("Start")),
+        Field('Endtime', 'time',
+            requires=IS_EMPTY_OR(IS_TIME(error_message='please insert as HH:MM')),
+            represent=lambda value, row: value.strftime('%H:%M') if value else '',
+            widget=os_time_widget,
+            label=T("End")),
+    )
+
+
+
 
 def define_classes():
     weekdays = [('1',T('Monday')),
