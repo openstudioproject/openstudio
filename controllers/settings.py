@@ -1455,7 +1455,9 @@ def access_group_permissions():
     ]
 
     appointment_permissions = [
-        ['appointments-read', T("Schedule")]
+        ['appointments-read', T("Schedule"), [
+            ['appointments-create', T("Add appointments to the schedule")],
+        ]]
     ]
 
     staff_permissions = [

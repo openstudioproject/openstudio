@@ -51,18 +51,13 @@ def index():
 
     # if we used the jump date box to select a week
     if 'appointments_date' in request.vars:
-        jump_date = datestr_to_python(DATE_FORMAT,
+        appointments_date = datestr_to_python(DATE_FORMAT,
                                       request.vars['appointments_date'])
-        jump_date_iso = jump_date.isocalendar()
-        year = jump_date_iso[0]
-        week = jump_date_iso[1]
-        session.schedule_year = year
-        session.schedule_week = week
     else:
-        jump_date = datetime.date.today()
+        appointments_date = TODAY_LOCAL
 
     # jump to date
-    form_jump = schedule_get_form_jump(jump_date)
+    form_date = schedule_get_form_date(appointments_date)
 
     current_week = A(T('Current week'),
                      _href=URL('index_current_week'),
@@ -70,7 +65,7 @@ def index():
                      _id='index_current_week')
 
     # show schedule status
-    week_chooser = index_get_week_chooser()
+    # week_chooser = index_get_week_chooser()
 
     ## week selection end ##
 
@@ -83,7 +78,7 @@ def index():
         teacher = request.vars['teacher']
         appointment = request.vars['appointment']
         status = request.vars['status']
-        filter_form = schedule_get_filter_form(
+        filter_form = index_get_filter_form(
             request.vars['location'],
             request.vars['teacher'],
             request.vars['appointment']
@@ -92,13 +87,13 @@ def index():
         session.appointmetns_index_filter_teacher = teacher
         session.appointmetns_index_filter_appointment = appointment
     elif not session.appointmetns_index_filter_location is None:
-        filter_form = schedule_get_filter_form(
+        filter_form = index_get_filter_form(
             session.appointmetns_index_filter_location,
             session.appointmetns_index_filter_teacher,
             session.appointmetns_index_filter_appointment
         )
     else:
-        filter_form = schedule_get_filter_form()
+        filter_form = index_get_filter_form()
         session.appointmetns_index_filter_location = None
         session.appointmetns_index_filter_teacher = None
         session.appointmetns_index_filter_appointment = None
@@ -111,18 +106,10 @@ def index():
     db.classes.Week_day.readable = False
     db.classes.Maxstudents.readable = False
 
-    # Get trend percentages here, so they don't have to be loaded for each day, if permission is granted
-    trend_medium = ''
-    trend_high = ''
-    if (auth.has_membership(group_id='Admins') or
-        auth.has_permission('read', 'classes_schedule_set_trend_precentages')):
-        trend_medium = get_sys_property('classes_schedule_trend_medium', int)
-        trend_high = get_sys_property('classes_schedule_trend_high', int)
-
     # Get classes for days
     days = dict()
     for day in range(1, 8):
-        days[day] = get_day(day, trend_medium, trend_high)
+        days[day] = get_day(day)
 
     overlapping_workshops = ''
     if ( auth.has_membership(group_id='Admins') or
@@ -134,36 +121,35 @@ def index():
                  content=''),
         _class='inline-block pull-right')
 
-    schedule_tools = schedule_get_schedule_tools()
-    export = schedule_get_export()
+    # schedule_tools = schedule_get_schedule_tools()
+    # export = schedule_get_export()
 
     # add new class
     add = ''
     permission = auth.has_membership(group_id='Admins') or \
-                 auth.has_permission('create', 'classes')
+                 auth.has_permission('create', 'appointments')
 
     if permission:
-        add = os_gui.get_button('add',
-                URL('class_add'),
-                tooltip=T("Add a new class"),
-                _class='pull-right')
+        add = os_gui.get_button(
+            'add',
+            URL('appointment_add'),
+            tooltip=T("Add a new appointment"),
+            _class='pull-right'
+        )
 
 
     return dict(filter_form=filter_form,
                 year=year,
                 title=title,
                 add=add,
-                schedule_tools=schedule_tools,
-                export=export,
-                overlapping_workshops=overlapping_workshops,
+                # schedule_tools=schedule_tools,
+                # export=export,
                 days=days,
                 schedule_status=schedule_status,
-                week_chooser=week_chooser,
+                # week_chooser=week_chooser,
                 current_week=current_week,
                 day_chooser=day_chooser,
-                form_jump=form_jump,
-                form_week=form_week,
-                form_year=form_year,
+                form_date=form_date,
                 )
 
 
@@ -177,35 +163,35 @@ def schedule_get_query(weekday, date):
             (db.classes.Enddate == None)) # can't use is here, query doesn't work
 
 
-def schedule_get_form_jump(jump_date):
+def schedule_get_form_date(appointments_date):
     """
         Returns a form to jump to a date
     """
-    form_jump = SQLFORM.factory(
+    form_date = SQLFORM.factory(
                 Field('appointments_date', 'date',
                       requires=IS_DATE_IN_RANGE(
                                 format=DATE_FORMAT,
                                 minimum=datetime.date(1900,1,1),
                                 maximum=datetime.date(2999,1,1)),
-                      default=jump_date,
+                      default=appointments_date,
                       label=T(""),
                       widget=os_datepicker_widget_small),
                 submit_button=T('Go'),
                 )
 
-    submit_jump = form_jump.element('input[type=submit]')
+    submit_jump = form_date.element('input[type=submit]')
     submit_jump['_class'] = 'full-width'
 
-    form_jump = DIV(form_jump.custom.begin,
-                    DIV(form_jump.custom.widget.appointments_date,
-                        DIV(form_jump.custom.submit,
+    form_date = DIV(form_date.custom.begin,
+                    DIV(form_date.custom.widget.appointments_date,
+                        DIV(form_date.custom.submit,
                             _class='input-group-btn'),
                         _class='input-group'),
-                    form_jump.custom.end,
+                    form_date.custom.end,
                     _class='form_inline',
-                    _id='form_jump')
+                    _id='form_date')
 
-    return form_jump
+    return form_date
 
 
 def index_get_week_chooser(var=None):
@@ -340,7 +326,7 @@ def _schedule_clear_filter():
     redirect(URL('schedule'))
 
 
-def schedule_get_filter_form(school_locations_id='',
+def index_get_filter_form(school_locations_id='',
                              teachers_id='',
                              school_appointment_id='',
                              school_levels_id='',
