@@ -1451,7 +1451,12 @@ def access_group_permissions():
             ['schedule_set_default_sort-update', T('Set default sorting of classes')],
             ['classes_schedule_set_trend_precentages-read', T('View trend colors'), [
                 ['classes_schedule_set_trend_precentages-update', T('Set trend color percentages')]]],
-        ]]]
+        ]],
+    ]
+
+    appointment_permissions = [
+        ['appointments-read', T("Schedule")]
+    ]
 
     staff_permissions = [
         ['shifts-read', T("Schedule"), [
@@ -1658,6 +1663,7 @@ def access_group_permissions():
                         [tasks_permissions, 'tasks'],
                         [customers_permissions, 'customers'],
                         [schedule_permissions, 'schedule'],
+                        [appointment_permissions, 'appointment'],
                         [staff_permissions, 'staff'],
                         [workshops_permissions, 'events'],
                         [school_permissions, 'school'],
@@ -1718,6 +1724,7 @@ def access_group_permissions():
                   ['tasks', T('Tasks'), False],
                   ['customers', T('Customers'), False],
                   ['schedule', T('Classes'), False],
+                  ['appointment', T('Appointments'), False],
                   ['staff', T('Studio staff'), False],
                   ['events', T('Events'), False],
                   ['school', T('School'), False],
