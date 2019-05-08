@@ -17,9 +17,9 @@ def index():
 
         cs = ClassSchedule(
             date,
-            filter_id_school_appointment = session.appointmetns_index_filter_appointment,
-            filter_id_school_location = session.appointmetns_index_filter_location,
-            filter_id_teacher = session.appointmetns_index_filter_teacher,
+            filter_id_school_appointment = session.appointments_index_filter_appointment,
+            filter_id_school_location = session.appointments_index_filter_location,
+            filter_id_teacher = session.appointments_index_filter_teacher,
             sorting = session.appointments_index_sort
         )
 
@@ -83,20 +83,20 @@ def index():
             request.vars['teacher'],
             request.vars['appointment']
         )
-        session.appointmetns_index_filter_location = location
-        session.appointmetns_index_filter_teacher = teacher
-        session.appointmetns_index_filter_appointment = appointment
-    elif not session.appointmetns_index_filter_location is None:
+        session.appointments_index_filter_location = location
+        session.appointments_index_filter_teacher = teacher
+        session.appointments_index_filter_appointment = appointment
+    elif not session.appointments_index_filter_location is None:
         filter_form = index_get_filter_form(
-            session.appointmetns_index_filter_location,
-            session.appointmetns_index_filter_teacher,
-            session.appointmetns_index_filter_appointment
+            session.appointments_index_filter_location,
+            session.appointments_index_filter_teacher,
+            session.appointments_index_filter_appointment
         )
     else:
         filter_form = index_get_filter_form()
-        session.appointmetns_index_filter_location = None
-        session.appointmetns_index_filter_teacher = None
-        session.appointmetns_index_filter_appointment = None
+        session.appointments_index_filter_location = None
+        session.appointments_index_filter_teacher = None
+        session.appointments_index_filter_appointment = None
 
     title = T('Appointments')
     response.title = T('Appointments')
@@ -315,11 +315,11 @@ def index_current_week():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'classes'))
 def _schedule_clear_filter():
-    session.appointmetns_index_filter_location = None
-    session.appointmetns_index_filter_teacher = None
-    session.appointmetns_index_filter_appointment = None
-    session.appointmetns_index_filter_level = None
-    session.appointmetns_index_filter_status = None
+    session.appointments_index_filter_location = None
+    session.appointments_index_filter_teacher = None
+    session.appointments_index_filter_appointment = None
+    session.appointments_index_filter_level = None
+    session.appointments_index_filter_status = None
 
     #cache_clear_classschedule()
 
@@ -332,9 +332,8 @@ def index_get_filter_form(school_locations_id='',
                              school_levels_id='',
                              status=''):
 
-    ct_query = (db.school_appointment.Archived == False)
+    sa_query = (db.school_appointments.Archived == False)
     slo_query = (db.school_locations.Archived == False)
-    sle_query = (db.school_levels.Archived == False)
 
     au_query = (db.auth_user.teacher == True) & \
                (db.auth_user.trashed == False)
@@ -352,20 +351,10 @@ def index_get_filter_form(school_locations_id='',
             default=teachers_id,
             label=""),
         Field('appointment',
-            requires=IS_IN_DB(db(ct_query),'school_appointment.id', '%(Name)s',
-                              zero=T('All appointments')),
+            requires=IS_IN_DB(db(sa_query),'school_appointments.id', '%(Name)s',
+                              zero=T('All appointment types')),
             default=school_appointment_id,
             label=""),
-        Field('level',
-            requires=IS_IN_DB(db(sle_query),'school_levels.id', '%(Name)s',
-                              zero=T('All levels')),
-            default=school_levels_id,
-            label=""),
-        Field('status',
-            requires=IS_IN_SET(session.class_status,
-                               zero=T('All statuses')),
-            default=status,
-            label=''),
         submit_button=T('Filter'),
         formstyle='divs',
         )
@@ -382,19 +371,15 @@ def index_get_filter_form(school_locations_id='',
     div = DIV(
         form.custom.begin,
         DIV(form.custom.widget.location,
-            _class='col-md-2'),
+            _class='col-md-3'),
         DIV(form.custom.widget.teacher,
-            _class='col-md-2'),
+            _class='col-md-3'),
         DIV(form.custom.widget.appointment,
-            _class='col-md-2'),
-        DIV(form.custom.widget.level,
-            _class='col-md-2'),
-        DIV(form.custom.widget.status,
-            _class='col-md-2'),
+            _class='col-md-3'),
         DIV(DIV(form.custom.submit,
                 clear,
                 _class="pull-right"),
-            _class='col-md-2'),
+            _class='col-md-3'),
         form.custom.end,
         _id="schedule_filter_form")
 
