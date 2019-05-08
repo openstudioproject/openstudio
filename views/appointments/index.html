@@ -1,0 +1,63 @@
+{{extend 'layout.html'}}
+
+{{block header}}
+{{end}}
+
+<div id="sticky-anchor"></div>
+<div class="box box-primary" id="schedule_toolbox">
+    <div class="box-body">
+    </div>
+</div>
+
+<!--
+<span class="grey">{{=T('Sort by ')}}</span>
+<a class="grey" href="{{=URL(vars={'sort':'location'})}}" title="{{=T('Sort classes by location')}}"><i class="fa fa-home"> </i></a> 
+<a class="grey" href="{{=URL(vars={'sort':'starttime'})}}" title="{{=T('Sort classes by start time')}}"><i class="fa fa-clock-o"> </i></a>
+-->
+
+
+<div class="row">
+    <div id='classes_schedule' class='col-md-12'>
+        {{for day in range(1, 8):}}
+            <a id="{{=days[day]['weekday']}}" class="schedule_weekday_anchor"></a>
+            <h3>{{=days[day]['weekday']}} <small>{{=days[day]['date']}}</small></h3>
+            <div class="box box-primary">
+                <div class="box-body">
+                    {{=days[day]['table']}}
+                </div>
+            </div>
+        {{pass}}
+    </div>
+</div>
+
+
+<script src={{=URL('static', 'plugin_os-js/general/os-schedule_tools.js')}}></script>
+
+<script>
+$(document).on('click', '.schedule_day_chooser a', function(event){
+    event.preventDefault();
+
+    $('html, body').animate({
+        scrollTop: $( $.attr(this, 'href') ).offset().top - 108
+    }, 500);
+});
+
+function sticky_relocate() {
+    var window_top = $(window).scrollTop();
+    var div_top = $('#sticky-anchor').offset().top;
+    if (window_top > div_top) {
+        $('#schedule_toolbox').addClass('stick');
+        
+        $('#sticky-anchor').height($('#schedule_toolbox').outerHeight());
+    } else {
+        $('#schedule_toolbox').removeClass('stick');
+        
+        $('#sticky-anchor').height(0);
+    }
+}
+
+$(function() {
+    $(window).scroll(sticky_relocate);
+    sticky_relocate();
+});
+</script>
