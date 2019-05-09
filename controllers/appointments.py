@@ -64,10 +64,10 @@ def index():
     print '######## form date:'
     print form_date
 
-    current_week = A(T('Current week'),
-                     _href=URL('index_current_week'),
+    goto_today = A(T('Today'),
+                     _href=URL('index_today'),
                      _class='btn btn-default full-width input-margins',
-                     _id='index_current_week')
+                     _id='index_today')
 
     # show schedule status
     # week_chooser = index_get_week_chooser()
@@ -141,7 +141,7 @@ def index():
                 # export=export,
                 days=days,
                 # week_chooser=week_chooser,
-                current_week=current_week,
+                goto_today=goto_today,
                 # day_chooser=day_chooser,
                 form_date=form_date,
                 )
@@ -297,12 +297,13 @@ def schedule_get_export(var=None):
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'classes'))
-def index_current_week():
-    session.schedule_week = None
-    session.schedule_year = None
-
-    redirect(URL('schedule'))
+               auth.has_permission('read', 'appointments'))
+def index_today():
+    """
+    Reset date chooser for schedule
+    """
+    session.appointments_schedule_date = TODAY_LOCAL
+    redirect(URL('index'))
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
