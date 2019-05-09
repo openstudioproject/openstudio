@@ -503,7 +503,7 @@ class AppointmentSchedule:
                          TH(T('Class type'), _class='classtype'),
                          TH(T('Time'), _class='time'),
                          TH(T('Teacher'), _class='teacher'),
-                         TH(T('Level'), _class='level'),
+                         TH(T('Booked'), _class='level'),
                          TH(T('Public'), _class='api'),
                          TH(T('')),
                          _class='os-table_header'),
