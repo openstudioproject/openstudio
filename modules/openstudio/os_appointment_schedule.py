@@ -74,11 +74,6 @@ class AppointmentSchedule:
             where += "AND s.AllowAPI = 'T' "
             where += "AND sl.AllowAPI = 'T' "
             where += "AND sct.AllowAPI = 'T' "
-        if self.filter_starttime_from:
-            where += 'AND ((CASE WHEN sotc.Starttime IS NULL \
-                            THEN cla.Starttime  \
-                            ELSE sotc.Starttime END) >= '
-            where += "'" + unicode(self.filter_starttime_from) + "') "
 
         return where
 
@@ -425,7 +420,7 @@ class AppointmentSchedule:
                s.AllowAPI,
                sotc.id,
                sho.id,
-               sho.Description,
+               sho.Description
         FROM schedule s
         LEFT JOIN
             ( SELECT id,
@@ -435,26 +430,14 @@ class AppointmentSchedule:
                      Description,
                      school_locations_id,
                      Starttime,
-                     Endtime,
+                     Endtime
               FROM schedule_otc
-              WHERE ClassDate = '{schedule_date}' ) sotc
-            ON s.id = sotc.classes_id
+              WHERE ScheduleDate = '{schedule_date}' ) sotc
+            ON s.id = sotc.schedule_id
         LEFT JOIN school_locations sl
             ON sl.id = s.school_locations_id
 		LEFT JOIN school_locations slsotc
 			ON slsotc.id = sotc.school_locations_id
-        LEFT JOIN
-            ( SELECT id,
-                     classes_id,
-                     auth_teacher_id,
-                     teacher_role,
-                     auth_teacher_id2,
-                     teacher_role2
-              FROM classes_teachers
-              WHERE Startdate <= '{schedule_date}' AND (
-                    Enddate >= '{schedule_date}' OR Enddate IS NULL)
-              ) clt
-            ON clt.classes_id = s.id
         LEFT JOIN
             ( SELECT sh.id, sh.Description, shl.school_locations_id
               FROM school_holidays sh
@@ -465,17 +448,21 @@ class AppointmentSchedule:
                     sh.Enddate >= '{schedule_date}') sho
             ON sho.school_locations_id = s.school_locations_id
         WHERE s.ScheduleType = 'appointment' AND
-              s.Week_day = '{week_day}' AND
-              s.Startdate <= '{schedule_date}' AND
-              (s.Enddate >= '{schedule_date}' OR s.Enddate IS NULL)
+              (
+                (s.FrequencyType = 'weekly' AND 
+                 s.FrequencyInterval = {weekday} AND
+                 s.Startdate <= '{schedule_date}' AND
+                 (s.Enddate >= '{schedule_date}' OR s.Enddate IS NULL)) OR
+                (s.FrequencyType = 'specific' AND s.Startdate = '{schedule_date}')
+              )
               {where_filter}
         ORDER BY {orderby_sql}
         """.format(schedule_date = date,
-                   week_day = weekday,
+                   weekday = weekday,
                    orderby_sql = orderby_sql,
-                   where_filter = where_filter,
-                   one_month_ago = one_month_ago,
-                   two_months_ago = two_months_ago)
+                   where_filter = where_filter)
+
+        print query
 
         rows = db.executesql(query, fields=fields)
 
@@ -529,7 +516,7 @@ class AppointmentSchedule:
         rows = self.get_day_rows()
 
         if len(rows) == 0:
-            table = DIV(T("No classes found on this day"))
+            table = DIV(T("No appointments found on this day"))
         else:
             # Get trend column from cache
             trend_data = self._get_day_get_table_class_trend()

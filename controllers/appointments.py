@@ -114,15 +114,6 @@ def index():
     for day in range(0, 7):
         days[day] = get_day(day)
 
-    overlapping_workshops = ''
-    if ( auth.has_membership(group_id='Admins') or
-         auth.has_permission('update', 'workshops_activities') ):
-        overlapping_workshops = DIV(
-            LOAD('classes', 'schedule_get_overlapping_workshops.load',
-                 vars={'year':year, 'week':week},
-                 ajax=True,
-                 content=''),
-        _class='inline-block pull-right')
 
     # schedule_tools = schedule_get_schedule_tools()
     # export = schedule_get_export()
@@ -142,16 +133,14 @@ def index():
 
 
     return dict(filter_form=filter_form,
-                year=year,
                 title=title,
                 add=add,
                 # schedule_tools=schedule_tools,
                 # export=export,
                 days=days,
-                schedule_status=schedule_status,
                 # week_chooser=week_chooser,
                 current_week=current_week,
-                day_chooser=day_chooser,
+                # day_chooser=day_chooser,
                 form_date=form_date,
                 )
 

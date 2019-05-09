@@ -18,7 +18,7 @@
 
 <div class="row">
     <div id='classes_schedule' class='col-md-12'>
-        {{for day in range(1, 8):}}
+        {{for day in range(0, 7):}}
             <a id="{{=days[day]['weekday']}}" class="schedule_weekday_anchor"></a>
             <h3>{{=days[day]['weekday']}} <small>{{=days[day]['date']}}</small></h3>
             <div class="box box-primary">
