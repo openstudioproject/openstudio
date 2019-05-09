@@ -8,6 +8,7 @@ def index():
     """
     from general_helpers import datestr_to_python
     from openstudio.os_appointment_schedule import AppointmentSchedule
+    from openstudio.os_cache_manager import OsCacheManager
 
     def get_day(day):
         """
@@ -32,10 +33,13 @@ def index():
         return cs.get_day_table()
 
 
+    ocm = OsCacheManager()
+
+
     ## sort form begin ##
     if 'sort' in request.vars:
         session.appointments_index_sort = request.vars['sort']
-        #cache_clear_classschedule()
+        ocm.clear_appointments_schedule()
     elif session.appointments_index_sort is None or \
          session.appointments_index_sort == '':
         # check if we have a default value

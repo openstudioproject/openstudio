@@ -605,7 +605,7 @@ class AppointmentSchedule:
             cache = current.cache
             DATE_FORMAT = current.DATE_FORMAT
             CACHE_LONG = current.globalenv['CACHE_LONG']
-            cache_key = 'openstudio_appointmentchedule_get_day_table_' + \
+            cache_key = 'openstudio_appointments_schedule_get_day_table_' + \
                         unicode(auth.user.id) + '_' + \
                         self.date.strftime(DATE_FORMAT) + '_' + \
                         unicode(self.filter_id_school_appointment) + '_' + \

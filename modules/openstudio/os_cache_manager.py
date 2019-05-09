@@ -57,6 +57,18 @@ class OsCacheManager:
         cache.disk.clear(regex=cu_cc_regex)
 
 
+    def clear_appointments_schedule(self, var_one=None, var_two=None):
+        """
+            Clears the appointmetns schedule cache
+            takes 2 dummy arguments in case it's called from a CRUD form or from SQLFORM.grid
+        """
+        cache = current.cache
+
+        class_schedule_regex = 'openstudio_appointments_schedule_get_day_*'
+        cache.ram.clear(regex=class_schedule_regex)
+        cache.disk.clear(regex=class_schedule_regex)
+
+
     def clear_classschedule(self, var_one=None, var_two=None):
         """
             Clears the class schedule cache
