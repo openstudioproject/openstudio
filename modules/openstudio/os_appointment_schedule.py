@@ -508,7 +508,6 @@ class AppointmentSchedule:
                          TH(T('Teacher'), _class='teacher'),
                          TH(T('Level'), _class='level'),
                          TH(T('Public'), _class='api'),
-                         TH(T('Trend'), _class='trend'),
                          TH(T('')),
                          _class='os-table_header'),
                       _class='os-schedule')
@@ -518,15 +517,10 @@ class AppointmentSchedule:
         if len(rows) == 0:
             table = DIV(T("No appointments found on this day"))
         else:
-            # Get trend column from cache
-            trend_data = self._get_day_get_table_class_trend()
-            get_trend_data = trend_data.get
-
             # avoiding some dots in the loop
             get_status = self._get_day_row_status
             get_teacher_roles = self._get_day_row_teacher_roles
             get_buttons = self._get_day_get_table_get_buttons
-            get_reservations = self._get_day_get_table_get_reservations
             get_class_messages = self._get_day_table_get_class_messages
 
             button_permissions = self._get_day_get_table_get_permissions()
@@ -556,7 +550,6 @@ class AppointmentSchedule:
                             _value='api',
                             _disabled='disabled')
 
-                trend = get_trend_data(row.classes.id, '')
                 buttons = get_buttons(clsID, date_formatted, button_permissions)
                 reservations = get_reservations(clsID, date_formatted, row, button_permissions)
                 class_messages = get_class_messages(row, clsID, date_formatted)
@@ -577,7 +570,6 @@ class AppointmentSchedule:
                                else msg_no_teacher),
                     TD(max_string_length(repr_row.classes.school_levels_id, 12)),
                     TD(api),
-                    TD(trend),
                     TD(buttons),
                    _class='os-schedule_class')
                 row_tools = TR(
@@ -586,8 +578,6 @@ class AppointmentSchedule:
                     TD(teacher2 if not status == 'open' else ''),
                     TD(),
                     TD(),
-                    TD(DIV(reservations,
-                           _class='os-schedule_links')),
                     TD(organization),
                     _class='os-schedule_links',
                     _id='class_' + unicode(clsID))
