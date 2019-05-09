@@ -374,50 +374,31 @@ class AppointmentSchedule:
 
         date_formatted = date.strftime(DATE_FORMAT)
 
-        delta = datetime.timedelta(days=28)
-        one_month_ago = date - delta
-        two_months_ago = one_month_ago - delta
-
         if self.sorting == 'location':
             orderby_sql = 'location_name, Starttime'
         elif self.sorting == 'starttime':
             orderby_sql = 'Starttime, location_name'
 
         fields = [
-            db.classes.id,
+            db.schedule.id,
             db.schedule_otc.Status,
             db.schedule_otc.Description,
-            db.classes.school_locations_id,
+            db.schedule.school_locations_id,
             db.school_locations.Name,
-            db.classes.school_appointments_id,
-            db.classes.school_levels_id,
-            db.classes.Week_day,
-            db.classes.Starttime,
-            db.classes.Endtime,
-            db.classes.Startdate,
-            db.classes.Enddate,
-            db.classes.Maxstudents,
-            db.classes.MaxOnlineBooking,
-            db.classes.MaxReservationsRecurring,
-            db.classes.AllowAPI,
-            db.classes.sys_organizations_id,
+            db.schedule.Starttime,
+            db.schedule.Endtime,
+            db.schedule.Startdate,
+            db.schedule.Enddate,
+            db.schedule.AllowAPI,
             db.schedule_otc.id,
-            db.classes_teachers.id,
-            db.classes_teachers.auth_teacher_id,
-            db.classes_teachers.teacher_role,
-            db.classes_teachers.auth_teacher_id2,
-            db.classes_teachers.teacher_role2,
             db.school_holidays.id,
             db.school_holidays.Description,
-            db.classes_schedule_count.Attendance,
-            db.classes_schedule_count.OnlineBooking,
-            db.classes_schedule_count.Reservations
         ]
 
         where_filter = self._get_day_filter_query()
 
         query = """
-        SELECT cla.id,
+        SELECT s.id,
                CASE WHEN sotc.Status IS NOT NULL
                     THEN sotc.Status
                     ELSE 'normal'
@@ -425,104 +406,41 @@ class AppointmentSchedule:
                sotc.Description,
                CASE WHEN sotc.school_locations_id IS NOT NULL
                     THEN sotc.school_locations_id
-                    ELSE cla.school_locations_id
+                    ELSE s.school_locations_id
                     END AS school_locations_id,
                CASE WHEN sotc.school_locations_id IS NOT NULL
                     THEN slsotc.Name
                     ELSE sl.Name
                     END AS location_name,
-               CASE WHEN sotc.school_appointments_id IS NOT NULL
-                    THEN sotc.school_appointments_id
-                    ELSE cla.school_appointments_id
-                    END AS school_appointments_id,
-               cla.school_levels_id,
-               cla.Week_day,
                CASE WHEN sotc.Starttime IS NOT NULL
                     THEN sotc.Starttime
-                    ELSE cla.Starttime
+                    ELSE s.Starttime
                     END AS Starttime,
                CASE WHEN sotc.Endtime IS NOT NULL
                     THEN sotc.Endtime
-                    ELSE cla.Endtime
+                    ELSE s.Endtime
                     END AS Endtime,
-               cla.Startdate,
-               cla.Enddate,
-               CASE WHEN sotc.Maxstudents IS NOT NULL
-                    THEN sotc.Maxstudents
-                    ELSE cla.Maxstudents
-                    END AS Maxstudents, 
-               CASE WHEN sotc.MaxOnlineBooking IS NOT NULL
-                    THEN sotc.MaxOnlineBooking
-                    ELSE cla.MaxOnlineBooking
-                    END AS MaxOnlineBooking,
-               cla.MaxReservationsRecurring,             
-               cla.AllowAPI,
-               cla.sys_organizations_id,
+               s.Startdate,
+               s.Enddate,           
+               s.AllowAPI,
                sotc.id,
-               clt.id,
-               CASE WHEN sotc.auth_teacher_id IS NOT NULL
-                    THEN sotc.auth_teacher_id
-                    ELSE clt.auth_teacher_id
-                    END AS auth_teacher_id,
-               CASE WHEN sotc.auth_teacher_id IS NOT NULL
-                    THEN sotc.teacher_role
-                    ELSE clt.teacher_role
-                    END AS teacher_role,
-               CASE WHEN sotc.auth_teacher_id2 IS NOT NULL
-                    THEN sotc.auth_teacher_id2
-                    ELSE clt.auth_teacher_id2
-                    END AS auth_teacher_id2,
-               CASE WHEN sotc.auth_teacher_id2 IS NOT NULL
-                    THEN sotc.teacher_role2
-                    ELSE clt.teacher_role2
-                    END AS teacher_role2,
                sho.id,
                sho.Description,
-                /* Count attendance for this class */
-               ( SELECT count(clatt.id) as count_att
-                 FROM classes_attendance clatt
-                 WHERE clatt.classes_id = cla.id AND
-                       clatt.ClassDAte ='{class_date}' AND
-                       clatt.BookingStatus != 'cancelled') AS count_attendance,
-               /* Count of online bookings for this class */
-               ( SELECT COUNT(clatt.id) as count_atto
-                 FROM classes_attendance clatt
-                 WHERE clatt.classes_id = cla.id AND
-                       clatt.ClassDate = '{class_date}' AND
-                       clatt.BookingStatus != 'cancelled' AND
-                       clatt.online_booking = 'T'
-                 GROUP BY clatt.classes_id ) as count_clatto,
-               /* Count of enrollments (reservations) for this class */
-               ( SELECT COUNT(clr.id) as count_clr
-                 FROM classes_reservation clr
-                 WHERE clr.classes_id = cla.id AND
-                       (clr.Startdate <= '{class_date}' AND
-                        (clr.Enddate >= '{class_date}' OR clr.Enddate IS NULL))
-                 GROUP BY clr.classes_id ) as count_clr
-        FROM classes cla
+        FROM schedule s
         LEFT JOIN
             ( SELECT id,
-                     classes_id,
-                     ClassDate,
+                     schedule_id,
+                     ScheduleDate,
                      Status,
                      Description,
                      school_locations_id,
-                     school_appointments_id,
                      Starttime,
                      Endtime,
-                     auth_teacher_id,
-                     teacher_role,
-                     auth_teacher_id2,
-                     teacher_role2,
-                     Maxstudents,
-                     MaxOnlinebooking
               FROM schedule_otc
-              WHERE ClassDate = '{class_date}' ) sotc
-            ON cla.id = sotc.classes_id
+              WHERE ClassDate = '{schedule_date}' ) sotc
+            ON s.id = sotc.classes_id
         LEFT JOIN school_locations sl
-            ON sl.id = cla.school_locations_id
-        LEFT JOIN school_appointments sct
-            ON sct.id = cla.school_appointments_id
+            ON sl.id = s.school_locations_id
 		LEFT JOIN school_locations slsotc
 			ON slsotc.id = sotc.school_locations_id
         LEFT JOIN
@@ -533,25 +451,26 @@ class AppointmentSchedule:
                      auth_teacher_id2,
                      teacher_role2
               FROM classes_teachers
-              WHERE Startdate <= '{class_date}' AND (
-                    Enddate >= '{class_date}' OR Enddate IS NULL)
+              WHERE Startdate <= '{schedule_date}' AND (
+                    Enddate >= '{schedule_date}' OR Enddate IS NULL)
               ) clt
-            ON clt.classes_id = cla.id
+            ON clt.classes_id = s.id
         LEFT JOIN
             ( SELECT sh.id, sh.Description, shl.school_locations_id
               FROM school_holidays sh
               LEFT JOIN
                 school_holidays_locations shl
                 ON shl.school_holidays_id = sh.id
-              WHERE sh.Startdate <= '{class_date}' AND
-                    sh.Enddate >= '{class_date}') sho
-            ON sho.school_locations_id = cla.school_locations_id
-        WHERE cla.Week_day = '{week_day}' AND
-              cla.Startdate <= '{class_date}' AND
-              (cla.Enddate >= '{class_date}' OR cla.Enddate IS NULL)
+              WHERE sh.Startdate <= '{schedule_date}' AND
+                    sh.Enddate >= '{schedule_date}') sho
+            ON sho.school_locations_id = s.school_locations_id
+        WHERE s.ScheduleType = 'appointment' AND
+              s.Week_day = '{week_day}' AND
+              s.Startdate <= '{schedule_date}' AND
+              (s.Enddate >= '{schedule_date}' OR s.Enddate IS NULL)
               {where_filter}
         ORDER BY {orderby_sql}
-        """.format(class_date = date,
+        """.format(schedule_date = date,
                    week_day = weekday,
                    orderby_sql = orderby_sql,
                    where_filter = where_filter,
