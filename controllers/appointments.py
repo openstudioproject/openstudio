@@ -563,6 +563,7 @@ def add_one_time():
 
     return dict(content = content,
                 back = back,
+                save = result['submit'],
                 menu = add_get_menu("add_2"))
 
 

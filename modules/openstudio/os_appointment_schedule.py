@@ -90,9 +90,6 @@ class AppointmentSchedule:
         elif row.schedule_otc.Status == 'open':
             status = 'open'
             status_marker = DIV(_class='status_marker bg_red')
-        elif row.classes_teachers.teacher_role == 1:
-            status = 'subteacher'
-            status_marker = DIV(_class='status_marker bg_blue')
 
         return dict(status=status, marker=status_marker)
 
@@ -519,68 +516,61 @@ class AppointmentSchedule:
         else:
             # avoiding some dots in the loop
             get_status = self._get_day_row_status
-            get_teacher_roles = self._get_day_row_teacher_roles
             get_buttons = self._get_day_get_table_get_buttons
-            get_class_messages = self._get_day_table_get_class_messages
+            # get_class_messages = self._get_day_table_get_class_messages
 
             button_permissions = self._get_day_get_table_get_permissions()
 
-            multiple_organizations = len(ORGANIZATIONS) > 1
-            filter_id_status = self.filter_id_status
+            # filter_id_status = self.filter_id_status
             msg_no_teacher = SPAN(T('No teacher'), _class='red')
 
             # Generate list of classes
             for i, row in enumerate(rows):
                 repr_row = list(rows[i:i+1].render())[0]
-                clsID = row.classes.id
+                sID = row.schedule.id
 
                 status_result = get_status(row)
                 status = status_result['status']
                 status_marker = status_result['marker']
 
-                if filter_id_status and status != filter_id_status:
-                    continue
+                # if filter_id_status and status != filter_id_status:
+                #     continue
 
-                result = get_teacher_roles(row, repr_row)
-                teacher = result['teacher_role']
-                teacher2 = result['teacher_role2']
+                # result = get_teacher_roles(row, repr_row)
+                # teacher = result['teacher_role']
+                # teacher2 = result['teacher_role2']
 
-                api = INPUT(value=row.classes.AllowAPI,
+                api = INPUT(value=row.schedule.AllowAPI,
                             _type='checkbox',
                             _value='api',
                             _disabled='disabled')
 
-                buttons = get_buttons(clsID, date_formatted, button_permissions)
-                reservations = get_reservations(clsID, date_formatted, row, button_permissions)
-                class_messages = get_class_messages(row, clsID, date_formatted)
+                # buttons = get_buttons(clsID, date_formatted, button_permissions)
+                buttons = ''
+                # schedule_messages = get_class_messages(row, clsID, date_formatted)
+                schedule_messages = ''
 
-                if multiple_organizations:
-                    organization = DIV(repr_row.classes.sys_organizations_id or '',
-                                       _class='small_font grey pull-right btn-margin')
-                else:
-                    organization = ''
 
                 row_class = TR(
                     TD(status_marker),
-                    TD(max_string_length(repr_row.classes.school_locations_id, 16)),
-                    TD(max_string_length(repr_row.classes.school_appointments_id, 24)),
-                    TD(SPAN(repr_row.classes.Starttime, ' - ', repr_row.classes.Endtime)),
-                    TD(teacher if (not status == 'open' and
-                                   not row.classes_teachers.auth_teacher_id is None) \
-                               else msg_no_teacher),
-                    TD(max_string_length(repr_row.classes.school_levels_id, 12)),
+                    TD(max_string_length(repr_row.schedule.school_locations_id, 16)),
+                    # TD(max_string_length(repr_row.classes.school_appointments_id, 24)),
+                    TD(SPAN(repr_row.schedule.Starttime, ' - ', repr_row.schedule.Endtime)),
+                    # TD(teacher if (not status == 'open' and
+                    #                not row.classes_teachers.auth_teacher_id is None) \
+                    #            else msg_no_teacher),
                     TD(api),
                     TD(buttons),
                    _class='os-schedule_class')
                 row_tools = TR(
                     TD(' '),
-                    TD(class_messages, _colspan=3, _class='grey'),
-                    TD(teacher2 if not status == 'open' else ''),
+                    TD(schedule_messages, _colspan=3, _class='grey'),
+                    # TD(teacher2 if not status == 'open' else ''),
                     TD(),
                     TD(),
-                    TD(organization),
+                    TD(),
                     _class='os-schedule_links',
-                    _id='class_' + unicode(clsID))
+                    _id='schedule_item_' + unicode(sID))
 
                 table.append(row_class)
                 table.append(row_tools)
