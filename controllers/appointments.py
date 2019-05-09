@@ -132,7 +132,7 @@ def index():
     if permission:
         add = os_gui.get_button(
             'add',
-            URL('appointment_add'),
+            URL('add'),
             tooltip=T("Add a new appointment"),
             _class='pull-right'
         )
@@ -487,3 +487,37 @@ def schedule_export_excel():
         response.headers['Content-disposition']='attachment; filename=' + fname
 
         return stream.getvalue()
+
+
+@auth.requires_login()
+def add():
+    """
+    First page shown in series to add an appointment. This page will ask the user
+    if a single or recurring appointment should be scheduled
+    """
+    response.title = T("Add a new appointment")
+    response.subtitle = T("")
+    response.view = 'general/tabs_menu.html'
+
+    back = os_gui.get_button('back', URL('index'))
+
+
+    return dict(content = 'hello world',
+                back = back,
+                menu = add_get_menu(request.function))
+
+
+def add_get_menu(page):
+    """
+        Returns submenu for adding a workshop
+    """
+    from openstudio.os_gui import OsGui
+    os_gui = OsGui()
+
+    pages = [
+        ['add', T('1. Choose Frequency'), "#"],
+        ['appointment_add', T('2. Set details'), "#"],
+    ]
+
+    return os_gui.get_submenu(pages, page, horizontal=True, htype='tabs')
+
