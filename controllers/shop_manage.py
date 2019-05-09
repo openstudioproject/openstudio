@@ -1109,6 +1109,7 @@ def brand_add():
         Add a new brand
     """
     from openstudio.os_forms import OsForms
+
     response.title = T('Shop')
     response.subtitle = T('Catalog')
     response.view = 'general/tabs_menu.html'

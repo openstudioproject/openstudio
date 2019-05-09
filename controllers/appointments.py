@@ -507,7 +507,7 @@ def add():
         DIV(A(arrow_right,
               B(os_gui.get_fa_icon('fa-arrow-circle-o-down'), ' ', T("One time")), BR(),
               T("Schedule a single appointment on a specific date"),
-              _href=URL('add_specific'),
+              _href=URL('add_one_time'),
               _class="list-group-item"),
             A(arrow_right,
               B(os_gui.get_fa_icon('fa-refresh'), ' ', T("Weekly recurring")), BR(),
@@ -529,20 +529,37 @@ def add():
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('create', 'appointments'))
-def add_specific():
+def add_one_time():
     """
     Second page shown in series to add an appointment. This page will ask the user
     if a single or recurring appointment should be scheduled
     """
+    from openstudio.os_forms import OsForms
+
     response.title = T("Add a new appointment")
     response.subtitle = T("")
     response.view = 'general/tabs_menu.html'
 
+    db.schedule.FrequencyType.default = 'specific'
+    db.schedule.Startdate.label = T("Date")
+    db.schedule.Enddate.readable = False
+    db.schedule.Enddate.writable = False
 
-    content = "hello world"
+    return_url = URL('index')
+
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_create(
+        db.schedule,
+        return_url,
+    )
+    form = result['form']
+
+    content = DIV(
+        H4(T("Add one time appointment")),
+        form
+    )
 
     back = os_gui.get_button('back', URL('add'))
-
 
     return dict(content = content,
                 back = back,
