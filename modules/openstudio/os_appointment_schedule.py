@@ -462,7 +462,7 @@ class AppointmentSchedule:
                    orderby_sql = orderby_sql,
                    where_filter = where_filter)
 
-        print query
+        # print query
 
         rows = db.executesql(query, fields=fields)
 
@@ -619,99 +619,99 @@ class AppointmentSchedule:
         return rows
 
 
-    def get_day_list(self):
-        """
-            Format rows as list
-        """
-        os_gui = current.globalenv['os_gui']
-        DATE_FORMAT = current.DATE_FORMAT
-        T = current.T
-        date_formatted = self.date.strftime(DATE_FORMAT)
-
-        rows = self.get_day_rows()
-
-        get_status = self._get_day_row_status
-
-        classes = []
-        for i, row in enumerate(rows):
-            repr_row = list(rows[i:i+1].render())[0]
-
-            # get status
-            status_result = get_status(row)
-            status = status_result['status']
-
-            # get teachers
-            teacher_id = row.classes_teachers.auth_teacher_id
-            teacher_id2 = row.classes_teachers.auth_teacher_id2
-            teacher = repr_row.classes_teachers.auth_teacher_id
-            teacher2 = repr_row.classes_teachers.auth_teacher_id2
-            teacher_role = row.classes_teachers.teacher_role
-            teacher_role2 = row.classes_teachers.teacher_role2
-
-            # check filter for teachers
-            if self.filter_id_teacher:
-                teacher_filter_id = int(self.filter_id_teacher)
-                filter_check = (teacher_filter_id == teacher_id or
-                                teacher_filter_id == teacher_id2)
-                if not filter_check:
-                    # break loop if it's not the teacher searched for
-                    continue
-
-            # set holidays
-            holiday = False
-            holiday_description = ''
-            if row.school_holidays.id:
-                holiday = True
-                holiday_description = row.school_holidays.Description
-
-            cancelled = False
-            cancelled_description = ''
-            if status == 'cancelled':
-                cancelled = True
-                cancelled_description = row.schedule_otc.Description
-
-            subteacher = False
-            if ( row.classes_teachers.teacher_role == 1 or
-                 row.classes_teachers.teacher_role2 == 1 ):
-                subteacher = True
-
-            # shop url
-            shop_url = URL('shop', 'classes_book_options', vars={'clsID': row.classes.id,
-                                                                 'date' : date_formatted},
-                           scheme=True,
-                           host=True,
-                           extension='')
-
-            # populate class data
-            data = dict()
-            data['ClassesID'] = row.classes.id
-            data['LocationID'] = row.classes.school_locations_id
-            data['Location'] = repr_row.classes.school_locations_id
-            data['Starttime'] = repr_row.classes.Starttime
-            data['time_starttime'] = row.classes.Starttime
-            data['Endtime'] = repr_row.classes.Endtime
-            data['time_endtime'] = row.classes.Endtime
-            data['ClassTypeID'] = row.classes.school_appointments_id
-            data['ClassType'] = repr_row.classes.school_appointments_id
-            data['TeacherID'] = teacher_id
-            data['TeacherID2'] = teacher_id2
-            data['Teacher'] = teacher
-            data['Teacher2'] = teacher2
-            data['LevelID'] = row.classes.school_levels_id
-            data['Level'] = repr_row.classes.school_levels_id
-            data['Subteacher'] = subteacher
-            data['Cancelled'] = cancelled
-            data['CancelledDescription'] = cancelled_description
-            data['Holiday'] = holiday
-            data['HolidayDescription'] = holiday_description
-            data['MaxStudents'] = row.classes.Maxstudents or 0 # Spaces for a class
-            data['CountAttendance'] = row.classes_schedule_count.Attendance or 0
-            data['CountAttendanceOnlineBooking'] = row.classes_schedule_count.OnlineBooking or 0
-            data['BookingSpacesAvailable'] = self._get_day_list_booking_spaces(row)
-            data['BookingStatus'] = self._get_day_list_booking_status(row)
-            data['BookingOpen'] = self.bookings_open
-            data['LinkShop'] = shop_url
-
-            classes.append(data)
-
-        return classes
+    # def get_day_list(self):
+    #     """
+    #         Format rows as list
+    #     """
+    #     os_gui = current.globalenv['os_gui']
+    #     DATE_FORMAT = current.DATE_FORMAT
+    #     T = current.T
+    #     date_formatted = self.date.strftime(DATE_FORMAT)
+    #
+    #     rows = self.get_day_rows()
+    #
+    #     get_status = self._get_day_row_status
+    #
+    #     classes = []
+    #     for i, row in enumerate(rows):
+    #         repr_row = list(rows[i:i+1].render())[0]
+    #
+    #         # get status
+    #         status_result = get_status(row)
+    #         status = status_result['status']
+    #
+    #         # get teachers
+    #         teacher_id = row.classes_teachers.auth_teacher_id
+    #         teacher_id2 = row.classes_teachers.auth_teacher_id2
+    #         teacher = repr_row.classes_teachers.auth_teacher_id
+    #         teacher2 = repr_row.classes_teachers.auth_teacher_id2
+    #         teacher_role = row.classes_teachers.teacher_role
+    #         teacher_role2 = row.classes_teachers.teacher_role2
+    #
+    #         # check filter for teachers
+    #         if self.filter_id_teacher:
+    #             teacher_filter_id = int(self.filter_id_teacher)
+    #             filter_check = (teacher_filter_id == teacher_id or
+    #                             teacher_filter_id == teacher_id2)
+    #             if not filter_check:
+    #                 # break loop if it's not the teacher searched for
+    #                 continue
+    #
+    #         # set holidays
+    #         holiday = False
+    #         holiday_description = ''
+    #         if row.school_holidays.id:
+    #             holiday = True
+    #             holiday_description = row.school_holidays.Description
+    #
+    #         cancelled = False
+    #         cancelled_description = ''
+    #         if status == 'cancelled':
+    #             cancelled = True
+    #             cancelled_description = row.schedule_otc.Description
+    #
+    #         subteacher = False
+    #         if ( row.classes_teachers.teacher_role == 1 or
+    #              row.classes_teachers.teacher_role2 == 1 ):
+    #             subteacher = True
+    #
+    #         # shop url
+    #         shop_url = URL('shop', 'classes_book_options', vars={'clsID': row.classes.id,
+    #                                                              'date' : date_formatted},
+    #                        scheme=True,
+    #                        host=True,
+    #                        extension='')
+    #
+    #         # populate class data
+    #         data = dict()
+    #         data['ClassesID'] = row.classes.id
+    #         data['LocationID'] = row.classes.school_locations_id
+    #         data['Location'] = repr_row.classes.school_locations_id
+    #         data['Starttime'] = repr_row.classes.Starttime
+    #         data['time_starttime'] = row.classes.Starttime
+    #         data['Endtime'] = repr_row.classes.Endtime
+    #         data['time_endtime'] = row.classes.Endtime
+    #         data['ClassTypeID'] = row.classes.school_appointments_id
+    #         data['ClassType'] = repr_row.classes.school_appointments_id
+    #         data['TeacherID'] = teacher_id
+    #         data['TeacherID2'] = teacher_id2
+    #         data['Teacher'] = teacher
+    #         data['Teacher2'] = teacher2
+    #         data['LevelID'] = row.classes.school_levels_id
+    #         data['Level'] = repr_row.classes.school_levels_id
+    #         data['Subteacher'] = subteacher
+    #         data['Cancelled'] = cancelled
+    #         data['CancelledDescription'] = cancelled_description
+    #         data['Holiday'] = holiday
+    #         data['HolidayDescription'] = holiday_description
+    #         data['MaxStudents'] = row.classes.Maxstudents or 0 # Spaces for a class
+    #         data['CountAttendance'] = row.classes_schedule_count.Attendance or 0
+    #         data['CountAttendanceOnlineBooking'] = row.classes_schedule_count.OnlineBooking or 0
+    #         data['BookingSpacesAvailable'] = self._get_day_list_booking_spaces(row)
+    #         data['BookingStatus'] = self._get_day_list_booking_status(row)
+    #         data['BookingOpen'] = self.bookings_open
+    #         data['LinkShop'] = shop_url
+    #
+    #         classes.append(data)
+    #
+    #     return classes

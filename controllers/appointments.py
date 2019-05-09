@@ -18,7 +18,7 @@ def index():
         # Return a 3-tuple, (ISO year, ISO week number, ISO weekday).
 
 
-        date = session.schedule_show_date + datetime.timedelta(days=day)
+        date = session.appointments_schedule_date + datetime.timedelta(days=day)
         print date
         # title = NRtoDay(date.isocalendar()[2])
 
@@ -57,10 +57,10 @@ def index():
     else:
         date = TODAY_LOCAL
 
-    session.schedule_show_date = date
+    session.appointments_schedule_date = date
 
     # go to date
-    form_date = schedule_get_form_date(session.schedule_show_date)
+    form_date = schedule_get_form_date(session.appointments_schedule_date)
 
     current_week = A(T('Current week'),
                      _href=URL('index_current_week'),
@@ -171,8 +171,8 @@ def schedule_get_form_date(appointments_date):
                 submit_button=T('Go'),
                 )
 
-    submit_jump = form_date.element('input[type=submit]')
-    submit_jump['_class'] = 'full-width'
+    submit = form_date.element('input[type=submit]')
+    submit['_class'] = 'full-width'
 
     form_date = DIV(form_date.custom.begin,
                     DIV(form_date.custom.widget.appointments_date,
@@ -190,8 +190,7 @@ def index_get_week_chooser(var=None):
     """
         Returns a week chooser for the schedule
     """
-    year = session.schedule_year
-    week = session.schedule_week
+    date = session.appointments_schedule_date
 
     lastweek = get_lastweek_year(year)
 
