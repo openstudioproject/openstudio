@@ -499,10 +499,28 @@ def add():
     response.subtitle = T("")
     response.view = 'general/tabs_menu.html'
 
+    arrow_right = SPAN(os_gui.get_fa_icon('fa-angle-right '), _class='pull-right')
+
+    content = DIV(
+        H4(T("What kind of appointment would you like to schedule?")),
+        DIV(A(arrow_right,
+              B(os_gui.get_fa_icon('fa-arrow-circle-o-down'), ' ', T("One time")), BR(),
+              T("Schedule a single appointment on a specific date"),
+              _href=URL('add_specific'),
+              _class="list-group-item"),
+            A(arrow_right,
+              B(os_gui.get_fa_icon('fa-refresh'), ' ', T("Weekly recurring")), BR(),
+              T("Schedule an appointment that appears every week on the same day & time"),
+              _href=URL('add_recurriing'),
+              _class="list-group-item"),
+            _class='list-group'
+        )
+    )
+
     back = os_gui.get_button('back', URL('index'))
 
 
-    return dict(content = 'hello world',
+    return dict(content = content,
                 back = back,
                 menu = add_get_menu(request.function))
 
