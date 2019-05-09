@@ -489,7 +489,8 @@ def schedule_export_excel():
         return stream.getvalue()
 
 
-@auth.requires_login()
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('create', 'appointments'))
 def add():
     """
     First page shown in series to add an appointment. This page will ask the user
@@ -525,6 +526,30 @@ def add():
                 menu = add_get_menu(request.function))
 
 
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('create', 'appointments'))
+def add_specific():
+    """
+    Second page shown in series to add an appointment. This page will ask the user
+    if a single or recurring appointment should be scheduled
+    """
+    response.title = T("Add a new appointment")
+    response.subtitle = T("")
+    response.view = 'general/tabs_menu.html'
+
+
+    content = "hello world"
+
+    back = os_gui.get_button('back', URL('add'))
+
+
+    return dict(content = content,
+                back = back,
+                menu = add_get_menu("add_2"))
+
+
+
 def add_get_menu(page):
     """
         Returns submenu for adding a workshop
@@ -534,7 +559,7 @@ def add_get_menu(page):
 
     pages = [
         ['add', T('1. Choose Frequency'), "#"],
-        ['appointment_add', T('2. Set details'), "#"],
+        ['add_2', T('2. Set details'), "#"],
     ]
 
     return os_gui.get_submenu(pages, page, horizontal=True, htype='tabs')
