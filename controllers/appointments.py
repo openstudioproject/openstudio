@@ -6,6 +6,7 @@ def index():
     """
         Main list of classes
     """
+    from general_helpers import datestr_to_python
     from openstudio.os_appointment_schedule import AppointmentSchedule
 
     def get_day(day):
@@ -16,8 +17,6 @@ def index():
         """
         # date.isocalendar()
         # Return a 3-tuple, (ISO year, ISO week number, ISO weekday).
-
-
         date = session.appointments_schedule_date + datetime.timedelta(days=day)
         print date
         # title = NRtoDay(date.isocalendar()[2])
@@ -60,7 +59,10 @@ def index():
     session.appointments_schedule_date = date
 
     # go to date
-    form_date = schedule_get_form_date(session.appointments_schedule_date)
+    form_date = index_get_form_date(session.appointments_schedule_date)
+
+    print '######## form date:'
+    print form_date
 
     current_week = A(T('Current week'),
                      _href=URL('index_current_week'),
@@ -155,17 +157,17 @@ def schedule_get_query(weekday, date):
             (db.classes.Enddate == None)) # can't use is here, query doesn't work
 
 
-def schedule_get_form_date(appointments_date):
+def index_get_form_date(date):
     """
         Returns a form to jump to a date
     """
     form_date = SQLFORM.factory(
-                Field('appointments_date', 'date',
+                Field('date', 'date',
                       requires=IS_DATE_IN_RANGE(
                                 format=DATE_FORMAT,
                                 minimum=datetime.date(1900,1,1),
                                 maximum=datetime.date(2999,1,1)),
-                      default=appointments_date,
+                      default=date,
                       label=T(""),
                       widget=os_datepicker_widget_small),
                 submit_button=T('Go'),
@@ -175,7 +177,7 @@ def schedule_get_form_date(appointments_date):
     submit['_class'] = 'full-width'
 
     form_date = DIV(form_date.custom.begin,
-                    DIV(form_date.custom.widget.appointments_date,
+                    DIV(form_date.custom.widget.date,
                         DIV(form_date.custom.submit,
                             _class='input-group-btn'),
                         _class='input-group'),
