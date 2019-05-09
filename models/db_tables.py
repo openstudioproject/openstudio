@@ -1230,6 +1230,9 @@ def define_school_locations():
 
 
 def define_school_appointments():
+    sac_query = (db.school_appointments_categories.Archived == False)
+
+
     db.define_table('school_appointments',
         Field('Archived', 'boolean',
             readable=False,
@@ -1245,17 +1248,27 @@ def define_school_appointments():
                                            IS_LENGTH(maxsize=4194304)]),
             label=T("Image")),
         Field('thumbsmall', 'upload', # generate 50*50 for list view
-            autodelete=True, writable=False,
+            autodelete=True,
+            readable=False,
+            writable=False,
             compute = lambda row: SMARTHUMB(row.picture,
                                             (50, 50),
                                              name="Small"),
             represent = represent_classtype_thumbsmall,
             label=T("Image")),
         Field('thumblarge', 'upload', # generate 400*400 for edit view
-            autodelete=True, writable=False,
+            autodelete=True,
+            readable=False,
+            writable=False,
             compute = lambda row: SMARTHUMB(row.picture,
                                              (400, 400),
                                              name="Large")),
+        Field('school_appointments_categories_id', db.school_appointments_categories,
+            requires=IS_IN_DB(db(sac_query),
+                            'school_appointments_categories.id',
+                            '%(Name)s',
+                            zero=T("Please select a category...")),
+            label=T("Category")),
         Field('Name', required=True,
             requires=IS_NOT_EMPTY(),
             label=T("Name")),
@@ -1281,17 +1294,6 @@ def define_school_appointments_categories():
             requires=IS_NOT_EMPTY(),
             label=T("Name"))
     )
-
-
-def define_school_appointments_categories_appointments():
-    """
-        Define shop categories products
-    """
-    db.define_table('school_appointments_categories_appointments',
-        Field('school_appointments_categories_id', db.school_appointments_categories),
-        Field('school_appointments_id', db.school_appointments),
-    )
-
 
 
 def define_school_classcards():
@@ -6737,9 +6739,8 @@ define_accounting_glaccounts()
 define_accounting_expenses()
 define_accounting_cashbooks_cash_count()
 
-define_school_appointments()
 define_school_appointments_categories()
-define_school_appointments_categories_appointments()
+define_school_appointments()
 define_school_memberships()
 define_school_subscriptions()
 #mstypes_dict = create_mstypes_dict()
