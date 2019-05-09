@@ -1053,7 +1053,7 @@ def category_archive():
     archiver.archive(
         db.shop_categories,
         request.vars['scID'],
-        T('Unable to (un)archive brand'),
+        T('Unable to (un)archive category'),
         shop_categories_get_return_url()
     )
 

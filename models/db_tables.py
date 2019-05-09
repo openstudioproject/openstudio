@@ -1292,7 +1292,7 @@ def define_school_appointments_categories():
             label=T("Archived")),
         Field('Name', required=True,
             requires=IS_NOT_EMPTY(),
-            label=T("Name"))
+            label=T("Category"))
     )
 
 
