@@ -709,18 +709,14 @@ class AppointmentSchedule:
             cache = current.cache
             DATE_FORMAT = current.DATE_FORMAT
             CACHE_LONG = current.globalenv['CACHE_LONG']
-            cache_key = 'openstudio_classschedule_get_day_table_' + \
+            cache_key = 'openstudio_appointmentchedule_get_day_table_' + \
                         unicode(auth.user.id) + '_' + \
                         self.date.strftime(DATE_FORMAT) + '_' + \
                         unicode(self.filter_id_school_appointment) + '_' + \
                         unicode(self.filter_id_school_location) + '_' + \
                         unicode(self.filter_id_teacher) + '_' + \
-                        unicode(self.filter_id_school_level) + '_' + \
-                        unicode(self.filter_id_status) + '_' + \
                         unicode(self.filter_public) + '_' + \
-                        self.sorting + '_' + \
-                        unicode(self.trend_medium) + '_' + \
-                        unicode(self.trend_high)
+                        self.sorting
 
             rows = cache.ram(cache_key , lambda: self._get_day_table(), time_expire=CACHE_LONG)
 

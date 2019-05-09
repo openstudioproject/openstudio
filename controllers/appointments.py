@@ -6,16 +6,23 @@ def index():
     """
         Main list of classes
     """
-    def get_day(date, trend_medium, trend_high):
+    from openstudio.os_appointment_schedule import AppointmentSchedule
+
+    def get_day(day):
         """
             Helper function that returns a dict containing a title for the weekday,
             a date for the class and
             a SQLFORM.grid for a selected day which is within 1 - 7 (ISO standard).
         """
-        title = NRtoDay(weekday)
-        date_formatted = date.strftime(DATE_FORMAT)
+        # date.isocalendar()
+        # Return a 3-tuple, (ISO year, ISO week number, ISO weekday).
 
-        cs = ClassSchedule(
+
+        date = session.schedule_show_date + datetime.timedelta(days=day)
+        print date
+        # title = NRtoDay(date.isocalendar()[2])
+
+        cs = AppointmentSchedule(
             date,
             filter_id_school_appointment = session.appointments_index_filter_appointment,
             filter_id_school_location = session.appointments_index_filter_location,
@@ -38,26 +45,22 @@ def index():
         if row:
             session.appointments_index_sort = row.PropertyValue
         else:
-            # default to sorting by location
+            # default to sorting by location and then time
             session.appointments_index_sort = 'location'
 
     ## sort form end ##
 
-    if not session.schedule_show_date is None:
-        date = datestr_to_python(DATE_FORMAT, session.schedule_show_date)
-        year = date.year
-        week = date.isocalendar()[1]
-        session.schedule_show_date = None
-
     # if we used the jump date box to select a week
-    if 'appointments_date' in request.vars:
-        appointments_date = datestr_to_python(DATE_FORMAT,
-                                      request.vars['appointments_date'])
+    if 'date' in request.vars:
+        date = datestr_to_python(DATE_FORMAT,
+                                      request.vars['date'])
     else:
-        appointments_date = TODAY_LOCAL
+        date = TODAY_LOCAL
 
-    # jump to date
-    form_date = schedule_get_form_date(appointments_date)
+    session.schedule_show_date = date
+
+    # go to date
+    form_date = schedule_get_form_date(session.schedule_show_date)
 
     current_week = A(T('Current week'),
                      _href=URL('index_current_week'),
@@ -108,7 +111,7 @@ def index():
 
     # Get classes for days
     days = dict()
-    for day in range(1, 8):
+    for day in range(0, 7):
         days[day] = get_day(day)
 
     overlapping_workshops = ''
