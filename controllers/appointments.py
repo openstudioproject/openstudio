@@ -51,8 +51,9 @@ def index():
 
     # if we used the jump date box to select a week
     if 'date' in request.vars:
-        date = datestr_to_python(DATE_FORMAT,
-                                      request.vars['date'])
+        date = datestr_to_python(DATE_FORMAT, request.vars['date'])
+    elif session.appointments_schedule_date:
+        date = session.appointments_schedule_date
     else:
         date = TODAY_LOCAL
 
@@ -70,7 +71,6 @@ def index():
                      _id='index_today')
 
     # show schedule status
-    # week_chooser = index_get_week_chooser()
 
     ## week selection end ##
 
@@ -140,7 +140,7 @@ def index():
                 # schedule_tools=schedule_tools,
                 # export=export,
                 days=days,
-                # week_chooser=week_chooser,
+                week_chooser=index_get_week_chooser(),
                 goto_today=goto_today,
                 # day_chooser=day_chooser,
                 form_date=form_date,
@@ -188,36 +188,33 @@ def index_get_form_date(date):
     return form_date
 
 
+def index_set_date():
+    """
+    Set appointments schedule date
+    """
+    from general_helpers import datestr_to_python
+    date_formatted = request.vars['date']
+
+    session.appointments_schedule_date = datestr_to_python(DATE_FORMAT, request.vars['date'])
+
+    redirect(URL('index'))
+
+
 def index_get_week_chooser(var=None):
     """
         Returns a week chooser for the schedule
     """
     date = session.appointments_schedule_date
+    delta = datetime.timedelta(days=7)
 
-    lastweek = get_lastweek_year(year)
-
-    if week == 1:
-        prev_week  = lastweek
-        prev_year  = year - 1
-    else:
-        prev_week  = week - 1
-        prev_year  = year
-
-    if week == lastweek:
-        next_week  = 1
-        next_year  = year + 1
-    else:
-        next_week  = week + 1
-        next_year  = year
-
+    prev_week = (date - delta).strftime(DATE_FORMAT)
+    next_week = (date + delta).strftime(DATE_FORMAT)
 
     previous = A(I(_class='fa fa-angle-left'),
-                 _href=URL('schedule_set_week', vars={ 'week' : prev_week,
-                                                       'year' : prev_year }),
+                 _href=URL('index_set_date', vars={ 'date': prev_week }),
                  _class='btn btn-default')
     nxt = A(I(_class='fa fa-angle-right'),
-            _href=URL('schedule_set_week', vars={ 'week' : next_week,
-                                                  'year' : next_year }),
+            _href=URL('index_set_date', vars={ 'date': next_week }),
             _class='btn btn-default')
 
     return DIV(previous, nxt, _class='btn-group', _id='schedule_week_chooser')
