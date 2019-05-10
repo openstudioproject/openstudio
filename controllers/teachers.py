@@ -123,6 +123,21 @@ def teaches_classes():
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'teachers'))
+def teaches_appointments():
+    """
+        Changes the value of auth_user.teaches_appointments boolean
+    """
+    uID = request.vars['uID']
+
+    user = db.auth_user(uID)
+    user.teaches_appointments = not user.teaches_appointments
+    user.update_record()
+
+    redirect(URL('index'))
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'teachers'))
 def teaches_events():
     """
         Changes the value of auth_user.teaches_workshops boolean
