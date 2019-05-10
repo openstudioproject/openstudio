@@ -1459,6 +1459,11 @@ def access_group_permissions():
             ['appointments-create', T("Add appointments")],
             ['appointments-update', T("Edit appointments")],
             ['appointments-delete', T("Delete appointments")],
+        ]],
+        ['school_appointments_teachers_price-read', T("View teachers prices"), [
+            ['school_appointments_teachers_price-create', T("Add teachers prices")],
+            ['school_appointments_teachers_price-update', T("Edit teachers prices")],
+            ['school_appointments_teachers_price-delete', T("Delete teachers prices")],
         ]]
     ]
 
