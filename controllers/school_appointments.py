@@ -187,7 +187,7 @@ def edit_get_menu(page, saID):
        auth.has_permission('view', 'school_appointments_teachers_price'):
         pages.append(['teachers_prices',
                        T('Teacher prices'),
-                      URL('school_appointments', 'teachers_prices')])
+                      URL('school_appointments', 'teachers_prices', vars=vars)])
 
 
     return os_gui.get_submenu(pages,
@@ -375,7 +375,7 @@ def category_add():
     result = os_forms.get_crud_form_create(
         db.school_appointments_categories,
         return_url,
-        message_record_created=T("Added category ")
+        message_record_created=T("Added category")
     )
 
     form = result['form']
@@ -432,11 +432,15 @@ def category_edit():
                 menu=menu)
 
 
+def teachers_prices_get_return_url(saID):
+    return URL('teachers_prices', vars={'saID': saID})
+
+
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('view', 'school_appointments_teachers_price'))
 def teachers_prices():
     """
-        List prices for an appointment type
+    List prices for an appointment type
     """
     response.title = T('School')
     response.subtitle = T("Edit appointment type")
@@ -446,11 +450,57 @@ def teachers_prices():
     return_url = index_get_return_url()
 
 
+    add = os_gui.get_button(
+        'add',
+        URL('teachers_price_add', vars={'saID': saID})
+    )
+
     back = os_gui.get_button('back', return_url)
 
     content = 'hello world'
     menu = edit_get_menu(request.function, saID)
 
     return dict(content=content,
+                add=add,
                 back=back,
                 menu=menu)
+
+
+@auth.requires_login()
+def teachers_price_add():
+    """
+    Add price for an appointment/teacher
+    """
+    """
+        Add a new category
+    """
+    from openstudio.os_forms import OsForms
+    response.title = T('School')
+    response.subtitle = T("Appointments")
+    response.view = 'general/tabs_menu.html'
+
+    saID = request.vars['saID']
+
+    return_url = teachers_prices_get_return_url(saID)
+
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_create(
+        db.school_appointments_teachers_price,
+        return_url,
+        message_record_created=T("Added price")
+    )
+
+    form = result['form']
+    back = os_gui.get_button('back', return_url)
+
+    content = DIV(
+        H4(T('Add price')),
+        form
+    )
+    menu = edit_get_menu('teachers_prices', saID)
+
+    return dict(content=content,
+                save=result['submit'],
+                menu=menu,
+                back=back)
+
