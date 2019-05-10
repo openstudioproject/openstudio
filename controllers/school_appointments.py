@@ -447,6 +447,7 @@ def teachers_prices():
     response.view = 'general/tabs_menu.html'
 
     saID = request.vars['saID']
+    sa = db.school_appointments(saID)
     return_url = index_get_return_url()
 
     db.school_appointments_teachers_price.id.readable = False
@@ -486,10 +487,10 @@ def teachers_prices():
 
     back = os_gui.get_button('back', return_url)
 
-    content = 'hello world'
+    content = DIV(H4(sa.Name), grid)
     menu = edit_get_menu(request.function, saID)
 
-    return dict(content=grid,
+    return dict(content=content,
                 add=add,
                 back=back,
                 menu=menu)
