@@ -167,6 +167,37 @@ def add():
                 back=back)
 
 
+def edit_get_menu(page, saID):
+    """
+        Returns menu for school appointments
+    """
+    pages = []
+
+    vars = {'saID': request.vars['saID']}
+
+    # Edit appointment
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('update', 'school_appointments'):
+        pages.append(['edit',
+                       T('Edit'),
+                      URL('school_appointments', 'edit', vars=vars)])
+
+    # Prices
+    if auth.has_membership(group_id='Admins') or \
+       auth.has_permission('view', 'school_appointments_teachers_price'):
+        pages.append(['teachers_prices',
+                       T('Teacher prices'),
+                      URL('school_appointments', 'teachers_prices')])
+
+
+    return os_gui.get_submenu(pages,
+                              page,
+                              _id='os-customers_edit_menu',
+                              horizontal=True,
+                              htype='tabs')
+
+
+
 @auth.requires_login()
 def edit():
     """
@@ -192,11 +223,8 @@ def edit():
     form = result['form']
     back = os_gui.get_button('back', return_url)
 
-    content = DIV(
-        H4(T('Edit appointment type')),
-        form
-    )
-    menu = get_menu("index")
+    content = form
+    menu = edit_get_menu(request.function, saID)
 
     return dict(content=content,
                 save=result['submit'],
