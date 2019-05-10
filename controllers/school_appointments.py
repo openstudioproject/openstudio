@@ -480,6 +480,7 @@ def teachers_price_add():
     response.view = 'general/tabs_menu.html'
 
     saID = request.vars['saID']
+    sa = db.school_appointments(saID)
 
     return_url = teachers_prices_get_return_url(saID)
 
@@ -494,7 +495,7 @@ def teachers_price_add():
     back = os_gui.get_button('back', return_url)
 
     content = DIV(
-        H4(T('Add price')),
+        H4(T('Add price for'), ' ', sa.Name),
         form
     )
     menu = edit_get_menu('teachers_prices', saID)
