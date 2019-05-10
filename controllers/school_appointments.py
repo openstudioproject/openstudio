@@ -463,6 +463,11 @@ def teachers_prices():
 
     query = (db.school_appointments_teachers_price.school_appointments_id == saID)
 
+    permission_delete = (
+        auth.has_membership(group_id='Admins') or
+        auth.has_permission('delete', 'school_appointments_teachers_price')
+    )
+
     grid = SQLFORM.grid(
         query,
         # fields=fields,
@@ -470,7 +475,7 @@ def teachers_prices():
         field_id=db.school_appointments_teachers_price.id,
         create=False,
         editable=False,
-        deletable=False,
+        deletable=permission_delete,
         details=False,
         searchable=False,
         maxtextlengths=maxtextlengths,
