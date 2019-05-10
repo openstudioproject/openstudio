@@ -471,9 +471,6 @@ def teachers_price_add():
     """
     Add price for an appointment/teacher
     """
-    """
-        Add a new category
-    """
     from openstudio.os_forms import OsForms
     response.title = T('School')
     response.subtitle = T("Appointments")
@@ -496,6 +493,45 @@ def teachers_price_add():
 
     content = DIV(
         H4(T('Add price for'), ' ', sa.Name),
+        form
+    )
+    menu = edit_get_menu('teachers_prices', saID)
+
+    return dict(content=content,
+                save=result['submit'],
+                menu=menu,
+                back=back)
+
+
+@auth.requires_login()
+def teachers_price_edit():
+    """
+    Edit price for an appointment/teacher
+    """
+    from openstudio.os_forms import OsForms
+    response.title = T('School')
+    response.subtitle = T("Appointments")
+    response.view = 'general/tabs_menu.html'
+
+    saID = request.vars['saID']
+    satpID = request.vars['satpID']
+    sa = db.school_appointments(saID)
+
+    return_url = teachers_prices_get_return_url(saID)
+
+    os_forms = OsForms()
+    result = os_forms.get_crud_form_updatee(
+        db.school_appointments_teachers_price,
+        return_url,
+        satpID,
+        message_record_created=T("Saved")
+    )
+
+    form = result['form']
+    back = os_gui.get_button('back', return_url)
+
+    content = DIV(
+        H4(T('Edit price for'), ' ', sa.Name),
         form
     )
     menu = edit_get_menu('teachers_prices', saID)
