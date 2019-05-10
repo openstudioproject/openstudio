@@ -1287,7 +1287,8 @@ def define_school_appointments_teachers_price():
     ac_query = (db.accounting_costcenters.Archived == False)
     ag_query = (db.accounting_glaccounts.Archived == False)
     au_query = (db.auth_user.trashed == False) & \
-               (db.auth_user.teacher == True)
+               (db.auth_user.teacher == True) & \
+               (db.auth_user.teaches_appointments == True)
 
 
     db.define_table('school_appointments_teachers_price',
@@ -1295,7 +1296,7 @@ def define_school_appointments_teachers_price():
               requires=IS_IN_DB(db(au_query),
                                 'auth_user.id',
                                 '%(first_name)s %(last_name)s',
-                                zero=(T('Select employee...'))),
+                                zero=(T('Select teacher...'))),
               # represent=lambda value, row: teachers_dict.get(value, None),
               # represent=lambda value, row: value or '',
               label=T("Teacher")),
