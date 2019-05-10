@@ -1283,6 +1283,48 @@ def define_school_appointments():
     )
 
 
+def define_school_appointments_teachers_price():
+    ac_query = (db.accounting_costcenters.Archived == False)
+    ag_query = (db.accounting_glaccounts.Archived == False)
+    au_query = (db.auth_user.trashed == False) & \
+               ((db.auth_user.teacher == True) |
+                (db.auth_user.employee == False))
+
+
+    db.define_table('school_appointments_teachers_price',
+        Field('auth_teacher_id', db.auth_user,
+              requires=IS_IN_DB(db(au_query),
+                                'auth_user.id',
+                                '%(first_name)s %(last_name)s',
+                                zero=(T('Select employee...'))),
+              # represent=lambda value, row: teachers_dict.get(value, None),
+              # represent=lambda value, row: value or '',
+              label=T("Teacher")),
+        Field('Price', 'float', required=True,
+              requires=IS_FLOAT_IN_RANGE(0, 99999999, dot='.',
+                                         error_message=T('Too small or too large')),
+              represent=represent_float_as_amount,
+              label=T("Price")),
+        Field('tax_rates_id', db.tax_rates,
+              label=T('Tax rate')),
+        Field('accounting_glaccounts_id', db.accounting_glaccounts,
+              requires=IS_EMPTY_OR(IS_IN_DB(db(ag_query),
+                                            'accounting_glaccounts.id',
+                                            '%(Name)s')),
+              represent=represent_accounting_glaccount,
+              label=T('G/L Account'),
+              comment=T('General ledger account ID in your accounting software')),
+        Field('accounting_costcenters_id', db.accounting_costcenters,
+              requires=IS_EMPTY_OR(IS_IN_DB(db(ac_query),
+                                            'accounting_costcenters.id',
+                                            '%(Name)s')),
+              represent=represent_accounting_costcenter,
+              label=T("Cost center"),
+              comment=T("Cost center code in your accounting software")),
+        format='%(Name)s'
+    )
+
+
 def define_school_appointments_categories():
     db.define_table('school_appointments_categories',
         Field('Archived', 'boolean',
@@ -6742,6 +6784,7 @@ define_accounting_cashbooks_cash_count()
 
 define_school_appointments_categories()
 define_school_appointments()
+define_school_appointments_teachers_price()
 define_school_memberships()
 define_school_subscriptions()
 #mstypes_dict = create_mstypes_dict()
