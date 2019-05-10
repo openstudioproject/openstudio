@@ -449,6 +449,35 @@ def teachers_prices():
     saID = request.vars['saID']
     return_url = index_get_return_url()
 
+    db.school_appointments_teachers_price.id.readable = False
+    links = [
+        lambda row: os_gui.get_button('edit',
+                                      URL('teachers_price_edit', vars={'satpID': row.id, 'saID': saID}),
+                                      T("Edit this price")),
+    ]
+
+    maxtextlengths = {
+        'school_appointments_teachers_price.auth_teacher_id': 24,
+    }
+
+    query = (db.school_appointments_teachers_price.school_appointments_id == saID)
+
+    grid = SQLFORM.grid(
+        query,
+        # fields=fields,
+        links=links,
+        field_id=db.school_appointments_teachers_price.id,
+        create=False,
+        editable=False,
+        deletable=False,
+        details=False,
+        searchable=False,
+        maxtextlengths=maxtextlengths,
+        csv=False,
+        ui=grid_ui)
+    grid.element('.web2py_counter', replace=None)  # remove the counter
+    grid.elements('span[title=Delete]', replace=None)  # remove text from delete button
+
 
     add = os_gui.get_button(
         'add',
@@ -460,7 +489,7 @@ def teachers_prices():
     content = 'hello world'
     menu = edit_get_menu(request.function, saID)
 
-    return dict(content=content,
+    return dict(content=grid,
                 add=add,
                 back=back,
                 menu=menu)
@@ -480,6 +509,8 @@ def teachers_price_add():
     sa = db.school_appointments(saID)
 
     return_url = teachers_prices_get_return_url(saID)
+
+    db.school_appointments_teachers_price.school_appointments_id.default = saID
 
     os_forms = OsForms()
     result = os_forms.get_crud_form_create(

@@ -1292,6 +1292,10 @@ def define_school_appointments_teachers_price():
 
 
     db.define_table('school_appointments_teachers_price',
+        Field('school_appointments_id', db.school_appointments,
+              readable=False,
+              writable=False,
+              label=T("Appointment")),
         Field('auth_teacher_id', db.auth_user,
               requires=IS_IN_DB(db(au_query),
                                 'auth_user.id',
