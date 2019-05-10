@@ -1287,8 +1287,7 @@ def define_school_appointments_teachers_price():
     ac_query = (db.accounting_costcenters.Archived == False)
     ag_query = (db.accounting_glaccounts.Archived == False)
     au_query = (db.auth_user.trashed == False) & \
-               ((db.auth_user.teacher == True) |
-                (db.auth_user.employee == False))
+               (db.auth_user.teacher == True)
 
 
     db.define_table('school_appointments_teachers_price',
@@ -6547,6 +6546,11 @@ auth.settings.extra_fields['auth_user'] = [
         writable=False,
         default=False,
         label=T('Teaches events')),
+    Field('teaches_appointments', 'boolean',
+        readable=False,
+        writable=False,
+        default=False,
+        label=T('Takes appointments')),
     Field('employee', 'boolean',
         readable=False,
         writable=False,
