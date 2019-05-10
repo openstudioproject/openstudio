@@ -399,6 +399,7 @@ def category_edit():
         Edit a category
     """
     from openstudio.os_forms import OsForms
+
     response.title = T('School')
     response.subtitle = T("Appointments")
     response.view = 'general/tabs_menu.html'
@@ -431,4 +432,25 @@ def category_edit():
                 menu=menu)
 
 
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('view', 'school_appointments_teachers_price'))
+def teachers_prices():
+    """
+        List prices for an appointment type
+    """
+    response.title = T('School')
+    response.subtitle = T("Edit appointment type")
+    response.view = 'general/tabs_menu.html'
 
+    saID = request.vars['saID']
+    return_url = index_get_return_url()
+
+
+    back = os_gui.get_button('back', return_url)
+
+    content = 'hello world'
+    menu = edit_get_menu(request.function, saID)
+
+    return dict(content=content,
+                back=back,
+                menu=menu)
