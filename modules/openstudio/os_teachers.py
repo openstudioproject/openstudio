@@ -103,6 +103,7 @@ class Teachers:
             TH(T('Teacher')),
             TH(T('Classes')),
             TH(T('Events')),
+            TH(T('Appointments')),
             TH(T('Group (Permissions)')),
             TH() # Actions
         ))
@@ -118,6 +119,7 @@ class Teachers:
             if permission:
                 teaches_classes = self._rows_to_table_link_classes(row)
                 teaches_events = self._rows_to_table_link_events(row)
+                teaches_appointments = self._rows_to_table_link_appointments(row)
                 group = self._rows_to_table_link_group(row)
 
             tr = TR(
@@ -125,6 +127,7 @@ class Teachers:
                 TD(repr_row.display_name),
                 TD(teaches_classes),
                 TD(teaches_events),
+                TD(teaches_appointments),
                 TD(group),
                 TD(self._rows_to_table_buttons(row, permission))
             )
@@ -166,6 +169,23 @@ class Teachers:
             label = os_gui.get_label('default', T('No'))
 
         return A(label, _href=URL('teaches_events', vars={'uID':row.id}))
+
+
+    def _rows_to_table_link_appointments(self, row):
+        """
+            Returns 'yes' if a teacher teaches appointments and no if otherwise
+        """
+        from os_gui import OsGui
+
+        os_gui = OsGui()
+        T = current.T
+
+        if row.teaches_appointments:
+            label = os_gui.get_label('success', T('Yes'))
+        else:
+            label = os_gui.get_label('default', T('No'))
+
+        return A(label, _href=URL('teaches_appointments', vars={'uID':row.id}))
 
 
     def _rows_to_table_link_group(self, row):
