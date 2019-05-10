@@ -551,11 +551,11 @@ def teachers_price_edit():
     return_url = teachers_prices_get_return_url(saID)
 
     os_forms = OsForms()
-    result = os_forms.get_crud_form_updatee(
+    result = os_forms.get_crud_form_update(
         db.school_appointments_teachers_price,
         return_url,
         satpID,
-        message_record_created=T("Saved")
+        message_record_updated=T("Saved")
     )
 
     form = result['form']
