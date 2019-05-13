@@ -207,6 +207,11 @@ export const listReducer = (state = {}, action={ type: null }) => {
                 ...state,
                 camera_app_snap: null
             }
+        case T.CLEAR_NOTES:
+            return {
+                ...state,
+                notes: {}
+            }
         default:
             return {
                 ...state
