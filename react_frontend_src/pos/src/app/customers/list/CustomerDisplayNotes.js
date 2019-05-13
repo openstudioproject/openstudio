@@ -44,7 +44,7 @@ class CustomerDisplayNotes extends Component {
                                     <span className="direct-chat-name pull-left">{note.User}</span>
                                         <span className="direct-chat-timestamp pull-right">{note.Timestamp} {note.Time}</span>
                                     </div>
-                                    <img className="direct-chat-img" src="/static/images/person.png" alt="" />
+                                    <img className="direct-chat-img" src="/static/images/person_inverted_small.png" alt="" />
                                     <div className="direct-chat-text">
                                         {note.Note}
                                     </div>
