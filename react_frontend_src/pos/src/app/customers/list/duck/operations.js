@@ -1,6 +1,8 @@
 import {
     requestCustomers,
     receiveCustomers,
+    requestNotes,
+    receiveNotes,
     requestCreateCustomer,
     receiveCreateCustomer,
     clearCreateCustomerErrorData,
@@ -24,7 +26,7 @@ import {
     setRedirectNextComponent,
     clearRedirectNextComponent,
     setCameraAppSnap,
-    clearCameraAppSnap
+    clearCameraAppSnap,
 } from './actions'
 
 import axios_os from '../../../../utils/axios_os'
@@ -42,6 +44,26 @@ const fetchCustomers = () => {
           .then(function (response) {
             // handle success
             dispatch(receiveCustomers(response.data))
+            // dispatch(setLoadingProgress(100))
+          })
+          .catch(function (error) {
+            // handle error
+            console.log(error)
+          })
+          .then(function () {
+            // always executed
+          });
+      }
+  }
+
+const fetchNotes = () => {
+      return dispatch => {
+          dispatch(requestNotes())
+
+          axios_os.get(OS_API.CUSTOMER_NOTES)
+          .then(function (response) {
+            // handle success
+            dispatch(receiveNotes(response.data))
             // dispatch(setLoadingProgress(100))
           })
           .catch(function (error) {
@@ -132,6 +154,7 @@ export default {
     updateCustomer,
     updateCustomerPicture,
     fetchCustomers,
+    fetchNotes,
     setSearchTimeout,
     clearSearchTimeout,
     setCreateCustomerStatus,
@@ -147,5 +170,5 @@ export default {
     setRedirectNextComponent,
     clearRedirectNextComponent,
     setCameraAppSnap,
-    clearCameraAppSnap
+    clearCameraAppSnap,
 }
