@@ -542,6 +542,20 @@ def get_school_memberships():
     return dict(data=data)
 
 
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'customers_notes'))
+def get_customer_notes():
+    """
+    Return notes for a given customer
+    """
+    set_headers()
+
+    cuID = request.vars('id')
+
+    print cuID
+
+    query = (db.customers_notes.)
+
 def get_customers_thumbnail_url(row_data):
     if not row_data:
         return URL(

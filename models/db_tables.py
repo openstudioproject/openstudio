@@ -1948,6 +1948,9 @@ def define_customers_notes():
         Field('Injury', 'boolean',
               default=False,
               label=T('This note describes an injury')),
+        Field('Acknowledged', 'boolean',
+              default=False,
+              label=T('Acknowledged')),
         )
 
 
