@@ -83,7 +83,8 @@
             "redirect_next_component": null,
             "camera_app_snap": null,
             "camera_app_snap_saving": false,
-            "camera_app_snap_saved": false
+            "camera_app_snap_saved": false,
+            "notes": {} 
         },
         "memberships_today": {
             "loading": false,

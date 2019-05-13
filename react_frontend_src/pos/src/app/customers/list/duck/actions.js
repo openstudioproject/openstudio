@@ -145,3 +145,14 @@ export const clearCameraAppSnap = () =>
     ({
         type: T.CLEAR_CAMERA_APP_SNAP,
     })
+
+export const requestNotes = () =>
+    ({
+        type: T.REQUEST_NOTES
+    })
+
+export const receiveNotes = (data) =>
+    ({
+        type: T.RECEIVE_NOTES,
+        data
+    })
