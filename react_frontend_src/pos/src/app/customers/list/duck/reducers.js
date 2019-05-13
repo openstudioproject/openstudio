@@ -216,8 +216,8 @@ export const listReducer = (state = {}, action={ type: null }) => {
         case T.RECEIVE_NOTES:
             return {
                 ...state,
-                notes_loading: true,
-                notes_loaded: false,
+                notes_loading: false,
+                notes_loaded: true,
                 notes: action.data
             }
         case T.CLEAR_NOTES:

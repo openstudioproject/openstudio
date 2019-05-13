@@ -25,9 +25,9 @@ class CustomerDisplayNotes extends Component {
 
     render() {
         const customers = this.props.customers
-        notes = customers.notes
-        notes_loaded = customers.notes_loaded
-        notes_loading = customers.notes_loading
+        const notes = customers.notes
+        const notes_loaded = customers.notes_loaded
+        const notes_loading = customers.notes_loading
 
         return (
            <div>

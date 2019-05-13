@@ -229,9 +229,7 @@ class CustomerDisplay extends Component {
                                                            classcards={classcards}/>
                             </div>
                             <div className="col-md-4">
-                                {(customers.notes_loading || !customers.notes.loaded) ? "Loading notes..." :
-                                    <CustomerDisplayNotes customers={customers} />
-                                }
+                                <CustomerDisplayNotes customers={customers} />
                             </div>
                         </div>
                         <div className="col-md-2">
