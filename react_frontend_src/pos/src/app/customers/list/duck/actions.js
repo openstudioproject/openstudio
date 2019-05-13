@@ -156,3 +156,8 @@ export const receiveNotes = (data) =>
         type: T.RECEIVE_NOTES,
         data
     })
+
+export const clearNotes = () =>
+    ({
+        type: T.CLEAR_NOTES
+    })
