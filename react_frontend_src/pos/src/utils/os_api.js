@@ -25,6 +25,7 @@ const api_urls = {
     'CUSTOMER_CREATE': '/pos/create_customer.json',
     'CUSTOMER_UPDATE': '/pos/update_customer.json',
     'CUSTOMER_PICTURE_UPDATE': '/pos/update_customer_picture.json',
+    'CUSTOMER_NOTES': '/pos/get_customer_notes.json',
     'EXPENSES': '/pos/get_expenses.json',
     'EXPENSE_CREATE': '/pos/create_expense.json',
     'EXPENSE_UPDATE': '/pos/update_expense.json',

@@ -81,6 +81,9 @@ const mapDispatchToProps = dispatch =>
         },
         fetchNotes(id) {
             dispatch(customersListOperations.fetchNotes(id))
+        },
+        clearNotes() {
+            dispatch(customersListOperations.clearNotes())
         }
     })
 

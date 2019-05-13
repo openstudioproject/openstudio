@@ -57,11 +57,14 @@ const fetchCustomers = () => {
       }
   }
 
-const fetchNotes = () => {
+const fetchNotes = (id) => {
       return dispatch => {
           dispatch(requestNotes())
 
-          axios_os.get(OS_API.CUSTOMER_NOTES)
+          let fd = new FormData()
+          fd.append('id', id)
+
+          axios_os.post(OS_API.CUSTOMER_NOTES, fd)
           .then(function (response) {
             // handle success
             dispatch(receiveNotes(response.data))
