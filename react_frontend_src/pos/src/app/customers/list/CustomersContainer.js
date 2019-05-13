@@ -79,6 +79,9 @@ const mapDispatchToProps = dispatch =>
         clearCameraAppSnap() {
             dispatch(customersListOperations.clearCameraAppSnap())
         },
+        fetchNotes(id) {
+            dispatch(customersListOperations.fetchNotes(id))
+        }
     })
 
 
