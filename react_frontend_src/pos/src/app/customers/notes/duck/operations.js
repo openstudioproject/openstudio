@@ -1,30 +1,6 @@
 import {
-    requestCustomers,
-    receiveCustomers,
-    requestCreateCustomer,
-    receiveCreateCustomer,
-    clearCreateCustomerErrorData,
-    clearUpdateCustomerErrorData,
-    requestUpdateCustomer,
-    receiveUpdateCustomer,
-    requestSaveCameraAppSnap,
-    receiveSaveCameraAppSnap,
-    setCreateCustomerStatus,
-    setUpdateCustomerStatus,
-    setSearchTimeout,
-    clearSearchTimeout,
-    setDisplayCustomerID,
-    clearDisplayCustomerID,
-    setSearchCustomerID,
-    clearSearchCustomerID,
-    setSearchValue,
-    clearSearchValue,
-    setSelectedCustomerID,
-    clearSelectedCustomerID,
-    setRedirectNextComponent,
-    clearRedirectNextComponent,
-    setCameraAppSnap,
-    clearCameraAppSnap
+    requestNotes,
+    receiveNotes,
 } from './actions'
 
 import axios_os from '../../../../utils/axios_os'
@@ -34,7 +10,7 @@ import OS_API from '../../../../utils/os_api'
 // Put pass-through actions here
 
 // data fetchers
-const fetchCustomers = () => {
+const fetchNotes = () => {
       return dispatch => {
           dispatch(requestCustomers())
 
@@ -126,26 +102,5 @@ const updateCustomerPicture = (cuID, picture) => {
 
 
 export default {
-    createCustomer,
-    clearCreateCustomerErrorData,
-    clearUpdateCustomerErrorData,
-    updateCustomer,
-    updateCustomerPicture,
-    fetchCustomers,
-    setSearchTimeout,
-    clearSearchTimeout,
-    setCreateCustomerStatus,
-    setUpdateCustomerStatus,
-    setDisplayCustomerID,
-    clearDisplayCustomerID,
-    setSearchCustomerID,
-    clearSearchCustomerID,
-    setSearchValue,
-    clearSearchValue,
-    setSelectedCustomerID,
-    clearSelectedCustomerID,
-    setRedirectNextComponent,
-    clearRedirectNextComponent,
-    setCameraAppSnap,
-    clearCameraAppSnap
+    fetchNotes
 }
