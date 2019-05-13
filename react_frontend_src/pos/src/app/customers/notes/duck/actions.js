@@ -1,147 +1,51 @@
 import T from './types'
 
-
-export const requestCustomers = () =>
+export const requestNotes = () =>
     ({
-        type: T.REQUEST_CUSTOMERS
+        type: T.REQUEST_NOTES
     })
 
-export const receiveCustomers = (data) =>
+export const receiveNotes = () =>
     ({
-        type: T.RECEIVE_CUSTOMERS,
-        data
+        type: T.RECEIVE_NOTES
     })
 
-export const requestCreateCustomer = (data) =>
+export const requestCreateNote = () =>
     ({
-        type: T.REQUEST_CREATE_CUSTOMER,
-        data
+        type: T.REQUEST_CREATE_NOTE
     })
 
-export const receiveCreateCustomer = (data) =>
+export const receiveCreateNotes = () =>
     ({
-        type: T.RECEIVE_CREATE_CUSTOMER,
-        data
+        type: T.RECEIVE_CREATE_NOTE
     })
 
-export const clearCreateCustomerErrorData = () =>
+export const requestUpdateNote = () =>
     ({
-        type: T.CLEAR_CREATE_CUSTOMER_ERROR_DATA
+        type: T.REQUEST_UPDATE_NOTE
     })
 
-export const requestUpdateCustomer = (data) =>
+export const receiveUpdateNote = () =>
     ({
-        type: T.REQUEST_UPDATE_CUSTOMER,
-        data
+        type: T.RECEIVE_UPDATE_NOTE
     })
 
-export const receiveUpdateCustomer = (data) =>
+export const requestUpdateNoteStatus = () =>
     ({
-        type: T.RECEIVE_UPDATE_CUSTOMER,
-        data
+        type: T.REQUEST_UPDATE_NOTE_STATUS
     })
 
-export const clearUpdateCustomerErrorData = () =>
+export const receiveUpdateNoteStatus = () =>
     ({
-        type: T.CLEAR_UPDATE_CUSTOMER_ERROR_DATA
+        type: T.RECEIVE_UPDATE_NOTE_STATUS
     })
 
-export const requestSaveCameraAppSnap = () =>
+export const requestDeleteNote = () =>
     ({
-        type: T.REQUEST_SAVE_CAMERA_APP_SNAP
+        type: T.REQUEST_DELETE_NOTE
     })
 
-export const receiveSaveCameraAppSnap = (data) =>
+export const receiveDeleteNote = () =>
     ({
-        type: T.RECEIVE_SAVE_CAMERA_APP_SNAP,
-        data
-    })
-
-export const clearSearchTimeout = () =>
-    ({
-        type: T.CLEAR_SEARCH_TIMEOUT
-    })
-
-export const setSearchTimeout = (timeout) =>
-    ({
-        type: T.SET_SEARCH_TIMEOUT,
-        timeout,
-    })
-
-export const clearDisplayCustomerID = () =>
-    ({
-        type: T.CLEAR_DISPLAY_CUSTOMER_ID
-    })
-
-export const setDisplayCustomerID = (id) =>
-    ({
-        type: T.SET_DISPLAY_CUSTOMER_ID,
-        id
-    })
-
-export const clearSearchCustomerID = () =>
-    ({
-        type: T.CLEAR_SEARCH_CUSTOMER_ID
-    })
-
-export const setSearchCustomerID = (id) =>
-    ({
-        type: T.SET_SEARCH_CUSTOMER_ID,
-        id
-    })
-
-export const clearSearchValue = () =>
-    ({
-        type: T.CLEAR_SEARCH_VALUE
-    })
-
-export const setSearchValue = (value) =>
-    ({
-        type: T.SET_SEARCH_VALUE,
-        value
-    })
-
-export const clearSelectedCustomerID = () =>
-    ({
-        type: T.CLEAR_SELECTED_CUSTOMER_ID
-    })
-
-export const setSelectedCustomerID = (id) =>
-    ({
-        type: T.SET_SELECTED_CUSTOMER_ID,
-        id
-    })
-
-export const setCreateCustomerStatus = (status) =>
-    ({
-        type: T.SET_CREATE_CUSTOMER_STATUS,
-        status
-    })
-
-export const setUpdateCustomerStatus = (status) =>
-    ({
-        type: T.SET_UPDATE_CUSTOMER_STATUS,
-        status
-    })
-
-export const setRedirectNextComponent = (component) =>
-    ({
-        type: T.SET_REDIRECT_NEXT_COMPONENT,
-        component
-    })
-
-export const clearRedirectNextComponent = () =>
-    ({
-        type: T.CLEAR_REDIRECT_NEXT_COMPONENT,
-    })
-
-export const setCameraAppSnap = (data) =>
-    ({
-        type: T.SET_CAMERA_APP_SNAP,
-        data
-    })
-
-export const clearCameraAppSnap = () =>
-    ({
-        type: T.CLEAR_CAMERA_APP_SNAP,
+        type: T.RECEIVE_DELETE_NOTE
     })
