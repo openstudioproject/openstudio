@@ -27,7 +27,6 @@ class CustomerDisplayNotes extends Component {
         const customers = this.props.customers
         const notes = customers.notes
         const notes_loaded = customers.notes_loaded
-        const notes_loading = customers.notes_loading
 
         return (
            <div>

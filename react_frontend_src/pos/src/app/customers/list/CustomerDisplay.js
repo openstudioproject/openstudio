@@ -210,7 +210,7 @@ class CustomerDisplay extends Component {
                         </div> 
                         {/* Close md-4 */}
                         <div className="col-md-8">
-                            <div className="col-md-4">
+                            <div className="col-md-3">
                                 <label>Name</label><br/>
                                 {customers_list[customerID].display_name}<br/>
                                 <label>Email</label><br/>
@@ -220,7 +220,7 @@ class CustomerDisplay extends Component {
                                 <label>Date of birth</label><br/>
                                 {customers_list[customerID].date_of_birth}<br/>
                             </div>
-                            <div className="col-md-4">
+                            <div className="col-md-3">
                                 <CustomerDisplayMemberships customerID={customerID}
                                                             memberships={memberships}/>
                                 <CustomerDisplaySubscriptions customerID={customerID}
@@ -228,7 +228,7 @@ class CustomerDisplay extends Component {
                                 <CustomerDisplayClasscards customerID={customerID}
                                                            classcards={classcards}/>
                             </div>
-                            <div className="col-md-4">
+                            <div className="col-md-6">
                                 <CustomerDisplayNotes customers={customers} />
                             </div>
                         </div>

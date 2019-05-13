@@ -564,8 +564,8 @@ def get_customer_notes():
         db.customers_notes.NoteTime,
         db.customers_notes.Note,
         db.customers_notes.Acknowledged,
-        orderby=db.customers_notes.NoteDate|\
-                db.customers_notes.NoteTime
+        orderby=~db.customers_notes.NoteDate|\
+                ~db.customers_notes.NoteTime
     )
 
     print rows
