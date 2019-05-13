@@ -550,11 +550,27 @@ def get_customer_notes():
     """
     set_headers()
 
-    cuID = request.vars('id')
+    cuID = request.vars['id']
 
     print cuID
 
-    query = (db.customers_notes.)
+    query = (db.customers_notes.auth_customer_id == cuID) & \
+            (db.customers_notes.TeacherNote == True)
+
+    rows = db(query).select(
+        db.customers_notes.id,
+        db.customers_notes.NoteDate,
+        db.customers_notes.NoteTime,
+        db.customers_notes.Note,
+        db.customers_notes.Acknowledged,
+        orderby=db.customers_notes.NoteDate|\
+                db.customers_notes.NoteTime
+    )
+
+    print rows
+
+    return dict(data=rows.as_list())
+
 
 def get_customers_thumbnail_url(row_data):
     if not row_data:
