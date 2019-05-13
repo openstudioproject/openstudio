@@ -559,6 +559,7 @@ def get_customer_notes():
 
     rows = db(query).select(
         db.customers_notes.id,
+        db.customers_notes.auth_user_id,
         db.customers_notes.NoteDate,
         db.customers_notes.NoteTime,
         db.customers_notes.Note,
@@ -569,7 +570,34 @@ def get_customer_notes():
 
     print rows
 
-    return dict(data=rows.as_list())
+    notes = []
+    for i, row in enumerate(rows):
+        print row
+        repr_row = list(rows[i:i + 1].render())[0]
+
+        date = row.NoteDate
+        time = row.NoteTime
+        note_dt = datetime.datetime(
+            date.year,
+            date.month,
+            date.day,
+            time.hour,
+            time.minute
+        )
+
+        print note_dt
+
+        notes.append({
+            "id": row.id,
+            "Timestamp": note_dt.strftime(DATETIME_FORMAT),
+            "Note": row.Note,
+            "User": repr_row.auth_user_id,
+            "Acknowledged": row.Acknowledged
+        })
+
+    print notes
+
+    return dict(data=notes)
 
 
 def get_customers_thumbnail_url(row_data):

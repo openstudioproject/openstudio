@@ -36,16 +36,22 @@ class CustomerDisplayNotes extends Component {
                     <div>     
                         <b>Notes</b>
                         {console.log(notes.data)}
-                        {/* {classcards.data[customerID].map((classcard, i) => 
-                            <div key={v4()}>
-                                { classcard.name } <br />
-                                <span className="text-muted">
-                                    { classcard.start }
-                                    { (classcard.end) ? " - " + classcard.end : ''} <br/>
-                                    {this.formatClassesRemaining(classcard)}
-                                </span>
+                        <div className="direct-chat-messages">
+                        {notes.data.map((note, i) => 
+                            <div key={v4()}>                               
+                                <div className="direct-chat-msg">
+                                    <div className="direct-chat-info clearfix">
+                                    <span className="direct-chat-name pull-left">{note.User}</span>
+                                        <span className="direct-chat-timestamp pull-right">{note.Timestamp} {note.Time}</span>
+                                    </div>
+                                    <img className="direct-chat-img" src="/static/images/person.png" alt="" />
+                                    <div className="direct-chat-text">
+                                        {note.Note}
+                                    </div>
+                                </div>
                             </div>
-                        )} */}
+                        )}
+                        </div>
                     </div> : '' 
                 : "Loading notes, please wait..."
                }
