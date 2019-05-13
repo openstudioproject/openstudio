@@ -223,12 +223,13 @@ class CustomerDisplay extends Component {
                             <div className="col-md-4">
                                 <CustomerDisplayMemberships customerID={customerID}
                                                             memberships={memberships}/>
-                            </div>
-                            <div className="col-md-4">
                                 <CustomerDisplaySubscriptions customerID={customerID}
                                                               subscriptions={subscriptions}/>
                                 <CustomerDisplayClasscards customerID={customerID}
                                                            classcards={classcards}/>
+                            </div>
+                            <div className="col-md-4">
+                                Notes will go here :)
                             </div>
                         </div>
                         <div className="col-md-2">
