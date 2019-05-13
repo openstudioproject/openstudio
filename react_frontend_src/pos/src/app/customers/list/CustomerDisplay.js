@@ -9,6 +9,7 @@ import ButtonCustomerEdit from "../../../components/ui/ButtonCustomerEdit"
 import CustomerDisplayMemberships from "./CustomerDisplayMemberships"
 import CustomerDisplaySubscriptions from "./CustomerDisplaySubscriptions"
 import CustomerDisplayClasscards from "./CustomerDisplayClasscards"
+import CustomerDisplayNotes from "./CustomerDisplayNotes"
 
 
 class CustomerDisplay extends Component {
@@ -228,7 +229,9 @@ class CustomerDisplay extends Component {
                                                            classcards={classcards}/>
                             </div>
                             <div className="col-md-4">
-                                Notes will go here :)
+                                {(customers.notes_loading || !customers.notes.loaded) ? "Loading notes..." :
+                                    <CustomerDisplayNotes customers={customers} />
+                                }
                             </div>
                         </div>
                         <div className="col-md-2">
