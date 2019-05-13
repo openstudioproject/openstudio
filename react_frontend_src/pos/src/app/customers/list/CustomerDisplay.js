@@ -28,6 +28,13 @@ class CustomerDisplay extends Component {
         onClickEdit: PropTypes.function
     }
 
+    componentWillMount() {
+        this.props.fetchNotes()
+    }
+
+    componentWillUnmount() {
+        this.props.clearNotes()
+    }
 
     onClickStartCamera() {
         console.log('Customer Display component DidMount')
