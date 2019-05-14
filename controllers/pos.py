@@ -600,6 +600,34 @@ def get_customer_notes():
     return dict(data=notes)
 
 
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('create', 'customers_notes'))
+def create_customer_note():
+    """
+    :return: dict containing data of new note
+    """
+    set_headers()
+
+    print request.vars
+
+    # Set some default values
+    db.customers_notes.TeacherNote = True
+
+    result = db.customers_notes.validate_and_insert(**request.vars)
+    print result
+
+    expense_data = ''
+    error = False
+    if result.errors:
+        error = True
+
+    # if not error:
+    #     row = db.customers_notes(result['id'])
+
+    return dict(result=result,
+                error=error)
+
+
 def get_customers_thumbnail_url(row_data):
     if not row_data:
         return URL(
