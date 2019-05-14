@@ -84,7 +84,13 @@ const mapDispatchToProps = dispatch =>
         },
         clearNotes() {
             dispatch(customersListOperations.clearNotes())
-        }
+        },
+        setCreateNote() {
+            dispatch(customersListOperations.setCreateNote())
+        },
+        clearCreateNote() {
+            dispatch(customersListOperations.clearCreateNote())
+        },
     })
 
 
