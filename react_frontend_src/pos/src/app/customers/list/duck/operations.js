@@ -3,6 +3,8 @@ import {
     receiveCustomers,
     requestNotes,
     receiveNotes,
+    requestCreateNote,
+    receiveCreateNote,
     clearNotes,
     setCreateNote,
     clearCreateNote,
@@ -115,13 +117,13 @@ const createCustomer = (data) => {
 
 const createNote = (cuID, data) => {
     return dispatch => {
-        dispatch(requestCreateCustomer())
+        dispatch(requestCreateNote())
         
         data.append('cuID', cuID) // Include customer ID in sent data
         axios_os.post(OS_API.CUSTOMER_CREATE_NOTE, data)
         .then(function(response) {
             console.log(response)
-            dispatch(receiveCreateCustomer(response.data))
+            dispatch(receiveCreateNote(response.data))
         })
         .catch(function (error) {
             console.log(error)
