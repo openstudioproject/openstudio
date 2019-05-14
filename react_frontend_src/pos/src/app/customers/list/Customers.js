@@ -236,6 +236,7 @@ class Customers extends Component {
                                                 classcards={classcards}
                                                 edit_in_progress={customers.update_customer}
                                                 onClickEdit={this.onClickEdit.bind(this)}
+                                                onClickCreateNote={this.props.onClickCreateNote}
                                                 onSetCameraAppSnap={this.props.setCameraAppSnap}
                                                 onClearCameraAppSnap={this.props.clearCameraAppSnap}
                                                 onSaveCameraAppSnap={this.props.updateCustomerPicture}

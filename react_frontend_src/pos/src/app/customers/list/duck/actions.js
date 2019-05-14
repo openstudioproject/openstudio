@@ -161,3 +161,13 @@ export const clearNotes = () =>
     ({
         type: T.CLEAR_NOTES
     })
+
+export const setCreateNotes = () =>
+    ({
+        type: T.SET_CREATE_NOTE
+    })
+
+export const clearCreateNotes = () =>
+    ({
+        type: T.CLEAR_CREATE_NOTE
+    })

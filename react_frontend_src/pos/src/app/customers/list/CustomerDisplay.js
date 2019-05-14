@@ -249,6 +249,11 @@ class CustomerDisplay extends Component {
                                   className="btn btn-default btn-flat btn-block">
                                 <i className="fa fa-check-square-o"></i> Class check-in
                             </Link>
+                            <button type="button" 
+                                    onClick={this.props.onClickCreateNote.bind(this)} 
+                                    className="btn btn-default btn-flat btn-block">
+                                <i className="fa fa-sticky-note-o"></i> Add note
+                            </button>
                             <ButtonCustomerEdit onClick={onClickEdit}
                                                 classAdditional='btn-flat btn-block'>
                                 { ' ' } Edit customer
