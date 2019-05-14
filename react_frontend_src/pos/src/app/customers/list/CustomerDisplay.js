@@ -231,7 +231,7 @@ class CustomerDisplay extends Component {
                             </div>
                             <div className="col-md-6">
                                 {(customers.create_note) ?
-                                    <CustomerDisplayNoteFormCreate /> :
+                                    <CustomerDisplayNoteFormCreate onClickCancelCreateNote={this.props.onClickCancelCreateNote}/> :
                                     <CustomerDisplayNotes customers={customers} />
                                 }
                             </div>

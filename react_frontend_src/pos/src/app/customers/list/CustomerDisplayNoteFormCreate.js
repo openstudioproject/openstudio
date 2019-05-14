@@ -22,12 +22,12 @@ class CustomerDisplayNoteFormCreate extends Component {
     render() {
         const error_data = this.props.error_data
         const onSubmit = this.props.onSubmit
-        const onCancel = this.props.onCancel        
+        const onCancel = this.props.onClickCancelCreateNote       
 
         return (
             <div>
                 Create note here!
-                <button className="btn btn-link" onCLick={onCancel}>Cancel</button>
+                <button className="btn btn-link" onClick={onCancel.bind(this)}>Cancel</button>
             </div>
             // <div className="box box-solid"> 
             //     <div className="box-header">
