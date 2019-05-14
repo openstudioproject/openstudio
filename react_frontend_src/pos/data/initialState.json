@@ -86,7 +86,10 @@
             "camera_app_snap_saved": false,
             "notes_loading": false,
             "notes_loaded": false,
-            "notes": {}
+            "notes": {},
+            "create_note": false,
+            "update_note": false,
+            "selected_noteID": null
         },
         "memberships_today": {
             "loading": false,
