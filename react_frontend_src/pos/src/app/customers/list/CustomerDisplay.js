@@ -10,6 +10,7 @@ import CustomerDisplayMemberships from "./CustomerDisplayMemberships"
 import CustomerDisplaySubscriptions from "./CustomerDisplaySubscriptions"
 import CustomerDisplayClasscards from "./CustomerDisplayClasscards"
 import CustomerDisplayNotes from "./CustomerDisplayNotes"
+import CustomerDisplayNoteFormCreate from "./CustomerDisplayNoteFormCreate"
 
 
 class CustomerDisplay extends Component {
@@ -229,7 +230,10 @@ class CustomerDisplay extends Component {
                                                            classcards={classcards}/>
                             </div>
                             <div className="col-md-6">
-                                <CustomerDisplayNotes customers={customers} />
+                                {(customers.create_note) ?
+                                    <CustomerDisplayNoteFormCreate /> :
+                                    <CustomerDisplayNotes customers={customers} />
+                                }
                             </div>
                         </div>
                         <div className="col-md-2">
