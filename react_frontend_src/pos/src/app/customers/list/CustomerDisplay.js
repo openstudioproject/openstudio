@@ -109,6 +109,16 @@ class CustomerDisplay extends Component {
         }
     }
 
+    onCreateNote(e) {
+        console.log('submit note')
+        e.preventDefault()
+        console.log(e.target)
+        const data = new FormData(e.target)
+
+        console.log(data.values())
+        // this.props.createNote(data)
+    }
+
 
     render() {
         const customerID = this.props.customerID
@@ -233,6 +243,7 @@ class CustomerDisplay extends Component {
                                 {(customers.create_note) ?
                                     <CustomerDisplayNoteFormCreate 
                                         errorData={this.props.createNoteErrorData}
+                                        onSubmit={this.onCreateNote.bind(this)}
                                         onClickCancelCreateNote={this.props.onClickCancelCreateNote}
                                     /> :
                                     <CustomerDisplayNotes customers={customers} />
