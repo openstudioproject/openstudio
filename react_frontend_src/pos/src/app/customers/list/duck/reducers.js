@@ -227,6 +227,16 @@ export const listReducer = (state = {}, action={ type: null }) => {
                 notes_loading: false,
                 notes: {}
             }
+        case T.SET_CREATE_NOTE:
+            return {
+                ...state,
+                create_note: true
+            }
+        case T.CLEAR_CREATE_NOTE:
+            return {
+                ...state,
+                create_note: false
+            }
         default:
             return {
                 ...state
