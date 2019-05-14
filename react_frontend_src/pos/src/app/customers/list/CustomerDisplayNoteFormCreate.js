@@ -26,7 +26,19 @@ class CustomerDisplayNoteFormCreate extends Component {
 
         return (
             <div>
-                Create note here!
+                <h4>Add note</h4>
+                <form onSubmit={onSubmit}>
+                    <label htmlFor="Note">Note</label>
+                    <input 
+                        id="Note" 
+                        className="form-control"
+                        name="Note" 
+                        type="text" 
+                    />
+                    <CustomerFormError message={ (error_data.Note) ? error_data.Note : "" } /> 
+                    <br />
+                    <button className="btn btn-primary">Save</button>
+                </form>
                 <button className="btn btn-link" onClick={onCancel.bind(this)}>Cancel</button>
             </div>
             // <div className="box box-solid"> 
@@ -83,8 +95,8 @@ class CustomerDisplayNoteFormCreate extends Component {
             //                 ref={this.inputDateOfBirth}
             //             />
             //             <CustomerFormError message={ (error_data.date_of_birth) ? error_data.date_of_birth : "" } />
-            //             <br />
-            //             <button className="btn btn-primary">Save</button>
+                        // <br />
+                        // <button className="btn btn-primary">Save</button>
             //         </form>
             //     </div>
             // </div>
