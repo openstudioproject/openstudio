@@ -171,3 +171,13 @@ export const clearCreateNote = () =>
     ({
         type: T.CLEAR_CREATE_NOTE
     })
+
+export const requestCreateNote = () =>
+    ({
+        type: T.REQUEST_CREATE_NOTE
+    })
+
+export const receiveCreateNote = () =>
+    ({
+        type: T.RECEIVE_CREATE_NOTE
+    })
