@@ -238,6 +238,7 @@ class Customers extends Component {
                                                 onClickEdit={this.onClickEdit.bind(this)}
                                                 onClickCreateNote={this.props.setCreateNote}
                                                 onClickCancelCreateNote={this.props.clearCreateNote}
+                                                createNoteErrorData={customers.create_note_error_data}
                                                 onSetCameraAppSnap={this.props.setCameraAppSnap}
                                                 onClearCameraAppSnap={this.props.clearCameraAppSnap}
                                                 onSaveCameraAppSnap={this.props.updateCustomerPicture}

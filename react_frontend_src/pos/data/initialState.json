@@ -89,8 +89,8 @@
             "notes": {},
             "create_note": false,
             "update_note": false,
-            "create_note_error_date": {},
-            "update_note_error_date": {},
+            "create_note_error_data": {},
+            "update_note_error_data": {},
             "selected_noteID": null
         },
         "memberships_today": {

@@ -20,7 +20,7 @@ class CustomerDisplayNoteFormCreate extends Component {
     }
 
     render() {
-        const error_data = this.props.error_data
+        const error_data = this.props.errorData
         const onSubmit = this.props.onSubmit
         const onCancel = this.props.onClickCancelCreateNote       
 
@@ -28,16 +28,14 @@ class CustomerDisplayNoteFormCreate extends Component {
             <div>
                 <h4>Add note</h4>
                 <form onSubmit={onSubmit}>
-                    <label htmlFor="Note">Note</label>
-                    <input 
-                        id="Note" 
+                    <textarea
+                        id="CustomersNoteTextarea" 
                         className="form-control"
                         name="Note" 
-                        type="text" 
                     />
                     <CustomerFormError message={ (error_data.Note) ? error_data.Note : "" } /> 
                     <br />
-                    <button className="btn btn-primary">Save</button>
+                    <button className="btn btn-primary pull-right">Save</button>
                 </form>
                 <button className="btn btn-link" onClick={onCancel.bind(this)}>Cancel</button>
             </div>
