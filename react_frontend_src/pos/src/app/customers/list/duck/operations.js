@@ -113,6 +113,25 @@ const createCustomer = (data) => {
     }
 }
 
+const createNote = (cuID, data) => {
+    return dispatch => {
+        dispatch(requestCreateCustomer())
+        
+        data.append('cuID', cuID) // Include customer ID in sent data
+        axios_os.post(OS_API.CUSTOMER_CREATE_NOTE, data)
+        .then(function(response) {
+            console.log(response)
+            dispatch(receiveCreateCustomer(response.data))
+        })
+        .catch(function (error) {
+            console.log(error)
+        })
+        .then(function() {
+            //always executed
+        })
+    }
+}
+
 // updaters
 const updateCustomer = (data) => {
     return dispatch => {
@@ -162,6 +181,7 @@ export default {
     fetchCustomers,
     fetchNotes,
     clearNotes,
+    createNote,
     setCreateNote,
     clearCreateNote,
     setSearchTimeout,

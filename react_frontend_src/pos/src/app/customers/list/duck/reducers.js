@@ -243,17 +243,17 @@ export const listReducer = (state = {}, action={ type: null }) => {
                 creating_note: true
             }
         case T.RECEIVE_CREATE_NOTE:
-            let return_value = {
+            let receive_create_note_return_value = {
                 ...state,
                 creating_note: false,
                 create_note_error_data: action.data.result.errors   
             }
             
             if (action.data.error == false) {
-                return_value['create_note'] = false
+                receive_create_note_return_value['create_note'] = false
             }
             
-            return return_value
+            return receive_create_note_return_value
         default:
             return {
                 ...state
