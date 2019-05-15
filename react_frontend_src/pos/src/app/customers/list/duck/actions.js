@@ -182,3 +182,13 @@ export const receiveCreateNote = (data) =>
         type: T.RECEIVE_CREATE_NOTE,
         data
     })
+
+export const setUpdateNote = () =>
+    ({
+        type: T.SET_UPDATE_NOTE
+    })
+
+export const clearUpdateNote = () =>
+    ({
+        type: T.CLEAR_UPDATE_NOTE
+    })
