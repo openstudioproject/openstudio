@@ -8,6 +8,8 @@ import {
     clearNotes,
     setCreateNote,
     clearCreateNote,
+    setUpdateNote,
+    clearUpdateNote,
     requestCreateCustomer,
     receiveCreateCustomer,
     clearCreateCustomerErrorData,

@@ -165,6 +165,7 @@ class Customers extends Component {
         console.log('clicked')
         console.log(id)
         this.props.setDisplayCustomerID(id)
+        this.props.clearNotes()
         this.props.fetchNotes(id)
     }
 
