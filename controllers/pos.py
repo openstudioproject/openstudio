@@ -611,7 +611,7 @@ def create_customer_note():
     print request.vars
 
     # Set some default values
-    db.customers_notes.TeacherNote = True
+    db.customers_notes.TeacherNote.default = True
 
     result = db.customers_notes.validate_and_insert(**request.vars)
     print result

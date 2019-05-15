@@ -177,7 +177,8 @@ export const requestCreateNote = () =>
         type: T.REQUEST_CREATE_NOTE
     })
 
-export const receiveCreateNote = () =>
+export const receiveCreateNote = (data) =>
     ({
-        type: T.RECEIVE_CREATE_NOTE
+        type: T.RECEIVE_CREATE_NOTE,
+        data
     })
