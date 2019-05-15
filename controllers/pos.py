@@ -611,6 +611,8 @@ def create_customer_note():
     print request.vars
 
     # Set some default values
+    db.customers_notes.auth_user_id.default = auth.user.id
+    db.customers_notes.auth_customer_id.default = request.vars['cuID']
     db.customers_notes.TeacherNote.default = True
 
     result = db.customers_notes.validate_and_insert(**request.vars)

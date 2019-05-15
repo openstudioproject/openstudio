@@ -124,6 +124,9 @@ const createNote = (cuID, data) => {
         .then(function(response) {
             console.log(response)
             dispatch(receiveCreateNote(response.data))
+            if (!response.data.errors) {
+                dispatch(fetchNotes(cuID))
+            }
         })
         .catch(function (error) {
             console.log(error)
