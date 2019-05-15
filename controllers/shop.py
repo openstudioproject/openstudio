@@ -2837,7 +2837,7 @@ def class_order():
     customer = Customer(auth.user.id)
 
     attendance_type = 2 # dropin
-    if trial:
+    if trial == 'True':
         attendance_type = 1
     checkout_order_class(clsID, date, attendance_type, order)
 
