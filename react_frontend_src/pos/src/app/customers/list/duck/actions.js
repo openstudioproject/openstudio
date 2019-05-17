@@ -194,8 +194,13 @@ export const clearUpdateNote = () =>
         type: T.CLEAR_UPDATE_NOTE
     })
 
-export const deleteNote = (id) =>
+export const requestDeleteNote = () =>
     ({
-        type: T.DELETE_NOTE,
-        id
+        type: T.REQUEST_DELETE_NOTE
+    })
+
+export const receiveDeleteNote = (data) =>
+    ({
+        type: T.RECEIVE_DELETE_NOTE,
+        data
     })

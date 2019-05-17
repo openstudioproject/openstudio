@@ -10,6 +10,7 @@ import {
     clearCreateNote,
     setUpdateNote,
     clearUpdateNote,
+    deleteNote,
     requestCreateCustomer,
     receiveCreateCustomer,
     clearCreateCustomerErrorData,
@@ -177,6 +178,32 @@ const updateCustomerPicture = (cuID, picture) => {
         })
     }
 }
+
+// deleters
+const deleteNote = (cuID, id) => {
+    return dispatch => {
+        dispatch(requestDeleteNote())
+
+        let fd = new FormData()
+        fd.append('id', id)
+        
+        axios_os.post(OS_API.CUSTOMER_DELETE_NOTE, fd)
+        .then(function(response) {
+            console.log(response)
+            dispatch(receiveDeleteNote(response.data))
+            if (!response.data.errors) {
+                dispatch(fetchNotes(cuID))
+            }
+        })
+        .catch(function (error) {
+            console.log(error)
+        })
+        .then(function() {
+            //always executed
+        })
+    }
+}
+
 
 
 export default {
