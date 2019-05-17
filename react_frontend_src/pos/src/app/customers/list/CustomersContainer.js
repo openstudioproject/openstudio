@@ -94,6 +94,12 @@ const mapDispatchToProps = dispatch =>
         createNote(cuID, data) {
             dispatch(customersListOperations.createNote(cuID, data))
         },
+        setUpdateNote(id) {
+            dispatch(customersListOperations.setUpdateNote(id))
+        },
+        clearUpdateNote() {
+            dispatch(customersListOperations.clearUpdateNote())
+        }
     })
 
 

@@ -183,9 +183,10 @@ export const receiveCreateNote = (data) =>
         data
     })
 
-export const setUpdateNote = () =>
+export const setUpdateNote = (id) =>
     ({
         type: T.SET_UPDATE_NOTE
+        id
     })
 
 export const clearUpdateNote = () =>

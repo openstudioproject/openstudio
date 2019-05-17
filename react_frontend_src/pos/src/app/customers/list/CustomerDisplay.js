@@ -246,7 +246,10 @@ class CustomerDisplay extends Component {
                                         onSubmit={this.onCreateNote.bind(this)}
                                         onClickCancelCreateNote={this.props.onClickCancelCreateNote}
                                     /> :
-                                    <CustomerDisplayNotes customers={customers} />
+                                    <CustomerDisplayNotes 
+                                        customers={customers} 
+                                        OnClickUpdateNote={this.props.OnClickUpdateNote}
+                                    />
                                 }
                             </div>
                         </div>

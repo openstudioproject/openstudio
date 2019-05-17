@@ -41,6 +41,7 @@ class CustomerDisplayNotes extends Component {
                                 <div className="direct-chat-msg">
                                     <div className="direct-chat-info clearfix">
                                     <span className="direct-chat-name pull-left">{note.User}</span>
+                                        <span className="direct-chat-scope pull-right" onClick={this.props.OnClickUpdateNote(note.id)}>Edit</span>
                                         <span className="direct-chat-timestamp pull-right">{note.Timestamp} {note.Time}</span>
                                     </div>
                                     <img className="direct-chat-img" src="/static/images/person_inverted_small.png" alt="" />

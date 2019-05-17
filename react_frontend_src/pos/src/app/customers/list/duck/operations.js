@@ -191,6 +191,8 @@ export default {
     createNote,
     setCreateNote,
     clearCreateNote,
+    setUpdateNote,
+    clearUpdateNote,
     setSearchTimeout,
     clearSearchTimeout,
     setCreateCustomerStatus,
