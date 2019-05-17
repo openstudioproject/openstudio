@@ -254,6 +254,18 @@ export const listReducer = (state = {}, action={ type: null }) => {
             }
             
             return receive_create_note_return_value
+        case T.SET_UPDATE_NOTE:
+            return {
+                ...state,
+                update_note: true,
+                selected_noteID: action.id
+            }
+        case T.CLEAR_UPDATE_NOTE:
+            return {
+                ...state,
+                update_note: false,
+                selected_noteID: null
+            }
         default:
             return {
                 ...state
