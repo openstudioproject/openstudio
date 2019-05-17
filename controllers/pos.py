@@ -630,6 +630,24 @@ def create_customer_note():
                 error=error)
 
 
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('delete', 'customers_notes'))
+def delete_customer_note():
+    """
+
+    :return:
+    """
+    set_headers()
+
+    print request.vars
+    cnID = request.vars['id']
+
+    query = (db.customers_notes.id == cnID)
+    db(query).delete()
+
+    return dict(id=cnID, error=False)
+
+
 def get_customers_thumbnail_url(row_data):
     if not row_data:
         return URL(
