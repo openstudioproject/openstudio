@@ -99,6 +99,9 @@ const mapDispatchToProps = dispatch =>
         },
         clearUpdateNote() {
             dispatch(customersListOperations.clearUpdateNote())
+        },
+        deleteNote(cuID, id) {
+            dispatch(customersListOperations.deleteNote(cuID, id))
         }
     })
 
