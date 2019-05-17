@@ -42,6 +42,11 @@ class CustomerDisplayNotes extends Component {
                                     <div className="direct-chat-info clearfix">
                                     <span className="direct-chat-name pull-left">{note.User}</span>
                                         <span 
+                                          className="btn btn-xs btn-danger direct-chat-scope pull-right" 
+                                          onClick={() => this.props.OnClickDeleteNote(note.id)}>
+                                            <i className="fa fa-pencil" />  Delete note
+                                        </span>
+                                        <span 
                                           className="btn btn-xs btn-default direct-chat-scope pull-right" 
                                           onClick={() => this.props.OnClickUpdateNote(note.id)}>
                                             <i className="fa fa-pencil" />  Edit note

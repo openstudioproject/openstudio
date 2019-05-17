@@ -193,3 +193,9 @@ export const clearUpdateNote = () =>
     ({
         type: T.CLEAR_UPDATE_NOTE
     })
+
+export const deleteNote = (id) =>
+    ({
+        type: T.DELETE_NOTE,
+        id
+    })
