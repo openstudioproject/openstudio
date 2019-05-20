@@ -263,6 +263,9 @@ class CustomerDisplay extends Component {
                                         // Update note
                                         <CustomerDisplayNoteForm
                                             title="Edit note" 
+                                            update={true}
+                                            notes={customers.notes}
+                                            selectedNoteID={customers.selected_noteID}
                                             errorData={this.props.updateNoteErrorData}
                                             onSubmit={this.onUpdateNote.bind(this)}
                                             onClickCancel={this.props.OnClickCancelUpdateNote}
