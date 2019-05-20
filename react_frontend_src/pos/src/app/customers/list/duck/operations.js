@@ -182,10 +182,11 @@ const updateCustomerPicture = (cuID, picture) => {
     }
 }
 
-const updateNote = (cuID, data) => {
+const updateNote = (cuID, id, data) => {
     return dispatch => {
         dispatch(requestUpdateNote())
         
+        data.append('id', id)
         axios_os.post(OS_API.CUSTOMER_UPDATE_NOTE, data)
         .then(function(response) {
             console.log(response)

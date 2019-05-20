@@ -637,8 +637,12 @@ def update_customer_note():
     """
     set_headers()
 
+    print request.vars
+
     cnID = request.vars['id']
-    cn = db.customers_notes['cnID']
+
+    print cnID
+    cn = db.customers_notes(cnID)
     cn.Note = request.vars['Note']
     error = cn.update_record()
 
