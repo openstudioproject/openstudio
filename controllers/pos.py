@@ -644,7 +644,7 @@ def update_customer_note():
     print cnID
     cn = db.customers_notes(cnID)
     cn.Note = request.vars['Note']
-    error = cn.update_record()
+    record = cn.update_record()
 
     # error = False
     # if result.errors:
@@ -653,7 +653,7 @@ def update_customer_note():
     # if not error:
     #     row = db.customers_notes(result['id'])
 
-    return dict(error=error)
+    return dict(error=False)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
