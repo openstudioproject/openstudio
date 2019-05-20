@@ -110,13 +110,24 @@ class CustomerDisplay extends Component {
     }
 
     onCreateNote(e) {
-        console.log('submit note')
+        console.log('submit create note')
         e.preventDefault()
         console.log(e.target)
         const data = new FormData(e.target)
 
         console.log(data.values())
         this.props.createNote(this.props.customerID, data)
+    }
+
+
+    onUpdateNote(e) {
+        console.log('submit update note')
+        e.preventDefault()
+        console.log(e.target)
+        const data = new FormData(e.target)
+
+        console.log(data.values())
+        // this.props.updateNote(this.props.customerID, data)
     }
 
 
