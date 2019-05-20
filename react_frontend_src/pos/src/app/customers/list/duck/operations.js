@@ -5,6 +5,8 @@ import {
     receiveNotes,
     requestCreateNote,
     receiveCreateNote,
+    requestUpdateNote,
+    receiveUpdateNote,
     clearNotes,
     setCreateNote,
     clearCreateNote,
@@ -180,6 +182,28 @@ const updateCustomerPicture = (cuID, picture) => {
     }
 }
 
+const updateNote = (cuID, data) => {
+    return dispatch => {
+        dispatch(requestUpdateNote())
+        
+        axios_os.post(OS_API.CUSTOMER_UPDATE_NOTE, data)
+        .then(function(response) {
+            console.log(response)
+            dispatch(receiveUpdateNote(response.data))
+            if (!response.data.error) {
+                dispatch(fetchNotes(cuID))
+            }
+        })
+        .catch(function (error) {
+            console.log(error)
+        })
+        .then(function() {
+            //always executed
+        })
+    }
+}
+
+
 // deleters
 const deleteNote = (cuID, id) => {
     return dispatch => {
@@ -217,6 +241,7 @@ export default {
     fetchNotes,
     clearNotes,
     createNote,
+    updateNote,
     setCreateNote,
     clearCreateNote,
     setUpdateNote,
