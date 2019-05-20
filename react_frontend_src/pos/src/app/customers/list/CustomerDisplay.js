@@ -127,7 +127,7 @@ class CustomerDisplay extends Component {
         const data = new FormData(e.target)
 
         console.log(data.values())
-        // this.props.updateNote(this.props.customerID, data)
+        this.props.updateNote(this.props.customerID, data)
     }
 
 

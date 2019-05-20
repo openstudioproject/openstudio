@@ -618,7 +618,6 @@ def create_customer_note():
     result = db.customers_notes.validate_and_insert(**request.vars)
     print result
 
-    expense_data = ''
     error = False
     if result.errors:
         error = True
@@ -628,6 +627,29 @@ def create_customer_note():
 
     return dict(result=result,
                 error=error)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'customers_notes'))
+def update_customer_note():
+    """
+    :return: dict containing data of new note
+    """
+    set_headers()
+
+    cnID = request.vars['id']
+    cn = db.customers_notes['cnID']
+    cn.Note = request.vars['Note']
+    error = cn.update_record()
+
+    # error = False
+    # if result.errors:
+    #     error = True
+
+    # if not error:
+    #     row = db.customers_notes(result['id'])
+
+    return dict(error=error)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
