@@ -249,7 +249,8 @@ class Customers extends Component {
                                                 onSaveCameraAppSnap={this.props.updateCustomerPicture}
                                                 fetchNotes={this.props.fetchNotes}
                                                 clearNotes={this.props.clearNotes}
-                                                createNote={this.props.createNote} />
+                                                createNote={this.props.createNote}
+                                                updateNote={this.props.updateNote} />
                                 { (customers.create_customer) ?
                                     <CustomerFormCreate inputmask_date={inputmask_date}
                                                         error_data={customers.create_customer_error_data}
