@@ -10,7 +10,7 @@ import CustomerDisplayMemberships from "./CustomerDisplayMemberships"
 import CustomerDisplaySubscriptions from "./CustomerDisplaySubscriptions"
 import CustomerDisplayClasscards from "./CustomerDisplayClasscards"
 import CustomerDisplayNotes from "./CustomerDisplayNotes"
-import CustomerDisplayNoteFormCreate from "./CustomerDisplayNoteFormCreate"
+import CustomerDisplayNoteForm from "./CustomerDisplayNoteForm"
 
 
 class CustomerDisplay extends Component {
@@ -242,7 +242,8 @@ class CustomerDisplay extends Component {
                             <div className="col-md-6">
                                 {((customers.create_note) || (customers.update_note)) ?
                                     (customers.create_note) ?
-                                        <CustomerDisplayNoteFormCreate 
+                                        <CustomerDisplayNoteForm
+                                            title="Add note" 
                                             errorData={this.props.createNoteErrorData}
                                             onSubmit={this.onCreateNote.bind(this)}
                                             onClickCancelCreateNote={this.props.onClickCancelCreateNote}

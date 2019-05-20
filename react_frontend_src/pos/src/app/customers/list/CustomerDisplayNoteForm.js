@@ -20,13 +20,14 @@ class CustomerDisplayNoteFormCreate extends Component {
     }
 
     render() {
+        const title = this.props.title
         const error_data = this.props.errorData
         const onSubmit = this.props.onSubmit
         const onCancel = this.props.onClickCancelCreateNote       
 
         return (
             <div>
-                <label htmlFor="CustomersNoteTextarea">Add note</label>
+                <label htmlFor="CustomersNoteTextarea">{title}</label>
                 <form onSubmit={onSubmit}>
                     <textarea
                         id="CustomersNoteTextarea" 
