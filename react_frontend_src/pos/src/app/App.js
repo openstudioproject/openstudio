@@ -28,7 +28,9 @@ import PermissionsError from './permissions_error/PermissionsErrorContainer'
 import Whoops404 from './whoops404/Whoops404'
 import LoadingScreen from '../components/ui/LoadingScreen'
 
+import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css for react-confirm-alert
 import '../../stylesheets/app/App.scss'
+
 
 class App extends Component {
   constructor(props) {

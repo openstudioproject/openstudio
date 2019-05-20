@@ -3,7 +3,7 @@ import { intlShape } from "react-intl"
 import PropTypes from "prop-types"
 import validator from 'validator'
 import { v4 } from "uuid"
-
+import { confirmAlert } from 'react-confirm-alert' // Import
 
 
 class CustomerDisplayNotes extends Component {
@@ -22,6 +22,25 @@ class CustomerDisplayNotes extends Component {
     componentDidMount() {
     }
 
+    onDelete = (customerID, noteID) => {
+        confirmAlert({
+            title: 'Confirm to submit',
+            message: 'Are you sure to do this.',
+            buttons: [
+                {
+                label: 'Yes, delete it',
+                onClick: () => {
+                    alert('Click Yes')
+                    // this.props.onClickDeleteNote(customerID, note.id)
+                }},
+                {
+                label: 'No, keep it',
+                // onClick: () => alert('Click No')
+                }
+            ]
+            })
+    }
+    
 
     render() {
         const customerID = this.props.customerID
@@ -44,7 +63,7 @@ class CustomerDisplayNotes extends Component {
                                     <span className="direct-chat-name pull-left">{note.User}</span>
                                         <span 
                                           className="btn btn-xs btn-danger direct-chat-scope pull-right" 
-                                          onClick={() => this.props.onClickDeleteNote(customerID, note.id)}>
+                                          onClick={() => this.onDelete(customerID, note.id)}>
                                             <i className="fa fa-pencil" />  Delete note
                                         </span>
                                         <span 
