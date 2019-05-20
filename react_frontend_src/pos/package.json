@@ -46,6 +46,7 @@
     "jest": "^23.4.1",
     "npm": "^6.5.0",
     "react": "^16.4.1",
+    "react-confirm-alert": "^2.4.1",
     "react-dom": "^16.4.1",
     "react-intl": "^2.4.0",
     "react-redux": "^5.0.7",
