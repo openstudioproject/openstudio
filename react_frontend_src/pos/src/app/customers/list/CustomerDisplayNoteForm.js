@@ -32,17 +32,10 @@ class CustomerDisplayNoteForm extends Component {
         // set initial value on update
         if (update) {
             const notes = this.props.notes.data
-            var i
-            console.log('execute update init code')
-            console.log(selected_noteID)
-            console.log(notes)
-            
+            var i           
             for (i = 0; i < notes.length; i++) {
-                console.log(notes[i])
                 let note = notes[i].Note
-                console.log(note)
                 if (notes[i].id === selected_noteID) {
-                    console.log('set default value')
                     defaultValue = note
                 }
             }       
