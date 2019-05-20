@@ -248,7 +248,9 @@ class CustomerDisplay extends Component {
                                     /> :
                                     <CustomerDisplayNotes 
                                         customers={customers} 
+                                        customerID={customers.displayID}
                                         OnClickUpdateNote={this.props.OnClickUpdateNote}
+                                        onClickDeleteNote={this.props.onClickDeleteNote}
                                     />
                                 }
                             </div>

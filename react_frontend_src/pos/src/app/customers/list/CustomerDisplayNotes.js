@@ -24,6 +24,7 @@ class CustomerDisplayNotes extends Component {
 
 
     render() {
+        const customerID = this.props.customerID
         const customers = this.props.customers
         const notes = customers.notes
         const notes_loaded = customers.notes_loaded
@@ -43,7 +44,7 @@ class CustomerDisplayNotes extends Component {
                                     <span className="direct-chat-name pull-left">{note.User}</span>
                                         <span 
                                           className="btn btn-xs btn-danger direct-chat-scope pull-right" 
-                                          onClick={() => this.props.OnClickDeleteNote(note.id)}>
+                                          onClick={() => this.props.onClickDeleteNote(customerID, note.id)}>
                                             <i className="fa fa-pencil" />  Delete note
                                         </span>
                                         <span 
