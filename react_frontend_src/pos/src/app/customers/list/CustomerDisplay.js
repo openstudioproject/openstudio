@@ -258,14 +258,14 @@ class CustomerDisplay extends Component {
                                             title="Add note" 
                                             errorData={this.props.createNoteErrorData}
                                             onSubmit={this.onCreateNote.bind(this)}
-                                            onClickCancelCreateNote={this.props.onClickCancelCreateNote}
+                                            onClickCancel={this.props.onClickCancelCreateNote}
                                         /> :
                                         // Update note
                                         <CustomerDisplayNoteForm
                                             title="Edit note" 
                                             errorData={this.props.updateNoteErrorData}
                                             onSubmit={this.onUpdateNote.bind(this)}
-                                            onClickCancelCreateNote={this.props.onClickCancelUpdateNote}
+                                            onClickCancel={this.props.OnClickCancelUpdateNote}
                                         />
                                     :
                                     <CustomerDisplayNotes 

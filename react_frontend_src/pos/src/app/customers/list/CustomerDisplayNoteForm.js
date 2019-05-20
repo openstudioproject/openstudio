@@ -9,7 +9,7 @@ import Inputmask from "inputmask"
 import CustomerFormError from "./CustomerFormError"
 
 
-class CustomerDisplayNoteFormCreate extends Component {
+class CustomerDisplayNoteForm extends Component {
     constructor(props) {
         super(props)
         console.log(props)
@@ -23,7 +23,7 @@ class CustomerDisplayNoteFormCreate extends Component {
         const title = this.props.title
         const error_data = this.props.errorData
         const onSubmit = this.props.onSubmit
-        const onCancel = this.props.onClickCancelCreateNote       
+        const onCancel = this.props.onClickCancel
 
         return (
             <div>
@@ -44,5 +44,5 @@ class CustomerDisplayNoteFormCreate extends Component {
     }
 }
 
-export default CustomerDisplayNoteFormCreate
+export default CustomerDisplayNoteForm
 
