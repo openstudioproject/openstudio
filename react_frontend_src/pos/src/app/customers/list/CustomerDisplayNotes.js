@@ -24,14 +24,13 @@ class CustomerDisplayNotes extends Component {
 
     onDelete = (customerID, noteID) => {
         confirmAlert({
-            title: 'Confirm to submit',
-            message: 'Are you sure to do this.',
+            title: 'Confirm to delete',
+            message: 'Are you sure to delete this note?',
             buttons: [
                 {
                 label: 'Yes, delete it',
                 onClick: () => {
-                    alert('Click Yes')
-                    // this.props.onClickDeleteNote(customerID, note.id)
+                    this.props.onClickDeleteNote(customerID, noteID)
                 }},
                 {
                 label: 'No, keep it',

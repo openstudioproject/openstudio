@@ -643,9 +643,9 @@ def delete_customer_note():
     cnID = request.vars['id']
 
     query = (db.customers_notes.id == cnID)
-    db(query).delete()
+    error = db(query).delete()
 
-    return dict(id=cnID, error=False)
+    return dict(id=cnID, error=error)
 
 
 def get_customers_thumbnail_url(row_data):
