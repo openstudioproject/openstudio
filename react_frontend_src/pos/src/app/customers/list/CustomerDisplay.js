@@ -240,12 +240,15 @@ class CustomerDisplay extends Component {
                                                            classcards={classcards}/>
                             </div>
                             <div className="col-md-6">
-                                {(customers.create_note) ?
-                                    <CustomerDisplayNoteFormCreate 
-                                        errorData={this.props.createNoteErrorData}
-                                        onSubmit={this.onCreateNote.bind(this)}
-                                        onClickCancelCreateNote={this.props.onClickCancelCreateNote}
-                                    /> :
+                                {((customers.create_note) || (customers.update_note)) ?
+                                    (customers.create_note) ?
+                                        <CustomerDisplayNoteFormCreate 
+                                            errorData={this.props.createNoteErrorData}
+                                            onSubmit={this.onCreateNote.bind(this)}
+                                            onClickCancelCreateNote={this.props.onClickCancelCreateNote}
+                                        /> :
+                                        "update note"
+                                    :
                                     <CustomerDisplayNotes 
                                         customers={customers} 
                                         customerID={customers.displayID}
