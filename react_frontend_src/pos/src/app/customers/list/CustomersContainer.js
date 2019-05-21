@@ -105,7 +105,13 @@ const mapDispatchToProps = dispatch =>
         },
         deleteNote(cuID, id) {
             dispatch(customersListOperations.deleteNote(cuID, id))
-        }
+        },
+        setNotesCheckinCheck() {
+            dispatch(customersListOperations.setNotesCheckinCheck())
+        },
+        clearNotesCheckinCheck() {
+            dispatch(customersListOperations.clearNotesCheckinCheck())
+        },
     })
 
 

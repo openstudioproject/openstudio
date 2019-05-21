@@ -248,6 +248,7 @@ class Customers extends Component {
                                                 onSetCameraAppSnap={this.props.setCameraAppSnap}
                                                 onClearCameraAppSnap={this.props.clearCameraAppSnap}
                                                 onSaveCameraAppSnap={this.props.updateCustomerPicture}
+                                                setNotesCheckinCheck={this.props.setNotesCheckinCheck}
                                                 fetchNotes={this.props.fetchNotes}
                                                 clearNotes={this.props.clearNotes}
                                                 createNote={this.props.createNote}

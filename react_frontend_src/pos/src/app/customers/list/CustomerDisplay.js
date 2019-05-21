@@ -138,6 +138,8 @@ class CustomerDisplay extends Component {
     onClickCheckin(e) {
         e.preventDefault()
         console.log('checkin clicked')
+
+        this.props.setNotesCheckinCheck()
     }
 
 

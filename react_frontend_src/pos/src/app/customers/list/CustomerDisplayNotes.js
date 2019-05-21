@@ -50,7 +50,7 @@ class CustomerDisplayNotes extends Component {
         return (
            <div>
                { (notes_loaded) ?
-                (customers.has_unacknowledged_notes) ? 
+                ((customers.notes_checkin_check) && (customers.has_unacknowledged_notes)) ? 
                     <div>
                         <b>Notes</b>
                         <div>unack notes found!</div>
