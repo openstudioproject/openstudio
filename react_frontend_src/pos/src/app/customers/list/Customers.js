@@ -222,7 +222,7 @@ class Customers extends Component {
                                 </div>
                                 <ButtonBack onClick={this.onClickButtonBack.bind(this)} 
                                             classAdditional="pull-left btn-margin-right">
-                                    Back
+                                    Shop
                                 </ButtonBack>
 
                                 <InputGroupSearch placeholder={this.props.intl.formatMessage({ id: 'app.general.placeholders.search' })}

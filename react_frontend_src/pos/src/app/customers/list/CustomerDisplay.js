@@ -154,7 +154,7 @@ class CustomerDisplay extends Component {
              imgClass = 'hidden' : videoClass = 'hidden'
 
         let link_checkin
-        (has_unacknowledged_notes) ? link_checkin = "/check_notes": link_checkin = "/classes/" + customerID
+        (has_unacknowledged_notes) ? link_checkin = "/customer_notes_warning": link_checkin = "/classes/" + customerID
         console.log('has_unacknowledged_notes')
         console.log(has_unacknowledged_notes)
 
