@@ -1,143 +1,27 @@
 import React, { Component } from "react"
 import { intlShape } from "react-intl"
 import PropTypes from "prop-types"
-import { withRouter } from 'react-router'
 import validator from 'validator'
 import { v4 } from "uuid"
 import { Link } from 'react-router-dom'
 
 import ButtonCustomerEdit from "../../../components/ui/ButtonCustomerEdit"
-import CustomerDisplayMemberships from "./CustomerDisplayMemberships"
-import CustomerDisplaySubscriptions from "./CustomerDisplaySubscriptions"
-import CustomerDisplayClasscards from "./CustomerDisplayClasscards"
-import CustomerDisplayNotes from "./CustomerDisplayNotes"
-import CustomerDisplayNoteForm from "./CustomerDisplayNoteForm"
+// import CustomerDisplayMemberships from "./CustomerDisplayMemberships"
+// import CustomerDisplaySubscriptions from "./CustomerDisplaySubscriptions"
+// import CustomerDisplayClasscards from "./CustomerDisplayClasscards"
+// import CustomerDisplayNotes from "./CustomerDisplayNotes"
+// import CustomerDisplayNoteForm from "./CustomerDisplayNoteForm"
 
 
-class CustomerDisplay extends Component {
+class CustomerNotesWarning extends Component {
     constructor(props) {
         super(props)
         console.log("Customer display props:")
         console.log(props)
-        this.videoStream = React.createRef()
-        this.superSecretPictureCanvas = React.createRef()
     }
 
     PropTypes = {
         intl: intlShape.isRequired,
-        customerID: PropTypes.integer,
-        customers: PropTypes.object,
-        edit_in_progress: PropTypes.boolean,
-        onClickEdit: PropTypes.function
-    }
-
-    onClickStartCamera() {
-        console.log('Customer Display component DidMount')
-        this.props.onClearCameraAppSnap()
-        // var constraints = { audio: false, video: { facingMode: 'user' } }
-        if (navigator.mediaDevices.getUserMedia) {       
-            navigator.mediaDevices.getUserMedia({video: true})
-          .then(stream => {
-            this.videoStream.current.srcObject = stream
-          })
-          .catch(error => {
-            console.log("Something went wrong while trying to stream video!");
-            console.log(error)
-          });
-        }
-    }
-
-    onClickRedoPhoto() {
-        console.log("another day, another chance")
-        this.props.onClearCameraAppSnap()
-        this.videoStream.current.play()
-    }
-
-    onClickSavePhoto() {
-        console.log("saved for eternity")
-
-        this.props.onSaveCameraAppSnap(
-            this.props.customers.displayID,
-            this.props.customers.camera_app_snap
-        )
-
-        document.getElementById("btnCloseModal").click()
-
-        // Stop video playback of stream.
-        var tracks = this.videoStream.current.srcObject.getTracks()
-        var i
-        for (i = 0; i < tracks.length; i++) {
-            tracks[i].stop()
-        }
-    }
-
-    onClickTakePhoto() {
-        console.log('say cheese!!')
-        var snap = this.takeSnapshot()
-        console.log(snap)
-
-        // Show image. 
-
-        // Set the href attribute of the download button to the snap url.
-        // download_photo_btn.href = snap
-
-        // Pause video playback of stream.
-        this.videoStream.current.pause()
-    }
-
-
-    takeSnapshot(){
-        // Here we're using a trick that involves a hidden canvas element.  
-        var video = this.videoStream.current
-        var hidden_canvas = this.superSecretPictureCanvas.current
-        var context = hidden_canvas.getContext('2d');
-
-        var width = video.videoWidth
-        var height = video.videoHeight
-
-        if (width && height) {
-
-            // Setup a canvas with the same dimensions as the video.
-            hidden_canvas.width = width;
-            hidden_canvas.height = height;
-
-            // Make a copy of the current frame in the video on the canvas.
-            context.drawImage(video, 0, 0, width, height);
-
-            // Turn the canvas image into a dataURL that can be used as a src for our photo.
-            this.props.onSetCameraAppSnap(hidden_canvas.toDataURL('image/png'))
-            return hidden_canvas.toDataURL('image/png')
-        }
-    }
-
-    onCreateNote(e) {
-        console.log('submit create note')
-        e.preventDefault()
-        console.log(e.target)
-        const data = new FormData(e.target)
-
-        console.log(data.values())
-        this.props.createNote(this.props.customerID, data)
-    }
-
-
-    onUpdateNote(e) {
-        console.log('submit update note')
-        e.preventDefault()
-        console.log(e.target)
-        const data = new FormData(e.target)
-
-        console.log(data.values())
-        this.props.updateNote(
-            this.props.customerID, 
-            this.props.customers.selected_noteID, 
-            data
-        )
-    }
-
-    onClickCheckin(e) {
-        e.preventDefault()
-        console.log('checkin clicked')
     }
 
 
@@ -160,9 +44,7 @@ class CustomerDisplay extends Component {
              imgClass = 'hidden' : videoClass = 'hidden'
 
         let link_checkin
-        (has_unacknowledged_notes) ? 
-            link_checkin = "/customer/notes_warning/" + customerID : 
-            link_checkin = "/classes/" + customerID
+        (has_unacknowledged_notes) ? link_checkin = "/customer/notes_warning": link_checkin = "/classes/" + customerID
         console.log('has_unacknowledged_notes')
         console.log(has_unacknowledged_notes)
 
@@ -313,12 +195,10 @@ class CustomerDisplay extends Component {
                                     data-target="#cameraModal">
                                 <i className="fa fa-camera"></i> Take picture
                             </button> 
-                            <button type="button"
-                                    className="btn btn-default btn-flat btn-block" 
-                                    onClick={this.onClickCheckin.bind(this)}
-                            >
-                                <i className="fa fa-check-square-o"></i> Class check-in    
-                            </button>
+                            <Link to={link_checkin}
+                                  className="btn btn-default btn-flat btn-block">
+                                <i className="fa fa-check-square-o"></i> Class check-in
+                            </Link>
                             <button type="button" 
                                     onClick={this.props.onClickCreateNote.bind(this)} 
                                     className="btn btn-default btn-flat btn-block">
@@ -337,5 +217,4 @@ class CustomerDisplay extends Component {
     }
 }
 
-export default withRouter(CustomerDisplay)
-
+export default CustomerNotesWarning
