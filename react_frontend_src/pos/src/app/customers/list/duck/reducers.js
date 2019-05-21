@@ -290,6 +290,16 @@ export const listReducer = (state = {}, action={ type: null }) => {
                 update_note: false,
                 selected_noteID: null
             }
+        case T.SET_NOTES_CHECKIN_CHECK:
+            return {
+                ...state,
+                notes_checkin_check: true
+            }
+        case T.CLEAR_NOTES_CHECKIN_CHECK:
+            return {
+                ...state,
+                notes_checkin_check: false
+            }
         default:
             return {
                 ...state

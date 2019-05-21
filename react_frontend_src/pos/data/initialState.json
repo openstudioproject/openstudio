@@ -87,6 +87,7 @@
             "notes_loading": false,
             "notes_loaded": false,
             "notes": {},
+            "notes_checkin_check": false,
             "has_unacknowledged_notes": false,
             "create_note": false,
             "creating_note": false,
@@ -94,7 +95,7 @@
             "update_note": false,
             "updating_note": false,
             "update_note_error_data": {},
-            "selected_noteID": null
+            "selected_noteID": null,
         },
         "memberships_today": {
             "loading": false,
