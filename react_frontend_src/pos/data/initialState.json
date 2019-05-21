@@ -95,7 +95,7 @@
             "update_note": false,
             "updating_note": false,
             "update_note_error_data": {},
-            "selected_noteID": null,
+            "selected_noteID": null
         },
         "memberships_today": {
             "loading": false,
