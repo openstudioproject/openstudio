@@ -54,17 +54,20 @@ class CustomerDisplayNotes extends Component {
                     <div>
                         <b>Notes</b>
                         <div>
+                            <br />
                             One or more unacknowledged notes were found. <br />
                             How would you like to continue? <br /><br /><br />
 
                             <button type="button"
-                                    className='btn btn-success pull-right'>
+                                    className='btn btn-success pull-right'
+                                    onClick={() => this.props.onClickToCheckIn()}>
                                 Go to check-in { ' ' }
                                 <i className="fa fa-angle-double-right"></i> 
                             </button>
 
                             <button type="button"
-                                    className='btn btn-default'>
+                                    className='btn btn-default'
+                                    onClick={() => this.props.onClickBack()}>
                                 <i className="fa fa-angle-double-left"></i> { ' ' }
                                 Back to notes
                             </button>

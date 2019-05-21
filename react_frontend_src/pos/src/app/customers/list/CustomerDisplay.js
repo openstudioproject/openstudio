@@ -143,6 +143,20 @@ class CustomerDisplay extends Component {
     }
 
 
+    onClickToCheckIn(e) {
+        const customerID = this.props.customerID
+        
+        // Clear check, so the list is shown when we go back to the customer
+        // Until Check-in is clicked again
+        this.props.clearNotesCheckinCheck()
+        this.props.history.push("/classes/" + customerID)
+    }
+
+    onClickBackToNotes(e) {
+        this.props.clearNotesCheckinCheck()
+    }
+
+
     render() {
         const customerID = this.props.customerID
         const customers = this.props.customers
@@ -155,18 +169,10 @@ class CustomerDisplay extends Component {
         const onClickEdit = this.props.onClickEdit
         let videoClass
         let imgClass
-
         
 
         !(customers.camera_app_snap) ?
              imgClass = 'hidden' : videoClass = 'hidden'
-
-        let link_checkin
-        (has_unacknowledged_notes) ? 
-            link_checkin = "/customer/notes_warning/" + customerID : 
-            link_checkin = "/classes/" + customerID
-        console.log('has_unacknowledged_notes')
-        console.log(has_unacknowledged_notes)
 
         return (
             <div>
@@ -298,6 +304,8 @@ class CustomerDisplay extends Component {
                                         customerID={customers.displayID}
                                         OnClickUpdateNote={this.props.OnClickUpdateNote}
                                         onClickDeleteNote={this.props.onClickDeleteNote}
+                                        onClickBack={this.onClickBackToNotes.bind(this)}
+                                        onClickToCheckIn={this.onClickToCheckIn.bind(this)}
                                     />
                                 }
                             </div>
