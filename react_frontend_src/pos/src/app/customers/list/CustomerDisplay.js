@@ -139,6 +139,7 @@ class CustomerDisplay extends Component {
         const customerID = this.props.customerID
         const customers = this.props.customers
         const customers_list = this.props.customers.data
+        const has_unacknowledged_notes = customers.has_unacknowledged_notes
         const memberships = this.props.memberships
         const subscriptions = this.props.subscriptions
         const classcards = this.props.classcards
@@ -147,8 +148,15 @@ class CustomerDisplay extends Component {
         let videoClass
         let imgClass
 
+        
+
         !(customers.camera_app_snap) ?
              imgClass = 'hidden' : videoClass = 'hidden'
+
+        let link_checkin
+        (has_unacknowledged_notes) ? link_checkin = "/check_notes": link_checkin = "/classes/" + customerID
+        console.log('has_unacknowledged_notes')
+        console.log(has_unacknowledged_notes)
 
         return (
             <div>
@@ -296,8 +304,8 @@ class CustomerDisplay extends Component {
                                     data-toggle="modal" 
                                     data-target="#cameraModal">
                                 <i className="fa fa-camera"></i> Take picture
-                            </button>
-                            <Link to={"/classes/" + customerID}
+                            </button> 
+                            <Link to={link_checkin}
                                   className="btn btn-default btn-flat btn-block">
                                 <i className="fa fa-check-square-o"></i> Class check-in
                             </Link>
