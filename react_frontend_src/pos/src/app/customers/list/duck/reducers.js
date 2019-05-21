@@ -211,11 +211,23 @@ export const listReducer = (state = {}, action={ type: null }) => {
             return {
                 ...state,
                 notes_loading: true,
-                notes_loaded: false
+                notes_loaded: false,
+                has_unackowledged_notes: false
             }
         case T.RECEIVE_NOTES:
+            let has_unackowledged_notes = false
+            if (action.data) {
+                for (var i = 0; i < action.data.data.length; i++) {
+                    if (action.data.data[i].Acknowledged === false) {
+                        has_unackowledged_notes = true
+                        break
+                    }
+                }
+            }
+
             return {
                 ...state,
+                has_unackowledged_notes: has_unackowledged_notes,
                 notes_loading: false,
                 notes_loaded: true,
                 notes: action.data

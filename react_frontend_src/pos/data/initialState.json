@@ -87,6 +87,7 @@
             "notes_loading": false,
             "notes_loaded": false,
             "notes": {},
+            "has_unackowledged_notes": false,
             "create_note": false,
             "creating_note": false,
             "create_note_error_data": {},

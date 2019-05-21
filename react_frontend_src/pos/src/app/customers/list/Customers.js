@@ -178,6 +178,12 @@ class Customers extends Component {
         const settings = this.props.app.settings.data
         const inputmask_date = settings.date_mask
 
+        let notes = {}
+        if (customers.notes) {
+            notes = customers.notes.data
+        }
+
+
         let customers_display = []
         if (customers.loaded) {
             if ( customers.searchID ) {
