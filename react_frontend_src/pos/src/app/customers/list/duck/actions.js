@@ -215,3 +215,13 @@ export const receiveDeleteNote = (data) =>
         type: T.RECEIVE_DELETE_NOTE,
         data
     })
+
+export const setNotesCheckinCheck = () =>
+    ({
+        type: T.SET_NOTES_CHECKIN_CHECK,
+    })
+
+export const clearNotesCheckinCheck = () =>
+    ({
+        type: T.CLEAR_NOTES_CHECKIN_CHECK
+    })
