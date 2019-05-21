@@ -53,7 +53,22 @@ class CustomerDisplayNotes extends Component {
                 ((customers.notes_checkin_check) && (customers.has_unacknowledged_notes)) ? 
                     <div>
                         <b>Notes</b>
-                        <div>unack notes found!</div>
+                        <div>
+                            One or more unacknowledged notes were found. <br />
+                            How would you like to continue? <br /><br /><br />
+
+                            <button type="button"
+                                    className='btn btn-success pull-right'>
+                                Go to check-in { ' ' }
+                                <i className="fa fa-angle-double-right"></i> 
+                            </button>
+
+                            <button type="button"
+                                    className='btn btn-default'>
+                                <i className="fa fa-angle-double-left"></i> { ' ' }
+                                Back to notes
+                            </button>
+                        </div>
                     </div> :
                     (notes.data) ?
                         <div>     
