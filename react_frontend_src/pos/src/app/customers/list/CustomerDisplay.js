@@ -296,7 +296,7 @@ class CustomerDisplay extends Component {
                                         <CustomerDisplayNoteForm
                                             title="Edit note" 
                                             update={true}
-                                            updating_note_status={customer.updating_note_status}
+                                            updating_note_status={customers.updating_note_status}
                                             notes={customers.notes}
                                             selectedNoteID={customers.selected_noteID}
                                             errorData={this.props.updateNoteErrorData}
