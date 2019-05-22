@@ -283,6 +283,7 @@ class CustomerDisplay extends Component {
                                     (customers.create_note) ?
                                         // Create note
                                         <CustomerDisplayNoteForm
+                                            create={true}
                                             title="Add note" 
                                             errorData={this.props.createNoteErrorData}
                                             onSubmit={this.onCreateNote.bind(this)}

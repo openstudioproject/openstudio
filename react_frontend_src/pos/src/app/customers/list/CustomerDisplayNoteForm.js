@@ -21,14 +21,20 @@ class CustomerDisplayNoteForm extends Component {
     }
 
     render() {
+        const create = this.props.create
+        const update = this.props.update
         const title = this.props.title
         const error_data = this.props.errorData
         const onSubmit = this.props.onSubmit
         const onCancel = this.props.onClickCancel
-        const update = this.props.update
         const selected_noteID = this.props.selectedNoteID
         let defaultValue = ""
         let acknowledged = false
+
+        if (create) {
+            defaultValue = ""
+            this.textarea.current.value = defaultValue
+        }
 
         // set initial value on update
         if (update) {
@@ -41,6 +47,8 @@ class CustomerDisplayNoteForm extends Component {
                 }
             }       
         }
+
+        
 
         return (
             <div>
