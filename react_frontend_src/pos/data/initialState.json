@@ -83,7 +83,20 @@
             "redirect_next_component": null,
             "camera_app_snap": null,
             "camera_app_snap_saving": false,
-            "camera_app_snap_saved": false
+            "camera_app_snap_saved": false,
+            "notes_loading": false,
+            "notes_loaded": false,
+            "notes": {},
+            "notes_checkin_check": false,
+            "has_unprocessed_notes": false,
+            "create_note": false,
+            "creating_note": false,
+            "create_note_error_data": {},
+            "update_note": false,
+            "updating_note": false,
+            "updating_note_status": false,
+            "update_note_error_data": {},
+            "selected_noteID": null
         },
         "memberships_today": {
             "loading": false,

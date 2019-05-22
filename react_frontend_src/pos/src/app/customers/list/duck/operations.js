@@ -1,6 +1,23 @@
 import {
     requestCustomers,
     receiveCustomers,
+    requestNotes,
+    receiveNotes,
+    requestCreateNote,
+    receiveCreateNote,
+    requestUpdateNote,
+    receiveUpdateNote,
+    requestUpdateNoteStatus,
+    receiveUpdateNoteStatus,
+    clearNotes,
+    setCreateNote,
+    clearCreateNote,
+    setUpdateNote,
+    clearUpdateNote,
+    requestDeleteNote,
+    receiveDeleteNote,
+    setNotesCheckinCheck,
+    clearNotesCheckinCheck,
     requestCreateCustomer,
     receiveCreateCustomer,
     clearCreateCustomerErrorData,
@@ -24,7 +41,7 @@ import {
     setRedirectNextComponent,
     clearRedirectNextComponent,
     setCameraAppSnap,
-    clearCameraAppSnap
+    clearCameraAppSnap,
 } from './actions'
 
 import axios_os from '../../../../utils/axios_os'
@@ -42,6 +59,29 @@ const fetchCustomers = () => {
           .then(function (response) {
             // handle success
             dispatch(receiveCustomers(response.data))
+            // dispatch(setLoadingProgress(100))
+          })
+          .catch(function (error) {
+            // handle error
+            console.log(error)
+          })
+          .then(function () {
+            // always executed
+          });
+      }
+  }
+
+const fetchNotes = (id) => {
+      return dispatch => {
+          dispatch(requestNotes())
+
+          let fd = new FormData()
+          fd.append('id', id)
+
+          axios_os.post(OS_API.CUSTOMER_NOTES, fd)
+          .then(function (response) {
+            // handle success
+            dispatch(receiveNotes(response.data))
             // dispatch(setLoadingProgress(100))
           })
           .catch(function (error) {
@@ -75,6 +115,28 @@ const createCustomer = (data) => {
         .then(function(response) {
             console.log(response)
             dispatch(receiveCreateCustomer(response.data))
+        })
+        .catch(function (error) {
+            console.log(error)
+        })
+        .then(function() {
+            //always executed
+        })
+    }
+}
+
+const createNote = (cuID, data) => {
+    return dispatch => {
+        dispatch(requestCreateNote())
+        
+        data.append('cuID', cuID) // Include customer ID in sent data
+        axios_os.post(OS_API.CUSTOMER_CREATE_NOTE, data)
+        .then(function(response) {
+            console.log(response)
+            dispatch(receiveCreateNote(response.data))
+            if (!response.data.errors) {
+                dispatch(fetchNotes(cuID))
+            }
         })
         .catch(function (error) {
             console.log(error)
@@ -124,6 +186,80 @@ const updateCustomerPicture = (cuID, picture) => {
     }
 }
 
+const updateNote = (cuID, id, data) => {
+    return dispatch => {
+        dispatch(requestUpdateNote())
+        
+        data.append('id', id)
+        axios_os.post(OS_API.CUSTOMER_UPDATE_NOTE, data)
+        .then(function(response) {
+            console.log(response)
+            dispatch(receiveUpdateNote(response.data))
+            if (!response.data.error) {
+                dispatch(fetchNotes(cuID))
+            }
+        })
+        .catch(function (error) {
+            console.log(error)
+        })
+        .then(function() {
+            //always executed
+        })
+    }
+}
+
+
+const updateNoteStatus = (cuID, id) => {
+    return dispatch => {
+        dispatch(requestUpdateNoteStatus())
+        
+        let fd = new FormData()
+        fd.append('id', id)
+
+        axios_os.post(OS_API.CUSTOMER_UPDATE_NOTE_STATUS, fd)
+        .then(function(response) {
+            console.log(response)
+            dispatch(receiveUpdateNoteStatus(response.data))
+            if (!response.data.error) {
+                dispatch(fetchNotes(cuID))
+            }
+        })
+        .catch(function (error) {
+            console.log(error)
+        })
+        .then(function() {
+            //always executed
+        })
+    }
+}
+
+
+// deleters
+const deleteNote = (cuID, id) => {
+    return dispatch => {
+        dispatch(requestDeleteNote())
+
+        let fd = new FormData()
+        fd.append('id', id)
+        
+        axios_os.post(OS_API.CUSTOMER_DELETE_NOTE, fd)
+        .then(function(response) {
+            console.log(response)
+            dispatch(receiveDeleteNote(response.data))
+            if (!response.data.errors) {
+                dispatch(fetchNotes(cuID))
+            }
+        })
+        .catch(function (error) {
+            console.log(error)
+        })
+        .then(function() {
+            //always executed
+        })
+    }
+}
+
+
 
 export default {
     createCustomer,
@@ -132,6 +268,18 @@ export default {
     updateCustomer,
     updateCustomerPicture,
     fetchCustomers,
+    fetchNotes,
+    clearNotes,
+    createNote,
+    updateNote,
+    updateNoteStatus,
+    setCreateNote,
+    clearCreateNote,
+    setUpdateNote,
+    clearUpdateNote,
+    deleteNote,
+    setNotesCheckinCheck,
+    clearNotesCheckinCheck,
     setSearchTimeout,
     clearSearchTimeout,
     setCreateCustomerStatus,
@@ -147,5 +295,5 @@ export default {
     setRedirectNextComponent,
     clearRedirectNextComponent,
     setCameraAppSnap,
-    clearCameraAppSnap
+    clearCameraAppSnap,
 }

@@ -542,6 +542,165 @@ def get_school_memberships():
     return dict(data=data)
 
 
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'customers_notes'))
+def get_customer_notes():
+    """
+    Return notes for a given customer
+    """
+    set_headers()
+
+    cuID = request.vars['id']
+
+    print cuID
+
+    query = (db.customers_notes.auth_customer_id == cuID) & \
+            (db.customers_notes.TeacherNote == True)
+
+    rows = db(query).select(
+        db.customers_notes.id,
+        db.customers_notes.auth_user_id,
+        db.customers_notes.NoteDate,
+        db.customers_notes.NoteTime,
+        db.customers_notes.Note,
+        db.customers_notes.Processed,
+        orderby=~db.customers_notes.NoteDate|\
+                ~db.customers_notes.NoteTime
+    )
+
+    print rows
+
+    notes = []
+    for i, row in enumerate(rows):
+        print row
+        repr_row = list(rows[i:i + 1].render())[0]
+
+        date = row.NoteDate
+        time = row.NoteTime
+        note_dt = datetime.datetime(
+            date.year,
+            date.month,
+            date.day,
+            time.hour,
+            time.minute
+        )
+
+        print note_dt
+
+        notes.append({
+            "id": row.id,
+            "Timestamp": note_dt.strftime(DATETIME_FORMAT),
+            "Note": row.Note,
+            "User": repr_row.auth_user_id,
+            "Processed": row.Processed
+        })
+
+    print notes
+
+    return dict(data=notes)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('create', 'customers_notes'))
+def create_customer_note():
+    """
+    :return: dict containing data of new note
+    """
+    set_headers()
+
+    print request.vars
+
+    # Set some default values
+    db.customers_notes.auth_user_id.default = auth.user.id
+    db.customers_notes.auth_customer_id.default = request.vars['cuID']
+    db.customers_notes.TeacherNote.default = True
+
+    result = db.customers_notes.validate_and_insert(**request.vars)
+    print result
+
+    error = False
+    if result.errors:
+        error = True
+
+    # if not error:
+    #     row = db.customers_notes(result['id'])
+
+    return dict(result=result,
+                error=error)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'customers_notes'))
+def update_customer_note():
+    """
+    :return: dict containing data of new note
+    """
+    set_headers()
+
+    print request.vars
+
+    cnID = request.vars['id']
+
+    print cnID
+    cn = db.customers_notes(cnID)
+    cn.Note = request.vars['Note']
+    record = cn.update_record()
+
+    # error = False
+    # if result.errors:
+    #     error = True
+
+    # if not error:
+    #     row = db.customers_notes(result['id'])
+
+    return dict(error=False)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'customers_notes'))
+def update_customer_note_status():
+    """
+    :return: dict containing data of new note
+    """
+    set_headers()
+
+    print request.vars
+
+    cnID = request.vars['id']
+
+    print cnID
+    cn = db.customers_notes(cnID)
+    cn.Processed = not cn.Processed
+    record = cn.update_record()
+
+    # error = False
+    # if result.errors:
+    #     error = True
+
+    # if not error:
+    #     row = db.customers_notes(result['id'])
+
+    return dict(error=False)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('delete', 'customers_notes'))
+def delete_customer_note():
+    """
+
+    :return:
+    """
+    set_headers()
+
+    print request.vars
+    cnID = request.vars['id']
+
+    query = (db.customers_notes.id == cnID)
+    error = db(query).delete()
+
+    return dict(id=cnID, error=error)
+
+
 def get_customers_thumbnail_url(row_data):
     if not row_data:
         return URL(

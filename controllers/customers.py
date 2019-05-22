@@ -4941,6 +4941,9 @@ def notes_get_add(var=None):
     form.custom.widget.Note['_class'] += ' form-control'
 
     form = DIV(form.custom.begin,
+               form.custom.widget.Processed,
+               LABEL(form.custom.label.Processed,
+                     _for="customers_notes_Processed"),
                form.custom.widget.Note,
                form.custom.submit,
                form.custom.end,
@@ -4975,6 +4978,9 @@ def notes_get_edit(cnID, cuID, note_type):
     form.custom.widget.Note['_class'] += ' form-control'
 
     form = DIV(form.custom.begin,
+               form.custom.widget.Processed,
+               LABEL(form.custom.label.Processed,
+                     _for="customers_notes_Processed"),
                form.custom.widget.Note,
                form.custom.submit,
                A(T('Cancel'),
