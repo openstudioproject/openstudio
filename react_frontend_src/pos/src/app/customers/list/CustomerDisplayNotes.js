@@ -94,6 +94,12 @@ class CustomerDisplayNotes extends Component {
                                                 <i className="fa fa-pencil" />  Edit note
                                             </span>
                                             <span className="direct-chat-timestamp pull-right">{note.Timestamp} {note.Time}</span>
+                                            {(note.Acknowledged) ? 
+                                                <span className="direct-chat-scope text-green pull-right">
+                                                    check 
+                                                </span>
+                                                : ""
+                                            }
                                         </div>
                                         <img className="direct-chat-img" src="/static/images/person_inverted_small.png" alt="" />
                                         <div className="direct-chat-text">
