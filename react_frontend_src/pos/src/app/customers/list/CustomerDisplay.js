@@ -137,10 +137,11 @@ class CustomerDisplay extends Component {
 
     onUpdateNoteStatus(e) {
         console.log('update note status clicked')
+        e.preventDefault()
 
         this.props.updateNoteStatus(
             this.props.customerID,
-            this.props.customers.selectedNoteID
+            this.props.customers.selected_noteID, 
         )
     }
 

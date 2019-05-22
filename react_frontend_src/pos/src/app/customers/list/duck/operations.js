@@ -7,6 +7,8 @@ import {
     receiveCreateNote,
     requestUpdateNote,
     receiveUpdateNote,
+    requestUpdateNoteStatus,
+    receiveUpdateNoteStatus,
     clearNotes,
     setCreateNote,
     clearCreateNote,
@@ -213,7 +215,7 @@ const updateNoteStatus = (cuID, id) => {
         
         let fd = new FormData()
         fd.append('id', id)
-        
+
         axios_os.post(OS_API.CUSTOMER_UPDATE_NOTE_STATUS, fd)
         .then(function(response) {
             console.log(response)
