@@ -207,6 +207,111 @@ export const listReducer = (state = {}, action={ type: null }) => {
                 ...state,
                 camera_app_snap: null
             }
+        case T.REQUEST_NOTES:
+            return {
+                ...state,
+                notes_loading: true,
+                notes_loaded: false,
+                has_unackowledged_notes: false
+            }
+        case T.RECEIVE_NOTES:
+            let has_unprocessed_notes = false
+            if (action.data) {
+                for (var i = 0; i < action.data.data.length; i++) {
+                    if (action.data.data[i].Processed === false) {
+                        has_unprocessed_notes = true
+                        break
+                    }
+                }
+            }
+
+            return {
+                ...state,
+                has_unprocessed_notes: has_unprocessed_notes,
+                notes_loading: false,
+                notes_loaded: true,
+                notes: action.data
+            }
+        case T.CLEAR_NOTES:
+            return {
+                ...state,
+                notes_loaded: false,
+                notes_loading: false,
+                notes: {}
+            }
+        case T.SET_CREATE_NOTE:
+            return {
+                ...state,
+                create_note: true,
+                update_note: false,
+                selected_noteID: null,
+            }
+        case T.CLEAR_CREATE_NOTE:
+            return {
+                ...state,
+                create_note: false
+            }
+        case T.REQUEST_CREATE_NOTE:
+            return {
+                ...state,
+                creating_note: true
+            }
+        case T.RECEIVE_CREATE_NOTE:
+            let receive_create_note_return_value = {
+                ...state,
+                creating_note: false,
+                create_note_error_data: action.data.result.errors   
+            }
+            
+            if (action.data.error == false) {
+                receive_create_note_return_value['create_note'] = false
+            }
+            
+            return receive_create_note_return_value
+        case T.REQUEST_UPDATE_NOTE:
+            return {
+                ...state,
+                updating_note: true
+            }
+        case T.RECEIVE_UPDATE_NOTE:
+            return {
+                ...state,
+                update_note: false,
+                updating_note: false,
+                selected_noteID: null
+            }
+        case T.SET_UPDATE_NOTE:
+            return {
+                ...state,
+                update_note: true,
+                selected_noteID: action.id
+            }
+        case T.CLEAR_UPDATE_NOTE:
+            return {
+                ...state,
+                update_note: false,
+                selected_noteID: null
+            }
+        case T.REQUEST_UPDATE_NOTE_STATUS:
+            return {
+                ...state,
+                updating_note_status: true
+            }
+        case T.RECEIVE_UPDATE_NOTE_STATUS:
+            return {
+                ...state,
+                updating_note_status: false
+            }
+        case T.SET_NOTES_CHECKIN_CHECK:
+            return {
+                ...state,
+                notes_checkin_check: true
+            }
+        case T.CLEAR_NOTES_CHECKIN_CHECK:
+            return {
+                ...state,
+                notes_checkin_check: false
+            }
         default:
             return {
                 ...state

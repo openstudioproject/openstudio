@@ -79,6 +79,42 @@ const mapDispatchToProps = dispatch =>
         clearCameraAppSnap() {
             dispatch(customersListOperations.clearCameraAppSnap())
         },
+        fetchNotes(id) {
+            dispatch(customersListOperations.fetchNotes(id))
+        },
+        clearNotes() {
+            dispatch(customersListOperations.clearNotes())
+        },
+        setCreateNote() {
+            dispatch(customersListOperations.setCreateNote())
+        },
+        clearCreateNote() {
+            dispatch(customersListOperations.clearCreateNote())
+        },
+        createNote(cuID, data) {
+            dispatch(customersListOperations.createNote(cuID, data))
+        },
+        updateNote(cuID, id, data) {
+            dispatch(customersListOperations.updateNote(cuID, id, data))
+        },
+        updateNoteStatus(cuID, id) {
+            dispatch(customersListOperations.updateNoteStatus(cuID, id))
+        },
+        setUpdateNote(id) {
+            dispatch(customersListOperations.setUpdateNote(id))
+        },
+        clearUpdateNote() {
+            dispatch(customersListOperations.clearUpdateNote())
+        },
+        deleteNote(cuID, id) {
+            dispatch(customersListOperations.deleteNote(cuID, id))
+        },
+        setNotesCheckinCheck() {
+            dispatch(customersListOperations.setNotesCheckinCheck())
+        },
+        clearNotesCheckinCheck() {
+            dispatch(customersListOperations.clearNotesCheckinCheck())
+        },
     })
 
 

@@ -32,6 +32,10 @@ def index():
             print version
             upgrade_to_201902()
             session.flash = T("Upgraded db to 2019.02")
+        if version < 2019.06:
+            print version
+            upgrade_to_201906()
+            session.flash = T("Upgraded db to 2019.06")
         else:
             session.flash = T('Already up to date')
 
@@ -217,3 +221,11 @@ def upgrade_to_201902():
         'system_enable_class_checkin_trialclass',
         'on'
     )
+
+
+def upgrade_to_201906():
+    """
+        Upgrade operations to 2019.06
+    """
+    query = (db.customers_notes.Acknowledged == None)
+    db(query).update(Acknowledged = True)

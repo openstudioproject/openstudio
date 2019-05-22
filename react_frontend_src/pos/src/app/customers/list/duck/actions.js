@@ -145,3 +145,94 @@ export const clearCameraAppSnap = () =>
     ({
         type: T.CLEAR_CAMERA_APP_SNAP,
     })
+
+export const requestNotes = () =>
+    ({
+        type: T.REQUEST_NOTES
+    })
+
+export const receiveNotes = (data) =>
+    ({
+        type: T.RECEIVE_NOTES,
+        data
+    })
+
+export const clearNotes = () =>
+    ({
+        type: T.CLEAR_NOTES
+    })
+
+export const setCreateNote = () =>
+    ({
+        type: T.SET_CREATE_NOTE
+    })
+
+export const clearCreateNote = () =>
+    ({
+        type: T.CLEAR_CREATE_NOTE
+    })
+
+export const requestCreateNote = () =>
+    ({
+        type: T.REQUEST_CREATE_NOTE
+    })
+
+export const receiveCreateNote = (data) =>
+    ({
+        type: T.RECEIVE_CREATE_NOTE,
+        data
+    })
+
+export const requestUpdateNote = () =>
+    ({
+        type: T.REQUEST_UPDATE_NOTE
+    })
+
+export const receiveUpdateNote = (data) =>
+    ({
+        type: T.RECEIVE_UPDATE_NOTE,
+        data
+    })
+
+export const requestUpdateNoteStatus = () =>
+    ({
+        type: T.REQUEST_UPDATE_NOTE
+    })
+
+export const receiveUpdateNoteStatus = (data) =>
+    ({
+        type: T.RECEIVE_UPDATE_NOTE,
+        data
+    })
+
+export const setUpdateNote = (id) =>
+    ({
+        type: T.SET_UPDATE_NOTE,
+        id
+    })
+
+export const clearUpdateNote = () =>
+    ({
+        type: T.CLEAR_UPDATE_NOTE
+    })
+
+export const requestDeleteNote = () =>
+    ({
+        type: T.REQUEST_DELETE_NOTE
+    })
+
+export const receiveDeleteNote = (data) =>
+    ({
+        type: T.RECEIVE_DELETE_NOTE,
+        data
+    })
+
+export const setNotesCheckinCheck = () =>
+    ({
+        type: T.SET_NOTES_CHECKIN_CHECK,
+    })
+
+export const clearNotesCheckinCheck = () =>
+    ({
+        type: T.CLEAR_NOTES_CHECKIN_CHECK
+    })

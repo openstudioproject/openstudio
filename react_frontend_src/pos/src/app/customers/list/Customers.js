@@ -165,6 +165,8 @@ class Customers extends Component {
         console.log('clicked')
         console.log(id)
         this.props.setDisplayCustomerID(id)
+        this.props.clearNotes()
+        this.props.fetchNotes(id)
     }
 
     render() {
@@ -175,6 +177,7 @@ class Customers extends Component {
         const intl = this.props.intl
         const settings = this.props.app.settings.data
         const inputmask_date = settings.date_mask
+
 
         let customers_display = []
         if (customers.loaded) {
@@ -219,7 +222,7 @@ class Customers extends Component {
                                 </div>
                                 <ButtonBack onClick={this.onClickButtonBack.bind(this)} 
                                             classAdditional="pull-left btn-margin-right">
-                                    Back
+                                    Shop
                                 </ButtonBack>
 
                                 <InputGroupSearch placeholder={this.props.intl.formatMessage({ id: 'app.general.placeholders.search' })}
@@ -235,9 +238,23 @@ class Customers extends Component {
                                                 classcards={classcards}
                                                 edit_in_progress={customers.update_customer}
                                                 onClickEdit={this.onClickEdit.bind(this)}
+                                                onClickCreateNote={this.props.setCreateNote}
+                                                onClickCancelCreateNote={this.props.clearCreateNote}
+                                                OnClickUpdateNote={this.props.setUpdateNote}
+                                                OnClickCancelUpdateNote={this.props.clearUpdateNote}
+                                                onClickDeleteNote={this.props.deleteNote}
+                                                createNoteErrorData={customers.create_note_error_data}
+                                                updateNoteErrorData={customers.update_note_error_data}
                                                 onSetCameraAppSnap={this.props.setCameraAppSnap}
                                                 onClearCameraAppSnap={this.props.clearCameraAppSnap}
-                                                onSaveCameraAppSnap={this.props.updateCustomerPicture} />
+                                                onSaveCameraAppSnap={this.props.updateCustomerPicture}
+                                                setNotesCheckinCheck={this.props.setNotesCheckinCheck}
+                                                clearNotesCheckinCheck={this.props.clearNotesCheckinCheck}
+                                                fetchNotes={this.props.fetchNotes}
+                                                clearNotes={this.props.clearNotes}
+                                                createNote={this.props.createNote}
+                                                updateNote={this.props.updateNote}
+                                                updateNoteStatus={this.props.updateNoteStatus} />
                                 { (customers.create_customer) ?
                                     <CustomerFormCreate inputmask_date={inputmask_date}
                                                         error_data={customers.create_customer_error_data}
