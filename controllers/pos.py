@@ -563,7 +563,7 @@ def get_customer_notes():
         db.customers_notes.NoteDate,
         db.customers_notes.NoteTime,
         db.customers_notes.Note,
-        db.customers_notes.Acknowledged,
+        db.customers_notes.Processed,
         orderby=~db.customers_notes.NoteDate|\
                 ~db.customers_notes.NoteTime
     )
@@ -592,7 +592,7 @@ def get_customer_notes():
             "Timestamp": note_dt.strftime(DATETIME_FORMAT),
             "Note": row.Note,
             "User": repr_row.auth_user_id,
-            "Acknowledged": row.Acknowledged
+            "Processed": row.Processed
         })
 
     print notes
