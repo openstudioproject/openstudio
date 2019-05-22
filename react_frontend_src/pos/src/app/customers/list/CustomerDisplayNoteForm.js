@@ -46,9 +46,7 @@ class CustomerDisplayNoteForm extends Component {
                     acknowledged = notes[i].Acknowledged
                 }
             }       
-        }
-
-        
+        }        
 
         return (
             <div>

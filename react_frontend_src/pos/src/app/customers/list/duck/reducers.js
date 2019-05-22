@@ -242,7 +242,9 @@ export const listReducer = (state = {}, action={ type: null }) => {
         case T.SET_CREATE_NOTE:
             return {
                 ...state,
-                create_note: true
+                create_note: true,
+                update_note: false,
+                selected_noteID: null,
             }
         case T.CLEAR_CREATE_NOTE:
             return {
