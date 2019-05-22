@@ -1422,6 +1422,9 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         :param note_type: ['backoffice', 'teachers']
         :return: HTML formatted notes using AdminLTE chat layout
         """
+        from openstudio.os_gui import OsGui
+        os_gui = OsGui()
+
         T = current.T
         delete_onclick = "return confirm('" + T('Are you sure you want to delete this note?') + "');"
 
@@ -1448,6 +1451,14 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
                                                                  'note_type': note_type}),
                            )
 
+            status = ""
+            if row.Processed:
+                status = SPAN(
+                    os_gui.get_fa_icon('fa-check'), ' ',
+                    T("Processed"),
+                    _class="direct-chat-scope pull-right text-green"
+                )
+
             note = DIV(
                 DIV(SPAN(repr_row.auth_user_id,
                          _class="direct-chat-name pull-left"),
@@ -1455,6 +1466,7 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
                          _class="direct-chat-scope pull-right"),
                     SPAN(edit,
                          _class="direct-chat-scope pull-right"),
+                    status,
                     SPAN(repr_row.NoteDate, ' ', repr_row.NoteTime, ' ',
                          _class="direct-chat-timestamp pull-right"),
                     _class="direct-chat-info clearfix"
