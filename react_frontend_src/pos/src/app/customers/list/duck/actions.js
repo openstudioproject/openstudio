@@ -194,6 +194,17 @@ export const receiveUpdateNote = (data) =>
         data
     })
 
+export const requestUpdateNoteStatus = () =>
+    ({
+        type: T.REQUEST_UPDATE_NOTE
+    })
+
+export const receiveUpdateNoteStatus = (data) =>
+    ({
+        type: T.RECEIVE_UPDATE_NOTE,
+        data
+    })
+
 export const setUpdateNote = (id) =>
     ({
         type: T.SET_UPDATE_NOTE,
