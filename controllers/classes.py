@@ -3440,7 +3440,12 @@ def attendance_teacher_notes():
 
     form = DIV(
         form.custom.begin,
-        form.custom.widget.Injury, LABEL(form.custom.label.Injury),
+        form.custom.widget.Injury,
+        LABEL(form.custom.label.Injury,
+              _for="customers_notes_Injury"),
+        form.custom.widget.Processed,
+        LABEL(form.custom.label.Processed,
+              _for="customers_notes_Processed"),
         form.custom.widget.Note,
         form.custom.submit,
         A(T('Cancel'),
@@ -3513,6 +3518,14 @@ def attendance_teacher_notes_get_content(cuID, clsID, date_formatted):
                           _class='direct-chat-scope pull-right grey')
 
 
+        status = ""
+        if row.Processed:
+            status = SPAN(
+                os_gui.get_fa_icon('fa-check'), ' ',
+                T("Processed"),
+                _class="direct-chat-scope pull-right text-green"
+            )
+
         msg = DIV(
             DIV(SPAN(repr_row.auth_user_id,
                      _class="direct-chat-name pull-left"),
@@ -3521,6 +3534,7 @@ def attendance_teacher_notes_get_content(cuID, clsID, date_formatted):
                 SPAN(edit,
                      _class="direct-chat-scope pull-right"),
                 injury,
+                status,
                 SPAN(repr_row.NoteDate, ' ', repr_row.NoteTime, ' ',
                      _class="direct-chat-timestamp pull-right"),
                 _class="direct-chat-info clearfix"
@@ -3596,7 +3610,12 @@ def attendance_teacher_note_edit():
 
     form = DIV(
         form.custom.begin,
-        form.custom.widget.Injury, LABEL(form.custom.label.Injury),
+        form.custom.widget.Injury,
+        LABEL(form.custom.label.Injury,
+              _for="customers_notes_Injury"),
+        form.custom.widget.Processed,
+        LABEL(form.custom.label.Processed,
+              _for="customers_notes_Processed"),
         form.custom.widget.Note,
         form.custom.submit,
         A(T('Cancel'),
