@@ -135,6 +135,10 @@ class CustomerDisplay extends Component {
         )
     }
 
+    onUpdateNoteStatus(e) {
+        console.log('update note status clicked')
+    }
+
     onClickCheckin(e) {
         e.preventDefault()
         console.log('checkin clicked')
@@ -298,6 +302,7 @@ class CustomerDisplay extends Component {
                                             errorData={this.props.updateNoteErrorData}
                                             onSubmit={this.onUpdateNote.bind(this)}
                                             onClickCancel={this.props.OnClickCancelUpdateNote}
+                                            onChangeStatus={this.onUpdateNoteStatus.bind(this)}
                                         />
                                     :
                                     <CustomerDisplayNotes 

@@ -94,6 +94,7 @@
             "create_note_error_data": {},
             "update_note": false,
             "updating_note": false,
+            "updating_note_status": false,
             "update_note_error_data": {},
             "selected_noteID": null
         },

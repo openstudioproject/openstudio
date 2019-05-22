@@ -27,6 +27,7 @@ class CustomerDisplayNoteForm extends Component {
         const error_data = this.props.errorData
         const onSubmit = this.props.onSubmit
         const onCancel = this.props.onClickCancel
+        const onChangeStatus = this.props.onChangeStatus
         const selected_noteID = this.props.selectedNoteID
         let defaultValue = ""
         let acknowledged = false
@@ -64,7 +65,7 @@ class CustomerDisplayNoteForm extends Component {
                     { ' ' + ' ' }
                     <button
                         className='btn btn-xs btn-default'
-                        onClick={f=>f}
+                        onClick={onChangeStatus}
                     >
                         <i className="fa fa-refresh"></i> {' '} Change note status
                     </button>
