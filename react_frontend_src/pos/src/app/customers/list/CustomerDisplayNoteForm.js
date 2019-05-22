@@ -28,21 +28,42 @@ class CustomerDisplayNoteForm extends Component {
         const update = this.props.update
         const selected_noteID = this.props.selectedNoteID
         let defaultValue = ""
+        let acknowledged = false
 
         // set initial value on update
         if (update) {
             const notes = this.props.notes.data
             var i           
             for (i = 0; i < notes.length; i++) {
-                let note = notes[i].Note
                 if (notes[i].id === selected_noteID) {
-                    defaultValue = note
+                    defaultValue = notes[i].Note
+                    acknowledged = notes[i].Acknowledged
                 }
             }       
         }
 
         return (
             <div>
+                {(update) ? 
+                    <span className="pull-right">
+                    { (acknowledged) ? 
+                        <span className="text-green"> 
+                            <i className="fa fa-check"></i> {' '}
+                            Acknowledged
+                        </span>:
+                        <span>
+                            To be processed
+                        </span>
+                    }
+                    { ' ' + ' ' }
+                    <button
+                        className='btn btn-xs btn-default'
+                        onClick={f=>f}
+                    >
+                        <i className="fa fa-refresh"></i> {' '} Change note status
+                    </button>
+                    </span>
+                    : ""}
                 <label htmlFor="CustomersNoteTextarea">{title}</label>
                 <form onSubmit={onSubmit}>
                     <textarea
