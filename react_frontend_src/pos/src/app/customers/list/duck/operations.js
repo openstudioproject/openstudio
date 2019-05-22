@@ -207,12 +207,14 @@ const updateNote = (cuID, id, data) => {
 }
 
 
-const updateNoteStatus = (cuID, id, data) => {
+const updateNoteStatus = (cuID, id) => {
     return dispatch => {
         dispatch(requestUpdateNoteStatus())
         
-        data.append('id', id)
-        axios_os.post(OS_API.CUSTOMER_UPDATE_NOTE_STATUS, data)
+        let fd = new FormData()
+        fd.append('id', id)
+        
+        axios_os.post(OS_API.CUSTOMER_UPDATE_NOTE_STATUS, fd)
         .then(function(response) {
             console.log(response)
             dispatch(receiveUpdateNoteStatus(response.data))

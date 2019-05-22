@@ -137,6 +137,11 @@ class CustomerDisplay extends Component {
 
     onUpdateNoteStatus(e) {
         console.log('update note status clicked')
+
+        this.props.updateNoteStatus(
+            this.props.customerID,
+            this.props.customers.selectedNoteID
+        )
     }
 
     onClickCheckin(e) {
