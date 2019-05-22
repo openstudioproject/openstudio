@@ -206,6 +206,28 @@ const updateNote = (cuID, id, data) => {
     }
 }
 
+const updateNoteStatus = (cuID, id, data) => {
+    return dispatch => {
+        dispatch(requestUpdateNoteStatus())
+        
+        data.append('id', id)
+        axios_os.post(OS_API.CUSTOMER_UPDATE_NOTE_STATUS, data)
+        .then(function(response) {
+            console.log(response)
+            dispatch(receiveUpdateNoteStatus(response.data))
+            if (!response.data.error) {
+                dispatch(fetchNotes(cuID))
+            }
+        })
+        .catch(function (error) {
+            console.log(error)
+        })
+        .then(function() {
+            //always executed
+        })
+    }
+}
+
 
 // deleters
 const deleteNote = (cuID, id) => {

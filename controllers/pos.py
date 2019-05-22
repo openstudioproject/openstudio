@@ -657,6 +657,33 @@ def update_customer_note():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('update', 'customers_notes'))
+def update_customer_note_status():
+    """
+    :return: dict containing data of new note
+    """
+    set_headers()
+
+    print request.vars
+
+    cnID = request.vars['id']
+
+    print cnID
+    cn = db.customers_notes(cnID)
+    cn.Acknowledged = not cn.Acknowledged
+    record = cn.update_record()
+
+    # error = False
+    # if result.errors:
+    #     error = True
+
+    # if not error:
+    #     row = db.customers_notes(result['id'])
+
+    return dict(error=False)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('delete', 'customers_notes'))
 def delete_customer_note():
     """
