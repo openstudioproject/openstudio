@@ -165,7 +165,6 @@ class CustomerDisplay extends Component {
         const customerID = this.props.customerID
         const customers = this.props.customers
         const customers_list = this.props.customers.data
-        const has_unacknowledged_notes = customers.has_unacknowledged_notes
         const memberships = this.props.memberships
         const subscriptions = this.props.subscriptions
         const classcards = this.props.classcards
@@ -297,6 +296,7 @@ class CustomerDisplay extends Component {
                                         <CustomerDisplayNoteForm
                                             title="Edit note" 
                                             update={true}
+                                            updating_note_status={customer.updating_note_status}
                                             notes={customers.notes}
                                             selectedNoteID={customers.selected_noteID}
                                             errorData={this.props.updateNoteErrorData}

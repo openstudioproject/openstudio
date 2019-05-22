@@ -23,6 +23,7 @@ class CustomerDisplayNoteForm extends Component {
     render() {
         const create = this.props.create
         const update = this.props.update
+        const updating_note_status = this.props.updating_note_status
         const title = this.props.title
         const error_data = this.props.errorData
         const onSubmit = this.props.onSubmit
@@ -65,6 +66,7 @@ class CustomerDisplayNoteForm extends Component {
                     { ' ' + ' ' }
                     <button
                         className='btn btn-xs btn-default'
+                        disabled={updating_note_status}
                         onClick={onChangeStatus}
                     >
                         <i className="fa fa-refresh"></i> {' '} Change note status

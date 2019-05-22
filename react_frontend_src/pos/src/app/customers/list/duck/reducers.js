@@ -292,6 +292,16 @@ export const listReducer = (state = {}, action={ type: null }) => {
                 update_note: false,
                 selected_noteID: null
             }
+        case T.REQUEST_UPDATE_NOTE_STATUS:
+            return {
+                ...state,
+                updating_note_status: true
+            }
+        case T.RECEIVE_UPDATE_NOTE_STATUS:
+            return {
+                ...state,
+                updating_note_status: false
+            }
         case T.SET_NOTES_CHECKIN_CHECK:
             return {
                 ...state,

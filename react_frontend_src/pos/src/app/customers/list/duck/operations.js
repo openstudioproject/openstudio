@@ -268,6 +268,7 @@ export default {
     clearNotes,
     createNote,
     updateNote,
+    updateNoteStatus,
     setCreateNote,
     clearCreateNote,
     setUpdateNote,
