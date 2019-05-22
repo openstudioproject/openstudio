@@ -29,7 +29,7 @@ class CustomerNotesWarning extends Component {
         const customerID = this.props.customerID
         const customers = this.props.customers
         const customers_list = this.props.customers.data
-        const has_unacknowledged_notes = customers.has_unacknowledged_notes
+        const has_unprocessed_notes = customers.has_unprocessed_notes
         const memberships = this.props.memberships
         const subscriptions = this.props.subscriptions
         const classcards = this.props.classcards
@@ -44,9 +44,9 @@ class CustomerNotesWarning extends Component {
              imgClass = 'hidden' : videoClass = 'hidden'
 
         let link_checkin
-        (has_unacknowledged_notes) ? link_checkin = "/customer/notes_warning": link_checkin = "/classes/" + customerID
-        console.log('has_unacknowledged_notes')
-        console.log(has_unacknowledged_notes)
+        (has_unprocessed_notes) ? link_checkin = "/customer/notes_warning": link_checkin = "/classes/" + customerID
+        console.log('has_unprocessed_notes')
+        console.log(has_unprocessed_notes)
 
         return (
             <div>

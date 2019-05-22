@@ -88,7 +88,7 @@
             "notes_loaded": false,
             "notes": {},
             "notes_checkin_check": false,
-            "has_unacknowledged_notes": false,
+            "has_unprocessed_notes": false,
             "create_note": false,
             "creating_note": false,
             "create_note_error_data": {},

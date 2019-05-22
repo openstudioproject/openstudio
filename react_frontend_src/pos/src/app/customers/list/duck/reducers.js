@@ -215,11 +215,11 @@ export const listReducer = (state = {}, action={ type: null }) => {
                 has_unackowledged_notes: false
             }
         case T.RECEIVE_NOTES:
-            let has_unacknowledged_notes = false
+            let has_unprocessed_notes = false
             if (action.data) {
                 for (var i = 0; i < action.data.data.length; i++) {
-                    if (action.data.data[i].Acknowledged === false) {
-                        has_unacknowledged_notes = true
+                    if (action.data.data[i].Processed === false) {
+                        has_unprocessed_notes = true
                         break
                     }
                 }
@@ -227,7 +227,7 @@ export const listReducer = (state = {}, action={ type: null }) => {
 
             return {
                 ...state,
-                has_unacknowledged_notes: has_unacknowledged_notes,
+                has_unprocessed_notes: has_unprocessed_notes,
                 notes_loading: false,
                 notes_loaded: true,
                 notes: action.data

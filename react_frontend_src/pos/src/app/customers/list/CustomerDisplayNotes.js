@@ -50,12 +50,12 @@ class CustomerDisplayNotes extends Component {
         return (
            <div>
                { (notes_loaded) ?
-                ((customers.notes_checkin_check) && (customers.has_unacknowledged_notes)) ? 
+                ((customers.notes_checkin_check) && (customers.has_unprocessed_notes)) ? 
                     <div>
                         <b>Notes</b>
                         <div>
                             <br />
-                            One or more unacknowledged notes were found. <br />
+                            One or more unprocessed notes were found. <br />
                             How would you like to continue? <br /><br /><br />
 
                             <button type="button"
@@ -93,7 +93,7 @@ class CustomerDisplayNotes extends Component {
                                             onClick={() => this.props.OnClickUpdateNote(note.id)}>
                                                 <i className="fa fa-pencil" />  Edit note
                                             </span>
-                                            {(note.Acknowledged) ? 
+                                            {(note.Processed) ? 
                                                 <span className="direct-chat-scope text-green pull-right">
                                                     <i className="fa fa-check"></i> { ' ' } 
                                                 </span>

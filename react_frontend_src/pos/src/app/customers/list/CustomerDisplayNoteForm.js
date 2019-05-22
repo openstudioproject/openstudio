@@ -31,7 +31,7 @@ class CustomerDisplayNoteForm extends Component {
         const onChangeStatus = this.props.onChangeStatus
         const selected_noteID = this.props.selectedNoteID
         let defaultValue = ""
-        let acknowledged = false
+        let processed = false
 
         if (create) {
             defaultValue = ""
@@ -45,7 +45,7 @@ class CustomerDisplayNoteForm extends Component {
             for (i = 0; i < notes.length; i++) {
                 if (notes[i].id === selected_noteID) {
                     defaultValue = notes[i].Note
-                    acknowledged = notes[i].Acknowledged
+                    processed = notes[i].Processed
                 }
             }       
         }        
@@ -54,10 +54,10 @@ class CustomerDisplayNoteForm extends Component {
             <div>
                 {(update) ? 
                     <span className="pull-right">
-                    { (acknowledged) ? 
+                    { (processed) ? 
                         <span className="text-green"> 
                             <i className="fa fa-check"></i> {' '}
-                            Acknowledged
+                            Processed
                         </span>:
                         <span>
                             To be processed
