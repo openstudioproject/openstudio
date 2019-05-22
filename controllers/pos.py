@@ -670,7 +670,7 @@ def update_customer_note_status():
 
     print cnID
     cn = db.customers_notes(cnID)
-    cn.Acknowledged = not cn.Acknowledged
+    cn.Processed = not cn.Processed
     record = cn.update_record()
 
     # error = False
