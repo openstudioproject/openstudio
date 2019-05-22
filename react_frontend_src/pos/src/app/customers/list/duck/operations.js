@@ -206,6 +206,7 @@ const updateNote = (cuID, id, data) => {
     }
 }
 
+
 const updateNoteStatus = (cuID, id, data) => {
     return dispatch => {
         dispatch(requestUpdateNoteStatus())
