@@ -227,5 +227,5 @@ def upgrade_to_201906():
     """
         Upgrade operations to 2019.06
     """
-    query = (db.customers_notes.Acknowledged == None)
-    db(query).update(Acknowledged = True)
+    query = (db.customers_notes.Processed == None)
+    db(query).update(Processed = True)
