@@ -36,7 +36,10 @@ def index():
     """
         Main page for reports tax summary controller
     """
-    return 'hello world'
+    return dict(
+        form="form",
+        content="content here :)"
+    )
 
 
 # helpers start
