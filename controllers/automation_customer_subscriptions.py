@@ -342,6 +342,10 @@ def create_invoices_for_month():
     response.view = 'general/only_content.html'
 
     months = get_months_list()
+    invoice_date_options = [
+        ['today', T("Today")],
+        ['first_of_month', T("First day of chosen month")]
+    ]
 
     form = SQLFORM.factory(
         Field('month',
@@ -358,6 +362,11 @@ def create_invoices_for_month():
                   "This will be the invoice description and shown on the customers' " + \
                   "bank statement in case you create a collection batch. " + \
                   "When an alt. price has been added for this month, this description will be used for that subscription.")),
+        Field('invoice_date',
+              default='today',
+              requires=IS_IN_SET(invoice_date_options, zero=None),
+              label=T("Invoice date"),
+              comment=T("Choose the creation date shown on invoices.")),
         formstyle="bootstrap3_stacked",
         submit_button=T("Create invoices")
     )
