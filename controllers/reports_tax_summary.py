@@ -32,13 +32,28 @@
 # import openpyxl
 
 
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'reports_tax_summary'))
 def index():
     """
         Main page for reports tax summary controller
     """
+
+    show_current_month = A(
+        T("Current month"),
+        _href=URL('index_show_current_month'),
+        _class='btn btn-default'
+    )
+
+    header_tools = DIV(
+        show_current_month
+    )
+
     return dict(
         form="form",
-        content="content here :)"
+        content="content here :)",
+        header_tools=header_tools
+
     )
 
 
