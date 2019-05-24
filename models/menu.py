@@ -440,7 +440,6 @@ def get_backend_menu():
                                 URL('school_properties', 'index', extension=''),
                         submenu) ]
         # reports
-
         submenu = []
         if user_helpers.check_read_permission('reports_customers', user_id):
             submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Inactive customers'))),
@@ -450,52 +449,52 @@ def get_backend_menu():
             submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Class cards'))),
                             False,
                             URL('reports', 'classcards', extension='')))
-            #submenu.append((SPAN(os_gui.get_fa_icon('fa-ticket'), ' ', T('Class cards')), False, URL('reports', 'classcards')))
+
         if user_helpers.check_read_permission('reports_subscriptions', user_id):
             submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Subscriptions'))),
                             False,
                             URL('reports', 'subscriptions_overview', extension='')))
-            #submenu.append((SPAN(os_gui.get_fa_icon('fa-edit'), ' ', T('Subscriptions')), False, URL('reports', 'subscriptions_overview')))
+
         if user_helpers.check_read_permission('reports_dropinclasses', user_id):
             submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Drop in classes'))),
                             False,
                             URL('reports', 'dropinclasses', extension='')))
-            #submenu.append((SPAN(os_gui.get_fa_icon('fa-level-down'), ' ', T('Drop in classes')), False, URL('reports', 'dropinclasses')))
+
         if user_helpers.check_read_permission('reports_trialclasses', user_id):
             submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Trial'))),
                             False,
                             URL('reports', 'trialclasses', extension='')))
-            #submenu.append((SPAN(os_gui.get_fa_icon('fa-compass'), ' ', T('Trial classes / cards')), False, URL('reports', 'trialclasses')))
+
         if user_helpers.check_read_permission('reports_classtypes', user_id) or auth.has_membership(group_id='Admins'):
             submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Attendance'))),
                             False,
                             URL('reports', 'attendance_classes', extension='')))
-            #submenu.append((SPAN(os_gui.get_fa_icon('fa-check-square-o'), ' ', T('Attendance')), False, URL('reports', 'attendance_classtypes')))
+
         if user_helpers.check_read_permission('reports_retention', user_id):
             submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Attendance retention'))),
                             False,
                             URL('reports', 'retention_rate', extension='')))
-            #submenu.append((SPAN(os_gui.get_fa_icon('fa-magnet'), ' ', T('Retention')), False, URL('reports', 'retention_rate')))
+
         if user_helpers.check_read_permission('reports_teacherclasses', user_id):
             submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Teacher classes'))),
                             False,
                             URL('reports', 'teacher_classes', extension='')))
-            # submenu.append((SPAN(os_gui.get_fa_icon('fa-user'), ' ', T('Teacher classes')), False, URL('reports', 'teacher_classes')))
+
         if user_helpers.check_read_permission('reports_revenue', user_id):
             submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Revenue'))),
                             False,
                             URL('reports', 'revenue', extension='')))
-            #submenu.append((SPAN(os_gui.get_fa_icon('fa-money'), ' ', T('Revenue')), False, URL('reports', 'revenue')))
+
         if user_helpers.check_read_permission('reports_discovery', user_id):
             submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Discovery'))),
                             False,
                             URL('reports', 'discovery', extension='')))
-            #submenu.append((SPAN(os_gui.get_fa_icon('fa-binoculars'), ' ', T('Discovery')), False, URL('reports', 'discovery')))
+
         if user_helpers.check_read_permission('reports_geography', user_id):
             submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Geography'))),
                             False,
                             URL('reports', 'geography', extension='')))
-            #submenu.append((SPAN(os_gui.get_fa_icon('fa-map-o'), ' ', T('Geography')), False, URL('reports', 'geography')))
+
         if user_helpers.check_read_permission('reports', user_id):
             menu += [
                ((I(_class='fa fa-bar-chart'), ' ',
