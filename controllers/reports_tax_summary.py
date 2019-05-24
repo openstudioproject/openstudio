@@ -38,23 +38,57 @@ def index():
     """
         Main page for reports tax summary controller
     """
+    form = index_get_form(TODAY_LOCAL.year, TODAY_LOCAL.month)
+
     show_current_month = A(
         T("Current month"),
         _href=URL('index_show_current_month'),
         _class='btn btn-default'
     )
 
-    header_tools = DIV(
+    header_tools = SPAN(
         show_current_month
     )
 
     return dict(
-        form="form",
+        form=form['form'],
         content="content here :)",
+        submit=form['submit'],
         header_tools=header_tools
 
     )
 
+
+def index_get_form(year, month):
+    """
+    Get month chooser form for index
+    """
+    from general_helpers import get_months_list
+    from general_helpers import set_form_id_and_get_submit_button
+
+    months = get_months_list()
+
+    form = SQLFORM.factory(
+        Field('month',
+              requires=IS_IN_SET(months, zero=None),
+              default=month,
+              label=T("Month")),
+        Field('year', 'integer',
+              default=year,
+              label=T("Year")),
+        # Field('school_locations_id', db.school_locations,
+        #       requires=IS_IN_DB(db(loc_query),
+        #                         'school_locations.id',
+        #                         '%(Name)s',
+        #                         zero=T("All locations")),
+        #       default=session.reports_subscriptions_school_locations_id,
+        #       represent=lambda value, row: locations_dict.get(value, T("No location")),
+        #       label=T("Location")),
+        formstyle='bootstrap3_stacked',
+        submit_button=T("Run report")
+    )
+
+    return set_form_id_and_get_submit_button(form, 'MainForm')
 
 # helpers start
 
