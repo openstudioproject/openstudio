@@ -38,7 +38,6 @@ def index():
     """
         Main page for reports tax summary controller
     """
-
     show_current_month = A(
         T("Current month"),
         _href=URL('index_show_current_month'),

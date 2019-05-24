@@ -1245,6 +1245,7 @@ def access_group_permissions():
                 ['reports_teacherclasses_revenue-read', T('View revenue for each class')]
             ]],
             ['reports_revenue-read', T("View revenue report")],
+            ['reports_tax_summary-read', T("View tax summary report")],
             ['reports_discovery-read', T("View Discovery report")],
             ['reports_retention-read', T("View Retention report")],
             ['reports_geography-read', T("View Geography report"), [
