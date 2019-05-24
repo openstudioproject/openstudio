@@ -38,6 +38,7 @@ def index():
     """
         Main page for reports tax summary controller
     """
+    index_process_request_vars()
     form = index_get_form(TODAY_LOCAL.year, TODAY_LOCAL.month)
 
     show_current_month = A(
@@ -57,6 +58,37 @@ def index():
         header_tools=header_tools
 
     )
+
+
+def index_process_request_vars(var=None):
+    """
+        This function takes the request.vars as a argument and
+    """
+    today = TODAY_LOCAL
+    if 'year' in request.vars:
+        year = int(request.vars['year'])
+    elif not session.reports_tax_summary_index_year is None:
+        year = session.reports_tax_summary_index_year
+    else:
+        year = today.year
+    session.reports_tax_summary_index_year = year
+    if 'month' in request.vars:
+        month = int(request.vars['month'])
+    elif not session.reports_tax_summary_index_month is None:
+        month = session.reports_tax_summary_index_month
+    else:
+        month = today.month
+    session.reports_tax_summary_index_month = month
+
+    # if 'school_locations_id' in request.vars:
+    #     slID = request.vars['school_locations_id']
+    # elif not session.reports_tax_summary_index_school_locations_id is None:
+    #     slID = session.reports_tax_summary_index_school_locations_id
+    # else:
+    #     slID = None
+    # session.reports_tax_summary_index_school_locations_id = slID
+
+    # session.reports_tax_summary_index = request.function
 
 
 def index_get_form(year, month):
@@ -81,7 +113,7 @@ def index_get_form(year, month):
         #                         'school_locations.id',
         #                         '%(Name)s',
         #                         zero=T("All locations")),
-        #       default=session.reports_subscriptions_school_locations_id,
+        #       default=session.reports_tax_summary_index_school_locations_id,
         #       represent=lambda value, row: locations_dict.get(value, T("No location")),
         #       label=T("Location")),
         formstyle='bootstrap3_stacked',
