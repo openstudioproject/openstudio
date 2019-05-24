@@ -485,6 +485,11 @@ def get_backend_menu():
                             False,
                             URL('reports', 'revenue', extension='')))
 
+        if user_helpers.check_read_permission('reports_tax_summary', user_id):
+            submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Tax summary'))),
+                            False,
+                            URL('reports_tax_summary', 'index', extension='')))
+
         if user_helpers.check_read_permission('reports_discovery', user_id):
             submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Discovery'))),
                             False,
