@@ -118,7 +118,6 @@ class CustomerSubscription:
 
         # create object to set Invoice# and due date
         invoice = Invoice(iID)
-        invoice.link_to_customer(self.auth_customer_id)
         iiID = invoice.item_add_subscription(self.csID, SubscriptionYear, SubscriptionMonth)
 
         return iID
