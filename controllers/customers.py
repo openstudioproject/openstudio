@@ -3253,7 +3253,7 @@ def subscription_add():
     crud.settings.create_onaccept = [
         subscriptions_clear_cache,
         subscription_add_add_credits,
-        subscription_add_create_invoice
+        # subscription_add_create_invoice
 
     ]
     form = crud.create(db.customers_subscriptions)
@@ -3289,32 +3289,32 @@ def subscription_add_add_credits(form):
     cs.add_credits_month(date.year, date.month)
 
 
-def subscription_add_create_invoice(form):
-    """
-    Create invoice when adding a subscription
-    """
-    csID = form.vars.id
-    date = form.vars.Startdate
-    year = date.year
-    month = date.month
-
-    igpt = db.invoices_groups_product_types(ProductType='subscription')
-    igID = igpt.invoices_groups_id
-
-    iID = db.invoices.insert(
-        invoices_groups_id=igID,
-        payment_methods_id=form.vars.payment_methods_id,
-        customers_subscriptions_id=csID,
-        SubscriptionYear=year,
-        SubscriptionMonth=month,
-        Description=T("Subscription"),
-        Status='sent'
-    )
-
-    invoice = Invoice(iID)
-    invoice.link_to_customer(request.vars['cuID'])
-    iiID = invoice.item_add_subscription(csID, year, month)
-    invoice.link_item_to_customer_subscription(csID, iiID)
+# def subscription_add_create_invoice(form):
+#     """
+#     Create invoice when adding a subscription
+#     """
+#     csID = form.vars.id
+#     date = form.vars.Startdate
+#     year = date.year
+#     month = date.month
+#
+#     igpt = db.invoices_groups_product_types(ProductType='subscription')
+#     igID = igpt.invoices_groups_id
+#
+#     iID = db.invoices.insert(
+#         invoices_groups_id=igID,
+#         payment_methods_id=form.vars.payment_methods_id,
+#         customers_subscriptions_id=csID,
+#         SubscriptionYear=year,
+#         SubscriptionMonth=month,
+#         Description=T("Subscription"),
+#         Status='sent'
+#     )
+#
+#     invoice = Invoice(iID)
+#     invoice.link_to_customer(request.vars['cuID'])
+#     iiID = invoice.item_add_subscription(csID, year, month)
+#     invoice.link_item_to_customer_subscription(csID, iiID)
 
 
 @auth.requires_login()
