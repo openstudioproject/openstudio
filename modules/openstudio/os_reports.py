@@ -895,6 +895,7 @@ ORDER BY ag.Name
             sum_total,
             left=left,
             groupby=db.invoices_items.tax_rates_id,
+            orderby=db.invoices.InvoiceID
         )
 
         return dict(
@@ -927,8 +928,10 @@ ORDER BY ag.Name
         )
 
         rows = db(query).select(
+            db.invoices.ALL,
             db.invoices_items.ALL,
             left=left,
+            orderby=db.invoices.InvoiceID
         )
 
         return rows

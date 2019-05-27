@@ -251,6 +251,7 @@ def details():
     Details page to show full list of invoice items for tax rate in period
     :return:
     """
+    from general_helpers import max_string_length
     from openstudio.os_reports import Reports
 
     response.title = T("Reports")
@@ -264,13 +265,57 @@ def details():
         session.reports_tax_summary_index_date_from,
         session.reports_tax_summary_index_date_until
     )
-
-    print rows
-
     # Counters
     subtotal = 0
     vat = 0
     total = 0
+
+    # populate rows
+    header = THEAD(TR(
+        TH(T("Invoice ID")),
+        TH(T("Product name")),
+        TH(T("Description")),
+        TH(T("Quantity")),
+        TH(T("Item price")),
+        TH(T("Tax rate")),
+        TH(T("VAT")),
+        TH(T("Total")),
+    ))
+
+    table = TABLE(header, _class='table table-striped table-hover table-condensed small_font')
+
+    for i, row in enumerate(rows):
+        repr_row = list(rows[i:i + 1].render())[0]
+
+        subtotal += row.invoices_items.Price or 0
+        vat += row.invoices_items.VAT or 0
+        total += row.invoices_items.TotalPriceVAT or 0
+
+        table.append(TR(
+            TD(A(row.invoices.InvoiceID,
+                 _href=URL('invoices', 'edit', vars={'iID': row.invoices.id}))),
+            TD(max_string_length(row.invoices_items.ProductName, 20)),
+            TD(max_string_length(row.invoices_items.Description, 40)),
+            TD(row.invoices_items.Quantity),
+            TD(repr_row.invoices_items.Price),
+            TD(repr_row.invoices_items.tax_rates_id),
+            TD(repr_row.invoices_items.VAT),
+            TD(repr_row.invoices_items.TotalPriceVAT),
+        ))
+
+
+    totals = DIV(
+        DIV(LABEL(T("Sub total")), BR(),
+            represent_float_as_amount(subtotal),
+            _class='col-md-2'),
+        DIV(LABEL(T("VAT")), BR(),
+            represent_float_as_amount(vat),
+            _class='col-md-2'),
+        DIV(LABEL(T("Total")), BR(),
+            represent_float_as_amount(total),
+            _class='col-md-2'),
+        _class='row'
+    )
 
     back = os_gui.get_button(
         'back',
@@ -278,8 +323,8 @@ def details():
     )
 
     return dict(
-        form = 'totals here..',
-        content = 'hello world',
+        form = totals,
+        content = table,
         back = back
     )
 
