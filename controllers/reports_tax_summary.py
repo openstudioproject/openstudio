@@ -259,19 +259,13 @@ def details():
     response.view = 'general/only_content.html'
 
     reports = Reports()
-    data = reports.get_tax_summary_detail_rows(
+    rows = reports.get_tax_summary_detail_rows(
         tID,
         session.reports_tax_summary_index_date_from,
         session.reports_tax_summary_index_date_until
     )
 
-    print data
-
-    rows = data['rows']
-    sum_subtotal = data['sum_subtotal']
-    sum_vat = data['sum_vat']
-    sum_total = data['sum_total']
-
+    print rows
 
 
     back = os_gui.get_button(
