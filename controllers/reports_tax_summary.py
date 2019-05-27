@@ -351,6 +351,7 @@ def details():
     # populate rows
     header = THEAD(TR(
         TH(T("Invoice ID")),
+        TH(T("Customer")),
         TH(T("Product name")),
         TH(T("Description")),
         TH(T("Quantity")),
@@ -372,6 +373,8 @@ def details():
         table.append(TR(
             TD(A(row.invoices.InvoiceID,
                  _href=URL('invoices', 'edit', vars={'iID': row.invoices.id}))),
+            TD(A(max_string_length(row.auth_user.display_name, 20),
+                 _href=URL('customers', 'edit', args=[row.auth_user.id]))),
             TD(max_string_length(row.invoices_items.ProductName, 20)),
             TD(max_string_length(row.invoices_items.Description, 40)),
             TD(row.invoices_items.Quantity),

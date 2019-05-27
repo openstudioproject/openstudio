@@ -925,11 +925,21 @@ ORDER BY ag.Name
                 db.invoices_items.invoices_id ==
                 db.invoices.id
             ),
+            db.invoices_customers.on(
+                db.invoices.id ==
+                db.invoices_customers.invoices_id
+            ),
+            db.auth_user.on(
+                db.invoices_customers.auth_customer_id ==
+                db.auth_user.id
+            )
         )
 
         rows = db(query).select(
             db.invoices.ALL,
             db.invoices_items.ALL,
+            db.auth_user.display_name,
+            db.auth_user.id,
             left=left,
             orderby=db.invoices.InvoiceID
         )
