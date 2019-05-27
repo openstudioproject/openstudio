@@ -267,6 +267,10 @@ def details():
 
     print rows
 
+    # Counters
+    subtotal = 0
+    vat = 0
+    total = 0
 
     back = os_gui.get_button(
         'back',
