@@ -403,7 +403,8 @@ def details():
     return dict(
         form = totals,
         content = table,
-        back = back
+        back = back,
+        export = details_get_export(tID)
     )
 
 
@@ -429,6 +430,105 @@ def details_subtitle(tID):
     return subtitle
 
 
+def details_get_export(tID):
+    """
+        Returns dict with export button and bs3 modal containing the links
+        to different export options.
+    """
+    export = ''
+    vars = {}
+    if tID:
+        vars = {'tID': tID}
+
+    if auth.has_membership(group_id='Admins') or auth.has_permission('read', 'reports_tax_summary'):
+        summary = A((os_gui.get_fa_icon('fa-check'),
+                     T("Export")),
+                     _href=URL('export_details', vars=vars),
+                     _class='textalign_left')
+
+        links = [
+            summary
+        ]
+
+        export = os_gui.get_dropdown_menu(
+            links=links,
+            btn_text='',
+            btn_icon='download',
+            btn_size='btn',
+            menu_class='pull-right')
+
+    return export
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'reports_tax_summary'))
+def export_details():
+    """
+    Export summary of tax rates
+    :return: Excel worksheet
+    """
+    from openstudio.os_reports import Reports
+    reports = Reports()
+
+    tID = request.vars['tID']
+    tax_rate = db.tax_rates(tID)
+    name = "Not specified"
+    if tax_rate:
+        name = tax_rate.Name
+
+    # create filestream
+    stream = cStringIO.StringIO()
+
+    wb = openpyxl.workbook.Workbook(write_only=True)
+    # write the sheet for all mail addresses
+    ws = wb.create_sheet(title="Tax rate details")
+    ws.append([
+        name,
+        'from:',
+        session.reports_tax_summary_index_date_from,
+        'until:',
+        session.reports_tax_summary_index_date_until
+    ])
+
+    reports = Reports()
+    rows = reports.get_tax_summary_detail_rows(
+        tID,
+        session.reports_tax_summary_index_date_from,
+        session.reports_tax_summary_index_date_until
+    )
+
+    ws.append([
+        "Invoice ID",
+        "Product name",
+        "Description",
+        "Quantity",
+        "Item price",
+        "Tax rate",
+        "VAT",
+        "Total",
+    ])
+
+    for i, row in enumerate(rows):
+        repr_row = list(rows[i:i + 1].render())[0]
+
+        ws.append([
+            row.invoices.InvoiceID,
+            row.invoices_items.ProductName,
+            row.invoices_items.Description,
+            row.invoices_items.Quantity,
+            row.invoices_items.Price,
+            row.invoices_items.tax_rates_id,
+            row.invoices_items.VAT,
+            row.invoices_items.TotalPriceVAT,
+        ])
+
+    fname = T("TaxRateDetails") + '.xlsx'
+    wb.save(stream)
+
+    response.headers['Content-Type'] = 'application/vnd.ms-excel'
+    response.headers['Content-disposition'] = 'attachment; filename=' + fname
+
+    return stream.getvalue()
 
 
 # helpers start
