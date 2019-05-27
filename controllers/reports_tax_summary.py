@@ -71,8 +71,6 @@ def index():
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
-        print repr_row
-
         content.append(TR(
             TD(repr_row.invoices_items.tax_rates_id or "Not specified"),
             TD(represent_float_as_amount(row[sum_total])),
@@ -142,6 +140,30 @@ def index_process_request_vars(var=None):
     # session.reports_tax_summary_index_school_locations_id = slID
 
     # session.reports_tax_summary_index = request.function
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'reports_tax_summary'))
+def index_show_current_month():
+    """
+    Reset date from & until to this month
+    :return: Redirect back to index
+    """
+    from general_helpers import get_last_day_month
+
+    today = TODAY_LOCAL
+
+    date_from = datetime.date(
+        today.year,
+        today.month,
+        1
+    )
+    session.reports_tax_summary_index_date_from = date_from
+
+    date_until = get_last_day_month(today)
+    session.reports_tax_summary_index_date_until = date_until
+
+    redirect(URL('index'))
 
 
 def index_get_form(date_from, date_until):
