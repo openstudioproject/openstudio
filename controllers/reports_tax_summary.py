@@ -502,6 +502,8 @@ def export_details():
 
     ws.append([
         "Invoice ID",
+        "Customer ID",
+        "Customer",
         "Product name",
         "Description",
         "Quantity",
@@ -516,6 +518,8 @@ def export_details():
 
         ws.append([
             row.invoices.InvoiceID,
+            row.auth_user.id,
+            row.auth_user.display_name,
             row.invoices_items.ProductName,
             row.invoices_items.Description,
             row.invoices_items.Quantity,
