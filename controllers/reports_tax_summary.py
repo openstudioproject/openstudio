@@ -39,7 +39,8 @@ def index():
         Main page for reports tax summary controller
     """
     index_process_request_vars()
-    form = index_get_form(TODAY_LOCAL.year, TODAY_LOCAL.month)
+    result = index_get_form(TODAY_LOCAL.year, TODAY_LOCAL.month)
+    form = result['form']
 
     show_current_month = A(
         T("Current month"),
@@ -51,12 +52,13 @@ def index():
         show_current_month
     )
 
-    return dict(
-        form=form['form'],
-        content="content here :)",
-        submit=form['submit'],
-        header_tools=header_tools
 
+
+    return dict(
+        form=result['form_display'],
+        content="content here :)",
+        submit=result['submit'],
+        header_tools=header_tools
     )
 
 
@@ -101,13 +103,20 @@ def index_get_form(year, month):
     months = get_months_list()
 
     form = SQLFORM.factory(
-        Field('month',
-              requires=IS_IN_SET(months, zero=None),
-              default=month,
-              label=T("Month")),
-        Field('year', 'integer',
-              default=year,
-              label=T("Year")),
+        Field('date_from', 'date', required=True,
+            requires=IS_DATE_IN_RANGE(format=DATE_FORMAT,
+                                      minimum=datetime.date(1900,1,1),
+                                      maximum=datetime.date(2999,1,1)),
+            represent=represent_date,
+            label=T("From date"),
+            widget=os_datepicker_widget),
+        Field('date_until', 'date', required=True,
+            requires=IS_DATE_IN_RANGE(format=DATE_FORMAT,
+                                      minimum=datetime.date(1900,1,1),
+                                      maximum=datetime.date(2999,1,1)),
+            represent=represent_date,
+            label=T("Until date"),
+            widget=os_datepicker_widget),
         # Field('school_locations_id', db.school_locations,
         #       requires=IS_IN_DB(db(loc_query),
         #                         'school_locations.id',
@@ -120,7 +129,29 @@ def index_get_form(year, month):
         submit_button=T("Run report")
     )
 
-    return set_form_id_and_get_submit_button(form, 'MainForm')
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
+    form = result['form']
+    submit = result['submit']
+
+    form_display = DIV(
+        XML('<form id="MainForm" action="#" enctype="multipart/form-data" method="post">'),
+        DIV(LABEL(form.custom.label.date_from),
+            form.custom.widget.date_from,
+            _class='col-md-6'
+        ),
+        DIV(LABEL(form.custom.label.date_until),
+            form.custom.widget.date_until,
+            _class='col-md-6'
+        ),
+        form.custom.end,
+        _class='row'
+    )
+
+    return dict(
+        form=result['form'],
+        submit=result['submit'],
+        form_display=form_display
+    )
 
 # helpers start
 
