@@ -58,8 +58,8 @@ def index():
 
     header = THEAD(TR(
         TH("Tax rate"),
-        TH("Revenue"),
-        TH("Taxes"),
+        TH(SPAN("Revenue", _class='pull-right')),
+        TH(SPAN("Taxes", _class='pull-right')),
         TH()
     ))
 
@@ -73,8 +73,8 @@ def index():
 
         content.append(TR(
             TD(repr_row.invoices_items.tax_rates_id or "Not specified"),
-            TD(represent_float_as_amount(row[sum_total])),
-            TD(represent_float_as_amount(row[sum_vat])),
+            TD(SPAN(represent_float_as_amount(row[sum_total]), _class='pull-right')),
+            TD(SPAN(represent_float_as_amount(row[sum_vat]), _class='pull-right')),
             TD()
         ))
 
