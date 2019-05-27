@@ -39,7 +39,10 @@ def index():
         Main page for reports tax summary controller
     """
     index_process_request_vars()
-    result = index_get_form(TODAY_LOCAL.year, TODAY_LOCAL.month)
+    result = index_get_form(
+        session.reports_tax_summary_index_date_from,
+        session.reports_tax_summary_index_date_until,
+    )
     form = result['form']
 
     show_current_month = A(
@@ -99,7 +102,7 @@ def index_process_request_vars(var=None):
     # session.reports_tax_summary_index = request.function
 
 
-def index_get_form(year, month):
+def index_get_form(date_from, date_until):
     """
     Get month chooser form for index
     """
@@ -110,6 +113,7 @@ def index_get_form(year, month):
 
     form = SQLFORM.factory(
         Field('date_from', 'date', required=True,
+            default=date_from,
             requires=IS_DATE_IN_RANGE(format=DATE_FORMAT,
                                       minimum=datetime.date(1900,1,1),
                                       maximum=datetime.date(2999,1,1)),
@@ -117,6 +121,7 @@ def index_get_form(year, month):
             label=T("From date"),
             widget=os_datepicker_widget),
         Field('date_until', 'date', required=True,
+            default=date_until,
             requires=IS_DATE_IN_RANGE(format=DATE_FORMAT,
                                       minimum=datetime.date(1900,1,1),
                                       maximum=datetime.date(2999,1,1)),
