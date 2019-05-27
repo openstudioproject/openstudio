@@ -49,7 +49,17 @@ def index():
         session.reports_tax_summary_index_date_until
     )
 
-    print rows
+    header = THEAD(TR(
+        TH("Tax rate"),
+        TH("Revenue"),
+        TH("Taxes"),
+        TH()
+    ))
+
+    content = TABLE(
+        header,
+        _class='table table-striped table-hover'
+    )
 
 
 
@@ -71,7 +81,7 @@ def index():
 
     return dict(
         form=result['form_display'],
-        content="content here :)",
+        content=content,
         submit=result['submit'],
         header_tools=header_tools
     )
