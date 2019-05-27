@@ -256,7 +256,7 @@ def details():
     response.title = T("Reports")
     tID = request.vars['tID']
     response.subtitle = details_subtitle(tID)
-    response.view = 'general/only_content.html'
+    response.view = 'reports_tax_summary/index.html'
 
     reports = Reports()
     rows = reports.get_tax_summary_detail_rows(
@@ -278,6 +278,7 @@ def details():
     )
 
     return dict(
+        form = 'totals here..',
         content = 'hello world',
         back = back
     )
