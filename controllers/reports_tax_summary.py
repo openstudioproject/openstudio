@@ -26,10 +26,10 @@
 # from openstudio.os_school_subscription import SchoolSubscription
 # from openstudio.os_customer_classcard import CustomerClasscard
 #
-# import datetime
+import datetime
 # import operator
-# import cStringIO
-# import openpyxl
+import cStringIO
+import openpyxl
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -101,18 +101,21 @@ def index():
     show_current_month = A(
         T("Current month"),
         _href=URL('index_show_current_month'),
-        _class='btn btn-default'
+        _class='btn btn-default pull-right'
     )
 
     header_tools = SPAN(
         show_current_month
     )
 
+    export = index_get_export()
+
     return dict(
         form=result['form_display'],
         content=content,
         submit=result['submit'],
-        header_tools=header_tools
+        header_tools=header_tools,
+        export=export,
     )
 
 
@@ -153,6 +156,32 @@ def index_process_request_vars(var=None):
     # session.reports_tax_summary_index_school_locations_id = slID
 
     # session.reports_tax_summary_index = request.function
+
+
+def index_get_export(var=None):
+    """
+        Returns dict with export button and bs3 modal containing the links
+        to different export options.
+    """
+    export = ''
+    if auth.has_membership(group_id='Admins') or auth.has_permission('read', 'reports_tax_summary'):
+        summary = A((os_gui.get_fa_icon('fa-check'),
+                     T("Export tax summary")),
+                     _href=URL('export_summary'),
+                     _class='textalign_left')
+
+        links = [
+            summary
+        ]
+
+        export = os_gui.get_dropdown_menu(
+            links=links,
+            btn_text='',
+            btn_icon='download',
+            btn_size='btn',
+            menu_class='pull-right')
+
+    return export
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -240,6 +269,57 @@ def index_get_form(date_from, date_until):
         submit=result['submit'],
         form_display=form_display
     )
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'reports_tax_summary'))
+def export_summary():
+    """
+    Export summary of tax rates
+    :return: Excel worksheet
+    """
+    from openstudio.os_reports import Reports
+    reports = Reports()
+
+    # create filestream
+    stream = cStringIO.StringIO()
+
+    wb = openpyxl.workbook.Workbook(write_only=True)
+    # write the sheet for all mail addresses
+    ws = wb.create_sheet(title="Tax rate summary")
+
+    data = reports.get_tax_summary_rows(
+        session.reports_tax_summary_index_date_from,
+        session.reports_tax_summary_index_date_until
+    )
+
+    rows = data['rows']
+    sum_subtotal = data['sum_subtotal']
+    sum_vat = data['sum_vat']
+    sum_total = data['sum_total']
+
+    ws.append([
+        "Tax rate",
+        "Revenue",
+        "VAT"
+    ])
+
+    for i, row in enumerate(rows):
+        repr_row = list(rows[i:i + 1].render())[0]
+
+        ws.append([
+            repr_row.invoices_items.tax_rates_id or "Not specified",
+            row[sum_total],
+            row[sum_vat]
+        ])
+
+    fname = T("TaxSummary") + '.xlsx'
+    wb.save(stream)
+
+    response.headers['Content-Type'] = 'application/vnd.ms-excel'
+    response.headers['Content-disposition'] = 'attachment; filename=' + fname
+
+    return stream.getvalue()
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
