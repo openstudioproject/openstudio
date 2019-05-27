@@ -232,6 +232,45 @@ def index_get_form(date_from, date_until):
         form_display=form_display
     )
 
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'reports_tax_summary'))
+def details():
+    """
+    Details page to show full list of invoice items for tax rate in period
+    :return:
+    """
+    response.title = T("Reports")
+    tID = request.vars['tID']
+    response.subtitle = details_subtitle(tID)
+    response.view = 'general/only_content.html'
+
+    back = os_gui.get_button(
+        'back',
+        URL('index')
+    )
+
+    return dict(
+        content = 'hello world',
+        back = back
+    )
+
+
+def details_subtitle(tID):
+    """
+    Return details subtitle
+    :param tID: db.tax_rates.id
+    :return: Text
+    """
+    subtitle = T("Tax summary")
+
+    tax_rate = db.tax_rates(tID)
+    subtitle += ' '
+    subtitle += tax_rate.Name
+
+
+
+
 # helpers start
 
 # def subscriptions_get_menu(page=None):
