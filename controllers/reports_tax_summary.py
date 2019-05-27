@@ -38,7 +38,21 @@ def index():
     """
         Main page for reports tax summary controller
     """
+    from openstudio.os_reports import Reports
+
     index_process_request_vars()
+
+    reports = Reports()
+
+    rows = reports.get_tax_summary_rows(
+        session.reports_tax_summary_index_date_from,
+        session.reports_tax_summary_index_date_until
+    )
+
+    print rows
+
+
+
     result = index_get_form(
         session.reports_tax_summary_index_date_from,
         session.reports_tax_summary_index_date_until,
@@ -84,7 +98,7 @@ def index_process_request_vars(var=None):
     session.reports_tax_summary_index_date_from = date_from
 
     if 'date_until' in request.vars:
-        date_until = int(request.vars['date_until'])
+        date_until = datestr_to_python(DATE_FORMAT, request.vars['date_until'])
     elif not session.reports_tax_summary_index_date_until is None:
         date_until = session.reports_tax_summary_index_date_until
     else:
@@ -166,21 +180,21 @@ def index_get_form(date_from, date_until):
 
 # helpers start
 
-def subscriptions_get_menu(page=None):
-    pages = [
-        (['subscriptions_overview', T('Subscriptions overview'), URL('reports',"subscriptions_overview")]),
-        (['subscriptions_new', T('New subscriptions'), URL('reports',"subscriptions_new")]),
-        (['subscriptions_stopped', T('Stopped subscriptions'), URL('reports',"subscriptions_stopped")]),
-        (['subscriptions_paused', T('Paused subscriptions'), URL('reports',"subscriptions_paused")]),
-        (['subscriptions_alt_prices', T('Alt. prices'), URL('reports',"subscriptions_alt_prices")]),
-        ]
-
-    horizontal = True
-    if request.user_agent()['is_mobile']:
-        horizontal = False
-
-    return os_gui.get_submenu(pages,
-                              page,
-                              horizontal=horizontal,
-                              htype='tabs')
-
+# def subscriptions_get_menu(page=None):
+#     pages = [
+#         (['subscriptions_overview', T('Subscriptions overview'), URL('reports',"subscriptions_overview")]),
+#         (['subscriptions_new', T('New subscriptions'), URL('reports',"subscriptions_new")]),
+#         (['subscriptions_stopped', T('Stopped subscriptions'), URL('reports',"subscriptions_stopped")]),
+#         (['subscriptions_paused', T('Paused subscriptions'), URL('reports',"subscriptions_paused")]),
+#         (['subscriptions_alt_prices', T('Alt. prices'), URL('reports',"subscriptions_alt_prices")]),
+#         ]
+#
+#     horizontal = True
+#     if request.user_agent()['is_mobile']:
+#         horizontal = False
+#
+#     return os_gui.get_submenu(pages,
+#                               page,
+#                               horizontal=horizontal,
+#                               htype='tabs')
+#
