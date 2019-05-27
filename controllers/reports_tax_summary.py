@@ -75,11 +75,20 @@ def index():
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
+
+
+        details = os_gui.get_button(
+            'noicon',
+            URL('details', vars={'tID': row.invoices_items.tax_rates_id}),
+            title=T("Details"),
+            _class='pull-right'
+        )
+
         content.append(TR(
             TD(repr_row.invoices_items.tax_rates_id or "Not specified"),
             TD(SPAN(represent_float_as_amount(row[sum_total]), _class='pull-right')),
             TD(SPAN(represent_float_as_amount(row[sum_vat]), _class='pull-right')),
-            TD()
+            TD(details)
         ))
 
 
@@ -262,11 +271,20 @@ def details_subtitle(tID):
     :param tID: db.tax_rates.id
     :return: Text
     """
-    subtitle = T("Tax summary")
-
     tax_rate = db.tax_rates(tID)
-    subtitle += ' '
-    subtitle += tax_rate.Name
+    if tax_rate:
+        name = tax_rate.Name
+    else:
+        name = T("Not specified")
+
+    subtitle = SPAN(
+        T("Tax summary"), ' ', XML('&bull;'), ' ',
+        name, ' ', XML('&bull;'), ' ',
+        session.reports_tax_summary_index_date_from.strftime(DATE_FORMAT), ' - ',
+        session.reports_tax_summary_index_date_until.strftime(DATE_FORMAT),
+    )
+
+    return subtitle
 
 
 
