@@ -52,8 +52,6 @@ def index():
         show_current_month
     )
 
-
-
     return dict(
         form=result['form_display'],
         content="content here :)",
@@ -66,21 +64,29 @@ def index_process_request_vars(var=None):
     """
         This function takes the request.vars as a argument and
     """
+    from general_helpers import get_last_day_month
+    from general_helpers import datestr_to_python
+
     today = TODAY_LOCAL
-    if 'year' in request.vars:
-        year = int(request.vars['year'])
-    elif not session.reports_tax_summary_index_year is None:
-        year = session.reports_tax_summary_index_year
+    if 'date_from' in request.vars:
+        date_from = datestr_to_python(DATE_FORMAT, request.vars['date_from'])
+    elif not session.reports_tax_summary_index_date_from is None:
+        date_from = session.reports_tax_summary_index_date_from
     else:
-        year = today.year
-    session.reports_tax_summary_index_year = year
-    if 'month' in request.vars:
-        month = int(request.vars['month'])
-    elif not session.reports_tax_summary_index_month is None:
-        month = session.reports_tax_summary_index_month
+        date_from = datetime.date(
+            today.year,
+            today.month,
+            1
+        )
+    session.reports_tax_summary_index_date_from = date_from
+
+    if 'date_until' in request.vars:
+        date_until = int(request.vars['date_until'])
+    elif not session.reports_tax_summary_index_date_until is None:
+        date_until = session.reports_tax_summary_index_date_until
     else:
-        month = today.month
-    session.reports_tax_summary_index_month = month
+        date_until = get_last_day_month(today)
+    session.reports_tax_summary_index_date_until = date_until
 
     # if 'school_locations_id' in request.vars:
     #     slID = request.vars['school_locations_id']
