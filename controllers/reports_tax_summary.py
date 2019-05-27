@@ -53,8 +53,6 @@ def index():
         session.reports_tax_summary_index_date_until
     )
 
-    print data
-
     rows = data['rows']
     sum_subtotal = data['sum_subtotal']
     sum_vat = data['sum_vat']
