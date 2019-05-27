@@ -38,6 +38,10 @@ def index():
     """
         Main page for reports tax summary controller
     """
+    response.title = T("Reports")
+    response.subtitle = T("Tax summary")
+
+
     from openstudio.os_reports import Reports
 
     index_process_request_vars()
