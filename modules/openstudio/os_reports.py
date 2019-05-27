@@ -884,13 +884,22 @@ ORDER BY ag.Name
             ),
         )
 
-        sum = db.invoices_items.TotalPriceVAT.sum()
+        sum_total = db.invoices_items.TotalPriceVAT.sum()
+        sum_subtotal = db.invoices_items.TotalPrice.sum()
+        sum_vat = db.invoices_items.VAT.sum()
 
         rows = db(query).select(
             db.invoices_items.tax_rates_id,
-            sum,
+            sum_subtotal,
+            sum_vat,
+            sum_total,
             left=left,
             groupby=db.invoices_items.tax_rates_id,
         )
 
-        return rows
+        return dict(
+            rows=rows,
+            sum_subtotal=sum_subtotal,
+            sum_total=sum_total,
+            sum_vat=sum_vat
+        )

@@ -44,10 +44,17 @@ def index():
 
     reports = Reports()
 
-    rows = reports.get_tax_summary_rows(
+    data = reports.get_tax_summary_rows(
         session.reports_tax_summary_index_date_from,
         session.reports_tax_summary_index_date_until
     )
+
+    print data
+
+    rows = data['rows']
+    sum_subtotal = data['sum_subtotal']
+    sum_vat = data['sum_vat']
+    sum_total = data['sum_total']
 
     header = THEAD(TR(
         TH("Tax rate"),
@@ -61,6 +68,17 @@ def index():
         _class='table table-striped table-hover'
     )
 
+    for i, row in enumerate(rows):
+        repr_row = list(rows[i:i + 1].render())[0]
+
+        print repr_row
+
+        content.append(TR(
+            TD(repr_row.invoices_items.tax_rates_id or "Not specified"),
+            TD(represent_float_as_amount(row[sum_total])),
+            TD(represent_float_as_amount(row[sum_vat])),
+            TD()
+        ))
 
 
     result = index_get_form(
