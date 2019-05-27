@@ -75,11 +75,13 @@ def index():
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
-
+        vars = {}
+        if row.invoices_items.tax_rates_id:
+            vars = {'tID': row.invoices_items.tax_rates_id}
 
         details = os_gui.get_button(
             'noicon',
-            URL('details', vars={'tID': row.invoices_items.tax_rates_id}),
+            URL('details', vars=vars),
             title=T("Details"),
             _class='pull-right'
         )
@@ -249,10 +251,28 @@ def details():
     Details page to show full list of invoice items for tax rate in period
     :return:
     """
+    from openstudio.os_reports import Reports
+
     response.title = T("Reports")
     tID = request.vars['tID']
     response.subtitle = details_subtitle(tID)
     response.view = 'general/only_content.html'
+
+    reports = Reports()
+    data = reports.get_tax_summary_detail_rows(
+        tID,
+        session.reports_tax_summary_index_date_from,
+        session.reports_tax_summary_index_date_until
+    )
+
+    print data
+
+    rows = data['rows']
+    sum_subtotal = data['sum_subtotal']
+    sum_vat = data['sum_vat']
+    sum_total = data['sum_total']
+
+
 
     back = os_gui.get_button(
         'back',

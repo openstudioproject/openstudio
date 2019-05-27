@@ -903,3 +903,44 @@ ORDER BY ag.Name
             sum_total=sum_total,
             sum_vat=sum_vat
         )
+
+
+    def get_tax_summary_detail_rows(self, tax_rates_id, date_from, date_until):
+        """
+        Return invoice items in period grouped by tax_rates_id
+        :param tax_rates_id: db.tax_rates.id
+        :param date_from: datetime.date
+        :param date_until: datetime.date
+        :return: gluon.dal.rows object
+        """
+        db = current.db
+
+        query = (db.invoices_items.tax_rates_id == tax_rates_id) & \
+                (db.invoices.DateCreated >= date_from) & \
+                (db.invoices.DateCreated <= date_until)
+
+        left = (
+            db.invoices_items.on(
+                db.invoices_items.invoices_id ==
+                db.invoices.id
+            ),
+        )
+
+        sum_total = db.invoices_items.TotalPriceVAT.sum()
+        sum_subtotal = db.invoices_items.TotalPrice.sum()
+        sum_vat = db.invoices_items.VAT.sum()
+
+        rows = db(query).select(
+            db.invoices_items.tax_rates_id,
+            sum_subtotal,
+            sum_vat,
+            sum_total,
+            left=left,
+        )
+
+        return dict(
+            rows=rows,
+            sum_subtotal=sum_subtotal,
+            sum_total=sum_total,
+            sum_vat=sum_vat
+        )
