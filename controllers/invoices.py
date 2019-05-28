@@ -2205,3 +2205,25 @@ def cancel_and_create_credit_invoice():
     session.flash = T('You are now editing the credit invoice for invoice ') + invoice.InvoiceID
 
     redirect(URL('invoices', 'edit', vars={'iID':new_iID}))
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'invoices'))
+def open_on_date():
+    """
+    List invoices not paid on a given date
+    """
+    response.title = T("Invoices")
+    response.subtitle = T("Open on date")
+
+    back = os_gui.get_button(
+        'back',
+        URL('finance', 'invoices')
+    )
+
+    return dict(
+        form = 'form here',
+        content = 'hello world',
+        back = back,
+    )
+
