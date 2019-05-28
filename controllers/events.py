@@ -970,7 +970,7 @@ def mail_activity_attendance():
     if len(to) < 1:
         session.flash = T("Please check the teachers' email address(es).")
     else:
-        check = MAIL.send_and_archive(
+        check = current.mail.send(
             to=to,
             subject=subject,
             # If reply_to is omitted, then mail.settings.sender is used
