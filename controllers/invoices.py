@@ -2216,14 +2216,86 @@ def open_on_date():
     response.title = T("Invoices")
     response.subtitle = T("Open on date")
 
+    open_on_date_process_request_vars()
+    result = open_on_date_get_form(session.invoices_open_on_date_date)
+    form = result['form']
+
     back = os_gui.get_button(
         'back',
         URL('finance', 'invoices')
     )
 
     return dict(
-        form = 'form here',
+        form = result['form_display'],
         content = 'hello world',
+        submit = result['submit'],
         back = back,
     )
 
+
+def open_on_date_process_request_vars(var=None):
+    """
+        This function takes the request.vars as a argument and
+    """
+    from general_helpers import get_last_day_month
+    from general_helpers import datestr_to_python
+
+    today = TODAY_LOCAL
+    if 'date' in request.vars:
+        date = datestr_to_python(DATE_FORMAT, request.vars['date'])
+    elif not session.invoices_open_on_date_date is None:
+        date = session.invoices_open_on_date_date
+    else:
+        date = today
+
+    session.invoices_open_on_date_date = date
+
+
+def open_on_date_get_form(date):
+    """
+    Get form for open_on_date page
+    :param date: datetime.date
+    :return: form
+    """
+    from general_helpers import set_form_id_and_get_submit_button
+
+    form = SQLFORM.factory(
+        Field('date', 'date', required=True,
+            default=date,
+            requires=IS_DATE_IN_RANGE(format=DATE_FORMAT,
+                                      minimum=datetime.date(1900,1,1),
+                                      maximum=datetime.date(2999,1,1)),
+            represent=represent_date,
+            label=T("Date to show open invoices"),
+            widget=os_datepicker_widget),
+        # Field('school_locations_id', db.school_locations,
+        #       requires=IS_IN_DB(db(loc_query),
+        #                         'school_locations.id',
+        #                         '%(Name)s',
+        #                         zero=T("All locations")),
+        #       default=session.reports_tax_summary_index_school_locations_id,
+        #       represent=lambda value, row: locations_dict.get(value, T("No location")),
+        #       label=T("Location")),
+        formstyle='bootstrap3_stacked',
+        submit_button=T("Run report")
+    )
+
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
+    form = result['form']
+    submit = result['submit']
+
+    form_display = DIV(
+        XML('<form id="MainForm" action="#" enctype="multipart/form-data" method="post">'),
+        DIV(LABEL(form.custom.label.date),
+            form.custom.widget.date,
+            _class='col-md-3'
+        ),
+        form.custom.end,
+        _class='row'
+    )
+
+    return dict(
+        form=result['form'],
+        submit=result['submit'],
+        form_display=form_display
+    )
