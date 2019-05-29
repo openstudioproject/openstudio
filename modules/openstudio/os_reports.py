@@ -956,22 +956,30 @@ ORDER BY ag.Name
 
         fields = [
             db.invoices.id,
+            db.invoices.Status,
             db.invoices.InvoiceID,
             db.invoices.DateCreated,
             db.invoices_amounts.TotalPriceVAT,
             db.invoices_amounts.Paid,
             db.invoices_amounts.Balance,
+            db.auth_user.id,
+            db.auth_user.display_name
         ]
 
         query = '''
         SELECT i.id,
+               i.Status,
                i.InvoiceID,
                i.DateCreated,
                ia.TotalPriceVAT,
                ip.TotalPaid,
-               ia.TotalPriceVAT - ip.TotalPaid AS Balance
+               ia.TotalPriceVAT - ip.TotalPaid AS Balance,
+               au.id,
+               au.display_name
         FROM invoices i
         LEFT JOIN invoices_amounts ia ON ia.invoices_id = i.id
+        LEFT JOIN invoices_customers ic ON ic.invoices_id = i.id
+        LEFT JOIN auth_user au ON ic.auth_customer_id = au.id 
         LEFT JOIN (
             SELECT invoices_id,
                    SUM(Amount) AS TotalPaid

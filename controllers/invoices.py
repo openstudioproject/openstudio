@@ -2223,8 +2223,10 @@ def open_on_date():
     rows = reports.get_invoices_open_on_date(session.invoices_open_on_date_date)
 
     header = THEAD(TR(
+        TH(T('Status')),
         TH(T('Invoice ID')),
         TH(T('Invoice Date')),
+        TH(T('Customer')),
         TH(T('Amount')),
         TH(T('Paid on'), ' ',
            session.invoices_open_on_date_date.strftime(DATE_FORMAT)),
@@ -2236,8 +2238,12 @@ def open_on_date():
         repr_row = list(rows[i:i + 1].render())[0]
 
         tr = TR(
-            TD(row.invoices.InvoiceID),
+            TD(repr_row.invoices.Status),
+            TD(A(row.invoices.InvoiceID,
+                 _href=URL('invoices', 'edit', vars={'iID': row.invoices.id}))),
             TD(repr_row.invoices.DateCreated),
+            TD(A(row.auth_user.display_name,
+                 _href=URL('customers', 'edit', args=[row.auth_user.id]))),
             TD(repr_row.invoices_amounts.TotalPriceVAT),
             TD(repr_row.invoices_amounts.Paid),
             TD(repr_row.invoices_amounts.Balance),
