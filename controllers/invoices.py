@@ -2220,6 +2220,8 @@ def open_on_date():
     result = open_on_date_get_form(session.invoices_open_on_date_date)
     form = result['form']
 
+    print session.invoices_open_on_date_date
+
     back = os_gui.get_button(
         'back',
         URL('finance', 'invoices')
@@ -2299,3 +2301,15 @@ def open_on_date_get_form(date):
         submit=result['submit'],
         form_display=form_display
     )
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'invoices'))
+def open_on_date_today():
+    """
+    Set date session var for open_on_date to today
+    :return: Redirect to open_on_date
+    """
+    session.invoices_open_on_date_date = TODAY_LOCAL
+
+    redirect(URL('open_on_date'))
