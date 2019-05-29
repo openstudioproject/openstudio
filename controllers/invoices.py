@@ -2222,6 +2222,14 @@ def open_on_date():
 
     print session.invoices_open_on_date_date
 
+    today = os_gui.get_button(
+        'noicon',
+        URL('open_on_date_today'),
+        title = T("Today"),
+        btn_size = "",
+        _class="pull-right"
+    )
+
     back = os_gui.get_button(
         'back',
         URL('finance', 'invoices')
@@ -2230,7 +2238,8 @@ def open_on_date():
     return dict(
         form = result['form_display'],
         content = 'hello world',
-        submit = result['submit'],
+        submit = SPAN(result['submit'], _class='pull-right'),
+        header_tools = today,
         back = back,
     )
 
