@@ -987,9 +987,10 @@ ORDER BY ag.Name
             WHERE PaymentDate <= '{date}'
             GROUP BY invoices_id
             ) ip ON ip.invoices_id = i.id
-        WHERE DateCreated <= '{date}' 
+        WHERE i.DateCreated <= '{date}' 
+              AND ((i.Status = 'paid') OR (i.Status = 'sent'))
               AND ia.TotalPriceVAT > 0
-              AND ((ip.TotalPaid < ia.TotalPriceVAT)
+              AND ((ROUND(ip.TotalPaid, 2) < ROUND(ia.TotalPriceVAT, 2))
                    OR (ip.TotalPaid IS NULL))
 		'''.format(date=date)
 
