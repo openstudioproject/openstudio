@@ -2217,12 +2217,35 @@ def open_on_date():
 
     response.title = T("Invoices")
     response.subtitle = T("Open on date")
+    open_on_date_process_request_vars()
 
     reports = Reports()
     rows = reports.get_invoices_open_on_date(session.invoices_open_on_date_date)
-    print rows
 
-    open_on_date_process_request_vars()
+    header = THEAD(TR(
+        TH(T('Invoice ID')),
+        TH(T('Invoice Date')),
+        TH(T('Amount')),
+        TH(T('Paid on'), ' ',
+           session.invoices_open_on_date_date.strftime(DATE_FORMAT)),
+        TH(T("Balance"))
+    ))
+
+    table = TABLE(header, _class="table table-striped table-hover")
+    for i, row in enumerate(rows):
+        repr_row = list(rows[i:i + 1].render())[0]
+
+        tr = TR(
+            TD(row.invoices.InvoiceID),
+            TD(repr_row.invoices.DateCreated),
+            TD(repr_row.invoices_amounts.TotalPriceVAT),
+            TD(repr_row.invoices_amounts.Paid),
+            TD(repr_row.invoices_amounts.Balance),
+        )
+
+        table.append(tr)
+
+
     result = open_on_date_get_form(session.invoices_open_on_date_date)
     form = result['form']
 
@@ -2243,7 +2266,7 @@ def open_on_date():
 
     return dict(
         form = result['form_display'],
-        content = 'hello world',
+        content = table,
         submit = SPAN(result['submit'], _class='pull-right'),
         header_tools = today,
         back = back,

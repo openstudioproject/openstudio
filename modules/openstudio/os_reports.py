@@ -959,27 +959,30 @@ ORDER BY ag.Name
             db.invoices.InvoiceID,
             db.invoices.DateCreated,
             db.invoices_amounts.TotalPriceVAT,
-            db.invoices_amounts.Paid
+            db.invoices_amounts.Paid,
+            db.invoices_amounts.Balance,
         ]
 
         query = '''
-        select i.id,
+        SELECT i.id,
                i.InvoiceID,
                i.DateCreated,
                ia.TotalPriceVAT,
-               ip.TotalPaid
-        from invoices i
-        left join invoices_amounts ia on ia.invoices_id = i.id
-        left join (
-            select invoices_id,
-                   sum(Amount) as TotalPaid
-            from invoices_payments
-            where PaymentDate <= '{date}'
-            group by invoices_id
-            ) ip on ip.invoices_id = i.id
-        where DateCreated <= '{date}' 
-            AND ((ip.TotalPaid < ia.TotalPriceVAT)
-                OR (ip.TotalPaid IS NULL))
+               ip.TotalPaid,
+               ia.TotalPriceVAT - ip.TotalPaid AS Balance
+        FROM invoices i
+        LEFT JOIN invoices_amounts ia ON ia.invoices_id = i.id
+        LEFT JOIN (
+            SELECT invoices_id,
+                   SUM(Amount) AS TotalPaid
+            FROM invoices_payments
+            WHERE PaymentDate <= '{date}'
+            GROUP BY invoices_id
+            ) ip ON ip.invoices_id = i.id
+        WHERE DateCreated <= '{date}' 
+              AND ia.TotalPriceVAT > 0
+              AND ((ip.TotalPaid < ia.TotalPriceVAT)
+                   OR (ip.TotalPaid IS NULL))
 		'''.format(date=date)
 
         rows = db.executesql(query, fields=fields)
