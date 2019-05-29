@@ -2213,8 +2213,14 @@ def open_on_date():
     """
     List invoices not paid on a given date
     """
+    from openstudio.os_reports import Reports
+
     response.title = T("Invoices")
     response.subtitle = T("Open on date")
+
+    reports = Reports()
+    rows = reports.get_invoices_open_on_date(session.invoices_open_on_date_date)
+    print rows
 
     open_on_date_process_request_vars()
     result = open_on_date_get_form(session.invoices_open_on_date_date)

@@ -945,3 +945,43 @@ ORDER BY ag.Name
         )
 
         return rows
+
+
+    def get_invoices_open_on_date(self, date):
+        """
+        List open invoices on date
+        :return:
+        """
+        db = current.db
+
+        fields = [
+            db.invoices.id,
+            db.invoices.InvoiceID,
+            db.invoices.DateCreated,
+            db.invoices_amounts.TotalPriceVAT,
+            db.invoices_amounts.Paid
+        ]
+
+        query = '''
+        select i.id,
+               i.InvoiceID,
+               i.DateCreated,
+               ia.TotalPriceVAT,
+               ip.TotalPaid
+        from invoices i
+        left join invoices_amounts ia on ia.invoices_id = i.id
+        left join (
+            select invoices_id,
+                   sum(Amount) as TotalPaid
+            from invoices_payments
+            where PaymentDate <= '{date}'
+            group by invoices_id
+            ) ip on ip.invoices_id = i.id
+        where DateCreated <= '{date}' 
+            AND ((ip.TotalPaid < ia.TotalPriceVAT)
+                OR (ip.TotalPaid IS NULL))
+		'''.format(date=date)
+
+        rows = db.executesql(query, fields=fields)
+
+        return rows
