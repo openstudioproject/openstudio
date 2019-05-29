@@ -2233,6 +2233,7 @@ def open_on_date():
         TH(T("Balance"))
     ))
 
+    balance_total = 0
     table = TABLE(header, _class="table table-striped table-hover")
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
@@ -2249,13 +2250,23 @@ def open_on_date():
             TD(repr_row.invoices_amounts.Balance),
         )
 
+        if row.invoices_amounts.Balance:
+            balance_total += row.invoices_amounts.Balance
+
         table.append(tr)
 
 
     result = open_on_date_get_form(session.invoices_open_on_date_date)
     form = result['form']
+    content_top = result['form_display']
 
-    print session.invoices_open_on_date_date
+    content_top.append(DIV(SPAN(
+        LABEL(T("Total balance on"), ' ',
+              session.invoices_open_on_date_date.strftime(DATE_FORMAT)), BR(),
+        represent_float_as_amount(balance_total),
+        _class='pull-right'),
+    _class='col-md-9'
+    ))
 
     today = os_gui.get_button(
         'noicon',
@@ -2271,7 +2282,7 @@ def open_on_date():
     )
 
     return dict(
-        form = result['form_display'],
+        form = content_top,
         content = table,
         submit = SPAN(result['submit'], _class='pull-right'),
         header_tools = today,
