@@ -73,6 +73,12 @@ class CustomerSubscription:
         if db(query).count():
             # This subscription is paused the full month, nothing to do
             return
+        
+        # Check if the customer has been moved to deleted
+        customer = db.auth_user(self.cs.auth_customer_id)
+        if customer.trashed:
+            # Customer has been trashed, don't do anything
+            return
 
         # Check if an alt. price with amount 0 has been defined
         csap = db.customers_subscriptions_alt_prices
