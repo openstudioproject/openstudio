@@ -2276,6 +2276,8 @@ def open_on_date():
         _class="pull-right"
     )
 
+    export = open_on_date_get_export()
+
     back = os_gui.get_button(
         'back',
         URL('finance', 'invoices')
@@ -2284,10 +2286,38 @@ def open_on_date():
     return dict(
         form = content_top,
         content = table,
+        export = export,
         submit = SPAN(result['submit'], _class='pull-right'),
         header_tools = today,
         back = back,
     )
+
+
+def open_on_date_get_export(var=None):
+    """
+        Returns dict with export button and bs3 modal containing the links
+        to different export options.
+    """
+    export = ''
+
+    if auth.has_membership(group_id='Admins') or auth.has_permission('read', 'reports_tax_summary'):
+        open_on_date = A((os_gui.get_fa_icon('fa-check'),
+                          T("Export")),
+                          _href=URL('open_on_date_export'),
+                          _class='textalign_left')
+
+        links = [
+            open_on_date
+        ]
+
+        export = os_gui.get_dropdown_menu(
+            links=links,
+            btn_text='',
+            btn_icon='download',
+            btn_size='btn',
+            menu_class='pull-right')
+
+    return export
 
 
 def open_on_date_process_request_vars(var=None):
