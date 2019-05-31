@@ -2405,5 +2405,54 @@ def open_on_date_today():
 def open_on_date_export():
     """
     Export invoices open on given date to Excel
-    :return:
+    :return: Excel worksheet
     """
+    from openstudio.os_reports import Reports
+    reports = Reports()
+
+    date = session.invoices_open_on_date_date
+    sheet_title = "Invoices open on " + date.strftime(DATE_FORMAT)
+
+    # create filestream
+    stream = cStringIO.StringIO()
+
+    wb = openpyxl.workbook.Workbook(write_only=True)
+    # write the sheet for all mail addresses
+    ws = wb.create_sheet(title=sheet_title)
+    reports = Reports()
+    rows = reports.get_invoices_open_on_date(
+        session.invoices_open_on_date_date,
+    )
+
+    ws.append([
+        "Status",
+        "Invoice ID",
+        "Date created",
+        "Customer ID",
+        "Customer",
+        "Amount",
+        "Paid on " + date.strftime(DATE_FORMAT),
+        "Balance"
+    ])
+
+    for i, row in enumerate(rows):
+        repr_row = list(rows[i:i + 1].render())[0]
+
+        ws.append([
+            row.invoices.Status,
+            row.invoices.InvoiceID,
+            row.invoices.DateCreated.strftime(DATE_FORMAT),
+            row.auth_user.id,
+            row.auth_user.display_name,
+            row.invoices_amounts.TotalPriceVAT,
+            row.invoices_amounts.Paid,
+            row.invoices_amounts.Balance,
+        ])
+
+    fname = T(sheet_title.replace(' ','_')) + '.xlsx'
+    wb.save(stream)
+
+    response.headers['Content-Type'] = 'application/vnd.ms-excel'
+    response.headers['Content-disposition'] = 'attachment; filename=' + fname
+
+    return stream.getvalue()
