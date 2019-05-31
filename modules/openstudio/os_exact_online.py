@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from gluon import *
+from exactonline.http import HTTPError
 
 
 class OSExactOnline:
