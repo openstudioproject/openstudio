@@ -2301,8 +2301,8 @@ def open_on_date_get_export(var=None):
     export = ''
 
     if auth.has_membership(group_id='Admins') or auth.has_permission('read', 'reports_tax_summary'):
-        open_on_date = A((os_gui.get_fa_icon('fa-check'),
-                          T("Export")),
+        open_on_date = A((os_gui.get_fa_icon('fa-table'),
+                          T("Excel export")),
                           _href=URL('open_on_date_export'),
                           _class='textalign_left')
 
@@ -2398,3 +2398,12 @@ def open_on_date_today():
     session.invoices_open_on_date_date = TODAY_LOCAL
 
     redirect(URL('open_on_date'))
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'invoices'))
+def open_on_date_export():
+    """
+    Export invoices open on given date to Excel
+    :return:
+    """
