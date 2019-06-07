@@ -91,26 +91,18 @@ class CustomerSubscription:
             if csap_row.Amount == 0:
                 return
 
+        # Check if the regular price is 0
+        price = self.ssu.get_price_on_date(firstdaythismonth, formatted=False)
+        if price == 0:
+            # No need to create an invoice
+            return
+
         # Ok we've survived all checks, continue with invoice creation
         igpt = db.invoices_groups_product_types(ProductType='subscription')
         igID = igpt.invoices_groups_id
 
-        # # First determine the days to be billed this month
-        # if self.startdate > firstdaythismonth:
-        #     period_begin = self.startdate
-        # else:
-        #     period_begin = firstdaythismonth
-        #
-        # period_end = lastdaythismonth
-        # if self.enddate:
-        #     if self.startdate >= firstdaythismonth and \
-        #        self.enddate < lastdaythismonth:
-        #         period_end = self.enddate
-
-
         if not description:
             description = T("Subscription")
-
 
         iID = db.invoices.insert(
             invoices_groups_id=igID,
