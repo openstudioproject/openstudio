@@ -35,6 +35,7 @@ class CustomerSubscription:
             :param SubscriptionYear: Year of subscription
             :param SubscriptionMonth: Month of subscription
         """
+        from os_school_subscription import SchoolSubscription
         from os_invoice import Invoice
 
         T = current.T
@@ -92,7 +93,11 @@ class CustomerSubscription:
                 return
 
         # Check if the regular price is 0
-        price = self.ssu.get_price_on_date(firstdaythismonth, formatted=False)
+        school_subscription = SchoolSubscription(self.ssuID)
+        price = school_subscription.get_price_on_date(
+            firstdaythismonth,
+            formatted=False
+        )
         if price == 0:
             # No need to create an invoice
             return
