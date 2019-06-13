@@ -1828,7 +1828,7 @@ def export_invoices_get_export(from_date, until_date, invoices_groups_id, filety
         SELECT i.InvoiceID,
                au.id,
                au.display_name,
-               CASE WHEN au.business = 'F' THEN "No" ELSE "Yes" END AS Business,
+               CASE WHEN au.business = 'T' THEN "Yes" ELSE "No" END AS Business,
                i.DateCreated,
                i.DateDue,
                i.Status,

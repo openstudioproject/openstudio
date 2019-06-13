@@ -93,8 +93,8 @@ class OsMail:
             status = 'fail'
             rvalue = False
         db.customers_messages.insert(auth_customer_id = cuID,
-                                     messages_id      = msgID,
-                                     Status           = status)
+                                     messages_id = msgID,
+                                     Status = status)
 
         return rvalue
 
