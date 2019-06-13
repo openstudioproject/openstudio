@@ -19,8 +19,9 @@ def test_create_invoices():
     year = request.vars['year']
     month = request.vars['month']
     description = request.vars['description']
+    invoice_date = request.vars['invoice_date'] or 'today'
 
-    ost.customers_subscriptions_create_invoices_for_month(year, month, description)
+    ost.customers_subscriptions_create_invoices_for_month(year, month, description, invoice_date)
 
 
 @auth.requires(auth.user_id == 1)

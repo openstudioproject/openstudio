@@ -30,7 +30,7 @@ class CustomerSubscription:
         self.enddate            = self.cs.Enddate
 
 
-    def create_invoice_for_month(self, SubscriptionYear, SubscriptionMonth, description=None):
+    def create_invoice_for_month(self, SubscriptionYear, SubscriptionMonth, description=None, invoice_date='today'):
         """
             :param SubscriptionYear: Year of subscription
             :param SubscriptionMonth: Month of subscription
@@ -109,6 +109,15 @@ class CustomerSubscription:
         if not description:
             description = T("Subscription")
 
+        if invoice_date == 'first_of_month':
+            date_created = datetime.date(
+                int(SubscriptionYear),
+                int(SubscriptionMonth),
+                1
+            )
+        else:
+            date_created = TODAY_LOCAL
+            
         iID = db.invoices.insert(
             invoices_groups_id=igID,
             payment_methods_id=self.payment_methods_id,
@@ -116,7 +125,8 @@ class CustomerSubscription:
             SubscriptionYear=SubscriptionYear,
             SubscriptionMonth=SubscriptionMonth,
             Description=description,
-            Status='sent'
+            Status='sent',
+            DateCreated=date_created
         )
 
         # create object to set Invoice# and due date

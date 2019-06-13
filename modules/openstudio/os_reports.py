@@ -863,3 +863,137 @@ ORDER BY ag.Name
         )
 
         return rows
+
+
+    def get_tax_summary_rows(self, date_from, date_until):
+        """
+        Return invoice items in period grouped by tax_rates_id
+        :param date_from: datetime.date
+        :param date_until: datetime.date
+        :return: gluon.dal.rows object
+        """
+        db = current.db
+
+        query = (db.invoices.DateCreated >= date_from) & \
+                (db.invoices.DateCreated <= date_until)
+
+        left = (
+            db.invoices_items.on(
+                db.invoices_items.invoices_id ==
+                db.invoices.id
+            ),
+        )
+
+        sum_total = db.invoices_items.TotalPriceVAT.sum()
+        sum_subtotal = db.invoices_items.TotalPrice.sum()
+        sum_vat = db.invoices_items.VAT.sum()
+
+        rows = db(query).select(
+            db.invoices_items.tax_rates_id,
+            sum_subtotal,
+            sum_vat,
+            sum_total,
+            left=left,
+            groupby=db.invoices_items.tax_rates_id,
+            orderby=db.invoices.InvoiceID
+        )
+
+        return dict(
+            rows=rows,
+            sum_subtotal=sum_subtotal,
+            sum_total=sum_total,
+            sum_vat=sum_vat
+        )
+
+
+    def get_tax_summary_detail_rows(self, tax_rates_id, date_from, date_until):
+        """
+        Return invoice items in period grouped by tax_rates_id
+        :param tax_rates_id: db.tax_rates.id
+        :param date_from: datetime.date
+        :param date_until: datetime.date
+        :return: gluon.dal.rows object
+        """
+        db = current.db
+
+        query = (db.invoices_items.tax_rates_id == tax_rates_id) & \
+                (db.invoices.DateCreated >= date_from) & \
+                (db.invoices.DateCreated <= date_until)
+
+        left = (
+            db.invoices_items.on(
+                db.invoices_items.invoices_id ==
+                db.invoices.id
+            ),
+            db.invoices_customers.on(
+                db.invoices.id ==
+                db.invoices_customers.invoices_id
+            ),
+            db.auth_user.on(
+                db.invoices_customers.auth_customer_id ==
+                db.auth_user.id
+            )
+        )
+
+        rows = db(query).select(
+            db.invoices.ALL,
+            db.invoices_items.ALL,
+            db.auth_user.display_name,
+            db.auth_user.id,
+            left=left,
+            orderby=db.invoices.InvoiceID
+        )
+
+        return rows
+
+
+    def get_invoices_open_on_date(self, date):
+        """
+        List open invoices on date
+        :return:
+        """
+        db = current.db
+
+        fields = [
+            db.invoices.id,
+            db.invoices.Status,
+            db.invoices.InvoiceID,
+            db.invoices.DateCreated,
+            db.invoices_amounts.TotalPriceVAT,
+            db.invoices_amounts.Paid,
+            db.invoices_amounts.Balance,
+            db.auth_user.id,
+            db.auth_user.display_name
+        ]
+
+        query = '''
+        SELECT i.id,
+               i.Status,
+               i.InvoiceID,
+               i.DateCreated,
+               ia.TotalPriceVAT,
+               ip.TotalPaid,
+               ia.TotalPriceVAT - ip.TotalPaid AS Balance,
+               au.id,
+               au.display_name
+        FROM invoices i
+        LEFT JOIN invoices_amounts ia ON ia.invoices_id = i.id
+        LEFT JOIN invoices_customers ic ON ic.invoices_id = i.id
+        LEFT JOIN auth_user au ON ic.auth_customer_id = au.id 
+        LEFT JOIN (
+            SELECT invoices_id,
+                   SUM(Amount) AS TotalPaid
+            FROM invoices_payments
+            WHERE PaymentDate <= '{date}'
+            GROUP BY invoices_id
+            ) ip ON ip.invoices_id = i.id
+        WHERE i.DateCreated <= '{date}' 
+              AND ((i.Status = 'paid') OR (i.Status = 'sent'))
+              AND ia.TotalPriceVAT > 0
+              AND ((ROUND(ip.TotalPaid, 2) < ROUND(ia.TotalPriceVAT, 2))
+                   OR (ip.TotalPaid IS NULL))
+		'''.format(date=date)
+
+        rows = db.executesql(query, fields=fields)
+
+        return rows

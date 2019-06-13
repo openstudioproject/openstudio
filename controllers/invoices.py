@@ -2205,3 +2205,254 @@ def cancel_and_create_credit_invoice():
     session.flash = T('You are now editing the credit invoice for invoice ') + invoice.InvoiceID
 
     redirect(URL('invoices', 'edit', vars={'iID':new_iID}))
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'invoices'))
+def open_on_date():
+    """
+    List invoices not paid on a given date
+    """
+    from openstudio.os_reports import Reports
+
+    response.title = T("Invoices")
+    response.subtitle = T("Open on date")
+    open_on_date_process_request_vars()
+
+    reports = Reports()
+    rows = reports.get_invoices_open_on_date(session.invoices_open_on_date_date)
+
+    header = THEAD(TR(
+        TH(T('Status')),
+        TH(T('Invoice ID')),
+        TH(T('Invoice Date')),
+        TH(T('Customer')),
+        TH(T('Amount')),
+        TH(T('Paid on'), ' ',
+           session.invoices_open_on_date_date.strftime(DATE_FORMAT)),
+        TH(T("Balance"))
+    ))
+
+    balance_total = 0
+    table = TABLE(header, _class="table table-striped table-hover")
+    for i, row in enumerate(rows):
+        repr_row = list(rows[i:i + 1].render())[0]
+
+        tr = TR(
+            TD(repr_row.invoices.Status),
+            TD(A(row.invoices.InvoiceID,
+                 _href=URL('invoices', 'edit', vars={'iID': row.invoices.id}))),
+            TD(repr_row.invoices.DateCreated),
+            TD(A(row.auth_user.display_name,
+                 _href=URL('customers', 'edit', args=[row.auth_user.id]))),
+            TD(repr_row.invoices_amounts.TotalPriceVAT),
+            TD(repr_row.invoices_amounts.Paid),
+            TD(repr_row.invoices_amounts.Balance),
+        )
+
+        if row.invoices_amounts.Balance:
+            balance_total += row.invoices_amounts.Balance
+
+        table.append(tr)
+
+
+    result = open_on_date_get_form(session.invoices_open_on_date_date)
+    form = result['form']
+    content_top = result['form_display']
+
+    content_top.append(DIV(SPAN(
+        LABEL(T("Total balance on"), ' ',
+              session.invoices_open_on_date_date.strftime(DATE_FORMAT)), BR(),
+        represent_float_as_amount(balance_total),
+        _class='pull-right'),
+    _class='col-md-9'
+    ))
+
+    today = os_gui.get_button(
+        'noicon',
+        URL('open_on_date_today'),
+        title = T("Today"),
+        btn_size = "",
+        _class="pull-right"
+    )
+
+    export = open_on_date_get_export()
+
+    back = os_gui.get_button(
+        'back',
+        URL('finance', 'invoices')
+    )
+
+    return dict(
+        form = content_top,
+        content = table,
+        export = export,
+        submit = SPAN(result['submit'], _class='pull-right'),
+        header_tools = today,
+        back = back,
+    )
+
+
+def open_on_date_get_export(var=None):
+    """
+        Returns dict with export button and bs3 modal containing the links
+        to different export options.
+    """
+    export = ''
+
+    if auth.has_membership(group_id='Admins') or auth.has_permission('read', 'reports_tax_summary'):
+        open_on_date = A((os_gui.get_fa_icon('fa-table'),
+                          T("Excel export")),
+                          _href=URL('open_on_date_export'),
+                          _class='textalign_left')
+
+        links = [
+            open_on_date
+        ]
+
+        export = os_gui.get_dropdown_menu(
+            links=links,
+            btn_text='',
+            btn_icon='download',
+            btn_size='btn',
+            menu_class='pull-right')
+
+    return export
+
+
+def open_on_date_process_request_vars(var=None):
+    """
+        This function takes the request.vars as a argument and
+    """
+    from general_helpers import get_last_day_month
+    from general_helpers import datestr_to_python
+
+    today = TODAY_LOCAL
+    if 'date' in request.vars:
+        date = datestr_to_python(DATE_FORMAT, request.vars['date'])
+    elif not session.invoices_open_on_date_date is None:
+        date = session.invoices_open_on_date_date
+    else:
+        date = today
+
+    session.invoices_open_on_date_date = date
+
+
+def open_on_date_get_form(date):
+    """
+    Get form for open_on_date page
+    :param date: datetime.date
+    :return: form
+    """
+    from general_helpers import set_form_id_and_get_submit_button
+
+    form = SQLFORM.factory(
+        Field('date', 'date', required=True,
+            default=date,
+            requires=IS_DATE_IN_RANGE(format=DATE_FORMAT,
+                                      minimum=datetime.date(1900,1,1),
+                                      maximum=datetime.date(2999,1,1)),
+            represent=represent_date,
+            label=T("Date to show open invoices"),
+            widget=os_datepicker_widget),
+        # Field('school_locations_id', db.school_locations,
+        #       requires=IS_IN_DB(db(loc_query),
+        #                         'school_locations.id',
+        #                         '%(Name)s',
+        #                         zero=T("All locations")),
+        #       default=session.reports_tax_summary_index_school_locations_id,
+        #       represent=lambda value, row: locations_dict.get(value, T("No location")),
+        #       label=T("Location")),
+        formstyle='bootstrap3_stacked',
+        submit_button=T("Run report")
+    )
+
+    result = set_form_id_and_get_submit_button(form, 'MainForm')
+    form = result['form']
+    submit = result['submit']
+
+    form_display = DIV(
+        XML('<form id="MainForm" action="#" enctype="multipart/form-data" method="post">'),
+        DIV(LABEL(form.custom.label.date),
+            form.custom.widget.date,
+            _class='col-md-3'
+        ),
+        form.custom.end,
+        _class='row'
+    )
+
+    return dict(
+        form=result['form'],
+        submit=result['submit'],
+        form_display=form_display
+    )
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'invoices'))
+def open_on_date_today():
+    """
+    Set date session var for open_on_date to today
+    :return: Redirect to open_on_date
+    """
+    session.invoices_open_on_date_date = TODAY_LOCAL
+
+    redirect(URL('open_on_date'))
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'invoices'))
+def open_on_date_export():
+    """
+    Export invoices open on given date to Excel
+    :return: Excel worksheet
+    """
+    from openstudio.os_reports import Reports
+    reports = Reports()
+
+    date = session.invoices_open_on_date_date
+    sheet_title = "Invoices open on " + date.strftime(DATE_FORMAT)
+
+    # create filestream
+    stream = cStringIO.StringIO()
+
+    wb = openpyxl.workbook.Workbook(write_only=True)
+    # write the sheet for all mail addresses
+    ws = wb.create_sheet(title=sheet_title)
+    reports = Reports()
+    rows = reports.get_invoices_open_on_date(
+        session.invoices_open_on_date_date,
+    )
+
+    ws.append([
+        "Status",
+        "Invoice ID",
+        "Date created",
+        "Customer ID",
+        "Customer",
+        "Amount",
+        "Paid on " + date.strftime(DATE_FORMAT),
+        "Balance"
+    ])
+
+    for i, row in enumerate(rows):
+        repr_row = list(rows[i:i + 1].render())[0]
+
+        ws.append([
+            row.invoices.Status,
+            row.invoices.InvoiceID,
+            row.invoices.DateCreated.strftime(DATE_FORMAT),
+            row.auth_user.id,
+            row.auth_user.display_name,
+            row.invoices_amounts.TotalPriceVAT,
+            row.invoices_amounts.Paid,
+            row.invoices_amounts.Balance,
+        ])
+
+    fname = T(sheet_title.replace(' ','_')) + '.xlsx'
+    wb.save(stream)
+
+    response.headers['Content-Type'] = 'application/vnd.ms-excel'
+    response.headers['Content-disposition'] = 'attachment; filename=' + fname
+
+    return stream.getvalue()

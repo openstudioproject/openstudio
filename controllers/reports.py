@@ -2588,7 +2588,7 @@ def subscriptions_alt_prices():
 
 
 @auth.requires_login()
-def subscriptions_process_request_vars():
+def subscriptions_process_request_vars(var=None):
     """
         This function takes the request.vars as a argument and
     """

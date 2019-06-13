@@ -16,7 +16,7 @@ from gluon import *
 
 class OsSchedulerTasks:
 
-    def customers_subscriptions_create_invoices_for_month(self, year, month, description):
+    def customers_subscriptions_create_invoices_for_month(self, year, month, description, invoice_date='today'):
         """
             Actually create invoices for subscriptions for a given month
         """
@@ -45,7 +45,7 @@ class OsSchedulerTasks:
         rows = db(query).select(db.customers_subscriptions.ALL)
         for row in rows:
             cs = CustomerSubscription(row.id)
-            cs.create_invoice_for_month(year, month, description)
+            cs.create_invoice_for_month(year, month, description, invoice_date)
 
             invoices_count += 1
 
