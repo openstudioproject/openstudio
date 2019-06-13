@@ -690,7 +690,7 @@ def test_batches_index_payment(client, web2py):
 def test_add_batch_invoices_without_zero_lines(client, web2py):
     """
         Check whether we can add a default batch and items are generated
-        propery
+        properly
     """
     url = '/finance/batch_add?export=collection&what=invoices'
     client.get(url)
@@ -727,7 +727,7 @@ def test_add_batch_invoices_without_zero_lines(client, web2py):
     assert unicode(amount) in client.text.decode('utf-8')
 
     # check batch item text
-    acc_holder = web2py.db.customers_payment_info(1).AccountHolder.split(' ')[0]
+    acc_holder = web2py.db.customers_payment_info(1).AccountHolder
     assert acc_holder in client.text
 
     ## check batch total items
@@ -741,7 +741,7 @@ def test_add_batch_invoices_without_zero_lines(client, web2py):
 def test_add_batch_invoices_with_zero_lines(client, web2py):
     """
         Check whether we can add a default batch and items are generated
-        propery and check whether lines with amount 0 are included
+        properly and check whether lines with amount 0 are included
     """
     url = '/finance/batch_add?export=collection&what=invoices'
     client.get(url)
@@ -789,7 +789,7 @@ def test_add_batch_invoices_with_zero_lines(client, web2py):
     assert acc_holder in client.text
 
     ## check batch total items
-    assert web2py.db(web2py.db.payment_batches_items).count() == 11
+    assert web2py.db(web2py.db.payment_batches_items).count() == 7
     
 
 def test_add_batch_invoices_location(client, web2py):
