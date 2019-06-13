@@ -5,7 +5,7 @@ from populate_os_tables import populate_customers_with_subscriptions
 from populate_os_tables import prepare_classes
 
 
-def test_create_monthly_invoices(client, web2py):
+def test_create_monthly_invoices_inv_date_today(client, web2py):
     """
         Can we create subscription invoices for a month?
     """
@@ -20,18 +20,19 @@ def test_create_monthly_invoices(client, web2py):
 
     url = '/test_automation_customer_subscriptions/' + \
           'test_create_invoices' + \
-          '?month=1&year=2014&description=Subscription_Jan'
+          '?month=1&year=2014&description=Subscription_Jan&invoice_date=today'
     client.get(url)
     assert client.status == 200
 
 
-    print web2py.db().select(web2py.db.invoices_items.ALL)
-    print web2py.db().select(web2py.db.invoices_items_customers_subscriptions.ALL)
+    # print web2py.db().select(web2py.db.invoices_items.ALL)
+    # print web2py.db().select(web2py.db.invoices_items_customers_subscriptions.ALL)
 
 
     # check the created invoices
     ig_100 = web2py.db.invoices_groups(100)
     invoice = web2py.db.invoices(1)
+    assert invoice.DateCreated == datetime.date.today()
     assert invoice.Status == 'sent'
     assert invoice.InvoiceID == 'INV' + unicode(datetime.date.today().year) + '1'
     assert ig_100.Terms == invoice.Terms
@@ -63,6 +64,35 @@ def test_create_monthly_invoices(client, web2py):
     # regular item
     item = web2py.db.invoices_items(3)
     assert item.Price == ssup.Price
+
+
+def test_create_monthly_invoices_inv_date_first_of_month(client, web2py):
+    """
+        Can we create subscription invoices for a month?
+    """
+    # Get random url to initialize OpenStudio environment
+    url = '/default/user/login'
+
+    client.get(url)
+    assert client.status == 200
+
+    populate_customers_with_subscriptions(web2py, 10)
+
+
+    url = '/test_automation_customer_subscriptions/' + \
+          'test_create_invoices' + \
+          '?month=1&year=2014&description=Subscription_Jan&invoice_date=first_of_month'
+    client.get(url)
+    assert client.status == 200
+
+
+    # print web2py.db().select(web2py.db.invoices_items.ALL)
+    # print web2py.db().select(web2py.db.invoices_items_customers_subscriptions.ALL)
+
+    # check the created invoices
+    ig_100 = web2py.db.invoices_groups(100)
+    invoice = web2py.db.invoices(1)
+    assert invoice.DateCreated == datetime.date(2014, 1, 1)
 
 
 def test_add_subscription_credits_for_month(client, web2py):

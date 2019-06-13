@@ -30,11 +30,12 @@ class CustomerSubscription:
         self.enddate            = self.cs.Enddate
 
 
-    def create_invoice_for_month(self, SubscriptionYear, SubscriptionMonth, description=None):
+    def create_invoice_for_month(self, SubscriptionYear, SubscriptionMonth, description=None, invoice_date='today'):
         """
             :param SubscriptionYear: Year of subscription
             :param SubscriptionMonth: Month of subscription
         """
+        from os_school_subscription import SchoolSubscription
         from os_invoice import Invoice
 
         T = current.T
@@ -73,6 +74,12 @@ class CustomerSubscription:
         if db(query).count():
             # This subscription is paused the full month, nothing to do
             return
+        
+        # Check if the customer has been moved to deleted
+        customer = db.auth_user(self.cs.auth_customer_id)
+        if customer.trashed:
+            # Customer has been trashed, don't do anything
+            return
 
         # Check if an alt. price with amount 0 has been defined
         csap = db.customers_subscriptions_alt_prices
@@ -85,27 +92,32 @@ class CustomerSubscription:
             if csap_row.Amount == 0:
                 return
 
+        # Check if the regular price is 0
+        school_subscription = SchoolSubscription(self.ssuID)
+        price = school_subscription.get_price_on_date(
+            firstdaythismonth,
+            formatted=False
+        )
+        if price == 0:
+            # No need to create an invoice
+            return
+
         # Ok we've survived all checks, continue with invoice creation
         igpt = db.invoices_groups_product_types(ProductType='subscription')
         igID = igpt.invoices_groups_id
 
-        # # First determine the days to be billed this month
-        # if self.startdate > firstdaythismonth:
-        #     period_begin = self.startdate
-        # else:
-        #     period_begin = firstdaythismonth
-        #
-        # period_end = lastdaythismonth
-        # if self.enddate:
-        #     if self.startdate >= firstdaythismonth and \
-        #        self.enddate < lastdaythismonth:
-        #         period_end = self.enddate
-
-
         if not description:
             description = T("Subscription")
 
-
+        if invoice_date == 'first_of_month':
+            date_created = datetime.date(
+                int(SubscriptionYear),
+                int(SubscriptionMonth),
+                1
+            )
+        else:
+            date_created = TODAY_LOCAL
+            
         iID = db.invoices.insert(
             invoices_groups_id=igID,
             payment_methods_id=self.payment_methods_id,
@@ -113,12 +125,12 @@ class CustomerSubscription:
             SubscriptionYear=SubscriptionYear,
             SubscriptionMonth=SubscriptionMonth,
             Description=description,
-            Status='sent'
+            Status='sent',
+            DateCreated=date_created
         )
 
         # create object to set Invoice# and due date
         invoice = Invoice(iID)
-        invoice.link_to_customer(self.auth_customer_id)
         iiID = invoice.item_add_subscription(self.csID, SubscriptionYear, SubscriptionMonth)
 
         return iID

@@ -109,7 +109,7 @@ class Invoice:
         Set db.invoices.Duedate field
         """
         delta = datetime.timedelta(days = self.invoice_group.DueDays)
-        self.invoice.DateDue = self.invoice.DateDue + delta
+        self.invoice.DateDue = self.invoice.DateCreated + delta
 
         self.invoice.update_record()
 
