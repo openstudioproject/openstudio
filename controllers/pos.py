@@ -1590,6 +1590,8 @@ def get_cash_counts():
 def set_cash_count():
     set_headers()
 
+    print request.vars
+
     # Clean up input of amount
     if 'amount' in request.vars:
         if ',' in request.vars['amount']:

@@ -149,7 +149,26 @@ class CustomerDisplay extends Component {
         e.preventDefault()
         console.log('checkin clicked')
 
-        this.props.setNotesCheckinCheck()
+        const notes = this.props.customers.notes.data
+        let has_unprocessed_note = false
+        if (notes) {
+            var i;
+            for (i = 0; i < notes.length; i++) { 
+                console.log(notes[i])
+                if (notes[i].Processed === false) {
+                    console.log('unprocessed note found')
+                    has_unprocessed_note = true
+                    break
+                }
+            }
+        }
+
+        if (has_unprocessed_note) {
+            this.props.setNotesCheckinCheck()
+        } else {
+            const customerID = this.props.customerID
+            this.props.history.push("/classes/" + customerID)
+        }
     }
 
 

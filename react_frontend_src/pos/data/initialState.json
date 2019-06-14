@@ -86,7 +86,9 @@
             "camera_app_snap_saved": false,
             "notes_loading": false,
             "notes_loaded": false,
-            "notes": {},
+            "notes": {
+                "data": {}
+            },
             "notes_checkin_check": false,
             "has_unprocessed_notes": false,
             "create_note": false,
