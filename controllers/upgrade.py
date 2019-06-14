@@ -227,5 +227,45 @@ def upgrade_to_201906():
     """
         Upgrade operations to 2019.06
     """
+    from openstudio.os_invoice import Invoice
+
     query = (db.customers_notes.Processed == None)
     db(query).update(Processed = True)
+
+
+    # Insert missing links to customers for some subscription invoices
+    left = [
+        db.invoices_items.on(
+            db.invoices_items_customers_subscriptions.invoices_items_id ==
+            db.invoices_items.id
+        ),
+        db.invoices.on(
+            db.invoices_items.invoices_id ==
+            db.invoices.id
+        ),
+        db.invoices_customers.on(
+            db.invoices_customers.invoices_id ==
+            db.invoices.id
+        ),
+        db.customers_subscriptions.on(
+            db.invoices_items_customers_subscriptions.customers_subscriptions_id ==
+            db.customers_subscriptions.id
+        ),
+        db.auth_user.on(
+            db.customers_subscriptions.auth_customer_id ==
+            db.auth_user.id
+        )
+    ]
+
+    query = (db.invoices_customers.id == None)
+
+    rows = db(query).select(
+        db.invoices.id,
+        db.auth_user.id,
+        db.invoices_customers.id,
+        left=left
+    )
+
+    for row in rows:
+        invoice = Invoice(row.invoices.id)
+        invoice.link_to_customer(row.auth_user.id)
