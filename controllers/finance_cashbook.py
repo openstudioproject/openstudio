@@ -530,8 +530,12 @@ def cash_count_get(date, count_type):
                 ),
         _class='box-body no-padding')
 
+        note = ""
+        if row.Note:
+            note = XML(row.Note.replace('\n', '<br>'))
+
         box_footer = DIV(
-            XML(row.Note.replace('\n', '<br>')),
+            note,
             _class='box-footer text-muted'
         )
     else:
