@@ -2228,7 +2228,7 @@ def open_on_date():
         TH(T('Invoice Date')),
         TH(T('Customer')),
         TH(T('Amount')),
-        TH(T('Paid on'), ' ',
+        TH(T('Amount paid on'), ' ',
            session.invoices_open_on_date_date.strftime(DATE_FORMAT)),
         TH(T("Balance"))
     ))
@@ -2237,6 +2237,10 @@ def open_on_date():
     table = TABLE(header, _class="table table-striped table-hover")
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
+
+        balance = row.invoices_amounts.Balance
+        if not balance:
+            balance = row.invoices_amounts.TotalPriceVAT
 
         tr = TR(
             TD(repr_row.invoices.Status),
@@ -2247,11 +2251,11 @@ def open_on_date():
                  _href=URL('customers', 'edit', args=[row.auth_user.id]))),
             TD(repr_row.invoices_amounts.TotalPriceVAT),
             TD(repr_row.invoices_amounts.Paid),
-            TD(repr_row.invoices_amounts.Balance),
+            TD(represent_float_as_amount(balance)),
         )
 
-        if row.invoices_amounts.Balance:
-            balance_total += row.invoices_amounts.Balance
+        if balance:
+            balance_total += balance
 
         table.append(tr)
 
