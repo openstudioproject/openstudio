@@ -2435,12 +2435,17 @@ def open_on_date_export():
         "Customer ID",
         "Customer",
         "Amount",
-        "Paid on " + date.strftime(DATE_FORMAT),
+        "Amount paid on " + date.strftime(DATE_FORMAT),
         "Balance"
     ])
 
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
+
+        balance = row.invoices_amounts.Balance
+        paid = row.invoices_amounts.Paid or 0
+        if not balance:
+            balance = row.invoices_amounts.TotalPriceVAT - paid
 
         ws.append([
             row.invoices.Status,
@@ -2449,8 +2454,8 @@ def open_on_date_export():
             row.auth_user.id,
             row.auth_user.display_name,
             row.invoices_amounts.TotalPriceVAT,
-            row.invoices_amounts.Paid,
-            row.invoices_amounts.Balance,
+            paid,
+            balance,
         ])
 
     fname = T(sheet_title.replace(' ','_')) + '.xlsx'
