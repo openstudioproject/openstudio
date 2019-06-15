@@ -1265,9 +1265,9 @@ def get_product_categories():
     return dict(data=rows.as_dict())
 
 
-#TODO make read PoS permission
-# @auth.requires(auth.has_membership(group_id='Admins'))
-               # auth.has_permission('read', 'shop_products'))
+# TODO make read PoS permission
+# @auth.requires(auth.has_membership(group_id='Admins') or
+#                auth.has_permission('read', 'shop_products'))
 def validate_cart():
     """
     Process shopping cart
@@ -1589,6 +1589,8 @@ def get_cash_counts():
                auth.has_permission('update', 'accounting_cashbooks_cash_count'))
 def set_cash_count():
     set_headers()
+
+    print request.vars
 
     # Clean up input of amount
     if 'amount' in request.vars:

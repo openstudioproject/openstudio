@@ -458,7 +458,8 @@ class Invoice:
                                  quantity,
                                  price,
                                  tax_rates_id,
-                                 glaccount):
+                                 accounting_glaccounts_id,
+                                 accounting_costcenters_id):
         """
         :param product_name: string
         :param description: string
@@ -479,7 +480,8 @@ class Invoice:
             Price=price,
             Sorting=next_sort_nr,
             tax_rates_id=tax_rates_id,
-            GLAccount=glaccount
+            accounting_glaccounts_id=accounting_glaccounts_id,
+            accounting_costcenters_id=accounting_costcenters_id
         )
 
         # This calls self.on_update()

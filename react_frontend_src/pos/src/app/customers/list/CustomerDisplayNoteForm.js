@@ -35,7 +35,7 @@ class CustomerDisplayNoteForm extends Component {
 
         if (create) {
             defaultValue = ""
-            this.textarea.current.value = defaultValue
+            // this.textarea.current.value = defaultValue
         }
 
         // set initial value on update

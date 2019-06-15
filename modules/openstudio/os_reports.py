@@ -251,8 +251,7 @@ class Reports:
                 if not row.school_classcards.Unlimited:
                     amount = row.school_classcards.Price / row.school_classcards.Classes
                 else:
-                    revenue = get_class_revenue_classcard(row)
-                    amount = revenue['total_revenue_in_vat']
+                    amount = row.school_classcards.QuickStatsAmount
                 if data['classcards'].get(name, False):
                     data['classcards'][name]['count'] += 1
                     data['classcards'][name]['total'] = \
@@ -558,6 +557,9 @@ class Reports:
             :param row: row from db.classes_attendance with left join on db.customers_subscriptions
             :return: Revenue for class taken on a card
         """
+        db = current.db
+
+        from os_customer_classcard import CustomerClasscard
         from os_invoice import Invoice
 
         ccdID = row.classes_attendance.customers_classcards_id
@@ -588,12 +590,12 @@ class Reports:
             # Divide by classes taken on card
             if classcard.unlimited:
                 # Count all classes taken on card
-                query = (db.classes_attendance.customers_classcards_id == ccdID)
-                count_classes = db(query).count()
+                    query = (db.classes_attendance.customers_classcards_id == ccdID)
+                    count_classes = db(query).count()
 
-                revenue_in_vat = price_in_vat / count_classes
-                revenue_ex_vat = price_ex_vat / count_classes
-                revenue_vat = revenue_in_vat - revenue_ex_vat
+                    revenue_in_vat = price_in_vat / count_classes
+                    revenue_ex_vat = price_ex_vat / count_classes
+                    revenue_vat = revenue_in_vat - revenue_ex_vat
             else:
                 revenue_in_vat = price_in_vat / classcard.classes
                 revenue_ex_vat = price_ex_vat / classcard.classes
