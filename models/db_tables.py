@@ -749,7 +749,7 @@ def define_sys_email_templates():
               label=T('Title')),
         Field('Description',
               label=T('Description')),
-        Field('TemplateContent',
+        Field('TemplateContent', 'text',
               label=T('Content'))
     )
 
