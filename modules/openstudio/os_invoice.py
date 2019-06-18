@@ -1001,8 +1001,11 @@ class Invoice:
         tax_rates_id = tpc.row.tax_rates_id
 
         tax_rate = db.tax_rates(tax_rates_id)
-        percentage = float(tax_rate.Percentage / 100)
-        price = rate * (1 + percentage)
+        if tax_rate:
+            percentage = float(tax_rate.Percentage / 100)
+            price = rate * (1 + percentage)
+        else:
+            price = rate
 
         # add item to invoice
         if price > 0:
