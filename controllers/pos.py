@@ -1265,9 +1265,8 @@ def get_product_categories():
     return dict(data=rows.as_dict())
 
 
-# TODO make read PoS permission
-# @auth.requires(auth.has_membership(group_id='Admins') or
-#                auth.has_permission('read', 'shop_products'))
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'pos'))
 def validate_cart():
     """
     Process shopping cart
