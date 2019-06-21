@@ -259,8 +259,8 @@ def export_summary():
     stream = cStringIO.StringIO()
 
     wb = openpyxl.workbook.Workbook(write_only=True)
-    # write the sheet for all mail addresses
-    ws = wb.create_sheet(title="Tax rate summary")
+    # Create worksheet
+    ws = wb.create_sheet(title="Tax rate summary ")
 
     data = reports.get_tax_summary_rows(
         session.reports_tax_summary_index_date_from,
@@ -273,6 +273,8 @@ def export_summary():
     sum_total = data['sum_total']
 
     ws.append([
+        "Date from",
+        "Date until",
         "Tax rate",
         "Revenue",
         "VAT"
@@ -282,6 +284,8 @@ def export_summary():
         repr_row = list(rows[i:i + 1].render())[0]
 
         ws.append([
+            session.reports_tax_summary_index_date_from,
+            session.reports_tax_summary_index_date_until,
             repr_row.invoices_items.tax_rates_id or "Not specified",
             row[sum_total],
             row[sum_vat]
