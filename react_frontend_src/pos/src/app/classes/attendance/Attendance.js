@@ -214,6 +214,9 @@ class Attendance extends Component {
                             </div><br />
                             <div className="row">
                                 <div className='col-md-12'>
+                                    {console.log('attendance count')}
+                                    {console.log(this.props.attendance.data)}
+                                    {console.log(this.props.attendance.data.length)}
                                     <AttendanceList attendance_items={this.props.attendance.data}
                                                     intl={intl}
                                                     title="Attendance"

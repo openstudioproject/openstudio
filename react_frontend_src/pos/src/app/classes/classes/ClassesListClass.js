@@ -54,7 +54,7 @@ const ClassesListClass = withRouter(({data, customerID, history}) =>
     <div onClick={ClassesListClassOnClick(history, data, customerID)}
          className={(data.Cancelled || data.Holiday) ? "classes_class cancelled" : "classes_class"}>
         <div className={ClassesListClassRowClass(data)}>
-            <div className="col-md-1">
+            <div className="col-md-2">
                 {data.Starttime} 
                 { ' - ' }
                 {data.Endtime}
@@ -71,7 +71,7 @@ const ClassesListClass = withRouter(({data, customerID, history}) =>
             <div className="col-md-2">
                 {data.Level}
             </div>
-            <div className="col-md-2">
+            <div className="col-md-1">
                 ({data.MaxStudents - data.CountAttendance})
             </div>
         </div>

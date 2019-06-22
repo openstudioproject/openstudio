@@ -1,31 +1,5 @@
 # -*- coding: utf-8 -*-
 
-# from general_helpers import datestr_to_python
-# from general_helpers import get_label
-# from general_helpers import get_submenu
-# from general_helpers import get_months_list
-# from general_helpers import get_last_day_month
-# from general_helpers import get_classname
-# from general_helpers import User_helpers
-# from general_helpers import Memo_links
-# from general_helpers import class_get_teachers
-# from general_helpers import max_string_length
-# from general_helpers import iso_to_gregorian
-# from general_helpers import classes_get_status
-# from general_helpers import set_form_id_and_get_submit_button
-#
-# from gluon.tools import prettydate
-#
-# from openstudio.os_classcards_helper import ClasscardsHelper
-# from openstudio.os_class import Class
-# from openstudio.os_class_schedule import ClassSchedule
-# from openstudio.os_attendance_helper import AttendanceHelper
-# from openstudio.os_reports import Reports
-# from openstudio.os_invoice import Invoice
-# from openstudio.os_invoices import Invoices
-# from openstudio.os_school_subscription import SchoolSubscription
-# from openstudio.os_customer_classcard import CustomerClasscard
-#
 import datetime
 # import operator
 import cStringIO
@@ -285,8 +259,8 @@ def export_summary():
     stream = cStringIO.StringIO()
 
     wb = openpyxl.workbook.Workbook(write_only=True)
-    # write the sheet for all mail addresses
-    ws = wb.create_sheet(title="Tax rate summary")
+    # Create worksheet
+    ws = wb.create_sheet(title="Tax rate summary ")
 
     data = reports.get_tax_summary_rows(
         session.reports_tax_summary_index_date_from,
@@ -299,6 +273,8 @@ def export_summary():
     sum_total = data['sum_total']
 
     ws.append([
+        "Date from",
+        "Date until",
         "Tax rate",
         "Revenue",
         "VAT"
@@ -308,6 +284,8 @@ def export_summary():
         repr_row = list(rows[i:i + 1].render())[0]
 
         ws.append([
+            session.reports_tax_summary_index_date_from,
+            session.reports_tax_summary_index_date_until,
             repr_row.invoices_items.tax_rates_id or "Not specified",
             row[sum_total],
             row[sum_vat]

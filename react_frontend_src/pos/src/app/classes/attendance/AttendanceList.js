@@ -2,6 +2,7 @@ import React from "react"
 import { v4 } from "uuid"
 
 import Label from '../../../components/ui/Label'
+import AttendanceListCountAttending from "./AttendanceListCountAttending"
 
 const bookingStatusLabelClass = (status) => {
     switch (status) {
@@ -81,6 +82,7 @@ const AttendanceList = ({attendance_items, intl, title="", onClick=f=>f, onClick
     <div className="box box-default"> 
         <div className="box-header">
             <h3 className="box-title">{title}</h3>
+            <AttendanceListCountAttending attendance_items={attendance_items} />
         </div>
         <div className="box-body">
             <table className="table table-striped table-hover">
