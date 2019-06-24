@@ -3253,6 +3253,7 @@ def subscription_add():
     crud.settings.create_onaccept = [
         subscriptions_clear_cache,
         subscription_add_add_credits,
+        subscription_add_set_min_enddate,
         # subscription_add_create_invoice
 
     ]
@@ -3287,6 +3288,18 @@ def subscription_add_add_credits(form):
 
     cs = CustomerSubscription(csID)
     cs.add_credits_month(date.year, date.month)
+
+
+def subscription_add_set_min_enddate(form):
+    """
+        Add credits when adding a subscription
+    """
+    csID = form.vars.id
+    date = form.vars.Startdate
+
+    cs = CustomerSubscription(csID)
+    cs.set_min_enddate()
+
 
 
 # def subscription_add_create_invoice(form):

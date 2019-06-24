@@ -575,3 +575,17 @@ class CustomerSubscription:
             return True
         else:
             return False
+
+
+    def set_min_enddate(self):
+        """
+        Set MinEnddate
+        :return: None
+        """
+        from os_school_subscription import SchoolSubscription
+
+        ssu = SchoolSubscription(self.ssuID)
+        self.cs.MinEnddate = ssu._sell_to_customer_get_min_end_date(self.startdate)
+
+        self.cs.update_record()
+

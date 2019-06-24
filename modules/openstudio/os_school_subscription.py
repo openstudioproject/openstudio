@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from gluon import *
+import calendar
+import datetime
 
 
 class SchoolSubscription:
@@ -205,6 +207,34 @@ class SchoolSubscription:
         return classes
 
 
+    def _sell_to_customer_get_min_end_date(self, date_start):
+        """
+
+        :return:
+        """
+        def add_months(sourcedate, months):
+            month = sourcedate.month - 1 + months
+            year = int(sourcedate.year + month / 12)
+            month = month % 12 + 1
+            last_day_new = calendar.monthrange(year, month)[1]
+            day = min(sourcedate.day, last_day_new)
+
+            ret_val = datetime.date(year, month, day)
+
+            last_day_source = calendar.monthrange(sourcedate.year,
+                                                  sourcedate.month)[1]
+
+            if sourcedate.day == last_day_source and last_day_source > last_day_new:
+                return ret_val
+            else:
+                delta = datetime.timedelta(days=1)
+                return ret_val - delta
+
+
+        self._set_dbinfo()
+        return add_months(date_start, self.MinDuration)
+
+
     def sell_to_customer(self, auth_user_id, date_start, payment_methods_id=3, note=None):
         """
             :param auth_user_id: Sell subscription to customer
@@ -217,6 +247,7 @@ class SchoolSubscription:
             auth_customer_id = auth_user_id,
             school_subscriptions_id = self.ssuID,
             Startdate = date_start,
+            MinEnddate = _sell_to_customer_get_min_end_date(date_start),
             Note = note,
             payment_methods_id = payment_methods_id
         )
