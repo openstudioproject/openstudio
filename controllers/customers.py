@@ -3782,6 +3782,7 @@ def subscriptions():
                             db.customers_subscriptions.school_subscriptions_id,
                             db.customers_subscriptions.Startdate,
                             db.customers_subscriptions.Enddate,
+                            db.customers_subscriptions.MinEnddate,
                             db.customers_subscriptions.payment_methods_id,
                             orderby=~db.customers_subscriptions.Startdate)
 
@@ -3808,7 +3809,9 @@ def subscriptions():
                 TD(max_string_length(repr_row.school_subscriptions_id, 30),
                    _title=repr_row.school_subscriptions_id),
                 TD(repr_row.Startdate),
-                TD(repr_row.Enddate),
+                TD(SPAN(T("Can cancel from "), repr_row.MinEnddate,
+                   _class="text-muted"), BR(),
+                   repr_row.Enddate),
                 TD(repr_row.payment_methods_id),
                 TD(subscriptions_get_link_latest_pauses(row)),
                 TD(subscriptions_get_link_latest_blocks(row)),
