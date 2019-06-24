@@ -38,7 +38,8 @@ class CustomerDisplaySubscriptions extends Component {
                                 { subscription.name } <br />
                                 <span className="text-muted">
                                     { subscription.start }
-                                    { (subscription.end) ? " - " + subscription.end : ''}
+                                    { (subscription.end) ? " - " + subscription.end : ''} <br />
+                                    Min. until: { subscription.min_end }
                                 </span>
                             </div>
                         )}

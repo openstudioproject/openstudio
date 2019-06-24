@@ -942,6 +942,7 @@ def get_customers_subscriptions():
         db.customers_subscriptions.school_subscriptions_id,
         db.customers_subscriptions.Startdate,
         db.customers_subscriptions.Enddate,
+        db.customers_subscriptions.MinEnddate,
     )
 
     subscriptions = {}
@@ -959,6 +960,7 @@ def get_customers_subscriptions():
             'name': repr_row.school_subscriptions_id,
             'start': row.Startdate,
             'end': row.Enddate,
+            'min_end': row.MinEnddate
         })
 
     return subscriptions
