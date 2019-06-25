@@ -312,7 +312,7 @@ def edit():
     crud.messages.submit_button = T("Save")
     crud.messages.record_updated = T("Saved")
     crud.settings.update_next = URL('invoices', 'edit', vars={'iID':iID})
-    crud.settings.update_onaccept = [ edit_set_amounts, edit_exact_online_sync ]
+    crud.settings.update_onaccept = [ edit_set_amounts ]
     crud.settings.update_deletable = False
     form = crud.update(db.invoices, iID)
 
@@ -441,19 +441,6 @@ def edit():
     return dict(content=content,
                 header_tools=header_tools,
                 back=back)
-
-
-def edit_exact_online_sync(form):
-    """
-    Sync this invoice with Exact Online, if integration
-    is enabled
-    :param form:
-    :return:
-    """
-    from openstudio.os_invoice import Invoice
-
-    invoice = Invoice(form.vars.id)
-    invoice.sync_exact_online()
 
 
 def edit_get_tools(iID):

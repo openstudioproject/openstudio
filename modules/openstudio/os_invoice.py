@@ -43,14 +43,6 @@ class Invoice:
         self._set_updated_at()
 
 
-    def set_synced_at_now(self):
-        """
-        Set db.invoices.Updated_at to current time (UTC)
-        """
-        self.invoice.Synced_at = datetime.datetime.now()
-        self.invoice.update_record()
-
-
     def sync_exact_online(self):
         """
         Sync this invoice and all it's items with exact online
