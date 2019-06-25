@@ -60,19 +60,13 @@ class Validation extends Component {
             }
         } 
 
-        console.log(cartHasClasscard)
         if (cartHasClasscard) {
-            console.log('reload classcards')
             this.props.fetchCustomersClasscards()
         }
-        console.log(cartHasSubscription)
         if (cartHasSubscription) {
-            console.log('reload subscriptions')
             this.props.fetchCustomersSubscriptions()
         }
-        console.log(cartHasMembership)
         if (cartHasSubscription) {
-            console.log('reload memberships')
             this.props.fetchCustomersMemberships()
             this.props.fetchCustomersMembershipsToday()
         }
