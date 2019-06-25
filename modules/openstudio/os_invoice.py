@@ -141,7 +141,7 @@ class Invoice:
         """
             Returns the number for an invoice
         """
-        invoice_id = self.invoice_group.InvoicePrefix
+        invoice_id = self.invoice_group.InvoicePrefix or ""
 
         if self.invoice_group.PrefixYear:
             year = unicode(datetime.date.today().year)

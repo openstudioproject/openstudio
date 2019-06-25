@@ -3253,6 +3253,7 @@ def subscription_add():
     crud.settings.create_onaccept = [
         subscriptions_clear_cache,
         subscription_add_add_credits,
+        subscription_add_set_min_enddate,
         # subscription_add_create_invoice
 
     ]
@@ -3287,6 +3288,18 @@ def subscription_add_add_credits(form):
 
     cs = CustomerSubscription(csID)
     cs.add_credits_month(date.year, date.month)
+
+
+def subscription_add_set_min_enddate(form):
+    """
+        Add credits when adding a subscription
+    """
+    csID = form.vars.id
+    date = form.vars.Startdate
+
+    cs = CustomerSubscription(csID)
+    cs.set_min_enddate()
+
 
 
 # def subscription_add_create_invoice(form):
@@ -3769,6 +3782,7 @@ def subscriptions():
                             db.customers_subscriptions.school_subscriptions_id,
                             db.customers_subscriptions.Startdate,
                             db.customers_subscriptions.Enddate,
+                            db.customers_subscriptions.MinEnddate,
                             db.customers_subscriptions.payment_methods_id,
                             orderby=~db.customers_subscriptions.Startdate)
 
@@ -3795,7 +3809,9 @@ def subscriptions():
                 TD(max_string_length(repr_row.school_subscriptions_id, 30),
                    _title=repr_row.school_subscriptions_id),
                 TD(repr_row.Startdate),
-                TD(repr_row.Enddate),
+                TD(repr_row.Enddate, BR(),
+                    SPAN(T("Can cancel from "), repr_row.MinEnddate,
+                   _class="text-muted")),
                 TD(repr_row.payment_methods_id),
                 TD(subscriptions_get_link_latest_pauses(row)),
                 TD(subscriptions_get_link_latest_blocks(row)),

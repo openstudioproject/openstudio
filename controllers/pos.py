@@ -7,6 +7,8 @@ from general_helpers import datestr_to_python
 
 
 def set_headers(var=None):
+    # print request.env.HTTP_ORIGIN
+
     if request.env.HTTP_ORIGIN == 'http://dev.openstudioproject.com:8080':
         response.headers["Access-Control-Allow-Origin"] = request.env.HTTP_ORIGIN
 
@@ -226,8 +228,10 @@ def get_class_teacher_payment():
     date = datestr_to_python("%Y-%m-%d", date_received)
 
     cls = Class(clsID, date)
+    payment = cls.get_teacher_payment()
+    print payment
 
-    return dict(payment = cls.get_teacher_payment())
+    return dict(payment = payment)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -942,6 +946,7 @@ def get_customers_subscriptions():
         db.customers_subscriptions.school_subscriptions_id,
         db.customers_subscriptions.Startdate,
         db.customers_subscriptions.Enddate,
+        db.customers_subscriptions.MinEnddate,
     )
 
     subscriptions = {}
@@ -959,6 +964,7 @@ def get_customers_subscriptions():
             'name': repr_row.school_subscriptions_id,
             'start': row.Startdate,
             'end': row.Enddate,
+            'min_end': row.MinEnddate
         })
 
     return subscriptions
@@ -992,15 +998,56 @@ def delete_class_attendance():
 
     :return:
     """
+    from openstudio.os_classcards_helper import ClasscardsHelper
     from openstudio.os_class_attendance import ClassAttendance
 
     set_headers()
 
-    print request.vars
     clattID = request.vars['id']
 
+    clatt = db.classes_attendance(clattID)
+    cuID = clatt.auth_customer_id
+    clsID = clatt.classes_id
+    date_formatted = clatt.ClassDate.strftime(DATE_FORMAT)
+
+    ##
+    # Change invoice status to cancelled (if any)
+    ##
+    query = (db.invoices_items_classes_attendance.classes_attendance_id == clattID)
+    left = [
+        db.invoices_items.on(
+            db.invoices_items_classes_attendance.invoices_items_id ==
+            db.invoices_items.id
+        )
+    ]
+    rows = db(query).select(
+        db.invoices_items.ALL,
+        left=left,
+    )
+    for row in rows:
+        invoice = Invoice(row.invoices_id)
+        invoice.set_status('cancelled')
+
+    ##
+    # Delete attendance record
+    ##
     query = (db.classes_attendance.id == clattID)
     db(query).delete()
+
+    # Clear cache to refresh subscription credit count
+    cache_clear_customers_subscriptions(cuID)
+
+    # Clear cache to refresh classes taken count
+    cache_clear_customers_classcards(cuID)
+
+    # Clear api cache to refresh available spaces
+    cache_clear_classschedule_api()
+
+
+    if clatt.customers_classcards_id:
+        # update class count on classcard
+        ccdh = ClasscardsHelper()
+        ccdh.set_classes_taken(clatt.customers_classcards_id)
 
     return dict(clattID=clattID, error=False)
 
@@ -1265,8 +1312,8 @@ def get_product_categories():
     return dict(data=rows.as_dict())
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('read', 'pos'))
+# @auth.requires(auth.has_membership(group_id='Admins') or \
+#                auth.has_permission('read', 'pos'))
 def validate_cart():
     """
     Process shopping cart
@@ -1275,6 +1322,11 @@ def validate_cart():
     # print request.env
 
     set_headers()
+
+
+    print "POS read permissions"
+    print auth.has_membership(group_id='Admins') or \
+          auth.has_permission('read', 'pos')
 
     error = False
     message = ''

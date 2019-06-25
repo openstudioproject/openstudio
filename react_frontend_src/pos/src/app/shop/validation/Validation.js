@@ -39,6 +39,38 @@ class Validation extends Component {
 
     onClickNextOrder() {
         console.log('next order clicked')
+
+        const cartItems = this.props.cart.items
+        let cartHasClasscard = false
+        let cartHasMembership = false
+        let cartHasSubscription = false
+        var i
+        for (i = 0; i < cartItems.length; i++) {
+            console.log(cartItems[i])
+            switch (cartItems[i].item_type) {
+                case "classcard":
+                    cartHasClasscard = true
+                    break
+                case "subscription":
+                    cartHasSubscription = true
+                    break
+                case "membership":
+                    cartHasMembership = true
+                    break
+            }
+        } 
+
+        if (cartHasClasscard) {
+            this.props.fetchCustomersClasscards()
+        }
+        if (cartHasSubscription) {
+            this.props.fetchCustomersSubscriptions()
+        }
+        if (cartHasSubscription) {
+            this.props.fetchCustomersMemberships()
+            this.props.fetchCustomersMembershipsToday()
+        }
+
         this.props.clearSelectedPaymentMethod()
         this.props.clearCartItems()
         this.props.clearSelectedCustomer()
