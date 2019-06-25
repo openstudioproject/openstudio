@@ -1089,7 +1089,7 @@ def invoices():
     session.profile_invoice_back = None
 
     customer = Customer(auth.user.id)
-    rows = customer.get_invoices_rows(debit_only=True, synced_only=True)
+    rows = customer.get_invoices_rows(debit_only=True)
 
     # content = "hello world"
 

@@ -628,7 +628,7 @@ def get_backend_menu():
                             URL('settings', 'selfcheckin', extension='')))
             submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Integration'))),
                             False,
-                            URL('settings_integration', 'exact_online', extension='')))
+                            URL('settings_integration', 'mailchimp', extension='')))
             submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Mail'))),
                             False,
                             URL('settings_mail', 'mailing_lists', extension='')))

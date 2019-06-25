@@ -889,7 +889,6 @@ def add():
     crud.messages.submit_button = T("Save")
     crud.messages.record_created = T("Saved")
     crud.settings.formstyle = "bootstrap3_stacked"
-    crud.settings.create_onaccept = [add_oncreate]
     crud.settings.create_next = next_url
     form = crud.create(db.auth_user)
 
@@ -908,14 +907,6 @@ def add():
     return dict(content=form,
                 back=back,
                 save=submit)
-
-
-def add_oncreate(form):
-    from openstudio.os_customer import Customer
-
-    customer = Customer(form.vars.id)
-    customer.on_create()
-
 
 
 def add_get_back(var=None):
@@ -1028,9 +1019,9 @@ def edit():
     change_picture = A(change_picture_title,
                        _href=URL('edit_picture', args=[customers_id]))
 
-    crud.settings.update_onaccept = [edit_onaccept]
     crud.messages.submit_button = T('Save')
     crud.messages.record_updated = T('Saved')
+    crud.settings.update_onaccept = []
 
     # Clear teachers cache if we're updating a teacher
     if row.teacher:
@@ -1123,17 +1114,6 @@ def edit():
                 back=back,
                 menu=menu,
                 save=submit)
-
-
-def edit_onaccept(form):
-    """
-    :param form: crud form for db.auth_user
-    :return: None
-    """
-    from openstudio.os_customer import Customer
-
-    customer = Customer(form.vars.id)
-    customer.on_update()
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -4393,7 +4373,6 @@ def bankaccount():
     crud.settings.formstyle = "bootstrap3_stacked"
     crud.settings.update_next = return_url
     crud.settings.update_deletable = False
-    crud.settings.update_onaccept = [bankaccount_onaccept]
     form = crud.update(db.customers_payment_info, row.id)
 
     result = set_form_id_and_get_submit_button(form, 'MainForm')
@@ -4408,30 +4387,6 @@ def bankaccount():
         _class="col-md-12"
     )
     content = DIV(submenu, BR(), form)
-
-    eo_authorized = get_sys_property('exact_online_authorized')
-    if auth.has_membership(group_id='Admins') and eo_authorized:
-        if row.exact_online_bankaccount_id:
-            eo_message = SPAN(
-                os_gui.get_fa_icon('fa-check'), ' ',
-                T("This bank account is linked to Exact Online"),
-                _class='text-green'
-            )
-        else:
-            eo_message = SPAN(
-                os_gui.get_fa_icon('fa-ban'), ' ',
-                T("This bank account is not linked to Exact Online"),
-                _class='text-red'
-            )
-
-        content.append(DIV(
-            A(os_gui.get_fa_icon('fa-pencil'), ' ',
-              T("Edit Exact Online link"),
-              _href=URL('bankaccount_exact_online', vars={'cuID':cuID, 'cpiID':row.id}),
-              _class='pull-right'),
-            eo_message
-        ))
-
 
     add_mandate = ''
     query = (db.customers_payment_info_mandates.customers_payment_info_id == row.id)
@@ -4451,141 +4406,11 @@ def bankaccount():
                 tools=SPAN(add_mandate, submit))
 
 
-def bankaccount_onaccept(form):
-    """
-    :param form: crud form for db.customers_payment_info
-    :return:
-    """
-    from openstudio.os_customers_payment_info import OsCustomersPaymentInfo
-
-    cpiID = form.vars.id
-    cpi = OsCustomersPaymentInfo(cpiID)
-    cpi.on_update()
-
-
 def bankaccount_get_returl_url(customers_id):
     """
         Returns the return url for payment_info_add and payment_info_edit
     """
     return URL('bankaccount', vars={'cuID':customers_id})
-
-
-@auth.requires(auth.has_membership(group_id='Admins'))
-def bankaccount_exact_online():
-    """
-    Update Exact Online link for Payment info
-    """
-    cpiID = request.vars['cpiID']
-    cuID = request.vars['cuID']
-    customer = Customer(cuID)
-    response.title = customer.get_name()
-    response.subtitle = T("Finance")
-    response.view = 'general/tabs_menu.html'
-
-    # back button
-    back = os_gui.get_button(
-        'back',
-        URL('bankaccount', vars={'cuID': cuID})
-    )
-
-    # payment_info
-    menu = customers_get_menu(cuID, request.function)
-    submenu = payments_get_submenu('bankaccount', cuID)
-
-    # Customer EO account code
-
-    eo_account_ID = customer.row.exact_online_relation_id
-    if not eo_account_ID:
-        content = T("Unable to link bank account, this customer isn't linked to an Exact Online relation")
-    else:
-        from openstudio.os_customers_payment_info import OsCustomersPaymentInfo
-
-        accounts = customer.exact_online_get_bankaccounts()
-
-        search_result = ''
-        if not len(accounts):
-            search_result = T("No bank accounts found for this relation in Exact Online")
-        else:
-            header = THEAD(TR(
-                TH(T('Exact Online Relation Name')),
-                TH(T('Exact Online Bank Account')),
-                TH()
-            ))
-            search_result = TABLE(header, _class="table table-striped table-hover")
-
-            for account in accounts:
-                btn_link = os_gui.get_button(
-                    'noicon',
-                    URL('bankaccount_exact_online_link_bankaccount',
-                        vars={'cuID': cuID,
-                              'cpiID': cpiID,
-                              'eoID': account['ID']}),
-                    title=T("Link to this bank account"),
-                    _class='pull-right'
-                )
-
-                search_result.append(TR(
-                    TD(account['AccountName']),
-                    TD(account['BankAccount']),
-                    TD(btn_link)
-                ))
-
-
-        current_link = T("Please select a bank account listed on the right.")
-
-        cpi = OsCustomersPaymentInfo(cpiID)
-        linked_account = cpi.exact_online_get_bankaccount()
-
-        if linked_account:
-            current_link = DIV(
-                T("This customer is linked to the following Exact Online Bank Account"), BR(), BR(),
-                T("OpenStudio bank account: %s" % (cpi.row.AccountNumber)), BR(), BR(),
-                T("Exact Online bank account: %s" % (linked_account[0]['BankAccount'])),  BR(),
-                T("Exact Online relation name: %s" % (linked_account[0]['AccountName'])), BR(), BR(),
-                T("To link this bank account to another Exact Online bank account, please select one from the list on the right.")
-            )
-
-        display = DIV(
-            DIV(
-                H4(T("Current link")),
-                current_link,
-                _class='col-md-6'
-            ),
-            DIV(
-                H4(T('Bank accounts for this relation in Exact Online')),
-                search_result,
-                _class='col-md-6'
-            ),
-            _class='row'
-        )
-
-        content = DIV(submenu, BR(), display)
-
-    return dict(
-        content=content,
-        menu=menu,
-        back=back,
-        tools=''
-    )
-
-
-@auth.requires(auth.has_membership(group_id='Admins'))
-def bankaccount_exact_online_link_bankaccount():
-    """
-    Link exact online relation to OpenStudio customer
-    """
-    from openstudio.os_customers_payment_info import OsCustomersPaymentInfo
-
-    cuID = request.vars['cuID']
-    cpiID = request.vars['cpiID']
-    eoID = request.vars['eoID']
-
-    cpi = OsCustomersPaymentInfo(cpiID)
-    message = cpi.exact_online_link_to_bankaccount(eoID)
-
-    session.flash = message
-    redirect(URL('bankaccount_exact_online', vars={'cuID': cuID,
-                                                   'cpiID': cpiID}))
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -4613,7 +4438,6 @@ def bankaccount_mandate_add():
     crud.messages.record_updated = T("Saved")
     crud.settings.formstyle = "bootstrap3_stacked"
     crud.settings.create_next = return_url
-    crud.settings.create_onaccept = [bankaccount_mandate_on_create]
     form = crud.create(db.customers_payment_info_mandates)
 
     result = set_form_id_and_get_submit_button(form, 'MainForm')
@@ -4642,31 +4466,14 @@ def bankaccount_mandate_add():
     )
 
 
-def bankaccount_mandate_on_create(form):
-    """
-    :param form: crud form for db.customers_payment_info_mandates
-    :return:
-    """
-    from openstudio.os_customers_payment_info_mandate import OsCustomersPaymentInfoMandate
-
-    cpimID = form.vars.id
-    cpim = OsCustomersPaymentInfoMandate(cpimID)
-    cpim.on_create()
-
-
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('create', 'customers_payments_info_mandates'))
 def bankaccount_mandate_delete():
     """
     Delete bankaccount mandate
     """
-    from openstudio.os_customers_payment_info_mandate import OsCustomersPaymentInfoMandate
-
     cuID = request.vars['cuID']
     cpimID = request.vars['cpimID']
-
-    cpim = OsCustomersPaymentInfoMandate(cpimID)
-    cpim.on_delete()
 
     query = (db.customers_payment_info_mandates.id == cpimID)
     db(query).delete()
@@ -6448,124 +6255,6 @@ def account_acceptance_log():
                 back=back)
 
 
-@auth.requires(auth.has_membership(group_id='Admins'))
-def account_exact_online():
-    """
-    Manage link exact online linked customer
-    """
-    response.view = 'customers/edit_general.html'
-    cuID = request.vars['cuID']
-    customer = Customer(cuID)
-    response.title = customer.get_name()
-    response.subtitle = T('Account')
-
-    submenu = account_get_submenu(request.function, cuID)
-
-    form = SQLFORM.factory(
-        Field('code',
-              defualt=request.vars['code'],
-              requires=IS_NOT_EMPTY(),
-              label=T("Exact Online relation code")
-              ),
-        formstyle = 'bootstrap3_stacked',
-        submit_button = T('Find Exact relations')
-    )
-
-    search_result = ''
-    if form.process().accepted:
-        from openstudio.os_exact_online import OSExactOnline
-
-        response.flash = T("Successfully submitted search to Exact Online")
-        code = request.vars['code']
-
-        os_eo = OSExactOnline()
-        api = os_eo.get_api()
-        relations = api.relations.filter(relation_code=code)
-
-        if not len(relations):
-            search_result = T("No relations found with this code in Exact Online")
-        else:
-            header = THEAD(TR(
-                TH(T('Exact Online Code')),
-                TH(T('Exact Online Name')),
-                TH()
-            ))
-            search_result = TABLE(header, _class="table table-striped table-hover")
-
-            for relation in relations:
-                btn_link = os_gui.get_button(
-                    'noicon',
-                    URL('account_exact_online_link_relation', vars={'cuID': cuID,
-                                                                    'eoID': relation['ID']}),
-                    title=T("Link to this relation"),
-                    _class='pull-right'
-                )
-
-                search_result.append(TR(
-                    TD(relation['Code']),
-                    TD(relation['Name']),
-                    TD(btn_link)
-                ))
-
-    result = set_form_id_and_get_submit_button(form, 'MainForm')
-    form = result['form']
-    submit = result['submit']
-
-
-    current_link = T("Search for a relation code to link an Exact Online relation to this customer.")
-    linked_relations = customer.exact_online_get_relation()
-    if linked_relations:
-        current_link = DIV(
-            T("This customer is linked to the following Exact Online relation"), BR(), BR(),
-            T("Exact Online code: %s" % (linked_relations[0]['Code'])), BR(),
-                T("Exact Online name: %s" % (linked_relations[0]['Name'])), BR(), BR(),
-            T("To link this customer to another Exact Online relation, search for a relation code.")
-        )
-
-    display = DIV(
-        DIV(
-            H4(T("Current link")),
-            current_link,
-            _class='col-md-6'
-        ),
-        DIV(
-            H4(T('Find relations in Exact Online')),
-            form,
-            HR(),
-            search_result,
-            _class='col-md-6'
-        ),
-        _class='row'
-    )
-
-    content = DIV(submenu, BR(), display)
-
-    menu = customers_get_menu(cuID, 'account')
-    back = edit_get_back()
-
-    return dict(content=content,
-                menu=menu,
-                save=submit,
-                back=back)
-
-
-@auth.requires(auth.has_membership(group_id='Admins'))
-def account_exact_online_link_relation():
-    """
-    Link exact online relation to OpenStudio customer
-    """
-    from openstudio.os_customer import Customer
-
-    cuID = request.vars['cuID']
-    eoID = request.vars['eoID']
-
-    customer = Customer(cuID)
-    message = customer.exact_online_link_to_relation(eoID)
-
-    session.flash = message
-    redirect(URL('account_exact_online', vars={'cuID': cuID}))
-
-
 def account_get_submenu(page, cuID):
     """
         Returns submenu for account pages
@@ -6586,11 +6275,6 @@ def account_get_submenu(page, cuID):
        auth.has_permission('account_acceptance_log', 'auth_user'):
         pages.append(['account_acceptance_log', T('Accepted documents'),
                        URL('account_acceptance_log', vars=vars)])
-
-    eo_authorized = get_sys_property('exact_online_authorized')
-    if auth.has_membership(group_id='Admins') and eo_authorized:
-        pages.append(['account_exact_online', T('Exact Online'),
-                       URL('account_exact_online', vars=vars)])
 
     horizontal = True
 
@@ -6781,8 +6465,7 @@ def edit_teacher():
     crud.messages.record_updated = T('Saved')
     crud.settings.update_onaccept = [
         cache_clear_school_teachers,
-        cache_clear_classschedule,
-        edit_onaccept
+        cache_clear_classschedule
     ]
     form = crud.update(db.auth_user, cuID)
 
