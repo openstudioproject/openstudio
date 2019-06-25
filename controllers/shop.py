@@ -1660,8 +1660,6 @@ def subscription_direct_debit():
             MandateText = mandate_text
         )
 
-        cpim = OsCustomersPaymentInfoMandate(cpimID)
-        cpim.on_create() # This also syncs to Exact Online
 
     # Add subscription to customer﻿​
     startdate = TODAY_LOCAL

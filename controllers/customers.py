@@ -889,7 +889,6 @@ def add():
     crud.messages.submit_button = T("Save")
     crud.messages.record_created = T("Saved")
     crud.settings.formstyle = "bootstrap3_stacked"
-    crud.settings.create_onaccept = [add_oncreate]
     crud.settings.create_next = next_url
     form = crud.create(db.auth_user)
 
@@ -908,14 +907,6 @@ def add():
     return dict(content=form,
                 back=back,
                 save=submit)
-
-
-def add_oncreate(form):
-    from openstudio.os_customer import Customer
-
-    customer = Customer(form.vars.id)
-    customer.on_create()
-
 
 
 def add_get_back(var=None):
