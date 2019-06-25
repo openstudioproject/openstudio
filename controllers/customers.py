@@ -4613,7 +4613,6 @@ def bankaccount_mandate_add():
     crud.messages.record_updated = T("Saved")
     crud.settings.formstyle = "bootstrap3_stacked"
     crud.settings.create_next = return_url
-    crud.settings.create_onaccept = [bankaccount_mandate_on_create]
     form = crud.create(db.customers_payment_info_mandates)
 
     result = set_form_id_and_get_submit_button(form, 'MainForm')
@@ -4642,31 +4641,14 @@ def bankaccount_mandate_add():
     )
 
 
-def bankaccount_mandate_on_create(form):
-    """
-    :param form: crud form for db.customers_payment_info_mandates
-    :return:
-    """
-    from openstudio.os_customers_payment_info_mandate import OsCustomersPaymentInfoMandate
-
-    cpimID = form.vars.id
-    cpim = OsCustomersPaymentInfoMandate(cpimID)
-    cpim.on_create()
-
-
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('create', 'customers_payments_info_mandates'))
 def bankaccount_mandate_delete():
     """
     Delete bankaccount mandate
     """
-    from openstudio.os_customers_payment_info_mandate import OsCustomersPaymentInfoMandate
-
     cuID = request.vars['cuID']
     cpimID = request.vars['cpimID']
-
-    cpim = OsCustomersPaymentInfoMandate(cpimID)
-    cpim.on_delete()
 
     query = (db.customers_payment_info_mandates.id == cpimID)
     db(query).delete()
