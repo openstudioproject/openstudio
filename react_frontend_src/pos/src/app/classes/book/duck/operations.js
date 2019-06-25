@@ -7,6 +7,9 @@ import {
     receiveClassesCustomer
 } from './actions'
 
+// import { customersClasscardsOperations } from '../../customers/classcards/duck'
+import { customersClasscardsOperations } from '../../../customers/classcards/duck'
+
 import { toast } from 'react-toastify'
 
 import axios_os from '../../../../utils/axios_os'
@@ -60,7 +63,11 @@ const checkinCustomer = (cuID, clsID, data, history) => {
           .then(function(response) {
               dispatch(receiveClassesCustomer(response.data))
               if (!response.data.error) {
-                history.push(`/`)
+                // Refetch classcards to update count of classes taken (Server side processing only)
+                dispatch(customersClasscardsOperations.fetchClasscards())
+                // Go back to customers
+                history.push('/')
+                // Notify user
                 toast.success("Customer checked in to class", {
                   position: toast.POSITION.BOTTOM_RIGHT
                 })
