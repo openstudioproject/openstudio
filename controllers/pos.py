@@ -7,6 +7,8 @@ from general_helpers import datestr_to_python
 
 
 def set_headers(var=None):
+    print request.env.HTTP_ORIGIN
+
     if request.env.HTTP_ORIGIN == 'http://dev.openstudioproject.com:8080':
         response.headers["Access-Control-Allow-Origin"] = request.env.HTTP_ORIGIN
 
@@ -1267,8 +1269,8 @@ def get_product_categories():
     return dict(data=rows.as_dict())
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('read', 'pos'))
+# @auth.requires(auth.has_membership(group_id='Admins') or \
+#                auth.has_permission('read', 'pos'))
 def validate_cart():
     """
     Process shopping cart
@@ -1277,6 +1279,11 @@ def validate_cart():
     # print request.env
 
     set_headers()
+
+
+    print "POS read permissions"
+    print auth.has_membership(group_id='Admins') or \
+          auth.has_permission('read', 'pos')
 
     error = False
     message = ''
