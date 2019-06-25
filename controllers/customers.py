@@ -1021,6 +1021,7 @@ def edit():
 
     crud.messages.submit_button = T('Save')
     crud.messages.record_updated = T('Saved')
+    crud.settings.update_onaccept = []
 
     # Clear teachers cache if we're updating a teacher
     if row.teacher:
