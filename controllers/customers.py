@@ -6430,124 +6430,6 @@ def account_acceptance_log():
                 back=back)
 
 
-@auth.requires(auth.has_membership(group_id='Admins'))
-def account_exact_online():
-    """
-    Manage link exact online linked customer
-    """
-    response.view = 'customers/edit_general.html'
-    cuID = request.vars['cuID']
-    customer = Customer(cuID)
-    response.title = customer.get_name()
-    response.subtitle = T('Account')
-
-    submenu = account_get_submenu(request.function, cuID)
-
-    form = SQLFORM.factory(
-        Field('code',
-              defualt=request.vars['code'],
-              requires=IS_NOT_EMPTY(),
-              label=T("Exact Online relation code")
-              ),
-        formstyle = 'bootstrap3_stacked',
-        submit_button = T('Find Exact relations')
-    )
-
-    search_result = ''
-    if form.process().accepted:
-        from openstudio.os_exact_online import OSExactOnline
-
-        response.flash = T("Successfully submitted search to Exact Online")
-        code = request.vars['code']
-
-        os_eo = OSExactOnline()
-        api = os_eo.get_api()
-        relations = api.relations.filter(relation_code=code)
-
-        if not len(relations):
-            search_result = T("No relations found with this code in Exact Online")
-        else:
-            header = THEAD(TR(
-                TH(T('Exact Online Code')),
-                TH(T('Exact Online Name')),
-                TH()
-            ))
-            search_result = TABLE(header, _class="table table-striped table-hover")
-
-            for relation in relations:
-                btn_link = os_gui.get_button(
-                    'noicon',
-                    URL('account_exact_online_link_relation', vars={'cuID': cuID,
-                                                                    'eoID': relation['ID']}),
-                    title=T("Link to this relation"),
-                    _class='pull-right'
-                )
-
-                search_result.append(TR(
-                    TD(relation['Code']),
-                    TD(relation['Name']),
-                    TD(btn_link)
-                ))
-
-    result = set_form_id_and_get_submit_button(form, 'MainForm')
-    form = result['form']
-    submit = result['submit']
-
-
-    current_link = T("Search for a relation code to link an Exact Online relation to this customer.")
-    linked_relations = customer.exact_online_get_relation()
-    if linked_relations:
-        current_link = DIV(
-            T("This customer is linked to the following Exact Online relation"), BR(), BR(),
-            T("Exact Online code: %s" % (linked_relations[0]['Code'])), BR(),
-                T("Exact Online name: %s" % (linked_relations[0]['Name'])), BR(), BR(),
-            T("To link this customer to another Exact Online relation, search for a relation code.")
-        )
-
-    display = DIV(
-        DIV(
-            H4(T("Current link")),
-            current_link,
-            _class='col-md-6'
-        ),
-        DIV(
-            H4(T('Find relations in Exact Online')),
-            form,
-            HR(),
-            search_result,
-            _class='col-md-6'
-        ),
-        _class='row'
-    )
-
-    content = DIV(submenu, BR(), display)
-
-    menu = customers_get_menu(cuID, 'account')
-    back = edit_get_back()
-
-    return dict(content=content,
-                menu=menu,
-                save=submit,
-                back=back)
-
-
-@auth.requires(auth.has_membership(group_id='Admins'))
-def account_exact_online_link_relation():
-    """
-    Link exact online relation to OpenStudio customer
-    """
-    from openstudio.os_customer import Customer
-
-    cuID = request.vars['cuID']
-    eoID = request.vars['eoID']
-
-    customer = Customer(cuID)
-    message = customer.exact_online_link_to_relation(eoID)
-
-    session.flash = message
-    redirect(URL('account_exact_online', vars={'cuID': cuID}))
-
-
 def account_get_submenu(page, cuID):
     """
         Returns submenu for account pages
@@ -6568,11 +6450,6 @@ def account_get_submenu(page, cuID):
        auth.has_permission('account_acceptance_log', 'auth_user'):
         pages.append(['account_acceptance_log', T('Accepted documents'),
                        URL('account_acceptance_log', vars=vars)])
-
-    eo_authorized = get_sys_property('exact_online_authorized')
-    if auth.has_membership(group_id='Admins') and eo_authorized:
-        pages.append(['account_exact_online', T('Exact Online'),
-                       URL('account_exact_online', vars=vars)])
 
     horizontal = True
 
