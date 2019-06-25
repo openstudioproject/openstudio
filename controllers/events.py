@@ -455,8 +455,7 @@ def event_add_onaccept(form):
                                  FullWorkshop=True,
                                  Deletable=False,
                                  Name=T('Full event'),
-                                 Price=0,
-                                 Description=T('Full event'))
+                                 Price=0)
 
 
 @auth.requires_login()
