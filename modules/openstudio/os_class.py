@@ -683,12 +683,14 @@ class Class:
 
             elif tprt == 'attendance':
                 # Get list for class type
+                print "attendance"
                 cltID = self.cls.school_classtypes_id
                 tpalst = db.teachers_payment_attendance_lists_school_classtypes(
                     school_classtypes_id=cltID
                 )
 
                 if tpalst:
+                    print "list found"
                     list_id = tpalst.teachers_payment_attendance_lists_id
                     list = db.teachers_payment_attendance_lists(1)
                     tax_rates_id = list.tax_rates_id
@@ -697,12 +699,18 @@ class Class:
                             (db.teachers_payment_attendance_lists_rates.AttendanceCount == attendance_count)
                     row = db(query).select(db.teachers_payment_attendance_lists_rates.Rate)
 
+                    print row
+
                     try:
                         rate = row.first().Rate
                     except AttributeError:
                         rate = 0
 
-                    if not tpc and tpalst and rate:
+                    if not rate:
+                        data = T("Rate is 0, unable to process payment")
+                        error = True
+
+                    if not tpc and rate:
                         tpcID = db.teachers_payment_classes.insert(
                             classes_id = self.clsID,
                             ClassDate = self.date,
@@ -716,7 +724,7 @@ class Class:
                         )
                         tpc = db.teachers_payment_classes(tpcID)
 
-                    elif tpc and tpalst and rate:
+                    elif tpc and rate:
                         tpc.AttendanceCount = attendance_count
                         tpc.ClassRate = rate
                         tpc.auth_teacher_id = teacher_id
@@ -724,9 +732,11 @@ class Class:
                         tpc.teachers_payment_attendance_list_id = list.id
                         tpc.tax_rates_id = tax_rates_id
                         tpc.update_record()
+                        
 
-                    self._get_teacher_payment_set_travel_allowance(tpc)
-                    data = tpc
+                    if not error:
+                        self._get_teacher_payment_set_travel_allowance(tpc)
+                        data = tpc
                 else:
                     data = T('No payment list defined for this class type')
                     error = True

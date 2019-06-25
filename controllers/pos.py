@@ -228,8 +228,10 @@ def get_class_teacher_payment():
     date = datestr_to_python("%Y-%m-%d", date_received)
 
     cls = Class(clsID, date)
+    payment = cls.get_teacher_payment()
+    print payment
 
-    return dict(payment = cls.get_teacher_payment())
+    return dict(payment = payment)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
