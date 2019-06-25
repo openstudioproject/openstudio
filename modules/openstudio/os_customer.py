@@ -25,7 +25,6 @@ class Customer:
         self.row = db.auth_user(self.cuID)
 
 
-
     def get_name(self):
         """
             Returns the name for a customer
@@ -43,74 +42,6 @@ class Customer:
         md5.update(self.row.email.lower())
 
         return md5.hexdigest()
-
-
-    def exact_online_link_to_relation(self, exact_online_relation_id):
-        """
-        :param exact_online_relation_id: Exact Online crm/Account guid
-        :return:
-        """
-        T = current.T
-        db = current.db
-        message = ''
-
-        query = (db.auth_user.id != self.cuID) & \
-                (db.auth_user.exact_online_relation_id == exact_online_relation_id)
-        rows = db(query).select(
-            db.auth_user.id,
-            db.auth_user.display_name
-        )
-
-        if len(rows):
-            row = rows.first()
-
-            message = SPAN(
-                B(T("Unable to update Exact Online relation link.")),
-                T("This Exact Online relation is already linked to "),
-                A(row.display_name,
-                  _href=URL('customers', 'edit', args=[row.id]),
-                  _target="_blank"),
-                '.'
-            )
-        else:
-            self.row.exact_online_relation_id = exact_online_relation_id
-            self.row.update_record()
-
-            message = T("Updated link to Exact Online relation")
-
-        return message
-
-
-    def exact_online_get_relation(self):
-        """
-        :return: Exact Online relation data for OpenStudio customer
-        """
-        from openstudio.os_exact_online import OSExactOnline
-        eoID = self.row.exact_online_relation_id
-
-        if not eoID:
-            return None
-
-        os_eo = OSExactOnline()
-        api = os_eo.get_api()
-
-        return api.relations.filter(ID=eoID)
-
-
-    def exact_online_get_bankaccounts(self):
-        """
-        :return:  Exact Online bankaccounts data for OpenStudio customer
-        """
-        from openstudio.os_exact_online import OSExactOnline
-        eoID = self.row.exact_online_relation_id
-
-        if not eoID:
-            return None
-
-        os_eo = OSExactOnline()
-        api = os_eo.get_api()
-
-        return api.bankaccounts.filter(account=eoID)
 
 
     def _get_subscriptions_on_date(self, date):
