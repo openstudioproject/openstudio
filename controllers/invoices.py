@@ -1134,18 +1134,11 @@ def item_delete():
 
     db = current.db
     os_tools = OsTools()
-    exact_online_enabled = os_tools.get_sys_property('exact_online_authorized')
 
     iID = request.vars['iID']
     iiID = request.vars['iiID']
 
     item = db.invoices_items(iiID)
-
-    if exact_online_enabled and item.ExactOnlineSalesEntryLineID:
-        from openstudio.os_exact_online import OSExactOnline
-
-        eo = OSExactOnline()
-        eo.delete_sales_entry_line(item.ExactOnlineSalesEntryLineID)
 
     # Actually delete item
     query = (db.invoices_items.id == iiID)
