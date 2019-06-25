@@ -2738,9 +2738,6 @@ def define_customers_payment_info():
         Field('BankLocation',
             represent=lambda value, row: value or "",
             label=T("Bank location")),
-        Field('exact_online_bankaccount_id',
-            readable=False,
-            writable=False),
         singular=T("Bank details"), plural=T("Bank details")
         )
 
@@ -2791,9 +2788,6 @@ def define_customers_payment_info_mandates():
               writable=False,
               represent=represent_datetime,
               default=datetime.datetime.now()),
-        Field('exact_online_directdebitmandates_id',
-              readable=False,
-              writable=False)
     )
 
 
@@ -5743,6 +5737,7 @@ def define_mollie_log_webhook():
         Field('mollie_payment', 'text'))
 
 
+#TODO: Remove in next release; keep for now as history
 def define_integration_exact_online_log():
     db.define_table('integration_exact_online_log',
         Field('ActionName'),
@@ -6487,10 +6482,6 @@ auth.settings.extra_fields['auth_user'] = [
         readable=False,
         writable=False,
         label=T("Mollie customer id")),
-    Field('exact_online_relation_id',
-        readable=False,
-        writable=False,
-        label=T("Exact online customer ID")),
     Field('merged', 'boolean',
         readable=False,
         writable=False,
