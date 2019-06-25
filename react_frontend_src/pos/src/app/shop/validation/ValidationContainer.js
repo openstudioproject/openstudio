@@ -7,6 +7,10 @@ import { appOperations } from '../../duck'
 import { shopPaymentOperations } from "../payment/duck"
 import { shopCartOperations } from '../cart/duck'
 import { customersListOperations } from '../../customers/list/duck'
+import { customersClasscardsOperations } from '../../customers/classcards/duck'
+import { customersSubscriptionsOperations } from '../../customers/subscriptions/duck'
+import { customersMembershipsOperations } from '../../customers/memberships/duck'
+import { customersMembershipsTodayOperations } from '../../customers/memberships_today/duck'
 import Validation from "./Validation"
 
 
@@ -34,7 +38,19 @@ const mapDispatchToProps = dispatch =>
         },
         validateCart(state) {
             dispatch(appOperations.validateCart(state))
-        }
+        },
+        fetchCustomersClasscards() {
+            dispatch(customersClasscardsOperations.fetchClasscards())
+        },
+        fetchCustomersSubscriptions() {
+            dispatch(customersSubscriptionsOperations.fetchSubscriptions())
+        },
+        fetchCustomersMemberships() {
+            dispatch(customersMembershipsOperations.fetchMemberships())
+        },
+        fetchCustomersMembershipsToday() {
+            dispatch(customersMembershipsTodayOperations.fetchMembershipsToday())
+        },
     })
     
 const ValidationContainer = withRouter(injectIntl(connect(

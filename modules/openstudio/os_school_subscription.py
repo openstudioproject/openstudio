@@ -247,7 +247,7 @@ class SchoolSubscription:
             auth_customer_id = auth_user_id,
             school_subscriptions_id = self.ssuID,
             Startdate = date_start,
-            MinEnddate = _sell_to_customer_get_min_end_date(date_start),
+            MinEnddate = self._sell_to_customer_get_min_end_date(date_start),
             Note = note,
             payment_methods_id = payment_methods_id
         )
