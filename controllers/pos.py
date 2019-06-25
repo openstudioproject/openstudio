@@ -189,8 +189,6 @@ def get_class_attendance():
     ah = AttendanceHelper()
     attendance = ah.get_attendance_rows(clsID, date).as_list()
 
-    print attendance
-
     return dict(attendance=attendance)
 
 
