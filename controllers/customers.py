@@ -6464,8 +6464,7 @@ def edit_teacher():
     crud.messages.record_updated = T('Saved')
     crud.settings.update_onaccept = [
         cache_clear_school_teachers,
-        cache_clear_classschedule,
-        edit_onaccept
+        cache_clear_classschedule
     ]
     form = crud.update(db.auth_user, cuID)
 
