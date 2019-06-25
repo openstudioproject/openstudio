@@ -7,7 +7,7 @@ from general_helpers import datestr_to_python
 
 
 def set_headers(var=None):
-    print request.env.HTTP_ORIGIN
+    # print request.env.HTTP_ORIGIN
 
     if request.env.HTTP_ORIGIN == 'http://dev.openstudioproject.com:8080':
         response.headers["Access-Control-Allow-Origin"] = request.env.HTTP_ORIGIN
@@ -188,6 +188,8 @@ def get_class_attendance():
 
     ah = AttendanceHelper()
     attendance = ah.get_attendance_rows(clsID, date).as_list()
+
+    print attendance
 
     return dict(attendance=attendance)
 
