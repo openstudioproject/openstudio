@@ -3178,7 +3178,7 @@ def attendance_remove():
     # Clear cache to refresh subscription credit count
     cache_clear_customers_subscriptions(cuID)
 
-    # Clear cache to refresh subscription credit count
+    # Clear cache to refresh classes taken count
     cache_clear_customers_classcards(cuID)
 
     # Clear api cache to refresh available spaces

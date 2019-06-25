@@ -996,15 +996,56 @@ def delete_class_attendance():
 
     :return:
     """
+    from openstudio.os_classcards_helper import ClasscardsHelper
     from openstudio.os_class_attendance import ClassAttendance
 
     set_headers()
 
-    print request.vars
     clattID = request.vars['id']
 
+    clatt = db.classes_attendance(clattID)
+    cuID = clatt.auth_customer_id
+    clsID = clatt.classes_id
+    date_formatted = clatt.ClassDate.strftime(DATE_FORMAT)
+
+    ##
+    # Change invoice status to cancelled (if any)
+    ##
+    query = (db.invoices_items_classes_attendance.classes_attendance_id == clattID)
+    left = [
+        db.invoices_items.on(
+            db.invoices_items_classes_attendance.invoices_items_id ==
+            db.invoices_items.id
+        )
+    ]
+    rows = db(query).select(
+        db.invoices_items.ALL,
+        left=left,
+    )
+    for row in rows:
+        invoice = Invoice(row.invoices_id)
+        invoice.set_status('cancelled')
+
+    ##
+    # Delete attendance record
+    ##
     query = (db.classes_attendance.id == clattID)
     db(query).delete()
+
+    # Clear cache to refresh subscription credit count
+    cache_clear_customers_subscriptions(cuID)
+
+    # Clear cache to refresh classes taken count
+    cache_clear_customers_classcards(cuID)
+
+    # Clear api cache to refresh available spaces
+    cache_clear_classschedule_api()
+
+
+    if clatt.customers_classcards_id:
+        # update class count on classcard
+        ccdh = ClasscardsHelper()
+        ccdh.set_classes_taken(clatt.customers_classcards_id)
 
     return dict(clattID=clattID, error=False)
 

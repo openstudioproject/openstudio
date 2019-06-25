@@ -17,6 +17,8 @@ import axios_os from '../../../../utils/axios_os'
 import OS_API from '../../../../utils/os_api'
 import { toISODate } from '../../../../utils/date_tools'
 
+import { customersClasscardsOperations } from '../../../customers/classcards/duck'
+
 // just pass these actions as there's nothing else they need to do
 // Put pass-through actions here
 
@@ -59,8 +61,9 @@ const deleteClassAttendance = (clattID) => {
           axios_os.post(OS_API.CLASSES_ATTENDANCE_DELETE, params)
           .then(function (response) {
             // handle success
-            dispatch(receiveClassesClassAttendanceDelete(response.data))
-            // dispatch(setLoadingProgress(100))
+            dispatch(customersClasscardsOperations.fetchClasscards())
+            dispatch(receiveClassesClassAttendanceDelete(response.data)) 
+            // Refetch classcards to update count of classes taken (Server side processing only)
           })
           .catch(function (error) {
             // handle error
