@@ -4409,30 +4409,6 @@ def bankaccount():
     )
     content = DIV(submenu, BR(), form)
 
-    eo_authorized = get_sys_property('exact_online_authorized')
-    if auth.has_membership(group_id='Admins') and eo_authorized:
-        if row.exact_online_bankaccount_id:
-            eo_message = SPAN(
-                os_gui.get_fa_icon('fa-check'), ' ',
-                T("This bank account is linked to Exact Online"),
-                _class='text-green'
-            )
-        else:
-            eo_message = SPAN(
-                os_gui.get_fa_icon('fa-ban'), ' ',
-                T("This bank account is not linked to Exact Online"),
-                _class='text-red'
-            )
-
-        content.append(DIV(
-            A(os_gui.get_fa_icon('fa-pencil'), ' ',
-              T("Edit Exact Online link"),
-              _href=URL('bankaccount_exact_online', vars={'cuID':cuID, 'cpiID':row.id}),
-              _class='pull-right'),
-            eo_message
-        ))
-
-
     add_mandate = ''
     query = (db.customers_payment_info_mandates.customers_payment_info_id == row.id)
     if not db(query).count():
