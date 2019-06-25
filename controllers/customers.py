@@ -1019,7 +1019,6 @@ def edit():
     change_picture = A(change_picture_title,
                        _href=URL('edit_picture', args=[customers_id]))
 
-    crud.settings.update_onaccept = [edit_onaccept]
     crud.messages.submit_button = T('Save')
     crud.messages.record_updated = T('Saved')
 
@@ -1114,17 +1113,6 @@ def edit():
                 back=back,
                 menu=menu,
                 save=submit)
-
-
-def edit_onaccept(form):
-    """
-    :param form: crud form for db.auth_user
-    :return: None
-    """
-    from openstudio.os_customer import Customer
-
-    customer = Customer(form.vars.id)
-    customer.on_update()
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
