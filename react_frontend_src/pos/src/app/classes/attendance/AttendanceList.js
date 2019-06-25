@@ -91,6 +91,7 @@ const AttendanceList = ({attendance_items, intl, title="", onClick=f=>f, onClick
                             <th></th>
                             <th>Customer</th>
                             <th>Check-in status</th>
+                            <th>Info</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -111,6 +112,12 @@ const AttendanceList = ({attendance_items, intl, title="", onClick=f=>f, onClick
                                         </Label> : ''}
                                     <br />
                                     <span className="text-muted"><small>{(item.classes_attendance.CreatedOn)}</small></span>
+                                </td>
+                                <td>
+                                    {(item.school_classcards) ? item.school_classcards.Name : ""}
+                                    {(item.school_subscriptions) ? item.school_subscriptions.Name : ""}
+                                    {(item.AttendanceType === 2) ? "Drop-in": ""}
+                                    {(item.AttendanceType === 2) ? "Complementary": ""}
                                 </td>
                                 <td><Customerclasses clattID={item.classes_attendance.id}
                                                      status={item.classes_attendance.BookingStatus}

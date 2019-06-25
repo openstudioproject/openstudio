@@ -29,6 +29,10 @@ class AttendanceHelper:
             db.auth_user.last_name,
             db.auth_user.display_name,
             db.auth_user.email,
+            db.customers_subscriptions.id,
+            db.school_subscriptions.Name,
+            db.customers_classcards.id,
+            db.school_classcards.Name,
             db.classes_reservation.id,
             db.classes_reservation.ResType,
             db.classes_reservation.Startdate,
@@ -55,6 +59,10 @@ class AttendanceHelper:
                    au.last_name,
                    au.display_name,
                    au.email, 
+                   cs.id,
+                   ssu.Name,
+                   cc.id,
+                   scc.Name,
                    clr.id,
                    clr.restype,
                    clr.Startdate,
@@ -83,10 +91,16 @@ class AttendanceHelper:
                          AttendanceType,
                          online_booking,
                          BookingStatus,
+                         customers_classcards_id,
+                         customers_subscriptions_id,
                          CreatedOn
                   FROM classes_attendance
                   WHERE ClassDate = '{date}' AND classes_id = {clsID} ) clatt
                 ON clatt.auth_customer_id = au.id
+            LEFT JOIN customers_classcards cc ON clatt.customers_classcards_id = cc.id
+            LEFT JOIN school_classcards scc ON cc.school_classcards_id = scc.id
+            LEFT JOIN customers_subscriptions cs ON clatt.customers_subscriptions_id = cs.id
+            LEFT JOIN school_subscriptions ssu ON cs.school_subscriptions_id = ssu.id
             LEFT JOIN
                 ( SELECT id,
                          auth_customer_id,

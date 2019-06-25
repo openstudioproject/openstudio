@@ -1651,8 +1651,6 @@ def subscription_direct_debit():
     row = db.customers_payment_info(auth_customer_id = auth.user.id)
     query = (db.customers_payment_info_mandates.customers_payment_info_id == row.id)
     if not db(query).count():
-        from openstudio.os_customers_payment_info_mandate import OsCustomersPaymentInfoMandate
-
         mandate_text = get_sys_property('shop_direct_debit_mandate_text')
 
         cpimID = db.customers_payment_info_mandates.insert(
@@ -1660,8 +1658,6 @@ def subscription_direct_debit():
             MandateText = mandate_text
         )
 
-        cpim = OsCustomersPaymentInfoMandate(cpimID)
-        cpim.on_create() # This also syncs to Exact Online
 
     # Add subscription to customer﻿​
     startdate = TODAY_LOCAL
