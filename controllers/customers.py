@@ -4393,7 +4393,6 @@ def bankaccount():
     crud.settings.formstyle = "bootstrap3_stacked"
     crud.settings.update_next = return_url
     crud.settings.update_deletable = False
-    crud.settings.update_onaccept = [bankaccount_onaccept]
     form = crud.update(db.customers_payment_info, row.id)
 
     result = set_form_id_and_get_submit_button(form, 'MainForm')
@@ -4427,141 +4426,11 @@ def bankaccount():
                 tools=SPAN(add_mandate, submit))
 
 
-def bankaccount_onaccept(form):
-    """
-    :param form: crud form for db.customers_payment_info
-    :return:
-    """
-    from openstudio.os_customers_payment_info import OsCustomersPaymentInfo
-
-    cpiID = form.vars.id
-    cpi = OsCustomersPaymentInfo(cpiID)
-    cpi.on_update()
-
-
 def bankaccount_get_returl_url(customers_id):
     """
         Returns the return url for payment_info_add and payment_info_edit
     """
     return URL('bankaccount', vars={'cuID':customers_id})
-
-
-@auth.requires(auth.has_membership(group_id='Admins'))
-def bankaccount_exact_online():
-    """
-    Update Exact Online link for Payment info
-    """
-    cpiID = request.vars['cpiID']
-    cuID = request.vars['cuID']
-    customer = Customer(cuID)
-    response.title = customer.get_name()
-    response.subtitle = T("Finance")
-    response.view = 'general/tabs_menu.html'
-
-    # back button
-    back = os_gui.get_button(
-        'back',
-        URL('bankaccount', vars={'cuID': cuID})
-    )
-
-    # payment_info
-    menu = customers_get_menu(cuID, request.function)
-    submenu = payments_get_submenu('bankaccount', cuID)
-
-    # Customer EO account code
-
-    eo_account_ID = customer.row.exact_online_relation_id
-    if not eo_account_ID:
-        content = T("Unable to link bank account, this customer isn't linked to an Exact Online relation")
-    else:
-        from openstudio.os_customers_payment_info import OsCustomersPaymentInfo
-
-        accounts = customer.exact_online_get_bankaccounts()
-
-        search_result = ''
-        if not len(accounts):
-            search_result = T("No bank accounts found for this relation in Exact Online")
-        else:
-            header = THEAD(TR(
-                TH(T('Exact Online Relation Name')),
-                TH(T('Exact Online Bank Account')),
-                TH()
-            ))
-            search_result = TABLE(header, _class="table table-striped table-hover")
-
-            for account in accounts:
-                btn_link = os_gui.get_button(
-                    'noicon',
-                    URL('bankaccount_exact_online_link_bankaccount',
-                        vars={'cuID': cuID,
-                              'cpiID': cpiID,
-                              'eoID': account['ID']}),
-                    title=T("Link to this bank account"),
-                    _class='pull-right'
-                )
-
-                search_result.append(TR(
-                    TD(account['AccountName']),
-                    TD(account['BankAccount']),
-                    TD(btn_link)
-                ))
-
-
-        current_link = T("Please select a bank account listed on the right.")
-
-        cpi = OsCustomersPaymentInfo(cpiID)
-        linked_account = cpi.exact_online_get_bankaccount()
-
-        if linked_account:
-            current_link = DIV(
-                T("This customer is linked to the following Exact Online Bank Account"), BR(), BR(),
-                T("OpenStudio bank account: %s" % (cpi.row.AccountNumber)), BR(), BR(),
-                T("Exact Online bank account: %s" % (linked_account[0]['BankAccount'])),  BR(),
-                T("Exact Online relation name: %s" % (linked_account[0]['AccountName'])), BR(), BR(),
-                T("To link this bank account to another Exact Online bank account, please select one from the list on the right.")
-            )
-
-        display = DIV(
-            DIV(
-                H4(T("Current link")),
-                current_link,
-                _class='col-md-6'
-            ),
-            DIV(
-                H4(T('Bank accounts for this relation in Exact Online')),
-                search_result,
-                _class='col-md-6'
-            ),
-            _class='row'
-        )
-
-        content = DIV(submenu, BR(), display)
-
-    return dict(
-        content=content,
-        menu=menu,
-        back=back,
-        tools=''
-    )
-
-
-@auth.requires(auth.has_membership(group_id='Admins'))
-def bankaccount_exact_online_link_bankaccount():
-    """
-    Link exact online relation to OpenStudio customer
-    """
-    from openstudio.os_customers_payment_info import OsCustomersPaymentInfo
-
-    cuID = request.vars['cuID']
-    cpiID = request.vars['cpiID']
-    eoID = request.vars['eoID']
-
-    cpi = OsCustomersPaymentInfo(cpiID)
-    message = cpi.exact_online_link_to_bankaccount(eoID)
-
-    session.flash = message
-    redirect(URL('bankaccount_exact_online', vars={'cuID': cuID,
-                                                   'cpiID': cpiID}))
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
