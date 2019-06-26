@@ -2173,10 +2173,13 @@ class AttendanceHelper:
             :param date: datetime.date
             :return:
         """
+        from tools import OsTools
+
+        os_tools = OsTools()
         db = current.db
         T = current.T
 
-        status = 'fail'
+        status = 'ok'
         message = ''
         caID = ''
 
@@ -2195,13 +2198,25 @@ class AttendanceHelper:
         if signed_in:
             if signed_in.AttendanceType == 5:
                 # Under review, so update
-                status = 'ok'
                 db(db.classes_attendance._id == signed_in.id).update(**class_data)
             else:
+                status = 'fail'
                 message = T("Already checked in for this class")
         else:
-            status = 'ok'
-            caID = db.classes_attendance.insert(**class_data)
+            # not signed in
+            max_complementary_checkins = \
+                os_tools.get_sys_property('class_attendance_max_complementary_checkins')
+
+            if max_complementary_checkins:
+                # count number of complementary check-ins
+                query = (db.classes_attendance.classes_id == clsID) & \
+                        (db.classes_attendance.ClassDate == date)
+                if db(query).count() >= int(max_complementary_checkins):
+                    status = 'fail'
+                    message = T("Maximum number of complementary check-ins reached for this class")
+
+            if status == "ok":
+                caID = db.classes_attendance.insert(**class_data)
 
 
         return dict(status=status, message=message, caID=caID)
