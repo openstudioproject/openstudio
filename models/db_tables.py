@@ -1530,6 +1530,9 @@ def define_school_subscriptions():
               label=T("Requires membership"),
               comment=T(
                   "Set a required membership for this card. Without this memberships customers won't be able to get this subscription or use it to attend classes.")),
+        Field('ClassCheckinLimit', 'integer',
+            label=T("Class check-in limit"),
+            comment=T("Limit number of check-ins / class for this subscription. Leave empty for unlimited. (Useful for staff subscriptions for example.)")),
         Field('QuickStatsAmount', 'double',
               label=T('Quick Stats Amount'),
               default=0,
