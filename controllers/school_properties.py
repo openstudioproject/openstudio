@@ -1010,6 +1010,12 @@ def subscriptions_archive():
     redirect(URL('subscriptions'))
 
 
+def subscription_form_set_placeholders(form):
+    # placeholder for credits validity
+    form.element('#school_subscriptions_CreditValidity')['_placeholder'] = T("Credits don't expire")
+    form.element('#school_subscriptions_ClassCheckinLimit')['_placeholder'] = T("Unlimited")
+
+
 @auth.requires_login()
 def subscription_add():
     """
@@ -1039,11 +1045,8 @@ def subscription_add():
     form = result['form']
     submit = result['submit']
 
-    # placeholder for credits validity
-    form.element('#school_subscriptions_CreditValidity')['_placeholder'] = T("Credits don't expire")
 
-
-    submit = form.element('input[type=submit]')
+    subscription_form_set_placeholders(form)
 
     back = os_gui.get_button('back', return_url)
 
@@ -1080,7 +1083,7 @@ def subscription_edit():
     form = result['form']
     submit = result['submit']
 
-    form.element('#school_subscriptions_CreditValidity')['_placeholder'] = T("Credits don't expire")
+    subscription_form_set_placeholders(form)
 
     # input_classes = form.element('#school_subscriptions_NRofClasses')
     # input_classes['_placeholder'] = T('Unlimited')
