@@ -171,6 +171,7 @@ class Reports:
 
         data = {
             'subscriptions': {},
+            'staff_subscriptions': {},
             'classcards': {},
             'dropin': {
                 'membership': {
@@ -216,22 +217,35 @@ class Reports:
                 # Subscription
                 name = row.school_subscriptions.Name
                 amount = row.school_subscriptions.QuickStatsAmount or 0
-                if data['subscriptions'].get(name, False):
-                    data['subscriptions'][name]['count'] += 1
-                    data['subscriptions'][name]['total'] = \
-                        data['subscriptions'][name]['count'] * amount
-                else:
-                    data['subscriptions'][name] = {
-                        'count': 1,
-                        'total': amount,
-                        'amount': amount
-                    }
-
                 data['total']['amount'] += amount
 
                 if row.school_subscriptions.StaffSubscription:
+                    # Staff
+                    if data['staff_subscriptions'].get(name, False):
+                        data['staff_subscriptions'][name]['count'] += 1
+                        data['staff_subscriptions'][name]['total'] = \
+                            data['staff_subscriptions'][name]['count'] * amount
+                    else:
+                        data['staff_subscriptions'][name] = {
+                            'count': 1,
+                            'total': amount,
+                            'amount': amount
+                        }
+
                     data['total']['count_unpaid'] += 1
                 else:
+                    # Customers
+                    if data['subscriptions'].get(name, False):
+                        data['subscriptions'][name]['count'] += 1
+                        data['subscriptions'][name]['total'] = \
+                            data['subscriptions'][name]['count'] * amount
+                    else:
+                        data['subscriptions'][name] = {
+                            'count': 1,
+                            'total': amount,
+                            'amount': amount
+                        }
+
                     data['total']['count_paid'] += 1
 
             elif row.classes_attendance.AttendanceType == 1:
