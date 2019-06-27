@@ -325,15 +325,19 @@ class Reports:
 
         header = THEAD(TR(
             TH(T('Type')),
+            TH(T('Customers')),
+            TH(T('Guests & staff')),
+            TH(T('Attendance')),
             TH(T('Amount')),
-            TH(T('Attendance count')),
             TH(T('Total')),
         ))
 
         trial_without_membership = TR(
             TD(T('Trial without membership')),
-            TD(represent_float_as_amount(revenue['trial']['no_membership']['amount'])),
             TD(revenue['trial']['no_membership']['count']),
+            TD(0),
+            TD(revenue['trial']['no_membership']['count']),
+            TD(represent_float_as_amount(revenue['trial']['no_membership']['amount'])),
             TD(represent_float_as_amount(
                 revenue['trial']['no_membership']['amount'] * revenue['trial']['no_membership']['count']
             )),
@@ -341,8 +345,10 @@ class Reports:
 
         trial_with_membership =  TR(
             TD(T('Trial with membership')),
-            TD(represent_float_as_amount(revenue['trial']['membership']['amount'])),
             TD(revenue['trial']['membership']['count']),
+            TD(0),
+            TD(revenue['trial']['membership']['count']),
+            TD(represent_float_as_amount(revenue['trial']['membership']['amount'])),
             TD(represent_float_as_amount(
                 revenue['trial']['membership']['amount'] * revenue['trial']['membership']['count']
             )),
@@ -350,8 +356,10 @@ class Reports:
 
         dropin_without_membership = TR(
             TD(T('Drop-in without membership')),
-            TD(represent_float_as_amount(revenue['dropin']['no_membership']['amount'])),
             TD(revenue['dropin']['no_membership']['count']),
+            TD(0),
+            TD(revenue['dropin']['no_membership']['count']),
+            TD(represent_float_as_amount(revenue['dropin']['no_membership']['amount'])),
             TD(represent_float_as_amount(
                 revenue['dropin']['no_membership']['amount'] * revenue['dropin']['no_membership']['count']
             )),
@@ -359,8 +367,10 @@ class Reports:
 
         dropin_with_membership =  TR(
             TD(T('Drop-in with membership')),
-            TD(represent_float_as_amount(revenue['dropin']['membership']['amount'])),
             TD(revenue['dropin']['membership']['count']),
+            TD(0),
+            TD(revenue['dropin']['membership']['count']),
+            TD(represent_float_as_amount(revenue['dropin']['membership']['amount'])),
             TD(represent_float_as_amount(
                 revenue['dropin']['membership']['amount'] * revenue['dropin']['membership']['count']
             )),
@@ -382,8 +392,24 @@ class Reports:
 
             table_revenue.append(TR(
                 TD(max_string_length(s, 42)),
-                TD(represent_float_as_amount(amount)),
                 TD(count),
+                TD(0),
+                TD(count),
+                TD(represent_float_as_amount(amount)),
+                TD(represent_float_as_amount(amount * count))
+            ))
+
+        # staff subscriptions
+        for s in sorted(revenue['staff_subscriptions']):
+            amount = revenue['staff_subscriptions'][s]['amount']
+            count = revenue['staff_subscriptions'][s]['count']
+
+            table_revenue.append(TR(
+                TD(max_string_length(s, 42)),
+                TD(0),
+                TD(count),
+                TD(count),
+                TD(represent_float_as_amount(amount)),
                 TD(represent_float_as_amount(amount * count))
             ))
 
@@ -394,15 +420,19 @@ class Reports:
 
             table_revenue.append(TR(
                 TD(max_string_length(c, 42)),
-                TD(represent_float_as_amount(amount)),
                 TD(count),
+                TD(0),
+                TD(count),
+                TD(represent_float_as_amount(amount)),
                 TD(represent_float_as_amount(amount * count))
             ))
 
         # Complementary
         table_revenue.append(TR(
             TD(T('Complementary')),
-            TD(),
+            TD(0),
+            TD(revenue['complementary']['count']),
+            TD(revenue['complementary']['count']),
             TD(revenue['complementary']['count']),
             TD(),
         ))
@@ -410,8 +440,10 @@ class Reports:
         # Total
         footer = TFOOT(TR(
             TH(T('Total')),
+            TH(revenue['total']['count_paid']),
+            TH(revenue['total']['count_unpaid']),
+            TH(revenue['total']['count_total']),
             TH(),
-            TH(revenue['total']['count']),
             TH(represent_float_as_amount(revenue['total']['amount'])),
         ))
 
