@@ -105,7 +105,11 @@
                 <td>{{=revenue['total']['count_total']}}</td>
             </tr>
             <tr>
-                <th>{{=T('Guests')}}</th>
+                <th>{{=T('Guests & staff')}}</th>
+                <td>{{=revenue['total']['count_unpaid']}}</td>
+            </tr>
+            <tr>
+                <th>{{=T('No membership')}}</th>
                 <td>{{=revenue['dropin']['no_membership']['count'] + revenue['trial']['no_membership']['count']}}</td>
             </tr>
         </table>
