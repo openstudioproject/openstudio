@@ -529,7 +529,7 @@ class Reports:
         template = get_sys_property('branding_default_template_class_revenue') or 'class_revenue/default.html'
         template_file = 'templates/' + template
 
-        tables = self.get_class_revenue_summary_formatted(clsID, date)
+        # tables = self.get_class_revenue_summary_formatted(clsID, date)
         cls = Class(clsID, date)
 
         teacher_payment = cls.get_teacher_payment()
