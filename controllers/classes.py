@@ -4870,10 +4870,10 @@ def revenue():
     result = reports.get_class_revenue_summary_formatted(clsID, date)
 
     content =  DIV(
-        DIV(H4(T('Revenue')),
-            result['table_revenue'], _class='col-md-6'),
         DIV(H4(T('Total')),
-            result['table_total'], _class='col-md-6'),
+            result['table_total'], _class='col-md-12'),
+        DIV(H4(T('Revenue')),
+            result['table_revenue'], _class='col-md-12'),
         _class='row'
     )
 

@@ -53,12 +53,12 @@ class Revenue extends Component {
                                 </div>
                             </div>
                             <div className="row">
-                                <div className="col-md-6">
+                                <div className="col-md-8">
                                     <RevenueList revenue={this.props.data.revenue}
                                                 intl={this.props.intl}
                                                 currency_symbol={this.props.settings.currency_symbol} />
                                 </div>
-                                <div className="col-md-6">
+                                <div className="col-md-4">
                                     <RevenueTotal revenue={this.props.data.revenue}
                                                 teacher_payment={this.props.data.teacher_payment}
                                                 teacher_payment_verifying={this.props.data.teacher_payment_verifying}

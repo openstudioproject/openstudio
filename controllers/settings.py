@@ -188,6 +188,7 @@ def system_workflow():
     response.view = 'general/tabs_menu.html'
 
 
+    class_attendance_max_complementary_checkins = get_sys_property('class_attendance_max_complementary_checkins')
     subscription_pauses_min_duration = get_sys_property('subscription_pauses_min_duration')
     subscription_max_pauses = get_sys_property('subscription_max_pauses')
     system_enable_class_checkin_trialclass = get_sys_property('system_enable_class_checkin_trialclass')
@@ -198,6 +199,10 @@ def system_workflow():
               default=system_enable_class_checkin_trialclass,
               label=T('Enable trial class booking option'),
               comment=T('Show or hide the trial class booking option in the back-end')),
+        Field('class_attendance_max_complementary_checkins',
+              default=class_attendance_max_complementary_checkins,
+              label=T('Max. class complementary check-ins'),
+              comment=T('Maximum number of complementary check-ins for each class')),
         Field('subscription_pauses_min_duration',
               default=subscription_pauses_min_duration,
               label=T('Min. duration of subscription pauses'),
@@ -218,6 +223,7 @@ def system_workflow():
     if form.process().accepted:
         form_vars = [
             'system_enable_class_checkin_trialclass',
+            'class_attendance_max_complementary_checkins',
             'subscription_pauses_min_duration',
             'subscription_max_pauses'
         ]

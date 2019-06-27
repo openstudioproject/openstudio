@@ -16,6 +16,7 @@ class WorkshopProduct:
 
         self.name = self.workshop_product.Name
         self.workshop_name = self.workshop.Name
+        self.description = self.workshop_product.Description
         self.wsID = self.workshop.id
         self.tax_rates_id = self.workshop_product.tax_rates_id
 

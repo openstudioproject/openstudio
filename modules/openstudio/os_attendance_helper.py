@@ -1705,7 +1705,7 @@ class AttendanceHelper:
         DATE_FORMAT = current.DATE_FORMAT
         cache_clear_customers_subscriptions = current.globalenv['cache_clear_customers_subscriptions']
 
-        status = 'fail'
+        status = 'ok'
         message = ''
         signed_in = self._attendance_sign_in_check_signed_in(clsID, cuID, date)
         # check credits remaining
@@ -1730,30 +1730,56 @@ class AttendanceHelper:
         if not credits_remaining and credits_hard_limit:
             # return message, don't sign in
             message = message_no_credits
+            status = 'fail'
         elif paused: # check for paused subscription
             # return message, don't sign in
             message = paused
+            status = 'fail'
         elif blocked: # check for blocked subscription
             # return message, don't sign in
             message = blocked
+            status = 'fail'
         else:
             if signed_in:
                 if signed_in.AttendanceType == 5:
                     # Under review, so update
-                    status = 'ok'
                     db(db.classes_attendance._id == signed_in.id).update(**class_data)
                     clattID = signed_in.id
                     take_credit()
                 else:
                     # return message, don't sign in
+                    status = 'fail'
                     message = T("Customer has already booked or is already checked-in")
             else:
-                status = 'ok'
-                clattID = db.classes_attendance.insert(**class_data)
+                # Check Class Checkin Limit
+                cs = db.customers_subscriptions(csID)
+                ssu = db.school_subscriptions(cs.school_subscriptions_id)
 
-                take_credit()
+                if ssu.ClassCheckinLimit:
+                    left = [
+                        db.customers_subscriptions.on(
+                            db.classes_attendance.customers_subscriptions_id ==
+                            db.customers_subscriptions.id
+                        )
+                    ]
 
-                cache_clear_customers_subscriptions(cuID)
+                    query = (db.classes_attendance.classes_id == clsID) & \
+                            (db.classes_attendance.ClassDate == date) & \
+                            (db.customers_subscriptions.school_subscriptions_id == ssu.id)
+
+                    rows = db(query).select(
+                        db.classes_attendance.id,
+                        left=left
+                    )
+
+                    if len(rows) >= ssu.ClassCheckinLimit:
+                        status = 'fail'
+                        message = T("Check-in limit reached for this subscription in this class")
+
+                if status == 'ok':
+                    clattID = db.classes_attendance.insert(**class_data)
+                    take_credit()
+                    cache_clear_customers_subscriptions(cuID)
 
         return dict(status=status, message=message)
 
@@ -2173,10 +2199,13 @@ class AttendanceHelper:
             :param date: datetime.date
             :return:
         """
+        from tools import OsTools
+
+        os_tools = OsTools()
         db = current.db
         T = current.T
 
-        status = 'fail'
+        status = 'ok'
         message = ''
         caID = ''
 
@@ -2195,13 +2224,26 @@ class AttendanceHelper:
         if signed_in:
             if signed_in.AttendanceType == 5:
                 # Under review, so update
-                status = 'ok'
                 db(db.classes_attendance._id == signed_in.id).update(**class_data)
             else:
+                status = 'fail'
                 message = T("Already checked in for this class")
         else:
-            status = 'ok'
-            caID = db.classes_attendance.insert(**class_data)
+            # not signed in
+            max_complementary_checkins = \
+                os_tools.get_sys_property('class_attendance_max_complementary_checkins')
+
+            if max_complementary_checkins:
+                # count number of complementary check-ins
+                query = (db.classes_attendance.classes_id == clsID) & \
+                        (db.classes_attendance.ClassDate == date) & \
+                        (db.classes_attendance.AttendanceType == 4)
+                if db(query).count() >= int(max_complementary_checkins):
+                    status = 'fail'
+                    message = T("Maximum number of complementary check-ins reached for this class")
+
+            if status == "ok":
+                caID = db.classes_attendance.insert(**class_data)
 
 
         return dict(status=status, message=message, caID=caID)

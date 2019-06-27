@@ -171,6 +171,7 @@ class Reports:
 
         data = {
             'subscriptions': {},
+            'staff_subscriptions': {},
             'classcards': {},
             'dropin': {
                 'membership': {
@@ -197,7 +198,9 @@ class Reports:
                 'amount': 0
             },
             'total': {
-                'count': 0,
+                'count_unpaid': 0,
+                'count_paid': 0,
+                'count_total': 0,
                 'amount': 0
             }
         }
@@ -214,18 +217,36 @@ class Reports:
                 # Subscription
                 name = row.school_subscriptions.Name
                 amount = row.school_subscriptions.QuickStatsAmount or 0
-                if data['subscriptions'].get(name, False):
-                    data['subscriptions'][name]['count'] += 1
-                    data['subscriptions'][name]['total'] = \
-                        data['subscriptions'][name]['count'] * amount
-                else:
-                    data['subscriptions'][name] = {
-                        'count': 1,
-                        'total': amount,
-                        'amount': amount
-                    }
-
                 data['total']['amount'] += amount
+
+                if row.school_subscriptions.StaffSubscription:
+                    # Staff
+                    if data['staff_subscriptions'].get(name, False):
+                        data['staff_subscriptions'][name]['count'] += 1
+                        data['staff_subscriptions'][name]['total'] = \
+                            data['staff_subscriptions'][name]['count'] * amount
+                    else:
+                        data['staff_subscriptions'][name] = {
+                            'count': 1,
+                            'total': amount,
+                            'amount': amount
+                        }
+
+                    data['total']['count_unpaid'] += 1
+                else:
+                    # Customers
+                    if data['subscriptions'].get(name, False):
+                        data['subscriptions'][name]['count'] += 1
+                        data['subscriptions'][name]['total'] = \
+                            data['subscriptions'][name]['count'] * amount
+                    else:
+                        data['subscriptions'][name] = {
+                            'count': 1,
+                            'total': amount,
+                            'amount': amount
+                        }
+
+                    data['total']['count_paid'] += 1
 
             elif row.classes_attendance.AttendanceType == 1:
                 # Trial
@@ -236,6 +257,8 @@ class Reports:
                     data['trial']['no_membership']['count'] += 1
                     data['total']['amount'] += data['trial']['no_membership']['amount']
 
+                data['total']['count_paid'] += 1
+
             elif row.classes_attendance.AttendanceType == 2:
                 # Dropin
                 if row.classes_attendance.CustomerMembership:
@@ -244,6 +267,8 @@ class Reports:
                 else:
                     data['dropin']['no_membership']['count'] += 1
                     data['total']['amount'] += data['dropin']['no_membership']['amount']
+
+                data['total']['count_paid'] += 1
 
             elif row.classes_attendance.AttendanceType == 3:
                 # Class card
@@ -264,12 +289,14 @@ class Reports:
                     }
 
                 data['total']['amount'] += amount
+                data['total']['count_paid'] += 1
 
             elif row.classes_attendance.AttendanceType == 4:
                 # Complementary
                 data['complementary']['count'] += 1
+                data['total']['count_unpaid'] += 1
 
-            data['total']['count'] += 1
+            data['total']['count_total'] += 1
 
 
         return data
@@ -298,15 +325,19 @@ class Reports:
 
         header = THEAD(TR(
             TH(T('Type')),
+            TH(T('Customers')),
+            TH(T('Guests & staff')),
+            TH(T('Attendance')),
             TH(T('Amount')),
-            TH(T('Attendance count')),
             TH(T('Total')),
         ))
 
         trial_without_membership = TR(
             TD(T('Trial without membership')),
-            TD(represent_float_as_amount(revenue['trial']['no_membership']['amount'])),
             TD(revenue['trial']['no_membership']['count']),
+            TD(0),
+            TD(revenue['trial']['no_membership']['count']),
+            TD(represent_float_as_amount(revenue['trial']['no_membership']['amount'])),
             TD(represent_float_as_amount(
                 revenue['trial']['no_membership']['amount'] * revenue['trial']['no_membership']['count']
             )),
@@ -314,8 +345,10 @@ class Reports:
 
         trial_with_membership =  TR(
             TD(T('Trial with membership')),
-            TD(represent_float_as_amount(revenue['trial']['membership']['amount'])),
             TD(revenue['trial']['membership']['count']),
+            TD(0),
+            TD(revenue['trial']['membership']['count']),
+            TD(represent_float_as_amount(revenue['trial']['membership']['amount'])),
             TD(represent_float_as_amount(
                 revenue['trial']['membership']['amount'] * revenue['trial']['membership']['count']
             )),
@@ -323,8 +356,10 @@ class Reports:
 
         dropin_without_membership = TR(
             TD(T('Drop-in without membership')),
-            TD(represent_float_as_amount(revenue['dropin']['no_membership']['amount'])),
             TD(revenue['dropin']['no_membership']['count']),
+            TD(0),
+            TD(revenue['dropin']['no_membership']['count']),
+            TD(represent_float_as_amount(revenue['dropin']['no_membership']['amount'])),
             TD(represent_float_as_amount(
                 revenue['dropin']['no_membership']['amount'] * revenue['dropin']['no_membership']['count']
             )),
@@ -332,8 +367,10 @@ class Reports:
 
         dropin_with_membership =  TR(
             TD(T('Drop-in with membership')),
-            TD(represent_float_as_amount(revenue['dropin']['membership']['amount'])),
             TD(revenue['dropin']['membership']['count']),
+            TD(0),
+            TD(revenue['dropin']['membership']['count']),
+            TD(represent_float_as_amount(revenue['dropin']['membership']['amount'])),
             TD(represent_float_as_amount(
                 revenue['dropin']['membership']['amount'] * revenue['dropin']['membership']['count']
             )),
@@ -355,8 +392,24 @@ class Reports:
 
             table_revenue.append(TR(
                 TD(max_string_length(s, 42)),
-                TD(represent_float_as_amount(amount)),
                 TD(count),
+                TD(0),
+                TD(count),
+                TD(represent_float_as_amount(amount)),
+                TD(represent_float_as_amount(amount * count))
+            ))
+
+        # staff subscriptions
+        for s in sorted(revenue['staff_subscriptions']):
+            amount = revenue['staff_subscriptions'][s]['amount']
+            count = revenue['staff_subscriptions'][s]['count']
+
+            table_revenue.append(TR(
+                TD(max_string_length(s, 42)),
+                TD(0),
+                TD(count),
+                TD(count),
+                TD(represent_float_as_amount(amount)),
                 TD(represent_float_as_amount(amount * count))
             ))
 
@@ -367,15 +420,19 @@ class Reports:
 
             table_revenue.append(TR(
                 TD(max_string_length(c, 42)),
-                TD(represent_float_as_amount(amount)),
                 TD(count),
+                TD(0),
+                TD(count),
+                TD(represent_float_as_amount(amount)),
                 TD(represent_float_as_amount(amount * count))
             ))
 
         # Complementary
         table_revenue.append(TR(
             TD(T('Complementary')),
-            TD(),
+            TD(0),
+            TD(revenue['complementary']['count']),
+            TD(revenue['complementary']['count']),
             TD(revenue['complementary']['count']),
             TD(),
         ))
@@ -383,8 +440,10 @@ class Reports:
         # Total
         footer = TFOOT(TR(
             TH(T('Total')),
+            TH(revenue['total']['count_paid']),
+            TH(revenue['total']['count_unpaid']),
+            TH(revenue['total']['count_total']),
             TH(),
-            TH(revenue['total']['count']),
             TH(represent_float_as_amount(revenue['total']['amount'])),
         ))
 
@@ -470,7 +529,7 @@ class Reports:
         template = get_sys_property('branding_default_template_class_revenue') or 'class_revenue/default.html'
         template_file = 'templates/' + template
 
-        tables = self.get_class_revenue_summary_formatted(clsID, date)
+        # tables = self.get_class_revenue_summary_formatted(clsID, date)
         cls = Class(clsID, date)
 
         teacher_payment = cls.get_teacher_payment()

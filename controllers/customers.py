@@ -1147,8 +1147,8 @@ def edit_picture():
         crud.settings.update_onvalidation.customers.append(_edit_clear_old_thumbs)
         crud.settings.update_onaccept.customers.extend(
             [ _edit_check_picture,
-              cache_clear_school_teachers,
-              edit_onaccept ]
+              cache_clear_school_teachers
+            ]
         )
 
         crud.messages.submit_button = T('Save')
@@ -5887,7 +5887,7 @@ def account():
 
     crud.messages.submit_button = T("Save")
     crud.messages.record_updated = T("Saved")
-    crud.settings.update_onaccept.auth_user.append(edit_onaccept)
+    # crud.settings.update_onaccept.auth_user.append(edit_onaccept)
     crud.settings.update_deletable = False
     form = crud.update(db.auth_user, cuID)
 
@@ -6163,7 +6163,7 @@ def account_set_password():
     # Enforce strong passwords!
     db.auth_user.password.requires.insert(0, IS_STRONG())
 
-    crud.settings.update_onaccept.auth_user.append(edit_onaccept)
+    # crud.settings.update_onaccept.auth_user.append(edit_onaccept)
     form = crud.update(db.auth_user, cuID)
 
     form_id = "MainForm"
