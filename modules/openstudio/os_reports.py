@@ -197,7 +197,9 @@ class Reports:
                 'amount': 0
             },
             'total': {
-                'count': 0,
+                'count_unpaid': 0,
+                'count_paid': 0,
+                'count_total': 0,
                 'amount': 0
             }
         }
@@ -227,6 +229,11 @@ class Reports:
 
                 data['total']['amount'] += amount
 
+                if row.school_subscriptions.StaffSubscription:
+                    data['total']['count_unpaid'] += 1
+                else:
+                    data['total']['count_paid'] += 1
+
             elif row.classes_attendance.AttendanceType == 1:
                 # Trial
                 if row.classes_attendance.CustomerMembership:
@@ -236,6 +243,8 @@ class Reports:
                     data['trial']['no_membership']['count'] += 1
                     data['total']['amount'] += data['trial']['no_membership']['amount']
 
+                data['total']['count_paid'] += 1
+
             elif row.classes_attendance.AttendanceType == 2:
                 # Dropin
                 if row.classes_attendance.CustomerMembership:
@@ -244,6 +253,8 @@ class Reports:
                 else:
                     data['dropin']['no_membership']['count'] += 1
                     data['total']['amount'] += data['dropin']['no_membership']['amount']
+
+                data['total']['count_paid'] += 1
 
             elif row.classes_attendance.AttendanceType == 3:
                 # Class card
@@ -264,12 +275,14 @@ class Reports:
                     }
 
                 data['total']['amount'] += amount
+                data['total']['count_paid'] += 1
 
             elif row.classes_attendance.AttendanceType == 4:
                 # Complementary
                 data['complementary']['count'] += 1
+                data['total']['count_unpaid'] += 1
 
-            data['total']['count'] += 1
+            data['total']['count_total'] += 1
 
 
         return data
