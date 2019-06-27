@@ -910,13 +910,15 @@ def get_customers_classcards():
         except KeyError:
             classcards[row.customers_classcards.auth_customer_id] = []
 
+        classes_taken = row.customers_classcards.ClassesTaken or 0
+
         classcards[row.customers_classcards.auth_customer_id].append({
             'id': row.customers_classcards.id,
             'auth_customer_id': row.customers_classcards.auth_customer_id,
             'name': row.school_classcards.Name,
             'start': repr_row.customers_classcards.Startdate,
             'end': repr_row.customers_classcards.Enddate,
-            'classes_remaining': row.school_classcards.Classes - row.customers_classcards.ClassesTaken,
+            'classes_remaining': row.school_classcards.Classes - classes_taken,
             'classes': row.school_classcards.Classes,
             'classes_display': repr_row.school_classcards.Classes,
             'unlimited': row.school_classcards.Unlimited
