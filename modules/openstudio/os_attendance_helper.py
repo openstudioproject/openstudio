@@ -1044,6 +1044,7 @@ class AttendanceHelper:
                                            trial=False,
                                            request_review=False,
                                            complementary=False,
+                                           reconcile_later=False,
                                            list_type='shop'):
         """
         :param clsID: db.classes.id
@@ -1203,6 +1204,14 @@ class AttendanceHelper:
                 "Name": T('Complementary'),
             }
 
+        # Reconcile later
+        if reconcile_later:
+            options['reconsile_later'] = {
+                'clsID': clsID,
+                "Type": "reconcile_later",
+                "Name": T('Reconcile later'),
+            }
+
 
         return options
 
@@ -1214,6 +1223,7 @@ class AttendanceHelper:
                                                      trial=False,
                                                      request_review=False,
                                                      complementary=False,
+                                                     reconcile_later=False,
                                                      list_type='shop',
                                                      controller=''):
         """
