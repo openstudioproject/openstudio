@@ -1206,7 +1206,7 @@ class AttendanceHelper:
 
         # Reconcile later
         if reconcile_later:
-            options['reconsile_later'] = {
+            options['reconcile_later'] = {
                 'clsID': clsID,
                 "Type": "reconcile_later",
                 "Name": T('Reconcile later'),
@@ -1550,6 +1550,28 @@ class AttendanceHelper:
             option = DIV(DIV(complementary['Name'],
                              _class='col-md-3 bold'),
                          DIV(T('Give this class for free'),
+                             _class='col-md-6'),
+                         DIV(button_book,
+                             _class='col-md-3'),
+                         _class='col-md-10 col-md-offset-1 col-xs-12')
+
+            formatted_options.append(option)
+
+        # Reconcile later
+        if reconcile_later and options['reconcile_later']:
+            reconcile_later = options['reconcile_later']
+
+            formatted_options.append(DIV(HR(), _class='col-md-10 col-md-offset-1'))
+
+            url = URL(controller, 'class_book', vars={'clsID': clsID,
+                                                      'reconcile_later': 'true',
+                                                      'cuID': customer.row.id,
+                                                      'date': date_formatted})
+            button_book = classes_book_options_get_button_book(url)
+
+            option = DIV(DIV(reconcile_later['Name'],
+                             _class='col-md-3 bold'),
+                         DIV(T("Pay for this drop-in class later"),
                              _class='col-md-6'),
                          DIV(button_book,
                              _class='col-md-3'),
