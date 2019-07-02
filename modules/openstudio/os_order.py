@@ -528,12 +528,20 @@ class Order:
 
             # Check for subscription
             if row.school_subscriptions_id:
-                # Deliver subscription
+                ## Deliver subscription
+                # Determine payment method
+                cs_payment_method = get_sys_property('shop_subscriptions_payment_method')
+                if cs_payment_method == 'mollie':
+                    payment_method_id = 100
+                else:
+                    payment_method_id = 3
+
                 subscription_start = TODAY_LOCAL
                 ssu = SchoolSubscription(row.school_subscriptions_id)
                 csID = ssu.sell_to_customer(
                     self.order.auth_customer_id,
                     subscription_start,
+                    payment_methods_id=payment_method_id
                 )
 
                 # Add credits for the first month
