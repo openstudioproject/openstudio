@@ -1044,7 +1044,6 @@ class AttendanceHelper:
                                            trial=False,
                                            request_review=False,
                                            complementary=False,
-                                           reconcile_later=False,
                                            list_type='shop'):
         """
         :param clsID: db.classes.id
@@ -1205,7 +1204,8 @@ class AttendanceHelper:
             }
 
         # Reconcile later
-        if reconcile_later:
+        system_enable_class_checkin_reconcile_later = get_sys_property('system_enable_class_checkin_reconcile_later')
+        if system_enable_class_checkin_reconcile_later:
             options['reconcile_later'] = {
                 'clsID': clsID,
                 "Type": "reconcile_later",
@@ -1223,7 +1223,6 @@ class AttendanceHelper:
                                                      trial=False,
                                                      request_review=False,
                                                      complementary=False,
-                                                     reconcile_later=False,
                                                      list_type='shop',
                                                      controller=''):
         """
@@ -1558,7 +1557,7 @@ class AttendanceHelper:
             formatted_options.append(option)
 
         # Reconcile later
-        if reconcile_later and options['reconcile_later'] and not list_type =='shop':
+        if system_enable_class_checkin_reconcile_later and options['reconcile_later'] and not list_type =='shop':
             reconcile_later = options['reconcile_later']
 
             formatted_options.append(DIV(HR(), _class='col-md-10 col-md-offset-1'))
