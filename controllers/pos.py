@@ -307,6 +307,8 @@ def customer_class_booking_create():
     type = request.vars['Type']
     date = TODAY_LOCAL
 
+    print request.vars
+
     ah = AttendanceHelper()
     error = True
     message = T("Please make sure that the variables cuID, clsID and Type are included")
@@ -333,15 +335,23 @@ def customer_class_booking_create():
                 booking_status='attending'
             )
 
-    elif type == "complementary":
-        error = False
-        result = ah.attendance_sign_in_complementary(
-            cuID,
-            clsID,
-            date,
-            booking_status='attending'
-        )
+        elif type == "complementary":
+            print "checking in"
+            error = False
+            result = ah.attendance_sign_in_complementary(
+                cuID,
+                clsID,
+                date,
+                booking_status='attending'
+            )
 
+            print result
+
+
+
+        if result['status'] == 'fail':
+            error = True
+            message = result['message']
         # elif type == 'dropin':
         #     result = ah.attendance_sign_in_dropin(
         #         cuID,
@@ -359,10 +369,6 @@ def customer_class_booking_create():
         #         invoice=True,
         #         booking_status='attending'
         #     )
-
-        if result['status'] == 'fail':
-            error = True
-            message = result['message']
 
         # elif type == 'trial':
 
@@ -580,11 +586,11 @@ def get_customer_notes():
                 ~db.customers_notes.NoteTime
     )
 
-    print rows
+    # print rows
 
     notes = []
     for i, row in enumerate(rows):
-        print row
+        # print row
         repr_row = list(rows[i:i + 1].render())[0]
 
         date = row.NoteDate
@@ -597,7 +603,7 @@ def get_customer_notes():
             time.minute
         )
 
-        print note_dt
+        # print note_dt
 
         notes.append({
             "id": row.id,
@@ -607,7 +613,7 @@ def get_customer_notes():
             "Processed": row.Processed
         })
 
-    print notes
+    # print notes
 
     return dict(data=notes)
 
@@ -1741,7 +1747,7 @@ def update_expense():
 
     query = (db.accounting_expenses.id == aeID)
     result = db(query).validate_and_update(**request.vars)
-    print result
+    # print result
 
     expense_data = ''
     error = False

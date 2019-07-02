@@ -240,6 +240,8 @@ class Book extends Component {
                     this.props.checkinCustomer(customerID, classID, option, this.props.history)
                 }
                 break
+            case "complementary":
+                this.props.checkinCustomer(customerID, classID, option, this.props.history)
             default: 
                 console.log("Login type not found:")
                 console.log(option)
