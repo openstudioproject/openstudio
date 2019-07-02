@@ -69,7 +69,7 @@ const BookOptionsList = ({booking_options, customer_memberships, onClick=f=>f}) 
             <BookOptionsListItemTrial data={booking_options.trial}
                                         onClick={onClick} />
         </div>
-        <h4>Guest check-in</h4>
+        <h4>Other</h4>
         <div className="row">
             <BookOptionsListItemComplementary data={booking_options.complementary}
                                               onClick={onClick} />

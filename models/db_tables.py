@@ -2600,6 +2600,7 @@ def define_classes_attendance():
         (3,T("Class card")),
         (4,T("Complementary")),
         (5,T("To be reviewed")),
+        (6,T("Reconcile later")),
     ]
     # None = subscription
     session.att_types_dict = {
@@ -2608,7 +2609,8 @@ def define_classes_attendance():
         2: T("Drop In"),
         3: T("Class card"),
         4: T("Complementary"),
-        5: T("To be reviewed")
+        5: T("To be reviewed"),
+        6: T("Reconcile later")
     }
     db.define_table('classes_attendance',
         Field('auth_customer_id', db.auth_user, required=True,
