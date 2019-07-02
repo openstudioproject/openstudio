@@ -307,8 +307,6 @@ def customer_class_booking_create():
     type = request.vars['Type']
     date = TODAY_LOCAL
 
-    print request.vars
-
     ah = AttendanceHelper()
     error = True
     message = T("Please make sure that the variables cuID, clsID and Type are included")
