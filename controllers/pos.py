@@ -307,13 +307,12 @@ def customer_class_booking_create():
     type = request.vars['Type']
     date = TODAY_LOCAL
 
+    ah = AttendanceHelper()
     error = True
     message = T("Please make sure that the variables cuID, clsID and Type are included")
     if cuID and clsID and type:
         error = False
         message = ""
-
-        ah = AttendanceHelper()
 
         if type == 'subscription':
             result = ah.attendance_sign_in_subscription(
@@ -333,6 +332,15 @@ def customer_class_booking_create():
                 date,
                 booking_status='attending'
             )
+
+    elif type == "complementary":
+        error = False
+        result = ah.attendance_sign_in_complementary(
+            cuID,
+            clsID,
+            date,
+            booking_status='attending'
+        )
 
         # elif type == 'dropin':
         #     result = ah.attendance_sign_in_dropin(
