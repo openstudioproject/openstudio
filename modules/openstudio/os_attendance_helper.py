@@ -1536,7 +1536,7 @@ class AttendanceHelper:
 
 
         # Complementary
-        if complementary and options['complementary']:
+        if complementary and options['complementary'] and not list_type =='shop':
             complementary = options['complementary']
 
             formatted_options.append(DIV(HR(), _class='col-md-10 col-md-offset-1'))
@@ -1558,7 +1558,7 @@ class AttendanceHelper:
             formatted_options.append(option)
 
         # Reconcile later
-        if reconcile_later and options['reconcile_later']:
+        if reconcile_later and options['reconcile_later'] and not list_type =='shop':
             reconcile_later = options['reconcile_later']
 
             formatted_options.append(DIV(HR(), _class='col-md-10 col-md-offset-1'))
