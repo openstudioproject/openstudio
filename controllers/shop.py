@@ -1801,6 +1801,7 @@ def classcard():
     response.subtitle = T('Classcard')
     response.view = 'shop/index.html'
 
+    customer = Customer(auth.user.id)
     features = db.customers_shop_features(1)
     if not features.Classcards:
         return T('This feature is disabled')
@@ -1827,68 +1828,81 @@ def classcard():
     # automatic payment
     scd = SchoolClasscard(scdID, set_db_info=True)
 
-    classcard_info = classcard_get_info(scd)
+
+    # Check if customer
+    allow_trial_for_existing_customers = get_sys_property(
+        'shop_allow_trial_cards_for_existing_customers'
+    )
+
+    if allow_trial_for_existing_customers != 'on':
+        has_or_had_subscription = customer.get_has_or_had_subscription()
+        has_or_had_card = customer.get_has_or_had_classcard()
+
+        if has_or_had_card or has_or_had_subscription:
+            content = T("Unable to sell this card. Trial cards can only be purchased by new customers.")
 
 
-    form = checkout_get_form_order("Order class card")
-    if form.process().accepted:
-        # response.flash = T('Accepted order')
-        redirect(URL('shop', 'classcard_order',
-                     vars={'coID': form.vars.id,
-                           'scdID': scdID}))
+    else:
+        ## We can continue:
+        # Membership check
+        classcard_info = classcard_get_info(scd)
 
-    checkout_message_classcards = get_sys_property('shop_checkout_message_classcards') or ''
-    checkout_message = ''
-    if checkout_message_classcards:
-        checkout_message = DIV(
-            H4(T("Order info")),
-            XML(checkout_message_classcards), BR(),
-            _class='col-md-6'
-        )
+        form = checkout_get_form_order("Order class card")
+        if form.process().accepted:
+            # response.flash = T('Accepted order')
+            redirect(URL('shop', 'classcard_order',
+                         vars={'coID': form.vars.id,
+                               'scdID': scdID}))
 
-    ## Membership check
-    customer = Customer(auth.user.id)
-
-    m_required = ''
-    m_required_message = ''
-
-    if scd.row.school_memberships_id and not customer.has_given_membership_on_date(scd.row.school_memberships_id, TODAY_LOCAL):
-        membership = SchoolMembership(scd.row.school_memberships_id)
-        m_required = DIV(
-            DIV(H4(T("Membership required")),
-                T("To take this classcard the following membership is required. It will be added to your order."), BR(), BR(),
-                subscription_get_membership_info(membership),
-                _class='col-md-6'),
-            DIV(H4(T("Membership terms & conditions")),
-                subscription_get_membership_terms(membership),
-                _class='col-md-6'),
-            _class='col-md-12'
-        )
-        m_required_message = DIV(
-            BR(),
-            B((os_gui.get_fa_icon('fa-exclamation-circle')), " ",
-              T("By ordering this card you agree to the terms and conditions for the required membership")), BR(),
-            BR(),
-            _class="col-md-12"
-        )
-
-    content = DIV(
-        DIV(
-            DIV(H4(T("Selected card")), BR(),
-                classcard_info,
-                BR(),
+        checkout_message_classcards = get_sys_property('shop_checkout_message_classcards') or ''
+        checkout_message = ''
+        if checkout_message_classcards:
+            checkout_message = DIV(
+                H4(T("Order info")),
+                XML(checkout_message_classcards), BR(),
                 _class='col-md-6'
+            )
+
+        m_required = ''
+        m_required_message = ''
+
+        if scd.row.school_memberships_id and not customer.has_given_membership_on_date(scd.row.school_memberships_id, TODAY_LOCAL):
+            membership = SchoolMembership(scd.row.school_memberships_id)
+            m_required = DIV(
+                DIV(H4(T("Membership required")),
+                    T("To take this classcard the following membership is required. It will be added to your order."), BR(), BR(),
+                    subscription_get_membership_info(membership),
+                    _class='col-md-6'),
+                DIV(H4(T("Membership terms & conditions")),
+                    subscription_get_membership_terms(membership),
+                    _class='col-md-6'),
+                _class='col-md-12'
+            )
+            m_required_message = DIV(
+                BR(),
+                B((os_gui.get_fa_icon('fa-exclamation-circle')), " ",
+                  T("By ordering this card you agree to the terms and conditions for the required membership")), BR(),
+                BR(),
+                _class="col-md-12"
+            )
+
+        content = DIV(
+            DIV(
+                DIV(H4(T("Selected card")), BR(),
+                    classcard_info,
+                    BR(),
+                    _class='col-md-6'
+                ),
+                checkout_message,
+                _class="col-md-12"
             ),
-            checkout_message,
-            _class="col-md-12"
-        ),
-        m_required,
-        DIV(
-            m_required_message,
-            DIV(form, _class='col-md-12'),
-            _class='col-md-12'
-        ),
-    _class="row")
+            m_required,
+            DIV(
+                m_required_message,
+                DIV(form, _class='col-md-12'),
+                _class='col-md-12'
+            ),
+        _class="row")
 
     back = os_gui.get_button(
         'back',
