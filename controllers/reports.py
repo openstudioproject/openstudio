@@ -3049,6 +3049,74 @@ def attendance_review_requested():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'classes_attendance'))
+def attendance_reconcile_later():
+    """
+        List Problem Check-ins that occured
+    """
+    response.title = T("Reports")
+    response.subtitle = T("Classes attendance")
+    response.view = 'general/tabs_menu.html'
+
+    # Redirect back here after reviewing a check-in
+    session.classes_attendance_signin_back = 'reports_attendance_reconcile_later'
+
+    header = THEAD(TR(TH(''),
+                     TH("Customer"),
+                     TH(db.classes.school_classtypes_id.label),
+                     TH(db.classes_attendance.ClassDate.label),
+                     TH(db.classes.Starttime.label),
+                     TH(db.classes.school_locations_id.label),
+                     TH())  # buttons
+                  )
+
+    table = TABLE(header, _class='table table-hover table-striped')
+
+    left = [
+        db.classes.on(db.classes_attendance.classes_id == db.classes.id),
+        db.auth_user.on(db.classes_attendance.auth_customer_id == db.auth_user.id)
+    ]
+
+    query = (db.classes_attendance.AttendanceType == 6)
+    rows = db(query).select(
+        db.classes_attendance.ALL,
+        db.classes.ALL,
+        db.auth_user.ALL,
+        left=left
+    )
+    # print rows
+    for i, row in enumerate(rows):
+        repr_row = list(rows[i:i + 1].render())[0]
+
+        resolve = os_gui.get_button(
+            'noicon',
+             URL('classes', 'attendance_booking_options',
+                 vars = {'clsID': row.classes.id,
+                         'cuID': row.classes_attendance.auth_customer_id,
+                         'date': row.classes_attendance.ClassDate.strftime(DATE_FORMAT)}),
+             title= T("Reconcile"),
+             _class= 'pull-right'
+        )
+
+        tr = TR(TD(repr_row.auth_user.thumbsmall),
+                TD(repr_row.classes_attendance.auth_customer_id),
+                TD(repr_row.classes.school_classtypes_id),
+                TD(repr_row.classes_attendance.ClassDate),
+                TD(repr_row.classes.Starttime),
+                TD(repr_row.classes.school_locations_id),
+                TD(resolve))
+
+        table.append(tr)
+
+    menu = attendance_get_menu(request.function)
+
+    return dict(
+        content=table,
+        menu=menu
+    )
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'reports_attendance'))
 def attendance_classtypes():
     """
