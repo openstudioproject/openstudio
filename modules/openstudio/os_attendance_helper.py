@@ -464,10 +464,17 @@ class AttendanceHelper:
             except AttributeError:
                 pass
 
+            if row.classes_attendance.AttendanceType == 4:
+                td_labels.append(' ')
+                td_labels.append(os_gui.get_label('default', T('Complementary')))
 
             if row.classes_attendance.AttendanceType == 5:
                 td_labels.append(' ')
                 td_labels.append(os_gui.get_label('warning', T("Review")))
+
+            if row.classes_attendance.AttendanceType == 6:
+                td_labels.append(' ')
+                td_labels.append(os_gui.get_label('warning', T('Reconcile later')))
 
             if show_booking_time:
                 td_labels.append(BR())
@@ -2322,7 +2329,7 @@ class AttendanceHelper:
                 status = 'fail'
                 message = T("Already checked in for this class")
         else:
-            # not signed in    
+            # not signed in
             if status == "ok":
                 caID = db.classes_attendance.insert(**class_data)
 
