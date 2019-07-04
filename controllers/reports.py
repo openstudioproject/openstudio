@@ -3088,6 +3088,9 @@ def attendance_reconcile_later():
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
+
+        #TODO: Add correct button
+
         resolve = os_gui.get_button(
             'noicon',
              URL('classes', 'attendance_booking_options',
