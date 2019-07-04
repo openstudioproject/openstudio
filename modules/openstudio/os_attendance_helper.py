@@ -1557,6 +1557,7 @@ class AttendanceHelper:
             formatted_options.append(option)
 
         # Reconcile later
+        system_enable_class_checkin_reconcile_later = get_sys_property('system_enable_class_checkin_reconcile_later')
         if system_enable_class_checkin_reconcile_later and options['reconcile_later'] and not list_type =='shop':
             reconcile_later = options['reconcile_later']
 
@@ -1570,7 +1571,7 @@ class AttendanceHelper:
 
             option = DIV(DIV(reconcile_later['Name'],
                              _class='col-md-3 bold'),
-                         DIV(T("Pay for this drop-in class later"),
+                         DIV(T("Pay at a later time for this drop-in class"),
                              _class='col-md-6'),
                          DIV(button_book,
                              _class='col-md-3'),
@@ -2273,6 +2274,55 @@ class AttendanceHelper:
                     status = 'fail'
                     message = T("Maximum number of complementary check-ins reached for this class")
 
+            if status == "ok":
+                caID = db.classes_attendance.insert(**class_data)
+
+
+        return dict(status=status, message=message, caID=caID)
+
+
+    def attendance_sign_in_reconcile_later(self,
+                                           cuID,
+                                           clsID,
+                                           date,
+                                           booking_status='booked'):
+        """
+            :param cuID: db.auth_user.id
+            :param clsID: db.classes.id
+            :param date: datetime.date
+            :return:
+        """
+        from tools import OsTools
+
+        os_tools = OsTools()
+        db = current.db
+        T = current.T
+
+        status = 'ok'
+        message = ''
+        caID = ''
+
+        class_data = dict(
+            auth_customer_id=cuID,
+            CustomerMembership=self._attendance_sign_in_has_membership(cuID, date),
+            classes_id=clsID,
+            ClassDate=date,
+            AttendanceType=6,  # 4 = Reconcile later
+            online_booking=False,
+            BookingStatus=booking_status
+        )
+
+        signed_in = self._attendance_sign_in_check_signed_in(clsID, cuID, date)
+
+        if signed_in:
+            if signed_in.AttendanceType == 5:
+                # Under review, so update
+                db(db.classes_attendance._id == signed_in.id).update(**class_data)
+            else:
+                status = 'fail'
+                message = T("Already checked in for this class")
+        else:
+            # not signed in    
             if status == "ok":
                 caID = db.classes_attendance.insert(**class_data)
 

@@ -3277,6 +3277,9 @@ def class_book():
     if request.vars['complementary'] == 'true':
         result = ah.attendance_sign_in_complementary(cuID, clsID, date, booking_status='attending')
 
+    if request.vars['reconcile_later'] == 'true':
+        result = ah.attendance_sign_in_reconcile_later(cuID, clsID, date, booking_status='attending')
+
     if result['status'] == 'fail':
         session.flash = result['message']
 
