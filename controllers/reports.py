@@ -70,6 +70,9 @@ def attendance_get_menu(page=None):
         (['attendance_review_requested',
           T('Review requested'),
           URL('reports','attendance_review_requested')]),
+        (['attendance_reconcile_later',
+          T('Reconcile later'),
+          URL('reports','attendance_reconcile_later')]),
     ]
 
 
