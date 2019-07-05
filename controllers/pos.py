@@ -726,6 +726,27 @@ def get_customers_thumbnail_url(row_data):
                auth.has_permission('read', 'auth_user'))
 def get_customers():
     """
+    Get non trashed customers from cache
+    """
+    # forget session
+    session.forget(response)
+
+    # Don't cache when running tests
+    if web2pytest.is_running_under_test(request, request.application):
+        data = _get_customers()
+    else:
+        cache_key = 'openstudio_pos_get_customers'
+        data = cache.ram(cache_key,
+                         lambda: _get_customers(),
+                         time_expire=600)
+
+    return data
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'auth_user'))
+def _get_customers():
+    """
     List not trashed customers
     """
     set_headers()
@@ -1062,7 +1083,11 @@ def create_customer():
     """
     :return: dict containing data of new auth_user
     """
+    from openstudio.os_cache_manager import OsCacheManager
+
     set_headers()
+
+    ocm = OsCacheManager()
 
 
     db.auth_user.password.requires = None
@@ -1070,6 +1095,7 @@ def create_customer():
 
     result = db.auth_user.validate_and_insert(**request.vars)
     print result
+    ocm.clear_customers()
 
     customer_data = ''
     error = False
@@ -1116,7 +1142,11 @@ def update_customer():
     """
     :return: dict containing data of new auth_user
     """
+    from openstudio.os_cache_manager import OsCacheManager
+
     set_headers()
+
+    ocm = OsCacheManager()
 
     db.auth_user.password.requires = None
     print request.vars
@@ -1148,6 +1178,7 @@ def update_customer():
     if cuID:
         query = (db.auth_user.id == cuID)
         result = db(query).validate_and_update(**request.vars)
+        ocm.clear_customers()
         print result
         error = False
         if result.errors:

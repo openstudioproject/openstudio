@@ -13,6 +13,19 @@ class OsCacheManager:
         cache.ram.clear()
         cache.disk.clear()
 
+
+    def clear_customers(self):
+        """
+
+        :return:
+        """
+        cache = current.cache
+
+        # Pos
+        key = "openstudio_pos_get_customers"
+        cache.ram.clear(regex=key)
+
+
     def clear_auth_user_login_attempts(self, email):
         """
         :param email: email address

@@ -58,71 +58,71 @@ class Attendance extends Component {
     //     console.log(isInt(value))
     // }
 
-    setSearchValue(value) {
-        console.log('done something :)!')
-        console.log(this.props)
-        this.props.clearSearchCustomerID()
+    // setSearchValue(value) {
+    //     console.log('done something :)!')
+    //     console.log(this.props)
+    //     this.props.clearSearchCustomerID()
 
-        const barcode_scans = this.props.barcode_scans
-        const memberships = this.props.memberships.data
+    //     const barcode_scans = this.props.barcode_scans
+    //     const memberships = this.props.memberships.data
 
-        console.log(barcode_scans)
-        let cuID
+    //     console.log(barcode_scans)
+    //     let cuID
 
-        if (validator.isInt(value)) {
-            console.log('This is an int!')
-            if (barcode_scans == 'membership_id') {
-                // find customer ID
-                console.log('looking for cuID in memberships')
-                for (const key of Object.keys(memberships)) {
-                    let m = memberships[key]
-                    console.log(m)
-                    if ( m['date_id'] == value) {
-                        cuID = m['auth_customer_id']
-                    }
+    //     if (validator.isInt(value)) {
+    //         console.log('This is an int!')
+    //         if (barcode_scans == 'membership_id') {
+    //             // find customer ID
+    //             console.log('looking for cuID in memberships')
+    //             for (const key of Object.keys(memberships)) {
+    //                 let m = memberships[key]
+    //                 console.log(m)
+    //                 if ( m['date_id'] == value) {
+    //                     cuID = m['auth_customer_id']
+    //                 }
 
-                }
-            } else {
-                cuID = value
-            }
+    //             }
+    //         } else {
+    //             cuID = value
+    //         }
 
-            // this.props.setDisplayCustomerID(cuID)
-            this.props.setSearchCustomerID(cuID)
+    //         // this.props.setDisplayCustomerID(cuID)
+    //         this.props.setSearchCustomerID(cuID)
 
-            console.log('customerID')
-            console.log(cuID)
+    //         console.log('customerID')
+    //         console.log(cuID)
 
-        } else {
-            console.log('not an int value')
+    //     } else {
+    //         console.log('not an int value')
 
-        }
+    //     }
 
-        console.log(value)
-    }
+    //     console.log(value)
+    // }
 
-    onChangeSearch(e) {
-        const value = e.target.value
-        const attendance = this.props.attendance
+    // onChangeSearch(e) {
+    //     const value = e.target.value
+    //     const attendance = this.props.attendance
 
-        this.props.setSearchValue(value)
+    //     this.props.setSearchValue(value)
 
-        console.log("timeout: " + attendance.searchTimeout)
-        if ( attendance.searchTimeout ) {
-            this.props.clearSearchTimeout()
-            console.log('reset timeout')
-        }
+    //     console.log("timeout: " + attendance.searchTimeout)
+    //     if ( attendance.searchTimeout ) {
+    //         this.props.clearSearchTimeout()
+    //         console.log('reset timeout')
+    //     }
 
-        let timeout
-        this.props.setSearchTimeout(
-            setTimeout(() => this.setSearchValue(value), 
-                (validator.isInt(value)) ? timeout = 225 : timeout = 750)
-        )
-    }
+    //     let timeout
+    //     this.props.setSearchTimeout(
+    //         setTimeout(() => this.setSearchValue(value), 
+    //             (validator.isInt(value)) ? timeout = 225 : timeout = 750)
+    //     )
+    // }
 
-    onClearSearch(e) {
-        this.props.clearSearchValue()
-        this.props.clearSearchCustomerID()
-    }
+    // onClearSearch(e) {
+    //     this.props.clearSearchValue()
+    //     this.props.clearSearchCustomerID()
+    // }
 
     onClickVerifyTeacherPayment() {
         console.log('clicked verify teacher')
@@ -160,7 +160,7 @@ class Attendance extends Component {
         const attendance = this.props.attendance
         const customers = this.props.customers
         const intl = this.props.intl
-        const memberships = this.props.memberships
+        // const memberships = this.props.memberships
 
         let customers_display = []
         if (customers.loaded) {
