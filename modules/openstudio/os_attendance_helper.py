@@ -2343,6 +2343,8 @@ class AttendanceHelper:
         :param clattID: db.classes_attendance.id
         :return:
         """
+        db = current.db
+
         clatt_rl = db.classes_attendance(clattID)
 
         # Remove reconcile later check-in

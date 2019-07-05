@@ -3058,8 +3058,8 @@ def attendance_reconcile_later():
     response.subtitle = T("Classes attendance")
     response.view = 'general/tabs_menu.html'
 
-    # Redirect back here after reviewing a check-in
-    session.classes_attendance_signin_back = 'reports_attendance_reconcile_later'
+    # Redirect back to class after reconciling a check-in
+    session.classes_attendance_signin_back = 'attendance_list'
 
     header = THEAD(TR(TH(''),
                      TH("Customer"),
@@ -3093,12 +3093,11 @@ def attendance_reconcile_later():
 
         resolve = os_gui.get_button(
             'noicon',
-             URL('classes', 'attendance_booking_options',
-                 vars = {'clsID': row.classes.id,
-                         'cuID': row.classes_attendance.auth_customer_id,
-                         'date': row.classes_attendance.ClassDate.strftime(DATE_FORMAT)}),
+             URL('classes', 'attendance_reconcile_later_to_dropin',
+                 vars = {'clattID': row.classes_attendance.id }),
              title= T("Reconcile"),
-             _class= 'pull-right'
+             _class= 'pull-right',
+            _target="_blank"
         )
 
         tr = TR(TD(repr_row.auth_user.thumbsmall),
