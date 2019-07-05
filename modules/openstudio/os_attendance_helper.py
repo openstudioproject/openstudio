@@ -342,7 +342,18 @@ class AttendanceHelper:
                 # Check update permission
                 if (auth.has_membership(group_id='Admins') or
                     auth.has_permission('update', 'classes_attendance')):
-                    links = [['header', T('Booking status')]]
+
+                    links = []
+
+                    if row.classes_attendance.AttendanceType == 6:
+                        links.append(['header', T('Booking actions')])
+                        links.append(A(os_gui.get_fa_icon('fa-check-circle-o'),
+                                       T('Reconcile to drop-in'), ' ',
+                                       _href=URL('classes', 'attendance_reconcile_later_to_dropin',
+                                                 vars={'clattID': row.classes_attendance.id}),
+                                       _class="text-green"))
+
+                    links.append(['header', T('Booking status')])
                     links.append(A(os_gui.get_fa_icon('fa-check-circle-o'),
                                    T('Booked'), ' ',
                                    _href=URL('classes', 'attendance_set_status',
