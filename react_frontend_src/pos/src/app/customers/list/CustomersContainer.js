@@ -5,6 +5,7 @@ import { withRouter } from 'react-router'
 import Customers from './Customers'
 import { appOperations } from '../../duck'
 import { customersListOperations } from './duck'
+import { customersClasscardsOperations } from '../classcards/duck'
 
 
 const mapStateToProps = state => 
@@ -115,6 +116,9 @@ const mapDispatchToProps = dispatch =>
         clearNotesCheckinCheck() {
             dispatch(customersListOperations.clearNotesCheckinCheck())
         },
+        fetchCustomerClasscards(id) {
+            dispatch(customersClasscardsOperations.fetchClasscards(id))
+        }
     })
 
 

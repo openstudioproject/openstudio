@@ -904,18 +904,13 @@ def get_customer_classcards():
         left=left
     )
 
-    classcards = {}
+    classcards = []
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
-        try:
-            classcards[row.customers_classcards.auth_customer_id]
-        except KeyError:
-            classcards[row.customers_classcards.auth_customer_id] = []
-
         classes_taken = row.customers_classcards.ClassesTaken or 0
 
-        classcards[row.customers_classcards.auth_customer_id].append({
+        classcards.append({
             'id': row.customers_classcards.id,
             'auth_customer_id': row.customers_classcards.auth_customer_id,
             'name': row.school_classcards.Name,

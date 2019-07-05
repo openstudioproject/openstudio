@@ -303,8 +303,7 @@ class CustomerDisplay extends Component {
                                                             memberships={memberships}/>
                                 <CustomerDisplaySubscriptions customerID={customerID}
                                                               subscriptions={subscriptions}/>
-                                <CustomerDisplayClasscards customerID={customerID}
-                                                           classcards={classcards}/>
+                                <CustomerDisplayClasscards classcards={classcards}/>
                             </div>
                             <div className="col-md-6">
                                 {((customers.create_note) || (customers.update_note)) ?

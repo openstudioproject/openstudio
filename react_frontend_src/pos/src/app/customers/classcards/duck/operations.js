@@ -11,11 +11,14 @@ import OS_API from '../../../../utils/os_api'
 // const setClassesClassAttendanceSearchCustomerID = set_customer_id
 
 // data fetchers
-const fetchClasscards = () => {
+const fetchClasscards = (id) => {
       return dispatch => {
           dispatch(requestClasscards())
 
-          axios_os.post(OS_API.CUSTOMER_CLASSCARDS)
+          let fd = new FormData()
+          fd.append('id', id)
+
+          axios_os.post(OS_API.CUSTOMER_CLASSCARDS, id)
           .then(function (response) {
             // handle success
             dispatch(receiveClasscards(response.data))

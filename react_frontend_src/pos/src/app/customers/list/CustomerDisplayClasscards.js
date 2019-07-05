@@ -45,7 +45,7 @@ class CustomerDisplayClasscards extends Component {
         return (
            <div>
                { (classcards.loaded) ?
-                (classcards.data[customerID]) ?
+                (classcards.data.length) ?
                     <div>     
                         <b>Class cards</b>
                         {classcards.data[customerID].map((classcard, i) => 
