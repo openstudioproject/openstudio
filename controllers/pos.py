@@ -836,31 +836,38 @@ def get_customers_memberships():
     date_from = TODAY_LOCAL - datetime.timedelta(days=400)
 
     query = (db.customers_memberships.Startdate >= date_from)
+    left = [
+        db.school_subscriptions.on(
+            db.customers_memberships.school_memberships_id ==
+            db.school_memberships.id
+        )
+    ]
 
     rows = db(query).select(
         db.customers_memberships.id,
         db.customers_memberships.auth_customer_id,
-        db.customers_memberships.school_memberships_id,
         db.customers_memberships.Startdate,
         db.customers_memberships.Enddate,
+        db.school_memberships.id,
+        db.school_memberships.Name,
+        left=left
     )
 
     memberships = {}
     for i, row in enumerate(rows):
-        repr_row = list(rows[i:i + 1].render())[0]
 
         try:
-            memberships[row.auth_customer_id]
+            memberships[row.customers_memberships.auth_customer_id]
         except KeyError:
-            memberships[row.auth_customer_id] = []
+            memberships[row.customers_memberships.auth_customer_id] = []
 
-        memberships[row.auth_customer_id].append({
-            'id': row.id,
-            'auth_customer_id': row.auth_customer_id,
-            'name': repr_row.school_memberships_id,
-            'school_memberships_id': row.school_memberships_id,
-            'start': repr_row.Startdate,
-            'end': repr_row.Enddate,
+        memberships[row.customers_memberships.auth_customer_id].append({
+            'id': row.customers_memberships.id,
+            'auth_customer_id': row.customers_memberships.auth_customer_id,
+            'name': row.school_memberships.Name,
+            'school_memberships_id': row.school_memberships.id,
+            'start': row.customers_memberships.Startdate.strftime(DATE_FORMAT),
+            'end': row.customers_memberships.Enddate.strftime(DATE_FORMAT),
         })
 
     return memberships
