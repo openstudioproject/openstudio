@@ -289,13 +289,12 @@ def get_class_booking_options():
     return dict(options = options)
 
 
-
-
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('create', 'classes_attendance'))
 def customer_class_booking_create():
     """
-    Check customer in to a class
+    Check customer in to a class, drop-in and trial are handled through
+    an order.
     :return:
     """
     from openstudio.os_attendance_helper import AttendanceHelper
@@ -334,9 +333,18 @@ def customer_class_booking_create():
             )
 
         elif type == "complementary":
-            print "checking in"
             error = False
             result = ah.attendance_sign_in_complementary(
+                cuID,
+                clsID,
+                date,
+                booking_status='attending'
+            )
+
+        elif type == "reconcile_later":
+            print "checking in"
+            error = False
+            result = ah.attendance_sign_in_reconcile_later(
                 cuID,
                 clsID,
                 date,
@@ -346,29 +354,9 @@ def customer_class_booking_create():
             print result
 
 
-
         if result['status'] == 'fail':
             error = True
             message = result['message']
-        # elif type == 'dropin':
-        #     result = ah.attendance_sign_in_dropin(
-        #         cuID,
-        #         clsID,
-        #         date,
-        #         invoice=True,
-        #         booking_status='attending'
-        #     )
-        #
-        # elif type == 'trialclass':
-        #     result = ah.attendance_sign_in_dropin(
-        #         cuID,
-        #         clsID,
-        #         date,
-        #         invoice=True,
-        #         booking_status='attending'
-        #     )
-
-        # elif type == 'trial':
 
 
     return dict(error=error,
