@@ -6,7 +6,7 @@ import Currency from "../../../components/ui/Currency"
 const BookOptionsListItemReconcileLater = injectIntl(({data, intl, onClick=f=>f}) => 
     <div className="col-md-3"
          onClick={() => onClick(data)}>
-        <div className="small-box bg-green">
+        <div className="small-box bg-orange">
             <div className="inner">
                 <h4>
                     Reconcile later
@@ -19,7 +19,7 @@ const BookOptionsListItemReconcileLater = injectIntl(({data, intl, onClick=f=>f}
                 </p>
             </div>
             <div className="icon">
-            <i className="fa fa-user-o"></i>
+            <i className="fa fa-clock-o"></i>
             </div>
         </div> 
     </div>

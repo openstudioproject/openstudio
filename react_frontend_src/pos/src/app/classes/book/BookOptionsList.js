@@ -5,7 +5,8 @@ import BookOptionsListItemClasscard from "./BookOptionsListItemClasscard"
 import BookOptionsListItemDropin from "./BookOptionsListItemDropin"
 import BookOptionsListItemSubscription from "./BookOptionsListItemSubscription"
 import BookOptionsListItemTrial from "./BookOptionsListItemTrial"
-import BookOptionsListItemComplementary from "./BookOptionsListItemComplementary";
+import BookOptionsListItemComplementary from "./BookOptionsListItemComplementary"
+import BookOptionsListItemReconcileLater from "./BookOptionsListItemReconcileLater"
 
 const populateRowsSubscriptions = (subscriptions, customer_memberships, onClick=f=>f) => {
     let container = []
