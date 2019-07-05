@@ -73,6 +73,8 @@ const BookOptionsList = ({booking_options, customer_memberships, onClick=f=>f}) 
         <div className="row">
             <BookOptionsListItemComplementary data={booking_options.complementary}
                                               onClick={onClick} />
+            <BookOptionsListItemReconcileLater data={booking_options.reconcile_later}
+                                              onClick={onClick} />
         </div>
     </div>
 
