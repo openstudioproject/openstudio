@@ -2337,11 +2337,32 @@ class AttendanceHelper:
         return dict(status=status, message=message, caID=caID)
 
 
+    def attendance_reconcile_later_to_dropin(self, clattID):
+        """
+        Transform reconcile later check-in to drop-in check-in
+        :param clattID: db.classes_attendance.id
+        :return:
+        """
+        clatt_rl = db.classes_attendance(clattID)
+
+        # Remove reconcile later check-in
+        query = (db.classes_attendance.id == clattID)
+        db(query).delete()
+
+        # Sign in as drop-in
+        return self.attendance_sign_in_dropin(
+            cuID = clatt_rl.auth_customer_id,
+            clsID = clatt_rl.classes_id,
+            date = clatt_rl.ClassDate,
+            booking_status = 'attending'
+        )
+
+
     def attendance_sign_in_request_review(self,
-                                         cuID,
-                                         clsID,
-                                         date,
-                                         booking_status='attending'):
+                                          cuID,
+                                          clsID,
+                                          date,
+                                          booking_status='attending'):
         """
             :param cuID: db.auth_user.id
             :param clsID: db.classes.id
