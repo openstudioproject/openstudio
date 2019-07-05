@@ -7,10 +7,6 @@ import { customersListOperations } from './customers/list/duck'
 import { customersMembershipsOperations } from './customers/memberships/duck'
 import { customersMembershipsTodayOperations } from './customers/memberships_today/duck'
 import { cashbookOperations } from './cashbook/duck'
-import { shopSchoolClasscardsOperations } from './shop/school/classcards/duck'
-import { shopSchoolMembershipsOperations } from './shop/school/memberships/duck'
-import { shopSchoolSubscriptionsOperations } from './shop/school/subscriptions/duck'
-
 
 
 const mapStateToProps = state => 
@@ -46,12 +42,6 @@ const mapDispatchToProps = dispatch =>
         },
         fetchExpenses() {
             dispatch(cashbookOperations.fetchExpenses())
-        },
-        fetchShopSchoolMemberships() {
-            dispatch(shopSchoolMembershipsOperations.fetchShopMemberships())
-        },
-        fetchShopSchoolSubscriptions() {
-            dispatch(shopSchoolSubscriptionsOperations.fetchShopSubscriptions())
         },
         setLoaded(loaded) {
             dispatch(appOperations.setLoaded(loaded))

@@ -48,8 +48,6 @@ class App extends Component {
     this.props.fetchCustomersMembershipsToday()
     this.props.fetchCashCounts()
     this.props.fetchExpenses()
-    this.props.fetchShopSchoolMemberships()
-    this.props.fetchShopSchoolSubscriptions()
   }
 
   render() {
