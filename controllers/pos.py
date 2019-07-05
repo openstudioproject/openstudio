@@ -788,15 +788,18 @@ def get_customers():
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'customers_memberships'))
-def get_customers_memberships_today():
+def get_customer_memberships_today():
     """
     List customer memberships
     """
     set_headers()
 
+    cuID = request.vars['id']
+
     query = (db.customers_memberships.Startdate <= TODAY_LOCAL) & \
             ((db.customers_memberships.Enddate >= TODAY_LOCAL) |\
-             (db.customers_memberships.Enddate == None))
+             (db.customers_memberships.Enddate == None)) & \
+            (db.customers_memberships.auth_customer_id == cuUD)
 
     rows = db(query).select(
         db.customers_memberships.id,
@@ -806,14 +809,9 @@ def get_customers_memberships_today():
         db.customers_memberships.Enddate,
     )
 
-    memberships = {}
+    memberships = []
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
-
-        try:
-            memberships[row.auth_customer_id]
-        except KeyError:
-            memberships[row.auth_customer_id] = []
 
         memberships[row.auth_customer_id].append({
             'id': row.id,
@@ -824,7 +822,7 @@ def get_customers_memberships_today():
             'end': repr_row.Enddate,
         })
 
-    return memberships
+    return dict(data=memberships)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
