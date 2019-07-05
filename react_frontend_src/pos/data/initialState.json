@@ -9,6 +9,8 @@
         "loading_progress": 0,
         "current_page_title": "Welcome",
         "current_page_subtitle": "",
+        "payment_methods_loading": false,
+        "payment_methods_loaded": false,
         "payment_methods": {},
         "settings": {},
         "user": {},
