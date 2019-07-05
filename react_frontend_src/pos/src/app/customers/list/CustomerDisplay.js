@@ -299,8 +299,7 @@ class CustomerDisplay extends Component {
                                 {customers_list[customerID].date_of_birth}<br/>
                             </div>
                             <div className="col-md-3">
-                                <CustomerDisplayMemberships customerID={customerID}
-                                                            memberships={memberships}/>
+                                <CustomerDisplayMemberships memberships={memberships}/>
                                 <CustomerDisplaySubscriptions subscriptions={subscriptions}/>
                                 <CustomerDisplayClasscards classcards={classcards}/>
                             </div>

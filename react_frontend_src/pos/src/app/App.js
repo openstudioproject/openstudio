@@ -44,7 +44,6 @@ class App extends Component {
     this.props.fetchUser()    
     this.props.fetchSettings()  
     this.props.fetchCustomers()
-    this.props.fetchCustomersMemberships()
   }
 
   render() {

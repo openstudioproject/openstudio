@@ -30,10 +30,10 @@ class CustomerDisplayMemberships extends Component {
         return (
            <div>
                 { (memberships.loaded) ?
-                    (memberships.data[customerID]) ?
+                    (memberships.data.length) ?
                         <div>     
                             <b>Memberships</b>
-                            {memberships.data[customerID].map((membership, i) => 
+                            {memberships.data.map((membership, i) => 
                                 <div key={v4()}>
                                     { membership.name } <br />
                                     <span className="text-muted">

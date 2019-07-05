@@ -861,7 +861,7 @@ def get_customer_memberships():
     query = (db.customers_memberships.Startdate >= date_from) & \
             (db.customers_memberships.auth_customer_id == cuID)
     left = [
-        db.school_subscriptions.on(
+        db.school_memberships.on(
             db.customers_memberships.school_memberships_id ==
             db.school_memberships.id
         )

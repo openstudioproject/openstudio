@@ -4,7 +4,6 @@ import App from './App'
 import { appOperations } from './duck'
 
 import { customersListOperations } from './customers/list/duck'
-import { customersMembershipsOperations } from './customers/memberships/duck'
 
 
 const mapStateToProps = state => 
@@ -28,9 +27,6 @@ const mapDispatchToProps = dispatch =>
         },
         fetchCustomers() {
             dispatch(customersListOperations.fetchCustomers())
-        },
-        fetchCustomersMemberships() {
-            dispatch(customersMembershipsOperations.fetchMemberships())
         },
         setLoaded(loaded) {
             dispatch(appOperations.setLoaded(loaded))
