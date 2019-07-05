@@ -1,4 +1,5 @@
 import {
+    clearMembershipsToday,
     requestMembershipsToday,
     receiveMembershipsToday,
 } from './actions'
@@ -10,11 +11,14 @@ import OS_API from '../../../../utils/os_api'
 // Put pass-through actions here
 
 // data fetchers
-const fetchMembershipsToday = () => {
+const fetchMembershipsToday = (id) => {
       return dispatch => {
           dispatch(requestMembershipsToday())
 
-          axios_os.post(OS_API.CUSTOMERS_MEMBERSHIPS_TODAY)
+          let fd = new FormData()
+          fd.append('id', id)
+
+          axios_os.post(OS_API.CUSTOMER_MEMBERSHIPS_TODAY, fd)
           .then(function (response) {
             // handle success
             dispatch(receiveMembershipsToday(response.data))
@@ -32,5 +36,6 @@ const fetchMembershipsToday = () => {
 
 
 export default {
+    clearMembershipsToday,
     fetchMembershipsToday
 }

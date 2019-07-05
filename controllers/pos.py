@@ -797,9 +797,9 @@ def get_customer_memberships_today():
     cuID = request.vars['id']
 
     query = (db.customers_memberships.Startdate <= TODAY_LOCAL) & \
-            ((db.customers_memberships.Enddate >= TODAY_LOCAL) |\
+            ((db.customers_memberships.Enddate >= TODAY_LOCAL) |
              (db.customers_memberships.Enddate == None)) & \
-            (db.customers_memberships.auth_customer_id == cuUD)
+            (db.customers_memberships.auth_customer_id == cuID)
 
     rows = db(query).select(
         db.customers_memberships.id,
@@ -813,7 +813,7 @@ def get_customer_memberships_today():
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
-        memberships[row.auth_customer_id].append({
+        memberships.append({
             'id': row.id,
             'auth_customer_id': row.auth_customer_id,
             'name': repr_row.school_memberships_id,
