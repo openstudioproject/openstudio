@@ -6,7 +6,7 @@ import Customers from './Customers'
 import { appOperations } from '../../duck'
 import { customersListOperations } from './duck'
 import { customersClasscardsOperations } from '../classcards/duck'
-import { customersSubscriptionsOperations } from '../classcards/duck'
+import { customersSubscriptionsOperations } from '../subscriptions/duck'
 
 
 const mapStateToProps = state => 
@@ -119,7 +119,10 @@ const mapDispatchToProps = dispatch =>
         },
         fetchCustomerClasscards(id) {
             dispatch(customersClasscardsOperations.fetchClasscards(id))
-        }
+        },
+        fetchCustomerSubscriptions(id) {
+            dispatch(customersSubscriptionsOperations.fetchSubscriptions(id))
+        },
     })
 
 

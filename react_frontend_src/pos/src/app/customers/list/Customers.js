@@ -168,6 +168,7 @@ class Customers extends Component {
         this.props.clearNotes()
         this.props.fetchNotes(id)
         this.props.fetchCustomerClasscards(id)
+        this.props.fetchCustomerSubscriptions(id)
     }
 
     render() {

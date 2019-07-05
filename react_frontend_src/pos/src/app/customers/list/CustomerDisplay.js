@@ -301,8 +301,7 @@ class CustomerDisplay extends Component {
                             <div className="col-md-3">
                                 <CustomerDisplayMemberships customerID={customerID}
                                                             memberships={memberships}/>
-                                <CustomerDisplaySubscriptions customerID={customerID}
-                                                              subscriptions={subscriptions}/>
+                                <CustomerDisplaySubscriptions subscriptions={subscriptions}/>
                                 <CustomerDisplayClasscards classcards={classcards}/>
                             </div>
                             <div className="col-md-6">

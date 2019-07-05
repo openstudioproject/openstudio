@@ -10,11 +10,14 @@ import OS_API from '../../../../utils/os_api'
 // Put pass-through actions here
 
 // data fetchers
-const fetchSubscriptions = () => {
+const fetchSubscriptions = (id) => {
       return dispatch => {
           dispatch(requestSubscriptions())
 
-          axios_os.post(OS_API.CUSTOMER_SUBSCRIPTIONS)
+          let fd = new FormData()
+          fd.append('id', id)
+
+          axios_os.post(OS_API.CUSTOMER_SUBSCRIPTIONS, fd)
           .then(function (response) {
             // handle success
             dispatch(receiveSubscriptions(response.data))

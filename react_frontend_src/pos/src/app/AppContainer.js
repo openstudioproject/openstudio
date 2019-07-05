@@ -4,7 +4,6 @@ import App from './App'
 import { appOperations } from './duck'
 import { classesClassesOperations } from './classes/classes/duck'
 import { customersListOperations } from './customers/list/duck'
-import { customersSubscriptionsOperations } from './customers/subscriptions/duck'
 import { customersMembershipsOperations } from './customers/memberships/duck'
 import { customersMembershipsTodayOperations } from './customers/memberships_today/duck'
 import { cashbookOperations } from './cashbook/duck'
@@ -42,9 +41,6 @@ const mapDispatchToProps = dispatch =>
         },
         fetchCustomers() {
             dispatch(customersListOperations.fetchCustomers())
-        },
-        fetchCustomersSubscriptions() {
-            dispatch(customersSubscriptionsOperations.fetchSubscriptions())
         },
         fetchCustomersMemberships() {
             dispatch(customersMembershipsOperations.fetchMemberships())

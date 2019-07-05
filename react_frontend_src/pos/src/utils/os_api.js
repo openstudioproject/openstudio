@@ -19,7 +19,7 @@ const api_urls = {
     'CLASSES_VERIFY_TEACHER_PAYMENT': '/pos/verify_teacher_payment.json',
     'CUSTOMERS': '/pos/get_customers.json',
     'CUSTOMER_CLASSCARDS': '/pos/get_customer_classcards.json',
-    'CUSTOMERS_SUBSCRIPTIONS': '/pos/get_customers_subscriptions.json',
+    'CUSTOMER_SUBSCRIPTIONS': '/pos/get_customer_subscriptions.json',
     'CUSTOMERS_MEMBERSHIPS': '/pos/get_customers_memberships.json',
     'CUSTOMERS_MEMBERSHIPS_TODAY': '/pos/get_customers_memberships_today.json',
     'CUSTOMER_CREATE': '/pos/create_customer.json',
