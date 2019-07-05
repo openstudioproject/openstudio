@@ -26,6 +26,12 @@ class CashbookTemplate extends Component {
         this.props.setPageTitle(
             this.props.intl.formatMessage({ id: 'app.pos.cashbook.page_title' })
         )
+        if (!this.props.cashbook.cash_counts_loaded) {
+            this.props.fetchCashCounts()
+        }
+        if (!this.props.cashbook.expenses_loaded) {
+            this.props.fetchExpenses()
+        }
     }
 
     render() {
