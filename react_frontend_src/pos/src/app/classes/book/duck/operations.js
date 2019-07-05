@@ -63,7 +63,7 @@ const checkinCustomer = (cuID, clsID, data, history) => {
               dispatch(receiveClassesCustomer(response.data))
               if (!response.data.error) {
                 // Refetch classcards to update count of classes taken (Server side processing only)
-                dispatch(customersClasscardsOperations.fetchClasscards())
+                dispatch(customersClasscardsOperations.fetchClasscards(cuID))
                 // Go back to customers
                 history.push('/')
                 // Notify user

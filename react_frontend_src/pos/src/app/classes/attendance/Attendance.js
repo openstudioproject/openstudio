@@ -149,11 +149,11 @@ class Attendance extends Component {
         this.props.updateClassAttendanceBookingStatus(clattID, status)
     }
 
-    onClickAttendanceButtonRemove(clattID) {
+    onClickAttendanceButtonRemove(clattID, cuID) {
         console.log('Clatt delete button clicked')
         console.log(clattID)
         
-        this.props.deleteClassAttendance(clattID)
+        this.props.deleteClassAttendance(clattID, cuID)
     }
     
     render() {
