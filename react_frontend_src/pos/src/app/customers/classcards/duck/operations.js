@@ -15,7 +15,7 @@ const fetchClasscards = () => {
       return dispatch => {
           dispatch(requestClasscards())
 
-          axios_os.post(OS_API.CUSTOMERS_CLASSCARDS)
+          axios_os.post(OS_API.CUSTOMER_CLASSCARDS)
           .then(function (response) {
             // handle success
             dispatch(receiveClasscards(response.data))

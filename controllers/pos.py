@@ -869,17 +869,20 @@ def get_customers_memberships():
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'customers_classcards'))
-def get_customers_classcards():
+def get_customer_classcards():
     """
     List customer subscriptions, excluding cards that ended more then 
     7 months ago
     """
     set_headers()
 
+    id = request.vars['id']
+
     dont_show_after = TODAY_LOCAL - datetime.timedelta(days=217)
     query = (db.customers_classcards.Startdate <= TODAY_LOCAL) &\
-            ((db.customers_classcards.Enddate >= dont_show_after) |\
-             (db.customers_classcards.Enddate == None))
+            ((db.customers_classcards.Enddate >= dont_show_after) |
+             (db.customers_classcards.Enddate == None)) & \
+            (db.customers_classcards.auth_customer_id == id)
 
     left = [
         db.school_classcards.on(

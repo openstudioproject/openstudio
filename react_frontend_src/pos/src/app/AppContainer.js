@@ -10,7 +10,6 @@ import { customersMembershipsOperations } from './customers/memberships/duck'
 import { customersMembershipsTodayOperations } from './customers/memberships_today/duck'
 import { cashbookOperations } from './cashbook/duck'
 import { shopProductsOperations } from './shop/products/duck'
-import { shopSchoolClasscardsOperations } from './shop/school/classcards/duck'
 import { shopSchoolMembershipsOperations } from './shop/school/memberships/duck'
 import { shopSchoolSubscriptionsOperations } from './shop/school/subscriptions/duck'
 
@@ -43,9 +42,6 @@ const mapDispatchToProps = dispatch =>
         },
         fetchCustomers() {
             dispatch(customersListOperations.fetchCustomers())
-        },
-        fetchCustomersClasscards() {
-            dispatch(customersClasscardsOperations.fetchClasscards())
         },
         fetchCustomersSubscriptions() {
             dispatch(customersSubscriptionsOperations.fetchSubscriptions())
