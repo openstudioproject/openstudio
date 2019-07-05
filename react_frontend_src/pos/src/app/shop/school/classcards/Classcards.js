@@ -27,6 +27,9 @@ class Classcards extends Component {
         this.props.setPageTitle(
             this.props.intl.formatMessage({ id: 'app.pos.products' })
         )
+        if (!this.props.loaded) {
+            this.props.fetchShopClasscards()
+        }
     }
     
     onClickClasscard(card) {

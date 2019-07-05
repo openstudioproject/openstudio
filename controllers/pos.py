@@ -131,6 +131,7 @@ def get_user():
     return dict(profile=auth.user,
                 permissions=permissions)
 
+
 @auth.requires_login(otherwise=return_json_login_error)
 def get_settings():
     """

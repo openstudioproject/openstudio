@@ -47,9 +47,6 @@ const mapDispatchToProps = dispatch =>
         fetchExpenses() {
             dispatch(cashbookOperations.fetchExpenses())
         },
-        fetchShopSchoolClasscards() {
-            dispatch(shopSchoolClasscardsOperations.fetchShopClasscards())
-        },
         fetchShopSchoolMemberships() {
             dispatch(shopSchoolMembershipsOperations.fetchShopMemberships())
         },
