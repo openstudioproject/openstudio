@@ -876,13 +876,16 @@ def get_customer_classcards():
     """
     set_headers()
 
-    id = request.vars['id']
+    cuID = request.vars['id']
+    print "customer classcards here"
+    print cuID
+    print '#########'
 
     dont_show_after = TODAY_LOCAL - datetime.timedelta(days=217)
     query = (db.customers_classcards.Startdate <= TODAY_LOCAL) &\
             ((db.customers_classcards.Enddate >= dont_show_after) |
              (db.customers_classcards.Enddate == None)) & \
-            (db.customers_classcards.auth_customer_id == id)
+            (db.customers_classcards.auth_customer_id == cuID)
 
     left = [
         db.school_classcards.on(
@@ -922,7 +925,7 @@ def get_customer_classcards():
             'unlimited': row.school_classcards.Unlimited
         })
 
-    return classcards
+    return dict(data=classcards)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \

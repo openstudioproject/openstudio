@@ -18,7 +18,7 @@ const fetchClasscards = (id) => {
           let fd = new FormData()
           fd.append('id', id)
 
-          axios_os.post(OS_API.CUSTOMER_CLASSCARDS, id)
+          axios_os.post(OS_API.CUSTOMER_CLASSCARDS, fd)
           .then(function (response) {
             // handle success
             dispatch(receiveClasscards(response.data))

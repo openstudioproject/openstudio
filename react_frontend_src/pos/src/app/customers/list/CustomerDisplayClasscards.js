@@ -48,7 +48,7 @@ class CustomerDisplayClasscards extends Component {
                 (classcards.data.length) ?
                     <div>     
                         <b>Class cards</b>
-                        {classcards.data[customerID].map((classcard, i) => 
+                        {classcards.data.map((classcard, i) => 
                             <div key={v4()}>
                                 { classcard.name } <br />
                                 <span className="text-muted">
