@@ -14,7 +14,7 @@ const fetchSubscriptions = () => {
       return dispatch => {
           dispatch(requestSubscriptions())
 
-          axios_os.post(OS_API.CUSTOMERS_SUBSCRIPTIONS)
+          axios_os.post(OS_API.CUSTOMER_SUBSCRIPTIONS)
           .then(function (response) {
             // handle success
             dispatch(receiveSubscriptions(response.data))

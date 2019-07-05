@@ -877,9 +877,6 @@ def get_customer_classcards():
     set_headers()
 
     cuID = request.vars['id']
-    print "customer classcards here"
-    print cuID
-    print '#########'
 
     dont_show_after = TODAY_LOCAL - datetime.timedelta(days=217)
     query = (db.customers_classcards.Startdate <= TODAY_LOCAL) &\
@@ -930,17 +927,20 @@ def get_customer_classcards():
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'customers_subscriptions'))
-def get_customers_subscriptions():
+def get_customer_subscriptions():
     """
     List customer subscriptions, excluding subscriptions that ended more then 
     7 months ago
     """
     set_headers()
 
+    cuID = request.vars['id']
+
     dont_show_after = TODAY_LOCAL - datetime.timedelta(days=217)
     query = (db.customers_subscriptions.Startdate <= TODAY_LOCAL) &\
             ((db.customers_subscriptions.Enddate >= dont_show_after) |\
-             (db.customers_subscriptions.Enddate == None))
+             (db.customers_subscriptions.Enddate == None)) & \
+            (db.customers_subscriptions.auth_customer_id == cuID)
 
 
     rows = db(query).select(
@@ -952,16 +952,11 @@ def get_customers_subscriptions():
         db.customers_subscriptions.MinEnddate,
     )
 
-    subscriptions = {}
+    subscriptions = []
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
-        try:
-            subscriptions[row.auth_customer_id]
-        except KeyError:
-            subscriptions[row.auth_customer_id] = []
-
-        subscriptions[row.auth_customer_id].append({
+        subscriptions.append({
             'id': row.id,
             'auth_customer_id': row.auth_customer_id,
             'name': repr_row.school_subscriptions_id,
@@ -970,7 +965,7 @@ def get_customers_subscriptions():
             'min_end': row.MinEnddate
         })
 
-    return subscriptions
+    return dict(data=subscriptions)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \

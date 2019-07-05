@@ -6,6 +6,7 @@ import Customers from './Customers'
 import { appOperations } from '../../duck'
 import { customersListOperations } from './duck'
 import { customersClasscardsOperations } from '../classcards/duck'
+import { customersSubscriptionsOperations } from '../classcards/duck'
 
 
 const mapStateToProps = state => 
