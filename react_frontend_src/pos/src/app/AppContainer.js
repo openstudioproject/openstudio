@@ -2,7 +2,7 @@ import { connect } from 'react-redux'
 
 import App from './App'
 import { appOperations } from './duck'
-import { classesClassesOperations } from './classes/classes/duck'
+
 import { customersListOperations } from './customers/list/duck'
 import { customersMembershipsOperations } from './customers/memberships/duck'
 import { customersMembershipsTodayOperations } from './customers/memberships_today/duck'
@@ -21,9 +21,6 @@ const mapStateToProps = state =>
 
 const mapDispatchToProps = dispatch =>
     ({  
-        fetchClasses() {
-            dispatch(classesClassesOperations.fetchClasses())
-        },
         fetchPaymentMethods() {
             dispatch(appOperations.fetchPaymentMethods())
         },

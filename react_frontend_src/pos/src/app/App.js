@@ -39,7 +39,6 @@ class App extends Component {
   }
 
   componentWillMount() {
-    this.props.fetchClasses()
     this.props.fetchPaymentMethods()
     this.props.fetchTaxRates()
     this.props.fetchProductCategories()
