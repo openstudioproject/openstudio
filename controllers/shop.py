@@ -1807,7 +1807,8 @@ def classcard():
         return T('This feature is disabled')
 
     scdID = request.vars['scdID']
-    scd = SchoolClasscard(scdID)
+    scd = SchoolClasscard(scdID, set_db_info=True)
+
 
     # check if we require a complete profile
     shop_requires_complete_profile = get_sys_property('shop_requires_complete_profile_classcards')
@@ -1834,7 +1835,9 @@ def classcard():
         'shop_allow_trial_cards_for_existing_customers'
     )
 
-    if allow_trial_for_existing_customers != 'on':
+    print allow_trial_for_existing_customers
+
+    if allow_trial_for_existing_customers != 'on' and scd.row.Trialcard:
         has_or_had_subscription = customer.get_has_or_had_subscription()
         has_or_had_card = customer.get_has_or_had_classcard()
 

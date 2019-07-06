@@ -43,6 +43,22 @@ class Order:
         self.order.update_record()
 
 
+    def contains_subscription(self):
+        """
+        Returns True if there's a subscription in this order, else false
+        :return:
+        """
+        db = current.db
+
+        query = (db.customers_orders_items.customers_orders_id == self.coID) & \
+                (db.customers_orders_items.school_subscriptions_id != None)
+
+        if db(query).count():
+            return True
+        else:
+            return False
+
+
     def order_item_add_product_variant(self, shop_product_variant_id, quantity=1):
         """
         :param shop_product_variant_id: db.shop_products_variants.id
