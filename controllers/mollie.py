@@ -465,16 +465,18 @@ def order_pay():
     """
         Page to pay an order
     """
+    from openstudio.os_customer import Customer
     coID = request.vars['coID']
 
     order = Order(coID)
+    os_customer = Customer(auth.user.id)
     invoice_id = ''
     mollie_payment_id = ''
 
     # check if the order belongs to the currently logged in customer
     if not order.order.auth_customer_id == auth.user.id:
         session.flash = T("Unable to show order")
-        redirect(URL('cart'))
+        redirect(URL('profile', 'index'))
 
 
     mollie = Client()
@@ -487,6 +489,44 @@ def order_pay():
     amount = format(amounts.TotalPriceVAT, '.2f')
     description = T('Order') + ' #' + unicode(coID)
 
+    if os_customer.row.mollie_customer_id:
+        # yep
+        mollie_customer_id = os_customer.row.mollie_customer_id
+        try:
+            mollie_customer = mollie.customers.get(mollie_customer_id)
+            # print "we've got one!"
+            # print mollie_customer
+            # print mollie.customers.all()
+        except Exception as e:
+            # print e.__class__.__name__
+            # print str(e)
+            # print 'customer id invalid, create new customer'
+            if 'The customer id is invalid' in str(e):
+                create_mollie_customer(auth.user.id, mollie)
+                os_customer = Customer(auth.user.id)  # refresh
+    else:
+        create_mollie_customer(auth.user.id, mollie)
+        os_customer = Customer(auth.user.id)  # refresh
+
+    contains_subscription = order.contains_subscription()
+    recurring_type = None
+    if contains_subscription:
+        mandates = os_customer.get_mollie_mandates()
+        # set default recurring type, change to recurring if a valid mandate is found.
+        recurring_type = 'first'
+        if mandates['count'] > 0:
+            # background payment
+            valid_mandate = False
+            for mandate in mandates['_embedded']['mandates']:
+                if mandate['status'] == 'valid':
+                    valid_mandate = True
+                    break
+
+            if valid_mandate:
+                # Do a normal payment, probably an automatic payment failed somewhere in the process
+                # and customer should pay manually now
+                recurring_type = None
+
     try:
         redirect_url = 'https://' + request.env.http_host + '/shop/complete?coID=' + unicode(coID)
 
@@ -496,6 +536,8 @@ def order_pay():
                 'value': amount
             },
             'description': description,
+            'sequenceType': recurring_type,
+            'customerId': mollie_customer_id,
             'redirectUrl': redirect_url,
             'webhookUrl': 'https://' + request.env.http_host + '/mollie/webhook',
             'metadata': {
@@ -505,7 +547,8 @@ def order_pay():
 
         db.customers_orders_mollie_payment_ids.insert(
             customers_orders_id=coID,
-            mollie_payment_id=payment['id']
+            mollie_payment_id=payment['id'],
+            RecurringType=recurring_type
         )
 
         # Send the customer off to complete the payment.

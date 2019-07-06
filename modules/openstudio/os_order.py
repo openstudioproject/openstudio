@@ -43,6 +43,22 @@ class Order:
         self.order.update_record()
 
 
+    def contains_subscription(self):
+        """
+        Returns True if there's a subscription in this order, else false
+        :return:
+        """
+        db = current.db
+
+        query = (db.customers_orders_items.customers_orders_id == self.coID) & \
+                (db.customers_orders_items.school_subscriptions_id != None)
+
+        if db(query).count():
+            return True
+        else:
+            return False
+
+
     def order_item_add_product_variant(self, shop_product_variant_id, quantity=1):
         """
         :param shop_product_variant_id: db.shop_products_variants.id
@@ -528,12 +544,20 @@ class Order:
 
             # Check for subscription
             if row.school_subscriptions_id:
-                # Deliver subscription
+                ## Deliver subscription
+                # Determine payment method
+                cs_payment_method = get_sys_property('shop_subscriptions_payment_method')
+                if cs_payment_method == 'mollie':
+                    payment_method_id = 100
+                else:
+                    payment_method_id = 3
+
                 subscription_start = TODAY_LOCAL
                 ssu = SchoolSubscription(row.school_subscriptions_id)
                 csID = ssu.sell_to_customer(
                     self.order.auth_customer_id,
                     subscription_start,
+                    payment_methods_id=payment_method_id
                 )
 
                 # Add credits for the first month

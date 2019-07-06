@@ -5733,7 +5733,14 @@ def define_customers_orders_mollie_payment_ids():
         Field('customers_orders_id', db.customers_orders,
             label=T('Customers_orders_id')),
         Field('mollie_payment_id',
-            label=T('Mollie payment id')))
+            label=T('Mollie payment id')),
+        Field('RecurringType',
+              readable=False,
+              writable=False),
+        Field('WebhookURL',
+              readable=False,
+              writable=False),
+    )
 
 
 def define_mollie_log_webhook():
