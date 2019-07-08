@@ -121,6 +121,11 @@
             "loading": false,
             "loaded": false,
             "data": {}
+        },
+        "school_info": {
+            "loading": false,
+            "loaded": false,
+            "data": {}
         }
     },
     "cashbook": {
