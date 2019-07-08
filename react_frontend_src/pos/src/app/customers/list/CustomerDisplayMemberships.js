@@ -24,16 +24,18 @@ class CustomerDisplayMemberships extends Component {
 
 
     render() {
-        const customerID = this.props.customerID
-        const memberships = this.props.memberships
+        const data = this.props.data
+        console.log('CDM here')
+        console.log(data)
+        const memberships = data.data.memberships
 
         return (
            <div>
-                { (memberships.loaded) ?
-                    (memberships.data.length) ?
+                { (data.loaded) ?
+                    (memberships.length) ?
                         <div>     
                             <b>Memberships</b>
-                            {memberships.data.map((membership, i) => 
+                            {memberships.map((membership, i) => 
                                 <div key={v4()}>
                                     { membership.name } <br />
                                     <span className="text-muted">

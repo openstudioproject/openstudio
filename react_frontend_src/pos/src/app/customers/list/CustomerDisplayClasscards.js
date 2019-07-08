@@ -39,16 +39,16 @@ class CustomerDisplayClasscards extends Component {
 
 
     render() {
-        const customerID = this.props.customerID
-        const classcards = this.props.classcards
+        const data = this.props.data
+        const classcards = data.data.classcards
 
         return (
            <div>
-               { (classcards.loaded) ?
-                (classcards.data.length) ?
+               { (data.loaded) ?
+                (classcards.length) ?
                     <div>     
                         <b>Class cards</b>
-                        {classcards.data.map((classcard, i) => 
+                        {classcards.map((classcard, i) => 
                             <div key={v4()}>
                                 { classcard.name } <br />
                                 <span className="text-muted">

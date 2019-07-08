@@ -8,7 +8,7 @@ import { customersListOperations } from './duck'
 import { customersClasscardsOperations } from '../classcards/duck'
 import { customersSubscriptionsOperations } from '../subscriptions/duck'
 import { customersMembershipsOperations } from '../memberships/duck'
-import { customerSchoolInfoOperations } from '../school_info/duck'
+import { customersSchoolInfoOperations } from '../school_info/duck'
 
 
 const mapStateToProps = state => 
@@ -16,9 +16,7 @@ const mapStateToProps = state =>
         app: state.app,
         barcode_scans: state.app.settings.data.customers_barcodes,
         customers: state.customers.list,
-        classcards: state.customers.classcards,
-        subscriptions: state.customers.subscriptions,
-        memberships: state.customers.memberships
+        school_info: state.customers.school_info
     })
 
 const mapDispatchToProps = dispatch =>
@@ -119,17 +117,11 @@ const mapDispatchToProps = dispatch =>
         clearNotesCheckinCheck() {
             dispatch(customersListOperations.clearNotesCheckinCheck())
         },
-        fetchCustomerClasscards(id) {
-            dispatch(customersClasscardsOperations.fetchClasscards(id))
-        },
-        fetchCustomerSubscriptions(id) {
-            dispatch(customersSubscriptionsOperations.fetchSubscriptions(id))
-        },
-        fetchCustomerMemberships(id) {
-            dispatch(customersMembershipsOperations.fetchMemberships(id))
+        clearCustomerSchoolInfo() {
+            dispatch(customersSchoolInfoOperations.clearSchoolInfo())
         },
         fetchCustomerSchoolInfo(id) {
-            dispatch(customerSchoolInfoOperations.fetchSchoolInfo(id))
+            dispatch(customersSchoolInfoOperations.fetchSchoolInfo(id))
         }
     })
 

@@ -167,17 +167,16 @@ class Customers extends Component {
         this.props.setDisplayCustomerID(id)
         this.props.clearNotes()
         this.props.fetchNotes(id)
-        this.props.fetchCustomerClasscards(id)
-        this.props.fetchCustomerSubscriptions(id)
-        this.props.fetchCustomerMemberships(id)
+        this.props.clearCustomerSchoolInfo()
         this.props.fetchCustomerSchoolInfo(id)
     }
 
     render() {
         const customers = this.props.customers
-        const memberships = this.props.memberships
-        const subscriptions = this.props.subscriptions
-        const classcards = this.props.classcards
+        const school_info = this.props.school_info
+        // const memberships = this.props.school_info.data.memberships
+        // const subscriptions = this.props.school_info.data.subscriptions
+        // const classcards = this.props.school_info.data.classcards
         const intl = this.props.intl
         const settings = this.props.app.settings.data
         const inputmask_date = settings.date_mask
@@ -237,9 +236,7 @@ class Customers extends Component {
                             <section className="customers-main">
                                 <CustomerDisplay customerID={customers.displayID}
                                                 customers={customers} 
-                                                memberships={memberships}
-                                                subscriptions={subscriptions}
-                                                classcards={classcards}
+                                                school_info={school_info}
                                                 edit_in_progress={customers.update_customer}
                                                 onClickEdit={this.onClickEdit.bind(this)}
                                                 onClickCreateNote={this.props.setCreateNote}
