@@ -1,4 +1,5 @@
 import {
+    clearSchoolInfo,
     requestSchoolInfo,
     receiveSchoolInfo,
 } from './actions'
@@ -36,5 +37,6 @@ const fetchSchoolInfo = (id) => {
 
 
 export default {
-    fetchSchoolInfo
+  clearSchoolInfo,
+  fetchSchoolInfo
 }
