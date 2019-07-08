@@ -4,6 +4,7 @@ import PropTypes from "prop-types"
 import validator from 'validator'
 import { v4 } from "uuid"
 
+import Currency from "../../../components/ui/Currency"
 
 
 class ReconcileLaterClasses extends Component {
@@ -39,7 +40,7 @@ class ReconcileLaterClasses extends Component {
                                 <div key={v4()}>
                                     { cls.class_date } {cls.time_start} <br />
                                     <span className="text-muted">
-                                        { cls.school_location } { cls.school_classtype }
+                                        { cls.school_location } { cls.school_classtype } {'( '} <Currency amount={cls.price} /> {')'}
                                     </span>
                                 </div>
                             )}
