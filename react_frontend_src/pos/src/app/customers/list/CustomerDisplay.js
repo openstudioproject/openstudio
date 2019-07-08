@@ -12,6 +12,7 @@ import CustomerDisplaySubscriptions from "./CustomerDisplaySubscriptions"
 import CustomerDisplayClasscards from "./CustomerDisplayClasscards"
 import CustomerDisplayNotes from "./CustomerDisplayNotes"
 import CustomerDisplayNoteForm from "./CustomerDisplayNoteForm"
+import CustomerDisplayReconcileLaterClasses from "./CustomerDisplayReconcileLaterClasses"
 
 
 class CustomerDisplay extends Component {
@@ -337,7 +338,8 @@ class CustomerDisplay extends Component {
                                         onClickBack={this.onClickBackToNotes.bind(this)}
                                         onClickToCheckIn={this.onClickToCheckIn.bind(this)}
                                     />
-                                }
+                                } <br /><br /><br />
+                                <CustomerDisplayReconcileLaterClasses data={school_info} />
                             </div>
                         </div>
                         <div className="col-md-2">
