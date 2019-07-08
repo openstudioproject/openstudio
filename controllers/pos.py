@@ -994,6 +994,64 @@ def get_customer_subscriptions():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'classes_attendance'))
+def get_customer_reconcile_later_classes():
+    """
+    List customer reconcile later classes
+
+    :return:
+    """
+    set_headers()
+
+    cuID = request.vars['id']
+
+    # Type 6 = reconcile later
+    query = (db.classes_attendance.AttendanceType == 6) & \
+            (db.classes_attendance.auth_customer_id == cuID)
+    rows = db(query).select(db.classes_attendance.ALL)
+
+    reconcile_later_classes = []
+    for row in rows:
+        reconcile_later_classes.append({
+            'id': row.id,
+            'auth_customer_id': row.auth_customer_id,
+            'class_id': row.classes_id,
+            'class_date': row.ClassDate,
+            'has_membership': row.CustomerMembership,
+        })
+
+    return dict(data=reconcile_later_classes)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'auth_user'))
+def get_customer_school_info():
+    """
+    List customer information
+    - subscriptions
+    - memberships
+    - classcards
+    - reconcile later classes
+    :return:
+    """
+    set_headers()
+
+    cuID = request.vars['cuID']
+
+    subscriptions = get_customer_subscriptions()['data']
+    classcards = get_customer_classcards()['data']
+    memberships = get_customer_memberships()['data']
+
+    print locals()
+
+    return dict(
+        subscriptions=subscriptions,
+        classcards=classcards,
+        memberships=memberships
+    )
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'classes_attendance'))
 def update_class_attendance():
     """
