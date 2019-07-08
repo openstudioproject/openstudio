@@ -1041,13 +1041,15 @@ def get_customer_school_info():
     subscriptions = get_customer_subscriptions()['data']
     classcards = get_customer_classcards()['data']
     memberships = get_customer_memberships()['data']
+    reconcile_later_classes = get_customer_reconcile_later_classes()['data']
 
     print locals()
 
     return dict(
         subscriptions=subscriptions,
         classcards=classcards,
-        memberships=memberships
+        memberships=memberships,
+        reconcile_later_classes=reconcile_later_classes
     )
 
 
