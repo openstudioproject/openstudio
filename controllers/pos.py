@@ -1054,8 +1054,7 @@ def get_customer_reconcile_later_classes():
             'school_classtype': row.school_classtypes.Name,
             'time_start': row.classes.Starttime.strftime(TIME_FORMAT),
             'time_end': row.classes.Endtime.strftime(TIME_FORMAT),
-            'price': price,
-            'price_display': represent_float_as_amount(price)
+            'price': price
         })
 
     return dict(data=reconcile_later_classes)
