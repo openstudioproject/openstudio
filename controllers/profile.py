@@ -587,7 +587,12 @@ def me():
                    formstyle='divs')
 
     if form.process().accepted:
+        from openstudio.os_cache_manager import OsCacheManager
         response.flash = T('Saved')
+
+
+        ocm = OsCacheManager()
+        ocm.clear_customers()
 
         if _next:
             redirect(_next)
