@@ -1080,9 +1080,6 @@ def get_customer_school_info():
     memberships = get_customer_memberships()['data']
     reconcile_later_classes = get_customer_reconcile_later_classes()['data']
 
-    print "##################### " + str(cuID)
-    print locals()
-
     return dict(
         subscriptions=subscriptions,
         classcards=classcards,
