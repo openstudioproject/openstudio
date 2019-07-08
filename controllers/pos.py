@@ -1005,19 +1005,45 @@ def get_customer_reconcile_later_classes():
 
     cuID = request.vars['id']
 
+    left = [
+        db.classes.on(
+            db.classes_attendance.classes_id ==
+            db.classes.id
+        ),
+        db.school_classtypes.on(
+            db.classes.school_classtypes_id ==
+            db.school_classtypes.id,
+        ),
+        db.school_locations.on(
+            db.classes.school_locations_id ==
+            db.school_locations.id
+        )
+    ]
+
     # Type 6 = reconcile later
     query = (db.classes_attendance.AttendanceType == 6) & \
             (db.classes_attendance.auth_customer_id == cuID)
-    rows = db(query).select(db.classes_attendance.ALL)
+    rows = db(query).select(
+        db.classes_attendance.ALL,
+        db.classes.ALL,
+        db.school_locations.Name,
+        db.school_classtypes.Name,
+        left=left,
+        orderby = db.classes_attendance.ClassDate
+    )
 
     reconcile_later_classes = []
     for row in rows:
         reconcile_later_classes.append({
-            'id': row.id,
-            'auth_customer_id': row.auth_customer_id,
-            'class_id': row.classes_id,
-            'class_date': row.ClassDate,
-            'has_membership': row.CustomerMembership,
+            'id': row.classes_attendance.id,
+            'auth_customer_id': row.classes_attendance.auth_customer_id,
+            'class_id': row.classes_attendance.classes_id,
+            'class_date': row.classes_attendance.ClassDate.strftime(DATE_FORMAT),
+            'has_membership': row.classes_attendance.CustomerMembership,
+            'school_location': row.school_locations.Name,
+            'school_classtype': row.school_classtypes.Name,
+            'time_start': row.classes.Starttime.strftime(TIME_FORMAT),
+            'time_end': row.classes.Endtime.strftime(TIME_FORMAT),
         })
 
     return dict(data=reconcile_later_classes)
