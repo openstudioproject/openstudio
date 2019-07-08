@@ -338,7 +338,7 @@ class CustomerDisplay extends Component {
                                         onClickBack={this.onClickBackToNotes.bind(this)}
                                         onClickToCheckIn={this.onClickToCheckIn.bind(this)}
                                     />
-                                } <br /><br /><br />
+                                } <br /><br />
                                 <CustomerDisplayReconcileLaterClasses data={school_info} />
                             </div>
                         </div>

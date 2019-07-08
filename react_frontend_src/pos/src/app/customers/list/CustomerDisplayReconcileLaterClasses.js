@@ -38,10 +38,18 @@ class ReconcileLaterClasses extends Component {
                             <b>Classes to be paid</b>
                             {classes.map((cls, i) => 
                                 <div key={v4()}>
-                                    { cls.class_date } {cls.time_start} <br />
-                                    <span className="text-muted">
-                                        { cls.school_location } { cls.school_classtype } {'( '} <Currency amount={cls.price} /> {')'}
-                                    </span>
+                                    <div>
+                                        <span className="pull-right">
+                                            <button className="btn btn-success">
+                                                Pay now { ' ' }
+                                                <i className="fa fa-angle-double-right"></i>
+                                            </button>
+                                        </span>
+                                        { cls.class_date } {cls.time_start} <br />
+                                        <span className="text-muted">
+                                            { cls.school_location } { cls.school_classtype } {'( '} <Currency amount={cls.price} /> {')'}
+                                        </span>
+                                    </div>
                                 </div>
                             )}
                         </div> : '' 
