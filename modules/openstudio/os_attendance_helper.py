@@ -1904,33 +1904,25 @@ class AttendanceHelper:
         return customer.has_membership_on_date(date)
 
 
-    def _attendance_sign_in_create_invoice(self,
-                                           cuID,
-                                           caID,
-                                           clsID,
-                                           date,
-                                           product_type):
+    def _attendance_sign_in_get_dropin_trial_price(self, cuID, clsID, date, product_type):
         """
-            Creates an invoice for a drop in or trial class
+        Get price for drop-in or trial class on date for customer
+        :param cuID: db.auth_user.id
+        :param clsID: db.classes.id
+        :param date: datetime.date
+        :param product_type: in ['trial', 'dropin']
+        :return:
         """
         from os_class import Class
         from os_customer import Customer
-        from os_invoice import Invoice
 
-        db = current.db
-        DATE_FORMAT = current.DATE_FORMAT
-        T = current.T
-
-        date_formatted = date.strftime(DATE_FORMAT)
-
-        if product_type not in ['trial', 'dropin']:
-            raise ValueError('Product type has to be trial or dropin')
 
         customer = Customer(cuID)
         cls = Class(clsID, date)
         prices = cls.get_prices()
 
         has_membership = customer.has_membership_on_date(date)
+
 
         if product_type == 'dropin':
             price = prices['dropin']
@@ -1943,6 +1935,36 @@ class AttendanceHelper:
 
             if has_membership and prices['trial_membership']:
                 price = prices['trial_membership']
+
+        return price
+
+
+    def _attendance_sign_in_create_invoice(self,
+                                           cuID,
+                                           caID,
+                                           clsID,
+                                           date,
+                                           product_type):
+        """
+            Creates an invoice for a drop in or trial class
+        """
+        from os_invoice import Invoice
+
+        db = current.db
+        DATE_FORMAT = current.DATE_FORMAT
+        T = current.T
+
+        date_formatted = date.strftime(DATE_FORMAT)
+
+        if product_type not in ['trial', 'dropin']:
+            raise ValueError('Product type has to be trial or dropin')
+
+        price = self._attendance_sign_in_get_dropin_trial_price(
+            cuID,
+            clsID,
+            date,
+            product_type
+        )
 
         # check if the price is > 0 when adding an invoice
         if price == 0:
