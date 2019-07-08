@@ -1,6 +1,6 @@
 import {
-    requestClasscards,
-    receiveClasscards,
+    requestSchoolInfo,
+    receiveSchoolInfo,
 } from './actions'
 
 import axios_os from '../../../../utils/axios_os'
@@ -11,17 +11,17 @@ import OS_API from '../../../../utils/os_api'
 // const setClassesClassAttendanceSearchCustomerID = set_customer_id
 
 // data fetchers
-const fetchClasscards = (id) => {
+const fetchSchoolInfo = (id) => {
       return dispatch => {
-          dispatch(requestClasscards())
+          dispatch(requestSchoolInfo())
 
           let fd = new FormData()
           fd.append('id', id)
 
-          axios_os.post(OS_API.CUSTOMER_CLASSCARDS, fd)
+          axios_os.post(OS_API.CUSTOMER_SCHOOL_INFO, fd)
           .then(function (response) {
             // handle success
-            dispatch(receiveClasscards(response.data))
+            dispatch(receiveSchoolInfo(response.data))
             // dispatch(setLoadingProgress(100))
           })
           .catch(function (error) {
@@ -36,5 +36,5 @@ const fetchClasscards = (id) => {
 
 
 export default {
-    fetchClasscards
+    fetchSchoolInfo
 }
