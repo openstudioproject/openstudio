@@ -1001,6 +1001,8 @@ def get_customer_reconcile_later_classes():
 
     :return:
     """
+    from openstudio.os_attendance_helper import AttendanceHelper
+
     set_headers()
 
     cuID = request.vars['id']
@@ -1032,8 +1034,16 @@ def get_customer_reconcile_later_classes():
         orderby = db.classes_attendance.ClassDate
     )
 
+    ah = AttendanceHelper()
     reconcile_later_classes = []
     for row in rows:
+
+        price = ah._attendance_sign_in_get_dropin_trial_price(
+            row.classes_attendance.auth_customer_id,
+            row.classes_attendance.classes_id,
+            row.classes_attendance.ClassDate,
+            'dropin'
+        )
         reconcile_later_classes.append({
             'id': row.classes_attendance.id,
             'auth_customer_id': row.classes_attendance.auth_customer_id,
@@ -1044,6 +1054,8 @@ def get_customer_reconcile_later_classes():
             'school_classtype': row.school_classtypes.Name,
             'time_start': row.classes.Starttime.strftime(TIME_FORMAT),
             'time_end': row.classes.Endtime.strftime(TIME_FORMAT),
+            'price': price,
+            'price_display': represent_float_as_amount(price)
         })
 
     return dict(data=reconcile_later_classes)
