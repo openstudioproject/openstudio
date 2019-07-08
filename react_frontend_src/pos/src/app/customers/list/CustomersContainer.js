@@ -8,6 +8,7 @@ import { customersListOperations } from './duck'
 import { customersClasscardsOperations } from '../classcards/duck'
 import { customersSubscriptionsOperations } from '../subscriptions/duck'
 import { customersMembershipsOperations } from '../memberships/duck'
+import { customerSchoolInfoOperations } from '../school_info/duck'
 
 
 const mapStateToProps = state => 
@@ -126,6 +127,9 @@ const mapDispatchToProps = dispatch =>
         },
         fetchCustomerMemberships(id) {
             dispatch(customersMembershipsOperations.fetchMemberships(id))
+        },
+        fetchCustomerSchoolInfo(id) {
+            dispatch(customerSchoolInfoOperations.fetchSchoolInfo(id))
         }
     })
 

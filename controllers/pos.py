@@ -1036,13 +1036,14 @@ def get_customer_school_info():
     """
     set_headers()
 
-    cuID = request.vars['cuID']
+    cuID = request.vars['id']
 
     subscriptions = get_customer_subscriptions()['data']
     classcards = get_customer_classcards()['data']
     memberships = get_customer_memberships()['data']
     reconcile_later_classes = get_customer_reconcile_later_classes()['data']
 
+    print "##################### " + str(cuID)
     print locals()
 
     return dict(
