@@ -40,7 +40,8 @@ class ReconcileLaterClasses extends Component {
                                 <div key={v4()}>
                                     <div>
                                         <span className="pull-right">
-                                            <button className="btn btn-success">
+                                            <button className="btn btn-success"
+                                                    onClick={() => this.props.onClick(cls)}>
                                                 Pay now { ' ' }
                                                 <i className="fa fa-angle-double-right"></i>
                                             </button>

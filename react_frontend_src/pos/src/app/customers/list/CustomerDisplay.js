@@ -339,7 +339,10 @@ class CustomerDisplay extends Component {
                                         onClickToCheckIn={this.onClickToCheckIn.bind(this)}
                                     />
                                 } <br /><br />
-                                <CustomerDisplayReconcileLaterClasses data={school_info} />
+                                <CustomerDisplayReconcileLaterClasses 
+                                    data={school_info} 
+                                    onClick={this.props.onClickCustomerDisplayClassReconcileLater}
+                                />
                             </div>
                         </div>
                         <div className="col-md-2">

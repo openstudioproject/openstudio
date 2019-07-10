@@ -171,6 +171,26 @@ class Customers extends Component {
         this.props.fetchCustomerSchoolInfo(id)
     }
 
+    onClickCustomerDisplayClassReconcileLater(cls) {
+        console.log('clicked on:')
+        console.log(cls)
+
+        let item = {
+            id: v4(),
+            item_type: 'product',
+            quantity: 1,
+            data: product 
+         }
+ 
+         console.log('item')
+         console.log(item)
+         // Check if item not yet in cart
+         
+         // If not yet in cart, add as a new pproduct, else increase 
+        //  this.props.addToCart(item)
+    }
+
+
     render() {
         const customers = this.props.customers
         const school_info = this.props.school_info
@@ -244,6 +264,7 @@ class Customers extends Component {
                                                 OnClickUpdateNote={this.props.setUpdateNote}
                                                 OnClickCancelUpdateNote={this.props.clearUpdateNote}
                                                 onClickDeleteNote={this.props.deleteNote}
+                                                onClickCustomerDisplayClassReconcileLater={this.props.onClickCustomerDisplayClassReconcileLater}
                                                 createNoteErrorData={customers.create_note_error_data}
                                                 updateNoteErrorData={customers.update_note_error_data}
                                                 onSetCameraAppSnap={this.props.setCameraAppSnap}
