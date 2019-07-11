@@ -101,10 +101,10 @@ def index_get_link_note(row):
     Return a model + button in case a customer added a note
     """
     if row.customers_orders.CustomerNote:
-        modal_content = XML(SPAN(
+        modal_content = SPAN(
             T("The customer added the following message to this order:"), BR(), BR(),
-            row.customers_orders.CustomerNote.replace('\n', "<br>")
-        ))
+            XML(row.customers_orders.CustomerNote.replace('\n', "<br>"))
+        )
         modal_class = "order_message_" + unicode(row.customers_orders.id)
         button_class = 'btn btn-default btn-sm'
 
