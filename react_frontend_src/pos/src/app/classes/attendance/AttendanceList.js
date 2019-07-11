@@ -122,7 +122,7 @@ const AttendanceList = ({attendance_items, intl, title="", onClick=f=>f, onClick
                                 <td><Customerclasses clattID={item.classes_attendance.id}
                                                      status={item.classes_attendance.BookingStatus}
                                                      onClick={onClick}
-                                                     onClickRemove={onClickRemove} /></td>
+                                                     onClickRemove={() => onClickRemove(item.classes_attendance.id, item.auth_user.id)} /></td>
                             </tr>
                         )}
                     </tbody>

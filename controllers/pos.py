@@ -131,6 +131,7 @@ def get_user():
     return dict(profile=auth.user,
                 permissions=permissions)
 
+
 @auth.requires_login(otherwise=return_json_login_error)
 def get_settings():
     """
@@ -289,13 +290,12 @@ def get_class_booking_options():
     return dict(options = options)
 
 
-
-
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('create', 'classes_attendance'))
 def customer_class_booking_create():
     """
-    Check customer in to a class
+    Check customer in to a class, drop-in and trial are handled through
+    an order.
     :return:
     """
     from openstudio.os_attendance_helper import AttendanceHelper
@@ -307,13 +307,12 @@ def customer_class_booking_create():
     type = request.vars['Type']
     date = TODAY_LOCAL
 
+    ah = AttendanceHelper()
     error = True
     message = T("Please make sure that the variables cuID, clsID and Type are included")
     if cuID and clsID and type:
         error = False
         message = ""
-
-        ah = AttendanceHelper()
 
         if type == 'subscription':
             result = ah.attendance_sign_in_subscription(
@@ -334,29 +333,31 @@ def customer_class_booking_create():
                 booking_status='attending'
             )
 
-        # elif type == 'dropin':
-        #     result = ah.attendance_sign_in_dropin(
-        #         cuID,
-        #         clsID,
-        #         date,
-        #         invoice=True,
-        #         booking_status='attending'
-        #     )
-        #
-        # elif type == 'trialclass':
-        #     result = ah.attendance_sign_in_dropin(
-        #         cuID,
-        #         clsID,
-        #         date,
-        #         invoice=True,
-        #         booking_status='attending'
-        #     )
+        elif type == "complementary":
+            error = False
+            result = ah.attendance_sign_in_complementary(
+                cuID,
+                clsID,
+                date,
+                booking_status='attending'
+            )
+
+        elif type == "reconcile_later":
+            print "checking in"
+            error = False
+            result = ah.attendance_sign_in_reconcile_later(
+                cuID,
+                clsID,
+                date,
+                booking_status='attending'
+            )
+
+            print result
+
 
         if result['status'] == 'fail':
             error = True
             message = result['message']
-
-        # elif type == 'trial':
 
 
     return dict(error=error,
@@ -572,11 +573,11 @@ def get_customer_notes():
                 ~db.customers_notes.NoteTime
     )
 
-    print rows
+    # print rows
 
     notes = []
     for i, row in enumerate(rows):
-        print row
+        # print row
         repr_row = list(rows[i:i + 1].render())[0]
 
         date = row.NoteDate
@@ -589,7 +590,7 @@ def get_customer_notes():
             time.minute
         )
 
-        print note_dt
+        # print note_dt
 
         notes.append({
             "id": row.id,
@@ -599,7 +600,7 @@ def get_customer_notes():
             "Processed": row.Processed
         })
 
-    print notes
+    # print notes
 
     return dict(data=notes)
 
@@ -725,6 +726,27 @@ def get_customers_thumbnail_url(row_data):
                auth.has_permission('read', 'auth_user'))
 def get_customers():
     """
+    Get non trashed customers from cache
+    """
+    # forget session
+    session.forget(response)
+
+    # Don't cache when running tests
+    if web2pytest.is_running_under_test(request, request.application):
+        data = _get_customers()
+    else:
+        cache_key = 'openstudio_pos_get_customers'
+        data = cache.ram(cache_key,
+                         lambda: _get_customers(),
+                         time_expire=600)
+
+    return data
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'auth_user'))
+def _get_customers():
+    """
     List not trashed customers
     """
     set_headers()
@@ -738,16 +760,16 @@ def get_customers():
         db.auth_user.last_name,
         db.auth_user.display_name,
         db.auth_user.email,
-        db.auth_user.gender,
+        # db.auth_user.gender,
         db.auth_user.date_of_birth,
-        db.auth_user.address,
-        db.auth_user.postcode,
-        db.auth_user.city,
-        db.auth_user.country,
-        db.auth_user.phone,
+        # db.auth_user.address,
+        # db.auth_user.postcode,
+        # db.auth_user.city,
+        # db.auth_user.country,
+        # db.auth_user.phone,
         db.auth_user.mobile,
-        db.auth_user.emergency,
-        db.auth_user.company,
+        # db.auth_user.emergency,
+        # db.auth_user.company,
         db.auth_user.thumbsmall,
         db.auth_user.thumblarge,
         db.auth_user.barcode_id,
@@ -767,16 +789,16 @@ def get_customers():
             'display_name': row.display_name,
             'search_name': row.display_name.lower() if row.display_name else "",
             'email': row.email,
-            'gender': row.gender,
+            # 'gender': row.gender,
             'date_of_birth': date_of_birth,
-            'address': row.address,
-            'postcode': row.postcode,
-            'city': row.city,
-            'country': row.country,
-            'phone': row.phone,
+            # 'address': row.address,
+            # 'postcode': row.postcode,
+            # 'city': row.city,
+            # 'country': row.country,
+            # 'phone': row.phone,
             'mobile': row.mobile,
-            'emergency': row.emergency,
-            'company': row.company,
+            # 'emergency': row.emergency,
+            # 'company': row.company,
             'thumbsmall': get_customers_thumbnail_url(row.thumbsmall),
             'thumblarge': get_customers_thumbnail_url(row.thumblarge),
             'barcode_id': row.barcode_id
@@ -787,15 +809,18 @@ def get_customers():
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'customers_memberships'))
-def get_customers_memberships_today():
+def get_customer_memberships_today():
     """
     List customer memberships
     """
     set_headers()
 
+    cuID = request.vars['id']
+
     query = (db.customers_memberships.Startdate <= TODAY_LOCAL) & \
-            ((db.customers_memberships.Enddate >= TODAY_LOCAL) |\
-             (db.customers_memberships.Enddate == None))
+            ((db.customers_memberships.Enddate >= TODAY_LOCAL) |
+             (db.customers_memberships.Enddate == None)) & \
+            (db.customers_memberships.auth_customer_id == cuID)
 
     rows = db(query).select(
         db.customers_memberships.id,
@@ -805,16 +830,11 @@ def get_customers_memberships_today():
         db.customers_memberships.Enddate,
     )
 
-    memberships = {}
+    memberships = []
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
-        try:
-            memberships[row.auth_customer_id]
-        except KeyError:
-            memberships[row.auth_customer_id] = []
-
-        memberships[row.auth_customer_id].append({
+        memberships.append({
             'id': row.id,
             'auth_customer_id': row.auth_customer_id,
             'name': repr_row.school_memberships_id,
@@ -823,63 +843,71 @@ def get_customers_memberships_today():
             'end': repr_row.Enddate,
         })
 
-    return memberships
+    return dict(data=memberships)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'customers_memberships'))
-def get_customers_memberships():
+def get_customer_memberships():
     """
     List customer memberships, from the last 400 days
     """
     set_headers()
 
+    cuID = request.vars['id']
+
     date_from = TODAY_LOCAL - datetime.timedelta(days=400)
 
-    query = (db.customers_memberships.Startdate >= date_from)
+    query = (db.customers_memberships.Startdate >= date_from) & \
+            (db.customers_memberships.auth_customer_id == cuID)
+    left = [
+        db.school_memberships.on(
+            db.customers_memberships.school_memberships_id ==
+            db.school_memberships.id
+        )
+    ]
 
     rows = db(query).select(
         db.customers_memberships.id,
         db.customers_memberships.auth_customer_id,
-        db.customers_memberships.school_memberships_id,
         db.customers_memberships.Startdate,
         db.customers_memberships.Enddate,
+        db.school_memberships.id,
+        db.school_memberships.Name,
+        left=left
     )
 
-    memberships = {}
+    memberships = []
     for i, row in enumerate(rows):
-        repr_row = list(rows[i:i + 1].render())[0]
 
-        try:
-            memberships[row.auth_customer_id]
-        except KeyError:
-            memberships[row.auth_customer_id] = []
-
-        memberships[row.auth_customer_id].append({
-            'id': row.id,
-            'auth_customer_id': row.auth_customer_id,
-            'name': repr_row.school_memberships_id,
-            'school_memberships_id': row.school_memberships_id,
-            'start': repr_row.Startdate,
-            'end': repr_row.Enddate,
+        memberships.append({
+            'id': row.customers_memberships.id,
+            'auth_customer_id': row.customers_memberships.auth_customer_id,
+            'name': row.school_memberships.Name,
+            'school_memberships_id': row.school_memberships.id,
+            'start': row.customers_memberships.Startdate.strftime(DATE_FORMAT),
+            'end': row.customers_memberships.Enddate.strftime(DATE_FORMAT),
         })
 
-    return memberships
+    return dict(data=memberships)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'customers_classcards'))
-def get_customers_classcards():
+def get_customer_classcards():
     """
     List customer subscriptions, excluding cards that ended more then 
     7 months ago
     """
     set_headers()
 
+    cuID = request.vars['id']
+
     dont_show_after = TODAY_LOCAL - datetime.timedelta(days=217)
     query = (db.customers_classcards.Startdate <= TODAY_LOCAL) &\
-            ((db.customers_classcards.Enddate >= dont_show_after) |\
-             (db.customers_classcards.Enddate == None))
+            ((db.customers_classcards.Enddate >= dont_show_after) |
+             (db.customers_classcards.Enddate == None)) & \
+            (db.customers_classcards.auth_customer_id == cuID)
 
     left = [
         db.school_classcards.on(
@@ -901,18 +929,13 @@ def get_customers_classcards():
         left=left
     )
 
-    classcards = {}
+    classcards = []
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
-        try:
-            classcards[row.customers_classcards.auth_customer_id]
-        except KeyError:
-            classcards[row.customers_classcards.auth_customer_id] = []
-
         classes_taken = row.customers_classcards.ClassesTaken or 0
 
-        classcards[row.customers_classcards.auth_customer_id].append({
+        classcards.append({
             'id': row.customers_classcards.id,
             'auth_customer_id': row.customers_classcards.auth_customer_id,
             'name': row.school_classcards.Name,
@@ -924,22 +947,25 @@ def get_customers_classcards():
             'unlimited': row.school_classcards.Unlimited
         })
 
-    return classcards
+    return dict(data=classcards)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'customers_subscriptions'))
-def get_customers_subscriptions():
+def get_customer_subscriptions():
     """
     List customer subscriptions, excluding subscriptions that ended more then 
     7 months ago
     """
     set_headers()
 
+    cuID = request.vars['id']
+
     dont_show_after = TODAY_LOCAL - datetime.timedelta(days=217)
     query = (db.customers_subscriptions.Startdate <= TODAY_LOCAL) &\
-            ((db.customers_subscriptions.Enddate >= dont_show_after) |\
-             (db.customers_subscriptions.Enddate == None))
+            ((db.customers_subscriptions.Enddate >= dont_show_after) |
+             (db.customers_subscriptions.Enddate == None)) & \
+            (db.customers_subscriptions.auth_customer_id == cuID)
 
 
     rows = db(query).select(
@@ -951,16 +977,11 @@ def get_customers_subscriptions():
         db.customers_subscriptions.MinEnddate,
     )
 
-    subscriptions = {}
+    subscriptions = []
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
-        try:
-            subscriptions[row.auth_customer_id]
-        except KeyError:
-            subscriptions[row.auth_customer_id] = []
-
-        subscriptions[row.auth_customer_id].append({
+        subscriptions.append({
             'id': row.id,
             'auth_customer_id': row.auth_customer_id,
             'name': repr_row.school_subscriptions_id,
@@ -969,7 +990,102 @@ def get_customers_subscriptions():
             'min_end': row.MinEnddate
         })
 
-    return subscriptions
+    return dict(data=subscriptions)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'classes_attendance'))
+def get_customer_reconcile_later_classes():
+    """
+    List customer reconcile later classes
+
+    :return:
+    """
+    from openstudio.os_attendance_helper import AttendanceHelper
+
+    set_headers()
+
+    cuID = request.vars['id']
+
+    left = [
+        db.classes.on(
+            db.classes_attendance.classes_id ==
+            db.classes.id
+        ),
+        db.school_classtypes.on(
+            db.classes.school_classtypes_id ==
+            db.school_classtypes.id,
+        ),
+        db.school_locations.on(
+            db.classes.school_locations_id ==
+            db.school_locations.id
+        )
+    ]
+
+    # Type 6 = reconcile later
+    query = (db.classes_attendance.AttendanceType == 6) & \
+            (db.classes_attendance.auth_customer_id == cuID)
+    rows = db(query).select(
+        db.classes_attendance.ALL,
+        db.classes.ALL,
+        db.school_locations.Name,
+        db.school_classtypes.Name,
+        left=left,
+        orderby = db.classes_attendance.ClassDate
+    )
+
+    ah = AttendanceHelper()
+    reconcile_later_classes = []
+    for row in rows:
+
+        price = ah._attendance_sign_in_get_dropin_trial_price(
+            row.classes_attendance.auth_customer_id,
+            row.classes_attendance.classes_id,
+            row.classes_attendance.ClassDate,
+            'dropin'
+        )
+        reconcile_later_classes.append({
+            'id': row.classes_attendance.id,
+            'auth_customer_id': row.classes_attendance.auth_customer_id,
+            'class_id': row.classes_attendance.classes_id,
+            'class_date': row.classes_attendance.ClassDate.strftime(DATE_FORMAT),
+            'has_membership': row.classes_attendance.CustomerMembership,
+            'school_location': row.school_locations.Name,
+            'school_classtype': row.school_classtypes.Name,
+            'time_start': row.classes.Starttime.strftime(TIME_FORMAT),
+            'time_end': row.classes.Endtime.strftime(TIME_FORMAT),
+            'price': price
+        })
+
+    return dict(data=reconcile_later_classes)
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'auth_user'))
+def get_customer_school_info():
+    """
+    List customer information
+    - subscriptions
+    - memberships
+    - classcards
+    - reconcile later classes
+    :return:
+    """
+    set_headers()
+
+    cuID = request.vars['id']
+
+    subscriptions = get_customer_subscriptions()['data']
+    classcards = get_customer_classcards()['data']
+    memberships = get_customer_memberships()['data']
+    reconcile_later_classes = get_customer_reconcile_later_classes()['data']
+
+    return dict(
+        subscriptions=subscriptions,
+        classcards=classcards,
+        memberships=memberships,
+        reconcile_later_classes=reconcile_later_classes
+    )
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -1060,7 +1176,11 @@ def create_customer():
     """
     :return: dict containing data of new auth_user
     """
+    from openstudio.os_cache_manager import OsCacheManager
+
     set_headers()
+
+    ocm = OsCacheManager()
 
 
     db.auth_user.password.requires = None
@@ -1068,6 +1188,7 @@ def create_customer():
 
     result = db.auth_user.validate_and_insert(**request.vars)
     print result
+    ocm.clear_customers()
 
     customer_data = ''
     error = False
@@ -1114,7 +1235,11 @@ def update_customer():
     """
     :return: dict containing data of new auth_user
     """
+    from openstudio.os_cache_manager import OsCacheManager
+
     set_headers()
+
+    ocm = OsCacheManager()
 
     db.auth_user.password.requires = None
     print request.vars
@@ -1146,6 +1271,7 @@ def update_customer():
     if cuID:
         query = (db.auth_user.id == cuID)
         result = db(query).validate_and_update(**request.vars)
+        ocm.clear_customers()
         print result
         error = False
         if result.errors:
@@ -1457,6 +1583,18 @@ def validate_cart_create_order(cuID, pmID, items):
                 item['data']['id'],
                 TODAY_LOCAL
             )
+        elif item['item_type'] == 'class_reconcile_later':
+            datestr = item['data']['class_date']
+            class_date = datestr_to_python(DATE_FORMAT, datestr)
+
+            query = (db.classes_attendance.id == item['data']['id'])
+            db(query).delete()
+
+            order.order_item_add_class(
+                item['data']['class_id'],
+                class_date,
+                2 # Attendance Type 2 = drop-in
+            )
         elif item['item_type'] == 'class_dropin':
             order.order_item_add_class(
                 item['data']['clsID'],
@@ -1733,7 +1871,7 @@ def update_expense():
 
     query = (db.accounting_expenses.id == aeID)
     result = db(query).validate_and_update(**request.vars)
-    print result
+    # print result
 
     expense_data = ''
     error = False

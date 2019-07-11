@@ -44,6 +44,7 @@ class Validation extends Component {
         let cartHasClasscard = false
         let cartHasMembership = false
         let cartHasSubscription = false
+        let cartHasClassReconcileLater = false
         var i
         for (i = 0; i < cartItems.length; i++) {
             console.log(cartItems[i])
@@ -57,19 +58,21 @@ class Validation extends Component {
                 case "membership":
                     cartHasMembership = true
                     break
+                case "class_reconcile_later":
+                    cartHasClassReconcileLater = true
             }
         } 
 
-        if (cartHasClasscard) {
-            this.props.fetchCustomersClasscards()
+        if ( (cartHasClasscard) || (cartHasSubscription) || (cartHasMembership) || (cartHasClassReconcileLater) ){
+            this.props.fetchCustomersSchoolInfo(this.props.selected_customerID)
         }
-        if (cartHasSubscription) {
-            this.props.fetchCustomersSubscriptions()
-        }
-        if (cartHasSubscription) {
-            this.props.fetchCustomersMemberships()
-            this.props.fetchCustomersMembershipsToday()
-        }
+        // if (cartHasSubscription) {
+        //     this.props.fetchCustomersSubscriptions()
+        // }
+        // if (cartHasSubscription) {
+        //     this.props.fetchCustomersMemberships()
+        //     this.props.fetchCustomersMembershipsToday()
+        // }
 
         this.props.clearSelectedPaymentMethod()
         this.props.clearCartItems()

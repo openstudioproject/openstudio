@@ -865,11 +865,13 @@ def add():
     db.auth_user.password.default = generate_password(30)
     db.auth_user.customer.default = True
 
+    crud.settings.create_onaccept = [cache_clear_customers]
+
     if request.vars['teacher'] == 'True':
         response.subtitle = T("Add a teacher")
         db.auth_user.teacher.default = True
         db.auth_user.login_start.default = 'backend'
-        crud.settings.create_onaccept = [cache_clear_school_teachers]
+        crud.settings.create_onaccept.append(cache_clear_school_teachers)
 
     if request.vars['employee'] == 'True':
         response.subtitle = T("Add an employee")
@@ -927,6 +929,14 @@ def add_get_back(var=None):
         url
     )
 
+
+def cache_clear_customers(var=None):
+    """
+    Clear customers cache after adding a customer
+    """
+    from openstudio.os_cache_manager import OsCacheManager
+    ocm = OsCacheManager()
+    ocm.clear_customers()
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -1021,7 +1031,7 @@ def edit():
 
     crud.messages.submit_button = T('Save')
     crud.messages.record_updated = T('Saved')
-    crud.settings.update_onaccept = []
+    crud.settings.update_onaccept = [cache_clear_customers]
 
     # Clear teachers cache if we're updating a teacher
     if row.teacher:

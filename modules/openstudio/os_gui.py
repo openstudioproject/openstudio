@@ -221,7 +221,10 @@ class OsGui:
         if button_id:
             button_xml += ' id="' + button_id + '" '
         if button_title:
-            button_xml += ' title="' + button_title + '" '
+            try:
+                button_xml += ' title="' + button_title.decode('utf-8') + '" '
+            except:
+                button_xml += ' title="' + button_title + '" '
         button_xml += 'data-toggle="modal" data-target=".' + modal_class + '"> '
         try:
             button_xml += button_text.decode('utf-8')

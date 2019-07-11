@@ -54,6 +54,19 @@ const CartListClassTrial = ({classes, item, selected_item}) =>
     </CartListItemSelected>
 
 
+const CartListClassReconcileLater = ({classes, item, selected_item}) => 
+    <CartListItemSelected item={item}
+                          selected_item={selected_item} >
+        {/* <span className="bold">{}</span> <br/> */}
+        <div className="bold">
+            Drop-in class - { item.data.school_classtype } in { item.data.school_location } @{item.data.time_start} 
+        </div>
+        <CartListItemQuantity qty={item.quantity}
+                              price={item.data.price}
+        />
+    </CartListItemSelected>
+
+
 const CartListProduct = ({item, selected_item}) => 
     <CartListItemSelected item={item}
                           selected_item={selected_item} >
@@ -115,6 +128,10 @@ const CartListItem = injectIntl(({classes, item, selected_item, intl, onClick=f=
                                  selected_item={selected_item} /> : '' }
         { (item.item_type == 'class_trial') ? 
             <CartListClassTrial classes={classes}
+                                item={item}
+                                selected_item={selected_item} /> : '' }
+        { (item.item_type == 'class_reconcile_later') ? 
+            <CartListClassReconcileLater classes={classes}
                                 item={item}
                                 selected_item={selected_item} /> : '' }
         { (item.item_type == 'product') ? 

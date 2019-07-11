@@ -14,7 +14,7 @@ const mapStateToProps = state =>
         barcode_scans: state.app.settings.data.customers_barcodes,
         classes: state.classes.classes.data,
         customers: state.customers.list,
-        memberships: state.customers.memberships
+        // memberships: state.customers.memberships
     })
 
 const mapDispatchToProps = dispatch =>
@@ -25,8 +25,8 @@ const mapDispatchToProps = dispatch =>
         updateClassAttendanceBookingStatus(clattID, status) {
             dispatch(classesAttendanceOperations.updateClassAttendanceBookingStatus(clattID, status))
         },
-        deleteClassAttendance(clattID) {
-            dispatch(classesAttendanceOperations.deleteClassAttendance(clattID))
+        deleteClassAttendance(clattID, cuID) {
+            dispatch(classesAttendanceOperations.deleteClassAttendance(clattID, cuID))
         },
         setPageTitle(title) {
             dispatch(appOperations.setPageTitle(title))
@@ -34,24 +34,24 @@ const mapDispatchToProps = dispatch =>
         setPageSubtitle(subtitle) {
             dispatch(appOperations.setPageSubtitle(subtitle))
         },
-        clearSearchTimeout() {
-            dispatch(classesAttendanceOperations.clearclassesAttendanceSearchTimeout())
-        },
-        setSearchTimeout(timeout) {
-            dispatch(classesAttendanceOperations.setclassesAttendanceSearchTimeout(timeout))
-        },
-        clearSearchCustomerID() {
-            dispatch(classesAttendanceOperations.clearclassesAttendanceSearchCustomerID())
-        },
-        setSearchCustomerID(id) {
-            dispatch(classesAttendanceOperations.setclassesAttendanceSearchCustomerID(id))
-        },
-        clearSearchValue() {
-            dispatch(classesAttendanceOperations.clearclassesAttendanceSearchValue())
-        },
-        setSearchValue(value) {
-            dispatch(classesAttendanceOperations.setclassesAttendanceSearchValue(value))
-        },
+        // clearSearchTimeout() {
+        //     dispatch(classesAttendanceOperations.clearclassesAttendanceSearchTimeout())
+        // },
+        // setSearchTimeout(timeout) {
+        //     dispatch(classesAttendanceOperations.setclassesAttendanceSearchTimeout(timeout))
+        // },
+        // clearSearchCustomerID() {
+        //     dispatch(classesAttendanceOperations.clearclassesAttendanceSearchCustomerID())
+        // },
+        // setSearchCustomerID(id) {
+        //     dispatch(classesAttendanceOperations.setclassesAttendanceSearchCustomerID(id))
+        // },
+        // clearSearchValue() {
+        //     dispatch(classesAttendanceOperations.clearclassesAttendanceSearchValue())
+        // },
+        // setSearchValue(value) {
+        //     dispatch(classesAttendanceOperations.setclassesAttendanceSearchValue(value))
+        // },
     })
 
 

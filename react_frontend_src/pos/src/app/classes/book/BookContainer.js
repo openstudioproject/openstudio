@@ -6,6 +6,7 @@ import Book from "./Book"
 import { appOperations } from '../../duck'
 import { classesBookOperations } from './duck'
 import { customersListOperations } from  "../../customers/list/duck"
+import { customersMembershipsTodayOperations } from "../../customers/memberships_today/duck"
 import { shopCartOperations } from '../../shop/cart/duck'
 
 
@@ -43,6 +44,12 @@ const mapDispatchToProps = dispatch =>
         },
         addShopCartItem(item) {
             dispatch(shopCartOperations.addItem(item))
+        },
+        clearMembershipsToday() {
+            dispatch(customersMembershipsTodayOperations.clearMembershipsToday())
+        },
+        fetchMembershipsToday(id) {
+            dispatch(customersMembershipsTodayOperations.fetchMembershipsToday(id))
         }
     })
 

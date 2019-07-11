@@ -13,6 +13,7 @@ import Products from './Products'
 const mapStateToProps = state => 
     ({
         app: state.app,
+        categories_loaded: state.shop.products.categories_loaded,
         loaded: state.shop.products.loaded,
         products: state.shop.products,
         products_data: state.shop.products.data
@@ -53,6 +54,12 @@ const mapDispatchToProps = dispatch =>
         setCategoryFilterID(id) {
             dispatch(shopProductsOperations.setCategoryFilterID(id))
         },
+        fetchProducts() {
+            dispatch(shopProductsOperations.fetchProducts())
+        },
+        fetchProductCategories() {
+            dispatch(shopProductsOperations.fetchProductCategories())
+        }
 
     })
 

@@ -24,16 +24,16 @@ class CustomerDisplaySubscriptions extends Component {
 
 
     render() {
-        const customerID = this.props.customerID
-        const subscriptions = this.props.subscriptions
+        const data = this.props.data
+        const subscriptions = data.data.subscriptions
 
         return (
            <div>
-               { (subscriptions.loaded) ?
-                (subscriptions.data[customerID]) ?
+               { (data.loaded) ?
+                (subscriptions.length) ?
                     <div>     
                         <b>Subscriptions</b>
-                        {subscriptions.data[customerID].map((subscription, i) => 
+                        {subscriptions.map((subscription, i) => 
                             <div key={v4()}>
                                 { subscription.name } <br />
                                 <span className="text-muted">

@@ -5,6 +5,8 @@ import BookOptionsListItemClasscard from "./BookOptionsListItemClasscard"
 import BookOptionsListItemDropin from "./BookOptionsListItemDropin"
 import BookOptionsListItemSubscription from "./BookOptionsListItemSubscription"
 import BookOptionsListItemTrial from "./BookOptionsListItemTrial"
+import BookOptionsListItemComplementary from "./BookOptionsListItemComplementary"
+import BookOptionsListItemReconcileLater from "./BookOptionsListItemReconcileLater"
 
 const populateRowsSubscriptions = (subscriptions, customer_memberships, onClick=f=>f) => {
     let container = []
@@ -62,12 +64,19 @@ const BookOptionsList = ({booking_options, customer_memberships, onClick=f=>f}) 
             </div>
         : '' }
         <h4>Drop-in & Trial</h4>
-            <div className="row">
-                <BookOptionsListItemDropin data={booking_options.dropin}
-                                           onClick={onClick} />
-                <BookOptionsListItemTrial data={booking_options.trial}
-                                          onClick={onClick} />
-            </div>
+        <div className="row">
+            <BookOptionsListItemDropin data={booking_options.dropin}
+                                        onClick={onClick} />
+            <BookOptionsListItemTrial data={booking_options.trial}
+                                        onClick={onClick} />
+        </div>
+        <h4>Other</h4>
+        <div className="row">
+            <BookOptionsListItemComplementary data={booking_options.complementary}
+                                              onClick={onClick} />
+            <BookOptionsListItemReconcileLater data={booking_options.reconcile_later}
+                                              onClick={onClick} />
+        </div>
     </div>
 
 

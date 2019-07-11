@@ -2,18 +2,8 @@ import { connect } from 'react-redux'
 
 import App from './App'
 import { appOperations } from './duck'
-import { classesClassesOperations } from './classes/classes/duck'
-import { customersListOperations } from './customers/list/duck'
-import { customersClasscardsOperations } from './customers/classcards/duck'
-import { customersSubscriptionsOperations } from './customers/subscriptions/duck'
-import { customersMembershipsOperations } from './customers/memberships/duck'
-import { customersMembershipsTodayOperations } from './customers/memberships_today/duck'
-import { cashbookOperations } from './cashbook/duck'
-import { shopProductsOperations } from './shop/products/duck'
-import { shopSchoolClasscardsOperations } from './shop/school/classcards/duck'
-import { shopSchoolMembershipsOperations } from './shop/school/memberships/duck'
-import { shopSchoolSubscriptionsOperations } from './shop/school/subscriptions/duck'
 
+import { customersListOperations } from './customers/list/duck'
 
 
 const mapStateToProps = state => 
@@ -23,17 +13,11 @@ const mapStateToProps = state =>
 
 const mapDispatchToProps = dispatch =>
     ({  
-        fetchClasses() {
-            dispatch(classesClassesOperations.fetchClasses())
-        },
         fetchPaymentMethods() {
             dispatch(appOperations.fetchPaymentMethods())
         },
         fetchTaxRates() {
             dispatch(appOperations.fetchTaxRates())
-        },
-        fetchProductCategories() {
-            dispatch(shopProductsOperations.fetchProductCategories())
         },
         fetchUser() {
             dispatch(appOperations.fetchUser())
@@ -43,36 +27,6 @@ const mapDispatchToProps = dispatch =>
         },
         fetchCustomers() {
             dispatch(customersListOperations.fetchCustomers())
-        },
-        fetchCustomersClasscards() {
-            dispatch(customersClasscardsOperations.fetchClasscards())
-        },
-        fetchCustomersSubscriptions() {
-            dispatch(customersSubscriptionsOperations.fetchSubscriptions())
-        },
-        fetchCustomersMemberships() {
-            dispatch(customersMembershipsOperations.fetchMemberships())
-        },
-        fetchCustomersMembershipsToday() {
-            dispatch(customersMembershipsTodayOperations.fetchMembershipsToday())
-        },
-        fetchCashCounts() {
-            dispatch(cashbookOperations.fetchCashCounts())
-        },
-        fetchExpenses() {
-            dispatch(cashbookOperations.fetchExpenses())
-        },
-        fetchShopProducts() {
-            dispatch(shopProductsOperations.fetchProducts())
-        },
-        fetchShopSchoolClasscards() {
-            dispatch(shopSchoolClasscardsOperations.fetchShopClasscards())
-        },
-        fetchShopSchoolMemberships() {
-            dispatch(shopSchoolMembershipsOperations.fetchShopMemberships())
-        },
-        fetchShopSchoolSubscriptions() {
-            dispatch(shopSchoolSubscriptionsOperations.fetchShopSubscriptions())
         },
         setLoaded(loaded) {
             dispatch(appOperations.setLoaded(loaded))

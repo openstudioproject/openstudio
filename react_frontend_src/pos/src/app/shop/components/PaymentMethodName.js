@@ -1,15 +1,42 @@
-import React from "react"
+import React, { Component } from "react"
 
 
-const PaymentMethodName = ({methods, selected_method}) => {
-    let name = ''
+class PaymentMethodName extends Component {
+    constructor(props) {
+        super(props)
+        console.log(props)
+    }
 
-    methods.map((method, i) => 
-        (method.id === selected_method) ? 
-            name = method['Name'] : ''
-    )
+    componentWillMount() {
+        
+    }
 
-    return <span>{name}</span>
+    render() {
+        const methods = this.props.methods
+        const selected_method = this.props.selected_method
+
+        let name = ''
+
+        methods.map((method, i) => 
+            (method.id === selected_method) ? 
+                name = method['Name'] : ''
+        )
+    
+        return <span>{name}</span>
+    }
+
 }
+
+
+// const PaymentMethodName = ({methods, selected_method}) => {
+//     let name = ''
+
+//     methods.map((method, i) => 
+//         (method.id === selected_method) ? 
+//             name = method['Name'] : ''
+//     )
+
+//     return <span>{name}</span>
+// }
 
 export default PaymentMethodName
