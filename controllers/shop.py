@@ -929,9 +929,6 @@ def event_ticket_get_info(wsp):
         LI(B(T("Price")), BR(), represent_float_as_amount(wsp.get_price_for_customer(auth.user.id))),
     )
 
-    print 'dec'
-    print wsp.description
-
     if wsp.description:
         info.append(
             LI(B(T("Description")), BR(), wsp.description)
