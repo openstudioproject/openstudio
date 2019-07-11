@@ -5,6 +5,8 @@ import { withRouter } from 'react-router'
 import Customers from './Customers'
 import { appOperations } from '../../duck'
 import { customersListOperations } from './duck'
+import { customersSchoolInfoOperations } from '../school_info/duck'
+import { shopCartOperations } from "../../shop/cart/duck"
 
 
 const mapStateToProps = state => 
@@ -12,15 +14,19 @@ const mapStateToProps = state =>
         app: state.app,
         barcode_scans: state.app.settings.data.customers_barcodes,
         customers: state.customers.list,
-        classcards: state.customers.classcards,
-        subscriptions: state.customers.subscriptions,
-        memberships: state.customers.memberships
+        school_info: state.customers.school_info
     })
 
 const mapDispatchToProps = dispatch =>
     ({
         setPageTitle(title) {
             dispatch(appOperations.setPageTitle(title))
+        },
+        clearShopCart() {
+            dispatch(shopCartOperations.clearItems())
+        },
+        addShopCartItem(item) {
+            dispatch(shopCartOperations.addItem(item))
         },
         createCustomer(data) {
             dispatch(customersListOperations.createCustomer(data))
@@ -115,6 +121,12 @@ const mapDispatchToProps = dispatch =>
         clearNotesCheckinCheck() {
             dispatch(customersListOperations.clearNotesCheckinCheck())
         },
+        clearCustomerSchoolInfo() {
+            dispatch(customersSchoolInfoOperations.clearSchoolInfo())
+        },
+        fetchCustomerSchoolInfo(id) {
+            dispatch(customersSchoolInfoOperations.fetchSchoolInfo(id))
+        }
     })
 
 

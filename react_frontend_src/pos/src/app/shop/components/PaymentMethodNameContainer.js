@@ -2,7 +2,7 @@ import { connect } from 'react-redux'
 import { injectIntl } from 'react-intl';
 import { withRouter } from 'react-router-dom'
 
-// import { appOperations } from '../../duck'
+import { appOperations } from '../../duck'
 import PaymentMethodName from "./PaymentMethodName"
 
 
@@ -14,9 +14,9 @@ const mapStateToProps = state =>
 
 const mapDispatchToProps = dispatch =>
     ({
-        // setPageTitle(title) {
-        //     dispatch(appOperations.setPageTitle(title))
-        // }
+        fetchPaymentMethods() {
+            dispatch(appOperations.fetchPaymentMethods())
+        },
     })
 
 const PaymentMethodNameContainer = withRouter(injectIntl(connect(

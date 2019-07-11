@@ -31,6 +31,13 @@ class Products extends Component {
             this.props.intl.formatMessage({ id: 'app.pos.products' })
         )
         this.props.setCustomersListRedirectNext('/shop/products')
+        if (!this.props.loaded) {
+            this.props.fetchProducts()
+        }
+        if (!this.props.categories_loaded) {
+            this.props.fetchProductCategories()
+        }
+
     }
 
     onClickProductListItem(product) {

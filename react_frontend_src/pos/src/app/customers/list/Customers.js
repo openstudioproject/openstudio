@@ -3,6 +3,7 @@ import { intlShape } from "react-intl"
 import PropTypes from "prop-types"
 import { NavLink } from 'react-router-dom'
 import validator from 'validator'
+import { v4 } from 'uuid'
 
 import PageTemplate from "../../../components/PageTemplate"
 import InputGroupSearch from "../../../components/ui/InputGroupSearch"
@@ -167,13 +168,39 @@ class Customers extends Component {
         this.props.setDisplayCustomerID(id)
         this.props.clearNotes()
         this.props.fetchNotes(id)
+        this.props.clearCustomerSchoolInfo()
+        this.props.fetchCustomerSchoolInfo(id)
     }
+
+    onClickCustomerDisplayClassReconcileLater(cls) {
+        console.log('clicked on:')
+        console.log(cls)
+
+        let item = {
+            id: v4(),
+            item_type: 'class_reconcile_later',
+            quantity: 1,
+            data: cls
+         }
+ 
+        console.log('item')
+        console.log(item)
+        
+        this.props.setSelectedCustomerID(cls.auth_customer_id) 
+        this.props.setDisplayCustomerID(cls.auth_customer_id) 
+
+        this.props.clearShopCart()
+        this.props.addShopCartItem(item)
+        this.props.history.push('/shop/products')
+    }
+
 
     render() {
         const customers = this.props.customers
-        const memberships = this.props.memberships
-        const subscriptions = this.props.subscriptions
-        const classcards = this.props.classcards
+        const school_info = this.props.school_info
+        // const memberships = this.props.school_info.data.memberships
+        // const subscriptions = this.props.school_info.data.subscriptions
+        // const classcards = this.props.school_info.data.classcards
         const intl = this.props.intl
         const settings = this.props.app.settings.data
         const inputmask_date = settings.date_mask
@@ -233,9 +260,7 @@ class Customers extends Component {
                             <section className="customers-main">
                                 <CustomerDisplay customerID={customers.displayID}
                                                 customers={customers} 
-                                                memberships={memberships}
-                                                subscriptions={subscriptions}
-                                                classcards={classcards}
+                                                school_info={school_info}
                                                 edit_in_progress={customers.update_customer}
                                                 onClickEdit={this.onClickEdit.bind(this)}
                                                 onClickCreateNote={this.props.setCreateNote}
@@ -243,6 +268,7 @@ class Customers extends Component {
                                                 OnClickUpdateNote={this.props.setUpdateNote}
                                                 OnClickCancelUpdateNote={this.props.clearUpdateNote}
                                                 onClickDeleteNote={this.props.deleteNote}
+                                                onClickCustomerDisplayClassReconcileLater={this.onClickCustomerDisplayClassReconcileLater.bind(this)}
                                                 createNoteErrorData={customers.create_note_error_data}
                                                 updateNoteErrorData={customers.update_note_error_data}
                                                 onSetCameraAppSnap={this.props.setCameraAppSnap}

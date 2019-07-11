@@ -28,6 +28,9 @@ class Book extends Component {
     }
 
     componentWillMount() {
+        // Always refresh membership today
+        this.props.fetchMembershipsToday(this.props.match.params.customerID)
+
         this.props.setPageTitle(
             this.props.intl.formatMessage({ id: 'app.pos.classes.book_title' })
         )
@@ -40,10 +43,12 @@ class Book extends Component {
         console.log(this.props.match.params.classID)
         console.log(this.props.match.params.customerID)
         this.props.fetchBookingOptions(this.props.match.params.classID, this.props.match.params.customerID )
+        
     }
 
     componentWillUnmount() {
         this.props.setPageSubtitle("")
+        this.props.clearMembershipsToday()
     }
 
     onClickButtonBack() {
@@ -65,7 +70,7 @@ class Book extends Component {
 
         // this.props.checkinCustomer(customerID, classID, option)
 
-        const customer_memberships = this.customerMembershipsToday(customerID)
+        const customer_memberships = this.props.customer_memberships_today.data
         console.log('customer_memberships')
         console.log(customer_memberships)
         switch (option.Type) {
@@ -240,6 +245,10 @@ class Book extends Component {
                     this.props.checkinCustomer(customerID, classID, option, this.props.history)
                 }
                 break
+            case "complementary":
+                this.props.checkinCustomer(customerID, classID, option, this.props.history)
+            case "reconcile_later":
+                this.props.checkinCustomer(customerID, classID, option, this.props.history)
             default: 
                 console.log("Login type not found:")
                 console.log(option)
@@ -248,12 +257,8 @@ class Book extends Component {
         }
     }
 
-    customerMembershipsToday(customerID) {
-        return this.props.customer_memberships_today.data[customerID]
-    }
 
     render() {
-        const customerID = this.props.match.params.customerID
         const booking_options = this.props.options.data
 
         return (
@@ -267,7 +272,7 @@ class Book extends Component {
                                 Classes
                             </ButtonBack>
                             <BookOptionsList booking_options={booking_options}
-                                             customer_memberships={this.customerMembershipsToday(customerID)}
+                                             customer_memberships={this.props.customer_memberships_today.data}
                                              onClick={this.onClickBookOption.bind(this)} />
                             {/* <AttendanceList attendance_items={this.props.attendance.data} /> */}
                         </section>

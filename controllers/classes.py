@@ -2687,6 +2687,27 @@ def attendance():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'classes_attendance'))
+def attendance_reconcile_later_to_dropin():
+    """
+    Change reconcile later class to drop in class
+    :return:
+    """
+    from openstudio.os_attendance_helper import AttendanceHelper
+
+    clattID = request.vars['clattID']
+    clatt = db.classes_attendance[clattID]
+
+    ah = AttendanceHelper()
+    result = ah.attendance_reconcile_later_to_dropin(clattID)
+
+    session.flash = T("Reconcile later check-in changed into drop-in")
+
+    redirect(URL('classes', 'attendance', vars={'clsID': clatt.classes_id,
+                                                'date': clatt.ClassDate.strftime(DATE_FORMAT)}))
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'customers_contact'))
 def attendance_export_excel_mailinglist():
     """
@@ -3276,6 +3297,9 @@ def class_book():
 
     if request.vars['complementary'] == 'true':
         result = ah.attendance_sign_in_complementary(cuID, clsID, date, booking_status='attending')
+
+    if request.vars['reconcile_later'] == 'true':
+        result = ah.attendance_sign_in_reconcile_later(cuID, clsID, date, booking_status='attending')
 
     if result['status'] == 'fail':
         session.flash = result['message']

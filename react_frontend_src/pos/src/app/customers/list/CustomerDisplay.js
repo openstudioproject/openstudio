@@ -12,6 +12,7 @@ import CustomerDisplaySubscriptions from "./CustomerDisplaySubscriptions"
 import CustomerDisplayClasscards from "./CustomerDisplayClasscards"
 import CustomerDisplayNotes from "./CustomerDisplayNotes"
 import CustomerDisplayNoteForm from "./CustomerDisplayNoteForm"
+import CustomerDisplayReconcileLaterClasses from "./CustomerDisplayReconcileLaterClasses"
 
 
 class CustomerDisplay extends Component {
@@ -190,9 +191,11 @@ class CustomerDisplay extends Component {
         const customerID = this.props.customerID
         const customers = this.props.customers
         const customers_list = this.props.customers.data
-        const memberships = this.props.memberships
-        const subscriptions = this.props.subscriptions
-        const classcards = this.props.classcards
+    
+        const school_info = this.props.school_info
+        // const memberships = this.props.memberships
+        // const subscriptions = this.props.subscriptions
+        // const classcards = this.props.classcards
         const edit_in_progress = this.props.edit_in_progress
         const onClickEdit = this.props.onClickEdit
         let videoClass
@@ -299,12 +302,9 @@ class CustomerDisplay extends Component {
                                 {customers_list[customerID].date_of_birth}<br/>
                             </div>
                             <div className="col-md-3">
-                                <CustomerDisplayMemberships customerID={customerID}
-                                                            memberships={memberships}/>
-                                <CustomerDisplaySubscriptions customerID={customerID}
-                                                              subscriptions={subscriptions}/>
-                                <CustomerDisplayClasscards customerID={customerID}
-                                                           classcards={classcards}/>
+                                <CustomerDisplayMemberships data={school_info}/>
+                                <CustomerDisplaySubscriptions data={school_info}/>
+                                <CustomerDisplayClasscards data={school_info}/>
                             </div>
                             <div className="col-md-6">
                                 {((customers.create_note) || (customers.update_note)) ?
@@ -338,7 +338,11 @@ class CustomerDisplay extends Component {
                                         onClickBack={this.onClickBackToNotes.bind(this)}
                                         onClickToCheckIn={this.onClickToCheckIn.bind(this)}
                                     />
-                                }
+                                } <br /><br />
+                                <CustomerDisplayReconcileLaterClasses 
+                                    data={school_info} 
+                                    onClick={this.props.onClickCustomerDisplayClassReconcileLater}
+                                />
                             </div>
                         </div>
                         <div className="col-md-2">

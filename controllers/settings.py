@@ -192,9 +192,14 @@ def system_workflow():
     subscription_pauses_min_duration = get_sys_property('subscription_pauses_min_duration')
     subscription_max_pauses = get_sys_property('subscription_max_pauses')
     system_enable_class_checkin_trialclass = get_sys_property('system_enable_class_checkin_trialclass')
+    system_enable_class_checkin_reconcile_later = get_sys_property('system_enable_class_checkin_reconcile_later')
 
 
     form = SQLFORM.factory(
+        Field('system_enable_class_checkin_reconcile_later', 'boolean',
+              default=system_enable_class_checkin_reconcile_later,
+              label=T('Enable reconcile later class booking option'),
+              comment=T('Show or hide the reconcile later class booking option in the back-end')),
         Field('system_enable_class_checkin_trialclass', 'boolean',
               default=system_enable_class_checkin_trialclass,
               label=T('Enable trial class booking option'),
@@ -223,6 +228,7 @@ def system_workflow():
     if form.process().accepted:
         form_vars = [
             'system_enable_class_checkin_trialclass',
+            'system_enable_class_checkin_reconcile_later',
             'class_attendance_max_complementary_checkins',
             'subscription_pauses_min_duration',
             'subscription_max_pauses'

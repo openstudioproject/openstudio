@@ -4,6 +4,7 @@ import { withRouter } from 'react-router'
 
 import { appOperations } from '../../../duck'
 import { shopCartOperations } from '../../cart/duck'
+import { shopSchoolMembershipsOperations } from "./duck"
 import Memberships from './Memberships';
 
 
@@ -22,6 +23,9 @@ const mapDispatchToProps = dispatch =>
         },
         addToCart(item) {
             dispatch(shopCartOperations.addItem(item))
+        },
+        fetchShopMemberships() {
+            dispatch(shopSchoolMembershipsOperations.fetchShopMemberships())
         }
     })
 

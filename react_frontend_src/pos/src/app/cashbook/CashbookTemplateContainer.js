@@ -20,6 +20,12 @@ const mapDispatchToProps = dispatch =>
         },
         onClickExpensesList(id) {
             dispatch(cashbookOperations.setExpensesSelectedID(id))
+        },
+        fetchExpenses() {
+            dispatch(cashbookOperations.fetchExpenses())
+        },
+        fetchCashCounts() {
+            dispatch(cashbookOperations.fetchCashCounts())
         }
     })
 

@@ -4,6 +4,7 @@ import { withRouter } from "react-router"
 
 import Classes from "./Classes"
 import { appOperations } from '../../duck'
+import { classesClassesOperations } from "./duck"
 
 
 const mapStateToProps = state => 
@@ -19,6 +20,9 @@ const mapDispatchToProps = dispatch =>
         },
         setPageSubtitle(title) {
             dispatch(appOperations.setPageSubtitle(title))
+        },
+        fetchClasses() {
+            dispatch(classesClassesOperations.fetchClasses())
         },
     })
 

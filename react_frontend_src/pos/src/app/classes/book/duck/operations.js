@@ -7,7 +7,7 @@ import {
     receiveClassesCustomer
 } from './actions'
 
-import { customersClasscardsOperations } from '../../../customers/classcards/duck'
+import { customersSchoolInfoOperations } from "../../../customers/school_info/duck"
 
 import { toast } from 'react-toastify'
 
@@ -63,7 +63,7 @@ const checkinCustomer = (cuID, clsID, data, history) => {
               dispatch(receiveClassesCustomer(response.data))
               if (!response.data.error) {
                 // Refetch classcards to update count of classes taken (Server side processing only)
-                dispatch(customersClasscardsOperations.fetchClasscards())
+                dispatch(customersSchoolInfoOperations.fetchSchoolInfo(cuID))
                 // Go back to customers
                 history.push('/')
                 // Notify user

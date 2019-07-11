@@ -342,7 +342,18 @@ class AttendanceHelper:
                 # Check update permission
                 if (auth.has_membership(group_id='Admins') or
                     auth.has_permission('update', 'classes_attendance')):
-                    links = [['header', T('Booking status')]]
+
+                    links = []
+
+                    if row.classes_attendance.AttendanceType == 6:
+                        links.append(['header', T('Booking actions')])
+                        links.append(A(os_gui.get_fa_icon('fa-check-circle-o'),
+                                       T('Reconcile to drop-in'), ' ',
+                                       _href=URL('classes', 'attendance_reconcile_later_to_dropin',
+                                                 vars={'clattID': row.classes_attendance.id}),
+                                       _class="text-green"))
+
+                    links.append(['header', T('Booking status')])
                     links.append(A(os_gui.get_fa_icon('fa-check-circle-o'),
                                    T('Booked'), ' ',
                                    _href=URL('classes', 'attendance_set_status',
@@ -464,10 +475,17 @@ class AttendanceHelper:
             except AttributeError:
                 pass
 
+            if row.classes_attendance.AttendanceType == 4:
+                td_labels.append(' ')
+                td_labels.append(os_gui.get_label('default', T('Complementary')))
 
             if row.classes_attendance.AttendanceType == 5:
                 td_labels.append(' ')
                 td_labels.append(os_gui.get_label('warning', T("Review")))
+
+            if row.classes_attendance.AttendanceType == 6:
+                td_labels.append(' ')
+                td_labels.append(os_gui.get_label('warning', T('Reconcile later')))
 
             if show_booking_time:
                 td_labels.append(BR())
@@ -1203,6 +1221,15 @@ class AttendanceHelper:
                 "Name": T('Complementary'),
             }
 
+        # Reconcile later
+        system_enable_class_checkin_reconcile_later = get_sys_property('system_enable_class_checkin_reconcile_later')
+        if system_enable_class_checkin_reconcile_later:
+            options['reconcile_later'] = {
+                'clsID': clsID,
+                "Type": "reconcile_later",
+                "Name": T('Reconcile later'),
+            }
+
 
         return options
 
@@ -1526,7 +1553,7 @@ class AttendanceHelper:
 
 
         # Complementary
-        if complementary and options['complementary']:
+        if complementary and options['complementary'] and not list_type =='shop':
             complementary = options['complementary']
 
             formatted_options.append(DIV(HR(), _class='col-md-10 col-md-offset-1'))
@@ -1540,6 +1567,29 @@ class AttendanceHelper:
             option = DIV(DIV(complementary['Name'],
                              _class='col-md-3 bold'),
                          DIV(T('Give this class for free'),
+                             _class='col-md-6'),
+                         DIV(button_book,
+                             _class='col-md-3'),
+                         _class='col-md-10 col-md-offset-1 col-xs-12')
+
+            formatted_options.append(option)
+
+        # Reconcile later
+        system_enable_class_checkin_reconcile_later = get_sys_property('system_enable_class_checkin_reconcile_later')
+        if system_enable_class_checkin_reconcile_later and options['reconcile_later'] and not list_type =='shop':
+            reconcile_later = options['reconcile_later']
+
+            formatted_options.append(DIV(HR(), _class='col-md-10 col-md-offset-1'))
+
+            url = URL(controller, 'class_book', vars={'clsID': clsID,
+                                                      'reconcile_later': 'true',
+                                                      'cuID': customer.row.id,
+                                                      'date': date_formatted})
+            button_book = classes_book_options_get_button_book(url)
+
+            option = DIV(DIV(reconcile_later['Name'],
+                             _class='col-md-3 bold'),
+                         DIV(T("Pay at a later time for this drop-in class"),
                              _class='col-md-6'),
                          DIV(button_book,
                              _class='col-md-3'),
@@ -1854,33 +1904,25 @@ class AttendanceHelper:
         return customer.has_membership_on_date(date)
 
 
-    def _attendance_sign_in_create_invoice(self,
-                                           cuID,
-                                           caID,
-                                           clsID,
-                                           date,
-                                           product_type):
+    def _attendance_sign_in_get_dropin_trial_price(self, cuID, clsID, date, product_type):
         """
-            Creates an invoice for a drop in or trial class
+        Get price for drop-in or trial class on date for customer
+        :param cuID: db.auth_user.id
+        :param clsID: db.classes.id
+        :param date: datetime.date
+        :param product_type: in ['trial', 'dropin']
+        :return:
         """
         from os_class import Class
         from os_customer import Customer
-        from os_invoice import Invoice
 
-        db = current.db
-        DATE_FORMAT = current.DATE_FORMAT
-        T = current.T
-
-        date_formatted = date.strftime(DATE_FORMAT)
-
-        if product_type not in ['trial', 'dropin']:
-            raise ValueError('Product type has to be trial or dropin')
 
         customer = Customer(cuID)
         cls = Class(clsID, date)
         prices = cls.get_prices()
 
         has_membership = customer.has_membership_on_date(date)
+
 
         if product_type == 'dropin':
             price = prices['dropin']
@@ -1893,6 +1935,36 @@ class AttendanceHelper:
 
             if has_membership and prices['trial_membership']:
                 price = prices['trial_membership']
+
+        return price
+
+
+    def _attendance_sign_in_create_invoice(self,
+                                           cuID,
+                                           caID,
+                                           clsID,
+                                           date,
+                                           product_type):
+        """
+            Creates an invoice for a drop in or trial class
+        """
+        from os_invoice import Invoice
+
+        db = current.db
+        DATE_FORMAT = current.DATE_FORMAT
+        T = current.T
+
+        date_formatted = date.strftime(DATE_FORMAT)
+
+        if product_type not in ['trial', 'dropin']:
+            raise ValueError('Product type has to be trial or dropin')
+
+        price = self._attendance_sign_in_get_dropin_trial_price(
+            cuID,
+            clsID,
+            date,
+            product_type
+        )
 
         # check if the price is > 0 when adding an invoice
         if price == 0:
@@ -2249,11 +2321,83 @@ class AttendanceHelper:
         return dict(status=status, message=message, caID=caID)
 
 
+    def attendance_sign_in_reconcile_later(self,
+                                           cuID,
+                                           clsID,
+                                           date,
+                                           booking_status='booked'):
+        """
+            :param cuID: db.auth_user.id
+            :param clsID: db.classes.id
+            :param date: datetime.date
+            :return:
+        """
+        from tools import OsTools
+
+        os_tools = OsTools()
+        db = current.db
+        T = current.T
+
+        status = 'ok'
+        message = ''
+        caID = ''
+
+        class_data = dict(
+            auth_customer_id=cuID,
+            CustomerMembership=self._attendance_sign_in_has_membership(cuID, date),
+            classes_id=clsID,
+            ClassDate=date,
+            AttendanceType=6,  # 4 = Reconcile later
+            online_booking=False,
+            BookingStatus=booking_status
+        )
+
+        signed_in = self._attendance_sign_in_check_signed_in(clsID, cuID, date)
+
+        if signed_in:
+            if signed_in.AttendanceType == 5:
+                # Under review, so update
+                db(db.classes_attendance._id == signed_in.id).update(**class_data)
+            else:
+                status = 'fail'
+                message = T("Already checked in for this class")
+        else:
+            # not signed in
+            if status == "ok":
+                caID = db.classes_attendance.insert(**class_data)
+
+
+        return dict(status=status, message=message, caID=caID)
+
+
+    def attendance_reconcile_later_to_dropin(self, clattID):
+        """
+        Transform reconcile later check-in to drop-in check-in
+        :param clattID: db.classes_attendance.id
+        :return:
+        """
+        db = current.db
+
+        clatt_rl = db.classes_attendance(clattID)
+
+        # Remove reconcile later check-in
+        query = (db.classes_attendance.id == clattID)
+        db(query).delete()
+
+        # Sign in as drop-in
+        return self.attendance_sign_in_dropin(
+            cuID = clatt_rl.auth_customer_id,
+            clsID = clatt_rl.classes_id,
+            date = clatt_rl.ClassDate,
+            booking_status = 'attending'
+        )
+
+
     def attendance_sign_in_request_review(self,
-                                         cuID,
-                                         clsID,
-                                         date,
-                                         booking_status='attending'):
+                                          cuID,
+                                          clsID,
+                                          date,
+                                          booking_status='attending'):
         """
             :param cuID: db.auth_user.id
             :param clsID: db.classes.id

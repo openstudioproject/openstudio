@@ -1,7 +1,7 @@
 import {
-    clearMembershipsToday,
-    requestMembershipsToday,
-    receiveMembershipsToday,
+    clearSchoolInfo,
+    requestSchoolInfo,
+    receiveSchoolInfo,
 } from './actions'
 
 import axios_os from '../../../../utils/axios_os'
@@ -9,19 +9,20 @@ import OS_API from '../../../../utils/os_api'
 
 // just pass these actions as there's nothing else they need to do
 // Put pass-through actions here
+// const setClassesClassAttendanceSearchCustomerID = set_customer_id
 
 // data fetchers
-const fetchMembershipsToday = (id) => {
+const fetchSchoolInfo = (id) => {
       return dispatch => {
-          dispatch(requestMembershipsToday())
+          dispatch(requestSchoolInfo())
 
           let fd = new FormData()
           fd.append('id', id)
 
-          axios_os.post(OS_API.CUSTOMER_MEMBERSHIPS_TODAY, fd)
+          axios_os.post(OS_API.CUSTOMER_SCHOOL_INFO, fd)
           .then(function (response) {
             // handle success
-            dispatch(receiveMembershipsToday(response.data))
+            dispatch(receiveSchoolInfo(response.data))
             // dispatch(setLoadingProgress(100))
           })
           .catch(function (error) {
@@ -36,6 +37,6 @@ const fetchMembershipsToday = (id) => {
 
 
 export default {
-    clearMembershipsToday,
-    fetchMembershipsToday
+  clearSchoolInfo,
+  fetchSchoolInfo
 }

@@ -49,7 +49,7 @@ const updateClassAttendanceBookingStatus = (clattID, status) => {
       }
   }
 
-const deleteClassAttendance = (clattID) => {
+const deleteClassAttendance = (clattID, cuID) => {
       return dispatch => {
           dispatch(requestClassesClassAttendanceDelete(clattID))
 
@@ -61,7 +61,7 @@ const deleteClassAttendance = (clattID) => {
           axios_os.post(OS_API.CLASSES_ATTENDANCE_DELETE, params)
           .then(function (response) {
             // handle success
-            dispatch(customersClasscardsOperations.fetchClasscards())
+            dispatch(customersClasscardsOperations.fetchClasscards(cuID))
             dispatch(receiveClassesClassAttendanceDelete(response.data)) 
             // Refetch classcards to update count of classes taken (Server side processing only)
           })
