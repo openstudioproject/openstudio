@@ -7,7 +7,6 @@ import {
     receiveClassesCustomer
 } from './actions'
 
-// import { customersClasscardsOperations } from '../../../customers/classcards/duck'
 import { customersSchoolInfoOperations } from "../../../customers/school_info/duck"
 
 import { toast } from 'react-toastify'

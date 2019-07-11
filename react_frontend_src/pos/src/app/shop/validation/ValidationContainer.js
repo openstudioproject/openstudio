@@ -7,9 +7,7 @@ import { appOperations } from '../../duck'
 import { shopPaymentOperations } from "../payment/duck"
 import { shopCartOperations } from '../cart/duck'
 import { customersListOperations } from '../../customers/list/duck'
-import { customersClasscardsOperations } from '../../customers/classcards/duck'
-import { customersSubscriptionsOperations } from '../../customers/subscriptions/duck'
-import { customersMembershipsOperations } from '../../customers/memberships/duck'
+import { customersSchoolInfoOperations } from '../../customers/school_info/duck'
 import { customersMembershipsTodayOperations } from '../../customers/memberships_today/duck'
 import Validation from "./Validation"
 
@@ -19,7 +17,8 @@ const mapStateToProps = state =>
         state: state,
         app: state.app,
         cart: state.shop.cart,
-        selected_method: state.shop.payment.selectedID
+        selected_method: state.shop.payment.selectedID,
+        selected_customerID: state.customers.list.selectedID
     })
 
 const mapDispatchToProps = dispatch =>
@@ -39,14 +38,8 @@ const mapDispatchToProps = dispatch =>
         validateCart(state) {
             dispatch(appOperations.validateCart(state))
         },
-        fetchCustomersClasscards() {
-            dispatch(customersClasscardsOperations.fetchClasscards())
-        },
-        fetchCustomersSubscriptions() {
-            dispatch(customersSubscriptionsOperations.fetchSubscriptions())
-        },
-        fetchCustomersMemberships() {
-            dispatch(customersMembershipsOperations.fetchMemberships())
+        fetchCustomersSchoolInfo(id) {
+            dispatch(customersSchoolInfoOperations.fetchSchoolInfo(id))
         },
         fetchCustomersMembershipsToday() {
             dispatch(customersMembershipsTodayOperations.fetchMembershipsToday())
