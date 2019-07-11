@@ -3,6 +3,7 @@ import { intlShape } from "react-intl"
 import PropTypes from "prop-types"
 import { NavLink } from 'react-router-dom'
 import validator from 'validator'
+import { v4 } from 'uuid'
 
 import PageTemplate from "../../../components/PageTemplate"
 import InputGroupSearch from "../../../components/ui/InputGroupSearch"
@@ -177,17 +178,18 @@ class Customers extends Component {
 
         let item = {
             id: v4(),
-            item_type: 'product',
+            item_type: 'class_reconcile_later',
             quantity: 1,
-            data: product 
+            data: cls
          }
  
-         console.log('item')
-         console.log(item)
-         // Check if item not yet in cart
+        console.log('item')
+        console.log(item)
+        // Check if item not yet in cart
          
-         // If not yet in cart, add as a new pproduct, else increase 
-        //  this.props.addToCart(item)
+        // If not yet in cart, add as a new pproduct, else increase 
+        this.props.addToCart(item)
+        this.props.history.push('/shop/products')
     }
 
 
@@ -264,7 +266,7 @@ class Customers extends Component {
                                                 OnClickUpdateNote={this.props.setUpdateNote}
                                                 OnClickCancelUpdateNote={this.props.clearUpdateNote}
                                                 onClickDeleteNote={this.props.deleteNote}
-                                                onClickCustomerDisplayClassReconcileLater={this.props.onClickCustomerDisplayClassReconcileLater}
+                                                onClickCustomerDisplayClassReconcileLater={this.onClickCustomerDisplayClassReconcileLater.bind(this)}
                                                 createNoteErrorData={customers.create_note_error_data}
                                                 updateNoteErrorData={customers.update_note_error_data}
                                                 onSetCameraAppSnap={this.props.setCameraAppSnap}

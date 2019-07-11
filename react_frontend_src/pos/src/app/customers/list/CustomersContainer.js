@@ -5,10 +5,8 @@ import { withRouter } from 'react-router'
 import Customers from './Customers'
 import { appOperations } from '../../duck'
 import { customersListOperations } from './duck'
-import { customersClasscardsOperations } from '../classcards/duck'
-import { customersSubscriptionsOperations } from '../subscriptions/duck'
-import { customersMembershipsOperations } from '../memberships/duck'
 import { customersSchoolInfoOperations } from '../school_info/duck'
+import { shopCartOperations } from "../../shop/cart/duck"
 
 
 const mapStateToProps = state => 
@@ -23,6 +21,9 @@ const mapDispatchToProps = dispatch =>
     ({
         setPageTitle(title) {
             dispatch(appOperations.setPageTitle(title))
+        },
+        addToCart(item) {
+            dispatch(shopCartOperations.addItem(item))
         },
         createCustomer(data) {
             dispatch(customersListOperations.createCustomer(data))
