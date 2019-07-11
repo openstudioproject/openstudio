@@ -185,10 +185,12 @@ class Customers extends Component {
  
         console.log('item')
         console.log(item)
-        // Check if item not yet in cart
-         
-        // If not yet in cart, add as a new pproduct, else increase 
-        this.props.addToCart(item)
+        
+        this.props.setSelectedCustomerID(cls.auth_customer_id) 
+        this.props.setDisplayCustomerID(cls.auth_customer_id) 
+
+        this.props.clearShopCart()
+        this.props.addShopCartItem(item)
         this.props.history.push('/shop/products')
     }
 

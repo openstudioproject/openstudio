@@ -22,7 +22,10 @@ const mapDispatchToProps = dispatch =>
         setPageTitle(title) {
             dispatch(appOperations.setPageTitle(title))
         },
-        addToCart(item) {
+        clearShopCart() {
+            dispatch(shopCartOperations.clearItems())
+        },
+        addShopCartItem(item) {
             dispatch(shopCartOperations.addItem(item))
         },
         createCustomer(data) {
