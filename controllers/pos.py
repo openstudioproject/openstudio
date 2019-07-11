@@ -1583,6 +1583,18 @@ def validate_cart_create_order(cuID, pmID, items):
                 item['data']['id'],
                 TODAY_LOCAL
             )
+        elif item['item_type'] == 'class_reconcile_later':
+            datestr = item['data']['class_date']
+            class_date = datestr_to_python(DATE_FORMAT, datestr)
+
+            query = (db.classes_attendance.id == item['data']['id'])
+            db(query).delete()
+
+            order.order_item_add_class(
+                item['data']['class_id'],
+                class_date,
+                2 # Attendance Type 2 = drop-in
+            )
         elif item['item_type'] == 'class_dropin':
             order.order_item_add_class(
                 item['data']['clsID'],
