@@ -655,13 +655,17 @@ class Invoice:
             :param wspID: db.workshops_products_id
             :return: db.invoices_items.id
         """
+        from os_workshop_product import WorkshopProduct
+
+
         DATE_FORMAT = current.DATE_FORMAT
         db = current.db
         T  = current.T
 
         wspc = db.workshops_products_customers(wspcID)
-        wsp = db.workshops_products(wspc.workshops_products_id)
-        ws = db.workshops(wsp.workshops_id)
+        # wsp = db.workshops_products(wspc.workshops_products_id)
+        wsp = WorkshopProduct(wspc.workshops_products_id)
+        ws = wsp.workshop
 
         # Add item to invoice
         next_sort_nr = self.get_item_next_sort_nr()
@@ -673,13 +677,13 @@ class Invoice:
         iiID = db.invoices_items.insert(
             invoices_id=self.invoices_id,
             ProductName=T('Event'),
-            Description=ws.Name.decode('utf-8') + u' - ' + wsp.Name.decode('utf-8') + item_date,
+            Description=ws.Name.decode('utf-8') + u' - ' + wsp.workshop_product.Name.decode('utf-8') + item_date,
             Quantity=1,
-            Price=wsp.Price,
+            Price=wsp.get_price_for_customer(wspc.auth_customer_id),
             Sorting=next_sort_nr,
-            tax_rates_id=wsp.tax_rates_id,
-            accounting_glaccounts_id=wsp.accounting_glaccounts_id,
-            accounting_costcenters_id=wsp.accounting_costcenters_id
+            tax_rates_id=wsp.workshop_product.tax_rates_id,
+            accounting_glaccounts_id=wsp.workshop_product.accounting_glaccounts_id,
+            accounting_costcenters_id=wsp.workshop_product.accounting_costcenters_id
         )
 
         # Link invoice to workshop product sold to customer
