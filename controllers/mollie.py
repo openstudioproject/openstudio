@@ -470,6 +470,7 @@ def order_pay():
 
     order = Order(coID)
     os_customer = Customer(auth.user.id)
+    mollie_customer_id = None
     invoice_id = ''
     mollie_payment_id = ''
 
