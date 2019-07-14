@@ -925,11 +925,9 @@ def event_ticket_get_info(wsp):
     info = UL(
         LI(B(T("Workshop")), BR(), wsp.workshop_name),
         LI(B(T("Ticket")), BR(), wsp.name),
-        LI(B(T("Price")), BR(), represent_float_as_amount(wsp.price)),
+        # LI(B(T("Price")), BR(), represent_float_as_amount(wsp.price)),
+        LI(B(T("Price")), BR(), represent_float_as_amount(wsp.get_price_for_customer(auth.user.id))),
     )
-
-    print 'dec'
-    print wsp.description
 
     if wsp.description:
         info.append(

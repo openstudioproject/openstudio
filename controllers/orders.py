@@ -31,6 +31,7 @@ def index():
     session.orders_edit_back = 'finance_orders'
 
     db.customers_orders.auth_customer_id.readable = True
+    db.customers_orders.CustomerNote.readable = False
     db.invoices.id.readable=False
 
     query = (db.customers_orders.id > 0)
@@ -42,6 +43,7 @@ def index():
         db.customers_orders.Origin,
         db.customers_orders_amounts.TotalPriceVAT,
         db.customers_orders.Status,
+        db.customers_orders.CustomerNote,
         db.invoices.id,
         db.invoices.InvoiceID,
         db.invoices.Status
@@ -53,10 +55,12 @@ def index():
 
     links = [
         index_get_link_deliver,
-        lambda row: os_gui.get_button('edit', URL('orders', 'edit', vars={'coID': row.customers_orders.id}),
-                                      #_class='pull-right',
-                                      btn_size='',
-                                      tooltip=T('View order'))
+        index_get_link_note,
+        lambda row: os_gui.get_button(
+            'edit',
+            URL('orders', 'edit', vars={'coID': row.customers_orders.id}),
+            btn_size='',
+            tooltip=T('View order'))
     ]
 
     left = [ db.customers_orders_amounts.on(db.customers_orders_amounts.customers_orders_id == db.customers_orders.id),
@@ -92,6 +96,36 @@ def index():
                 header_tools='')
 
 
+def index_get_link_note(row):
+    """
+    Return a model + button in case a customer added a note
+    """
+    if row.customers_orders.CustomerNote:
+        modal_content = SPAN(
+            T("The customer added the following message to this order:"), BR(), BR(),
+            XML(row.customers_orders.CustomerNote.replace('\n', "<br>"))
+        )
+        modal_class = "order_message_" + unicode(row.customers_orders.id)
+        button_class = 'btn btn-default btn-sm'
+
+        result = os_gui.get_modal(
+            button_text = XML("<i class='fa fa-envelope-o'></i>"),
+            button_class = button_class,
+            modal_title = T("Message for order #") + unicode(row.customers_orders.id),
+            modal_content = modal_content,
+            modal_class = modal_class
+        )
+
+        return SPAN(
+            result['button'],
+            result['modal']
+        )
+
+    else:
+        return None
+
+
+
 def index_get_link_deliver(row):
     """
         Return deliver link for index list of orders
@@ -101,7 +135,7 @@ def index_get_link_deliver(row):
         confirm_msg = T("Are you sure you want to deliver this order?")
         onclick = "return confirm('" + confirm_msg + "');"
 
-        link = A(T("Deliver"),
+        link = A(os_gui.get_fa_icon('fa-cube'), ' ', T("Deliver"),
                  _href=URL('orders', 'deliver', vars={'coID':row.customers_orders.id}),
                  _title=T("Deliver order and create invoice for customer"),
                  _onclick=onclick)
