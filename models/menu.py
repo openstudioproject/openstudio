@@ -695,6 +695,11 @@ def get_backend_menu():
                                               SPAN(T('Employee portal'))),
                                               _href=URL('ep', 'index', extension=''))))
 
+        if user_helpers.check_read_permission('pos', user_id):
+            submenu.insert(0, ( '', False, A((os_gui.get_fa_icon('fa-shopping-cart'),
+                                              SPAN(T('Point of Sale'))),
+                                              _href=URL('pos', 'index', extension=''))))
+
         menu += [ ((I(_class=jumpto_class + ' fa fa-flash', _title=T('Go to')),
                             SPAN(T('Go to')),
                             SPAN(I(_class='fa fa-angle-left pull-right'),
