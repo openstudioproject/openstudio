@@ -26,6 +26,11 @@ def index():
     if auth.user.login_start == 'selfcheckin':
         redirect(URL('selfcheckin', 'index'))
 
+    # Point of Sale
+    if auth.user.login_start == 'pos':
+        redirect(URL('pos', 'index'))
+
+    # Employee portal
     if auth.user.login_start == 'ep':
         redirect(URL('ep', 'index'))
 

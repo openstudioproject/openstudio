@@ -585,7 +585,7 @@ def get_backend_menu():
                                 URL('orders', 'index', extension='')))
             # Catalog
             if user_helpers.check_read_permission('shop_products', user_id):
-                submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Catalog [BETA]'))),
+                submenu.append(((I(_class='fa fa-caret-right'), SPAN(T('Catalog'))),
                                 False,
                                 URL('shop_manage', 'products', extension='')))
 
@@ -694,6 +694,11 @@ def get_backend_menu():
             submenu.insert(0, ( '', False, A((os_gui.get_fa_icon('fa-caret-right'),
                                               SPAN(T('Employee portal'))),
                                               _href=URL('ep', 'index', extension=''))))
+
+        if user_helpers.check_read_permission('pos', user_id):
+            submenu.insert(0, ( '', False, A((os_gui.get_fa_icon('fa-caret-right'),
+                                              SPAN(T('Point of Sale'))),
+                                              _href=URL('pos', 'index', extension=''))))
 
         menu += [ ((I(_class=jumpto_class + ' fa fa-flash', _title=T('Go to')),
                             SPAN(T('Go to')),
