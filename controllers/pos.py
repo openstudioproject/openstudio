@@ -112,8 +112,10 @@ def get_user():
     # Permissions error
 
     # get group membership
+    group_id = None
     membership = db.auth_membership(user_id=auth.user.id)
-    group_id = membership.group_id
+    if membership:
+        group_id = membership.group_id
 
     # get group permissions
     query = (db.auth_permission.group_id == group_id) & \
