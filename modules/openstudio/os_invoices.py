@@ -314,6 +314,10 @@ class Invoices:
                                    db.invoices.id),
             db.invoices_customers.on(
                  db.invoices_customers.invoices_id == db.invoices.id),
+            db.auth_user.on(
+                db.invoices_customers.auth_customer_id ==
+                db.auth_user.id
+            )
 
         ]
 
@@ -481,7 +485,7 @@ class Invoices:
 
         search = form.element('#no_table_search')
         search['_class'] += ' margin-right'
-        search['_placeholder'] = T("Invoice #")
+        search['_placeholder'] = T("Search...")
 
         btn_clear = A(T("Clear"),
                       _href=URL('invoices', 'list_invoices_clear_search',
@@ -537,7 +541,12 @@ class Invoices:
 
         if session.invoices_list_invoices_search:
             search = session.invoices_list_invoices_search.strip()
-            query &= (db.invoices.InvoiceID.like('%' + search + '%'))
+            search = '%' + search + '%'
+            query &= (
+                (db.invoices.InvoiceID.like(search)) |
+                (db.invoices.Description.like(search)) |
+                (db.auth_user.display_name.like(search))
+            )
 
         if session.invoices_list_invoices_date_created_from:
             query &= (db.invoices.DateCreated >= session.invoices_list_invoices_date_created_from)
