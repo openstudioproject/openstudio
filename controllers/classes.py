@@ -2591,7 +2591,9 @@ def attendance():
     modal_content = DIV(chart_header,
         XML('<div id="attendance_barchart"> \
         <canvas id="attendance-chart-area" width="870" height="290"></canvas> \
-        </div>'))
+        </div>'),
+        T("This chart show a weekly count of class bookings with status attending.")
+    )
 
     result = os_gui.get_modal(button_text=button_text,
                               modal_title=attendance_get_chart_title()['title'],

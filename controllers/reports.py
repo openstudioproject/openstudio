@@ -5196,7 +5196,8 @@ def class_attendance_get_json():
 
     def count_attendance(clsID, date):
         query = (db.classes_attendance.classes_id==clsID) & \
-                (db.classes_attendance.ClassDate==date)
+                (db.classes_attendance.ClassDate==date) & \
+                (db.classes_attendance.BookingStatus == 'attending')
         attendancecount = int(db(query).count())
 
         query = (db.classes_attendance_override.classes_id==clsID) & \
@@ -5284,7 +5285,7 @@ def class_attendance_get_json():
         average = 0
 
     title = location + " " + dayofweek_name + " " + starttime + " " + classtype + " " + unicode(year)
-    response.subtitle=(title)
+    response.subtitle = title
 
     # set other data
     chart_title = H4(T("Attendance barchart"))
