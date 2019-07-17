@@ -2653,10 +2653,12 @@ def attendance():
     # session variable to control redirect / back behaviour
     session.classes_attendance_back = None
 
-    attendance_count = attendance_get_count(clsID, date)
+    attendance_count = ""
+    booked_count = ""
 
 
-    if not attendance_get_count(clsID, date, formatted=False):
+    if not attendance_get_count_attending(clsID, date, formatted=False) and \
+       not attendance_get_count_booked(clsID, date, formatted=False):
         content = DIV(
             search_results,
             DIV(
@@ -2666,14 +2668,26 @@ def attendance():
             ),
             modals
         )
-
+    else:
+        attendance_count = attendance_get_count_attending(clsID, date)
+        booked_count = SPAN(
+            attendance_get_count_booked(clsID, date)
+        )
 
     menu = classes_get_menu(request.function, clsID, date_formatted)
     export = attendance_get_export(clsID, date_formatted)
-    header_tools = DIV(add_customer, btn_attendance_chart, export,
-                _class='pull-right')
+    header_tools = DIV(
+        add_customer,
+        btn_attendance_chart,
+        export,
+        _class='pull-right'
+    )
 
-    tools = DIV(attendance_count, _class='pull-right')
+    tools = DIV(
+        booked_count,
+        attendance_count,
+        _class='pull-right'
+    )
 
     if date_error:
         menu = ''
@@ -2753,14 +2767,15 @@ def attendance_get_export(clsID, date_formatted):
     return export
 
 
-def attendance_get_count(clsID, date, formatted=True):
+def attendance_get_count_attending(clsID, date, formatted=True):
     """
         :param clsID: db.classes.id
         :param date: date of class
         :return: SPAN with count of attending customers
     """
     query = (db.classes_attendance.classes_id == clsID) & \
-            (db.classes_attendance.ClassDate == date)
+            (db.classes_attendance.ClassDate == date) & \
+            (db.classes_attendance.BookingStatus == 'attending')
     count = db(query).count()
 
 
@@ -2771,8 +2786,29 @@ def attendance_get_count(clsID, date, formatted=True):
         if count == 1:
             count_text = 'Customer attending'
 
-        return SPAN(count, ' ', count_text, _class='grey pull-right')
+        return SPAN(count, ' ', count_text, _class='grey')
 
+
+def attendance_get_count_booked(clsID, date, formatted=True):
+    """
+        :param clsID: db.classes.id
+        :param date: date of class
+        :return: SPAN with count of attending customers
+    """
+    query = (db.classes_attendance.classes_id == clsID) & \
+            (db.classes_attendance.ClassDate == date) & \
+            (db.classes_attendance.BookingStatus == 'booked')
+    count = db(query).count()
+
+
+    if not formatted:
+        return count
+    else:
+        count_text = 'Customers booked'
+        if count == 1:
+            count_text = 'Customer booked'
+
+        return SPAN(count, ' ', count_text, ' - ', _class='grey')
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
