@@ -334,6 +334,7 @@ def details():
         TH(T("Description")),
         TH(T("Quantity")),
         TH(T("Item price")),
+        TH(T("Sub total")),
         TH(T("Tax rate")),
         TH(T("VAT")),
         TH(T("Total")),
@@ -344,7 +345,7 @@ def details():
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
-        subtotal += row.invoices_items.Price or 0
+        subtotal += row.invoices_items.TotalPrice or 0
         vat += row.invoices_items.VAT or 0
         total += row.invoices_items.TotalPriceVAT or 0
 
@@ -357,6 +358,7 @@ def details():
             TD(max_string_length(row.invoices_items.Description, 40)),
             TD(row.invoices_items.Quantity),
             TD(repr_row.invoices_items.Price),
+            TD(repr_row.invoices_items.TotalPrice),
             TD(repr_row.invoices_items.tax_rates_id),
             TD(repr_row.invoices_items.VAT),
             TD(repr_row.invoices_items.TotalPriceVAT),
