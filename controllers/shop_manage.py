@@ -64,14 +64,6 @@ def workflow():
               requires=IS_INT_IN_RANGE(0, 745),
               label=T('Classes cancellation limit in hours'),
               comment=T("Number of hours before a class starts a booking can be cancelled while returning credit")),
-        Field('shop_subscriptions_start',
-              default=shop_subscriptions_start,
-              requires=IS_IN_SET([
-                  ['today', T('Today')],
-                  ['next_month', T('First day of next month')]],
-                  zero=None),
-              label=T('Subscriptions start date'),
-              comment=T("Set the default start date for subscriptions in the shop")),
         Field('shop_subscriptions_payment_method',
               default=shop_subscriptions_payment_method,
               requires=IS_IN_SET([
