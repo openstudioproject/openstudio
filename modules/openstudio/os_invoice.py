@@ -816,7 +816,13 @@ class Invoice:
             period_days = (period_range.end - period_range.start).days + 1
 
             if pause:
-                pause_range = Range(start=pause.Startdate, end=pause.Enddate)
+                # Set pause end date to period end if > period end
+                pause_end = pause.Enddate
+                if pause_end >= period_range.end:
+                    pause_end = period_range.end
+
+
+                pause_range = Range(start=pause.Startdate, end=pause_end)
                 latest_start = max(period_range.start, pause_range.start)
                 earliest_end = min(pause_range.end, pause_range.end)
                 delta = (earliest_end - latest_start).days + 1
