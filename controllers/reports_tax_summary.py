@@ -488,6 +488,7 @@ def export_details():
         "Description",
         "Quantity",
         "Item price",
+        "Sub total",
         "Tax rate",
         "VAT",
         "Total",
@@ -504,7 +505,8 @@ def export_details():
             row.invoices_items.Description,
             row.invoices_items.Quantity,
             row.invoices_items.Price,
-            row.invoices_items.tax_rates_id,
+            row.invoices_items.TotalPrice,
+            repr_row.invoices_items.tax_rates_id,
             row.invoices_items.VAT,
             row.invoices_items.TotalPriceVAT,
         ])
