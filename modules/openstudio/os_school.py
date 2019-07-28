@@ -15,7 +15,7 @@ class School:
                                 False means all cards are returned
             Returns classcards for school
         """
-        from tools import OsTools
+        from .tools import OsTools
 
         db = current.db
         os_tools = OsTools()
@@ -30,7 +30,7 @@ class School:
             query &= (db.school_classcards.PublicCard == True)
 
         if auth_user_id and allow_trial_for_existing_customers != 'on':
-            from os_customer import Customer
+            from .os_customer import Customer
 
             customer = Customer(auth_user_id)
             has_or_had_subscription = customer.get_has_or_had_subscription()
@@ -63,7 +63,7 @@ class School:
             """
                 takes a db.school_classcards() row as argument
             """
-            validity = SPAN(unicode(row.Validity), ' ')
+            validity = SPAN(str(row.Validity), ' ')
 
             validity_in = represent_validity_units(row.ValidityUnit, row)
             if row.Validity == 1:  # Cut the last 's"
@@ -73,7 +73,7 @@ class School:
 
             return validity
 
-        from os_customer import Customer
+        from .os_customer import Customer
 
         TODAY_LOCAL = current.TODAY_LOCAL
         os_gui = current.globalenv['os_gui']
@@ -185,8 +185,8 @@ class School:
         """
             Get button to add card to shopping cart
         """
-        from tools import OsTools
-        from os_customer import Customer
+        from .tools import OsTools
+        from .os_customer import Customer
 
         db = current.db
         os_gui = current.globalenv['os_gui']
@@ -228,8 +228,8 @@ class School:
         """
             Get button to add card to shopping cart
         """
-        from tools import OsTools
-        from os_customer import Customer
+        from .tools import OsTools
+        from .os_customer import Customer
 
         db = current.db
         auth = current.auth
@@ -253,7 +253,7 @@ class School:
 
 
     def _get_formatted_button_apply_accent_color(self, a):
-        from tools import OsTools
+        from .tools import OsTools
 
         os_tools = OsTools()
         color = os_tools.get_sys_property('shop_branding_secondary_accent_color')
@@ -267,7 +267,7 @@ class School:
 
 
     def _get_formatted_display_widget_header(self, name, price):
-        from tools import OsTools
+        from .tools import OsTools
 
         os_tools = OsTools()
         bg_color = os_tools.get_sys_property('shop_branding_primary_accent_bg_color')
@@ -364,12 +364,12 @@ class School:
             elif row.SubscriptionUnit == 'week':
                 if row.Classes == 1:
                     classes_text = T("Class")
-                classes = SPAN(unicode(row.Classes) + ' ' + classes_text)
+                classes = SPAN(str(row.Classes) + ' ' + classes_text)
                 classes_unit = T("Per week")
             elif row.SubscriptionUnit == 'month':
                 if row.Classes == 1:
                     classes_text = T("Class")
-                classes = SPAN(unicode(row.Classes) + ' ' + classes_text)
+                classes = SPAN(str(row.Classes) + ' ' + classes_text)
                 classes_unit = T("Per month")
 
             subscription = DIV(

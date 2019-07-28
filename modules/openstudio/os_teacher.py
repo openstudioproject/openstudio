@@ -39,8 +39,8 @@ class Teacher:
         """
             Returns upcoming classes for teacher
         """
-        from os_gui import OsGui
-        from os_class_schedule import ClassSchedule
+        from .os_gui import OsGui
+        from .os_class_schedule import ClassSchedule
 
         T = current.T
         db = current.db
@@ -181,8 +181,8 @@ class Teacher:
         """
         :return: HTML table holding subrequests this teacher can apply for
         """
-        from os_class import Class
-        from os_gui import OsGui
+        from .os_class import Class
+        from .os_gui import OsGui
 
         os_gui = OsGui()
 
@@ -306,7 +306,7 @@ class Teacher:
         """
         :return: HTML display of default rate for teacher
         """
-        from os_gui import OsGui
+        from .os_gui import OsGui
 
         T = current.T
         os_gui = OsGui()

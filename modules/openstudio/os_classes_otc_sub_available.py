@@ -48,8 +48,8 @@ class ClassesOTCSubAvailable:
         Notify all teachers offering to sub class that a substitute has been found
         :return:
         """
-        from os_mail import OsMail
-        from os_teacher import Teacher
+        from .os_mail import OsMail
+        from .os_teacher import Teacher
 
         T = current.T
 
@@ -87,8 +87,8 @@ class ClassesOTCSubAvailable:
         Notify teacher that he/she won't be subbing this class
         :return:
         """
-        from os_mail import OsMail
-        from os_teacher import Teacher
+        from .os_mail import OsMail
+        from .os_teacher import Teacher
 
         T = current.T
 

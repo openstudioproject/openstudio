@@ -200,9 +200,9 @@ class SchoolSubscription:
 
         classes = ''
         if self.SubscriptionUnit == 'week':
-            classes = SPAN(unicode(self.Classes) + ' ' + classes_text + ' ' + T('a') + ' ' + T('week'))
+            classes = SPAN(str(self.Classes) + ' ' + classes_text + ' ' + T('a') + ' ' + T('week'))
         elif self.SubscriptionUnit == 'month':
-            classes = SPAN(unicode(self.Classes) + ' ' + classes_text + ' ' + T('a') + ' ' + T('month'))
+            classes = SPAN(str(self.Classes) + ' ' + classes_text + ' ' + T('a') + ' ' + T('month'))
 
         return classes
 
@@ -239,7 +239,7 @@ class SchoolSubscription:
         """
             :param auth_user_id: Sell subscription to customer
         """
-        from os_cache_manager import OsCacheManager
+        from .os_cache_manager import OsCacheManager
         db = current.db
         ocm = OsCacheManager()
 

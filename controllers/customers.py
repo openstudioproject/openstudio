@@ -29,7 +29,7 @@ from openstudio.os_workshops_helper import WorkshopsHelper
 from openstudio.os_customers_subscriptions_credits import CustomersSubscriptionsCredits
 
 # python general modules import
-import cStringIO
+import io
 import os
 import openpyxl
 import calendar
@@ -1381,7 +1381,7 @@ def export_excel():
     export_type = request.vars['export']
 
     # create filestream
-    stream = cStringIO.StringIO()
+    stream = io.StringIO()
 
     if export_type.lower() == "customers_list":
         # create dictionary to lookup latest subscription values
@@ -1459,7 +1459,7 @@ def export_excel():
         for row in rows:
             customers_id = row.auth_user.id
             if export_type.lower() == 'subscription_list' and \
-                not cu_mem_dict.has_key(customers_id):
+                customers_id not in cu_mem_dict:
                 # subscription list, if no subscription --> check the next customer.
                 continue
             else:
@@ -1774,7 +1774,7 @@ def classcard_add():
             vars = {'cuID' : cuID,
                     'scdID': row.id}
 
-        form_id = 'form_' + unicode(row.id)
+        form_id = 'form_' + str(row.id)
 
         modal_content = LOAD('customers', 'classcard_add_modern_add_card.load',
                              ajax_trap=True,
@@ -1784,7 +1784,7 @@ def classcard_add():
                                    modal_title=card_name,
                                    modal_content=modal_content,
                                    modal_footer_content=os_gui.get_submit_button(form_id),
-                                   modal_class='modal_card_' + unicode(row.id))
+                                   modal_class='modal_card_' + str(row.id))
         modals.append(result['modal'])
         max_bought = ''
         if over_times_bought(row):
@@ -1831,7 +1831,7 @@ def classcard_get_validity(row):
     """
         takes a db.school_classcards() row as argument
     """
-    validity = SPAN(unicode(row.Validity), ' ')
+    validity = SPAN(str(row.Validity), ' ')
 
     validity_in = represent_validity_units(row.ValidityUnit, row)
     if row.Validity == 1:  # Cut the last 's"
@@ -1876,7 +1876,7 @@ def classcard_add_modern_add_card():
     crud.settings.create_onaccept = functions_onadd
     form = crud.create(db.customers_classcards)
 
-    form_id = "form_" + unicode(scdID)
+    form_id = "form_" + str(scdID)
     form_element = form.element('form')
     form['_id'] = form_id
 
@@ -2014,7 +2014,7 @@ def classcard_edit():
     """
     customers_id = request.vars['cuID']
     classcardID = request.vars['ccdID']
-    response.title = T("Edit Class card") + " " + unicode(classcardID)
+    response.title = T("Edit Class card") + " " + str(classcardID)
     customer = Customer(customers_id)
     classcard = CustomerClasscard(classcardID)
     response.subtitle = customer.get_name()
@@ -2539,7 +2539,7 @@ def classes_attendance():
             att_type = repr_row.classes_attendance.customers_subscriptions_id
         elif row.classes_attendance.customers_classcards_id:
             att_type = SPAN(row.school_classcards.Name,
-                            _title=T('Class card') + ' ' + unicode(row.classes_attendance.customers_classcards_id))
+                            _title=T('Class card') + ' ' + str(row.classes_attendance.customers_classcards_id))
 
         tr = TR(TD(repr_row.classes_attendance.ClassDate),
                 TD(SPAN(repr_row.classes.Starttime, ' - ',
@@ -3956,7 +3956,7 @@ def subscription_credits_month_expire_credits():
     csch = CustomersSubscriptionsCredits()
     sub_credits_expired = csch.expire_credits(TODAY_LOCAL)
 
-    session.flash = T('Expired credits for') + ' ' + unicode(sub_credits_expired) + ' ' + T('subscriptions')
+    session.flash = T('Expired credits for') + ' ' + str(sub_credits_expired) + ' ' + T('subscriptions')
 
     redirect(URL('subscription_credits_month_expired'))
 
@@ -4152,7 +4152,7 @@ def subscription_credits_month_get_form(month, year, current_url, _class='col-md
     for m in months:
         if m[0] == month:
             month_title = m[1]
-    subtitle = month_title + " " + unicode(year)
+    subtitle = month_title + " " + str(year)
 
     form = SQLFORM.factory(
         Field('month',
@@ -5470,7 +5470,7 @@ def load_list():
             if not check_customer_exists:
                 session.flash = SPAN(
                     T("No customer registered with id"), ' ',
-                    unicode(cuID), ', ',
+                    str(cuID), ', ',
                     "please try again."
                 )
                 redirect(URL('classes', 'attendance',

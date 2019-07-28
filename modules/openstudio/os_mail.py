@@ -174,7 +174,7 @@ class OsMail:
 
             return tr
 
-        from os_order import Order
+        from .os_order import Order
 
         T = current.T
         DATETIME_FORMAT = current.DATETIME_FORMAT
@@ -429,7 +429,7 @@ class OsMail:
         :param workshops_products_id: db.workshops_products.id
         :return: mail body for workshop
         """
-        from os_customer import Customer
+        from .os_customer import Customer
 
         db = current.db
         T = current.T
@@ -517,7 +517,7 @@ class OsMail:
             content = self._render_email_template_order(template_content, customers_orders_id)
 
             # Check for order message
-            from os_order import Order
+            from .os_order import Order
             order = Order(customers_orders_id)
             if order.order.CustomerNote:
                 comments = DIV(
@@ -667,7 +667,7 @@ class OsMail:
         logo = self._render_email_template_get_logo()
 
         if sys_notification == 'order_created':
-            from os_order import Order
+            from .os_order import Order
             order = Order(customers_orders_id)
 
             notification = db.sys_notifications(Notification='order_created')

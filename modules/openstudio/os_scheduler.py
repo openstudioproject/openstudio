@@ -18,7 +18,7 @@ class OsScheduler:
                                        today.month,
                                        today.day,
                                        00,
-                                       01)  # Do stuff at 1 minute past midnight
+                                       0o1)  # Do stuff at 1 minute past midnight
 
         # clean up first
         self._remove_tasks()

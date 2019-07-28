@@ -18,7 +18,7 @@ class CustomerExport:
         """
             Customer export all data
         """
-        from cStringIO import StringIO
+        from io import StringIO
         import openpyxl
 
 

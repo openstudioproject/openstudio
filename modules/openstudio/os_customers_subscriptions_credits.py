@@ -22,9 +22,9 @@ class CustomersSubscriptionsCredits:
         """
             Get list of classes a customer has a reservation for in a selected month
         """
-        from os_attendance_helper import AttendanceHelper
-        from os_class_schedule import ClassSchedule
-        from os_classes_reservations import ClassesReservations
+        from .os_attendance_helper import AttendanceHelper
+        from .os_class_schedule import ClassSchedule
+        from .os_classes_reservations import ClassesReservations
         db = current.db
 
         ah = AttendanceHelper()
@@ -122,8 +122,8 @@ class CustomersSubscriptionsCredits:
             :param subscription_unit: string either 'week' or 'month'
             :return: None
         """
-        from os_attendance_helper import AttendanceHelper
-        from os_customer_subscription import CustomerSubscription
+        from .os_attendance_helper import AttendanceHelper
+        from .os_customer_subscription import CustomerSubscription
 
         T = current.T
         db = current.db
@@ -247,7 +247,7 @@ class CustomersSubscriptionsCredits:
         """
             Add subscription credits for month
         """
-        from os_customers import Customers
+        from .os_customers import Customers
 
         T = current.T
         db = current.db

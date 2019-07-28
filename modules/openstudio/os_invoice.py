@@ -101,13 +101,13 @@ class Invoice:
         invoice_id = self.invoice_group.InvoicePrefix or ""
 
         if self.invoice_group.PrefixYear:
-            year = unicode(datetime.date.today().year)
+            year = str(datetime.date.today().year)
             invoice_id += year
 
             # Check if NextID should be reset
             self._get_next_invoice_id_year_prefix_reset_numbering()
 
-        invoice_id += unicode(self.invoice_group.NextID)
+        invoice_id += str(self.invoice_group.NextID)
 
         self.invoice_group.NextID += 1
         self.invoice_group.update_record()
@@ -463,8 +463,8 @@ class Invoice:
         :param product_type: has to be 'trial' or 'dropin'
         :return:
         """
-        from os_customer import Customer
-        from os_class import Class
+        from .os_customer import Customer
+        from .os_class import Class
 
         db = current.db
         DATE_FORMAT = current.DATE_FORMAT
@@ -535,7 +535,7 @@ class Invoice:
             :param attendance_type: int 1 or 2 
             :return: db.invoices_items.id
         """
-        from os_class import Class
+        from .os_class import Class
 
         DATE_FORMAT = current.DATE_FORMAT
         TIME_FORMAT = current.TIME_FORMAT
@@ -615,7 +615,7 @@ class Invoice:
             :param ccdID: Add customer classcard to invoice
             :return: None
         """
-        from os_customer_classcard import CustomerClasscard
+        from .os_customer_classcard import CustomerClasscard
 
         db = current.db
         T  = current.T
@@ -629,7 +629,7 @@ class Invoice:
         iiID = db.invoices_items.insert(
             invoices_id=self.invoices_id,
             ProductName=T("Class card"),
-            Description=classcard.name.decode('utf-8') + u' (' + T("Class card") + u' ' + unicode(ccdID) + u')',
+            Description=classcard.name.decode('utf-8') + ' (' + T("Class card") + ' ' + str(ccdID) + ')',
             Quantity=1,
             Price=price,
             Sorting=next_sort_nr,
@@ -655,7 +655,7 @@ class Invoice:
             :param wspID: db.workshops_products_id
             :return: db.invoices_items.id
         """
-        from os_workshop_product import WorkshopProduct
+        from .os_workshop_product import WorkshopProduct
 
 
         DATE_FORMAT = current.DATE_FORMAT
@@ -677,7 +677,7 @@ class Invoice:
         iiID = db.invoices_items.insert(
             invoices_id=self.invoices_id,
             ProductName=T('Event'),
-            Description=ws.Name.decode('utf-8') + u' - ' + wsp.workshop_product.Name.decode('utf-8') + item_date,
+            Description=ws.Name.decode('utf-8') + ' - ' + wsp.workshop_product.Name.decode('utf-8') + item_date,
             Quantity=1,
             Price=wsp.get_price_for_customer(wspc.auth_customer_id),
             Sorting=next_sort_nr,
@@ -741,8 +741,8 @@ class Invoice:
 
         from general_helpers import get_last_day_month
 
-        from os_customer_subscription import CustomerSubscription
-        from os_school_subscription import SchoolSubscription
+        from .os_customer_subscription import CustomerSubscription
+        from .os_school_subscription import SchoolSubscription
 
         db = current.db
         DATE_FORMAT = current.DATE_FORMAT
@@ -836,19 +836,19 @@ class Invoice:
             price = round(((float(period_days) / float(month_days)) * float(price)), 2)
 
             if not description:
-                description = cs.name.decode('utf-8') + u' ' + period_start.strftime(DATE_FORMAT) + u' - ' + period_end.strftime(DATE_FORMAT)
+                description = cs.name.decode('utf-8') + ' ' + period_start.strftime(DATE_FORMAT) + ' - ' + period_end.strftime(DATE_FORMAT)
                 if pause:
-                    description += u'\n'
-                    description += u"(" + T("Pause") + u": "
-                    description += pause.Startdate.strftime(DATE_FORMAT) + u" - "
-                    description += pause.Enddate.strftime(DATE_FORMAT) + u" | "
+                    description += '\n'
+                    description += "(" + T("Pause") + ": "
+                    description += pause.Startdate.strftime(DATE_FORMAT) + " - "
+                    description += pause.Enddate.strftime(DATE_FORMAT) + " | "
                     description += T("Days paid this period: ")
-                    description += unicode(period_days)
-                    description += u")"
+                    description += str(period_days)
+                    description += ")"
 
         iiID = db.invoices_items.insert(
             invoices_id = self.invoices_id,
-            ProductName = current.T("Subscription") + ' ' + unicode(csID),
+            ProductName = current.T("Subscription") + ' ' + str(csID),
             Description = description,
             Quantity = 1,
             Price = price,
@@ -924,7 +924,7 @@ class Invoice:
 
         iiID = db.invoices_items.insert(
             invoices_id = self.invoices_id,
-            ProductName = current.T("Membership") + ' ' + unicode(cmID),
+            ProductName = current.T("Membership") + ' ' + str(cmID),
             Description = description,
             Quantity = 1,
             Price = price,
@@ -948,9 +948,9 @@ class Invoice:
         :param date: datetime.date class date
         :return:
         """
-        from os_class import Class
-        from os_teacher import Teacher
-        from os_teachers_payment_class import TeachersPaymentClass
+        from .os_class import Class
+        from .os_teacher import Teacher
+        from .os_teachers_payment_class import TeachersPaymentClass
 
         DATE_FORMAT = current.DATE_FORMAT
         TIME_FORMAT = current.TIME_FORMAT
@@ -1006,8 +1006,8 @@ class Invoice:
         :param date: datetime.date class date
         :return:
         """
-        from os_class import Class
-        from os_teacher import Teacher
+        from .os_class import Class
+        from .os_teacher import Teacher
 
         DATE_FORMAT = current.DATE_FORMAT
         TIME_FORMAT = current.TIME_FORMAT
@@ -1046,8 +1046,8 @@ class Invoice:
         :param date: datetime.date class date
         :return:
         """
-        from os_teacher import Teacher
-        from os_employee_claim import EmployeeClaim
+        from .os_teacher import Teacher
+        from .os_employee_claim import EmployeeClaim
 
         DATE_FORMAT = current.DATE_FORMAT
         TIME_FORMAT = current.TIME_FORMAT
@@ -1164,7 +1164,7 @@ class Invoice:
         """
             Set customer information for an invoice
         """
-        from os_customer import Customer
+        from .os_customer import Customer
 
         customer = Customer(cuID)
 

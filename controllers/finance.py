@@ -10,7 +10,7 @@ from openstudio.os_invoices import Invoices
 from openstudio.os_school_subscription import SchoolSubscription
 
 import csv
-import cStringIO
+import io
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -367,7 +367,7 @@ def batch_content():
 
     # totals
     query = (db.payment_batches_items.payment_batches_id == pbID)
-    total_items = unicode(db(query).count())
+    total_items = str(db(query).count())
 
     sum_items = db.payment_batches_items.Amount.sum()
     total_amount = db(query).select(sum_items).first()[sum_items]
@@ -1122,7 +1122,7 @@ def export_csv():
                                       RecurringCustomers=recurring)
 
     # create writer and buffer to hold data
-    stream = cStringIO.StringIO()
+    stream = io.StringIO()
     writer = csv.writer(stream)
 
     # write the header

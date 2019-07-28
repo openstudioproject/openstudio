@@ -71,7 +71,7 @@ class ShopProductsSetsOptionsValues:
         """
             :return: CRUD form to add an option
         """
-        from os_forms import OsForms
+        from .os_forms import OsForms
 
         T = current.T
         db = current.db
@@ -87,7 +87,7 @@ class ShopProductsSetsOptionsValues:
         db.shop_products_sets_options_values.shop_products_sets_options_id.default = \
             options_id
 
-        form_id = "AddValue_" + unicode(self.options_id)
+        form_id = "AddValue_" + str(self.options_id)
 
         os_forms = OsForms()
         result = os_forms.get_crud_form_create(

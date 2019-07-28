@@ -181,7 +181,7 @@ def holiday_edit_locations():
     rows = db(query).select(db.school_holidays_locations.school_locations_id)
     location_ids = list()
     for row in rows:
-        location_ids.append(unicode(row.school_locations_id))
+        location_ids.append(str(row.school_locations_id))
 
     # get all locations
     rows = db().select(db.school_locations.id,
@@ -189,7 +189,7 @@ def holiday_edit_locations():
                        orderby=db.school_locations.Name)
     # Get list of all locations and check those found in location_ids
     for row in rows:
-        if unicode(row.id) in location_ids:
+        if str(row.id) in location_ids:
             # check the row
             table.append(TR(TD(INPUT(_type='checkbox',
                                   _name=row.id,
@@ -213,7 +213,7 @@ def holiday_edit_locations():
         rows = db().select(db.school_locations.id)
         location_ids = []
         for row in rows:
-            location_ids.append(unicode(row.id))
+            location_ids.append(str(row.id))
         # insert new records
         for locID in location_ids:
             if request.vars[locID] == 'on':

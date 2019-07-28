@@ -2,7 +2,7 @@
 
 import datetime
 # import operator
-import cStringIO
+import io
 import openpyxl
 
 
@@ -256,7 +256,7 @@ def export_summary():
     reports = Reports()
 
     # create filestream
-    stream = cStringIO.StringIO()
+    stream = io.StringIO()
 
     wb = openpyxl.workbook.Workbook(write_only=True)
     # Create worksheet
@@ -460,7 +460,7 @@ def export_details():
         name = tax_rate.Name
 
     # create filestream
-    stream = cStringIO.StringIO()
+    stream = io.StringIO()
 
     wb = openpyxl.workbook.Workbook(write_only=True)
     # write the sheet for all mail addresses

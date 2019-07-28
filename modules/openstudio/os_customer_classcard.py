@@ -150,7 +150,7 @@ class CustomerClasscard:
         if remaining == 1:
            text = T("Class")
 
-        return SPAN(unicode(remaining), ' ', text, ' ', T("remaining"))
+        return SPAN(str(remaining), ' ', text, ' ', T("remaining"))
 
 
     def get_classes_taken(self):

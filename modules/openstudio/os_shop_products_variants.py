@@ -12,7 +12,7 @@ class ShopProductsVariants:
         """
         list product variants in a way convenient for the PoS
         """
-        from os_shop_categories import ShopCategories
+        from .os_shop_categories import ShopCategories
         from general_helpers import get_download_url
 
         db = current.db

@@ -39,7 +39,7 @@ class WorkshopProduct:
         :param cuID: db.auth_user.id
         :return: product price for customer
         """
-        from os_customer import Customer
+        from .os_customer import Customer
         TODAY_LOCAL = current.globalenv['TODAY_LOCAL']
 
         price = self.workshop_product.Price
@@ -234,9 +234,9 @@ class WorkshopProduct:
             Sells a workshop to a customer and creates an invoice
             Creates an invoice when a workshop product is sold
         """
-        from os_mail import OsMail
-        from os_workshop import Workshop
-        from os_invoice import Invoice
+        from .os_mail import OsMail
+        from .os_workshop import Workshop
+        from .os_invoice import Invoice
 
         db = current.db
         T = current.T

@@ -33,7 +33,7 @@ def webhook():
         payment_id = id
         payment = mollie.payments.get(payment_id)
 
-        mlw.mollie_payment = unicode(payment)
+        mlw.mollie_payment = str(payment)
         mlw.update_record()
 
         iID = ''
@@ -179,14 +179,14 @@ def webook_payment_is_paid_process_refunds(coID, iID, mollie_refunds):
         row = db(query).select(db.invoices_customers_orders.ALL).first()
         iID = row.invoices_id
 
-    if mollie_refunds[u'count']:
-        for refund in mollie_refunds[u'_embedded'][u'refunds']:
-            refund_id = refund[u'id']
+    if mollie_refunds['count']:
+        for refund in mollie_refunds['_embedded']['refunds']:
+            refund_id = refund['id']
             amount = float(refund['settlementAmount']['value'])
-            refund_date = datetime.datetime.strptime(refund[u'createdAt'].split('+')[0],
+            refund_date = datetime.datetime.strptime(refund['createdAt'].split('+')[0],
                                                      '%Y-%m-%dT%H:%M:%S').date()
             try:
-                description = refund[u'description']
+                description = refund['description']
             except:
                 description = ''
 
@@ -201,8 +201,8 @@ def webook_payment_is_paid_process_refunds(coID, iID, mollie_refunds):
                     iID,
                     amount,
                     refund_date,
-                    refund[u'paymentId'],
-                    refund[u'id'],
+                    refund['paymentId'],
+                    refund['id'],
                     refund_description
                 )
 
@@ -269,16 +269,16 @@ def webhook_payment_is_paid_process_chargeback(coID,
 
     # Check if we have a chargeback
     mollie_chargebacks = mollie_payment.chargebacks
-    if mollie_chargebacks[u'count']:
-        for chargeback in mollie_chargebacks[u'_embedded'][u'chargebacks']:
-            chargeback_id = chargeback[u'id']
+    if mollie_chargebacks['count']:
+        for chargeback in mollie_chargebacks['_embedded']['chargebacks']:
+            chargeback_id = chargeback['id']
             chargeback_amount = float(chargeback['settlementAmount']['value'])
-            chargeback_date = datetime.datetime.strptime(chargeback[u'createdAt'].split('+')[0],
+            chargeback_date = datetime.datetime.strptime(chargeback['createdAt'].split('+')[0],
                                                          '%Y-%m-%dT%H:%M:%S').date()
             try:
                 chargeback_details = "Failure reason: %s (Bank reason code: %s)" % (
-                    mollie_payment[u'details']['bankReason'],
-                    mollie_payment[u'details']['bankReasonCode']
+                    mollie_payment['details']['bankReason'],
+                    mollie_payment['details']['bankReasonCode']
                 )
             except:
                 chargeback_details = ''
@@ -291,7 +291,7 @@ def webhook_payment_is_paid_process_chargeback(coID,
                     iID,
                     chargeback_amount,
                     chargeback_date,
-                    mollie_payment[u'id'],
+                    mollie_payment['id'],
                     chargeback_id,
                     "Mollie Chargeback (%s) - %s" % (chargeback_id, chargeback_details)
                 )
@@ -310,8 +310,8 @@ def webhook_invoice_chargeback(iID,
     from openstudio.os_invoice import Invoice
     invoice = Invoice(iID)
 
-    print "note in wic"
-    print note
+    print("note in wic")
+    print(note)
 
     ipID = invoice.payment_add(
         amount,
@@ -344,9 +344,9 @@ def test_webhook_invoice_chargeback():
         chargeback_id = request.vars['chargeback_id']
         chargeback_details = request.vars['chargeback_details']
 
-        print 'cb_details'
-        print request.vars
-        print chargeback_details
+        print('cb_details')
+        print(request.vars)
+        print(chargeback_details)
 
         webhook_invoice_chargeback(
             iID,
@@ -428,7 +428,7 @@ def invoice_pay():
     try:
         webhook_url = 'https://' + request.env.http_host + '/mollie/webhook'
 
-        redirect_url = 'https://' + request.env.http_host + '/shop/complete?iID=' + unicode(iID)
+        redirect_url = 'https://' + request.env.http_host + '/shop/complete?iID=' + str(iID)
 
         payment = mollie.payments.create({
             'amount': {
@@ -488,7 +488,7 @@ def order_pay():
 
     # Go to Mollie for payment
     amount = format(amounts.TotalPriceVAT, '.2f')
-    description = T('Order') + ' #' + unicode(coID)
+    description = T('Order') + ' #' + str(coID)
 
     if os_customer.row.mollie_customer_id:
         # yep
@@ -529,7 +529,7 @@ def order_pay():
                 recurring_type = None
 
     try:
-        redirect_url = 'https://' + request.env.http_host + '/shop/complete?coID=' + unicode(coID)
+        redirect_url = 'https://' + request.env.http_host + '/shop/complete?coID=' + str(coID)
 
         payment = mollie.payments.create({
             'amount': {
@@ -708,7 +708,7 @@ def donate():
             'value': amount
         },
         'description': description,
-        'redirectUrl': 'https://' + request.env.http_host + '/shop/complete?iID=' + unicode(iID),
+        'redirectUrl': 'https://' + request.env.http_host + '/shop/complete?iID=' + str(iID),
         'webhookUrl': 'https://' + request.env.http_host + '/mollie/webhook',
         'metadata': {
             'invoice_id': invoice.invoice.id,

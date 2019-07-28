@@ -20,7 +20,7 @@ class ShopProducts:
         """
             :return: HTML table with shop products
         """
-        from os_shop_categories import ShopCategories
+        from .os_shop_categories import ShopCategories
 
         T = current.T
         os_gui = current.globalenv['os_gui']

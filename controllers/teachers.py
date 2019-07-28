@@ -2,7 +2,7 @@
 
 import os
 import datetime
-import cStringIO
+import io
 import openpyxl
 
 from general_helpers import get_submenu
@@ -176,14 +176,14 @@ def edit_classtypes():
     rows = db(query).select(db.teachers_classtypes.school_classtypes_id)
     classtypeids = []
     for row in rows:
-        classtypeids.append(unicode(row.school_classtypes_id))
+        classtypeids.append(str(row.school_classtypes_id))
 
     list_query = (db.school_classtypes.Archived == False)
     rows = db(list_query).select(db.school_classtypes.id,
                                  db.school_classtypes.Name,
                                  orderby=db.school_classtypes.Name)
     for row in rows:
-        if unicode(row.id) in classtypeids:
+        if str(row.id) in classtypeids:
             # check the row
             table.append(TR(TD(INPUT(_type='checkbox',
                                   _name=row.id,
@@ -205,7 +205,7 @@ def edit_classtypes():
     rows = db().select(db.school_classtypes.id)
     classtypeids = list()
     for row in rows:
-        classtypeids.append(unicode(row.id))
+        classtypeids.append(str(row.id))
 
     # After submitting, check which classtypes are 'on'
     if form.accepts(request,session):
@@ -268,7 +268,7 @@ def index_export_excel():
 
         fname = T('Contactlist') + '.xlsx'
         # create filestream
-        stream = cStringIO.StringIO()
+        stream = io.StringIO()
 
         wb.save(stream)
         response.headers['Content-Type']='application/vnd.ms-excel'
@@ -832,7 +832,7 @@ def payment_attendance_list_classtypes():
     rows = db(query).select(db.teachers_payment_attendance_lists_school_classtypes.school_classtypes_id)
     classtypeids = []
     for row in rows:
-        classtypeids.append(unicode(row.school_classtypes_id))
+        classtypeids.append(str(row.school_classtypes_id))
         available_ids.add(row.school_classtypes_id)
 
 
@@ -842,7 +842,7 @@ def payment_attendance_list_classtypes():
                                  db.school_classtypes.Name,
                                  orderby=db.school_classtypes.Name)
     for row in rows:
-        if unicode(row.id) in classtypeids:
+        if str(row.id) in classtypeids:
             # check the row
             table.append(TR(TD(INPUT(_type='checkbox',
                                      _name=row.id,
@@ -864,7 +864,7 @@ def payment_attendance_list_classtypes():
     rows = db().select(db.school_classtypes.id)
     classtypeids = list()
     for row in rows:
-        classtypeids.append(unicode(row.id))
+        classtypeids.append(str(row.id))
 
     # After submitting, check which classtypes are 'on'
     if form.accepts(request, session):

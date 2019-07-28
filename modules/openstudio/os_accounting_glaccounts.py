@@ -59,7 +59,7 @@ class AccountingGLAccounts:
         :param permission_edit:
         :return:
         """
-        from os_gui import OsGui
+        from .os_gui import OsGui
 
         os_gui = OsGui()
         buttons = DIV(_class='pull-right')

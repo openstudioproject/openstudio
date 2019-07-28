@@ -140,7 +140,7 @@ class AttendanceHelper:
             :param days: int
             :return: 
         """
-        from os_class import Class
+        from .os_class import Class
 
         db = current.db
         cache = current.cache
@@ -554,8 +554,8 @@ class AttendanceHelper:
         ##
         # Start main function
         ##
-        from os_customer import Customer
-        from os_invoices import Invoices
+        from .os_customer import Customer
+        from .os_invoices import Invoices
 
         T = current.T
         db = current.db
@@ -859,8 +859,8 @@ class AttendanceHelper:
         """
         T = current.T
 
-        import cStringIO, openpyxl
-        stream = cStringIO.StringIO()
+        import io, openpyxl
+        stream = io.StringIO()
 
         title = T('MailingList')
         wb = openpyxl.workbook.Workbook(write_only=True)
@@ -892,7 +892,7 @@ class AttendanceHelper:
 
         customer = Customer(cuID)
         # set random id, used for modal classes
-        random_id = unicode(int(random.random() * 1000000000000))
+        random_id = str(int(random.random() * 1000000000000))
 
         li_link_class = 'btn btn-default btn-lg full-width'
 
@@ -1073,9 +1073,9 @@ class AttendanceHelper:
         :param controller: web2py controller
         :return: list of booking options
         """
-        from os_class import Class
-        from os_customer_classcard import CustomerClasscard
-        from os_customer_subscription import CustomerSubscription
+        from .os_class import Class
+        from .os_customer_classcard import CustomerClasscard
+        from .os_customer_subscription import CustomerSubscription
 
         T = current.T
         db = current.db
@@ -1268,9 +1268,9 @@ class AttendanceHelper:
 
             return button_book
 
-        from os_class import Class
-        from os_customer_classcard import CustomerClasscard
-        from os_customer_subscription import CustomerSubscription
+        from .os_class import Class
+        from .os_customer_classcard import CustomerClasscard
+        from .os_customer_subscription import CustomerSubscription
 
         T = current.T
         db = current.db
@@ -1614,8 +1614,8 @@ class AttendanceHelper:
         :param: list_type: [shop, attendance]
         :return:
         """
-        from os_customer_subscription import CustomerSubscription
-        from os_gui import OsGui
+        from .os_customer_subscription import CustomerSubscription
+        from .os_gui import OsGui
 
         T = current.T
         os_gui = OsGui()
@@ -1696,7 +1696,7 @@ class AttendanceHelper:
                      vars={'cuID':cuID,
                            'note_type':'teachers'})
 
-        modal_class = 'customers_te_notes_' + unicode(cuID)
+        modal_class = 'customers_te_notes_' + str(cuID)
         modal_title = SPAN(T('Teacher notes for'), ' ', customers_name)
 
         query = (db.customers_notes.TeacherNote == True) & \
@@ -1707,7 +1707,7 @@ class AttendanceHelper:
         if count_notes == 1:
             notes_text = T('Note ')
 
-        notes_text = SPAN(unicode(count_notes), ' ', notes_text)
+        notes_text = SPAN(str(count_notes), ' ', notes_text)
         button_text = XML(notes_text)
 
         result = os_gui.get_modal(button_text=button_text,
@@ -1748,7 +1748,7 @@ class AttendanceHelper:
                 Description = cls.get_name(pretty_date=True)
             )
 
-        from os_class import Class
+        from .os_class import Class
 
         db = current.db
         T = current.T
@@ -1843,7 +1843,7 @@ class AttendanceHelper:
         :param date:
         :return:
         """
-        from os_customer_subscription import CustomerSubscription
+        from .os_customer_subscription import CustomerSubscription
 
         T = current.T
         db = current.db
@@ -1898,7 +1898,7 @@ class AttendanceHelper:
         :param cuID: db.auth_user.id
         :return: Bool - true if customer has membership, else false
         """
-        from os_customer import Customer
+        from .os_customer import Customer
 
         customer = Customer(cuID)
         return customer.has_membership_on_date(date)
@@ -1913,8 +1913,8 @@ class AttendanceHelper:
         :param product_type: in ['trial', 'dropin']
         :return:
         """
-        from os_class import Class
-        from os_customer import Customer
+        from .os_class import Class
+        from .os_customer import Customer
 
 
         customer = Customer(cuID)
@@ -1948,7 +1948,7 @@ class AttendanceHelper:
         """
             Creates an invoice for a drop in or trial class
         """
-        from os_invoice import Invoice
+        from .os_invoice import Invoice
 
         db = current.db
         DATE_FORMAT = current.DATE_FORMAT
@@ -2002,8 +2002,8 @@ class AttendanceHelper:
         :param booking_status:
         :return:
         """
-        from os_class import Class
-        from os_customer_classcard import CustomerClasscard
+        from .os_class import Class
+        from .os_customer_classcard import CustomerClasscard
 
         T = current.T
         TODAY_LOCAL = current.TODAY_LOCAL
@@ -2095,7 +2095,7 @@ class AttendanceHelper:
             :param date: datetime.date
             :return: 
         """
-        from os_classcards_helper import ClasscardsHelper
+        from .os_classcards_helper import ClasscardsHelper
 
         db = current.db
         T = current.T
@@ -2271,7 +2271,7 @@ class AttendanceHelper:
             :param date: datetime.date
             :return:
         """
-        from tools import OsTools
+        from .tools import OsTools
 
         os_tools = OsTools()
         db = current.db
@@ -2332,7 +2332,7 @@ class AttendanceHelper:
             :param date: datetime.date
             :return:
         """
-        from tools import OsTools
+        from .tools import OsTools
 
         os_tools = OsTools()
         db = current.db
@@ -2502,7 +2502,7 @@ class AttendanceHelper:
             :param p_end: datetime.date
             :return: None
         """
-        from os_customers_subscriptions_credits import CustomersSubscriptionsCredits
+        from .os_customers_subscriptions_credits import CustomersSubscriptionsCredits
 
         db = current.db
 

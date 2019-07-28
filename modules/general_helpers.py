@@ -669,7 +669,7 @@ def string_to_int(str_in):
     """
         Translates string to integer where A=10 & Z=35
     """
-    if not (isinstance(str_in, unicode) or isinstance(str_in, str)) or len(str_in) == 0:
+    if not (isinstance(str_in, str) or isinstance(str_in, str)) or len(str_in) == 0:
         return None
     # format the string
     str_in = str_in.upper()
@@ -683,9 +683,9 @@ def string_to_int(str_in):
     # create replace map
     replace_map = {}
     for i, letter in enumerate(list(string.ascii_uppercase)):
-        replace_map[letter] = unicode(i + 10)
+        replace_map[letter] = str(i + 10)
 
-    for k, v in replace_map.iteritems():
+    for k, v in replace_map.items():
         str_in = str_in.replace(k, v)
 
     return int(str_in)

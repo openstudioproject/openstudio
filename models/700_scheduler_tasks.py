@@ -134,7 +134,7 @@ def task_mollie_subscription_invoices_and_payments():
                     success += 1
 
                 except MollieError as e:
-                    print e
+                    print(e)
                     # send mail to ask customer to pay manually
                     send_mail_failed(cs.auth_customer_id)
 
@@ -150,8 +150,8 @@ def task_mollie_subscription_invoices_and_payments():
     # For scheduled tasks, db has to be committed manually
     db.commit()
 
-    return T("Payments collected") + ': ' + unicode(success) + '<br>' + \
-        T("Payments failed to collect") + ': ' + unicode(failed)
+    return T("Payments collected") + ': ' + str(success) + '<br>' + \
+        T("Payments failed to collect") + ': ' + str(failed)
 
 
 def scheduler_task_test():

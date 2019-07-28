@@ -27,7 +27,7 @@ class SysEmailReminders:
 
         :return: HTML table of reminders
         """
-        from os_gui import OsGui
+        from .os_gui import OsGui
 
         T = current.T
         auth = current.auth

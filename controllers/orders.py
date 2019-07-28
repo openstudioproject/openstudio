@@ -12,7 +12,7 @@ from openstudio.os_customer import Customer
 
 from decimal import Decimal, ROUND_HALF_UP
 
-import cStringIO
+import io
 import weasyprint
 import openpyxl
 
@@ -105,13 +105,13 @@ def index_get_link_note(row):
             T("The customer added the following message to this order:"), BR(), BR(),
             XML(row.customers_orders.CustomerNote.replace('\n', "<br>"))
         )
-        modal_class = "order_message_" + unicode(row.customers_orders.id)
+        modal_class = "order_message_" + str(row.customers_orders.id)
         button_class = 'btn btn-default btn-sm'
 
         result = os_gui.get_modal(
             button_text = XML("<i class='fa fa-envelope-o'></i>"),
             button_class = button_class,
-            modal_title = T("Message for order #") + unicode(row.customers_orders.id),
+            modal_title = T("Message for order #") + str(row.customers_orders.id),
             modal_content = modal_content,
             modal_class = modal_class
         )

@@ -28,7 +28,7 @@ class SchoolMembership:
         T  = current.T
         db = current.db
 
-        validity = SPAN(unicode(self.row.Validity), ' ')
+        validity = SPAN(str(self.row.Validity), ' ')
 
         validity_in = represent_validity_units(self.row.ValidityUnit, self.row)
         if self.row.Validity == 1: # Cut the last 's"
@@ -55,8 +55,8 @@ class SchoolMembership:
         """
             :param auth_user_id: Sell membership to customer
         """
-        from os_customer_membership import CustomerMembership
-        from os_cache_manager import OsCacheManager
+        from .os_customer_membership import CustomerMembership
+        from .os_cache_manager import OsCacheManager
 
         db = current.db
         ocm = OsCacheManager()
