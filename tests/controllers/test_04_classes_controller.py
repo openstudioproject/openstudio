@@ -132,16 +132,16 @@ def test_revenue_export_preview(client, web2py):
     assert format(tp.ClassRate, '.2f') in client.text
 
 
-def test_revenue_export(client, web2py):
-    """
-    Check core data on /classes/revenue
-    """
-    prepare_classes(web2py)
-    populate_auth_user_teachers_fixed_rate_default(web2py)
-
-    url = '/classes/revenue_export?clsID=1&date=2014-01-06'
-    client.get(url)
-    assert client.status == 200
+# def test_revenue_export(client, web2py):
+#     """
+#     Check core data on /classes/revenue
+#     """
+#     prepare_classes(web2py)
+#     populate_auth_user_teachers_fixed_rate_default(web2py)
+#
+#     url = '/classes/revenue_export?clsID=1&date=2014-01-06'
+#     client.get(url)
+#     assert client.status == 200
 
 
 def test_schedule(client, web2py):

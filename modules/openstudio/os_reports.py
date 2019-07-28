@@ -502,7 +502,7 @@ class Reports:
         :param clsID: db.classes.id
         :param date: datetime.date
         :param quick_stats: bool
-        :return: cBytesIO object containing PDF file for summary export
+        :return: BytesIO object containing PDF file for summary export
         """
         import io
         import weasyprint
