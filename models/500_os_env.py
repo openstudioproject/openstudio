@@ -26,6 +26,18 @@ from gluon.custom_import import track_changes; track_changes(True)
 configuration = AppConfig(reload=True)
 
 
+### Caching ###
+
+if configuration.get('cache.cache') == 'redis':
+    from gluon.contrib.redis_utils import RConn
+    from gluon.contrib.redis_cache import RedisCache
+
+    rconn = RConn()
+    cache.redis = RedisCache(redis_conn=rconn, debug=True)
+    # use redis as cache
+    cache.ram = cache.disk = cache.redis
+
+
 #### Custom validators begin #####
 
 class IS_IBAN(object):
