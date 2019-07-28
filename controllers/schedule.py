@@ -23,8 +23,7 @@ def holidays():
     db.school_holidays.id.readable=False
     fields = [ db.school_holidays.Description,
                db.school_holidays.Startdate,
-               db.school_holidays.Enddate,
-               db.school_holidays.school_locations_ids ]
+               db.school_holidays.Enddate ]
     links = [ {'header':T('Locations'), 'body':holidays_get_link_locations},
               lambda row: os_gui.get_button('edit',
                                      URL('holiday_edit', vars={'shID':row.id}),

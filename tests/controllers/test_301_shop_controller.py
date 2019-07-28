@@ -74,7 +74,7 @@ def test_class_checkout(client, web2py):
     assert client.status == 200
 
     assert "Order summary" in client.text
-    assert str(next_monday) in client.text.decode('utf-8')
+    assert str(next_monday) in client.text
     assert "Pay now" in client.text
     assert data['CustomerNote'] in client.text
 
@@ -1584,7 +1584,7 @@ def test_classcards(client, web2py):
     # Validity
     assert '3 Months' in client.text
     # Price
-    assert '€ 125.00' in client.text.decode('utf-8')
+    assert '€ 125.00' in client.text
     # Add to cart link
     assert '/shop/classcard?scdID=1' in client.text
 
@@ -1595,7 +1595,7 @@ def test_classcards(client, web2py):
     # Validity
     assert '7 Days' in client.text
     # Price
-    assert '€ 15.00' in client.text.decode('utf-8')
+    assert '€ 15.00' in client.text
     # Add to cart link
     assert '/shop/classcard?scdID=2' in client.text
 
@@ -1634,7 +1634,7 @@ def test_classcards_shop_allow_trial_cards_for_existing_customers(client, web2py
     # Validity
     assert '3 Months' in client.text
     # Price
-    assert '€ 125.00' in client.text.decode('utf-8')
+    assert '€ 125.00' in client.text
     # Add to cart link
     assert '/shop/classcard?scdID=1' in client.text
 
@@ -1784,7 +1784,7 @@ def test_contact(client, web2py):
 def test_event_price(client, web2py):
     """
         Is the regular price applied?
-        No earlybird discount & no subscription discount
+        No earlybird discount() & no subscription discount
     """
     setup_profile_tests(web2py)
 
@@ -1797,7 +1797,7 @@ def test_event_price(client, web2py):
 
     # Verify regular price
     wsp = web2py.db.workshops_products(1)
-    assert format(wsp.Price, '.2f') + '</span>' in client.text.decode('utf-8')
+    assert format(wsp.Price, '.2f') + '</span>' in client.text
 
 
 def test_event_price_earlybird(client, web2py):
@@ -1821,7 +1821,7 @@ def test_event_price_earlybird(client, web2py):
 
     # Verify regular price
     wsp = web2py.db.workshops_products(1)
-    assert format(wsp.PriceEarlybird, '.2f') + '</span>' in client.text.decode('utf-8')
+    assert format(wsp.PriceEarlybird, '.2f') + '</span>' in client.text
 
 
 def test_event_price_subscription(client, web2py):
@@ -1849,7 +1849,7 @@ def test_event_price_subscription(client, web2py):
 
     # Verify regular price
     wsp = web2py.db.workshops_products(1)
-    assert format(wsp.PriceSubscription, '.2f') + '</span>' in client.text.decode('utf-8')
+    assert format(wsp.PriceSubscription, '.2f') + '</span>' in client.text
 
 
 def test_event_price_subscription_earlybird(client, web2py):
@@ -1881,7 +1881,7 @@ def test_event_price_subscription_earlybird(client, web2py):
 
     # Verify regular price
     wsp = web2py.db.workshops_products(1)
-    assert format(wsp.PriceSubscriptionEarlybird, '.2f') + '</span>' in client.text.decode('utf-8')
+    assert format(wsp.PriceSubscriptionEarlybird, '.2f') + '</span>' in client.text
 
 
 def test_event_ticket_requires_complete_profile(client, web2py):
@@ -2076,7 +2076,7 @@ def test_subscription_direct_debit_log_terms(client, web2py):
     assert cs.school_subscriptions_id == 1
 
     query = (web2py.db.log_customers_accepted_documents.id > 0)
-    assert web2py.db(query).count > 0
+    assert web2py.db(query).count() > 0
 
 
 def test_membership_terms(client, web2py):

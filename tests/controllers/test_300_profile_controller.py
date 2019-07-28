@@ -855,7 +855,7 @@ def test_orders(client, web2py):
     dc = pytz.utc.localize(order.DateCreated)
     tz = pytz.timezone('Europe/Amsterdam')
     local_dc = dc.astimezone(tz)
-    assert str(local_dc)[:-9] in client.text.decode('utf-8') #[:-3] removes seconds, they are not displayed by default
+    assert str(local_dc)[:-9] in client.text #[:-3] removes seconds, they are not displayed by default
 
     # check items display
     query = (web2py.db.customers_orders_items.customers_orders_id == 2)
@@ -918,7 +918,7 @@ def test_invoices(client, web2py):
     invoice = web2py.db.invoices(2)
 
     assert invoice.InvoiceID in client.text
-    assert str(invoice.DateCreated) in client.text.decode('utf-8')
+    assert str(invoice.DateCreated) in client.text
     assert invoice.Status in client.text.lower()
 
     inv_amounts = web2py.db.invoices_amounts(2)

@@ -2354,3 +2354,25 @@ def populate_customers_subscriptions_blocked(web2py):
         )
 
     web2py.db.commit()
+
+
+def populate_school_holidays(web2py):
+    """
+    Populate school_holidays
+    """
+    populate_school_locations(web2py, 1)
+
+    shID = web2py.db.school_holidays.insert(
+        Description = 'Test holiday',
+        Startdate = '2014-01-01',
+        Enddate = '2014-01-31',
+        Classes = True,
+        Shifts = True,
+    )
+
+    web2py.db.school_holidays_locations.insert(
+        school_holidays_id = 1,
+        school_locations_id = 1
+    )
+
+    web2py.db.commit()

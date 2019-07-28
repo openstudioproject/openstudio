@@ -14,6 +14,7 @@ from populate_os_tables import populate_customers_with_subscriptions
 from populate_os_tables import populate_customers_with_classcards
 from populate_os_tables import populate_school_subscriptions
 from populate_os_tables import populate_postcode_groups
+from populate_os_tables import populate_school_holidays
 from populate_os_tables import prepare_classes
 from populate_os_tables import prepare_shifts
 from populate_os_tables import populate_customers_orders
@@ -430,7 +431,7 @@ def test_classes_otc_delete(client, web2py):
     client.get(url)
     assert client.status == 200
 
-    assert 'Not authorized' in client.text
+    assert 'Not Authorized' in client.text
     assert web2py.db(web2py.db.classes_otc).count() == 1
 
     # grant permission and check again
@@ -500,8 +501,7 @@ def test_schedule_school_holidays_delete(client, web2py):
         Is the delete permission for a school holiday working?
     """
     setup_permission_tests(web2py)
-    populate(web2py.db.school_locations, 1)
-    populate(web2py.db.school_holidays, 1)
+    populate_school_holidays(web2py)
 
     web2py.auth.add_permission(200, 'read', 'school_holidays', 0)
 
