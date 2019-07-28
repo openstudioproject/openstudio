@@ -268,7 +268,7 @@ def index_export_excel():
 
         fname = T('Contactlist') + '.xlsx'
         # create filestream
-        stream = io.StringIO()
+        stream = io.BytesIO()
 
         wb.save(stream)
         response.headers['Content-Type']='application/vnd.ms-excel'

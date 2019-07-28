@@ -854,13 +854,13 @@ class AttendanceHelper:
             :param clsID: db.classes.is 
             :param date: datetime.date
             :param days: int
-            :return: cStringIO stream containing: 
+            :return: cBytesIO stream containing: 
                 list containing email addresses for all people attending, with reservations or expected to attend
         """
         T = current.T
 
         import io, openpyxl
-        stream = io.StringIO()
+        stream = io.BytesIO()
 
         title = T('MailingList')
         wb = openpyxl.workbook.Workbook(write_only=True)

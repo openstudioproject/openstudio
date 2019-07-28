@@ -256,7 +256,7 @@ def export_summary():
     reports = Reports()
 
     # create filestream
-    stream = io.StringIO()
+    stream = io.BytesIO()
 
     wb = openpyxl.workbook.Workbook(write_only=True)
     # Create worksheet
@@ -460,7 +460,7 @@ def export_details():
         name = tax_rate.Name
 
     # create filestream
-    stream = io.StringIO()
+    stream = io.BytesIO()
 
     wb = openpyxl.workbook.Workbook(write_only=True)
     # write the sheet for all mail addresses

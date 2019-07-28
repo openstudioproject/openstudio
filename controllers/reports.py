@@ -232,7 +232,7 @@ def trialclasses_export():
 
 
     # create filestream
-    stream = io.StringIO()
+    stream = io.BytesIO()
 
     # init workbook & sheet
     wb = openpyxl.workbook.Workbook(write_only=True)
@@ -1702,7 +1702,7 @@ def subscriptions_new_export_mailinglist():
     rows = db.executesql(query, fields=fields)
 
     # create filestream
-    stream = io.StringIO()
+    stream = io.BytesIO()
 
     # Create the workbook
     wb = openpyxl.workbook.Workbook(write_only=True)
@@ -2043,7 +2043,7 @@ def subscriptions_overview_export_all_customers():
         Export all customers with a subscription this month to Excel
     """
     # create filestream
-    stream = io.StringIO()
+    stream = io.BytesIO()
     # create dictionary to lookup latest subscription values
     date = datetime.date(session.reports_subscriptions_year,
                          session.reports_subscriptions_month,
@@ -2170,7 +2170,7 @@ def subscriptions_overview_export_mailinglist():
     month = session.reports_subscriptions_month
 
     # create filestream
-    stream = io.StringIO()
+    stream = io.BytesIO()
 
     # Create the workbook
     wb = openpyxl.workbook.Workbook(write_only=True)
@@ -2205,7 +2205,7 @@ def subscriptions_overview_export_attendance():
     subscription = db.school_subscriptions(ssuID)
 
     # create filestream
-    stream = io.StringIO()
+    stream = io.BytesIO()
 
     # Create the workbook
     wb = openpyxl.workbook.Workbook(write_only=True)
@@ -3234,7 +3234,7 @@ def attendance_classtypes_export_excel_mailinglist():
     month_end    = get_last_day_month(month_begin)
 
     # create filestream
-    stream = io.StringIO()
+    stream = io.BytesIO()
 
     classtype = db.school_classtypes(cltID)
     title = max_string_length(classtype.Name, 30)
@@ -3393,7 +3393,7 @@ def attendance_organizations_list_attendance_export():
     year = int(request.vars['year'])
     month = int(request.vars['month'])
 
-    stream = io.StringIO()
+    stream = io.BytesIO()
 
     so = db.sys_organizations(soID)
 
@@ -6068,7 +6068,7 @@ def retention_rate_export():
         Exports the retention or the dropoff based on the session parameters
     """
     # create filestream
-    stream = io.StringIO()
+    stream = io.BytesIO()
 
     # init the workbook and the two sheets
     wb = openpyxl.workbook.Workbook(write_only=True)

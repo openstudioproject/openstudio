@@ -1335,7 +1335,7 @@ def update_customer_picture():
         import base64
         png_image = base64.b64decode(picture)
         # Create file stream
-        stream = io.StringIO(png_image)
+        stream = io.BytesIO(png_image)
 
         # Update picture & generate new thumbnails
         query = (db.auth_user.id == cuID)

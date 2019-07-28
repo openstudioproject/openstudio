@@ -1202,10 +1202,10 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         """
         import barcode
         from barcode.writer import ImageWriter
-        from io import StringIO
+        from io import BytesIO
 
         db = current.db
-        stream = StringIO()
+        stream = BytesIO()
 
         CODE39 = barcode.get_barcode_class('code39')
         code39_barcode = CODE39(

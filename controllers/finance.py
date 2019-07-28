@@ -1122,7 +1122,7 @@ def export_csv():
                                       RecurringCustomers=recurring)
 
     # create writer and buffer to hold data
-    stream = io.StringIO()
+    stream = io.BytesIO()
     writer = csv.writer(stream)
 
     # write the header

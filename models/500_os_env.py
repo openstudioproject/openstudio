@@ -1,3 +1,5 @@
+
+
 import re
 import string
 import random
@@ -13,6 +15,13 @@ from general_helpers import represent_subscription_units
 # -------------------------------------------------------------------------
 from gluon.contrib.appconfig import AppConfig
 from web2pytest import web2pytest
+
+
+# -------------------------------------------------------------------------
+# once in production, comment out the following line
+# -------------------------------------------------------------------------
+from gluon.custom_import import track_changes; track_changes(True)
+
 
 configuration = AppConfig(reload=True)
 

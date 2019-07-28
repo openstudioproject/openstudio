@@ -1522,7 +1522,7 @@ def tickets_export_excel():
     workshop = Workshop(wsID)
 
     # create filestream
-    stream = io.StringIO()
+    stream = io.BytesIO()
 
     wb = openpyxl.workbook.Workbook(write_only=True)
     # write the sheet for all mail addresses
@@ -1849,7 +1849,7 @@ def activities_export_attendance():
     fw_rows = activity_list_customers_get_fullws_rows(wsID)
 
     # create filestream
-    stream = io.StringIO()
+    stream = io.BytesIO()
 
     # Create the workbook
     title = 'test'
@@ -3476,7 +3476,7 @@ def pdf():
     response.headers['Content-disposition'] = 'attachment; filename=' + fname
     # return pyfpdf_from_html(html)
 
-    stream = io.StringIO()
+    stream = io.BytesIO()
     workshop = weasyprint.HTML(string=html).write_pdf(stream)
 
     return stream.getvalue()

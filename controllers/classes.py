@@ -1868,7 +1868,7 @@ def schedule_export_excel():
             writer_location(row.id)
 
         # create filestream
-        stream = io.StringIO()
+        stream = io.BytesIO()
 
         fname = T("Schedule") + '.xlsx'
         wb.save(stream)
@@ -2195,7 +2195,7 @@ def reservations_export_mailinglist():
     ##
     # Create filestream
     ##
-    stream = io.StringIO()
+    stream = io.BytesIO()
 
     ##
     # Create Excel workbook

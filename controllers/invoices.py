@@ -1670,7 +1670,7 @@ def pdf():
     response.headers['Content-disposition']='attachment; filename=' + fname
     # return pyfpdf_from_html(html)
 
-    stream = io.StringIO()
+    stream = io.BytesIO()
     invoice = weasyprint.HTML(string=html).write_pdf(stream)
 
     return stream.getvalue()
@@ -1744,7 +1744,7 @@ def export_invoices_get_export(from_date, until_date, invoices_groups_id, filety
         Invoices export
     """
     # create filestream
-    stream = io.StringIO()
+    stream = io.BytesIO()
 
     if filetype == 'excel':
         wb = openpyxl.workbook.Workbook(write_only=True)
@@ -2001,7 +2001,7 @@ def export_payments_get_export(from_date, until_date, invoices_groups_id):
         Payments export
     """
     # create filestream
-    stream = io.StringIO()
+    stream = io.BytesIO()
 
     wb = openpyxl.workbook.Workbook(write_only=True)
     ws = wb.create_sheet(title='Payments')
@@ -2398,7 +2398,7 @@ def open_on_date_export():
     sheet_title = "Invoices open on " + date.strftime(DATE_FORMAT)
 
     # create filestream
-    stream = io.StringIO()
+    stream = io.BytesIO()
 
     wb = openpyxl.workbook.Workbook(write_only=True)
     # write the sheet for all mail addresses

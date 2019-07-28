@@ -502,14 +502,14 @@ class Reports:
         :param clsID: db.classes.id
         :param date: datetime.date
         :param quick_stats: bool
-        :return: cStringIO object containing PDF file for summary export
+        :return: cBytesIO object containing PDF file for summary export
         """
         import io
         import weasyprint
 
         html = self._get_class_revenue_summary_pdf_template(clsID, date, quick_stats)
 
-        stream = io.StringIO()
+        stream = io.BytesIO()
         workshop = weasyprint.HTML(string=html).write_pdf(stream)
 
         return stream

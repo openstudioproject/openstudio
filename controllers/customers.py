@@ -1381,7 +1381,7 @@ def export_excel():
     export_type = request.vars['export']
 
     # create filestream
-    stream = io.StringIO()
+    stream = io.BytesIO()
 
     if export_type.lower() == "customers_list":
         # create dictionary to lookup latest subscription values
