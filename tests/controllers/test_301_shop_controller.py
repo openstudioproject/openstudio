@@ -52,7 +52,7 @@ def test_class_checkout(client, web2py):
 
     next_monday = next_weekday(today, 0)
 
-    url = '/shop/class_checkout?clsID=1&dropin=true&date=' + unicode(next_monday)
+    url = '/shop/class_checkout?clsID=1&dropin=true&date=' + str(next_monday)
     client.get(url)
     assert client.status == 200
 
@@ -74,7 +74,7 @@ def test_class_checkout(client, web2py):
     assert client.status == 200
 
     assert "Order summary" in client.text
-    assert unicode(next_monday) in client.text.decode('utf-8')
+    assert str(next_monday) in client.text.decode('utf-8')
     assert "Pay now" in client.text
     assert data['CustomerNote'] in client.text
 
@@ -344,11 +344,11 @@ def test_classes_booking_status_cancelled(client, web2py):
     web2py.db.commit()
 
     # check past & cancelled classes
-    url = '/shop/classes?date=' + unicode(next_monday)
+    url = '/shop/classes?date=' + str(next_monday)
     client.get(url)
     assert client.status == 200
 
-    assert unicode(datetime.date.today().day) in client.text
+    assert str(datetime.date.today().day) in client.text
     assert 'Cancelled' in client.text
 
 
@@ -386,7 +386,7 @@ def test_classes_booking_status_full(client, web2py):
     prepare_classes(web2py)
 
     # check current classes
-    url = '/shop/classes?date=' + unicode(next_monday)
+    url = '/shop/classes?date=' + str(next_monday)
     client.get(url)
     assert client.status == 200
 
@@ -419,14 +419,14 @@ def test_classes_week_chooser(client, web2py):
     """
     prepare_classes(web2py)
 
-    url = '/shop/classes?date=' + unicode(datetime.date.today())
+    url = '/shop/classes?date=' + str(datetime.date.today())
     client.get(url)
     assert client.status == 200
 
     # Check previous week link (& becomes &amp; because of client)
     assert 'href="#"' in client.text
     # Check next week link
-    assert '/shop/classes?date=' + unicode(datetime.date.today() + datetime.timedelta(days=7)) in client.text
+    assert '/shop/classes?date=' + str(datetime.date.today() + datetime.timedelta(days=7)) in client.text
 
 
 def test_classes_filter(client, web2py):
@@ -523,7 +523,7 @@ def test_classes_book_options(client, web2py):
     web2py.db.commit()
 
     next_monday = next_weekday(datetime.date.today(), 0)
-    client.get('/shop/classes_book_options?clsID=1&date=' + unicode(next_monday))
+    client.get('/shop/classes_book_options?clsID=1&date=' + str(next_monday))
     assert client.status == 200
 
     assert '<div class="col-md-3 bold">Subscription</div>' in client.text
@@ -560,7 +560,7 @@ def test_classes_book_options_trial_disabled_from_system_settings(client, web2py
     web2py.db.commit()
 
     next_monday = next_weekday(datetime.date.today(), 0)
-    client.get('/shop/classes_book_options?clsID=1&date=' + unicode(next_monday))
+    client.get('/shop/classes_book_options?clsID=1&date=' + str(next_monday))
     assert client.status == 200
 
     assert '<div class="col-md-3 bold">Drop in</div>' in client.text
@@ -616,7 +616,7 @@ def test_classes_book_options_subscription_blocked(client, web2py):
     web2py.db.commit()
 
     next_monday = next_weekday(datetime.date.today(), 0)
-    client.get('/shop/classes_book_options?clsID=1&date=' + unicode(next_monday))
+    client.get('/shop/classes_book_options?clsID=1&date=' + str(next_monday))
     assert client.status == 200
 
     assert 'Blocked' in client.text
@@ -645,7 +645,7 @@ def test_classes_book_options_dropin_trial_membership_prices(client, web2py):
     web2py.db.commit()
 
     next_monday = next_weekday(datetime.date.today(), 0)
-    client.get('/shop/classes_book_options?clsID=1&date=' + unicode(next_monday))
+    client.get('/shop/classes_book_options?clsID=1&date=' + str(next_monday))
     assert client.status == 200
 
     # check drop in and trial price listing
@@ -694,7 +694,7 @@ def test_classes_book_options_not_yet_open(client, web2py):
     assert 'Bookings for this class are accepted from' in client.text
 
     # Also check for shop/classes
-    client.get('/shop/classes?date=' + unicode(datetime.date.today() + datetime.timedelta(days=21)))
+    client.get('/shop/classes?date=' + str(datetime.date.today() + datetime.timedelta(days=21)))
     assert client.status == 200
     assert 'Book from' in client.text
 
@@ -731,7 +731,7 @@ def test_classes_book_options_already_booked(client, web2py):
     web2py.db.commit()
 
     # get the url again
-    client.get('/shop/classes_book_options?clsID=1&date=' + unicode(next_monday))
+    client.get('/shop/classes_book_options?clsID=1&date=' + str(next_monday))
     assert client.status == 200
     assert "You've already booked this class" in client.text
 
@@ -746,7 +746,7 @@ def test_classes_book_options_no_past_class_bookings(client, web2py):
     today = datetime.date.today()
     two_weeks_ago = today - datetime.timedelta(days=14)
 
-    url = '/shop/classes_book_options?clsID=1&date=' + unicode(two_weeks_ago)
+    url = '/shop/classes_book_options?clsID=1&date=' + str(two_weeks_ago)
     client.get(url)
     assert client.status == 200
 
@@ -763,7 +763,7 @@ def test_classes_book_options_no_class_bookings_on_wrong_weekday(client, web2py)
     today = datetime.date.today()
     next_tuesday = next_weekday(today, 1)
 
-    url = '/shop/classes_book_options?clsID=1&date=' + unicode(next_tuesday)
+    url = '/shop/classes_book_options?clsID=1&date=' + str(next_tuesday)
     client.get(url)
     assert client.status == 200
 
@@ -788,7 +788,7 @@ def test_classes_book_options_no_cancelled_class_bookings(client, web2py):
 
     web2py.db.commit()
 
-    url = '/shop/classes_book_options?clsID=1&date=' + unicode(next_monday)
+    url = '/shop/classes_book_options?clsID=1&date=' + str(next_monday)
     client.get(url)
     assert client.status == 200
 
@@ -820,7 +820,7 @@ def test_classes_book_options_no_bookings_during_holidays(client, web2py):
 
     web2py.db.commit()
 
-    url = '/shop/classes_book_options?clsID=1&date=' + unicode(next_monday)
+    url = '/shop/classes_book_options?clsID=1&date=' + str(next_monday)
     client.get(url)
     assert client.status == 200
 
@@ -851,7 +851,7 @@ def test_classes_book_options_enroll_show(client, web2py):
 
     web2py.db.commit()
 
-    url = '/shop/classes_book_options?clsID=1&date=' + unicode(next_monday)
+    url = '/shop/classes_book_options?clsID=1&date=' + str(next_monday)
     client.get(url)
     assert client.status == 200
 
@@ -886,7 +886,7 @@ def test_classes_book_options_enroll_not_allowed_message(client, web2py):
 
     web2py.db.commit()
 
-    url = '/shop/classes_book_options?clsID=1&date=' + unicode(next_monday)
+    url = '/shop/classes_book_options?clsID=1&date=' + str(next_monday)
     client.get(url)
     assert client.status == 200
 
@@ -905,7 +905,7 @@ def test_classes_book_options_enroll_no_subscription_message(client, web2py):
 
     web2py.db.commit()
 
-    url = '/shop/classes_book_options?clsID=1&date=' + unicode(next_monday)
+    url = '/shop/classes_book_options?clsID=1&date=' + str(next_monday)
     client.get(url)
     assert client.status == 200
 
@@ -930,7 +930,7 @@ def test_classes_book_options_enroll_already_enrolled_message(client, web2py):
 
     web2py.db.commit()
 
-    url = '/shop/classes_book_options?clsID=1&date=' + unicode(next_monday)
+    url = '/shop/classes_book_options?clsID=1&date=' + str(next_monday)
     client.get(url)
     assert client.status == 200
 
@@ -959,7 +959,7 @@ def test_classes_book_options_enroll_no_spaces_message(client, web2py):
 
     web2py.db.commit()
 
-    url = '/shop/classes_book_options?clsID=1&date=' + unicode(next_monday)
+    url = '/shop/classes_book_options?clsID=1&date=' + str(next_monday)
     client.get(url)
     assert client.status == 200
 
@@ -997,7 +997,7 @@ def test_class_book_subscription(client, web2py):
     next_monday = next_weekday(datetime.date.today(), 0)
 
     # check subscription booking
-    url = '/shop/class_book?clsID=1&date=' + unicode(next_monday) + '&csID=' + unicode(csID)
+    url = '/shop/class_book?clsID=1&date=' + str(next_monday) + '&csID=' + str(csID)
     client.get(url)
     assert client.status == 200
 
@@ -1040,7 +1040,7 @@ def test_class_book_subscription_no_credits(client, web2py):
     next_monday = next_weekday(datetime.date.today(), 0)
 
     # check subscription booking
-    url = '/shop/class_book?clsID=1&date=' + unicode(next_monday) + '&csID=' + unicode(csID)
+    url = '/shop/class_book?clsID=1&date=' + str(next_monday) + '&csID=' + str(csID)
     client.get(url)
     assert client.status == 200
 
@@ -1114,7 +1114,7 @@ def test_class_book_classcard(client, web2py):
 
     next_monday = next_weekday(datetime.date.today(), 0)
     # check class card booking
-    url = '/shop/class_book?clsID=1&date=' + unicode(next_monday) + '&ccdID=' + unicode(ccdID)
+    url = '/shop/class_book?clsID=1&date=' + str(next_monday) + '&ccdID=' + str(ccdID)
     client.get(url)
     assert client.status == 200
 
@@ -1194,7 +1194,7 @@ def test_class_book_classcard_recurring_class_cancelled(client, web2py):
     assert client.status == 200
 
     data = {
-        'recur_until':unicode(next_monday + datetime.timedelta(days=2))
+        'recur_until':str(next_monday + datetime.timedelta(days=2))
     }
 
     client.post(url, data=data)
@@ -1248,7 +1248,7 @@ def test_class_book_classcard_recurring_class_during_holiday(client, web2py):
     assert client.status == 200
 
     data = {
-        'recur_until':unicode(next_monday + datetime.timedelta(days=32))
+        'recur_until':str(next_monday + datetime.timedelta(days=32))
     }
 
     client.post(url, data=data)
@@ -1295,7 +1295,7 @@ def test_class_book_classcard_recurring_class_full(client, web2py):
     assert client.status == 200
 
     data = {
-        'recur_until':unicode(next_monday + datetime.timedelta(days=3))
+        'recur_until':str(next_monday + datetime.timedelta(days=3))
     }
 
     client.post(url, data=data)
@@ -1343,7 +1343,7 @@ def test_class_book_classcard_recurring_no_classcard_classes_remaining(client, w
     assert client.status == 200
 
     data = {
-        'recur_until':unicode(next_monday + datetime.timedelta(days=3))
+        'recur_until':str(next_monday + datetime.timedelta(days=3))
     }
 
     client.post(url, data=data)
@@ -1391,7 +1391,7 @@ def test_class_book_classcard_recurring_past_advance_booking_limit(client, web2p
     assert client.status == 200
 
     data = {
-        'recur_until':unicode(next_monday + datetime.timedelta(days=14))
+        'recur_until':str(next_monday + datetime.timedelta(days=14))
     }
 
     client.post(url, data=data)
@@ -1434,7 +1434,7 @@ def test_class_book_classcard_recurring_class_past_classcard_enddate(client, web
     assert client.status == 200
 
     data = {
-        'recur_until':unicode(next_monday + datetime.timedelta(days=10))
+        'recur_until':str(next_monday + datetime.timedelta(days=10))
     }
 
     client.post(url, data=data)
@@ -1476,7 +1476,7 @@ def test_class_book_classcard_recurring(client, web2py):
     assert client.status == 200
 
     data = {
-        'recur_until':unicode(next_monday + datetime.timedelta(days=22))
+        'recur_until':str(next_monday + datetime.timedelta(days=22))
     }
 
     client.post(url, data=data)
@@ -1555,7 +1555,7 @@ def test_class_add_to_cart_requires_complete_profile(client, web2py):
 
     # check drop in booking
     future_monday = next_weekday(datetime.date(2999, 1, 1), 0)
-    url = '/shop/class_book?clsID=1&date=' + unicode(future_monday) + '&dropin=true'
+    url = '/shop/class_book?clsID=1&date=' + str(future_monday) + '&dropin=true'
     client.get(url)
     assert client.status == 200
 
@@ -1584,7 +1584,7 @@ def test_classcards(client, web2py):
     # Validity
     assert '3 Months' in client.text
     # Price
-    assert u'€ 125.00' in client.text.decode('utf-8')
+    assert '€ 125.00' in client.text.decode('utf-8')
     # Add to cart link
     assert '/shop/classcard?scdID=1' in client.text
 
@@ -1595,7 +1595,7 @@ def test_classcards(client, web2py):
     # Validity
     assert '7 Days' in client.text
     # Price
-    assert u'€ 15.00' in client.text.decode('utf-8')
+    assert '€ 15.00' in client.text.decode('utf-8')
     # Add to cart link
     assert '/shop/classcard?scdID=2' in client.text
 
@@ -1634,7 +1634,7 @@ def test_classcards_shop_allow_trial_cards_for_existing_customers(client, web2py
     # Validity
     assert '3 Months' in client.text
     # Price
-    assert u'€ 125.00' in client.text.decode('utf-8')
+    assert '€ 125.00' in client.text.decode('utf-8')
     # Add to cart link
     assert '/shop/classcard?scdID=1' in client.text
 
@@ -1772,12 +1772,12 @@ def test_contact(client, web2py):
         'Registration'
     ]
 
-    print '\n'
+    print('\n')
 
     org = web2py.db.sys_organizations(1)
 
     for p in properties:
-        print p
+        print(p)
         assert org[p] in client.text
 
 

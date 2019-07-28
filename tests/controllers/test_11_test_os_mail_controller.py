@@ -64,7 +64,7 @@ def test_osmail_render_order_received(client, web2py):
     oi = web2py.db.customers_orders_items(1)
     assert oi.ProductName in client.text
     assert oi.Description in client.text
-    assert unicode(oi.TotalPriceVAT).encode('utf8') in client.text
+    assert str(oi.TotalPriceVAT).encode('utf8') in client.text
 
 
 def test_osmail_render_order_delivered(client, web2py):
@@ -87,7 +87,7 @@ def test_osmail_render_order_delivered(client, web2py):
     oi = web2py.db.customers_orders_items(1)
     assert oi.ProductName in client.text
     assert oi.Description in client.text
-    assert unicode(oi.TotalPriceVAT).encode('utf8') in client.text
+    assert str(oi.TotalPriceVAT).encode('utf8') in client.text
 
 
 def test_osmail_render_sys_notification_order_created(client, web2py):
@@ -113,7 +113,7 @@ def test_osmail_render_sys_notification_order_created(client, web2py):
     oi = web2py.db.customers_orders_items(1)
     assert oi.ProductName in client.text
     assert oi.Description in client.text
-    assert unicode(oi.TotalPriceVAT).encode('utf8') in client.text
+    assert str(oi.TotalPriceVAT).encode('utf8') in client.text
 
     # Check comments / customer note
     order = web2py.db.customers_orders(1)

@@ -63,8 +63,8 @@ def populate_school_classcards(
         web2py.db.school_classcards.insert(
             PublicCard = True,
             school_memberships_id = school_memberships_id,
-            Name = 'Classcard_' + unicode(i),
-            Description = 'General card ' + unicode(i),
+            Name = 'Classcard_' + str(i),
+            Description = 'General card ' + str(i),
             Price = 125,
             Validity = 3,
             ValidityUnit = 'months',
@@ -152,7 +152,7 @@ def populate_school_locations(web2py, nr=1):
     """
     for i in range(1, nr+1):
         web2py.db.school_locations.insert(
-            Name = 'location_' + unicode(i),
+            Name = 'location_' + str(i),
             AllowAPI = True
         )
 
@@ -163,9 +163,9 @@ def populate_school_classtypes(web2py, nr=1):
     """
     for i in range(1, nr+1):
         web2py.db.school_classtypes.insert(
-            Name = 'classtype_' + unicode(i),
+            Name = 'classtype_' + str(i),
             AllowAPI = True,
-            Description = 'Description_classtype_' + unicode(i)
+            Description = 'Description_classtype_' + str(i)
         )
 
 
@@ -194,12 +194,12 @@ def populate_customers(web2py,
         web2py.db.auth_user.insert(
             id                  = cuID,
             archived            = False,
-            first_name          = 'customer_' + unicode(i),
-            last_name           =  unicode(i),
-            email               = 'customer' + unicode(i) + '@email.nl',
+            first_name          = 'customer_' + str(i),
+            last_name           =  str(i),
+            email               = 'customer' + str(i) + '@email.nl',
             customer            = True,
-            city                = 'city_' + unicode(i),
-            postcode            = '190-' + unicode(cuID) + 'A',
+            city                = 'city_' + str(i),
+            postcode            = '190-' + str(cuID) + 'A',
             school_locations_id = school_locations_id,
             employee=employee,
             teacher=teacher,
@@ -213,9 +213,9 @@ def populate_customers_payment_info(web2py, nr_of_customers):
         web2py.db.customers_payment_info.insert(
             auth_customer_id        = i + 1000,
             payment_methods_id      = 3,
-            AccountNumber           = "Account" + unicode(i),
-            AccountHolder           = "HolderName" + unicode(i),
-            BIC                     = "BIC" + unicode(i))
+            AccountNumber           = "Account" + str(i),
+            AccountHolder           = "HolderName" + str(i),
+            BIC                     = "BIC" + str(i))
 
     web2py.db.commit()
 
@@ -467,7 +467,7 @@ def populate_customers_with_memberships(web2py,
             iID = web2py.db.invoices.insert(
                 invoices_groups_id=100,
                 payment_methods_id=1,
-                InvoiceID="INV2018" + unicode(i),
+                InvoiceID="INV2018" + str(i),
             )
 
             ciID = web2py.db.invoices_customers.insert(
@@ -514,7 +514,7 @@ def populate_employee_claims(web2py):
     try:
         populate_tax_rates(web2py)
     except:
-        print 'Tried to insert tax rates, but one or more already exists in db.tax_rates'
+        print('Tried to insert tax rates, but one or more already exists in db.tax_rates')
 
     setup_ep_tests(web2py)
 
@@ -564,7 +564,7 @@ def populate_auth_user_teachers(web2py,
     try:
         populate_tax_rates(web2py)
     except:
-        print T('Tried to insert tax rates, but one or more already exists in db.tax_rates')
+        print(T('Tried to insert tax rates, but one or more already exists in db.tax_rates'))
 
     try:
         web2py.db.auth_user.insert(
@@ -591,7 +591,7 @@ def populate_auth_user_teachers(web2py,
 
 
     except:
-        print "Tried inserting teachers, but id 2 or 3 already exists in auth_user"
+        print("Tried inserting teachers, but id 2 or 3 already exists in auth_user")
 
 
 def populate_teachers_payment_classes(web2py, status='not_verified'):
@@ -734,7 +734,7 @@ def populate_auth_user_teachers_payment_invoices(web2py):
             TeacherPaymentYear = today.year,
             CustomerName = row.display_name,
             Status = 'sent',
-            InvoiceID = 'INV00' + unicode(row.id),
+            InvoiceID = 'INV00' + str(row.id),
             Description = 'Payment test',
             DateCreated = today,
             DateDue = today + datetime.timedelta(days=31),
@@ -1388,7 +1388,7 @@ def populate_workshops_products(web2py, workshops_id=1, nr_products=1):
     for i in range(1, nr_products + 1):
         web2py.db.workshops_products.insert(
             workshops_id=workshops_id,
-            Name="Product_" + unicode(i),
+            Name="Product_" + str(i),
             PublicProduct=True,
             Price=100,
             PriceSubscription=90,
@@ -1426,7 +1426,7 @@ def populate_workshops_products_customers(web2py, created_on=datetime.date.today
         invoices_groups_id=100,
         payment_methods_id=1,
         Status='sent',
-        InvoiceID='INV' + unicode(1001),
+        InvoiceID='INV' + str(1001),
         DateCreated='2014-01-01',
         DateDue='2014-01-15'
     )
@@ -1445,7 +1445,7 @@ def populate_workshops_products_customers(web2py, created_on=datetime.date.today
         invoices_groups_id=100,
         payment_methods_id=1,
         Status='sent',
-        InvoiceID='INV' + unicode(1002),
+        InvoiceID='INV' + str(1002),
         DateCreated='2014-01-01',
         DateDue='2014-01-15'
     )
@@ -1818,7 +1818,7 @@ def populate_invoices(web2py,
             EmployeeClaim = employee_claim,
             CustomerName=row.display_name,
             Status = 'sent',
-            InvoiceID = 'INV' + unicode(cuID),
+            InvoiceID = 'INV' + str(cuID),
             DateCreated = today,
             DateDue = today + delta
         )
@@ -1831,7 +1831,7 @@ def populate_invoices(web2py,
             coID = web2py.db.customers_orders.insert(
                 auth_customer_id=cuID,
                 Status='awaiting_payment',
-                CustomerNote='Order_note_for_' + unicode(cuID)
+                CustomerNote='Order_note_for_' + str(cuID)
             )
             web2py.db.invoices_customers_orders.insert(
                 invoices_id = iID,
@@ -1888,7 +1888,7 @@ def populate_customers_orders(web2py):
         coID = web2py.db.customers_orders.insert(
             auth_customer_id = cuID,
             Status = 'awaiting_payment',
-            CustomerNote = 'Order_note_for_' + unicode(cuID)
+            CustomerNote = 'Order_note_for_' + str(cuID)
         )
 
         web2py.db.customers_orders_amounts.insert(customers_orders_id = coID)
@@ -2130,7 +2130,7 @@ def populate_sys_organizations(web2py, nr_organizations=1):
         Add an organization to sys_organizations
     """
     for i in range(0, nr_organizations):
-        soID = unicode(i)
+        soID = str(i)
 
         default = True if i == 0 else False
 

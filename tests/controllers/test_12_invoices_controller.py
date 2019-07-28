@@ -50,7 +50,7 @@ def test_invoice_add_from_customer(client, web2py):
     assert invoice.DateCreated == today
     assert invoice.DateDue == due
 
-    assert invoice.InvoiceID == 'INV' + unicode(today.year) + '1'
+    assert invoice.InvoiceID == 'INV' + str(today.year) + '1'
 
 
 def test_invoice_add_from_customer_automatic_reset_numbering(client, web2py):
@@ -93,7 +93,7 @@ def test_invoice_add_from_customer_automatic_reset_numbering(client, web2py):
 
     # Make sure the numbering has been reset
     today = datetime.date.today()
-    assert invoice.InvoiceID == 'INV' + unicode(today.year) + '1'
+    assert invoice.InvoiceID == 'INV' + str(today.year) + '1'
 
     ig = web2py.db.invoices_groups(100)
     assert ig.NextID == 2

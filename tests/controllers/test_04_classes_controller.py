@@ -1225,7 +1225,7 @@ def test_class_prices(client, web2py):
 
     class_price = web2py.db.classes_price(1)
 
-    assert unicode(class_price.Startdate) in client.text
+    assert str(class_price.Startdate) in client.text
 
 
 def test_class_price_add(client, web2py):
@@ -1423,7 +1423,7 @@ def test_class_subscription_group_edit(client, web2py):
 
     web2py.db.commit()
 
-    url = '/classes/class_subscription_group_edit?clsID=1&cssgID=' + unicode(cssgID)
+    url = '/classes/class_subscription_group_edit?clsID=1&cssgID=' + str(cssgID)
     client.get(url)
     assert client.status == 200
 
@@ -1455,7 +1455,7 @@ def test_class_subscription_group_delete(client, web2py):
     populate_school_subscriptions_groups(web2py)
 
 
-    url = '/classes/class_subscription_group_delete?clsID=1&cssgID=' + unicode(1)
+    url = '/classes/class_subscription_group_delete?clsID=1&cssgID=' + str(1)
     client.get(url)
     assert client.status == 200
 
@@ -1609,7 +1609,7 @@ def test_class_classcard_group_edit(client, web2py):
 
 
     cscgID = 1
-    url = '/classes/class_classcard_group_edit?clsID=1&cssgID=' + unicode(cscgID)
+    url = '/classes/class_classcard_group_edit?clsID=1&cssgID=' + str(cscgID)
     client.get(url)
     assert client.status == 200
 
@@ -1640,7 +1640,7 @@ def test_class_classcard_group_delete(client, web2py):
     prepare_classes(web2py)
 
     cscgID = 1
-    url = '/classes/class_classcard_group_delete?clsID=1&cssgID=' + unicode(cscgID)
+    url = '/classes/class_classcard_group_delete?clsID=1&cssgID=' + str(cscgID)
     client.get(url)
     assert client.status == 200
 

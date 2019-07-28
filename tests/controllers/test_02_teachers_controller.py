@@ -296,7 +296,7 @@ def test_payment_fixed_rate_class_add_list_classes(client, web2py):
 
     next_monday = next_weekday(datetime.date.today(), 0)
 
-    url = '/teachers/payment_fixed_rate_class_add?teID=2&date=' + unicode(next_monday)
+    url = '/teachers/payment_fixed_rate_class_add?teID=2&date=' + str(next_monday)
     client.get(url)
     assert client.status == 200
 
@@ -392,10 +392,10 @@ def test_payment_fixed_rate(client, web2py):
     assert client.status == 200
 
     default_rate = web2py.db.teachers_payment_fixed_rate_default(1)
-    assert unicode(default_rate.ClassRate) in client.text.decode('utf-8')
+    assert str(default_rate.ClassRate) in client.text.decode('utf-8')
 
     class_rate = web2py.db.teachers_payment_fixed_rate_class(1)
-    assert unicode(class_rate.ClassRate) in client.text.decode('utf-8')
+    assert str(class_rate.ClassRate) in client.text.decode('utf-8')
 
 
 def test_payment_travel(client, web2py):
@@ -414,7 +414,7 @@ def test_payment_travel(client, web2py):
     assert client.status == 200
 
     travel_allowance = web2py.db.teachers_payment_travel(1)
-    assert unicode(travel_allowance.TravelAllowance) in client.text.decode('utf-8')
+    assert str(travel_allowance.TravelAllowance) in client.text.decode('utf-8')
 
 
 def test_payment_travel_add(client, web2py):

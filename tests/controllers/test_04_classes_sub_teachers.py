@@ -55,8 +55,8 @@ def test_index(client, web2py):
     # past open classes shouldn't be shown
     assert '2014-01-06' not in client.text
     # future ones should be shown
-    assert unicode(next_monday) in client.text
-    assert unicode(monday_after_that) in client.text
+    assert str(next_monday) in client.text
+    assert str(monday_after_that) in client.text
 
     # check location & classtype from classes_otc
     location = web2py.db.school_locations(2).Name.split(' ')[0]
@@ -78,7 +78,7 @@ def test_offers(client, web2py):
     cotcsa = web2py.db.classes_otc_sub_avail(1)
     cotc = web2py.db.classes_otc(cotcsa.classes_otc_id)
 
-    assert unicode(cotc.ClassDate) in client.text
+    assert str(cotc.ClassDate) in client.text
 
 #
 # def test_subs_manage_processed(client, web2py):

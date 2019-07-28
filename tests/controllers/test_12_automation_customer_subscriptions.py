@@ -34,7 +34,7 @@ def test_create_monthly_invoices_inv_date_today(client, web2py):
     invoice = web2py.db.invoices(1)
     assert invoice.DateCreated == datetime.date.today()
     assert invoice.Status == 'sent'
-    assert invoice.InvoiceID == 'INV' + unicode(datetime.date.today().year) + '1'
+    assert invoice.InvoiceID == 'INV' + str(datetime.date.today().year) + '1'
     assert ig_100.Terms == invoice.Terms
     assert ig_100.Footer == invoice.Footer
 
@@ -44,7 +44,7 @@ def test_create_monthly_invoices_inv_date_today(client, web2py):
 
     # Check that an invoice is created for the paused subscription
     iics = web2py.db.invoices_items_customers_subscriptions(2)
-    print iics
+    print(iics)
     assert iics.invoices_items_id == 2
     assert iics.customers_subscriptions_id == 2
 
