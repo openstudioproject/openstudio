@@ -677,7 +677,7 @@ class Invoice:
         iiID = db.invoices_items.insert(
             invoices_id=self.invoices_id,
             ProductName=T('Event'),
-            Description=ws.Name.decode('utf-8') + ' - ' + wsp.workshop_product.Name.decode('utf-8') + item_date,
+            Description=ws.Name + ' - ' + wsp.workshop_product.Name + item_date,
             Quantity=1,
             Price=wsp.get_price_for_customer(wspc.auth_customer_id),
             Sorting=next_sort_nr,
@@ -718,7 +718,7 @@ class Invoice:
         iiID = db.invoices_items.insert(
             invoices_id=self.invoices_id,
             ProductName=T("Donation"),
-            Description=description.decode('utf-8'),
+            Description=description,
             Quantity=1,
             Price=price,
             Sorting=next_sort_nr,
@@ -836,7 +836,7 @@ class Invoice:
             price = round(((float(period_days) / float(month_days)) * float(price)), 2)
 
             if not description:
-                description = cs.name.decode('utf-8') + ' ' + period_start.strftime(DATE_FORMAT) + ' - ' + period_end.strftime(DATE_FORMAT)
+                description = cs.name + ' ' + period_start.strftime(DATE_FORMAT) + ' - ' + period_end.strftime(DATE_FORMAT)
                 if pause:
                     description += '\n'
                     description += "(" + T("Pause") + ": "

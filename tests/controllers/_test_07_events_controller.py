@@ -185,11 +185,11 @@ def test_pdf_show_template(client, web2py):
     assert ws.Description in client.text
 
     activity = web2py.db.workshops_activities(1)
-    assert str(activity.Activitydate) in str(client.text, 'utf-8')
+    assert str(activity.Activitydate) in client.text
     assert activity.Starttime.strftime('%H:%M') in client.text
 
     product = web2py.db.workshops_products(1)
-    assert str(product.Price) in str(client.text, "utf-8")
+    assert str(product.Price) in client.text
 
 
 def test_activity_add(client, web2py):
@@ -348,7 +348,7 @@ def test_product_add(client, web2py):
     # Verify redirection to ticket_activities
     assert "Activities included" in client.text
     # make sure something was added to the db
-    assert web2py.db(web2py.db.workshops_products).count > 1
+    assert web2py.db(web2py.db.workshops_products).count() > 1
 
 
 def test_ticket_edit(client, web2py):
@@ -372,7 +372,9 @@ def test_ticket_edit(client, web2py):
     assert "Tickets" in client.text
     assert data['Name'] in client.text
     # make sure something was added to the db
-    assert web2py.db(web2py.db.workshops_products).count > 1
+
+    ticket = web2py.db.workshops_products(1)
+    assert ticket.Name == data['Name']
 
 
 def test_ticket_duplicate(client, web2py):
@@ -416,7 +418,7 @@ def test_ticket_delete_full_wsp_error(client, web2py):
     client.get(url)
     assert client.status == 200
 
-    assert web2py.db(web2py.db.workshops_products).count > 0
+    assert web2py.db(web2py.db.workshops_products).count() > 0
 
 
 def test_ticket_delete(client, web2py):
