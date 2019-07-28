@@ -392,10 +392,10 @@ def test_payment_fixed_rate(client, web2py):
     assert client.status == 200
 
     default_rate = web2py.db.teachers_payment_fixed_rate_default(1)
-    assert str(default_rate.ClassRate) in client.text.decode('utf-8')
+    assert str(default_rate.ClassRate) in client.text
 
     class_rate = web2py.db.teachers_payment_fixed_rate_class(1)
-    assert str(class_rate.ClassRate) in client.text.decode('utf-8')
+    assert str(class_rate.ClassRate) in client.text
 
 
 def test_payment_travel(client, web2py):
@@ -414,7 +414,7 @@ def test_payment_travel(client, web2py):
     assert client.status == 200
 
     travel_allowance = web2py.db.teachers_payment_travel(1)
-    assert str(travel_allowance.TravelAllowance) in client.text.decode('utf-8')
+    assert str(travel_allowance.TravelAllowance) in client.text
 
 
 def test_payment_travel_add(client, web2py):
