@@ -629,7 +629,7 @@ class Invoice:
         iiID = db.invoices_items.insert(
             invoices_id=self.invoices_id,
             ProductName=T("Class card"),
-            Description=classcard.name.decode('utf-8') + ' (' + T("Class card") + ' ' + str(ccdID) + ')',
+            Description=classcard.name + ' (' + T("Class card") + ' ' + str(ccdID) + ')',
             Quantity=1,
             Price=price,
             Sorting=next_sort_nr,
