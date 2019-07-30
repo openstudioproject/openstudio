@@ -1825,16 +1825,16 @@ def schedule_export_excel():
 
                 time = repr_row.classes.Starttime + " - " + repr_row.classes.Endtime
                 if locID is None:
-                    class_data += location.decode('utf-8') + "\n" + \
+                    class_data += location + "\n" + \
                                   time + " \n" + \
-                                  classtype.decode('utf-8') + " \n" + \
-                                  teacher.decode('utf-8') + " \n" + \
-                                  teacher2.decode('utf-8') + " \n"
+                                  classtype + " \n" + \
+                                  teacher + " \n" + \
+                                  teacher2 + " \n"
                 else:
                     class_data += time + " \n" + \
-                                  classtype.decode('utf-8') + " \n" + \
-                                  teacher.decode('utf-8') + " \n" + \
-                                  teacher2.decode('utf-8') + " \n"
+                                  classtype + " \n" + \
+                                  teacher + " \n" + \
+                                  teacher2 + " \n"
                 c_id = get_cell_id(col, r)
                 ws[c_id] = class_data
                 ws[c_id].font = font
@@ -1861,7 +1861,7 @@ def schedule_export_excel():
                            orderby=db.school_locations.Name)
         for row in rows:
             location = locations_dict.get(row.id, None)
-            title = location.decode('utf-8')[0:30]
+            title = location[0:30]
             ws = wb.create_sheet(title=title)
             ws['A1'] = "Schedule" + " " + title + " " + \
                        "week " + str(iso_week)

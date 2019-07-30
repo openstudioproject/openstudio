@@ -1105,11 +1105,11 @@ def schedule_export_excel():
                         employee2 = repr_row.shifts_otc.auth_employee_id2
 
                 try:
-                    employee = employee.decode('utf-8')
+                    employee = employee
                 except AttributeError:
                     employee = ''
                 try:
-                    employee2 = employee2.decode('utf-8')
+                    employee2 = employee2
                 except AttributeError:
                     employee2 = ''
 
@@ -1156,7 +1156,7 @@ def schedule_export_excel():
                            orderby=db.school_locations.Name)
         for row in rows:
             location = locations_dict.get(row.id, None)
-            title = location.decode('utf-8')[0:30]
+            title = location[0:30]
             ws = wb.create_sheet(title=title)
             ws['A1'] = "Schedule" + " " + location + " " + \
                        "week " + str(iso_week)
