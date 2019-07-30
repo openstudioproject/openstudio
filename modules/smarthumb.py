@@ -47,43 +47,24 @@ def SMARTHUMB(image, box, fit=True, name="thumb", field_string=None):
         #Resize the image with best quality algorithm ANTI-ALIAS
         img.thumbnail(box, Image.ANTIALIAS)
 
+        # Fetch extension
         root, ext = os.path.splitext(image)
-
         if ext.lower() == '.jpg' or ext.lower() == ".jpeg":
             format = "JPEG"
         else:
             format = "PNG"
 
+        # Save image in memory
         temp_stream = io.BytesIO()
-
-        # temp_path = os.path.join(request.folder, 'uploads', 'temp' + ext)
         img.save(temp_stream, format=format)
 
-
+        # Set new file name
         filename = '%s%s' % (name, ext)
-        print('######## saving ##########')
-        print(filename)
-        print('filevalue:')
-
-        # with open(temp_stream, 'rb') as stream:
-        #     filevalue = field.store(stream, filename)
-
+        # Get db field value
         filevalue = field.store(temp_stream, filename)
-
-        # filevalue = field.store(img, filename)
-
-        print(filevalue)
-
+        # write file to disk
         new_file_path = os.path.join(request.folder, 'uploads', filevalue)
         img.save(new_file_path)
-
-
-
-        # filevalue = db.image.file.store(source_file, original_filename)
-        # db.image.insert(name=newname, file=filevalue)
-        # thumb = '%s_%s%s' % (root, name, ext)
-
-
 
         return filevalue
 
