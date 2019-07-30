@@ -102,11 +102,11 @@ def test_order_paid_delivery_invoice(client, web2py):
     total_days = period_end.day
     ssu_calculated_price = round(float(days) / float(total_days) * float(ssu_price.Price), 2)
 
-    price = str(round(scd.Price + wsp.Price + class_price.Dropin + ssu_calculated_price + sm.Price + donation_price, 2))
+    price = round(scd.Price + wsp.Price + class_price.Dropin + ssu_calculated_price + sm.Price + donation_price, 2)
 
     #print web2py.db().select(web2py.db.customers_orders.ALL)
 
-    url = '/mollie/test_webhook_order_paid?coID=1&payment_amount=' + price + '&payment_date=2014-01-01&mollie_payment_id=tr_test'
+    url = '/mollie/test_webhook_order_paid?coID=1&payment_amount=' + str(price) + '&payment_date=2014-01-01&mollie_payment_id=tr_test'
     client.get(url)
     assert client.status == 200
 
@@ -170,7 +170,7 @@ def test_order_paid_delivery_invoice(client, web2py):
 
     # invoice amounts
     amounts = web2py.db.invoices_amounts(1)
-    assert amounts.TotalPriceVAT == scd.Price + wsp.Price + class_price.Dropin + ssu_calculated_price + sm.Price + donation_price
+    assert amounts.TotalPriceVAT == price
 
     # invoice footer & terms
     ig_100 = web2py.db.invoices_groups(100)
