@@ -304,7 +304,7 @@ def upgrade_to_201909():
     ]
 
     for table in tables:
-        query = (table.picture != None)
+        query = (table.picture != None) & (table.picture != "")
         rows = db(query).select(table.ALL)
         for row in rows:
             import os
@@ -313,9 +313,12 @@ def upgrade_to_201909():
             filename = os.path.join(request.folder, 'uploads', picture)
             tempfile = os.path.join(request.folder, 'uploads', picture + "_temp")
             # Move to temp file name
-            os.rename(filename, tempfile)
+            try:
+                os.rename(filename, tempfile)
+            except FileNotFoundError:
+                continue
             # Remove db mapping
-            row.update_record(picture = None)
+            row.update_record(picture = None, thumbsmall = None, thumblarge = None)
             # move file back
             os.rename(tempfile, filename)
             # Save again with picture to trigger thumbnail generation
