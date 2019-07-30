@@ -467,7 +467,7 @@ class Receipt:
     #     iiID = db.receipts_items.insert(
     #         receipts_id=self.receipts_id,
     #         ProductName=T("Class card"),
-    #         Description=classcard.name.decode('utf-8') + u' (' + T("Class card") + u' ' + unicode(ccdID) + u')',
+    #         Description=classcard.name + u' (' + T("Class card") + u' ' + unicode(ccdID) + u')',
     #         Quantity=1,
     #         Price=price,
     #         Sorting=next_sort_nr,

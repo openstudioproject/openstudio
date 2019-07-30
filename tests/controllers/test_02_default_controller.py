@@ -53,7 +53,7 @@ from gluon.contrib.populate import populate
 #     assert client.status == 200
 #
 #     assert mst_name in client.text
-#     assert unicode(monthly_fee*2) in client.text.decode('utf-8') # check whether total works
+#     assert unicode(monthly_fee*2) in client.text # check whether total works
 #
 #
 # def test_workshop_payments(client, web2py):
