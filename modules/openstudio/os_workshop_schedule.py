@@ -33,11 +33,11 @@ class WorkshopSchedule:
         #TODO: check first activity date as startdate ... or create function in workshops.py that updates dates
         # & times for workshops when an activity is added/updated/deleted.
         if self.filter_date_start:
-            where += "AND ws.Startdate >= '" + unicode(self.filter_date_start) + "'"
+            where += "AND ws.Startdate >= '" + str(self.filter_date_start) + "'"
             where += ' '
 
         if self.filter_date_end:
-            where += "AND ws.Enddate <= " + unicode(self.filter_date_end) + "'"
+            where += "AND ws.Enddate <= " + str(self.filter_date_end) + "'"
             where += ' '
 
         return where

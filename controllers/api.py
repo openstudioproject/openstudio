@@ -73,7 +73,7 @@ def _schedule_get(year, week, sorting, TeacherID, ClassTypeID, LocationID, Level
             sorting=sorting
         )
 
-        key = unicode(NRtoDay(day))
+        key = str(NRtoDay(day))
 
         class_data = dict(classes=class_schedule.get_day_list(),
                           date=date)
@@ -272,13 +272,13 @@ def schedule_get():
             if web2pytest.is_running_under_test(request, request.application):
                 data = _schedule_get(year, week, sorting, TeacherID, ClassTypeID, LocationID, LevelID)
             else:
-                cache_key = 'openstudio_api_schedule_get_' + unicode(year) + '_' + \
-                            'week_' + unicode(week) + '_' + \
+                cache_key = 'openstudio_api_schedule_get_' + str(year) + '_' + \
+                            'week_' + str(week) + '_' + \
                             'sorting_' + sorting + '_' + \
-                            'TeacherID_' + unicode(TeacherID) + '_' + \
-                            'ClassTypeID_' + unicode(ClassTypeID) + '_' + \
-                            'LocationID_' + unicode(LocationID) + '_' + \
-                            'LevelID_' + unicode(LevelID)
+                            'TeacherID_' + str(TeacherID) + '_' + \
+                            'ClassTypeID_' + str(ClassTypeID) + '_' + \
+                            'LocationID_' + str(LocationID) + '_' + \
+                            'LevelID_' + str(LevelID)
                 data = cache.ram(cache_key,
                                  lambda: _schedule_get(year, week, sorting, TeacherID, ClassTypeID, LocationID, LevelID),
                                  time_expire=cache_2_min)
@@ -406,12 +406,12 @@ def schedule_get_days():
         if web2pytest.is_running_under_test(request, request.application) or current_date == TODAY_LOCAL:
             classes = class_schedule.get_day_list()
         else:
-            cache_key = 'openstudio_api_schedule_get_days_' + unicode(current_date) + '_' + \
+            cache_key = 'openstudio_api_schedule_get_days_' + str(current_date) + '_' + \
                         'sorting_' + sorting + '_' + \
-                        'TeacherID_' + unicode(TeacherID) + '_' + \
-                        'ClassTypeID_' + unicode(ClassTypeID) + '_' + \
-                        'LocationID_' + unicode(LocationID) + '_' + \
-                        'LevelID_' + unicode(LevelID)
+                        'TeacherID_' + str(TeacherID) + '_' + \
+                        'ClassTypeID_' + str(ClassTypeID) + '_' + \
+                        'LocationID_' + str(LocationID) + '_' + \
+                        'LevelID_' + str(LevelID)
             classes = cache.ram(cache_key,
                              lambda: class_schedule.get_day_list(),
                              time_expire=CACHE_LONG)

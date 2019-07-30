@@ -5,7 +5,7 @@ from general_helpers import datestr_to_python
 # python general modules import
 import openpyxl
 import os
-import cStringIO
+import io
 
 from general_helpers import get_badge
 from general_helpers import NRtoDay
@@ -760,7 +760,7 @@ def class_delete():
             auth_user_id=auth.user.id,
             table_name='classes',
             record_id=clsID,
-            record_data=unicode(row),
+            record_data=str(row),
             action_name='delete' )
 
         # No attendance linked to this class
@@ -1104,7 +1104,7 @@ def schedule_get_subtitle(year, week):
     """
         Returns subtitle for schedule
     """
-    return unicode(year) + " " + T("week") + " " + unicode(week)
+    return str(year) + " " + T("week") + " " + str(week)
 
 
 
@@ -1783,7 +1783,7 @@ def schedule_export_excel():
             Returns cell id for colums / row
         """
         col_letter = openpyxl.utils.get_column_letter(col)
-        return col_letter + unicode(row)
+        return col_letter + str(row)
 
 
     def writer_location(locID=None):
@@ -1799,7 +1799,7 @@ def schedule_export_excel():
             col = day
             dayname = NRtoDay(day)
             c_id = get_cell_id(col, 2)
-            ws[c_id] = dayname + " \n" + unicode(date)
+            ws[c_id] = dayname + " \n" + str(date)
             ws[c_id].alignment = alignment
 
             cs = ClassSchedule(
@@ -1853,7 +1853,7 @@ def schedule_export_excel():
         title = "ALL"
         ws = wb.active
         ws.title = title
-        ws['A1'] = T("Schedule week") + " " + unicode(iso_week)
+        ws['A1'] = T("Schedule week") + " " + str(iso_week)
         writer_location()
         # schedule by location
         rows = db().select(db.school_locations.id,
@@ -1864,11 +1864,11 @@ def schedule_export_excel():
             title = location.decode('utf-8')[0:30]
             ws = wb.create_sheet(title=title)
             ws['A1'] = "Schedule" + " " + title + " " + \
-                       "week " + unicode(iso_week)
+                       "week " + str(iso_week)
             writer_location(row.id)
 
         # create filestream
-        stream = cStringIO.StringIO()
+        stream = io.BytesIO()
 
         fname = T("Schedule") + '.xlsx'
         wb.save(stream)
@@ -2195,7 +2195,7 @@ def reservations_export_mailinglist():
     ##
     # Create filestream
     ##
-    stream = cStringIO.StringIO()
+    stream = io.BytesIO()
 
     ##
     # Create Excel workbook
@@ -2439,7 +2439,7 @@ def attendance_get_chart_title():
         This function returns the title for the attendance chart
     """
     return dict(title=T("Attendance chart") + " " +
-                 unicode(session.stats_attendance_year))
+                 str(session.stats_attendance_year))
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -2591,7 +2591,9 @@ def attendance():
     modal_content = DIV(chart_header,
         XML('<div id="attendance_barchart"> \
         <canvas id="attendance-chart-area" width="870" height="290"></canvas> \
-        </div>'))
+        </div>'),
+        T("This chart show a weekly count of class bookings with status attending.")
+    )
 
     result = os_gui.get_modal(button_text=button_text,
                               modal_title=attendance_get_chart_title()['title'],
@@ -2651,10 +2653,12 @@ def attendance():
     # session variable to control redirect / back behaviour
     session.classes_attendance_back = None
 
-    attendance_count = attendance_get_count(clsID, date)
+    attendance_count = ""
+    booked_count = ""
 
 
-    if not attendance_get_count(clsID, date, formatted=False):
+    if not attendance_get_count_attending(clsID, date, formatted=False) and \
+       not attendance_get_count_booked(clsID, date, formatted=False):
         content = DIV(
             search_results,
             DIV(
@@ -2664,14 +2668,26 @@ def attendance():
             ),
             modals
         )
-
+    else:
+        attendance_count = attendance_get_count_attending(clsID, date)
+        booked_count = SPAN(
+            attendance_get_count_booked(clsID, date)
+        )
 
     menu = classes_get_menu(request.function, clsID, date_formatted)
     export = attendance_get_export(clsID, date_formatted)
-    header_tools = DIV(add_customer, btn_attendance_chart, export,
-                _class='pull-right')
+    header_tools = DIV(
+        add_customer,
+        btn_attendance_chart,
+        export,
+        _class='pull-right'
+    )
 
-    tools = DIV(attendance_count, _class='pull-right')
+    tools = DIV(
+        booked_count,
+        attendance_count,
+        _class='pull-right'
+    )
 
     if date_error:
         menu = ''
@@ -2751,14 +2767,15 @@ def attendance_get_export(clsID, date_formatted):
     return export
 
 
-def attendance_get_count(clsID, date, formatted=True):
+def attendance_get_count_attending(clsID, date, formatted=True):
     """
         :param clsID: db.classes.id
         :param date: date of class
         :return: SPAN with count of attending customers
     """
     query = (db.classes_attendance.classes_id == clsID) & \
-            (db.classes_attendance.ClassDate == date)
+            (db.classes_attendance.ClassDate == date) & \
+            (db.classes_attendance.BookingStatus == 'attending')
     count = db(query).count()
 
 
@@ -2769,8 +2786,29 @@ def attendance_get_count(clsID, date, formatted=True):
         if count == 1:
             count_text = 'Customer attending'
 
-        return SPAN(count, ' ', count_text, _class='grey pull-right')
+        return SPAN(count, ' ', count_text, _class='grey')
 
+
+def attendance_get_count_booked(clsID, date, formatted=True):
+    """
+        :param clsID: db.classes.id
+        :param date: date of class
+        :return: SPAN with count of attending customers
+    """
+    query = (db.classes_attendance.classes_id == clsID) & \
+            (db.classes_attendance.ClassDate == date) & \
+            (db.classes_attendance.BookingStatus == 'booked')
+    count = db(query).count()
+
+
+    if not formatted:
+        return count
+    else:
+        count_text = 'Customers booked'
+        if count == 1:
+            count_text = 'Customer booked'
+
+        return SPAN(count, ' ', count_text, ' - ', _class='grey')
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -3001,7 +3039,7 @@ def reservation_on_create(form):
     if classes_booked == 1:
         classes = T("class")
 
-    session.flash = T("Booked") + ' ' + unicode(classes_booked) + ' ' + classes + "."
+    session.flash = T("Booked") + ' ' + str(classes_booked) + ' ' + classes + "."
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -4057,7 +4095,7 @@ def notes():
                              _class='grey'),
                         BR(),
                         XML(row.Note.replace('\n','<br>')),
-                        _id='note_' + unicode(row.id)))
+                        _id='note_' + str(row.id)))
 
 
     notes_filter = notes_get_filter_form(session.classes_notes_filter)

@@ -10,7 +10,7 @@ class ClassesOTCSubAvailables:
 
         :return: HTML table of available sub teachers
         """
-        from os_gui import OsGui
+        from .os_gui import OsGui
 
         T = current.T
         db = current.db

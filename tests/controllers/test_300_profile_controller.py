@@ -93,7 +93,7 @@ def test_index_memberships(client, web2py):
 
     sm = web2py.db.school_memberships(1)
     assert sm.Name in client.text
-    assert unicode(cm.Startdate) in client.text
+    assert str(cm.Startdate) in client.text
 
 
 def test_me(client, web2py):
@@ -484,7 +484,7 @@ def test_class_cancel_confirmation(client, web2py):
 
     web2py.db.commit()
 
-    url = '/profile/class_cancel_confirm?clattID=' + unicode(clattID)
+    url = '/profile/class_cancel_confirm?clattID=' + str(clattID)
     client.get(url)
     assert client.status == 200
 
@@ -516,7 +516,7 @@ def test_class_cancel_confirmation_cannot_be_cancelled(client, web2py):
 
     web2py.db.commit()
 
-    url = '/profile/class_cancel_confirm?clattID=' + unicode(clattID)
+    url = '/profile/class_cancel_confirm?clattID=' + str(clattID)
     client.get(url)
     assert client.status == 200
 
@@ -548,7 +548,7 @@ def test_class_cancel(client, web2py):
 
     web2py.db.commit()
 
-    url = '/profile/class_cancel?clattID=' + unicode(clattID)
+    url = '/profile/class_cancel?clattID=' + str(clattID)
     client.get(url)
     assert client.status == 200
 
@@ -605,7 +605,7 @@ def test_classcard_info(client, web2py):
     web2py.db.commit()
 
 
-    url = '/profile/classcard_info?ccdID=' + unicode(ccdID)
+    url = '/profile/classcard_info?ccdID=' + str(ccdID)
     client.get(url)
     assert client.status == 200
 
@@ -635,7 +635,7 @@ def test_memberships(client, web2py):
 
     sm = web2py.db.school_memberships(1)
     assert sm.Name in client.text
-    assert unicode(cm.Startdate) in client.text
+    assert str(cm.Startdate) in client.text
     
 
 def test_subscriptions(client, web2py):
@@ -663,8 +663,8 @@ def test_subscriptions(client, web2py):
 
     ss = web2py.db.school_subscriptions(1)
     assert ss.Name in client.text
-    assert unicode(cs.Startdate) in client.text
-    assert unicode(3456.0) in client.text  # check if number of credits is displayed
+    assert str(cs.Startdate) in client.text
+    assert str(3456.0) in client.text  # check if number of credits is displayed
 
 
 def test_subscriptions_display_credits_unlimited(client, web2py):
@@ -696,7 +696,7 @@ def test_subscriptions_display_credits_unlimited(client, web2py):
 
     ss = web2py.db.school_subscriptions(1)
     assert ss.Name in client.text
-    assert unicode(cs.Startdate) in client.text
+    assert str(cs.Startdate) in client.text
     assert 'Unlimited' in client.text  # check if number of credits is displayed
 
 
@@ -722,7 +722,7 @@ def test_subscription_credits_profile_home(client, web2py):
     client.get(url)
     assert client.status == 200
 
-    assert unicode(3456.0) in client.text # check if number of credits is displayed
+    assert str(3456.0) in client.text # check if number of credits is displayed
 
 
 def test_subscription_unlimited_credits_profile_home(client, web2py):
@@ -784,7 +784,7 @@ def test_subscription_info(client, web2py):
 
     web2py.db.commit()
 
-    url = '/profile/subscription_info?csID=' + unicode(csID)
+    url = '/profile/subscription_info?csID=' + str(csID)
     client.get(url)
     assert client.status == 200
 
@@ -820,7 +820,7 @@ def test_events(client, web2py):
 
     assert wsp.Name in client.text
     assert ws.Name in client.text
-    assert unicode(ws.Startdate) in client.text
+    assert str(ws.Startdate) in client.text
 
 
 def test_orders(client, web2py):
@@ -855,7 +855,7 @@ def test_orders(client, web2py):
     dc = pytz.utc.localize(order.DateCreated)
     tz = pytz.timezone('Europe/Amsterdam')
     local_dc = dc.astimezone(tz)
-    assert unicode(local_dc)[:-9] in client.text.decode('utf-8') #[:-3] removes seconds, they are not displayed by default
+    assert str(local_dc)[:-9] in client.text #[:-3] removes seconds, they are not displayed by default
 
     # check items display
     query = (web2py.db.customers_orders_items.customers_orders_id == 2)
@@ -918,7 +918,7 @@ def test_invoices(client, web2py):
     invoice = web2py.db.invoices(2)
 
     assert invoice.InvoiceID in client.text
-    assert unicode(invoice.DateCreated) in client.text.decode('utf-8')
+    assert str(invoice.DateCreated) in client.text
     assert invoice.Status in client.text.lower()
 
     inv_amounts = web2py.db.invoices_amounts(2)
@@ -980,7 +980,7 @@ def test_enrollment_end(client, web2py):
 
     web2py.db.commit()
 
-    url = '/profile/enrollment_end/' + unicode(clrID)
+    url = '/profile/enrollment_end/' + str(clrID)
     client.get(url)
     assert client.status == 200
 
@@ -989,7 +989,7 @@ def test_enrollment_end(client, web2py):
         'Enddate':'2017-12-31'
     }
 
-    url = '/profile/enrollment_end/' + unicode(clrID)
+    url = '/profile/enrollment_end/' + str(clrID)
     client.post(url, data=data)
     assert client.status == 200
 

@@ -59,7 +59,7 @@ class OsTools:
         """
         represent_validity_units = current.globalenv['represent_validity_units']
 
-        validity = SPAN(unicode(validity), ' ')
+        validity = SPAN(str(validity), ' ')
         validity_in = represent_validity_units(unit)
         if validity == 1:  # Cut the last 's"
             validity_in = validity_in[:-1]
@@ -85,7 +85,7 @@ class OsTools:
             row.update_record()
 
         # Clear cache
-        from os_cache_manager import OsCacheManager
+        from .os_cache_manager import OsCacheManager
 
         ocm = OsCacheManager()
         ocm.clear_sys_properties()

@@ -21,7 +21,7 @@ class TeachersPaymentClass:
         Verify class attendance
         :return:
         """
-        from os_class import Class
+        from .os_class import Class
 
         auth = current.auth
         NOW_LOCAL = current.NOW_LOCAL
@@ -40,7 +40,7 @@ class TeachersPaymentClass:
         Unverify class attendance
         :return:
         """
-        from os_class import Class
+        from .os_class import Class
 
         auth = current.auth
 

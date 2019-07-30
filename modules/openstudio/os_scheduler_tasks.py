@@ -20,9 +20,9 @@ class OsSchedulerTasks:
         """
             Actually create invoices for subscriptions for a given month
         """
-        from os_customer_subscription import CustomerSubscription
+        from .os_customer_subscription import CustomerSubscription
         from general_helpers import get_last_day_month
-        from os_invoice import Invoice
+        from .os_invoice import Invoice
 
         T = current.T
         db = current.db
@@ -54,7 +54,7 @@ class OsSchedulerTasks:
         ##
         db.commit()
 
-        return T("Invoices in month") + ': ' + unicode(invoices_count)
+        return T("Invoices in month") + ': ' + str(invoices_count)
 
         # csap = db.customers_subscriptions_alt_prices
         #
@@ -221,7 +221,7 @@ class OsSchedulerTasks:
         :param month: int
         :return: Add customer subscription credits for month
         """
-        from os_customers_subscriptions_credits import CustomersSubscriptionsCredits
+        from .os_customers_subscriptions_credits import CustomersSubscriptionsCredits
 
         T = current.T
         db = current.db
@@ -234,7 +234,7 @@ class OsSchedulerTasks:
 
         db.commit()
 
-        return T("Subscriptions for which credits were added") + ': ' + unicode(added)
+        return T("Subscriptions for which credits were added") + ': ' + str(added)
 
 
     def customers_memberships_renew_expired(self, year, month):
@@ -244,9 +244,9 @@ class OsSchedulerTasks:
         """
         from general_helpers import get_last_day_month
         from datetime import timedelta
-        from os_customer import Customer
-        from os_invoice import Invoice
-        from os_school_membership import SchoolMembership
+        from .os_customer import Customer
+        from .os_invoice import Invoice
+        from .os_school_membership import SchoolMembership
 
         T = current.T
         db = current.db
@@ -305,7 +305,7 @@ class OsSchedulerTasks:
         ##
         db.commit()
 
-        return T("Memberships renewed") + ': ' + unicode(renewed)
+        return T("Memberships renewed") + ': ' + str(renewed)
 
 
     def email_teachers_sub_requests_daily_summary(self):
@@ -314,8 +314,8 @@ class OsSchedulerTasks:
         they're allowed to teach
         :return:
         """
-        from os_mail import OsMail
-        from os_teachers import Teachers
+        from .os_mail import OsMail
+        from .os_teachers import Teachers
 
         db = current.db
         T = current.T

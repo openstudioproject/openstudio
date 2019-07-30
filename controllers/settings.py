@@ -285,9 +285,9 @@ def system_storage():
     color = dict(red=82, green=136, blue=154)
     i = 0
     for item in data:
-        current_color = 'rgb(' + unicode(color['red']) + ',' + \
-            unicode(color['green']) + ',' + \
-            unicode(color['blue']) + ')'
+        current_color = 'rgb(' + str(color['red']) + ',' + \
+            str(color['green']) + ',' + \
+            str(color['blue']) + ')'
         json_data.append(dict(label=labels[i],
                               value=data[i],
                               color=current_color,
@@ -1202,7 +1202,7 @@ def access_group_permissions():
             # process permissions list
             value = check_permission(group_id, field[0])
             row = TR(TD(field[1],
-                        _class="level_" + unicode(depth)),
+                        _class="level_" + str(depth)),
                      TD(INPUT(_type="checkbox",
                               _name=field[0],
                               value=value),

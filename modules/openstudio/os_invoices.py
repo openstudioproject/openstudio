@@ -61,7 +61,7 @@ class Invoices:
         """
             Enable fields required for subscriptions
         """
-        from os_customer_subscription import CustomerSubscription
+        from .os_customer_subscription import CustomerSubscription
 
         db = current.db
 
@@ -80,8 +80,8 @@ class Invoices:
         """
             Returns add form for an invoice
         """
-        from os_customer import Customer
-        from os_invoice import Invoice
+        from .os_customer import Customer
+        from .os_invoice import Invoice
 
         self._add_get_form_permissions_check()
 
@@ -628,7 +628,7 @@ class Invoices:
         """
             Retuns the balance for an invoice
         """
-        from os_invoice import Invoice
+        from .os_invoice import Invoice
 
         iID = row.invoices.id
         invoice = Invoice(iID)

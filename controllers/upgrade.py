@@ -29,13 +29,17 @@ def index():
         version = float(db.sys_properties(Property='Version').PropertyValue)
 
         if version < 2019.02:
-            print version
+            print(version)
             upgrade_to_201902()
             session.flash = T("Upgraded db to 2019.02")
         if version < 2019.06:
-            print version
+            print(version)
             upgrade_to_201906()
             session.flash = T("Upgraded db to 2019.06")
+        if version < 2019.08:
+            print(version)
+            upgrade_to_201908()
+            session.flash = T("Upgraded db to 2019.08")
         else:
             session.flash = T('Already up to date')
 
@@ -269,3 +273,14 @@ def upgrade_to_201906():
     for row in rows:
         invoice = Invoice(row.invoices.id)
         invoice.link_to_customer(row.auth_user.id)
+
+
+def upgrade_to_201908():
+    """
+        Upgrade operations to 2019.08
+    """
+    # All subscriptions in shop start today
+    query = (db.sys_properties.Property == 'shop_subscriptions_start')
+    db(query).update(PropertyValue='today')
+
+

@@ -62,29 +62,29 @@ class ClassSchedule:
         where = ''
 
         if self.filter_id_sys_organization:
-            where += 'AND cla.sys_organizations_id = ' + unicode(self.filter_id_sys_organization) + ' '
+            where += 'AND cla.sys_organizations_id = ' + str(self.filter_id_sys_organization) + ' '
         if self.filter_id_teacher:
             where += 'AND ((CASE WHEN cotc.auth_teacher_id IS NULL \
                             THEN clt.auth_teacher_id  \
                             ELSE cotc.auth_teacher_id END) = '
-            where += unicode(self.filter_id_teacher) + ' '
+            where += str(self.filter_id_teacher) + ' '
             where += 'OR (CASE WHEN cotc.auth_teacher_id2 IS NULL \
                           THEN clt.auth_teacher_id2  \
                           ELSE cotc.auth_teacher_id2 END) = '
-            where += unicode(self.filter_id_teacher) + ') '
+            where += str(self.filter_id_teacher) + ') '
         if self.filter_id_school_classtype:
             where += 'AND (CASE WHEN cotc.school_classtypes_id IS NULL \
                            THEN cla.school_classtypes_id  \
                            ELSE cotc.school_classtypes_id END) = '
-            where += unicode(self.filter_id_school_classtype) + ' '
+            where += str(self.filter_id_school_classtype) + ' '
         if self.filter_id_school_location:
             where += 'AND (CASE WHEN cotc.school_locations_id IS NULL \
                            THEN cla.school_locations_id  \
                            ELSE cotc.school_locations_id END) = '
-            where += unicode(self.filter_id_school_location) + ' '
+            where += str(self.filter_id_school_location) + ' '
         if self.filter_id_school_level:
             where += 'AND cla.school_levels_id = '
-            where += unicode(self.filter_id_school_level) + ' '
+            where += str(self.filter_id_school_level) + ' '
         if self.filter_public:
             where += "AND cla.AllowAPI = 'T' "
             where += "AND sl.AllowAPI = 'T' "
@@ -93,7 +93,7 @@ class ClassSchedule:
             where += 'AND ((CASE WHEN cotc.Starttime IS NULL \
                             THEN cla.Starttime  \
                             ELSE cotc.Starttime END) >= '
-            where += "'" + unicode(self.filter_starttime_from) + "') "
+            where += "'" + str(self.filter_starttime_from) + "') "
 
         return where
 
@@ -293,13 +293,13 @@ class ClassSchedule:
 
             class_trend_text_color = 'grey'
             if trend_medium:
-                capacity = ' - ' + T('Capacity filled: ') + unicode(avg_att_4w_percentage_display) + '%'
+                capacity = ' - ' + T('Capacity filled: ') + str(avg_att_4w_percentage_display) + '%'
                 if avg_att_4w_percentage < trend_medium:
                     class_trend_text_color = 'text-red'
                 else:
                     class_trend_text_color = 'text-yellow'
             if trend_high:
-                capacity = ' - ' + T('Capacity filled: ') + unicode(avg_att_4w_percentage_display) + '%'
+                capacity = ' - ' + T('Capacity filled: ') + str(avg_att_4w_percentage_display) + '%'
                 if avg_att_4w_percentage >= trend_high:
                     class_trend_text_color = 'text-green'
 
@@ -311,7 +311,7 @@ class ClassSchedule:
                     # calculate percentual increase
                     increase = avg_4w_ago - avg_8w_ago
                     value = int(round(float(increase / avg_8w_ago) * 100))
-                    value = unicode(value) + '%'
+                    value = str(value) + '%'
                     div = DIV(avg_4w_ago_display, ' ',
                               DIV(_class='os-trend_arrow_up'),
                               SPAN(value, _title=T('Increase during past 4 weeks, compared to 8 weeks ago')),
@@ -321,7 +321,7 @@ class ClassSchedule:
                     # calculate percentual decrease
                     decrease = avg_8w_ago - avg_4w_ago
                     value = int(round(float(decrease / avg_8w_ago) * 100))
-                    value = unicode(value) + '%'
+                    value = str(value) + '%'
                     div = DIV(avg_4w_ago_display, ' ',
                               DIV(_class='os-trend_arrow_down'),
                               SPAN(value, _title=T('Decrease during past 4 weeks, compared to 8 weeks ago')),
@@ -951,7 +951,7 @@ class ClassSchedule:
                            _class='os-schedule_links')),
                     TD(organization),
                     _class='os-schedule_links',
-                    _id='class_' + unicode(clsID))
+                    _id='class_' + str(clsID))
 
                 table.append(row_class)
                 table.append(row_tools)
@@ -977,17 +977,17 @@ class ClassSchedule:
             DATE_FORMAT = current.DATE_FORMAT
             CACHE_LONG = current.globalenv['CACHE_LONG']
             cache_key = 'openstudio_classschedule_get_day_table_' + \
-                        unicode(auth.user.id) + '_' + \
+                        str(auth.user.id) + '_' + \
                         self.date.strftime(DATE_FORMAT) + '_' + \
-                        unicode(self.filter_id_school_classtype) + '_' + \
-                        unicode(self.filter_id_school_location) + '_' + \
-                        unicode(self.filter_id_teacher) + '_' + \
-                        unicode(self.filter_id_school_level) + '_' + \
-                        unicode(self.filter_id_status) + '_' + \
-                        unicode(self.filter_public) + '_' + \
+                        str(self.filter_id_school_classtype) + '_' + \
+                        str(self.filter_id_school_location) + '_' + \
+                        str(self.filter_id_teacher) + '_' + \
+                        str(self.filter_id_school_level) + '_' + \
+                        str(self.filter_id_status) + '_' + \
+                        str(self.filter_public) + '_' + \
                         self.sorting + '_' + \
-                        unicode(self.trend_medium) + '_' + \
-                        unicode(self.trend_high)
+                        str(self.trend_medium) + '_' + \
+                        str(self.trend_high)
 
             rows = cache.ram(cache_key , lambda: self._get_day_table(), time_expire=CACHE_LONG)
 

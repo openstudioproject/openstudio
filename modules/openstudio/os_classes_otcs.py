@@ -31,7 +31,7 @@ class ClassesOTCs:
 
         where_classtype = ''
         if school_classtypes_ids:
-            unicode_ids = [unicode(id) for id in school_classtypes_ids]
+            unicode_ids = [str(id) for id in school_classtypes_ids]
             where_classtype = """ 
                 AND (CASE WHEN cotc.school_classtypes_id IS NOT NULL
 				          THEN cotc.school_classtypes_id

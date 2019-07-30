@@ -17,10 +17,10 @@ response.subtitle = T('')
 # ----------------------------------------------------------------------------------------------------------------------
 # read more at http://dev.w3.org/html5/markup/meta.name.html
 # ----------------------------------------------------------------------------------------------------------------------
-response.meta.author = myconf.get('app.author')
-response.meta.description = myconf.get('app.description')
-response.meta.keywords = myconf.get('app.keywords')
-response.meta.generator = myconf.get('app.generator')
+response.meta.author = configuration.get('app.author')
+response.meta.description = configuration.get('app.description')
+response.meta.keywords = configuration.get('app.keywords')
+response.meta.generator = configuration.get('app.generator')
 
 # ----------------------------------------------------------------------------------------------------------------------
 # your http://google.com/analytics id
@@ -755,7 +755,7 @@ elif request.controller == 'ep':
 
 else:
     if auth.user:
-        cache_key = 'openstudio_menu_backend_user_' + unicode(auth.user.id)
+        cache_key = 'openstudio_menu_backend_user_' + str(auth.user.id)
         response.menu = cache.ram(cache_key,
                                  lambda: get_backend_menu(),
                                  time_expire=259200)

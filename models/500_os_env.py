@@ -1,9 +1,4 @@
-# -*- coding: utf-8 -*-
 
-# -------------------------------------------------------------------------
-# once in production, comment out the following line
-# -------------------------------------------------------------------------
-from gluon.custom_import import track_changes; track_changes(True)
 
 import re
 import string
@@ -14,26 +9,29 @@ from openstudio.os_gui import OsGui
 from general_helpers import represent_validity_units
 from general_helpers import represent_subscription_units
 
-### Config ####
+
 # -------------------------------------------------------------------------
-# app configuration made easy. Look inside private/appconfig.ini
+# AppConfig configuration made easy. Look inside private/appconfig.ini
 # -------------------------------------------------------------------------
 from gluon.contrib.appconfig import AppConfig
+from web2pytest import web2pytest
+
+
 # -------------------------------------------------------------------------
-# once in production, remove reload=True to gain full speed
+# once in production, comment out the following line
 # -------------------------------------------------------------------------
-myconf = AppConfig()
+from gluon.custom_import import track_changes; track_changes(True)
+
+
+configuration = AppConfig(reload=True)
 
 
 ### Caching ###
 
-if myconf.get('cache.cache') == 'redis':
+if configuration.get('cache.cache') == 'redis':
     from gluon.contrib.redis_utils import RConn
     from gluon.contrib.redis_cache import RedisCache
 
-    redis_host = str(myconf.get('cache.redis_host'))
-    redis_port = str(myconf.get('cache.redis_port'))
-    # rconn = RConn(redis_host, redis_port)
     rconn = RConn()
     cache.redis = RedisCache(redis_conn=rconn, debug=True)
     # use redis as cache
@@ -101,9 +99,9 @@ class IS_IBAN(object):
         """
         replace_map = {}
         for i, letter in enumerate(list(string.ascii_uppercase)):
-            replace_map[letter] = unicode(i + 10)
+            replace_map[letter] = str(i + 10)
 
-        for k, v in replace_map.iteritems():
+        for k, v in replace_map.items():
             check_value = check_value.replace(k, v)
 
         check_value = int(check_value)
@@ -610,7 +608,7 @@ def generate_password(length=30):
     """
     chars = string.ascii_uppercase + string.ascii_lowercase + string.digits
     passwd = ''.join(random.SystemRandom().choice(chars)
-                     for _ in xrange(length))
+                     for _ in range(length))
 
     return passwd
 
@@ -621,7 +619,7 @@ def LTE_MENU(menu, _class, li_class, ul_class):
 
     return lte_menu
 
-CACHE_LONG = myconf.get('cache.max_cache_time') # 3 days
+CACHE_LONG = int(configuration.get('cache.max_cache_time')) # 3 days
 GENDERS = set_genders()
 VALIDITY_UNITS = set_validity_units()
 SUBSCRIPTION_UNITS = set_subscription_units()
@@ -638,3 +636,4 @@ customers_orders_origins = set_customers_orders_origins()
 employee_expenses_statuses = set_employee_expenses_statuses()
 
 os_gui = OsGui()
+

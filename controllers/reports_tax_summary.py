@@ -2,7 +2,7 @@
 
 import datetime
 # import operator
-import cStringIO
+import io
 import openpyxl
 
 
@@ -256,7 +256,7 @@ def export_summary():
     reports = Reports()
 
     # create filestream
-    stream = cStringIO.StringIO()
+    stream = io.BytesIO()
 
     wb = openpyxl.workbook.Workbook(write_only=True)
     # Create worksheet
@@ -334,6 +334,7 @@ def details():
         TH(T("Description")),
         TH(T("Quantity")),
         TH(T("Item price")),
+        TH(T("Sub total")),
         TH(T("Tax rate")),
         TH(T("VAT")),
         TH(T("Total")),
@@ -344,7 +345,7 @@ def details():
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
-        subtotal += row.invoices_items.Price or 0
+        subtotal += row.invoices_items.TotalPrice or 0
         vat += row.invoices_items.VAT or 0
         total += row.invoices_items.TotalPriceVAT or 0
 
@@ -357,6 +358,7 @@ def details():
             TD(max_string_length(row.invoices_items.Description, 40)),
             TD(row.invoices_items.Quantity),
             TD(repr_row.invoices_items.Price),
+            TD(repr_row.invoices_items.TotalPrice),
             TD(repr_row.invoices_items.tax_rates_id),
             TD(repr_row.invoices_items.VAT),
             TD(repr_row.invoices_items.TotalPriceVAT),
@@ -458,7 +460,7 @@ def export_details():
         name = tax_rate.Name
 
     # create filestream
-    stream = cStringIO.StringIO()
+    stream = io.BytesIO()
 
     wb = openpyxl.workbook.Workbook(write_only=True)
     # write the sheet for all mail addresses
@@ -486,6 +488,7 @@ def export_details():
         "Description",
         "Quantity",
         "Item price",
+        "Sub total",
         "Tax rate",
         "VAT",
         "Total",
@@ -502,7 +505,8 @@ def export_details():
             row.invoices_items.Description,
             row.invoices_items.Quantity,
             row.invoices_items.Price,
-            row.invoices_items.tax_rates_id,
+            row.invoices_items.TotalPrice,
+            repr_row.invoices_items.tax_rates_id,
             row.invoices_items.VAT,
             row.invoices_items.TotalPriceVAT,
         ])

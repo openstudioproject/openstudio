@@ -40,7 +40,7 @@ class SchoolClasscard:
         db = current.db
 
         row = db.school_classcards(self.scdID)
-        validity = SPAN(unicode(row.Validity), ' ')
+        validity = SPAN(str(row.Validity), ' ')
 
         validity_in = represent_validity_units(row.ValidityUnit, row)
         if row.Validity == 1: # Cut the last 's"
@@ -90,8 +90,8 @@ class SchoolClasscard:
         """
             Add an invoice after adding a classcard
         """
-        from os_customer_classcard import CustomerClasscard
-        from os_invoice import Invoice
+        from .os_customer_classcard import CustomerClasscard
+        from .os_invoice import Invoice
 
         db = current.db
         T = current.T

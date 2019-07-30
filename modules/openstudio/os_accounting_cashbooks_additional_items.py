@@ -91,7 +91,7 @@ class AccountingCashbooksAdditionalItems:
         :param permission_edit:
         :return:
         """
-        from os_gui import OsGui
+        from .os_gui import OsGui
 
         T = current.T
         os_gui = OsGui()

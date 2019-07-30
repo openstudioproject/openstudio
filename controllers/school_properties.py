@@ -2,7 +2,7 @@
 
 import os
 import datetime
-import cStringIO
+import io
 import openpyxl
 
 from general_helpers import get_submenu

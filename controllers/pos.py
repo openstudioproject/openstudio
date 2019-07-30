@@ -43,9 +43,9 @@ def index():
 
 
 def return_json_login_error(var=None):
-    print 'return_json_login_error'
-    print 'cookies:'
-    print request.cookies
+    print('return_json_login_error')
+    print('cookies:')
+    print(request.cookies)
 
     set_headers()
 
@@ -64,9 +64,9 @@ def return_json_login_error(var=None):
 
 def return_json_permissions_error():
     set_headers()
-    print 'return_json_permissions_error'
-    print 'cookies:'
-    print request.cookies
+    print('return_json_permissions_error')
+    print('cookies:')
+    print(request.cookies)
 
     try:
         # Dev
@@ -74,7 +74,7 @@ def return_json_permissions_error():
     except TypeError:
         # Live
         location = request.env.wsgi_url_scheme + '://' + request.env.http_host + '/pos#/permissions_error'
-        print location
+        print(location)
 
     return dict(
         error=403,
@@ -97,8 +97,8 @@ def is_authorized(permission):
 def get_logged_in():
     set_headers()
 
-    print 'cookies:'
-    print request.cookies
+    print('cookies:')
+    print(request.cookies)
 
     return auth.is_logged_in()
 
@@ -232,7 +232,7 @@ def get_class_teacher_payment():
 
     cls = Class(clsID, date)
     payment = cls.get_teacher_payment()
-    print payment
+    print(payment)
 
     return dict(payment = payment)
 
@@ -345,7 +345,7 @@ def customer_class_booking_create():
             )
 
         elif type == "reconcile_later":
-            print "checking in"
+            print("checking in")
             error = False
             result = ah.attendance_sign_in_reconcile_later(
                 cuID,
@@ -354,7 +354,7 @@ def customer_class_booking_create():
                 booking_status='attending'
             )
 
-            print result
+            print(result)
 
 
         if result['status'] == 'fail':
@@ -390,7 +390,7 @@ def get_school_classcards():
         """
             takes a db.school_classcards() row as argument
         """
-        validity = unicode(row.Validity) + ' '
+        validity = str(row.Validity) + ' '
 
         validity_in = represent_validity_units(row.ValidityUnit, row)
         if row.Validity == 1:  # Cut the last 's"
@@ -559,7 +559,7 @@ def get_customer_notes():
 
     cuID = request.vars['id']
 
-    print cuID
+    print(cuID)
 
     query = (db.customers_notes.auth_customer_id == cuID) & \
             (db.customers_notes.TeacherNote == True)
@@ -615,7 +615,7 @@ def create_customer_note():
     """
     set_headers()
 
-    print request.vars
+    print(request.vars)
 
     # Set some default values
     db.customers_notes.auth_user_id.default = auth.user.id
@@ -623,7 +623,7 @@ def create_customer_note():
     db.customers_notes.TeacherNote.default = True
 
     result = db.customers_notes.validate_and_insert(**request.vars)
-    print result
+    print(result)
 
     error = False
     if result.errors:
@@ -644,11 +644,11 @@ def update_customer_note():
     """
     set_headers()
 
-    print request.vars
+    print(request.vars)
 
     cnID = request.vars['id']
 
-    print cnID
+    print(cnID)
     cn = db.customers_notes(cnID)
     cn.Note = request.vars['Note']
     record = cn.update_record()
@@ -671,11 +671,11 @@ def update_customer_note_status():
     """
     set_headers()
 
-    print request.vars
+    print(request.vars)
 
     cnID = request.vars['id']
 
-    print cnID
+    print(cnID)
     cn = db.customers_notes(cnID)
     cn.Processed = not cn.Processed
     record = cn.update_record()
@@ -699,7 +699,7 @@ def delete_customer_note():
     """
     set_headers()
 
-    print request.vars
+    print(request.vars)
     cnID = request.vars['id']
 
     query = (db.customers_notes.id == cnID)
@@ -1101,7 +1101,7 @@ def update_class_attendance():
 
     set_headers()
 
-    print request.vars
+    print(request.vars)
     clattID = request.vars['id']
     status = request.vars['status']
 
@@ -1186,10 +1186,10 @@ def create_customer():
 
 
     db.auth_user.password.requires = None
-    print request.vars
+    print(request.vars)
 
     result = db.auth_user.validate_and_insert(**request.vars)
-    print result
+    print(result)
     ocm.clear_customers()
 
     customer_data = ''
@@ -1244,14 +1244,14 @@ def update_customer():
     ocm = OsCacheManager()
 
     db.auth_user.password.requires = None
-    print request.vars
+    print(request.vars)
 
     cuID = request.vars.pop('id', None)
 
-    print cuID
-    print request.vars
+    print(cuID)
+    print(request.vars)
 
-    print db.auth_user.email.requires
+    print(db.auth_user.email.requires)
 
     # The default validator returns an error in this case
     # It says an account already exists for this email
@@ -1274,7 +1274,7 @@ def update_customer():
         query = (db.auth_user.id == cuID)
         result = db(query).validate_and_update(**request.vars)
         ocm.clear_customers()
-        print result
+        print(result)
         error = False
         if result.errors:
             error = True
@@ -1320,7 +1320,7 @@ def update_customer_picture():
     """
     :return: dict containing data of new auth_user
     """
-    import cStringIO
+    import io
 
     set_headers()
 
@@ -1335,7 +1335,7 @@ def update_customer_picture():
         import base64
         png_image = base64.b64decode(picture)
         # Create file stream
-        stream = cStringIO.StringIO(png_image)
+        stream = io.BytesIO(png_image)
 
         # Update picture & generate new thumbnails
         query = (db.auth_user.id == cuID)
@@ -1454,9 +1454,9 @@ def validate_cart():
     set_headers()
 
 
-    print "POS read permissions"
-    print auth.has_membership(group_id='Admins') or \
-          auth.has_permission('read', 'pos')
+    print("POS read permissions")
+    print(auth.has_membership(group_id='Admins') or \
+          auth.has_permission('read', 'pos'))
 
     error = False
     message = ''
@@ -1473,12 +1473,12 @@ def validate_cart():
     pmID = request.vars['payment_methodID']
     cuID = request.vars['customerID']
 
-    print 'customerID'
-    print type(cuID)
-    print cuID
+    print('customerID')
+    print(type(cuID))
+    print(cuID)
 
-    print 'validate_cart_items:'
-    print items
+    print('validate_cart_items:')
+    print(items)
 
     # Verify items
     if not items:
@@ -1496,16 +1496,16 @@ def validate_cart():
         for item in items:
             if item['item_type'] == 'subscription':
                 subscription_ids = customer.get_school_subscriptions_ids_on_date(TODAY_LOCAL)
-                print 'validating subscriptions'
-                print subscription_ids
+                print('validating subscriptions')
+                print(subscription_ids)
                 if item['data']['id'] in subscription_ids:
                     error = True
                     message = T("This customer already has this subscription")
                         
             if item['item_type'] == 'membership':
                 membership_ids = customer.get_school_memberships_ids_on_date(TODAY_LOCAL)
-                print 'validating memberhsips'
-                print membership_ids
+                print('validating memberhsips')
+                print(membership_ids)
                 if item['data']['id'] in membership_ids:
                     error = True
                     message = T("This customer already has this membership")
@@ -1517,13 +1517,13 @@ def validate_cart():
         invoices_payment_id = None
         invoice_created = False
         if cuID:
-            print 'create order'
+            print('create order')
             invoice = validate_cart_create_order(cuID, pmID, items)
             invoice_created = True
 
 
         # Always create payment receipt
-        print 'create receipt'
+        print('create receipt')
         receipt = validate_cart_create_receipt(
             invoice_created,
             invoice,
@@ -1540,7 +1540,7 @@ def validate_cart():
         )
 
         receipt_items = receipt.get_receipt_items_rows()
-        print receipt_items
+        print(receipt_items)
         receipt_amounts = receipt.get_amounts()
         receipt_pmID = receipt.row.payment_methods_id
 
@@ -1783,7 +1783,7 @@ def get_cash_counts():
 def set_cash_count():
     set_headers()
 
-    print request.vars
+    print(request.vars)
 
     # Clean up input of amount
     if 'amount' in request.vars:
@@ -1828,7 +1828,7 @@ def create_expense():
     """
     set_headers()
 
-    print request.vars
+    print(request.vars)
 
     # Clean up input of amount
     if 'Amount' in request.vars:
@@ -1837,7 +1837,7 @@ def create_expense():
 
 
     result = db.accounting_expenses.validate_and_insert(**request.vars)
-    print result
+    print(result)
 
     expense_data = ''
     error = False
@@ -1862,9 +1862,9 @@ def update_expense():
     """
     set_headers()
 
-    print request.vars
+    print(request.vars)
     aeID = request.vars.pop('id', None)
-    print aeID
+    print(aeID)
 
     # Clean up input of amount
     if 'Amount' in request.vars:
@@ -1899,7 +1899,7 @@ def delete_expense():
     """
     set_headers()
 
-    print request.vars
+    print(request.vars)
     aeID = request.vars['id']
 
     query = (db.accounting_expenses.id == aeID)

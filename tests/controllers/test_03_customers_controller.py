@@ -303,7 +303,7 @@ def populate_account_merge(client, web2py):
         invoices_groups_id      = 100,
         payment_methods_id      = 3,
         Status                  = 'sent',
-        InvoiceID               = 'INV' + unicode(merge_from_id),
+        InvoiceID               = 'INV' + str(merge_from_id),
         DateCreated             = '2014-01-01',
         DateDue                 = '2014-01-31'
         )
@@ -415,36 +415,36 @@ def test_account_merge(client, web2py):
         then merge into first and check if we still have all data.
     """
     def assert_count_customer(table, count):
-        print 'Testing customer table: ' + unicode(table)
+        print('Testing customer table: ' + str(table))
         query = (table.auth_customer_id == 1001)
         #print web2py.db().select(table.ALL)
 
         assert web2py.db(query).count() == count
-        print 'OK'
+        print('OK')
 
     def assert_count_user(table, count):
-        print 'Testing user table: ' + unicode(table)
+        print('Testing user table: ' + str(table))
         query = (table.auth_user_id == 1001)
         assert web2py.db(query).count() == count
-        print 'OK'
+        print('OK')
 
     def assert_count_teacher(table, count):
-        print 'Testing teacher table: ' + unicode(table)
+        print('Testing teacher table: ' + str(table))
         query = (table.auth_teacher_id == 1001)
         assert web2py.db(query).count() == count
-        print 'OK'
+        print('OK')
 
     def assert_count_teacher2(table, count):
-        print 'Testing teacher2 table: ' + unicode(table)
+        print('Testing teacher2 table: ' + str(table))
         query = (table.auth_teacher_id2 == 1001)
         assert web2py.db(query).count() == count
-        print 'OK'
+        print('OK')
 
     populate_account_merge(client, web2py)
 
     # Execute the merge
     auth_merge_id = 1002
-    url = '/customers/account_merge_execute?cuID=1001&auth_merge_id=' + unicode(auth_merge_id)
+    url = '/customers/account_merge_execute?cuID=1001&auth_merge_id=' + str(auth_merge_id)
     client.get(url)
     assert client.status == 200
 
@@ -1087,7 +1087,7 @@ def test_subscription_credits(client, web2py):
     # check balance and listing
     csc = web2py.db.customers_subscriptions_credits(1)
     assert csc.Description in client.text
-    assert unicode(round(csc.MutationAmount, 1)) in client.text
+    assert str(round(csc.MutationAmount, 1)) in client.text
 
 
 def test_subscription_credits_add(client, web2py):
@@ -1480,7 +1480,7 @@ def test_classes_attendance_cancel_booking_and_refund_credits(client, web2py):
 
     caID = 3
 
-    url = '/customers/classes_attendance_cancel?caID=' + unicode(caID)
+    url = '/customers/classes_attendance_cancel?caID=' + str(caID)
     client.get(url)
     assert client.status == 200
 
@@ -1600,8 +1600,8 @@ def test_alternativepayment_add(client, web2py):
     client.get(url)
     assert client.status == 200
 
-    assert 'value="' + unicode(today.year) + '"' in client.text # check default year value
-    assert 'selected="selected" value="' + unicode(today.month) + '"' in client.text # check default month value
+    assert 'value="' + str(today.year) + '"' in client.text # check default year value
+    assert 'selected="selected" value="' + str(today.month) + '"' in client.text # check default month value
 
     data = dict(PaymentYear=today.year,
                 PaymentMonth=today.month,

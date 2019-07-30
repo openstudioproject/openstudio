@@ -517,7 +517,7 @@ def test_reports_postcodes(client, web2py):
             (web2py.db.auth_user.postcode_asint <= group.PostcodeEnd_AsInt)
     count = web2py.db(query).count()
 
-    assert '<td>' + unicode(count) + '</td>' in client.text
+    assert '<td>' + str(count) + '</td>' in client.text
 
 
 def test_reports_attendance_review_requested(client, web2py):
@@ -562,13 +562,13 @@ def test_attendance_organizations(client, web2py):
     client.get(url)
     assert client.status == 200
 
-    assert u'Resolve class price</div><div class="col-md-5"><span>€ 10.00' in client.text.decode('utf-8')
-    assert u'Classes taught</div><div class="col-md-5">8' in client.text.decode('utf-8')
-    assert u'Total attendance</div><div class="col-md-5"><a href="/reports/attendance_organizations_list_attendance?month=1&amp;soID=1&amp;year=2014">3</a>' in client.text.decode('utf-8')
-    assert u'Attendance from Organization_1</div><div class="col-md-5">1' in client.text.decode('utf-8')
+    assert 'Resolve class price</div><div class="col-md-5"><span>€ 10.00' in client.text
+    assert 'Classes taught</div><div class="col-md-5">8' in client.text
+    assert 'Total attendance</div><div class="col-md-5"><a href="/reports/attendance_organizations_list_attendance?month=1&amp;soID=1&amp;year=2014">3</a>' in client.text
+    assert 'Attendance from Organization_1</div><div class="col-md-5">1' in client.text
 
     # check resolve
-    assert u'Organization_1 owes Organization_0</div><div class="col-md-5"><span>€ 10.00</span>' in client.text.decode('utf-8')
+    assert 'Organization_1 owes Organization_0</div><div class="col-md-5"><span>€ 10.00</span>' in client.text
 
 
 def test_attendance_organizations_list_attendance(client, web2py):

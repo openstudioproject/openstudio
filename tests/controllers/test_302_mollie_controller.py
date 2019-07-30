@@ -39,7 +39,7 @@ def test_invoice_paid(client, web2py):
     populate_invoices_items(web2py)
 
     amounts = web2py.db.invoices_amounts(1)
-    price = unicode(amounts.TotalPriceVAT)
+    price = str(amounts.TotalPriceVAT)
     mollie_id = 'tr_test'
     date = '2014-01-01'
 
@@ -49,11 +49,11 @@ def test_invoice_paid(client, web2py):
 
     payment = web2py.db.invoices_payments(1)
 
-    print payment
+    print(payment)
 
     assert payment.Amount == amounts.TotalPriceVAT
     assert payment.mollie_payment_id == mollie_id
-    assert unicode(payment.PaymentDate) == date
+    assert str(payment.PaymentDate) == date
 
 
 def test_order_paid_delivery_invoice(client, web2py):
@@ -102,7 +102,7 @@ def test_order_paid_delivery_invoice(client, web2py):
     total_days = period_end.day
     ssu_calculated_price = round(float(days) / float(total_days) * float(ssu_price.Price), 2)
 
-    price = unicode(round(scd.Price + wsp.Price + class_price.Dropin + ssu_calculated_price + sm.Price + donation_price, 2))
+    price = str(round(scd.Price + wsp.Price + class_price.Dropin + ssu_calculated_price + sm.Price + donation_price, 2))
 
     #print web2py.db().select(web2py.db.customers_orders.ALL)
 
@@ -203,7 +203,7 @@ def test_webhook_invoice_chargeback(client, web2py):
     web2py.db.commit()
 
     amounts = web2py.db.invoices_amounts(1)
-    price = unicode(amounts.TotalPriceVAT * -1)
+    price = str(amounts.TotalPriceVAT * -1)
     mollie_id = 'tr_test'
     chargeback_id = 'chb_test'
     date = '2014-01-01'
@@ -224,7 +224,7 @@ def test_webhook_invoice_chargeback(client, web2py):
     assert payment.Amount == amounts.TotalPriceVAT * -1
     assert payment.mollie_payment_id == mollie_id
     assert payment.mollie_chargeback_id == chargeback_id
-    assert unicode(payment.PaymentDate) == date
+    assert str(payment.PaymentDate) == date
     assert payment.Note == 'Chargeback'
 
     # Check status changes back to 'sent'
@@ -250,7 +250,7 @@ def test_webhook_invoice_refund(client, web2py):
     web2py.db.commit()
 
     amounts = web2py.db.invoices_amounts(1)
-    price = unicode(amounts.TotalPriceVAT * -1)
+    price = str(amounts.TotalPriceVAT * -1)
     mollie_id = 'tr_test'
     refund_id = 're_test'
     date = '2014-01-01'
@@ -271,7 +271,7 @@ def test_webhook_invoice_refund(client, web2py):
     assert payment.Amount == amounts.TotalPriceVAT * -1
     assert payment.mollie_payment_id == mollie_id
     assert payment.mollie_refund_id == refund_id
-    assert unicode(payment.PaymentDate) == date
+    assert str(payment.PaymentDate) == date
     assert payment.Note == 'refund'
 
     # Check status changes back to 'sent'

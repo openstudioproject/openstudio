@@ -38,14 +38,14 @@ if not request.env.web2py_runtime_gae:
                 check_reserved=['all'],
                 lazy_tables=False)
     else:
-        db = DAL(myconf.get('db.uri'),
-                 pool_size=myconf.get('db.pool_size'),
-                 migrate_enabled=myconf.get('db.migrate'),
+        db = DAL(configuration.get('db.uri'),
+                 pool_size=configuration.get('db.pool_size'),
+                 migrate_enabled=configuration.get('db.migrate'),
                  check_reserved=['all'],
-                 db_codec=myconf.get('db.db_codec'),
-                 bigint_id=myconf.get('db.bigint_id'),
-                 lazy_tables=myconf.get('db.lazy_tables'),
-                 fake_migrate_all=myconf.get('db.fake_migrate_all'),
+                 db_codec=configuration.get('db.db_codec'),
+                 bigint_id=configuration.get('db.bigint_id'),
+                 lazy_tables=configuration.get('db.lazy_tables'),
+                 fake_migrate_all=configuration.get('db.fake_migrate_all'),
                  )
 else:
     # ---------------------------------------------------------------------
@@ -63,7 +63,7 @@ else:
     # session.connect(request, response, db = MEMDB(Client()))
     # ---------------------------------------------------------------------
 
-# if myconf.get('cache.cache') == 'redis':
+# if configuration.get('cache.cache') == 'redis':
 #     # If we have redis in the stack, let's use it for sessions
 #     from gluon.contrib.redis_utils import RConn
 #     from gluon.contrib.redis_session import RedisSession
@@ -80,8 +80,8 @@ response.generic_patterns = ['*.json', '*.xml', '*.load', '*.html']
 # -------------------------------------------------------------------------
 # choose a style for forms
 # -------------------------------------------------------------------------
-response.formstyle = myconf.get('forms.formstyle')  # or 'bootstrap3_stacked' or 'bootstrap2' or other
-response.form_label_separator = myconf.get('forms.separator') or ''
+response.formstyle = configuration.get('forms.formstyle')  # or 'bootstrap3_stacked' or 'bootstrap2' or other
+response.form_label_separator = configuration.get('forms.separator') or ''
 
 # -------------------------------------------------------------------------
 # (optional) optimize handling of static files
@@ -107,7 +107,7 @@ response.form_label_separator = myconf.get('forms.separator') or ''
 from gluon.tools import Auth, Crud, Service, PluginManager
 
 # host names must be a list of allowed host names (glob syntax allowed)
-auth = Auth(db, host_names=myconf.get('host.names'))
+auth = Auth(db, host_names=configuration.get('host.names'))
 service = Service()
 plugins = PluginManager()
 crud = Crud(db)
@@ -133,13 +133,13 @@ crud.messages.submit_button = T('Save')
 # -------------------------------------------------------------------------
 mail = auth.settings.mailer
 
-mail.settings.server = myconf.get('smtp.server')
+mail.settings.server = configuration.get('smtp.server')
 # mail.settings.server = 'logging'
-mail.settings.sender = myconf.get('smtp.sender')
-if myconf.get('smtp.login'):
-    mail.settings.login = myconf.get('smtp.login')
-mail.settings.tls = myconf.get('smtp.tls') or False
-mail.settings.ssl = myconf.get('smtp.ssl') or False
+mail.settings.sender = configuration.get('smtp.sender')
+if configuration.get('smtp.login'):
+    mail.settings.login = configuration.get('smtp.login')
+mail.settings.tls = configuration.get('smtp.tls') or False
+mail.settings.ssl = configuration.get('smtp.ssl') or False
 
 if web2pytest.is_running_under_test(request, request.application):
     mail.settings.server = 'logging'
@@ -156,7 +156,7 @@ auth.settings.login_onfail.append(ossaula.update_login_attempts)
 auth.settings.login_onvalidation = [ossaula.login_check_lockout]
 auth.settings.login_onaccept = [ossaula.login_reset_failed_attempts]
 auth.settings.create_user_groups = None # Don't create groups for individual users
-auth.settings.expiration = myconf.get('auth.session_expiration') or 1800
+auth.settings.expiration = configuration.get('auth.session_expiration') or 1800
 auth.settings.registration_requires_verification = True
 auth.settings.login_after_registration = True
 auth.settings.registration_requires_approval = False

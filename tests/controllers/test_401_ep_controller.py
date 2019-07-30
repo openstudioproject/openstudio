@@ -73,7 +73,7 @@ def test_my_classes_show_current(client, web2py):
     client.get(url)
     assert client.status == 200
 
-    assert unicode(datetime.date.today().year) in client.text
+    assert str(datetime.date.today().year) in client.text
 
 
 def test_request_sub(client, web2py):

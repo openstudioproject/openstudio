@@ -4,7 +4,7 @@
     py.test test cases to test the API controller (api.py)
 """
 
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import gluon.contrib.simplejson as sj
 from gluon.contrib.populate import populate
 
@@ -112,8 +112,9 @@ def test_schedule_get_extension_error():
         Check whether we get a value error when a call is made without variables
     """
     url = base_url + '/api/schedule_get'
-    page = urllib.urlopen(url).read()
-    assert "Extension error" in page
+    with urllib.request.urlopen(url) as page:
+        content = page.read().decode('utf-8')
+    assert "Extension error" in content
 
 
 def test_schedule_get_days_extension_error():
@@ -121,8 +122,9 @@ def test_schedule_get_days_extension_error():
         Check whether we get a value error when a call is made without variables
     """
     url = base_url + '/api/schedule_get_days'
-    page = urllib.urlopen(url).read()
-    assert "Extension error" in page
+    with urllib.request.urlopen(url) as page:
+        content = page.read().decode('utf-8')
+    assert "Extension error" in content
 
 
 def test_workshops_get_extension_error():
@@ -130,8 +132,9 @@ def test_workshops_get_extension_error():
         Check whether we get a value error when a class is made without variabled
     """
     url = base_url + '/api/workshops_get'
-    page = urllib.urlopen(url).read()
-    assert "Extension error" in page
+    with urllib.request.urlopen(url) as page:
+        content = page.read().decode('utf-8')
+    assert "Extension error" in content
 
 
 def test_schedule_get_authentication_error():
@@ -141,8 +144,9 @@ def test_schedule_get_authentication_error():
     """
     url = base_url + \
         '/api/schedule_get.json?user=test&key=test&year=2014&week=1'
-    page = urllib.urlopen(url).read()
-    assert "Authentication error" in page
+    with urllib.request.urlopen(url) as page:
+        content = page.read().decode('utf-8')
+    assert "Authentication error" in content
 
 
 def test_schedule_get_days_authentication_error():
@@ -152,8 +156,9 @@ def test_schedule_get_days_authentication_error():
     """
     url = base_url + \
         '/api/schedule_get_days.json?user=test&key=test&date_start=2014-01-01&date_end=2014-01-06'
-    page = urllib.urlopen(url).read()
-    assert "Authentication error" in page
+    with urllib.request.urlopen(url) as page:
+        content = page.read().decode('utf-8')
+    assert "Authentication error" in content
 
 
 def test_workshops_get_authentication_error():
@@ -163,8 +168,9 @@ def test_workshops_get_authentication_error():
     """
     url = base_url + \
         '/api/workshops_get.json?user=test&key=test'
-    page = urllib.urlopen(url).read()
-    assert "Authentication error" in page
+    with urllib.request.urlopen(url) as page:
+        content = page.read().decode('utf-8')
+    assert "Authentication error" in content
 
 
 def test_schedule_get_value_error():
@@ -173,8 +179,9 @@ def test_schedule_get_value_error():
     """
     url = base_url + \
         '/api/schedule_get.json?user=test&key=test&year=bla&week=bla'
-    page = urllib.urlopen(url).read()
-    assert "Value error" in page
+    with urllib.request.urlopen(url) as page:
+        content = page.read().decode('utf-8')
+    assert "Value error" in content
 
 
 def test_schedule_get_days_value_error():
@@ -183,8 +190,9 @@ def test_schedule_get_days_value_error():
     """
     url = base_url + \
         '/api/schedule_get_days.json?user=test&key=test&date_start=2000&date_end=2014-01-06'
-    page = urllib.urlopen(url).read()
-    assert "Missing value" in page
+    with urllib.request.urlopen(url) as page:
+        content = page.read().decode('utf-8')
+    assert "Missing value" in content
 
 
 def test_schedule_get_missing_value():
@@ -193,8 +201,9 @@ def test_schedule_get_missing_value():
     """
     url = base_url + \
         '/api/schedule_get.json'
-    page = urllib.urlopen(url).read()
-    assert "Missing value" in page
+    with urllib.request.urlopen(url) as page:
+        content = page.read().decode('utf-8')
+    assert "Missing value" in content
 
 
 def test_schedule_get_days_missing_value():
@@ -203,8 +212,9 @@ def test_schedule_get_days_missing_value():
     """
     url = base_url + \
         '/api/schedule_get_days.json'
-    page = urllib.urlopen(url).read()
-    assert "Missing value" in page
+    with urllib.request.urlopen(url) as page:
+        content = page.read().decode('utf-8')
+    assert "Missing value" in content
 
 
 def test_schedule_get_json(client, web2py):
@@ -216,7 +226,7 @@ def test_schedule_get_json(client, web2py):
 
     url = base_url + \
         '/api/schedule_get.json?user=test&key=test&year=2014&week=2'
-    page = urllib.urlopen(url).read()
+    page = urllib.request.urlopen(url).read()
 
     json = sj.loads(page)
 
@@ -260,9 +270,10 @@ def test_schedule_get_json(client, web2py):
     # check classes_subteachers
     url = base_url + \
         '/api/schedule_get.json?user=test&key=test&year=2014&week=3'
-    page = urllib.urlopen(url).read()
+    with urllib.request.urlopen(url) as page:
+        content = page.read().decode('utf-8')
 
-    json = sj.loads(page)
+    json = sj.loads(content)
 
     assert json['data']['classes']['Monday']['date'] == '2014-01-13'
 
@@ -280,9 +291,10 @@ def test_schedule_get_json(client, web2py):
     # check cancelled
     url = base_url + \
         '/api/schedule_get.json?user=test&key=test&year=2014&week=4'
-    page = urllib.urlopen(url).read()
+    with urllib.request.urlopen(url) as page:
+        content = page.read().decode('utf-8')
 
-    json = sj.loads(page)
+    json = sj.loads(content)
 
     assert json['data']['classes']['Monday']['date'] == '2014-01-20'
     assert json['data']['classes']['Monday']['classes'][0]['Cancelled']
@@ -291,9 +303,10 @@ def test_schedule_get_json(client, web2py):
     # check holiday
     url = base_url + \
         '/api/schedule_get.json?user=test&key=test&year=2014&week=5'
-    page = urllib.urlopen(url).read()
+    with urllib.request.urlopen(url) as page:
+        content = page.read().decode('utf-8')
 
-    json = sj.loads(page)
+    json = sj.loads(content)
 
     assert json['data']['classes']['Monday']['date'] == '2014-01-27'
     assert json['data']['classes']['Monday']['classes'][0]['Holiday']
@@ -301,10 +314,11 @@ def test_schedule_get_json(client, web2py):
     # Check TeacherID parameter
     teID = 2
     url = base_url + \
-        '/api/schedule_get.json?user=test&key=test&year=2014&week=2&TeacherID=' + unicode(teID)
-    page = urllib.urlopen(url).read()
+        '/api/schedule_get.json?user=test&key=test&year=2014&week=2&TeacherID=' + str(teID)
+    with urllib.request.urlopen(url) as page:
+        content = page.read().decode('utf-8')
 
-    json = sj.loads(page)
+    json = sj.loads(content)
 
     assert json['data']['classes']['Monday']['date']  == '2014-01-06'
     assert json['data']['classes']['Monday']['classes'][0]['TeacherID'] == teID
@@ -322,8 +336,9 @@ def test_shedule_get_days_json(client, web2py):
     # check normal class
     url = base_url + \
         '/api/schedule_get_days.json?user=test&key=test&date_start=2014-01-06&date_end=2014-01-06'
-    page = urllib.urlopen(url).read()
-    json = sj.loads(page)
+    with urllib.request.urlopen(url) as page:
+        content = page.read().decode('utf-8')
+    json = sj.loads(content)
 
 
     assert json['data']['schedule'][0]['date'] == '2014-01-06'
@@ -345,8 +360,9 @@ def test_shedule_get_days_json(client, web2py):
     # check subteachers class
     url = base_url + \
         '/api/schedule_get_days.json?user=test&key=test&date_start=2014-01-13&date_end=2014-01-13'
-    page = urllib.urlopen(url).read()
-    json = sj.loads(page)
+    with urllib.request.urlopen(url) as page:
+        content = page.read().decode('utf-8')
+    json = sj.loads(content)
 
     assert json['data']['schedule'][0]['date'] == '2014-01-13'
     assert not json['data']['schedule'][0]['classes'][0]['Holiday']
@@ -363,8 +379,9 @@ def test_shedule_get_days_json(client, web2py):
     # check cancelled
     url = base_url + \
         '/api/schedule_get_days.json?user=test&key=test&date_start=2014-01-20&date_end=2014-01-20'
-    page = urllib.urlopen(url).read()
-    json = sj.loads(page)
+    with urllib.request.urlopen(url) as page:
+        content = page.read().decode('utf-8')
+    json = sj.loads(content)
 
     assert json['data']['schedule'][0]['date'] == '2014-01-20'
     assert json['data']['schedule'][0]['classes'][0]['Cancelled']
@@ -373,8 +390,9 @@ def test_shedule_get_days_json(client, web2py):
     # check holiday
     url = base_url + \
         '/api/schedule_get_days.json?user=test&key=test&date_start=2014-01-27&date_end=2014-01-27'
-    page = urllib.urlopen(url).read()
-    json = sj.loads(page)
+    with urllib.request.urlopen(url) as page:
+        content = page.read().decode('utf-8')
+    json = sj.loads(content)
 
     assert json['data']['schedule'][0]['date'] == '2014-01-27'
     assert json['data']['schedule'][0]['classes'][0]['Holiday']
@@ -388,8 +406,9 @@ def test_workshops_get_json(client, web2py):
 
     # Check if workshop is in the list
     url = base_url + '/api/workshops_get.json?user=test&key=test'
-    page = urllib.urlopen(url).read()
-    json = sj.loads(page)
+    with urllib.request.urlopen(url) as page:
+        content = page.read().decode('utf-8')
+    json = sj.loads(content)
 
     workshop = web2py.db.workshops(1)
     fws_wsp = web2py.db.workshops_products(1)
@@ -417,9 +436,10 @@ def test_workshop_get_json(client, web2py):
 
     # Check if workshop is in the list
     url = base_url + '/api/workshop_get.json?user=test&key=test&id=1'
-    page = urllib.urlopen(url).read()
+    with urllib.request.urlopen(url) as page:
+        content = page.read().decode('utf-8')
 
-    json = sj.loads(page)
+    json = sj.loads(content)
 
     workshop = web2py.db.workshops(1)
     fws_wsp = web2py.db.workshops_products(1)
@@ -468,8 +488,9 @@ def test_school_subscriptions_get_json(client, web2py):
     populate_school_subscriptions(web2py)
 
     url = base_url + '/api/school_subscriptions_get.json?user=test&key=test'
-    page = urllib.urlopen(url).read()
-    json = sj.loads(page)
+    with urllib.request.urlopen(url) as page:
+        content = page.read().decode('utf-8')
+    json = sj.loads(content)
 
     subscription = web2py.db.school_subscriptions(1)
     subscription_price = web2py.db.school_subscriptions_price(1)
@@ -486,9 +507,9 @@ def test_school_classcards_get_json(client, web2py):
     populate_school_classcards(web2py, 2)
 
     url = base_url + '/api/school_classcards_get.json?user=test&key=test'
-    page = urllib.urlopen(url).read()
-    print page
-    json = sj.loads(page)
+    with urllib.request.urlopen(url) as page:
+        content = page.read().decode('utf-8')
+    json = sj.loads(content)
 
     classcard = web2py.db.school_classcards(1)
     assert json['data'][0]['Name'] == classcard.Name
@@ -505,8 +526,9 @@ def test_school_teachers_get_json(client, web2py):
     populate_auth_user_teachers(web2py)
 
     url = base_url + '/api/school_teachers_get.json?user=test&key=test'
-    page = urllib.urlopen(url).read()
-    json = sj.loads(page)
+    with urllib.request.urlopen(url) as page:
+        content = page.read().decode('utf-8')
+    json = sj.loads(content)
 
     teacher = web2py.db.auth_user(2)
     assert json['data'][0]['Name'] == teacher.full_name

@@ -35,7 +35,7 @@ class OsMailChimp():
         """
         T = current.T
 
-        from os_customer import Customer
+        from .os_customer import Customer
         customer = Customer(cuID)
         subscriber_hash = customer.get_email_hash('md5')
 
@@ -66,7 +66,7 @@ class OsMailChimp():
         """
             Delete a member from a list
         """
-        from os_customer import Customer
+        from .os_customer import Customer
         customer = Customer(cuID)
 
         mailchimp = self.get_client()
@@ -98,7 +98,7 @@ class OsMailChimp():
         """
 
         import hashlib
-        from os_customer import Customer
+        from .os_customer import Customer
 
         customer = Customer(cuID)
         subscriber_hash = customer.get_email_hash('md5')
@@ -115,7 +115,7 @@ class OsMailChimp():
         :param cuID: db.auth_user.id
         :return:
         """
-        from os_gui import OsGui
+        from .os_gui import OsGui
         T = current.T
         os_gui = OsGui()
 

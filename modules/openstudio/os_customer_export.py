@@ -18,13 +18,13 @@ class CustomerExport:
         """
             Customer export all data
         """
-        from cStringIO import StringIO
+        from io import BytesIO
         import openpyxl
 
 
         db = current.db
 
-        stream = StringIO()
+        stream = BytesIO()
         # Create the workbook
         wb = openpyxl.workbook.Workbook(write_only=True)
 

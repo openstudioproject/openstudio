@@ -64,14 +64,6 @@ def workflow():
               requires=IS_INT_IN_RANGE(0, 745),
               label=T('Classes cancellation limit in hours'),
               comment=T("Number of hours before a class starts a booking can be cancelled while returning credit")),
-        Field('shop_subscriptions_start',
-              default=shop_subscriptions_start,
-              requires=IS_IN_SET([
-                  ['today', T('Today')],
-                  ['next_month', T('First day of next month')]],
-                  zero=None),
-              label=T('Subscriptions start date'),
-              comment=T("Set the default start date for subscriptions in the shop")),
         Field('shop_subscriptions_payment_method',
               default=shop_subscriptions_payment_method,
               requires=IS_IN_SET([
@@ -430,7 +422,7 @@ def product_categories():
     rows = db(query).select(db.shop_categories_products.shop_categories_id)
     selected_ids = []
     for row in rows:
-        selected_ids.append(unicode(row.shop_categories_id))
+        selected_ids.append(str(row.shop_categories_id))
 
     query = (db.shop_categories.Archived == False)
     rows = db(query).select(
@@ -440,7 +432,7 @@ def product_categories():
     )
 
     for row in rows:
-        if unicode(row.id) in selected_ids:
+        if str(row.id) in selected_ids:
             # check the row
             table.append(TR(TD(INPUT(_type='checkbox',
                                      _name=row.id,
@@ -464,7 +456,7 @@ def product_categories():
         db(query).delete()
         # insert new records for product
         for row in rows:
-            if request.vars[unicode(row.id)] == 'on':
+            if request.vars[str(row.id)] == 'on':
                 db.shop_categories_products.insert(
                     shop_categories_id = row.id,
                     shop_products_id = spID

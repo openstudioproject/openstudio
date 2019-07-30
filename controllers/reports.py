@@ -28,7 +28,7 @@ from openstudio.os_customer_classcard import CustomerClasscard
 
 import datetime
 import operator
-import cStringIO
+import io
 import openpyxl
 
 
@@ -93,7 +93,7 @@ def get_month_subtitle(month, year):
         for m in months:
             if m[0] == month:
                 month_title = m[1]
-        subtitle = month_title + " " + unicode(year)
+        subtitle = month_title + " " + str(year)
 
     return subtitle
 
@@ -109,7 +109,7 @@ def get_form_subtitle(month=None,
         for m in months:
             if m[0] == month:
                 month_title = m[1]
-        subtitle = month_title + " " + unicode(year)
+        subtitle = month_title + " " + str(year)
     else:
         year = TODAY_LOCAL.year
         month = TODAY_LOCAL.month
@@ -232,7 +232,7 @@ def trialclasses_export():
 
 
     # create filestream
-    stream = cStringIO.StringIO()
+    stream = io.BytesIO()
 
     # init workbook & sheet
     wb = openpyxl.workbook.Workbook(write_only=True)
@@ -1225,7 +1225,7 @@ def classcards():
                            _class='os-customer_image_td'),
                         TD(DIV(row.auth_user.display_name),
                            SPAN(T("Card"), ' ',
-                                 unicode(row.customers_classcards.id),
+                                 str(row.customers_classcards.id),
                                  _class='small_font grey'),
                            _class="os-customer_name"),
                         TD(row.customers_classcards.school_classcards_id),
@@ -1373,7 +1373,7 @@ def classcards_current():
                            _class='os-customer_image_td'),
                         TD(DIV(row.auth_user.display_name),
                            SPAN(T("Card"), ' ',
-                                 unicode(ccdID), ' - ',
+                                 str(ccdID), ' - ',
                                  B(classes_remaining),
                                  _class='small_font grey'),
                            _class="os-customer_name"),
@@ -1501,7 +1501,7 @@ def subscriptions_count_totals(rows):
 
     # sort counts
     import operator
-    sorted_subscriptions = sorted(counts.items(),
+    sorted_subscriptions = sorted(list(counts.items()),
                                   key=operator.itemgetter(1),
                                   reverse=True)
 
@@ -1596,7 +1596,7 @@ def subscriptions_new():
      ]
     rows = db.executesql(query, fields=fields)
 
-    total = T("Total: " + unicode(len(rows)))
+    total = T("Total: " + str(len(rows)))
 
     table = TABLE(_class="table table-hover")
     table.append(THEAD(TR(TH(), # image
@@ -1702,7 +1702,7 @@ def subscriptions_new_export_mailinglist():
     rows = db.executesql(query, fields=fields)
 
     # create filestream
-    stream = cStringIO.StringIO()
+    stream = io.BytesIO()
 
     # Create the workbook
     wb = openpyxl.workbook.Workbook(write_only=True)
@@ -1780,7 +1780,7 @@ def subscriptions_stopped():
 
     rows = db.executesql(query, fields=fields)
 
-    total = T("Total: " + unicode(len(rows)))
+    total = T("Total: " + str(len(rows)))
 
     table = TABLE(_class="table table-hover")
     table.append(THEAD(TR(TH(), # image
@@ -1865,7 +1865,7 @@ def subscriptions_paused():
                     db.customers_subscriptions_paused.customers_subscriptions_id),
                db.auth_user.on(db.auth_user.id==\
                                db.customers_subscriptions.auth_customer_id)])
-    total = T("Total: " + unicode(len(rows)))
+    total = T("Total: " + str(len(rows)))
 
     table = TABLE(_class="table table-hover")
     table.append(THEAD(TR(TH(), # image
@@ -2043,7 +2043,7 @@ def subscriptions_overview_export_all_customers():
         Export all customers with a subscription this month to Excel
     """
     # create filestream
-    stream = cStringIO.StringIO()
+    stream = io.BytesIO()
     # create dictionary to lookup latest subscription values
     date = datetime.date(session.reports_subscriptions_year,
                          session.reports_subscriptions_month,
@@ -2119,7 +2119,7 @@ def subscriptions_overview_export_all_customers():
                                          db.school_locations.id)])
     for row in rows:
         customers_id = row.auth_user.id
-        if not cu_mem_dict.has_key(customers_id):
+        if customers_id not in cu_mem_dict:
             # subscription list, if no subscription --> check the next customer.
             continue
         else:
@@ -2170,7 +2170,7 @@ def subscriptions_overview_export_mailinglist():
     month = session.reports_subscriptions_month
 
     # create filestream
-    stream = cStringIO.StringIO()
+    stream = io.BytesIO()
 
     # Create the workbook
     wb = openpyxl.workbook.Workbook(write_only=True)
@@ -2205,7 +2205,7 @@ def subscriptions_overview_export_attendance():
     subscription = db.school_subscriptions(ssuID)
 
     # create filestream
-    stream = cStringIO.StringIO()
+    stream = io.BytesIO()
 
     # Create the workbook
     wb = openpyxl.workbook.Workbook(write_only=True)
@@ -2684,7 +2684,7 @@ def direct_debit_extra():
         orderby=db.alternativepayments.payment_categories_id|\
                 db.auth_user.display_name)
 
-    col_total = DIV(T("Total: " + unicode(len(rows))), _class='right')
+    col_total = DIV(T("Total: " + str(len(rows))), _class='right')
 
     table = TABLE(_class="table table-hover")
     table.append(THEAD(TR(TH(), # image
@@ -2729,7 +2729,7 @@ def direct_debit_extra():
                 db.alternativepayments.payment_categories_id)],
         orderby=db.alternativepayments.payment_categories_id|\
             db.auth_user.display_name)
-    pay_total = DIV(T("Total: " + unicode(len(rows))), _class='right')
+    pay_total = DIV(T("Total: " + str(len(rows))), _class='right')
 
     table = TABLE(_class="table table-hover")
     table.append(THEAD(TR(TH(), # image
@@ -3234,7 +3234,7 @@ def attendance_classtypes_export_excel_mailinglist():
     month_end    = get_last_day_month(month_begin)
 
     # create filestream
-    stream = cStringIO.StringIO()
+    stream = io.BytesIO()
 
     classtype = db.school_classtypes(cltID)
     title = max_string_length(classtype.Name, 30)
@@ -3393,12 +3393,12 @@ def attendance_organizations_list_attendance_export():
     year = int(request.vars['year'])
     month = int(request.vars['month'])
 
-    stream = cStringIO.StringIO()
+    stream = io.BytesIO()
 
     so = db.sys_organizations(soID)
 
     wb = openpyxl.workbook.Workbook(write_only=True)
-    title = unicode(so.Name) + ' ' + unicode(year) + '-' + unicode(month)
+    title = str(so.Name) + ' ' + str(year) + '-' + str(month)
     ws = wb.create_sheet(title=title)
 
     header = [
@@ -4141,8 +4141,8 @@ def attendance_subcription_exceeded_get_classes_allowed(classes=None,
         Returns a friendly representation of classes allowed for a subscription
     """
     allowed = ''
-    allowed_week  = SPAN(unicode(classes) + ' / ' + T('Week'))
-    allowed_month = SPAN(unicode(classes) + ' / ' + T('Month'))
+    allowed_week  = SPAN(str(classes) + ' / ' + T('Week'))
+    allowed_month = SPAN(str(classes) + ' / ' + T('Month'))
     if unlimited:
         allowed = T('unlimited')
     elif unit == 'week':
@@ -4195,9 +4195,9 @@ def discovery_get_data():
         if not row.school_discovery.Name is None and row.school_discovery != '':
             label = row.school_discovery.Name
             value = row[count]
-            current_color = 'rgb(' + unicode(color['red']) + ',' + \
-                             unicode(color['green']) + ',' + \
-                             unicode(color['blue']) + ')'
+            current_color = 'rgb(' + str(color['red']) + ',' + \
+                             str(color['green']) + ',' + \
+                             str(color['blue']) + ')'
 
             data.append(value)
             labels.append(label)
@@ -4416,7 +4416,7 @@ def postcodes_get_data():
 
         data[row.Name] = count
 
-    sorted_data = sorted(data.items(), key=operator.itemgetter(1), reverse=True)
+    sorted_data = sorted(list(data.items()), key=operator.itemgetter(1), reverse=True)
 
     # what to do now?
     if request.extension != 'json':
@@ -4442,9 +4442,9 @@ def postcodes_get_data():
         color = dict(red=82, green=136, blue=154)
         data  = []
         for label, value in sorted_data:
-            current_color = 'rgb(' + unicode(color['red']) + ',' + \
-                                     unicode(color['green']) + ',' + \
-                                     unicode(color['blue']) + ')'
+            current_color = 'rgb(' + str(color['red']) + ',' + \
+                                     str(color['green']) + ',' + \
+                                     str(color['blue']) + ')'
 
             data.append(dict(label=label,
                              value=value,
@@ -4651,7 +4651,7 @@ def revenue():
             session.reports_revenue_year = year
 
     response.title = T("Reports")
-    response.subtitle=T("Revenue") + " " + unicode(year)
+    response.subtitle=T("Revenue") + " " + str(year)
 
     today = datetime.date.today()
 
@@ -4817,7 +4817,7 @@ def revenue_get_data():
 
     def get_month_subscriptions(date):
         # helper function to get monthly membership revenue
-        year = unicode(date.year)
+        year = str(date.year)
         month = date.month
 
         left = [
@@ -5064,7 +5064,7 @@ def revenue_get_data():
         json_data['dropin']['datasets'][0]['data'].append(revenue)
         total += revenue
 
-    dropin_title = T('Drop in classes revenue for ') + unicode(year)
+    dropin_title = T('Drop in classes revenue for ') + str(year)
 
     total = [ T("Total"), total ]
 
@@ -5196,7 +5196,8 @@ def class_attendance_get_json():
 
     def count_attendance(clsID, date):
         query = (db.classes_attendance.classes_id==clsID) & \
-                (db.classes_attendance.ClassDate==date)
+                (db.classes_attendance.ClassDate==date) & \
+                (db.classes_attendance.BookingStatus == 'attending')
         attendancecount = int(db(query).count())
 
         query = (db.classes_attendance_override.classes_id==clsID) & \
@@ -5241,9 +5242,9 @@ def class_attendance_get_json():
     dayofweek = int(row.classes.Week_day)
     dayofweek_name = NRtoDay(dayofweek)
     startdate = row.classes.Startdate
-    starttime = unicode(row.classes.Starttime.strftime('%H:%M'))
-    location = unicode(row.school_locations.Name)
-    classtype = unicode(row.school_classtypes.Name)
+    starttime = str(row.classes.Starttime.strftime('%H:%M'))
+    location = str(row.school_locations.Name)
+    classtype = str(row.school_classtypes.Name)
     firstday = iso_to_gregorian(year, 1, dayofweek)
 
     date = firstday
@@ -5267,7 +5268,7 @@ def class_attendance_get_json():
             if attendance > maximum:
                 maximum = attendance
 
-        label = unicode(week)
+        label = str(week)
 
         attendance_labels.append(label)
         attendance_data.append(attendance)
@@ -5283,8 +5284,8 @@ def class_attendance_get_json():
     else:
         average = 0
 
-    title = location + " " + dayofweek_name + " " + starttime + " " + classtype + " " + unicode(year)
-    response.subtitle=(title)
+    title = location + " " + dayofweek_name + " " + starttime + " " + classtype + " " + str(year)
+    response.subtitle = title
 
     # set other data
     chart_title = H4(T("Attendance barchart"))
@@ -5545,7 +5546,7 @@ def teacher_classes_class_revenue():
             vat = revenue['revenue_vat']
             in_vat = revenue['revenue_in_vat']
             description = SPAN(repr_row.customers_classcards.school_classcards_id,
-                               _title=T('Card') +  ' ' + unicode(row.customers_classcards.id))
+                               _title=T('Card') +  ' ' + str(row.customers_classcards.id))
 
         tr = TR(TD(repr_row.auth_user.thumbsmall),
                 TD(repr_row.auth_user.display_name),
@@ -6067,7 +6068,7 @@ def retention_rate_export():
         Exports the retention or the dropoff based on the session parameters
     """
     # create filestream
-    stream = cStringIO.StringIO()
+    stream = io.BytesIO()
 
     # init the workbook and the two sheets
     wb = openpyxl.workbook.Workbook(write_only=True)

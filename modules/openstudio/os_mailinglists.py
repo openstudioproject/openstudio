@@ -24,7 +24,7 @@ class MailingLists:
         """
             :return: HTML table with mailing lists
         """
-        from os_gui import OsGui
+        from .os_gui import OsGui
 
         T = current.T
         os_gui = OsGui()
