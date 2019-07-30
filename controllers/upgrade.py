@@ -42,6 +42,12 @@ def index():
             session.flash = T("Upgraded db to 2019.08")
         else:
             session.flash = T('Already up to date')
+        if version < 2019.09:
+            print(version)
+            upgrade_to_201909()
+            session.flash = T("Upgraded db to 2019.09")
+        else:
+            session.flash = T('Already up to date')
 
         # always renew permissions for admin group after update
         set_permissions_for_admin_group()
@@ -284,3 +290,37 @@ def upgrade_to_201908():
     db(query).update(PropertyValue='today')
 
 
+def upgrade_to_201909():
+    """
+        Upgrade operations to 2019.09
+    """
+    ## Refresh thumbnails for all tables
+    tables = [
+        db.auth_user,
+        db.school_classtypes,
+        db.shop_products,
+        db.shop_products_variants,
+        db.workshops
+    ]
+
+    for table in tables:
+        query = (table.picture != None) & (table.picture != "")
+        rows = db(query).select(table.ALL)
+        for row in rows:
+            import os
+            # Save picture file name
+            picture = row.picture
+            filename = os.path.join(request.folder, 'uploads', picture)
+            tempfile = os.path.join(request.folder, 'uploads', picture + "_temp")
+            # Move to temp file name
+            try:
+                os.rename(filename, tempfile)
+            except FileNotFoundError:
+                continue
+            # Remove db mapping
+            row.update_record(picture = None, thumbsmall = None, thumblarge = None)
+            # move file back
+            os.rename(tempfile, filename)
+            # Save again with picture to trigger thumbnail generation
+            # This makes w2p think there's a new image
+            row.update_record(picture = picture)

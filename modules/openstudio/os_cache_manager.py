@@ -43,7 +43,7 @@ class OsCacheManager:
         """
         cache = current.cache
 
-        cu_sub_regex = 'openstudio_customer_get_memberships_on_date_' + str(cuID) + '*'
+        cu_sub_regex = '.*openstudio_customer_get_memberships_on_date_' + str(cuID) + '*'
         cache.ram.clear(regex=cu_sub_regex)
         cache.disk.clear(regex=cu_sub_regex)
 
@@ -54,7 +54,7 @@ class OsCacheManager:
         """
         cache = current.cache
 
-        cu_sub_regex = 'openstudio_customer_get_subscriptions_on_date_' + str(cuID) + '*'
+        cu_sub_regex = '.*openstudio_customer_get_subscriptions_on_date_' + str(cuID) + '*'
         cache.ram.clear(regex=cu_sub_regex)
         cache.disk.clear(regex=cu_sub_regex)
 
@@ -65,7 +65,7 @@ class OsCacheManager:
         """
         cache = current.cache
 
-        cu_cc_regex = 'openstudio_customer_get_classcards_' + str(cuID) + '*'
+        cu_cc_regex = '.*openstudio_customer_get_classcards_' + str(cuID) + '*'
         cache.ram.clear(regex=cu_cc_regex)
         cache.disk.clear(regex=cu_cc_regex)
 
@@ -77,7 +77,7 @@ class OsCacheManager:
         """
         cache = current.cache
 
-        class_schedule_regex = 'openstudio_classschedule_get_day_*'
+        class_schedule_regex = '.*openstudio_classschedule_get_day_*'
         cache.ram.clear(regex=class_schedule_regex)
         cache.disk.clear(regex=class_schedule_regex)
 
@@ -91,7 +91,7 @@ class OsCacheManager:
         """
         cache = current.cache
 
-        api_schedule_regex = 'openstudio_api_schedule_get_*'
+        api_schedule_regex = '.*openstudio_api_schedule_get_*'
         cache.ram.clear(regex=api_schedule_regex)
         cache.disk.clear(regex=api_schedule_regex)
 
@@ -103,7 +103,7 @@ class OsCacheManager:
         """
         cache = current.cache
 
-        trend_regex = 'openstudio_classschedule_trend_*'
+        trend_regex = '.*openstudio_classschedule_trend_*'
         cache.ram.clear(regex=trend_regex)
         cache.disk.clear(regex=trend_regex)
 
@@ -115,7 +115,7 @@ class OsCacheManager:
         """
         cache = current.cache
 
-        sprop_regex = 'openstudio_system_property_*'
+        sprop_regex = '.*openstudio_system_property_*'
         cache.ram.clear(regex=sprop_regex)
         cache.disk.clear(regex=sprop_regex)
 
@@ -126,7 +126,7 @@ class OsCacheManager:
         """
         cache = current.cache
 
-        menu_regex = 'openstudio_menu_backend_*'
+        menu_regex = '.*openstudio_menu_backend_*'
         cache.ram.clear(regex=menu_regex)
         cache.disk.clear(regex=menu_regex)
 
@@ -138,7 +138,7 @@ class OsCacheManager:
         """
         cache = current.cache
 
-        workshops_regex = 'openstudio_workshops_*'
+        workshops_regex = '.*openstudio_workshops_*'
         cache.ram.clear(regex=workshops_regex)
         cache.disk.clear(regex=workshops_regex)
 
@@ -150,12 +150,12 @@ class OsCacheManager:
         """
         cache = current.cache
 
-        school_subscriptions_regex = 'openstudio_school_subcriptions_api_*'
+        school_subscriptions_regex = '.*openstudio_school_subcriptions_api_*'
         cache.ram.clear(regex=school_subscriptions_regex)
         cache.disk.clear(regex=school_subscriptions_regex)
 
         # Clear all customer subscriptions, as the cache also stores some school subscription info
-        cu_sub_regex = 'openstudio_customer_get_subscriptions_on_date_*'
+        cu_sub_regex = '.*openstudio_customer_get_subscriptions_on_date_*'
         cache.ram.clear(regex=cu_sub_regex)
         cache.disk.clear(regex=cu_sub_regex)
 
@@ -167,7 +167,7 @@ class OsCacheManager:
         """
         cache = current.cache
 
-        school_classcards_regex = 'openstudio_school_classcards_api_*'
+        school_classcards_regex = '.*openstudio_school_classcards_api_*'
         cache.ram.clear(regex=school_classcards_regex)
         cache.disk.clear(regex=school_classcards_regex)
 
@@ -179,7 +179,7 @@ class OsCacheManager:
         """
         cache = current.cache
 
-        school_teachers_api_regex = 'openstudio_school_teachers_api_get'
+        school_teachers_api_regex = '.*openstudio_school_teachers_api_get'
         cache.ram.clear(regex=school_teachers_api_regex)
         cache.disk.clear(regex=school_teachers_api_regex)
 
@@ -191,7 +191,7 @@ class OsCacheManager:
         """
         cache = current.cache
 
-        school_teachers_api_regex = 'openstudio_school_teachers_api_get'
+        school_teachers_api_regex = '.*openstudio_school_teachers_api_get'
         cache.ram.clear(regex=school_teachers_api_regex)
         cache.disk.clear(regex=school_teachers_api_regex)
 
@@ -203,6 +203,6 @@ class OsCacheManager:
         """
         cache = current.cache
 
-        sys_org_regex = 'openstudio_sys_organizations*'
+        sys_org_regex = '.*openstudio_sys_organizations*'
         cache.ram.clear(regex=sys_org_regex)
         cache.disk.clear(regex=sys_org_regex)
