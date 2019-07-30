@@ -724,7 +724,7 @@ def event_get_products_filter_prices_book_buttons(workshop):
 
         products_prices.append(DIV(display_price,
                                    _class=price_class,
-                                   _id='wsp_price_'+unicode(product.id),
+                                   _id='wsp_price_'+str(product.id),
                                    _style='display: none;'))
 
         # add to cart buttons
@@ -755,7 +755,7 @@ def event_get_products_filter_prices_book_buttons(workshop):
                 _class=link_class,
                 _style='display: none;',
                 _target=_target,
-                _id='add_to_cart_' + unicode(product.id))
+                _id='add_to_cart_' + str(product.id))
 
         add_to_cart_buttons.append(add_to_cart)
 
@@ -792,7 +792,7 @@ def event_get_activities(workshop):
         class_product_ids = ''
         for product_id in products:
             class_product_ids += ' '
-            class_product_ids += unicode(product_id)
+            class_product_ids += str(product_id)
 
         activity_date = row.Activitydate.strftime('%d %B %Y')
         activity_time = SPAN(repr_row.Starttime, ' - ', repr_row.Endtime)
@@ -1496,12 +1496,12 @@ def subscription_get_info(ssu):
     elif ssu.SubscriptionUnit == 'week':
         if ssu.Classes == 1:
             classes_text = T("Class")
-        classes = SPAN(unicode(ssu.Classes) + ' ' + classes_text)
+        classes = SPAN(str(ssu.Classes) + ' ' + classes_text)
         classes_unit = T("Per week")
     elif ssu.SubscriptionUnit == 'month':
         if ssu.Classes == 1:
             classes_text = T("Class")
-        classes = SPAN(unicode(ssu.Classes) + ' ' + classes_text)
+        classes = SPAN(str(ssu.Classes) + ' ' + classes_text)
         classes_unit = T("Per month")
 
     subscription_info = UL(
@@ -1833,7 +1833,7 @@ def classcard():
         'shop_allow_trial_cards_for_existing_customers'
     )
 
-    print allow_trial_for_existing_customers
+    print(allow_trial_for_existing_customers)
 
     if allow_trial_for_existing_customers != 'on' and scd.row.Trialcard:
         has_or_had_subscription = customer.get_has_or_had_subscription()
@@ -2613,7 +2613,7 @@ def class_enroll():
         if classes_booked == 1:
             classes = T("class")
 
-        session.flash = T('Enrollment added, booked' + ' ' + unicode(classes_booked) + ' ' + classes)
+        session.flash = T('Enrollment added, booked' + ' ' + str(classes_booked) + ' ' + classes)
         redirect(URL('profile', 'enrollments'))
     elif form.errors:
         response.flash = T('Form has errors')
@@ -2944,7 +2944,7 @@ def class_book_classcard_recurring():
                                                            online_booking=False,
                                                            booking_status='booked')
 
-        session.flash = SPAN(T('Booked'), ' ', unicode(result['classes_booked']), ' ', T('classes'), BR()
+        session.flash = SPAN(T('Booked'), ' ', str(result['classes_booked']), ' ', T('classes'), BR()
                              #TODO: Add message returned
                              )
 

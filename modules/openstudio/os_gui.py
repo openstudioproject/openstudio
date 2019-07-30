@@ -858,7 +858,7 @@ class OsGui:
 
         """.format(li_previous=li_previous,
                    li_next=li_next,
-                   current_page=unicode(current_page))
+                   current_page=str(current_page))
 
         return XML(nav)
 

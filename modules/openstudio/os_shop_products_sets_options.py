@@ -105,7 +105,7 @@ class ShopProductsSetsOptions:
         """
             :return: CRUD form to add an option
         """
-        from os_forms import OsForms
+        from .os_forms import OsForms
 
         T = current.T
         db = current.db

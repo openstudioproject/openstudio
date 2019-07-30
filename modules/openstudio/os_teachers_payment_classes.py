@@ -17,8 +17,8 @@ class TeachersPaymentClasses:
         :return:
         """
         from date_tools import DateTools
-        from os_class import Class
-        from os_class_schedule import ClassSchedule
+        from .os_class import Class
+        from .os_class_schedule import ClassSchedule
 
         T = current.T
         db = current.db
@@ -147,7 +147,7 @@ class TeachersPaymentClasses:
         and db.classes
         :return: html table
         """
-        from os_gui import OsGui
+        from .os_gui import OsGui
 
         T = current.T
         auth = current.auth
@@ -229,7 +229,7 @@ class TeachersPaymentClasses:
 
 
     def _rows_to_table_get_navigation(self, rows, items_per_page, page):
-        from os_gui import OsGui
+        from .os_gui import OsGui
 
         os_gui = OsGui()
         request = current.request
@@ -413,8 +413,8 @@ class TeachersPaymentClasses:
         Create credit invoices for verified classes
         :return:
         """
-        from os_invoice import Invoice
-        from os_teachers_payment_class import TeachersPaymentClass
+        from .os_invoice import Invoice
+        from .os_teachers_payment_class import TeachersPaymentClass
 
         T = current.T
         db = current.db

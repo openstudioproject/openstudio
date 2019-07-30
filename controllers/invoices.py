@@ -10,7 +10,7 @@ from openstudio.os_customer import Customer
 
 from decimal import Decimal, ROUND_HALF_UP
 
-import cStringIO
+import io
 import weasyprint
 import openpyxl
 
@@ -257,7 +257,7 @@ def edit_get_link_add_payment(iID):
 
     button_text = os_gui.get_modal_button_icon('credit-card')
 
-    form_id = 'form_payment_add_' + unicode(iID)
+    form_id = 'form_payment_add_' + str(iID)
 
     result = os_gui.get_modal(button_text=button_text,
                               button_title=T("Add payment"),
@@ -265,7 +265,7 @@ def edit_get_link_add_payment(iID):
                               modal_content=content,
                               modal_footer_content=os_gui.get_submit_button(form_id),
                               modal_class=form_id,
-                              modal_id='modal_payment_add_' + unicode(iID),
+                              modal_id='modal_payment_add_' + str(iID),
                               button_class='btn-sm')
 
     return result
@@ -696,7 +696,7 @@ def edit_get_modal_payments(iID):
                               button_title=T("Payments for this invoice"),
                               modal_title=title,
                               modal_content=content,
-                              modal_class='payments_' + unicode(iID),
+                              modal_class='payments_' + str(iID),
                               modal_size='lg',
                               button_class='')
 
@@ -713,7 +713,7 @@ def edit_get_payments_button(iID):
             <ul class="dropdown-menu dropdown-menu-right" role="menu">
                 <li><a href="#"  role="button" data-toggle="modal" data-target="#modal_payment_add_{iID}"><i class="fa fa-plus"></i>{title}</a></li>
             </ul>
-        </div>""".format(iID=unicode(iID),
+        </div>""".format(iID=str(iID),
                          title=T("Add payment")))
 
 
@@ -1343,7 +1343,7 @@ def payment_add():
     crud.settings.create_onaccept = [ payment_add_update_status ]
     form = crud.create(db.invoices_payments)
 
-    form_id = 'form_payment_add_' + unicode(iID)
+    form_id = 'form_payment_add_' + str(iID)
     form_element = form.element('form')
     form['_id'] = form_id
 
@@ -1665,12 +1665,12 @@ def pdf():
 
     html = pdf_template(iID)
 
-    fname = u'Invoice_' + invoice.invoice.InvoiceID + '.pdf'
+    fname = 'Invoice_' + invoice.invoice.InvoiceID + '.pdf'
     response.headers['Content-Type']='application/pdf'
     response.headers['Content-disposition']='attachment; filename=' + fname
     # return pyfpdf_from_html(html)
 
-    stream = cStringIO.StringIO()
+    stream = io.BytesIO()
     invoice = weasyprint.HTML(string=html).write_pdf(stream)
 
     return stream.getvalue()
@@ -1744,7 +1744,7 @@ def export_invoices_get_export(from_date, until_date, invoices_groups_id, filety
         Invoices export
     """
     # create filestream
-    stream = cStringIO.StringIO()
+    stream = io.BytesIO()
 
     if filetype == 'excel':
         wb = openpyxl.workbook.Workbook(write_only=True)
@@ -2001,7 +2001,7 @@ def export_payments_get_export(from_date, until_date, invoices_groups_id):
         Payments export
     """
     # create filestream
-    stream = cStringIO.StringIO()
+    stream = io.BytesIO()
 
     wb = openpyxl.workbook.Workbook(write_only=True)
     ws = wb.create_sheet(title='Payments')
@@ -2398,7 +2398,7 @@ def open_on_date_export():
     sheet_title = "Invoices open on " + date.strftime(DATE_FORMAT)
 
     # create filestream
-    stream = cStringIO.StringIO()
+    stream = io.BytesIO()
 
     wb = openpyxl.workbook.Workbook(write_only=True)
     # write the sheet for all mail addresses

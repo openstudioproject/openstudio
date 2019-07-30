@@ -180,7 +180,7 @@ def list_tasks():
                          cid=request.cid)
 
         # populate row
-        description_id = 'task_' + unicode(row.id)
+        description_id = 'task_' + str(row.id)
         table_row = TR(TD(finished, _class='btn_task_finished'),
                         TD(A(SPAN(_class='fa fa-angle-left grey pull-right'),
                              SPAN(max_string_length(row.Task, 36)),
@@ -340,7 +340,7 @@ def list_tasks_today():
                      _class='grey',
                      cid=request.cid)
 
-        description_id = 'task_' + unicode(row.id)
+        description_id = 'task_' + str(row.id)
         table_row = TR(TD(finished, _class='btn_task_finished'),
                         TD(A(SPAN(max_string_length(row.Task, 36),
                                   _title=row.Task),
@@ -790,7 +790,7 @@ def list_tasks_get_filter(state, _class='pull-right tasks-status-filter'):
         query &= (db.tasks.auth_customer_id == cuID)
     count = db(query).count()
     if count > 0:
-        badge = os_gui.get_badge(unicode(count))
+        badge = os_gui.get_badge(str(count))
 
     all_text        = T('All')
     open_text       = T('Open')

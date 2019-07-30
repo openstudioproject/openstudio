@@ -2679,7 +2679,7 @@ def represent_customer_subscription(value, row):
         ssuID = subscription.school_subscriptions_id
         school_subscription = db.school_subscriptions(ssuID)
         startdate = subscription.Startdate.strftime(DATE_FORMAT)
-        title = T('From') + ' ' + startdate + ' [' + unicode(value) + ']'
+        title = T('From') + ' ' + startdate + ' [' + str(value) + ']'
         return_value = SPAN(school_subscription.Name, _title=title)
 
     return return_value
@@ -3767,14 +3767,6 @@ def define_school_holidays():
             represent=represent_date,
             label=T("End date"),
             widget=os_datepicker_widget),
-        Field('school_locations_ids', 'list:reference school_locations', #NOTE: field depricated from 3.02
-              readable=False,
-              writable=False,
-              represent=represent_school_locations_ids,
-              label = T('Locations'),
-              widget = SQLFORM.widgets.checkboxes.widget,
-              #requires=IS_IN_DB(db, 'school_locations.id', '%(Name)s', multiple=True),
-              ),
         Field('Classes', 'boolean', required=True,
             label=T('Classes')),
         Field('Shifts', 'boolean',
@@ -6304,11 +6296,6 @@ loc_query = (db.school_locations.Archived == False)
 lan_query = (db.school_languages.Archived == False)
 
 auth.settings.extra_fields['auth_user'] = [
-    Field('archived', 'boolean', # This field can be removed in > 2018.2
-          readable=False,
-          writable=False,
-          default=False,
-          label=T("Archived")),
     Field('trashed', 'boolean',
         readable=False,
         writable=False,
@@ -6535,7 +6522,7 @@ current.mail = mail
 # setup currency symbol
 CURRSYM = get_sys_property('CurrencySymbol')
 if not CURRSYM:
-    CURRSYM = u'€'
+    CURRSYM = '€'
 # setup currency
 CURRENCY = get_sys_property('Currency')
 if not CURRENCY:

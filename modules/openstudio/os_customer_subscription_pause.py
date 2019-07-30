@@ -25,7 +25,7 @@ class CustomerSubscriptionPause:
         """
         :return: True if >= min pause length
         """
-        from tools import OsTools
+        from .tools import OsTools
 
         os_tools = OsTools()
         min_duration = os_tools.get_sys_property('subscription_pauses_min_duration')

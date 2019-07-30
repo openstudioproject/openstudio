@@ -29,15 +29,15 @@ def index():
         version = float(db.sys_properties(Property='Version').PropertyValue)
 
         if version < 2019.02:
-            print version
+            print(version)
             upgrade_to_201902()
             session.flash = T("Upgraded db to 2019.02")
         if version < 2019.06:
-            print version
+            print(version)
             upgrade_to_201906()
             session.flash = T("Upgraded db to 2019.06")
         if version < 2019.08:
-            print version
+            print(version)
             upgrade_to_201908()
             session.flash = T("Upgraded db to 2019.08")
         else:

@@ -106,7 +106,7 @@ def test_holiday_edit_locations_cancel_bookings_and_refund_credits(client, web2p
     web2py.db.commit()
     assert web2py.db(web2py.db.school_holidays).count() == 1
 
-    url = '/schedule/holiday_edit_locations?shID=' + unicode(shID)
+    url = '/schedule/holiday_edit_locations?shID=' + str(shID)
     client.get(url)
     assert client.status == 200
     assert 'Holiday locations' in client.text

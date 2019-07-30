@@ -119,8 +119,8 @@ class Workshop:
             After selling a product online or adding a customer to a product, check whether products aren't sold out.
             If a product is sold out, check for open orders containing the sold out product and cancel them.
         """
-        from os_order import Order
-        from os_workshop_product import WorkshopProduct
+        from .os_order import Order
+        from .os_workshop_product import WorkshopProduct
 
         db = current.db
 

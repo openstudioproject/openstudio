@@ -138,7 +138,7 @@ class Teachers:
         """
             Returns 'yes' if a teacher teaches classes and no if otherwise
         """
-        from os_gui import OsGui
+        from .os_gui import OsGui
 
         os_gui = OsGui()
         T = current.T
@@ -155,7 +155,7 @@ class Teachers:
         """
             Returns 'yes' if a teacher teaches workshops and no if otherwise
         """
-        from os_gui import OsGui
+        from .os_gui import OsGui
 
         os_gui = OsGui()
         T = current.T
@@ -173,7 +173,7 @@ class Teachers:
             This function returns the group a user belongs to and shows it as a link
             to a page which allows users to change it.
         """
-        from os_gui import OsGui
+        from .os_gui import OsGui
 
         os_gui = OsGui()
         T = current.T
@@ -212,7 +212,7 @@ class Teachers:
             This function returns the group a user belongs to and shows it as a link
             to a page which allows users to change it.
         """
-        from os_gui import OsGui
+        from .os_gui import OsGui
 
         os_gui = OsGui()
         T = current.T

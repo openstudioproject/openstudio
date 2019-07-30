@@ -54,7 +54,7 @@ class EmployeeClaims:
             limitby=limitby
         )
 
-        print rows
+        print(rows)
 
         if not formatted:
             return rows
@@ -70,7 +70,7 @@ class EmployeeClaims:
         :return: html table
         """
         import uuid
-        from os_gui import OsGui
+        from .os_gui import OsGui
 
         T = current.T
         auth = current.auth
@@ -184,7 +184,7 @@ class EmployeeClaims:
 
 
     def _rows_to_table_get_navigation(self, rows, items_per_page, page):
-        from os_gui import OsGui
+        from .os_gui import OsGui
 
         os_gui = OsGui()
         request = current.request
@@ -398,8 +398,8 @@ class EmployeeClaims:
         Create credit invoices for verified classes
         :return:
         """
-        from os_invoice import Invoice
-        from os_employee_claim import EmployeeClaim
+        from .os_invoice import Invoice
+        from .os_employee_claim import EmployeeClaim
 
         T = current.T
         db = current.db

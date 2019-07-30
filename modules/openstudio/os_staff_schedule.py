@@ -25,11 +25,11 @@ class StaffSchedule:
         where = ''
         if self.filter_id_school_shifts:
             where += 'AND sh.school_shifts_id = '
-            where += unicode(self.filter_id_school_shifts) + ' '
+            where += str(self.filter_id_school_shifts) + ' '
 
         if self.filter_id_school_locations:
             where += 'AND sh.school_locations_id = '
-            where += unicode(self.filter_id_school_locations) + ' '
+            where += str(self.filter_id_school_locations) + ' '
 
         return where
 
@@ -333,7 +333,7 @@ class StaffSchedule:
                                TD(employee2, _class='grey'),
                                TD(),
                                _class='os-schedule_links',
-                               _id='class_' + unicode(shID))
+                               _id='class_' + str(shID))
 
                 table.append(row_class)
                 table.append(row_tools)

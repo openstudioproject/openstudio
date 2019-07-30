@@ -116,8 +116,8 @@ class Reports:
         :param date:
         :return:
         """
-        from os_class import Class
-        from os_class_schedule import ClassSchedule
+        from .os_class import Class
+        from .os_class_schedule import ClassSchedule
         # Get class schedule for days
         cs = ClassSchedule(date)
         schedule = cs.get_day_list()
@@ -160,7 +160,7 @@ class Reports:
         :param subscription_quick_stats: Boolean - use db.school_subscriptions.QuickStatsAmount or not
         :return:
         """
-        from os_class import Class
+        from .os_class import Class
 
         cls = Class(clsID, date)
         class_prices = cls.get_prices()
@@ -310,7 +310,7 @@ class Reports:
         :param quickstats: boolean
         :return: html table
         """
-        from os_class import Class
+        from .os_class import Class
         from general_helpers import max_string_length
         from decimal import Decimal, ROUND_HALF_UP
 
@@ -502,14 +502,14 @@ class Reports:
         :param clsID: db.classes.id
         :param date: datetime.date
         :param quick_stats: bool
-        :return: cStringIO object containing PDF file for summary export
+        :return: BytesIO object containing PDF file for summary export
         """
-        import cStringIO
+        import io
         import weasyprint
 
         html = self._get_class_revenue_summary_pdf_template(clsID, date, quick_stats)
 
-        stream = cStringIO.StringIO()
+        stream = io.BytesIO()
         workshop = weasyprint.HTML(string=html).write_pdf(stream)
 
         return stream
@@ -520,7 +520,7 @@ class Reports:
             Print friendly display of a Workshop
         """
         from general_helpers import max_string_length
-        from os_class import Class
+        from .os_class import Class
 
         get_sys_property = current.globalenv['get_sys_property']
         represent_float_as_amount = current.globalenv['represent_float_as_amount']
@@ -618,8 +618,8 @@ class Reports:
         """
         db = current.db
 
-        from os_customer_classcard import CustomerClasscard
-        from os_invoice import Invoice
+        from .os_customer_classcard import CustomerClasscard
+        from .os_invoice import Invoice
 
         ccdID = row.classes_attendance.customers_classcards_id
         classcard = CustomerClasscard(ccdID)
@@ -734,7 +734,7 @@ class Reports:
 
         rows = db.executesql(sql, fields=fields)
 
-        print rows
+        print(rows)
 
         return rows
 

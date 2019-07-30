@@ -87,8 +87,8 @@ def test_selfcheckin_checkin_impossible_when_full(client, web2py):
 
     web2py.db.commit()
 
-    url = '/selfcheckin/checkin/?clsID=' + unicode(clsID) + \
-          '&date=' + unicode(today)
+    url = '/selfcheckin/checkin/?clsID=' + str(clsID) + \
+          '&date=' + str(today)
     client.get(url)
     assert client.status == 200
 

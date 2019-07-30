@@ -5,7 +5,7 @@ from general_helpers import datestr_to_python
 # python general modules import
 import openpyxl
 import os
-import cStringIO
+import io
 
 from general_helpers import get_badge
 from general_helpers import NRtoDay
@@ -760,7 +760,7 @@ def class_delete():
             auth_user_id=auth.user.id,
             table_name='classes',
             record_id=clsID,
-            record_data=unicode(row),
+            record_data=str(row),
             action_name='delete' )
 
         # No attendance linked to this class
@@ -1104,7 +1104,7 @@ def schedule_get_subtitle(year, week):
     """
         Returns subtitle for schedule
     """
-    return unicode(year) + " " + T("week") + " " + unicode(week)
+    return str(year) + " " + T("week") + " " + str(week)
 
 
 
@@ -1783,7 +1783,7 @@ def schedule_export_excel():
             Returns cell id for colums / row
         """
         col_letter = openpyxl.utils.get_column_letter(col)
-        return col_letter + unicode(row)
+        return col_letter + str(row)
 
 
     def writer_location(locID=None):
@@ -1799,7 +1799,7 @@ def schedule_export_excel():
             col = day
             dayname = NRtoDay(day)
             c_id = get_cell_id(col, 2)
-            ws[c_id] = dayname + " \n" + unicode(date)
+            ws[c_id] = dayname + " \n" + str(date)
             ws[c_id].alignment = alignment
 
             cs = ClassSchedule(
@@ -1853,7 +1853,7 @@ def schedule_export_excel():
         title = "ALL"
         ws = wb.active
         ws.title = title
-        ws['A1'] = T("Schedule week") + " " + unicode(iso_week)
+        ws['A1'] = T("Schedule week") + " " + str(iso_week)
         writer_location()
         # schedule by location
         rows = db().select(db.school_locations.id,
@@ -1864,11 +1864,11 @@ def schedule_export_excel():
             title = location.decode('utf-8')[0:30]
             ws = wb.create_sheet(title=title)
             ws['A1'] = "Schedule" + " " + title + " " + \
-                       "week " + unicode(iso_week)
+                       "week " + str(iso_week)
             writer_location(row.id)
 
         # create filestream
-        stream = cStringIO.StringIO()
+        stream = io.BytesIO()
 
         fname = T("Schedule") + '.xlsx'
         wb.save(stream)
@@ -2195,7 +2195,7 @@ def reservations_export_mailinglist():
     ##
     # Create filestream
     ##
-    stream = cStringIO.StringIO()
+    stream = io.BytesIO()
 
     ##
     # Create Excel workbook
@@ -2439,7 +2439,7 @@ def attendance_get_chart_title():
         This function returns the title for the attendance chart
     """
     return dict(title=T("Attendance chart") + " " +
-                 unicode(session.stats_attendance_year))
+                 str(session.stats_attendance_year))
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -3039,7 +3039,7 @@ def reservation_on_create(form):
     if classes_booked == 1:
         classes = T("class")
 
-    session.flash = T("Booked") + ' ' + unicode(classes_booked) + ' ' + classes + "."
+    session.flash = T("Booked") + ' ' + str(classes_booked) + ' ' + classes + "."
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
@@ -4095,7 +4095,7 @@ def notes():
                              _class='grey'),
                         BR(),
                         XML(row.Note.replace('\n','<br>')),
-                        _id='note_' + unicode(row.id)))
+                        _id='note_' + str(row.id)))
 
 
     notes_filter = notes_get_filter_form(session.classes_notes_filter)

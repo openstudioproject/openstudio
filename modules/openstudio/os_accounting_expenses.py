@@ -88,7 +88,7 @@ class AccountingExpenses:
         :param permission_edit:
         :return:
         """
-        from os_gui import OsGui
+        from .os_gui import OsGui
 
         T = current.T
         os_gui = OsGui()
@@ -166,7 +166,7 @@ class AccountingExpenses:
         :param row:
         :return:
         """
-        from os_gui import OsGui
+        from .os_gui import OsGui
         auth = current.auth
         os_gui = OsGui()
         edit = ''

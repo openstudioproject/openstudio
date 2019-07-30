@@ -23,9 +23,9 @@ class ClassesReservation:
         """
         import calendar
 
-        from os_attendance_helper import AttendanceHelper
-        from os_class_schedule import ClassSchedule
-        from os_classes_reservations import ClassesReservations
+        from .os_attendance_helper import AttendanceHelper
+        from .os_class_schedule import ClassSchedule
+        from .os_classes_reservations import ClassesReservations
 
 
         db = current.db
@@ -91,9 +91,9 @@ class ClassesReservation:
         :param date_until: datetime.date
         :return: Integer - number of classes booked
         """
-        from os_attendance_helper import AttendanceHelper
-        from os_customer import Customer
-        from os_customer_subscription import CustomerSubscription
+        from .os_attendance_helper import AttendanceHelper
+        from .os_customer import Customer
+        from .os_customer_subscription import CustomerSubscription
 
 
         # Check subscription credits, if none, don't do anything
@@ -138,7 +138,7 @@ class ClassesReservation:
         :param cancel_from: datetime.date (usually TODAY_LOCAL)
         :return: None
         """
-        from os_cache_manager import OsCacheManager
+        from .os_cache_manager import OsCacheManager
 
         T = current.T
         db = current.db

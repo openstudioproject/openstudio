@@ -27,7 +27,7 @@ class Receipts:
         """
         Returns the 'view' button for a receipt
         """
-        from os_gui import OsGui
+        from .os_gui import OsGui
 
         T = current.T
         os_gui = OsGui()

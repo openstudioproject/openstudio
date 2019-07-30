@@ -540,7 +540,7 @@ class Class:
         except AttributeError:
             # No teacher(s) found for this date
             error = True
-            message = T("No teachers found for this date (") + unicode(self.date) + ")"
+            message = T("No teachers found for this date (") + str(self.date) + ")"
 
         return dict(
             error = error,
@@ -578,7 +578,7 @@ class Class:
         except AttributeError:
             # No teacher(s) found for this date
             error = True
-            message = T("No teachers found for this date (") + unicode(self.date) + ")"
+            message = T("No teachers found for this date (") + str(self.date) + ")"
 
         return dict(
             error = error,
@@ -594,7 +594,7 @@ class Class:
         Returns amount excl. VAT
         :return: { amount: float, tax_rates_id: db.tax_rates.id }
         """
-        from os_teacher import Teacher
+        from .os_teacher import Teacher
 
         T = current.T
         db = current.db
@@ -683,14 +683,14 @@ class Class:
 
             elif tprt == 'attendance':
                 # Get list for class type
-                print "attendance"
+                print("attendance")
                 cltID = self.cls.school_classtypes_id
                 tpalst = db.teachers_payment_attendance_lists_school_classtypes(
                     school_classtypes_id=cltID
                 )
 
                 if tpalst:
-                    print "list found"
+                    print("list found")
                     list_id = tpalst.teachers_payment_attendance_lists_id
                     list = db.teachers_payment_attendance_lists(1)
                     tax_rates_id = list.tax_rates_id
@@ -699,7 +699,7 @@ class Class:
                             (db.teachers_payment_attendance_lists_rates.AttendanceCount == attendance_count)
                     row = db(query).select(db.teachers_payment_attendance_lists_rates.Rate)
 
-                    print row
+                    print(row)
 
                     try:
                         rate = row.first().Rate
@@ -751,8 +751,8 @@ class Class:
         """
         set db.teachers_payment_classes travel allowance
         """
-        from os_class_schedule import ClassSchedule
-        from os_teacher import Teacher
+        from .os_class_schedule import ClassSchedule
+        from .os_teacher import Teacher
 
         db = current.db
 

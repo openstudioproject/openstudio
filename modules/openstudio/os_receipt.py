@@ -364,7 +364,7 @@ class Receipt:
         :param items: gluon.dal.rows object of db.receipts_items
         :return: html table
         """
-        from tools import OsTools
+        from .tools import OsTools
 
         T = current.T
         db = current.db

@@ -75,7 +75,7 @@ class ClassAttendance:
         """
             Set status cancelled
         """
-        from os_cache_manager import OsCacheManager
+        from .os_cache_manager import OsCacheManager
 
         T = current.T
         db = current.db
@@ -95,7 +95,7 @@ class ClassAttendance:
 
             # Update classes taken for class card
             if self.row.customers_classcards_id:
-                from os_customer_classcard import CustomerClasscard
+                from .os_customer_classcard import CustomerClasscard
                 cc = CustomerClasscard(self.row.customers_classcards_id)
                 cc.set_classes_taken()
 
@@ -114,7 +114,7 @@ class ClassAttendance:
         :param status: Set status of class booking
         :return:
         """
-        from os_cache_manager import OsCacheManager
+        from .os_cache_manager import OsCacheManager
 
         self.row.BookingStatus = status
         self.row.update_record()

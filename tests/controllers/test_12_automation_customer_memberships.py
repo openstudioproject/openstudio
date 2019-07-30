@@ -48,5 +48,5 @@ def test_automation_customers_memberships_renew_expired(client, web2py):
     rows = web2py.db(query).select(web2py.db.invoices_items.ALL)
     for row in rows:
         assert "Membership" in row.ProductName
-        assert unicode(new_membership.Startdate) in row.Description
-        assert unicode(new_membership.Enddate) in row.Description
+        assert str(new_membership.Startdate) in row.Description
+        assert str(new_membership.Enddate) in row.Description

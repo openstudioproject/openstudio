@@ -367,7 +367,7 @@ def get_form_subtitle(month=None, year=None, function=None, _class='col-md-4'):
         for m in months:
             if m[0] == month:
                 month_title = m[1]
-        subtitle = month_title + " " + unicode(year)
+        subtitle = month_title + " " + str(year)
     else:
         year = TODAY_LOCAL.year
         month = TODAY_LOCAL.month

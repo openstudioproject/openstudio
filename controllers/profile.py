@@ -1387,7 +1387,7 @@ def classes():
             att_type = repr_row.classes_attendance.customers_subscriptions_id
         elif row.classes_attendance.customers_classcards_id:
             att_type = SPAN(row.school_classcards.Name,
-                            _title=T('Class card') + ' ' + unicode(row.classes_attendance.customers_classcards_id))
+                            _title=T('Class card') + ' ' + str(row.classes_attendance.customers_classcards_id))
 
 
         cancel = ''

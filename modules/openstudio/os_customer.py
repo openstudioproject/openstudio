@@ -222,7 +222,7 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         ids = []
         try:
             for row in rows:
-                print row
+                print(row)
                 ids.append(row.school_memberships_id)
         except TypeError: # Bool is not iterable
             pass
@@ -567,7 +567,7 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         """
             Returns invoices records for a customer as gluon.dal.rows object
         """
-        from tools import OsTools
+        from .tools import OsTools
 
         db = current.db
 
@@ -753,7 +753,7 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
 
         limit_sql = ''
         if limit:
-            limit_sql = 'LIMIT ' + unicode(limit)
+            limit_sql = 'LIMIT ' + str(limit)
 
         orderby_sql = 'clatt.ClassDate DESC, cla.Starttime DESC'
 
@@ -889,7 +889,7 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         """
             Check if a class is already past, if so, remove it from the shopping cart.
         """
-        from os_class import Class
+        from .os_class import Class
 
         import pytz
 
@@ -922,7 +922,7 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         :param rows: gluon.dal.rows object of db.customers_payment_info_mandates
         :return:
         """
-        from os_gui import OsGui
+        from .os_gui import OsGui
 
         T = current.T
         auth = current.auth
@@ -1141,8 +1141,8 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         :param school_subscriptions_id: db.school_subscriptions.id
         :return: None
         """
-        from os_school_subscription import SchoolSubscription
-        from tools import OsTools
+        from .os_school_subscription import SchoolSubscription
+        from .tools import OsTools
 
         T = current.T
         os_tools = OsTools()
@@ -1166,8 +1166,8 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         :param school_memberships_id: db.school_memberships.id
         :return: None
         """
-        from os_school_membership import SchoolMembership
-        from tools import OsTools
+        from .os_school_membership import SchoolMembership
+        from .tools import OsTools
 
         T = current.T
         os_tools = OsTools()
@@ -1191,7 +1191,7 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         Set barcode id field for customer
         """
         if self.row.barcode_id is None or self.row.barcode_id == '':
-            self.row.barcode_id = unicode(self.cuID).zfill(14)
+            self.row.barcode_id = str(self.cuID).zfill(14)
 
         self.row.update_record()
 
@@ -1202,14 +1202,14 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         """
         import barcode
         from barcode.writer import ImageWriter
-        from cStringIO import StringIO
+        from io import BytesIO
 
         db = current.db
-        stream = StringIO()
+        stream = BytesIO()
 
         CODE39 = barcode.get_barcode_class('code39')
         code39_barcode = CODE39(
-            unicode(self.row.barcode_id).zfill(14),
+            str(self.row.barcode_id).zfill(14),
             writer=ImageWriter(),
             add_checksum=False
         )
@@ -1241,7 +1241,7 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         self.row.update_record(
             barcode = db.auth_user.barcode.store(
                 stream,
-                filename=unicode(self.cuID) + u'_barcode.png'
+                filename=str(self.cuID) + '_barcode.png'
             )
         )
 

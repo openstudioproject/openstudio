@@ -25,7 +25,7 @@ from general_helpers import classes_get_status
 from general_helpers import set_form_id_and_get_submit_button
 
 import html2text
-import cStringIO
+import io
 import openpyxl
 
 
@@ -50,11 +50,11 @@ def activity_get_filled(row, fwsID):
     """
         Formats count of reservations for use in manage page activity list
     """
-    total = unicode(row.Spaces)
+    total = str(row.Spaces)
     wsaID = row.id
 
     count = activity_count_reservations(wsaID, fwsID)
-    used = unicode(count)
+    used = str(count)
 
     filled = used + "/" + total
     if used == total:
@@ -924,14 +924,14 @@ def mail_activity_attendance():
         subtitle = T("On ") + row.Activitydate.strftime(DATE_FORMAT) + \
                    T(' at ') + \
                    row.Starttime.strftime(TIME_FORMAT)
-        message += unicode(H3(title))
-        message += unicode(subtitle)
+        message += str(H3(title))
+        message += str(subtitle)
         message += '<br><br>'
         table = TABLE()
         for fws_row in fws_rows.render():
             name = fws_row.auth_user.display_name.decode('utf-8')
             table.append(TR(TD(name),
-                            TD(unicode(T('Full event')))))
+                            TD(str(T('Full event')))))
         wsa_rows = activity_list_customers_get_activity_rows(row.id)
         for wsa_row in wsa_rows:
             name = wsa_row.auth_user.display_name.decode('utf-8'),
@@ -1062,7 +1062,7 @@ def activity_duplicate():
 
     id = db.workshops_activities.insert(
         workshops_id=row.workshops_id,
-        Activity=row.Activity + u' (Copy)',
+        Activity=row.Activity + ' (Copy)',
         Activitydate=row.Activitydate,
         school_locations_id=row.school_locations_id,
         auth_teacher_id=row.auth_teacher_id,
@@ -1522,7 +1522,7 @@ def tickets_export_excel():
     workshop = Workshop(wsID)
 
     # create filestream
-    stream = cStringIO.StringIO()
+    stream = io.BytesIO()
 
     wb = openpyxl.workbook.Workbook(write_only=True)
     # write the sheet for all mail addresses
@@ -1849,7 +1849,7 @@ def activities_export_attendance():
     fw_rows = activity_list_customers_get_fullws_rows(wsID)
 
     # create filestream
-    stream = cStringIO.StringIO()
+    stream = io.BytesIO()
 
     # Create the workbook
     title = 'test'
@@ -3471,12 +3471,12 @@ def pdf():
 
     html = pdf_template(wsID)
 
-    fname = workshop.Startdate.strftime(DATE_FORMAT) + u'_' + workshop.Name + u'.pdf'
+    fname = workshop.Startdate.strftime(DATE_FORMAT) + '_' + workshop.Name + '.pdf'
     response.headers['Content-Type'] = 'application/pdf'
     response.headers['Content-disposition'] = 'attachment; filename=' + fname
     # return pyfpdf_from_html(html)
 
-    stream = cStringIO.StringIO()
+    stream = io.BytesIO()
     workshop = weasyprint.HTML(string=html).write_pdf(stream)
 
     return stream.getvalue()

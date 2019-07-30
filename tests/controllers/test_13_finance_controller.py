@@ -724,7 +724,7 @@ def test_add_batch_invoices_without_zero_lines(client, web2py):
     # check amount total
     sum = web2py.db.invoices_amounts.TotalPriceVAT.sum()
     amount = web2py.db().select(sum).first()[sum]
-    assert unicode(amount) in client.text.decode('utf-8')
+    assert str(round(amount, 2)) in client.text
 
     # check batch item text
     acc_holder = web2py.db.customers_payment_info(1).AccountHolder
@@ -782,7 +782,7 @@ def test_add_batch_invoices_with_zero_lines(client, web2py):
     # check amount total
     sum = web2py.db.invoices_amounts.TotalPriceVAT.sum()
     amount = web2py.db().select(sum).first()[sum]
-    assert unicode(amount) in client.text.decode('utf-8')
+    assert str(round(amount, 2)) in client.text
 
     # check batch item text
     acc_holder = web2py.db.customers_payment_info(1).AccountHolder.split(' ')[0]
@@ -858,7 +858,7 @@ def test_add_batch_invoices_location(client, web2py):
     sum = web2py.db.invoices_amounts.TotalPriceVAT.sum()
     query = (web2py.db.auth_user.school_locations_id == school_locations_id)
     amount = web2py.db(query).select(sum, left=left).first()[sum]
-    assert unicode(amount) in client.text.decode('utf-8')
+    assert str(round(amount, 2)) in client.text
 
     # check batch item text (first 5 customers get school_locations_id 1)
     payinfo = web2py.db.customers_payment_info(1) # check that the first customer is in the batch
@@ -936,7 +936,7 @@ def test_add_batch_category_without_zero_lines(client, web2py):
     rows = web2py.db().select(web2py.db.alternativepayments.ALL)
     for row in rows:
         amount += row.Amount
-    assert unicode(amount) in client.text.decode('utf-8')
+    assert str(round(amount, 2)) in client.text
 
     # check batch total items
     assert web2py.db(web2py.db.payment_batches_items).count() == 2

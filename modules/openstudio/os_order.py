@@ -125,7 +125,7 @@ class Order:
             :param school_subscriptions_id: db.school_subscriptions.id
             :return : db.customers_orders_items.id of inserted item
         """
-        from os_school_subscription import SchoolSubscription
+        from .os_school_subscription import SchoolSubscription
 
         db = current.db
         T  = current.T
@@ -156,7 +156,7 @@ class Order:
             :param school_memberships_id: db.school_memberships.id
             :return : db.customers_orders_items.id of inserted item
         """
-        from os_school_membership import SchoolMembership
+        from .os_school_membership import SchoolMembership
 
         db = current.db
         T  = current.T
@@ -185,7 +185,7 @@ class Order:
             :param workshops_products_id: db.workshops_products.id
             :return: db.customers_orders_items.id of inserted item
         """
-        from os_workshop_product import WorkshopProduct
+        from .os_workshop_product import WorkshopProduct
 
         db = current.db
         T  = current.T
@@ -248,7 +248,7 @@ class Order:
             :param workshops_products_id: db.workshops_products.id
             :return: db.customers_orders_items.id of inserted item
         """
-        from os_class import Class
+        from .os_class import Class
 
         DATE_FORMAT = current.DATE_FORMAT
         TIME_FORMAT = current.TIME_FORMAT
@@ -446,16 +446,16 @@ class Order:
         """
             Create invoice for order and deliver goods
         """
-        from os_attendance_helper import AttendanceHelper
-        from os_cache_manager import  OsCacheManager
-        from os_invoice import Invoice
-        from os_school_classcard import SchoolClasscard
-        from os_school_subscription import SchoolSubscription
-        from os_customer_subscription import CustomerSubscription
-        from os_school_membership import SchoolMembership
-        from os_customer_membership import CustomerMembership
-        from os_workshop import Workshop
-        from os_workshop_product import WorkshopProduct
+        from .os_attendance_helper import AttendanceHelper
+        from .os_cache_manager import  OsCacheManager
+        from .os_invoice import Invoice
+        from .os_school_classcard import SchoolClasscard
+        from .os_school_subscription import SchoolSubscription
+        from .os_customer_subscription import CustomerSubscription
+        from .os_school_membership import SchoolMembership
+        from .os_customer_membership import CustomerMembership
+        from .os_workshop import Workshop
+        from .os_workshop_product import WorkshopProduct
 
         cache_clear_classschedule_api = current.globalenv['cache_clear_classschedule_api']
         get_sys_property = current.globalenv['get_sys_property']
@@ -490,7 +490,7 @@ class Order:
 
                     iID = db.invoices.insert(
                         invoices_groups_id=igpt.invoices_groups_id,
-                        Description=T('Order #') + unicode(self.coID),
+                        Description=T('Order #') + str(self.coID),
                         Status='sent'
                     )
 
@@ -675,7 +675,7 @@ class Order:
         """
             Notify customer of order delivery
         """
-        from os_mail import OsMail
+        from .os_mail import OsMail
 
         osmail = OsMail()
         msgID = osmail.render_email_template(

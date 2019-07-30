@@ -35,8 +35,8 @@ class CustomerSubscription:
             :param SubscriptionYear: Year of subscription
             :param SubscriptionMonth: Month of subscription
         """
-        from os_school_subscription import SchoolSubscription
-        from os_invoice import Invoice
+        from .os_school_subscription import SchoolSubscription
+        from .os_invoice import Invoice
 
         T = current.T
         db = current.db
@@ -274,7 +274,7 @@ class CustomerSubscription:
         """
             Add credits for selected month
         """
-        from os_customers_subscriptions_credits import CustomersSubscriptionsCredits
+        from .os_customers_subscriptions_credits import CustomersSubscriptionsCredits
 
         first_day = datetime.date(year, month, 1)
         last_day = get_last_day_month(first_day)
@@ -561,7 +561,7 @@ class CustomerSubscription:
         :param year: int
         :return:
         """
-        from tools import OsTools
+        from .tools import OsTools
 
         os_tools = OsTools()
         max_pauses_in_year = os_tools.get_sys_property('subscription_max_pauses')
@@ -582,7 +582,7 @@ class CustomerSubscription:
         Set MinEnddate
         :return: None
         """
-        from os_school_subscription import SchoolSubscription
+        from .os_school_subscription import SchoolSubscription
 
         ssu = SchoolSubscription(self.ssuID)
         self.cs.MinEnddate = ssu._sell_to_customer_get_min_end_date(self.startdate)
