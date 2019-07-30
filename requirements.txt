@@ -23,7 +23,6 @@ packaging==19.0
 Pillow==6.1.0
 pluggy==0.12.0
 py==1.8.0
-pyBarcode==0.7
 pycparser==2.19
 pyparsing==2.4.1.1
 Pyphen==0.9.5
