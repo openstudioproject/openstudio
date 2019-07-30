@@ -929,15 +929,15 @@ def mail_activity_attendance():
         message += '<br><br>'
         table = TABLE()
         for fws_row in fws_rows.render():
-            name = fws_row.auth_user.display_name.decode('utf-8')
+            name = fws_row.auth_user.display_name
             table.append(TR(TD(name),
                             TD(str(T('Full event')))))
         wsa_rows = activity_list_customers_get_activity_rows(row.id)
         for wsa_row in wsa_rows:
-            name = wsa_row.auth_user.display_name.decode('utf-8'),
+            name = wsa_row.auth_user.display_name,
             table.append(TR(TD(name), TD()))
 
-        message += str(table).decode('utf-8')
+        message += str(table)
         message += '<br>'
 
         subject = T("Reservations for") + ' ' + workshop.Name + ', ' + \
@@ -1481,7 +1481,7 @@ def tickets_export_excel():
     def add_ticket_sheet(wspID):
         wsp = WorkshopProduct(wspID)
         # add sheet
-        ws = wb.create_sheet(title=wsp.name.decode('utf-8'))
+        ws = wb.create_sheet(title=wsp.name)
         # get db info
         left = [ db.auth_user.on(db.auth_user.id == db.workshops_products_customers.auth_customer_id),
                  db.workshops_products.on(
