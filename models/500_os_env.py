@@ -35,7 +35,7 @@ if configuration.get('cache.cache') == 'redis':
     rconn = RConn()
     cache.redis = RedisCache(redis_conn=rconn, debug=True)
     # use redis as cache
-    cache.ram = cache.disk = cache.redis
+    cache.ram = cache.redis
 
 
 #### Custom validators begin #####
@@ -225,8 +225,11 @@ def cache_clear_workshops(var_one=None, var_two=None):
         Clears the workshops cache
         # accepts two vars to the function can be called from SQLFORM.grid ondelete or crud functions
     """
+    print('clearing cache')
+
     workshops_regex = 'openstudio_workshops_*'
     cache.ram.clear(regex = workshops_regex)
+    cache.redis.clear(regex = workshops_regex)
     cache.disk.clear(regex = workshops_regex)
 
 

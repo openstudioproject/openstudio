@@ -534,6 +534,12 @@ def event_edit():
 
     event_hide_teacher_fields()
 
+    db.workshops.thumblarge.readable = False
+    db.workshops.thumblarge_2.readable = False
+    db.workshops.thumblarge_3.readable = False
+    db.workshops.thumblarge_4.readable = False
+    db.workshops.thumblarge_5.readable = False
+
     crud.messages.submit_button = T("Save")
     crud.messages.record_updated = T("Saved")
     crud.settings.update_next = URL(vars={'wsID': wsID})
@@ -866,6 +872,20 @@ def activity_edit():
     menu = get_workshops_menu('activities', wsID)
 
     return dict(content=content, back=back, menu=menu, save=submit)
+
+
+# def this_cache_clear_workshops(var_one=None, var_two=None):
+#         """
+#             Clears the workshops cache
+#             # accepts two vars to the function can be called from SQLFORM.grid ondelete or crud functions
+#         """
+#
+#         print "clearing cache"
+#         workshops_regex = 'openstudio_workshops_*'
+#         cache.ram.clear(regex=workshops_regex)
+#         cache.redis.clear(regex=workshops_regex)
+#         cache.disk.clear(regex=workshops_regex)
+
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
