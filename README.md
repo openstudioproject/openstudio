@@ -14,8 +14,6 @@ OpenStudio will help you manage customers, subscriptions, class cards, schedule 
 Online payments are provided through [Mollie](https://www.mollie.com/en). Please refer to their website & support for current rates and questions about availability in your region.
 The OpenStudio Mollie integration handles single payments for classes, class cards, events and invoices. Recurring payments are supported for subscriptions. The web2py scheduler has to be running to process recurring payments.
 
-OpenStudio integrates with Exact Online for accounting [www.exact.com](https://www.exact.com/us/solutions/financial-management/).
-
 More information can be found on [www.openstudioproject.com](https://www.openstudioproject.com).
 
 ## Website integration
