@@ -6525,7 +6525,7 @@ auth.settings.extra_fields['auth_user'] = [
           readable=False,
           writable=False,
           default=datetime.datetime.now(),
-          represent=represent_datetime)
+          represent=represent_datetime),
     ]
 
 
