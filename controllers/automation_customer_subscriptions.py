@@ -79,12 +79,18 @@ def index_get_month_credits_add(table):
 
             run_result = row.scheduler_run.run_result or ''
 
+            if row.scheduler_run:
+                status = row.scheduler_run.status
+            elif row.scheduler_task.status == 'EXPIRED':
+                status = T("Expired")
+            else:
+                status = T("Pending...")
 
             result_table.append(TR(
                 TD(B(T("Start"), ': '),
                    pytz.utc.localize(row.scheduler_task.start_time).astimezone(pytz.timezone(TIMEZONE)).strftime(DATETIME_FORMAT), BR(),
                    vars_display),
-                TD(row.scheduler_run.status or T("Pending...")),
+                TD(status),
                 TD(XML(run_result.replace('"', ''))),
             ))
 
