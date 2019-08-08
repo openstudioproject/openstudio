@@ -89,39 +89,23 @@ class WorkshopsHelper:
         db = current.db
         os_gui = current.globalenv['os_gui']
 
-        buttons = DIV(DIV(current.T("Already added"), _class='btn'),
-                     _class='btn-group pull-right hidden')
-
-        products_sold = db.workshops_products_customers
-        # find full workshop id
-        fwspID = self.get_full_workshop_product_id_for_workshop(wsID)
-
-        # check if full workshop has been sold
-        check_full_ws = products_sold(workshops_products_id=fwspID,
-                                      auth_customer_id=cuID)
-
-        # check if product has been sold
-        check = products_sold(workshops_products_id=wspID,
-                              auth_customer_id=cuID)
-
-        if not check and not check_full_ws:
-            buttons = DIV(os_gui.get_button('add',
-                                        URL('events',
-                                            'ticket_sell_to_customer',
-                                            vars={'cuID' : cuID,
-                                                  'wsID' : wsID,
-                                                  'wspID': wspID},
-                                            extension='')),
-                         A(current.T('To waitinglist'),
-                           _href=URL('events',
-                                     'ticket_sell_to_customer',
-                                     vars={'cuID'     : cuID,
-                                           'wsID'     : wsID,
-                                           'wspID'    : wspID,
-                                           'waiting'  : True},
-                                     extension=''),
-                           _class='btn btn-default btn-sm'),
-                        _class='btn-group pull-right')
+        buttons = DIV(os_gui.get_button('add',
+                                    URL('events',
+                                        'ticket_sell_to_customer',
+                                        vars={'cuID' : cuID,
+                                              'wsID' : wsID,
+                                              'wspID': wspID},
+                                        extension='')),
+                     A(current.T('To waitinglist'),
+                       _href=URL('events',
+                                 'ticket_sell_to_customer',
+                                 vars={'cuID'     : cuID,
+                                       'wsID'     : wsID,
+                                       'wspID'    : wspID,
+                                       'waiting'  : True},
+                                 extension=''),
+                       _class='btn btn-default btn-sm'),
+                    _class='btn-group pull-right')
 
         return buttons
 

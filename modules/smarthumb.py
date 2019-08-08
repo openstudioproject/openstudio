@@ -18,7 +18,6 @@ def SMARTHUMB(image, box, fit=True, name="thumb", field_string=None):
     @param fit: boolean - crop the image to fill the box
     """
     if image:
-        print("Image found, thumbing")
         db = current.db
         field = _get_db_field(field_string)
         request = current.request
