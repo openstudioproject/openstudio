@@ -5818,7 +5818,6 @@ def load_list_get_events_ticket_sell_buttons(row,
     cuID = row.id
 
     wh = WorkshopsHelper()
-
     buttons = wh.get_product_sell_buttons(cuID, wsID, wspID, request.cid)
 
     return buttons
