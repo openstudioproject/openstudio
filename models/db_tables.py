@@ -6156,6 +6156,20 @@ def setup_set_email_templates():
         )
 
 
+def setup_set_shop_workflow_values():
+    """
+    Set a few sensible defaults for the shop workflow
+    """
+    db.sys_properties.insert(
+        Property="shop_allow_trial_classes_for_existing_customers",
+        PropertyValue="on"
+    )
+    db.sys_properties.insert(
+        Property="shop_classes_trial_limit",
+        PropertyValue="1"
+    )
+
+
 def setup():
     """
         This function runs when running OpenStudio for the first time.
@@ -6184,6 +6198,7 @@ def setup():
         setup_set_customers_profile_features()
         setup_set_customers_shop_features()
         set_permissions_for_admin_group()
+        setup_set_shop_workflow_values()
 
         from openstudio.os_setup import OsSetup
         os_setup = OsSetup()
