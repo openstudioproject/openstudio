@@ -19,6 +19,8 @@ def workflow():
     shop_requires_complete_profile_events = get_sys_property('shop_requires_complete_profile_events')
     shop_requires_complete_profile_subscriptions = get_sys_property('shop_requires_complete_profile_subscriptions')
     shop_allow_trial_cards_for_existing_customers = get_sys_property('shop_allow_trial_cards_for_existing_customers')
+    shop_allow_trial_classes_for_existing_customers = get_sys_property('shop_allow_trial_classes_for_existing_customers')
+    shop_classes_trial_limit = get_sys_property('shop_classes_trial_limit')
     shop_classes_advance_booking_limit = get_sys_property('shop_classes_advance_booking_limit')
     shop_classes_cancellation_limit = get_sys_property('shop_classes_cancellation_limit')
     shop_subscriptions_start = get_sys_property('shop_subscriptions_start')
@@ -54,6 +56,15 @@ def workflow():
               default=shop_allow_trial_cards_for_existing_customers,
               label=T('Allow existing customers to buy a trial card'),
               comment=T('Disable to prevent trial products from showing in shop for any customers who have or have had a subscription or card.')),
+        Field('shop_allow_trial_classes_for_existing_customers', 'boolean',
+              default=shop_allow_trial_classes_for_existing_customers,
+              label=T('Allow existing customers to book a trial class'),
+              comment=T('Disable to prevent trial class booking options from showing in shop for any customers who have or have had a subscription or card.')),
+        Field('shop_classes_trial_limit', 'integer',
+              default=shop_classes_trial_limit,
+              requires=IS_INT_IN_RANGE(0, 1099),
+              label=T('Trial class limit in shop'),
+              comment=T("Number of trial classes a customer can book in the shop")),
         Field('shop_classes_advance_booking_limit', 'integer',
               default=shop_classes_advance_booking_limit,
               requires=IS_INT_IN_RANGE(0, 1099),
@@ -90,6 +101,8 @@ def workflow():
             'shop_requires_complete_profile_events',
             'shop_requires_complete_profile_subscriptions',
             'shop_allow_trial_cards_for_existing_customers',
+            'shop_allow_trial_classes_for_existing_customers',
+            'shop_classes_trial_limit',
             'shop_classes_advance_booking_limit',
             'shop_classes_cancellation_limit',
             'shop_subscriptions_start',
