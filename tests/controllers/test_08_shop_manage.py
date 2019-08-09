@@ -23,7 +23,8 @@ def test_workflow(client, web2py):
         'shop_classes_cancellation_limit':'7',
         'shop_subscriptions_start':'today',
         'shop_subscriptions_payment_method': 'directdebit',
-
+        'shop_allow_trial_classes_for_existing_customers': "on",
+        'shop_classes_trial_limit': '1',
     }
 
     client.post(url, data=data)
@@ -48,6 +49,10 @@ def test_workflow(client, web2py):
            data['shop_subscriptions_start']
     assert web2py.db.sys_properties(Property='shop_subscriptions_payment_method').PropertyValue == \
            data['shop_subscriptions_payment_method']
+    assert web2py.db.sys_properties(Property='shop_allow_trial_classes_for_existing_customers').PropertyValue == \
+           data['shop_allow_trial_classes_for_existing_customers']
+    assert web2py.db.sys_properties(Property='shop_classes_trial_limit').PropertyValue == \
+           data['shop_classes_trial_limit']
 
 
 def test_products(client, web2py):
