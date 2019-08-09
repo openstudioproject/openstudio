@@ -107,7 +107,6 @@ def workflow():
             'shop_classes_cancellation_limit',
             'shop_subscriptions_start',
             'shop_subscriptions_payment_method',
-
         ]
 
         for fvar in form_vars:

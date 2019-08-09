@@ -46,6 +46,10 @@ def index():
             print(version)
             upgrade_to_201909()
             session.flash = T("Upgraded db to 2019.09")
+        if version < 2019.10:
+            print(version)
+            upgrade_to_201910()
+            session.flash = T("Upgraded db to 2019.10")
         else:
             session.flash = T('Already up to date')
 
@@ -324,3 +328,17 @@ def upgrade_to_201909():
             # Save again with picture to trigger thumbnail generation
             # This makes w2p think there's a new image
             row.update_record(picture = picture)
+
+
+def upgrade_to_201910():
+    """
+        Upgrade operations to 2019.10
+    """
+    db.sys_properties.insert(
+        Property="shop_allow_trial_classes_for_existing_customers",
+        PropertyValue="on"
+    )
+    db.sys_properties.insert(
+        Property="shop_classes_trial_limit",
+        PropertyValue="1"
+    )
