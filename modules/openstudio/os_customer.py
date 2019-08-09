@@ -464,16 +464,23 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         return subscr_cards
 
 
-    def get_had_trialclass(self):
+    def get_trialclass_count(self):
         """
-            Returns True if a customer has had a trialclass and false when not
+        :return: integer - count of trial classes
         """
         db = current.db
 
         query = (db.classes_attendance.auth_customer_id == self.cuID) & \
                 (db.classes_attendance.AttendanceType == 1)
 
-        count = db(query).count()
+        return db(query).count()
+
+
+    def get_had_trialclass(self):
+        """
+            Returns True if a customer has had a trialclass and false when not
+        """
+        count = self.get_trialclass_count()
 
         if count > 0:
             had_trial = True
