@@ -1177,23 +1177,46 @@ class AttendanceHelper:
             }
 
         # Trial
-        # get trial class price
-        system_enable_class_checkin_trialclass = get_sys_property('system_enable_class_checkin_trialclass')
+        trial_option = self._get_customer_class_booking_option_trial(
+            clsID,
+            date,
+            customer,
+            prices,
+            list_type,
+            trial
+        )
+        print('trial option')
+        print(trial_option)
+        if trial_option:
+            options['trial'] = trial_option
 
-        if trial and system_enable_class_checkin_trialclass:
-            price = prices['trial'] or 0
-            membership_price = has_membership and prices['trial_membership']
-            if membership_price:
-                price = prices['trial_membership']
-
-            options['trial'] = {
-                'clsID': clsID,
-                "Type": "trial",
-                "Name": T('Trial'),
-                "Price": price,
-                "MembershipPrice": membership_price,
-                "Message": get_sys_property('shop_classes_trial_message') or ''
-            }
+        # system_enable_class_checkin_trialclass = get_sys_property('system_enable_class_checkin_trialclass')
+        # shop_allow_trial_classes_for_existing_customers = get_sys_property('shop_allow_trial_classes_for_existing_customers')
+        #
+        # if trial and system_enable_class_checkin_trialclass:
+        #     if list_type == 'shop':
+        #         if shop_allow_trial_classes_for_existing_customers:
+        #             # Check if customer has or had a card or subscription
+        #             has_or_had_subscription = customer.get_has_or_had_subscription()
+        #             has_or_had_card = customer.get_has_or_had_classcard()
+        #
+        #             if has_or_had_card or has_or_had_subscription:
+        #
+        #
+        #
+        #     price = prices['trial'] or 0
+        #     membership_price = has_membership and prices['trial_membership']
+        #     if membership_price:
+        #         price = prices['trial_membership']
+        #
+        #     options['trial'] = {
+        #         'clsID': clsID,
+        #         "Type": "trial",
+        #         "Name": T('Trial'),
+        #         "Price": price,
+        #         "MembershipPrice": membership_price,
+        #         "Message": get_sys_property('shop_classes_trial_message') or ''
+        #     }
 
         # Request review
         options['under_review'] = False
@@ -1233,6 +1256,58 @@ class AttendanceHelper:
 
         return options
 
+
+    def _get_customer_class_booking_option_trial(self, clsID, date, customer, prices, list_type, trial):
+        """
+        :param customer: os_customer obj
+        :param list_type: string
+        :param trial: boolean
+        :return: checkin option
+        """
+        from .tools import OsTools
+        os_tools = OsTools()
+        T = current.T
+
+        system_enable_class_checkin_trialclass = os_tools.get_sys_property(
+            'system_enable_class_checkin_trialclass')
+        shop_allow_trial_classes_for_existing_customers = os_tools.get_sys_property(
+            'shop_allow_trial_classes_for_existing_customers')
+
+        print('first')
+        print(locals())
+
+        if trial and system_enable_class_checkin_trialclass == "on":
+            print('here')
+            if list_type == 'shop':
+                if not shop_allow_trial_classes_for_existing_customers == "on":
+                    print('existig customers denied')
+                    # Check if customer has or had a card or subscription
+                    has_or_had_subscription = customer.get_has_or_had_subscription()
+                    has_or_had_card = customer.get_has_or_had_classcard()
+
+                    if has_or_had_card or has_or_had_subscription:
+                        print('no trial, sorry!')
+                        return
+
+
+            price = prices['trial'] or 0
+            has_membership = customer.has_membership_on_date(date)
+            membership_price = has_membership and prices['trial_membership']
+            if membership_price:
+                price = prices['trial_membership']
+
+            trial_option = {
+                'clsID': clsID,
+                "Type": "trial",
+                "Name": T('Trial'),
+                "Price": price,
+                "MembershipPrice": membership_price,
+                "Message": os_tools.get_sys_property('shop_classes_trial_message') or ''
+            }
+
+            return trial_option
+        else:
+            return
 
     def get_customer_class_booking_options_formatted(self,
                                                      clsID,
