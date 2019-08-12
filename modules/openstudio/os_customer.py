@@ -39,7 +39,7 @@ class Customer:
         import hashlib
 
         md5 = hashlib.md5()
-        md5.update(self.row.email.lower())
+        md5.update(str.encode(self.row.email.lower()))
 
         return md5.hexdigest()
 

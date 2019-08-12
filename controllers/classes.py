@@ -3376,6 +3376,11 @@ def attendance_sign_in_get_returl_url(clsID, date_formatted, cuID):
                   vars={'clsID': clsID,
                         'date' : date_formatted},
                   extension='')
+    else:
+        url = URL('classes', 'attendance',
+                   vars={'clsID': clsID,
+                         'date' : date_formatted},
+                   extension='html')
 
     return url
 
