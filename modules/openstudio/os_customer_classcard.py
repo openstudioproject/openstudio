@@ -116,6 +116,17 @@ class CustomerClasscard:
         return rows
 
 
+    def get_classes_available(self):
+        """
+        :return: boolean, classes available on card or not
+        """
+        if self.unlimited:
+            return True
+        else:
+            classes_remaining = self.get_classes_remaining()
+            return classes_remaining > 0
+
+
     def get_classes_remaining(self):
         """
             :return: Remaining classes
