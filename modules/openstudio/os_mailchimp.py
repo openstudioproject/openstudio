@@ -57,7 +57,28 @@ class OsMailChimp():
             )
             message = T('Subscription successful, please check your inbox')
         except MailChimpError as e:
-            message = T("We encountered an error while trying to subscribe you to this list, please try again later.")
+            message = DIV(
+                T("We encountered an error while trying to subscribe you to this list."), BR(),
+                T("Please try again later or contact us when the error persists.")
+            )
+
+            # try:
+            #     import json
+            #     error_data = json.loads(str(e.replace("'", '"')))
+            #
+            #     message.append(
+            #         SPAN(BR(),
+            #              T("Details:"), BR(),
+            #              type(e),
+            #              str(e),
+            #              error_data['title']
+            #             #  e.title,
+            #             # e
+            #             # mc_error_data['detail']
+            #         )
+            #     )
+            # except AttributeError:
+            #     pass
 
         return message
 
