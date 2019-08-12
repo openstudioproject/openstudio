@@ -2173,17 +2173,17 @@ class AttendanceHelper:
             :param date: datetime.date
             :return: 
         """
-        from .os_classcards_helper import ClasscardsHelper
+        from .os_customer_classcard import CustomerClasscard
 
         db = current.db
         T = current.T
 
-        ccdh = ClasscardsHelper()
-        classes_available = ccdh.get_classes_available(ccdID)
+        ccd = CustomerClasscard(ccdID)
+        classes_available = ccd.get_classes_available()
 
         status = 'fail'
         message = ''
-        if classes_available:
+        if classes_available or ccd.school_classcard.Unlimited:
             class_data = dict(
                 auth_customer_id=cuID,
                 CustomerMembership=self._attendance_sign_in_has_membership(cuID, date),
@@ -2211,8 +2211,7 @@ class AttendanceHelper:
                 )
 
                 # update class count
-                ccdh = ClasscardsHelper()
-                ccdh.set_classes_taken(ccdID)
+                ccd.set_classes_taken()
         else:
             message = T("Unable to add, no classes left on card")
 
