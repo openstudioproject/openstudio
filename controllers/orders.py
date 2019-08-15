@@ -109,7 +109,7 @@ def index_get_link_note(row):
         button_class = 'btn btn-default btn-sm'
 
         result = os_gui.get_modal(
-            button_text = XML("<i class='fa fa-envelope-o'></i>"),
+            button_text = XML("<i class='fa fa-comment-o'></i>"),
             button_class = button_class,
             modal_title = T("Message for order #") + str(row.customers_orders.id),
             modal_content = modal_content,
