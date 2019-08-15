@@ -3801,7 +3801,7 @@ def subscriptions():
                 TD(repr_row.Startdate),
                 TD(repr_row.Enddate, BR(),
                     SPAN(T("Can cancel from "), repr_row.MinEnddate,
-                   _class="text-muted")),
+                   _class="text-muted") if row.MinEnddate else ""),
                 TD(repr_row.payment_methods_id),
                 TD(subscriptions_get_link_latest_pauses(row)),
                 TD(subscriptions_get_link_latest_blocks(row)),
