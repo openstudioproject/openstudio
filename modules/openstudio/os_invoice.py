@@ -867,7 +867,6 @@ class Invoice:
                  (db.customers_subscriptions.RegistrationFeePaid == True))
 
         fee_paid_in_past = db(query).count()
-
         ssu = db.school_subscriptions(ssuID)
         if not fee_paid_in_past and ssu.RegistrationFee: # Registration fee not already paid and RegistrationFee defined?
             regfee_to_be_paid = ssu.RegistrationFee or 0
