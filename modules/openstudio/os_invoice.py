@@ -861,10 +861,9 @@ class Invoice:
 
         ##
         # Check if a registration fee should be added
+        # ; Add fee if a registration fee has ever been paid
         ##
-        query = (((db.customers_subscriptions.auth_customer_id == cs.auth_customer_id) &
-                 (db.customers_subscriptions.id != cs.csID) &
-                 (db.customers_subscriptions.school_subscriptions_id == cs.ssuID)) |
+        query = ((db.customers_subscriptions.auth_customer_id == cs.auth_customer_id) &
                  (db.customers_subscriptions.RegistrationFeePaid == True))
 
         fee_paid_in_past = db(query).count()

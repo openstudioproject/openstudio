@@ -21,7 +21,7 @@ class Reports:
             where_school_locations_id = " AND cu.school_locations_id = %s" % filter_school_locations_id
 
         query = """SELECT cu.id,
-                          cu.archived,
+                          cu.trashed,
                           cu.thumbsmall,
                           cu.birthday,
                           cu.first_name,
@@ -76,7 +76,7 @@ class Reports:
             where_school_locations_id = " AND cu.school_locations_id = %s" % filter_school_locations_id
 
         query = """SELECT cu.id,
-                          cu.archived,
+                          cu.trashed,
                           cu.thumbsmall,
                           cu.birthday,
                           cu.display_name,

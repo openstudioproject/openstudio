@@ -1743,14 +1743,16 @@ def export_invoices_get_export(from_date, until_date, invoices_groups_id, filety
     """
         Invoices export
     """
-    # create filestream
-    stream = io.BytesIO()
 
     if filetype == 'excel':
+        # create filestream
+        stream = io.BytesIO()
         wb = openpyxl.workbook.Workbook(write_only=True)
         ws = wb.create_sheet(title='Invoices')
     else:
         import csv
+        # create filestream
+        stream = io.StringIO()
         csv_writer = csv.writer(stream, delimiter='\t')
 
     header = [

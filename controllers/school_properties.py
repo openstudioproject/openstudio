@@ -2799,48 +2799,6 @@ def account_change_status():
     redirect(account_change_get_redirect_url())
 
 
-def account_get_link_archive(row):
-    """
-        This function returns the archive link for a user
-    """
-    row = db.auth_user(row.id)
-
-    if row.archived:
-        tt = T("Move to current")
-    else:
-        tt = T("Archive")
-
-    return os_gui.get_button('archive',
-                             URL('account_archive',
-                                 vars={'auID': row.id}),
-                             tooltip=tt)
-
-
-@auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('update', 'employees') or
-               auth.has_permission('update', 'teachers'))
-def account_archive():
-    """
-        This function archives a subscription
-        request.vars[auID] is expected to be auth_user.id
-    """
-    auID = request.vars['auID']
-    if not auID:
-        session.flash = T('Unable to (un)archive account')
-    else:
-        row = db.auth_user(auID)
-
-        if row.archived:
-            session.flash = T('Moved to current')
-        else:
-            session.flash = T('Archived')
-
-        row.archived = not row.archived
-        row.update_record()
-
-    redirect(account_change_get_redirect_url())
-
-
 def school_get_menu(page):
     """
     @param page: current page
