@@ -28,7 +28,7 @@ class AccountingExpenses:
         :return: HTML table
         """
         from general_helpers import max_string_length
-        represent_float_as_amount = current.globalenv['represent_float_as_amount']
+        represent_decimal_as_amount = current.globalenv['represent_decimal_as_amount']
 
         T = current.T
         auth = current.auth
@@ -69,7 +69,7 @@ class AccountingExpenses:
         table.append(TFOOT(TR(
             TH(),
             TH(T("Total")),
-            TH(represent_float_as_amount(total)),
+            TH(represent_decimal_as_amount(total)),
             TH()
         )))
 

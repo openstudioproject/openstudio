@@ -1041,7 +1041,7 @@ def payment_attendance_list_rates():
 
         tr = TR(
                 TD(row.AttendanceCount),
-                TD(represent_float_as_amount(row.Rate), _class='Rate'),
+                TD(represent_decimal_as_amount(row.Rate), _class='Rate'),
                 TD(buttons))
 
         table.append(tr)

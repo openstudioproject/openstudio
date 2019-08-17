@@ -613,15 +613,15 @@ def edit_get_amounts(invoice, formatted=True):
     amounts = invoice.get_amounts()
 
     subtotal = SPAN(SPAN(T('Subtotal'), _class='bold pull-left'),
-                    SPAN(represent_float_as_amount(amounts.TotalPrice), _class='pull-right'))
+                    SPAN(represent_decimal_as_amount(amounts.TotalPrice), _class='pull-right'))
     vat = SPAN(SPAN(T('VAT'), _class='bold pull-left'),
-                    SPAN(represent_float_as_amount(amounts.VAT), _class='pull-right'))
+                    SPAN(represent_decimal_as_amount(amounts.VAT), _class='pull-right'))
     total = SPAN(SPAN(T('Total'), _class='bold pull-left'),
-                    SPAN(represent_float_as_amount(amounts.TotalPriceVAT), _class='pull-right'))
+                    SPAN(represent_decimal_as_amount(amounts.TotalPriceVAT), _class='pull-right'))
     paid = SPAN(SPAN(T('Paid'), _class='bold pull-left'),
-                    SPAN(represent_float_as_amount(amounts.Paid), _class='pull-right'))
+                    SPAN(represent_decimal_as_amount(amounts.Paid), _class='pull-right'))
     balance = SPAN(SPAN(T('Balance'), _class='bold pull-left'),
-                    SPAN(represent_float_as_amount(amounts.Balance), _class='pull-right'))
+                    SPAN(represent_decimal_as_amount(amounts.Balance), _class='pull-right'))
 
 
     content = DIV(subtotal, BR(),
@@ -2233,7 +2233,7 @@ def open_on_date():
                  _href=URL('customers', 'edit', args=[row.auth_user.id]))),
             TD(repr_row.invoices_amounts.TotalPriceVAT),
             TD(repr_row.invoices_amounts.Paid),
-            TD(represent_float_as_amount(balance)),
+            TD(represent_decimal_as_amount(balance)),
         )
 
         if balance:
@@ -2249,7 +2249,7 @@ def open_on_date():
     content_top.append(DIV(SPAN(
         LABEL(T("Total balance on"), ' ',
               session.invoices_open_on_date_date.strftime(DATE_FORMAT)), BR(),
-        represent_float_as_amount(balance_total),
+        represent_decimal_as_amount(balance_total),
         _class='pull-right'),
     _class='col-md-9'
     ))
@@ -2435,9 +2435,9 @@ def open_on_date_export():
             row.invoices.DateCreated.strftime(DATE_FORMAT),
             row.auth_user.id,
             row.auth_user.display_name,
-            row.invoices_amounts.TotalPriceVAT,
-            paid,
-            balance,
+            round(row.invoices_amounts.TotalPriceVAT, 2),
+            round(paid, 2),
+            round(balance, 2)
         ])
 
     fname = T(sheet_title.replace(' ','_')) + '.xlsx'
