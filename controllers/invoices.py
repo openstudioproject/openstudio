@@ -1319,7 +1319,7 @@ def payment_add():
     # amount
     amounts = db.invoices_amounts(invoices_id=iID)
     try:
-        db.invoices_payments.Amount.default = round(amounts.TotalPriceVAT, 2)
+        db.invoices_payments.Amount.default = amounts.TotalPriceVAT.quantize(Decimal('.01'), rounding=ROUND_HALF_UP)
     except AttributeError:
         pass
     # payment method
