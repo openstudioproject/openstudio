@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 import datetime
+from decimal import Decimal
+
 from gluon.contrib.populate import populate
 
 from setup_profile_tests import setup_profile_tests
@@ -278,8 +280,8 @@ def populate_customers_with_subscriptions(web2py,
             )
 
             # tax rates (1) = 21%
-            TotalPrice = round(ss_one_price / 1.21, 2)
-            VAT = round(ss_one_price - TotalPrice, 2)
+            TotalPrice = ss_one_price / Decimal(1.21)
+            VAT = ss_one_price - TotalPrice
 
             web2py.db.invoices_amounts.insert(
                 invoices_id = iID,
@@ -410,8 +412,8 @@ def populate_customers_with_classcards(web2py,
             )
 
             # tax rates (1) = 21%
-            TotalPrice = round(scd.Price / 1.21, 2)
-            VAT = round(scd.Price - TotalPrice, 2)
+            TotalPrice = scd.Price / Decimal(1.21)
+            VAT = scd.Price - TotalPrice
 
             web2py.db.invoices_amounts.insert(
                 invoices_id=iID,
@@ -486,8 +488,8 @@ def populate_customers_with_memberships(web2py,
             )
 
             # tax rates (1) = 21%
-            TotalPrice = round(sm.Price / 1.21, 2)
-            VAT = round(sm.Price - TotalPrice, 2)
+            TotalPrice = sm.Price / Decimal(1.21)
+            VAT = sm.Price - TotalPrice
 
             web2py.db.invoices_amounts.insert(
                 invoices_id=iID,
@@ -978,8 +980,8 @@ def prepare_classes(web2py,
             )
 
             # tax rates (1) = 21%
-            TotalPrice = round(trial_price / 1.21, 2)
-            VAT = round(trial_price - TotalPrice, 2)
+            TotalPrice = trial_price / Decimal(1.21)
+            VAT = trial_price - TotalPrice
 
             web2py.db.invoices_amounts.insert(
                 invoices_id=iID,
@@ -1023,8 +1025,8 @@ def prepare_classes(web2py,
             )
 
             # tax rates (1) = 21%
-            TotalPrice = round(dropin_price / 1.21, 2)
-            VAT = round(dropin_price - TotalPrice, 2)
+            TotalPrice = dropin_price / Decimal(1.21)
+            VAT = dropin_price - TotalPrice
 
             web2py.db.invoices_amounts.insert(
                 invoices_id=iID,

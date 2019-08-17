@@ -1,6 +1,7 @@
 # coding: utf8
 import datetime
 import pytz
+from decimal import Decimal, ROUND_HALF_UP
 
 from gluon.scheduler import Scheduler
 from gluon import current
@@ -22,7 +23,6 @@ from general_helpers import create_employees_dict
 from general_helpers import create_locations_dict
 from general_helpers import create_classtypes_dict
 
-from decimal import Decimal, ROUND_HALF_UP
 
 # init scheduler
 scheduler = Scheduler(
@@ -734,7 +734,7 @@ def define_sys_organizations():
             label=T('Link to Privacy notice')),
         Field('PrivacyNoticeVersion',
             label=T('Privacy notice version')),
-        Field('ReportsClassPrice', 'float',
+        Field('ReportsClassPrice', 'decimal(20,2)',
             readable=False,
             writable=False,
             represent=represent_decimal_as_amount,
@@ -1287,7 +1287,7 @@ def define_school_classcards():
         Field('Description',
             represent=lambda value, row:  value or '',
             label=T('Description')),
-        Field('Price', 'float', required=True,
+        Field('Price', 'decimal(20,2)', required=True,
             requires=IS_DECIMAL_IN_RANGE(0,99999999, dot='.',
                 error_message=T('Too small or too large')),
             #represent = lambda value, row: SPAN(CURRSYM , ' ', format(value, '.2f')),
@@ -2908,7 +2908,7 @@ def define_customers_subscriptions():
         Field('Note', 'text',
             represent=lambda value, row: value or '',
             label=T("Note")),
-        Field('CreditsRemaining', 'float',
+        Field('CreditsRemaining', 'decimal(20,2)',
             readable=False,
             writable=False), # no actual data is stored, but used to map raw sql into DAL
         Field('PeriodCreditsAdded', 'float',
@@ -4671,11 +4671,8 @@ def compute_invoice_item_total_price(row):
     """
         Returns the total price for an invoice item
     """
-    total_price_vat = Decimal(row.TotalPriceVAT)
-
-    total = Decimal(Decimal(total_price_vat - row.VAT).quantize(Decimal('.01'),
-                                                                rounding=ROUND_HALF_UP))
-    return total
+    total_price = Decimal(row.TotalPriceVAT) - row.VAT
+    return total_price.quantize(Decimal('.01'), rounding=ROUND_HALF_UP)
 
 
 def compute_invoice_item_vat(row):
@@ -4686,15 +4683,10 @@ def compute_invoice_item_vat(row):
     if not tID:
         vat = 0
     else:
-        vat_rate = db.tax_rates(tID).Percentage / 100
+        vat_rate = db.tax_rates(tID).Percentage / Decimal(100)
+        vat = Decimal(row.TotalPriceVAT) - (Decimal(row.TotalPriceVAT) / (Decimal(1) + vat_rate))
 
-        total_price_vat = float(row.TotalPriceVAT)
-        vat = total_price_vat - (total_price_vat / (1 + vat_rate))
-
-        vat = Decimal(Decimal(vat).quantize(Decimal('.01'),
-                                            rounding=ROUND_HALF_UP))
-
-    return vat
+    return vat.quantize(Decimal('.01'), rounding=ROUND_HALF_UP)
 
 
 def define_invoices_amounts():
@@ -4838,13 +4830,8 @@ def compute_receipt_item_vat(row):
     if not tID:
         vat = 0
     else:
-        vat_rate = db.tax_rates(tID).Percentage / 100
-
-        total_price_vat = float(row.TotalPriceVAT)
-        vat = total_price_vat - (total_price_vat / (1 + vat_rate))
-
-        vat = Decimal(Decimal(vat).quantize(Decimal('.01'),
-                                            rounding=ROUND_HALF_UP))
+        vat_rate = db.tax_rates(tID).Percentage / Decimal(100)
+        vat = row.TotalPriceVAT - (row.TotalPriceVAT / (Decimal(1) + vat_rate))
 
     return vat
 
@@ -4901,7 +4888,7 @@ def represent_tax_rate(value, row):
 
 
 def define_tax_rates():
-    float_error = T('Please enter a value between 0 and 100')
+    percentage_error = T('Please enter a value between 0 and 100')
 
     db.define_table('tax_rates',
         Field('Archived', 'boolean',
@@ -4912,9 +4899,9 @@ def define_tax_rates():
         Field('Name',
             requires=IS_NOT_EMPTY(),
             label=T('Name')),
-        Field('Percentage', 'float',
-            requires=IS_FLOAT_IN_RANGE(0,100, dot='.',
-                                       error_message=float_error),
+        Field('Percentage', 'decimal(20,2)',
+            requires=IS_DECIMAL_IN_RANGE(0,100, dot='.',
+                                       error_message=percentage_error),
             comment='A percentage as numbers only is expected (without %). Use " . " for decimals.',
             label=T('Percentage')),
         Field('VATCodeID',
