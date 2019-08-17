@@ -2908,7 +2908,7 @@ def define_customers_subscriptions():
         Field('Note', 'text',
             represent=lambda value, row: value or '',
             label=T("Note")),
-        Field('CreditsRemaining', 'decimal(20,2)',
+        Field('CreditsRemaining', 'float',
             readable=False,
             writable=False), # no actual data is stored, but used to map raw sql into DAL
         Field('PeriodCreditsAdded', 'float',
