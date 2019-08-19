@@ -2877,7 +2877,7 @@ def attendance_classes_get_content(date_start, date_end, slID, soID):
             elif row.school_holidays.id:
                 amount = max_string_length(row.school_holidays.Description, 12)
             else:
-                amount = A(represent_float_as_amount(revenue['revenue_in_vat']),
+                amount = A(represent_decimal_as_amount(revenue['revenue_in_vat']),
                            _href=URL('teacher_classes_class_revenue', vars={'clsID':row.classes.id,
                                                                           'date':date_formatted}),
                            _target='_blank')
@@ -3558,7 +3558,7 @@ def attendance_organizations_get_content(year, month):
         data.append(BR())
         data.append(DIV(DIV(T('Resolve class price'),
                             _class='col-md-5'),
-                        DIV(represent_float_as_amount(class_prices[soID]),
+                        DIV(represent_decimal_as_amount(class_prices[soID]),
                             _class='col-md-5'),
                         _class='row'))
         data.append(attendance_organizations_get_content_classes_taught(year, month, soID, formatted=True))
@@ -3852,7 +3852,7 @@ def attendance_organizations_get_content_organization_resolve(year, month, soID,
                 amount = resolve[int(row.id)]
 
                 if amount > 0:
-                    amount = represent_float_as_amount(amount)
+                    amount = represent_decimal_as_amount(amount)
                     resolve_formatted.append(DIV(DIV(row.Name, ' ', T('owes'),
                                                        _class='col-md-5'),
                                                  DIV(amount,
@@ -3900,7 +3900,7 @@ def attendance_organizations_get_content_resolve_total(year, month, organization
                 total = owes - owed
 
                 if total > 0:
-                    amount = represent_float_as_amount(total)
+                    amount = represent_decimal_as_amount(total)
                     resolve_formatted.append(DIV(DIV(row.Name, ' ', T('owes'), ' ', org.Name,
                                                      _class='col-md-5'),
                                                  DIV(amount,

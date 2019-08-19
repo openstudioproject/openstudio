@@ -968,7 +968,7 @@ class Invoice:
 
         tax_rate = db.tax_rates(tax_rates_id)
         if tax_rate:
-            percentage = float(tax_rate.Percentage / 100)
+            percentage = tax_rate.Percentage / Decimal(100)
             price = rate * (1 + percentage)
         else:
             price = rate
@@ -1016,7 +1016,7 @@ class Invoice:
         cls = Class(clsID, date)
 
         tax_rate = db.tax_rates(tax_rates_id)
-        percentage = float(tax_rate.Percentage / 100)
+        percentage = tax_rate.Percentage / Decimal(100)
         price = amount * (1 + percentage)
 
         # add item to invoice

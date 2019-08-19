@@ -178,7 +178,7 @@ class OsMail:
 
         T = current.T
         DATETIME_FORMAT = current.DATETIME_FORMAT
-        represent_float_as_amount = current.globalenv['represent_float_as_amount']
+        represent_decimal_as_amount = current.globalenv['represent_decimal_as_amount']
 
         order = Order(customers_orders_id)
         item_rows = order.get_order_items_rows()
@@ -195,7 +195,7 @@ class OsMail:
 
         # add total row
         amounts = order.get_amounts()
-        total_row = get_row(T('Total'), represent_float_as_amount(amounts.TotalPriceVAT), total=True)
+        total_row = get_row(T('Total'), represent_decimal_as_amount(amounts.TotalPriceVAT), total=True)
         order_items.append(total_row)
 
         # TODO: Add to manual & button on page available variables;

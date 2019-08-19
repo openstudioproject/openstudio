@@ -495,7 +495,7 @@ def test_school_subscriptions_get_json(client, web2py):
     subscription = web2py.db.school_subscriptions(1)
     subscription_price = web2py.db.school_subscriptions_price(1)
     assert json['data'][0]['Name'] == subscription.Name
-    assert json['data'][0]['Price'] == subscription_price.Price
+    assert json['data'][0]['Price'] == str(subscription_price.Price)
 
 
 def test_school_classcards_get_json(client, web2py):
