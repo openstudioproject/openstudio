@@ -1028,31 +1028,39 @@ ORDER BY ag.Name
         ]
 
         query = '''
-        SELECT i.id,
-               i.Status,
-               i.InvoiceID,
-               i.DateCreated,
-               ia.TotalPriceVAT,
-               ip.TotalPaid,
-               ia.TotalPriceVAT - ip.TotalPaid AS Balance,
-               au.id,
-               au.display_name
-        FROM invoices i
-        LEFT JOIN invoices_amounts ia ON ia.invoices_id = i.id
-        LEFT JOIN invoices_customers ic ON ic.invoices_id = i.id
-        LEFT JOIN auth_user au ON ic.auth_customer_id = au.id 
-        LEFT JOIN (
-            SELECT invoices_id,
-                   SUM(Amount) AS TotalPaid
-            FROM invoices_payments
-            WHERE PaymentDate <= '{date}'
-            GROUP BY invoices_id
-            ) ip ON ip.invoices_id = i.id
-        WHERE i.DateCreated <= '{date}' 
-              AND ((i.Status = 'paid') OR (i.Status = 'sent'))
-              AND ia.TotalPriceVAT > 0
-              AND ((ROUND(ip.TotalPaid, 2) < ROUND(ia.TotalPriceVAT, 2))
-                   OR (ip.TotalPaid IS NULL))
+	SELECT i.id,
+		   i.Status,
+		   i.InvoiceID,
+		   i.DateCreated,
+		   ia.TotalPriceVAT,
+		   ip.TotalPaid,
+		   ia.TotalPriceVAT - ip.TotalPaid AS Balance,
+		   au.id,
+		   au.display_name
+	FROM invoices i
+	LEFT JOIN invoices_amounts ia ON ia.invoices_id = i.id
+	LEFT JOIN invoices_customers ic ON ic.invoices_id = i.id
+	LEFT JOIN auth_user au ON ic.auth_customer_id = au.id 
+	LEFT JOIN (
+		SELECT invoices_id,
+			   SUM(Amount) AS TotalPaid
+		FROM invoices_payments
+		WHERE PaymentDate <= '{date}'
+		GROUP BY invoices_id
+		) ip ON ip.invoices_id = i.id
+	WHERE i.DateCreated <= '{date}' 
+		  AND ((i.Status = 'paid') OR (i.Status = 'sent'))
+		  AND (
+		    # Credit invoices
+		    (ia.TotalPriceVAT < 0
+			 AND ((ROUND(ip.TotalPaid, 2) > ROUND(ia.TotalPriceVAT, 2))
+			      OR (ip.TotalPaid IS NULL))) 
+			OR
+			# Regular invoices
+			 (ia.TotalPriceVAT > 0
+			  AND ((ROUND(ip.TotalPaid, 2) < ROUND(ia.TotalPriceVAT, 2))
+			  OR (ip.TotalPaid IS NULL)))
+		   )
 		'''.format(date=date)
 
         rows = db.executesql(query, fields=fields)
