@@ -219,15 +219,15 @@ def index_get_balance(debit_total=0, credit_total=0):
             _class='box-header'
         ),
         DIV(DIV(DIV(DIV(H5(T("Income"), _class='description-header'),
-                        SPAN(represent_float_as_amount(debit_total), _class='description-text'),
+                        SPAN(represent_decimal_as_amount(debit_total), _class='description-text'),
                         _class='description-block'),
                     _class='col-md-4 border-right'),
                 DIV(DIV(H5(T("Expenses"), _class='description-header'),
-                        SPAN(represent_float_as_amount(credit_total), _class='description-text'),
+                        SPAN(represent_decimal_as_amount(credit_total), _class='description-text'),
                         _class='description-block'),
                     _class='col-md-4 border-right'),
                 DIV(DIV(H5(T("Balance"), _class='description-header'),
-                        SPAN(represent_float_as_amount(balance), _class='description-text ' + balance_class),
+                        SPAN(represent_decimal_as_amount(balance), _class='description-text ' + balance_class),
                         _class='description-block'),
                     _class='col-md-4'),
                 _class='row'),
@@ -525,7 +525,7 @@ def cash_count_get(date, count_type):
                 header,
                 TR(TD(A(au.display_name,
                         _href=URL('customers', 'edit', args=[au.id]))),
-                   TH(represent_float_as_amount(total))),
+                   TH(represent_decimal_as_amount(total))),
                 _class='table table-striped table-hover'
                 ),
         _class='box-body no-padding')
@@ -622,7 +622,7 @@ def get_debit_classes(date, list_type='balance'):
             TD(cls['Starttime']),
             TD(max_string_length(cls['Location'], 18)),
             TD(max_string_length(cls['ClassType'], 18)),
-            TD(represent_float_as_amount(amount))
+            TD(represent_decimal_as_amount(amount))
         )
 
         table.append(tr)
@@ -632,7 +632,7 @@ def get_debit_classes(date, list_type='balance'):
         TH(),
         TH(),
         TH(T('Total')),
-        TH(represent_float_as_amount(total))
+        TH(represent_decimal_as_amount(total))
     )))
 
     box = DIV(
@@ -683,8 +683,8 @@ def get_debit_classcards(date):
         table.append(TR(
             TD(row.school_classcards.Name),
             TD(cards_sold),
-            TD(represent_float_as_amount(row.school_classcards.Price)),
-            TD(represent_float_as_amount(row_total))
+            TD(represent_decimal_as_amount(row.school_classcards.Price)),
+            TD(represent_decimal_as_amount(row_total))
         ))
 
         total += row_total
@@ -694,7 +694,7 @@ def get_debit_classcards(date):
         TH(),
         TH(),
         TH(T("Total")),
-        TH(represent_float_as_amount(total))
+        TH(represent_decimal_as_amount(total))
     )))
 
     box = DIV(
@@ -745,8 +745,8 @@ def get_debit_subscriptions(date):
         table.append(TR(
             TD(max_string_length(row.school_subscriptions.Name, 40)),
             TD(subscriptions_sold),
-            TD(represent_float_as_amount(row.school_subscriptions_price.Price)),
-            TD(represent_float_as_amount(row_total))
+            TD(represent_decimal_as_amount(row.school_subscriptions_price.Price)),
+            TD(represent_decimal_as_amount(row_total))
         ))
 
         total += row_total
@@ -756,7 +756,7 @@ def get_debit_subscriptions(date):
         TH(),
         TH(),
         TH(T("Total")),
-        TH(represent_float_as_amount(total))
+        TH(represent_decimal_as_amount(total))
     )))
 
     box = DIV(
@@ -807,8 +807,8 @@ def get_debit_memberships(date):
         table.append(TR(
             TD(row.school_memberships.Name),
             TD(cards_sold),
-            TD(represent_float_as_amount(row.school_memberships.Price)),
-            TD(represent_float_as_amount(row_total))
+            TD(represent_decimal_as_amount(row.school_memberships.Price)),
+            TD(represent_decimal_as_amount(row_total))
         ))
 
         total += row_total
@@ -818,7 +818,7 @@ def get_debit_memberships(date):
         TH(),
         TH(),
         TH(T("Total")),
-        TH(represent_float_as_amount(total))
+        TH(represent_decimal_as_amount(total))
     )))
 
     box = DIV(
@@ -864,7 +864,7 @@ def get_debit_sales_summary(date):
 
         table.append(TR(
             TD(record[1]),
-            TD(represent_float_as_amount(record[0])),
+            TD(represent_decimal_as_amount(record[0])),
         ))
 
         total += record[0]
@@ -872,7 +872,7 @@ def get_debit_sales_summary(date):
     # cards sold footer
     table.append(TFOOT(TR(
         TH(T("Total")),
-        TH(represent_float_as_amount(total))
+        TH(represent_decimal_as_amount(total))
     )))
 
     box = DIV(
@@ -929,8 +929,8 @@ def get_credit_classcards_used_classes_summary(date):
         table.append(TR(
             TD(max_string_length(row.school_classcards.Name, 46)),
             TD(classes_taken),
-            TD(represent_float_as_amount(class_price)),
-            TD(represent_float_as_amount(row_total))
+            TD(represent_decimal_as_amount(class_price)),
+            TD(represent_decimal_as_amount(row_total))
         ))
 
         total += row_total
@@ -940,7 +940,7 @@ def get_credit_classcards_used_classes_summary(date):
         TH(),
         TH(),
         TH(T("Total")),
-        TH(represent_float_as_amount(total))
+        TH(represent_decimal_as_amount(total))
     )))
 
     box = DIV(
@@ -1038,8 +1038,8 @@ def get_credit_subscriptions_classes_summary(date):
         table.append(TR(
             TD(max_string_length(row.school_subscriptions.Name, 46)),
             TD(classes_taken),
-            TD(represent_float_as_amount(class_price)),
-            TD(represent_float_as_amount(row_total))
+            TD(represent_decimal_as_amount(class_price)),
+            TD(represent_decimal_as_amount(row_total))
         ))
 
         total += row_total
@@ -1049,7 +1049,7 @@ def get_credit_subscriptions_classes_summary(date):
         TH(),
         TH(),
         TH(T("Total")),
-        TH(represent_float_as_amount(total))
+        TH(represent_decimal_as_amount(total))
     )))
 
     box = DIV(
@@ -1095,7 +1095,7 @@ def get_credit_shop_sales_not_paid_with_cash(date):
     table = TABLE(header, _class='table table-striped table-hover')
     table.append(TR(
         TD(T("Paid not using cash")),
-        TD(represent_float_as_amount(amount)),
+        TD(represent_decimal_as_amount(amount)),
     ))
 
 

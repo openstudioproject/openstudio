@@ -60,8 +60,8 @@ def index():
 
         content.append(TR(
             TD(repr_row.invoices_items.tax_rates_id or "Not specified"),
-            TD(SPAN(represent_float_as_amount(row[sum_total]), _class='pull-right')),
-            TD(SPAN(represent_float_as_amount(row[sum_vat]), _class='pull-right')),
+            TD(SPAN(represent_decimal_as_amount(row[sum_total]), _class='pull-right')),
+            TD(SPAN(represent_decimal_as_amount(row[sum_vat]), _class='pull-right')),
             TD(details)
         ))
 
@@ -367,13 +367,13 @@ def details():
 
     totals = DIV(
         DIV(LABEL(T("Sub total")), BR(),
-            represent_float_as_amount(subtotal),
+            represent_decimal_as_amount(subtotal),
             _class='col-md-2'),
         DIV(LABEL(T("VAT")), BR(),
-            represent_float_as_amount(vat),
+            represent_decimal_as_amount(vat),
             _class='col-md-2'),
         DIV(LABEL(T("Total")), BR(),
-            represent_float_as_amount(total),
+            represent_decimal_as_amount(total),
             _class='col-md-2'),
         _class='row'
     )

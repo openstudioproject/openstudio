@@ -925,8 +925,8 @@ def event_ticket_get_info(wsp):
     info = UL(
         LI(B(T("Workshop")), BR(), wsp.workshop_name),
         LI(B(T("Ticket")), BR(), wsp.name),
-        # LI(B(T("Price")), BR(), represent_float_as_amount(wsp.price)),
-        LI(B(T("Price")), BR(), represent_float_as_amount(wsp.get_price_for_customer(auth.user.id))),
+        # LI(B(T("Price")), BR(), represent_decimal_as_amount(wsp.price)),
+        LI(B(T("Price")), BR(), represent_decimal_as_amount(wsp.get_price_for_customer(auth.user.id))),
     )
 
     if wsp.description:
@@ -1173,7 +1173,7 @@ def membership_get_info(sm):
     """
     info = UL(
         LI(B(T("Membership")), BR(), sm.row.Name),
-        LI(B(T("Price")), BR(), represent_float_as_amount(sm.row.Price)),
+        LI(B(T("Price")), BR(), represent_decimal_as_amount(sm.row.Price)),
         LI(B(T("Validity")), BR(), sm.get_validity_formatted()),
     )
     if sm.row.Description:
@@ -1529,7 +1529,7 @@ def subscription_get_membership_info(sm):
     info = UL(
         LI(B(T("Membership")), BR(), sm.row.Name),
         LI(B(T("Validity")), BR(), sm.get_validity_formatted()),
-        LI(B(T("Price")), BR(), represent_float_as_amount(sm.row.Price)),
+        LI(B(T("Price")), BR(), represent_decimal_as_amount(sm.row.Price)),
     )
 
     if sm.row.Description:
@@ -1910,7 +1910,7 @@ def classcard_get_info(scd):
     info = UL(
         LI(B(T("Card")), BR(), scd.row.Name),
         LI(B(T("Classes")), BR(), scd.row.Classes),
-        LI(B(T("Price")), BR(), represent_float_as_amount(scd.row.Price)),
+        LI(B(T("Price")), BR(), represent_decimal_as_amount(scd.row.Price)),
         LI(B(T("Validity")), BR(), scd.get_validity_formatted()),
     )
     if scd.row.Description:
@@ -2806,7 +2806,7 @@ def class_checkout_get_info(cls, dropin, trial):
         LI(B(T("Location")), BR(), cls.get_location_name()),
         LI(B(T("Type")), BR(), T("Drop in") if dropin else T("Trial")),
         LI(B(T("Price")), BR(),
-           represent_float_as_amount(prices['dropin'] if dropin else prices['trial'])),
+           represent_decimal_as_amount(prices['dropin'] if dropin else prices['trial'])),
     )
 
     return info

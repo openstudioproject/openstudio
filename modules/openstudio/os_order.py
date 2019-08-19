@@ -340,7 +340,7 @@ class Order:
 
         :return: html table with simple order summary
         """
-        represent_float_as_amount = current.globalenv['represent_float_as_amount']
+        represent_decimal_as_amount = current.globalenv['represent_decimal_as_amount']
         T = current.T
 
         rows = self.get_order_items_rows()
@@ -359,7 +359,7 @@ class Order:
         amounts = self.get_amounts()
         table.append(TFOOT(TR(
             TH(T("Total")),
-            TH(SPAN(represent_float_as_amount(amounts.TotalPriceVAT),
+            TH(SPAN(represent_decimal_as_amount(amounts.TotalPriceVAT),
                     _class='pull-right'))
         )))
 

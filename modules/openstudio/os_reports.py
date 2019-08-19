@@ -315,7 +315,7 @@ class Reports:
         from decimal import Decimal, ROUND_HALF_UP
 
         T = current.T
-        represent_float_as_amount = current.globalenv['represent_float_as_amount']
+        represent_decimal_as_amount = current.globalenv['represent_decimal_as_amount']
 
         revenue = self.get_class_revenue_summary(
             clsID=clsID,
@@ -337,8 +337,8 @@ class Reports:
             TD(revenue['trial']['no_membership']['count']),
             TD(0),
             TD(revenue['trial']['no_membership']['count']),
-            TD(represent_float_as_amount(revenue['trial']['no_membership']['amount'])),
-            TD(represent_float_as_amount(
+            TD(represent_decimal_as_amount(revenue['trial']['no_membership']['amount'])),
+            TD(represent_decimal_as_amount(
                 revenue['trial']['no_membership']['amount'] * revenue['trial']['no_membership']['count']
             )),
         )
@@ -348,8 +348,8 @@ class Reports:
             TD(revenue['trial']['membership']['count']),
             TD(0),
             TD(revenue['trial']['membership']['count']),
-            TD(represent_float_as_amount(revenue['trial']['membership']['amount'])),
-            TD(represent_float_as_amount(
+            TD(represent_decimal_as_amount(revenue['trial']['membership']['amount'])),
+            TD(represent_decimal_as_amount(
                 revenue['trial']['membership']['amount'] * revenue['trial']['membership']['count']
             )),
         )
@@ -359,8 +359,8 @@ class Reports:
             TD(revenue['dropin']['no_membership']['count']),
             TD(0),
             TD(revenue['dropin']['no_membership']['count']),
-            TD(represent_float_as_amount(revenue['dropin']['no_membership']['amount'])),
-            TD(represent_float_as_amount(
+            TD(represent_decimal_as_amount(revenue['dropin']['no_membership']['amount'])),
+            TD(represent_decimal_as_amount(
                 revenue['dropin']['no_membership']['amount'] * revenue['dropin']['no_membership']['count']
             )),
         )
@@ -370,8 +370,8 @@ class Reports:
             TD(revenue['dropin']['membership']['count']),
             TD(0),
             TD(revenue['dropin']['membership']['count']),
-            TD(represent_float_as_amount(revenue['dropin']['membership']['amount'])),
-            TD(represent_float_as_amount(
+            TD(represent_decimal_as_amount(revenue['dropin']['membership']['amount'])),
+            TD(represent_decimal_as_amount(
                 revenue['dropin']['membership']['amount'] * revenue['dropin']['membership']['count']
             )),
         )
@@ -395,8 +395,8 @@ class Reports:
                 TD(count),
                 TD(0),
                 TD(count),
-                TD(represent_float_as_amount(amount)),
-                TD(represent_float_as_amount(amount * count))
+                TD(represent_decimal_as_amount(amount)),
+                TD(represent_decimal_as_amount(amount * count))
             ))
 
         # staff subscriptions
@@ -409,8 +409,8 @@ class Reports:
                 TD(0),
                 TD(count),
                 TD(count),
-                TD(represent_float_as_amount(amount)),
-                TD(represent_float_as_amount(amount * count))
+                TD(represent_decimal_as_amount(amount)),
+                TD(represent_decimal_as_amount(amount * count))
             ))
 
         # class cards
@@ -423,8 +423,8 @@ class Reports:
                 TD(count),
                 TD(0),
                 TD(count),
-                TD(represent_float_as_amount(amount)),
-                TD(represent_float_as_amount(amount * count))
+                TD(represent_decimal_as_amount(amount)),
+                TD(represent_decimal_as_amount(amount * count))
             ))
 
         # Complementary
@@ -444,7 +444,7 @@ class Reports:
             TH(revenue['total']['count_unpaid']),
             TH(revenue['total']['count_total']),
             TH(),
-            TH(represent_float_as_amount(revenue['total']['amount'])),
+            TH(represent_decimal_as_amount(revenue['total']['amount'])),
         ))
 
         table_revenue.append(footer)
@@ -456,7 +456,7 @@ class Reports:
         teacher_payment = cls.get_teacher_payment()
         if not teacher_payment['error']:
             tp_amount = teacher_payment['data']['ClassRate']
-            tp_display = represent_float_as_amount(tp_amount)
+            tp_display = represent_decimal_as_amount(tp_amount)
         else:
             tp_amount = 0
             tp_display = teacher_payment['data']
@@ -468,7 +468,7 @@ class Reports:
 
         attendance = TR(
             TD(T('Attendance')),
-            TD(represent_float_as_amount(revenue['total']['amount']))
+            TD(represent_decimal_as_amount(revenue['total']['amount']))
         )
 
         teacher_payment = TR(
@@ -476,7 +476,7 @@ class Reports:
             TD(tp_display)
         )
 
-        total = represent_float_as_amount(revenue['total']['amount'] - tp_amount)
+        total = represent_decimal_as_amount(revenue['total']['amount'] - tp_amount)
         footer = TFOOT(TR(
             TH(T('Total')),
             TH(total)
@@ -523,7 +523,7 @@ class Reports:
         from .os_class import Class
 
         get_sys_property = current.globalenv['get_sys_property']
-        represent_float_as_amount = current.globalenv['represent_float_as_amount']
+        represent_decimal_as_amount = current.globalenv['represent_decimal_as_amount']
         response = current.response
 
         template = get_sys_property('branding_default_template_class_revenue') or 'class_revenue/default.html'
@@ -540,7 +540,7 @@ class Reports:
                                     teacher_payment=teacher_payment,
                                     logo=self._get_class_revenue_summary_pdf_template_get_logo(),
                                     max_string_length=max_string_length,
-                                    represent_float_as_amount=represent_float_as_amount,
+                                    represent_decimal_as_amount=represent_decimal_as_amount,
                                 ))
 
         return html
@@ -1028,31 +1028,39 @@ ORDER BY ag.Name
         ]
 
         query = '''
-        SELECT i.id,
-               i.Status,
-               i.InvoiceID,
-               i.DateCreated,
-               ia.TotalPriceVAT,
-               ip.TotalPaid,
-               ia.TotalPriceVAT - ip.TotalPaid AS Balance,
-               au.id,
-               au.display_name
-        FROM invoices i
-        LEFT JOIN invoices_amounts ia ON ia.invoices_id = i.id
-        LEFT JOIN invoices_customers ic ON ic.invoices_id = i.id
-        LEFT JOIN auth_user au ON ic.auth_customer_id = au.id 
-        LEFT JOIN (
-            SELECT invoices_id,
-                   SUM(Amount) AS TotalPaid
-            FROM invoices_payments
-            WHERE PaymentDate <= '{date}'
-            GROUP BY invoices_id
-            ) ip ON ip.invoices_id = i.id
-        WHERE i.DateCreated <= '{date}' 
-              AND ((i.Status = 'paid') OR (i.Status = 'sent'))
-              AND ia.TotalPriceVAT > 0
-              AND ((ROUND(ip.TotalPaid, 2) < ROUND(ia.TotalPriceVAT, 2))
-                   OR (ip.TotalPaid IS NULL))
+	SELECT i.id,
+		   i.Status,
+		   i.InvoiceID,
+		   i.DateCreated,
+		   ia.TotalPriceVAT,
+		   ip.TotalPaid,
+		   ia.TotalPriceVAT - ip.TotalPaid AS Balance,
+		   au.id,
+		   au.display_name
+	FROM invoices i
+	LEFT JOIN invoices_amounts ia ON ia.invoices_id = i.id
+	LEFT JOIN invoices_customers ic ON ic.invoices_id = i.id
+	LEFT JOIN auth_user au ON ic.auth_customer_id = au.id 
+	LEFT JOIN (
+		SELECT invoices_id,
+			   SUM(Amount) AS TotalPaid
+		FROM invoices_payments
+		WHERE PaymentDate <= '{date}'
+		GROUP BY invoices_id
+		) ip ON ip.invoices_id = i.id
+	WHERE i.DateCreated <= '{date}' 
+		  AND ((i.Status = 'paid') OR (i.Status = 'sent'))
+		  AND (
+		    # Credit invoices
+		    (ia.TotalPriceVAT < 0
+			 AND ((ROUND(ip.TotalPaid, 2) > ROUND(ia.TotalPriceVAT, 2))
+			      OR (ip.TotalPaid IS NULL))) 
+			OR
+			# Regular invoices
+			 (ia.TotalPriceVAT > 0
+			  AND ((ROUND(ip.TotalPaid, 2) < ROUND(ia.TotalPriceVAT, 2))
+			  OR (ip.TotalPaid IS NULL)))
+		   )
 		'''.format(date=date)
 
         rows = db.executesql(query, fields=fields)

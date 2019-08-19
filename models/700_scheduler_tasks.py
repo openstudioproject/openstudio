@@ -111,7 +111,7 @@ def task_mollie_subscription_invoices_and_payments():
                     payment = mollie.payments.create({
                         'amount': {
                             'currency': CURRENCY,
-                            'value': format(invoice_amounts.TotalPriceVAT, '.2f')
+                            'value': str(invoice_amounts.TotalPriceVAT)
                         },
                         'customerId': mollie_customer_id,
                         'sequenceType': 'recurring',  # important

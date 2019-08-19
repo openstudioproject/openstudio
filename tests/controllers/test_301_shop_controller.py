@@ -535,8 +535,8 @@ def test_classes_book_options(client, web2py):
 
     # check drop in and trial price listing
     class_prices = web2py.db.classes_price(1)
-    assert format(class_prices.Dropin, '.2f') in client.text
-    assert format(class_prices.Trial, '.2f') in client.text
+    assert str(class_prices.Dropin) in client.text
+    assert str(class_prices.Trial) in client.text
 
     # Check request review check-in option not available
     assert 'Request review' not in client.text
@@ -568,8 +568,8 @@ def test_classes_book_options_trial_disabled_from_system_settings(client, web2py
 
     # check drop in and trial price listing
     class_prices = web2py.db.classes_price(1)
-    assert format(class_prices.Dropin, '.2f') in client.text
-    assert format(class_prices.Trial, '.2f') not in client.text
+    assert str(class_prices.Dropin) in client.text
+    assert str(class_prices.Trial) not in client.text
 
     # Check request review check-in option not available
     assert 'Request review' not in client.text
@@ -650,8 +650,8 @@ def test_classes_book_options_dropin_trial_membership_prices(client, web2py):
 
     # check drop in and trial price listing
     class_prices = web2py.db.classes_price(1)
-    assert format(class_prices.DropinMembership, '.2f') in client.text
-    assert format(class_prices.TrialMembership, '.2f') in client.text
+    assert str(class_prices.DropinMembership) in client.text
+    assert str(class_prices.TrialMembership) in client.text
 
 
 def test_classes_book_options_not_yet_open(client, web2py):
@@ -1797,7 +1797,7 @@ def test_event_price(client, web2py):
 
     # Verify regular price
     wsp = web2py.db.workshops_products(1)
-    assert format(wsp.Price, '.2f') + '</span>' in client.text
+    assert str(wsp.Price) + '</span>' in client.text
 
 
 def test_event_price_earlybird(client, web2py):
@@ -1821,7 +1821,7 @@ def test_event_price_earlybird(client, web2py):
 
     # Verify regular price
     wsp = web2py.db.workshops_products(1)
-    assert format(wsp.PriceEarlybird, '.2f') + '</span>' in client.text
+    assert str(wsp.PriceEarlybird) + '</span>' in client.text
 
 
 def test_event_price_subscription(client, web2py):
@@ -1849,7 +1849,7 @@ def test_event_price_subscription(client, web2py):
 
     # Verify regular price
     wsp = web2py.db.workshops_products(1)
-    assert format(wsp.PriceSubscription, '.2f') + '</span>' in client.text
+    assert str(wsp.PriceSubscription) + '</span>' in client.text
 
 
 def test_event_price_subscription_earlybird(client, web2py):
@@ -1881,7 +1881,7 @@ def test_event_price_subscription_earlybird(client, web2py):
 
     # Verify regular price
     wsp = web2py.db.workshops_products(1)
-    assert format(wsp.PriceSubscriptionEarlybird, '.2f') + '</span>' in client.text
+    assert str(wsp.PriceSubscriptionEarlybird) + '</span>' in client.text
 
 
 def test_event_ticket_requires_complete_profile(client, web2py):

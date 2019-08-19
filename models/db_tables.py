@@ -1,6 +1,7 @@
 # coding: utf8
 import datetime
 import pytz
+from decimal import Decimal, ROUND_HALF_UP
 
 from gluon.scheduler import Scheduler
 from gluon import current
@@ -22,7 +23,6 @@ from general_helpers import create_employees_dict
 from general_helpers import create_locations_dict
 from general_helpers import create_classtypes_dict
 
-from decimal import Decimal, ROUND_HALF_UP
 
 # init scheduler
 scheduler = Scheduler(
@@ -399,6 +399,19 @@ def represent_float_as_amount(value, row=None):
         return SPAN(CURRSYM, ' ', format(value, '.2f'))
 
 
+def represent_decimal_as_amount(value, row=None):
+    """
+    Represent decimal values
+    :param value:
+    :param row:
+    :return:
+    """
+    if value is None or not isinstance(value, Decimal):
+        return ''
+    else:
+        return SPAN(CURRSYM, ' ', value)
+
+
 def represent_boolean_as_checkbox(value, row=None):
     """
     :return: disabled html checkbox
@@ -721,10 +734,10 @@ def define_sys_organizations():
             label=T('Link to Privacy notice')),
         Field('PrivacyNoticeVersion',
             label=T('Privacy notice version')),
-        Field('ReportsClassPrice', 'float',
+        Field('ReportsClassPrice', 'decimal(20,2)',
             readable=False,
             writable=False,
-            represent=represent_float_as_amount,
+            represent=represent_decimal_as_amount,
             label=T('Resolve class price'),
             comment=T('Class price used when a customer from another organization takes a class')),
         format='%(Name)s')
@@ -893,8 +906,8 @@ def define_accounting_cashbooks_cash_count():
               ['closing', T("Closing balance")]
             ]),
             label=T("Balance type") ),
-        Field('Amount', 'double',
-            represent=represent_float_as_amount,
+        Field('Amount', 'decimal(20,2)',
+            represent=represent_decimal_as_amount,
             default=0,
             label=T("Amount")),
         Field('Note', 'text',
@@ -927,8 +940,8 @@ def define_accounting_cashbooks_cash_count():
 #               ['debit', T("Debit / In")],
 #               ['credit', T("Credit / Out")]
 #             ])),
-#         Field('Amount', 'double',
-#             represent=represent_float_as_amount,
+#         Field('Amount', 'decimal(20,2)',
+#             represent=represent_decimal_as_amount,
 #             default=0,
 #             label=T("Amount")),
 #         Field('Description',
@@ -957,10 +970,10 @@ def define_accounting_expenses():
                                         maximum=datetime.date(2999, 1, 1)),
               represent=represent_date,
               label=T("Booking date")),
-        Field('Amount', 'double',
-              requires=IS_FLOAT_IN_RANGE(0, 100000, dot=".",
+        Field('Amount', 'decimal(20,2)',
+              requires=IS_DECIMAL_IN_RANGE(0, 100000, dot=".",
                 error_message='Please enter an amount between 0 and 100000.00'),
-              represent=represent_float_as_amount,
+              represent=represent_decimal_as_amount,
               default=0,
               label=T("Amount")),
         Field('tax_rates_id', db.tax_rates,
@@ -1274,11 +1287,11 @@ def define_school_classcards():
         Field('Description',
             represent=lambda value, row:  value or '',
             label=T('Description')),
-        Field('Price', 'float', required=True,
-            requires=IS_FLOAT_IN_RANGE(0,99999999, dot='.',
+        Field('Price', 'decimal(20,2)', required=True,
+            requires=IS_DECIMAL_IN_RANGE(0,99999999, dot='.',
                 error_message=T('Too small or too large')),
             #represent = lambda value, row: SPAN(CURRSYM , ' ', format(value, '.2f')),
-            represent = represent_float_as_amount,
+            represent = represent_decimal_as_amount,
             label=T("Price incl. VAT")),
         Field('tax_rates_id', db.tax_rates,
             label=T('Tax rate')),
@@ -1321,7 +1334,7 @@ def define_school_classcards():
               label=T("Requires membership"),
               comment=T(
                   "Set a required membership for this card. Without this memberships customers won't be able to buy this card or use it to attend classes.")),
-        Field('QuickStatsAmount', 'double',
+        Field('QuickStatsAmount', 'decimal(20,2)',
               label=T('Quick Stats Amount'),
               default=0,
               comment=T(
@@ -1406,11 +1419,11 @@ def define_school_memberships():
             label= T("Name")),
         Field('Description',
              label=T('Description')),
-        Field('Price', 'float', required=True,
-              requires=IS_FLOAT_IN_RANGE(0, 99999999, dot='.',
+        Field('Price', 'decimal(20, 2)', required=True,
+              requires=IS_DECIMAL_IN_RANGE(0, 99999999, dot='.',
                                          error_message=T('Too small or too large')),
               # represent = lambda value, row: SPAN(CURRSYM , ' ', format(value, '.2f')),
-              represent=represent_float_as_amount,
+              represent=represent_decimal_as_amount,
               label=T("Price incl. VAT")),
         Field('tax_rates_id', db.tax_rates,
               represent=represent_tax_rate,
@@ -1539,12 +1552,12 @@ def define_school_subscriptions():
         Field('ClassCheckinLimit', 'integer',
             label=T("Class check-in limit"),
             comment=T("Limit number of check-ins / class for this subscription. Leave empty for unlimited. (Useful for staff subscriptions for example.)")),
-        Field('QuickStatsAmount', 'double',
+        Field('QuickStatsAmount', 'decimal(20,2)',
               label=T('Quick Stats Amount'),
               default=0,
               comment=T("As for subscription it's impossible to know the exact revenue for each class until the end of the month. This amount will be used to create rough estimates of class revenue.")
               ),
-        Field('RegistrationFee', 'double',
+        Field('RegistrationFee', 'decimal(20,2)',
               label=T('Registration Fee'),
               default = 0,
               comment=T("This Amount will be added to the first invoice for this subscription. Set to 0 for no registration fee."),
@@ -1636,10 +1649,10 @@ def define_school_subscriptions_price():
                        maximum=datetime.date(2999,12,31))),
             represent=represent_date,
             widget=os_datepicker_widget),
-        Field('Price', 'float', required=True,
-            requires=IS_FLOAT_IN_RANGE(0,99999999, dot='.',
+        Field('Price', 'decimal(20,2)', required=True,
+            requires=IS_DECIMAL_IN_RANGE(0,99999999, dot='.',
                 error_message=T('Too small or too large')),
-            represent = represent_float_as_amount,
+            represent = represent_decimal_as_amount,
             label=T("Monthly Fee incl VAT")),
         Field('tax_rates_id', db.tax_rates,
             label=T('Tax rate')),
@@ -1730,10 +1743,10 @@ def define_teachers_payment_fixed_rate_default():
         Field('auth_teacher_id', db.auth_user,
               readable=False,
               writable=False),
-        Field('ClassRate', 'double',
-              requires=IS_FLOAT_IN_RANGE(0, 99999999, dot='.',
+        Field('ClassRate', 'decimal(20,2)',
+              requires=IS_DECIMAL_IN_RANGE(0, 99999999, dot='.',
                                          error_message=T('Too small or too large')),
-              represent=represent_float_as_amount,
+              represent=represent_decimal_as_amount,
               label=T("Class Rate excl. VAT")),
         Field('tax_rates_id', db.tax_rates,
             label=T('Tax rate')),
@@ -1748,10 +1761,10 @@ def define_teachers_payment_fixed_rate_class():
         Field('classes_id', db.classes,
               readable=False,
               writable=False),
-        Field('ClassRate', 'double',
-              requires=IS_FLOAT_IN_RANGE(0, 99999999, dot='.',
+        Field('ClassRate', 'decimal(20,2)',
+              requires=IS_DECIMAL_IN_RANGE(0, 99999999, dot='.',
                                          error_message=T('Too small or too large')),
-              represent=represent_float_as_amount,
+              represent=represent_decimal_as_amount,
               label=T("Class Rate excl. VAT")),
         Field('tax_rates_id', db.tax_rates,
             label=T('Tax rate')),
@@ -1772,10 +1785,10 @@ def define_teachers_payment_fixed_rate_travel():
                                 zero=T("Please select...")),
               represent=lambda value, row: locations_dict.get(value, T("No location")),
               label=T("Location")),
-        Field('TravelAllowance', 'double',
-              requires=IS_FLOAT_IN_RANGE(0, 99999999, dot='.',
+        Field('TravelAllowance', 'decimal(20,2)',
+              requires=IS_DECIMAL_IN_RANGE(0, 99999999, dot='.',
                                          error_message=T('Too small or too large')),
-              represent=represent_float_as_amount,
+              represent=represent_decimal_as_amount,
               label=T("Travel Allowance excl. VAT")),
         Field('tax_rates_id', db.tax_rates,
             label=T('Tax rate')),
@@ -1796,10 +1809,10 @@ def define_teachers_payment_travel():
                                 zero=T("Please select...")),
               represent=lambda value, row: locations_dict.get(value, T("No location")),
               label=T("Location")),
-        Field('TravelAllowance', 'double',
-              requires=IS_FLOAT_IN_RANGE(0, 99999999, dot='.',
+        Field('TravelAllowance', 'decimal(20,2)',
+              requires=IS_DECIMAL_IN_RANGE(0, 99999999, dot='.',
                                          error_message=T('Too small or too large')),
-              represent=represent_float_as_amount,
+              represent=represent_decimal_as_amount,
               label=T("Travel Allowance excl. VAT")),
         Field('tax_rates_id', db.tax_rates,
             label=T('Tax rate')),
@@ -1837,8 +1850,8 @@ def define_teachers_payment_attendance_lists_rates():
                label = T("Attendance Number"),
               writable=False
             ),
-        Field('Rate','double',
-              requires=IS_FLOAT_IN_RANGE(0, 99999999, dot='.',
+        Field('Rate','decimal(20,2)',
+              requires=IS_DECIMAL_IN_RANGE(0, 99999999, dot='.',
                                          error_message=T('Too small or too large')),
               label=T("Attendance List Rate excl. VAT"),
               ),
@@ -1887,8 +1900,8 @@ def define_teachers_payment_classes():
             represent=lambda value, row: teachers_dict.get(value, None),
             #represent=lambda value, row: value or '',
             label=T("Teacher 2")),
-        Field('ClassRate', 'double',
-              represent=represent_float_as_amount),
+        Field('ClassRate', 'decimal(20,2)',
+              represent=represent_decimal_as_amount),
         Field('RateType',
               readable=False,
               writable=False,
@@ -1901,8 +1914,8 @@ def define_teachers_payment_classes():
         Field('tax_rates_id', db.tax_rates,
               readable=False,
               writable=False),
-        Field('TravelAllowance', 'double',
-              represent=represent_float_as_amount),
+        Field('TravelAllowance', 'decimal(20,2)',
+              represent=represent_decimal_as_amount),
         Field('tax_rates_id_travel_allowance', db.tax_rates),
         Field('VerifiedBy', db.auth_user,
               readable=False,
@@ -1981,9 +1994,9 @@ def define_alternativepayments():
             default=TODAY_LOCAL.month,
             represent=NRtoMonth,
             label=T("Month")),
-        Field('Amount', 'double', required=True,
+        Field('Amount', 'decimal(20,2)', required=True,
             requires=IS_NOT_EMPTY(),
-            represent = lambda value, row: format(value, '.2f'),
+            represent = represent_decimal_as_amount,
             label=T("Amount")),
         Field('payment_categories_id', db.payment_categories,
             requires=IS_EMPTY_OR(IS_IN_DB(db(pc_query),
@@ -2041,13 +2054,13 @@ def define_employee_claims():
               readable=False,
               writable=False,
               label=T('Employee/Teacher')),
-        Field('Amount', 'double',
+        Field('Amount', 'decimal(20,2)',
               default=0,
-              represent=represent_float_as_amount,
+              represent=represent_decimal_as_amount,
               label=T("Amount (incl. VAT)")),
-        Field('Quantity', 'double',
+        Field('Quantity', 'decimal(20,2)',
               default=1,
-              # represent=represent_float_as_amount,
+              # represent=represent_decimal_as_amount,
               label=T("Quantity")),
         Field('tax_rates_id', db.tax_rates,
               label= T('Tax Rate')),
@@ -2408,14 +2421,14 @@ def define_classes_price():
             represent=represent_date,
             label=T("End date"),
             widget=os_datepicker_widget),
-        Field('Dropin', 'double', required=False,
-            represent=represent_float_as_amount,
+        Field('Dropin', 'decimal(20,2)', required=False,
+            represent=represent_decimal_as_amount,
             default=0,
             label=T("Drop-in incl. VAT")),
         Field('tax_rates_id_dropin', db.tax_rates,
             label=T('Drop-in tax rate')),
-        Field('DropinMembership', 'double', required=False,
-              represent=represent_float_as_amount,
+        Field('DropinMembership', 'decimal(20,2)', required=False,
+              represent=represent_decimal_as_amount,
               default=0,
               label=T("Drop-in membership price incl. VAT")),
         Field('tax_rates_id_dropin_membership', db.tax_rates,
@@ -2434,14 +2447,14 @@ def define_classes_price():
               represent=represent_accounting_costcenter,
               label=T("Drop-in Cost center"),
               comment=T("Cost center code in your accounting software")),
-        Field('Trial', 'double', required=False,
-            represent=represent_float_as_amount,
+        Field('Trial', 'decimal(20,2)', required=False,
+            represent=represent_decimal_as_amount,
             default=0,
             label=T("Trial incl. VAT")),
         Field('tax_rates_id_trial', db.tax_rates,
             label=T('Trial tax rate')),
-        Field('TrialMembership', 'double', required=False,
-            represent=represent_float_as_amount,
+        Field('TrialMembership', 'decimal(20,2)', required=False,
+            represent=represent_decimal_as_amount,
             default=0,
             label=T("Trial membership price incl. VAT")),
         Field('tax_rates_id_trial_membership', db.tax_rates,
@@ -3058,9 +3071,9 @@ def define_customers_subscriptions_alt_prices():
         Field('SubscriptionYear', 'integer',
             default=TODAY_LOCAL.year,
             label=T('Year')),
-        Field('Amount', 'double', required=True,
+        Field('Amount', 'decimal(20,2)', required=True,
             requires=IS_NOT_EMPTY(),
-            represent = represent_float_as_amount,
+            represent = represent_decimal_as_amount,
             label=T("Amount")),
         Field('Description',
             represent=lambda value, row: value or "",
@@ -3642,26 +3655,26 @@ def define_workshops_products():
         Field('Name',
             requires=IS_NOT_EMPTY(),
             label=T('Name')),
-        Field('Price', 'double', required=True,
-            requires=IS_FLOAT_IN_RANGE(0,99999999, dot='.',
+        Field('Price', 'decimal(20,2)', required=True,
+            requires=IS_DECIMAL_IN_RANGE(0,99999999, dot='.',
                 error_message=T('Too small or too large')),
-            represent=represent_float_as_amount,
+            represent=represent_decimal_as_amount,
             label=T("Price incl. VAT")),
-        Field('PriceSubscription', 'double',
-            requires=IS_EMPTY_OR(IS_FLOAT_IN_RANGE(0,99999999, dot='.',
+        Field('PriceSubscription', 'decimal(20,2)',
+            requires=IS_EMPTY_OR(IS_DECIMAL_IN_RANGE(0,99999999, dot='.',
                 error_message=T('Too small or too large'))),
-            represent=represent_float_as_amount,
+            represent=represent_decimal_as_amount,
             label=T("Subscription price incl. VAT"),
             comment=T("This price will be applied when a customer has a subscription")),
-        Field('PriceEarlybird', 'double',
-            requires=IS_EMPTY_OR(IS_FLOAT_IN_RANGE(0,99999999, dot='.',
+        Field('PriceEarlybird', 'decimal(20,2)',
+            requires=IS_EMPTY_OR(IS_DECIMAL_IN_RANGE(0,99999999, dot='.',
                 error_message=T('Too small or too large'))),
-            represent=represent_float_as_amount,
+            represent=represent_decimal_as_amount,
             label=T("Earlybird price incl. VAT")),
-        Field('PriceSubscriptionEarlybird', 'double',
-            requires=IS_EMPTY_OR(IS_FLOAT_IN_RANGE(0,99999999, dot='.',
+        Field('PriceSubscriptionEarlybird', 'decimal(20,2)',
+            requires=IS_EMPTY_OR(IS_DECIMAL_IN_RANGE(0,99999999, dot='.',
                 error_message=T('Too small or too large'))),
-            represent=represent_float_as_amount,
+            represent=represent_decimal_as_amount,
             label=T("Earlybird price incl. VAT for customers with a subscription")),
         Field('EarlybirdUntil', 'date',
               requires=IS_EMPTY_OR(IS_DATE_IN_RANGE(format=DATE_FORMAT,
@@ -3989,10 +4002,10 @@ def define_payment_batches_items():
         Field('MandateReference',
             represent=lambda value, row: value or SPAN(T("Not set"), _class='text-red'),
             label=T("Mandate reference")),
-        Field('Amount', 'float',
-            requires=IS_EMPTY_OR(IS_FLOAT_IN_RANGE(0,99999999, dot='.',
+        Field('Amount', 'decimal(20,2)',
+            requires=IS_EMPTY_OR(IS_DECIMAL_IN_RANGE(0,99999999, dot='.',
                                  error_message=T('Too small or too large'))),
-            represent=represent_float_as_amount,
+            represent=represent_decimal_as_amount,
             label=T("Amount")),
         Field('Currency',
             requires=IS_NOT_EMPTY()),
@@ -4506,10 +4519,10 @@ def define_invoices_payments():
         Field('invoices_id', db.invoices,
             readable=False,
             writable=False),
-        Field('Amount', 'float',
-            requires=IS_EMPTY_OR(IS_FLOAT_IN_RANGE(-999999999, 999999999, dot='.',
+        Field('Amount', 'decimal(20,2)',
+            requires=IS_EMPTY_OR(IS_DECIMAL_IN_RANGE(-999999999, 999999999, dot='.',
                                           error_message=T('Please enter an amount'))),
-            represent=represent_float_as_amount,
+            represent=represent_decimal_as_amount,
             default=0,
             label=T("Amount")),
         Field('PaymentDate', 'date', required=True,
@@ -4611,13 +4624,13 @@ def define_invoices_items():
             label   =T("Product Name")),
         Field('Description', 'text',
             label=T("Description")),
-        Field('Quantity', 'double',
-            requires=IS_FLOAT_IN_RANGE(-100000, 1000000, dot=".",
+        Field('Quantity', 'decimal(20,2)',
+            requires=IS_DECIMAL_IN_RANGE(-100000, 1000000, dot=".",
                      error_message=T("Enter a number, decimals use '.'")),
             default=1,
             label=T("Quantity")),
-        Field('Price', 'double',
-            represent=represent_float_as_amount,
+        Field('Price', 'decimal(20,2)',
+            represent=represent_decimal_as_amount,
             default=0,
             label=T("Price")),
         Field('tax_rates_id', db.tax_rates,
@@ -4626,15 +4639,15 @@ def define_invoices_items():
                                   '%(Name)s')),
             represent=represent_tax_rate,
             label=T("Tax rate")),
-        Field('TotalPriceVAT', 'double',
+        Field('TotalPriceVAT', 'decimal(20,2)',
             compute=lambda row: row.Price * row.Quantity,
-            represent=represent_float_as_amount),
-        Field('VAT', 'double',
+            represent=represent_decimal_as_amount),
+        Field('VAT', 'decimal(20,2)',
             compute=compute_invoice_item_vat,
-            represent=represent_float_as_amount),
-        Field('TotalPrice', 'double',
+            represent=represent_decimal_as_amount),
+        Field('TotalPrice', 'decimal(20,2)',
             compute=compute_invoice_item_total_price,
-            represent=represent_float_as_amount),
+            represent=represent_decimal_as_amount),
         Field('accounting_glaccounts_id', db.accounting_glaccounts,
               requires=IS_EMPTY_OR(IS_IN_DB(db(ag_query),
                                             'accounting_glaccounts.id',
@@ -4658,11 +4671,8 @@ def compute_invoice_item_total_price(row):
     """
         Returns the total price for an invoice item
     """
-    total_price_vat = Decimal(row.TotalPriceVAT)
-
-    total = Decimal(Decimal(total_price_vat - row.VAT).quantize(Decimal('.01'),
-                                                                rounding=ROUND_HALF_UP))
-    return total
+    total_price = Decimal(row.TotalPriceVAT) - row.VAT
+    return total_price.quantize(Decimal('.01'), rounding=ROUND_HALF_UP)
 
 
 def compute_invoice_item_vat(row):
@@ -4673,40 +4683,35 @@ def compute_invoice_item_vat(row):
     if not tID:
         vat = 0
     else:
-        vat_rate = db.tax_rates(tID).Percentage / 100
+        vat_rate = db.tax_rates(tID).Percentage / Decimal(100)
+        vat = Decimal(row.TotalPriceVAT) - (Decimal(row.TotalPriceVAT) / (Decimal(1) + vat_rate))
 
-        total_price_vat = float(row.TotalPriceVAT)
-        vat = total_price_vat - (total_price_vat / (1 + vat_rate))
-
-        vat = Decimal(Decimal(vat).quantize(Decimal('.01'),
-                                            rounding=ROUND_HALF_UP))
-
-    return vat
+    return vat.quantize(Decimal('.01'), rounding=ROUND_HALF_UP)
 
 
 def define_invoices_amounts():
     db.define_table('invoices_amounts',
         Field('invoices_id', db.invoices),
-        Field('TotalPrice', 'double',
+        Field('TotalPrice', 'decimal(20,2)',
             default=0,
-            represent=represent_float_as_amount,
+            represent=represent_decimal_as_amount,
             label=T("Subtotal")),
-        Field('VAT', 'double',
+        Field('VAT', 'decimal(20,2)',
             default=0,
-            represent=represent_float_as_amount,
+            represent=represent_decimal_as_amount,
             label=T("VAT")),
-        Field('TotalPriceVAT', 'double',
+        Field('TotalPriceVAT', 'decimal(20,2)',
             default=0,
-            represent=represent_float_as_amount,
+            represent=represent_decimal_as_amount,
             label=T("Total")),
-        Field('Paid', 'double',
+        Field('Paid', 'decimal(20,2)',
             default=0,
-            represent=represent_float_as_amount,
+            represent=represent_decimal_as_amount,
             ),
-        Field('Balance', 'double',
+        Field('Balance', 'decimal(20,2)',
             compute=compute_invoices_amounts_balance,
             default=0,
-            represent=represent_float_as_amount)
+            represent=represent_decimal_as_amount)
         )
 
 
@@ -4764,13 +4769,13 @@ def define_receipts_items():
             label   =T("Product Name")),
         Field('Description', 'text',
             label=T("Description")),
-        Field('Quantity', 'double',
-            requires=IS_FLOAT_IN_RANGE(-100000, 1000000, dot=".",
+        Field('Quantity', 'decimal(20,2)',
+            requires=IS_DECIMAL_IN_RANGE(-100000, 1000000, dot=".",
                      error_message=T("Enter a number, decimals use '.'")),
             default=1,
             label=T("Quantity")),
-        Field('Price', 'double',
-            represent=represent_float_as_amount,
+        Field('Price', 'decimal(20,2)',
+            represent=represent_decimal_as_amount,
             default=0,
             label=T("Price")),
         Field('tax_rates_id', db.tax_rates,
@@ -4779,15 +4784,15 @@ def define_receipts_items():
                                   '%(Name)s')),
             represent=represent_tax_rate,
             label=T("Tax rate")),
-        Field('TotalPriceVAT', 'double',
+        Field('TotalPriceVAT', 'decimal(20,2)',
             compute=lambda row: row.Price * row.Quantity,
-            represent=represent_float_as_amount),
-        Field('VAT', 'double',
+            represent=represent_decimal_as_amount),
+        Field('VAT', 'decimal(20,2)',
             compute=compute_receipt_item_vat,
-            represent=represent_float_as_amount),
-        Field('TotalPrice', 'double',
+            represent=represent_decimal_as_amount),
+        Field('TotalPrice', 'decimal(20,2)',
             compute=compute_receipt_item_total_price,
-            represent=represent_float_as_amount),
+            represent=represent_decimal_as_amount),
         Field('accounting_glaccounts_id', db.accounting_glaccounts,
               requires=IS_EMPTY_OR(IS_IN_DB(db(ag_query),
                                             'accounting_glaccounts.id',
@@ -4825,13 +4830,8 @@ def compute_receipt_item_vat(row):
     if not tID:
         vat = 0
     else:
-        vat_rate = db.tax_rates(tID).Percentage / 100
-
-        total_price_vat = float(row.TotalPriceVAT)
-        vat = total_price_vat - (total_price_vat / (1 + vat_rate))
-
-        vat = Decimal(Decimal(vat).quantize(Decimal('.01'),
-                                            rounding=ROUND_HALF_UP))
+        vat_rate = db.tax_rates(tID).Percentage / Decimal(100)
+        vat = row.TotalPriceVAT - (row.TotalPriceVAT / (Decimal(1) + vat_rate))
 
     return vat
 
@@ -4839,21 +4839,21 @@ def compute_receipt_item_vat(row):
 def define_receipts_amounts():
     db.define_table('receipts_amounts',
         Field('receipts_id', db.invoices),
-        Field('TotalPrice', 'double',
+        Field('TotalPrice', 'decimal(20,2)',
             default=0,
-            represent=represent_float_as_amount,
+            represent=represent_decimal_as_amount,
             label=T("Subtotal")),
-        Field('VAT', 'double',
+        Field('VAT', 'decimal(20,2)',
             default=0,
-            represent=represent_float_as_amount,
+            represent=represent_decimal_as_amount,
             label=T("VAT")),
-        Field('TotalPriceVAT', 'double',
+        Field('TotalPriceVAT', 'decimal(20,2)',
             default=0,
-            represent=represent_float_as_amount,
+            represent=represent_decimal_as_amount,
             label=T("Total")),
-        Field('Paid', 'double',
+        Field('Paid', 'decimal(20,2)',
             default=0,
-            represent=represent_float_as_amount,
+            represent=represent_decimal_as_amount,
             ),
         )
 
@@ -4888,7 +4888,7 @@ def represent_tax_rate(value, row):
 
 
 def define_tax_rates():
-    float_error = T('Please enter a value between 0 and 100')
+    percentage_error = T('Please enter a value between 0 and 100')
 
     db.define_table('tax_rates',
         Field('Archived', 'boolean',
@@ -4899,9 +4899,9 @@ def define_tax_rates():
         Field('Name',
             requires=IS_NOT_EMPTY(),
             label=T('Name')),
-        Field('Percentage', 'float',
-            requires=IS_FLOAT_IN_RANGE(0,100, dot='.',
-                                       error_message=float_error),
+        Field('Percentage', 'decimal(20,2)',
+            requires=IS_DECIMAL_IN_RANGE(0,100, dot='.',
+                                       error_message=percentage_error),
             comment='A percentage as numbers only is expected (without %). Use " . " for decimals.',
             label=T('Percentage')),
         Field('VATCodeID',
@@ -5394,15 +5394,15 @@ def define_shop_products_variants():
               represent=represent_shop_products_variants_thumblarge),
         Field('Name',
               requires=IS_NOT_EMPTY()),
-        Field('Price', 'double',
+        Field('Price', 'decimal(20,2)',
               default=0,
-              represent=represent_float_as_amount,
+              represent=represent_decimal_as_amount,
               label=T("Price incl. VAT")),
         Field('tax_rates_id', db.tax_rates,
               label=T('Tax rate')),
-        Field('PurchasePrice', 'double',
+        Field('PurchasePrice', 'decimal(20,2)',
               default=0,
-              represent=represent_float_as_amount,
+              represent=represent_decimal_as_amount,
               label=T("Purchace price")),
         Field('ArticleCode',
               represent=lambda value, row: value or "",
@@ -5604,26 +5604,26 @@ def represent_customers_orders_status(value, row):
 def define_customers_orders_amounts():
     db.define_table('customers_orders_amounts',
         Field('customers_orders_id', db.customers_orders),
-        Field('TotalPrice', 'double',
+        Field('TotalPrice', 'decimal(20,2)',
             default=0,
-            represent=represent_float_as_amount,
+            represent=represent_decimal_as_amount,
             label=T("Subtotal")),
-        Field('VAT', 'double',
+        Field('VAT', 'decimal(20,2)',
             default=0,
-            represent=represent_float_as_amount,
+            represent=represent_decimal_as_amount,
             label=T("VAT")),
-        Field('TotalPriceVAT', 'double',
+        Field('TotalPriceVAT', 'decimal(20,2)',
             default=0,
-            represent=represent_float_as_amount,
+            represent=represent_decimal_as_amount,
             label=T("Total")),
-        Field('Paid', 'double',
+        Field('Paid', 'decimal(20,2)',
             default=0,
-            represent=represent_float_as_amount,
+            represent=represent_decimal_as_amount,
             ),
-        Field('Balance', 'double',
+        Field('Balance', 'decimal(20,2)',
             compute=compute_invoices_amounts_balance,
             default=0,
-            represent=represent_float_as_amount)
+            represent=represent_decimal_as_amount)
         )
 
 
@@ -5685,13 +5685,13 @@ def define_customers_orders_items():
               label=T("Product Name")),
         Field('Description', 'text',
               label=T("Description")),
-        Field('Quantity', 'double',
-            requires=IS_FLOAT_IN_RANGE(-100000, 1000000,
+        Field('Quantity', 'decimal(20,2)',
+            requires=IS_DECIMAL_IN_RANGE(-100000, 1000000,
                      error_message=T("Enter a number, decimals use '.'")),
             default=1,
             label=T("Quantity")),
-        Field('Price', 'double',
-              represent=represent_float_as_amount,
+        Field('Price', 'decimal(20,2)',
+              represent=represent_decimal_as_amount,
               default=0,
               label=T("Price")),
         Field('tax_rates_id', db.tax_rates,
@@ -5700,15 +5700,15 @@ def define_customers_orders_items():
                                             '%(Name)s')),
               represent=represent_tax_rate,
               label=T("Tax rate")),
-        Field('TotalPriceVAT', 'double',
+        Field('TotalPriceVAT', 'decimal(20,2)',
               compute=lambda row: row.Price or 0 * row.Quantity,
-              represent=represent_float_as_amount),
-        Field('VAT', 'double',
+              represent=represent_decimal_as_amount),
+        Field('VAT', 'decimal(20,2)',
               compute=compute_invoice_item_vat,
-              represent=represent_float_as_amount),
-        Field('TotalPrice', 'double',
+              represent=represent_decimal_as_amount),
+        Field('TotalPrice', 'decimal(20,2)',
               compute=compute_invoice_item_total_price,
-              represent=represent_float_as_amount),
+              represent=represent_decimal_as_amount),
         Field('accounting_glaccounts_id', db.accounting_glaccounts,
               requires=IS_EMPTY_OR(IS_IN_DB(db(ag_query),
                                             'accounting_glaccounts.id',
