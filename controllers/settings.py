@@ -972,8 +972,6 @@ def financial_currency():
     currency = get_sys_property('Currency')
     currency_symbol = get_sys_property('CurrencySymbol')
     only_iban_account_numbers = get_sys_property('OnlyIBANAccountNumbers')
-    print('only_iban_account_numbers')
-    print(only_iban_account_numbers)
 
     form = SQLFORM.factory(
         Field('currency', length=3,
@@ -1021,7 +1019,6 @@ def financial_currency():
             row.update_record()
 
         # check IBAN
-        print(request.vars)
         only_iban_account_numbers = request.vars['only_iban_account_numbers']
         row = db.sys_properties(Property='OnlyIBANAccountNumbers')
         if not row:
