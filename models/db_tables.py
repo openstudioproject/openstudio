@@ -2734,6 +2734,7 @@ def define_customers_payment_info():
         Field('AccountNumber',
             requires=[
                 IS_NOT_EMPTY(error_message=T("Account number is required")),
+                IS_UPPER(),
             ],
             represent=lambda value, row: value or "",
             label=T("Account number")),

@@ -1766,34 +1766,7 @@ def test_workshop_add_list_products(client, web2py):
 #     assert customer.first_name in client.text
 
 
-def test_payment_info_dutch_iban_validator_length_fail(client, web2py):
-    """
-        Checks if the validator fails when the length of the number is too short
-    """
-    # by getting some page the payment methods get initialized
-    url = '/default/user/login'
-    client.get(url)
-    assert client.status == 200
-
-    populate_customers(web2py, 1)
-    populate_customers_payment_info(web2py, 1)
-
-    url = '/customers/bankaccount?cuID=1001'
-    client.get(url)
-    assert client.status == 200
-
-    data = {
-        'id'           : 1,
-        'AccountNumber': 'NL21INGB012345678',
-        'AccountHolder': 'The big mistery'
-    } # 1 digit too short for valid Dutch IBAN
-    client.post(url, data=data)
-    assert client.status == 200
-
-    assert 'Dutch IBAN should be 18 characters' in client.text
-
-
-def test_payment_info_dutch_iban_validator_validation_fail(client, web2py):
+def test_payment_info_iban_validator_validation_fail(client, web2py):
     """
         Checks if the validator fails when the IBAN isn't valid
     """
@@ -1804,6 +1777,12 @@ def test_payment_info_dutch_iban_validator_validation_fail(client, web2py):
 
     populate_customers(web2py, 1)
     populate_customers_payment_info(web2py, 1)
+
+    web2py.db.sys_properties.insert(
+        Property = "OnlyIBANAccountNumbers",
+        PropertyValue = "on"
+    )
+    web2py.db.commit()
 
     url = '/customers/bankaccount?cuID=1001'
     client.get(url)
@@ -1817,7 +1796,7 @@ def test_payment_info_dutch_iban_validator_validation_fail(client, web2py):
     client.post(url, data=data)
     assert client.status == 200
 
-    assert 'IBAN validation failed' in client.text
+    assert 'Please enter a valid IBAN' in client.text
 
 
 def test_payment_info_dutch_iban_validator_pass(client, web2py):
@@ -1832,13 +1811,19 @@ def test_payment_info_dutch_iban_validator_pass(client, web2py):
     populate_customers(web2py, 1)
     populate_customers_payment_info(web2py, 1)
 
+    web2py.db.sys_properties.insert(
+        Property = "OnlyIBANAccountNumbers",
+        PropertyValue = "on"
+    )
+    web2py.db.commit()
+
     url = '/customers/bankaccount?cuID=1001'
     client.get(url)
     assert client.status == 200
 
     data = {
         'id'           : 1,
-        'AccountNumber': 'NL89TRIO0390502103', # Valid Dutch IBAN
+        'AccountNumber': 'NL89trio0390502103', # Valid Dutch IBAN
         'AccountHolder': 'The big mistery'
     }
     client.post(url, data=data)
@@ -1849,7 +1834,7 @@ def test_payment_info_dutch_iban_validator_pass(client, web2py):
 
     # verify database
     row = web2py.db.customers_payment_info(1)
-    assert row.AccountNumber == data['AccountNumber']
+    assert row.AccountNumber == data['AccountNumber'].upper()
 
 
 def test_payment_info_not_iban_pass(client, web2py):

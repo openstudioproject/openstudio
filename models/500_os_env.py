@@ -87,47 +87,48 @@ class IS_IBAN(object):
         return valid_iban
 
 
-    def _is_dutch_iban(self, value):
-        """
-            Checks if the value is a Dutch IBAN number
-            Deprecated from 2019.12
-        """
-        return_value = False
-        if not len(value) == 18:  # validate length
-            self.error_message = T('Dutch IBAN should be 18 characters')
-            raise ValueError('Account number has wrong length')
-        else:
-            # perform validation
-            first_4_letters = value[0:4]
-            check_value = value[4:] + first_4_letters
-
-            return_value = self._convert_to_integer_and_check_valid(
-                check_value)
-
-        return return_value
-
-
-    def _convert_to_integer_and_check_valid(self, check_value):
-        """
-            Converts letters to integers, following IBAN specs
-        """
-        replace_map = {}
-        for i, letter in enumerate(list(string.ascii_uppercase)):
-            replace_map[letter] = str(i + 10)
-
-        for k, v in replace_map.items():
-            check_value = check_value.replace(k, v)
-
-        check_value = int(check_value)
-        valid = check_value % 97  # mod 97
-
-        if valid == 1:
-            return_value = True
-        else:
-            self.error_message = T('IBAN validation failed')
-            return_value = False
-
-        return return_value
+    # Deprecated from 2019.12
+    # def _is_dutch_iban(self, value):
+    #     """
+    #         Checks if the value is a Dutch IBAN number
+    #         Deprecated from 2019.12
+    #     """
+    #     return_value = False
+    #     if not len(value) == 18:  # validate length
+    #         self.error_message = T('Dutch IBAN should be 18 characters')
+    #         raise ValueError('Account number has wrong length')
+    #     else:
+    #         # perform validation
+    #         first_4_letters = value[0:4]
+    #         check_value = value[4:] + first_4_letters
+    #
+    #         return_value = self._convert_to_integer_and_check_valid(
+    #             check_value)
+    #
+    #     return return_value
+    #
+    #
+    # def _convert_to_integer_and_check_valid(self, check_value):
+    #     """
+    #         Converts letters to integers, following IBAN specs
+    #     """
+    #     replace_map = {}
+    #     for i, letter in enumerate(list(string.ascii_uppercase)):
+    #         replace_map[letter] = str(i + 10)
+    #
+    #     for k, v in replace_map.items():
+    #         check_value = check_value.replace(k, v)
+    #
+    #     check_value = int(check_value)
+    #     valid = check_value % 97  # mod 97
+    #
+    #     if valid == 1:
+    #         return_value = True
+    #     else:
+    #         self.error_message = T('IBAN validation failed')
+    #         return_value = False
+    #
+    #     return return_value
 
 
 #### Custom validators end #######
