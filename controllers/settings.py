@@ -971,6 +971,9 @@ def financial_currency():
 
     currency = get_sys_property('Currency')
     currency_symbol = get_sys_property('CurrencySymbol')
+    only_iban_account_numbers = get_sys_property('OnlyIBANAccountNumbers')
+    print('only_iban_account_numbers')
+    print(only_iban_account_numbers)
 
     form = SQLFORM.factory(
         Field('currency', length=3,
@@ -984,6 +987,9 @@ def financial_currency():
                                  error_message=T('Enter the currency symbol (max. 3 characters)')),
               default=currency_symbol,
               label=T('Currency symbol')),
+        Field('only_iban_account_numbers', 'boolean',
+              default=only_iban_account_numbers,
+              label=T('Only accept IBAN account number as customer bank account')),
         submit_button=T("Save"),
         separator=' ',
         formstyle='bootstrap3_stacked')
@@ -1012,6 +1018,17 @@ def financial_currency():
                 Property='CurrencySymbol', PropertyValue=currency_symbol)
         else:
             row.PropertyValue = currency_symbol
+            row.update_record()
+
+        # check IBAN
+        print(request.vars)
+        only_iban_account_numbers = request.vars['only_iban_account_numbers']
+        row = db.sys_properties(Property='OnlyIBANAccountNumbers')
+        if not row:
+            db.sys_properties.insert(
+                Property='OnlyIBANAccountNumbers', PropertyValue=only_iban_account_numbers)
+        else:
+            row.PropertyValue = only_iban_account_numbers
             row.update_record()
 
         # Clear cache

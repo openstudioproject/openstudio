@@ -45,7 +45,7 @@ if configuration.get('cache.cache') == 'redis':
 
 class IS_IBAN(object):
 
-    def __init__(self, error_message=T('Invalid IBAN')):
+    def __init__(self, error_message=T('Please enter a valid IBAN')):
         self.error_message = error_message
 
     def __call__(self, value):
@@ -59,7 +59,7 @@ class IS_IBAN(object):
                 raise TypeError(T('Account number has to be a string'))
 
             if not self._is_iban(value):
-                raise ValueError(T('Invalid IBAN'))
+                raise ValueError(T('Please enter a valid IBAN'))
 
             return (value, None)
         except Exception as e:
