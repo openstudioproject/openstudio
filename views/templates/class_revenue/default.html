@@ -73,7 +73,7 @@
             }
             
             .thirty-percent {
-                float:left;
+                float: left;
                 width: 31%;
             }
             
@@ -131,8 +131,8 @@
                         TD(revenue['trial']['no_membership']['count']),
                         TD(0),
                         TD(revenue['trial']['no_membership']['count']),
-                        TD(represent_float_as_amount(revenue['trial']['no_membership']['amount'])),
-                        TD(represent_float_as_amount(
+                        TD(represent_decimal_as_amount(revenue['trial']['no_membership']['amount'])),
+                        TD(represent_decimal_as_amount(
                             revenue['trial']['no_membership']['amount'] * revenue['trial']['no_membership']['count']
                         )),
                     )
@@ -142,8 +142,8 @@
                         TD(revenue['trial']['membership']['count']),
                         TD(0),
                         TD(revenue['trial']['membership']['count']),
-                        TD(represent_float_as_amount(revenue['trial']['membership']['amount'])),
-                        TD(represent_float_as_amount(
+                        TD(represent_decimal_as_amount(revenue['trial']['membership']['amount'])),
+                        TD(represent_decimal_as_amount(
                             revenue['trial']['membership']['amount'] * revenue['trial']['membership']['count']
                         )),
                     )
@@ -153,8 +153,8 @@
                         TD(revenue['dropin']['no_membership']['count']),
                         TD(0),
                         TD(revenue['dropin']['no_membership']['count']),
-                        TD(represent_float_as_amount(revenue['dropin']['no_membership']['amount'])),
-                        TD(represent_float_as_amount(
+                        TD(represent_decimal_as_amount(revenue['dropin']['no_membership']['amount'])),
+                        TD(represent_decimal_as_amount(
                             revenue['dropin']['no_membership']['amount'] * revenue['dropin']['no_membership']['count']
                         )),
                     )
@@ -164,8 +164,8 @@
                         TD(revenue['dropin']['membership']['count']),
                         TD(0),
                         TD(revenue['dropin']['membership']['count']),
-                        TD(represent_float_as_amount(revenue['dropin']['membership']['amount'])),
-                        TD(represent_float_as_amount(
+                        TD(represent_decimal_as_amount(revenue['dropin']['membership']['amount'])),
+                        TD(represent_decimal_as_amount(
                             revenue['dropin']['membership']['amount'] * revenue['dropin']['membership']['count']
                         )),
                     )
@@ -189,8 +189,8 @@
                             TD(count),
                             TD(0),
                             TD(count),
-                            TD(represent_float_as_amount(amount)),
-                            TD(represent_float_as_amount(amount * count))
+                            TD(represent_decimal_as_amount(amount)),
+                            TD(represent_decimal_as_amount(amount * count))
                         ))
                     pass
 
@@ -204,8 +204,8 @@
                             TD(0),
                             TD(count),
                             TD(count),
-                            TD(represent_float_as_amount(amount)),
-                            TD(represent_float_as_amount(amount * count))
+                            TD(represent_decimal_as_amount(amount)),
+                            TD(represent_decimal_as_amount(amount * count))
                         ))
                     pass
 
@@ -219,8 +219,8 @@
                             TD(count),
                             TD(0),
                             TD(count),
-                            TD(represent_float_as_amount(amount)),
-                            TD(represent_float_as_amount(amount * count))
+                            TD(represent_decimal_as_amount(amount)),
+                            TD(represent_decimal_as_amount(amount * count))
                         ))
                     pass
 
@@ -230,8 +230,8 @@
                         TD(0),
                         TD(revenue['complementary']['count']),
                         TD(revenue['complementary']['count']),
-                        TD(represent_float_as_amount(0)),
-                        TD(represent_float_as_amount(0)),
+                        TD(represent_decimal_as_amount(0)),
+                        TD(represent_decimal_as_amount(0)),
                     ))
 
                     # Total
@@ -241,7 +241,7 @@
                         TH(revenue['total']['count_unpaid']),
                         TH(revenue['total']['count_total']),
                         TH(),
-                        TH(represent_float_as_amount(revenue['total']['amount'])),
+                        TH(represent_decimal_as_amount(revenue['total']['amount'])),
                     ))
 
                     table_revenue.append(footer)}}
@@ -252,7 +252,7 @@
                 {{
                     if not teacher_payment['error']:
                         tp_amount = teacher_payment['data']['ClassRate']
-                        tp_display = represent_float_as_amount(tp_amount)
+                        tp_display = represent_decimal_as_amount(tp_amount)
                     else:
                         tp_amount = 0
                         tp_display = teacher_payment['data']
@@ -265,7 +265,7 @@
 
                     attendance = TR(
                         TD(T('Attendance')),
-                        TD(represent_float_as_amount(revenue['total']['amount']))
+                        TD(represent_decimal_as_amount(revenue['total']['amount']))
                     )
 
                     teacher_payment = TR(
@@ -273,7 +273,7 @@
                         TD(tp_display)
                     )
 
-                    total = represent_float_as_amount(revenue['total']['amount'] - tp_amount)
+                    total = represent_decimal_as_amount(revenue['total']['amount'] - tp_amount)
                     footer = TFOOT(TR(
                         TH(T('Total')),
                         TH(total)

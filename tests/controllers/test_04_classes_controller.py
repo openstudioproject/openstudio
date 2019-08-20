@@ -108,10 +108,10 @@ def test_revenue(client, web2py):
     assert client.status == 200
 
     prices = web2py.db.classes_price(1)
-    assert format(prices.Trial, '.2f') in client.text
+    assert str(prices.Trial) in client.text
 
     tp = web2py.db.teachers_payment_fixed_rate_default(1)
-    assert format(tp.ClassRate, '.2f') in client.text
+    assert str(tp.ClassRate) in client.text
 
 
 def test_revenue_export_preview(client, web2py):
@@ -124,12 +124,11 @@ def test_revenue_export_preview(client, web2py):
     url = '/classes/revenue_export_preview?clsID=1&date=2014-01-06'
     client.get(url)
     assert client.status == 200
-
     prices = web2py.db.classes_price(1)
-    assert format(prices.Trial, '.2f') in client.text
+    assert str(prices.Trial) in client.text
 
     tp = web2py.db.teachers_payment_fixed_rate_default(1)
-    assert format(tp.ClassRate, '.2f') in client.text
+    assert str(tp.ClassRate) in client.text
 
 
 # def test_revenue_export(client, web2py):
@@ -1253,7 +1252,7 @@ def test_class_price_add(client, web2py):
     assert client.status == 200
 
     assert web2py.db(web2py.db.classes_price).count() == 2
-    price = format(web2py.db.classes_price(2).Dropin, '.2f')
+    price = str(web2py.db.classes_price(2).Dropin)
 
     assert price in client.text
 
@@ -1287,7 +1286,7 @@ def test_class_price_edit(client, web2py):
 
     assert web2py.db(web2py.db.classes_price).count() == 1
 
-    price = format(web2py.db.classes_price(1).Dropin, '.2f')
+    price = str(web2py.db.classes_price(1).Dropin)
 
     assert price in client.text
 

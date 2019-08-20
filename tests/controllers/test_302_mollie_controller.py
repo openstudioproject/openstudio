@@ -2,6 +2,7 @@
 
 import datetime
 import calendar
+from decimal import Decimal, ROUND_HALF_UP
 
 from setup_profile_tests import setup_profile_tests
 
@@ -92,7 +93,7 @@ def test_order_paid_delivery_invoice(client, web2py):
     ssu = web2py.db.school_subscriptions(1)
     ssu_price = web2py.db.school_subscriptions_price(1)
     sm = web2py.db.school_memberships(1)
-    donation_price = 100 # 100 for the donation is fixed in the population of the tables
+    donation_price = Decimal(100) # 100 for the donation is fixed in the population of the tables
 
     period_start = datetime.date.today()
     period_end = get_last_day_month(period_start)
@@ -100,9 +101,10 @@ def test_order_paid_delivery_invoice(client, web2py):
     delta = period_end - period_start
     days = delta.days + 1
     total_days = period_end.day
-    ssu_calculated_price = round(float(days) / float(total_days) * float(ssu_price.Price), 2)
+    ssu_calculated_price = Decimal(days) / Decimal(total_days) * Decimal(ssu_price.Price)
 
-    price = round(scd.Price + wsp.Price + class_price.Dropin + ssu_calculated_price + sm.Price + donation_price, 2)
+    price = scd.Price + wsp.Price + class_price.Dropin + ssu_calculated_price + sm.Price + donation_price
+    price = price.quantize(Decimal('.01'), rounding=ROUND_HALF_UP)
 
     #print web2py.db().select(web2py.db.customers_orders.ALL)
 

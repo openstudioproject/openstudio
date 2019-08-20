@@ -52,7 +52,7 @@ def test_memberships(client, web2py):
     sm = web2py.db.school_memberships(1)
 
     assert sm.Name in client.text
-    assert format(sm.Price, '.2f') in client.text
+    assert str(sm.Price) in client.text
 
 
 def test_membership_add(client, web2py):
@@ -141,7 +141,7 @@ def test_school_subscriptions_index_and_current_price(client, web2py):
     assert client.status == 200
     assert 'Subscriptions' in client.text
 
-    assert format(123456, '.2f') in client.text
+    assert str(123456) in client.text
 
 
 def test_school_subscriptions_show_organization(client, web2py):
@@ -243,7 +243,7 @@ def test_subscription_price_add(client, web2py):
     client.post(url, data=data)
     assert client.status == 200
     assert 'Edit subscription' in client.text # verify redirection
-    assert format(data['Price'], '.2f') in client.text
+    assert str(data['Price']) in client.text
 
     assert web2py.db(web2py.db.school_subscriptions_price).count() == 1
 
@@ -279,7 +279,7 @@ def test_subscription_price_edit(client, web2py):
     assert client.status == 200
     assert 'Edit subscription' in client.text # verify redirection
 
-    assert format(data['Price'], '.2f') in client.text
+    assert str(data['Price']) in client.text
 
     assert web2py.db(web2py.db.school_subscriptions_price).count() == 1
 
