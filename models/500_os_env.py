@@ -23,7 +23,10 @@ from web2pytest import web2pytest
 from gluon.custom_import import track_changes; track_changes(True)
 
 
-configuration = AppConfig(reload=True)
+# -------------------------------------------------------------------------
+# once in production, remove reload=True to gain full speed
+# -------------------------------------------------------------------------
+configuration = AppConfig()
 
 
 ### Caching ###
@@ -42,7 +45,7 @@ if configuration.get('cache.cache') == 'redis':
 
 class IS_IBAN(object):
 
-    def __init__(self, error_message=T('Invalid IBAN')):
+    def __init__(self, error_message=T('Please enter a valid IBAN')):
         self.error_message = error_message
 
     def __call__(self, value):
@@ -53,14 +56,10 @@ class IS_IBAN(object):
         try:
             # check if value == string
             if not isinstance(value, str):
-                raise TypeError('Account number has to be a string')
-            # we have a string, check if the first 2 letters are NL, otherwise
-            # always pass for now
-            if len(value) >= 2:  # we have something to validate
-                first_letters = value[0:2]
-                if first_letters.upper() == 'NL':  # check Dutch IBAN
-                    if not self._is_dutch_iban(value):
-                        raise ValueError('Invalid Dutch IBAN')
+                raise TypeError(T('Account number has to be a string'))
+
+            if not self._is_iban(value):
+                raise ValueError(T('Please enter a valid IBAN'))
 
             return (value, None)
         except Exception as e:
@@ -74,9 +73,24 @@ class IS_IBAN(object):
         return value.strip().upper()
 
 
+    def _is_iban(self, value):
+        """
+        :param value: value to be validated as IBAN
+        :return: Boolean ; True if IBAN ; False if not
+        """
+        import validators
+
+        valid_iban = True
+        if not validators.iban(value):
+            valid_iban = False
+
+        return valid_iban
+
+
     def _is_dutch_iban(self, value):
         """
             Checks if the value is a Dutch IBAN number
+            Deprecated from 2019.12
         """
         return_value = False
         if not len(value) == 18:  # validate length

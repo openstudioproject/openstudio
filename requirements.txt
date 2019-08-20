@@ -6,6 +6,7 @@ certifi==2018.11.29
 cffi==1.11.5
 chardet==3.0.4
 cssselect2==0.2.1
+decorator==4.4.0
 defusedxml==0.5.0
 docopt==0.4.0
 et-xmlfile==1.0.1
@@ -37,6 +38,7 @@ six==1.12.0
 termcolor==1.1.0
 tinycss2==1.0.2
 urllib3==1.24.1
+validators==0.13.0
 wcwidth==0.1.7
 WeasyPrint==48
 webencodings==0.5.1

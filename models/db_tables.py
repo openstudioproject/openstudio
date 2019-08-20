@@ -2734,7 +2734,6 @@ def define_customers_payment_info():
         Field('AccountNumber',
             requires=[
                 IS_NOT_EMPTY(error_message=T("Account number is required")),
-                IS_IBAN()
             ],
             represent=lambda value, row: value or "",
             label=T("Account number")),
@@ -2764,6 +2763,11 @@ def define_customers_payment_info():
             label=T("Bank location")),
         singular=T("Bank details"), plural=T("Bank details")
         )
+
+    only_iban_account_numbers = get_sys_property('OnlyIBANAccountNumbers')
+    if only_iban_account_numbers == 'on':
+        db.customers_payment_info.AccountNumber.requires.append(IS_IBAN())
+        db.customers_payment_info.AccountNumber.label = T("IBAN")
 
     # sorted_payment_methods = [dict(id=None, Name=T("Please select..."))]
     # payment_methods = db(db.payment_methods).select(orderby=db.payment_methods.id)
