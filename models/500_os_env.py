@@ -23,7 +23,10 @@ from web2pytest import web2pytest
 from gluon.custom_import import track_changes; track_changes(True)
 
 
-configuration = AppConfig(reload=True)
+# -------------------------------------------------------------------------
+# once in production, remove reload=True to gain full speed
+# -------------------------------------------------------------------------
+configuration = AppConfig()
 
 
 ### Caching ###
