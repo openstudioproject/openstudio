@@ -2765,6 +2765,8 @@ def define_customers_payment_info():
         singular=T("Bank details"), plural=T("Bank details")
         )
 
+
+
     # sorted_payment_methods = [dict(id=None, Name=T("Please select..."))]
     # payment_methods = db(db.payment_methods).select(orderby=db.payment_methods.id)
     # for method in payment_methods:
