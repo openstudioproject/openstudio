@@ -6115,6 +6115,9 @@ def account_merge_execute():
                 pass
             # auth_customer_id
             try:
+                if table == db.customers_payment_info:
+                    # Don't merge payment info to prevent duplicates
+                    continue
                 query = (table.auth_customer_id == auth_merge_id)
                 rows = db(query).select(table.ALL)
                 for row in rows:
