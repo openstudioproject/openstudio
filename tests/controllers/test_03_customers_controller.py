@@ -457,7 +457,6 @@ def test_account_merge(client, web2py):
         [ 3, web2py.db.customers_classcards ],
         [ 1, web2py.db.customers_documents ],
         [ 1, web2py.db.customers_messages ],
-        [ 2, web2py.db.customers_payment_info ],
         [ 3, web2py.db.customers_subscriptions ],
         [ 1, web2py.db.customers_notes ],
         [ 1, web2py.db.customers_orders ],
