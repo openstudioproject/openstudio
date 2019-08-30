@@ -16,6 +16,14 @@ The OpenStudio Mollie integration handles single payments for classes, class car
 
 More information can be found on [www.openstudioproject.com](https://www.openstudioproject.com).
 
+## Exciting news!!
+
+During the last few months a lot of work has been put into researching more modern technologies to use in OpenStudio. Slowly but surely OpenStudio is being rebuild using all modern technologies on a completely new technology stack. Although it'll be a good while before it's production ready and there's no ETA at this time, a solid foundation for future development has been implemented.
+In case you have any great ideas for OpenStudio or would like to contribute some code, please join the discussion in the issues section on the project's GitHub page. The project is codenamed "Costasiella" for now, it might or might not change in the future.
+
+[Costasiella](https://github.com/costasiella/costasiella)
+
+
 ## Website integration
 
 The following can be integrated into your website using the OpenStudio API:
