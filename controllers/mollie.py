@@ -408,6 +408,8 @@ def invoice_pay():
             create_mollie_customer(auth.user.id, mollie)
             os_customer = Customer(auth.user.id) # refresh
 
+        # Get the (newly created) mollie customer id
+        mollie_customer_id = os_customer.row.mollie_customer_id
         mandates = os_customer.get_mollie_mandates()
         # set default recurring type, change to recurring if a valid mandate is found.
         recurring_type = 'first'
