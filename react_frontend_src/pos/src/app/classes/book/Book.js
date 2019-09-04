@@ -29,6 +29,7 @@ class Book extends Component {
 
     componentWillMount() {
         // Always refresh membership today
+        this.props.fetchShopMemberships()
         this.props.fetchMembershipsToday(this.props.match.params.customerID)
 
         this.props.setPageTitle(
