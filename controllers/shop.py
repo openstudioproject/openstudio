@@ -1418,7 +1418,7 @@ def subscription():
             membership = SchoolMembership(ssu.school_memberships_id)
             m_required = DIV(
                 DIV(H4(T("Membership required")),
-                    T("To take this subscription the following membership is required"), BR(), BR(),
+                    T("To activate this subscription the following membership is required"), BR(), BR(),
                     subscription_get_membership_info(membership),
                     _class='col-md-6'),
                 DIV(H4(T("Membership terms & conditions")),
@@ -1847,7 +1847,7 @@ def classcard():
         membership = SchoolMembership(scd.row.school_memberships_id)
         m_required = DIV(
             DIV(H4(T("Membership required")),
-                T("To take this classcard the following membership is required. It will be added to your order."), BR(), BR(),
+                T("To purchase this classcard the following membership is required. It will be added to your order."), BR(), BR(),
                 subscription_get_membership_info(membership),
                 _class='col-md-6'),
             DIV(H4(T("Membership terms & conditions")),
