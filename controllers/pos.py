@@ -1517,9 +1517,14 @@ def validate_cart():
         invoices_payment_id = None
         invoice_created = False
         if cuID:
+            # Use order to create receipts
             print('create order')
             invoice = validate_cart_create_order(cuID, pmID, items)
-            invoice_created = True
+        else:
+            # Create receipt for products and custom items manually
+            pass
+
+
 
 
         # Always create payment receipt
@@ -1630,7 +1635,8 @@ def validate_cart_create_order(cuID, pmID, items):
     # Deliver order, add stuff to customer's account
     result = order.deliver(
         class_online_booking=False,
-        class_booking_status='attending'
+        class_booking_status='attending',
+        payment_methods_id=pmID
     )
     invoice = result['invoice']
 
@@ -1645,8 +1651,6 @@ def validate_cart_create_order(cuID, pmID, items):
 
 
 def validate_cart_create_receipt(
-        invoice_created,
-        invoice,
         pmID,
         items
     ):
@@ -1708,12 +1712,6 @@ def validate_cart_create_receipt(
                 price = data['price'],
                 tax_rates_id = data['tax_rates_id']
             )
-
-
-    if invoice_created:
-        invoice_items = invoice.get_invoice_items_rows()
-        for item in invoice_items:
-            receipt.item_add_from_invoice_item(item)
 
     return receipt
 

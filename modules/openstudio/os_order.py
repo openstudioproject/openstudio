@@ -442,7 +442,7 @@ class Order:
             )
 
 
-    def deliver(self, class_online_booking=True, class_booking_status='booked'):
+    def deliver(self, class_online_booking=True, class_booking_status='booked', payment_methods_id=None):
         """
             Create invoice for order and deliver goods
         """
@@ -663,12 +663,23 @@ class Order:
         #if create_invoice:
             #invoice.mail_customer_invoice_created()
 
+        receipt = None
+        if self.order.Origin == "pos":
+            from os_receipt import Receipt
+
+            rID = db.receipts.insert(payment_methods_id=payment_methods_id)
+            receipt = Receipt(rID)
+
+            invoice_items = invoice.get_invoice_items_rows()
+            for item in invoice_items:
+                receipt.item_add_from_invoice_item(item)
+
         # Update status
         self.set_status_delivered()
         # Notify customer of order delivery
         self._deliver_mail_customer()
 
-        return dict(iID=iID, invoice=invoice)
+        return dict(iID=iID, invoice=invoice, recept=receipt)
 
 
     def _deliver_mail_customer(self):
