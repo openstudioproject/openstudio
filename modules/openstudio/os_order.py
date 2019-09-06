@@ -632,7 +632,7 @@ class Order:
             if row.customers_orders_items.classes_id:
                 # Deliver class
                 ah = AttendanceHelper()
-                if row.AttendanceType == 1:
+                if row.customers_orders_items.AttendanceType == 1:
                     result = ah.attendance_sign_in_trialclass(
                         self.order.auth_customer_id,
                         row.customers_orders_items.classes_id,

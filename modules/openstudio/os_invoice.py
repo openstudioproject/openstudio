@@ -541,13 +541,15 @@ class Invoice:
         TIME_FORMAT = current.TIME_FORMAT
         db = current.db
         T  = current.T
+        
+        order_item = order_item_row.customers_orders_items
 
-        cls = Class(order_item_row.classes_id, order_item_row.ClassDate)
+        cls = Class(order_item.classes_id, order_item.ClassDate)
 
         # Get GLAccount info
         prices = cls.get_prices()
         glaccount = None
-        if order_item_row.AttendanceType == 1:
+        if order_item.AttendanceType == 1:
             # Trial
             glaccount = prices['trial_glaccount']
         else:
@@ -559,14 +561,14 @@ class Invoice:
 
         iiID = db.invoices_items.insert(
             invoices_id=self.invoices_id,
-            ProductName=order_item_row.ProductName,
-            Description=order_item_row.Description,
-            Quantity=order_item_row.Quantity,
-            Price=order_item_row.Price,
+            ProductName=order_item.ProductName,
+            Description=order_item.Description,
+            Quantity=order_item.Quantity,
+            Price=order_item.Price,
             Sorting=next_sort_nr,
-            tax_rates_id=order_item_row.tax_rates_id,
-            accounting_glaccounts_id=order_item_row.accounting_glaccounts_id,
-            accounting_costcenters_id=order_item_row.accounting_costcenters_id,
+            tax_rates_id=order_item.tax_rates_id,
+            accounting_glaccounts_id=order_item.accounting_glaccounts_id,
+            accounting_costcenters_id=order_item.accounting_costcenters_id,
         )
 
         self.link_item_to_classes_attendance(
