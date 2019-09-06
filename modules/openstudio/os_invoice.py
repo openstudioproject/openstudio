@@ -594,14 +594,14 @@ class Invoice:
 
         iiID = db.invoices_items.insert(
             invoices_id=self.invoices_id,
-            ProductName=order_item_row.ProductName,
-            Description=order_item_row.Description,
-            Quantity=order_item_row.Quantity,
-            Price=order_item_row.Price,
+            ProductName=order_item_row.customers_orders_items.ProductName,
+            Description=order_item_row.customers_orders_items.Description,
+            Quantity=order_item_row.customers_orders_items.Quantity,
+            Price=order_item_row.customers_orders_items.Price,
             Sorting=next_sort_nr,
-            tax_rates_id=order_item_row.tax_rates_id,
-            accounting_glaccounts_id=order_item_row.accounting_glaccounts_id,
-            accounting_costcenters_id=order_item_row.accounting_costcenters_id,
+            tax_rates_id=order_item_row.customers_orders_items.tax_rates_id,
+            accounting_glaccounts_id=order_item_row.customers_orders_items.accounting_glaccounts_id,
+            accounting_costcenters_id=order_item_row.customers_orders_items.accounting_costcenters_id,
         )
 
         # This calls self.on_update()

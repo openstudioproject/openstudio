@@ -218,11 +218,11 @@ def edit():
         repr_row = list(rows[i:i + 1].render())[0]
 
         table.append(TR(
-            TD(repr_row.ProductName),
-            TD(repr_row.Description),
-            TD(SPAN(repr_row.TotalPriceVAT, _class='right')),
-            TD(repr_row.accounting_glaccounts_id),
-            TD(repr_row.accounting_costcenters_id),
+            TD(repr_row.customers_orders_items.ProductName),
+            TD(repr_row.customers_orders_items.Description),
+            TD(SPAN(repr_row.customers_orders_items.TotalPriceVAT, _class='right')),
+            TD(repr_row.customers_orders_items.accounting_glaccounts_id),
+            TD(repr_row.customers_orders_items.accounting_costcenters_id),
             TD(),
         ))
 

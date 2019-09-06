@@ -1519,22 +1519,16 @@ def validate_cart():
         if cuID:
             # Use order to create receipts
             print('create order')
-            invoice = validate_cart_create_order(cuID, pmID, items)
+            result = validate_cart_create_order(cuID, pmID, items)
+            invoice = result['invoice']
+            receipt = result['receipt']
         else:
             # Create receipt for products and custom items manually
-            pass
-
-
-
-
-        # Always create payment receipt
-        print('create receipt')
-        receipt = validate_cart_create_receipt(
-            invoice_created,
-            invoice,
-            pmID,
-            items,
-        )
+            print('create receipt directly')
+            receipt = validate_cart_create_receipt(
+                pmID,
+                items,
+            )
 
         receipt_link = URL(
             'finance', 'receipt',
@@ -1638,6 +1632,7 @@ def validate_cart_create_order(cuID, pmID, items):
         class_booking_status='attending',
         payment_methods_id=pmID
     )
+
     invoice = result['invoice']
 
     # Add payment
@@ -1647,7 +1642,7 @@ def validate_cart_create_order(cuID, pmID, items):
         payment_methods_id=pmID,
     )
 
-    return invoice
+    return result
 
 
 def validate_cart_create_receipt(
@@ -1675,29 +1670,6 @@ def validate_cart_create_receipt(
             pvID = item['data']['id']
             quantity = item['quantity']
             riID = receipt.item_add_product_variant(pvID, quantity)
-
-            variant = ShopProductsVariant(pvID)
-            product = db.shop_products(variant.row.shop_products_id)
-            ssaID = db.shop_sales.insert(
-                ProductName=product.Name,
-                VariantName=variant.row.Name,
-                ArticleCode=variant.row.ArticleCode,
-                Barcode=variant.row.Barcode,
-                Quantity=quantity
-            )
-
-            db.shop_sales_products_variants.insert(
-                shop_sales_id = ssaID,
-                shop_products_variants_id = pvID
-            )
-
-            db.receipts_items_shop_sales.insert(
-                shop_sales_id = ssaID,
-                receipts_items_id = riID
-            )
-
-            # Update stock
-            variant.stock_reduce(quantity)
         elif item['item_type'] == 'custom' and not invoice_created:
             """
                 Only add custom items to receipt here if no if no invoice is created
@@ -1761,7 +1733,6 @@ def get_cash_counts():
         CountDate = TODAY_LOCAL,
         CountType = 'closing'
     )
-
 
     cash_counts = {
         'opening': {
