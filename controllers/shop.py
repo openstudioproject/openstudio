@@ -755,7 +755,7 @@ def event_get_products_filter_prices_book_buttons(workshop):
                 _class=link_class,
                 _style='display: none;',
                 _target=_target,
-                _id='add_to_cart_' + str(product.id))
+                _id='add_to_cart_' + str(product.id)) if not sold_out else ""
 
         add_to_cart_buttons.append(add_to_cart)
 
