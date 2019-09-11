@@ -190,7 +190,11 @@ class OsMail:
             if i == 0:
                 first = True
 
-            tr = get_row(SPAN(row.ProductName, ' ', row.Description), repr_row.TotalPriceVAT, first)
+            tr = get_row(SPAN(
+                row.customers_orders_items.ProductName, ' ', row.customers_orders_items.Description),
+                repr_row.customers_orders_items.TotalPriceVAT,
+                first
+            )
             order_items.append(tr)
 
         # add total row

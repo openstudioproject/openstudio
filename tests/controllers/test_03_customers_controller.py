@@ -448,7 +448,7 @@ def test_account_merge(client, web2py):
     client.get(url)
     assert client.status == 200
 
-    ## check all tables in the DB [ nr_of_records, table ]
+    ## check all tables in the DB [ nr_of_records, table ]t
     customer_tables = [
         [ 1, web2py.db.alternativepayments ],
         [ 5, web2py.db.classes_attendance ],

@@ -255,30 +255,54 @@ class Receipt:
         
         :return: 
         """
+        from .os_shop_products_variant import ShopProductsVariant
+
         db = current.db
         
         sorting = self.get_item_next_sort_nr()
-        variant = db.shop_products_variants(pvID)
-        product = db.shop_products(variant.shop_products_id)
+        variant = ShopProductsVariant(pvID)
+        product = db.shop_products(variant.row.shop_products_id)
         
         riID = db.receipts_items.insert(
             receipts_id = self.receipts_id,
             Sorting = sorting,
             ProductName = product.Name,
-            Description = variant.Name,
+            Description = variant.row.Name,
             Quantity = quantity,
-            Price = variant.Price,
-            tax_rates_id = variant.tax_rates_id,
+            Price = variant.row.Price,
+            tax_rates_id = variant.row.tax_rates_id,
             accounting_glaccounts_id=product.accounting_glaccounts_id,
             accounting_costcenters_id=product.accounting_costcenters_id
         )
+
+        # Links and update stock
+        ssaID = db.shop_sales.insert(
+            ProductName=product.Name,
+            VariantName=variant.row.Name,
+            ArticleCode=variant.row.ArticleCode,
+            Barcode=variant.row.Barcode,
+            Quantity=quantity
+        )
+
+        db.shop_sales_products_variants.insert(
+            shop_sales_id=ssaID,
+            shop_products_variants_id=pvID
+        )
+
+        db.receipts_items_shop_sales.insert(
+            shop_sales_id=ssaID,
+            receipts_items_id=riID
+        )
+
+        # Update stock
+        variant.stock_reduce(quantity)
 
         self.set_amounts()
 
         return riID
 
 
-    def item_add_from_invoice_item(self, item):
+    def item_add_from_order_item(self, item):
         """
 
         :param item: gluon.dal.row object of db.invoices_items
@@ -286,19 +310,30 @@ class Receipt:
         """
         db = current.db
 
-        sorting = self.get_item_next_sort_nr()
+        if not item.customers_orders_items_shop_products_variants.id is None:
+            # We have a product, use item_add_product_variant to create links and
+            # update stock
+            print('######## item: ###########')
+            print(item)
 
-        riID = db.receipts_items.insert(
-            receipts_id=self.receipts_id,
-            Sorting=sorting,
-            ProductName=item.ProductName,
-            Description=item.Description,
-            Quantity=item.Quantity,
-            Price=item.Price,
-            tax_rates_id=item.tax_rates_id,
-            accounting_glaccounts_id=item.accounting_glaccounts_id,
-            accounting_costcenters_id=item.accounting_costcenters_id
-        )
+            self.item_add_product_variant(
+                pvID = item.customers_orders_items_shop_products_variants.shop_products_variants_id,
+                quantity = item.customers_orders_items.Quantity
+            )
+        else:
+            # We something else, just add.
+            sorting = self.get_item_next_sort_nr()
+            riID = db.receipts_items.insert(
+                receipts_id=self.receipts_id,
+                Sorting=sorting,
+                ProductName=item.ProductName,
+                Description=item.Description,
+                Quantity=item.Quantity,
+                Price=item.Price,
+                tax_rates_id=item.tax_rates_id,
+                accounting_glaccounts_id=item.accounting_glaccounts_id,
+                accounting_costcenters_id=item.accounting_costcenters_id
+            )
 
         self.set_amounts()
 

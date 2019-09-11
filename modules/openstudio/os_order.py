@@ -329,8 +329,19 @@ class Order:
         """
         db = current.db
 
+        left = [
+            db.customers_orders_items_shop_products_variants.on(
+                db.customers_orders_items_shop_products_variants.customers_orders_items_id ==
+                db.customers_orders_items.id
+            )
+        ]
+
         query = (db.customers_orders_items.customers_orders_id == self.coID)
-        rows = db(query).select(db.customers_orders_items.ALL)
+        rows = db(query).select(
+            db.customers_orders_items.ALL,
+            db.customers_orders_items_shop_products_variants.ALL,
+            left=left
+        )
 
         return rows
 
@@ -351,9 +362,9 @@ class Order:
 
         for row in rows.render():
             table.append(TR(
-                TD(row.ProductName, BR(),
-                   SPAN(row.Description, _class='text-muted')),
-                TD(SPAN(row.TotalPriceVAT, _class='pull-right'))
+                TD(row.customers_orders_items.ProductName, BR(),
+                   SPAN(row.customers_orders_items.Description, _class='text-muted')),
+                TD(SPAN(row.customers_orders_items.TotalPriceVAT, _class='pull-right'))
             ))
 
         amounts = self.get_amounts()
@@ -442,7 +453,7 @@ class Order:
             )
 
 
-    def deliver(self, class_online_booking=True, class_booking_status='booked'):
+    def deliver(self, class_online_booking=True, class_booking_status='booked', payment_methods_id=None):
         """
             Create invoice for order and deliver goods
         """
@@ -514,23 +525,23 @@ class Order:
             ##
 
             # Check for product:
-            if row.ProductVariant:
+            if row.customers_orders_items.ProductVariant:
                 if create_invoice:
                     invoice.item_add_product_variant(
-                        product_name = row.ProductName,
-                        description = row.Description,
-                        quantity = row.Quantity,
-                        price = row.Price,
-                        tax_rates_id = row.tax_rates_id,
-                        accounting_glaccounts_id = row.accounting_glaccounts_id,
-                        accounting_costcenters_id = row.accounting_costcenters_id
+                        product_name = row.customers_orders_items.ProductName,
+                        description = row.customers_orders_items.Description,
+                        quantity = row.customers_orders_items.Quantity,
+                        price = row.customers_orders_items.Price,
+                        tax_rates_id = row.customers_orders_items.tax_rates_id,
+                        accounting_glaccounts_id = row.customers_orders_items.accounting_glaccounts_id,
+                        accounting_costcenters_id = row.customers_orders_items.accounting_costcenters_id
                     )
 
             # Check for classcard
-            if row.school_classcards_id:
+            if row.customers_orders_items.school_classcards_id:
                 # Deliver card
                 card_start = TODAY_LOCAL
-                scd = SchoolClasscard(row.school_classcards_id)
+                scd = SchoolClasscard(row.customers_orders_items.school_classcards_id)
                 ccdID = scd.sell_to_customer(self.order.auth_customer_id,
                                              card_start,
                                              invoice=False)
@@ -543,7 +554,7 @@ class Order:
                     invoice.item_add_classcard(ccdID)
 
             # Check for subscription
-            if row.school_subscriptions_id:
+            if row.customers_orders_items.school_subscriptions_id:
                 ## Deliver subscription
                 # Determine payment method
                 cs_payment_method = get_sys_property('shop_subscriptions_payment_method')
@@ -553,7 +564,7 @@ class Order:
                     payment_method_id = 3
 
                 subscription_start = TODAY_LOCAL
-                ssu = SchoolSubscription(row.school_subscriptions_id)
+                ssu = SchoolSubscription(row.customers_orders_items.school_subscriptions_id)
                 csID = ssu.sell_to_customer(
                     self.order.auth_customer_id,
                     subscription_start,
@@ -580,10 +591,10 @@ class Order:
 
 
             # Check for membership
-            if row.school_memberships_id:
+            if row.customers_orders_items.school_memberships_id:
                 # Deliver membership
                 membership_start = TODAY_LOCAL
-                sme = SchoolMembership(row.school_memberships_id)
+                sme = SchoolMembership(row.customers_orders_items.school_memberships_id)
                 cmID = sme.sell_to_customer(
                     self.order.auth_customer_id,
                     membership_start,
@@ -601,9 +612,9 @@ class Order:
                         iiID = invoice.item_add_membership(cmID)
 
             # Check for workshop
-            if row.workshops_products_id:
+            if row.customers_orders_items.workshops_products_id:
                 # Deliver workshop product
-                wsp = WorkshopProduct(row.workshops_products_id)
+                wsp = WorkshopProduct(row.customers_orders_items.workshops_products_id)
                 wspcID = wsp.sell_to_customer(self.order.auth_customer_id,
                                               invoice=False)
 
@@ -618,23 +629,23 @@ class Order:
                     ws.cancel_orders_with_sold_out_products()
 
             # Check for classes
-            if row.classes_id:
+            if row.customers_orders_items.classes_id:
                 # Deliver class
                 ah = AttendanceHelper()
-                if row.AttendanceType == 1:
+                if row.customers_orders_items.AttendanceType == 1:
                     result = ah.attendance_sign_in_trialclass(
                         self.order.auth_customer_id,
-                        row.classes_id,
-                        row.ClassDate,
+                        row.customers_orders_items.classes_id,
+                        row.customers_orders_items.ClassDate,
                         online_booking=class_online_booking,
                         invoice=False,
                         booking_status=class_booking_status
                     )
-                elif row.AttendanceType == 2:
+                elif row.customers_orders_items.AttendanceType == 2:
                     result = ah.attendance_sign_in_dropin(
                         self.order.auth_customer_id,
-                        row.classes_id,
-                        row.ClassDate,
+                        row.customers_orders_items.classes_id,
+                        row.customers_orders_items.ClassDate,
                         online_booking=class_online_booking,
                         invoice=False,
                         booking_status=class_booking_status,
@@ -647,13 +658,16 @@ class Order:
                 cache_clear_classschedule_api()
 
             # Check for donation
-            if row.Donation:
+            if row.customers_orders_items.Donation:
                 # Add donation line to invoice
                 if create_invoice and create_invoice_for_donations:
-                    invoice.item_add_donation(row.TotalPriceVAT, row.Description)
+                    invoice.item_add_donation(
+                        row.customers_orders_items.TotalPriceVAT,
+                        row.customers_orders_items.Description
+                    )
 
             # Check for custom item
-            if row.Custom:
+            if row.customers_orders_items.Custom:
                 # Add custom line to invoice
                 if create_invoice:
                     invoice.item_add_custom_from_order(row)
@@ -663,12 +677,22 @@ class Order:
         #if create_invoice:
             #invoice.mail_customer_invoice_created()
 
+        receipt = None
+        if self.order.Origin == "pos":
+            from .os_receipt import Receipt
+
+            rID = db.receipts.insert(payment_methods_id=payment_methods_id)
+            receipt = Receipt(rID)
+
+            for row in rows:
+                receipt.item_add_from_order_item(row)
+
         # Update status
         self.set_status_delivered()
         # Notify customer of order delivery
         self._deliver_mail_customer()
 
-        return dict(iID=iID, invoice=invoice)
+        return dict(iID=iID, invoice=invoice, receipt=receipt)
 
 
     def _deliver_mail_customer(self):

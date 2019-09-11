@@ -285,7 +285,7 @@ def checkout_order_membership(smID, order):
     items = order.get_order_items_rows()
     membership_already_ordered = False
     for item in items:
-        if item.school_memberships_id == int(smID):
+        if item.customers_orders_items.school_memberships_id == int(smID):
             membership_already_ordered = True
             break
 
@@ -300,7 +300,7 @@ def checkout_order_classcard(scdID, order):
     items = order.get_order_items_rows()
     card_already_ordered = False
     for item in items:
-        if item.school_classcards_id == int(scdID):
+        if item.customers_orders_items.school_classcards_id == int(scdID):
             card_already_ordered = True
             break
 
@@ -315,7 +315,7 @@ def checkout_order_subscription(ssuID, order):
     items = order.get_order_items_rows()
     already_ordered = False
     for item in items:
-        if item.school_subscriptions_id == int(ssuID):
+        if item.customers_orders_items.school_subscriptions_id == int(ssuID):
             already_ordered = True
             break
 
@@ -332,7 +332,7 @@ def checkout_order_workshop_product(wspID, order):
     items = order.get_order_items_rows()
     already_ordered = False
     for item in items:
-        if item.workshops_products_id == int(wspID):
+        if item.customers_orders_items.workshops_products_id == int(wspID):
             already_ordered = True
             break
 
@@ -349,7 +349,7 @@ def checkout_order_class(clsID, class_date, attendance_type, order):
     items = order.get_order_items_rows()
     already_ordered = False
     for item in items:
-        if item.classes_id == int(clsID) and item.ClassDate == class_date:
+        if item.customers_orders_items.classes_id == int(clsID) and item.customers_orders_items.ClassDate == class_date:
             already_ordered = True
             break
 
@@ -1418,7 +1418,7 @@ def subscription():
             membership = SchoolMembership(ssu.school_memberships_id)
             m_required = DIV(
                 DIV(H4(T("Membership required")),
-                    T("To take this subscription the following membership is required"), BR(), BR(),
+                    T("To activate this subscription the following membership is required"), BR(), BR(),
                     subscription_get_membership_info(membership),
                     _class='col-md-6'),
                 DIV(H4(T("Membership terms & conditions")),
@@ -1847,7 +1847,7 @@ def classcard():
         membership = SchoolMembership(scd.row.school_memberships_id)
         m_required = DIV(
             DIV(H4(T("Membership required")),
-                T("To take this classcard the following membership is required. It will be added to your order."), BR(), BR(),
+                T("To purchase this classcard the following membership is required. It will be added to your order."), BR(), BR(),
                 subscription_get_membership_info(membership),
                 _class='col-md-6'),
             DIV(H4(T("Membership terms & conditions")),

@@ -1245,11 +1245,11 @@ def orders_display(var=None):
         items = TABLE(items_header, _class='table table-condensed')
         for i, item in enumerate(order['items']):
             repr_item = list(order['items'][i:i + 1].render())[0]
-            items.append(TR(TD(item.ProductName),
-                            TD(item.Description),
-                            TD(item.Quantity),
-                            TD(repr_item.Price),
-                            TD(repr_item.TotalPriceVAT)))
+            items.append(TR(TD(item.customers_orders_items.ProductName),
+                            TD(item.customers_orders_items.Description),
+                            TD(item.customers_orders_items.Quantity),
+                            TD(repr_item.customers_orders_items.Price),
+                            TD(repr_item.customers_orders_items.TotalPriceVAT)))
 
         items.append(TR(TD(),
                         TD(),
