@@ -47,16 +47,15 @@ class Customers extends Component {
         const customers = this.props.customers.data
         let cuID
 
-        if (validator.isInt(value)) {
+        if (validator.isInt(value.replace(/^\s\s*/, '').replace(/\s\s*$/, ''))) {
             // Find customer ID based on barcode ID
-            console.log('looking for cuID in customers using barcode')
+            console.log('looking for barcode_id in customers using barcode')
             for (const key of Object.keys(customers)) {
                 let c = customers[key]
-                console.log(c)
+                // console.log(c)
                 if ( c['barcode_id'] == value) {
                     cuID = c['id']
                 }
-
             }
 
             this.props.setDisplayCustomerID(cuID)
@@ -66,10 +65,8 @@ class Customers extends Component {
             console.log(cuID)
 
         } else {
-            console.log('not an int value')
-
+            console.log('search input is not an int value')
         }
-
         console.log(value)
     }
 

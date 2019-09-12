@@ -454,6 +454,7 @@ class Reports:
         ##
         cls = Class(clsID, date)
         teacher_payment = cls.get_teacher_payment()
+        print(teacher_payment)
         if not teacher_payment['error']:
             tp_amount = teacher_payment['data']['ClassRate']
             tp_display = represent_decimal_as_amount(tp_amount)

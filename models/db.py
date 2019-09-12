@@ -132,14 +132,16 @@ crud.messages.submit_button = T('Save')
 # configure email
 # -------------------------------------------------------------------------
 mail = auth.settings.mailer
-
-mail.settings.server = configuration.get('smtp.server')
-# mail.settings.server = 'logging'
+#
+# mail.settings.server = configuration.get('smtp.server')
+# # mail.settings.server = 'logging'
 mail.settings.sender = configuration.get('smtp.sender')
-if configuration.get('smtp.login'):
-    mail.settings.login = configuration.get('smtp.login')
-mail.settings.tls = configuration.get('smtp.tls') or False
-mail.settings.ssl = configuration.get('smtp.ssl') or False
+# if configuration.get('smtp.login'):
+#     mail.settings.login = configuration.get('smtp.login')
+# mail.settings.tls = configuration.get('smtp.tls') or False
+# mail.settings.ssl = configuration.get('smtp.ssl') or False
+
+mail.settings.server = 'logging'
 
 if web2pytest.is_running_under_test(request, request.application):
     mail.settings.server = 'logging'

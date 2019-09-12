@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from decimal import Decimal
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'accounting_cashbooks'))
@@ -82,7 +83,7 @@ def get_debit(date):
 
     # Sold products
     sold_products = get_debit_sales_summary(date)
-    total += sold_products['total']
+    total += Decimal(sold_products['total'])
 
     # Class teacher payments
     teacher_payments = get_debit_classes(date, 'teacher_payments')
