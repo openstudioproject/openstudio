@@ -116,8 +116,10 @@ const AttendanceList = ({attendance_items, intl, title="", onClick=f=>f, onClick
                                 <td>
                                     {(item.school_classcards) ? item.school_classcards.Name : ""}
                                     {(item.school_subscriptions) ? item.school_subscriptions.Name : ""}
-                                    {(item.AttendanceType === 2) ? "Drop-in": ""}
-                                    {(item.AttendanceType === 2) ? "Complementary": ""}
+                                    {(item.classes_attendance.AttendanceType === 1) ? "Trial": ""}
+                                    {(item.classes_attendance.AttendanceType === 2) ? "Drop-in": ""}
+                                    {(item.classes_attendance.AttendanceType === 4) ? "Complementary": ""}
+                                    {(item.classes_attendance.AttendanceType === 6) ? "Drop-in (pay later)": ""}
                                 </td>
                                 <td><Customerclasses clattID={item.classes_attendance.id}
                                                      status={item.classes_attendance.BookingStatus}
