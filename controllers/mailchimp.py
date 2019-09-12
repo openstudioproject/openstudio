@@ -40,8 +40,7 @@ def unsubscribe():
     list_id = request.vars['list_id']
 
     osmc = OsMailChimp()
-    osmc.list_member_delete(list_id, auth.user.id)
-
-    session.flash = T('Successfully unsubscribed from list')
+    result = osmc.list_member_delete(list_id, auth.user.id)
+    session.flash = result['message']
 
     redirect(URL('profile', 'mail', extension=''))

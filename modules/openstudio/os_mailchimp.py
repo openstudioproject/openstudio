@@ -88,14 +88,27 @@ class OsMailChimp():
             Delete a member from a list
         """
         from .os_customer import Customer
+
+        T = current.T
         customer = Customer(cuID)
 
         mailchimp = self.get_client()
 
-        mailchimp.lists.members.delete(
-            list_id=list_id,
-            subscriber_hash=customer.get_email_hash('md5')
-        )
+        error = False
+        message = T('Successfully unsubscribed from list')
+        try:
+            mailchimp.lists.members.delete(
+                list_id=list_id,
+                subscriber_hash=customer.get_email_hash('md5')
+            )
+        except MailChimpError as e:
+            error = True
+            message = DIV(
+                T("We encountered an error while trying to unsubscribe you from this list."), BR(),
+                T("Please try again later or contact us when the error persists."),
+            )
+
+        return dict(error=error, message=message)
 
 
     def get_mailing_lists(self):
