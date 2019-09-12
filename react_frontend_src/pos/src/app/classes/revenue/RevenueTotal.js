@@ -34,13 +34,13 @@ const RevenueTotal = ({revenue, teacher_payment, teacher_payment_verifying, intl
                 <tbody>
                     <tr>
                         <td>{intl.formatMessage({ id:"app.general.strings.attendance" })}</td>
-                        <td>{currency_symbol} { ' ' } {revenue.total.amount.toFixed(2)}</td>
+                        <td>{currency_symbol} { ' ' } {revenue.total.amount}</td>
                     </tr>
                     <tr>
                         <td>{intl.formatMessage({ id:"app.general.strings.teacher_payment" })}</td>
                         <td>{ (teacher_payment.error) ? 
                                 <span className="text-red"> { teacher_payment.data } </span> : 
-                                currency_symbol +  ' ' + teacher_payment.data.ClassRate.toFixed(2) }
+                                currency_symbol +  ' ' + teacher_payment.data.ClassRate }
                         </td>
                     </tr>
                 </tbody>
@@ -48,7 +48,7 @@ const RevenueTotal = ({revenue, teacher_payment, teacher_payment_verifying, intl
                     <tr>
                         <th>{intl.formatMessage({ id:"app.pos.classes.revenue.total.studio_revenue" })}</th>
                         <th>{currency_symbol} { ' ' } { 
-                            (revenue.total.amount - teacher_payment.data.ClassRate).toFixed(2) }
+                            (revenue.total.amount - teacher_payment.data.ClassRate) }
                         </th> 
                     </tr>
                 </tfoot>

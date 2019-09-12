@@ -66,9 +66,9 @@ const BookOptionsList = ({booking_options, customer_memberships, onClick=f=>f}) 
         <h4>Drop-in & Trial</h4>
         <div className="row">
             <BookOptionsListItemDropin data={booking_options.dropin}
-                                        onClick={onClick} />
+                                       onClick={onClick} />
             <BookOptionsListItemTrial data={booking_options.trial}
-                                        onClick={onClick} />
+                                      onClick={onClick} />
         </div>
         <h4>Other</h4>
         <div className="row">
