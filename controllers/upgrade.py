@@ -50,6 +50,10 @@ def index():
             print(version)
             upgrade_to_201910()
             session.flash = T("Upgraded db to 2019.10")
+        if version < 2019.12:
+            print(version)
+            upgrade_to_201912()
+            session.flash = T("Upgraded db to 2019.12")
         else:
             session.flash = T('Already up to date')
 
@@ -342,3 +346,23 @@ def upgrade_to_201910():
         Property="shop_classes_trial_limit",
         PropertyValue="1"
     )
+
+
+def upgrade_to_201912():
+    """
+        Upgrade operations to 2019.12
+    """
+    ##
+    # Set default value for "direct debit" (payment method 3)
+    # db.customers_subscriptions.Origin & Verified
+    # Origin is set to "BACKEND" for all current subscriptions
+    # Verified is set to True for all current subscriptions
+    ##
+    query = (db.customers_subscriptions.Origin == None) & \
+            (db.customers_subscriptions.payment_methods_id == 3)
+    db(query).update(
+        Origin = "BACKEND",
+        Verified = "T"
+    )
+
+
