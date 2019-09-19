@@ -2926,8 +2926,20 @@ def define_customers_subscriptions():
         Field('RegistrationFeePaid','boolean',
               readable=False,
               writable=False,
-              default=False
+              default=False),
+        Field('Source',
+              readable=False,
+              writable=False,
+              default="BACKEND",
+              requires=IS_IN_SET(
+                  ['BACKEND', T("Backend")],
+                  ['SHOP', T("Shop")],
               ),
+              label=T('Source')),
+        Field('Verified', 'boolean',
+              readable=False,
+              writable=False,
+              default=False),
         singular=T("Subscription"), plural=T("Subscriptions"))
 
 
