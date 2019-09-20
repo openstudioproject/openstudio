@@ -1649,6 +1649,7 @@ def subscription_direct_debit():
        Get a subscription
     """
     from openstudio.os_customer import Customer
+    from openstudio.os_customer_subscription import CustomerSubscription
     from openstudio.os_school_subscription import SchoolSubscription
 
     ssuID = request.vars['ssuID']
@@ -1680,6 +1681,10 @@ def subscription_direct_debit():
         Origin="SHOP",
         Verified=False,
     )
+
+    # Set min end date
+    cs = CustomerSubscription(csID)
+    cs.set_min_enddate()
 
     # Add accepted terms
     customer = Customer(auth.user.id)
