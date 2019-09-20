@@ -3774,6 +3774,7 @@ def subscriptions():
                             db.customers_subscriptions.Enddate,
                             db.customers_subscriptions.MinEnddate,
                             db.customers_subscriptions.payment_methods_id,
+                            db.customers_subscriptions.Verified,
                             orderby=~db.customers_subscriptions.Startdate)
 
     for i, row in enumerate(rows):
@@ -3794,9 +3795,9 @@ def subscriptions():
 
         edit = subscriptions_get_link_edit(row)
 
-
         tr = TR(TD(row.id),
-                TD(max_string_length(repr_row.school_subscriptions_id, 30),
+                TD(max_string_length(repr_row.school_subscriptions_id, 30), BR(),
+                   subscriptions_get_label_verified(row),
                    _title=repr_row.school_subscriptions_id),
                 TD(repr_row.Startdate),
                 TD(repr_row.Enddate, BR(),
@@ -3823,6 +3824,16 @@ def subscriptions():
     menu = customers_get_menu(customers_id, request.function)
 
     return dict(content=content, menu=menu, back=back, tools=add)
+
+
+def subscriptions_get_label_verified(row):
+    """
+    Returns "Verified" label if "Verified", otherwise return empty string
+    """
+    if row.payment_methods_id == 3 and row.Verified:
+        return os_gui.get_label('success', T("Verified"))
+    else:
+        return ""
 
 
 def subscriptions_get_link_edit(row):
