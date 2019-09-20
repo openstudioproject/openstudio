@@ -1677,6 +1677,8 @@ def subscription_direct_debit():
         school_subscriptions_id=ssuID,
         Startdate=startdate,
         payment_methods_id=3,  # important, 3 = Direct Debit
+        Origin="SHOP",
+        Verified=False,
     )
 
     # Add accepted terms
