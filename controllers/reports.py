@@ -1762,10 +1762,16 @@ def subscriptions_online():
     ))
 
     header = THEAD(TR(
-        TH(T("Status")),
-        TH(T("")),
-
+        TH(), # Image
+        TH(), # Name
+        TH(T("Start")),
+        TH(T("Subscription")),
+        TH(T("Payment method")),
+        TH(T("Verified")),
+        TH()
     ))
+
+    table = TABLE(header, _class="table table-hover")
 
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
@@ -1775,7 +1781,7 @@ def subscriptions_online():
     menu = subscriptions_get_menu(request.function)
 
     return dict(
-        content="Hello world",
+        content=table,
         total="total",
         form=form,
         menu=menu,

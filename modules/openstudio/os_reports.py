@@ -125,9 +125,9 @@ class Reports:
         end_of_month = get_last_day_month(first_of_month)
 
         query = (
-            (db.customers_subscriptions.StartDate >= first_of_month) &
-            (db.customers_subscriptions.StartDate <= end_of_month) &
-            (db.customers.subscriptions.Origin == "SHOP")
+            (db.customers_subscriptions.Startdate >= first_of_month) &
+            (db.customers_subscriptions.Startdate <= end_of_month) &
+            (db.customers_subscriptions.Origin == "SHOP")
         )
 
         left = [
@@ -147,7 +147,9 @@ class Reports:
             db.auth_user.last_name,
             db.auth_user.display_name,
             db.auth_user.date_of_birth,
-            db.auth_user.email
+            db.auth_user.email,
+            left=left,
+            orderby=db.customers_subscriptions.Startdate
         )
 
 
