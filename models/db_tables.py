@@ -2939,7 +2939,9 @@ def define_customers_subscriptions():
         Field('Verified', 'boolean',
               readable=False,
               writable=False,
-              default=False),
+              default=False,
+              comment=T("Use this field to indicate that the payment details for a subscription have been verified.")
+              ),
         singular=T("Subscription"), plural=T("Subscriptions"))
 
 
