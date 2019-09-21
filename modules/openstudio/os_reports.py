@@ -110,6 +110,47 @@ class Reports:
         return query
 
 
+    def get_subscriptions_online_in_month_rows(self, date):
+        """
+        Return rows for subscriptions coming from the shop in a given month
+        where date is a day in the selected month
+        :param date:
+        :return:
+        """
+        from ..general_helpers import get_last_day_month
+
+        db = current.db
+
+        first_of_month = datetime.date(date.year, date.month, 1)
+        end_of_month = get_last_day_month(first_of_month)
+
+        query = (
+            (db.customers_subscriptions.StartDate >= first_of_month) &
+            (db.customers_subscriptions.StartDate <= end_of_month) &
+            (db.customers.subscriptions.Origin == "SHOP")
+        )
+
+        left = [
+            db.auth_user.on(
+                db.customers_subscriptions.auth_customer_id ==
+                db.auth_user.id
+            )
+        ]
+
+        return db(query).select(
+            db.customers_subscriptions.ALL,
+            db.auth_user.id,
+            db.auth_user.trashed,
+            db.auth_user.thumbsmall,
+            db.auth_user.birthday,
+            db.auth_user.first_name,
+            db.auth_user.last_name,
+            db.auth_user.display_name,
+            db.auth_user.date_of_birth,
+            db.auth_user.email
+        )
+
+
     def get_classes_revenue_summary_day(self, date):
         """
 

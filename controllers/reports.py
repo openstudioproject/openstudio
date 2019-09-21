@@ -1598,7 +1598,7 @@ def subscriptions_new():
         db.customers_subscriptions.school_subscriptions_id,
         db.customers_subscriptions.Startdate,
         db.customers_subscriptions.payment_methods_id
-     ]
+    ]
     rows = db.executesql(query, fields=fields)
 
     total = T("Total: " + str(len(rows)))
@@ -1731,6 +1731,11 @@ def subscriptions_new_export_mailinglist():
 @auth.requires(auth.has_membership(group_id='Admins') or \
                 auth.has_permission('read', 'reports_subscriptions'))
 def subscriptions_online():
+    """
+    List of online subscriptions for a given month
+    """
+    from openstudio.os_reports import Reports
+
     response.title = T("Reports")
     session.customers_back = 'subscriptions_online'
     response.view = 'reports/subscriptions.html'
@@ -1749,27 +1754,35 @@ def subscriptions_online():
     current_month = result['current_month']
     submit = result['submit']
 
+    reports = Reports()
+    rows = reports.get_subscriptions_online_in_month_rows(datetime.date(
+        session.reports_subscriptions_year,
+        session.reports_subscriptions_month,
+        1
+    ))
+
+    header = THEAD(TR(
+        TH(T("Status")),
+        TH(T("")),
+
+    ))
+
+    for i, row in enumerate(rows):
+        repr_row = list(rows[i:i + 1].render())[0]
+
+
+
     menu = subscriptions_get_menu(request.function)
 
     return dict(
         content="Hello world",
         total="total",
-        form="form",
+        form=form,
         menu=menu,
         month_chooser=month_chooser,
         current_month=current_month,
         submit=submit
     )
-
-    # return dict(content=table,
-    #             total=total,
-    #             form=form,
-    #             menu=menu,
-    #             modals=modals,
-    #             month_chooser=month_chooser,
-    #             current_month=current_month,
-    #             submit=submit)
-
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
