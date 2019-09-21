@@ -1790,7 +1790,6 @@ def subscriptions_online():
 
     return dict(
         content=table,
-        total="total",
         form=form,
         menu=menu,
         month_chooser=month_chooser,
