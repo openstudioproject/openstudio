@@ -2938,7 +2938,7 @@ def define_customers_subscriptions():
               label=T('Origin')),
         Field('Verified', 'boolean',
               readable=False,
-              writable=False,
+              writable=True,
               default=False,
               comment=T("Use this field to indicate that the payment details for a subscription have been verified.")
               ),
