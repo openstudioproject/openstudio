@@ -43,10 +43,11 @@ def index():
 
 def subscriptions_get_menu(page=None):
     pages = [
-        (['subscriptions_overview', T('Subscriptions overview'), URL('reports',"subscriptions_overview")]),
-        (['subscriptions_new', T('New subscriptions'), URL('reports',"subscriptions_new")]),
-        (['subscriptions_stopped', T('Stopped subscriptions'), URL('reports',"subscriptions_stopped")]),
-        (['subscriptions_paused', T('Paused subscriptions'), URL('reports',"subscriptions_paused")]),
+        (['subscriptions_overview', T('Overview'), URL('reports',"subscriptions_overview")]),
+        (['subscriptions_new', T('New'), URL('reports',"subscriptions_new")]),
+        (['subscriptions_online', T('Online'), URL('reports',"subscriptions_online")]),
+        (['subscriptions_stopped', T('Stopped'), URL('reports',"subscriptions_stopped")]),
+        (['subscriptions_paused', T('Paused'), URL('reports',"subscriptions_paused")]),
         (['subscriptions_alt_prices', T('Alt. prices'), URL('reports',"subscriptions_alt_prices")]),
         ]
 
@@ -166,6 +167,7 @@ def get_form_subtitle(month=None,
     ## Show current
 
     if function == 'subscriptions_new' or \
+            function == 'subscriptions_online' or \
             function == 'subscriptions_paused' or \
             function == 'subscriptions_stopped' or \
             function == 'subscriptions_overview' or \
@@ -1044,6 +1046,7 @@ def overview_get_month_chooser(page):
         link = 'classcards_set_month'
 
     if ( page == 'subscriptions_new' or
+         page == 'subscriptions_online' or
          page == 'subscriptions_stopped' or
          page == 'subscriptions_paused' or
          page == 'subscriptions_overview' or
@@ -1551,9 +1554,11 @@ def subscriptions_new():
     # set the session vars for year/month
     subscriptions_process_request_vars()
 
-    date = datetime.date(session.reports_subscriptions_year,
-                         session.reports_subscriptions_month,
-                         1)
+    date = datetime.date(
+        session.reports_subscriptions_year,
+        session.reports_subscriptions_month,
+        1
+    )
 
     reports = Reports()
 
@@ -1721,6 +1726,49 @@ def subscriptions_new_export_mailinglist():
     response.headers['Content-disposition']='attachment; filename=' + fname
 
     return stream.getvalue()
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+                auth.has_permission('read', 'reports_subscriptions'))
+def subscriptions_online():
+    response.title = T("Reports")
+    session.customers_back = 'subscriptions_online'
+    response.view = 'reports/subscriptions.html'
+
+    # Set the session vars for year/month
+    subscriptions_process_request_vars()
+
+    result = get_form_subtitle(
+        session.reports_subscriptions_month,
+        session.reports_subscriptions_year,
+        request.function
+    )
+    response.subtitle = T('Subscriptions') + ' - ' + result['subtitle']
+    form = result['form']
+    month_chooser = result['month_chooser']
+    current_month = result['current_month']
+    submit = result['submit']
+
+    menu = subscriptions_get_menu(request.function)
+
+    return dict(
+        content="Hello world",
+        total="total",
+        form="form",
+        menu=menu,
+        month_chooser=month_chooser,
+        current_month=current_month,
+        submit=submit
+    )
+
+    # return dict(content=table,
+    #             total=total,
+    #             form=form,
+    #             menu=menu,
+    #             modals=modals,
+    #             month_chooser=month_chooser,
+    #             current_month=current_month,
+    #             submit=submit)
 
 
 
