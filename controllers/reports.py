@@ -1776,6 +1776,14 @@ def subscriptions_online():
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
+        table.append(TR(
+            TD(repr_row.auth_user.thumbsmall, _class="os-customer_image_td"),
+            TD(row.auth_user.display_name, _class="os-customer_name"),
+            TD(repr_row.customers_subscriptions.Startdate),
+            TD(repr_row.customers_subscriptions.school_subscriptions_id),
+            TD(repr_row.customers_subscriptions.payment_methods_id),
+            TD(repr_row.customers_subscriptions.Verified),
+        ))
 
 
     menu = subscriptions_get_menu(request.function)

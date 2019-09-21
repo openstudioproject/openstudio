@@ -127,7 +127,8 @@ class Reports:
         query = (
             (db.customers_subscriptions.Startdate >= first_of_month) &
             (db.customers_subscriptions.Startdate <= end_of_month) &
-            (db.customers_subscriptions.Origin == "SHOP")
+            (db.customers_subscriptions.Origin == "SHOP") &
+            (db.customers_subscriptions.payment_methods_id == 3)
         )
 
         left = [
