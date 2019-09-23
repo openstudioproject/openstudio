@@ -568,7 +568,8 @@ class Order:
                 csID = ssu.sell_to_customer(
                     self.order.auth_customer_id,
                     subscription_start,
-                    payment_methods_id=payment_method_id
+                    payment_methods_id=payment_method_id,
+                    origin="SHOP"
                 )
 
                 # Add credits for the first month
