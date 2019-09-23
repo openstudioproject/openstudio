@@ -1979,7 +1979,7 @@ def test_subscriptions_membership_required_message(client, web2py):
     assert sm.Name in client.text
 
 
-def test_subscription(client, web2py):
+def test_subscription_terms(client, web2py):
     """
         Are the terms for a subscription showing correctly?
          ( First the general terms defined in settings and below the specific terms from the subscription in school )
