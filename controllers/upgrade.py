@@ -364,5 +364,3 @@ def upgrade_to_201912():
         Origin = "BACKEND",
         Verified = "T"
     )
-
-

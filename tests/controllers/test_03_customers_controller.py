@@ -732,6 +732,28 @@ def populate_customer_subscriptions_paused(client, web2py):
     web2py.db.commit()
 
 
+def test_subscriptions_show_label_verified(client, web2py):
+    """
+        Is the custom delete function for customer subscriptions working?
+    """
+    # get random url to initialize payment methods
+    url = '/default/user/login'
+    client.get(url)
+    assert client.status == 200
+
+    populate_customers_with_subscriptions(web2py, 2, invoices=True)
+    cs = web2py.db.customers_subscriptions(1)
+    cs.Verified = True
+    cs.update_record()
+
+    web2py.db.commit()
+
+    url = '/customers/subscriptions?cuID=1001&csID=1'
+    client.get(url)
+    assert client.status == 200
+    assert 'Verified' in client.text
+
+
 def test_subscription_edit(client, web2py):
     """
         can we edit a subscription?
