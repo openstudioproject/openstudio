@@ -43,10 +43,11 @@ def index():
 
 def subscriptions_get_menu(page=None):
     pages = [
-        (['subscriptions_overview', T('Subscriptions overview'), URL('reports',"subscriptions_overview")]),
-        (['subscriptions_new', T('New subscriptions'), URL('reports',"subscriptions_new")]),
-        (['subscriptions_stopped', T('Stopped subscriptions'), URL('reports',"subscriptions_stopped")]),
-        (['subscriptions_paused', T('Paused subscriptions'), URL('reports',"subscriptions_paused")]),
+        (['subscriptions_overview', T('Overview'), URL('reports',"subscriptions_overview")]),
+        (['subscriptions_new', T('New'), URL('reports',"subscriptions_new")]),
+        (['subscriptions_online', T('Online'), URL('reports',"subscriptions_online")]),
+        (['subscriptions_stopped', T('Stopped'), URL('reports',"subscriptions_stopped")]),
+        (['subscriptions_paused', T('Paused'), URL('reports',"subscriptions_paused")]),
         (['subscriptions_alt_prices', T('Alt. prices'), URL('reports',"subscriptions_alt_prices")]),
         ]
 
@@ -166,6 +167,7 @@ def get_form_subtitle(month=None,
     ## Show current
 
     if function == 'subscriptions_new' or \
+            function == 'subscriptions_online' or \
             function == 'subscriptions_paused' or \
             function == 'subscriptions_stopped' or \
             function == 'subscriptions_overview' or \
@@ -1044,6 +1046,7 @@ def overview_get_month_chooser(page):
         link = 'classcards_set_month'
 
     if ( page == 'subscriptions_new' or
+         page == 'subscriptions_online' or
          page == 'subscriptions_stopped' or
          page == 'subscriptions_paused' or
          page == 'subscriptions_overview' or
@@ -1551,9 +1554,11 @@ def subscriptions_new():
     # set the session vars for year/month
     subscriptions_process_request_vars()
 
-    date = datetime.date(session.reports_subscriptions_year,
-                         session.reports_subscriptions_month,
-                         1)
+    date = datetime.date(
+        session.reports_subscriptions_year,
+        session.reports_subscriptions_month,
+        1
+    )
 
     reports = Reports()
 
@@ -1593,7 +1598,7 @@ def subscriptions_new():
         db.customers_subscriptions.school_subscriptions_id,
         db.customers_subscriptions.Startdate,
         db.customers_subscriptions.payment_methods_id
-     ]
+    ]
     rows = db.executesql(query, fields=fields)
 
     total = T("Total: " + str(len(rows)))
@@ -1722,6 +1727,93 @@ def subscriptions_new_export_mailinglist():
 
     return stream.getvalue()
 
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
+                auth.has_permission('read', 'reports_subscriptions'))
+def subscriptions_online():
+    """
+    List of online subscriptions for a given month
+    """
+    from openstudio.os_reports import Reports
+
+    response.title = T("Reports")
+    session.customers_back = 'subscriptions_online'
+    response.view = 'reports/subscriptions.html'
+
+    # Set the session vars for year/month
+    subscriptions_process_request_vars()
+
+    result = get_form_subtitle(
+        session.reports_subscriptions_month,
+        session.reports_subscriptions_year,
+        request.function
+    )
+    response.subtitle = T('Subscriptions') + ' - ' + result['subtitle']
+    form = result['form']
+    month_chooser = result['month_chooser']
+    current_month = result['current_month']
+    submit = result['submit']
+
+    reports = Reports()
+    rows = reports.get_subscriptions_online_in_month_rows(datetime.date(
+        session.reports_subscriptions_year,
+        session.reports_subscriptions_month,
+        1
+    ))
+
+    header = THEAD(TR(
+        TH(), # Image
+        TH(), # Name
+        TH(T("Start")),
+        TH(T("Subscription")),
+        TH(T("Payment method")),
+        TH(T("Verified")),
+    ))
+
+    table = TABLE(header, _class="table table-hover")
+    permission_edit = (
+        auth.has_membership(group_id='Admins') or
+        auth.has_permission('update', 'customers_subscriptions')
+    )
+    permission_edit_pm = (
+        auth.has_membership(group_id='Admins') or
+        auth.has_permission('update', 'customers_payment_info')
+    )
+
+    for i, row in enumerate(rows):
+        repr_row = list(rows[i:i + 1].render())[0]
+
+        btn_vars = {"cuID": row.auth_user.id}
+        subscription = A(
+            repr_row.customers_subscriptions.school_subscriptions_id,
+            _href=URL('customers', 'subscriptions', vars=btn_vars)
+        ) if permission_edit else repr_row.customers_subscriptions.school_subscriptions_id
+
+        pm = A(
+            repr_row.customers_subscriptions.payment_methods_id,
+            _href=URL("customers", "bankaccount", vars=btn_vars)
+        ) if permission_edit_pm else repr_row.customers_subscriptions.payment_methods_id
+
+        table.append(TR(
+            TD(repr_row.auth_user.thumbsmall, _class="os-customer_image_td"),
+            TD(row.auth_user.display_name, _class="os-customer_name"),
+            TD(repr_row.customers_subscriptions.Startdate),
+            TD(subscription),
+            TD(pm),
+            TD(repr_row.customers_subscriptions.Verified),
+        ))
+
+
+    menu = subscriptions_get_menu(request.function)
+
+    return dict(
+        content=table,
+        form=form,
+        menu=menu,
+        month_chooser=month_chooser,
+        current_month=current_month,
+        submit=submit
+    )
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \

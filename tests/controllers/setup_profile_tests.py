@@ -11,15 +11,20 @@ def setup_profile_tests(web2py):
     uid = 300
     gid = 300
 
-    web2py.db.auth_user.insert(id=uid,
-                               first_name='openstudio',
-                               last_name='profile test',
-                               email='profile@openstudioproject.com',
-                               password=password,
-                               login_start='profile')
-    web2py.db.auth_group.insert(id=gid,
-                                role='profile test',
-                                description='profile test')
+    web2py.db.auth_user.insert(
+        id=uid,
+        first_name='openstudio',
+        last_name='profile test',
+        email='profile@openstudioproject.com',
+        password=password,
+        login_start='profile'
+    )
+
+    web2py.db.auth_group.insert(
+        id=gid,
+        role='profile test',
+        description='profile test'
+    )
     # add user to group
     web2py.auth.add_membership(gid, uid)
 

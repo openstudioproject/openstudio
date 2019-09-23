@@ -235,7 +235,7 @@ class SchoolSubscription:
         return add_months(date_start, self.MinDuration)
 
 
-    def sell_to_customer(self, auth_user_id, date_start, payment_methods_id=3, note=None):
+    def sell_to_customer(self, auth_user_id, date_start, payment_methods_id=3, note=None, origin="BACKEND"):
         """
             :param auth_user_id: Sell subscription to customer
         """
@@ -249,7 +249,8 @@ class SchoolSubscription:
             Startdate = date_start,
             MinEnddate = self._sell_to_customer_get_min_end_date(date_start),
             Note = note,
-            payment_methods_id = payment_methods_id
+            payment_methods_id = payment_methods_id,
+            Origin = origin
         )
 
         ocm.clear_customers_subscriptions(auth_user_id)

@@ -1979,7 +1979,7 @@ def test_subscriptions_membership_required_message(client, web2py):
     assert sm.Name in client.text
 
 
-def test_subscription(client, web2py):
+def test_subscription_terms(client, web2py):
     """
         Are the terms for a subscription showing correctly?
          ( First the general terms defined in settings and below the specific terms from the subscription in school )
@@ -2044,6 +2044,39 @@ def test_subscription_requires_complete_profile(client, web2py):
 
     # Check general terms
     assert "best service possible" in client.text
+
+
+def test_subscription_direct_debit(client, web2py):
+    """
+    Test shop/subscription_direct_debit
+    """
+    url = "/default/user/login"
+    client.get(url)
+    assert client.status == 200
+
+    setup_profile_tests(web2py)
+    populate_school_subscriptions(web2py)
+    populate_payment_methods(web2py)
+
+    web2py.db.customers_payment_info.insert(
+        auth_customer_id = 300,
+        payment_methods_id = '3',
+        AccountNumber = 'NL40TRIO0391031538',
+        AccountHolder = 'Hello',
+        BIC = "NLBIC123",
+        BankName = 'ING',
+        BankLocation = 'NL'
+    )
+    web2py.db.commit()
+
+    url = "/shop/subscription_direct_debit?ssuID=1"
+    client.get(url)
+    assert client.status == 200
+
+    cs = web2py.db.customers_subscriptions(1)
+    assert cs.school_subscriptions_id == 1
+    assert cs.Origin == "SHOP"
+    assert cs.Verified == False
 
 
 def test_subscription_direct_debit_log_terms(client, web2py):
