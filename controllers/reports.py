@@ -1768,20 +1768,38 @@ def subscriptions_online():
         TH(T("Subscription")),
         TH(T("Payment method")),
         TH(T("Verified")),
-        TH()
     ))
 
     table = TABLE(header, _class="table table-hover")
+    permission_edit = (
+        auth.has_membership(group_id='Admins') or
+        auth.has_permission('update', 'customers_subscriptions')
+    )
+    permission_edit_pm = (
+        auth.has_membership(group_id='Admins') or
+        auth.has_permission('update', 'customers_payment_info')
+    )
 
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
+
+        btn_vars = {"cuID": row.auth_user.id}
+        subscription = A(
+            repr_row.customers_subscriptions.school_subscriptions_id,
+            _href=URL('customers', 'subscriptions', vars=btn_vars)
+        ) if permission_edit else repr_row.customers_subscriptions.school_subscriptions_id
+
+        pm = A(
+            repr_row.customers_subscriptions.payment_methods_id,
+            _href=URL("customers", "bankaccount", vars=btn_vars)
+        ) if permission_edit_pm else repr_row.customers_subscriptions.payment_methods_id
 
         table.append(TR(
             TD(repr_row.auth_user.thumbsmall, _class="os-customer_image_td"),
             TD(row.auth_user.display_name, _class="os-customer_name"),
             TD(repr_row.customers_subscriptions.Startdate),
-            TD(repr_row.customers_subscriptions.school_subscriptions_id),
-            TD(repr_row.customers_subscriptions.payment_methods_id),
+            TD(subscription),
+            TD(pm),
             TD(repr_row.customers_subscriptions.Verified),
         ))
 
