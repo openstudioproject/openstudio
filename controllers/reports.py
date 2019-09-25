@@ -1279,6 +1279,8 @@ def classcards_current():
     session.customers_back = 'classcards'
     response.view = 'reports/subscriptions.html'
 
+    from openstudio.os_customer_classcard import CustomerClasscard
+
     sort_by = request.vars['sort_by']
     sort_by = classcards_current_get_parameter_or_session('sort_by',
                                                           'startdate',
@@ -1364,13 +1366,8 @@ def classcards_current():
 
 
         ccdID = row.customers_classcards.id
-        classes_remaining = ccdh.get_classes_remaining(ccdID)
-        if classes_remaining > 1:
-            classes_remaining = SPAN(classes_remaining, ' ',
-                                     T('Classes remaining'))
-        else:
-            classes_remaining = SPAN(classes_remaining, ' ',
-                         T('Class remaining'))
+        cc = CustomerClasscard(ccdID)
+        classes_remaining = cc.get_classes_remaining_formatted()
 
         table.append(TR(TD(repr_row.auth_user.thumbsmall,
                            _class='os-customer_image_td'),

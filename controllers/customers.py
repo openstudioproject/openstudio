@@ -3245,7 +3245,6 @@ def subscription_add():
         subscription_add_add_credits,
         subscription_add_set_min_enddate,
         # subscription_add_create_invoice
-
     ]
     form = crud.create(db.customers_subscriptions)
 
