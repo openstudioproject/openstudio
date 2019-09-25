@@ -796,14 +796,14 @@ def generate_batch_items_invoices(pbID,
             db.invoices_customers.invoices_id ==
             db.invoices.id
         ),
-        db.invoices_items.on(
-            db.invoices_items.invoices_id ==
-            db.invoices.id
-        ),
-        db.invoices_items_customers_subscriptions.on(
-            db.invoices_items_customers_subscriptions.invoices_items_id ==
-            db.invoices_items.id
-        ),
+        # db.invoices_items.on(
+        #     db.invoices_items.invoices_id ==
+        #     db.invoices.id
+        # ),
+        # db.invoices_items_customers_subscriptions.on(
+        #     db.invoices_items_customers_subscriptions.invoices_items_id ==
+        #     db.invoices_items.id
+        # ),
         db.auth_user.on(
             db.invoices_customers.auth_customer_id ==
             db.auth_user.id
@@ -824,7 +824,7 @@ def generate_batch_items_invoices(pbID,
 
     rows = db(query).select(db.invoices.ALL,
                             db.invoices_amounts.ALL,
-                            db.invoices_items_customers_subscriptions.ALL,
+                            # db.invoices_items_customers_subscriptions.ALL,
                             db.customers_payment_info.ALL,
                             db.customers_payment_info_mandates.ALL,
                             db.school_locations.Name,
@@ -834,7 +834,7 @@ def generate_batch_items_invoices(pbID,
 
     for row in rows:
         cuID = row.auth_user.id
-        csID = row.invoices_items_customers_subscriptions.customers_subscriptions_id
+        csID = ""
         iID  = row.invoices.id
 
         amount = row.invoices_amounts.TotalPriceVAT
