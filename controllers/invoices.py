@@ -934,8 +934,8 @@ def list_items():
                 TD(SPAN(repr_row.invoices_items.Price, _class='pull-right')),
                 TD(repr_row.invoices_items.tax_rates_id),
                 TD(SPAN(repr_row.invoices_items.TotalPriceVAT,
-                        _title=T("Subtotal: ") + CURRSYM + format(row.invoices_items.TotalPrice, '.2f') + ' ' +\
-                               T('VAT: ') + CURRSYM + format(row.invoices_items.VAT, '.2f'),
+                        _title=T("Subtotal: ") + CURRSYM + str(row.invoices_items.TotalPrice) + ' ' +\
+                               T('VAT: ') + CURRSYM + str(row.invoices_items.VAT),
                         _class='pull-right')),
                 TD(repr_row.invoices_items.accounting_glaccounts_id),
                 TD(repr_row.invoices_items.accounting_costcenters_id),
