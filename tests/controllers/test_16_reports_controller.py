@@ -10,6 +10,7 @@ import datetime
 
 from gluon.contrib.populate import populate
 
+from populate_os_tables import populate_payment_methods
 from populate_os_tables import populate_customers
 from populate_os_tables import populate_customers_with_subscriptions
 from populate_os_tables import populate_postcode_groups
@@ -17,6 +18,7 @@ from populate_os_tables import prepare_classes
 from populate_os_tables import populate_classes
 from populate_os_tables import populate_sys_organizations
 from populate_os_tables import populate_reports_attendance_organizations
+
 
 
 #def test_stats_customer_postcode_as_int(client, web2py):
@@ -682,3 +684,34 @@ def test_reports_subscriptions_overview_customers_location_filter(client, web2py
     assert customer_7.display_name in client.text
 
 
+def test_reports_subscriptions_online(client, web2py):
+    """
+    Test listing of new online subscriptions
+    """
+    url = "/default/user/login"
+    client.get(url)
+    assert client.status == 200
+
+    populate_payment_methods(web2py)
+    populate_customers_with_subscriptions(web2py, nr_of_customers=2)
+
+    today = datetime.date.today()
+
+    cs = web2py.db.customers_subscriptions(1)
+    cs.Startdate = today
+    cs.payment_methods_id = 3
+    cs.Origin = "SHOP"
+    cs.Verified = True
+    cs.update_record()
+    web2py.db.commit()
+
+    url = "/reports/subscriptions_online?year=%s&month=%s" % (today.year, today.month)
+    client.get(url)
+    assert client.status == 200
+
+    # Check label display
+    assert "Verified" in client.text
+
+    # Check subscription name display
+    ssu = web2py.db.school_subscriptions(cs.school_subscriptions_id)
+    assert ssu.Name in client.text

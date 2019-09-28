@@ -115,6 +115,11 @@ def test_order_paid_delivery_invoice(client, web2py):
     # check class card delivery
     assert web2py.db(web2py.db.customers_classcards).count() == 1
 
+    # check subscription delivery
+    assert web2py.db(web2py.db.customers_subscriptions).count() == 1
+    subscription = web2py.db.customers_subscriptions(1)
+    assert subscription.Origin == "SHOP"
+
     # check workshop product delivery
     assert web2py.db(web2py.db.workshops_products_customers).count() == 1
 

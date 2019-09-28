@@ -2926,9 +2926,40 @@ def define_customers_subscriptions():
         Field('RegistrationFeePaid','boolean',
               readable=False,
               writable=False,
-              default=False
+              default=False),
+        Field('Origin',
+              readable=False,
+              writable=False,
+              default="BACKEND",
+              requires=IS_IN_SET(
+                  ['BACKEND', T("Backend")],
+                  ['SHOP', T("Shop")],
+              ),
+              label=T('Origin')),
+        Field('Verified', 'boolean',
+              readable=False,
+              writable=True,
+              default=False,
+              represent=represent_customers_subscriptions_verified,
+              comment=T("Use this field to indicate that the payment details for a subscription have been verified.")
               ),
         singular=T("Subscription"), plural=T("Subscriptions"))
+
+
+def represent_customers_subscriptions_verified(value, row):
+    """
+
+    :param value:
+    :param row:
+    :return:
+    """
+    from openstudio.os_gui import OsGui
+    os_gui = OsGui()
+
+    if value:
+        return os_gui.get_label('success', T("Verified"))
+    else:
+        return ""
 
 
 def define_customers_subscriptions_credits():
