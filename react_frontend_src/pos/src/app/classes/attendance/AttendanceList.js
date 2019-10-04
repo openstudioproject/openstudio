@@ -30,13 +30,13 @@ const bookingStatusMessage = (status, intl) => {
 const ManageBooking = ({clattID, status, onClick=f=>f, onClickRemove=f=>f, collapseID}) =>
     <div className="pull-right">
         <button className="btn btn-default" type="button" data-toggle="collapse" data-target={`#${collapseID}`} aria-expanded="false" aria-controls="collapseExample">
-            Manage booking
+            Remove booking
         </button>
         <div className="collapse" id={collapseID}>
             <br />
             <div className="well">
-                <div>Change booking status</div> <br />
-                {(status == "booked") ? "" :
+                <div>Really remove this booking?</div> <br />
+                {/* {(status == "booked") ? "" :
                 <button className="btn btn-primary"
                         onClick={() => onClick(clattID, "booked")}>
                     Booked
@@ -45,7 +45,7 @@ const ManageBooking = ({clattID, status, onClick=f=>f, onClickRemove=f=>f, colla
                 <button className="btn btn-warning"
                         onClick={() => onClick(clattID, "cancelled")}>
                     Cancelled
-                </button>}  { ' ' }
+                </button>}  { ' ' } */}
                 <button className="btn btn-danger"
                         onClick={()=> onClickRemove(clattID)}>
                     Remove
