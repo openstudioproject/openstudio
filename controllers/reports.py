@@ -5858,9 +5858,9 @@ def teacher_classes_get_class_revenue_dropin_trial(row, date):
     #         price_ex_vat = price_in_vat
     #         vat = 0
 
-    return dict(revenue_in_vat=price_in_vat,
-                revenue_ex_vat=price_ex_vat,
-                revenue_vat=vat)
+    return dict(revenue_in_vat=price_in_vat or 0,
+                revenue_ex_vat=price_ex_vat or 0,
+                revenue_vat=vat or 0)
 
 
 def teacher_classes_get_class_revenue_subscription(row, date):
