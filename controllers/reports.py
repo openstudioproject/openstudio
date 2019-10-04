@@ -30,6 +30,7 @@ import datetime
 import operator
 import io
 import openpyxl
+from decimal import Decimal
 
 
 def index():
@@ -5705,9 +5706,9 @@ def teacher_classes_get_class_revenue_total(clsID, date):
     """
     rows = teacher_classes_get_class_revenue_rows(clsID, date)
 
-    total_revenue_in_vat = 0
-    total_revenue_ex_vat = 0
-    total_revenue_vat = 0
+    total_revenue_in_vat = Decimal(0)
+    total_revenue_ex_vat = Decimal(0)
+    total_revenue_vat = Decimal(0)
 
     for row in rows:
         if row.classes_attendance.AttendanceType is None:
