@@ -40,6 +40,11 @@
                 background-color: #EAEAEA;
             }
 
+            h3 {
+                font-size: 5mm;
+                margin-top: 1.5mm;
+            }
+
             .label {
                 font-size: 10px;
                 position: relative;
@@ -60,6 +65,10 @@
                 margin-right: 24mm;
                 margin-left: -4mm;
 
+            }
+
+            .label p {
+                font-size: 3.5mm;
             }
 
             .logo {
@@ -91,7 +100,7 @@
         <div class="label">
             <div class="logo">{{=logo}}</div>
             <h3>Customer card</h3>
-            {{=customer.display_name}}
+            <p>{{=customer.display_name}}</p>
             <img class="barcode" src="{{=barcode_image_url}}">
         </div>
         <div class="tools">
