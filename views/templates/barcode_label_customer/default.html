@@ -1,11 +1,11 @@
 <html>
     <head>
-        <style> 
+        <style>
             @page {
                 size: 100mm 52mm landscape;
                 margin: 0;
             }
-            
+
             @media print {
                 html, body {
                     width: 100mm;
@@ -13,32 +13,33 @@
                     margin: 0;
                     margin-right: 20mm;
                 }
-                
+
                 body {
                     visibility: hidden;
                 }
-                
+
                 .label {
                     visibility: visible;
                     padding-right: 20mm;
                 }
-                
+
                 .logo {
                     top: 8mm;
+                    bottom: 4mm;
                 }
-                
+
                 .tools, button {
                     display: none;
                 }
-                
+
             }
-                
+
             body {
                 font-family: sans-serif;
-                
+
                 background-color: #EAEAEA;
             }
-            
+
             .label {
                 font-size: 10px;
                 position: relative;
@@ -49,57 +50,57 @@
                 height: 44mm;
                 padding: 6mm;
 			}
-            
+
             .label > .barcode {
                 position: absolute;
                 bottom: 3mm;
                 max-height: 36mm;
                 max-width: 86mm;
                 display: block;
-                margin-right: 24mm; 
+                margin-right: 24mm;
                 margin-left: -4mm;
-                
+
             }
-            
+
             .logo {
                 position: absolute;
                 top: 8mm;
                 right: 20mm;
             }
-            
+
             .logo img {
-                max-height: 24mm;
+                max-height: 18mm;
                 max-width: 40mm;
             }
-            
+
             .tools {
                 display: flex;
                 justify-content: center;
                 margin: 20px auto 0px auto;
             }
-            
+
             button {
                 padding: 3px 6px;
                 margin-right: 4px;
             }
-            
-            
+
+
         </style>
-    </head>    
+    </head>
     <body>
         <div class="label">
             <div class="logo">{{=logo}}</div>
             <h3>Customer card</h3>
             {{=customer.display_name}}
-            <img class="barcode" src="{{=barcode_image_url}}">  
+            <img class="barcode" src="{{=barcode_image_url}}">
         </div>
         <div class="tools">
             <button onclick="window.print(); return false;">
                 {{=T('Print')}}
-            </button>   
+            </button>
             <button onclick="window.close(); ">
                 {{=T('Close')}}
-            </button>        
+            </button>
         </div>
     </body>
 </html>
