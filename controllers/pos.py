@@ -954,6 +954,22 @@ def get_customer_classcards():
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'customers_payment_info'))
+def get_customer_payment_info_known():
+    """
+    Return true when payment info is known (records exists and AccountNumber != None, else false
+    :return:
+    """
+    set_headers()
+    cuID = request.vars['id']
+
+    query = (db.customers_payment_info.auth_customer_id == cuID) & \
+            (db.customers_payment_info.AccountNumber != None)
+    count = db(query).count()
+
+    if count:
+        return dict(payment_info=True)
+    else:
+        return dict(payment_info=False)
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
