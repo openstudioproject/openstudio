@@ -953,6 +953,10 @@ def get_customer_classcards():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'customers_payment_info'))
+
+
+@auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('read', 'customers_subscriptions'))
 def get_customer_subscriptions():
     """

@@ -1328,7 +1328,7 @@ def customers_get_menu(customers_id, page=None):
         ])
 
     if auth.has_membership(group_id='Admins') or \
-       auth.has_permission('read', 'customers_payments_info'):
+       auth.has_permission('read', 'customers_payment_info'):
         more.append([
             'bankaccount',
             (os_gui.get_fa_icon('fa-university'), ' ', T("Finance")),
@@ -4292,7 +4292,7 @@ def payments_get_submenu(page, cuID):
     pages = []
 
     if auth.has_membership(group_id='Admins') or \
-       auth.has_permission('read', 'customers_payments_info'):
+       auth.has_permission('read', 'customers_payment_info'):
         pages.append(
             [
                 'bankaccount',
@@ -4328,7 +4328,7 @@ def payments_delete_payment_info(form):
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'customers_payments_info'))
+               auth.has_permission('read', 'customers_payment_info'))
 def mollie_mandates():
     """
         Lists mollie mandates for customer
@@ -4434,7 +4434,7 @@ def bankaccount_get_returl_url(customers_id):
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('create', 'customers_payments_info_mandates'))
+               auth.has_permission('create', 'customers_payment_info_mandates'))
 def bankaccount_mandate_add():
     """
     Page to add a mandate
@@ -4487,7 +4487,7 @@ def bankaccount_mandate_add():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('create', 'customers_payments_info_mandates'))
+               auth.has_permission('create', 'customers_payment_info_mandates'))
 def bankaccount_mandate_delete():
     """
     Delete bankaccount mandate
@@ -4502,7 +4502,7 @@ def bankaccount_mandate_delete():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'customers_payments_info'))
+               auth.has_permission('read', 'customers_payment_info'))
 def direct_debit_extra():
     """
         List direct debit extra lines
