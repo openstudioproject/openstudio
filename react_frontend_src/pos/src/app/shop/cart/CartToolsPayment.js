@@ -2,6 +2,9 @@ import React from "react"
 import { v4 } from "uuid"
 
 
+import OS_API from "../../../utils/os_api"
+import axios_os from '../../../utils/axios_os'
+
 const PaymentDisabled = (cart_items, customers) => {
     console.log('PaymentDisabled here')
     console.log(customers)
@@ -34,7 +37,12 @@ const PaymentDisabled = (cart_items, customers) => {
 
 const Button = ({history, children, cart_items, customers}) =>
     <button className="btn btn-default btn-block"
-            onClick={() => history.push('/shop/payment')}
+    // TODO: Add logic to onClick to check if there's a subscritpion in the cart, if so check if payment info is known, yes -> continue, no-> enter else: continue
+            onClick={() => {
+                
+                history.push('/shop/payment')
+
+            }}
             disabled={PaymentDisabled(cart_items, customers)}>
         {console.log('cart items button')}
         {console.log(cart_items)}
