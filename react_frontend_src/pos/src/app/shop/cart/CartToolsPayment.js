@@ -39,9 +39,33 @@ const Button = ({history, children, cart_items, customers}) =>
     <button className="btn btn-default btn-block"
     // TODO: Add logic to onClick to check if there's a subscritpion in the cart, if so check if payment info is known, yes -> continue, no-> enter else: continue
             onClick={() => {
-                
-                history.push('/shop/payment')
+                console.log(customers.selectedID)
+                if (customers.selectedID) {
 
+                    let payload = { id: customers.selectedID }
+
+                    axios_os.post(OS_API.CUSTOMER_PAYMENT_INFO_KNOWN, payload)
+                    .then(function (response) {
+                        // handle success
+                        // response.data
+                        console.log(response.data)
+                        if (response.data.payment_info) {
+                            console.log('go to payment')
+                        } else {
+                            console.log('go to page to enter information')
+                        }
+                    })
+                    .catch(function (error) {
+                    // handle error
+                    console.log(error)
+                    })
+                    .then(function () {
+                    // always executed
+                    });
+                } else {
+                    // continue to payment when a customer id is not set
+                    // history.push('/shop/payment')
+                }
             }}
             disabled={PaymentDisabled(cart_items, customers)}>
         {console.log('cart items button')}

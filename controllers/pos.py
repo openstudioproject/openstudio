@@ -952,15 +952,20 @@ def get_customer_classcards():
     return dict(data=classcards)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'customers_payment_info'))
+#TODO activate authentication
+# @auth.requires(auth.has_membership(group_id='Admins') or \
+#                auth.has_permission('read', 'pos'))
 def get_customer_payment_info_known():
     """
     Return true when payment info is known (records exists and AccountNumber != None, else false
     :return:
     """
     set_headers()
+
     cuID = request.vars['id']
+    print(request.vars)
+    print(auth.has_membership(group_id='Admins'))
+    print(auth.has_permission('read', 'customers_payment_info'))
 
     query = (db.customers_payment_info.auth_customer_id == cuID) & \
             (db.customers_payment_info.AccountNumber != None)
