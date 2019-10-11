@@ -25,6 +25,19 @@ def set_headers(var=None):
 
 set_headers()
 
+
+def check_permission(permission="read", attribute="pos"):
+    permission = (auth.has_membership(group_id='Admins') or
+                  auth.has_permission('read', 'pos'))
+
+    message = ""
+    if not permission:
+        message = T("Permission denied")
+
+    return dict(permission=permission,
+                message=message)
+
+
 # print request.env
 #
 # if request.env.http_origin:
@@ -80,7 +93,6 @@ def return_json_permissions_error():
         error=403,
         error_message=T("You don't have the permissions required to perform this action"),
         location=location
-
     )
 
 
@@ -151,21 +163,22 @@ def get_settings():
     return dict(data = settings)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'pos'))
+@auth.requires_login(otherwise=return_json_login_error)
 def get_classes():
     """
     List upcoming classes for today
     :return:
     """
+    set_headers()
+    permission_result = check_permission()
+    if not permission_result['permission']:
+        return permission_result
+
     date_received = request.vars['date']
     date = datestr_to_python("%Y-%m-%d", date_received)
 
-    set_headers()
 
     from openstudio.os_class_schedule import ClassSchedule
-
-
     cs = ClassSchedule(
         date,
         # filter_starttime_from=time_from
@@ -174,20 +187,23 @@ def get_classes():
     return dict(classes=cs.get_day_list())
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('read', 'pos'))
+@auth.requires_login(otherwise=return_json_login_error)
 def get_class_attendance():
     """
     List attendance for a class
     :return:
     """
+    set_headers()
+    permission_result = check_permission()
+    if not permission_result['permission']:
+        return permission_result
+
+
     from openstudio.os_attendance_helper import AttendanceHelper
 
     clsID = request.vars['clsID']
     date_received = request.vars['date']
     date = datestr_to_python("%Y-%m-%d", date_received)
-
-    set_headers()
 
     ah = AttendanceHelper()
     attendance = ah.get_attendance_rows(clsID, date).as_list()
@@ -195,16 +211,17 @@ def get_class_attendance():
     return dict(attendance=attendance)
 
 
-#TODO: Change for right permission
-@auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('read', 'pos'))
+@auth.requires_login(otherwise=return_json_login_error)
 def get_class_revenue():
     """
     :return:
     """
-    from openstudio.os_reports import Reports
-
     set_headers()
+    permission_result = check_permission()
+    if not permission_result['permission']:
+        return permission_result
+
+    from openstudio.os_reports import Reports
 
     clsID = request.vars['clsID']
     date_received = request.vars['date']
@@ -215,16 +232,17 @@ def get_class_revenue():
     return dict(revenue=reports.get_class_revenue_summary(clsID, date))
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('read', 'pos'))
+@auth.requires_login(otherwise=return_json_login_error)
 def get_class_teacher_payment():
     """
-
     :return:
     """
-    from openstudio.os_class import Class
-
     set_headers()
+    permission_result = check_permission()
+    if not permission_result['permission']:
+        return permission_result
+
+    from openstudio.os_class import Class
 
     clsID = request.vars['clsID']
     date_received = request.vars['date']
@@ -237,15 +255,17 @@ def get_class_teacher_payment():
     return dict(payment = payment)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('read', 'pos'))
+@auth.requires_login(otherwise=return_json_login_error)
 def verify_teacher_payment():
     """
     Set teacher payment attendance
     """
-    from openstudio.os_teachers_payment_class import TeachersPaymentClass
-
     set_headers()
+    permission_result = check_permission()
+    if not permission_result['permission']:
+        return permission_result
+
+    from openstudio.os_teachers_payment_class import TeachersPaymentClass
 
     tpcID = request.vars['tpcID']
 
@@ -260,20 +280,22 @@ def verify_teacher_payment():
     return dict(result=status)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('read', 'pos'))
+@auth.requires_login(otherwise=return_json_login_error)
 def get_class_booking_options():
     """
     List booking options for a class for a given customer
     :return:
     """
+    set_headers()
+    permission_result = check_permission()
+    if not permission_result['permission']:
+        return permission_result
+
     from openstudio.os_attendance_helper import AttendanceHelper
     from openstudio.os_customer import Customer
 
     clsID = request.vars['clsID']
     cuID = request.vars['cuID']
-
-    set_headers()
 
     customer = Customer(cuID)
     complementary_permission = (auth.has_membership(group_id='Admins') or
@@ -292,14 +314,18 @@ def get_class_booking_options():
     return dict(options = options)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'pos'))
+@auth.requires_login(otherwise=return_json_login_error)
 def customer_class_booking_create():
     """
     Check customer in to a class, drop-in and trial are handled through
     an order.
     :return:
     """
+    set_headers()
+    permission_result = check_permission()
+    if not permission_result['permission']:
+        return permission_result
+
     from openstudio.os_attendance_helper import AttendanceHelper
 
     # set_headers()
@@ -366,26 +392,33 @@ def customer_class_booking_create():
                 message=message)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'pos'))
+@auth.requires_login(otherwise=return_json_login_error)
 def customer_class_booking_manage():
     """
     Manage booking for a class
     :return:
     """
+    set_headers()
+    permission_result = check_permission()
+    if not permission_result['permission']:
+        return permission_result
 
     return dict(error=error,
                 message=message)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'pos'))
+@auth.requires_login(otherwise=return_json_login_error)
 def get_school_classcards():
     """
     List of school not archived classcards
     Sorted by name
     :return:
     """
+    set_headers()
+    permission_result = check_permission()
+    if not permission_result['permission']:
+        return permission_result
+
     def get_validity(row):
         """
             takes a db.school_classcards() row as argument
@@ -397,8 +430,6 @@ def get_school_classcards():
             validity_in = validity_in[:-1]
 
         return validity + validity_in
-
-    set_headers()
 
     #TODO order by Trial card and then name
     query = (db.school_classcards.Archived == False)
@@ -437,14 +468,16 @@ def get_school_classcards():
     return dict(data=data_rows)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'pos'))
+@auth.requires_login(otherwise=return_json_login_error)
 def get_school_subscriptions():
     """
     List of not archived school classcards
     Sorted by Name
     """
     set_headers()
+    permission_result = check_permission()
+    if not permission_result['permission']:
+        return permission_result
 
     query = """
         SELECT sc.id,
@@ -503,14 +536,16 @@ def get_school_subscriptions():
     return dict(data=data)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'pos'))
+@auth.requires_login(otherwise=return_json_login_error)
 def get_school_memberships():
     """
     List of not archived school classcards
     Sorted by Name
     """
     set_headers()
+    permission_result = check_permission()
+    if not permission_result['permission']:
+        return permission_result
 
     query = """
         SELECT sm.id,
@@ -549,13 +584,15 @@ def get_school_memberships():
     return dict(data=data)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'pos'))
+@auth.requires_login(otherwise=return_json_login_error)
 def get_customer_notes():
     """
     Return notes for a given customer
     """
     set_headers()
+    permission_result = check_permission()
+    if not permission_result['permission']:
+        return permission_result
 
     cuID = request.vars['id']
 
@@ -607,13 +644,15 @@ def get_customer_notes():
     return dict(data=notes)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('read', 'pos'))
+@auth.requires_login(otherwise=return_json_login_error)
 def create_customer_note():
     """
     :return: dict containing data of new note
     """
     set_headers()
+    permission_result = check_permission()
+    if not permission_result['permission']:
+        return permission_result
 
     print(request.vars)
 
@@ -636,13 +675,15 @@ def create_customer_note():
                 error=error)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'pos'))
+@auth.requires_login(otherwise=return_json_login_error)
 def update_customer_note():
     """
     :return: dict containing data of new note
     """
     set_headers()
+    permission_result = check_permission()
+    if not permission_result['permission']:
+        return permission_result
 
     print(request.vars)
 
@@ -663,13 +704,15 @@ def update_customer_note():
     return dict(error=False)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'pos'))
+@auth.requires_login(otherwise=return_json_login_error)
 def update_customer_note_status():
     """
     :return: dict containing data of new note
     """
     set_headers()
+    permission_result = check_permission()
+    if not permission_result['permission']:
+        return permission_result
 
     print(request.vars)
 
@@ -690,14 +733,16 @@ def update_customer_note_status():
     return dict(error=False)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('read', 'pos'))
+@auth.requires_login(otherwise=return_json_login_error)
 def delete_customer_note():
     """
 
     :return:
     """
     set_headers()
+    permission_result = check_permission()
+    if not permission_result['permission']:
+        return permission_result
 
     print(request.vars)
     cnID = request.vars['id']
@@ -724,13 +769,17 @@ def get_customers_thumbnail_url(row_data):
         )
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('read', 'pos'))
+@auth.requires_login(otherwise=return_json_login_error)
 def get_customers():
     """
     Get non trashed customers from cache
     """
     # forget session
+    set_headers()
+    permission_result = check_permission()
+    if not permission_result['permission']:
+        return permission_result
+
     session.forget(response)
 
     # Don't cache when running tests
@@ -745,14 +794,10 @@ def get_customers():
     return data
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('read', 'pos'))
-def _get_customers():
+def _get_customers(var=None):
     """
     List not trashed customers
     """
-    set_headers()
-
     query = (db.auth_user.customer == True) & \
             (db.auth_user.trashed == False)
 
@@ -809,13 +854,15 @@ def _get_customers():
     return customers
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('read', 'pos'))
+@auth.requires_login(otherwise=return_json_login_error)
 def get_customer_memberships_today():
     """
     List customer memberships
     """
     set_headers()
+    permission_result = check_permission()
+    if not permission_result['permission']:
+        return permission_result
 
     cuID = request.vars['id']
 
@@ -848,13 +895,15 @@ def get_customer_memberships_today():
     return dict(data=memberships)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('read', 'pos'))
+@auth.requires_login(otherwise=return_json_login_error)
 def get_customer_memberships():
     """
     List customer memberships, from the last 400 days
     """
     set_headers()
+    permission_result = check_permission()
+    if not permission_result['permission']:
+        return permission_result
 
     cuID = request.vars['id']
 
@@ -894,14 +943,16 @@ def get_customer_memberships():
     return dict(data=memberships)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('read', 'pos'))
+@auth.requires_login(otherwise=return_json_login_error)
 def get_customer_classcards():
     """
     List customer subscriptions, excluding cards that ended more then 
     7 months ago
     """
     set_headers()
+    permission_result = check_permission()
+    if not permission_result['permission']:
+        return permission_result
 
     cuID = request.vars['id']
 
@@ -952,15 +1003,16 @@ def get_customer_classcards():
     return dict(data=classcards)
 
 
-#TODO activate authentication
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'pos'))
+@auth.requires_login(otherwise=return_json_login_error)
 def get_customer_payment_info_known():
     """
     Return true when payment info is known (records exists and AccountNumber != None, else false
     :return:
     """
     set_headers()
+    permission_result = check_permission()
+    if not permission_result['permission']:
+        return permission_result
 
     cuID = request.vars['id']
     print(request.vars)
@@ -977,14 +1029,16 @@ def get_customer_payment_info_known():
         return dict(payment_info=False)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('read', 'pos'))
+@auth.requires_login(otherwise=return_json_login_error)
 def get_customer_subscriptions():
     """
     List customer subscriptions, excluding subscriptions that ended more then 
     7 months ago
     """
     set_headers()
+    permission_result = check_permission()
+    if not permission_result['permission']:
+        return permission_result
 
     cuID = request.vars['id']
 
@@ -1020,17 +1074,19 @@ def get_customer_subscriptions():
     return dict(data=subscriptions)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('read', 'pos'))
+@auth.requires_login(otherwise=return_json_login_error)
 def get_customer_reconcile_later_classes():
     """
     List customer reconcile later classes
 
     :return:
     """
-    from openstudio.os_attendance_helper import AttendanceHelper
-
     set_headers()
+    permission_result = check_permission()
+    if not permission_result['permission']:
+        return permission_result
+
+    from openstudio.os_attendance_helper import AttendanceHelper
 
     cuID = request.vars['id']
 
@@ -1087,8 +1143,7 @@ def get_customer_reconcile_later_classes():
     return dict(data=reconcile_later_classes)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('read', 'pos'))
+@auth.requires_login(otherwise=return_json_login_error)
 def get_customer_school_info():
     """
     List customer information
@@ -1099,6 +1154,9 @@ def get_customer_school_info():
     :return:
     """
     set_headers()
+    permission_result = check_permission()
+    if not permission_result['permission']:
+        return permission_result
 
     cuID = request.vars['id']
 
@@ -1115,16 +1173,19 @@ def get_customer_school_info():
     )
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('read', 'pos'))
+@auth.requires_login(otherwise=return_json_login_error)
 def update_class_attendance():
     """
 
     :return:
     """
+    set_headers()
+    permission_result = check_permission()
+    if not permission_result['permission']:
+        return permission_result
+
     from openstudio.os_class_attendance import ClassAttendance
 
-    set_headers()
 
     print(request.vars)
     clattID = request.vars['id']
@@ -1136,17 +1197,19 @@ def update_class_attendance():
     return dict(clattID=clattID, status=status)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('read', 'pos'))
+@auth.requires_login(otherwise=return_json_login_error)
 def delete_class_attendance():
     """
 
     :return:
     """
+    set_headers()
+    permission_result = check_permission()
+    if not permission_result['permission']:
+        return permission_result
+
     from openstudio.os_classcards_helper import ClasscardsHelper
     from openstudio.os_class_attendance import ClassAttendance
-
-    set_headers()
 
     clattID = request.vars['id']
 
@@ -1197,15 +1260,17 @@ def delete_class_attendance():
     return dict(clattID=clattID, error=False)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('read', 'pos'))
+@auth.requires_login(otherwise=return_json_login_error)
 def create_customer():
     """
     :return: dict containing data of new auth_user
     """
-    from openstudio.os_cache_manager import OsCacheManager
-
     set_headers()
+    permission_result = check_permission()
+    if not permission_result['permission']:
+        return permission_result
+
+    from openstudio.os_cache_manager import OsCacheManager
 
     ocm = OsCacheManager()
 
@@ -1256,15 +1321,17 @@ def create_customer():
                 error=error)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('read', 'pos'))
+@auth.requires_login(otherwise=return_json_login_error)
 def update_customer():
     """
     :return: dict containing data of new auth_user
     """
-    from openstudio.os_cache_manager import OsCacheManager
-
     set_headers()
+    permission_result = check_permission()
+    if not permission_result['permission']:
+        return permission_result
+
+    from openstudio.os_cache_manager import OsCacheManager
 
     ocm = OsCacheManager()
 
@@ -1339,15 +1406,17 @@ def update_customer():
                     id=cuID)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('read', 'pos'))
+@auth.requires_login(otherwise=return_json_login_error)
 def update_customer_picture():
     """
     :return: dict containing data of new auth_user
     """
-    import io
-
     set_headers()
+    permission_result = check_permission()
+    if not permission_result['permission']:
+        return permission_result
+
+    import io
 
     status = 'fail'
     data = {}
@@ -1384,20 +1453,23 @@ def update_customer_picture():
                 data=data)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('read', 'pos'))
+@auth.requires_login(otherwise=return_json_login_error)
 def get_products():
     """
 
     :return: dict containing products sorted by category
     """
+    set_headers()
+    permission_result = check_permission()
+    if not permission_result['permission']:
+        return permission_result
+
     from openstudio.os_shop_products_variants import ShopProductsVariants
     # from openstudio.os_shop_category import ShopCategory
 
     import pprint
 
     pp = pprint.PrettyPrinter(depth=6)
-    set_headers()
 
     spv = ShopProductsVariants()
 
@@ -1407,14 +1479,16 @@ def get_products():
     return dict(data=data)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('read', 'pos'))
+@auth.requires_login(otherwise=return_json_login_error)
 def get_payment_methods():
     """
 
     :return: dict containing payment methods sorted by name
     """
     set_headers()
+    permission_result = check_permission()
+    if not permission_result['permission']:
+        return permission_result
 
     not_pos_methods = [2, 3, 100]
     query = (db.payment_methods.Archived == False) & \
@@ -1428,14 +1502,16 @@ def get_payment_methods():
     return dict(data=rows.as_list())
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('read', 'pos'))
+@auth.requires_login(otherwise=return_json_login_error)
 def get_tax_rates():
     """
 
     :return: dict containing payment methods sorted by name
     """
     set_headers()
+    permission_result = check_permission()
+    if not permission_result['permission']:
+        return permission_result
 
     query = (db.tax_rates.Archived == False)
 
@@ -1447,14 +1523,16 @@ def get_tax_rates():
     return dict(data=rows.as_list())
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or
-               auth.has_permission('read', 'pos'))
+@auth.requires_login(otherwise=return_json_login_error)
 def get_product_categories():
     """
 
     :return: dict containing payment methods sorted by name
     """
     set_headers()
+    permission_result = check_permission()
+    if not permission_result['permission']:
+        return permission_result
 
     query = (db.shop_categories.Archived == False)
 
@@ -1467,16 +1545,17 @@ def get_product_categories():
     return dict(data=rows.as_dict())
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'pos'))
+@auth.requires_login(otherwise=return_json_login_error)
 def validate_cart():
     """
     Process shopping cart
     :return:
     """
     # print request.env
-
     set_headers()
+    permission_result = check_permission()
+    if not permission_result['permission']:
+        return permission_result
 
 
     print("POS read permissions")
@@ -1713,13 +1792,15 @@ def validate_cart_create_receipt(
     return receipt
 
 
-# @auth.requires(auth.has_membership(group_id='Admins') or \
-#                auth.has_permission('read', 'accounting_expenses'))
+@auth.requires_login(otherwise=return_json_login_error)
 def get_expenses():
     """
     :return: List of expenses
     """
     set_headers()
+    permission_result = check_permission()
+    if not permission_result['permission']:
+        return permission_result
 
     query = (db.accounting_expenses.BookingDate == TODAY_LOCAL)
 
@@ -1741,13 +1822,16 @@ def get_expenses():
 
     return expenses
 
-# @auth.requires(auth.has_membership(group_id='Admins') or \
-#                auth.has_permission('read', 'accounting_expenses'))
+
+@auth.requires_login(otherwise=return_json_login_error)
 def get_cash_counts():
     """
     :return: List of expenses
     """
     set_headers()
+    permission_result = check_permission()
+    if not permission_result['permission']:
+        return permission_result
 
     opening_row = db.accounting_cashbooks_cash_count(
         CountDate = TODAY_LOCAL,
@@ -1772,10 +1856,12 @@ def get_cash_counts():
     return cash_counts
 
 
-# @auth.requires(auth.has_membership(group_id='Admins') or \
-#                auth.has_permission('update', 'accounting_cashbooks_cash_count'))
+@auth.requires_login(otherwise=return_json_login_error)
 def set_cash_count():
     set_headers()
+    permission_result = check_permission()
+    if not permission_result['permission']:
+        return permission_result
 
     print(request.vars)
 
@@ -1814,13 +1900,15 @@ def set_cash_count():
                 error=error)
 
 
-# @auth.requires(auth.has_membership(group_id='Admins') or \
-#                auth.has_permission('create', 'accounting_expenses'))
+@auth.requires_login(otherwise=return_json_login_error)
 def create_expense():
     """
     :return: dict containing data of new auth_user
     """
     set_headers()
+    permission_result = check_permission()
+    if not permission_result['permission']:
+        return permission_result
 
     print(request.vars)
 
@@ -1848,13 +1936,15 @@ def create_expense():
                 error=error)
 
 
-# @auth.requires(auth.has_membership(group_id='Admins') or \
-#                auth.has_permission('update', 'accounting_expenses'))
+@auth.requires_login(otherwise=return_json_login_error)
 def update_expense():
     """
     :return: dict containing data of new auth_user
     """
     set_headers()
+    permission_result = check_permission()
+    if not permission_result['permission']:
+        return permission_result
 
     print(request.vars)
     aeID = request.vars.pop('id', None)
@@ -1884,14 +1974,16 @@ def update_expense():
                 id=aeID)
 
 
-# @auth.requires(auth.has_membership(group_id='Admins') or \
-#                auth.has_permission('delete', 'accounting_expenses'))
+@auth.requires_login(otherwise=return_json_login_error)
 def delete_expense():
     """
 
     :return:
     """
     set_headers()
+    permission_result = check_permission()
+    if not permission_result['permission']:
+        return permission_result
 
     print(request.vars)
     aeID = request.vars['id']
