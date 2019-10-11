@@ -1297,8 +1297,8 @@ def access_group_permissions():
                 ['invoices_payments-delete', T('Delete invoice payments')]]],
             ['receipts-read', T("View receipts")],
             ['accounting_cashbooks-read', T("View cash books"), [
-                ['accounting_cashbooks_cash_count-create', T("Set cash book opening balance")],
-                ['accounting_cashbooks_cash_count-update', T("Edit cash book opening balance")]
+                ['accounting_cashbooks_cash_count-create', T("Set cash book balance")],
+                ['accounting_cashbooks_cash_count-update', T("Edit cash book balance")]
             ]],
             ['accounting_expenses-read', T("View Expenses"), [
                 ['accounting_expenses-create', T("Set expenses")],
@@ -1309,7 +1309,10 @@ def access_group_permissions():
                 ['payment_batches-create', T('Add payment batches')],
                 ['payment_batches-update', T('Edit payment batches')],
                 ['payment_batches-delete', T('Delete payment batches')]]],
-            ['reports_direct_debit_extra-read', T('View direct debit extra')]],
+            ['reports_direct_debit_extra-read', T('View direct debit extra')],
+            ['payment_methods-read', T('View payment methods')],
+            ['tax_rates-read', T('View tax rates')]
+            ],
          ]
     ]
 
@@ -1486,6 +1489,7 @@ def access_group_permissions():
             ['classes_otc_sub_avail-read', T("Manage sub teachers request list"), [
                 ['classes_otc_sub_avail-update', T("Accept/Decline sub teacher requests")]]],
             ['teacher_classes-read', T('Teacher classes by month')],
+            ['teachers_payment_attendance-update', T("Verify teacher payments")],
             ['classes_open-read', T('View all open classes')],
             ['schedule_set_default_sort-update', T('Set default sorting of classes')],
             ['classes_schedule_set_trend_precentages-read', T('View trend colors'), [

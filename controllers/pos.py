@@ -1455,7 +1455,7 @@ def validate_cart():
 
 
     print("POS read permissions")
-    print(auth.has_membership(group_id='Admins') or \
+    print(auth.has_membership(group_id='Admins') or
           auth.has_permission('read', 'pos'))
 
     error = False
