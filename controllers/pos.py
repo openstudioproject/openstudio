@@ -172,7 +172,7 @@ def get_classes():
     set_headers()
     permission_result = check_permission()
     if not permission_result['permission']:
-        return permission_result
+        return return_json_permissions_error()
 
     date_received = request.vars['date']
     date = datestr_to_python("%Y-%m-%d", date_received)
@@ -196,7 +196,7 @@ def get_class_attendance():
     set_headers()
     permission_result = check_permission()
     if not permission_result['permission']:
-        return permission_result
+        return return_json_permissions_error()
 
 
     from openstudio.os_attendance_helper import AttendanceHelper
@@ -219,7 +219,7 @@ def get_class_revenue():
     set_headers()
     permission_result = check_permission()
     if not permission_result['permission']:
-        return permission_result
+        return return_json_permissions_error()
 
     from openstudio.os_reports import Reports
 
@@ -240,7 +240,7 @@ def get_class_teacher_payment():
     set_headers()
     permission_result = check_permission()
     if not permission_result['permission']:
-        return permission_result
+        return return_json_permissions_error()
 
     from openstudio.os_class import Class
 
@@ -263,7 +263,7 @@ def verify_teacher_payment():
     set_headers()
     permission_result = check_permission()
     if not permission_result['permission']:
-        return permission_result
+        return return_json_permissions_error()
 
     from openstudio.os_teachers_payment_class import TeachersPaymentClass
 
@@ -289,7 +289,7 @@ def get_class_booking_options():
     set_headers()
     permission_result = check_permission()
     if not permission_result['permission']:
-        return permission_result
+        return return_json_permissions_error()
 
     from openstudio.os_attendance_helper import AttendanceHelper
     from openstudio.os_customer import Customer
@@ -324,7 +324,7 @@ def customer_class_booking_create():
     set_headers()
     permission_result = check_permission()
     if not permission_result['permission']:
-        return permission_result
+        return return_json_permissions_error()
 
     from openstudio.os_attendance_helper import AttendanceHelper
 
@@ -401,7 +401,7 @@ def customer_class_booking_manage():
     set_headers()
     permission_result = check_permission()
     if not permission_result['permission']:
-        return permission_result
+        return return_json_permissions_error()
 
     return dict(error=error,
                 message=message)
@@ -417,7 +417,7 @@ def get_school_classcards():
     set_headers()
     permission_result = check_permission()
     if not permission_result['permission']:
-        return permission_result
+        return return_json_permissions_error()
 
     def get_validity(row):
         """
@@ -477,7 +477,7 @@ def get_school_subscriptions():
     set_headers()
     permission_result = check_permission()
     if not permission_result['permission']:
-        return permission_result
+        return return_json_permissions_error()
 
     query = """
         SELECT sc.id,
@@ -545,7 +545,7 @@ def get_school_memberships():
     set_headers()
     permission_result = check_permission()
     if not permission_result['permission']:
-        return permission_result
+        return return_json_permissions_error()
 
     query = """
         SELECT sm.id,
@@ -592,7 +592,7 @@ def get_customer_notes():
     set_headers()
     permission_result = check_permission()
     if not permission_result['permission']:
-        return permission_result
+        return return_json_permissions_error()
 
     cuID = request.vars['id']
 
@@ -652,7 +652,7 @@ def create_customer_note():
     set_headers()
     permission_result = check_permission()
     if not permission_result['permission']:
-        return permission_result
+        return return_json_permissions_error()
 
     print(request.vars)
 
@@ -683,7 +683,7 @@ def update_customer_note():
     set_headers()
     permission_result = check_permission()
     if not permission_result['permission']:
-        return permission_result
+        return return_json_permissions_error()
 
     print(request.vars)
 
@@ -712,7 +712,7 @@ def update_customer_note_status():
     set_headers()
     permission_result = check_permission()
     if not permission_result['permission']:
-        return permission_result
+        return return_json_permissions_error()
 
     print(request.vars)
 
@@ -742,7 +742,7 @@ def delete_customer_note():
     set_headers()
     permission_result = check_permission()
     if not permission_result['permission']:
-        return permission_result
+        return return_json_permissions_error()
 
     print(request.vars)
     cnID = request.vars['id']
@@ -778,7 +778,7 @@ def get_customers():
     set_headers()
     permission_result = check_permission()
     if not permission_result['permission']:
-        return permission_result
+        return return_json_permissions_error()
 
     session.forget(response)
 
@@ -862,7 +862,7 @@ def get_customer_memberships_today():
     set_headers()
     permission_result = check_permission()
     if not permission_result['permission']:
-        return permission_result
+        return return_json_permissions_error()
 
     cuID = request.vars['id']
 
@@ -903,7 +903,7 @@ def get_customer_memberships():
     set_headers()
     permission_result = check_permission()
     if not permission_result['permission']:
-        return permission_result
+        return return_json_permissions_error()
 
     cuID = request.vars['id']
 
@@ -952,7 +952,7 @@ def get_customer_classcards():
     set_headers()
     permission_result = check_permission()
     if not permission_result['permission']:
-        return permission_result
+        return return_json_permissions_error()
 
     cuID = request.vars['id']
 
@@ -1012,7 +1012,7 @@ def get_customer_payment_info_known():
     set_headers()
     permission_result = check_permission()
     if not permission_result['permission']:
-        return permission_result
+        return return_json_permissions_error()
 
     cuID = request.vars['id']
     print(request.vars)
@@ -1038,7 +1038,7 @@ def get_customer_subscriptions():
     set_headers()
     permission_result = check_permission()
     if not permission_result['permission']:
-        return permission_result
+        return return_json_permissions_error()
 
     cuID = request.vars['id']
 
@@ -1084,7 +1084,7 @@ def get_customer_reconcile_later_classes():
     set_headers()
     permission_result = check_permission()
     if not permission_result['permission']:
-        return permission_result
+        return return_json_permissions_error()
 
     from openstudio.os_attendance_helper import AttendanceHelper
 
@@ -1156,7 +1156,7 @@ def get_customer_school_info():
     set_headers()
     permission_result = check_permission()
     if not permission_result['permission']:
-        return permission_result
+        return return_json_permissions_error()
 
     cuID = request.vars['id']
 
@@ -1182,7 +1182,7 @@ def update_class_attendance():
     set_headers()
     permission_result = check_permission()
     if not permission_result['permission']:
-        return permission_result
+        return return_json_permissions_error()
 
     from openstudio.os_class_attendance import ClassAttendance
 
@@ -1206,7 +1206,7 @@ def delete_class_attendance():
     set_headers()
     permission_result = check_permission()
     if not permission_result['permission']:
-        return permission_result
+        return return_json_permissions_error()
 
     from openstudio.os_classcards_helper import ClasscardsHelper
     from openstudio.os_class_attendance import ClassAttendance
@@ -1268,7 +1268,7 @@ def create_customer():
     set_headers()
     permission_result = check_permission()
     if not permission_result['permission']:
-        return permission_result
+        return return_json_permissions_error()
 
     from openstudio.os_cache_manager import OsCacheManager
 
@@ -1329,7 +1329,7 @@ def update_customer():
     set_headers()
     permission_result = check_permission()
     if not permission_result['permission']:
-        return permission_result
+        return return_json_permissions_error()
 
     from openstudio.os_cache_manager import OsCacheManager
 
@@ -1414,7 +1414,7 @@ def update_customer_picture():
     set_headers()
     permission_result = check_permission()
     if not permission_result['permission']:
-        return permission_result
+        return return_json_permissions_error()
 
     import io
 
@@ -1462,7 +1462,7 @@ def get_products():
     set_headers()
     permission_result = check_permission()
     if not permission_result['permission']:
-        return permission_result
+        return return_json_permissions_error()
 
     from openstudio.os_shop_products_variants import ShopProductsVariants
     # from openstudio.os_shop_category import ShopCategory
@@ -1488,7 +1488,7 @@ def get_payment_methods():
     set_headers()
     permission_result = check_permission()
     if not permission_result['permission']:
-        return permission_result
+        return return_json_permissions_error()
 
     not_pos_methods = [2, 3, 100]
     query = (db.payment_methods.Archived == False) & \
@@ -1511,7 +1511,7 @@ def get_tax_rates():
     set_headers()
     permission_result = check_permission()
     if not permission_result['permission']:
-        return permission_result
+        return return_json_permissions_error()
 
     query = (db.tax_rates.Archived == False)
 
@@ -1532,7 +1532,7 @@ def get_product_categories():
     set_headers()
     permission_result = check_permission()
     if not permission_result['permission']:
-        return permission_result
+        return return_json_permissions_error()
 
     query = (db.shop_categories.Archived == False)
 
@@ -1555,7 +1555,7 @@ def validate_cart():
     set_headers()
     permission_result = check_permission()
     if not permission_result['permission']:
-        return permission_result
+        return return_json_permissions_error()
 
 
     print("POS read permissions")
@@ -1800,7 +1800,7 @@ def get_expenses():
     set_headers()
     permission_result = check_permission()
     if not permission_result['permission']:
-        return permission_result
+        return return_json_permissions_error()
 
     query = (db.accounting_expenses.BookingDate == TODAY_LOCAL)
 
@@ -1831,7 +1831,7 @@ def get_cash_counts():
     set_headers()
     permission_result = check_permission()
     if not permission_result['permission']:
-        return permission_result
+        return return_json_permissions_error()
 
     opening_row = db.accounting_cashbooks_cash_count(
         CountDate = TODAY_LOCAL,
@@ -1861,7 +1861,7 @@ def set_cash_count():
     set_headers()
     permission_result = check_permission()
     if not permission_result['permission']:
-        return permission_result
+        return return_json_permissions_error()
 
     print(request.vars)
 
@@ -1908,7 +1908,7 @@ def create_expense():
     set_headers()
     permission_result = check_permission()
     if not permission_result['permission']:
-        return permission_result
+        return return_json_permissions_error()
 
     print(request.vars)
 
@@ -1944,7 +1944,7 @@ def update_expense():
     set_headers()
     permission_result = check_permission()
     if not permission_result['permission']:
-        return permission_result
+        return return_json_permissions_error()
 
     print(request.vars)
     aeID = request.vars.pop('id', None)
@@ -1983,7 +1983,7 @@ def delete_expense():
     set_headers()
     permission_result = check_permission()
     if not permission_result['permission']:
-        return permission_result
+        return return_json_permissions_error()
 
     print(request.vars)
     aeID = request.vars['id']
