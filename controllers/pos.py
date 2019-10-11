@@ -152,7 +152,7 @@ def get_settings():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'classes'))
+               auth.has_permission('read', 'pos'))
 def get_classes():
     """
     List upcoming classes for today
@@ -174,8 +174,8 @@ def get_classes():
     return dict(classes=cs.get_day_list())
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'classes_attendance'))
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'pos'))
 def get_class_attendance():
     """
     List attendance for a class
@@ -196,8 +196,8 @@ def get_class_attendance():
 
 
 #TODO: Change for right permission
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'classes_attendance'))
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'pos'))
 def get_class_revenue():
     """
     :return:
@@ -215,8 +215,8 @@ def get_class_revenue():
     return dict(revenue=reports.get_class_revenue_summary(clsID, date))
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('update', 'teachers_payment_attendance'))
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'pos'))
 def get_class_teacher_payment():
     """
 
@@ -237,8 +237,8 @@ def get_class_teacher_payment():
     return dict(payment = payment)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('update', 'teachers_payment_attendance'))
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'pos'))
 def verify_teacher_payment():
     """
     Set teacher payment attendance
@@ -260,8 +260,8 @@ def verify_teacher_payment():
     return dict(result=status)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('create', 'classes_attendance'))
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'pos'))
 def get_class_booking_options():
     """
     List booking options for a class for a given customer
@@ -293,7 +293,7 @@ def get_class_booking_options():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('create', 'classes_attendance'))
+               auth.has_permission('read', 'pos'))
 def customer_class_booking_create():
     """
     Check customer in to a class, drop-in and trial are handled through
@@ -367,7 +367,7 @@ def customer_class_booking_create():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('update', 'classes_attendance'))
+               auth.has_permission('read', 'pos'))
 def customer_class_booking_manage():
     """
     Manage booking for a class
@@ -379,7 +379,7 @@ def customer_class_booking_manage():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'school_classcards'))
+               auth.has_permission('read', 'pos'))
 def get_school_classcards():
     """
     List of school not archived classcards
@@ -438,7 +438,7 @@ def get_school_classcards():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'school_subscriptions'))
+               auth.has_permission('read', 'pos'))
 def get_school_subscriptions():
     """
     List of not archived school classcards
@@ -504,7 +504,7 @@ def get_school_subscriptions():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'school_memberships'))
+               auth.has_permission('read', 'pos'))
 def get_school_memberships():
     """
     List of not archived school classcards
@@ -550,7 +550,7 @@ def get_school_memberships():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'customers_notes'))
+               auth.has_permission('read', 'pos'))
 def get_customer_notes():
     """
     Return notes for a given customer
@@ -607,8 +607,8 @@ def get_customer_notes():
     return dict(data=notes)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('create', 'customers_notes'))
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'pos'))
 def create_customer_note():
     """
     :return: dict containing data of new note
@@ -637,7 +637,7 @@ def create_customer_note():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('update', 'customers_notes'))
+               auth.has_permission('read', 'pos'))
 def update_customer_note():
     """
     :return: dict containing data of new note
@@ -664,7 +664,7 @@ def update_customer_note():
 
 
 @auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('update', 'customers_notes'))
+               auth.has_permission('read', 'pos'))
 def update_customer_note_status():
     """
     :return: dict containing data of new note
@@ -690,8 +690,8 @@ def update_customer_note_status():
     return dict(error=False)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('delete', 'customers_notes'))
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'pos'))
 def delete_customer_note():
     """
 
@@ -724,8 +724,8 @@ def get_customers_thumbnail_url(row_data):
         )
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'auth_user'))
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'pos'))
 def get_customers():
     """
     Get non trashed customers from cache
@@ -745,8 +745,8 @@ def get_customers():
     return data
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'auth_user'))
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'pos'))
 def _get_customers():
     """
     List not trashed customers
@@ -809,8 +809,8 @@ def _get_customers():
     return customers
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'customers_memberships'))
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'pos'))
 def get_customer_memberships_today():
     """
     List customer memberships
@@ -848,8 +848,8 @@ def get_customer_memberships_today():
     return dict(data=memberships)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'customers_memberships'))
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'pos'))
 def get_customer_memberships():
     """
     List customer memberships, from the last 400 days
@@ -894,8 +894,8 @@ def get_customer_memberships():
     return dict(data=memberships)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'customers_classcards'))
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'pos'))
 def get_customer_classcards():
     """
     List customer subscriptions, excluding cards that ended more then 
@@ -953,8 +953,8 @@ def get_customer_classcards():
 
 
 #TODO activate authentication
-# @auth.requires(auth.has_membership(group_id='Admins') or \
-#                auth.has_permission('read', 'pos'))
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'pos'))
 def get_customer_payment_info_known():
     """
     Return true when payment info is known (records exists and AccountNumber != None, else false
@@ -977,8 +977,8 @@ def get_customer_payment_info_known():
         return dict(payment_info=False)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'customers_subscriptions'))
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'pos'))
 def get_customer_subscriptions():
     """
     List customer subscriptions, excluding subscriptions that ended more then 
@@ -1020,8 +1020,8 @@ def get_customer_subscriptions():
     return dict(data=subscriptions)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'classes_attendance'))
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'pos'))
 def get_customer_reconcile_later_classes():
     """
     List customer reconcile later classes
@@ -1087,8 +1087,8 @@ def get_customer_reconcile_later_classes():
     return dict(data=reconcile_later_classes)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'auth_user'))
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'pos'))
 def get_customer_school_info():
     """
     List customer information
@@ -1115,8 +1115,8 @@ def get_customer_school_info():
     )
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('update', 'classes_attendance'))
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'pos'))
 def update_class_attendance():
     """
 
@@ -1136,8 +1136,8 @@ def update_class_attendance():
     return dict(clattID=clattID, status=status)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('delete', 'classes_attendance'))
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'pos'))
 def delete_class_attendance():
     """
 
@@ -1197,8 +1197,8 @@ def delete_class_attendance():
     return dict(clattID=clattID, error=False)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('create', 'auth_user'))
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'pos'))
 def create_customer():
     """
     :return: dict containing data of new auth_user
@@ -1256,8 +1256,8 @@ def create_customer():
                 error=error)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('update', 'auth_user'))
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'pos'))
 def update_customer():
     """
     :return: dict containing data of new auth_user
@@ -1339,8 +1339,8 @@ def update_customer():
                     id=cuID)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('update', 'auth_user'))
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'pos'))
 def update_customer_picture():
     """
     :return: dict containing data of new auth_user
@@ -1384,8 +1384,8 @@ def update_customer_picture():
                 data=data)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'shop_products'))
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'pos'))
 def get_products():
     """
 
@@ -1407,8 +1407,8 @@ def get_products():
     return dict(data=data)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'payment_methods'))
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'pos'))
 def get_payment_methods():
     """
 
@@ -1428,8 +1428,8 @@ def get_payment_methods():
     return dict(data=rows.as_list())
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'tax_rates'))
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'pos'))
 def get_tax_rates():
     """
 
@@ -1447,8 +1447,8 @@ def get_tax_rates():
     return dict(data=rows.as_list())
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'shop_categories'))
+@auth.requires(auth.has_membership(group_id='Admins') or
+               auth.has_permission('read', 'pos'))
 def get_product_categories():
     """
 
@@ -1467,8 +1467,8 @@ def get_product_categories():
     return dict(data=rows.as_dict())
 
 
-# @auth.requires(auth.has_membership(group_id='Admins') or \
-#                auth.has_permission('read', 'pos'))
+@auth.requires(auth.has_membership(group_id='Admins') or \
+               auth.has_permission('read', 'pos'))
 def validate_cart():
     """
     Process shopping cart
@@ -1713,8 +1713,8 @@ def validate_cart_create_receipt(
     return receipt
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'accounting_expenses'))
+# @auth.requires(auth.has_membership(group_id='Admins') or \
+#                auth.has_permission('read', 'accounting_expenses'))
 def get_expenses():
     """
     :return: List of expenses
@@ -1741,8 +1741,8 @@ def get_expenses():
 
     return expenses
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('read', 'accounting_expenses'))
+# @auth.requires(auth.has_membership(group_id='Admins') or \
+#                auth.has_permission('read', 'accounting_expenses'))
 def get_cash_counts():
     """
     :return: List of expenses
@@ -1772,8 +1772,8 @@ def get_cash_counts():
     return cash_counts
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('update', 'accounting_cashbooks_cash_count'))
+# @auth.requires(auth.has_membership(group_id='Admins') or \
+#                auth.has_permission('update', 'accounting_cashbooks_cash_count'))
 def set_cash_count():
     set_headers()
 
@@ -1814,8 +1814,8 @@ def set_cash_count():
                 error=error)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('create', 'accounting_expenses'))
+# @auth.requires(auth.has_membership(group_id='Admins') or \
+#                auth.has_permission('create', 'accounting_expenses'))
 def create_expense():
     """
     :return: dict containing data of new auth_user
@@ -1848,8 +1848,8 @@ def create_expense():
                 error=error)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('update', 'accounting_expenses'))
+# @auth.requires(auth.has_membership(group_id='Admins') or \
+#                auth.has_permission('update', 'accounting_expenses'))
 def update_expense():
     """
     :return: dict containing data of new auth_user
@@ -1884,8 +1884,8 @@ def update_expense():
                 id=aeID)
 
 
-@auth.requires(auth.has_membership(group_id='Admins') or \
-               auth.has_permission('delete', 'accounting_expenses'))
+# @auth.requires(auth.has_membership(group_id='Admins') or \
+#                auth.has_permission('delete', 'accounting_expenses'))
 def delete_expense():
     """
 
