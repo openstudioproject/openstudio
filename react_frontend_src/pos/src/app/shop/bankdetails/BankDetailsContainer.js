@@ -3,7 +3,7 @@ import { injectIntl } from 'react-intl';
 import { withRouter } from 'react-router'
 
 import { appOperations } from '../../duck'
-import Validation from "./Validation"
+import BankDetails from './BankDetails'
 
 
 const mapStateToProps = state => 

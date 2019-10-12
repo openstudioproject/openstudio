@@ -53,6 +53,7 @@ const Button = ({history, children, cart_items, customers}) =>
                             console.log('go to payment')
                         } else {
                             console.log('go to page to enter information')
+                            history.push('/shop/bankdetails')
                         }
                     })
                     .catch(function (error) {
