@@ -44,50 +44,28 @@ class BankDetails extends Component {
     }
 
 
-    // onClickNextOrder() {
-    //     console.log('next order clicked')
+    onSubmitPaymentInfo(values) {
+      console.log('submitted payment info:')
+      console.log(values)
 
-    //     const cartItems = this.props.cart.items
-    //     let cartHasClasscard = false
-    //     let cartHasMembership = false
-    //     let cartHasSubscription = false
-    //     let cartHasClassReconcileLater = false
-    //     var i
-    //     for (i = 0; i < cartItems.length; i++) {
-    //         console.log(cartItems[i])
-    //         switch (cartItems[i].item_type) {
-    //             case "classcard":
-    //                 cartHasClasscard = true
-    //                 break
-    //             case "subscription":
-    //                 cartHasSubscription = true
-    //                 break
-    //             case "membership":
-    //                 cartHasMembership = true
-    //                 break
-    //             case "class_reconcile_later":
-    //                 cartHasClassReconcileLater = true
-    //         }
-    //     } 
+      // Do a post here and update local state with errors, if required.
 
-    //     if ( (cartHasClasscard) || (cartHasSubscription) || (cartHasMembership) || (cartHasClassReconcileLater) ){
-    //         this.props.fetchCustomersSchoolInfo(this.props.selected_customerID)
-    //     }
-    //     // if (cartHasSubscription) {
-    //     //     this.props.fetchCustomersSubscriptions()
-    //     // }
-    //     // if (cartHasSubscription) {
-    //     //     this.props.fetchCustomersMemberships()
-    //     //     this.props.fetchCustomersMembershipsToday()
-    //     // }
+      // let item = {
+      //    id: v4(),
+      //    item_type: 'custom',
+      //    quantity: 1,
+      //    data: custom_item
+      // }
 
-    //     this.props.clearSelectedPaymentMethod()
-    //     this.props.clearCartItems()
-    //     this.props.clearSelectedCustomer()
-    //     //TODO: Add clear functions for cart error & error message, if any.
-    //     this.props.history.push('/shop/products')
-
-    // }
+      // console.log('item')
+      // console.log(item)
+      // // Check if item not yet in cart
+      
+      // // If not yet in cart, add as a new pproduct, else increase 
+      // this.props.addToCart(item)
+      
+      // // this.props.setDisplayCustomerID(id)
+  }
     
     render() {
         const app = this.props.app
@@ -105,34 +83,32 @@ class BankDetails extends Component {
                         <Box>
                             <BoxHeader title="Enter bank account information"/>
                             <BoxBody className="">
-                              form here...
-                                {/* <Formik
-                                    initialValues={{ product: '', description: '', price: '0', tax_rates_id: "" }}
-                                    validate={values => {
-                                        let errors = {};
-                                        // Validate product
-                                        if ((!values.product) || (validator.isEmpty(values.product))) {
-                                            errors.product = 'Required'
-                                        } 
-                                        // Validate description
-                                        if ((!values.description) || (validator.isEmpty(values.description))) {
-                                            errors.description = 'Required'
-                                        }
-                                        // Validate price
-                                        if (!values.price) {
-                                            errors.price = 'Required'
-                                        } else if (!validator.isFloat(values.price)) {
-                                            errors.price = 'Please input an amount, use "." as a decimal separator.'
-                                        }
+                                <Formik
+                                    initialValues={{ AccountNumber: '', AccountHolder: '' }}
+                                    // validate={values => {
+                                    //     let errors = {}
+                                    //     // Validate product
+                                    //     if ((!values.product) || (validator.isEmpty(values.product))) {
+                                    //         errors.product = 'Required'
+                                    //     } 
+                                    //     // Validate description
+                                    //     if ((!values.description) || (validator.isEmpty(values.description))) {
+                                    //         errors.description = 'Required'
+                                    //     }
+                                    //     // Validate price
+                                    //     if (!values.price) {
+                                    //         errors.price = 'Required'
+                                    //     } else if (!validator.isFloat(values.price)) {
+                                    //         errors.price = 'Please input an amount, use "." as a decimal separator.'
+                                    //     }
 
-                                        return errors;
-                                    }}
+                                    //     return errors;
+                                    // }}
                                     onSubmit={(values, { resetForm, setSubmitting }) => {
-                                        values.id = v4()
-                                        values.price = parseFloat(values.price)
+                                        values.id = selected_customerID
 
                                         setTimeout(() => {
-                                            this.onSubmitCustomItem(values)
+                                            this.onSubmitPaymentInfo(values)
                                             resetForm()
                                             setSubmitting(false)
                                         }, 400)
@@ -147,42 +123,21 @@ class BankDetails extends Component {
                                     {({ values, handleBlur, handleChange, isSubmitting }) => (
                                         <Form>
                                             <div className="form-group">
-                                                <label>Product name</label>
-                                                <Field className="form-control" type="text" name="product" autoComplete="off" />
-                                                <ErrorMessage name="product" component="div" />
+                                                <label>Account Holder</label>
+                                                <Field className="form-control" type="text" name="AccountHolder" autoComplete="off" />
+                                                <ErrorMessage name="AccountHolder" component="div" />
                                             </div>
                                             <div className="form-group">
-                                                <label>Description</label>
-                                                <Field className="form-control" type="text" name="description" autoComplete="off" />
-                                                <ErrorMessage name="description" component="div" />
+                                                <label>Account Number</label>
+                                                <Field className="form-control" type="text" name="AccountNumber" autoComplete="off" />
+                                                <ErrorMessage name="AccountNumber" component="div" />
                                             </div>
-                                            <div className="form-group">
-                                                <label>Price (incl. Taxes)</label>
-                                                <Field className="form-control" type="" name="price" autoComplete="off" />
-                                                <ErrorMessage name="price" component="div" />
-                                            </div>
-                                            <div className="form-group">
-                                                <label>Taxes</label>
-                                                <select
-                                                    name="tax_rates_id"
-                                                    value={values.tax_rates_id}
-                                                    onChange={handleChange}
-                                                    onBlur={handleBlur}
-                                                    className="form-control"
-                                                >
-                                                    <option key={v4()} value="" label="Select tax..." />
-                                                    {taxRates.map((rate, i) => {
-                                                        return <option key={v4()} value={rate.id}>{rate.Name}</option>
-                                                    })}
-                                                </select>
-                                                <ErrorMessage name="tax_rates_id" component="div" />
-                                            </div>
-                                            <button className="btn btn-primary" type="submit" disabled={isSubmitting}>
-                                                Add to cart
+                                            <button className="btn btn-primary pull-right" type="submit" disabled={isSubmitting}>
+                                                Continue <i className="fa fa-chevron-right" />
                                             </button>
                                         </Form>
                                     )}
-                                </Formik> */}
+                                </Formik>
                             </BoxBody>
                         </Box>
                     </div>
