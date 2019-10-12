@@ -59,7 +59,7 @@ export const ENGLISH_TRANSLATION = {
         "app.pos.permissions_error.content": "Looks like you don't have sufficient permissions to do that.",
         "app.pos.products": "Products",
         "app.pos.products.school.subscription.registration_fee": "Registration Fee",
-        "app.pos.shop.bankdetails.page_title": "Validation",
+        "app.pos.shop.bankdetails.page_title": "Customer bank information",
         "app.pos.shop.payment.page_title": "Payment",
         "app.pos.shop.validation.page_title": "Validation"
     }

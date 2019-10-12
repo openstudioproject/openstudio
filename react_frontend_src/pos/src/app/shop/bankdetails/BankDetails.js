@@ -26,9 +26,21 @@ class BankDetails extends Component {
     }
 
     componentWillMount() {
+        const customers = this.props.customers
+        const selected_customerID = this.props.selected_customerID
+        const customer = customers[selected_customerID]
+
         this.props.setPageTitle(
             this.props.intl.formatMessage({ id: 'app.pos.shop.bankdetails.page_title' })
         )
+
+        if (customer) {
+            this.props.setPageSubtitle(customer.display_name)
+        }
+    }
+
+    componentWillUnmount() {
+        this.props.setPageSubtitle("")
     }
 
 
@@ -79,6 +91,9 @@ class BankDetails extends Component {
     
     render() {
         const app = this.props.app
+        const customers = this.props.customers
+        const selected_customerID = this.props.selected_customerID
+        const customer = customers[selected_customerID]
         console.log('app')
         console.log(app)
         const history = this.props.history
