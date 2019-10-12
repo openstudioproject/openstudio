@@ -18,6 +18,7 @@ import Book from './classes/book/BookContainer'
 import Revenue from './classes/revenue/RevenueContainer'
 import Home from './home/HomeContainer'
 import CustomItem from './shop/custom/CustomItemContainer'
+import BankDetails from './shop/bankdetails/BankDetails'
 import Payment from './shop/payment/PaymentContainer'
 import Products from './shop/products/ProductsContainer'
 import Classcards from './shop/school/classcards/ClasscardsContainer'
@@ -64,6 +65,7 @@ class App extends Component {
             <Route path='/cashbook/expenses/add' component={ExpenseAdd} />
             <Route path='/cashbook/expenses/edit/:eID' component={ExpenseEdit} />
             <Route path='/cashbook/cashcount/set/:type' component={CashCountSet} />
+            <Route path="/shop/bankdetails" component={BankDetails} />
             <Route path="/shop/payment" component={Payment} />
             <Route path="/shop/validation" component={Validation} />
             <Route exact path='/shop/products' component={Products} />
