@@ -1472,7 +1472,7 @@ def update_customer_payment_information():
     account_number = request.vars['AccountNumber']
     account_holder = request.vars['AccountHolder']
 
-    print(cnID)
+    # Fetch existing payment info for customer, if any
     query = (db.customers_payment_info.auth_customer_id == cuID)
     rows = db(query).select(db.customers_payment_info.ALL)
 
