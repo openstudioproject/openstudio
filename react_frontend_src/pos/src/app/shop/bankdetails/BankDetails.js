@@ -88,7 +88,8 @@ class BankDetails extends Component {
                 <div className="row">
                     <div className="col-md-4 col-md-offset-4">
                         <Box>
-                            <BoxBody className="center">
+                            <BoxHeader title="Enter bank account information"/>
+                            <BoxBody className="">
                                 Form goes here...
                             </BoxBody>
                         </Box>
