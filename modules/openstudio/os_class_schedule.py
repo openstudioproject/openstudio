@@ -613,7 +613,7 @@ class ClassSchedule:
 
         spaces = row.classes.MaxOnlineBooking or 0
         online_booking = row.classes_schedule_count.OnlineBooking or 0
-        # attendance = row.classes_schedule_count.Attendance or 0
+        attendance = row.classes_schedule_count.Attendance or 0
 
         available_spaces = (spaces + enrollment_spaces_left) - online_booking
         if available_spaces < 1:
