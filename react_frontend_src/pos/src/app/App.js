@@ -26,6 +26,7 @@ import Memberships from './shop/school/memberships/MembershipsContainer'
 import Subscriptions from './shop/school/subscriptions/SubscriptionsContainer'
 import Validation from './shop/validation/ValidationContainer'
 import PermissionsError from './permissions_error/PermissionsErrorContainer'
+import SystemError from './system_error/SystemErrorContainer'
 import Whoops404 from './whoops404/Whoops404'
 import LoadingScreen from '../components/ui/LoadingScreen'
 
@@ -74,6 +75,7 @@ class App extends Component {
             <Route path='/shop/school/subscriptions' component={Subscriptions} />
             <Route path='/shop/custom' component={CustomItem} />
             <Route path='/permissions_error' component={PermissionsError} />
+            <Route path='/system_error' component={SystemError} />
             {/* Add all your remaining routes here, like /trending, /about, etc. */}
             <Route component={Whoops404} />
           </Switch>

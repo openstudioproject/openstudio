@@ -2,6 +2,7 @@ import React, { Component } from "react"
 import { intlShape } from "react-intl"
 import PropTypes from "prop-types"
 import { v4 } from "uuid"
+import { Formik, Form, Field, ErrorMessage, validateYupSchema } from 'formik'
 
 import PageTemplate from "../../../components/PageTemplate"
 import Box from "../../../components/ui/Box"
@@ -9,7 +10,6 @@ import BoxBody from "../../../components/ui/BoxBody"
 import BoxHeader from "../../../components/ui/BoxHeader"
 
 import ButtonNextOrder from "./ButtonNextOrder"
-import ValidationList from "./ValidationList"
 
 
 class BankDetails extends Component {
@@ -105,7 +105,83 @@ class BankDetails extends Component {
                         <Box>
                             <BoxHeader title="Enter bank account information"/>
                             <BoxBody className="">
-                                Form goes here...
+                                <Formik
+                                    initialValues={{ product: '', description: '', price: '0', tax_rates_id: "" }}
+                                    validate={values => {
+                                        let errors = {};
+                                        // Validate product
+                                        if ((!values.product) || (validator.isEmpty(values.product))) {
+                                            errors.product = 'Required'
+                                        } 
+                                        // Validate description
+                                        if ((!values.description) || (validator.isEmpty(values.description))) {
+                                            errors.description = 'Required'
+                                        }
+                                        // Validate price
+                                        if (!values.price) {
+                                            errors.price = 'Required'
+                                        } else if (!validator.isFloat(values.price)) {
+                                            errors.price = 'Please input an amount, use "." as a decimal separator.'
+                                        }
+
+                                        return errors;
+                                    }}
+                                    onSubmit={(values, { resetForm, setSubmitting }) => {
+                                        values.id = v4()
+                                        values.price = parseFloat(values.price)
+
+                                        setTimeout(() => {
+                                            this.onSubmitCustomItem(values)
+                                            resetForm()
+                                            setSubmitting(false)
+                                        }, 400)
+
+                                        
+                                        // setTimeout(() => {
+                                        // alert(JSON.stringify(values, null, 2));
+                                        // setSubmitting(false);
+                                        // }, 40);
+                                    }}
+                                    >
+                                    {({ values, handleBlur, handleChange, isSubmitting }) => (
+                                        <Form>
+                                            <div className="form-group">
+                                                <label>Product name</label>
+                                                <Field className="form-control" type="text" name="product" autoComplete="off" />
+                                                <ErrorMessage name="product" component="div" />
+                                            </div>
+                                            <div className="form-group">
+                                                <label>Description</label>
+                                                <Field className="form-control" type="text" name="description" autoComplete="off" />
+                                                <ErrorMessage name="description" component="div" />
+                                            </div>
+                                            <div className="form-group">
+                                                <label>Price (incl. Taxes)</label>
+                                                <Field className="form-control" type="" name="price" autoComplete="off" />
+                                                <ErrorMessage name="price" component="div" />
+                                            </div>
+                                            <div className="form-group">
+                                                <label>Taxes</label>
+                                                <select
+                                                    name="tax_rates_id"
+                                                    value={values.tax_rates_id}
+                                                    onChange={handleChange}
+                                                    onBlur={handleBlur}
+                                                    className="form-control"
+                                                >
+                                                    <option key={v4()} value="" label="Select tax..." />
+                                                    {taxRates.map((rate, i) => {
+                                                        return <option key={v4()} value={rate.id}>{rate.Name}</option>
+                                                    })}
+                                                </select>
+                                                <ErrorMessage name="tax_rates_id" component="div" />
+                                            </div>
+                                            <button className="btn btn-primary" type="submit" disabled={isSubmitting}>
+                                                Add to cart
+                                            </button>
+                                        </Form>
+                                    )}
+                                </Formik>
                             </BoxBody>
                         </Box>
                     </div>

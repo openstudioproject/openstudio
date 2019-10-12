@@ -57,6 +57,8 @@ export const ENGLISH_TRANSLATION = {
         "app.pos.home.page_title": "Welcome",
         "app.pos.permissions_error.page_title": "Whoops... ",
         "app.pos.permissions_error.content": "Looks like you don't have sufficient permissions to do that.",
+        "app.pos.system_error.page_title": "Whoops... ",
+        "app.pos.system_error.content": "Looks like an error occurred...please contact your system adminitrator and tell them what you were doing when to aid in troubleshooting.",
         "app.pos.products": "Products",
         "app.pos.products.school.subscription.registration_fee": "Registration Fee",
         "app.pos.shop.bankdetails.page_title": "Customer bank information",

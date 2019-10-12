@@ -37,6 +37,8 @@ const notLoggedInInterceptor = axios_os.interceptors.response.use(
         return response;
     },
     function (error) {
+        console.log(error)
+        window.location.href = "/pos#/system_error"
         return Promise.reject(error)
     }
 )
