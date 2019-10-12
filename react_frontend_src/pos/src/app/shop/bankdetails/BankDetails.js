@@ -105,7 +105,8 @@ class BankDetails extends Component {
                         <Box>
                             <BoxHeader title="Enter bank account information"/>
                             <BoxBody className="">
-                                <Formik
+                              form here...
+                                {/* <Formik
                                     initialValues={{ product: '', description: '', price: '0', tax_rates_id: "" }}
                                     validate={values => {
                                         let errors = {};
@@ -181,7 +182,7 @@ class BankDetails extends Component {
                                             </button>
                                         </Form>
                                     )}
-                                </Formik>
+                                </Formik> */}
                             </BoxBody>
                         </Box>
                     </div>

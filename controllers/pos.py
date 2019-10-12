@@ -1457,6 +1457,52 @@ def update_customer_picture():
 
 
 @auth.requires_login(otherwise=return_json_login_error)
+def update_customer_payment_information():
+    """
+    :return: dict containing data of new note
+    """
+    set_headers()
+    permission_result = check_permission()
+    if not permission_result['permission']:
+        return return_json_permissions_error()
+
+    print(request.vars)
+
+    cuID = request.vars['id']
+    account_number = request.vars['AccountNumber']
+    account_holder = request.vars['AccountHolder']
+
+    print(cnID)
+    query = (db.customers_payment_info.auth_customer_id == cuID)
+    rows = db(query).select(db.customers_payment_info.ALL)
+
+    if not rows:
+        # Insert
+        result = db.customers_payment_info.validate_and_insert(
+            auth_customer_id = cuID,
+            AccountNumber = account_number,
+            AccountHolder = account_holder
+        )
+
+    else:
+        # Update
+        payment_info = rows.first()
+        query = (db.customers_payment_info.id == payment_info.id)
+        result = db(query).validate_and_update(
+            id = row.id,
+            AccountNumber = account_number,
+            AccountHolder = account_holder
+        )
+
+    error = False
+    if result.errors:
+        error = True
+
+    return dict(result=result,
+                error=error)
+
+
+@auth.requires_login(otherwise=return_json_login_error)
 def get_products():
     """
 
