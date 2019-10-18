@@ -1821,7 +1821,7 @@ def validate_cart_create_receipt(
             pvID = item['data']['id']
             quantity = item['quantity']
             riID = receipt.item_add_product_variant(pvID, quantity)
-        elif item['item_type'] == 'custom' and not invoice_created:
+        elif item['item_type'] == 'custom':
             """
                 Only add custom items to receipt here if no if no invoice is created
                 otherwise, get data from invoice
