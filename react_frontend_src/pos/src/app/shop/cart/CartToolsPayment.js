@@ -37,10 +37,21 @@ const PaymentDisabled = (cart_items, customers) => {
 
 const Button = ({history, children, cart_items, customers}) =>
     <button className="btn btn-default btn-block"
-    // TODO: Add logic to onClick to check if there's a subscritpion in the cart, if so check if payment info is known, yes -> continue, no-> enter else: continue
             onClick={() => {
                 console.log(customers.selectedID)
-                if (customers.selectedID) {
+
+                // Do we have a subscription in the cart?
+                var i
+                var cart_has_subscription = false
+                for (i = 0; i < cart_items.length; i++) { 
+                    if (cart_items[i].item_type == 'subscription') {
+                        cart_has_subscription = true
+                        break
+                    }
+                }
+
+                // custtomer and subscription in cart; check if we have payment info
+                if (customers.selectedID && cart_has_subscription) {
 
                     let payload = { id: customers.selectedID }
 
@@ -51,9 +62,11 @@ const Button = ({history, children, cart_items, customers}) =>
                         console.log(response.data)
                         if (response.data.payment_info_known) {
                             console.log('go to payment')
+                            // Yup
                             history.push('/shop/payment')
                         } else {
                             console.log('go to page to enter information')
+                            // Nope, it should be entered
                             history.push('/shop/bankdetails')
                         }
                     })
