@@ -1024,9 +1024,9 @@ def get_customer_payment_info_known():
     count = db(query).count()
 
     if count:
-        return dict(payment_info=True)
+        return dict(payment_info_known=True)
     else:
-        return dict(payment_info=False)
+        return dict(payment_info_known=False)
 
 
 

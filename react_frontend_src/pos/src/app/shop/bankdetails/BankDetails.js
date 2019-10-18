@@ -46,7 +46,7 @@ class BankDetails extends Component {
     }
 
 
-    onSubmitPaymentInfo(values, setErrors) {
+    onSubmitPaymentInfo(values, setErrors, setSubmitting) {
       console.log('submitted payment info:')
       console.log(values)
 
@@ -55,10 +55,16 @@ class BankDetails extends Component {
       axios_os.post(OS_API.CUSTOMER_PAYMENT_INFO_UPDATE, values)
         .then(function(response) {
             console.log(response)
-            setErrors(response.data.result.errors)
+            if (response.data.error) {
+                setErrors(response.data.result.errors)
+                setSubmitting(false)
+            } else {
+                history.push('/shop/payment')
+            }
         })
         .catch(function(error) {
             console.log(error)
+            setSubmitting(false)
         })
 
       // let item = {
@@ -120,9 +126,7 @@ class BankDetails extends Component {
                                             values.id = selected_customerID
 
                                             setTimeout(() => {
-                                                this.onSubmitPaymentInfo(values, setErrors)
-                                                // resetForm()
-                                                setSubmitting(false)
+                                                this.onSubmitPaymentInfo(values, setErrors, setSubmitting)
                                             }, 400)
 
                                             

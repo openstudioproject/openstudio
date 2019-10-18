@@ -49,23 +49,21 @@ const Button = ({history, children, cart_items, customers}) =>
                         // handle success
                         // response.data
                         console.log(response.data)
-                        if (response.data.payment_info) {
+                        if (response.data.payment_info_known) {
                             console.log('go to payment')
+                            history.push('/shop/payment')
                         } else {
                             console.log('go to page to enter information')
                             history.push('/shop/bankdetails')
                         }
                     })
                     .catch(function (error) {
-                    // handle error
-                    console.log(error)
+                        // handle error
+                        console.log(error)
                     })
-                    .then(function () {
-                    // always executed
-                    });
                 } else {
                     // continue to payment when a customer id is not set
-                    // history.push('/shop/payment')
+                    history.push('/shop/payment')
                 }
             }}
             disabled={PaymentDisabled(cart_items, customers)}>
