@@ -313,8 +313,8 @@ class Receipt:
         if not item.customers_orders_items_shop_products_variants.id is None:
             # We have a product, use item_add_product_variant to create links and
             # update stock
-            print('######## item: ###########')
-            print(item)
+            # print('######## item: ###########')
+            # print(item)
 
             self.item_add_product_variant(
                 pvID = item.customers_orders_items_shop_products_variants.shop_products_variants_id,
@@ -322,8 +322,8 @@ class Receipt:
             )
         else:
             # We something else, just add.
-            print("receipt add item from oi")
-            print(item)
+            # print("receipt add item from oi")
+            # print(item)
 
             sorting = self.get_item_next_sort_nr()
             riID = db.receipts_items.insert(
