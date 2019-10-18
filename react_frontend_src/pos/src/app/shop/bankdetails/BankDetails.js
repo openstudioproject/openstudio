@@ -59,7 +59,7 @@ class BankDetails extends Component {
                 setErrors(response.data.result.errors)
                 setSubmitting(false)
             } else {
-                // history.push('/shop/payment')
+                history.push('/shop/payment')
             }
         })
         .catch(function(error) {

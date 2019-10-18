@@ -322,17 +322,20 @@ class Receipt:
             )
         else:
             # We something else, just add.
+            print("receipt add item from oi")
+            print(item)
+
             sorting = self.get_item_next_sort_nr()
             riID = db.receipts_items.insert(
                 receipts_id=self.receipts_id,
                 Sorting=sorting,
-                ProductName=item.ProductName,
-                Description=item.Description,
-                Quantity=item.Quantity,
-                Price=item.Price,
-                tax_rates_id=item.tax_rates_id,
-                accounting_glaccounts_id=item.accounting_glaccounts_id,
-                accounting_costcenters_id=item.accounting_costcenters_id
+                ProductName=item.customers_orders_items.ProductName,
+                Description=item.customers_orders_items.Description,
+                Quantity=item.customers_orders_items.Quantity,
+                Price=item.customers_orders_items.Price,
+                tax_rates_id=item.customers_orders_items.tax_rates_id,
+                accounting_glaccounts_id=item.customers_orders_items.accounting_glaccounts_id,
+                accounting_costcenters_id=item.customers_orders_items.accounting_costcenters_id
             )
 
         self.set_amounts()
