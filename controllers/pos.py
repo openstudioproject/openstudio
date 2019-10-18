@@ -1029,9 +1029,6 @@ def get_customer_payment_info_known():
         return dict(payment_info_known=False)
 
 
-
-
-
 @auth.requires_login(otherwise=return_json_login_error)
 def get_customer_subscriptions():
     """
@@ -1487,8 +1484,8 @@ def update_customer_payment_information():
 
     else:
         # Update
-        payment_info = rows.first()
-        query = (db.customers_payment_info.id == payment_info.id)
+        row = rows.first()
+        query = (db.customers_payment_info.id == row.id)
         result = db(query).validate_and_update(
             id = row.id,
             AccountNumber = account_number,

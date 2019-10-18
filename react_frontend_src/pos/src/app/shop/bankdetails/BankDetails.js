@@ -46,7 +46,7 @@ class BankDetails extends Component {
     }
 
 
-    onSubmitPaymentInfo(values, setErrors, setSubmitting) {
+    onSubmitPaymentInfo(history, values, setErrors, setSubmitting) {
       console.log('submitted payment info:')
       console.log(values)
 
@@ -59,7 +59,7 @@ class BankDetails extends Component {
                 setErrors(response.data.result.errors)
                 setSubmitting(false)
             } else {
-                history.push('/shop/payment')
+                // history.push('/shop/payment')
             }
         })
         .catch(function(error) {
@@ -126,7 +126,7 @@ class BankDetails extends Component {
                                             values.id = selected_customerID
 
                                             setTimeout(() => {
-                                                this.onSubmitPaymentInfo(values, setErrors, setSubmitting)
+                                                this.onSubmitPaymentInfo(history, values, setErrors, setSubmitting)
                                             }, 400)
 
                                             
