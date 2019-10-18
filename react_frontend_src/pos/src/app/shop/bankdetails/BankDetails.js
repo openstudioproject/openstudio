@@ -11,6 +11,8 @@ import BoxHeader from "../../../components/ui/BoxHeader"
 
 import ButtonNextOrder from "./ButtonNextOrder"
 
+import axios_os from "../../../utils/axios_os"
+import OS_API from "../../../utils/os_api"
 
 class BankDetails extends Component {
     constructor(props) {
@@ -44,11 +46,20 @@ class BankDetails extends Component {
     }
 
 
-    onSubmitPaymentInfo(values) {
+    onSubmitPaymentInfo(values, setErrors) {
       console.log('submitted payment info:')
       console.log(values)
 
       // Do a post here and update local state with errors, if required.
+
+      axios_os.post(OS_API.CUSTOMER_PAYMENT_INFO_UPDATE, values)
+        .then(function(response) {
+            console.log(response)
+            setErrors(response.data.result.errors)
+        })
+        .catch(function(error) {
+            console.log(error)
+        })
 
       // let item = {
       //    id: v4(),
@@ -83,61 +94,63 @@ class BankDetails extends Component {
                         <Box>
                             <BoxHeader title="Enter bank account information"/>
                             <BoxBody className="">
-                                <Formik
-                                    initialValues={{ AccountNumber: '', AccountHolder: '' }}
-                                    // validate={values => {
-                                    //     let errors = {}
-                                    //     // Validate product
-                                    //     if ((!values.product) || (validator.isEmpty(values.product))) {
-                                    //         errors.product = 'Required'
-                                    //     } 
-                                    //     // Validate description
-                                    //     if ((!values.description) || (validator.isEmpty(values.description))) {
-                                    //         errors.description = 'Required'
-                                    //     }
-                                    //     // Validate price
-                                    //     if (!values.price) {
-                                    //         errors.price = 'Required'
-                                    //     } else if (!validator.isFloat(values.price)) {
-                                    //         errors.price = 'Please input an amount, use "." as a decimal separator.'
-                                    //     }
+                                { (!selected_customerID) ? "No customer selected, please select an item from the menu to continue..." :
+                                    <Formik
+                                        initialValues={{ AccountNumber: '', AccountHolder: '' }}
+                                        // validate={values => {
+                                        //     let errors = {}
+                                        //     // Validate product
+                                        //     if ((!values.product) || (validator.isEmpty(values.product))) {
+                                        //         errors.product = 'Required'
+                                        //     } 
+                                        //     // Validate description
+                                        //     if ((!values.description) || (validator.isEmpty(values.description))) {
+                                        //         errors.description = 'Required'
+                                        //     }
+                                        //     // Validate price
+                                        //     if (!values.price) {
+                                        //         errors.price = 'Required'
+                                        //     } else if (!validator.isFloat(values.price)) {
+                                        //         errors.price = 'Please input an amount, use "." as a decimal separator.'
+                                        //     }
 
-                                    //     return errors;
-                                    // }}
-                                    onSubmit={(values, { resetForm, setSubmitting }) => {
-                                        values.id = selected_customerID
+                                        //     return errors;
+                                        // }}
+                                        onSubmit={(values, { resetForm, setSubmitting, setErrors }) => {
+                                            values.id = selected_customerID
 
-                                        setTimeout(() => {
-                                            this.onSubmitPaymentInfo(values)
-                                            resetForm()
-                                            setSubmitting(false)
-                                        }, 400)
+                                            setTimeout(() => {
+                                                this.onSubmitPaymentInfo(values, setErrors)
+                                                // resetForm()
+                                                setSubmitting(false)
+                                            }, 400)
 
-                                        
-                                        // setTimeout(() => {
-                                        // alert(JSON.stringify(values, null, 2));
-                                        // setSubmitting(false);
-                                        // }, 40);
-                                    }}
-                                    >
-                                    {({ values, handleBlur, handleChange, isSubmitting }) => (
-                                        <Form>
-                                            <div className="form-group">
-                                                <label>Account Holder</label>
-                                                <Field className="form-control" type="text" name="AccountHolder" autoComplete="off" />
-                                                <ErrorMessage name="AccountHolder" component="div" />
-                                            </div>
-                                            <div className="form-group">
-                                                <label>Account Number</label>
-                                                <Field className="form-control" type="text" name="AccountNumber" autoComplete="off" />
-                                                <ErrorMessage name="AccountNumber" component="div" />
-                                            </div>
-                                            <button className="btn btn-primary pull-right" type="submit" disabled={isSubmitting}>
-                                                Continue <i className="fa fa-chevron-right" />
-                                            </button>
-                                        </Form>
-                                    )}
-                                </Formik>
+                                            
+                                            // setTimeout(() => {
+                                            // alert(JSON.stringify(values, null, 2));
+                                            // setSubmitting(false);
+                                            // }, 40);
+                                        }}
+                                        >
+                                        {({ values, handleBlur, handleChange, isSubmitting }) => (
+                                            <Form>
+                                                <div className="form-group">
+                                                    <label>Account Holder</label>
+                                                    <Field className="form-control" type="text" name="AccountHolder" autoComplete="off" />
+                                                    <ErrorMessage name="AccountHolder" component="div" />
+                                                </div>
+                                                <div className="form-group">
+                                                    <label>Account Number</label>
+                                                    <Field className="form-control" type="text" name="AccountNumber" autoComplete="off" />
+                                                    <ErrorMessage name="AccountNumber" component="div" />
+                                                </div>
+                                                <button className="btn btn-primary pull-right" type="submit" disabled={isSubmitting}>
+                                                    Continue <i className="fa fa-chevron-right" />
+                                                </button>
+                                            </Form>
+                                        )}
+                                    </Formik>
+                                }
                             </BoxBody>
                         </Box>
                     </div>

@@ -1466,6 +1466,7 @@ def update_customer_payment_information():
     if not permission_result['permission']:
         return return_json_permissions_error()
 
+    print('payment info endpoint here:')
     print(request.vars)
 
     cuID = request.vars['id']
