@@ -611,17 +611,25 @@ class ClassSchedule:
         enrollment_spaces = row.classes.MaxReservationsRecurring or 0
         enrollment_spaces_left = enrollment_spaces - enrollments
 
-        spaces = row.classes.MaxOnlineBooking or 0
-        online_booking = row.classes_schedule_count.OnlineBooking or 0
+        total_spaces = row.classes.Maxstudents or 0
+        online_booking_total_spaces = row.classes.MaxOnlineBooking or 0
+        # online_booking = row.classes_schedule_count.OnlineBooking or 0
         attendance = row.classes_schedule_count.Attendance or 0
 
-        available_spaces = (spaces + enrollment_spaces_left) - online_booking
+        # Spaces for online booking =
+        online_spaces = online_booking_total_spaces + enrollment_spaces_left
+
+        # Regular calculation of spaces
+        available_spaces = online_spaces - attendance
+
+        # Catch full fail safe, in case attendance has been entered manually before
+        if attendance >= total_spaces:
+            available_spaces = 0
+
+        # Never return negatives, just 0
         if available_spaces < 1:
             available_spaces = 0
 
-        # Full
-        if attendance >= spaces:
-            available_spaces = 0
         #
         # print '### clsID' + unicode(row.classes.id)
         # print spaces
