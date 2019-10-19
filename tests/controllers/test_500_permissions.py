@@ -1183,9 +1183,10 @@ def test_customer_direct_debit_extra_delete(client, web2py):
         PaymentYear        = 2014,
         PaymentMonth       = 1,
         Amount             = 100,
-        Description        = 'test')
+        Description        = 'test'
+    )
 
-    web2py.auth.add_permission(200, 'read', 'customer_payments_info', 0)
+    web2py.auth.add_permission(200, 'read', 'customers_payment_info', 0)
     web2py.auth.add_permission(200, 'read', 'alternativepayments', 0)
     web2py.db.commit()
 
