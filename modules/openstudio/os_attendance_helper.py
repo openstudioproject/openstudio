@@ -1107,6 +1107,7 @@ class AttendanceHelper:
                 if list_type == 'shop':
                     subscription_permission_check = not int(clsID) in cs.get_allowed_classes_booking(public_only=True)
                 else:
+                    # Attendance, PoS, Selfcheckin
                     subscription_permission_check = not int(clsID) in cs.get_allowed_classes_attend(public_only=False)
 
                 allowed = True
@@ -1142,7 +1143,7 @@ class AttendanceHelper:
                         'Name': subscription.school_subscriptions.Name,
                         'school_memberships_id': school_subscription.school_subscriptions.school_memberships_id,
                     })
-                    
+
 
         # class cards
         classcards = customer.get_classcards(date)
