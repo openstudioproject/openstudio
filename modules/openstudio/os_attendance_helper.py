@@ -1069,16 +1069,18 @@ class AttendanceHelper:
         :param customer: os_customer.Customer object
         :param trial: bool
         :param complementary: bool
-        :param list_type: should be in ["shop", "attendance", "selfcheckin"]
+        :param list_type: should be in ["shop", "attendance", "selfcheckin", "pos"]
         :param controller: web2py controller
         :return: list of booking options
         """
         from .os_class import Class
         from .os_customer_classcard import CustomerClasscard
         from .os_customer_subscription import CustomerSubscription
+        from .os_school import School
 
         T = current.T
         db = current.db
+        school = School()
         get_sys_property = current.globalenv['get_sys_property']
 
         options = {
@@ -1091,9 +1093,11 @@ class AttendanceHelper:
 
         # Subscriptions
         subscriptions = customer.get_subscriptions_on_date(date)
+        subscription_ids = []
         if subscriptions:
             for subscription in subscriptions:
                 csID = subscription.customers_subscriptions.id
+                subscription_ids.append(csID)
                 # Check remaining credits
                 credits = subscription.customers_subscriptions.CreditsRemaining or 0
                 recon_classes = subscription.school_subscriptions.ReconciliationClasses
@@ -1124,6 +1128,21 @@ class AttendanceHelper:
                     'school_memberships_id': subscription.school_subscriptions.school_memberships_id,
                     'Blocked': cs.get_blocked(date)
                 })
+
+        # PoS Subscriptions (Add all subscriptions customer doesn't have as "shop item")
+        if list_type == "pos":
+            school_subscriptions = school.get_subscriptions(public_only=False)
+            for school_subscription in school_subscriptions:
+                # Prevent showing already bought subscription as shop option for customer
+                if school_subscription.id not in subscription_ids:
+                    options['subscriptions'].append({
+                        'clsID': clsID,
+                        'Type': 'subscription_shop',
+                        'id': school_subscription.id,
+                        'Name': subscription.school_subscriptions.Name,
+                        'school_memberships_id': school_subscription.school_subscriptions.school_memberships_id,
+                    })
+                    
 
         # class cards
         classcards = customer.get_classcards(date)
@@ -1689,7 +1708,7 @@ class AttendanceHelper:
         :param date: datetime.date
         :param date_formatted: datetime.date object formatted with current.DATE_FORMAT
         :param customer: Customer object
-        :param: list_type: [shop, attendance]
+        :param: list_type: [shop, attendance, pos]
         :return:
         """
         from .os_customer_subscription import CustomerSubscription
