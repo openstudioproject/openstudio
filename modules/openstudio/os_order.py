@@ -686,6 +686,8 @@ class Order:
             receipt = Receipt(rID)
 
             for row in rows:
+                print('row in deliver:')
+                print(row)
                 receipt.item_add_from_order_item(row)
 
         # Update status

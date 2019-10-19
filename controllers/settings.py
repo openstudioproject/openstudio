@@ -1426,7 +1426,7 @@ def access_group_permissions():
                     ['customers_documents-update', T("Edit uploaded documents")],
                     ['customers_documents-delete', T("Delete uploaded documents")],
                 ]],
-                ['customers_payments_info-read', T("View bank account"), [
+                ['customers_payment_info-read', T("View bank account"), [
                     ['customers_payment_info-update', T("Edit bank account"), [
                         ['customers_payment_info_mandates-create', T("Add direct debit mandates")],
                         ['customers_payment_info_mandates-delete', T("Delete direct debit mandates")],

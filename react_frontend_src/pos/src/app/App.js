@@ -18,6 +18,7 @@ import Book from './classes/book/BookContainer'
 import Revenue from './classes/revenue/RevenueContainer'
 import Home from './home/HomeContainer'
 import CustomItem from './shop/custom/CustomItemContainer'
+import BankDetails from './shop/bankdetails/BankDetailsContainer'
 import Payment from './shop/payment/PaymentContainer'
 import Products from './shop/products/ProductsContainer'
 import Classcards from './shop/school/classcards/ClasscardsContainer'
@@ -25,6 +26,7 @@ import Memberships from './shop/school/memberships/MembershipsContainer'
 import Subscriptions from './shop/school/subscriptions/SubscriptionsContainer'
 import Validation from './shop/validation/ValidationContainer'
 import PermissionsError from './permissions_error/PermissionsErrorContainer'
+import SystemError from './system_error/SystemErrorContainer'
 import Whoops404 from './whoops404/Whoops404'
 import LoadingScreen from '../components/ui/LoadingScreen'
 
@@ -64,6 +66,7 @@ class App extends Component {
             <Route path='/cashbook/expenses/add' component={ExpenseAdd} />
             <Route path='/cashbook/expenses/edit/:eID' component={ExpenseEdit} />
             <Route path='/cashbook/cashcount/set/:type' component={CashCountSet} />
+            <Route path="/shop/bankdetails" component={BankDetails} />
             <Route path="/shop/payment" component={Payment} />
             <Route path="/shop/validation" component={Validation} />
             <Route exact path='/shop/products' component={Products} />
@@ -72,6 +75,7 @@ class App extends Component {
             <Route path='/shop/school/subscriptions' component={Subscriptions} />
             <Route path='/shop/custom' component={CustomItem} />
             <Route path='/permissions_error' component={PermissionsError} />
+            <Route path='/system_error' component={SystemError} />
             {/* Add all your remaining routes here, like /trending, /about, etc. */}
             <Route component={Whoops404} />
           </Switch>

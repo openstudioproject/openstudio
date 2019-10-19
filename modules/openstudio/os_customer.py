@@ -938,12 +938,12 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
 
         delete_permission = (
             auth.has_membership(group_id='Admins') or
-            auth.has_permission('delete', 'customers_payments_info_mandates')
+            auth.has_permission('delete', 'customers_payment_info_mandates')
         )
 
         edit_permission = (
             auth.has_membership(group_id='Admins') or
-            auth.has_permission('update', 'customers_payments_info_mandates')
+            auth.has_permission('update', 'customers_payment_info_mandates')
         )
 
         onclick = "return confirm('" + \
