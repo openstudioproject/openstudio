@@ -26,6 +26,7 @@ const notLoggedInInterceptor = axios_os.interceptors.response.use(
             console.log('Redirecting to login...')
             window.location.href = response.data.location
         } else if (response.data.error == 403) {
+            // Catch user permission denied
             console.log('Permissions error')
             console.log(response.data)
             window.location.href = response.data.location
@@ -36,6 +37,12 @@ const notLoggedInInterceptor = axios_os.interceptors.response.use(
         return response;
     },
     function (error) {
+        console.log(error)
+        if (backendHost) {
+            window.location.href = "/#/system_error"
+        } else {
+            window.location.href = "/pos#/system_error"
+        }
         return Promise.reject(error)
     }
 )

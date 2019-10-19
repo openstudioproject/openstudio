@@ -57,8 +57,11 @@ export const ENGLISH_TRANSLATION = {
         "app.pos.home.page_title": "Welcome",
         "app.pos.permissions_error.page_title": "Whoops... ",
         "app.pos.permissions_error.content": "Looks like you don't have sufficient permissions to do that.",
+        "app.pos.system_error.page_title": "Uh oh... ",
+        "app.pos.system_error.content": "We didn't get a response from the server. First check if you're connected to the internet. If you are, this is a system error. Please contact your system adminitrator and tell them what you were doing and when to aid in troubleshooting.",
         "app.pos.products": "Products",
         "app.pos.products.school.subscription.registration_fee": "Registration Fee",
+        "app.pos.shop.bankdetails.page_title": "Customer bank information",
         "app.pos.shop.payment.page_title": "Payment",
         "app.pos.shop.validation.page_title": "Validation"
     }
