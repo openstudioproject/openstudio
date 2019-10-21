@@ -1083,7 +1083,6 @@ class AttendanceHelper:
         db = current.db
         school = School()
         get_sys_property = current.globalenv['get_sys_property']
-        TODAY_LOCAL = current.TODAY_LOCAL
 
         options = {
             'subscriptions': [],
@@ -1099,7 +1098,7 @@ class AttendanceHelper:
         if subscriptions:
             for subscription in subscriptions:
                 csID = subscription.customers_subscriptions.id
-                subscription_ids.append(csID)
+                subscription_ids.append(subscription.school_subscriptions.id)
                 # Check remaining credits
                 credits = subscription.customers_subscriptions.CreditsRemaining or 0
                 recon_classes = subscription.school_subscriptions.ReconciliationClasses
@@ -1143,12 +1142,11 @@ class AttendanceHelper:
                         'clsID': clsID,
                         'Type': 'subscription_shop',
                         'id': school_subscription.id,
-                        'Name': subscription.school_subscriptions.Name,
-                        'school_memberships_id': school_subscription.school_subscriptions.school_memberships_id,
-                        'PriceToday': ssu.get_price_today(),
-                        'PriceMonth': ssu.get_price_on_date(TODAY_LOCAL)
+                        'Name': school_subscription.Name,
+                        'school_memberships_id': school_subscription.school_memberships_id,
+                        'PriceToday': ssu.get_price_today(formatted=False),
+                        'PriceMonth': ssu.get_price_on_date(date, formatted=False)
                     })
-
 
         # class cards
         classcards = customer.get_classcards(date)
