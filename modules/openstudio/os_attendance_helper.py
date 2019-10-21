@@ -1077,11 +1077,13 @@ class AttendanceHelper:
         from .os_customer_classcard import CustomerClasscard
         from .os_customer_subscription import CustomerSubscription
         from .os_school import School
+        from .os_school_subscription import SchoolSubscription
 
         T = current.T
         db = current.db
         school = School()
         get_sys_property = current.globalenv['get_sys_property']
+        TODAY_LOCAL = current.TODAY_LOCAL
 
         options = {
             'subscriptions': [],
@@ -1136,12 +1138,15 @@ class AttendanceHelper:
             for school_subscription in school_subscriptions:
                 # Prevent showing already bought subscription as shop option for customer
                 if school_subscription.id not in subscription_ids:
+                    ssu = SchoolSubscription(school_subscription.id)
                     options['subscriptions'].append({
                         'clsID': clsID,
                         'Type': 'subscription_shop',
                         'id': school_subscription.id,
                         'Name': subscription.school_subscriptions.Name,
                         'school_memberships_id': school_subscription.school_subscriptions.school_memberships_id,
+                        'PriceToday': ssu.get_price_today(),
+                        'PriceMonth': ssu.get_price_on_date(TODAY_LOCAL)
                     })
 
 

@@ -142,7 +142,6 @@ class SchoolSubscription:
         total_days = period_end.day
         price = round(float(days) / float(total_days) * float(price), 2)
 
-
         if formatted:
             return SPAN(CURRSYM, ' ', format(price, '.2f'))
         else:
