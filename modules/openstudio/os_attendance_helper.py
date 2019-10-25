@@ -1203,20 +1203,26 @@ class AttendanceHelper:
 
         ## Dropin
         price = prices['dropin']
-        has_membership = customer.has_membership_on_date(date)
+        has_membership = False
+        if prices.school_memberships_id:
+             has_membership = customer.has_given_membership_on_date(prices.school_memberships_id, date)
         membership_price = has_membership and prices['dropin_membership']
         if membership_price:
             price = prices['dropin_membership']
 
-        if price:
-            options['dropin'] = {
-                'clsID': clsID,
-                "Type": "dropin",
-                "Name": T('Drop-in'),
-                "Price": price,
-                "MembershipPrice": membership_price,
-                "Message": get_sys_property('shop_classes_dropin_message') or ''
-            }
+        if list_type != "pos":
+            if price:
+                options['dropin'] = {
+                    'clsID': clsID,
+                    "Type": "dropin",
+                    "Name": T('Drop-in'),
+                    "Price": price,
+                    "MembershipPrice": membership_price,
+                    "Message": get_sys_property('shop_classes_dropin_message') or ''
+                }
+        else:
+            # List type "pos"
+            pass
 
         # Trial
         trial_option = self._get_customer_class_booking_option_trial(
