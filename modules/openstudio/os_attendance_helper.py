@@ -1150,11 +1150,13 @@ class AttendanceHelper:
 
         # class cards
         classcards = customer.get_classcards(date)
+        classcard_ids = []
         if classcards:
             for classcard in classcards:
                 ccdID = classcard.customers_classcards.id
-
                 ccd = CustomerClasscard(ccdID)
+                classcard_ids.append(ccd.school_classcard.id)
+
                 classes_remaining = ccd.get_classes_remaining()
 
                 if list_type == 'shop':
@@ -1178,6 +1180,22 @@ class AttendanceHelper:
                     'Unlimited': classcard.school_classcards.Unlimited,
                     'school_memberships_id': classcard.school_classcards.school_memberships_id,
                 })
+
+        # PoS Subscriptions (Add all subscriptions customer doesn't have as "shop item")
+        if list_type == "pos":
+            school_classcards = school.get_classcards(public_only=False)
+            for school_classcard in school_classcards:
+                # Prevent showing already bought subscription as shop option for customer
+                if school_classcard.id not in classcard_ids:
+                    # ssu = SchoolSubscription(school_subscription.id)
+                    options['classcards'].append({
+                        'clsID': clsID,
+                        'Type': 'classcard_shop',
+                        'id': school_classcard.id,
+                        'Name': school_classcard.Name,
+                        'school_memberships_id': school_classcard.school_memberships_id,
+                        'Price': school_classcard.Price
+                    })
 
         # Get class prices
         cls = Class(clsID, date)
