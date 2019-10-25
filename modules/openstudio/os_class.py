@@ -113,6 +113,7 @@ class Class:
             trial_glaccount = prices.accounting_glaccounts_id_trial
             dropin_costcenter = prices.accounting_costcenters_id_dropin
             trial_costcenter = prices.accounting_costcenters_id_trial
+            school_memberships_id = prices.school_memberships_id
 
             trial_tax = db.tax_rates(prices.tax_rates_id_trial)
             dropin_tax = db.tax_rates(prices.tax_rates_id_dropin)
@@ -142,6 +143,7 @@ class Class:
                 dropin_tax_percentage_membership = None
 
         else:
+            # Set default values
             dropin = 0
             trial  = 0
             trial_tax_rates_id    = None
@@ -158,6 +160,7 @@ class Class:
             trial_glaccount = None
             dropin_costcenter = None
             trial_costcenter = None
+            school_memberships_id = None
 
 
         return dict(
@@ -177,6 +180,7 @@ class Class:
             trial_glaccount = trial_glaccount,
             dropin_costcenter = dropin_costcenter,
             trial_costcenter = trial_costcenter,
+            school_memberships_id = school_memberships_id
         )
 
 
