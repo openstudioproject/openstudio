@@ -1342,7 +1342,9 @@ class AttendanceHelper:
                             return
 
             price = prices['trial'] or 0
-            has_membership = customer.has_membership_on_date(date)
+            has_membership = False
+            if prices.school_memberships_id:
+                has_membership = customer.has_given_membership_on_date(school_memberships_id, date)
             membership_price = has_membership and prices['trial_membership']
             if membership_price:
                 price = prices['trial_membership']
