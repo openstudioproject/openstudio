@@ -1548,7 +1548,7 @@ def define_school_subscriptions():
                                             zero=T("Doesn't require membership"))),
               label=T("Requires membership"),
               comment=T(
-                  "Set a required membership for this card. Without this memberships customers won't be able to get this subscription or use it to attend classes.")),
+                  "Set a required membership for this subscription. Without this memberships customers won't be able to get this subscription or use it to attend classes.")),
         Field('ClassCheckinLimit', 'integer',
             label=T("Class check-in limit"),
             comment=T("Limit number of check-ins / class for this subscription. Leave empty for unlimited. (Useful for staff subscriptions for example.)")),
@@ -2402,6 +2402,7 @@ def define_classes_price():
     """
     ac_query = (db.accounting_costcenters.Archived == False)
     ag_query = (db.accounting_glaccounts.Archived == False)
+    sm_query = (db.school_memberships.Archived == False)
 
     db.define_table('classes_price',
         Field('classes_id', db.classes, required=True,
@@ -2473,6 +2474,13 @@ def define_classes_price():
               represent=represent_accounting_costcenter,
               label=T("Trial cost center"),
               comment=T("Cost center code in your accounting software")),
+        Field('school_memberships_id', db.school_memberships,
+              requires=IS_EMPTY_OR(IS_IN_DB(db(sm_query),
+                                            'school_memberships.id',
+                                            '%(Name)s',
+                                            zero=T("Don't use membership pricing"))),
+              label=T("Membership eligible for membership pricing"),
+              comment=T("Customers with this membership will pay the membership prices set above.")),
         )
 
 

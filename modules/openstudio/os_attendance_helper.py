@@ -1201,6 +1201,7 @@ class AttendanceHelper:
         cls = Class(clsID, date)
         prices = cls.get_prices()
 
+        ## Dropin
         price = prices['dropin']
         has_membership = customer.has_membership_on_date(date)
         membership_price = has_membership and prices['dropin_membership']
