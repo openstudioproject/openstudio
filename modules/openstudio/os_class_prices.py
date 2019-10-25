@@ -24,6 +24,7 @@ class ClassPrices:
         """
         from openstudio.os_gui import  OsGui
 
+        T = current.T
         os_gui = OsGui()
         auth = current.auth
 
@@ -41,21 +42,52 @@ class ClassPrices:
         for i, row in enumerate(rows):
             repr_row = list(rows[i:i + 1].render())[0]
 
+            table_dropin = TABLE(
+                TR(TH(T("Regular price: ")),
+                   TD(repr_row.Dropin,
+                      SPAN(" (", repr_row.tax_rates_id_dropin or T("No tax rate set"), ")",
+                           _class="text-muted"))),
+                # TR(TH(T("Tax rate: ")),
+                #    TD(repr_row.tax_rates_id_dropin or T('Not set'))),
+                TR(TH(T("Memership:")),
+                   TD(repr_row.school_memberships_id or T("Not set"))),
+                TR(TH(T("Memership price:")),
+                   TD(repr_row.DropinMembership,
+                      SPAN(" (", repr_row.tax_rates_id_dropin_membership or T("No tax rate set"), ")",
+                           _class="text-muted"))),
+                _class='table table-condensed'
+            )
+
+            table_trial = TABLE(
+                TR(TH(T("Regular price: ")),
+                   TD(repr_row.Trial,
+                      SPAN(" (", repr_row.tax_rates_id_trial or T("No tax rate set"), ")",
+                           _class="text-muted"))),
+                # TR(TH(T("Tax rate: ")),
+                #    TD(repr_row.tax_rates_id_dropin or T('Not set'))),
+                TR(TH(T("Memership:")),
+                   TD(repr_row.school_memberships_id or T("Not set"))),
+                TR(TH(T("Memership price:")),
+                   TD(repr_row.TrialMembership,
+                      SPAN(" (", repr_row.tax_rates_id_trial_membership or T("No tax rate set"), ")",
+                           _class="text-muted"))),
+                _class='table table-condensed'
+            )
+
             tr = TR(
                 TD(repr_row.Startdate),
                 TD(repr_row.Enddate),
-                TD(repr_row.Dropin, BR(),
-                   repr_row.tax_rates_id_dropin),
-                TD(SPAN(repr_row.DropinMembership, BR(),
-                        repr_row.tax_rates_id_dropin_membership) if row.DropinMembership else ''),
-                TD(repr_row.accounting_glaccounts_id_dropin),
-                TD(repr_row.Trial, BR(),
-                   repr_row.tax_rates_id_trial),
+                TD(table_dropin),
+                TD(table_trial),
+                # TD(repr_row.accounting_glaccounts_id_dropin),
+                # # TD(repr_row.accounting_glaccounts_id_dropin),
+                # TD(repr_row.Trial, BR(),
+                #    repr_row.tax_rates_id_trial),
+                #
+                # TD(SPAN(repr_row.TrialMembership, BR(),
+                #    repr_row.tax_rates_id_trial_membership) if row.TrialMembership else ''),
 
-                TD(SPAN(repr_row.TrialMembership, BR(),
-                   repr_row.tax_rates_id_trial_membership) if row.TrialMembership else ''),
-
-                TD(repr_row.accounting_glaccounts_id_trial),
+                # TD(repr_row.accounting_glaccounts_id_trial),
                 TD(self._get_prices_for_class_display_buttons(
                     os_gui,
                     row,
@@ -80,11 +112,9 @@ class ClassPrices:
             TH(T('Start date')),
             TH(T('End date')),
             TH(T('Drop-in')),
-            TH(T('Membership Drop-in')),
-            TH(T('G/L Account Drop-in')),
+            # TH(T("G/L account drop-in")),
             TH(T('Trial')),
-            TH(T('Membership Trial')),
-            TH(T('G/L Account Trial')),
+            # TH(T("G/L account trial")),
             TH() # buttons
         ))
 
