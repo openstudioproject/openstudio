@@ -186,6 +186,7 @@ class Reports:
             else:
                 tp_amount = 0
 
+            cls['ClassesID'] = clsID
             cls['RevenueTotal'] = class_revenue['total']['amount']
             cls['TeacherPayment'] = tp_amount
             cls['Balance'] = (cls['RevenueTotal'] - cls['TeacherPayment'])
