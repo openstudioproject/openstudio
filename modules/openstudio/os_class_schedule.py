@@ -607,24 +607,17 @@ class ClassSchedule:
         :param row: :param row: ClassSchedule.get_day_rows() row
         :return: int - available online booking spaces for a class
         """
-        enrollments = row.classes_schedule_count.Reservations or 0
-        enrollment_spaces = row.classes.MaxReservationsRecurring or 0
-        enrollment_spaces_left = enrollment_spaces - enrollments
-
         total_spaces = row.classes.Maxstudents or 0
-        online_booking_total_spaces = row.classes.MaxOnlineBooking or 0
-        # online_booking = row.classes_schedule_count.OnlineBooking or 0
+        walk_in_spaces = row.classes.WalkInSpaces or 0
+
+        # Attendance = count of all bookings with status booked or attending
         attendance = row.classes_schedule_count.Attendance or 0
 
-        # Spaces for online booking =
-        online_spaces = online_booking_total_spaces + enrollment_spaces_left
+        # Spaces available for online booking
+        online_spaces = total_spaces - walk_in_spaces
 
-        # Regular calculation of spaces
+        # Subtract attendance
         available_spaces = online_spaces - attendance
-
-        # Catch full fail safe, in case attendance has been entered manually before
-        if attendance >= total_spaces:
-            available_spaces = 0
 
         # Never return negatives, just 0
         if available_spaces < 1:
