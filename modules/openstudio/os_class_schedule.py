@@ -676,6 +676,7 @@ class ClassSchedule:
             db.classes.Startdate,
             db.classes.Enddate,
             db.classes.Maxstudents,
+            db.classes.WalkInSpaces,
             db.classes.MaxOnlineBooking,
             db.classes.MaxReservationsRecurring,
             db.classes.AllowAPI,
@@ -734,6 +735,10 @@ class ClassSchedule:
                     THEN cotc.MaxOnlineBooking
                     ELSE cla.MaxOnlineBooking
                     END AS MaxOnlineBooking,
+               CASE WHEN cotc.WalkInSpaces IS NOT NULL
+                    THEN cotc.WalkInSpaces
+                    ELSE cla.WalkInSpaces
+                    END AS WalkInSpaces,
                cla.MaxReservationsRecurring,             
                cla.AllowAPI,
                cla.sys_organizations_id,
