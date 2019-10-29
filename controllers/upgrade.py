@@ -54,6 +54,10 @@ def index():
             print(version)
             upgrade_to_201912()
             session.flash = T("Upgraded db to 2019.12")
+        if version < 2019.13:
+            print(version)
+            upgrade_to_201912()
+            session.flash = T("Upgraded db to 2019.13")
         else:
             session.flash = T('Already up to date')
 
@@ -363,4 +367,18 @@ def upgrade_to_201912():
     db(query).update(
         Origin = "BACKEND",
         Verified = "T"
+    )
+
+
+def upgrade_to_201913():
+    """
+        Upgrade operations to 2019.13
+    """
+    ##
+    # Set default value for "WalkInSpaces" field in db.classes
+    # 3 as a sensible default
+    ##
+    query = (db.classes.WalkInSpaces == None)
+    db(query).update(
+        WalkInSpaces = 3
     )
