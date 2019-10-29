@@ -670,7 +670,6 @@ class ClassSchedule:
             db.classes.Enddate,
             db.classes.Maxstudents,
             db.classes.WalkInSpaces,
-            db.classes.MaxOnlineBooking,
             db.classes.MaxReservationsRecurring,
             db.classes.AllowAPI,
             db.classes.sys_organizations_id,
@@ -724,10 +723,6 @@ class ClassSchedule:
                     THEN cotc.Maxstudents
                     ELSE cla.Maxstudents
                     END AS Maxstudents, 
-               CASE WHEN cotc.MaxOnlineBooking IS NOT NULL
-                    THEN cotc.MaxOnlineBooking
-                    ELSE cla.MaxOnlineBooking
-                    END AS MaxOnlineBooking,
                CASE WHEN cotc.WalkInSpaces IS NOT NULL
                     THEN cotc.WalkInSpaces
                     ELSE cla.WalkInSpaces
@@ -792,7 +787,7 @@ class ClassSchedule:
                      auth_teacher_id2,
                      teacher_role2,
                      Maxstudents,
-                     MaxOnlinebooking
+                     WalkInSpaces
               FROM classes_otc
               WHERE ClassDate = '{class_date}' ) cotc
             ON cla.id = cotc.classes_id
