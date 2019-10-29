@@ -56,7 +56,7 @@ def index():
             session.flash = T("Upgraded db to 2019.12")
         if version < 2019.13:
             print(version)
-            upgrade_to_201912()
+            upgrade_to_201913()
             session.flash = T("Upgraded db to 2019.13")
         else:
             session.flash = T('Already up to date')
