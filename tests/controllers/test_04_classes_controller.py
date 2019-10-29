@@ -47,7 +47,7 @@ def test_class_add(client, web2py):
                 Endtime='08:00:00',
                 Startdate='2014-01-01',
                 Maxstudents='123',
-                MaxOnlineBooking='110',
+                WalkInSpaces='110',
                 MaxReservationsRecurring='10',
                 )
     client.post(url, data=data)
@@ -85,7 +85,7 @@ def test_class_edit(client, web2py):
                 Endtime='08:00:00',
                 Startdate='2014-01-01',
                 Maxstudents='499',
-                MaxOnlineBooking='200',
+                WalkInSpaces='200',
                 MaxReservationsRecurring='10'
                 )
     client.post(url, data=data)
