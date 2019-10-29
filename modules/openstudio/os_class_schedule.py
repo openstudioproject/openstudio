@@ -221,7 +221,7 @@ class ClassSchedule:
                          auth_teacher_id2,
                          teacher_role2,
                          Maxstudents,
-                         MaxOnlinebooking
+                         WalkInSpaces
                   FROM classes_otc
                   WHERE ClassDate = '{class_date}' ) cotc
             ON cla.id = cotc.classes_id            

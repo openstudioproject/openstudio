@@ -2170,7 +2170,7 @@ def define_classes():
             label=T("Spaces"),
             comment=T("Total spaces for this class. Should be greater then online booking and enrollment spaces added up.")),
         Field('WalkInSpaces', 'integer',
-            requires=IS_INT_IN_RANGE(0, 500),
+            requires=IS_EMPTY_OR(IS_INT_IN_RANGE(0, 500)),
             label=T("Walk-in spaces"),
             comment=T("Number of walk-in spaces (Can't be booked online)")),
         Field('MaxOnlineBooking', 'integer', # Depricated from 2019.13
@@ -2304,7 +2304,7 @@ def define_classes_otc():
               label=T("Spaces"),
               comment=T("Total spaces for this class")),
         Field('WalkInSpaces', 'integer',
-              requires=IS_INT_IN_RANGE(0, 500),
+              requires=IS_EMPTY_OR(IS_INT_IN_RANGE(0, 500)),
               label=T("Walk-in spaces"),
               comment=T("Number of walk-in spaces (Can't be booked online)")),
         Field('MaxOnlineBooking', 'integer',

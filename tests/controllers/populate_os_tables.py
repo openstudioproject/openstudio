@@ -849,7 +849,7 @@ def prepare_classes(web2py,
                              Maxstudents=20,
                              MaxReservationsRecurring=2,
                              MaxReservationsDT=2,
-                             MaxOnlineBooking=15,
+                             WalkInSpaces=15,
                              AllowAPI=True,
                              AllowShopTrial=True
                              )
@@ -865,7 +865,7 @@ def prepare_classes(web2py,
                              Maxstudents=20,
                              MaxReservationsRecurring=2,
                              MaxReservationsDT=2,
-                             MaxOnlineBooking=15,
+                             WalkInSpaces=15,
                              AllowAPI=True,
                              AllowShopTrial=True
                              )
@@ -881,7 +881,7 @@ def prepare_classes(web2py,
                              Maxstudents=20,
                              MaxReservationsRecurring=2,
                              MaxReservationsDT=2,
-                             MaxOnlineBooking=15,
+                             WalkInSpaces=15,
                              AllowAPI=True,
                              AllowShopTrial=True
                              )

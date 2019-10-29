@@ -437,7 +437,7 @@ def cancel_request_sub():
         row.teacher_role or
         row.auth_teacher_id2 or
         row.teacher_role2 or
-        row.MaxOnlineBooking or
+        row.WalkInSpaces or
         row.Maxstudents
     ):
         row.Status = None

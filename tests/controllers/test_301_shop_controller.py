@@ -392,7 +392,7 @@ def test_classes_booking_status_full(client, web2py):
 
     # Check fully booked
     cls = web2py.db.classes(1)
-    cls.MaxOnlineBooking = 1
+    cls.WalkInSpaces = cls.Maxstudents - 1
     cls.update_record()
 
     web2py.db.classes_attendance.insert(
@@ -1285,7 +1285,7 @@ def test_class_book_classcard_recurring_class_full(client, web2py):
 
     # Remove online booking spaces to simulate a full class
     cls = web2py.db.classes(1)
-    cls.MaxOnlineBooking = 0
+    cls.Maxstudents = 0 # No spaces
     cls.update_record()
 
     web2py.db.commit()

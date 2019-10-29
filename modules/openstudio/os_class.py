@@ -284,7 +284,7 @@ class Class:
         """
         db = current.db
 
-        spaces = self.cls.MaxOnlineBooking
+        spaces = self.cls.Maxstudents - self.cls.WalkInSpaces
         query = (db.classes_attendance.classes_id == self.clsID) & \
                 (db.classes_attendance.ClassDate == self.date) & \
                 (db.classes_attendance.online_booking == True) & \
