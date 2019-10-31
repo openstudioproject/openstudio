@@ -5,7 +5,7 @@ import { connect } from 'react-redux'
 const Currency = ({settings, amount}) =>
     <span>
         {settings.currency_symbol} { ' ' }
-        {parseFloat(amount).toFixed(2)}
+        {parseFloat(amount)}
     </span>
 
 

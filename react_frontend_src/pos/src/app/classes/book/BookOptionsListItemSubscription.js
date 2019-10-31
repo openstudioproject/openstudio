@@ -17,7 +17,8 @@ const BookOptionsListItemSubscription = injectIntl(({data, customer_memberships,
                     {data.Name}
                 </h4>
                 <p>
-                    {(data.Unlimited) ? "Unlimited" : data.Credits.toFixed(1) + " credits remaining"}
+                    {/* {(data.Unlimited) ? "Unlimited" : data.Credits.toFixed(1) + " credits remaining"} */}
+                    {(data.Unlimited) ? "Unlimited" : data.Credits + " credits remaining"}
                 </p>
             </div>
             <div className="icon">
