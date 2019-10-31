@@ -3,6 +3,7 @@ import { injectIntl } from 'react-intl'
 
 
 import customerHasRequiredMembership from './customerHasRequiredMembership'
+import Currency from '../../../components/ui/Currency'
 
 
 function getIconClass(data) {
@@ -10,6 +11,24 @@ function getIconClass(data) {
         return "fa fa-shopping-cart"
     } else {
         return "fa fa-pencil-square-o"
+    }
+}
+
+function getInnerContent(data) {
+    if (data.Type == "subscription_shop") {
+        return (
+            <p>
+                <b>Add to cart</b><br />
+                Monthly Price: <Currency amount={data.PriceMonth} /><br />
+                To be paid now: <Currency amount={data.PriceToday} />
+            </p>
+        )
+    } else {
+        return (
+            <p>    
+                {(data.Unlimited) ? "Unlimited" : data.Credits + " credits remaining"}
+            </p>
+        )
     }
 }
 
@@ -23,15 +42,12 @@ const BookOptionsListItemSubscription = injectIntl(({data, customer_memberships,
          {console.log(data)}
          {console.log(customer_memberships)}
 
-
          <div className={(data.Allowed) ? "small-box bg-purple" : "small-box bg-gray-active"}>
             <div className="inner">
                 <h4>
                     {data.Name}
                 </h4>
-                <p>
-                    {(data.Unlimited) ? "Unlimited" : data.Credits + " credits remaining"}
-                </p>
+                {getInnerContent(data)}
             </div>
             <div className="icon">
               <i className={getIconClass(data)}></i>
