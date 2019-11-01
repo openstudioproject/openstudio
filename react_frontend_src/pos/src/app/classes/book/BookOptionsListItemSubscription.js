@@ -32,6 +32,18 @@ function getInnerContent(data) {
     }
 }
 
+function getMembershipFooter(data, customer_memberships) {
+    if (data.school_memberships_id) {
+        if (!customerHasRequiredMembership(data.school_memberships_id, customer_memberships)) {
+            if (data.Type == "subscription_shop") {
+                return <span className="small-box-footer"><i className="fa fa-plus"></i> Required membership (will also be added to cart)</span> 
+            } else {
+                return <span className="small-box-footer"><i className="fa fa-exclamation-circle"></i> Membership required - buy now</span> 
+            } 
+        }
+    }    
+}
+
 
 
 const BookOptionsListItemSubscription = injectIntl(({data, customer_memberships, intl, onClick=f=>f}) => 
@@ -52,11 +64,7 @@ const BookOptionsListItemSubscription = injectIntl(({data, customer_memberships,
             <div className="icon">
               <i className={getIconClass(data)}></i>
             </div>
-            { (data.school_memberships_id) ? 
-                customerHasRequiredMembership(data.school_memberships_id, customer_memberships) ? 
-                    '' : <span className="small-box-footer"><i className="fa fa-exclamation-circle"></i> Membership required - buy now</span> 
-                    : ''
-            }
+            { getMembershipFooter(data, customer_memberships) }
 
             { (!(data.Allowed) && (data.Type === "subscription")) ?
                 <span className="small-box-footer"><i className="fa fa-exclamation-circle"></i> Not allowed for this class</span>
