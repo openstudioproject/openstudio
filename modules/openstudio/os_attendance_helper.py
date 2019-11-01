@@ -1144,7 +1144,7 @@ class AttendanceHelper:
                         'id': school_subscription.id,
                         'Name': school_subscription.Name,
                         'school_memberships_id': school_subscription.school_memberships_id,
-                        'PriceToday': ssu.get_price_today(formatted=False),
+                        'Price': ssu.get_price_today(formatted=False),
                         'PriceMonth': ssu.get_price_on_date(date, formatted=False)
                     })
 

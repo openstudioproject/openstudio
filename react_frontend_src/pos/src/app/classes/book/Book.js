@@ -75,6 +75,32 @@ class Book extends Component {
         console.log('customer_memberships')
         console.log(customer_memberships)
         switch (option.Type) {
+            case "subscription_shop":
+                console.log('shop action...')
+
+                let item = {
+                    id: v4(),
+                    item_type: 'subscription',
+                    quantity: 1,
+                    data: option
+                }
+                // customer needs to pay
+                // clear cart
+                this.props.clearShopCart()
+                // set shop selected customer id
+                this.props.setSelectedCustomerID(customerID)
+                this.props.setDisplayCustomerID(customerID)
+                // add item to cart
+
+                // If not yet in cart, add as a new product, else increase 
+                this.props.addShopCartItem(item)
+                // set some value to indicate redirection back to attendance list with notification after validating payment
+
+                // redirect to payment
+                this.props.history.push('/shop/products')
+
+                break
+
             case "dropin": 
                 console.log('executing dropin code')
                 console.log(option)

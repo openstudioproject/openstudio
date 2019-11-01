@@ -20,7 +20,7 @@ function getInnerContent(data) {
             <p>
                 <b>Add to cart</b><br />
                 Monthly Price: <Currency amount={data.PriceMonth} /><br />
-                To be paid now: <Currency amount={data.PriceToday} />
+                To be paid now: <Currency amount={data.Price} />
             </p>
         )
     } else {
@@ -44,11 +44,21 @@ function getMembershipFooter(data, customer_memberships) {
     }    
 }
 
+function handleOnclick(onClick, data) {
+    console.log('hello there!')
+    if (data.type == "subscription") {
+        if (data.Allowed) {
+            onClick(data)
+        }
+    } else {
+        onClick(data)
+    }
+}
 
 
 const BookOptionsListItemSubscription = injectIntl(({data, customer_memberships, intl, onClick=f=>f}) => 
     <div className="col-md-3"
-         onClick={(data.Allowed) ? () => onClick(data): f=>f}>
+         onClick={() => handleOnclick(onClick, data)}>
 
          {console.log('subscription list item')}
          {console.log(data)}
