@@ -57,6 +57,31 @@ class Book extends Component {
         // this.props.history.push(`/classes/attendance/${this.props.match.params.classID}`)
     }
 
+    addRequiredMembershipToCart(customerID, option) {
+        const school_memberships = this.props.school_memberships
+
+        function findMembership(item) {
+            return item.id == option.school_memberships_id
+        }
+
+        console.log(school_memberships)
+        let cart_item = school_memberships.data.find(findMembership)
+
+        let item = {
+            id: v4(),
+            item_type: 'membership',
+            quantity: 1,
+            data: cart_item
+        }
+
+        console.log('item')
+        console.log(item)
+        // Check if item not yet in cart
+        
+        // If not yet in cart, add as a new product, else increase 
+        this.props.addShopCartItem(item)
+    }
+
     onClickBookOption(option) {
         console.log('click book option')
         console.log(option)
@@ -64,7 +89,6 @@ class Book extends Component {
 
         const classID = this.props.match.params.classID
         const customerID = this.props.match.params.customerID
-        const school_memberships = this.props.school_memberships
 
         console.log(classID)
         console.log(customerID)
@@ -95,6 +119,11 @@ class Book extends Component {
                 // If not yet in cart, add as a new product, else increase 
                 this.props.addShopCartItem(item)
                 // set some value to indicate redirection back to attendance list with notification after validating payment
+
+                if (!customerHasRequiredMembership(option.school_memberships_id, customer_memberships)) {
+                    console.log("Add required membership to cart")
+                    this.addRequiredMembershipToCart(customerID, option)
+                }
 
                 // redirect to payment
                 this.props.history.push('/shop/products')
@@ -199,33 +228,39 @@ class Book extends Component {
                         this.props.checkinCustomer(customerID, classID, option, this.props.history)
                     } else {
                         console.log('redirect to cart to buy the required membership')
-                        // customer needs to pay
-                        // clear cart
                         this.props.clearShopCart()
                         // set shop selected customer id
                         this.props.setSelectedCustomerID(customerID)
                         this.props.setDisplayCustomerID(customerID)
 
-                        function findMembership(item) {
-                            return item.id == option.school_memberships_id
-                        }
+                        addRequiredMembershipToCart(customerID, option)
+                        // customer needs to pay
+                        // clear cart
+                        // this.props.clearShopCart()
+                        // // set shop selected customer id
+                        // this.props.setSelectedCustomerID(customerID)
+                        // this.props.setDisplayCustomerID(customerID)
 
-                        console.log(school_memberships)
-                        let cart_item = school_memberships.data.find(findMembership)
+                        // function findMembership(item) {
+                        //     return item.id == option.school_memberships_id
+                        // }
 
-                        let item = {
-                            id: v4(),
-                            item_type: 'membership',
-                            quantity: 1,
-                            data: cart_item
-                        }
+                        // console.log(school_memberships)
+                        // let cart_item = school_memberships.data.find(findMembership)
+
+                        // let item = {
+                        //     id: v4(),
+                        //     item_type: 'membership',
+                        //     quantity: 1,
+                        //     data: cart_item
+                        // }
                 
-                        console.log('item')
-                        console.log(item)
-                        // Check if item not yet in cart
+                        // console.log('item')
+                        // console.log(item)
+                        // // Check if item not yet in cart
                         
-                        // If not yet in cart, add as a new product, else increase 
-                        this.props.addShopCartItem(item)
+                        // // If not yet in cart, add as a new product, else increase 
+                        // this.props.addShopCartItem(item)
 
                         // redirect to products
                         this.props.history.push('/shop/products')
@@ -241,33 +276,39 @@ class Book extends Component {
                         this.props.checkinCustomer(customerID, classID, option, this.props.history)
                     } else {
                         console.log('redirect to cart to buy the required membership')
-                        // customer needs to pay
-                        // clear cart
                         this.props.clearShopCart()
                         // set shop selected customer id
                         this.props.setSelectedCustomerID(customerID)
                         this.props.setDisplayCustomerID(customerID)
 
-                        function findMembership(item) {
-                            return item.id == option.school_memberships_id
-                        }
+                        addRequiredMembershipToCart(customerID, option)
+                        // // customer needs to pay
+                        // // clear cart
+                        // this.props.clearShopCart()
+                        // // set shop selected customer id
+                        // this.props.setSelectedCustomerID(customerID)
+                        // this.props.setDisplayCustomerID(customerID)
 
-                        console.log(school_memberships)
-                        let cart_item = school_memberships.data.find(findMembership)
+                        // function findMembership(item) {
+                        //     return item.id == option.school_memberships_id
+                        // }
 
-                        let item = {
-                            id: v4(),
-                            item_type: 'membership',
-                            quantity: 1,
-                            data: cart_item
-                         }
+                        // console.log(school_memberships)
+                        // let cart_item = school_memberships.data.find(findMembership)
+
+                        // let item = {
+                        //     id: v4(),
+                        //     item_type: 'membership',
+                        //     quantity: 1,
+                        //     data: cart_item
+                        //  }
                  
-                         console.log('item')
-                         console.log(item)
-                         // Check if item not yet in cart
+                        //  console.log('item')
+                        //  console.log(item)
+                        //  // Check if item not yet in cart
                          
-                         // If not yet in cart, add as a new product, else increase 
-                         this.props.addShopCartItem(item)
+                        //  // If not yet in cart, add as a new product, else increase 
+                        //  this.props.addShopCartItem(item)
 
                          // redirect to products
                          this.props.history.push('/shop/products')

@@ -46,10 +46,11 @@ function getMembershipFooter(data, customer_memberships) {
 
 function handleOnclick(onClick, data) {
     console.log('hello there!')
+
     if (data.type == "subscription") {
         if (data.Allowed) {
             onClick(data)
-        }
+        } 
     } else {
         onClick(data)
     }
