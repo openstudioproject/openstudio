@@ -260,19 +260,21 @@ class Class:
         )
 
 
-    def get_full(self):
+    def get_full(self, only_count_status=None):
         """
             Check whether or not this class is full
         """
         db = current.db
-
         spaces = self.cls.Maxstudents
 
         query = (db.classes_attendance.classes_id == self.clsID) & \
-                (db.classes_attendance.ClassDate == self.date) & \
-                (db.classes_attendance.BookingStatus != 'cancelled')
-        filled = db(query).count()
+                (db.classes_attendance.ClassDate == self.date)
+        if only_count_status:
+            query &= (db.classes_attendance.BookingStatus == only_count_status)
+        else:
+            query &= (db.classes_attendance.BookingStatus != 'cancelled')
 
+        filled = db(query).count()
         full = True if filled >= spaces else False
 
         return full
