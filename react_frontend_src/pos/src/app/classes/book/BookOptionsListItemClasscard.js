@@ -5,9 +5,21 @@ import { formatDate } from "../../../utils/date_tools"
 import { isoDateStringToDateObject } from "../../../utils/date_tools"
 import customerHasRequiredMembership from './customerHasRequiredMembership'
 
+function handleOnclick(onClick, data) {
+    console.log('hello there!')
+
+    if (data.type == "classcard") {
+        if (data.Allowed) {
+            onClick(data)
+        } 
+    } else {
+        onClick(data)
+    }
+}
+
 const BookOptionsListItemClasscard = injectIntl(({data, customer_memberships, intl, onClick=f=>f}) => 
     <div className="col-md-3"
-         onClick={() => onClick(data)}>
+         onClick={() => handleOnClick(onClick, data)}>
         {console.log(data)}
         <div className={(data.Allowed) ? "small-box bg-primary" : "small-box bg-gray-active"}>
             <div className="inner">
