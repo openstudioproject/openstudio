@@ -4,6 +4,7 @@ import { injectIntl } from 'react-intl'
 import { formatDate } from "../../../utils/date_tools"
 import { isoDateStringToDateObject } from "../../../utils/date_tools"
 import customerHasRequiredMembership from './customerHasRequiredMembership'
+import Currency from '../../../components/ui/Currency'
 
 
 function getIconClass(data) {
@@ -14,6 +15,23 @@ function getIconClass(data) {
     }
 }
 
+function getInnerContent(data) {
+    if (data.Type == "classcard_shop") {
+        return (
+            <p>
+                <b>Add to cart</b><br />
+                Price: <Currency amount={data.Price} /><br />
+            </p>
+        )
+    } else {
+        return (
+            <p>
+               {(data.Unlimited) ? "Unlimited" : data.ClassesRemaining + " Class(es) remaining"}<br />
+               Valid until {formatDate(isoDateStringToDateObject(data.Enddate))}
+            </p>
+        )
+    }
+}
 
 
 function handleOnclick(onClick, data) {
@@ -39,12 +57,7 @@ const BookOptionsListItemClasscard = injectIntl(({data, customer_memberships, in
                 <h4>
                     {data.Name}
                 </h4>
-                <p>
-                    {(data.Unlimited) ? "Unlimited" : data.ClassesRemaining + " Class(es) remaining"}
-                </p>
-                <p> 
-                    Valid until {formatDate(isoDateStringToDateObject(data.Enddate))}
-                </p>
+                {getInnerContent(data)}
             </div>
             <div className="icon">
               <i className={getIconClass(data)}></i>
