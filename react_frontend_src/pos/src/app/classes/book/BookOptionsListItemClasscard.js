@@ -46,7 +46,7 @@ function getMembershipFooter(data, customer_memberships) {
 }
 
 
-function handleOnclick(onClick, data) {
+function handleOnClick(onClick, data) {
     console.log('hello there!')
 
     if (data.Type == "classcard") {

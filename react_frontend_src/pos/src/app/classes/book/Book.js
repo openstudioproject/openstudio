@@ -98,11 +98,47 @@ class Book extends Component {
         const customer_memberships = this.props.customer_memberships_today.data
         console.log('customer_memberships')
         console.log(customer_memberships)
+
+        let item
+
         switch (option.Type) {
+            case "classcard_shop":
+                console.log('shop action...')
+
+                item = {
+                    id: v4(),
+                    item_type: 'classcard',
+                    quantity: 1,
+                    data: option
+                }
+                // customer needs to pay
+                // clear cart
+                this.props.clearShopCart()
+                // set shop selected customer id
+                this.props.setSelectedCustomerID(customerID)
+                this.props.setDisplayCustomerID(customerID)
+                // add item to cart
+
+                // If not yet in cart, add as a new product, else increase 
+                this.props.addShopCartItem(item)
+                // set some value to indicate redirection back to attendance list with notification after validating payment
+
+                if (option.school_memberships_id) {
+                    if (!customerHasRequiredMembership(option.school_memberships_id, customer_memberships)) {
+                        console.log("Add required membership to cart")
+                        this.addRequiredMembershipToCart(customerID, option)
+                    }
+                }
+
+                // redirect to payment
+                this.props.history.push('/shop/products')
+
+                break
+
             case "subscription_shop":
                 console.log('shop action...')
 
-                let item = {
+                item = {
                     id: v4(),
                     item_type: 'subscription',
                     quantity: 1,
@@ -120,9 +156,11 @@ class Book extends Component {
                 this.props.addShopCartItem(item)
                 // set some value to indicate redirection back to attendance list with notification after validating payment
 
-                if (!customerHasRequiredMembership(option.school_memberships_id, customer_memberships)) {
-                    console.log("Add required membership to cart")
-                    this.addRequiredMembershipToCart(customerID, option)
+                if (option.school_memberships_id) {
+                    if (!customerHasRequiredMembership(option.school_memberships_id, customer_memberships)) {
+                        console.log("Add required membership to cart")
+                        this.addRequiredMembershipToCart(customerID, option)
+                    }
                 }
 
                 // redirect to payment
@@ -154,7 +192,7 @@ class Book extends Component {
                     this.props.setDisplayCustomerID(customerID)
                     // add item to cart
                     
-                    let item = {
+                    item = {
                         id: v4(),
                         item_type: 'class_dropin',
                         quantity: 1,
@@ -197,7 +235,7 @@ class Book extends Component {
                     this.props.setDisplayCustomerID(customerID)
                     // add item to cart
                     
-                    let item = {
+                    item = {
                         id: v4(),
                         item_type: 'class_trial',
                         quantity: 1,
