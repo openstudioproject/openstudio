@@ -5,10 +5,21 @@ import { formatDate } from "../../../utils/date_tools"
 import { isoDateStringToDateObject } from "../../../utils/date_tools"
 import customerHasRequiredMembership from './customerHasRequiredMembership'
 
+
+function getIconClass(data) {
+    if (data.Type == "classcard_shop") {
+        return "fa fa-shopping-cart"
+    } else {
+        return "fa fa-pencil-square-o"
+    }
+}
+
+
+
 function handleOnclick(onClick, data) {
     console.log('hello there!')
 
-    if (data.type == "classcard") {
+    if (data.Type == "classcard") {
         if (data.Allowed) {
             onClick(data)
         } 
@@ -20,7 +31,9 @@ function handleOnclick(onClick, data) {
 const BookOptionsListItemClasscard = injectIntl(({data, customer_memberships, intl, onClick=f=>f}) => 
     <div className="col-md-3"
          onClick={() => handleOnClick(onClick, data)}>
+        {console.log('classcard list item')}
         {console.log(data)}
+        {console.log(customer_memberships)}
         <div className={(data.Allowed) ? "small-box bg-primary" : "small-box bg-gray-active"}>
             <div className="inner">
                 <h4>
@@ -34,7 +47,7 @@ const BookOptionsListItemClasscard = injectIntl(({data, customer_memberships, in
                 </p>
             </div>
             <div className="icon">
-              <i className="fa fa-id-card-o"></i>
+              <i className={getIconClass(data)}></i>
             </div>
             { (data.school_memberships_id) ? 
                 customerHasRequiredMembership(data.school_memberships_id, customer_memberships) ? 
