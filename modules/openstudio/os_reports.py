@@ -853,7 +853,7 @@ ORDER BY ag.Name
         return records
 
 
-    def shop_sales_summary_custom(self, date_from, date_until):
+    def shop_sales_custom(self, date_from, date_until):
         """
         List product sales, grouped by product variant
 
@@ -869,7 +869,8 @@ ORDER BY ag.Name
             date_until = date_until + datetime.timedelta(days=1)
 
         query = (db.receipts.CreatedOn >= date_from) & \
-                (db.receipts.CreatedOn <= date_until)
+                (db.receipts.CreatedOn <= date_until) & \
+                (db.receipts_items.Custom == True)
 
         left = [
             db.receipts.on(db.receipts_items.receipts_id == db.receipts.id)

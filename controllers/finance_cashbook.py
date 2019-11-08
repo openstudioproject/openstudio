@@ -917,7 +917,7 @@ def get_debit_sales_summary_custom(date):
     reports = Reports()
 
     total = 0
-    records = reports.shop_sales_custom(date, date)
+    rows = reports.shop_sales_custom(date, date)
 
     header = THEAD(TR(
         TH(T("Item")),
@@ -925,14 +925,13 @@ def get_debit_sales_summary_custom(date):
     ))
 
     table = TABLE(header, _class='table table-striped table-hover')
-    for record in records:
-
+    for row in rows:
         table.append(TR(
-            TD(record[1]),
-            TD(represent_decimal_as_amount(record[0])),
+            TD(row.ProductName),
+            TD(represent_decimal_as_amount(row.TotalPriceVAT)),
         ))
 
-        total += record[0]
+        total += row.TotalPriceVAT
 
     # cards sold footer
     table.append(TFOOT(TR(
