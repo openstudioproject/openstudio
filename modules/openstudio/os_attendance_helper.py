@@ -1205,12 +1205,16 @@ class AttendanceHelper:
         price = prices['dropin']
         has_membership = False
         if prices['school_memberships_id']:
-             has_membership = customer.has_given_membership_on_date(prices['school_memberships_id'], date)
-        membership_price = has_membership and prices['dropin_membership']
-        if membership_price:
-            price = prices['dropin_membership']
+            # A membership price might be available
+            has_membership = customer.has_given_membership_on_date(prices['school_memberships_id'], date)
+
+        # MembershipPrice in option['dropin'] is a boolean
 
         if list_type != "pos":
+            membership_price = has_membership and prices['dropin_membership']
+            if membership_price:
+                price = prices['dropin_membership']
+
             if price:
                 options['dropin'] = {
                     'clsID': clsID,
@@ -1222,7 +1226,46 @@ class AttendanceHelper:
                 }
         else:
             # List type "pos"
-            pass
+            # Don't add "without membership" drop-in option when customer has required membership.
+            if has_membership:
+                # Display membership price
+                membership_price = has_membership and prices['dropin_membership']
+                if membership_price:
+                    price = prices['dropin_membership']
+
+                options['dropin'] = {
+                    'clsID': clsID,
+                    "Type": "dropin",
+                    "Name": T('Drop-in'),
+                    "Price": price,
+                    "MembershipPrice": membership_price,
+                    "Message": get_sys_property('shop_classes_dropin_message') or ''
+                }
+
+            else:
+                # Add membership drop-in price & option to buy +
+                # non-membership drop-in price
+
+                if prices['school_memberships_id']:
+                    options['dropin_and_membership'] = {
+                        'clsID': clsID,
+                        "Type": "dropin_and_membership",
+                        "Name": T('Drop-in'),
+                        "Price": prices['dropin_membership'],
+                        "MembershipPrice": True,
+                        "Message": get_sys_property('shop_classes_dropin_message') or '',
+                        "school_memberships_id": prices['school_memberships_id']
+                    }
+
+                options['dropin'] = {
+                    'clsID': clsID,
+                    "Type": "dropin",
+                    "Name": T('Drop-in'),
+                    "Price": prices['dropin'],
+                    "MembershipPrice": False,
+                    "Message": get_sys_property('shop_classes_dropin_message') or ''
+                }
+
 
         # Trial
         trial_option = self._get_customer_class_booking_option_trial(
