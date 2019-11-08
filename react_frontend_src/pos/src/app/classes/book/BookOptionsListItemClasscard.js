@@ -36,8 +36,8 @@ function getInnerContent(data) {
 function getMembershipFooter(data, customer_memberships) {
     if (data.school_memberships_id) {
         if (!customerHasRequiredMembership(data.school_memberships_id, customer_memberships)) {
-            if (data.Type == "subscription_shop") {
-                return <span className="small-box-footer"><i className="fa fa-plus"></i> Required membership (will also be added to cart)</span> 
+            if (data.Type == "classcard_shop") {
+                return <span className="small-box-footer"><i className="fa fa-plus"></i> Required membership (will be added to cart)</span> 
             } else {
                 return <span className="small-box-footer"><i className="fa fa-exclamation-circle"></i> Membership required - buy now</span> 
             } 
