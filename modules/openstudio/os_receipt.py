@@ -328,11 +328,6 @@ class Receipt:
 
             sorting = self.get_item_next_sort_nr()
 
-            print("Adding item to receipt")
-            print(item)
-            print(item.customers_orders_items.Custom)
-
-
             riID = db.receipts_items.insert(
                 receipts_id=self.receipts_id,
                 Sorting=sorting,
