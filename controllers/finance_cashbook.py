@@ -875,7 +875,7 @@ def get_debit_sales_summary(date):
 
         table.append(TR(
             TD(record[1]),
-            TD(represent_decimal_as_amount(record[0])),
+            TD(represent_float_as_amount(record[0])),
         ))
 
         total += record[0]
@@ -883,7 +883,7 @@ def get_debit_sales_summary(date):
     # cards sold footer
     table.append(TFOOT(TR(
         TH(T("Total")),
-        TH(represent_decimal_as_amount(total))
+        TH(represent_float_as_amount(total))
     )))
 
     box = DIV(
