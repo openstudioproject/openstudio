@@ -409,6 +409,7 @@ def represent_decimal_as_amount(value, row=None):
     if value is None or not isinstance(value, Decimal):
         return ''
     else:
+        value = value.quantize(Decimal('.01'), rounding=ROUND_HALF_UP)
         return SPAN(CURRSYM, ' ', value)
 
 
