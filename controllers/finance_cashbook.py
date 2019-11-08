@@ -85,6 +85,10 @@ def get_debit(date):
     sold_products = get_debit_sales_summary(date)
     total += Decimal(sold_products['total'])
 
+    # Sold custom products
+    sold_custom_products = get_debit_sales_summary_custom(date)
+    total += Decimal(sold_custom_products['total'])
+
     # Class teacher payments
     teacher_payments = get_debit_classes(date, 'teacher_payments')
     total += teacher_payments['total']
@@ -99,6 +103,7 @@ def get_debit(date):
         sold_subscriptions['box'],
         sold_cards['box'],
         sold_products['box'],
+        sold_custom_products['box'],
         teacher_payments['box'],
         _class=' col-md-6'
 
@@ -883,6 +888,60 @@ def get_debit_sales_summary(date):
 
     box = DIV(
         DIV(H3(T("Shop sales by G/L Account"), _class='box-title'),
+            DIV(A(I(_class='fa fa-minus'),
+                _href='#',
+                _class='btn btn-box-tool',
+                _title=T("Collapse"),
+                **{'_data-widget': 'collapse'}),
+                _class='box-tools pull-right'),
+            _class='box-header'),
+        DIV(table, _class='box-body no-padding'),
+        _class='box box-success',
+    )
+
+    return dict(
+        box = box,
+        total = total
+    )
+
+
+def get_debit_sales_summary_custom(date):
+    """
+
+    :param date: datetime.date
+    :return:
+    """
+    from general_helpers import max_string_length
+    from openstudio.os_reports import Reports
+
+    reports = Reports()
+
+    total = 0
+    records = reports.shop_sales_custom(date, date)
+
+    header = THEAD(TR(
+        TH(T("Item")),
+        TH(T("Total")),
+    ))
+
+    table = TABLE(header, _class='table table-striped table-hover')
+    for record in records:
+
+        table.append(TR(
+            TD(record[1]),
+            TD(represent_decimal_as_amount(record[0])),
+        ))
+
+        total += record[0]
+
+    # cards sold footer
+    table.append(TFOOT(TR(
+        TH(T("Total")),
+        TH(represent_decimal_as_amount(total))
+    )))
+
+    box = DIV(
+        DIV(H3(T("Shop sales - custom items"), _class='box-title'),
             DIV(A(I(_class='fa fa-minus'),
                 _href='#',
                 _class='btn btn-box-tool',
