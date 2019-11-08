@@ -168,6 +168,59 @@ class Book extends Component {
 
                 break
 
+            case "dropin_and_membership": 
+                console.log('executing dropin & membership code')
+                console.log(option)
+                // let dropin_price
+                // if (customer_memberships) {
+                //     dropin_price = option.MembershipPrice
+                // } else {
+                //     dropin_price = option.Price
+                // }
+                // console.log(dropin_price)
+
+
+                // Check if price > 0
+                if (option.Price > 0) {
+                    // customer needs to pay
+                    // clear cart
+                    this.props.clearShopCart()
+                    // set shop selected customer id
+                    this.props.setSelectedCustomerID(customerID)
+                    this.props.setDisplayCustomerID(customerID)
+                    // add item to cart
+                    
+                    item = {
+                        id: v4(),
+                        item_type: 'class_dropin',
+                        quantity: 1,
+                        data: option
+                     }
+             
+                     console.log('item')
+                     console.log(item)
+                     // Check if item not yet in cart
+                     
+                     // If not yet in cart, add as a new product, else increase 
+                     this.props.addShopCartItem(item)
+                    // set some value to indicate redirection back to attendance list with notification after validating payment
+
+                    if (option.school_memberships_id) {
+                        if (!customerHasRequiredMembership(option.school_memberships_id, customer_memberships)) {
+                            console.log("Add required membership to cart")
+                            this.addRequiredMembershipToCart(customerID, option)
+                        }
+                    }
+
+                    // redirect to payment
+                    this.props.history.push('/shop/products')
+                    
+                } else {
+                    // check-in, price = 0
+                    this.props.checkinCustomer(customerID, classID, option, this.props.history)
+                }
+                break
+
             case "dropin": 
                 console.log('executing dropin code')
                 console.log(option)
@@ -179,11 +232,9 @@ class Book extends Component {
                 // }
                 // console.log(dropin_price)
 
-                
-                const dropin_price = option.Price
 
                 // Check if price > 0
-                if (dropin_price > 0) {
+                if (option.Price > 0) {
                     // customer needs to pay
                     // clear cart
                     this.props.clearShopCart()
@@ -306,7 +357,7 @@ class Book extends Component {
             case "reconcile_later":
                 this.props.checkinCustomer(customerID, classID, option, this.props.history)
             default: 
-                console.log("Login type not found:")
+                console.log("Check-in type not found:")
                 console.log(option)
                 break
             
