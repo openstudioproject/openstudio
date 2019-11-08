@@ -853,6 +853,37 @@ ORDER BY ag.Name
         return records
 
 
+    def shop_sales_summary_custom(self, date_from, date_until):
+        """
+        List product sales, grouped by product variant
+
+        :param date_from: datetime.date
+        :param date_until: datetime.date
+        :return:
+        """
+        db = current.db
+
+        if date_from == date_until:
+            # This is required because we're comparing to a date time field
+            # For a DT field, the format becomes yyyy-mm-dd 00:00:00 when only supplying a date
+            date_until = date_until + datetime.timedelta(days=1)
+
+        query = (db.receipts.CreatedOn >= date_from) & \
+                (db.receipts.CreatedOn <= date_until)
+
+        left = [
+            db.receipts.on(db.receipts_items.receipts_id == db.receipts.id)
+        ]
+
+        rows = db(query).select(
+            db.receipts_items.ALL,
+            left=left,
+            orderby=db.receipts_items.ProductName
+        )
+
+        return rows
+
+
     def shop_sales_not_paid_with_cash_summary(self, date_from, date_until):
         """
 
