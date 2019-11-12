@@ -1,0 +1,10 @@
+{{extend 'layout_embed.html'}}
+{{block header}}
+{{try:}}{{=breadcrumb}}{{except:}}{{pass}}{{pass}}
+{{try:}}{{=back}}{{except:}}{{pass}}{{pass}}
+{{try:}}{{=header_tools}}{{except:}}{{pass}}{{pass}}
+{{end}}
+
+
+{{=content}}
+
