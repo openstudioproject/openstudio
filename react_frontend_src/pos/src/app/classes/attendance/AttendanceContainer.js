@@ -15,7 +15,6 @@ const mapStateToProps = state =>
         barcode_scans: state.app.settings.data.customers_barcodes,
         classes: state.classes.classes,
         customers: state.customers.list,
-        // memberships: state.customers.memberships
     })
 
 const mapDispatchToProps = dispatch =>

@@ -23,12 +23,21 @@ class Revenue extends Component {
     }
 
     componentWillMount() {
+        const classes = this.props.classes
+
         this.props.setPageTitle(
             this.props.intl.formatMessage({ id: 'app.pos.classes.page_title' })
         )
-
+        if (!classes.loaded) {
+            this.props.fetchClasses({setPageSubtitle: true, clsID: this.props.match.params.clsID})
+        }
         this.props.fetchRevenueAndTeacherPayment(this.props.match.params.clsID)
     }
+
+    componentWillUnmount() {
+        this.props.setPageSubtitle("")
+    }
+
 
     onClickBtnCancel() {
         console.log('button cancel clicked')
