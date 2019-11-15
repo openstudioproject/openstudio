@@ -113,7 +113,7 @@ class Teachers:
             repr_row = list(rows[i:i + 1].render())[0]
 
             teaches_classes = ''
-            teaches_workshops = ''
+            teaches_events = ''
             group = ''
             if permission:
                 teaches_classes = self._rows_to_table_link_classes(row)

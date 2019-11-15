@@ -5,6 +5,7 @@ import { withRouter } from 'react-router'
 import Attendance from "./Attendance"
 import { appOperations } from '../../duck'
 import { classesAttendanceOperations } from './duck'
+import { classesClassesOperations } from "../classes/duck"
 
 
 const mapStateToProps = state => 
@@ -12,9 +13,8 @@ const mapStateToProps = state =>
         app: state.app,
         attendance: state.classes.attendance,
         barcode_scans: state.app.settings.data.customers_barcodes,
-        classes: state.classes.classes.data,
+        classes: state.classes.classes,
         customers: state.customers.list,
-        // memberships: state.customers.memberships
     })
 
 const mapDispatchToProps = dispatch =>
@@ -33,6 +33,9 @@ const mapDispatchToProps = dispatch =>
         },
         setPageSubtitle(subtitle) {
             dispatch(appOperations.setPageSubtitle(subtitle))
+        },
+        fetchClasses(obj) {
+            dispatch(classesClassesOperations.fetchClasses(obj))
         },
         // clearSearchTimeout() {
         //     dispatch(classesAttendanceOperations.clearclassesAttendanceSearchTimeout())

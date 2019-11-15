@@ -113,6 +113,7 @@ class Class:
             trial_glaccount = prices.accounting_glaccounts_id_trial
             dropin_costcenter = prices.accounting_costcenters_id_dropin
             trial_costcenter = prices.accounting_costcenters_id_trial
+            school_memberships_id = prices.school_memberships_id
 
             trial_tax = db.tax_rates(prices.tax_rates_id_trial)
             dropin_tax = db.tax_rates(prices.tax_rates_id_dropin)
@@ -142,6 +143,7 @@ class Class:
                 dropin_tax_percentage_membership = None
 
         else:
+            # Set default values
             dropin = 0
             trial  = 0
             trial_tax_rates_id    = None
@@ -158,6 +160,7 @@ class Class:
             trial_glaccount = None
             dropin_costcenter = None
             trial_costcenter = None
+            school_memberships_id = None
 
 
         return dict(
@@ -177,6 +180,7 @@ class Class:
             trial_glaccount = trial_glaccount,
             dropin_costcenter = dropin_costcenter,
             trial_costcenter = trial_costcenter,
+            school_memberships_id = school_memberships_id
         )
 
 
@@ -260,19 +264,21 @@ class Class:
         )
 
 
-    def get_full(self):
+    def get_full(self, only_count_status=None):
         """
             Check whether or not this class is full
         """
         db = current.db
-
         spaces = self.cls.Maxstudents
 
         query = (db.classes_attendance.classes_id == self.clsID) & \
-                (db.classes_attendance.ClassDate == self.date) & \
-                (db.classes_attendance.BookingStatus != 'cancelled')
-        filled = db(query).count()
+                (db.classes_attendance.ClassDate == self.date)
+        if only_count_status:
+            query &= (db.classes_attendance.BookingStatus == only_count_status)
+        else:
+            query &= (db.classes_attendance.BookingStatus != 'cancelled')
 
+        filled = db(query).count()
         full = True if filled >= spaces else False
 
         return full

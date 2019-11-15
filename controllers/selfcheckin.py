@@ -141,7 +141,7 @@ def checkin():
     #response.view = 'templates/selfcheckin/checkin.html'
 
     # Check if the class is full
-    full = cls.get_full()
+    full = cls.get_full(only_count_status="attending")
 
     message = ''
     if full:

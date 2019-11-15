@@ -1069,16 +1069,19 @@ class AttendanceHelper:
         :param customer: os_customer.Customer object
         :param trial: bool
         :param complementary: bool
-        :param list_type: should be in ["shop", "attendance", "selfcheckin"]
+        :param list_type: should be in ["shop", "attendance", "selfcheckin", "pos"]
         :param controller: web2py controller
         :return: list of booking options
         """
         from .os_class import Class
         from .os_customer_classcard import CustomerClasscard
         from .os_customer_subscription import CustomerSubscription
+        from .os_school import School
+        from .os_school_subscription import SchoolSubscription
 
         T = current.T
         db = current.db
+        school = School()
         get_sys_property = current.globalenv['get_sys_property']
 
         options = {
@@ -1091,9 +1094,11 @@ class AttendanceHelper:
 
         # Subscriptions
         subscriptions = customer.get_subscriptions_on_date(date)
+        subscription_ids = []
         if subscriptions:
             for subscription in subscriptions:
                 csID = subscription.customers_subscriptions.id
+                subscription_ids.append(subscription.school_subscriptions.id)
                 # Check remaining credits
                 credits = subscription.customers_subscriptions.CreditsRemaining or 0
                 recon_classes = subscription.school_subscriptions.ReconciliationClasses
@@ -1103,6 +1108,7 @@ class AttendanceHelper:
                 if list_type == 'shop':
                     subscription_permission_check = not int(clsID) in cs.get_allowed_classes_booking(public_only=True)
                 else:
+                    # Attendance, PoS, Selfcheckin
                     subscription_permission_check = not int(clsID) in cs.get_allowed_classes_attend(public_only=False)
 
                 allowed = True
@@ -1125,13 +1131,32 @@ class AttendanceHelper:
                     'Blocked': cs.get_blocked(date)
                 })
 
+        # PoS Subscriptions (Add all subscriptions customer doesn't have as "shop item")
+        if list_type == "pos":
+            school_subscriptions = school.get_subscriptions(public_only=False)
+            for school_subscription in school_subscriptions:
+                # Prevent showing already bought subscription as shop option for customer
+                if school_subscription.id not in subscription_ids:
+                    ssu = SchoolSubscription(school_subscription.id)
+                    options['subscriptions'].append({
+                        'clsID': clsID,
+                        'Type': 'subscription_shop',
+                        'id': school_subscription.id,
+                        'Name': school_subscription.Name,
+                        'school_memberships_id': school_subscription.school_memberships_id,
+                        'Price': ssu.get_price_today(formatted=False),
+                        'PriceMonth': ssu.get_price_on_date(date, formatted=False)
+                    })
+
         # class cards
         classcards = customer.get_classcards(date)
+        classcard_ids = []
         if classcards:
             for classcard in classcards:
                 ccdID = classcard.customers_classcards.id
-
                 ccd = CustomerClasscard(ccdID)
+                classcard_ids.append(ccd.school_classcard.id)
+
                 classes_remaining = ccd.get_classes_remaining()
 
                 if list_type == 'shop':
@@ -1156,25 +1181,91 @@ class AttendanceHelper:
                     'school_memberships_id': classcard.school_classcards.school_memberships_id,
                 })
 
+        # PoS Subscriptions (Add all subscriptions customer doesn't have as "shop item")
+        if list_type == "pos":
+            school_classcards = school.get_classcards(public_only=False)
+            for school_classcard in school_classcards:
+                # Prevent showing already bought subscription as shop option for customer
+                if school_classcard.id not in classcard_ids:
+                    # ssu = SchoolSubscription(school_subscription.id)
+                    options['classcards'].append({
+                        'clsID': clsID,
+                        'Type': 'classcard_shop',
+                        'id': school_classcard.id,
+                        'Name': school_classcard.Name,
+                        'school_memberships_id': school_classcard.school_memberships_id,
+                        'Price': school_classcard.Price
+                    })
+
         # Get class prices
         cls = Class(clsID, date)
         prices = cls.get_prices()
 
+        ## Dropin
         price = prices['dropin']
-        has_membership = customer.has_membership_on_date(date)
-        membership_price = has_membership and prices['dropin_membership']
-        if membership_price:
-            price = prices['dropin_membership']
+        has_membership = False
+        if prices['school_memberships_id']:
+            # A membership price might be available
+            has_membership = customer.has_given_membership_on_date(prices['school_memberships_id'], date)
 
-        if price:
-            options['dropin'] = {
-                'clsID': clsID,
-                "Type": "dropin",
-                "Name": T('Drop-in'),
-                "Price": price,
-                "MembershipPrice": membership_price,
-                "Message": get_sys_property('shop_classes_dropin_message') or ''
-            }
+        # MembershipPrice in option['dropin'] is a boolean
+
+        if list_type != "pos":
+            membership_price = has_membership and prices['dropin_membership']
+            if membership_price:
+                price = prices['dropin_membership']
+
+            if price:
+                options['dropin'] = {
+                    'clsID': clsID,
+                    "Type": "dropin",
+                    "Name": T('Drop-in'),
+                    "Price": price,
+                    "MembershipPrice": membership_price,
+                    "Message": get_sys_property('shop_classes_dropin_message') or ''
+                }
+        else:
+            # List type "pos"
+            # Don't add "without membership" drop-in option when customer has required membership.
+            if has_membership:
+                # Display membership price
+                membership_price = has_membership and prices['dropin_membership']
+                if membership_price:
+                    price = prices['dropin_membership']
+
+                options['dropin'] = {
+                    'clsID': clsID,
+                    "Type": "dropin",
+                    "Name": T('Drop-in'),
+                    "Price": price,
+                    "MembershipPrice": membership_price,
+                    "Message": get_sys_property('shop_classes_dropin_message') or ''
+                }
+
+            else:
+                # Add membership drop-in price & option to buy +
+                # non-membership drop-in price
+
+                if prices['school_memberships_id']:
+                    options['dropin_and_membership'] = {
+                        'clsID': clsID,
+                        "Type": "dropin_and_membership",
+                        "Name": T('Drop-in'),
+                        "Price": prices['dropin_membership'],
+                        "MembershipPrice": True,
+                        "Message": get_sys_property('shop_classes_dropin_message') or '',
+                        "school_memberships_id": prices['school_memberships_id']
+                    }
+
+                options['dropin'] = {
+                    'clsID': clsID,
+                    "Type": "dropin",
+                    "Name": T('Drop-in'),
+                    "Price": prices['dropin'],
+                    "MembershipPrice": False,
+                    "Message": get_sys_property('shop_classes_dropin_message') or ''
+                }
+
 
         # Trial
         trial_option = self._get_customer_class_booking_option_trial(
@@ -1294,7 +1385,9 @@ class AttendanceHelper:
                             return
 
             price = prices['trial'] or 0
-            has_membership = customer.has_membership_on_date(date)
+            has_membership = False
+            if prices['school_memberships_id']:
+                has_membership = customer.has_given_membership_on_date(prices['school_memberships_id'], date)
             membership_price = has_membership and prices['trial_membership']
             if membership_price:
                 price = prices['trial_membership']
@@ -1689,7 +1782,7 @@ class AttendanceHelper:
         :param date: datetime.date
         :param date_formatted: datetime.date object formatted with current.DATE_FORMAT
         :param customer: Customer object
-        :param: list_type: [shop, attendance]
+        :param: list_type: [shop, attendance, pos]
         :return:
         """
         from .os_customer_subscription import CustomerSubscription

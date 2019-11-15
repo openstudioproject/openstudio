@@ -97,6 +97,8 @@ class SchoolSubscription:
         """
             Returns the price for a subscription on a given date
         """
+        from decimal import Decimal, ROUND_HALF_UP
+
         db = current.db
 
         price = ''
@@ -115,6 +117,7 @@ class SchoolSubscription:
             else:
                 row = rows.first()
                 price = row.Price
+                price = price.quantize(Decimal('.01'), rounding=ROUND_HALF_UP)
 
         if not price:
             price = 0
@@ -127,6 +130,7 @@ class SchoolSubscription:
         Return calculated price for a subscription, assuming TODAY_LOCAL
         is the startdate
         """
+        from decimal import Decimal, ROUND_HALF_UP
         from general_helpers import get_last_day_month
         db = current.db
         TODAY_LOCAL = current.TODAY_LOCAL
@@ -140,8 +144,8 @@ class SchoolSubscription:
         delta = period_end - period_start
         days = delta.days + 1
         total_days = period_end.day
-        price = round(float(days) / float(total_days) * float(price), 2)
-
+        price = Decimal(float(days) / float(total_days) * float(price))
+        price = price.quantize(Decimal('.01'), rounding=ROUND_HALF_UP)
 
         if formatted:
             return SPAN(CURRSYM, ' ', format(price, '.2f'))
