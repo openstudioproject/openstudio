@@ -24,6 +24,9 @@ const mapDispatchToProps = dispatch =>
         setPageTitle(title) {
             dispatch(appOperations.setPageTitle(title))
         },
+        setPageSubtitle(subtitle) {
+            dispatch(appOperations.setPageSubtitle(subtitle))
+        },
         verifyTeacherPayment(tpcID) {
             dispatch(classesRevenueOperations.verifyTeacherPayment(tpcID))
         },

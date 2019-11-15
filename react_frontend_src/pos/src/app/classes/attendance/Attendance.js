@@ -30,17 +30,11 @@ class Attendance extends Component {
     }
 
     componentWillMount() {
-        const classes = this.props.classes
-
         this.props.setPageTitle(
             this.props.intl.formatMessage({ id: 'app.pos.classes.page_title' })
         )
-        if (!classes.loaded) {
-            this.props.fetchClasses({setPageSubtitle: true, clsID: this.props.match.params.clsID})
-        }
         console.log(this.props.match.params.clsID)
         this.props.fetchClassAttendance(this.props.match.params.clsID)
-
     }
 
     componentWillUnmount() {
@@ -48,8 +42,17 @@ class Attendance extends Component {
     }
 
     componentDidMount() {
-    }
+        const classes = this.props.classes
+        const clsID = this.props.match.params.clsID
 
+        if (!classes.loaded) {
+            this.props.fetchClasses({setPageSubtitle: true, clsID: this.props.match.params.clsID})
+        } else {
+            this.props.setPageSubtitle(
+                <ClassNameDisplay classes={classes.data} clsID={clsID} />
+            )
+        }
+    }
     // toBookingOptions(clsID, value, history) {
     //     if (isInt(value)) {
     //         history.push('/classes/book/' + clsID + '/' + value)

@@ -4,6 +4,7 @@ import PropTypes from "prop-types"
 
 import PageTemplate from "../../../components/PageTemplate"
 import ButtonBack from "../../../components/ui/ButtonBack"
+import ClassNameDisplay from "../../../components/ui/ClassNameDisplay"
 
 import RevenueList from "./RevenueList"
 import RevenueTotal from "./RevenueTotal"
@@ -23,15 +24,23 @@ class Revenue extends Component {
     }
 
     componentWillMount() {
-        const classes = this.props.classes
-
         this.props.setPageTitle(
             this.props.intl.formatMessage({ id: 'app.pos.classes.page_title' })
         )
+        this.props.fetchRevenueAndTeacherPayment(this.props.match.params.clsID)
+    }
+
+    componentDidMount() {
+        const classes = this.props.classes
+        const clsID = this.props.match.params.clsID
+
         if (!classes.loaded) {
             this.props.fetchClasses({setPageSubtitle: true, clsID: this.props.match.params.clsID})
+        } else {
+            this.props.setPageSubtitle(
+                <ClassNameDisplay classes={classes.data} clsID={clsID} />
+            )
         }
-        this.props.fetchRevenueAndTeacherPayment(this.props.match.params.clsID)
     }
 
     componentWillUnmount() {
