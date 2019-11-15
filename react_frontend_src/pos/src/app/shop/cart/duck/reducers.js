@@ -3,6 +3,7 @@ import T from './types'
 const calculateCartTotal = (items) => {
     let total = 0
     items.map((item, i) => {
+        console.log(item)
         if ((item.item_type == 'product') || (item.item_type == 'custom') || (item.item_type == 'class_reconcile_later')) {
             if (item.data.price) {
                 total = total + (item.data.price * item.quantity)

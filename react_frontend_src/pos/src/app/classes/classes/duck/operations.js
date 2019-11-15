@@ -1,3 +1,4 @@
+import React from "react"
 import {
     requestClassesClasses as request_classes,
     receiveClassesClasses as receive_classes,
@@ -7,6 +8,9 @@ import {
 import axios_os from '../../../../utils/axios_os'
 import OS_API from '../../../../utils/os_api'
 import { toISODate } from '../../../../utils/date_tools'
+import { appOperations } from '../../../duck'
+
+import ClassNameDisplay from "../../../../components/ui/ClassNameDisplay"
 
 // just pass these actions as there's nothing else they need to do
 // Put pass-through actions here
@@ -14,7 +18,7 @@ import { toISODate } from '../../../../utils/date_tools'
 
 // data fetchers
 
-const fetchClasses = () => {
+const fetchClasses = ({setPageSubtitle=false, clsID=false}) => {
       return dispatch => {
           dispatch(request_classes())
 
@@ -26,6 +30,12 @@ const fetchClasses = () => {
           .then(function (response) {
             // handle success
             dispatch(receive_classes(response.data))
+            if (setPageSubtitle && clsID) {
+              dispatch(appOperations.setPageSubtitle(
+                <ClassNameDisplay classes={response.data.classes} clsID={clsID} />
+              ))
+            }
+
             // dispatch(setLoadingProgress(100))
           })
           .catch(function (error) {

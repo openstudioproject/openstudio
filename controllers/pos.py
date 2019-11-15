@@ -308,7 +308,7 @@ def get_class_booking_options():
         customer,
         trial=True,
         complementary=complementary_permission,
-        list_type='attendance'
+        list_type='pos'
     )
 
     return dict(options = options)

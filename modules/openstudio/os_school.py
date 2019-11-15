@@ -292,7 +292,7 @@ class School:
         """
         db = current.db
 
-        query = (db.school_subscriptions.id > 0)
+        query = (db.school_subscriptions.Archived == False)
 
         if public_only:
             query &= (db.school_subscriptions.ShopSubscription == True)
