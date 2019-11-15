@@ -13,7 +13,10 @@ const ClassNameDisplay = ({classes, clsID}) => {
     }
 
     if (class_data) {
-        return class_data.ClassType + ' in ' + class_data.Location + ' @' + class_data.Starttime
+        console.log('Class data:')
+        console.log(class_data)
+        console.log("#############")
+        return class_data.Teacher + " will teach " + class_data.ClassType + ' in ' + class_data.Location + ' at ' + class_data.Starttime
     } else {
         return "Class info not found"
     }
