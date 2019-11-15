@@ -30,13 +30,14 @@ class Attendance extends Component {
     }
 
     componentWillMount() {
+        const classes = this.props.classes
+
         this.props.setPageTitle(
             this.props.intl.formatMessage({ id: 'app.pos.classes.page_title' })
         )
-        this.props.setPageSubtitle(
-            <ClassNameDisplay classes={this.props.classes}
-                              clsID={this.props.match.params.clsID} />
-        )
+        if (!classes.loaded) {
+            this.props.fetchClasses({setPageSubtitle: true, clsID: this.props.match.params.clsID})
+        }
         console.log(this.props.match.params.clsID)
         this.props.fetchClassAttendance(this.props.match.params.clsID)
 
@@ -47,7 +48,6 @@ class Attendance extends Component {
     }
 
     componentDidMount() {
-
     }
 
     // toBookingOptions(clsID, value, history) {
@@ -183,7 +183,7 @@ class Attendance extends Component {
         return (
             <PageTemplate app_state={this.props.app}>
                 { 
-                    (!this.props.attendance.loaded) ? 
+                    (!attendance.loaded) ? 
                         <div>Loading attendance, please wait...</div> :
                         <section className="classes_attendance">
                             <div className="row">
@@ -228,6 +228,7 @@ class Attendance extends Component {
                 }
             </PageTemplate>
         )
+        
     }
 }
 
