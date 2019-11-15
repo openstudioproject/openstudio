@@ -34,17 +34,25 @@ class Book extends Component {
 
         this.props.setPageTitle(
             this.props.intl.formatMessage({ id: 'app.pos.classes.book_title' })
-        )
-        this.props.setPageSubtitle(
-            <ClassNameDisplay classes={this.props.classes}
-                              clsID={this.props.match.params.classID} />
-        )
-        
+        )        
 
-        console.log(this.props.match.params.classID)
+        console.log(this.props.match.params.clsID)
         console.log(this.props.match.params.customerID)
-        this.props.fetchBookingOptions(this.props.match.params.classID, this.props.match.params.customerID )
+        this.props.fetchBookingOptions(this.props.match.params.clsID, this.props.match.params.customerID )
         
+    }
+
+    componentDidMount() {
+        const classes = this.props.classes
+        const clsID = this.props.match.params.clsID
+
+        if (!classes.loaded) {
+            this.props.fetchClasses({setPageSubtitle: true, clsID: this.props.match.params.clsID})
+        } else {
+            this.props.setPageSubtitle(
+                <ClassNameDisplay classes={classes.data} clsID={clsID} />
+            )
+        }
     }
 
     componentWillUnmount() {
@@ -54,7 +62,7 @@ class Book extends Component {
 
     onClickButtonBack() {
         this.props.history.push(`/classes/${this.props.match.params.customerID}`)
-        // this.props.history.push(`/classes/attendance/${this.props.match.params.classID}`)
+        // this.props.history.push(`/classes/attendance/${this.props.match.params.clsID}`)
     }
 
     addRequiredMembershipToCart(customerID, option) {
@@ -87,13 +95,13 @@ class Book extends Component {
         console.log(option)
         console.log(option.Type)
 
-        const classID = this.props.match.params.classID
+        const clsID = this.props.match.params.clsID
         const customerID = this.props.match.params.customerID
 
-        console.log(classID)
+        console.log(clsID)
         console.log(customerID)
 
-        // this.props.checkinCustomer(customerID, classID, option)
+        // this.props.checkinCustomer(customerID, clsID, option)
 
         const customer_memberships = this.props.customer_memberships_today.data
         console.log('customer_memberships')
@@ -217,7 +225,7 @@ class Book extends Component {
                     
                 } else {
                     // check-in, price = 0
-                    this.props.checkinCustomer(customerID, classID, option, this.props.history)
+                    this.props.checkinCustomer(customerID, clsID, option, this.props.history)
                 }
                 break
 
@@ -263,7 +271,7 @@ class Book extends Component {
                     
                 } else {
                     // check-in, price = 0
-                    this.props.checkinCustomer(customerID, classID, option, this.props.history)
+                    this.props.checkinCustomer(customerID, clsID, option, this.props.history)
                 }
                 break
             case "trial": 
@@ -306,7 +314,7 @@ class Book extends Component {
                     
                 } else {
                     // check-in, price = 0
-                    this.props.checkinCustomer(customerID, classID, option, this.props.history)
+                    this.props.checkinCustomer(customerID, clsID, option, this.props.history)
                 }
             
                 break
@@ -314,7 +322,7 @@ class Book extends Component {
                 if (option.school_memberships_id) {
                     console.log('membership required')
                     if (customerHasRequiredMembership(option.school_memberships_id, customer_memberships)) {
-                        this.props.checkinCustomer(customerID, classID, option, this.props.history)
+                        this.props.checkinCustomer(customerID, clsID, option, this.props.history)
                     } else {
                         console.log('redirect to cart to buy the required membership')
                         this.props.clearShopCart()
@@ -328,14 +336,14 @@ class Book extends Component {
                         this.props.history.push('/shop/products')
                     }
                 } else {
-                    this.props.checkinCustomer(customerID, classID, option, this.props.history)
+                    this.props.checkinCustomer(customerID, clsID, option, this.props.history)
                 }
                 break
             case "classcard":
                 // Check membership
                 if (option.school_memberships_id) {
                     if (customerHasRequiredMembership(option.school_memberships_id, customer_memberships)) {
-                        this.props.checkinCustomer(customerID, classID, option, this.props.history)
+                        this.props.checkinCustomer(customerID, clsID, option, this.props.history)
                     } else {
                         console.log('redirect to cart to buy the required membership')
                         this.props.clearShopCart()
@@ -349,13 +357,13 @@ class Book extends Component {
                         this.props.history.push('/shop/products')
                     }
                 } else {
-                    this.props.checkinCustomer(customerID, classID, option, this.props.history)
+                    this.props.checkinCustomer(customerID, clsID, option, this.props.history)
                 }
                 break
             case "complementary":
-                this.props.checkinCustomer(customerID, classID, option, this.props.history)
+                this.props.checkinCustomer(customerID, clsID, option, this.props.history)
             case "reconcile_later":
-                this.props.checkinCustomer(customerID, classID, option, this.props.history)
+                this.props.checkinCustomer(customerID, clsID, option, this.props.history)
             default: 
                 console.log("Check-in type not found:")
                 console.log(option)
