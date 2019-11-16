@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-'''
+"""
     py.test test cases to test OpenStudio.
     These tests run based on webclient and need web2py server running.
-'''
+"""
 
 import datetime
 
@@ -15,9 +15,9 @@ from populate_os_tables import prepare_classes
 
 
 def test_selfcheckin_index(client, web2py):
-    '''
+    """
         Is the page that lists locations working?
-    '''
+    """
     populate(web2py.db.school_locations, 1)
 
     url = '/selfcheckin/index'
@@ -28,9 +28,9 @@ def test_selfcheckin_index(client, web2py):
     assert location.Name in client.text
 
 def test_selfcheckin_classes(client, web2py):
-    '''
+    """
         Is the page listing classes working?
-    '''
+    """
     # This gives a class on Monday
     prepare_classes(web2py)
 
@@ -55,10 +55,10 @@ def test_selfcheckin_classes(client, web2py):
     assert classtype.Name in client.text
 
 def test_selfcheckin_checkin_impossible_when_full(client, web2py):
-    '''
+    """
         Test to verify a full message is displayed & check-in buttons are
         disabled when a class has no more spaces
-    '''
+    """
     # This gives a class on Monday
     prepare_classes(web2py)
 
@@ -78,7 +78,8 @@ def test_selfcheckin_checkin_impossible_when_full(client, web2py):
         web2py.db.classes_attendance.insert(auth_customer_id=1001,
                                             classes_id=clsID,
                                             ClassDate=today,
-                                            AttendanceType='1')
+                                            AttendanceType='1',
+                                            BookingStatus="attending")
 
     # make sure there's only one space for all classes
     cls = web2py.db.classes(1)

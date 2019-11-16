@@ -833,6 +833,7 @@ def prepare_classes(web2py,
                                        invoices=invoices,
                                        customers_populated=True)
     populate_auth_user_teachers(web2py)
+    populate_school_memberships(web2py)
     populate_school_classtypes(web2py, 3)
     populate_school_subscriptions_groups(web2py, populate_subscriptions=False)
     populate_school_classcards_groups(web2py, populate_classcards=False)
@@ -949,6 +950,7 @@ def prepare_classes(web2py,
                                    tax_rates_id_trial = 1,
                                    TrialMembership=trial_price_membership,
                                    tax_rates_id_trial_membership=1,
+                                   school_memberships_id=1,
                                    Startdate  = '2014-01-01')
     if attendance:
         # Trial class

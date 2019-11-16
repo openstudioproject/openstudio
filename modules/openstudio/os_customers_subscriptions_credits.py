@@ -390,7 +390,8 @@ class CustomersSubscriptionsCredits:
 
             for row in cs_rows:
 
-                expired_credits = row.customers_subscriptions.CreditsRemaining - row.customers_subscriptions.PeriodCreditsAdded
+                expired_credits = (float(row.customers_subscriptions.CreditsRemaining) -
+                                   float(row.customers_subscriptions.PeriodCreditsAdded))
 
                 if expired_credits > 0 and row.customers_subscriptions.CreditsRemaining > 0:
                     db.customers_subscriptions_credits.insert(
