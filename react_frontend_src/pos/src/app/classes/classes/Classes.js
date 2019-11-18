@@ -23,7 +23,13 @@ class Classes extends Component {
         this.props.setPageTitle(
             this.props.intl.formatMessage({ id: 'app.pos.classes.page_title' })
         )
-        if (!this.props.classes.loaded) {
+    }
+
+    componentDidMount() {
+        const classes = this.props.classes
+        const clsID = this.props.match.params.clsID
+
+        if (!classes.loaded) {
             this.props.fetchClasses()
         }
     }

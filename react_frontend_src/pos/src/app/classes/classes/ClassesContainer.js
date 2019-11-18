@@ -22,7 +22,7 @@ const mapDispatchToProps = dispatch =>
             dispatch(appOperations.setPageSubtitle(title))
         },
         fetchClasses() {
-            dispatch(classesClassesOperations.fetchClasses())
+            dispatch(classesClassesOperations.fetchClasses({}))
         },
     })
 

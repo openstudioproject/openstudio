@@ -18,7 +18,7 @@ import ClassNameDisplay from "../../../../components/ui/ClassNameDisplay"
 
 // data fetchers
 
-const fetchClasses = ({setPageSubtitle=false, clsID=false}) => {
+const fetchClasses = ({ setPageSubtitle = false, clsID = false}) => {
       return dispatch => {
           dispatch(request_classes())
 
