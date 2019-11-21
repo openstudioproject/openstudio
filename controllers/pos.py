@@ -1370,6 +1370,7 @@ def update_customer():
         error = False
         if result.errors:
             error = True
+            customer_data = {}
 
         if not error:
             row = db.auth_user(cuID)
