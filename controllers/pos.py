@@ -1062,13 +1062,22 @@ def get_customer_subscriptions():
     for i, row in enumerate(rows):
         repr_row = list(rows[i:i + 1].render())[0]
 
+        end_date = None
+        min_end = None
+        if row.Enddate:
+            end_date = row.Enddate.strftime(DATE_FORMAT)
+
+        if row.MinEnddate:
+            min_end = row.MinEnddate.strftime(DATE_FORMAT)
+
+
         subscriptions.append({
             'id': row.id,
             'auth_customer_id': row.auth_customer_id,
             'name': repr_row.school_subscriptions_id,
-            'start': row.Startdate,
-            'end': row.Enddate,
-            'min_end': row.MinEnddate
+            'start': row.Startdate.strftime(DATE_FORMAT),
+            'end': end_date,
+            'min_end': min_end
         })
 
     return dict(data=subscriptions)
