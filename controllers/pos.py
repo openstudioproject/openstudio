@@ -907,7 +907,7 @@ def get_customer_memberships():
 
     cuID = request.vars['id']
 
-    date_from = TODAY_LOCAL - datetime.timedelta(days=400)
+    date_from = TODAY_LOCAL - datetime.timedelta(days=3660)
 
     query = (db.customers_memberships.Startdate >= date_from) & \
             (db.customers_memberships.auth_customer_id == cuID)
