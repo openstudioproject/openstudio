@@ -4900,7 +4900,7 @@ def compute_receipt_item_vat(row):
 
 def define_receipts_amounts():
     db.define_table('receipts_amounts',
-        Field('receipts_id', db.invoices),
+        Field('receipts_id', db.receipts),
         Field('TotalPrice', 'decimal(20,2)',
             default=0,
             represent=represent_decimal_as_amount,

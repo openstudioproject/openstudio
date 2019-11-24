@@ -267,13 +267,14 @@ class CustomersSubscriptionsCredits:
 
         rows = self.add_credits_get_subscription_rows_month(year, month)
 
-
         for row in rows:
-            if (row.customers_subscriptions_credits.id or
-                row.customers_subscriptions_paused.id or
-                row.school_subscriptions.Classes is None or
-                row.school_subscriptions.Classes == 0 or
-                row.school_subscriptions.SubscriptionUnit is None):
+            if row.customers_subscriptions_credits.id:
+                continue
+            if row.customers_subscriptions_paused.id:
+                continue
+            if row.school_subscriptions.Classes == 0 or row.school_subscriptions.Classes is None:
+                continue
+            if row.school_subscriptions.SubscriptionUnit is None:
                 # Don't do anything if this subscription already got credits for this month or is paused
                 # or has no classes or subscription unit defined
                 continue
@@ -305,7 +306,8 @@ class CustomersSubscriptionsCredits:
             # Increase counter
             customers_credits_added += 1
 
-        return customers_credits_added
+        return customers_credits_added or 0
+    
 
     def expire_credits(self, date):
         """
