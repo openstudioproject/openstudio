@@ -152,7 +152,7 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         """
         db = current.db
 
-        query = ((db.customers_subscriptions.auth_customer_id == cs.auth_customer_id) &
+        query = ((db.customers_subscriptions.auth_customer_id == self.cuID) &
                  (db.customers_subscriptions.RegistrationFeePaid == True))
 
         has_paid_a_reg_fee = db(query).count()

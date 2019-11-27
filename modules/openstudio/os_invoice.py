@@ -743,6 +743,7 @@ class Invoice:
 
         from general_helpers import get_last_day_month
 
+        from .os_customer import Customer
         from .os_customer_subscription import CustomerSubscription
         from .os_school_subscription import SchoolSubscription
 
@@ -865,10 +866,11 @@ class Invoice:
         # Check if a registration fee should be added
         # ; Add fee if a registration fee has ever been paid
         ##
-        query = ((db.customers_subscriptions.auth_customer_id == cs.auth_customer_id) &
-                 (db.customers_subscriptions.RegistrationFeePaid == True))
+        customer = Customer(cs.auth_customer_id)
+        # query = ((db.customers_subscriptions.auth_customer_id == cs.auth_customer_id) &
+        #          (db.customers_subscriptions.RegistrationFeePaid == True))
 
-        fee_paid_in_past = db(query).count()
+        fee_paid_in_past = customer.has_paid_a_subscription_registration_fee()
         ssu = db.school_subscriptions(ssuID)
         if not fee_paid_in_past and ssu.RegistrationFee: # Registration fee not already paid and RegistrationFee defined?
             regfee_to_be_paid = ssu.RegistrationFee or 0
