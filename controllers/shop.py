@@ -1604,6 +1604,12 @@ def subscription_order():
     if ssu.school_memberships_id and not customer.has_given_membership_on_date(ssu.school_memberships_id, TODAY_LOCAL):
         checkout_order_membership(ssu.school_memberships_id, order)
 
+    # Check registration fee
+    if ssu.RegistrationFee:
+        has_paid_a_reg_fee = customer.has_paid_a_subscription_registration_fee()
+        if not has_paid_a_reg_fee:
+            order.order_item_add_subscription_registration_fee(ssuID)
+
     # mail order to customer
     order_received_mail_customer(coID)
 
