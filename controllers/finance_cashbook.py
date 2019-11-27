@@ -614,7 +614,7 @@ def get_debit_classes(date, list_type='balance'):
         TH(T("Time")),
         TH(T("Location")),
         TH(T("Classtype")),
-        # TH(T("Attendance")),
+        TH(T("Attendance")),
         TH(T("Amount")),
     ))
 
@@ -641,7 +641,7 @@ def get_debit_classes(date, list_type='balance'):
             TD(max_string_length(cls['Location'], 18)),
             TD(max_string_length(cls['ClassType'], 18), BR(),
                SPAN(max_string_length(teacher, 18), _class="text-muted")),
-            # TD(),
+            TD(cls['CountAttendance']),
             TD(amount)
         )
 
@@ -649,6 +649,7 @@ def get_debit_classes(date, list_type='balance'):
 
     # Footer total
     table.append(TFOOT(TR(
+        TH(),
         TH(),
         TH(),
         TH(T('Total')),
