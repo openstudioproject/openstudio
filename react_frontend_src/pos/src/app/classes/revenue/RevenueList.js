@@ -38,17 +38,17 @@ const RevenueList = ({revenue, teacher_payment, intl, currency_symbol}) =>
                     </tr>
                     <tr>
                         <td>{intl.formatMessage({ id:"app.pos.classes.revenue.list.diwm" })}</td>
-                        <td>{revenue.dropin.no_membership.count}</td>
+                        <td>{revenue.dropin.membership.count}</td>
                         <td>0</td>
-                        <td>{revenue.dropin.no_membership.count}</td>
+                        <td>{revenue.dropin.membership.count}</td>
                         <td>{currency_symbol} { ' ' } {parseFloat(revenue.dropin.membership.amount)}</td>
                         <td>{currency_symbol} { ' ' } {(parseFloat(revenue.dropin.membership.amount) * revenue.dropin.membership.count)}</td>
                     </tr>
                     <tr>
                         <td>{intl.formatMessage({ id:"app.pos.classes.revenue.list.diwom" })}</td>
-                        <td>{revenue.dropin.membership.count}</td>
+                        <td>{revenue.dropin.no_membership.count}</td>
                         <td>0</td>
-                        <td>{revenue.dropin.membership.count}</td>
+                        <td>{revenue.dropin.no_membership.count}</td>
                         <td>{currency_symbol} { ' ' } {parseFloat(revenue.dropin.no_membership.amount)}</td>
                         <td>{currency_symbol} { ' ' } {(parseFloat(revenue.dropin.no_membership.amount) * revenue.dropin.no_membership.count)}</td>
                     </tr>
