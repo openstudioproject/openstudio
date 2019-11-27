@@ -145,6 +145,24 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         return ids
 
 
+    def has_paid_a_subscription_registration_fee(self):
+        """
+        Check if this customer has ever paid a registration fee
+        :return: True if so, else False
+        """
+        db = current.db
+
+        query = ((db.customers_subscriptions.auth_customer_id == cs.auth_customer_id) &
+                 (db.customers_subscriptions.RegistrationFeePaid == True))
+
+        has_paid_a_reg_fee = db(query).count()
+
+        if has_paid_a_reg_fee:
+            return True
+        else:
+            return False
+
+
     def has_subscription_on_date(self, date, from_cache=True):
         """
         :param date: datetime.date
