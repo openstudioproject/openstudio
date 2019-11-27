@@ -913,7 +913,7 @@ ORDER BY ag.Name
                 (db.receipts.payment_methods_id != 1) # method 1 == cash
 
         sum = db.receipts_amounts.TotalPriceVAT.sum()
-        rows = db(query).select(sum)
+        rows = db(query).select(sum, left=left)
         if rows:
             row = rows.first()
             sum_not_paid_using_cash = row[sum]
