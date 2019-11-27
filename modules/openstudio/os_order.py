@@ -171,7 +171,6 @@ class Order:
 
         coiID = db.customers_orders_items.insert(
             customers_orders_id  = self.coID,
-            school_subscriptions_id = school_subscriptions_id,
             ProductName=current.T("Registration fee"),
             Description=current.T('One time registration fee'),
             Quantity = 1,
@@ -721,8 +720,6 @@ class Order:
             receipt = Receipt(rID)
 
             for row in rows:
-                print('row in deliver:')
-                print(row)
                 receipt.item_add_from_order_item(row)
 
         # Update status

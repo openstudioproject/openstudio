@@ -248,6 +248,8 @@ class SchoolSubscription:
         db = current.db
         ocm = OsCacheManager()
 
+        print('call sell to customer')
+
         csID = db.customers_subscriptions.insert(
             auth_customer_id = auth_user_id,
             school_subscriptions_id = self.ssuID,
