@@ -190,6 +190,7 @@ class Reports:
             cls['RevenueTotal'] = class_revenue['total']['amount']
             cls['TeacherPayment'] = tp_amount
             cls['Balance'] = (cls['RevenueTotal'] - cls['TeacherPayment'])
+            cls['Teachers'] = cls_object.get_teachers()
 
             revenue['revenue_total'] += cls['RevenueTotal']
             revenue['teacher_payments'] += cls['TeacherPayment']
