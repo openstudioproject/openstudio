@@ -1927,6 +1927,9 @@ def set_cash_count():
         if ',' in request.vars['amount']:
             request.vars['amount'] = request.vars['amount'].replace(',', '.')
 
+    if request.vars['amount'] == '':
+        request.vars['amount'] = 0
+
     row = db.accounting_cashbooks_cash_count(
         CountDate = TODAY_LOCAL,
         CountType = request.vars['type']
