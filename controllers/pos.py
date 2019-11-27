@@ -1920,8 +1920,6 @@ def set_cash_count():
     if not permission_result['permission']:
         return return_json_permissions_error()
 
-    print(request.vars)
-
     # Clean up input of amount
     if 'amount' in request.vars:
         if ',' in request.vars['amount']:
