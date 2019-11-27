@@ -1482,6 +1482,7 @@ def subscription_get_info(ssu):
     :param ssu: SchoolSubscription object
     :return: UL with subscription info
     """
+    print(ssu)
 
     months_text = T("months")
     if ssu.MinDuration == 1:
@@ -1511,6 +1512,17 @@ def subscription_get_info(ssu):
         LI(B(T("Minimum duration")), BR(), ssu.MinDuration, ' ', months_text),
         LI(B(T("Monthly fee")), BR(), ssu.get_price_on_date(TODAY_LOCAL)),
     )
+
+    # Check registration fee
+    if ssu.RegistrationFee:
+        from openstudio.os_customer import Customer
+        customer = Customer(auth.user.id)
+        has_paid_a_reg_fee = customer.has_paid_a_subscription_registration_fee()
+        if not has_paid_a_reg_fee:
+            subscription_info.append(
+                LI(B(T("Registration Fee")), BR(), represent_decimal_as_amount(ssu.RegistrationFee))
+            )
+
     if ssu.Description:
         subscription_info.append(
             LI(B(T("Additional info")), BR(), ssu.Description)

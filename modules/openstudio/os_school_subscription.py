@@ -39,6 +39,7 @@ class SchoolSubscription:
         self.school_memberships_id = row.school_memberships_id
         self.Unlimited = row.Unlimited
         self.Description = row.Description
+        self.RegistrationFee = row.RegistrationFee
 
 
     def get_glaccount_on_date(self, date):
