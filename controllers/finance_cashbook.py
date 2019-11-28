@@ -760,8 +760,8 @@ def get_debit_subscriptions(date):
 
     table = TABLE(header, _class='table table-striped table-hover')
     for row in rows:
-        subscriptions_sold = row.school_subscriptions.CountSold
-        row_total = row.school_subscriptions_price.Price * subscriptions_sold
+        subscriptions_sold = row.school_subscriptions.CountSold or 0
+        row_total = (row.school_subscriptions_price.Price or 0) * subscriptions_sold
 
         table.append(TR(
             TD(max_string_length(row.school_subscriptions.Name, 40)),
