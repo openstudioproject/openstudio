@@ -150,6 +150,40 @@ class Order:
 
         return coiID
 
+    def order_item_add_subscription_registration_fee(self, school_subscriptions_id):
+        """
+            :param school_subscriptions_id: db.school_subscriptions.id
+            :return : db.customers_orders_items.id of inserted item
+        """
+        from .os_school_subscription import SchoolSubscription
+
+        db = current.db
+        T  = current.T
+        TODAY_LOCAL = current.TODAY_LOCAL
+
+        ssu = SchoolSubscription(school_subscriptions_id, set_db_info=True)
+        ssu_tax_rates = ssu.get_tax_rates_on_date(TODAY_LOCAL)
+
+        if ssu_tax_rates:
+            tax_rates_id = ssu_tax_rates.school_subscriptions_price.tax_rates_id
+        else:
+            tax_rates_id = None
+
+        coiID = db.customers_orders_items.insert(
+            customers_orders_id  = self.coID,
+            ProductName=current.T("Registration fee"),
+            Description=current.T('One time registration fee'),
+            Quantity = 1,
+            Price = ssu.RegistrationFee,
+            tax_rates_id = tax_rates_id,
+            accounting_glaccounts_id = ssu.get_glaccount_on_date(TODAY_LOCAL),
+            accounting_costcenters_id = ssu.get_costcenter_on_date(TODAY_LOCAL),
+        )
+
+        self.set_amounts()
+
+        return coiID
+
 
     def order_item_add_membership(self, school_memberships_id, startdate):
         """
@@ -686,8 +720,6 @@ class Order:
             receipt = Receipt(rID)
 
             for row in rows:
-                print('row in deliver:')
-                print(row)
                 receipt.item_add_from_order_item(row)
 
         # Update status
