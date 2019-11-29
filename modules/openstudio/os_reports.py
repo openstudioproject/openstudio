@@ -488,7 +488,17 @@ class Reports:
             TD(0),
             TD(revenue['complementary']['count']),
             TD(revenue['complementary']['count']),
-            TD(revenue['complementary']['count']),
+            TD(),
+            TD(),
+        ))
+
+        # Reconcile later
+        table_revenue.append(TR(
+            TD(T('Reconcile later')),
+            TD(revenue['reconcile_later']['count']),
+            TD(0),
+            TD(revenue['reconcile_later']['count']),
+            TD(),
             TD(),
         ))
 
