@@ -23,7 +23,8 @@ class ButtonValidate extends Component {
     render() {
         const selectedID = this.props.selectedID
         const total = this.props.total
-        const btnClass = (selectedID) && (total > 0) ? "btn-success": "btn-default"
+        const cart_items = this.props.cart_items
+        const btnClass = (selectedID) && (cart_items.length > 0) ? "btn-success": "btn-default"
 
         console.log(!(selectedID))
         console.log(total > 0)
@@ -31,7 +32,7 @@ class ButtonValidate extends Component {
 
         return (
             <button className={ "pull-right btn " + btnClass }
-                    disabled={ (!(selectedID) || (total <= 0)) }
+                    disabled={ (!(selectedID) || (cart_items.length <= 0)) }
                     onClick={this.props.onClick}>
                 Validate { " " }
                 <i className="fa fa-angle-double-right"></i>

@@ -12,6 +12,7 @@ const mapStateToProps = state =>
     ({
         app: state.app,
         total: state.shop.cart.total,
+        items: state.shop.cart.items,
         selected_method: state.shop.payment.selectedID
     })
 
