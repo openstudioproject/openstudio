@@ -604,7 +604,7 @@ def get_debit_classes(date, list_type='balance'):
     revenue = reports.get_classes_revenue_summary_day(session.finance_cashbook_date)
 
     if list_type == 'balance':
-        total = revenue['revenue_total']
+        total = revenue['balance']
         box_title = T("Class balance")
     elif list_type == 'teacher_payments':
         total = revenue['teacher_payments']
