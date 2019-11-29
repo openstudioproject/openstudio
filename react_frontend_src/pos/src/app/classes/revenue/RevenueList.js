@@ -91,6 +91,16 @@ const RevenueList = ({revenue, teacher_payment, intl, currency_symbol}) =>
                         <td>{currency_symbol} { ' ' } {parseFloat(revenue.complementary.amount)}</td>
                         <td>{currency_symbol} { ' ' } {(0)}</td>
                     </tr>
+                    {/* Reconcile later */}
+                    <tr>
+                        <td>{intl.formatMessage({ id:"app.pos.classes.revenue.list.reconcile_later" })}</td>
+                        <td>{revenue.reconcile_later.count}</td>
+                        <td>0</td>
+                        <td>{revenue.reconcile_later.count}</td>
+                        <td>{currency_symbol} { ' ' } {parseFloat(revenue.reconcile_later.amount)}</td>
+                        <td>{currency_symbol} { ' ' } {(0)}</td>
+                        
+                    </tr>
                            
                 </tbody>
                 <tfoot>
