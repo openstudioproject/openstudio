@@ -59,7 +59,7 @@ def get_debit(date):
 
     # Cash count opening balance
     count_opening = cash_count_get(date, 'opening')
-    total += count_opening['total']
+    total += count_opening['total'] or 0
 
     # Additional items
     # additional_items = additional_items_get(date, 'debit')
@@ -67,31 +67,31 @@ def get_debit(date):
 
     # Class balance (total revenue - teacher payments)
     classes_balance = get_debit_classes(date, 'balance')
-    total += classes_balance['total']
+    total += classes_balance['total'] or 0
 
     # Sold memberships
     sold_memberships = get_debit_memberships(date)
-    total += sold_memberships['total']
+    total += sold_memberships['total'] or 0
 
     # Sold subscriptions
     sold_subscriptions = get_debit_subscriptions(date)
-    total += sold_subscriptions['total']
+    total += sold_subscriptions['total'] or 0
 
     # Sold cards
     sold_cards = get_debit_classcards(date)
-    total += sold_cards['total']
+    total += sold_cards['total'] or 0
 
     # Sold products
     sold_products = get_debit_sales_summary(date)
-    total += Decimal(sold_products['total'])
+    total += Decimal(sold_products['total'] or 0)
 
     # Sold custom products
     sold_custom_products = get_debit_sales_summary_custom(date)
-    total += Decimal(sold_custom_products['total'])
+    total += Decimal(sold_custom_products['total'] or 0)
 
     # Class teacher payments
     teacher_payments = get_debit_classes(date, 'teacher_payments')
-    total += teacher_payments['total']
+    total += teacher_payments['total'] or 0
 
 
     column = DIV(
