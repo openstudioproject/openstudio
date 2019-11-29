@@ -208,6 +208,9 @@ def get_class_attendance():
     ah = AttendanceHelper()
     attendance = ah.get_attendance_rows(clsID, date).as_list()
 
+    for row in attendance:
+        row['auth_user']['thumbsmall'] = get_customers_thumbnail_url(row['auth_user']['thumbsmall'])
+
     return dict(attendance=attendance)
 
 

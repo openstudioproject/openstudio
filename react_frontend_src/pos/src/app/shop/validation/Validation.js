@@ -79,7 +79,6 @@ class Validation extends Component {
         this.props.clearSelectedCustomer()
         //TODO: Add clear functions for cart error & error message, if any.
         this.props.history.push('/shop/products')
-
     }
     
     render() {
