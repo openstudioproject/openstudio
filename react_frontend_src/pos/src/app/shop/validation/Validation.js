@@ -40,44 +40,46 @@ class Validation extends Component {
     onClickNextOrder() {
         console.log('next order clicked')
 
-        const cartItems = this.props.cart.items
-        let cartHasClasscard = false
-        let cartHasMembership = false
-        let cartHasSubscription = false
-        let cartHasClassReconcileLater = false
-        var i
-        for (i = 0; i < cartItems.length; i++) {
-            console.log(cartItems[i])
-            switch (cartItems[i].item_type) {
-                case "classcard":
-                    cartHasClasscard = true
-                    break
-                case "subscription":
-                    cartHasSubscription = true
-                    break
-                case "membership":
-                    cartHasMembership = true
-                    break
-                case "class_reconcile_later":
-                    cartHasClassReconcileLater = true
-            }
-        } 
+        // DO THIS IN APP/DUCK/OPERATIONS (It's a better place :) )
 
-        if ( (cartHasClasscard) || (cartHasSubscription) || (cartHasMembership) || (cartHasClassReconcileLater) ){
-            this.props.fetchCustomersSchoolInfo(this.props.selected_customerID)
-        }
-        // if (cartHasSubscription) {
-        //     this.props.fetchCustomersSubscriptions()
-        // }
-        // if (cartHasSubscription) {
-        //     this.props.fetchCustomersMemberships()
-        //     this.props.fetchCustomersMembershipsToday()
-        // }
+        // const cartItems = this.props.cart.items
+        // let cartHasClasscard = false
+        // let cartHasMembership = false
+        // let cartHasSubscription = false
+        // let cartHasClassReconcileLater = false
+        // var i
+        // for (i = 0; i < cartItems.length; i++) {
+        //     console.log(cartItems[i])
+        //     switch (cartItems[i].item_type) {
+        //         case "classcard":
+        //             cartHasClasscard = true
+        //             break
+        //         case "subscription":
+        //             cartHasSubscription = true
+        //             break
+        //         case "membership":
+        //             cartHasMembership = true
+        //             break
+        //         case "class_reconcile_later":
+        //             cartHasClassReconcileLater = true
+        //     }
+        // } 
 
-        this.props.clearSelectedPaymentMethod()
-        this.props.clearCartItems()
-        this.props.clearSelectedCustomer()
-        //TODO: Add clear functions for cart error & error message, if any.
+        // if ( (cartHasClasscard) || (cartHasSubscription) || (cartHasMembership) || (cartHasClassReconcileLater) ){
+        //     this.props.fetchCustomersSchoolInfo(this.props.selected_customerID)
+        // }
+        // // if (cartHasSubscription) {
+        // //     this.props.fetchCustomersSubscriptions()
+        // // }
+        // // if (cartHasSubscription) {
+        // //     this.props.fetchCustomersMemberships()
+        // //     this.props.fetchCustomersMembershipsToday()
+        // // }
+
+        // this.props.clearSelectedPaymentMethod()
+        // this.props.clearCartItems()
+        // this.props.clearSelectedCustomer()
+        
         this.props.history.push('/shop/products')
     }
     
