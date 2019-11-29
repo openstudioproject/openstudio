@@ -24,6 +24,11 @@ import {
 import axios_os from '../../utils/axios_os'
 import OS_API from '../../utils/os_api'
 
+import { shopCartOperations } from '../shop/cart/duck'
+import { customersListOperations } from '../customers/list/duck'
+import { customersSchoolInfoOperations } from '../customers/school_info/duck'
+import { shopPaymentOperations } from "../shop/payment/duck"
+
 // just pass these actions as there's nothing else they need to do
 const setError = set_error
 const setErrorMessage = set_error_message
@@ -161,6 +166,7 @@ const validateCart = (state) => {
 
     // const date = new Date()
     // const iso_date = toISODate(date)
+    console.log("validateCart state:")
     console.log(state)
     // const params = new URLSearchParams()
 
@@ -180,7 +186,50 @@ const validateCart = (state) => {
     .then(function (response) {
       // handle success
       dispatch(receiveValidateCart(response.data))
-      // dispatch(setLoadingProgress(100))
+      console.log("validate response data:")
+      console.log(response.data)
+
+      if (!response.data.error) {
+        const cartItems = state.shop.cart.items
+        let cartHasClasscard = false
+        let cartHasMembership = false
+        let cartHasSubscription = false
+        let cartHasClassReconcileLater = false
+        var i
+        for (i = 0; i < cartItems.length; i++) {
+            console.log(cartItems[i])
+            switch (cartItems[i].item_type) {
+                case "classcard":
+                    cartHasClasscard = true
+                    break
+                case "subscription":
+                    cartHasSubscription = true
+                    break
+                case "membership":
+                    cartHasMembership = true
+                    break
+                case "class_reconcile_later":
+                    cartHasClassReconcileLater = true
+            }
+        } 
+
+        if ( (cartHasClasscard) || (cartHasSubscription) || (cartHasMembership) || (cartHasClassReconcileLater) ){
+            dispatch(customersSchoolInfoOperations.fetchSchoolInfo(state.customers.list.selectedID))
+        }
+        // if (cartHasSubscription) {
+        //     this.props.fetchCustomersSubscriptions()
+        // }
+        // if (cartHasSubscription) {
+        //     this.props.fetchCustomersMemberships()
+        //     this.props.fetchCustomersMembershipsToday()
+        // }
+
+        dispatch(shopPaymentOperations.clearSelectedPaymentMethod())
+        dispatch(shopCartOperations.clearItems())
+        dispatch(customersListOperations.clearSelectedCustomerID())
+
+        //TODO: Add clear functions for cart error & error message, if any.
+      }
     })
     .catch(function (error) {
       // handle error
