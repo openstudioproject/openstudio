@@ -243,6 +243,10 @@ class Reports:
                 'count': 0,
                 'amount': 0
             },
+            'reconcile_later': {
+                'count': 0,
+                'amount': 0
+            },
             'total': {
                 'count_unpaid': 0,
                 'count_paid': 0,
@@ -341,6 +345,11 @@ class Reports:
                 # Complementary
                 data['complementary']['count'] += 1
                 data['total']['count_unpaid'] += 1
+
+            elif row.classes_attendance.AttendanceType == 6:
+                # Reconcile later
+                data['reconcile_later']['count'] += 1
+                data['total']['count_paid'] += 1
 
             data['total']['count_total'] += 1
 
