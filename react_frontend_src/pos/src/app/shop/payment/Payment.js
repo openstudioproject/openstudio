@@ -47,6 +47,7 @@ class Payment extends Component {
     render() {
         const history = this.props.history
         const total = this.props.total
+        const cart_items = this.props.items
         const selected_method = this.props.selected_method
 
         return (
@@ -54,7 +55,7 @@ class Payment extends Component {
                 <div className="row header-tools">
                     <div className="col-md-12">
                         <ButtonValidate selectedID={selected_method}
-                                        total={total}
+                                        cart_items={cart_items}
                                         onClick={this.onClickValidate.bind(this)} />
                         <ButtonBack onClick={() => history.push('/shop/products')}>
                             Cancel
