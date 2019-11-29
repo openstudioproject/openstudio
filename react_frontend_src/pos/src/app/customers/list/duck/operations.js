@@ -117,8 +117,10 @@ const createCustomer = (data) => {
         .then(function(response) {
             console.log(response)
             dispatch(receiveCreateCustomer(response.data))
+            dispatch(customersSchoolInfoOperations.clearSchoolInfo())
             let id = response.data.customer_data.id
             dispatch(customersSchoolInfoOperations.fetchSchoolInfo(id))
+            dispatch(clearNotes())
         })
         .catch(function (error) {
             console.log(error)
