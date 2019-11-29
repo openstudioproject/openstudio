@@ -1607,7 +1607,7 @@ def subscription_order():
     # Check registration fee
     if ssu.RegistrationFee:
         has_paid_a_reg_fee = customer.has_paid_a_subscription_registration_fee()
-        if not has_paid_a_reg_fee:
+        if not has_paid_a_reg_fee and not order.has_subscription_registration_fee_item():
             order.order_item_add_subscription_registration_fee(ssuID)
 
     # mail order to customer

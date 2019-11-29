@@ -171,6 +171,7 @@ class Order:
 
         coiID = db.customers_orders_items.insert(
             customers_orders_id  = self.coID,
+            SubscriptionRegistrationFee = True,
             ProductName=current.T("Registration fee"),
             Description=current.T('One time registration fee'),
             Quantity = 1,
@@ -355,6 +356,22 @@ class Order:
         self.set_amounts()
 
         return coiID
+
+
+    def has_subscription_registration_fee_item(self):
+        """
+
+        :return:
+        """
+        db = current.db
+
+        query = (db.customers_orders_items.customers_orders_id == self.coID) & \
+                (db.customers_orders_items.SubscriptionRegistrationFee == True)
+
+        if db(query).count():
+            return True
+        else:
+            return False
 
 
     def get_order_items_rows(self):
