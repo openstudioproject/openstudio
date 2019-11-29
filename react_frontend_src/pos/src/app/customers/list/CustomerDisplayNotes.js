@@ -46,6 +46,7 @@ class CustomerDisplayNotes extends Component {
         const customers = this.props.customers
         const notes = customers.notes
         const notes_loaded = customers.notes_loaded
+        const notes_loading = customers.notes_loading
 
         return (
            <div>
@@ -110,7 +111,7 @@ class CustomerDisplayNotes extends Component {
                             )}
                             </div>
                         </div> : '' 
-                : "Loading notes, please wait..."
+                : (notes_loading) ? "Loading notes, please wait..." : ""
                }
            </div>
         )

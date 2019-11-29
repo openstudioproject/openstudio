@@ -47,6 +47,8 @@ import {
 import axios_os from '../../../../utils/axios_os'
 import OS_API from '../../../../utils/os_api'
 
+import { customersSchoolInfoOperations } from '../../school_info/duck'
+
 // just pass these actions as there's nothing else they need to do
 // Put pass-through actions here
 
@@ -115,6 +117,10 @@ const createCustomer = (data) => {
         .then(function(response) {
             console.log(response)
             dispatch(receiveCreateCustomer(response.data))
+            dispatch(customersSchoolInfoOperations.clearSchoolInfo())
+            let id = response.data.customer_data.id
+            dispatch(customersSchoolInfoOperations.fetchSchoolInfo(id))
+            dispatch(clearNotes())
         })
         .catch(function (error) {
             console.log(error)

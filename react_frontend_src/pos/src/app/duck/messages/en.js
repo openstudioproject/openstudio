@@ -45,6 +45,7 @@ export const ENGLISH_TRANSLATION = {
         "app.pos.classes.revenue.list.twm": "Trial with membership",
         "app.pos.classes.revenue.list.twom": "Trial without membership",
         "app.pos.classes.revenue.list.complementary": "Complementary",
+        "app.pos.classes.revenue.list.reconcile_later": "Reconcile later",
         "app.pos.classes.revenue.loading": "Loading revenue, please wait...",
         "app.pos.classes.revenue.total.title": "Revenue Totals",
         "app.pos.classes.revenue.total.verified": "Verified",

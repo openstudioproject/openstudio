@@ -59,7 +59,7 @@ def get_debit(date):
 
     # Cash count opening balance
     count_opening = cash_count_get(date, 'opening')
-    total += count_opening['total']
+    total += count_opening['total'] or 0
 
     # Additional items
     # additional_items = additional_items_get(date, 'debit')
@@ -67,31 +67,31 @@ def get_debit(date):
 
     # Class balance (total revenue - teacher payments)
     classes_balance = get_debit_classes(date, 'balance')
-    total += classes_balance['total']
+    total += classes_balance['total'] or 0
 
     # Sold memberships
     sold_memberships = get_debit_memberships(date)
-    total += sold_memberships['total']
+    total += sold_memberships['total'] or 0
 
     # Sold subscriptions
     sold_subscriptions = get_debit_subscriptions(date)
-    total += sold_subscriptions['total']
+    total += sold_subscriptions['total'] or 0
 
     # Sold cards
     sold_cards = get_debit_classcards(date)
-    total += sold_cards['total']
+    total += sold_cards['total'] or 0
 
     # Sold products
     sold_products = get_debit_sales_summary(date)
-    total += Decimal(sold_products['total'])
+    total += Decimal(sold_products['total'] or 0)
 
     # Sold custom products
     sold_custom_products = get_debit_sales_summary_custom(date)
-    total += Decimal(sold_custom_products['total'])
+    total += Decimal(sold_custom_products['total'] or 0)
 
     # Class teacher payments
     teacher_payments = get_debit_classes(date, 'teacher_payments')
-    total += teacher_payments['total']
+    total += teacher_payments['total'] or 0
 
 
     column = DIV(
@@ -604,7 +604,7 @@ def get_debit_classes(date, list_type='balance'):
     revenue = reports.get_classes_revenue_summary_day(session.finance_cashbook_date)
 
     if list_type == 'balance':
-        total = revenue['revenue_total']
+        total = revenue['balance']
         box_title = T("Class balance")
     elif list_type == 'teacher_payments':
         total = revenue['teacher_payments']
@@ -760,8 +760,8 @@ def get_debit_subscriptions(date):
 
     table = TABLE(header, _class='table table-striped table-hover')
     for row in rows:
-        subscriptions_sold = row.school_subscriptions.CountSold
-        row_total = row.school_subscriptions_price.Price * subscriptions_sold
+        subscriptions_sold = row.school_subscriptions.CountSold or 0
+        row_total = (row.school_subscriptions_price.Price or 0) * subscriptions_sold
 
         table.append(TR(
             TD(max_string_length(row.school_subscriptions.Name, 40)),

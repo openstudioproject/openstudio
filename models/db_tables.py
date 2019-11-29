@@ -909,6 +909,7 @@ def define_accounting_cashbooks_cash_count():
             label=T("Balance type") ),
         Field('Amount', 'decimal(20,2)',
             represent=represent_decimal_as_amount,
+            requires=IS_NOT_EMPTY(),
             default=0,
             label=T("Amount")),
         Field('Note', 'text',
