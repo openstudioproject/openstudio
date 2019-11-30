@@ -507,9 +507,11 @@ def order_pay():
             if 'The customer id is invalid' in str(e):
                 create_mollie_customer(auth.user.id, mollie)
                 os_customer = Customer(auth.user.id)  # refresh
+                mollie_customer_id = os_customer.row.mollie_customer_id
     else:
         create_mollie_customer(auth.user.id, mollie)
         os_customer = Customer(auth.user.id)  # refresh
+        mollie_customer_id = os_customer.row.mollie_customer_id
 
     contains_subscription = order.contains_subscription()
     recurring_type = None
