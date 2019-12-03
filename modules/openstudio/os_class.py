@@ -537,7 +537,6 @@ class Class:
 
         rows = db(query).select(
             db.classes_attendance.id,
-            db.classes_attendance.AttendanceType,
             db.school_subscriptions.id,
             left=left
         )
