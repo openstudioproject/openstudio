@@ -530,12 +530,14 @@ class Class:
         query = (db.classes_attendance.classes_id == self.clsID) & \
                 (db.classes_attendance.ClassDate == self.date) & \
                 (db.classes_attendance.BookingStatus != 'cancelled') & \
-                (db.classes_attendance.AttendanceType != '6') & \
+                ((db.classes_attendance.AttendanceType.belongs([1, 2, 3, 6])) |
+                 (db.classes_attendance.AttendanceType == None)) & \
                 ((db.school_subscriptions.StaffSubscription == False) |
                  (db.school_subscriptions.StaffSubscription == None))
 
         rows = db(query).select(
             db.classes_attendance.id,
+            db.classes_attendance.AttendanceType,
             db.school_subscriptions.id,
             left=left
         )
