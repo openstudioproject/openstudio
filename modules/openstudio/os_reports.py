@@ -324,7 +324,11 @@ class Reports:
                 # Class card
                 name = row.school_classcards.Name
                 if not row.school_classcards.Unlimited:
-                    amount = row.school_classcards.Price / row.school_classcards.Classes
+                    import decimal
+                    try:
+                        amount = row.school_classcards.Price / row.school_classcards.Classes
+                    except decimal.DivisionByZero:
+                        amount = 0
                 else:
                     amount = row.school_classcards.QuickStatsAmount
                 if data['classcards'].get(name, False):

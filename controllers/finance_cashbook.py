@@ -995,7 +995,11 @@ def get_credit_classcards_used_classes_summary(date):
     for row in rows:
         classes_taken = row[count]
         if not row.school_classcards.Unlimited:
-            class_price = row.school_classcards.Price / row.school_classcards.Classes
+            import decimal
+            try:
+                class_price = row.school_classcards.Price / row.school_classcards.Classes
+            except decimal.DivisionByZero:
+                class_price = 0
         else:
             class_price = row.school_classcards.QuickStatsAmount or 0
         row_total = class_price * classes_taken
