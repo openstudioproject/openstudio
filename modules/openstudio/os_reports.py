@@ -330,7 +330,7 @@ class Reports:
                     except decimal.DivisionByZero:
                         amount = 0
                 else:
-                    amount = row.school_classcards.QuickStatsAmount
+                    amount = row.school_classcards.QuickStatsAmount or 0
                 if data['classcards'].get(name, False):
                     data['classcards'][name]['count'] += 1
                     data['classcards'][name]['total'] = \
