@@ -278,7 +278,7 @@ class Order:
         return coiID
 
 
-    def order_item_add_class(self, clsID, class_date, attendance_type):
+    def order_item_add_class(self, clsID, class_date, attendance_type, force_membership_price=False):
         """
             :param workshops_products_id: db.workshops_products.id
             :return: db.customers_orders_items.id of inserted item
@@ -291,7 +291,8 @@ class Order:
         T  = current.T
 
         cls = Class(clsID, class_date)
-        prices = cls.get_prices_customer(self.order.auth_customer_id)
+        prices = cls.get_prices_customer(self.order.auth_customer_id, force_membership_price)
+
         if attendance_type == 1:
             price = prices['trial']
             tax_rates_id = prices['trial_tax_rates_id']

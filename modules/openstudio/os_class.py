@@ -166,9 +166,9 @@ class Class:
         return dict(
             trial  = trial,
             dropin = dropin,
-            trial_tax_rates_id   = trial_tax_rates_id,
-            dropin_tax_rates_id   = dropin_tax_rates_id,
-            trial_tax_percentage  = trial_tax_percentage,
+            trial_tax_rates_id = trial_tax_rates_id,
+            dropin_tax_rates_id = dropin_tax_rates_id,
+            trial_tax_percentage = trial_tax_percentage,
             dropin_tax_percentage = dropin_tax_percentage,
             trial_membership = trial_membership,
             dropin_membership = dropin_membership,
@@ -184,7 +184,7 @@ class Class:
         )
 
 
-    def get_prices_customer(self, cuID):
+    def get_prices_customer(self, cuID, force_membership_price=False):
         """
             Returns the price for a class
             :param cuID: db.auth_user.id
@@ -194,68 +194,54 @@ class Class:
 
         db = current.db
         customer = Customer(cuID)
-        has_membership = customer.has_membership_on_date(self.date)
 
-        dropin = 0
-        trial = 0
-        trial_tax_rates_id = None
-        dropin_tax_rates_id = None
-        trial_tax_percentage = None
-        dropin_tax_percentage = None
-        dropin_glaccount = None
-        trial_glaccount = None
-        dropin_costcenter = None
-        trial_costcenter = None
+        prices = self.get_prices()
+        has_membership = False
+        if prices['school_memberships_id']:
+            has_membership = customer.has_given_membership_on_date(
+                prices['school_memberships_id'],
+                self.date
+            )
 
+        trial = prices['trial']
+        trial_tax = db.tax_rates(prices['trial_tax_rates_id'])
+        dropin = prices['dropin']
+        dropin_tax = db.tax_rates(prices['dropin_tax_rates_id'])
+        dropin_tax_rates_id = prices['dropin_tax_rates_id']
+        dropin_tax_percentage = prices['dropin_tax_percentage']
+        trial_tax_rates_id = prices['trial_tax_rates_id']
+        trial_tax_percentage = prices['trial_tax_percentage']
+        dropin_glaccount = prices['dropin_glaccount']
+        trial_glaccount = prices['trial_glaccount']
+        dropin_costcenter = prices['dropin_costcenter']
+        trial_costcenter = prices['trial_costcenter']
 
-        query = (db.classes_price.classes_id == self.clsID) & \
-                (db.classes_price.Startdate <= self.date) & \
-                ((db.classes_price.Enddate >= self.date) |
-                 (db.classes_price.Enddate == None))
-        prices = db(query).select(db.classes_price.ALL,
-                                  orderby=db.classes_price.Startdate)
+        if prices['dropin_membership'] and (has_membership or force_membership_price):
+            dropin = prices['dropin_membership']
+            dropin_tax = db.tax_rates(prices['dropin_tax_rates_id_membership'])
+            
+        if prices['trial_membership'] and (has_membership or force_membership_price):
+            trial = prices['trial_membership']
+            trial_tax = db.tax_rates(prices['trial_tax_rates_id_membership'])
 
-        if prices:
-            prices = prices.first()
+        try:
+            dropin_tax_rates_id = dropin_tax.id
+            dropin_tax_percentage = dropin_tax.Percentage
+        except AttributeError:
+            pass
 
-            dropin_glaccount = prices.accounting_glaccounts_id_dropin
-            trial_glaccount = prices.accounting_glaccounts_id_trial
-            dropin_costcenter = prices.accounting_costcenters_id_dropin
-            trial_costcenter = prices.accounting_costcenters_id_trial
-
-            dropin = prices.Dropin or 0
-            trial = prices.Trial or 0
-
-            dropin_tax = db.tax_rates(prices.tax_rates_id_dropin)
-            trial_tax = db.tax_rates(prices.tax_rates_id_trial)
-
-            if has_membership and prices.DropinMembership:
-                dropin = prices.DropinMembership
-                dropin_tax = db.tax_rates(prices.tax_rates_id_dropin_membership)
-
-            if has_membership and prices.TrialMembership:
-                trial = prices.TrialMembership
-                trial_tax = db.tax_rates(prices.tax_rates_id_trial_membership)
-
-            try:
-                dropin_tax_rates_id = dropin_tax.id
-                dropin_tax_percentage = dropin_tax.Percentage
-            except AttributeError:
-                pass
-
-            try:
-                trial_tax_rates_id = trial_tax.id
-                trial_tax_percentage = trial_tax.Percentage
-            except AttributeError:
-                pass
-
+        try:
+            trial_tax_rates_id = trial_tax.id
+            trial_tax_percentage = trial_tax.Percentage
+        except AttributeError:
+            pass
 
         return dict(
-            trial  = trial,
+            trial = trial,
             dropin = dropin,
-            trial_tax_rates_id   = trial_tax_rates_id,
-            dropin_tax_rates_id   = dropin_tax_rates_id,
-            trial_tax_percentage  = trial_tax_percentage,
+            trial_tax_rates_id = trial_tax_rates_id,
+            dropin_tax_rates_id = dropin_tax_rates_id,
+            trial_tax_percentage = trial_tax_percentage,
             dropin_tax_percentage = dropin_tax_percentage,
             dropin_glaccount = dropin_glaccount,
             dropin_costcenter = dropin_costcenter,

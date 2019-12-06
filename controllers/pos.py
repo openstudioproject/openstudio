@@ -1761,10 +1761,15 @@ def validate_cart_create_order(cuID, pmID, items):
                 2 # Attendance Type 2 = drop-in
             )
         elif item['item_type'] == 'class_dropin':
+            force_membership_price = False
+            if item['with_membership']:
+                force_membership_price = True
+
             order.order_item_add_class(
                 item['data']['clsID'],
                 TODAY_LOCAL,
-                2 # Attendance Type 2 = drop-in
+                2, # Attendance Type 2 = drop-in
+                force_membership_price = force_membership_price
             )
         elif item['item_type'] == 'class_trial':
             order.order_item_add_class(

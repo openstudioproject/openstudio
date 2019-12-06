@@ -202,6 +202,7 @@ class Book extends Component {
                         id: v4(),
                         item_type: 'class_dropin',
                         quantity: 1,
+                        with_membership: true,
                         data: option
                      }
              
