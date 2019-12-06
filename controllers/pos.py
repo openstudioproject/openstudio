@@ -1762,7 +1762,7 @@ def validate_cart_create_order(cuID, pmID, items):
             )
         elif item['item_type'] == 'class_dropin':
             force_membership_price = False
-            if item['with_membership']:
+            if item.get('with_membership', False):
                 force_membership_price = True
 
             order.order_item_add_class(
