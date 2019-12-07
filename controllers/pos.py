@@ -910,7 +910,7 @@ def get_customer_memberships():
 
     cuID = request.vars['id']
 
-    date_from = TODAY_LOCAL - datetime.timedelta(days=3660)
+    date_from = TODAY_LOCAL - datetime.timedelta(days=7400)
 
     query = (db.customers_memberships.Startdate >= date_from) & \
             (db.customers_memberships.auth_customer_id == cuID)
@@ -1761,10 +1761,15 @@ def validate_cart_create_order(cuID, pmID, items):
                 2 # Attendance Type 2 = drop-in
             )
         elif item['item_type'] == 'class_dropin':
+            force_membership_price = False
+            if item.get('with_membership', False):
+                force_membership_price = True
+
             order.order_item_add_class(
                 item['data']['clsID'],
                 TODAY_LOCAL,
-                2 # Attendance Type 2 = drop-in
+                2, # Attendance Type 2 = drop-in
+                force_membership_price = force_membership_price
             )
         elif item['item_type'] == 'class_trial':
             order.order_item_add_class(
