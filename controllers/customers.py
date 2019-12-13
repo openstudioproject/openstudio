@@ -6896,8 +6896,14 @@ def barcode_label():
         Preview barcode label
     """
     from openstudio.os_customer import Customer
+    from openstudio.os_cache_manager import OsCacheManager
 
     cuID = request.vars['cuID']
     customer = Customer(cuID)
+    barcode_label = customer.get_barcode_label()
 
-    return customer.get_barcode_label()
+    # Clear PoS barcode label cache
+    ocm = OsCacheManager()
+    ocm.clear_customers()
+
+    return barcode_label

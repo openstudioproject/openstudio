@@ -1215,11 +1215,14 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         """
         Set barcode id field for customer
         """
+        from .os_cache_manager import OsCacheManager
+
         if self.row.barcode_id is None or self.row.barcode_id == '':
             self.row.barcode_id = str(self.cuID).zfill(14)
+            self.row.update_record()
 
-        self.row.update_record()
-
+            ocm = OsCacheManager()
+            ocm.clear_customers()
 
     def set_barcode(self):
         """
