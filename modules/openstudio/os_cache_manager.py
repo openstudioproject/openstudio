@@ -14,9 +14,10 @@ class OsCacheManager:
         cache.disk.clear()
 
 
-    def clear_customers(self):
+    def clear_customers(self, var_one=None, var_two=None):
         """
-
+        Clear PoS customers cache
+        Takes 2 dummy arguments in case it's called from a CRUD form or from SQLFORM.grid
         :return:
         """
         cache = current.cache

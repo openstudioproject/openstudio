@@ -151,11 +151,15 @@ if web2pytest.is_running_under_test(request, request.application):
 # Log failed login attempts
 from openstudio_sec.oss_auth_user_login_attempts import OSSAULA
 ossaula = OSSAULA()
+# Clear PoS customers cache after a user registers
+from openstudio.os_cache_manager import OsCacheManager
+ocm = OsCacheManager()
 
 
 auth.settings.login_onfail.append(ossaula.update_login_attempts)
 auth.settings.login_onvalidation = [ossaula.login_check_lockout]
 auth.settings.login_onaccept = [ossaula.login_reset_failed_attempts]
+auth.settings.register_onaccept = [ocm.clear_customers]
 auth.settings.create_user_groups = None # Don't create groups for individual users
 auth.settings.expiration = configuration.get('auth.session_expiration') or 1800
 auth.settings.registration_requires_verification = True

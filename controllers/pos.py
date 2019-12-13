@@ -1286,7 +1286,6 @@ def create_customer():
 
     ocm = OsCacheManager()
 
-
     db.auth_user.password.requires = None
     print(request.vars)
 
