@@ -60,7 +60,11 @@ class Customers extends Component {
 
             this.props.setDisplayCustomerID(cuID)
             this.props.setSearchCustomerID(cuID)
-
+            this.props.clearNotes()
+            this.props.fetchNotes(cuID)
+            this.props.clearCustomerSchoolInfo()
+            this.props.fetchCustomerSchoolInfo(cuID)
+            
             console.log('customerID')
             console.log(cuID)
 

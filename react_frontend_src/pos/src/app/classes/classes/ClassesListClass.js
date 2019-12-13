@@ -26,6 +26,15 @@ const DisplayHoliday = ({holiday, description}) => {
 }
 
 
+const DisplaySub = ({Subteacher}) => {
+    if (Subteacher) {
+        return "(sub)"
+    } else {
+        return ""
+    }
+}
+
+
 function ClassesListClassOnClick(history, data, customerID) {
     if (data.Cancelled || data.Holliday) {
         return () => { console.log('this class is cancelled or in a holiday')}
@@ -66,7 +75,7 @@ const ClassesListClass = withRouter(({data, customerID, history}) =>
                 {data.ClassType}
             </div>
             <div className="col-md-3">
-                {data.Teacher} { (data.Teacher2) ? ' & ' + data.Teacher2 : ''}
+                {data.Teacher} {DisplaySub({Subteacher: data.Subteacher})} { (data.Teacher2) ? ' & ' + data.Teacher2 : ''}
             </div>
             <div className="col-md-2">
                 {data.Level}
