@@ -65,7 +65,6 @@ class Customers extends Component {
             this.props.clearCustomerSchoolInfo()
             this.props.fetchCustomerSchoolInfo(cuID)
             
-
             console.log('customerID')
             console.log(cuID)
 
