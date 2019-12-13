@@ -4,6 +4,7 @@ import PropTypes from "prop-types"
 import { NavLink } from 'react-router-dom'
 import validator from 'validator'
 import { v4 } from 'uuid'
+import { toast } from 'react-toastify'
 
 import PageTemplate from "../../../components/PageTemplate"
 import InputGroupSearch from "../../../components/ui/InputGroupSearch"
@@ -55,15 +56,21 @@ class Customers extends Component {
                 // console.log(c)
                 if ( c['barcode_id'] == value) {
                     cuID = c['id']
-                }
+                } 
             }
 
-            this.props.setDisplayCustomerID(cuID)
-            this.props.setSearchCustomerID(cuID)
-            this.props.clearNotes()
-            this.props.fetchNotes(cuID)
-            this.props.clearCustomerSchoolInfo()
-            this.props.fetchCustomerSchoolInfo(cuID)
+            if (cuID) {
+                this.props.setDisplayCustomerID(cuID)
+                this.props.setSearchCustomerID(cuID)
+                this.props.clearNotes()
+                this.props.fetchNotes(cuID)
+                this.props.clearCustomerSchoolInfo()
+                this.props.fetchCustomerSchoolInfo(cuID)
+            } else {
+                toast.info("Unknown barcode...", {
+                    position: toast.POSITION.BOTTOM_RIGHT
+                  })
+            }
             
             console.log('customerID')
             console.log(cuID)
@@ -89,7 +96,7 @@ class Customers extends Component {
         let timeout
         this.props.setSearchTimeout(
             setTimeout(() => this.setSearchValue(value), 
-                (validator.isInt(value)) ? timeout = 225 : timeout = 750)
+                (validator.isInt(value)) ? timeout = 500 : timeout = 750)
         )
     }
 

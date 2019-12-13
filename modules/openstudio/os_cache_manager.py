@@ -21,10 +21,10 @@ class OsCacheManager:
         :return:
         """
         cache = current.cache
-
-        # Pos
-        key = "openstudio_pos_get_customers"
+        # PoS
+        key = ".*openstudio_pos_get_customers"
         cache.ram.clear(regex=key)
+        cache.disk.clear(regex=key)
 
 
     def clear_auth_user_login_attempts(self, email):
