@@ -634,13 +634,17 @@ def get_debit_classes(date, list_type='balance'):
         if not 'teacher' in teachers:
             teacher = T("Teacher not found")
         else:
-            teacher = teachers['teacher'].display_name
+            sub = T(" (sub)") if teachers['teacher_sub'] else ""
+            teacher = teachers['teacher'].display_name + sub
 
         tr = TR(
             TD(cls['Starttime']),
             TD(max_string_length(cls['Location'], 18)),
             TD(max_string_length(cls['ClassType'], 18), BR(),
-               SPAN(max_string_length(teacher, 18), _class="text-muted")),
+               SPAN(max_string_length(teacher, 28),
+                    _class="text-muted text_small"),
+                    _title=teacher
+               ),
             TD(cls['CountAttendance']),
             TD(amount)
         )

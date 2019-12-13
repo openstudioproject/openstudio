@@ -549,6 +549,9 @@ class Class:
                   (db.classes_teachers.Enddate == None)))
         rows = db(query).select(db.classes_teachers.ALL)
 
+        teacher_sub = False
+        teacher2_sub = False
+
         try:
             teachers = rows.first()
 
@@ -561,11 +564,13 @@ class Class:
             if cotc:
                 if cotc.auth_teacher_id:
                     teacher = db.auth_user(cotc.auth_teacher_id)
+                    teacher_sub = True
 
             teacher2 = teacher2 = db.auth_user(teachers.auth_teacher_id2)
             if cotc:
                 if cotc.auth_teacher_id2:
                     teacher2 = db.auth_user(cotc.auth_teacher_id2)
+                    teacher2_sub = True
 
         except AttributeError:
             # No teacher(s) found for this date
@@ -576,7 +581,9 @@ class Class:
             error = error,
             message = message,
             teacher = teacher,
-            teacher2 = teacher2
+            teacher_sub = teacher_sub,
+            teacher2 = teacher2,
+            teacher2_sub = teacher2_sub
         )
 
 
