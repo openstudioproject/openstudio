@@ -767,7 +767,7 @@ class Reports:
         return rows
 
 
-    def subscriptions_sold_summary_rows(self, date_from, date_until):
+    def subscriptions_sold_on_date_summary_rows(self, date):
         """
         List school subscriptions sold, grouped by subscription
 
@@ -780,27 +780,24 @@ class Reports:
         fields = [
             db.school_subscriptions.id,
             db.school_subscriptions.Name,
-            db.school_subscriptions_price.Price,
+            db.invoices_items.TotalPriceVAT,
             db.school_subscriptions.CountSold
         ]
 
         sql = '''
             SELECT ssu.id,
                    ssu.Name,
-                   ssup.Price,
+                   ii.TotalPriceVAT,
                    COUNT(ssu.id)
-            FROM customers_subscriptions cs
+            FROM invoices_items ii
+            LEFT JOIN invoices i ON ii.invoices_id = i.id
+            LEFT JOIN invoices_items_customers_subscriptions iics ON iics.invoices_items_id = ii.id
+            LEFT JOIN customers_subscriptions cs ON iics.customers_subscriptions_id = cs.id
             LEFT JOIN school_subscriptions ssu ON cs.school_subscriptions_id = ssu.id
-            LEFT JOIN (
-                SELECT id,
-                       school_subscriptions_id,
-                       Price
-                FROM school_subscriptions_price
-                WHERE Startdate <= '{date_from}' AND (Enddate >= '{date_until}' OR Enddate IS NULL)) ssup
-                ON ssup.school_subscriptions_id = ssu.id
-            WHERE cs.StartDate >= '{date_from}' AND cs.StartDate <= '{date_until}'
-            GROUP BY ssu.id, ssup.Price
-        '''.format(date_from=date_from, date_until=date_until)
+            WHERE i.DateCreated = "{date}" 
+                AND iics.id IS NOT NULL
+            GROUP BY ssu.id, ii.TotalPriceVAT
+        '''.format(date=date)
 
         rows = db.executesql(sql, fields=fields)
 
