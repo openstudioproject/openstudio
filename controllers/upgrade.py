@@ -58,6 +58,10 @@ def index():
             print(version)
             upgrade_to_201913()
             session.flash = T("Upgraded db to 2019.13")
+        if version < 2019.14:
+            print(version)
+            upgrade_to_201914()
+            session.flash = T("Upgraded db to 2019.14")
         else:
             session.flash = T('Already up to date')
 
@@ -382,3 +386,19 @@ def upgrade_to_201913():
     db(query).update(
         WalkInSpaces = 3
     )
+
+
+def upgrade_to_201914():
+    """
+        Upgrade operations to 2019.14
+    """
+    ## Set length for all barcode_id fields in auth_user to 14 (when they have a value)
+    query = (db.auth_user.barcode_id != None) & \
+            (db.auth_user.barcode_id != "")
+
+    rows = db(query).select(db.auth_user.ALL)
+    for row in rows:
+        if len(row.barcode_id) > 13:
+            row.barcode_id = row.barcode_id[1:]
+        row.barcode = None
+        row.update_record()

@@ -1218,11 +1218,12 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
         from .os_cache_manager import OsCacheManager
 
         if self.row.barcode_id is None or self.row.barcode_id == '':
-            self.row.barcode_id = str(self.cuID).zfill(14)
+            self.row.barcode_id = str(self.cuID).zfill(13)
             self.row.update_record()
 
             ocm = OsCacheManager()
             ocm.clear_customers()
+
 
     def set_barcode(self):
         """
@@ -1237,7 +1238,7 @@ ORDER BY cs.Startdate""".format(cuID=self.cuID, date=date)
 
         CODE39 = barcode.get_barcode_class('code39')
         code39_barcode = CODE39(
-            str(self.row.barcode_id).zfill(14),
+            str(self.row.barcode_id).zfill(13),
             writer=ImageWriter(),
             add_checksum=False
         )
