@@ -29,6 +29,15 @@ h1, h2, h3, h4 {
     font-size: 90%;
 }
 
+div.header {
+    text-align: center;
+}
+
+img.logo {
+    max-height: 230px;
+    max-width: 300px;
+}
+
 .btn-default {
     text-shadow: none;
 }

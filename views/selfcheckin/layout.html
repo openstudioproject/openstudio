@@ -73,8 +73,10 @@
                                          'logos',
                                          'branding_logo_selfcheckin.png')
             if os.path.isfile(branding_logo):
-                logo_img = IMG(_src=URL('static',
-                               'plugin_os-branding/logos/branding_logo_selfcheckin.png'))
+                logo_img = IMG(
+                    _class="logo",
+                    _src=URL('static',
+                    'plugin_os-branding/logos/branding_logo_selfcheckin.png'))
             else:
                 logo_img = ''
         }}{{pass}}
