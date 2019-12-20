@@ -753,7 +753,7 @@ def get_debit_subscriptions(date):
     reports = Reports()
 
     total = 0
-    rows = reports.subscriptions_sold_summary_rows(date, date)
+    rows = reports.subscriptions_sold_on_date_summary_rows(date)
 
     header = THEAD(TR(
         TH(T("Subscription")),
@@ -765,12 +765,12 @@ def get_debit_subscriptions(date):
     table = TABLE(header, _class='table table-striped table-hover')
     for row in rows:
         subscriptions_sold = row.school_subscriptions.CountSold or 0
-        row_total = (row.school_subscriptions_price.Price or 0) * subscriptions_sold
+        row_total = (row.invoices_items.TotalPriceVAT or 0) * subscriptions_sold
 
         table.append(TR(
             TD(max_string_length(row.school_subscriptions.Name, 40)),
             TD(subscriptions_sold),
-            TD(represent_decimal_as_amount(row.school_subscriptions_price.Price)),
+            TD(represent_decimal_as_amount(row.invoices_items.TotalPriceVAT)),
             TD(represent_decimal_as_amount(row_total))
         ))
 
