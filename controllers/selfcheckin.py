@@ -198,6 +198,7 @@ def checkin():
 
     return dict(content = content)
 
+
 @auth.requires(auth.has_membership(group_id='Admins') or \
                auth.has_permission('update', 'classes_attendance'))
 def checkin_booking_options():

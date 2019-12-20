@@ -1023,7 +1023,7 @@ def payment_attendance_list_rates():
                      auth.has_permission('update', 'teachers_payment_attendance_list_rates')
         if permission:
             btn_edit = os_gui.get_button('edit_notext',
-                                         URL('payment_attendance_lists_rate_edit',
+                                         URL('payment_attendance_list_rate_edit',
                                              vars=btn_vars),
                                          cid=request.cid)
             buttons.append(btn_edit)
