@@ -801,8 +801,6 @@ class Reports:
 
         rows = db.executesql(sql, fields=fields)
 
-        print(rows)
-
         return rows
 
 
