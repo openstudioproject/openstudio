@@ -935,6 +935,7 @@ def get_debit_sales_summary_custom(date):
 
     header = THEAD(TR(
         TH(T("Item")),
+        TH(T("Description")),
         TH(T("Total")),
     ))
 
@@ -942,6 +943,8 @@ def get_debit_sales_summary_custom(date):
     for row in rows:
         table.append(TR(
             TD(row.ProductName),
+            TD(max_string_length(row.Description, 40),
+               _title=row.Description),
             TD(represent_decimal_as_amount(row.TotalPriceVAT)),
         ))
 
@@ -950,6 +953,7 @@ def get_debit_sales_summary_custom(date):
     # cards sold footer
     table.append(TFOOT(TR(
         TH(T("Total")),
+        TH(),
         TH(represent_decimal_as_amount(total))
     )))
 
