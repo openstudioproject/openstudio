@@ -12,7 +12,10 @@ def index():
 
     session.finance_expenses_add_edit_back = 'finance_cashbook_index'
 
-    if session.finance_cashbook_date:
+    if 'jump_date' in request.vars:
+        # Set date
+        redirect(URL('set_date', vars={ "date": request.vars['jump_date'] }))
+    elif session.finance_cashbook_date:
         date = session.finance_cashbook_date
     else:
         date = TODAY_LOCAL
@@ -40,6 +43,7 @@ def index():
     )
 
     header_tools = DIV(
+        index_get_form_jump(),
         get_day_chooser(date)
     )
 
@@ -47,6 +51,38 @@ def index():
         content=content,
         header_tools=header_tools
     )
+
+
+def index_get_form_jump():
+    """
+        Returns a form to jump to a date
+    """
+    jump_date = session.finance_cashbook_date
+    form_jump = SQLFORM.factory(
+                Field('jump_date', 'date',
+                      requires=IS_DATE_IN_RANGE(
+                                format=DATE_FORMAT,
+                                minimum=datetime.date(1900,1,1),
+                                maximum=datetime.date(2999,1,1)),
+                      default=jump_date,
+                      label=T(""),
+                      widget=os_datepicker_widget_small),
+                submit_button=T('Go'),
+                )
+
+    submit_jump = form_jump.element('input[type=submit]')
+    submit_jump['_class'] = 'full-width'
+
+    form_jump = DIV(form_jump.custom.begin,
+                    DIV(form_jump.custom.widget.jump_date,
+                        DIV(form_jump.custom.submit,
+                            _class='input-group-btn'),
+                        _class='input-group'),
+                    form_jump.custom.end,
+                    _class='form_inline',
+                    _id='cashbook_form_jump_date')
+
+    return form_jump
 
 
 def get_debit(date):
@@ -935,6 +971,7 @@ def get_debit_sales_summary_custom(date):
 
     header = THEAD(TR(
         TH(T("Item")),
+        TH(T("Description")),
         TH(T("Total")),
     ))
 
@@ -942,6 +979,8 @@ def get_debit_sales_summary_custom(date):
     for row in rows:
         table.append(TR(
             TD(row.ProductName),
+            TD(max_string_length(row.Description, 40),
+               _title=row.Description),
             TD(represent_decimal_as_amount(row.TotalPriceVAT)),
         ))
 
@@ -950,6 +989,7 @@ def get_debit_sales_summary_custom(date):
     # cards sold footer
     table.append(TFOOT(TR(
         TH(T("Total")),
+        TH(),
         TH(represent_decimal_as_amount(total))
     )))
 

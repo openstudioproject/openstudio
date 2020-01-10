@@ -720,7 +720,7 @@ class Class:
 
             elif tprt == 'attendance':
                 # Get list for class type
-                print("attendance")
+                # print("attendance")
                 attendance_count_paying_customers = self.get_attendance_count_paying_customers()
                 cltID = self.cls.school_classtypes_id
                 tpalst = db.teachers_payment_attendance_lists_school_classtypes(
@@ -728,7 +728,7 @@ class Class:
                 )
 
                 if tpalst:
-                    print("list found")
+                    # print("list found")
                     list_id = tpalst.teachers_payment_attendance_lists_id
                     list = db.teachers_payment_attendance_lists(1)
                     tax_rates_id = list.tax_rates_id
@@ -738,7 +738,7 @@ class Class:
 
                     row = db(query).select(db.teachers_payment_attendance_lists_rates.Rate)
 
-                    print(row)
+                    # print(row)
 
                     try:
                         rate = row.first().Rate
