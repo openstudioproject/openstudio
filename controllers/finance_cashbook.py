@@ -12,7 +12,10 @@ def index():
 
     session.finance_expenses_add_edit_back = 'finance_cashbook_index'
 
-    if session.finance_cashbook_date:
+    if 'jump_date' in request.vars:
+        # Set date
+        redirect(URL('set_date', vars={ "date": request.vars['jump_date'] }))
+    elif session.finance_cashbook_date:
         date = session.finance_cashbook_date
     else:
         date = TODAY_LOCAL
@@ -56,7 +59,7 @@ def index_get_form_jump():
     """
     jump_date = session.finance_cashbook_date
     form_jump = SQLFORM.factory(
-                Field('schedule_jump_date', 'date',
+                Field('jump_date', 'date',
                       requires=IS_DATE_IN_RANGE(
                                 format=DATE_FORMAT,
                                 minimum=datetime.date(1900,1,1),
@@ -71,7 +74,7 @@ def index_get_form_jump():
     submit_jump['_class'] = 'full-width'
 
     form_jump = DIV(form_jump.custom.begin,
-                    DIV(form_jump.custom.widget.schedule_jump_date,
+                    DIV(form_jump.custom.widget.jump_date,
                         DIV(form_jump.custom.submit,
                             _class='input-group-btn'),
                         _class='input-group'),
