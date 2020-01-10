@@ -40,6 +40,7 @@ def index():
     )
 
     header_tools = DIV(
+        index_get_form_jump(),
         get_day_chooser(date)
     )
 
@@ -47,6 +48,38 @@ def index():
         content=content,
         header_tools=header_tools
     )
+
+
+def index_get_form_jump():
+    """
+        Returns a form to jump to a date
+    """
+    jump_date = session.finance_cashbook_date
+    form_jump = SQLFORM.factory(
+                Field('schedule_jump_date', 'date',
+                      requires=IS_DATE_IN_RANGE(
+                                format=DATE_FORMAT,
+                                minimum=datetime.date(1900,1,1),
+                                maximum=datetime.date(2999,1,1)),
+                      default=jump_date,
+                      label=T(""),
+                      widget=os_datepicker_widget_small),
+                submit_button=T('Go'),
+                )
+
+    submit_jump = form_jump.element('input[type=submit]')
+    submit_jump['_class'] = 'full-width'
+
+    form_jump = DIV(form_jump.custom.begin,
+                    DIV(form_jump.custom.widget.schedule_jump_date,
+                        DIV(form_jump.custom.submit,
+                            _class='input-group-btn'),
+                        _class='input-group'),
+                    form_jump.custom.end,
+                    _class='form_inline',
+                    _id='cashbook_form_jump_date')
+
+    return form_jump
 
 
 def get_debit(date):
