@@ -1498,10 +1498,27 @@ def tickets_export_excel():
         Export mailinglist for a workshop product.
         Have one worksheet for each product and one for all products
     """
+    def add_ws_attendance_list_header(ws):
+        """ Add Attendance list header to worksheet """
+        row = [
+            "First name",
+            "Last name",
+            "Email",
+            "Ticket",
+            "Invoice",
+            "Invoice Status",
+            "To be paid (balance)",
+        ]
+
+        ws.append(row)
+
+
     def add_ticket_sheet(wspID):
         wsp = WorkshopProduct(wspID)
         # add sheet
         ws = wb.create_sheet(title=wsp.name)
+        if export_type == 'attendancelist':
+            add_ws_attendance_list_header(ws)
         # get db info
         left = [ db.auth_user.on(db.auth_user.id == db.workshops_products_customers.auth_customer_id),
                  db.workshops_products.on(
@@ -1513,7 +1530,8 @@ def tickets_export_excel():
                      db.invoices_items_workshops_products_customers.invoices_items_id ==
                      db.invoices_items.id
                  ),
-                 db.invoices.on(db.invoices_items.invoices_id == db.invoices.id)
+                 db.invoices.on(db.invoices_items.invoices_id == db.invoices.id),
+                 db.invoices_amounts.on(db.invoices_amounts.invoices_id == db.invoices.id)
                  ]
         query = ((db.workshops_products_customers.workshops_products_id == wspID) &
                  (db.workshops_products_customers.Cancelled == False))
@@ -1521,6 +1539,8 @@ def tickets_export_excel():
                                 db.auth_user.last_name,
                                 db.auth_user.email,
                                 db.invoices.InvoiceID,
+                                db.invoices.Status,
+                                db.invoices_amounts.Balance,
                                 db.workshops_products.Name,
                                 left=left)
 
@@ -1534,8 +1554,11 @@ def tickets_export_excel():
                 ws.append([row.auth_user.first_name,
                            row.auth_user.last_name,
                            row.auth_user.email,
+                           row.workshops_products.Name,
                            row.invoices.InvoiceID,
-                           row.workshops_products.Name])
+                           row.invoices.Status,
+                           row.invoices_amounts.Balance,
+                           ])
 
     wsID = request.vars['wsID']
     export_type = request.vars['export_type']
@@ -1547,6 +1570,8 @@ def tickets_export_excel():
     wb = openpyxl.workbook.Workbook(write_only=True)
     # write the sheet for all mail addresses
     ws = wb.create_sheet(title="All products")
+    if export_type == 'attendancelist':
+        add_ws_attendance_list_header(ws)
     # get all products for a workshop
 
     products = workshop.get_products()
@@ -1565,6 +1590,7 @@ def tickets_export_excel():
                  db.invoices_items.id
              ),
              db.invoices.on(db.invoices_items.invoices_id == db.invoices.id),
+             db.invoices_amounts.on(db.invoices_amounts.invoices_id == db.invoices.id)
              ]
     query = ((db.workshops_products_customers.workshops_products_id.belongs(product_ids)) &
              (db.workshops_products_customers.Cancelled == False))
@@ -1572,6 +1598,8 @@ def tickets_export_excel():
                             db.auth_user.last_name,
                             db.auth_user.email,
                             db.invoices.InvoiceID,
+                            db.invoices.Status,
+                            db.invoices_amounts.Balance,
                             db.workshops_products.Name,
                             left=left)
 
@@ -1588,8 +1616,11 @@ def tickets_export_excel():
                 ws.append([row.auth_user.first_name,
                            row.auth_user.last_name,
                            row.auth_user.email,
+                           row.workshops_products.Name,
                            row.invoices.InvoiceID,
-                           row.workshops_products.Name])
+                           row.invoices.Status,
+                           row.invoices_amounts.Balance,
+                           ])
         emails.append(row.auth_user.email)
 
     # Add all products
