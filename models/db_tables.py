@@ -3492,7 +3492,7 @@ def define_workshops():
                                 zero=T("Please select...")),
               represent=lambda value, row: locations_dict.get(value, T("No location set")),
               label=T("Location")),
-        Field('picture', 'upload', autodelete=True,
+        Field('picture', 'upload',
             requires=IS_EMPTY_OR([IS_IMAGE(extensions=('jpeg', 'jpg', 'png')),
                                            IS_LENGTH(maxsize=665600,
                                                      error_message=T('650KB or less'))]), # 650KB
@@ -3512,7 +3512,7 @@ def define_workshops():
                                             name="Large",
                                             field_string="workshops.thumblarge"),
             represent = represent_workshops_thumblarge),
-        Field('picture_2', 'upload', autodelete=True,
+        Field('picture_2', 'upload',
             requires=IS_EMPTY_OR([IS_IMAGE(extensions=('jpeg', 'jpg', 'png')),
                                            IS_LENGTH(maxsize=665600,
                                                      error_message=T('650KB or less'))]), # 650KB
@@ -3532,7 +3532,7 @@ def define_workshops():
                                             name="Large",
                                             field_string="workshops.thumblarge_2"),
             represent = represent_workshops_thumblarge),
-        Field('picture_3', 'upload', autodelete=True,
+        Field('picture_3', 'upload',
             requires=IS_EMPTY_OR([IS_IMAGE(extensions=('jpeg', 'jpg', 'png')),
                                            IS_LENGTH(maxsize=665600,
                                                      error_message=T('650KB or less'))]), # 650KB
@@ -3552,7 +3552,7 @@ def define_workshops():
                                             name="Large",
                                             field_string="workshops.thumblarge_3"),
             represent = represent_workshops_thumblarge),
-        Field('picture_4', 'upload', autodelete=True,
+        Field('picture_4', 'upload',
             requires=IS_EMPTY_OR([IS_IMAGE(extensions=('jpeg', 'jpg', 'png')),
                                            IS_LENGTH(maxsize=665600,
                                                      error_message=T('650KB or less'))]), # 650KB
@@ -3572,7 +3572,7 @@ def define_workshops():
                                             name="Large",
                                             field_string="workshops.thumblarge_4"),
             represent = represent_workshops_thumblarge),
-        Field('picture_5', 'upload', autodelete=True,
+        Field('picture_5', 'upload', 
             requires=IS_EMPTY_OR([IS_IMAGE(extensions=('jpeg', 'jpg', 'png')),
                                            IS_LENGTH(maxsize=665600,
                                                      error_message=T('650KB or less'))]), # 650KB
