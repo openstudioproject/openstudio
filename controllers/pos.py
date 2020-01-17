@@ -482,6 +482,8 @@ def get_school_subscriptions():
     if not permission_result['permission']:
         return return_json_permissions_error()
 
+    from openstudio.os_school_subscription import SchoolSubscription
+
     query = """
         SELECT sc.id,
                sc.Name,
@@ -523,6 +525,8 @@ def get_school_subscriptions():
 
     data = []
     for row in rows:
+        ssu = SchoolSubscription(row.school_subscriptions.id)
+
         data.append({
             'id': row.school_subscriptions.id,
             'Name': row.school_subscriptions.Name,
@@ -531,7 +535,8 @@ def get_school_subscriptions():
             'Classes': row.school_subscriptions.Classes,
             'SubscriptionUnit': row.school_subscriptions.SubscriptionUnit,
             'Unlimited': row.school_subscriptions.Unlimited,
-            'Price': row.school_subscriptions_price.Price or 0,
+            'Price': ssu.get_price_today(formatted=False),
+            'PriceMonth': row.school_subscriptions_price.Price or 0,
             'RegistrationFee': row.school_subscriptions.RegistrationFee or 0,
             'school_memberships_id': row.school_subscriptions.school_memberships_id
         })
