@@ -1052,7 +1052,7 @@ def get_customer_subscriptions():
 
     cuID = request.vars['id']
 
-    dont_show_after = TODAY_LOCAL - datetime.timedelta(days=217)
+    dont_show_after = TODAY_LOCAL
     query = (db.customers_subscriptions.Startdate <= TODAY_LOCAL) &\
             ((db.customers_subscriptions.Enddate >= dont_show_after) |
              (db.customers_subscriptions.Enddate == None)) & \
