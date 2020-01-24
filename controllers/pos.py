@@ -964,10 +964,12 @@ def get_customer_classcards():
 
     cuID = request.vars['id']
 
-    dont_show_after = TODAY_LOCAL - datetime.timedelta(days=217)
-    query = (db.customers_classcards.Startdate <= TODAY_LOCAL) &\
+    dont_show_after = TODAY_LOCAL
+    query = (db.customers_classcards.Startdate <= TODAY_LOCAL) & \
             ((db.customers_classcards.Enddate >= dont_show_after) |
              (db.customers_classcards.Enddate == None)) & \
+            ((db.customers_classcards.ClassesTaken < db.school_classcards.Classes) |
+             (db.school_classcards.Unlimited == True)) & \
             (db.customers_classcards.auth_customer_id == cuID)
 
     left = [

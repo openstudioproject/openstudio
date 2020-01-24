@@ -24,7 +24,8 @@ class CustomerDisplayClasscards extends Component {
 
     formatClassesRemaining(card) {
         let return_value
-        if (card.Unlimited) {
+        console.log(card)
+        if (card.unlimited) {
             return_value = "Unlimited classes"
         } else {
             let class_string = 'classes'
