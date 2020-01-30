@@ -667,6 +667,7 @@ class OsMail:
 
         if return_html:
             return dict(
+                msg_subject = subject or "",
                 html_message = html_message,
                 error = error,
                 error_msg = error_msg
