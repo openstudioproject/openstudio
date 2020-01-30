@@ -142,6 +142,27 @@ class OsMail:
         return emails
 
 
+    def _render_email_template_subscription_created(self, template_content, customer_subscription_id):
+        """
+        :param template_content: base html template to be rendered
+        :param customer_subscription_id: db.customers_subscriptions.id
+        :return: Mail body for subscription created mail
+        """
+        from os_customer_subscription import CustomerSubscription
+
+        T = current.T
+        db = current.db
+        DATE_FORMAT = current.DATE_FORMAT
+
+        cs = CustomerSubscription(customer_subscription_id)
+
+        return XML(template_content.format(
+            subscription_name=cs.name,
+            subscription_start=cs.startdate.strftime(DATE_FORMAT),
+            link_profile_invoices=URL('profile', 'invoices', scheme=True, host=True)
+        ))
+
+
     def _render_email_template_order(self, template_content, customers_orders_id):
         """
             :param customers_orders_id:
