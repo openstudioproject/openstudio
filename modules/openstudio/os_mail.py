@@ -142,7 +142,7 @@ class OsMail:
         return emails
 
 
-    def _render_email_template_subscription_created(self, template_content, customer_subscription_id):
+    def _render_email_template_subscription_created(self, template_content, customer_subscriptions_id):
         """
         :param template_content: base html template to be rendered
         :param customer_subscription_id: db.customers_subscriptions.id
@@ -154,13 +154,24 @@ class OsMail:
         db = current.db
         DATE_FORMAT = current.DATE_FORMAT
 
-        cs = CustomerSubscription(customer_subscription_id)
+        cs = CustomerSubscription(customer_subscriptions_id)
 
-        return XML(template_content.format(
-            subscription_name=cs.name,
-            subscription_start=cs.startdate.strftime(DATE_FORMAT),
+        subscription_name = cs.name
+        subscription_start = cs.startdate.strftime(DATE_FORMAT)
+
+        description = DIV(
+            T("Subscription: %s") % subscription_name, BR(),
+            T("Start: %s") % subscription_start
+        )
+
+        content =  XML(template_content.format(
             link_profile_invoices=URL('profile', 'invoices', scheme=True, host=True)
         ))
+
+        return dict(
+            content=content,
+            description=description
+        )
 
 
     def _render_email_template_order(self, template_content, customers_orders_id):
@@ -503,6 +514,7 @@ class OsMail:
                               template_content=None,
                               auth_user_id=None,
                               customers_orders_id=None,
+                              customer_subscriptions_id=None,
                               invoices_id=None,
                               invoices_payments_id=None,
                               classes_otc_id=None,
@@ -558,6 +570,16 @@ class OsMail:
         elif email_template == 'payment_recurring_failed':
             subject = T('Recurring payment failed')
             content = self._render_email_template_payment_recurring_failed(template_content)
+
+        elif email_template == "subscription_created":
+            subject = T("Subscription activated")
+            result = self._render_email_template_subscription_created(
+                template_content,
+                customer_subscriptions_id
+            )
+            title = T("Your subscription has been activated!")
+            description = result['description']
+            content = result['content']
 
         elif email_template == 'teacher_sub_requests_daily_summary':
             result = self._render_email_template_teacher_sub_requests_daily_summary(
