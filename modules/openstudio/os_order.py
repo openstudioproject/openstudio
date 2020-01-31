@@ -631,9 +631,6 @@ class Order:
                     subscription_start.month
                 )
 
-                # Send customer notification of the new subscription
-                cs.send_mail_created(csID)
-
                 # clear cache
                 ocm.clear_customers_subscriptions(self.order.auth_customer_id)
 

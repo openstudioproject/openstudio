@@ -148,7 +148,7 @@ class OsMail:
         :param customer_subscription_id: db.customers_subscriptions.id
         :return: Mail body for subscription created mail
         """
-        from os_customer_subscription import CustomerSubscription
+        from .os_customer_subscription import CustomerSubscription
 
         T = current.T
         db = current.db
@@ -160,12 +160,12 @@ class OsMail:
         subscription_start = cs.startdate.strftime(DATE_FORMAT)
 
         description = DIV(
-            T("Subscription: %s") % subscription_name, BR(),
-            T("Start: %s") % subscription_start
+            SPAN(T("Subscription:") , " ",  subscription_name), BR(),
+            SPAN(T("Start:"), " ", subscription_start)
         )
 
         content =  XML(template_content.format(
-            link_profile_invoices=URL('profile', 'invoices', scheme=True, host=True)
+            link_profile_subscriptions=URL('profile', 'index', scheme=True, host=True)
         ))
 
         return dict(
