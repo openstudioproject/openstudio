@@ -865,7 +865,7 @@ class Invoice:
 
         ## Check if we should bill the first 2 months
         subscription_first_invoice_two_terms = os_tools.get_sys_property('subscription_first_invoice_two_terms')
-        if subscription_first_invoice_two_terms:
+        if subscription_first_invoice_two_terms == "on":
             # Check if this is the first invoice for this subscription
             query = (db.invoices_items_customers_subscriptions.customers_subscriptions_id == csID) & \
                     (db.invoices_items.invoices_id != self.invoices_id)
