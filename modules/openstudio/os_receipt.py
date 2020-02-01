@@ -309,7 +309,13 @@ class Receipt:
         :param item: gluon.dal.row object of db.invoices_items
         :return:
         """
+        from .tools import OsTools
+        from .os_school_subscription import SchoolSubscription
+        from general_helpers import get_last_day_month
+
         db = current.db
+        os_tools = OsTools()
+        TODAY_LOCAL = current.TODAY_LOCAL
 
         if not item.customers_orders_items_shop_products_variants.id is None:
             # We have a product, use item_add_product_variant to create links and
@@ -340,6 +346,26 @@ class Receipt:
                 accounting_glaccounts_id=item.customers_orders_items.accounting_glaccounts_id,
                 accounting_costcenters_id=item.customers_orders_items.accounting_costcenters_id
             )
+
+            subscription_first_invoice_two_terms = os_tools.get_sys_property('subscription_first_invoice_two_terms')
+            if subscription_first_invoice_two_terms == "on" and item.customers_orders_items.school_subscriptions_id:
+                # Add second item, with full price
+                ssu = SchoolSubscription(item.customers_orders_items.school_subscriptions_id)
+                first_next_month = get_last_day_month(TODAY_LOCAL) + datetime.timedelta(days=1)
+                price = ssu.get_price_on_date(first_next_month, formatted=False)
+
+                riID = db.receipts_items.insert(
+                    receipts_id=self.receipts_id,
+                    Sorting=sorting,
+                    Custom=item.customers_orders_items.Custom,
+                    ProductName=item.customers_orders_items.ProductName,
+                    Description=item.customers_orders_items.Description,
+                    Quantity=item.customers_orders_items.Quantity,
+                    Price=price,
+                    tax_rates_id=item.customers_orders_items.tax_rates_id,
+                    accounting_glaccounts_id=item.customers_orders_items.accounting_glaccounts_id,
+                    accounting_costcenters_id=item.customers_orders_items.accounting_costcenters_id
+                )
 
         self.set_amounts()
 
