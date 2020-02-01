@@ -879,17 +879,26 @@ class Invoice:
                 description = cs.name + ' ' + period_start.strftime(DATE_FORMAT) + ' - ' + period_end.strftime(DATE_FORMAT)
                 next_sort_nr = self.get_item_next_sort_nr()
 
-            iiID2 = db.invoices_items.insert(
-                invoices_id=self.invoices_id,
-                ProductName=current.T("Subscription") + ' ' + str(csID),
-                Description=description,
-                Quantity=1,
-                Price=price,
-                Sorting=next_sort_nr,
-                tax_rates_id=tax_rates_id,
-                accounting_glaccounts_id=glaccount,
-                accounting_costcenters_id=costcenter
-            )
+                iiID2 = db.invoices_items.insert(
+                    invoices_id=self.invoices_id,
+                    ProductName=current.T("Subscription") + ' ' + str(csID),
+                    Description=description,
+                    Quantity=1,
+                    Price=price,
+                    Sorting=next_sort_nr,
+                    tax_rates_id=tax_rates_id,
+                    accounting_glaccounts_id=glaccount,
+                    accounting_costcenters_id=costcenter
+                )
+
+                # Add 0 payment for 2nd month in alt. prices, to prevent duplicate payments
+                db.customers_subscriptions_alt_prices.insert(
+                    customers_subscriptions_id = csID,
+                    SubscriptionYear=period_start.year,
+                    SubscriptionMonth = period_start.month,
+                    Amount = 0,
+                    Description = T("Paid in invoice ") + self.invoice.InvoiceID
+                )
 
 
         ##
