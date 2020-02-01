@@ -869,7 +869,6 @@ class Invoice:
             # Check if this is the first invoice for this subscription
             query = (db.invoices_items_customers_subscriptions.customers_subscriptions_id == csID) & \
                     (db.invoices_items.invoices_id != self.invoices_id)
-            print("Number of invoice items for this subscription:")
             count = db(query).count()
             if not count:
                 # first invoice for this subscription... let's add the 2nd month as well.
