@@ -1078,10 +1078,14 @@ class AttendanceHelper:
         from .os_customer_subscription import CustomerSubscription
         from .os_school import School
         from .os_school_subscription import SchoolSubscription
+        from .tools import OsTools
+        from general_helpers import get_last_day_month
 
         T = current.T
         db = current.db
+        TODAY_LOCAL = current.TODAY_LOCAL
         school = School()
+        os_tools = OsTools()
         get_sys_property = current.globalenv['get_sys_property']
 
         options = {
@@ -1138,14 +1142,22 @@ class AttendanceHelper:
                 # Prevent showing already bought subscription as shop option for customer
                 if school_subscription.id not in subscription_ids:
                     ssu = SchoolSubscription(school_subscription.id)
+                    price_today = ssu.get_price_today(formatted=False)
+
+                    subscription_first_invoice_two_terms = os_tools.get_sys_property(
+                        'subscription_first_invoice_two_terms')
+                    if subscription_first_invoice_two_terms == "on":
+                        first_next_month = get_last_day_month(TODAY_LOCAL) + datetime.timedelta(days=1)
+                        price_today += ssu.get_price_on_date(first_next_month, formatted=False)
+
                     options['subscriptions'].append({
                         'clsID': clsID,
                         'Type': 'subscription_shop',
                         'id': school_subscription.id,
                         'Name': school_subscription.Name,
                         'school_memberships_id': school_subscription.school_memberships_id,
-                        'Price': ssu.get_price_today(formatted=False),
-                        'PriceMonth': ssu.get_price_on_date(date, formatted=False)
+                        'Price': price_today,
+                        'PriceMonth': ssu.get_price_on_date(first_next_month, formatted=False)
                     })
 
         # class cards
