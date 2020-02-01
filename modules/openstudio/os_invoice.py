@@ -746,8 +746,10 @@ class Invoice:
         from .os_customer import Customer
         from .os_customer_subscription import CustomerSubscription
         from .os_school_subscription import SchoolSubscription
+        from .tools import OsTools
 
         db = current.db
+        os_tools = OsTools()
         DATE_FORMAT = current.DATE_FORMAT
 
         next_sort_nr = self.get_item_next_sort_nr()
@@ -859,8 +861,36 @@ class Invoice:
             tax_rates_id = tax_rates_id,
             accounting_glaccounts_id = glaccount,
             accounting_costcenters_id = costcenter
-
         )
+
+        ## Check if we should bill the first 2 months
+        subscription_first_invoice_two_terms = os_tools.get_sys_property('subscription_first_invoice_two_terms')
+        if subscription_first_invoice_two_terms:
+            # Check if this is the first invoice for this subscription
+            query = (db.invoices_items_customers_subscriptions.customers_subscriptions_id == csID) & \
+                    (db.invoices_items.invoices_id != self.invoices_id)
+            print("Number of invoice items for this subscription:")
+            count = db(query).count()
+            if not count:
+                # first invoice for this subscription... let's add the 2nd month as well.
+                second_month_price = ssu.get_price_on_date(date, False)
+                period_start = get_last_day_month(date) + datetime.timedelta(days=1)
+                period_end = get_last_day_month(period_start)
+                description = cs.name + ' ' + period_start.strftime(DATE_FORMAT) + ' - ' + period_end.strftime(DATE_FORMAT)
+                next_sort_nr = self.get_item_next_sort_nr()
+
+            iiID2 = db.invoices_items.insert(
+                invoices_id=self.invoices_id,
+                ProductName=current.T("Subscription") + ' ' + str(csID),
+                Description=description,
+                Quantity=1,
+                Price=price,
+                Sorting=next_sort_nr,
+                tax_rates_id=tax_rates_id,
+                accounting_glaccounts_id=glaccount,
+                accounting_costcenters_id=costcenter
+            )
+
 
         ##
         # Check if a registration fee should be added
