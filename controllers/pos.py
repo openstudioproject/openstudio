@@ -474,7 +474,7 @@ def get_school_classcards():
 @auth.requires_login(otherwise=return_json_login_error)
 def get_school_subscriptions():
     """
-    List of not archived school classcards
+    List of not archived school subscriptions
     Sorted by Name
     """
     set_headers()
@@ -482,6 +482,7 @@ def get_school_subscriptions():
     if not permission_result['permission']:
         return return_json_permissions_error()
 
+    from general_helpers import get_last_day_month
     from openstudio.os_school_subscription import SchoolSubscription
 
     query = """
@@ -523,9 +524,17 @@ def get_school_subscriptions():
 
     rows = db.executesql(query, fields=fields)
 
+    ## Check if we should bill the first 2 months
+    subscription_first_invoice_two_terms = get_sys_property('subscription_first_invoice_two_terms')
+
     data = []
     for row in rows:
         ssu = SchoolSubscription(row.school_subscriptions.id)
+
+        price = ssu.get_price_today(formatted=False)
+        if subscription_first_invoice_two_terms == "on":
+            first_next_month = get_last_day_month(TODAY_LOCAL) + datetime.timedelta(days=1)
+            price += ssu.get_price_on_date(first_next_month, False)
 
         data.append({
             'id': row.school_subscriptions.id,
@@ -535,7 +544,7 @@ def get_school_subscriptions():
             'Classes': row.school_subscriptions.Classes,
             'SubscriptionUnit': row.school_subscriptions.SubscriptionUnit,
             'Unlimited': row.school_subscriptions.Unlimited,
-            'Price': ssu.get_price_today(formatted=False),
+            'Price': price,
             'PriceMonth': row.school_subscriptions_price.Price or 0,
             'RegistrationFee': row.school_subscriptions.RegistrationFee or 0,
             'school_memberships_id': row.school_subscriptions.school_memberships_id

@@ -872,8 +872,8 @@ class Invoice:
             count = db(query).count()
             if not count:
                 # first invoice for this subscription... let's add the 2nd month as well.
-                second_month_price = ssu.get_price_on_date(date, False)
                 period_start = get_last_day_month(date) + datetime.timedelta(days=1)
+                second_month_price = ssu.get_price_on_date(period_start, False)
                 period_end = get_last_day_month(period_start)
                 description = cs.name + ' ' + period_start.strftime(DATE_FORMAT) + ' - ' + period_end.strftime(DATE_FORMAT)
                 next_sort_nr = self.get_item_next_sort_nr()
