@@ -191,6 +191,7 @@ def system_workflow():
     class_attendance_max_complementary_checkins = get_sys_property('class_attendance_max_complementary_checkins')
     subscription_pauses_min_duration = get_sys_property('subscription_pauses_min_duration')
     subscription_max_pauses = get_sys_property('subscription_max_pauses')
+    subscription_first_invoice_two_terms = get_sys_property('subscription_first_invoice_two_terms')
     system_enable_class_checkin_trialclass = get_sys_property('system_enable_class_checkin_trialclass')
     system_enable_class_checkin_reconcile_later = get_sys_property('system_enable_class_checkin_reconcile_later')
 
@@ -216,6 +217,10 @@ def system_workflow():
               default=subscription_max_pauses,
               label=T('Max. pauses for each subscription in a year'),
               comment=T('Maximum number of subscription pauses in a year. A warning will be shown if a subscription is paused more.')),
+        Field('subscription_first_invoice_two_terms', 'boolean',
+              default=subscription_first_invoice_two_terms,
+              label=T('Subscription first term bill two months'),
+              comment=T('Enable to bill the current month and the next month on the first invoice for a subscription.')),
         submit_button=T("Save"),
         separator=' ',
         formstyle='bootstrap3_stacked'
@@ -231,7 +236,8 @@ def system_workflow():
             'system_enable_class_checkin_reconcile_later',
             'class_attendance_max_complementary_checkins',
             'subscription_pauses_min_duration',
-            'subscription_max_pauses'
+            'subscription_max_pauses',
+            'subscription_first_invoice_two_terms'
         ]
 
         for fvar in form_vars:
