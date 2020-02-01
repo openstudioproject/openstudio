@@ -331,7 +331,7 @@ class Book extends Component {
                         this.props.setSelectedCustomerID(customerID)
                         this.props.setDisplayCustomerID(customerID)
 
-                        addRequiredMembershipToCart(customerID, option)
+                        this.addRequiredMembershipToCart(customerID, option)
   
                         // redirect to products
                         this.props.history.push('/shop/products')
@@ -352,7 +352,7 @@ class Book extends Component {
                         this.props.setSelectedCustomerID(customerID)
                         this.props.setDisplayCustomerID(customerID)
 
-                        addRequiredMembershipToCart(customerID, option)
+                        this.addRequiredMembershipToCart(customerID, option)
 
                         // redirect to products
                         this.props.history.push('/shop/products')
