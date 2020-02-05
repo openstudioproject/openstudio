@@ -416,6 +416,7 @@ class OsSchedulerTasks:
 
         T = current.T
         db = current.db
+        os_mail = OsMail()
         TODAY_LOCAL = current.TODAY_LOCAL
         yesterday = TODAY_LOCAL - datetime.timedelta(days=1)
 
@@ -434,8 +435,15 @@ class OsSchedulerTasks:
                                 left=left)
         print(rows)
 
-        # for row in rows:
-        #     print(row)
+
+
+        for row in rows:
+            print(row)
+            # result = os_mail.render_email_template(
+            #     'trial_follow_up',
+            #     classes_attendance_id = row.classes_attendance.id,
+            # )
+
 
 
         # # Check if reminders configured
