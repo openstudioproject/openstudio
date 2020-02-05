@@ -405,3 +405,80 @@ class OsSchedulerTasks:
 
         return "Sent mails: %s" % mails_sent
 
+
+    def email_trailclass_follow_up(self):
+        """
+        Send teachers reminders when a sub for their class hasn't been found yet.
+        :return:
+        """
+        from openstudio.os_mail import OsMail
+
+
+        T = current.T
+        db = current.db
+        TODAY_LOCAL = current.TODAY_LOCAL
+        yesterday = TODAY_LOCAL - datetime.timedelta(days=1)
+
+        left = [
+            db.auth_user.on(
+                db.classes_attendance.auth_customer_id ==
+                db.auth_user.id
+            )
+        ]
+
+        query = (db.classes_attendance.ClassDate == yesterday) & \
+                (db.classes_attendance.AttendanceType == 1) # Trial
+
+        rows = db(query).select(db.classes_attendance.ALL,
+                                db.auth_user.display_name,
+                                left=left)
+        print(rows)
+
+        # for row in rows:
+        #     print(row)
+
+
+        # # Check if reminders configured
+        # sys_reminders = SysEmailReminders('teachers_sub_request_open')
+        # reminders = sys_reminders.list()
+        #
+        # mails_sent = 0
+        # for reminder in reminders:
+        #     # Get list of open classes on reminder date
+        #     reminder_date = TODAY_LOCAL + datetime.timedelta(reminder.Days)
+        #
+        #     query = (db.classes_otc.Status == 'open') & \
+        #             (db.classes_otc.ClassDate == reminder_date)
+        #
+        #     rows = db(query).select(db.classes_otc.ALL)
+        #     for row in rows:
+        #         clsID = row.classes_id
+        #         cls = Class(clsID, row.ClassDate)
+        #         regular_teachers = cls.get_regular_teacher_ids()
+        #
+        #         if not regular_teachers['error']:
+        #             auth_teacher_id = regular_teachers['auth_teacher_id']
+        #             teacher = db.auth_user(auth_teacher_id)
+        #
+        #             os_mail = OsMail()
+        #             result = os_mail.render_email_template(
+        #                 'teacher_sub_request_open_reminder',
+        #                 classes_otc_id=row.id,
+        #                 return_html=True
+        #             )
+        #
+        #             send_result = False
+        #             if not result['error']:
+        #                 send_result = os_mail.send(
+        #                     message_html=result['html_message'],
+        #                     message_subject=T("Reminder - open class"),
+        #                     auth_user_id=auth_teacher_id
+        #                 )
+        #
+        #             if send_result:
+        #                 mails_sent += 1
+        #
+        #     # send reminder to teacher
+        #
+        # return "Sent mails: %s" % mails_sent
+
