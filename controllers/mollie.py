@@ -142,14 +142,33 @@ def webhook_order_paid(coID, payment_amount=None, payment_date=None, mollie_paym
     if result:
         # Check for setting to do initial payment using mollie and
         # The following payments using direct debit
-        pass
-        # Check for subscription id in order
+        if get_sys_property("shop_subscriptions_payment_method") == "mollie_directdebit":
+            # Check for subscription id in order
+            subscription_found_in_order = False
+            items = order.get_order_items_rows()
+            for item in items:
+                if item.customers_orders_items.school_subscriptions_id:
+                    subscription_found_in_order = True
+                    break
 
-            # notify customer
-            # os_mail = OsMail()
-            # msg = os_mail.render_email_template('email_template_payment_received', invoices_payments_id=ipID)
+            if subscription_found_in_order:
+                webhook_order_paid_get_bank_info_from_mollie(coID)
 
-            #os_mail.send(msg, invoice.invoice.auth_customer_id)
+    # notify customer
+    # os_mail = OsMail()
+    # msg = os_mail.render_email_template('email_template_payment_received', invoices_payments_id=ipID)
+
+    #os_mail.send(msg, invoice.invoice.auth_customer_id)
+
+
+def webhook_order_paid_get_bank_info_from_mollie(coID):
+    """
+    Fetch customer bank information from mollie for direct debit usage
+    :param coID: db.customers_orders.id
+    :return: None
+    """
+    #TODO: write function
+    print("yep.. I'm running apparently")
 
 
 def webhook_invoice_paid(iID, payment_amount, payment_date, mollie_payment_id):
