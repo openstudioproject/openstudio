@@ -1142,13 +1142,7 @@ class AttendanceHelper:
                 # Prevent showing already bought subscription as shop option for customer
                 if school_subscription.id not in subscription_ids:
                     ssu = SchoolSubscription(school_subscription.id)
-                    price_today = ssu.get_price_today(formatted=False)
-
-                    subscription_first_invoice_two_terms = os_tools.get_sys_property(
-                        'subscription_first_invoice_two_terms')
-                    if subscription_first_invoice_two_terms == "on":
-                        first_next_month = get_last_day_month(TODAY_LOCAL) + datetime.timedelta(days=1)
-                        price_today += ssu.get_price_on_date(first_next_month, formatted=False)
+                    first_next_month = get_last_day_month(TODAY_LOCAL) + datetime.timedelta(days=1)
 
                     options['subscriptions'].append({
                         'clsID': clsID,
@@ -1156,7 +1150,7 @@ class AttendanceHelper:
                         'id': school_subscription.id,
                         'Name': school_subscription.Name,
                         'school_memberships_id': school_subscription.school_memberships_id,
-                        'Price': price_today,
+                        'Price': ssu.get_price_today_display(formatted=False),
                         'PriceMonth': ssu.get_price_on_date(first_next_month, formatted=False)
                     })
 
