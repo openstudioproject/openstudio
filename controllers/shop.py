@@ -1635,12 +1635,20 @@ def subscription_order():
                 _href=URL('mollie', 'order_pay', vars={'coID': coID}),
                 _class='btn btn-success bold')
 
+    subscription_first_invoice_two_terms = get_sys_property(
+        'subscription_first_invoice_two_terms')
+
+    fist_period_end = TODAY_LOCAL
+    if subscription_first_invoice_two_terms == "on":
+        first_day_next_month = get_last_day_month(TODAY_LOCAL) + datetime.timedelta(days=1)
+        first_period_end = get_last_day_month(first_day_next_month)
+
     content = DIV(
         DIV(H4(T('We have received your order')),
             T("The items in your order will be delivered as soon as we've received the payment for this order."), BR(),
             T("Click 'Pay now' to complete the payment."), BR(), BR(),
             T("The first payment will be for the period of"), ' ', TODAY_LOCAL.strftime(DATE_FORMAT), ' ',
-            T("until"), ' ', get_last_day_month(TODAY_LOCAL).strftime(DATE_FORMAT), '.', BR(),
+            T("until"), ' ', get_last_day_month(first_day_next_month).strftime(DATE_FORMAT), '.', BR(),
             T("The regular monthly fee is:"), ' ',
             SPAN(ssu.get_price_on_date(TODAY_LOCAL, formatted=True), _class='bold'), BR(),
             BR(), BR(),
