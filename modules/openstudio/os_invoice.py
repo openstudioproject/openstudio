@@ -883,7 +883,7 @@ class Invoice:
                     ProductName=current.T("Subscription") + ' ' + str(csID),
                     Description=description,
                     Quantity=1,
-                    Price=price,
+                    Price=second_month_price,
                     Sorting=next_sort_nr,
                     tax_rates_id=tax_rates_id,
                     accounting_glaccounts_id=glaccount,
