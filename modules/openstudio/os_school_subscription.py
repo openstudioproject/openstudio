@@ -136,6 +136,7 @@ class SchoolSubscription:
 
         db = current.db
         os_tools = OsTools()
+        CURRSYM = current.globalenv['CURRSYM']
         TODAY_LOCAL = current.TODAY_LOCAL
 
         price_today = self.get_price_today(formatted=False)
@@ -150,7 +151,7 @@ class SchoolSubscription:
         price_display = Decimal(price_today).quantize(Decimal('.01'), rounding=ROUND_HALF_UP)
 
         if formatted:
-            return SPAN(CURRSYM, ' ', str(price))
+            return SPAN(CURRSYM, ' ', str(price_display))
         else:
             return price_display
 

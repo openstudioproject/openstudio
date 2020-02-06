@@ -1510,6 +1510,7 @@ def subscription_get_info(ssu):
         LI(B(T("Classes")), BR(), classes, ' ', classes_unit),
         LI(B(T("Payment")), BR(), T("Monthly")),
         LI(B(T("Minimum duration")), BR(), ssu.MinDuration, ' ', months_text),
+        LI(B(T("First payment")), BR(), ssu.get_price_today_display(formatted=True)),
         LI(B(T("Monthly fee")), BR(), ssu.get_price_on_date(TODAY_LOCAL)),
     )
 
