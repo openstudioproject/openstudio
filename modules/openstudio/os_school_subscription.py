@@ -138,10 +138,10 @@ class SchoolSubscription:
         os_tools = OsTools()
         TODAY_LOCAL = current.TODAY_LOCAL
 
+        price_today = self.get_price_today(formatted=False)
+
         subscription_first_invoice_two_terms = os_tools.get_sys_property(
             'subscription_first_invoice_two_terms')
-
-        price_today = self.get_price_today(formatted=False)
 
         if subscription_first_invoice_two_terms == "on":
             first_next_month = get_last_day_month(TODAY_LOCAL) + datetime.timedelta(days=1)

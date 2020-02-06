@@ -531,11 +531,6 @@ def get_school_subscriptions():
     for row in rows:
         ssu = SchoolSubscription(row.school_subscriptions.id)
 
-        price = ssu.get_price_today(formatted=False)
-        if subscription_first_invoice_two_terms == "on":
-            first_next_month = get_last_day_month(TODAY_LOCAL) + datetime.timedelta(days=1)
-            price += ssu.get_price_on_date(first_next_month, False)
-
         data.append({
             'id': row.school_subscriptions.id,
             'Name': row.school_subscriptions.Name,
@@ -544,7 +539,7 @@ def get_school_subscriptions():
             'Classes': row.school_subscriptions.Classes,
             'SubscriptionUnit': row.school_subscriptions.SubscriptionUnit,
             'Unlimited': row.school_subscriptions.Unlimited,
-            'Price': price,
+            'Price': ssu.get_price_today_display(formatted=False),
             'PriceMonth': row.school_subscriptions_price.Price or 0,
             'RegistrationFee': row.school_subscriptions.RegistrationFee or 0,
             'school_memberships_id': row.school_subscriptions.school_memberships_id
