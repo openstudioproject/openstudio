@@ -575,6 +575,9 @@ class Order:
             # Only rows where school_classcards_id, workshops_products_id , classes_id or Donation are set
             # are put on the invoice
             ##
+            if row.customers_orders_items.Dummy:
+                # Don't process dummy items
+                continue
 
             # Check for product:
             if row.customers_orders_items.ProductVariant:
