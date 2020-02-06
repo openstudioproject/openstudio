@@ -504,6 +504,51 @@ class OsMail:
             description=description
         )
 
+    def _render_email_trial_follow_up(self, classes_attendance_id=None, customers_classcards_id=None):
+        """
+        :param template_content: Mail content
+        :param workshops_products_id: db.workshops_products.id
+        :return: mail body for workshop
+        """
+        from .os_customer import Customer
+
+        db = current.db
+        T = current.T
+        DATE_FORMAT = current.DATE_FORMAT
+        TIME_FORMAT = current.TIME_FORMAT
+        customer = Customer(wspc.auth_customer_id)
+
+        try:
+            time_info = TR(TH(T('Date')),
+                           TD(ws.Startdate.strftime(DATE_FORMAT), ' ', ws.Starttime.strftime(TIME_FORMAT), ' - ',
+                              ws.Enddate.strftime(DATE_FORMAT), ' ', ws.Endtime.strftime(TIME_FORMAT),
+                              _align="left"))
+        except AttributeError:
+            time_info = ''
+
+        description = TABLE(TR(TH(T('Ticket')),
+                               TD(wsp.Name, _align="left")),
+                            time_info,
+                            _cellspacing="0", _cellpadding='5px', _width='100%', border="0")
+
+        wsm = db.workshops_mail(workshops_id=ws.id)
+        try:
+            content = wsm.MailContent
+        except AttributeError:
+            content = ''
+
+
+        image = IMG(_src=URL('default', 'download', ws.picture, scheme=True, host=True),
+                    _style="max-width:500px")
+
+        return dict(
+            content=DIV(
+                image, BR(), BR(),
+                XML(content)
+            ),
+            description=description
+        )
+
 
     def render_email_template(self,
                               email_template,
