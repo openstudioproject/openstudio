@@ -2832,7 +2832,7 @@ def define_customers_payment_info_mandates():
                                    minimum=datetime.date(1900, 1, 1),
                                    maximum=datetime.date(2999, 1, 1))
               ),
-              default=TODAY_LOCAL ,
+              default=TODAY_LOCAL,
               represent=represent_date,
               label=T("Mandate signature date"),
               widget=os_datepicker_widget),

@@ -1382,7 +1382,7 @@ def subscription():
         form = ''
         direct_debit_mandate = ''
         confirm = ''
-        if payment_method == 'mollie':
+        if payment_method == 'mollie' or payment_method == "mollie_directdebit":
             form = checkout_get_form_order()
             if form.process().accepted:
                 # response.flash = T('Accepted order')
