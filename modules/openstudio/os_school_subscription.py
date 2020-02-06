@@ -126,12 +126,13 @@ class SchoolSubscription:
         return price
 
 
-    def get_price_today_display(self, date, formatted=False):
+    def get_price_today_display(self, formatted=False):
         """
         Use this function to display subscription price to customers
         """
         from decimal import Decimal, ROUND_HALF_UP
         from .tools import OsTools
+        from general_helpers import get_last_day_month
 
         db = current.db
         os_tools = OsTools()
@@ -140,10 +141,11 @@ class SchoolSubscription:
         subscription_first_invoice_two_terms = os_tools.get_sys_property(
             'subscription_first_invoice_two_terms')
 
-        price_today = get_price_today(formatted=False)
+        price_today = self.get_price_today(formatted=False)
 
         if subscription_first_invoice_two_terms == "on":
-            price_today += get_price_on_date(TODAY_LOCAL, formatted = False)
+            first_next_month = get_last_day_month(TODAY_LOCAL) + datetime.timedelta(days=1)
+            price_today += self.get_price_on_date(first_next_month, formatted = False)
 
         price_display = Decimal(price_today).quantize(Decimal('.01'), rounding=ROUND_HALF_UP)
 
