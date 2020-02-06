@@ -138,6 +138,13 @@ def webhook_order_paid(coID, payment_amount=None, payment_date=None, mollie_paym
                 mollie_payment_id=mollie_payment_id
             )
 
+    #TODO: write this function
+    if result:
+        # Check for setting to do initial payment using mollie and
+        # The following payments using direct debit
+        pass
+        # Check for subscription id in order
+
             # notify customer
             # os_mail = OsMail()
             # msg = os_mail.render_email_template('email_template_payment_received', invoices_payments_id=ipID)

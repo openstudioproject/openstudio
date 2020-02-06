@@ -79,7 +79,8 @@ def workflow():
               default=shop_subscriptions_payment_method,
               requires=IS_IN_SET([
                   ['directdebit', T('Direct Debit')],
-                  ['mollie', T('Mollie')]],
+                  ['mollie', T('Mollie')],
+                  ['mollie_directdebit', T('First payment mollie, following payments direct debit')]],
                   zero=None),
               label=T('Subscriptions Payment Method'),
               comment=T("Set the default payment method for subscriptions in the shop")),
