@@ -126,6 +126,33 @@ class SchoolSubscription:
         return price
 
 
+    def get_price_today_display(self, date, formatted=False):
+        """
+        Use this function to display subscription price to customers
+        """
+        from decimal import Decimal, ROUND_HALF_UP
+        from .tools import OsTools
+
+        db = current.db
+        os_tools = OsTools()
+        TODAY_LOCAL = current.TODAY_LOCAL
+
+        subscription_first_invoice_two_terms = os_tools.get_sys_property(
+            'subscription_first_invoice_two_terms')
+
+        price_today = get_price_today(formatted=False)
+
+        if subscription_first_invoice_two_terms == "on":
+            price_today += get_price_on_date(TODAY_LOCAL, formatted = False)
+
+        price_display = Decimal(price_today).quantize(Decimal('.01'), rounding=ROUND_HALF_UP)
+
+        if formatted:
+            return SPAN(CURRSYM, ' ', str(price))
+        else:
+            return price_display
+
+
     def get_price_today(self, formatted=True):
         """
         Return calculated price for a subscription, assuming TODAY_LOCAL
