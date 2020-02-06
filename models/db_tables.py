@@ -5706,7 +5706,7 @@ def define_customers_orders_items():
         Field('customers_orders_id', db.customers_orders,
             readable=False,
             writable=False),
-        Field('Dummy', 'boolean',
+        Field('DummySubscription', 'boolean', # Used to hold display for 2nd month (not processed, added to invoice based on system settings
               default=False,
               readable=False,
               writable=False),

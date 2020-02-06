@@ -322,6 +322,13 @@ def checkout_order_subscription(ssuID, order):
     if not already_ordered:
         order.order_item_add_subscription(ssuID)
 
+        subscription_first_invoice_two_terms = get_sys_property(
+            'subscription_first_invoice_two_terms')
+
+        if subscription_first_invoice_two_terms == "on":
+            # add 2nd month as a dummy item
+            order.order_item_add_subscription(ssuID, dummy_subscription=True)
+
 
 def checkout_order_workshop_product(wspID, order):
     """
