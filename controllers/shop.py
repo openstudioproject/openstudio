@@ -1296,7 +1296,9 @@ def subscription_check_valid_bankdetails(payment_method, ssuID):
     :param var:
     :return:
     """
-    if payment_method != 'mollie' :
+    print(payment_method)
+
+    if payment_method != 'mollie' and payment_method != "mollie_directdebit" :
         query = ((db.customers_payment_info.auth_customer_id == auth.user.id) &
                  (db.customers_payment_info.AccountNumber != None) &
                  (db.customers_payment_info.AccountHolder != None))
