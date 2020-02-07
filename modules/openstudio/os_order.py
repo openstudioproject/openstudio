@@ -120,11 +120,12 @@ class Order:
         return coiID
 
 
-    def order_item_add_subscription(self, school_subscriptions_id):
+    def order_item_add_subscription(self, school_subscriptions_id, dummy_subscription=False):
         """
             :param school_subscriptions_id: db.school_subscriptions.id
             :return : db.customers_orders_items.id of inserted item
         """
+        from general_helpers import get_first_day_next_month
         from .os_school_subscription import SchoolSubscription
 
         db = current.db
@@ -133,14 +134,18 @@ class Order:
 
         ssu = SchoolSubscription(school_subscriptions_id)
         ssu_tax_rates = ssu.get_tax_rates_on_date(TODAY_LOCAL)
+        price = ssu.get_price_today(formatted=False)
+        if dummy_subscription:
+            price = ssu.get_price_on_date(get_first_day_next_month(TODAY_LOCAL), formatted=False)
 
         coiID = db.customers_orders_items.insert(
             customers_orders_id  = self.coID,
-            school_subscriptions_id = school_subscriptions_id,
+            DummySubscription = dummy_subscription,
+            school_subscriptions_id = school_subscriptions_id if not dummy_subscription else None,
             ProductName = T('Subscription'),
             Description = ssu.get_name(),
             Quantity = 1,
-            Price = ssu.get_price_today(formatted=False),
+            Price = price,
             tax_rates_id = ssu_tax_rates.tax_rates.id,
             accounting_glaccounts_id = ssu.get_glaccount_on_date(TODAY_LOCAL),
             accounting_costcenters_id = ssu.get_costcenter_on_date(TODAY_LOCAL),
@@ -575,6 +580,9 @@ class Order:
             # Only rows where school_classcards_id, workshops_products_id , classes_id or Donation are set
             # are put on the invoice
             ##
+            if row.customers_orders_items.DummySubscription:
+                # Don't process dummy items
+                continue
 
             # Check for product:
             if row.customers_orders_items.ProductVariant:

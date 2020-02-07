@@ -322,6 +322,13 @@ def checkout_order_subscription(ssuID, order):
     if not already_ordered:
         order.order_item_add_subscription(ssuID)
 
+        subscription_first_invoice_two_terms = get_sys_property(
+            'subscription_first_invoice_two_terms')
+
+        if subscription_first_invoice_two_terms == "on":
+            # add 2nd month as a dummy item
+            order.order_item_add_subscription(ssuID, dummy_subscription=True)
+
 
 def checkout_order_workshop_product(wspID, order):
     """
@@ -1289,7 +1296,9 @@ def subscription_check_valid_bankdetails(payment_method, ssuID):
     :param var:
     :return:
     """
-    if payment_method != 'mollie' :
+    print(payment_method)
+
+    if payment_method != 'mollie' and payment_method != "mollie_directdebit" :
         query = ((db.customers_payment_info.auth_customer_id == auth.user.id) &
                  (db.customers_payment_info.AccountNumber != None) &
                  (db.customers_payment_info.AccountHolder != None))
@@ -1375,7 +1384,7 @@ def subscription():
         form = ''
         direct_debit_mandate = ''
         confirm = ''
-        if payment_method == 'mollie':
+        if payment_method == 'mollie' or payment_method == "mollie_directdebit":
             form = checkout_get_form_order()
             if form.process().accepted:
                 # response.flash = T('Accepted order')
@@ -1510,6 +1519,7 @@ def subscription_get_info(ssu):
         LI(B(T("Classes")), BR(), classes, ' ', classes_unit),
         LI(B(T("Payment")), BR(), T("Monthly")),
         LI(B(T("Minimum duration")), BR(), ssu.MinDuration, ' ', months_text),
+        LI(B(T("First payment")), BR(), ssu.get_price_today_display(formatted=True)),
         LI(B(T("Monthly fee")), BR(), ssu.get_price_on_date(TODAY_LOCAL)),
     )
 
@@ -1634,13 +1644,21 @@ def subscription_order():
                 _href=URL('mollie', 'order_pay', vars={'coID': coID}),
                 _class='btn btn-success bold')
 
+    subscription_first_invoice_two_terms = get_sys_property(
+        'subscription_first_invoice_two_terms')
+
+    fist_period_end = TODAY_LOCAL
+    if subscription_first_invoice_two_terms == "on":
+        first_day_next_month = get_last_day_month(TODAY_LOCAL) + datetime.timedelta(days=1)
+        first_period_end = get_last_day_month(first_day_next_month)
+
     content = DIV(
         DIV(H4(T('We have received your order')),
             T("The items in your order will be delivered as soon as we've received the payment for this order."), BR(),
             T("Click 'Pay now' to complete the payment."), BR(), BR(),
             T("The first payment will be for the period of"), ' ', TODAY_LOCAL.strftime(DATE_FORMAT), ' ',
-            T("until"), ' ', get_last_day_month(TODAY_LOCAL).strftime(DATE_FORMAT), '.', BR(),
-            T("This is the regular monthly fee :"), ' ',
+            T("until"), ' ', get_last_day_month(first_day_next_month).strftime(DATE_FORMAT), '.', BR(),
+            T("The regular monthly fee is:"), ' ',
             SPAN(ssu.get_price_on_date(TODAY_LOCAL, formatted=True), _class='bold'), BR(),
             BR(), BR(),
             pay_now,

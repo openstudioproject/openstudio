@@ -2832,7 +2832,7 @@ def define_customers_payment_info_mandates():
                                    minimum=datetime.date(1900, 1, 1),
                                    maximum=datetime.date(2999, 1, 1))
               ),
-              default=TODAY_LOCAL ,
+              default=TODAY_LOCAL,
               represent=represent_date,
               label=T("Mandate signature date"),
               widget=os_datepicker_widget),
@@ -5706,6 +5706,10 @@ def define_customers_orders_items():
         Field('customers_orders_id', db.customers_orders,
             readable=False,
             writable=False),
+        Field('DummySubscription', 'boolean', # Used to hold display for 2nd month (not processed, added to invoice based on system settings
+              default=False,
+              readable=False,
+              writable=False),
         Field('Custom', 'boolean',
             default=False,
             readable=False,

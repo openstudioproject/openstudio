@@ -66,7 +66,7 @@ def webhook():
                 webhook_invoice_paid(iID, payment_amount, payment_date, payment_id)
             else:
                 # Deliver order
-                webhook_order_paid(coID, payment_amount, payment_date, payment_id)
+                webhook_order_paid(coID, payment_amount, payment_date, payment_id, payment=payment)
 
             return 'Paid'
         elif payment.is_pending():
@@ -118,11 +118,18 @@ def test_webhook_invoice_paid():
         webhook_invoice_paid(iID, payment_amount, payment_date, mollie_payment_id)
 
 
-def webhook_order_paid(coID, payment_amount=None, payment_date=None, mollie_payment_id=None, invoice=True):
+def webhook_order_paid(coID,
+                       payment_amount=None,
+                       payment_date=None,
+                       mollie_payment_id=None,
+                       invoice=True,
+                       payment=None):
     """
         :param coID: db.customers_orders.id
         :return: None
     """
+    print('webhook order paid')
+    print(payment)
     order = Order(coID)
     result = order.deliver()
 
@@ -138,11 +145,65 @@ def webhook_order_paid(coID, payment_amount=None, payment_date=None, mollie_paym
                 mollie_payment_id=mollie_payment_id
             )
 
-            # notify customer
-            # os_mail = OsMail()
-            # msg = os_mail.render_email_template('email_template_payment_received', invoices_payments_id=ipID)
+    #TODO: write this function
+    if payment:
+        print("payment found")
+        # Check for setting to do initial payment using mollie and
+        # The following payments using direct debit
+        if get_sys_property("shop_subscriptions_payment_method") == "mollie_directdebit":
+            # Check for subscription id in order
+            print("correct sys property")
+            subscription_found_in_order = False
+            items = order.get_order_items_rows()
+            for item in items:
+                if item.customers_orders_items.school_subscriptions_id:
+                    subscription_found_in_order = True
+                    break
 
-            #os_mail.send(msg, invoice.invoice.auth_customer_id)
+            print(payment)
+            print(subscription_found_in_order)
+
+            if subscription_found_in_order and payment.method == "ideal":
+
+                webhook_order_paid_get_bank_info_from_mollie(order.order.auth_customer_id, payment)
+
+    # notify customer
+    # os_mail = OsMail()
+    # msg = os_mail.render_email_template('email_template_payment_received', invoices_payments_id=ipID)
+
+    #os_mail.send(msg, invoice.invoice.auth_customer_id)
+
+
+def webhook_order_paid_get_bank_info_from_mollie(cuID, payment):
+    """
+    Fetch customer bank information from mollie for direct debit usage
+
+    docs: https://docs.mollie.com/reference/v2/payments-api/get-payment
+    :param coID: db.customers_orders.id
+    :return: None
+    """
+    from openstudio.os_customer import Customer
+
+    details = payment.details
+
+    account_holder = details['consumerName']
+    account_number = details['consumerAccount']
+    account_bic = details['consumerBic']
+
+    # Insert payment details if none are found yet
+    cpiID = db.customers_payment_info.update_or_insert(
+        db.customers_payment_info.auth_customer_id == cuID,
+        payment_methods_id = 3, # Direct debit
+        AccountNumber = account_number,
+        AccountHolder = account_holder,
+        BIC = account_bic
+    )
+
+    # Insert mandate
+    db.customers_payment_info_mandates.insert(
+        customers_payment_info_id = cpiID,
+        MandateText = T("Mandate through mollie"),
+    )
 
 
 def webhook_invoice_paid(iID, payment_amount, payment_date, mollie_payment_id):
