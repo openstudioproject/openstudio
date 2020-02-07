@@ -531,6 +531,8 @@ class Order:
         ocm = OsCacheManager()
         db = current.db
         T = current.T
+        checkin_status = None
+        checkin_message = None
 
         if self.order.Status == 'delivered':
             return
@@ -753,7 +755,13 @@ class Order:
         # Notify customer of order delivery
         self._deliver_mail_customer()
 
-        return dict(iID=iID, invoice=invoice, receipt=receipt)
+        return dict(
+            iID=iID,
+            invoice=invoice,
+            receipt=receipt,
+            checkin_status=checkin_status,
+            checkin_message=checkin_message,
+        )
 
 
     def _deliver_mail_customer(self):
