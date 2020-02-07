@@ -183,15 +183,12 @@ def webhook_order_paid_get_bank_info_from_mollie(cuID, payment):
     :return: None
     """
     from openstudio.os_customer import Customer
-    print("executing this")
 
     details = payment.details
-    print(details)
 
     account_holder = details['consumerName']
     account_number = details['consumerAccount']
     account_bic = details['consumerBic']
-
 
     # Insert payment details if none are found yet
     cpiID = db.customers_payment_info.update_or_insert(
