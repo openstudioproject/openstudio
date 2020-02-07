@@ -1657,7 +1657,7 @@ def subscription_order():
             T("The items in your order will be delivered as soon as we've received the payment for this order."), BR(),
             T("Click 'Pay now' to complete the payment."), BR(), BR(),
             T("The first payment will be for the period of"), ' ', TODAY_LOCAL.strftime(DATE_FORMAT), ' ',
-            T("until"), ' ', get_last_day_month(first_day_next_month).strftime(DATE_FORMAT), '.', BR(),
+            T("until"), ' ', get_last_day_month(fist_period_end).strftime(DATE_FORMAT), '.', BR(),
             T("The regular monthly fee is:"), ' ',
             SPAN(ssu.get_price_on_date(TODAY_LOCAL, formatted=True), _class='bold'), BR(),
             BR(), BR(),
