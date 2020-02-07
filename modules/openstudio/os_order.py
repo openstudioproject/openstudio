@@ -110,6 +110,7 @@ class Order:
             customers_orders_id  = self.coID,
             ClassDate=class_date,
             classes_id=classes_id,
+            AttendanceType=3 if classes_id else None,
             school_classcards_id = school_classcards_id,
             ProductName = T('Classcard'),
             Description = school_classcard.Name,
